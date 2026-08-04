@@ -99,7 +99,7 @@ void free_all_newserver(void) {
     }
 
     socket_destroy(init_sockets[0].sc);
-    efree(init_sockets);
+    free(init_sockets);
 }
 
 /**
@@ -113,9 +113,7 @@ void free_all_newserver(void) {
 void free_newsocket(socket_struct *ns) {
     socket_destroy(ns->sc);
 
-    if (ns->account) {
-        efree(ns->account);
-    }
+    free(ns->account);
 
     if (ns->packet_recv != NULL) {
         packet_free(ns->packet_recv);
@@ -126,7 +124,7 @@ void free_newsocket(socket_struct *ns) {
     }
 
     socket_buffer_clear(ns);
-    efree(ns);
+    free(ns);
 }
 
 /**
@@ -154,7 +152,7 @@ static void load_srv_file(char *fname, FILE *listing) {
     fstat(fileno(fp), &statbuf);
     fsize = statbuf.st_size;
     /* Allocate a buffer to hold the whole file. */
-    contents = emalloc(fsize);
+    contents = xmalloc(fsize);
     numread = fread(contents, 1, fsize, fp);
     fclose(fp);
 
@@ -164,7 +162,7 @@ static void load_srv_file(char *fname, FILE *listing) {
     /* Calculate the upper bound of the compressed size. */
     numread = compressBound(fsize);
     /* Allocate a buffer to hold the compressed file. */
-    compressed = emalloc(numread);
+    compressed = xmalloc(numread);
     compress2((Bytef *)compressed,
               (uLong *)&numread,
               (const unsigned char FAR *)contents,
@@ -176,7 +174,7 @@ static void load_srv_file(char *fname, FILE *listing) {
     stringbuffer_append_printf(sb, "%s/http/data/%s.zz", settings.datapath, cp);
     fprintf(listing, "%s:%" PRIx64 ":%" PRIx64 "\n", cp, (uint64_t)crc, (uint64_t)fsize);
 
-    efree(cp);
+    free(cp);
     cp = stringbuffer_finish(sb);
     path_ensure_directories(cp);
     fp = fopen(cp, "wb");
@@ -190,9 +188,9 @@ static void load_srv_file(char *fname, FILE *listing) {
     fclose(fp);
 
     /* Free temporary buffers. */
-    efree(cp);
-    efree(contents);
-    efree(compressed);
+    free(cp);
+    free(contents);
+    free(compressed);
 }
 
 /**

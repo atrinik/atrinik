@@ -111,7 +111,7 @@ sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop) 
         bitmap = IMG_LoadPNG_RW(rwop);
     }
 
-    sprite_struct *sprite = ecalloc(1, sizeof(*sprite));
+    sprite_struct *sprite = xcalloc(1, sizeof(*sprite));
     if (sprite == NULL) {
         return NULL;
     }
@@ -161,7 +161,7 @@ void sprite_free_sprite(sprite_struct *sprite) {
         SDL_FreeSurface(sprite->bitmap);
     }
 
-    efree(sprite);
+    free(sprite);
 }
 
 /**
@@ -196,8 +196,8 @@ static sprite_cache_t *sprite_cache_find(const char *name) {
 static sprite_cache_t *sprite_cache_create(const char *name) {
     HARD_ASSERT(name != NULL);
 
-    sprite_cache_t *cache = ecalloc(1, sizeof(*cache));
-    cache->name = estrdup(name);
+    sprite_cache_t *cache = xcalloc(1, sizeof(*cache));
+    cache->name = xstrdup(name);
     cache->last_used = time(NULL);
     return cache;
 }
@@ -231,9 +231,9 @@ static void sprite_cache_remove(sprite_cache_t *cache) {
 static void sprite_cache_free(sprite_cache_t *cache) {
     HARD_ASSERT(cache != NULL);
 
-    efree(cache->name);
+    free(cache->name);
     SDL_FreeSurface(cache->surface);
-    efree(cache);
+    free(cache);
 }
 
 /**
@@ -405,7 +405,7 @@ sprite_effect_glow(SDL_Surface *surface, const SDL_Color *color, double speed, d
     /* Create a 2D grid representation of the sprite's pixel surface for
      * storing information about the processing state, such as which
      * coordinates contain visible pixels. */
-    uint8_t *grid = ecalloc(1, sizeof(*grid) * tmp->w * tmp->h);
+    uint8_t *grid = xcalloc((size_t)tmp->w * (size_t)tmp->h, sizeof(*grid));
 
     for (int x = 0; x < surface->w; x++) {
         for (int y = 0; y < surface->h; y++) {
@@ -540,7 +540,7 @@ sprite_effect_glow(SDL_Surface *surface, const SDL_Color *color, double speed, d
         }
     }
 
-    efree(grid);
+    free(grid);
 
     SDL_Surface *ret = SDL_DisplayFormatAlpha(tmp);
     SDL_FreeSurface(tmp);
@@ -824,7 +824,11 @@ void surface_show_effects(SDL_Surface *surface,
         }
     }
 
-    surface_show(surface, x, y, srcrect, src);
+    if (effects != NULL && BIT_QUERY(effects->flags, SPRITE_FLAG_SMOOTH_DARK)) {
+        lighting_show_surface(surface, x, y, srcrect, src, effects->smooth_dark_y);
+    } else {
+        surface_show(surface, x, y, srcrect, src);
+    }
 }
 
 /**

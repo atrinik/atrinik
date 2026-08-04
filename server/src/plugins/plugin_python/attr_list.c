@@ -121,11 +121,11 @@ static bool attr_list_oper_cmd_permissions(Atrinik_AttrList *al,
 
         for (int i = 0; i < *len; i++) {
             if ((*perms)[i] != NULL) {
-                efree((*perms)[i]);
+                xfree((*perms)[i]);
             }
         }
 
-        efree(*perms);
+        xfree(*perms);
         *perms = NULL;
         *len = 0;
 
@@ -158,7 +158,7 @@ static bool attr_list_oper_cmd_permissions(Atrinik_AttrList *al,
 
     PY_LONG_LONG idx;
     if (oper == AL_OPER_APPEND) {
-        *perms = erealloc(*perms, sizeof(**perms) * (*len + 1));
+        *perms = xreallocarray(*perms, (*len + 1), sizeof(**perms));
         idx = *len;
         (*perms)[idx] = NULL;
         (*len)++;
@@ -213,7 +213,7 @@ static bool attr_list_oper_cmd_permissions(Atrinik_AttrList *al,
         if (ret == -1) {
             if (oper == AL_OPER_APPEND) {
                 (*len)--;
-                *perms = erealloc(*perms, sizeof(**perms) * (*len));
+                *perms = xreallocarray(*perms, (*len), sizeof(**perms));
             }
 
             return false;

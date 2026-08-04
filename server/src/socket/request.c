@@ -87,7 +87,7 @@ static bool join_password_allowed(socket_struct *ns) {
         HASH_ITER(hh, join_failures, old, next) {
             if (now - old->window_started >= 120) {
                 HASH_DEL(join_failures, old);
-                efree(old);
+                free(old);
             }
         }
         if (HASH_COUNT(join_failures) >= JOIN_FAILURE_ENTRY_MAX) {
@@ -99,10 +99,10 @@ static bool join_password_allowed(socket_struct *ns) {
             }
             if (oldest != NULL) {
                 HASH_DEL(join_failures, oldest);
-                efree(oldest);
+                free(oldest);
             }
         }
-        entry = ecalloc(1, sizeof(*entry));
+        entry = xcalloc(1, sizeof(*entry));
         snprintf(VS(entry->address), "%s", address);
         entry->window_started = now;
         HASH_ADD_STR(join_failures, address, entry);
@@ -1449,16 +1449,6 @@ void draw_client_map2(object *pl) {
                         tmp = NULL;
                     }
 
-                    if (tmp != NULL && light_level[sub_layer] != mp->light_level[sub_layer]) {
-                        if (sub_layer == 0) {
-                            mask |= MAP2_MASK_LIGHT_LEVEL;
-                        } else {
-                            mask |= MAP2_MASK_LIGHT_LEVEL_MORE;
-                        }
-
-                        mp->light_level[sub_layer] = light_level[sub_layer];
-                    }
-
                     if (tmp != NULL && tmp->map != m && anim_type[sub_layer] == 0 &&
                         GET_MAP_RTAG(tmp->map, tmp->x, tmp->y, sub_layer) == global_round_tag) {
                         anim_type[sub_layer] = ANIM_KILL;
@@ -1860,6 +1850,21 @@ void draw_client_map2(object *pl) {
                 }
             }
 
+            /* A zero-valued sample is meaningful too. Compare the completed
+             * light field independently of whether a dark tile had a drawable
+             * object, and send every visible sub-layer at least once. */
+            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                uint8_t resolved_light = light_set[sub_layer] ? light_level[sub_layer] : 0;
+
+                if (!mp->light_known[sub_layer] || resolved_light != mp->light_level[sub_layer]) {
+                    if (sub_layer == 0) {
+                        mask |= MAP2_MASK_LIGHT_LEVEL;
+                    } else {
+                        mask |= MAP2_MASK_LIGHT_LEVEL_MORE;
+                    }
+                }
+            }
+
             /* Add the mask. Any mask changes should go above this line. */
             packet_debug_data(packet, 0, "Tile %d,%d data, mask", ax, ay);
             packet_append_uint16(packet, mask);
@@ -1876,6 +1881,7 @@ void draw_client_map2(object *pl) {
 
                 packet_debug_data(packet, 1, "Light level (sub-layer: %d)", sub_layer);
                 mp->light_level[sub_layer] = light_set[sub_layer] ? light_level[sub_layer] : 0;
+                mp->light_known[sub_layer] = 1;
                 packet_append_uint8(packet, mp->light_level[sub_layer]);
             }
 
@@ -2037,7 +2043,7 @@ void socket_command_quest_list(socket_struct *ns,
     packet_debug_data(packet, 0, "Quest list message");
     packet_append_string_len(packet, cp, cp_len);
     socket_send_packet(pl->cs, packet);
-    efree(cp);
+    free(cp);
 }
 
 void socket_command_clear(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
@@ -2810,14 +2816,14 @@ socket_crypto_hello(socket_struct *ns, player *pl, uint8_t *data, size_t len, si
     char *chain = stringbuffer_finish(sb);
 
     if (*cert != '\0' && !socket_crypto_load_cert(crypto, cert, chain)) {
-        efree(cert);
-        efree(chain);
+        free(cert);
+        free(chain);
         ns->state = ST_DEAD;
         return;
     }
 
-    efree(cert);
-    efree(chain);
+    free(cert);
+    free(chain);
 
     packet_struct *packet = packet_new(CLIENT_CMD_CRYPTO, 512, 256);
     packet_debug_data(packet, 0, "Crypto sub-command");
@@ -2935,7 +2941,7 @@ socket_crypto_curves(socket_struct *ns, player *pl, uint8_t *data, size_t len, s
             if (pubkey_len > INT16_MAX) {
                 LOG(SYSTEM, "Public key too long: %s", socket_get_id(ns->sc));
                 ns->state = ST_DEAD;
-                efree(pubkey);
+                free(pubkey);
                 return;
             }
 
@@ -2951,7 +2957,7 @@ socket_crypto_curves(socket_struct *ns, player *pl, uint8_t *data, size_t len, s
             packet_debug_data(packet, 0, "IV buffer");
             packet_append_data_len(packet, iv, iv_size);
             socket_send_packet(ns, packet);
-            efree(pubkey);
+            free(pubkey);
             return;
         }
     }

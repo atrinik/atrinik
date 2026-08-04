@@ -377,7 +377,7 @@ static void widget_padding(widgetdata *widget, int *x, int *y) {
 void widget_minimap_init(widgetdata *widget) {
     minimap_widget_t *minimap;
 
-    minimap = ecalloc(1, sizeof(*minimap));
+    minimap = xcalloc(1, sizeof(*minimap));
     minimap->type = MINIMAP_TYPE_PREFER_REGION_MAP;
     MapData.region_map->zoom = 50;
 

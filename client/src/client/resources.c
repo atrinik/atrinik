@@ -53,8 +53,8 @@ static void resources_free(void) {
 
         asset_source_free(resource->source);
 
-        efree(resource->name);
-        efree(resource);
+        free(resource->name);
+        free(resource);
     }
 
     resources = NULL;
@@ -106,8 +106,8 @@ void socket_command_resource(uint8_t *data, size_t len, size_t pos) {
                 "string_tohex failed");
     string_tolower(digest);
 
-    resource_t *resource = ecalloc(1, sizeof(*resource));
-    resource->name = estrdup(resource_name);
+    resource_t *resource = xcalloc(1, sizeof(*resource));
+    resource->name = xstrdup(resource_name);
     memcpy(resource->md, md, sizeof(resource->md));
     memcpy(resource->digest, digest, sizeof(resource->digest));
     HASH_ADD_KEYPTR(hh, resources, resource->name, strlen(resource->name), resource);
@@ -116,15 +116,15 @@ void socket_command_resource(uint8_t *data, size_t len, size_t pos) {
     FILE *fp = path_fopen(path, "r");
     if (fp != NULL) {
         fclose(fp);
-        efree(path);
+        free(path);
         resource->loaded = true;
         return;
     }
-    efree(path);
+    free(path);
 
     char *asset = path_join("resources", resource_name);
     resource->source = asset_source_start(asset, NULL);
-    efree(asset);
+    free(asset);
 }
 
 /**
@@ -169,13 +169,13 @@ bool resources_is_ready(resource_t *resource) {
     char *path = path_join("resources", resource->digest);
     char *resolved = file_path(path, "wb");
     bool saved = path_write_atomic(resolved, body, body_size, 0600);
-    efree(resolved);
+    free(resolved);
     if (!saved) {
         LOG(ERROR, "Failed to atomically write %s", path);
-        efree(path);
+        free(path);
         goto error;
     }
-    efree(path);
+    free(path);
     resource->loaded = true;
 
     bool ret = true;

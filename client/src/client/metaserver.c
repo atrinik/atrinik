@@ -114,27 +114,17 @@ void metaserver_disable(void) {
 static void metaserver_cert_free(server_cert_info_t *info) {
     HARD_ASSERT(info != NULL);
 
-    if (info->name != NULL) {
-        efree(info->name);
-    }
+    free(info->name);
 
-    if (info->hostname != NULL) {
-        efree(info->hostname);
-    }
+    free(info->hostname);
 
-    if (info->ipv4_address != NULL) {
-        efree(info->ipv4_address);
-    }
+    free(info->ipv4_address);
 
-    if (info->ipv6_address != NULL) {
-        efree(info->ipv6_address);
-    }
+    free(info->ipv6_address);
 
-    if (info->pubkey != NULL) {
-        efree(info->pubkey);
-    }
+    free(info->pubkey);
 
-    efree(info);
+    free(info);
 }
 
 /**
@@ -146,56 +136,36 @@ static void metaserver_cert_free(server_cert_info_t *info) {
 void metaserver_server_free(server_struct *server) {
     HARD_ASSERT(server != NULL);
 
-    if (server->hostname != NULL) {
-        efree(server->hostname);
-    }
+    free(server->hostname);
 
-    if (server->server_id != NULL) {
-        efree(server->server_id);
-    }
+    free(server->server_id);
 
-    if (server->quic_certificate_sha256 != NULL) {
-        efree(server->quic_certificate_sha256);
-    }
+    free(server->quic_certificate_sha256);
 
-    if (server->rendezvous_origin != NULL) {
-        efree(server->rendezvous_origin);
-    }
+    free(server->rendezvous_origin);
 
     if (server->join_password != NULL) {
         OPENSSL_cleanse(server->join_password, strlen(server->join_password));
-        efree(server->join_password);
+        free(server->join_password);
     }
 
-    if (server->name != NULL) {
-        efree(server->name);
-    }
+    free(server->name);
 
-    if (server->version != NULL) {
-        efree(server->version);
-    }
+    free(server->version);
 
-    if (server->desc != NULL) {
-        efree(server->desc);
-    }
+    free(server->desc);
 
-    if (server->cert_pubkey != NULL) {
-        efree(server->cert_pubkey);
-    }
+    free(server->cert_pubkey);
 
-    if (server->cert != NULL) {
-        efree(server->cert);
-    }
+    free(server->cert);
 
-    if (server->cert_sig != NULL) {
-        efree(server->cert_sig);
-    }
+    free(server->cert_sig);
 
     if (server->cert_info != NULL) {
         metaserver_cert_free(server->cert_info);
     }
 
-    efree(server);
+    free(server);
 }
 
 void metaserver_server_add(server_struct *server) {
@@ -246,7 +216,7 @@ static bool parse_metaserver_cert(server_struct *server) {
         return false;
     }
 
-    server_cert_info_t *info = ecalloc(1, sizeof(*info));
+    server_cert_info_t *info = xcalloc(1, sizeof(*info));
 
     char buf[MAX_BUF];
     size_t pos = 0;
@@ -308,7 +278,7 @@ static bool parse_metaserver_cert(server_struct *server) {
             if (*content != NULL) {
                 stringbuffer_append_string(sb, *content);
                 stringbuffer_append_char(sb, '\n');
-                efree(*content);
+                free(*content);
             }
 
             stringbuffer_append_string(sb, value);
@@ -371,7 +341,7 @@ static bool parse_metaserver_data_node(xmlNodePtr node, server_struct *server) {
 
     if (XML_STR_EQUAL(node->name, "Hostname")) {
         SOFT_ASSERT_LABEL(server->hostname == NULL, error, "Parsing error");
-        server->hostname = estrdup((const char *)content);
+        server->hostname = xstrdup((const char *)content);
     } else if (XML_STR_EQUAL(node->name, "Port")) {
         SOFT_ASSERT_LABEL(server->port == 0, error, "Parsing error");
         uint64_t value;
@@ -390,7 +360,7 @@ static bool parse_metaserver_data_node(xmlNodePtr node, server_struct *server) {
         }
     } else if (XML_STR_EQUAL(node->name, "Name")) {
         SOFT_ASSERT_LABEL(server->name == NULL, error, "Parsing error");
-        server->name = estrdup((const char *)content);
+        server->name = xstrdup((const char *)content);
     } else if (XML_STR_EQUAL(node->name, "PlayersCount")) {
         SOFT_ASSERT_LABEL(server->player == 0, error, "Parsing error");
         uint64_t value;
@@ -400,16 +370,16 @@ static bool parse_metaserver_data_node(xmlNodePtr node, server_struct *server) {
         server->player = (int)value;
     } else if (XML_STR_EQUAL(node->name, "Version")) {
         SOFT_ASSERT_LABEL(server->version == NULL, error, "Parsing error");
-        server->version = estrdup((const char *)content);
+        server->version = xstrdup((const char *)content);
     } else if (XML_STR_EQUAL(node->name, "TextComment")) {
         SOFT_ASSERT_LABEL(server->desc == NULL, error, "Parsing error");
-        server->desc = estrdup((const char *)content);
+        server->desc = xstrdup((const char *)content);
     } else if (XML_STR_EQUAL(node->name, "CertificatePublicKey")) {
         SOFT_ASSERT_LABEL(server->cert_pubkey == NULL, error, "Parsing error");
-        server->cert_pubkey = estrdup((const char *)content);
+        server->cert_pubkey = xstrdup((const char *)content);
     } else if (XML_STR_EQUAL(node->name, "Certificate")) {
         SOFT_ASSERT_LABEL(server->cert == NULL, error, "Parsing error");
-        server->cert = estrdup((const char *)content);
+        server->cert = xstrdup((const char *)content);
     } else if (XML_STR_EQUAL(node->name, "CertificateSignature")) {
         SOFT_ASSERT_LABEL(server->cert_sig == NULL, error, "Parsing error");
         unsigned char *sig;
@@ -448,7 +418,7 @@ out:
 static void parse_metaserver_node(xmlNodePtr node) {
     HARD_ASSERT(node != NULL);
 
-    server_struct *server = ecalloc(1, sizeof(*server));
+    server_struct *server = xcalloc(1, sizeof(*server));
     server->port_crypto = -1;
     server->is_meta = true;
 
@@ -751,14 +721,14 @@ server_struct *metaserver_add(const char *hostname,
                               const char *name,
                               const char *version,
                               const char *desc) {
-    server_struct *node = ecalloc(1, sizeof(*node));
+    server_struct *node = xcalloc(1, sizeof(*node));
     node->player = -1;
     node->port = port;
     node->port_crypto = port_crypto;
-    node->hostname = estrdup(hostname);
-    node->name = estrdup(name);
-    node->version = estrdup(version);
-    node->desc = estrdup(desc);
+    node->hostname = xstrdup(hostname);
+    node->name = xstrdup(name);
+    node->version = xstrdup(version);
+    node->desc = xstrdup(desc);
 
     SDL_LockMutex(server_head_mutex);
     DL_PREPEND(server_head, node);

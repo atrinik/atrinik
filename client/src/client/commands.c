@@ -71,13 +71,13 @@ void socket_command_setup(uint8_t *data, size_t len, size_t pos) {
                 if (selected_server != NULL && selected_server->join_password != NULL) {
                     OPENSSL_cleanse(selected_server->join_password,
                                     strlen(selected_server->join_password));
-                    efree(selected_server->join_password);
+                    free(selected_server->join_password);
                     selected_server->join_password = NULL;
                 }
                 if (clioption_settings.join_password != NULL) {
                     OPENSSL_cleanse(clioption_settings.join_password,
                                     strlen(clioption_settings.join_password));
-                    efree(clioption_settings.join_password);
+                    free(clioption_settings.join_password);
                     clioption_settings.join_password = NULL;
                 }
                 draw_info(COLOR_RED, "The server rejected the join password.");
@@ -123,10 +123,8 @@ void socket_command_anim(uint8_t *data, size_t len, size_t pos) {
     }
 
     Animations *animation = &animations[anim_id];
-    if (animation->faces != NULL) {
-        efree(animation->faces);
-    }
-    animation->faces = emalloc(sizeof(*animation->faces) * num_animations);
+    free(animation->faces);
+    animation->faces = xmallocarray(num_animations, sizeof(*animation->faces));
     animation->flags = flags;
     animation->facings = facings;
     animation->num_animations = num_animations;
@@ -209,7 +207,7 @@ void socket_command_drawinfo(uint8_t *data, size_t len, size_t pos) {
 
     draw_info_tab(type, color, str);
 
-    efree(str);
+    free(str);
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -1091,7 +1089,7 @@ void socket_command_compressed(uint8_t *data, size_t len, size_t pos) {
     ucomp_len = packet_to_uint32(data, len, &pos);
 
     dest_size = ucomp_len + 1;
-    dest = emalloc(dest_size);
+    dest = xmalloc(dest_size);
     dest[0] = type;
 
     if (uncompress((Bytef *)dest + 1,
@@ -1104,7 +1102,7 @@ void socket_command_compressed(uint8_t *data, size_t len, size_t pos) {
         add_input_command(buf);
     }
 
-    efree(dest);
+    free(dest);
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -1263,7 +1261,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
         char *errmsg;
         if (!socket_crypto_handle_cb(&data->ctx, &errmsg)) {
             draw_info(COLOR_RED, errmsg);
-            efree(errmsg);
+            free(errmsg);
         }
 
         popup_destroy(popup);
@@ -1289,7 +1287,7 @@ static int popup_destroy_callback(popup_struct *popup) {
 
     socket_crypto_popup_t *data = popup->custom_data;
     socket_crypto_free_cb(&data->ctx);
-    efree(data);
+    free(data);
     popup->custom_data = NULL;
     return 1;
 }
@@ -1302,7 +1300,7 @@ static const char *popup_clipboard_copy_func(popup_struct *popup) {
 
 /** @copydoc socket_crypto_cb_t */
 static void socket_crypto_cb(socket_crypto_t *crypto, const socket_crypto_cb_ctx_t *ctx) {
-    socket_crypto_popup_t *data = ecalloc(1, sizeof(*data));
+    socket_crypto_popup_t *data = xcalloc(1, sizeof(*data));
     data->ctx = *ctx;
     data->ticks = SDL_GetTicks();
 
@@ -1370,14 +1368,14 @@ static void socket_command_crypto_hello(uint8_t *data, size_t len, size_t pos) {
     }
 
     if (!socket_crypto_load_cert(crypto, cert, chain)) {
-        efree(cert);
-        efree(chain);
+        free(cert);
+        free(chain);
         socket_command_crypto_abort();
         return;
     }
 
-    efree(cert);
-    efree(chain);
+    free(cert);
+    free(chain);
 
     uint8_t key_len;
     const unsigned char *key = socket_crypto_create_key(crypto, &key_len);
@@ -1491,7 +1489,7 @@ static void socket_command_crypto_curves(uint8_t *data, size_t len, size_t pos) 
             if (pubkey_len > INT16_MAX) {
                 LOG(SYSTEM, "Public key too long: %s", socket_get_id(csocket.sc));
                 socket_command_crypto_abort();
-                efree(pubkey);
+                free(pubkey);
                 return;
             }
 
@@ -1502,7 +1500,7 @@ static void socket_command_crypto_curves(uint8_t *data, size_t len, size_t pos) 
             packet_append_uint8(packet, iv_size);
             packet_append_data_len(packet, iv, iv_size);
             socket_send_packet(packet);
-            efree(pubkey);
+            free(pubkey);
             return;
         }
     }

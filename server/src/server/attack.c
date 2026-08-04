@@ -370,7 +370,7 @@ int attack_object(object *op, object *hitter) {
         if (modifiers != NULL && stringbuffer_length(modifiers) != 0) {
             char *description = stringbuffer_finish(modifiers);
             send_attack_roll_msg(op, attacker, description, roll_adjust);
-            efree(description);
+            free(description);
         } else if (modifiers != NULL) {
             stringbuffer_free(modifiers);
         }
@@ -1027,11 +1027,11 @@ bool attack_kill(object *op, object *hitter) {
         if (owner != hitter) {
             char *hitter_name = object_get_name_s(hitter, owner);
             draw_info_format(COLOR_WHITE, owner, "You killed %s with %s.", name, hitter_name);
-            efree(hitter_name);
+            free(hitter_name);
         } else {
             draw_info_format(COLOR_WHITE, owner, "You killed %s.", name);
         }
-        efree(name);
+        free(name);
 
         if (op->type == MONSTER) {
             CONTR(owner)->stat_kills_mob++;
@@ -1116,11 +1116,11 @@ bool attack_kill(object *op, object *hitter) {
 
         char *cp = stringbuffer_finish(sb);
         player_set_killer(CONTR(op), cp);
-        efree(cp);
+        free(cp);
 
-        efree(name);
-        efree(hitter_name);
-        efree(owner_name);
+        free(name);
+        free(hitter_name);
+        free(owner_name);
 
         /* And actually kill the player. */
         kill_player(op);
@@ -1219,18 +1219,18 @@ void attack_perform_poison(object *op, object *hitter, double dam) {
         if (op->type == PLAYER) {
             char *name = object_get_name_s(hitter, op);
             draw_info_format(COLOR_WHITE, op, "%s has poisoned you!", name);
-            efree(name);
+            free(name);
         } else {
             if (hitter->type == PLAYER) {
                 char *name = object_get_name_s(op, hitter);
                 draw_info_format(COLOR_WHITE, hitter, "You poisoned %s!", name);
-                efree(name);
+                free(name);
             } else if (object_owner(hitter) != NULL && hitter->owner->type == PLAYER) {
                 char *name = object_get_name_s(op, hitter->owner);
                 char *hitter_name = object_get_name_s(hitter, hitter->owner);
                 draw_info_format(COLOR_WHITE, hitter->owner, "%s poisoned %s!", hitter_name, name);
-                efree(name);
-                efree(hitter_name);
+                free(name);
+                free(hitter_name);
             }
         }
 
@@ -1362,7 +1362,7 @@ void attack_perform_blind(object *op, object *hitter, double dam) {
 
             char *name = object_get_name_s(op, owner);
             draw_info_format(COLOR_WHITE, owner, "Your attack blinds %s!", name);
-            efree(name);
+            free(name);
         }
     }
 

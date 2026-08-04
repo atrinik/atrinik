@@ -757,7 +757,7 @@ static PyObject *Atrinik_Map_GetPath(Atrinik_Map *self, PyObject *args, PyObject
 
     char *cp = hooks->map_get_path(self->map, path, unique, name);
     PyObject *ret = Py_BuildValue("s", cp);
-    efree(cp);
+    xfree(cp);
 
     return ret;
 }
@@ -792,9 +792,9 @@ static PyObject *Atrinik_Map_LocateBeacon(Atrinik_Map *self, PyObject *args) {
 
         beacon_name = hooks->add_string(joined);
 
-        efree(joined);
-        efree(pl_name);
-        efree(filedir);
+        xfree(joined);
+        xfree(pl_name);
+        xfree(filedir);
     } else {
         beacon_name = hooks->add_string(name);
     }

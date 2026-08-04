@@ -187,6 +187,9 @@ typedef struct MapCell {
     /** Normalized cell light levels: zero is unlit, 255 is fully lit. */
     uint8_t light_level[NUM_SUB_LAYERS];
 
+    /** Whether each light level has been received from the server. */
+    uint8_t light_known[NUM_SUB_LAYERS];
+
     /** Object flags. */
     uint8_t flags[NUM_REAL_LAYERS];
 

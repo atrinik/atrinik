@@ -69,25 +69,15 @@ static void interface_destroy(interface_struct *data) {
         return;
     }
 
-    if (data->message) {
-        efree(data->message);
-    }
+    free(data->message);
 
-    if (data->title) {
-        efree(data->title);
-    }
+    free(data->title);
 
-    if (data->icon) {
-        efree(data->icon);
-    }
+    free(data->icon);
 
-    if (data->text_input_prepend) {
-        efree(data->text_input_prepend);
-    }
+    free(data->text_input_prepend);
 
-    if (data->text_autocomplete) {
-        efree(data->text_autocomplete);
-    }
+    free(data->text_autocomplete);
 
     if (data->anim != NULL) {
         object_remove(data->anim);
@@ -98,7 +88,7 @@ static void interface_destroy(interface_struct *data) {
 
     utarray_free(data->links);
     font_free(data->font);
-    efree(data);
+    free(data);
 }
 
 /** @copydoc text_anchor_handle_func */
@@ -112,7 +102,7 @@ text_anchor_handle(const char *anchor_action, const char *buf, size_t len, void 
             stringbuffer_append_printf(sb, "/talk 1 %s", buf);
             cp = stringbuffer_finish(sb);
             send_command_check(cp);
-            efree(cp);
+            free(cp);
 
             interface_data->progressed = 1;
             interface_data->progressed_ticks = SDL_GetTicks() + INTERFACE_PROGRESSED_TICKS;
@@ -293,7 +283,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
                         !string_iswhite(text_input.str) && text_input.pos == text_input.num)) {
                 char *input_string;
 
-                input_string = estrdup(text_input.str);
+                input_string = xstrdup(text_input.str);
 
                 if (!interface_data->input_cleanup_disable) {
                     string_whitespace_squeeze(input_string);
@@ -323,10 +313,10 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
 
                     cp = stringbuffer_finish(sb);
                     send_command_check(cp);
-                    efree(cp);
+                    free(cp);
                 }
 
-                efree(input_string);
+                free(input_string);
 
                 if (event->key.keysym.sym != SDLK_TAB) {
                     interface_data->text_input = 0;
@@ -462,7 +452,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
     sb_message = NULL;
 
     /* Create new interface. */
-    interface_data = ecalloc(1, sizeof(*interface_data));
+    interface_data = xcalloc(1, sizeof(*interface_data));
     interface_popup->redraw = 1;
     interface_popup->selection_start = interface_popup->selection_end = -1;
     interface_data->font = font_get("arial", 11);
@@ -496,7 +486,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
                 char icon[MAX_BUF];
 
                 packet_to_string(data, len, &pos, icon, sizeof(icon));
-                interface_data->icon = estrdup(icon);
+                interface_data->icon = xstrdup(icon);
                 break;
             }
 
@@ -504,7 +494,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
                 char title[HUGE_BUF];
 
                 packet_to_string(data, len, &pos, title, sizeof(title));
-                interface_data->title = estrdup(title);
+                interface_data->title = xstrdup(title);
                 break;
             }
 
@@ -519,14 +509,12 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
             }
 
             case CMD_INTERFACE_INPUT_PREPEND: {
-                if (interface_data->text_input_prepend != NULL) {
-                    efree(interface_data->text_input_prepend);
-                }
+                free(interface_data->text_input_prepend);
 
                 char text_input_prepend[HUGE_BUF];
 
                 packet_to_string(data, len, &pos, text_input_prepend, sizeof(text_input_prepend));
-                interface_data->text_input_prepend = estrdup(text_input_prepend);
+                interface_data->text_input_prepend = xstrdup(text_input_prepend);
                 break;
             }
 
@@ -547,14 +535,12 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
                 break;
 
             case CMD_INTERFACE_AUTOCOMPLETE: {
-                if (interface_data->text_autocomplete != NULL) {
-                    efree(interface_data->text_autocomplete);
-                }
+                free(interface_data->text_autocomplete);
 
                 char text_autocomplete[HUGE_BUF];
 
                 packet_to_string(data, len, &pos, text_autocomplete, sizeof(text_autocomplete));
-                interface_data->text_autocomplete = estrdup(text_autocomplete);
+                interface_data->text_autocomplete = xstrdup(text_autocomplete);
                 break;
             }
 
@@ -576,7 +562,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
                     stringbuffer_append_string(sb, interface_data->message);
                     packet_to_stringbuffer(data, len, &pos, sb);
 
-                    efree(interface_data->message);
+                    free(interface_data->message);
                     interface_data->message = stringbuffer_finish(sb);
                 }
 
@@ -638,7 +624,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
     }
 
     if (!interface_data->message) {
-        interface_data->message = estrdup("");
+        interface_data->message = xstrdup("");
     }
 
     box.w = INTERFACE_TEXT_WIDTH;

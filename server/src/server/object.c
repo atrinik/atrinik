@@ -461,7 +461,7 @@ static void object_debugger(void *ptr, char *buf, size_t size) {
         SET_FLAG(op, FLAG_IDENTIFIED);
         char *name = object_get_name_s(op, NULL);
         snprintfcat(buf, size, " name: %s", name);
-        efree(name);
+        free(name);
     }
 
     snprintfcat(buf, size, " coords: %d, %d", op->x, op->y);
@@ -1128,7 +1128,7 @@ void object_copy(object *op, const object *src, bool no_speed) {
         op->key_values = NULL;
 
         for (key_value_t *link = src->key_values, *tail = NULL; link != NULL; link = link->next) {
-            key_value_t *new_link = emalloc(sizeof(*new_link));
+            key_value_t *new_link = xmalloc(sizeof(*new_link));
 
             new_link->next = NULL;
             new_link->key = add_refcount(link->key);
@@ -2575,7 +2575,7 @@ void object_free_key_values(object *op) {
             free_string_shared(field->value);
         }
 
-        efree(field);
+        free(field);
     }
 
     op->key_values = NULL;
@@ -2687,7 +2687,7 @@ static bool object_set_value_s(object *op, shstr *key, const char *value, bool a
                     op->key_values = field->next;
                 }
 
-                efree(field);
+                free(field);
             }
         }
 
@@ -2706,7 +2706,7 @@ static bool object_set_value_s(object *op, shstr *key, const char *value, bool a
         return true;
     }
 
-    field = emalloc(sizeof(*field));
+    field = xmalloc(sizeof(*field));
     field->key = add_refcount(key);
     field->value = add_string(value);
     /* Usual prepend-addition. */
@@ -2939,9 +2939,9 @@ int object_matches_string(object *op, object *caller, const char *str) {
             retval = 0;
         }
 
-        efree(obj_name);
-        efree(base_name);
-        efree(short_name);
+        free(obj_name);
+        free(base_name);
+        free(short_name);
 
         if (retval != 0) {
             if (caller->type == PLAYER && count != 0) {
@@ -3091,7 +3091,7 @@ bool object_enter_map(object *op, object *exit, mapstruct *m, int x, int y, bool
                             (MAP_UNIQUE(exit->map) && !map_path_isabs(EXIT_PATH(exit)))));
             char *path = map_get_path(exit->map, EXIT_PATH(exit), unique, op->name);
             m = ready_map_name(path, NULL, 0);
-            efree(path);
+            free(path);
 
             /* Failed to load a random map? */
             if (m == NULL && op->type == PLAYER && strncmp(EXIT_PATH(exit), "/random/", 8) == 0) {
@@ -3370,7 +3370,7 @@ void object_save(const object *op, FILE *fp) {
 
     char *cp = stringbuffer_finish(sb);
     fputs(cp, fp);
-    efree(cp);
+    free(cp);
 
     for (object *tmp = op->inv; tmp != NULL; tmp = tmp->below) {
         object_save(tmp, fp);

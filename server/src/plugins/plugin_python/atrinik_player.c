@@ -576,7 +576,7 @@ static PyObject *Atrinik_Player_Examine(Atrinik_Player *self, PyObject *args) {
     if (ret) {
         char *cp = hooks->stringbuffer_finish(sb_capture);
         PyObject *retval = Py_BuildValue("s", cp);
-        efree(cp);
+        xfree(cp);
 
         return retval;
     }

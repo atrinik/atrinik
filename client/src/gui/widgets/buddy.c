@@ -242,7 +242,7 @@ static void widget_buddy_save(widgetdata *widget) {
         fclose(fp);
     }
 
-    efree(tmp->path);
+    free(tmp->path);
     tmp->path = NULL;
 }
 
@@ -468,7 +468,7 @@ void widget_buddy_init(widgetdata *widget) {
     widget->background_func = widget_background;
     widget->deinit_func = widget_deinit;
 
-    widget->subwidget = tmp = ecalloc(1, sizeof(*tmp));
+    widget->subwidget = tmp = xcalloc(1, sizeof(*tmp));
     utarray_new(tmp->names, &ut_str_icd);
 
     /* Create the list and set up settings. */

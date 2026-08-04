@@ -59,12 +59,12 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet) {
             }
         }
 
-        efree(cp);
+        free(cp);
 
-        cp = emalloc(sizeof(*cp) * (packet->len * 3 + 1));
+        cp = xmalloc(sizeof(*cp) * (packet->len * 3 + 1));
         string_tohex(packet->data, packet->len, cp, packet->len * 3 + 1, true);
         LOG(DUMPTX, "  Hexadecimal: %s", cp);
-        efree(cp);
+        free(cp);
     }
 #endif
 

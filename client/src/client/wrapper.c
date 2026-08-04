@@ -93,7 +93,7 @@ void system_end(void) {
 static int mkdir_recurse(const char *path) {
     char *copy, *p;
 
-    p = copy = estrdup(path);
+    p = copy = xstrdup(path);
 
     do {
         p = strchr(p + 1, '/');
@@ -103,7 +103,7 @@ static int mkdir_recurse(const char *path) {
         }
 
         if (mkdir(copy, 0755) == -1 && errno != EEXIST) {
-            efree(copy);
+            free(copy);
             return -1;
         }
 
@@ -112,7 +112,7 @@ static int mkdir_recurse(const char *path) {
         }
     } while (p);
 
-    efree(copy);
+    free(copy);
 
     return 0;
 }
@@ -127,7 +127,7 @@ static int mkdir_recurse(const char *path) {
  * The path to ensure.
  */
 void mkdir_ensure(const char *path) {
-    char *copy = estrdup(path);
+    char *copy = xstrdup(path);
     char *stmp;
 
     stmp = strrchr(copy, '/');
@@ -137,7 +137,7 @@ void mkdir_ensure(const char *path) {
         mkdir_recurse(copy);
     }
 
-    efree(copy);
+    free(copy);
 }
 
 /**
@@ -279,7 +279,7 @@ void get_data_dir_file(char *buf, size_t len, const char *fname) {
         prefix = binreloc_find_prefix("./");
         /* Construct the path. */
         snprintf(buf, len, "%s/" INSTALL_SUBDIR_SHARE "/%s", prefix, fname);
-        efree(prefix);
+        free(prefix);
     }
 #endif
 }
@@ -310,7 +310,7 @@ char *file_path(const char *path, const char *mode) {
     HARD_ASSERT(path != NULL);
     HARD_ASSERT(mode != NULL);
 
-    SOFT_ASSERT_RC(path[0] != '/', estrdup(path), "Path is already absolute: %s", path);
+    SOFT_ASSERT_RC(path[0] != '/', xstrdup(path), "Path is already absolute: %s", path);
 
     sb = stringbuffer_new();
     stringbuffer_append_printf(sb,
@@ -336,7 +336,7 @@ char *file_path(const char *path, const char *mode) {
              * writing/appending. */
             dirname = path_dirname(new_path);
             mkdir_recurse(dirname);
-            efree(dirname);
+            free(dirname);
 
             if (is_append) {
                 get_data_dir_file(VS(client_path), path);
@@ -351,7 +351,7 @@ char *file_path(const char *path, const char *mode) {
         }
     }
 
-    efree(new_path);
+    free(new_path);
 
     return stringbuffer_finish(sb);
 }
@@ -498,7 +498,7 @@ char *file_path_server(const char *path) {
 FILE *client_fopen_wrapper(const char *fname, const char *mode) {
     char *path = file_path(fname, mode);
     FILE *fp = fopen(path, mode);
-    efree(path);
+    free(path);
 
     return fp;
 }
@@ -516,7 +516,7 @@ SDL_Surface *IMG_Load_wrapper(const char *file) {
 
     path = file_path(file, "r");
     surface = IMG_Load(path);
-    efree(path);
+    free(path);
 
     return surface;
 }
@@ -536,7 +536,7 @@ TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize) {
 
     path = file_path(file, "r");
     font = TTF_OpenFont(path, ptsize);
-    efree(path);
+    free(path);
 
     return font;
 }

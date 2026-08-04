@@ -179,7 +179,7 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col) {
                              NULL,
                              "[img=%s 0 10 0 0 0 0 0 0 0 0 0 50 45]",
                              facename);
-            efree(facename);
+            free(facename);
         }
     }
 }
@@ -848,7 +848,7 @@ void socket_command_characters(uint8_t *data, size_t len, size_t pos) {
             list_characters->row_selected = list_characters->rows + 1;
 
             if (!clioption_settings.reconnect) {
-                efree(clioption_settings.connect[3]);
+                free(clioption_settings.connect[3]);
                 clioption_settings.connect[3] = NULL;
             }
 

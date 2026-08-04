@@ -115,13 +115,9 @@ void free_strings(void) {
  * Free the server settings.
  */
 static void free_settings(void) {
-    if (settings.server_cert != NULL) {
-        efree(settings.server_cert);
-    }
+    free(settings.server_cert);
 
-    if (settings.server_cert_sig != NULL) {
-        efree(settings.server_cert_sig);
-    }
+    free(settings.server_cert_sig);
 }
 
 static void console_command_shutdown(const char *params) {
@@ -149,9 +145,7 @@ static void console_command_config(const char *params) {
             LOG(INFO, "Configuration successful.");
         } else {
             LOG(INFO, "Configuration failed: %s", errmsg != NULL ? errmsg : "<no error message>");
-            if (errmsg != NULL) {
-                efree(errmsg);
-            }
+            free(errmsg);
         }
     }
 }
@@ -410,7 +404,7 @@ static const char *clioptions_option_connectivity_mode_desc =
 static bool clioptions_option_connectivity_mode(const char *arg, char **errmsg) {
     if (strcmp(arg, "direct_only") != 0 && strcmp(arg, "direct_preferred") != 0 &&
         strcmp(arg, "legacy_tcp") != 0) {
-        *errmsg = estrdup("Expected direct_only, direct_preferred, or "
+        *errmsg = xstrdup("Expected direct_only, direct_preferred, or "
                           "legacy_tcp");
         return false;
     }
@@ -438,7 +432,7 @@ static const char *clioptions_option_port_mapping_desc =
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_port_mapping(const char *arg, char **errmsg) {
     if (strcmp(arg, "auto") != 0 && strcmp(arg, "off") != 0) {
-        *errmsg = estrdup("Expected auto or off");
+        *errmsg = xstrdup("Expected auto or off");
         return false;
     }
     snprintf(VS(settings.port_mapping), "%s", arg);
@@ -453,7 +447,7 @@ static const char *clioptions_option_join_password_desc =
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_join_password(const char *arg, char **errmsg) {
     if (strlen(arg) >= sizeof(settings.join_password)) {
-        *errmsg = estrdup("Join password is too long");
+        *errmsg = xstrdup("Join password is too long");
         return false;
     }
 
@@ -500,7 +494,7 @@ static bool clioptions_option_server_public(const char *arg, char **errmsg) {
     } else if (KEYWORD_IS_FALSE(arg)) {
         settings.server_public = false;
     } else {
-        *errmsg = estrdup("Expected true/false");
+        *errmsg = xstrdup("Expected true/false");
         return false;
     }
 
@@ -558,11 +552,9 @@ static const char *clioptions_option_server_cert_desc =
     "the Atrinik staff.";
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_server_cert(const char *arg, char **errmsg) {
-    if (settings.server_cert != NULL) {
-        efree(settings.server_cert);
-    }
+    free(settings.server_cert);
 
-    settings.server_cert = estrdup(arg);
+    settings.server_cert = xstrdup(arg);
     return true;
 }
 
@@ -573,11 +565,9 @@ static const char *clioptions_option_server_cert_sig_desc =
     "Signature of the server certificate, as provided by the Atrinik staff.";
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_server_cert_sig(const char *arg, char **errmsg) {
-    if (settings.server_cert_sig != NULL) {
-        efree(settings.server_cert_sig);
-    }
+    free(settings.server_cert_sig);
 
-    settings.server_cert_sig = estrdup(arg);
+    settings.server_cert_sig = xstrdup(arg);
     return true;
 }
 
@@ -765,13 +755,13 @@ static bool clioptions_option_allowed_chars(const char *arg, char **errmsg) {
             if (start != '\0' && end != '\0') {
                 char *chars = string_create_char_range(start, end);
                 snprintfcat(VS(settings.allowed_chars[type]), "%s", chars);
-                efree(chars);
+                free(chars);
             }
         } else {
             snprintfcat(VS(settings.allowed_chars[type]), "%s", cmd);
         }
 
-        efree(cmd);
+        free(cmd);
     }
 
     return true;
@@ -906,7 +896,6 @@ static bool clioptions_option_http_server(const char *arg, char **errmsg) {
  * init_hash_table() if you are doing any object loading.
  */
 static void init_library(int argc, char *argv[]) {
-    toolkit_import(memory);
     toolkit_import(signals);
     signals_set_traceback_prefix(EXECUTABLE);
 

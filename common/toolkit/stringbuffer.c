@@ -36,7 +36,7 @@
  * ... more calls to stringbuffer_append_xxx()
  * char *str = stringbuffer_finish(sb);
  * ... use str
- * efree(str);
+ * free(str);
  * @endcode
  *
  * No function ever fails. In case not enough memory is available, the
@@ -92,9 +92,9 @@ StringBuffer *stringbuffer_new(void) {
 
     TOOLKIT_PROTECT();
 
-    sb = emalloc(sizeof(StringBuffer));
+    sb = xmalloc(sizeof(StringBuffer));
     sb->size = MAX_BUF;
-    sb->buf = emalloc(sb->size);
+    sb->buf = xmalloc(sb->size);
     sb->pos = 0;
     return sb;
 }
@@ -108,8 +108,8 @@ void stringbuffer_free(StringBuffer *sb) {
     TOOLKIT_PROTECT();
     HARD_ASSERT(sb != NULL);
 
-    efree(sb->buf);
-    efree(sb);
+    free(sb->buf);
+    free(sb);
 }
 
 /**
@@ -119,7 +119,7 @@ void stringbuffer_free(StringBuffer *sb) {
  * @param sb
  * The string buffer to deallocate.
  * @return
- * The result string; to free it, call efree() on it.
+ * The result string; to free it, call free() on it.
  */
 char *stringbuffer_finish(StringBuffer *sb) {
     char *result;
@@ -130,7 +130,7 @@ char *stringbuffer_finish(StringBuffer *sb) {
 
     sb->buf[sb->pos] = '\0';
     result = sb->buf;
-    efree(sb);
+    free(sb);
     return result;
 }
 
@@ -155,7 +155,7 @@ const char *stringbuffer_finish_shared(StringBuffer *sb) {
 
     str = stringbuffer_finish(sb);
     result = add_string(str);
-    efree(str);
+    free(str);
     return result;
 }
 
@@ -292,7 +292,7 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len) {
     }
 
     new_size = sb->pos + len + MAX_BUF;
-    tmp = erealloc(sb->buf, new_size);
+    tmp = xrealloc(sb->buf, new_size);
 
     sb->buf = tmp;
     sb->size = new_size;

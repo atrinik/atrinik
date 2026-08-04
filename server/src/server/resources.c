@@ -79,7 +79,7 @@ static void resources_traverse(DIR *dir, const char *path) {
         /* Plus one for the forward slash */
         char *cp = string_sub(path_curr, strlen(settings.resourcespath) + 1, 0);
 
-        resource_t *resource = ecalloc(1, sizeof(*resource));
+        resource_t *resource = xcalloc(1, sizeof(*resource));
         resource->name = cp;
         HASH_ADD_KEYPTR(hh, resources, resource->name, strlen(resource->name), resource);
 
@@ -154,8 +154,8 @@ void resources_deinit(void) {
     resource_t *resource, *tmp;
     HASH_ITER(hh, resources, resource, tmp) {
         HASH_DEL(resources, resource);
-        efree(resource->name);
-        efree(resource);
+        free(resource->name);
+        free(resource);
     }
 }
 

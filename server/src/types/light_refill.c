@@ -61,7 +61,7 @@ static int apply_func(object *op, object *applier, int aflags) {
                          "You can't refill the %s with the %s.",
                          light_name,
                          name);
-        efree(name);
+        free(name);
         goto out;
     }
 
@@ -92,7 +92,7 @@ static int apply_func(object *op, object *applier, int aflags) {
     }
 
 out:
-    efree(light_name);
+    free(light_name);
     return OBJECT_METHOD_OK;
 }
 

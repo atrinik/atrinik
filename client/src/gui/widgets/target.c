@@ -193,7 +193,7 @@ void widget_target_init(widgetdata *widget) {
     widget->draw_func = widget_draw;
     widget->event_func = widget_event;
     widget->deinit_func = widget_deinit;
-    target_widget = widget->subwidget = ecalloc(1, sizeof(*target_widget));
+    target_widget = widget->subwidget = xcalloc(1, sizeof(*target_widget));
     button_create(&target_widget->button_talk);
     button_create(&target_widget->button_combat);
     target_widget->button_talk.texture = target_widget->button_talk.texture_over =

@@ -114,7 +114,7 @@ static void wm_images_init(void) {
     uint8_t *data;
     uint16_t len;
 
-    wm_face_colors = emalloc(sizeof(*wm_face_colors) * nrofpixmaps);
+    wm_face_colors = xmallocarray(nrofpixmaps, sizeof(*wm_face_colors));
 
     for (i = 0; i < nrofpixmaps; i++) {
         uint64_t total = 0, r = 0, g = 0, b = 0;
@@ -130,7 +130,7 @@ static void wm_images_init(void) {
         im2 = gdImageCreateTrueColor(im->sx, im->sy);
         gdImageCopyResized(im2, im, 0, 0, 0, 0, im2->sx, im2->sy, im->sx, im->sy);
 
-        wm_face_colors[i] = ecalloc(1, sizeof(**wm_face_colors) * 5);
+        wm_face_colors[i] = xcalloc(5, sizeof(**wm_face_colors));
 
         /* Get the average pixel colors. */
         for (x = 0; x < im2->sx; x++) {
@@ -169,10 +169,10 @@ static void wm_images_init(void) {
  */
 static void wm_images_deinit(void) {
     for (int i = 0; i < nrofpixmaps; i++) {
-        efree(wm_face_colors[i]);
+        free(wm_face_colors[i]);
     }
 
-    efree(wm_face_colors);
+    free(wm_face_colors);
 }
 
 /**
@@ -350,7 +350,7 @@ static int render_object(gdImagePtr im, int x, int y, object *ob) {
  */
 static void region_add_map(wm_region *r, mapstruct *m) {
     /* Resize the array. */
-    r->maps = erealloc(r->maps, sizeof(*r->maps) * (r->num_maps + 1));
+    r->maps = xreallocarray(r->maps, (r->num_maps + 1), sizeof(*r->maps));
     r->maps[r->num_maps].m = m;
     r->maps[r->num_maps].xpos = r->xpos;
     r->maps[r->num_maps].ypos = r->ypos;
@@ -500,7 +500,7 @@ void world_maker(void) {
         }
 
         /* Initialize the region. */
-        wm_r = ecalloc(1, sizeof(wm_region));
+        wm_r = xcalloc(1, sizeof(wm_region));
         /* Open the definitions file. */
         snprintf(VS(buf), "%s/client-maps/%s.def", settings.httppath, r->name);
         path_ensure_directories(buf);
@@ -569,7 +569,7 @@ void world_maker(void) {
 
                 def_map.xpos = wm_r->maps[i].xpos;
                 def_map.ypos = wm_r->maps[i].ypos;
-                def_map.path = estrdup(m->path);
+                def_map.path = xstrdup(m->path);
                 def_map.regions = stringbuffer_finish(sb);
                 utarray_push_back(def_maps, &def_map);
             }
@@ -598,8 +598,8 @@ void world_maker(void) {
 
         for (i = 0; i < utarray_len(def_maps); i++) {
             def_map_curr = (region_map_def_t *)utarray_eltptr(def_maps, i);
-            efree(def_map_curr->path);
-            efree(def_map_curr->regions);
+            free(def_map_curr->path);
+            free(def_map_curr->regions);
         }
 
         utarray_free(def_maps);
@@ -670,8 +670,9 @@ void world_maker(void) {
                                 fprintf(def_fp, "label_hide\n");
                             }
                         } else {
-                            info_objects = erealloc(info_objects,
-                                                    sizeof(*info_objects) * (num_info_objects + 1));
+                            info_objects = xreallocarray(info_objects,
+                                                         num_info_objects + 1,
+                                                         sizeof(*info_objects));
                             info_objects[num_info_objects] = tmp;
                             num_info_objects++;
                         }
@@ -829,10 +830,8 @@ void world_maker(void) {
             }
         }
 
-        if (info_objects) {
-            efree(info_objects);
-            info_objects = NULL;
-        }
+        free(info_objects);
+        info_objects = NULL;
 
         num_info_objects = 0;
 
@@ -853,8 +852,8 @@ void world_maker(void) {
         /* Free data. */
         gdImageDestroy(im);
         fclose(def_fp);
-        efree(wm_r->maps);
-        efree(wm_r);
+        free(wm_r->maps);
+        free(wm_r);
     }
 
     wm_images_deinit();

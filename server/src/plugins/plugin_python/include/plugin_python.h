@@ -184,32 +184,22 @@ extern struct plugin_hooklist *python_hooks;
 #undef NUM_FACINGS
 #define NUM_FACINGS(ob) ((*hooks->animations)[ob->animation_id].facings)
 
-#undef emalloc
-#undef efree
-#undef ecalloc
-#undef erealloc
-#undef ereallocz
-#undef estrdup
-#undef estrndup
+#undef xmalloc
+#undef xfree
+#undef xcalloc
+#undef xrealloc
+#undef xreallocarray
+#undef xstrdup
+#undef xstrndup
 
-#ifndef NDEBUG
-#define emalloc(_size) hooks->memory_emalloc(_size, __FILE__, __LINE__)
-#define efree(_ptr) hooks->memory_efree(_ptr, __FILE__, __LINE__)
-#define ecalloc(_nmemb, _size) hooks->memory_ecalloc(_nmemb, _size, __FILE__, __LINE__)
-#define erealloc(_ptr, _size) hooks->memory_erealloc(_ptr, _size, __FILE__, __LINE__)
-#define ereallocz(_ptr, _old_size, _new_size) \
-    hooks->memory_reallocz(_ptr, _old_size, _new_size, __FILE__, __LINE__)
-#define estrdup(_s) hooks->string_estrdup(_s, __FILE__, __LINE__)
-#define estrndup(_s, _n) hooks->string_estrndup(_s, _n, __FILE__, __LINE__)
-#else
-#define emalloc(_size) hooks->memory_emalloc(_size)
-#define efree(_ptr) hooks->memory_efree(_ptr)
-#define ecalloc(_nmemb, _size) hooks->memory_ecalloc(_nmemb, _size)
-#define erealloc(_ptr, _size) hooks->memory_erealloc(_ptr, _size)
-#define ereallocz(_ptr, _old_size, _new_size) hooks->memory_reallocz(_ptr, _old_size, _new_size)
-#define estrdup(_s) hooks->string_estrdup(_s)
-#define estrndup(_s, _n) hooks->string_estrndup(_s, _n)
-#endif
+#define xmalloc(_size) hooks->xmalloc(_size)
+#define xmallocarray(_nmemb, _size) hooks->xmallocarray(_nmemb, _size)
+#define xfree(_ptr) hooks->xfree(_ptr)
+#define xcalloc(_nmemb, _size) hooks->xcalloc(_nmemb, _size)
+#define xrealloc(_ptr, _size) hooks->xrealloc(_ptr, _size)
+#define xreallocarray(_ptr, _nmemb, _size) hooks->xreallocarray(_ptr, _nmemb, _size)
+#define xstrdup(_s) hooks->xstrdup(_s)
+#define xstrndup(_s, _n) hooks->xstrndup(_s, _n)
 
 #define logger_print hooks->logger_print
 #define max_time *hooks->max_time

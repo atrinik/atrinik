@@ -130,7 +130,7 @@ void DoClient(void) {
         }
 
         if (was_decrypted) {
-            efree(decrypted_data);
+            free(decrypted_data);
         }
 
         command_buffer_free(cmd);

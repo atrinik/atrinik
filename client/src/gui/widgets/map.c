@@ -187,7 +187,7 @@ void clear_map(bool hard) {
     cells_size = sizeof(*cells) * map_width * MAP_FOW_SIZE * map_height * MAP_FOW_SIZE;
 
     if (cells == NULL) {
-        cells = emalloc(cells_size);
+        cells = xmalloc(cells_size);
     }
 
     memset(cells, 0, cells_size);
@@ -255,7 +255,7 @@ void display_mapscroll(int dx, int dy, int old_w, int old_h) {
     }
 
     cells_old = cells;
-    cells = emalloc(sizeof(*cells) * w * h);
+    cells = xmallocarray((size_t)w * (size_t)h, sizeof(*cells));
 
     for (x = 0; x < w; x++) {
         for (y = 0; y < h; y++) {
@@ -276,7 +276,7 @@ void display_mapscroll(int dx, int dy, int old_w, int old_h) {
         }
     }
 
-    efree(cells_old);
+    free(cells_old);
 
     sound_ambient_mapcroll(dx, dy);
     map_anims_mapscroll(dx, dy);
@@ -811,6 +811,7 @@ void map_clear_cell(int x, int y) {
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
     cell->fow = 1;
+    memset(cell->light_known, 0, sizeof(cell->light_known));
 
     for (layer = 0; layer < NUM_REAL_LAYERS; layer++) {
         cell->probe[layer] = 0;
@@ -836,6 +837,7 @@ void map_set_light_level(int x, int y, int sub_layer, uint8_t light_level) {
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
     cell->light_level[sub_layer] = light_level;
+    cell->light_known[sub_layer] = 1;
 }
 
 /**
@@ -989,7 +991,8 @@ typedef struct map_render_data {
     uint8_t sub_layer; ///< Sub-layer to render on.
     uint8_t alpha_forced; ///< Force applying the specified alpha value.
     uint8_t target_layer; ///< Target's layer.
-    bool smooth_lighting; ///< Whether the map lightmap owns world darkness.
+    bool smooth_lighting; ///< Whether smooth world lighting is enabled.
+    bool lightmap_pending; ///< Whether the ground lightmap has not been composited yet.
 } map_render_data_t;
 
 /**
@@ -1097,7 +1100,12 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
         BIT_SET(effects.flags, SPRITE_FLAG_RED);
     } else if (data->cell->flags[map_layer] & FFLAG_INVISIBLE) {
         BIT_SET(effects.flags, SPRITE_FLAG_GRAY);
-    } else if (!data->smooth_lighting) {
+    } else if (data->smooth_lighting && !data->lightmap_pending && data->layer == LAYER_WALL) {
+        BIT_SET(effects.flags, SPRITE_FLAG_SMOOTH_DARK);
+        effects.smooth_dark_y = data->ypos + MAP_TILE_POS_YOFF -
+                                data->cell->height[GET_MAP_LAYER(LAYER_FLOOR, data->sub_layer)] +
+                                data->player_height_offset;
+    } else if (!data->lightmap_pending) {
         BIT_SET(effects.flags, SPRITE_FLAG_DARK);
     }
 
@@ -1164,7 +1172,7 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
 
     if (data->cell->pname[map_layer][0] != '\0' || data->cell->flags[map_layer] != 0) {
         data->annotations =
-            erealloc(data->annotations, (data->annotations_num + 1) * sizeof(*data->annotations));
+            xreallocarray(data->annotations, data->annotations_num + 1, sizeof(*data->annotations));
         map_annotation_t *annotation = &data->annotations[data->annotations_num++];
         *annotation = (map_annotation_t){
             .cell = data->cell,
@@ -1184,7 +1192,7 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
     }
 
     if (data->layer == LAYER_FLOOR && tiles_debug) {
-        data->tiles = erealloc(data->tiles, sizeof(*data->tiles) * ((data->tiles_num) + 1));
+        data->tiles = xreallocarray(data->tiles, ((data->tiles_num) + 1), sizeof(*data->tiles));
         data->tiles[data->tiles_num].x = xl;
         data->tiles[data->tiles_num].y = yl;
         data->tiles[data->tiles_num].w = data->x;
@@ -1284,9 +1292,7 @@ static void map_draw_annotations(SDL_Surface *surface, map_render_data_t *data) 
         }
     }
 
-    if (data->annotations != NULL) {
-        efree(data->annotations);
-    }
+    free(data->annotations);
     data->annotations = NULL;
     data->annotations_num = 0;
 }
@@ -1544,6 +1550,65 @@ static uint8_t map_lighting_sub_layer(const struct MapCell *cell) {
     return selected;
 }
 
+/**
+ * Resolve a light sample without treating an unseen map-cache cell as dark.
+ *
+ * Newly exposed cells arrive incrementally after a map scroll. Until their
+ * authoritative light values arrive, use the average of the closest known
+ * ring. This extends the known field naturally at map and FOW boundaries and
+ * prevents temporary dark bands from influencing nearby structures.
+ */
+static uint8_t map_lighting_level(int x, int y) {
+    int cache_width = map_width * MAP_FOW_SIZE;
+    int cache_height = map_height * MAP_FOW_SIZE;
+    struct MapCell *cell = MAP_CELL_GET(x, y);
+    uint8_t sub_layer = map_lighting_sub_layer(cell);
+
+    if (cell->light_known[sub_layer]) {
+        return cell->light_level[sub_layer];
+    }
+
+    /* The rasterizer includes a two-cell border around the drawable map.
+     * Searching one cell beyond that is enough to extend authoritative
+     * samples across the boundary without turning cache-key generation into
+     * an unbounded nearest-neighbour scan while map data is still arriving. */
+    const int search_radius = 3;
+    for (int radius = 1; radius <= search_radius; radius++) {
+        unsigned int total = 0;
+        unsigned int samples = 0;
+
+        for (int offset_x = -radius; offset_x <= radius; offset_x++) {
+            for (int offset_y = -radius; offset_y <= radius; offset_y++) {
+                if (abs(offset_x) != radius && abs(offset_y) != radius) {
+                    continue;
+                }
+
+                int sample_x = x + offset_x;
+                int sample_y = y + offset_y;
+                if (sample_x < 0 || sample_x >= cache_width || sample_y < 0 ||
+                    sample_y >= cache_height) {
+                    continue;
+                }
+
+                struct MapCell *sample_cell = MAP_CELL_GET(sample_x, sample_y);
+                uint8_t sample_sub_layer = map_lighting_sub_layer(sample_cell);
+                if (!sample_cell->light_known[sample_sub_layer]) {
+                    continue;
+                }
+
+                total += sample_cell->light_level[sample_sub_layer];
+                samples++;
+            }
+        }
+
+        if (samples != 0) {
+            return (uint8_t)((total + samples / 2) / samples);
+        }
+    }
+
+    return 0;
+}
+
 /** Project one cell's selected light sample into map-widget coordinates. */
 static lighting_vertex_t
 map_lighting_vertex(SDL_Surface *surface, const map_render_data_t *data, int x, int y) {
@@ -1555,9 +1620,52 @@ map_lighting_vertex(SDL_Surface *surface, const map_render_data_t *data, int x, 
         .x = surface->w / 2 + (x - data->midx) * MAP_TILE_YOFF - (y - data->midy) * MAP_TILE_YOFF,
         .y = surface->h / 2 + (x - data->midx) * MAP_TILE_XOFF + (y - data->midy) * MAP_TILE_XOFF -
              height + data->player_height_offset,
-        .level = cell->light_level[sub_layer],
+        .level = map_lighting_level(x, y),
     };
     return vertex;
+}
+
+/** Add one integer to a stable FNV-1a lightmap cache key. */
+static uint64_t map_lighting_hash_value(uint64_t hash, uint64_t value) {
+    for (size_t i = 0; i < sizeof(value); i++) {
+        hash ^= value & UINT8_MAX;
+        hash *= UINT64_C(1099511628211);
+        value >>= 8;
+    }
+
+    return hash;
+}
+
+/** Hash every projected sample that can affect the current lightmap. */
+static uint64_t map_lighting_cache_key(SDL_Surface *surface,
+                                       const map_render_data_t *data,
+                                       int x,
+                                       int y,
+                                       int w,
+                                       int h) {
+    int cache_width = map_width * MAP_FOW_SIZE;
+    int cache_height = map_height * MAP_FOW_SIZE;
+    int start_x = MAX(0, x - 2);
+    int start_y = MAX(0, y - 2);
+    int end_x = MIN(cache_width - 1, w + 1);
+    int end_y = MIN(cache_height - 1, h + 1);
+    uint64_t hash = UINT64_C(14695981039346656037);
+
+    hash = map_lighting_hash_value(hash, (uint32_t)start_x);
+    hash = map_lighting_hash_value(hash, (uint32_t)start_y);
+    hash = map_lighting_hash_value(hash, (uint32_t)end_x);
+    hash = map_lighting_hash_value(hash, (uint32_t)end_y);
+
+    for (int cell_x = start_x; cell_x <= end_x; cell_x++) {
+        for (int cell_y = start_y; cell_y <= end_y; cell_y++) {
+            lighting_vertex_t vertex = map_lighting_vertex(surface, data, cell_x, cell_y);
+            hash = map_lighting_hash_value(hash, (uint32_t)vertex.x);
+            hash = map_lighting_hash_value(hash, (uint32_t)vertex.y);
+            hash = map_lighting_hash_value(hash, vertex.level);
+        }
+    }
+
+    return hash;
 }
 
 /** Rasterize and composite the interpolated map light field. */
@@ -1570,23 +1678,25 @@ map_draw_lighting(SDL_Surface *surface, map_render_data_t *data, int x, int y, i
     int end_x = MIN(cache_width - 1, w + 1);
     int end_y = MIN(cache_height - 1, h + 1);
 
-    for (int cell_x = start_x; cell_x < end_x; cell_x++) {
-        for (int cell_y = start_y; cell_y < end_y; cell_y++) {
-            int left = surface->w / 2 + (cell_x - data->midx) * MAP_TILE_YOFF -
-                       (cell_y + 1 - data->midy) * MAP_TILE_YOFF;
-            int right = surface->w / 2 + (cell_x + 1 - data->midx) * MAP_TILE_YOFF -
-                        (cell_y - data->midy) * MAP_TILE_YOFF;
-            if (right < 0 || left >= surface->w) {
-                continue;
-            }
+    if (lighting_needs_update()) {
+        for (int cell_x = start_x; cell_x < end_x; cell_x++) {
+            for (int cell_y = start_y; cell_y < end_y; cell_y++) {
+                int left = surface->w / 2 + (cell_x - data->midx) * MAP_TILE_YOFF -
+                           (cell_y + 1 - data->midy) * MAP_TILE_YOFF;
+                int right = surface->w / 2 + (cell_x + 1 - data->midx) * MAP_TILE_YOFF -
+                            (cell_y - data->midy) * MAP_TILE_YOFF;
+                if (right < 0 || left >= surface->w) {
+                    continue;
+                }
 
-            lighting_vertex_t vertices[4] = {
-                map_lighting_vertex(surface, data, cell_x, cell_y),
-                map_lighting_vertex(surface, data, cell_x + 1, cell_y),
-                map_lighting_vertex(surface, data, cell_x + 1, cell_y + 1),
-                map_lighting_vertex(surface, data, cell_x, cell_y + 1),
-            };
-            lighting_draw_quad(vertices);
+                lighting_vertex_t vertices[4] = {
+                    map_lighting_vertex(surface, data, cell_x, cell_y),
+                    map_lighting_vertex(surface, data, cell_x + 1, cell_y),
+                    map_lighting_vertex(surface, data, cell_x + 1, cell_y + 1),
+                    map_lighting_vertex(surface, data, cell_x, cell_y + 1),
+                };
+                lighting_draw_quad(vertices);
+            }
         }
     }
 
@@ -1608,9 +1718,13 @@ void map_draw_map(SDL_Surface *surface) {
     map_render_data_t data = {0};
     int x, y, w, h;
     map_setup_render_data(surface, &data, &x, &y, &w, &h);
-    data.smooth_lighting = surface == cur_widget[MAP_ID]->surface &&
-                           setting_get_int(OPT_CAT_MAP, OPT_SMOOTH_LIGHTING) &&
-                           lighting_begin(surface->w, surface->h);
+    data.smooth_lighting =
+        surface == cur_widget[MAP_ID]->surface && setting_get_int(OPT_CAT_MAP, OPT_SMOOTH_LIGHTING);
+    if (data.smooth_lighting) {
+        uint64_t cache_key = map_lighting_cache_key(surface, &data, x, y, w, h);
+        data.smooth_lighting = lighting_begin(surface->w, surface->h, cache_key);
+        data.lightmap_pending = data.smooth_lighting;
+    }
 
     /* Draw floor and fmasks. */
     uint64_t profile_ground_started = profile_map ? render_profiler_begin() : 0;
@@ -1638,7 +1752,7 @@ void map_draw_map(SDL_Surface *surface) {
         uint64_t profile_lighting_started = render_profiler_begin();
         map_draw_lighting(surface, &data, x, y, w, h);
         render_profiler_end(RENDER_PROFILE_LIGHTING, profile_lighting_started);
-        data.smooth_lighting = false;
+        data.lightmap_pending = false;
     }
 
     uint8_t floor_layer_pl = GET_MAP_LAYER(LAYER_FLOOR, MapData.player_sub_layer);
@@ -1831,7 +1945,7 @@ void map_draw_map(SDL_Surface *surface) {
                              data.tiles[i].h);
         }
 
-        efree(data.tiles);
+        free(data.tiles);
     }
 
     if (data.target_cell != NULL && cpl.target_code != 0) {
@@ -2372,7 +2486,7 @@ static void widget_draw(widgetdata *widget) {
                               ((float)(LastTick - msg_anim.tick) / 1000.0f) +
                           ((int)(150.0f * ((float)(LastTick - msg_anim.tick) / 3000.0f))));
             y_offset = 0;
-            msg = estrdup(msg_anim.message);
+            msg = xstrdup(msg_anim.message);
 
             cp = strtok(msg, "\n");
 
@@ -2390,7 +2504,7 @@ static void widget_draw(widgetdata *widget) {
                 cp = strtok(NULL, "\n");
             }
 
-            efree(msg);
+            free(msg);
             widget->redraw++;
         } else {
             msg_anim.message[0] = '\0';
@@ -2473,10 +2587,8 @@ static void widget_background(widgetdata *widget, int draw) {
 static void widget_deinit(widgetdata *widget) {
     lighting_deinit();
 
-    if (cells != NULL) {
-        efree(cells);
-        cells = NULL;
-    }
+    free(cells);
+    cells = NULL;
 
     region_map_free(MapData.region_map);
     MapData.region_map = NULL;
@@ -2518,7 +2630,7 @@ struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer, int 
     map_anim_t *anim;
     int num_ticks;
 
-    anim = ecalloc(1, sizeof(*anim));
+    anim = xcalloc(1, sizeof(*anim));
 
     DL_APPEND(first_anim, anim);
 
@@ -2568,7 +2680,7 @@ void maps_anims_remove(map_anim_t *anim) {
 
     DL_DELETE(first_anim, anim);
 
-    efree(anim);
+    free(anim);
 }
 
 /**

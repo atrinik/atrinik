@@ -35,7 +35,7 @@
 #include "stringbuffer.h"
 #include "math.h"
 
-TOOLKIT_API(IMPORTS(math), IMPORTS(stringbuffer), IMPORTS(memory));
+TOOLKIT_API(IMPORTS(math), IMPORTS(stringbuffer));
 
 #ifndef __CPROTO__
 
@@ -48,86 +48,6 @@ TOOLKIT_DEINIT_FUNC_FINISH
 #undef string_sub
 #undef string_create_char_range
 #undef string_repeat
-
-/**
- * Like strdup(), but performs error checking.
- * @param s
- * String to duplicate.
- * @return
- * Duplicated string, never NULL.
- * @note abort() is called in case 's' is NULL or strdup() fails to duplicate
- * the string (oom).
- */
-char *string_estrdup(const char *s MEMORY_DEBUG_PROTO) {
-    char *cp;
-
-    if (s == NULL) {
-        LOG(ERROR, "'s' is NULL.");
-        abort();
-    }
-
-#ifndef NDEBUG
-    size_t len;
-
-    len = strlen(s);
-    cp = memory_emalloc(sizeof(*cp) * (len + 1), file, line);
-#else
-    cp = strdup(s);
-#endif
-
-    if (cp == NULL) {
-        LOG(ERROR, "OOM.");
-        abort();
-    }
-
-#ifndef NDEBUG
-    memcpy(cp, s, sizeof(*cp) * len);
-    cp[len] = '\0';
-#endif
-
-    return cp;
-}
-
-/**
- * Like strndup(), but performs error checking.
- * @param s
- * String to duplicate.
- * @param n
- * At most this many bytes to copy.
- * @return
- * Duplicated string, never NULL.
- * @note abort() is called in case 's' is NULL or strndup() fails to duplicate
- * the string (oom).
- */
-char *string_estrndup(const char *s, size_t n MEMORY_DEBUG_PROTO) {
-    char *cp;
-
-    if (s == NULL) {
-        LOG(ERROR, "'s' is NULL.");
-        abort();
-    }
-
-#ifndef NDEBUG
-    size_t len;
-
-    len = strnlen(s, n);
-    cp = memory_emalloc(sizeof(*cp) * (len + 1), file, line);
-#else
-    cp = strndup(s, n);
-#endif
-
-    if (cp == NULL) {
-        LOG(ERROR, "OOM.");
-        abort();
-    }
-
-#ifndef NDEBUG
-    memcpy(cp, s, sizeof(*cp) * len);
-    cp[len] = '\0';
-#endif
-
-    return cp;
-}
 
 /**
  * Replace in string src all occurrences of key by replacement. The resulting
@@ -665,7 +585,7 @@ int string_endswith(const char *str, const char *cmp) {
  * @return
  * The created substring; never NULL. Must be freed.
  */
-char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO) {
+char *string_sub(const char *str, ssize_t start, ssize_t end) {
     size_t n, str_len;
 
     TOOLKIT_PROTECT();
@@ -689,13 +609,13 @@ char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO)
     }
 
     if (start > end || (size_t)start >= str_len) {
-        return string_estrdup("" MEMORY_DEBUG_PARAM);
+        return xstrdup("");
     }
 
     str += start;
     n = MIN(str_len - (size_t)start, (size_t)(end - start));
 
-    return string_estrndup(str, n MEMORY_DEBUG_PARAM);
+    return xstrndup(str, n);
 }
 
 /**
@@ -819,12 +739,12 @@ int string_contains_other(const char *str, const char *key) {
  * @return
  * The generated string; never NULL. Must be freed.
  */
-char *string_create_char_range(char start, char end MEMORY_DEBUG_PROTO) {
+char *string_create_char_range(char start, char end) {
     char *str, c;
 
     TOOLKIT_PROTECT();
 
-    str = memory_emalloc((end - start + 1) + 1 MEMORY_DEBUG_PARAM);
+    str = xmalloc((end - start + 1) + 1);
 
     for (c = start; c <= end; c++) {
         str[c - start] = c;
@@ -882,9 +802,9 @@ char *string_join(const char *delim, ...) {
  * size_t strs_num;
  *
  * strs_num = 2;
- * strs = emalloc(sizeof(*strs) * strs_num);
- * strs[0] = estrdup("hello");
- * strs[1] = estrdup("world");
+ * strs = xmallocarray(strs_num, sizeof(*strs));
+ * strs[0] = xstrdup("hello");
+ * strs[1] = xstrdup("world");
  *
  * string_join_array(", ", strs, strs_num); --> "hello, world"
  * @endcode
@@ -934,14 +854,14 @@ char *string_join_array(const char *delim, const char *const *array, size_t arra
  * @return
  * Constructed string; never NULL. Must be freed.
  */
-char *string_repeat(const char *str, size_t num MEMORY_DEBUG_PROTO) {
+char *string_repeat(const char *str, size_t num) {
     size_t len, i;
     char *ret;
 
     TOOLKIT_PROTECT();
 
     len = strlen(str);
-    ret = memory_emalloc(sizeof(char) * (len * num) + 1 MEMORY_DEBUG_PARAM);
+    ret = xmalloc(sizeof(char) * (len * num) + 1);
 
     for (i = 0; i < num; i++) {
         /* Cannot overflow; 'ret' has been allocated to hold enough

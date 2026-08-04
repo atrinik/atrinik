@@ -71,10 +71,10 @@ static void init_func(object *op) {
     } else if (!map_path_isabs(op->slaying)) {
         char *path = map_get_path(op->map, op->slaying, MAP_UNIQUE(op->map), NULL);
         FREE_AND_COPY_HASH(op->slaying, path);
-        efree(path);
+        free(path);
     }
 
-    op->custom_attrset = emalloc(sizeof(magic_mirror_struct));
+    op->custom_attrset = xmalloc(sizeof(magic_mirror_struct));
     /* Save x/y and clear map. */
     MMIRROR(op)->x = mirror_x;
     MMIRROR(op)->y = mirror_y;
@@ -85,10 +85,8 @@ static void init_func(object *op) {
 static void deinit_func(object *op) {
     HARD_ASSERT(op != NULL);
 
-    if (op->custom_attrset != NULL) {
-        efree(op->custom_attrset);
-        op->custom_attrset = NULL;
-    }
+    free(op->custom_attrset);
+    op->custom_attrset = NULL;
 }
 
 /**

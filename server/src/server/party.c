@@ -290,7 +290,7 @@ static void party_loot_random(object *pl, object *corpse) {
                     if (player_can_carry(ol->objlink.ob, WEIGHT_NROF(tmp, tmp->nrof))) {
                         char *name = object_get_name_s(tmp, NULL);
                         draw_info_format(COLOR_BLUE, ol->objlink.ob, "You receive the %s.", name);
-                        efree(name);
+                        free(name);
                         object_remove(tmp, 0);
                         object_insert_into(tmp, ol->objlink.ob, 0);
                     }
@@ -372,7 +372,7 @@ static void party_loot_split(object *pl, object *corpse) {
                                  "You receive the "
                                  "%s.",
                                  name);
-                efree(name);
+                free(name);
                 object_remove(tmp, 0);
                 object_insert_into(tmp, ol->objlink.ob, 0);
                 break;

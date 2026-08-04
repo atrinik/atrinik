@@ -36,29 +36,18 @@
 #include "memory.h"
 #include "stringbuffer.h"
 
-/* Map the error-checking string duplicating functions into the toolkit
- * variants. This is done for convenience, and because the functions can't be
- * defined as they could conflict with functions from other libraries. */
-#ifndef NDEBUG
-#define estrdup(_s) string_estrdup(_s, __FILE__, __LINE__)
-#define estrndup(_s, _n) string_estrndup(_s, _n, __FILE__, __LINE__)
-#else
-#define estrdup(_s) string_estrdup(_s)
-#define estrndup(_s, _n) string_estrndup(_s, _n)
-#endif
-
 /**
  * Skip whitespace in the specified string.
  *
  * @param str
  * The string. Cannot be NULL.
  */
-#define string_skip_whitespace(str) \
-    do {                            \
-        HARD_ASSERT(str != NULL);   \
-        while (isspace(*(str))) {   \
-            (str)++;                \
-        }                           \
+#define string_skip_whitespace(str)              \
+    do {                                         \
+        HARD_ASSERT(str != NULL);                \
+        while (isspace((unsigned char)*(str))) { \
+            (str)++;                             \
+        }                                        \
     } while (0)
 
 /**
@@ -97,8 +86,6 @@
 
 void toolkit_string_init(void);
 void toolkit_string_deinit(void);
-char *string_estrdup(const char *s MEMORY_DEBUG_PROTO);
-char *string_estrndup(const char *s, size_t n MEMORY_DEBUG_PROTO);
 void string_replace(const char *src,
                     const char *key,
                     const char *replacement,
@@ -125,16 +112,16 @@ void string_capitalize(char *str);
 void string_title(char *str);
 int string_startswith(const char *str, const char *cmp);
 int string_endswith(const char *str, const char *cmp);
-char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO);
+char *string_sub(const char *str, ssize_t start, ssize_t end);
 int string_isempty(const char *str);
 int string_iswhite(const char *str);
 int char_contains(const char c, const char *key);
 int string_contains(const char *str, const char *key);
 int string_contains_other(const char *str, const char *key);
-char *string_create_char_range(char start, char end MEMORY_DEBUG_PROTO);
+char *string_create_char_range(char start, char end);
 char *string_join(const char *delim, ...);
 char *string_join_array(const char *delim, const char *const *array, size_t arraysize);
-char *string_repeat(const char *str, size_t num MEMORY_DEBUG_PROTO);
+char *string_repeat(const char *str, size_t num);
 size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
     __attribute__((format(printf, 3, 4)));
 size_t
@@ -152,12 +139,5 @@ bool string_decode_hex_fixed(const char *str,
                              bool lowercase_only,
                              unsigned char *result,
                              size_t result_size);
-
-#ifndef NDEBUG
-#define string_sub(_str, _start, _end) string_sub(_str, _start, _end MEMORY_DEBUG_INFO)
-#define string_create_char_range(_start, _end) \
-    string_create_char_range(_start, _end MEMORY_DEBUG_INFO)
-#define string_repeat(_str, _num) string_repeat(_str, _num MEMORY_DEBUG_INFO)
-#endif
 
 #endif

@@ -126,7 +126,7 @@ static void mplayer_do_shuffle(list_struct *list) {
 
     /* Build a list containing non-blacklisted row IDs. */
     row_num = 0;
-    row_ids = emalloc(sizeof(*row_ids) * (list->rows - 1));
+    row_ids = xmallocarray(list->rows - 1, sizeof(*row_ids));
 
     for (i = 0; i < list->rows - 1; i++) {
         if (!shuffle_blacklist[i]) {
@@ -136,7 +136,7 @@ static void mplayer_do_shuffle(list_struct *list) {
 
     /* Select a row ID at random. */
     selected = row_ids[rndm(1, row_num) - 1];
-    efree(row_ids);
+    free(row_ids);
 
     list->row_selected = selected + 1;
     list->row_offset = MIN(list->rows - list->max_rows, selected);
@@ -345,7 +345,7 @@ static void widget_draw(widgetdata *widget) {
              * further down. It is not actually used by the blacklist as
              * it's not possible to toggle it on/off using the button, but
              * it simplifies other logic checks. */
-            shuffle_blacklist = ecalloc(1, sizeof(*shuffle_blacklist) * (list_mplayer->rows + 1));
+            shuffle_blacklist = xcalloc(list_mplayer->rows + 1, sizeof(*shuffle_blacklist));
 
             /* Sort the list. */
             list_sort(list_mplayer, LIST_SORT_ALPHA);
@@ -610,10 +610,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
 
 /** @copydoc widgetdata::deinit_func */
 static void widget_deinit(widgetdata *widget) {
-    if (shuffle_blacklist) {
-        efree(shuffle_blacklist);
-        shuffle_blacklist = NULL;
-    }
+    free(shuffle_blacklist);
+    shuffle_blacklist = NULL;
 
     if (list_mplayer != NULL) {
         list_remove(list_mplayer);

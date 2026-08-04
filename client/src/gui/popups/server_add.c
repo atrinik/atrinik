@@ -106,9 +106,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
             return -1;
         }
 
-        clioption_settings.servers =
-            erealloc(clioption_settings.servers,
-                     sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
+        clioption_settings.servers = xreallocarray(clioption_settings.servers,
+                                                   clioption_settings.servers_num + 1,
+                                                   sizeof(*clioption_settings.servers));
         clioption_settings.servers[clioption_settings.servers_num] =
             string_join("", text_input_server_host.str, " ", text_input_server_port.str, NULL);
         clioption_settings.servers_num++;

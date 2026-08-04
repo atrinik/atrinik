@@ -54,13 +54,11 @@ static char command_buf[HUGE_BUF];
  * Free a help file structure.
  */
 static void hfile_free(hfile_struct *hfile) {
-    efree(hfile->key);
+    free(hfile->key);
 
-    if (hfile->msg != NULL) {
-        efree(hfile->msg);
-    }
+    free(hfile->msg);
 
-    efree(hfile);
+    free(hfile);
 }
 
 /**
@@ -130,8 +128,8 @@ void hfiles_init(void) {
 
         if (hfile == NULL) {
             if (strcmp(key, "help") == 0 && !string_isempty(value)) {
-                hfile = ecalloc(1, sizeof(*hfile));
-                hfile->key = estrdup(value);
+                hfile = xcalloc(1, sizeof(*hfile));
+                hfile->key = xstrdup(value);
             } else {
                 LOG(DEVEL, "Unrecognised line: %s %s", buf, value ? value : "");
             }
@@ -141,7 +139,7 @@ void hfiles_init(void) {
 
                 if (hfile->msg != NULL) {
                     stringbuffer_append_string(sb, hfile->msg);
-                    efree(hfile->msg);
+                    free(hfile->msg);
                 }
 
                 while (fgets(buf, sizeof(buf), fp)) {

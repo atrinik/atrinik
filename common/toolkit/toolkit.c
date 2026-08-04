@@ -30,6 +30,7 @@
  */
 
 #include "toolkit.h"
+#include "memory.h"
 
 /**
  * One toolkit API entry.
@@ -63,19 +64,8 @@ void toolkit_import_register(const char *name, toolkit_func func) {
         return;
     }
 
-    apis = realloc(apis, sizeof(*apis) * (apis_num + 1));
-
-    if (apis == NULL) {
-        log_error("OOM.");
-        abort();
-    }
-
-    apis[apis_num].name = strdup(name);
-
-    if (apis[apis_num].name == NULL) {
-        log_error("OOM.");
-        abort();
-    }
+    apis = xreallocarray(apis, apis_num + 1, sizeof(*apis));
+    apis[apis_num].name = xstrdup(name);
 
     apis[apis_num].deinit_fnc = func;
     apis_num++;
@@ -126,10 +116,8 @@ void toolkit_deinit(void) {
         free(apis[i - 1].name);
     }
 
-    if (apis != NULL) {
-        free(apis);
-        apis = NULL;
-    }
+    free(apis);
+    apis = NULL;
 
     apis_num = 0;
 }

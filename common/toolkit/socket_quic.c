@@ -308,14 +308,14 @@ socket_t *socket_quic_server_create(const char *host,
         return NULL;
     }
 
-    socket_t *sc = ecalloc(1, sizeof(*sc));
+    socket_t *sc = xcalloc(1, sizeof(*sc));
     sc->handle = -1;
     sc->owns_handle = true;
     sc->transport = SOCKET_TRANSPORT_QUIC_LISTENER;
     sc->connection_mode = SOCKET_CONNECTION_MODE_QUIC;
     sc->role = SOCKET_ROLE_SERVER;
     sc->port = port;
-    sc->host = host != NULL ? estrdup(host) : NULL;
+    sc->host = host != NULL ? xstrdup(host) : NULL;
     sc->quic_ctx = ctx;
     if (!socket_connection_id_generate(sc)) {
         LOG(ERROR, "Failed to generate QUIC listener diagnostic ID");
@@ -395,14 +395,14 @@ static socket_t *socket_quic_client_socket_resolved(const char *host,
                                                     uint16_t port,
                                                     const struct sockaddr *address,
                                                     socklen_t address_length) {
-    socket_t *sc = ecalloc(1, sizeof(*sc));
+    socket_t *sc = xcalloc(1, sizeof(*sc));
     sc->handle = socket(address->sa_family, SOCK_DGRAM, IPPROTO_UDP);
     sc->owns_handle = true;
     sc->transport = SOCKET_TRANSPORT_QUIC_CONNECTION;
     sc->connection_mode = SOCKET_CONNECTION_MODE_QUIC;
     sc->role = SOCKET_ROLE_CLIENT;
     sc->port = port;
-    sc->host = estrdup(host);
+    sc->host = xstrdup(host);
     if (sc->handle == -1 || !socket_quic_disable_udp_connreset(sc->handle) ||
         !socket_connection_id_generate(sc) || !socket_opt_non_blocking(sc, true)) {
         socket_destroy(sc);
@@ -677,8 +677,8 @@ static void *socket_quic_candidate_thread(void *data) {
             candidate->port,
             elapsed_ms);
         task->socket->connection_mode = socket_candidate_kind_mode(candidate->kind);
-        efree(task->socket->host);
-        task->socket->host = estrdup(candidate->host);
+        free(task->socket->host);
+        task->socket->host = xstrdup(candidate->host);
         task->socket->port = candidate->port;
         task->result = task->socket;
         task->socket = NULL;

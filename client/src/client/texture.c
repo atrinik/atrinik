@@ -134,9 +134,9 @@ static int texture_data_new(texture_struct *tmp) {
  * Texture to free.
  */
 static void texture_free(texture_struct *tmp) {
-    efree(tmp->name);
+    free(tmp->name);
     texture_data_free(tmp);
-    efree(tmp);
+    free(tmp);
 }
 
 /**
@@ -151,8 +151,8 @@ static void texture_free(texture_struct *tmp) {
 static texture_struct *texture_new(texture_type_t type, const char *name) {
     texture_struct *tmp;
 
-    tmp = ecalloc(1, sizeof(*tmp));
-    tmp->name = estrdup(name);
+    tmp = xcalloc(1, sizeof(*tmp));
+    tmp->name = xstrdup(name);
     tmp->type = type;
     tmp->last_used = time(NULL);
 

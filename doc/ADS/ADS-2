@@ -872,6 +872,30 @@
  count instead of synthesizing missing light bytes.
 
 ===============================================================================
+= 3.4 and 3.7. Shared ITEM flag semantics                                     =
+===============================================================================
+ The ITEM command's item records and the ITEM_UPDATE command when its
+ UPD_FLAGS bit is set contain a flags field encoded as uint32. The following
+ bits are defined:
+
+  - 1: applied
+  - 2: unpaid
+  - 4: identified magical item
+  - 8: cursed
+  - 16: damned
+  - 32: open container
+  - 64: inventory locked
+  - 128: trapped
+  - 256: two-handed weapon
+  - 512: lore book has already granted its one-time reading experience
+
+ Unknown bits MUST be retained on the decoded item when practical and MUST NOT
+ make the packet invalid. After a lore book grants reading experience, the
+ server MUST send ITEM_UPDATE with UPD_FLAGS so clients can immediately stop
+ treating that physical book as unread. The bit is persistent object state;
+ item UIDs are connection-local and MUST NOT be used as durable read identity.
+
+===============================================================================
 = 3.20. Client command CHARACTERS                                             =
 ===============================================================================
  This command reports account metadata and the account's available characters

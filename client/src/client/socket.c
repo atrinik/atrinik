@@ -62,7 +62,7 @@ static command_buffer *output_queue_start = NULL, *output_queue_end = NULL;
  * A new command buffer or NULL in case of an error.
  */
 command_buffer *command_buffer_new(size_t len, uint8_t *data) {
-    command_buffer *buf = emalloc(sizeof(command_buffer) + len + 1);
+    command_buffer *buf = xmalloc(sizeof(command_buffer) + len + 1);
 
     buf->next = buf->prev = NULL;
     buf->len = len;
@@ -81,7 +81,7 @@ command_buffer *command_buffer_new(size_t len, uint8_t *data) {
  * Buffer to free.
  */
 void command_buffer_free(command_buffer *buf) {
-    efree(buf);
+    free(buf);
 }
 
 /**
@@ -222,7 +222,7 @@ static int socket_io_thread_loop(void *dummy) {
     (void)dummy;
 
     int readbuf_size = 256;
-    uint8_t *readbuf = emalloc(readbuf_size);
+    uint8_t *readbuf = xmalloc(readbuf_size);
     int readbuf_len = 0;
     int header_len = 0;
     int cmd_len = -1;
@@ -284,9 +284,9 @@ static int socket_io_thread_loop(void *dummy) {
             if (readbuf_len + toread > readbuf_size) {
                 uint8_t *tmp = readbuf;
                 readbuf_size = readbuf_len + toread;
-                readbuf = emalloc(readbuf_size);
+                readbuf = xmalloc(readbuf_size);
                 memcpy(readbuf, tmp, readbuf_len);
-                efree(tmp);
+                free(tmp);
             }
         }
 
@@ -322,7 +322,7 @@ static int socket_io_thread_loop(void *dummy) {
     if (output != NULL) {
         command_buffer_free(output);
     }
-    efree(readbuf);
+    free(readbuf);
 
     SDL_LockMutex(socket_mutex);
     if (csocket.sc == sc) {

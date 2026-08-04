@@ -175,7 +175,7 @@ static int builder_item(object *op, object *new_item, int x, int y) {
                          "Something is blocking you from "
                          "building the %s on that square.",
                          name);
-        efree(name);
+        free(name);
         return 0;
     } else if (new_item->type == WALL) {
         object *wall_ob = get_wall(op->map, x, y);
@@ -190,7 +190,7 @@ static int builder_item(object *op, object *new_item, int x, int y) {
                              "The %s can only be built on "
                              "top of a wall.",
                              name);
-            efree(name);
+            free(name);
             return 0;
         } else if (wall_ob->above && wall_ob->above->type == WALL) {
             char *name = object_get_name_s(wall_ob->above, op);
@@ -199,7 +199,7 @@ static int builder_item(object *op, object *new_item, int x, int y) {
                              "You first need to remove the %s "
                              "before building on top of that wall again.",
                              name);
-            efree(name);
+            free(name);
             return 0;
         }
     }
@@ -262,7 +262,7 @@ static int builder_item(object *op, object *new_item, int x, int y) {
     object_insert_map(new_item, op->map, NULL, 0);
     char *name = object_get_name_s(new_item, op);
     draw_info_format(COLOR_WHITE, op, "You build the %s.", name);
-    efree(name);
+    free(name);
 
     return 1;
 }
@@ -693,7 +693,7 @@ static void construction_destroyer(object *op, int x, int y) {
                          "You cannot remove the %s, since it "
                          "contains items.",
                          name);
-        efree(name);
+        free(name);
         return;
     }
 
@@ -714,7 +714,7 @@ static void construction_destroyer(object *op, int x, int y) {
 
     char *name = object_get_name_s(item, op);
     draw_info_format(COLOR_WHITE, op, "You remove the %s.", name);
-    efree(name);
+    free(name);
 
     object_destroy(item);
 }
@@ -747,7 +747,7 @@ void construction_do(object *op, int dir) {
                          "The %s cannot be used with the "
                          "construction skill.",
                          name);
-        efree(name);
+        free(name);
         return;
     }
 

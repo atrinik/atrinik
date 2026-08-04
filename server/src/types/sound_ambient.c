@@ -115,7 +115,7 @@ static void sound_ambient_match_free(sound_ambient_match_t *match) {
             sound_ambient_match_free(tmp->data.group);
         }
 
-        efree(tmp);
+        free(tmp);
     }
 }
 
@@ -426,7 +426,7 @@ void sound_ambient_match_parse(object *op, const char *str) {
             cp++;
             stack_id++;
 
-            sound_ambient_match_t *tmp = ecalloc(1, sizeof(sound_ambient_match_t));
+            sound_ambient_match_t *tmp = xcalloc(1, sizeof(sound_ambient_match_t));
             tmp->is_group = 1;
 
             if (match_stack[stack_id - 1] != NULL) {
@@ -471,7 +471,7 @@ void sound_ambient_match_parse(object *op, const char *str) {
         }
 
         if (match == NULL) {
-            match = ecalloc(1, sizeof(*match));
+            match = xcalloc(1, sizeof(*match));
             word_num = 0;
 
             if (op->custom_attrset == NULL) {

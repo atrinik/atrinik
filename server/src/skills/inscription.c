@@ -62,7 +62,7 @@ static int inscribe_book(object *op, const char *msg, object *marked) {
     /* Check if we can fit the message into the book. */
     if (book_overflow(marked->msg, msg, sizeof(buf))) {
         draw_info_format(COLOR_WHITE, op, "Your message won't fit in the %s.", name);
-        efree(name);
+        free(name);
         return 0;
     }
 
@@ -76,7 +76,7 @@ static int inscribe_book(object *op, const char *msg, object *marked) {
     draw_info_format(COLOR_WHITE, op, "You write in the %s.", name);
     CONTR(op)->stat_books_inscribed++;
 
-    efree(name);
+    free(name);
     return strlen(msg);
 }
 
@@ -112,7 +112,7 @@ int skill_inscription(object *op, const char *params) {
                          "The %s cannot be used with this "
                          "skill.",
                          name);
-        efree(name);
+        free(name);
         return 0;
     }
 
@@ -134,6 +134,6 @@ int skill_inscription(object *op, const char *params) {
 
     char *name = object_get_short_name_s(marked, op);
     draw_info_format(COLOR_WHITE, op, "You can't write on the %s.", name);
-    efree(name);
+    free(name);
     return 0;
 }

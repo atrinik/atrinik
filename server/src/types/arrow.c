@@ -54,14 +54,14 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
     if (op->weight <= 0 || QUERY_FLAG(op, FLAG_NO_DROP)) {
         char *name = object_get_base_name_s(op, shooter);
         draw_info_format(COLOR_WHITE, shooter, "You can't throw %s.", name);
-        efree(name);
+        free(name);
         return OBJECT_METHOD_UNHANDLED;
     }
 
     if (QUERY_FLAG(op, FLAG_APPLIED) && OBJECT_CURSED(op)) {
         char *name = object_get_base_name_s(op, shooter);
         draw_info_format(COLOR_WHITE, shooter, "The %s sticks to your hand!", name);
-        efree(name);
+        free(name);
         return OBJECT_METHOD_UNHANDLED;
     }
 

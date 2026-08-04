@@ -395,7 +395,7 @@ done:
     pthread_cond_broadcast(&rendezvous_condition);
     pthread_mutex_unlock(&rendezvous_lock);
     OPENSSL_cleanse(args->token, sizeof(args->token));
-    efree(args);
+    free(args);
     return NULL;
 }
 
@@ -414,11 +414,11 @@ static bool metaserver_rendezvous_url(char *url, size_t url_size) {
 }
 
 static void metaserver_rendezvous_start(const char *token) {
-    rendezvous_args_t *args = ecalloc(1, sizeof(*args));
+    rendezvous_args_t *args = xcalloc(1, sizeof(*args));
     snprintf(VS(args->token), "%s", token);
     if (!metaserver_rendezvous_url(VS(args->url))) {
         OPENSSL_cleanse(args->token, sizeof(args->token));
-        efree(args);
+        free(args);
         return;
     }
 
@@ -439,7 +439,7 @@ static void metaserver_rendezvous_start(const char *token) {
     if (rendezvous_shutdown || args->generation != rendezvous_generation) {
         pthread_mutex_unlock(&rendezvous_lock);
         OPENSSL_cleanse(args->token, sizeof(args->token));
-        efree(args);
+        free(args);
         return;
     }
     int error = pthread_create(&rendezvous_thread, NULL, metaserver_rendezvous_thread, args);
@@ -448,7 +448,7 @@ static void metaserver_rendezvous_start(const char *token) {
         rendezvous_thread_state = RENDEZVOUS_THREAD_STOPPED;
         pthread_mutex_unlock(&rendezvous_lock);
         OPENSSL_cleanse(args->token, sizeof(args->token));
-        efree(args);
+        free(args);
         return;
     }
     rendezvous_thread_state = RENDEZVOUS_THREAD_RUNNING;
@@ -557,10 +557,8 @@ void metaserver_deinit(void) {
     pthread_mutex_destroy(&rendezvous_lock);
 #endif
 
-    if (request_players != NULL) {
-        efree(request_players);
-        request_players = NULL;
-    }
+    free(request_players);
+    request_players = NULL;
 
     pthread_mutex_destroy(&stats_lock);
     pthread_mutex_destroy(&request_lock);
@@ -877,11 +875,11 @@ static void metaserver_otp_request(curl_request_t *request, void *user_data) {
                       "string_tohex failed");
     string_tolower(cotp_hash);
 
-    char *otp = estrndup(body + (otp_pos - body), otp_length);
+    char *otp = xstrndup(body + (otp_pos - body), otp_length);
 
     char key[SHA512_DIGEST_LENGTH * 2 + 1];
     if (!metaserver_get_key(VS(key), otp, cotp_hash)) {
-        efree(otp);
+        free(otp);
         goto out;
     }
 
@@ -945,7 +943,7 @@ static void metaserver_otp_request(curl_request_t *request, void *user_data) {
     /* Send off the POST request */
     curl_request_start_post(current_request);
 
-    efree(otp);
+    free(otp);
 
 out:
     curl_request_free(request);
@@ -985,9 +983,7 @@ void metaserver_info_update(void) {
         request_num_players++;
     }
 
-    if (request_players != NULL) {
-        efree(request_players);
-    }
+    free(request_players);
     request_players = stringbuffer_finish(sb);
 
     char url[HUGE_BUF];

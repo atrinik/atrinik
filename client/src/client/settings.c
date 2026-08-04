@@ -79,11 +79,9 @@ static void setting_load_value(setting_struct *setting, const char *str) {
         case OPT_TYPE_INPUT_TEXT:
         case OPT_TYPE_COLOR:
 
-            if (setting->val.str) {
-                efree(setting->val.str);
-            }
+            free(setting->val.str);
 
-            setting->val.str = estrdup(str);
+            setting->val.str = xstrdup(str);
             break;
     }
 }
@@ -132,16 +130,16 @@ void settings_init(void) {
 
         if (!strcmp(cp, "end")) {
             if (setting) {
-                category->settings =
-                    erealloc(category->settings,
-                             sizeof(*category->settings) * (category->settings_num + 1));
+                category->settings = xreallocarray(category->settings,
+                                                   category->settings_num + 1,
+                                                   sizeof(*category->settings));
                 category->settings[category->settings_num] = setting;
                 category->settings_num++;
                 setting = NULL;
             } else if (category) {
-                setting_categories =
-                    erealloc(setting_categories,
-                             sizeof(*setting_categories) * (setting_categories_num + 1));
+                setting_categories = xreallocarray(setting_categories,
+                                                   setting_categories_num + 1,
+                                                   sizeof(*setting_categories));
                 setting_categories[setting_categories_num] = category;
                 setting_categories_num++;
                 category = NULL;
@@ -161,24 +159,24 @@ void settings_init(void) {
                     LOG(ERROR, "Invalid type: %s", cp + 5);
                     exit(1);
                 } else if (type_id == OPT_TYPE_SELECT) {
-                    setting->custom_attrset = ecalloc(1, sizeof(setting_select));
+                    setting->custom_attrset = xcalloc(1, sizeof(setting_select));
                 } else if (type_id == OPT_TYPE_RANGE) {
-                    setting->custom_attrset = ecalloc(1, sizeof(setting_range));
+                    setting->custom_attrset = xcalloc(1, sizeof(setting_range));
                 }
             } else if (!strncmp(cp, "default ", 8)) {
                 setting_load_value(setting, cp + 8);
             } else if (!strncmp(cp, "desc ", 5)) {
-                setting->desc = estrdup(cp + 5);
+                setting->desc = xstrdup(cp + 5);
                 string_newline_to_literal(setting->desc);
             } else if (!strncmp(cp, "internal ", 9)) {
                 setting->internal = KEYWORD_IS_TRUE(cp + 9) ? 1 : 0;
             } else if (setting->type == OPT_TYPE_SELECT && !strncmp(cp, "option ", 7)) {
                 setting_select *s_select = SETTING_SELECT(setting);
 
-                s_select->options =
-                    erealloc(s_select->options,
-                             sizeof(*s_select->options) * (s_select->options_len + 1));
-                s_select->options[s_select->options_len] = estrdup(cp + 7);
+                s_select->options = xreallocarray(s_select->options,
+                                                  s_select->options_len + 1,
+                                                  sizeof(*s_select->options));
+                s_select->options[s_select->options_len] = xstrdup(cp + 7);
                 s_select->options_len++;
             } else if (setting->type == OPT_TYPE_RANGE && !strncmp(cp, "range ", 6)) {
                 setting_range *range = SETTING_RANGE(setting);
@@ -197,14 +195,14 @@ void settings_init(void) {
             }
         } else if (category) {
             if (!strncmp(cp, "setting ", 8)) {
-                setting = ecalloc(1, sizeof(*setting));
-                setting->name = estrdup(cp + 8);
+                setting = xcalloc(1, sizeof(*setting));
+                setting->name = xstrdup(cp + 8);
             } else {
                 LOG(BUG, "Invalid line: %s", cp);
             }
         } else if (!strncmp(cp, "category ", 9)) {
-            category = ecalloc(1, sizeof(*category));
-            category->name = estrdup(cp + 9);
+            category = xcalloc(1, sizeof(*category));
+            category->name = xstrdup(cp + 9);
         }
     }
 
@@ -318,14 +316,12 @@ void settings_deinit(void) {
     for (cat = 0; cat < setting_categories_num; cat++) {
         for (setting = 0; setting < setting_categories[cat]->settings_num; setting++) {
             if (setting_is_text(setting_categories[cat]->settings[setting])) {
-                efree(setting_categories[cat]->settings[setting]->val.str);
+                free(setting_categories[cat]->settings[setting]->val.str);
             }
 
-            efree(setting_categories[cat]->settings[setting]->name);
+            free(setting_categories[cat]->settings[setting]->name);
 
-            if (setting_categories[cat]->settings[setting]->desc) {
-                efree(setting_categories[cat]->settings[setting]->desc);
-            }
+            free(setting_categories[cat]->settings[setting]->desc);
 
             if (setting_categories[cat]->settings[setting]->type == OPT_TYPE_SELECT) {
                 setting_select *s_select =
@@ -333,33 +329,25 @@ void settings_deinit(void) {
                 size_t option;
 
                 for (option = 0; option < s_select->options_len; option++) {
-                    efree(s_select->options[option]);
+                    free(s_select->options[option]);
                 }
 
-                if (s_select->options) {
-                    efree(s_select->options);
-                }
+                free(s_select->options);
             }
 
-            if (setting_categories[cat]->settings[setting]->custom_attrset) {
-                efree(setting_categories[cat]->settings[setting]->custom_attrset);
-            }
+            free(setting_categories[cat]->settings[setting]->custom_attrset);
 
-            efree(setting_categories[cat]->settings[setting]);
+            free(setting_categories[cat]->settings[setting]);
         }
 
-        if (setting_categories[cat]->settings) {
-            efree(setting_categories[cat]->settings);
-        }
+        free(setting_categories[cat]->settings);
 
-        efree(setting_categories[cat]->name);
-        efree(setting_categories[cat]);
+        free(setting_categories[cat]->name);
+        free(setting_categories[cat]);
     }
 
-    if (setting_categories) {
-        efree(setting_categories);
-        setting_categories = NULL;
-    }
+    free(setting_categories);
+    setting_categories = NULL;
 
     setting_categories_num = 0;
 }
@@ -632,11 +620,9 @@ void setting_set_str(int cat, int setting, const char *val) {
 
     set = setting_categories[cat]->settings[setting];
 
-    if (set->val.str) {
-        efree(set->val.str);
-    }
+    free(set->val.str);
 
-    set->val.str = estrdup(val);
+    set->val.str = xstrdup(val);
 }
 
 /**

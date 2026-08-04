@@ -153,5 +153,5 @@ static void widget_background(widgetdata *widget, int draw) {
 void widget_render_profiler_init(widgetdata *widget) {
     widget->draw_func = widget_draw;
     widget->background_func = widget_background;
-    widget->subwidget = ecalloc(1, sizeof(uint32_t));
+    widget->subwidget = xcalloc(1, sizeof(uint32_t));
 }

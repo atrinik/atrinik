@@ -40,7 +40,7 @@
 #include <openssl/err.h>
 #include <openssl/x509.h>
 
-TOOLKIT_API(DEPENDS(clioptions), IMPORTS(memory));
+TOOLKIT_API(DEPENDS(clioptions));
 
 /**
  * Wrapper around curl_easy_setopt() that performs error checking.
@@ -228,7 +228,7 @@ static void curl_free_store(curl_trust_store_t *store) {
         EVP_PKEY_free(store->key);
     }
 
-    efree(store);
+    free(store);
 }
 
 /**
@@ -249,19 +249,19 @@ static bool curl_load_pem(const char *pubkey, curl_pkey_trust_t trust, char **er
     bool ret = false;
     /* Older versions of OpenSSL do not have const-correctness for
      * BIO_new_mem_buf(), so make a copy of it. */
-    char *cp = estrdup(pubkey);
+    char *cp = xstrdup(pubkey);
     curl_trust_store_t *store = NULL;
 
     BIO *key_bio = BIO_new_mem_buf(cp, -1);
     if (key_bio == NULL) {
-        *errmsg = estrdup("Failed to create a BIO");
+        *errmsg = xstrdup("Failed to create a BIO");
         goto out;
     }
 
-    store = ecalloc(1, sizeof(*store));
+    store = xcalloc(1, sizeof(*store));
     store->key = PEM_read_bio_PUBKEY(key_bio, NULL, NULL, NULL);
     if (store->key == NULL || EVP_PKEY_is_a(store->key, "RSA") != 1) {
-        *errmsg = estrdup("Failed to load RSA public key; ensure it's in a "
+        *errmsg = xstrdup("Failed to load RSA public key; ensure it's in a "
                           "valid PEM format");
         goto out;
     }
@@ -271,7 +271,7 @@ static bool curl_load_pem(const char *pubkey, curl_pkey_trust_t trust, char **er
     ret = true;
 
 out:
-    efree(cp);
+    free(cp);
 
     if (key_bio != NULL) {
         BIO_free(key_bio);
@@ -339,9 +339,9 @@ TOOLKIT_DEINIT_FUNC(curl) {
         curl_trust_pkeys[trust] = NULL;
     }
 
-    efree(curl_user_agent);
+    free(curl_user_agent);
     curl_user_agent = NULL;
-    efree(curl_data_dir);
+    free(curl_data_dir);
     curl_data_dir = NULL;
 }
 TOOLKIT_DEINIT_FUNC_FINISH
@@ -357,11 +357,9 @@ void curl_set_user_agent(const char *user_agent) {
 
     HARD_ASSERT(user_agent != NULL);
 
-    if (curl_user_agent != NULL) {
-        efree(curl_user_agent);
-    }
+    free(curl_user_agent);
 
-    curl_user_agent = estrdup(user_agent);
+    curl_user_agent = xstrdup(user_agent);
 }
 
 /**
@@ -375,11 +373,9 @@ void curl_set_data_dir(const char *dir) {
 
     HARD_ASSERT(dir != NULL);
 
-    if (curl_data_dir != NULL) {
-        efree(curl_data_dir);
-    }
+    free(curl_data_dir);
 
-    curl_data_dir = estrdup(dir);
+    curl_data_dir = xstrdup(dir);
 }
 
 /**
@@ -406,7 +402,7 @@ bool curl_set_trust_application(const char *pubkey) {
     char *errmsg;
     if (!curl_load_pem(pubkey, CURL_PKEY_TRUST_APPLICATION, &errmsg)) {
         LOG(ERROR, "Failed to load public key: %s", errmsg);
-        efree(errmsg);
+        free(errmsg);
         return false;
     }
 
@@ -445,7 +441,7 @@ static char *curl_load_etag(curl_request_t *request) {
         goto fail;
     }
 
-    etag = emalloc(sizeof(*etag) * (statbuf.st_size + 1));
+    etag = xmalloc(sizeof(*etag) * (statbuf.st_size + 1));
 
     if (fgets(etag, statbuf.st_size + 1, fp) == NULL) {
         LOG(ERROR, "Could not read %s: %d (%s)", path, errno, strerror(errno));
@@ -456,10 +452,8 @@ static char *curl_load_etag(curl_request_t *request) {
 
 fail:
     /* Free the etag on failure, if any. */
-    if (etag != NULL) {
-        efree(etag);
-        etag = NULL;
-    }
+    free(etag);
+    etag = NULL;
 
 done:
     if (fp != NULL) {
@@ -508,7 +502,7 @@ static bool curl_load_cache(curl_request_t *request) {
     }
 
     size_t size = statbuf.st_size;
-    buffer = emalloc(size + 1);
+    buffer = xmalloc(size + 1);
     if (fread(buffer, 1, size, fp) != size) {
         LOG(ERROR, "Could not read %s: %d (%s)", request->path, errno, strerror(errno));
         goto fail;
@@ -529,9 +523,7 @@ done:
         fclose(fp);
     }
 
-    if (buffer != NULL) {
-        efree(buffer);
-    }
+    free(buffer);
 
     return ret;
 }
@@ -598,8 +590,8 @@ curl_request_t *curl_request_create(const char *url, curl_pkey_trust_t trust) {
     HARD_ASSERT(url != NULL);
     TOOLKIT_PROTECT();
 
-    curl_request_t *request = ecalloc(1, sizeof(*request));
-    request->url = estrdup(url);
+    curl_request_t *request = xcalloc(1, sizeof(*request));
+    request->url = xstrdup(url);
     request->http_code = -1;
     /* coverity[missing_lock] */
     request->state = CURL_STATE_INPROGRESS;
@@ -628,9 +620,9 @@ void curl_request_form_add(curl_request_t *request, const char *key, const char 
     HARD_ASSERT(value != NULL);
     TOOLKIT_PROTECT();
 
-    curl_form_field_t *field = ecalloc(1, sizeof(*field));
-    field->key = estrdup(key);
-    field->value = estrdup(value);
+    curl_form_field_t *field = xcalloc(1, sizeof(*field));
+    field->key = xstrdup(key);
+    field->value = xstrdup(value);
     LL_APPEND(request->form_fields, field);
 }
 
@@ -647,11 +639,9 @@ void curl_request_set_path(curl_request_t *request, const char *path) {
     HARD_ASSERT(path != NULL);
     TOOLKIT_PROTECT();
 
-    if (request->path != NULL) {
-        efree(request->path);
-    }
+    free(request->path);
 
-    request->path = estrdup(path);
+    request->path = xstrdup(path);
 }
 
 /** Set the largest response body this request may retain. */
@@ -907,33 +897,25 @@ void curl_request_free(curl_request_t *request) {
         pthread_join(request->thread_id, NULL);
     }
 
-    if (request->body != NULL) {
-        efree(request->body);
-    }
+    free(request->body);
 
-    if (request->header != NULL) {
-        efree(request->header);
-    }
+    free(request->header);
 
-    if (request->path != NULL) {
-        efree(request->path);
-    }
+    free(request->path);
 
-    if (request->cert_cn != NULL) {
-        efree(request->cert_cn);
-    }
+    free(request->cert_cn);
 
     pthread_mutex_destroy(&request->mutex);
 
     curl_form_field_t *field, *tmp;
     LL_FOREACH_SAFE(request->form_fields, field, tmp) {
-        efree(field->key);
-        efree(field->value);
-        efree(field);
+        free(field->key);
+        free(field->value);
+        free(field);
     }
 
-    efree(request->url);
-    efree(request);
+    free(request->url);
+    free(request);
 }
 
 /**
@@ -990,11 +972,9 @@ static int curl_ssl_verify(int preverify_ok, X509_STORE_CTX *ctx) {
 
     pthread_mutex_lock(&request->mutex);
 
-    if (request->cert_cn != NULL) {
-        efree(request->cert_cn);
-    }
+    free(request->cert_cn);
 
-    request->cert_cn = estrdup(cn);
+    request->cert_cn = xstrdup(cn);
 
     if (request->cert_id == sizeof(request->cert_chain) * CHAR_BIT) {
         LOG(ERROR, "Certificate chain too long for URL: %s", request->url);
@@ -1147,8 +1127,9 @@ static size_t curl_callback(char *buffer, size_t size, size_t nitems, void *user
 
     size_t realsize = size * nitems;
 
-    if ((size != 0 && realsize / size != nitems) ||
-        realsize > request->max_body_size - request->body_size) {
+    if ((size != 0 && realsize / size != nitems) || request->body_size > request->max_body_size ||
+        realsize > request->max_body_size - request->body_size || request->body_size == SIZE_MAX ||
+        realsize > SIZE_MAX - request->body_size - 1) {
         LOG(ERROR, "HTTP response exceeds configured body limit");
         pthread_mutex_unlock(&request->mutex);
         return 0;
@@ -1158,12 +1139,10 @@ static size_t curl_callback(char *buffer, size_t size, size_t nitems, void *user
         process_cb(CURL_REQUEST_PROCESS_RX, realsize);
     }
 
-    request->body = erealloc(request->body, request->body_size + realsize + 1);
-    if (request->body != NULL) {
-        memcpy(request->body + request->body_size, buffer, realsize);
-        request->body_size += realsize;
-        request->body[request->body_size] = '\0';
-    }
+    request->body = xrealloc(request->body, request->body_size + realsize + 1);
+    memcpy(request->body + request->body_size, buffer, realsize);
+    request->body_size += realsize;
+    request->body[request->body_size] = '\0';
 
     pthread_mutex_unlock(&request->mutex);
 
@@ -1195,16 +1174,21 @@ static size_t curl_header_callback(char *buffer, size_t size, size_t nitems, voi
 
     size_t realsize = size * nitems;
 
+    if ((size != 0 && realsize / size != nitems) || request->header_size == SIZE_MAX ||
+        realsize > SIZE_MAX - request->header_size - 1) {
+        LOG(ERROR, "HTTP response headers exceed addressable memory");
+        pthread_mutex_unlock(&request->mutex);
+        return 0;
+    }
+
     if (process_cb != NULL) {
         process_cb(CURL_REQUEST_PROCESS_RX, realsize);
     }
 
-    request->header = erealloc(request->header, request->header_size + realsize + 1);
-    if (request->header != NULL) {
-        memcpy(request->header + request->header_size, buffer, realsize);
-        request->header_size += realsize;
-        request->header[request->header_size] = '\0';
-    }
+    request->header = xrealloc(request->header, request->header_size + realsize + 1);
+    memcpy(request->header + request->header_size, buffer, realsize);
+    request->header_size += realsize;
+    request->header[request->header_size] = '\0';
 
     pthread_mutex_unlock(&request->mutex);
 
@@ -1395,7 +1379,7 @@ void *curl_request_do_get(void *user_data) {
     if (etag != NULL) {
         char header[MAX_BUF];
         snprintf(VS(header), "If-None-Match: %s", etag);
-        efree(etag);
+        free(etag);
         chunk = curl_slist_append(chunk, header);
         curl_easy_setopt(request->handle, CURLOPT_HTTPHEADER, chunk);
     }
@@ -1599,16 +1583,16 @@ static bool curl_do_verify(EVP_PKEY *key,
         goto error;
     }
 
-    unsigned char *cp = emalloc(sig_len);
+    unsigned char *cp = xmalloc(sig_len);
     memcpy(cp, sig, sig_len);
 
     if (EVP_DigestVerifyFinal(ctx, cp, sig_len) != 1) {
         LOG(ERROR, "EVP_DigestVerifyFinal() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        efree(cp);
+        free(cp);
         goto error;
     }
 
-    efree(cp);
+    free(cp);
 
     bool ret = true;
     goto out;

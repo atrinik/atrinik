@@ -165,7 +165,7 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl, o
     } else {
         char *name = object_get_short_name_s(clone, op);
         snprintf(VS(buf), "You found the special drop %s!\n", name);
-        efree(name);
+        free(name);
     }
 
     draw_map_text_anim(op, COLOR_NAVY, buf);
@@ -268,7 +268,7 @@ static void quest_check_item(object *op, object *quest, object *quest_pl, object
 
     char *name = object_get_base_name_s(clone, op);
     snprintf(VS(buf), "Quest [b]%s[/b]: You found the quest item %s", QUEST_NAME(quest_pl), name);
-    efree(name);
+    free(name);
 
     if (quest_pl->last_grace > 1) {
         snprintfcat(VS(buf), " (%" PRId64 "/%d)", num + MAX(1, clone->nrof), quest_pl->last_grace);

@@ -106,9 +106,9 @@ static void sound_background_hook_execute(void) {
 static sound_data_struct *sound_new(int type, const char *filename, void *data) {
     sound_data_struct *tmp;
 
-    tmp = emalloc(sizeof(sound_data_struct));
+    tmp = xmalloc(sizeof(sound_data_struct));
     tmp->type = type;
-    tmp->filename = estrdup(filename);
+    tmp->filename = xstrdup(filename);
     tmp->data = data;
     HASH_ADD_KEYPTR(hh, sound_data, tmp->filename, strlen(tmp->filename), tmp);
 
@@ -135,8 +135,8 @@ static void sound_free(sound_data_struct *tmp) {
             break;
     }
 
-    efree(tmp->filename);
-    efree(tmp);
+    free(tmp->filename);
+    free(tmp);
 }
 
 /**
@@ -153,14 +153,14 @@ static uint32_t sound_music_file_get_duration(const char *filename) {
     snprintf(path, sizeof(path), DIRECTORY_MEDIA "/durations/%s", filename);
     cp = file_path(path, "r");
     contents = path_file_contents(cp);
-    efree(cp);
+    free(cp);
 
     if (!contents) {
         return 0;
     }
 
     duration = atoi(contents);
-    efree(contents);
+    free(contents);
 
     return duration;
 }
@@ -233,7 +233,7 @@ static void sound_music_finished_process(void) {
         sound_start_bg_music(bg_music, sound_background_volume, sound_background_loop);
     }
 
-    efree(tmp);
+    free(tmp);
 }
 
 #endif
@@ -312,10 +312,8 @@ void sound_deinit(void) {
 #endif
 
     sound_ambient_clear();
-    if (sound_background != NULL) {
-        efree(sound_background);
-        sound_background = NULL;
-    }
+    free(sound_background);
+    sound_background = NULL;
 
 #ifdef HAVE_SDL_MIXER
     sound_cache_free();
@@ -404,7 +402,7 @@ void sound_play_effect(const char *filename, int volume) {
     snprintf(path, sizeof(path), DIRECTORY_SFX "/%s", filename);
     cp = file_path(path, "r");
     sound_add_effect(cp, volume, 0);
-    efree(cp);
+    free(cp);
 }
 
 /**
@@ -427,7 +425,7 @@ int sound_play_effect_loop(const char *filename, int volume, int loop) {
     snprintf(path, sizeof(path), DIRECTORY_SFX "/%s", filename);
     cp = file_path(path, "r");
     ret = sound_add_effect(cp, volume, loop);
-    efree(cp);
+    free(cp);
 
     return ret;
 }
@@ -471,7 +469,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop) {
 
         cp = file_path(path, "r");
         music = Mix_LoadMUS(cp);
-        efree(cp);
+        free(cp);
 
         if (music == NULL) {
             LOG(BUG, "Could not load '%s'. Reason: %s.", path, Mix_GetError());
@@ -484,7 +482,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop) {
 
     sound_stop_bg_music();
 
-    sound_background = estrdup(path);
+    sound_background = xstrdup(path);
     sound_background_hook_execute();
     sound_background_loop = loop;
     sound_background_volume = volume;
@@ -515,7 +513,7 @@ void sound_stop_bg_music(void) {
     }
 
     if (sound_background) {
-        efree(sound_background);
+        free(sound_background);
         sound_background = NULL;
 #ifdef HAVE_SDL_MIXER
         sound_background_hook_execute();
@@ -780,7 +778,7 @@ static void sound_ambient_free(sound_ambient_struct *tmp) {
 #ifdef HAVE_SDL_MIXER
     Mix_HaltChannel(tmp->channel);
 #endif
-    efree(tmp);
+    free(tmp);
 }
 
 /**
@@ -901,7 +899,7 @@ void socket_command_sound_ambient(uint8_t *data, size_t len, size_t pos) {
             /* Successfully started playing the effect, add it to the
              * list of active sound effects. */
             if (channel != -1) {
-                sound_ambient = ecalloc(1, sizeof(*sound_ambient));
+                sound_ambient = xcalloc(1, sizeof(*sound_ambient));
                 sound_ambient->channel = channel;
                 sound_ambient->tag = tag;
                 sound_ambient->x = x;

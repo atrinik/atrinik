@@ -142,7 +142,7 @@ static int popup_draw(popup_struct *popup) {
     } else if (state == CURL_STATE_OK) {
         if (game_news->msg == NULL) {
             char *body = curl_request_get_body(game_news->request, NULL);
-            game_news->msg = estrdup(body != NULL ? body : "???");
+            game_news->msg = xstrdup(body != NULL ? body : "???");
 
             box.w = NEWS_MAX_WIDTH;
             box.h = NEWS_MAX_HEIGHT;
@@ -234,12 +234,10 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
 /** @copydoc popup_struct::destroy_callback_func */
 static int popup_destroy_callback(popup_struct *popup) {
     game_news_t *game_news = popup->custom_data;
-    efree(game_news->title);
+    free(game_news->title);
     curl_request_free(game_news->request);
 
-    if (game_news->msg != NULL) {
-        efree(game_news->msg);
-    }
+    free(game_news->msg);
 
     return 1;
 }
@@ -257,9 +255,9 @@ void game_news_open(const char *title) {
     popup->destroy_callback_func = popup_destroy_callback;
     popup->disable_texture_drawing = 1;
 
-    game_news_t *game_news = ecalloc(1, sizeof(*game_news));
+    game_news_t *game_news = xcalloc(1, sizeof(*game_news));
     popup->custom_data = game_news;
-    game_news->title = estrdup(title);
+    game_news->title = xstrdup(title);
 
     /* Initialize cURL, escape the game news title and construct
      * the url to use for downloading. */

@@ -54,7 +54,7 @@ static void region_map_fow_reset(region_map_t *region_map);
 region_map_t *region_map_create(void) {
     region_map_t *region_map;
 
-    region_map = ecalloc(1, sizeof(*region_map));
+    region_map = xcalloc(1, sizeof(*region_map));
     region_map->zoom = 100;
     region_map->def = region_map_def_new();
     region_map->fow = region_map_fow_new();
@@ -72,7 +72,7 @@ region_map_t *region_map_create(void) {
 region_map_t *region_map_clone(region_map_t *region_map) {
     region_map_t *clone;
 
-    clone = ecalloc(1, sizeof(*clone));
+    clone = xcalloc(1, sizeof(*clone));
     clone->zoom = 100;
     clone->surface = SDL_DisplayFormat(region_map->surface);
     clone->def = region_map->def;
@@ -94,9 +94,9 @@ void region_map_free(region_map_t *region_map) {
     HARD_ASSERT(region_map->fow != NULL);
 
     region_map_reset(region_map);
-    efree(region_map->def);
-    efree(region_map->fow);
-    efree(region_map);
+    free(region_map->def);
+    free(region_map->fow);
+    free(region_map);
 }
 
 /**
@@ -122,7 +122,7 @@ void region_map_reset(region_map_t *region_map) {
      * be freed before the surface... */
     if (--region_map->fow->refcount == 0) {
         region_map_fow_free(region_map);
-        efree(region_map->fow);
+        free(region_map->fow);
     }
 
     region_map->fow = region_map_fow_new();
@@ -139,7 +139,7 @@ void region_map_reset(region_map_t *region_map) {
 
     if (--region_map->def->refcount == 0) {
         region_map_def_free(region_map->def);
-        efree(region_map->def);
+        free(region_map->def);
     }
 
     region_map->def = region_map_def_new();
@@ -182,7 +182,7 @@ void region_map_update(region_map_t *region_map, const char *region_name) {
         return;
     }
     region_map->source_png = asset_source_start(buf, path);
-    efree(path);
+    free(path);
     snprintf(VS(buf), "client-maps/%s.def", region_name);
     path = file_path_server(buf);
     if (path == NULL) {
@@ -192,7 +192,7 @@ void region_map_update(region_map_t *region_map, const char *region_name) {
         return;
     }
     region_map->source_def = asset_source_start(buf, path);
-    efree(path);
+    free(path);
 
     snprintf(VS(buf), "client-maps/%s.tiles", region_name);
     region_map->fow->path = file_path_player(buf);
@@ -517,7 +517,7 @@ void region_map_render_fow(region_map_t *region_map, SDL_Surface *surface, int x
 static region_map_def_t *region_map_def_new(void) {
     region_map_def_t *def;
 
-    def = ecalloc(1, sizeof(*def));
+    def = xcalloc(1, sizeof(*def));
     def->refcount = 1;
 
     return def;
@@ -573,13 +573,13 @@ static void region_map_def_load(region_map_def_t *def, const char *str) {
                 continue;
             }
 
-            def->maps = erealloc(def->maps, sizeof(*def->maps) * (def->num_maps + 1));
+            def->maps = xreallocarray(def->maps, (def->num_maps + 1), sizeof(*def->maps));
             def_map = &def->maps[def->num_maps];
             def->num_maps++;
 
             def_map->xpos = strtoul(cps[0], NULL, 16);
             def_map->ypos = strtoul(cps[1], NULL, 16);
-            def_map->path = estrdup(cps[2]);
+            def_map->path = xstrdup(cps[2]);
             def_map->regions = NULL;
             def_map->regions_num = 0;
 
@@ -587,10 +587,10 @@ static void region_map_def_load(region_map_def_t *def, const char *str) {
                 pos2 = 0;
 
                 while (string_get_word(cps[3], &pos2, ',', VS(region), 0)) {
-                    def_map->regions =
-                        erealloc(def_map->regions,
-                                 sizeof(*def_map->regions) * (def_map->regions_num + 1));
-                    def_map->regions[def_map->regions_num] = estrdup(region);
+                    def_map->regions = xreallocarray(def_map->regions,
+                                                     def_map->regions_num + 1,
+                                                     sizeof(*def_map->regions));
+                    def_map->regions[def_map->regions_num] = xstrdup(region);
                     def_map->regions_num++;
                 }
             }
@@ -600,11 +600,11 @@ static void region_map_def_load(region_map_def_t *def, const char *str) {
                 continue;
             }
 
-            def->labels = erealloc(def->labels, sizeof(*def->labels) * (def->num_labels + 1));
+            def->labels = xreallocarray(def->labels, (def->num_labels + 1), sizeof(*def->labels));
             def->labels[def->num_labels].x = strtoul(cps[0], NULL, 16);
             def->labels[def->num_labels].y = strtoul(cps[1], NULL, 16);
-            def->labels[def->num_labels].name = estrdup(cps[2]);
-            def->labels[def->num_labels].text = estrdup(cps[3]);
+            def->labels[def->num_labels].name = xstrdup(cps[2]);
+            def->labels[def->num_labels].text = xstrdup(cps[3]);
             string_newline_to_literal(def->labels[def->num_labels].text);
             def->num_labels++;
         } else if (strcmp(cps[0], "label_hide") == 0) {
@@ -616,14 +616,14 @@ static void region_map_def_load(region_map_def_t *def, const char *str) {
             }
 
             def->tooltips =
-                erealloc(def->tooltips, sizeof(*def->tooltips) * (def->num_tooltips + 1));
+                xreallocarray(def->tooltips, (def->num_tooltips + 1), sizeof(*def->tooltips));
             def->tooltips[def->num_tooltips].outline = 0;
             def->tooltips[def->num_tooltips].x = strtoul(cps[0], NULL, 16);
             def->tooltips[def->num_tooltips].y = strtoul(cps[1], NULL, 16);
             def->tooltips[def->num_tooltips].w = strtoul(cps[2], NULL, 16);
             def->tooltips[def->num_tooltips].h = strtoul(cps[3], NULL, 16);
-            def->tooltips[def->num_tooltips].name = estrdup(cps[4]);
-            def->tooltips[def->num_tooltips].text = estrdup(cps[5]);
+            def->tooltips[def->num_tooltips].name = xstrdup(cps[4]);
+            def->tooltips[def->num_tooltips].text = xstrdup(cps[5]);
             string_newline_to_literal(def->tooltips[def->num_tooltips].text);
             def->num_tooltips++;
         } else if (strcmp(cps[0], "t_outline") == 0) {
@@ -662,46 +662,40 @@ static void region_map_def_free(region_map_def_t *def) {
 
     /* Free all maps. */
     for (i = 0; i < def->num_maps; i++) {
-        efree(def->maps[i].path);
+        free(def->maps[i].path);
 
         if (def->maps[i].regions != NULL) {
             for (size_t j = 0; j < def->maps[i].regions_num; j++) {
-                efree(def->maps[i].regions[j]);
+                free(def->maps[i].regions[j]);
             }
 
-            efree(def->maps[i].regions);
+            free(def->maps[i].regions);
         }
     }
 
-    if (def->maps != NULL) {
-        efree(def->maps);
-        def->maps = NULL;
-        def->num_maps = 0;
-    }
+    free(def->maps);
+    def->maps = NULL;
+    def->num_maps = 0;
 
     /* Free labels. */
     for (i = 0; i < def->num_labels; i++) {
-        efree(def->labels[i].name);
-        efree(def->labels[i].text);
+        free(def->labels[i].name);
+        free(def->labels[i].text);
     }
 
-    if (def->labels != NULL) {
-        efree(def->labels);
-        def->labels = NULL;
-        def->num_labels = 0;
-    }
+    free(def->labels);
+    def->labels = NULL;
+    def->num_labels = 0;
 
     /* Free tooltips. */
     for (i = 0; i < def->num_tooltips; i++) {
-        efree(def->tooltips[i].name);
-        efree(def->tooltips[i].text);
+        free(def->tooltips[i].name);
+        free(def->tooltips[i].text);
     }
 
-    if (def->tooltips != NULL) {
-        efree(def->tooltips);
-        def->tooltips = NULL;
-        def->num_tooltips = 0;
-    }
+    free(def->tooltips);
+    def->tooltips = NULL;
+    def->num_tooltips = 0;
 }
 
 /**
@@ -712,7 +706,7 @@ static void region_map_def_free(region_map_def_t *def) {
 static region_map_fow_t *region_map_fow_new(void) {
     region_map_fow_t *fow;
 
-    fow = ecalloc(1, sizeof(*fow));
+    fow = xcalloc(1, sizeof(*fow));
     fow->refcount = 1;
     utarray_new(fow->tiles, &icd);
 
@@ -734,7 +728,7 @@ static void region_map_fow_create(region_map_t *region_map) {
         if (fstat(fileno(fp), &statbuf) == -1) {
             LOG(ERROR, "Could not stat %s: %d (%s)", region_map->fow->path, errno, strerror(errno));
         } else if ((size_t)statbuf.st_size == RM_MAP_FOW_BITMAP_SIZE(region_map)) {
-            region_map->fow->bitmap = emalloc(statbuf.st_size);
+            region_map->fow->bitmap = xmalloc(statbuf.st_size);
 
             if (fread(region_map->fow->bitmap, 1, statbuf.st_size, fp) != (size_t)statbuf.st_size) {
                 LOG(ERROR,
@@ -744,7 +738,7 @@ static void region_map_fow_create(region_map_t *region_map) {
                     region_map->fow->path,
                     errno,
                     strerror(errno));
-                efree(region_map->fow->bitmap);
+                free(region_map->fow->bitmap);
                 region_map->fow->bitmap = NULL;
             }
         }
@@ -753,7 +747,7 @@ static void region_map_fow_create(region_map_t *region_map) {
     }
 
     if (region_map->fow->bitmap == NULL) {
-        region_map->fow->bitmap = ecalloc(1, RM_MAP_FOW_BITMAP_SIZE(region_map));
+        region_map->fow->bitmap = xcalloc(1, RM_MAP_FOW_BITMAP_SIZE(region_map));
     }
 
     region_map_fow_update(region_map);
@@ -771,17 +765,15 @@ static void region_map_fow_free(region_map_t *region_map) {
     if (region_map->fow->tiles != NULL) {
         for (i = 0; i < utarray_len(region_map->fow->tiles); i++) {
             tile = (region_map_fow_tile_t *)utarray_eltptr(region_map->fow->tiles, i);
-            efree(tile->path);
+            free(tile->path);
         }
 
         utarray_free(region_map->fow->tiles);
         region_map->fow->tiles = NULL;
     }
 
-    if (region_map->fow->path != NULL) {
-        efree(region_map->fow->path);
-        region_map->fow->path = NULL;
-    }
+    free(region_map->fow->path);
+    region_map->fow->path = NULL;
 }
 
 static void region_map_fow_reset(region_map_t *region_map) {
@@ -811,7 +803,7 @@ static void region_map_fow_reset(region_map_t *region_map) {
             fclose(fp);
         }
 
-        efree(region_map->fow->bitmap);
+        free(region_map->fow->bitmap);
         region_map->fow->bitmap = NULL;
     }
 }
@@ -894,7 +886,7 @@ void region_map_fow_update(region_map_t *region_map) {
         for (size_t i = 0; i < utarray_len(region_map->fow->tiles); i++) {
             tile = (region_map_fow_tile_t *)utarray_eltptr(region_map->fow->tiles, i);
             def_map = region_map_find_map(region_map, tile->path);
-            efree(tile->path);
+            free(tile->path);
 
             if (def_map != NULL) {
                 region_map_fow_set_visited(region_map, def_map, NULL, tile->x, tile->y);
@@ -971,7 +963,7 @@ bool region_map_fow_set_visited(region_map_t *region_map,
             return false;
         }
 
-        tile.path = estrdup(map_path);
+        tile.path = xstrdup(map_path);
         tile.x = x;
         tile.y = y;
         utarray_push_back(region_map->fow->tiles, &tile);

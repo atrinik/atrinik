@@ -252,7 +252,7 @@ bool door_try_open(object *op, mapstruct *m, int x, int y, bool test) {
                                      "You open the %s with the %s.",
                                      tmp->name,
                                      key_name);
-                    efree(key_name);
+                    free(key_name);
                 } else if (key->type == FORCE) {
                     draw_info_format(COLOR_WHITE, op, "The %s is opened for you.", tmp->name);
                 }

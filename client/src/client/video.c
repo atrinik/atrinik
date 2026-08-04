@@ -201,7 +201,7 @@ static void video_set_icon_x11(SDL_Surface *icon,
 
     size_t mask_len = icon->h * (icon->w + 7) / 8;
     int flags = 0;
-    Uint8 *mask = emalloc(mask_len);
+    Uint8 *mask = xmalloc(mask_len);
     memset(mask, ~0, mask_len);
 
     if (icon->flags & SDL_SRCCOLORKEY) {
@@ -244,7 +244,7 @@ static void video_set_icon_x11(SDL_Surface *icon,
     }
 
     size_t prop_size = 2 + (icon->w * icon->h);
-    long *prop_data = emalloc(prop_size * sizeof(*prop_data));
+    long *prop_data = xmallocarray(prop_size, sizeof(*prop_data));
 
     prop_data[0] = icon->w;
     prop_data[1] = icon->h;
@@ -275,14 +275,14 @@ static void video_set_icon_x11(SDL_Surface *icon,
                     PropModeReplace,
                     (unsigned char *)prop_data,
                     prop_size);
-    efree(prop_data);
+    free(prop_data);
 
 out:
     if (surface != NULL) {
         SDL_FreeSurface(surface);
     }
 
-    efree(mask);
+    free(mask);
 }
 #endif
 
@@ -428,7 +428,7 @@ int video_fullscreen_toggle(SDL_Surface **surface, uint32_t *flags) {
     /* Save the contents of the screen. */
     if ((!(tmpflags & SDL_OPENGL)) && (!(tmpflags & SDL_OPENGLBLIT))) {
         framesize = (w * h) * (size_t)(*surface)->format->BytesPerPixel;
-        pixels = emalloc(framesize);
+        pixels = xmalloc(framesize);
 
         if (pixels == NULL) {
             return 0;
@@ -451,9 +451,7 @@ int video_fullscreen_toggle(SDL_Surface **surface, uint32_t *flags) {
         *surface = SDL_SetVideoMode(w, h, bpp, tmpflags);
 
         if (*surface == NULL) {
-            if (pixels) {
-                efree(pixels);
-            }
+            free(pixels);
 
             return 0;
         }
@@ -462,7 +460,7 @@ int video_fullscreen_toggle(SDL_Surface **surface, uint32_t *flags) {
     /* Unfortunately, you lose your OpenGL image until the next frame... */
     if (pixels) {
         memcpy((*surface)->pixels, pixels, framesize);
-        efree(pixels);
+        free(pixels);
     }
 
     SDL_SetClipRect(*surface, &clip);

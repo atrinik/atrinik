@@ -162,9 +162,9 @@ static bool clioptions_option_help(const char *arg, char **errmsg) {
             for (const char *curr = cli->desc, *next;
                  (curr != NULL && (next = strchr(curr, '\n'))) || curr != NULL;
                  curr = next != NULL ? next + 1 : NULL) {
-                char *cp = estrndup(curr, next - curr);
+                char *cp = xstrndup(curr, next - curr);
                 LOG(INFO, "%s", cp);
-                efree(cp);
+                free(cp);
             }
 
             exit(0);
@@ -200,7 +200,7 @@ static bool clioptions_option_help(const char *arg, char **errmsg) {
 
         char *desc = stringbuffer_finish(sb);
         LOG(INFO, "    %s: %s", desc, cli->desc_brief);
-        efree(desc);
+        free(desc);
     }
     FOR_CLIOPTIONS_END();
 
@@ -277,15 +277,11 @@ TOOLKIT_INIT_FUNC_FINISH
 
 TOOLKIT_DEINIT_FUNC(clioptions) {
     FOR_CLIOPTIONS_BEGIN(cli) {
-        if (cli->value != NULL) {
-            efree(cli->value);
-        }
+        free(cli->value);
     }
     FOR_CLIOPTIONS_END();
-    if (clioptions != NULL) {
-        efree(clioptions);
-        clioptions = NULL;
-    }
+    free(clioptions);
+    clioptions = NULL;
 
     clioptions_num = 0;
 }
@@ -305,9 +301,8 @@ clioption_t *clioptions_create(const char *name, clioptions_handler_func handler
     }
     FOR_CLIOPTIONS_END();
 
-    clioptions = ereallocz(clioptions,
-                           sizeof(*clioptions) * clioptions_num,
-                           sizeof(*clioptions) * (clioptions_num + 1));
+    clioptions = xreallocarray(clioptions, clioptions_num + 1, sizeof(*clioptions));
+    memset(&clioptions[clioptions_num], 0, sizeof(*clioptions));
     clioption_t *cli = &clioptions[clioptions_num++];
     cli->name = name;
     cli->handler_func = handler_func;
@@ -462,21 +457,17 @@ static bool clioptions_call_handler(clioption_t *cli, const char *cli_arg, char 
     }
 
     if (!cli->handler_func(cli_arg, errmsg)) {
-        if (contents != NULL) {
-            efree(contents);
-        }
+        free(contents);
 
         return false;
     }
 
-    if (cli->value != NULL) {
-        efree(cli->value);
-    }
+    free(cli->value);
 
     if (contents != NULL) {
         cli->value = contents;
     } else if (cli_arg != NULL) {
-        cli->value = estrdup(cli_arg);
+        cli->value = xstrdup(cli_arg);
     }
 
     return true;
@@ -509,9 +500,7 @@ void clioptions_parse(int argc, char *argv[]) {
                     argv[old_i],
                     i != old_i ? argv[i] : "");
 
-                if (errmsg != NULL) {
-                    efree(errmsg);
-                }
+                free(errmsg);
             }
         }
     }
@@ -556,9 +545,7 @@ bool clioptions_load(const char *path, const char *category) {
                     path,
                     cp);
 
-                if (errmsg != NULL) {
-                    efree(errmsg);
-                }
+                free(errmsg);
             }
         }
     }
@@ -572,14 +559,14 @@ bool clioptions_load_str(const char *str, char **errmsg) {
     HARD_ASSERT(str != NULL);
     HARD_ASSERT(errmsg != NULL);
 
-    char *cp = estrdup(str);
+    char *cp = xstrdup(str);
     char **argv = NULL;
     bool ret = false;
     *errmsg = NULL;
 
     char *cps[2];
     if (string_split(cp, cps, arraysize(cps), '=') != arraysize(cps)) {
-        *errmsg = estrdup("Option must be in the form of '<name> = <value>'");
+        *errmsg = xstrdup("Option must be in the form of '<name> = <value>'");
         goto out;
     }
 
@@ -590,14 +577,14 @@ bool clioptions_load_str(const char *str, char **errmsg) {
     char buf[HUGE_BUF];
     snprintf(buf, sizeof(buf), "--%s=%s", cps[0], cps[1]);
 
-    argv = emalloc(sizeof(*argv) * 2);
-    argv[1] = estrdup(buf);
+    argv = xmallocarray(2, sizeof(*argv));
+    argv[1] = xstrdup(buf);
 
     const char *cli_arg;
     int idx = 1;
     clioption_t *cli = clioptions_parse_find(2, argv, &idx, &cli_arg);
     if (cli == NULL) {
-        *errmsg = estrdup("No such option");
+        *errmsg = xstrdup("No such option");
         goto out;
     }
 
@@ -605,25 +592,25 @@ bool clioptions_load_str(const char *str, char **errmsg) {
         if (!clioptions_runtime) {
             ret = true;
         } else {
-            *errmsg = estrdup("Option doesn't have a handler function");
+            *errmsg = xstrdup("Option doesn't have a handler function");
         }
 
         goto out;
     }
 
     if (clioptions_runtime && !cli->changeable) {
-        *errmsg = estrdup("Option is not changeable at runtime");
+        *errmsg = xstrdup("Option is not changeable at runtime");
         goto out;
     }
 
     ret = clioptions_call_handler(cli, cli_arg, errmsg);
 
 out:
-    efree(cp);
+    free(cp);
 
     if (argv != NULL) {
-        efree(argv[1]);
-        efree(argv);
+        free(argv[1]);
+        free(argv);
     }
 
     return ret;

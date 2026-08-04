@@ -79,7 +79,7 @@ START_TEST(test_cursed_starting_items) {
                              name,
                              object_get_str(tmp),
                              i);
-                efree(name);
+                free(name);
             }
         }
     }

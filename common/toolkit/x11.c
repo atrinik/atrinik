@@ -170,12 +170,7 @@ static char *x11_get_property(Display *display,
 
     /* Terminate the result to make string handling easier. */
     tmp_size = (ret_format / 8) * ret_nitems;
-    ret = malloc(tmp_size + 1);
-
-    if (ret == NULL) {
-        log_error("OOM.");
-        abort();
-    }
+    ret = xmalloc(tmp_size + 1);
 
     memcpy(ret, ret_prop, tmp_size);
     ret[tmp_size] = '\0';
@@ -476,7 +471,7 @@ char *x11_clipboard_get(x11_display_type display, x11_window_type win) {
                            &overflow,
                            (unsigned char **)&src) == Success) {
         if (seln_type == XA_STRING) {
-            result = estrdup(src);
+            result = xstrdup(src);
         }
 
         XFree(src);
@@ -491,7 +486,7 @@ char *x11_clipboard_get(x11_display_type display, x11_window_type win) {
 
         if (hMem) {
             src = (char *)GlobalLock(hMem);
-            result = estrdup(src);
+            result = xstrdup(src);
             GlobalUnlock(hMem);
         }
 

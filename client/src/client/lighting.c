@@ -18,13 +18,22 @@
 #include <lighting.h>
 
 static SDL_Surface *lightmap;
+static SDL_Surface *lighting_lit_surface;
 static Uint32 alpha_pixels[UINT8_MAX + 1];
 static uint16_t *light_samples;
+static uint16_t *structure_samples;
+static uint16_t *structure_blur_row;
+static uint8_t *structure_rows_valid;
 static size_t light_samples_num;
 static bool lighting_active;
+static bool lighting_cache_valid;
+static bool lighting_update_needed;
+static uint64_t lighting_cache_key;
+static uint64_t lighting_pending_cache_key;
 
 #define LIGHT_SAMPLE_PRESENT (UINT16_C(1) << 8)
 #define LIGHT_SAMPLE_ALPHA(_sample) ((uint8_t)((_sample) & UINT8_MAX))
+#define LIGHT_STRUCTURE_BLUR_RADIUS 24
 
 static bool lighting_surface_create(int width, int height) {
     if (lightmap != NULL && lightmap->w == width && lightmap->h == height) {
@@ -35,6 +44,7 @@ static bool lighting_surface_create(int width, int height) {
         SDL_FreeSurface(lightmap);
         lightmap = NULL;
     }
+    lighting_cache_valid = false;
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     const Uint32 rmask = 0xff000000;
@@ -59,14 +69,19 @@ static bool lighting_surface_create(int width, int height) {
     }
 
     size_t samples_num = (size_t)width * (size_t)height;
-    light_samples = erealloc(light_samples, samples_num * sizeof(*light_samples));
+    light_samples = xreallocarray(light_samples, samples_num, sizeof(*light_samples));
+    structure_samples = xreallocarray(structure_samples, samples_num, sizeof(*structure_samples));
+    structure_blur_row =
+        xreallocarray(structure_blur_row, (size_t)width, sizeof(*structure_blur_row));
+    structure_rows_valid =
+        xreallocarray(structure_rows_valid, (size_t)height, sizeof(*structure_rows_valid));
     light_samples_num = samples_num;
 
     SDL_SetAlpha(lightmap, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
     return true;
 }
 
-bool lighting_begin(int width, int height) {
+bool lighting_begin(int width, int height, uint64_t cache_key) {
     HARD_ASSERT(width > 0);
     HARD_ASSERT(height > 0);
     HARD_ASSERT(!lighting_active);
@@ -75,9 +90,19 @@ bool lighting_begin(int width, int height) {
         return false;
     }
 
-    memset(light_samples, 0, light_samples_num * sizeof(*light_samples));
+    lighting_update_needed = !lighting_cache_valid || lighting_cache_key != cache_key;
+    lighting_pending_cache_key = cache_key;
+    if (lighting_update_needed) {
+        memset(light_samples, 0, light_samples_num * sizeof(*light_samples));
+    }
+
     lighting_active = true;
     return true;
+}
+
+bool lighting_needs_update(void) {
+    HARD_ASSERT(lighting_active);
+    return lighting_update_needed;
 }
 
 /** Evaluate an edge at doubled coordinates, preserving pixel-center precision. */
@@ -142,6 +167,7 @@ void lighting_draw_quad(const lighting_vertex_t vertices[4]) {
     HARD_ASSERT(vertices != NULL);
     HARD_ASSERT(lightmap != NULL);
     HARD_ASSERT(lighting_active);
+    HARD_ASSERT(lighting_update_needed);
 
     int min_x = MIN(MIN(vertices[0].x, vertices[1].x), MIN(vertices[2].x, vertices[3].x));
     int max_x = MAX(MAX(vertices[0].x, vertices[1].x), MAX(vertices[2].x, vertices[3].x));
@@ -247,16 +273,61 @@ static void lighting_extrapolate(void) {
     }
 }
 
+/** Apply one horizontal box-blur pass to a light sample row. */
+static void lighting_blur_row(const uint16_t *source, uint16_t *destination) {
+    const int radius = LIGHT_STRUCTURE_BLUR_RADIUS;
+    const uint32_t diameter = radius * 2 + 1;
+    uint32_t sum = 0;
+
+    for (int offset = -radius; offset <= radius; offset++) {
+        int source_x = MAX(0, MIN(lightmap->w - 1, offset));
+        sum += LIGHT_SAMPLE_ALPHA(source[source_x]);
+    }
+
+    for (int x = 0; x < lightmap->w; x++) {
+        destination[x] = LIGHT_SAMPLE_PRESENT | (uint8_t)((sum + diameter / 2) / diameter);
+
+        int outgoing_x = MAX(0, MIN(lightmap->w - 1, x - radius));
+        int incoming_x = MAX(0, MIN(lightmap->w - 1, x + radius + 1));
+        sum -= LIGHT_SAMPLE_ALPHA(source[outgoing_x]);
+        sum += LIGHT_SAMPLE_ALPHA(source[incoming_x]);
+    }
+}
+
+/** Lazily soften one horizontal light row used by a large structure. */
+static void lighting_blur_structure_row(int y) {
+    HARD_ASSERT(y >= 0 && y < lightmap->h);
+
+    if (structure_rows_valid[y]) {
+        return;
+    }
+
+    const uint16_t *source = light_samples + (size_t)y * (size_t)lightmap->w;
+    uint16_t *destination = structure_samples + (size_t)y * (size_t)lightmap->w;
+    lighting_blur_row(source, structure_blur_row);
+    lighting_blur_row(structure_blur_row, destination);
+
+    structure_rows_valid[y] = 1;
+}
+
 void lighting_render(SDL_Surface *destination) {
     HARD_ASSERT(destination != NULL);
     HARD_ASSERT(lightmap != NULL);
     HARD_ASSERT(lighting_active);
 
+    if (!lighting_update_needed) {
+        lighting_active = false;
+        SDL_BlitSurface(lightmap, NULL, destination, NULL);
+        return;
+    }
+
     lighting_extrapolate();
+    memset(structure_rows_valid, 0, (size_t)lightmap->h * sizeof(*structure_rows_valid));
 
     if (SDL_LockSurface(lightmap) != 0) {
         LOG(ERROR, "Could not lock map lightmap: %s", SDL_GetError());
         lighting_active = false;
+        lighting_cache_valid = false;
         return;
     }
 
@@ -271,20 +342,147 @@ void lighting_render(SDL_Surface *destination) {
 
     SDL_UnlockSurface(lightmap);
     lighting_active = false;
+    lighting_cache_key = lighting_pending_cache_key;
+    lighting_cache_valid = true;
     SDL_BlitSurface(lightmap, NULL, destination, NULL);
+}
+
+/** Ensure the reusable smoothly lit sprite surface is large enough. */
+static bool lighting_lit_surface_create(int width, int height) {
+    if (lighting_lit_surface != NULL && lighting_lit_surface->w >= width &&
+        lighting_lit_surface->h >= height) {
+        return true;
+    }
+
+    if (lighting_lit_surface != NULL) {
+        SDL_FreeSurface(lighting_lit_surface);
+        lighting_lit_surface = NULL;
+    }
+
+    lighting_lit_surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+                                                width,
+                                                height,
+                                                lightmap->format->BitsPerPixel,
+                                                lightmap->format->Rmask,
+                                                lightmap->format->Gmask,
+                                                lightmap->format->Bmask,
+                                                lightmap->format->Amask);
+    if (lighting_lit_surface == NULL) {
+        LOG(ERROR, "Could not create smoothly lit sprite surface: %s", SDL_GetError());
+        return false;
+    }
+
+    SDL_SetAlpha(lighting_lit_surface, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
+    return true;
+}
+
+/** Draw a sprite through the cached continuous light field. */
+void lighting_show_surface(SDL_Surface *destination,
+                           int x,
+                           int y,
+                           SDL_Rect *srcrect,
+                           SDL_Surface *source,
+                           int sample_y) {
+    HARD_ASSERT(destination != NULL);
+    HARD_ASSERT(source != NULL);
+
+    if (!lighting_cache_valid) {
+        surface_show(destination, x, y, srcrect, source);
+        return;
+    }
+
+    SDL_Rect source_rect = {
+        .x = srcrect != NULL ? srcrect->x : 0,
+        .y = srcrect != NULL ? srcrect->y : 0,
+        .w = srcrect != NULL ? srcrect->w : source->w,
+        .h = srcrect != NULL ? srcrect->h : source->h,
+    };
+    if (source_rect.w <= 0 || source_rect.h <= 0 ||
+        !lighting_lit_surface_create(source_rect.w, source_rect.h)) {
+        surface_show(destination, x, y, srcrect, source);
+        return;
+    }
+
+    if (SDL_LockSurface(source) != 0) {
+        LOG(ERROR, "Could not lock smoothly lit sprite: %s", SDL_GetError());
+        surface_show(destination, x, y, srcrect, source);
+        return;
+    }
+    if (SDL_LockSurface(lighting_lit_surface) != 0) {
+        LOG(ERROR, "Could not lock smoothly lit sprite surface: %s", SDL_GetError());
+        SDL_UnlockSurface(source);
+        surface_show(destination, x, y, srcrect, source);
+        return;
+    }
+
+    int light_y = MAX(0, MIN(lightmap->h - 1, sample_y));
+    lighting_blur_structure_row(light_y);
+    bool has_colorkey = (source->flags & SDL_SRCCOLORKEY) != 0;
+    bool has_surface_alpha = (source->flags & SDL_SRCALPHA) != 0;
+    for (int source_y = 0; source_y < source_rect.h; source_y++) {
+        Uint32 *destination_pixels = (Uint32 *)((Uint8 *)lighting_lit_surface->pixels +
+                                                source_y * lighting_lit_surface->pitch);
+
+        for (int source_x = 0; source_x < source_rect.w; source_x++) {
+            Uint32 source_pixel =
+                getpixel(source, source_rect.x + source_x, source_rect.y + source_y);
+            uint8_t red = 0;
+            uint8_t green = 0;
+            uint8_t blue = 0;
+            uint8_t source_alpha = SDL_ALPHA_OPAQUE;
+            if (has_colorkey && source_pixel == source->format->colorkey) {
+                source_alpha = SDL_ALPHA_TRANSPARENT;
+            } else {
+                SDL_GetRGBA(source_pixel, source->format, &red, &green, &blue, &source_alpha);
+            }
+            if (has_surface_alpha) {
+                source_alpha = (uint8_t)((unsigned int)source_alpha * source->format->alpha /
+                                         SDL_ALPHA_OPAQUE);
+            }
+
+            int light_x = MAX(0, MIN(lightmap->w - 1, x + source_x));
+            uint8_t darkness = LIGHT_SAMPLE_ALPHA(
+                structure_samples[(size_t)light_y * (size_t)lightmap->w + (size_t)light_x]);
+            uint8_t illumination = UINT8_MAX - darkness;
+            red = (uint8_t)((unsigned int)red * illumination / UINT8_MAX);
+            green = (uint8_t)((unsigned int)green * illumination / UINT8_MAX);
+            blue = (uint8_t)((unsigned int)blue * illumination / UINT8_MAX);
+            destination_pixels[source_x] =
+                SDL_MapRGBA(lighting_lit_surface->format, red, green, blue, source_alpha);
+        }
+    }
+
+    SDL_UnlockSurface(lighting_lit_surface);
+    SDL_UnlockSurface(source);
+
+    SDL_Rect lit_rect = {.x = 0, .y = 0, .w = source_rect.w, .h = source_rect.h};
+    surface_show(destination, x, y, &lit_rect, lighting_lit_surface);
 }
 
 void lighting_deinit(void) {
     lighting_active = false;
+    lighting_cache_valid = false;
+    lighting_update_needed = false;
+    lighting_cache_key = 0;
+    lighting_pending_cache_key = 0;
 
     if (lightmap != NULL) {
         SDL_FreeSurface(lightmap);
         lightmap = NULL;
     }
 
-    if (light_samples != NULL) {
-        efree(light_samples);
-        light_samples = NULL;
-        light_samples_num = 0;
+    if (lighting_lit_surface != NULL) {
+        SDL_FreeSurface(lighting_lit_surface);
+        lighting_lit_surface = NULL;
     }
+
+    free(light_samples);
+    light_samples = NULL;
+    free(structure_samples);
+    structure_samples = NULL;
+    free(structure_blur_row);
+    structure_blur_row = NULL;
+    free(structure_rows_valid);
+    structure_rows_valid = NULL;
+    light_samples_num = 0;
 }

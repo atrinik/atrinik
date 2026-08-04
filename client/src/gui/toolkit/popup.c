@@ -49,7 +49,7 @@ popup_struct *popup_create(texture_struct *texture) {
     popup_struct *popup;
     int mx, my;
 
-    popup = ecalloc(1, sizeof(popup_struct));
+    popup = xcalloc(1, sizeof(popup_struct));
     popup->texture = texture;
     /* Create the surface used by the popup. */
     popup->surface = SDL_ConvertSurface(texture_surface(popup->texture),
@@ -77,7 +77,7 @@ popup_struct *popup_create(texture_struct *texture) {
     popup->button_right.x =
         popup->surface->w - texture_surface(popup->button_right.button.texture)->w - 6;
     popup->button_right.y = 6;
-    popup->button_right.text = estrdup("X");
+    popup->button_right.text = xstrdup("X");
 
     popup->selection_start = popup->selection_end = -1;
     popup->redraw = 1;
@@ -92,9 +92,7 @@ popup_struct *popup_create(texture_struct *texture) {
  * The button.
  */
 static void popup_button_free(popup_button *button) {
-    if (button->text) {
-        efree(button->text);
-    }
+    free(button->text);
 
     button_destroy(&button->button);
 }
@@ -110,18 +108,14 @@ void popup_destroy(popup_struct *popup) {
     DL_DELETE(popup_head, popup);
     SDL_FreeSurface(popup->surface);
 
-    if (popup->buf) {
-        efree(popup->buf);
-    }
+    free(popup->buf);
 
-    if (popup->custom_data) {
-        efree(popup->custom_data);
-    }
+    free(popup->custom_data);
 
     popup_button_free(&popup->button_right);
     popup_button_free(&popup->button_left);
 
-    efree(popup);
+    free(popup);
 
     keybind_state_ensure();
 }
@@ -283,11 +277,11 @@ int popup_handle_event(SDL_Event *event) {
 
             /* Get the string to copy, depending on the start and end positions.
              * */
-            str = emalloc(sizeof(char) * (end - start + 1 + 1));
+            str = xmalloc(sizeof(char) * (end - start + 1 + 1));
             memcpy(str, contents + start, end - start + 1);
             str[end - start + 1] = '\0';
             x11_clipboard_set(SDL_display, SDL_window, str);
-            efree(str);
+            free(str);
 
             return 1;
         } else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP ||
@@ -360,11 +354,9 @@ popup_struct *popup_get_head(void) {
  * Text to set.
  */
 void popup_button_set_text(popup_button *button, const char *text) {
-    if (button->text) {
-        efree(button->text);
-    }
+    free(button->text);
 
-    button->text = text ? estrdup(text) : NULL;
+    button->text = text ? xstrdup(text) : NULL;
 }
 
 /**

@@ -222,21 +222,17 @@ void free_player(player *pl) {
         int i;
 
         for (i = 0; i < pl->num_cmd_permissions; i++) {
-            if (pl->cmd_permissions[i] != NULL) {
-                efree(pl->cmd_permissions[i]);
-            }
+            free(pl->cmd_permissions[i]);
         }
 
-        efree(pl->cmd_permissions);
+        free(pl->cmd_permissions);
     }
 
     if (pl->followed_player != NULL) {
         FREE_AND_CLEAR_HASH(pl->followed_player);
     }
 
-    if (pl->killer != NULL) {
-        efree(pl->killer);
-    }
+    free(pl->killer);
 
     player_faction_t *faction, *tmp;
 
@@ -391,7 +387,7 @@ static int save_life(object *op) {
                              "Your %s vibrates violently, "
                              "then evaporates.",
                              name);
-            efree(name);
+            free(name);
 
             object_remove(tmp, 0);
             object_destroy(tmp);
@@ -920,7 +916,7 @@ void cast_dust(object *op, object *throw_ob, int dir) {
     if (op->type == PLAYER && arch) {
         char *name = object_get_name_s(throw_ob, op);
         draw_info_format(COLOR_WHITE, op, "You cast %s.", name);
-        efree(name);
+        free(name);
     }
 
     if (op->chosen_skill) {
@@ -1032,7 +1028,7 @@ int player_can_carry(object *pl, uint32_t weight) {
  * Y we want to reach.
  */
 void player_path_add(player *pl, mapstruct *map, int16_t x, int16_t y) {
-    player_path *path = emalloc(sizeof(player_path));
+    player_path *path = xmalloc(sizeof(player_path));
 
     /* Initialize the values. */
     path->map = map;
@@ -1063,7 +1059,7 @@ void player_path_clear(player *pl) {
 
     for (path = pl->move_path; path; path = next) {
         next = path->next;
-        efree(path);
+        free(path);
     }
 
     pl->move_path = NULL;
@@ -1144,7 +1140,7 @@ void player_path_handle(player *pl) {
             /* See if we succeeded in moving where we wanted. */
             if (map == tmp->map && x == tmp->x && y == tmp->y) {
                 pl->move_path = tmp->next;
-                efree(tmp);
+                free(tmp);
             } else if ((rv.distance <= 1 && dir != 0) || tmp->fails > PLAYER_PATH_MAX_FAILS) {
                 /* Clear all paths if we above check failed: this can happen
                  * if we got teleported somewhere else by a teleporter or a
@@ -1177,7 +1173,7 @@ player_faction_t *player_faction_create(player *pl, shstr *name) {
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(name != NULL);
 
-    player_faction_t *faction = ecalloc(1, sizeof(*faction));
+    player_faction_t *faction = xcalloc(1, sizeof(*faction));
     faction->name = add_string(name);
     HASH_ADD(hh, pl->factions, name, sizeof(shstr *), faction);
 
@@ -1198,7 +1194,7 @@ void player_faction_free(player *pl, player_faction_t *faction) {
 
     HASH_DEL(pl->factions, faction);
     free_string_shared(faction->name);
-    efree(faction);
+    free(faction);
 }
 
 /**
@@ -1573,7 +1569,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture) {
         "That is %s%s",
         name,
         !QUERY_FLAG(tmp, FLAG_IDENTIFIED) && need_identify(tmp) ? " (unidentified)" : "");
-    efree(name);
+    free(name);
 
     if (tmp->custom_name != NULL) {
         draw_info_full_format(CHAT_TYPE_GAME,
@@ -1588,7 +1584,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture) {
     if (QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER) {
         char *desc = stringbuffer_finish(object_get_description(tmp, op, NULL));
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s.", desc);
-        efree(desc);
+        free(desc);
         examine_living(op, tmp, sb_capture);
     } else if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
         /* We don't double use the item_xxx arch commands, so they are always valid */
@@ -2168,7 +2164,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof) {
         if (pl != NULL) {
             char *name = object_get_name_s(sack, pl);
             draw_info_format(COLOR_WHITE, pl, "The %s is not active.", name);
-            efree(name);
+            free(name);
         }
 
         return 0;
@@ -2182,7 +2178,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof) {
                              "You can't put the %s into "
                              "itself.",
                              name);
-            efree(name);
+            free(name);
         }
 
         return 0;
@@ -2199,7 +2195,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof) {
                              "%s.",
                              sack->race,
                              name);
-            efree(name);
+            free(name);
         }
 
         return 0;
@@ -2211,7 +2207,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof) {
         if (pl != NULL) {
             char *name = object_get_name_s(sack, pl);
             draw_info_format(COLOR_WHITE, pl, "That won't fit in the %s!", name);
-            efree(name);
+            free(name);
         }
 
         return 0;
@@ -2249,7 +2245,7 @@ static object *get_pickup_object(object *pl, object *op, int nrof) {
         }
     }
 
-    efree(name);
+    free(name);
     op->sub_layer = 0;
 
     return op;
@@ -2440,7 +2436,7 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof) {
     if (sack->type != CONTAINER) {
         char *name = object_get_name_s(sack, op);
         draw_info_format(COLOR_WHITE, op, "The %s is not a container.", name);
-        efree(name);
+        free(name);
         return;
     }
 
@@ -2482,8 +2478,8 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof) {
     char *name = object_get_name_s(sack, op);
     char *tmp_name = object_get_name_s(tmp, op);
     draw_info_format(COLOR_WHITE, op, "You put the %s in %s.", tmp_name, name);
-    efree(name);
-    efree(tmp_name);
+    free(name);
+    free(tmp_name);
 
     object_insert_into(tmp, sack, 0);
 }
@@ -2535,7 +2531,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent) {
         if (op->type == PLAYER) {
             char *name = object_get_name_s(tmp, op);
             draw_info_format(COLOR_WHITE, op, "You drop the %s.", name);
-            efree(name);
+            free(name);
 
             if (QUERY_FLAG(tmp, FLAG_UNPAID)) {
                 draw_info(COLOR_WHITE, op, "The shop magic put it back to the storage.");
@@ -2650,7 +2646,7 @@ char *player_make_path(const char *name, const char *ext) {
 
     sb = stringbuffer_new();
     stringbuffer_append_printf(sb, "%s/players/", settings.datapath);
-    name_lower = estrdup(name);
+    name_lower = xstrdup(name);
     string_tolower(name_lower);
 
     for (i = 0; i < settings.limits[ALLOWED_CHARS_CHARNAME][0] - 1; i++) {
@@ -2660,7 +2656,7 @@ char *player_make_path(const char *name, const char *ext) {
 
     stringbuffer_append_printf(sb, "%s/%s", name_lower, ext);
 
-    efree(name_lower);
+    free(name_lower);
     cp = stringbuffer_finish(sb);
 
     return cp;
@@ -2672,7 +2668,7 @@ int player_exists(const char *name) {
 
     path = player_make_path(name, "player.dat");
     ret = path_exists(path);
-    efree(path);
+    free(path);
 
     return ret;
 }
@@ -2763,8 +2759,8 @@ error:
     }
 
 out:
-    efree(path);
-    efree(path_tmp);
+    free(path);
+    free(path_tmp);
 }
 
 /**
@@ -2812,8 +2808,8 @@ static void player_load(player *pl, FILE *fp) {
             pl->bed_y = atoi(buf + 5);
         } else if (strncmp(buf, "cmd_permission ", 15) == 0) {
             pl->cmd_permissions =
-                erealloc(pl->cmd_permissions, sizeof(char *) * (pl->num_cmd_permissions + 1));
-            pl->cmd_permissions[pl->num_cmd_permissions] = estrdup(buf + 15);
+                xreallocarray(pl->cmd_permissions, (pl->num_cmd_permissions + 1), sizeof(char *));
+            pl->cmd_permissions[pl->num_cmd_permissions] = xstrdup(buf + 15);
             pl->num_cmd_permissions++;
         } else if (strncmp(buf, "faction ", 8) == 0) {
             size_t pos = 8;
@@ -2882,7 +2878,7 @@ object *player_get_dummy(const char *name, const char *host) {
     player *pl;
 
     pl = get_player(NULL);
-    pl->cs = ecalloc(1, sizeof(*pl->cs));
+    pl->cs = xcalloc(1, sizeof(*pl->cs));
     pl->cs->sc =
         socket_create(host != NULL ? host : "127.0.0.1", 13327, false, SOCKET_ROLE_SERVER, false);
     if (pl->cs->sc == NULL) {
@@ -2910,7 +2906,7 @@ object *player_get_dummy(const char *name, const char *host) {
 
     pl->cs->state = ST_PLAYING;
     pl->cs->socket_version = SOCKET_VERSION;
-    pl->cs->account = estrdup(ACCOUNT_TESTING_NAME);
+    pl->cs->account = xstrdup(ACCOUNT_TESTING_NAME);
     pl->cs->sound = 1;
 
     object_enter_map(pl->ob, NULL, NULL, 0, 0, false);
@@ -2983,11 +2979,9 @@ void player_set_killer(player *pl, const char *killer) {
     SOFT_ASSERT(pl != NULL, "pl is NULL");
     SOFT_ASSERT(killer != NULL, "killer is NULL");
 
-    if (pl->killer != NULL) {
-        efree(pl->killer);
-    }
+    free(pl->killer);
 
-    pl->killer = estrdup(killer);
+    pl->killer = xstrdup(killer);
 }
 
 /**
@@ -2999,10 +2993,8 @@ void player_set_killer(player *pl, const char *killer) {
 void player_clear_killer(player *pl) {
     SOFT_ASSERT(pl != NULL, "pl is NULL");
 
-    if (pl->killer != NULL) {
-        efree(pl->killer);
-        pl->killer = NULL;
-    }
+    free(pl->killer);
+    pl->killer = NULL;
 }
 
 /**
@@ -3164,7 +3156,7 @@ out:
         fclose(fp);
     }
 
-    efree(path);
+    free(path);
 }
 
 /**

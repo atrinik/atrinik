@@ -505,7 +505,7 @@ static bool shop_pay_items_rec(object *op, object *where) {
                              "You lack %s to buy %s.",
                              shop_get_cost_string(need),
                              name);
-            efree(name);
+            free(name);
             SET_FLAG(tmp, FLAG_UNPAID);
             return false;
         } else {
@@ -531,7 +531,7 @@ static bool shop_pay_items_rec(object *op, object *where) {
                 }
             }
 
-            efree(name);
+            free(name);
 
             /* If the object wasn't merged, send flags update. */
             if (object_merge(tmp) == tmp) {
@@ -582,7 +582,7 @@ void shop_sell_item(object *op, object *item) {
     /* Identify the item. Makes any unidentified item sold to unique shop appear
      * identified. */
     identify(item);
-    efree(name);
+    free(name);
 }
 
 /**

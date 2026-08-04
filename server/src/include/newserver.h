@@ -52,6 +52,9 @@ typedef struct MapCell_struct {
     /** Last normalized light levels sent to the client. */
     uint8_t light_level[NUM_SUB_LAYERS];
 
+    /** Whether each normalized light level has been sent at least once. */
+    uint8_t light_known[NUM_SUB_LAYERS];
+
     /** Faces we sent. */
     int16_t faces[NUM_REAL_LAYERS];
 
