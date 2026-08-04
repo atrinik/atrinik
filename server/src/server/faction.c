@@ -245,8 +245,9 @@ TOOLKIT_INIT_FUNC(faction) {
         } else if (strcmp(key, "parent") == 0) {
             faction_add_parent(faction, value);
         } else if (strcmp(key, "enemy") == 0) {
-            faction->enemies =
-                erealloc(faction->enemies, sizeof(*faction->enemies) * (faction->enemies_num + 1));
+            faction->enemies = xreallocarray(faction->enemies,
+                                             (faction->enemies_num + 1),
+                                             sizeof(*faction->enemies));
             faction->enemies[faction->enemies_num].faction.name = add_string(value);
             faction->enemies_num++;
         } else if (strcmp(key, "alliance") == 0) {
@@ -323,7 +324,7 @@ static faction_t faction_create(const char *name, faction_t parent) {
 
     HARD_ASSERT(name != NULL);
 
-    faction_t faction = ecalloc(1, sizeof(*faction));
+    faction_t faction = xcalloc(1, sizeof(*faction));
     faction->name = add_string(name);
     faction->modifier = 100;
     faction->penalty = -25.0;
@@ -352,19 +353,13 @@ static void faction_free(faction_t faction) {
     HASH_DEL(factions, faction);
     free_string_shared(faction->name);
 
-    if (faction->parents != NULL) {
-        efree(faction->parents);
-    }
+    free(faction->parents);
 
-    if (faction->enemies != NULL) {
-        efree(faction->enemies);
-    }
+    free(faction->enemies);
 
-    if (faction->children != NULL) {
-        efree(faction->children);
-    }
+    free(faction->children);
 
-    efree(faction);
+    free(faction);
 }
 
 /**
@@ -398,7 +393,7 @@ static void faction_add_parent(faction_t faction, const char *name) {
     HARD_ASSERT(name != NULL);
 
     faction->parents =
-        erealloc(faction->parents, sizeof(*faction->parents) * (faction->parents_num + 1));
+        xreallocarray(faction->parents, (faction->parents_num + 1), sizeof(*faction->parents));
     faction->parents[faction->parents_num].spill = 100;
     faction->parents[faction->parents_num].attention = 100;
     faction->parents[faction->parents_num].spill_force = false;
@@ -430,8 +425,9 @@ static void faction_assign_names(void) {
             free_string_shared(faction->parents[i].faction.name);
             faction->parents[i].faction.ptr = parent;
 
-            parent->children =
-                erealloc(parent->children, sizeof(*parent->children) * (parent->children_num + 1));
+            parent->children = xreallocarray(parent->children,
+                                             (parent->children_num + 1),
+                                             sizeof(*parent->children));
             parent->children[parent->children_num] = faction;
             parent->children_num++;
         }

@@ -87,12 +87,12 @@ START_TEST(test_random_map_rng_is_deterministic) {
 
     for (int x = 0; x < 19; x++) {
         ck_assert_mem_eq(first[x], second[x], 19);
-        efree(first[x]);
-        efree(second[x]);
+        free(first[x]);
+        free(second[x]);
     }
 
-    efree(first);
-    efree(second);
+    free(first);
+    free(second);
 }
 END_TEST
 

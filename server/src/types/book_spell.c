@@ -61,7 +61,7 @@ static int apply_func(object *op, object *applier, int aflags) {
         LOG(ERROR, "Spell book with an invalid ID (%d): %s", op->stats.sp, object_get_str(op));
         char *name = object_get_name_s(op, applier);
         draw_info_format(COLOR_WHITE, applier, "The symbols in the %s make no sense.", name);
-        efree(name);
+        free(name);
         return OBJECT_METHOD_OK;
     }
 
@@ -91,7 +91,7 @@ static int apply_func(object *op, object *applier, int aflags) {
                          "The %s was %s!",
                          name,
                          QUERY_FLAG(op, FLAG_DAMNED) ? "damned" : "cursed");
-        efree(name);
+        free(name);
         spell_failure(applier,
                       (spell->at->clone.level + pl->skill_ptr[SK_WIZARDRY_SPELLS]->level) / 2);
 

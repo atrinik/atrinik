@@ -92,13 +92,13 @@ void keybind_load(void) {
 
         /* End of a single keybinding definition, add it to the list. */
         if (!strcmp(cp, "end")) {
-            keybindings = erealloc(keybindings, sizeof(*keybindings) * (keybindings_num + 1));
+            keybindings = xreallocarray(keybindings, (keybindings_num + 1), sizeof(*keybindings));
             keybindings[keybindings_num] = keybind;
             keybindings_num++;
             keybind = NULL;
         } else if (keybind) {
             if (!strncmp(cp, "command ", 8)) {
-                keybind->command = estrdup(cp + 8);
+                keybind->command = xstrdup(cp + 8);
             } else if (!strncmp(cp, "key ", 4)) {
                 keybind->key = atoi(cp + 4);
             } else if (!strncmp(cp, "mod ", 4)) {
@@ -108,7 +108,7 @@ void keybind_load(void) {
             }
         } else if (!strcmp(cp, "bind")) {
             /* Keybinding definition start. */
-            keybind = ecalloc(1, sizeof(*keybind));
+            keybind = xcalloc(1, sizeof(*keybind));
         }
     }
 
@@ -153,8 +153,8 @@ void keybind_save(void) {
  * Keybinding to free.
  */
 void keybind_free(keybind_struct *keybind) {
-    efree(keybind->command);
-    efree(keybind);
+    free(keybind->command);
+    free(keybind);
 }
 
 /**
@@ -170,10 +170,8 @@ void keybind_deinit(void) {
         keybind_free(keybindings[i]);
     }
 
-    if (keybindings) {
-        efree(keybindings);
-        keybindings = NULL;
-    }
+    free(keybindings);
+    keybindings = NULL;
 
     keybindings_num = 0;
 }
@@ -231,13 +229,13 @@ keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command) {
     keybind_struct *keybind;
 
     /* Allocate a new keybinding, and store the values. */
-    keybind = ecalloc(1, sizeof(*keybind));
+    keybind = xcalloc(1, sizeof(*keybind));
     keybind->key = key;
     keybind->mod = keybind_adjust_kmod(mod);
-    keybind->command = estrdup(command);
+    keybind->command = xstrdup(command);
 
     /* Expand the keybindings array, and store the new keybinding. */
-    keybindings = erealloc(keybindings, sizeof(*keybindings) * (keybindings_num + 1));
+    keybindings = xreallocarray(keybindings, (keybindings_num + 1), sizeof(*keybindings));
     keybindings[keybindings_num] = keybind;
     keybindings_num++;
 
@@ -264,8 +262,8 @@ void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command) {
     /* Store the values. */
     keybindings[i]->key = key;
     keybindings[i]->mod = keybind_adjust_kmod(mod);
-    efree(keybindings[i]->command);
-    keybindings[i]->command = estrdup(command);
+    free(keybindings[i]->command);
+    keybindings[i]->command = xstrdup(command);
 }
 
 /**
@@ -291,7 +289,7 @@ void keybind_remove(size_t i) {
 
     /* Shrink the array. */
     keybindings_num--;
-    keybindings = erealloc(keybindings, sizeof(*keybindings) * keybindings_num);
+    keybindings = xreallocarray(keybindings, keybindings_num, sizeof(*keybindings));
 }
 
 /**

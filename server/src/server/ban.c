@@ -149,10 +149,8 @@ static void ban_free(void) {
         }
     }
 
-    if (bans != NULL) {
-        efree(bans);
-        bans = NULL;
-    }
+    free(bans);
+    bans = NULL;
 
     bans_num = 0;
 }
@@ -165,12 +163,12 @@ static void ban_free(void) {
  * Account name. Can be NULL.
  */
 static void ban_entry_new(const char *name, const char *account) {
-    bans = erealloc(bans, sizeof(*bans) * (bans_num + 1));
+    bans = xreallocarray(bans, (bans_num + 1), sizeof(*bans));
     ban_t *ban = &bans[bans_num];
     bans_num++;
 
     ban->name = strcmp(name, "*") == 0 ? NULL : add_string(name);
-    ban->account = strcmp(account, "*") == 0 ? NULL : estrdup(account);
+    ban->account = strcmp(account, "*") == 0 ? NULL : xstrdup(account);
     ban->removed = false;
 }
 
@@ -215,9 +213,7 @@ static void ban_entry_free(ban_t *ban) {
         free_string_shared(ban->name);
     }
 
-    if (ban->account != NULL) {
-        efree(ban->account);
-    }
+    free(ban->account);
 
     ban->removed = true;
 }

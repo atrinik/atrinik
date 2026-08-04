@@ -85,7 +85,7 @@ color_picker_struct *color_chooser_open(void) {
     popup_struct *popup;
     color_picker_struct *color_picker;
 
-    color_picker = emalloc(sizeof(*color_picker));
+    color_picker = xmalloc(sizeof(*color_picker));
     color_picker_create(color_picker, 150);
 
     popup = popup_create(

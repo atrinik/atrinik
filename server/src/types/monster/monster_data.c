@@ -49,7 +49,7 @@ void monster_data_init(object *op) {
     HARD_ASSERT(op != NULL);
     SOFT_ASSERT(op->type == MONSTER, "Object is not a monster: %s", object_get_str(op));
 
-    op->custom_attrset = ecalloc(1, sizeof(monster_data_t));
+    op->custom_attrset = xcalloc(1, sizeof(monster_data_t));
 }
 
 /**
@@ -70,7 +70,7 @@ void monster_data_deinit(object *op) {
         monster_data_dialogs_free(dialog);
     }
 
-    efree(monster_data);
+    free(monster_data);
 }
 
 /**
@@ -134,7 +134,7 @@ bool monster_data_enemy_get_coords(object *op, mapstruct **map, uint16_t *x, uin
  */
 static void monster_data_dialogs_free(monster_data_dialog_t *dialog) {
     HARD_ASSERT(dialog != NULL);
-    efree(dialog);
+    free(dialog);
 }
 
 /**
@@ -217,7 +217,7 @@ void monster_data_dialogs_add(object *op, object *activator, uint32_t secs) {
         }
     }
 
-    dialog = ecalloc(1, sizeof(*dialog));
+    dialog = xcalloc(1, sizeof(*dialog));
     dialog->ob = activator;
     dialog->count = activator->count;
     dialog->expire = expire;

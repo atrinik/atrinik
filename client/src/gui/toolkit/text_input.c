@@ -36,7 +36,7 @@
 text_input_history_struct *text_input_history_create(void) {
     text_input_history_struct *tmp;
 
-    tmp = ecalloc(1, sizeof(*tmp));
+    tmp = xcalloc(1, sizeof(*tmp));
     utarray_new(tmp->history, &ut_str_icd);
 
     return tmp;
@@ -44,7 +44,7 @@ text_input_history_struct *text_input_history_create(void) {
 
 void text_input_history_free(text_input_history_struct *history) {
     utarray_free(history->history);
-    efree(history);
+    free(history);
 }
 
 /**
@@ -176,7 +176,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
     box.w = 0;
 
     if (text_input->show_edit_func) {
-        cp = estrdup(text_input->str);
+        cp = xstrdup(text_input->str);
         text_input->show_edit_func(text_input);
     }
 
@@ -227,11 +227,11 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
               COLOR_WHITE,
               text_input->text_flags | TEXT_WIDTH,
               &box);
-    efree(cp2);
+    free(cp2);
 
     if (cp) {
         text_input_set(text_input, cp);
-        efree(cp);
+        free(cp);
     }
 }
 
@@ -275,7 +275,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
                 text_input->pos = text_input->num = strlen(text_input->str);
                 string_replace_unprintable_chars(text_input->str);
 
-                efree(clipboard_contents);
+                free(clipboard_contents);
             }
 
             return 1;

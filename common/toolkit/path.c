@@ -120,18 +120,18 @@ char *path_dirname(const char *path) {
     end = strrchr(path, '/');
 
     if (!end) {
-        return estrdup(".");
+        return xstrdup(".");
     }
 
     while (end > path && *end == '/') {
         end--;
     }
 
-    result = estrndup(path, end - path + 1);
+    result = xstrndup(path, end - path + 1);
 
     if (result[0] == '\0') {
-        efree(result);
-        return estrdup("/");
+        free(result);
+        return xstrdup("/");
     }
 
     return result;
@@ -161,11 +161,11 @@ char *path_basename(const char *path) {
 
     while ((slash = strrchr(path, '/'))) {
         if (*(slash + 1) != '\0') {
-            return estrdup(slash + 1);
+            return xstrdup(slash + 1);
         }
     }
 
-    return estrdup(path);
+    return xstrdup(path);
 }
 
 /**
@@ -188,7 +188,7 @@ char *path_normalize(const char *path) {
     TOOLKIT_PROTECT();
 
     if (string_isempty(path)) {
-        return estrdup(".");
+        return xstrdup(".");
     }
 
     sb = stringbuffer_new();

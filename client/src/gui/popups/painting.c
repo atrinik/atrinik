@@ -91,10 +91,10 @@ static void popup_painting_data_free(popup_painting_t *data) {
         SDL_FreeSurface(data->zoomed);
     }
 
-    efree(data->resource_name);
-    efree(data->name);
-    efree(data->msg);
-    efree(data);
+    free(data->resource_name);
+    free(data->name);
+    free(data->msg);
+    free(data);
 }
 
 /** @copydoc popup_struct::draw_func */
@@ -279,7 +279,7 @@ static int popup_destroy_callback(popup_struct *popup) {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_painting(uint8_t *data, size_t len, size_t pos) {
-    popup_painting_t *painting_data = ecalloc(1, sizeof(*painting_data));
+    popup_painting_t *painting_data = xcalloc(1, sizeof(*painting_data));
 
     painting_data->coords.w = 750;
     painting_data->coords.h = 500;

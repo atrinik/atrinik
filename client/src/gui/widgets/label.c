@@ -56,9 +56,7 @@ static void widget_deinit(widgetdata *widget) {
 
     label = widget->subwidget;
 
-    if (label->text) {
-        efree(label->text);
-    }
+    free(label->text);
 
     font_free(label->font);
 }
@@ -69,7 +67,7 @@ static void widget_deinit(widgetdata *widget) {
 void widget_label_init(widgetdata *widget) {
     _widget_label *label;
 
-    label = ecalloc(1, sizeof(*label));
+    label = xcalloc(1, sizeof(*label));
     label->font = font_get("arial", 10);
     label->color = COLOR_WHITE;
 

@@ -117,7 +117,7 @@ static void widget_background(widgetdata *widget, int draw) {
 void widget_mapname_init(widgetdata *widget) {
     widget_mapname_struct *widget_mapname;
 
-    widget_mapname = emalloc(sizeof(*widget_mapname));
+    widget_mapname = xmalloc(sizeof(*widget_mapname));
     widget_mapname->alpha = 255;
 
     widget->draw_func = widget_draw;

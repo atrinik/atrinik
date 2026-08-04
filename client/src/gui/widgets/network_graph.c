@@ -174,7 +174,7 @@ static void widget_background(widgetdata *widget, int draw) {
         }
 
         LL_DELETE(work_queue, work);
-        efree(work);
+        free(work);
     }
     SDL_UnlockMutex(network_graph_mutex);
 
@@ -229,9 +229,7 @@ static void widget_deinit(widgetdata *widget) {
     network_graph_widget_t *network_graph = widget->subwidget;
 
     for (int i = 0; i < NETWORK_GRAPH_TYPE_MAX; i++) {
-        if (network_graph->data[i].data != NULL) {
-            efree(network_graph->data[i].data);
-        }
+        free(network_graph->data[i].data);
     }
 
     if (network_graph_mutex != NULL) {
@@ -239,7 +237,7 @@ static void widget_deinit(widgetdata *widget) {
         while (work_queue != NULL) {
             network_graph_work_t *work = work_queue;
             LL_DELETE(work_queue, work);
-            efree(work);
+            free(work);
         }
         SDL_UnlockMutex(network_graph_mutex);
 
@@ -347,14 +345,29 @@ static void widget_network_graph_update(widgetdata *widget, int type, int traffi
     network_graph_widget_t *network_graph = widget->subwidget;
     network_graph_data_t *data = &network_graph->data[type];
 
+    if (widget->w <= 0) {
+        free(data->data);
+        data->data = NULL;
+        data->width = 0;
+        data->pos = 0;
+        return;
+    }
+
     if (data->data == NULL || data->width != widget->w) {
+        size_t old_width = data->width > 0 ? (size_t)data->width : 0;
+        size_t new_width = (size_t)widget->w;
+
         if (data->data == NULL) {
             data->ticks = LastTick;
         }
 
-        data->data = ereallocz(data->data,
-                               sizeof(*data->data) * NETWORK_GRAPH_TRAFFIC_MAX * data->width,
-                               sizeof(*data->data) * NETWORK_GRAPH_TRAFFIC_MAX * widget->w);
+        data->data =
+            xreallocarray(data->data, new_width, sizeof(*data->data) * NETWORK_GRAPH_TRAFFIC_MAX);
+        if (new_width > old_width) {
+            memset(data->data + old_width * NETWORK_GRAPH_TRAFFIC_MAX,
+                   0,
+                   (new_width - old_width) * NETWORK_GRAPH_TRAFFIC_MAX * sizeof(*data->data));
+        }
         data->width = widget->w;
     }
 
@@ -427,7 +440,7 @@ void network_graph_update(int type, int traffic, size_t bytes) {
         return;
     }
 
-    network_graph_work_t *work = ecalloc(1, sizeof(*work));
+    network_graph_work_t *work = xcalloc(1, sizeof(*work));
     work->type = type;
     work->traffic = traffic;
     work->bytes = bytes;
@@ -443,7 +456,7 @@ void network_graph_update(int type, int traffic, size_t bytes) {
  * The widget.
  */
 void widget_network_graph_init(widgetdata *widget) {
-    network_graph_widget_t *network_graph = ecalloc(1, sizeof(*network_graph));
+    network_graph_widget_t *network_graph = xcalloc(1, sizeof(*network_graph));
     network_graph->filters = ~0U;
 
     widget->draw_func = widget_draw;

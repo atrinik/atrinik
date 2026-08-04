@@ -74,8 +74,8 @@ static void connection_preferences_save(void) {
     char *contents = stringbuffer_finish(output);
     char *path = file_path(FILE_CONNECTION_PREFERENCES, "w");
     bool ok = path_write_atomic(path, contents, strlen(contents), 0600);
-    efree(path);
-    efree(contents);
+    free(path);
+    free(contents);
     if (!ok) {
         LOG(ERROR, "Could not atomically write %s", FILE_CONNECTION_PREFERENCES);
     }
@@ -107,8 +107,8 @@ void connection_preferences_init(void) {
             continue;
         }
 
-        connection_preference_entry_t *entry = ecalloc(1, sizeof(*entry));
-        entry->key = estrdup(key);
+        connection_preference_entry_t *entry = xcalloc(1, sizeof(*entry));
+        entry->key = xstrdup(key);
         entry->preference = preference;
         DL_APPEND(connection_preferences, entry);
     }
@@ -119,8 +119,8 @@ void connection_preferences_deinit(void) {
     connection_preference_entry_t *entry, *tmp;
     DL_FOREACH_SAFE(connection_preferences, entry, tmp) {
         DL_DELETE(connection_preferences, entry);
-        efree(entry->key);
-        efree(entry);
+        free(entry->key);
+        free(entry);
     }
 }
 
@@ -147,14 +147,14 @@ void connection_preference_set(const server_struct *server,
     if (preference == SOCKET_CONNECTION_PREFERENCE_AUTO) {
         if (entry != NULL) {
             DL_DELETE(connection_preferences, entry);
-            efree(entry->key);
-            efree(entry);
+            free(entry->key);
+            free(entry);
         }
     } else if (entry != NULL) {
         entry->preference = preference;
     } else {
-        entry = ecalloc(1, sizeof(*entry));
-        entry->key = estrdup(key);
+        entry = xcalloc(1, sizeof(*entry));
+        entry->key = xstrdup(key);
         entry->preference = preference;
         DL_APPEND(connection_preferences, entry);
     }

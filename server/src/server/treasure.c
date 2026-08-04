@@ -274,7 +274,7 @@ static void treasure_generate_internal(treasure_list_t *treasure_list,
  * New structure, never NULL.
  */
 static treasure_list_t *treasure_list_create(void) {
-    treasure_list_t *treasure_list = ecalloc(1, sizeof(*treasure_list));
+    treasure_list_t *treasure_list = xcalloc(1, sizeof(*treasure_list));
 
     treasure_list->artifact_chance = TREASURE_ARTIFACT_CHANCE;
     treasure_list->chance_fix = CHANCE_FIX;
@@ -290,7 +290,7 @@ static treasure_list_t *treasure_list_create(void) {
  * New structure, never NULL.
  */
 static treasure_t *treasure_create(void) {
-    treasure_t *treasure = ecalloc(1, sizeof(*treasure));
+    treasure_t *treasure = xcalloc(1, sizeof(*treasure));
 
     treasure->magic_chance = 3;
     treasure->artifact_chance = TREASURE_ARTIFACT_CHANCE;
@@ -1659,7 +1659,7 @@ treasure_generate_single(treasure_list_t *treasure_list, int difficulty, int art
 /**
  * Frees a treasure, including its yes, no and next items.
  * @param t
- * Treasure to free. Pointer is efree()d too, so becomes
+ * Treasure to free. Pointer is free()d too, so becomes
  * invalid.
  */
 static void free_treasurestruct(treasure_t *t) {
@@ -1680,7 +1680,7 @@ static void free_treasurestruct(treasure_t *t) {
     FREE_AND_CLEAR_HASH2(t->attrs.name);
     FREE_AND_CLEAR_HASH2(t->attrs.slaying);
     FREE_AND_CLEAR_HASH2(t->attrs.title);
-    efree(t);
+    free(t);
 }
 
 /**
@@ -1698,7 +1698,7 @@ void free_all_treasures(void) {
             free_treasurestruct(tl->items);
         }
 
-        efree(tl);
+        free(tl);
     }
 }
 

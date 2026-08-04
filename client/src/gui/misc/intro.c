@@ -448,7 +448,7 @@ void intro_show(void) {
                 list_servers->row_selected = i + 1;
 
                 if (!clioption_settings.reconnect) {
-                    efree(clioption_settings.connect[0]);
+                    free(clioption_settings.connect[0]);
                     clioption_settings.connect[0] = NULL;
                 }
 

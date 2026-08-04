@@ -159,7 +159,7 @@ void effects_init(void) {
         } else if (!strcmp(buf, "overlay")) {
             size_t col;
 
-            overlay = ecalloc(1, sizeof(effect_overlay));
+            overlay = xcalloc(1, sizeof(effect_overlay));
 
             for (col = 0; col < arraysize(overlay_cols); col++) {
                 overlay->col[col].val = -1;
@@ -212,10 +212,10 @@ void effects_init(void) {
                 effect->sound_volume = atoi(buf + 13);
             } /* Start of sprite block. */
             else if (!strncmp(buf, "sprite ", 7)) {
-                sprite_def = ecalloc(1, sizeof(*sprite_def));
+                sprite_def = xcalloc(1, sizeof(*sprite_def));
                 /* Store the sprite ID and name. */
                 sprite_def->id = image_get_id(buf + 7);
-                sprite_def->name = estrdup(buf + 7);
+                sprite_def->name = xstrdup(buf + 7);
                 /* Initialize default values. */
                 sprite_def->chance = 1;
                 sprite_def->weight = 1.0;
@@ -240,7 +240,7 @@ void effects_init(void) {
             }
         } /* Start of effect block. */
         else if (!strncmp(buf, "effect ", 7)) {
-            effect = ecalloc(1, sizeof(effect_struct));
+            effect = xcalloc(1, sizeof(effect_struct));
             /* Store the effect unique name. */
             strncpy(effect->name, buf + 7, sizeof(effect->name) - 1);
             effect->name[sizeof(effect->name) - 1] = '\0';
@@ -329,11 +329,9 @@ void effect_sprites_free(effect_struct *effect) {
  * Effect that will be freed.
  */
 void effect_free(effect_struct *effect) {
-    if (effect->overlay) {
-        efree(effect->overlay);
-    }
+    free(effect->overlay);
 
-    efree(effect);
+    free(effect);
 }
 
 /**
@@ -342,8 +340,8 @@ void effect_free(effect_struct *effect) {
  * Sprite definition that will be freed.
  */
 void effect_sprite_def_free(effect_sprite_def *sprite_def) {
-    efree(sprite_def->name);
-    efree(sprite_def);
+    free(sprite_def->name);
+    free(sprite_def);
 }
 
 /**
@@ -352,7 +350,7 @@ void effect_sprite_def_free(effect_sprite_def *sprite_def) {
  * Sprite that will be freed.
  */
 void effect_sprite_free(effect_sprite *sprite) {
-    efree(sprite);
+    free(sprite);
 }
 
 /**
@@ -415,7 +413,7 @@ static effect_sprite *effect_sprite_create(effect_struct *effect) {
     }
 
     /* Allocate a new sprite. */
-    sprite = ecalloc(1, sizeof(*sprite));
+    sprite = xcalloc(1, sizeof(*sprite));
     sprite->def = tmp;
 
     /* Add it to the linked list. */

@@ -300,13 +300,10 @@ typedef struct linked_char {
 
 /** Free and NULL a pointer. */
 #define FREE_AND_NULL_PTR(_xyz_) \
-    {                            \
-        if (_xyz_) {             \
-            efree(_xyz_);        \
-        }                        \
-                                 \
-        _xyz_ = NULL;            \
-    }
+    do {                         \
+        free(_xyz_);             \
+        (_xyz_) = NULL;          \
+    } while (0)
 
 enum {
     ALLOWED_CHARS_ACCOUNT,

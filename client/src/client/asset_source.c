@@ -93,16 +93,16 @@ static bool asset_source_start_inband(asset_source_t *source) {
 asset_source_t *asset_source_start(const char *asset_path, const char *cache_path) {
     HARD_ASSERT(asset_path != NULL);
 
-    asset_source_t *source = ecalloc(1, sizeof(*source));
-    source->asset_path = estrdup(asset_path);
-    source->cache_path = cache_path != NULL ? estrdup(cache_path) : NULL;
+    asset_source_t *source = xcalloc(1, sizeof(*source));
+    source->asset_path = xstrdup(asset_path);
+    source->cache_path = cache_path != NULL ? xstrdup(cache_path) : NULL;
     source->state = ASSET_SOURCE_PENDING;
 
     if (*cpl.http_url != '\0') {
         char url[HUGE_BUF];
         if (asset_source_url(asset_path, VS(url)) && cpl.asset_transport && csocket.sc != NULL &&
             socket_is_quic(csocket.sc)) {
-            source->http_url = estrdup(url);
+            source->http_url = xstrdup(url);
             source->inband = asset_request_start_metadata(asset_path);
             if (source->inband != NULL) {
                 source->metadata_request = true;
@@ -169,7 +169,7 @@ asset_source_state_t asset_source_get_state(asset_source_t *source) {
             if (source->cache_path != NULL) {
                 char *path = file_path(source->cache_path, "wb");
                 verified = path_write_atomic(path, body, size, 0600);
-                efree(path);
+                free(path);
             }
             if (verified) {
                 source->state = ASSET_SOURCE_COMPLETE;
@@ -241,12 +241,8 @@ void asset_source_free(asset_source_t *source) {
     if (source->inband != NULL) {
         asset_request_free(source->inband);
     }
-    if (source->cache_path != NULL) {
-        efree(source->cache_path);
-    }
-    if (source->http_url != NULL) {
-        efree(source->http_url);
-    }
-    efree(source->asset_path);
-    efree(source);
+    free(source->cache_path);
+    free(source->http_url);
+    free(source->asset_path);
+    free(source);
 }

@@ -111,7 +111,7 @@ packet_struct *packet_new(uint8_t type, size_t size, size_t expand) {
 
     /* Allocate the initial data block. */
     if (packet->size) {
-        packet->data = emalloc(packet->size);
+        packet->data = xmalloc(packet->size);
     }
 
     packet->type = type;
@@ -131,13 +131,11 @@ packet_struct *packet_new(uint8_t type, size_t size, size_t expand) {
 void packet_free(packet_struct *packet) {
     TOOLKIT_PROTECT();
 
-    if (packet->data) {
-        efree(packet->data);
-    }
+    free(packet->data);
 
 #ifndef NDEBUG
     if (packet->sb != NULL) {
-        efree(stringbuffer_finish(packet->sb));
+        free(stringbuffer_finish(packet->sb));
     }
 #endif
 
@@ -159,7 +157,7 @@ void packet_compress(packet_struct *packet) {
     }
 
     size_t new_size = compressBound(packet->len);
-    uint8_t *dest = emalloc(new_size + 5);
+    uint8_t *dest = xmalloc(new_size + 5);
     dest[0] = packet->type;
     /* Add original length of the packet. */
     dest[1] = (packet->len >> 24) & 0xff;
@@ -174,11 +172,11 @@ void packet_compress(packet_struct *packet) {
               Z_BEST_COMPRESSION);
 
     if (new_size >= packet->len) {
-        efree(dest);
+        free(dest);
         return;
     }
 
-    efree(packet->data);
+    free(packet->data);
     packet->data = dest;
     packet->size = packet->len = new_size + 5;
     packet->type = CLIENT_CMD_COMPRESSED;
@@ -270,7 +268,7 @@ static void packet_ensure(packet_struct *packet, size_t size) {
     }
 
     packet->size += MAX(packet->expand, size);
-    packet->data = erealloc(packet->data, packet->size);
+    packet->data = xrealloc(packet->data, packet->size);
 }
 
 char *packet_get_debug(packet_struct *packet) {
@@ -285,7 +283,7 @@ char *packet_get_debug(packet_struct *packet) {
     cp = stringbuffer_finish(packet->sb);
     packet->sb = NULL;
 #else
-    cp = estrdup("");
+    cp = xstrdup("");
 #endif
 
     return cp;
@@ -447,10 +445,10 @@ void packet_append_data_len(packet_struct *packet, const uint8_t *data, size_t l
     {
         char *hex;
 
-        hex = emalloc(sizeof(*hex) * (len * 3 + 1));
+        hex = xmalloc(sizeof(*hex) * (len * 3 + 1));
         string_tohex(data, len, hex, len * 3 + 1, true);
         packet_debug(packet, 0, "%s\n", hex);
-        efree(hex);
+        free(hex);
     }
 #endif
 }
@@ -516,7 +514,7 @@ void packet_append_packet(packet_struct *packet, packet_struct *src) {
 
         cp = stringbuffer_sub(src->sb, 0, 0);
         stringbuffer_append_string(packet->sb, cp);
-        efree(cp);
+        free(cp);
     }
 #endif
 }

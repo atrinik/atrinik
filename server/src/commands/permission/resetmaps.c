@@ -46,7 +46,7 @@
  */
 static int
 command_resetmaps_internal(mapstruct *tiled, mapstruct *map, mapstruct ***maps, size_t *maps_num) {
-    *maps = erealloc(*maps, sizeof(**maps) * ((*maps_num) + 1));
+    *maps = xreallocarray(*maps, ((*maps_num) + 1), sizeof(**maps));
     (*maps)[*maps_num] = tiled;
     (*maps_num)++;
 
@@ -80,7 +80,7 @@ void command_resetmaps(object *op, const char *command, char *params) {
 
             path = map_get_path(op->map, params, 0, NULL);
             mappath = add_string(path);
-            efree(path);
+            free(path);
         } else {
             mappath = add_string(params);
         }
@@ -113,7 +113,7 @@ void command_resetmaps(object *op, const char *command, char *params) {
         }
     }
 
-    efree(maps);
+    free(maps);
 
     if (success != 0) {
         draw_info_format(COLOR_WHITE, op, "Successfully reset %d maps.", success);

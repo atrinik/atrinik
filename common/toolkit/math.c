@@ -552,11 +552,11 @@ bool math_base64_decode(const char *str, unsigned char **buf, size_t *buf_len) {
     HARD_ASSERT(buf != NULL);
     HARD_ASSERT(buf_len != NULL);
 
-    char *cp = estrdup(str);
+    char *cp = xstrdup(str);
     size_t len = strlen(cp);
 
     *buf_len = ((len * 3) + 3) / 4;
-    *buf = emalloc(*buf_len);
+    *buf = xmalloc(*buf_len);
 
     BIO *bio = BIO_new_mem_buf(cp, len);
     if (bio == NULL) {
@@ -586,13 +586,11 @@ bool math_base64_decode(const char *str, unsigned char **buf, size_t *buf_len) {
 error:
     ret = false;
 
-    if (*buf != NULL) {
-        efree(*buf);
-    }
+    free(*buf);
 
 out:
     BIO_free_all(bio);
-    efree(cp);
+    free(cp);
 
     return ret;
 }

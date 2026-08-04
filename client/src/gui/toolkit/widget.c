@@ -175,7 +175,7 @@ static int widget_load(const char *path, uint8_t defaults, widgetdata *widgets[]
 
             cp = string_sub(line, 1, -1);
             id = widget_id_from_name(cp);
-            efree(cp);
+            free(cp);
 
             if (id == -1) {
                 /* Reset to NULL in case there was a valid widget previously,
@@ -204,7 +204,7 @@ static int widget_load(const char *path, uint8_t defaults, widgetdata *widgets[]
             string_whitespace_trim(cps[1]);
 
             if (strcmp(cps[0], "id") == 0) {
-                widget->id = estrdup(cps[1]);
+                widget->id = xstrdup(cps[1]);
             } else if (strcmp(cps[0], "texture_type") == 0) {
                 widget->texture_type = atoi(cps[1]);
             } else if (strcmp(cps[0], "bg") == 0) {
@@ -460,7 +460,7 @@ widgetdata *create_widget_object(int widget_subtype_id) {
      * in here */
     widget = create_widget(widget_subtype_id);
     widget->type = widget_type_id;
-    widget->name = estrdup(widget_names[widget_subtype_id]);
+    widget->name = xstrdup(widget_names[widget_subtype_id]);
     widget->redraw = 1;
     widget->menu_handle_func = widget_menu_handle;
 
@@ -524,17 +524,13 @@ void remove_widget_object_intern(widgetdata *widget) {
         widget->deinit_func(widget);
     }
 
-    efree(widget->name);
+    free(widget->name);
 
-    if (widget->id) {
-        efree(widget->id);
-    }
+    free(widget->id);
 
     /* remove the custom attribute nodes if they exist */
-    if (widget->subwidget) {
-        efree(widget->subwidget);
-        widget->subwidget = NULL;
-    }
+    free(widget->subwidget);
+    widget->subwidget = NULL;
 
     /* finally de-allocate the widget node, this should always be the last node
      * removed in here */
@@ -608,7 +604,7 @@ void widgets_reset(void) {
         unlink(path);
     }
 
-    efree(path);
+    free(path);
 
     toolkit_widget_init();
 }
@@ -841,7 +837,7 @@ widgetdata *create_widget(int widget_id) {
 #endif
 
     /* allocate it */
-    node = ecalloc(1, sizeof(widgetdata));
+    node = xcalloc(1, sizeof(widgetdata));
 
     /* set the members */
     memcpy(node, &def_widget[widget_id], sizeof(*node));
@@ -971,7 +967,7 @@ void remove_widget(widgetdata *widget) {
         widget->surface = NULL;
     }
 
-    efree(widget);
+    free(widget);
 
 #ifdef DEBUG_WIDGET
     debug_count_nodes(1);
@@ -1156,7 +1152,7 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth) {
             fprintf(fp, "\n");
         }
 
-        efree(padding);
+        free(padding);
     }
 }
 
@@ -2125,7 +2121,7 @@ widgetdata *widget_find_create_id(int type, const char *id) {
 
     if (!tmp) {
         tmp = create_widget_object(type);
-        tmp->id = estrdup(id);
+        tmp->id = xstrdup(id);
     }
 
     return tmp;
@@ -2407,7 +2403,7 @@ widgetdata *add_label(const char *text, font_struct *font, const char *color) {
     SOFT_ASSERT_RC(widget != NULL, NULL, "Failed to create a label widget.");
     label = LABEL(widget);
 
-    label->text = estrdup(text);
+    label->text = xstrdup(text);
     label->color = color;
 
     font_free(label->font);

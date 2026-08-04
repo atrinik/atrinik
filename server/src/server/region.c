@@ -98,7 +98,7 @@ void regions_init(void) {
         if (region == NULL) {
             if (strcmp(key, "region") == 0 && !string_isempty(value)) {
                 region = region_get();
-                region->name = estrdup(value);
+                region->name = xstrdup(value);
             } else {
                 LOG(ERROR, "Parsing error: %s %s", buf, value ? value : "");
                 exit(1);
@@ -118,7 +118,7 @@ void regions_init(void) {
                 }
 
                 if (msgbuf[0] != '\0') {
-                    region->msg = estrdup(msgbuf);
+                    region->msg = xstrdup(msgbuf);
                 }
             } else if (strcmp(key, "end") == 0) {
                 region_add(region);
@@ -130,13 +130,13 @@ void regions_init(void) {
 
             continue;
         } else if (strcmp(key, "parent") == 0) {
-            region->parent_name = estrdup(value);
+            region->parent_name = xstrdup(value);
         } else if (strcmp(key, "longname") == 0) {
-            region->longname = estrdup(value);
+            region->longname = xstrdup(value);
         } else if (strcmp(key, "map_first") == 0) {
-            region->map_first = estrdup(value);
+            region->map_first = xstrdup(value);
         } else if (strcmp(key, "map_bg") == 0) {
-            region->map_bg = estrdup(value);
+            region->map_bg = xstrdup(value);
         } else if (strcmp(key, "jail") == 0) {
             char path[MAX_BUF];
             int x, y;
@@ -147,7 +147,7 @@ void regions_init(void) {
                 exit(1);
             }
 
-            region->jailmap = estrdup(path);
+            region->jailmap = xstrdup(path);
             region->jailx = x;
             region->jaily = y;
         } else if (strcmp(key, "child_maps") == 0) {
@@ -186,7 +186,7 @@ void regions_free(void) {
  * Initialized region structure.
  */
 static region_struct *region_get(void) {
-    return ecalloc(1, sizeof(region_struct));
+    return xcalloc(1, sizeof(region_struct));
 }
 
 /**
@@ -206,7 +206,7 @@ static void region_free(region_struct *region) {
     FREE_AND_NULL_PTR(region->map_bg);
     FREE_AND_NULL_PTR(region->msg);
     FREE_AND_NULL_PTR(region->jailmap);
-    efree(region);
+    free(region);
 }
 
 /**

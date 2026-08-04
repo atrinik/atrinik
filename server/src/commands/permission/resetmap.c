@@ -47,7 +47,7 @@ void command_resetmap(object *op, const char *command, char *params) {
 
         path = map_get_path(op->map, params, 0, NULL);
         mappath = add_string(path);
-        efree(path);
+        free(path);
     } else {
         mappath = add_string(params);
     }

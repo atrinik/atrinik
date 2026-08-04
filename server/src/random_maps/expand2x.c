@@ -46,10 +46,10 @@ char **expand2x(char **layout, int xsize, int ysize) {
     int nysize = ysize * 2 - 1;
 
     /* Allocate new layout */
-    char **newlayout = ecalloc(sizeof(char *), nxsize);
+    char **newlayout = xcalloc(nxsize, sizeof(*newlayout));
 
     for (i = 0; i < nxsize; i++) {
-        newlayout[i] = ecalloc(sizeof(char), nysize);
+        newlayout[i] = xcalloc(sizeof(char), nysize);
     }
 
     for (i = 0; i < xsize; i++) {
@@ -71,10 +71,10 @@ char **expand2x(char **layout, int xsize, int ysize) {
 
     /* Free old layout */
     for (i = 0; i < xsize; i++) {
-        efree(layout[i]);
+        free(layout[i]);
     }
 
-    efree(layout);
+    free(layout);
 
     return newlayout;
 }

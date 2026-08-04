@@ -86,7 +86,7 @@ static pthread_mutex_t rl_mutex; ///< Mutex for readline in general.
 
 static void console_command_help(const char *params);
 
-TOOLKIT_API(DEPENDS(logger), DEPENDS(memory), DEPENDS(string));
+TOOLKIT_API(DEPENDS(logger), DEPENDS(string));
 
 TOOLKIT_INIT_FUNC(console) {
     console_commands = NULL;
@@ -116,15 +116,13 @@ TOOLKIT_DEINIT_FUNC(console) {
     }
 
     for (i = 0; i < console_commands_num; i++) {
-        efree(console_commands[i].command);
-        efree(console_commands[i].desc_brief);
-        efree(console_commands[i].desc);
+        free(console_commands[i].command);
+        free(console_commands[i].desc_brief);
+        free(console_commands[i].desc);
     }
 
-    if (console_commands) {
-        efree(console_commands);
-        console_commands = NULL;
-    }
+    free(console_commands);
+    console_commands = NULL;
 
     console_commands_num = 0;
     utarray_free(command_process_queue);
@@ -163,9 +161,9 @@ static void console_command_help(const char *params) {
 
                 for (curr = console_commands[i].desc; (curr && (next = strchr(curr, '\n'))) || curr;
                      curr = next ? next + 1 : NULL) {
-                    cp = estrndup(curr, next ? (size_t)(next - curr) : strlen(curr));
+                    cp = xstrndup(curr, next ? (size_t)(next - curr) : strlen(curr));
                     LOG(INFO, "%s", cp);
-                    efree(cp);
+                    free(cp);
                 }
 
                 return;
@@ -247,7 +245,7 @@ static char *command_generator(const char *text, int state) {
         i++;
 
         if (strncmp(command, text, len) == 0) {
-            return strdup(command);
+            return xstrdup(command);
         }
     }
 
@@ -395,13 +393,13 @@ void console_command_add(const char *command,
     }
 
     /* Add it to the commands array. */
-    console_commands = ereallocz(console_commands,
-                                 sizeof(*console_commands) * console_commands_num,
-                                 sizeof(*console_commands) * (console_commands_num + 1));
-    console_commands[console_commands_num].command = estrdup(command);
+    console_commands =
+        xreallocarray(console_commands, console_commands_num + 1, sizeof(*console_commands));
+    memset(&console_commands[console_commands_num], 0, sizeof(*console_commands));
+    console_commands[console_commands_num].command = xstrdup(command);
     console_commands[console_commands_num].handle_func = handle_func;
-    console_commands[console_commands_num].desc_brief = estrdup(desc_brief);
-    console_commands[console_commands_num].desc = estrdup(desc);
+    console_commands[console_commands_num].desc_brief = xstrdup(desc_brief);
+    console_commands[console_commands_num].desc = xstrdup(desc);
     console_commands_num++;
 }
 

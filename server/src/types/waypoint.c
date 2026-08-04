@@ -145,7 +145,7 @@ static mapstruct *waypoint_load_destination(object *op, object *npc) {
     if (!map_path_isabs(op->slaying)) {
         char *path = map_get_path(npc->map, op->slaying, MAP_UNIQUE(npc->map), NULL);
         FREE_AND_COPY_HASH(op->slaying, path);
-        efree(path);
+        free(path);
     }
 
     mapstruct *destmap;

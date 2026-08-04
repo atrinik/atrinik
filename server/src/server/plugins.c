@@ -286,7 +286,7 @@ void init_plugin(const char *pluginfile) {
         return;
     }
 
-    plugin = emalloc(sizeof(atrinik_plugin));
+    plugin = xmalloc(sizeof(atrinik_plugin));
 
     for (i = 0; i < GEVENT_NUM; i++) {
         plugin->gevent[i] = 0;
@@ -333,7 +333,7 @@ void remove_plugin(const char *id) {
 
             plugin->closefunc();
             plugins_dlclose(plugin->libptr);
-            efree(plugin);
+            free(plugin);
             break;
         }
     }
@@ -354,7 +354,7 @@ void remove_plugins(void) {
 
         plugin->closefunc();
         plugins_dlclose(plugin->libptr);
-        efree(plugin);
+        free(plugin);
         plugin = next;
     }
 
@@ -374,7 +374,7 @@ void map_event_obj_init(object *ob) {
         return;
     }
 
-    tmp = emalloc(sizeof(map_event));
+    tmp = xmalloc(sizeof(map_event));
     tmp->plugin = NULL;
     tmp->event = ob;
 
@@ -388,7 +388,7 @@ void map_event_obj_init(object *ob) {
  * What to free.
  */
 void map_event_free(map_event *tmp) {
-    efree(tmp);
+    free(tmp);
 }
 
 /**

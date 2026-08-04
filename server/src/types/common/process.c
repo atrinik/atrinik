@@ -52,7 +52,7 @@ static void common_object_process_changing(object *op) {
         if (op->env && op->env->type == PLAYER) {
             char *name = object_get_name_s(op, op->env);
             draw_info_format(COLOR_WHITE, op->env, "The %s burnt out.", name);
-            efree(name);
+            free(name);
         }
 
         /* If other_arch is not set, it means the light can be refilled

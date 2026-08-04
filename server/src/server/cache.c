@@ -29,7 +29,7 @@
  * API usage:
  *
  * @code
- *    char *str = estrdup("hello world");
+ *    char *str = xstrdup("hello world");
  *    cache_struct *res;
  *
  *    // CACHE_FLAG_AUTOFREE will automatically free the pointer.
@@ -127,7 +127,7 @@ int cache_add(const char *key, void *ptr, uint32_t flags) {
     }
 
     /* Increase the array's size. */
-    cache = erealloc(cache, sizeof(cache_struct) * (num_cache + 1));
+    cache = xreallocarray(cache, (num_cache + 1), sizeof(cache_struct));
 
     /* Now, insert the cache into the correct spot in the array. */
     for (i = 0; i < num_cache; i++) {
@@ -176,7 +176,7 @@ int cache_remove(shstr *key) {
 
     /* Does it want to be freed automatically? */
     if (entry->flags & CACHE_FLAG_AUTOFREE) {
-        efree(entry->ptr);
+        free(entry->ptr);
     }
 
     free_string_shared(entry->key);
@@ -189,7 +189,7 @@ int cache_remove(shstr *key) {
     }
 
     /* Decrease the array's size. */
-    cache = erealloc(cache, sizeof(cache_struct) * (num_cache - 1));
+    cache = xreallocarray(cache, (num_cache - 1), sizeof(cache_struct));
     num_cache--;
 
     return 1;

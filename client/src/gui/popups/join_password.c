@@ -74,9 +74,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
         if (join_password_server->join_password != NULL) {
             OPENSSL_cleanse(join_password_server->join_password,
                             strlen(join_password_server->join_password));
-            efree(join_password_server->join_password);
+            free(join_password_server->join_password);
         }
-        join_password_server->join_password = estrdup(password_input.str);
+        join_password_server->join_password = xstrdup(password_input.str);
         popup_destroy(popup);
         login_start();
         return 1;

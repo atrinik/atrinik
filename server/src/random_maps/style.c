@@ -83,23 +83,23 @@ int load_dir(const char *dir, char ***namelist, int skip_dirs) {
     while ((d = readdir(dp)) != NULL) {
         if (skip_dirs) {
             size_t name_size = strlen(dir) + strlen(d->d_name) + 2;
-            char *name = emalloc(name_size);
+            char *name = xmalloc(name_size);
             snprintf(name, name_size, "%s/%s", dir, d->d_name);
 
             if (stat(name, &sb) == 0 && S_ISDIR(sb.st_mode)) {
-                efree(name);
+                free(name);
                 continue;
             }
 
-            efree(name);
+            free(name);
         }
 
         if (entries == entry_size) {
             entry_size += 10;
-            rn = erealloc(rn, sizeof(char *) * entry_size);
+            rn = xreallocarray(rn, entry_size, sizeof(char *));
         }
 
-        rn[entries] = estrdup(d->d_name);
+        rn[entries] = xstrdup(d->d_name);
         entries++;
     }
 
@@ -253,10 +253,10 @@ find_style(const char *dirname, const char *stylename, int difficulty, rng_state
                                            rng);
 
                     for (q = 0; q < n; q++) {
-                        efree(namelist[q]);
+                        free(namelist[q]);
                     }
 
-                    efree(namelist);
+                    free(namelist);
 
                     return style_map;
                 }
@@ -279,10 +279,10 @@ find_style(const char *dirname, const char *stylename, int difficulty, rng_state
         }
 
         for (i = 0; i < n; i++) {
-            efree(namelist[i]);
+            free(namelist[i]);
         }
 
-        efree(namelist);
+        free(namelist);
     }
 
     return style_map;

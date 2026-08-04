@@ -49,7 +49,7 @@ static void widget_draw(widgetdata *widget) {
 void widget_texture_init(widgetdata *widget) {
     _widget_texture *texture;
 
-    texture = ecalloc(1, sizeof(*texture));
+    texture = xcalloc(1, sizeof(*texture));
 
     widget->draw_func = widget_draw;
     widget->subwidget = texture;

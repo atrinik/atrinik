@@ -118,10 +118,10 @@ char **roguelike_layout_gen(int xsize, int ysize, int options, rng_state_t *rng)
     int tries = 0;
 
     /* Allocate that array, write walls everywhere up */
-    char **maze = emalloc(sizeof(char *) * xsize);
+    char **maze = xmallocarray(xsize, sizeof(*maze));
 
     for (i = 0; i < xsize; i++) {
-        maze[i] = emalloc(sizeof(char) * ysize);
+        maze[i] = xmallocarray(ysize, sizeof(*maze[i]));
 
         for (j = 0; j < ysize; j++) {
             maze[i][j] = '#';
@@ -146,7 +146,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options, rng_state_t *rng)
 
     /* decide on the number of rooms */
     nrooms = rng_range(rng, 6, 15);
-    Rooms = ecalloc(nrooms + 1, sizeof(Room));
+    Rooms = xcalloc(nrooms + 1, sizeof(Room));
 
     /* Actually place the rooms */
     i = 0;
@@ -170,7 +170,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options, rng_state_t *rng)
 
         maze[i / 2][j / 2] = '>';
         maze[i / 2][j / 2 + 1] = '<';
-        efree(Rooms);
+        free(Rooms);
 
         return maze;
     }
@@ -213,7 +213,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options, rng_state_t *rng)
         }
     }
 
-    efree(Rooms);
+    free(Rooms);
 
     return maze;
 }

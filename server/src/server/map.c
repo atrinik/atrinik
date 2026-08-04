@@ -968,9 +968,9 @@ static void allocate_map(mapstruct *m) {
 
     m->in_memory = MAP_LOADING;
 
-    m->spaces = ecalloc(1, MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(MapSpace));
-    m->bitmap = emalloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(*m->bitmap));
-    m->path_nodes = emalloc(MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(*m->path_nodes));
+    m->spaces = xcalloc(MAP_WIDTH(m) * MAP_HEIGHT(m), sizeof(*m->spaces));
+    m->bitmap = xmallocarray(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m), sizeof(*m->bitmap));
+    m->path_nodes = xmallocarray(MAP_WIDTH(m) * MAP_HEIGHT(m), sizeof(*m->path_nodes));
 }
 
 /**
@@ -1015,7 +1015,7 @@ void map_set_tile(mapstruct *m, int tile, const char *pathname) {
     } else {
         path = map_get_path(m, pathname, m->map_flags & MAP_FLAG_UNIQUE, NULL);
         path_sh = add_string(path);
-        efree(path);
+        free(path);
     }
 
     m->tile_path[tile] = path_sh;
@@ -1170,11 +1170,11 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator, int fl
                 path_exists(path)) {
                 cp2 = path_basename(path);
                 map_set_tile(m, i, cp2);
-                efree(cp2);
+                free(cp2);
             }
         }
 
-        efree(cp);
+        free(cp);
     } else {
         m->coords[2] = old_style_z;
     }
@@ -1222,9 +1222,7 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator, int fl
 
     set_map_reset_time(m);
 
-    if (real_path != NULL) {
-        efree(real_path);
-    }
+    free(real_path);
 
     return m;
 }
@@ -1394,7 +1392,7 @@ int new_save_map(mapstruct *m, int flag) {
             int fd;
 
             snprintf(path, sizeof(path), "%s/tmp/XXXXXX", settings.datapath);
-            m->tmpname = estrdup(path);
+            m->tmpname = xstrdup(path);
 
             fd = mkstemp(m->tmpname);
 
@@ -1672,7 +1670,7 @@ void clean_tmp_map(mapstruct *m) {
 
     unlink(m->tmpname);
 
-    efree(m->tmpname);
+    free(m->tmpname);
     m->tmpname = NULL;
 }
 
@@ -2598,15 +2596,15 @@ char *map_get_path(mapstruct *m, const char *path, uint8_t unique, const char *n
                 char *dir, *cp;
 
                 dir = path_dirname(m->path);
-                cp = estrdup(path);
+                cp = xstrdup(path);
                 string_replace_char(cp, "/", '$');
 
                 ret = path_join(dir, cp);
 
-                efree(cp);
-                efree(dir);
+                free(cp);
+                free(dir);
             } else {
-                return estrdup(path);
+                return xstrdup(path);
             }
         } else {
             char *file, *filedir, *joined;
@@ -2635,30 +2633,30 @@ char *map_get_path(mapstruct *m, const char *path, uint8_t unique, const char *n
                 /* Construct the path pointing inside the data directory. */
                 ret = path_join(dir, newpath);
 
-                efree(newpath);
-                efree(dir);
+                free(newpath);
+                free(dir);
             } else {
                 joined = path_join(filedir, path);
                 ret = path_normalize(joined);
             }
 
-            efree(joined);
-            efree(filedir);
-            efree(file);
+            free(joined);
+            free(filedir);
+            free(file);
         }
     } else {
         if (path && map_path_isabs(path)) {
             if (unique && name) {
                 char *cp;
 
-                cp = estrdup(path);
+                cp = xstrdup(path);
                 string_replace_char(cp, "/", '$');
 
                 ret = player_make_path(name, cp);
 
-                efree(cp);
+                free(cp);
             } else {
-                return estrdup(path);
+                return xstrdup(path);
             }
         } else if (m != NULL) {
             char *filedir, *joined;
@@ -2679,22 +2677,20 @@ char *map_get_path(mapstruct *m, const char *path, uint8_t unique, const char *n
 
                 ret = player_make_path(name, newpath);
 
-                efree(newpath);
+                free(newpath);
             } else {
                 joined = path_join(filedir, path);
                 ret = path_normalize(joined);
             }
 
-            efree(joined);
-            efree(filedir);
+            free(joined);
+            free(filedir);
         } else {
-            return estrdup(EMERGENCY_MAPPATH);
+            return xstrdup(EMERGENCY_MAPPATH);
         }
     }
 
-    if (path_tmp) {
-        efree(path_tmp);
-    }
+    free(path_tmp);
 
     return ret;
 }
@@ -2725,7 +2721,7 @@ mapstruct *map_force_reset(mapstruct *m) {
         next = CONTR(tmp)->map_above;
 
         leave_map(tmp);
-        players = erealloc(players, sizeof(*players) * (players_num + 1));
+        players = xreallocarray(players, (players_num + 1), sizeof(*players));
         players[players_num] = tmp;
         players_num++;
     }
@@ -2749,9 +2745,7 @@ mapstruct *map_force_reset(mapstruct *m) {
         object_insert_map(players[i], m, NULL, INS_NO_MERGE);
     }
 
-    if (players) {
-        efree(players);
-    }
+    free(players);
 
     return m;
 }

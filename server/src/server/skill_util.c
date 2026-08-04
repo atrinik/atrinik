@@ -430,11 +430,11 @@ static int do_skill_attack(object *tmp, object *op, char *string) {
         if (op->type == PLAYER) {
             char *name = object_get_name_s(tmp, op);
             draw_info_format(COLOR_WHITE, op, "You %s %s!", string, name);
-            efree(name);
+            free(name);
         } else if (tmp->type == PLAYER) {
             char *name = object_get_name_s(op, tmp);
             draw_info_format(COLOR_WHITE, tmp, "%s %s you!", name, string);
-            efree(name);
+            free(name);
         }
     }
 

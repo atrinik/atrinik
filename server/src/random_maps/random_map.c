@@ -131,10 +131,10 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP) {
     set_map_darkness(theMap, RP->darkness);
 
     for (i = 0; i < RP->Xsize; i++) {
-        efree(layout[i]);
+        free(layout[i]);
     }
 
-    efree(layout);
+    free(layout);
 
     return theMap;
 }
@@ -356,10 +356,10 @@ char **symmetrize_layout(char **maze, int sym, RMParms *RP) {
     RP->Xsize = ((sym == X_SYM || sym == XY_SYM) ? RP->Xsize * 2 - 3 : RP->Xsize);
     RP->Ysize = ((sym == Y_SYM || sym == XY_SYM) ? RP->Ysize * 2 - 3 : RP->Ysize);
 
-    sym_maze = ecalloc(sizeof(char *), RP->Xsize);
+    sym_maze = xcalloc(RP->Xsize, sizeof(*sym_maze));
 
     for (i = 0; i < RP->Xsize; i++) {
-        sym_maze[i] = ecalloc(sizeof(char), RP->Ysize);
+        sym_maze[i] = xcalloc(sizeof(char), RP->Ysize);
     }
 
     if (sym == X_SYM) {
@@ -394,10 +394,10 @@ char **symmetrize_layout(char **maze, int sym, RMParms *RP) {
 
     /* delete the old maze */
     for (i = 0; i < Xsize_orig; i++) {
-        efree(maze[i]);
+        free(maze[i]);
     }
 
-    efree(maze);
+    free(maze);
 
     /* reconnect disjointed spirals */
     if (RP->map_layout_style == SPIRAL_LAYOUT) {
@@ -443,7 +443,7 @@ char **rotate_layout(char **maze, int rotation, RMParms *RP) {
 
             /* a reflection */
         case 2: {
-            char *new = emalloc(sizeof(char) * RP->Xsize * RP->Ysize);
+            char *new = xmallocarray((size_t)RP->Xsize * (size_t)RP->Ysize, sizeof(*new));
 
             /* make a copy */
             for (i = 0; i < RP->Xsize; i++) {
@@ -459,7 +459,7 @@ char **rotate_layout(char **maze, int rotation, RMParms *RP) {
                 }
             }
 
-            efree(new);
+            free(new);
             return maze;
             break;
         }
@@ -468,10 +468,10 @@ char **rotate_layout(char **maze, int rotation, RMParms *RP) {
         case 3: {
             int swap;
 
-            new_maze = ecalloc(sizeof(char *), RP->Ysize);
+            new_maze = xcalloc(RP->Ysize, sizeof(*new_maze));
 
             for (i = 0; i < RP->Ysize; i++) {
-                new_maze[i] = ecalloc(sizeof(char), RP->Xsize);
+                new_maze[i] = xcalloc(sizeof(char), RP->Xsize);
             }
 
             /* swap x and y */
@@ -494,10 +494,10 @@ char **rotate_layout(char **maze, int rotation, RMParms *RP) {
 
             /* delete the old layout */
             for (i = 0; i < RP->Xsize; i++) {
-                efree(maze[i]);
+                free(maze[i]);
             }
 
-            efree(maze);
+            free(maze);
 
             swap = RP->Ysize;
             RP->Ysize = RP->Xsize;
@@ -747,8 +747,9 @@ void doorify_layout(char **maze, RMParms *RP) {
     int doorlocs = 0;
     int i, j;
 
-    doorlist_x = emalloc(sizeof(int) * RP->Xsize * RP->Ysize);
-    doorlist_y = emalloc(sizeof(int) * RP->Xsize * RP->Ysize);
+    size_t doorlist_size = (size_t)RP->Xsize * (size_t)RP->Ysize;
+    doorlist_x = xmallocarray(doorlist_size, sizeof(*doorlist_x));
+    doorlist_y = xmallocarray(doorlist_size, sizeof(*doorlist_y));
 
     /* make a list of possible door locations */
     for (i = 1; i < RP->Xsize - 1; i++) {
@@ -786,8 +787,8 @@ void doorify_layout(char **maze, RMParms *RP) {
         doorlist_y[di] = doorlist_y[doorlocs];
     }
 
-    efree(doorlist_x);
-    efree(doorlist_y);
+    free(doorlist_x);
+    free(doorlist_y);
 }
 
 /**

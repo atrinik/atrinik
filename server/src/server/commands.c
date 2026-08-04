@@ -117,8 +117,8 @@ TOOLKIT_DEINIT_FUNC(commands) {
 
     HASH_ITER(hh, commands, curr, tmp) {
         HASH_DEL(commands, curr);
-        efree(curr->name);
-        efree(curr);
+        free(curr->name);
+        free(curr);
     }
 
     HASH_ITER(hh, permission_groups, curr2, tmp2) {
@@ -136,17 +136,15 @@ TOOLKIT_DEINIT_FUNC_FINISH
 static void commands_permission_group_free(permission_group_struct *tmp) {
     size_t i;
 
-    efree(tmp->name);
+    free(tmp->name);
 
     for (i = 0; i < tmp->cmd_permissions_num; i++) {
-        efree(tmp->cmd_permissions[i]);
+        free(tmp->cmd_permissions[i]);
     }
 
-    if (tmp->cmd_permissions) {
-        efree(tmp->cmd_permissions);
-    }
+    free(tmp->cmd_permissions);
 
-    efree(tmp);
+    free(tmp);
 }
 
 /**
@@ -204,8 +202,8 @@ static void commands_permissions_read(const char *path) {
                 commands_permission_group_add(tmp);
             }
 
-            tmp = ecalloc(1, sizeof(*tmp));
-            tmp->name = estrdup(buf);
+            tmp = xcalloc(1, sizeof(*tmp));
+            tmp->name = xstrdup(buf);
         } else if (tmp) {
             char *cps[2];
 
@@ -214,10 +212,10 @@ static void commands_permissions_read(const char *path) {
                 string_whitespace_trim(cps[1]);
 
                 if (strcmp(cps[0], "cmd") == 0) {
-                    tmp->cmd_permissions =
-                        erealloc(tmp->cmd_permissions,
-                                 sizeof(*tmp->cmd_permissions) * (tmp->cmd_permissions_num + 1));
-                    tmp->cmd_permissions[tmp->cmd_permissions_num] = estrdup(cps[1]);
+                    tmp->cmd_permissions = xreallocarray(tmp->cmd_permissions,
+                                                         tmp->cmd_permissions_num + 1,
+                                                         sizeof(*tmp->cmd_permissions));
+                    tmp->cmd_permissions[tmp->cmd_permissions_num] = xstrdup(cps[1]);
                     tmp->cmd_permissions_num++;
                 }
             }
@@ -236,8 +234,8 @@ void commands_add(const char *name, command_func handle_func, double delay, uint
 
     TOOLKIT_PROTECT();
 
-    command = emalloc(sizeof(*command));
-    command->name = estrdup(name);
+    command = xmalloc(sizeof(*command));
+    command->name = xstrdup(name);
     command->handle_func = handle_func;
     command->delay = delay;
     command->flags = flags;

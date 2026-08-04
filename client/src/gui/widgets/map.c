@@ -187,7 +187,7 @@ void clear_map(bool hard) {
     cells_size = sizeof(*cells) * map_width * MAP_FOW_SIZE * map_height * MAP_FOW_SIZE;
 
     if (cells == NULL) {
-        cells = emalloc(cells_size);
+        cells = xmalloc(cells_size);
     }
 
     memset(cells, 0, cells_size);
@@ -255,7 +255,7 @@ void display_mapscroll(int dx, int dy, int old_w, int old_h) {
     }
 
     cells_old = cells;
-    cells = emalloc(sizeof(*cells) * w * h);
+    cells = xmallocarray((size_t)w * (size_t)h, sizeof(*cells));
 
     for (x = 0; x < w; x++) {
         for (y = 0; y < h; y++) {
@@ -276,7 +276,7 @@ void display_mapscroll(int dx, int dy, int old_w, int old_h) {
         }
     }
 
-    efree(cells_old);
+    free(cells_old);
 
     sound_ambient_mapcroll(dx, dy);
     map_anims_mapscroll(dx, dy);
@@ -1231,7 +1231,7 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
     }
 
     if (data->layer == LAYER_FLOOR && tiles_debug) {
-        data->tiles = erealloc(data->tiles, sizeof(*data->tiles) * ((data->tiles_num) + 1));
+        data->tiles = xreallocarray(data->tiles, ((data->tiles_num) + 1), sizeof(*data->tiles));
         data->tiles[data->tiles_num].x = xl;
         data->tiles[data->tiles_num].y = yl;
         data->tiles[data->tiles_num].w = data->x;
@@ -1696,7 +1696,7 @@ void map_draw_map(SDL_Surface *surface) {
                              data.tiles[i].h);
         }
 
-        efree(data.tiles);
+        free(data.tiles);
     }
 
     if (data.target_cell != NULL && cpl.target_code != 0) {
@@ -2234,7 +2234,7 @@ static void widget_draw(widgetdata *widget) {
                               ((float)(LastTick - msg_anim.tick) / 1000.0f) +
                           ((int)(150.0f * ((float)(LastTick - msg_anim.tick) / 3000.0f))));
             y_offset = 0;
-            msg = estrdup(msg_anim.message);
+            msg = xstrdup(msg_anim.message);
 
             cp = strtok(msg, "\n");
 
@@ -2252,7 +2252,7 @@ static void widget_draw(widgetdata *widget) {
                 cp = strtok(NULL, "\n");
             }
 
-            efree(msg);
+            free(msg);
             widget->redraw++;
         } else {
             msg_anim.message[0] = '\0';
@@ -2333,10 +2333,8 @@ static void widget_background(widgetdata *widget, int draw) {
 
 /** @copydoc widgetdata::deinit_func */
 static void widget_deinit(widgetdata *widget) {
-    if (cells != NULL) {
-        efree(cells);
-        cells = NULL;
-    }
+    free(cells);
+    cells = NULL;
 
     region_map_free(MapData.region_map);
     MapData.region_map = NULL;
@@ -2378,7 +2376,7 @@ struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer, int 
     map_anim_t *anim;
     int num_ticks;
 
-    anim = ecalloc(1, sizeof(*anim));
+    anim = xcalloc(1, sizeof(*anim));
 
     DL_APPEND(first_anim, anim);
 
@@ -2428,7 +2426,7 @@ void maps_anims_remove(map_anim_t *anim) {
 
     DL_DELETE(first_anim, anim);
 
-    efree(anim);
+    free(anim);
 }
 
 /**

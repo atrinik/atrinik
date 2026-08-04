@@ -26,208 +26,44 @@
 #include <check.h>
 #include <checkstd.h>
 #include <check_proto.h>
-#include <malloc.h>
 
-START_TEST(test_memory_emalloc) {
-    char *ptr;
-    memory_status_t memory_status;
-    size_t size;
-
-    ptr = emalloc(8);
+START_TEST(test_memory_zero_size) {
+    void *ptr = xmalloc(0);
     ck_assert_ptr_ne(ptr, NULL);
-    snprintf(ptr, 8, "%s", "testing");
-    ck_assert_str_eq(ptr, "testing");
+    free(ptr);
 
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
-    }
+    unsigned char *zero = xcalloc(0, 0);
+    ck_assert_ptr_ne(zero, NULL);
+    ck_assert_uint_eq(zero[0], 0);
+    free(zero);
 
-    if (memory_get_size(ptr, &size)) {
-        ck_assert_uint_eq(size, 8);
-    }
-
-    efree(ptr);
+    ptr = xmalloc(1);
+    ptr = xrealloc(ptr, 0);
+    ck_assert_ptr_eq(ptr, NULL);
 }
 END_TEST
 
-START_TEST(test_memory_efree) {
-    void *ptr;
-    memory_status_t memory_status;
-    size_t size;
+START_TEST(test_memory_array_reallocation) {
+    uint32_t *values = xcalloc(2, sizeof(*values));
+    ck_assert_uint_eq(values[0], 0);
+    ck_assert_uint_eq(values[1], 0);
 
-    ptr = emalloc(42);
-    ck_assert_ptr_ne(ptr, NULL);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
-    }
-
-    if (memory_get_size(ptr, &size)) {
-        ck_assert_uint_eq(size, 42);
-    }
-
-    efree(ptr);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_FREE);
-    }
+    values[0] = 42;
+    values[1] = 84;
+    values = xreallocarray(values, 4, sizeof(*values));
+    ck_assert_uint_eq(values[0], 42);
+    ck_assert_uint_eq(values[1], 84);
+    free(values);
 }
 END_TEST
 
-START_TEST(test_memory_ecalloc) {
-    int32_t *ptr;
-    size_t size;
-    memory_status_t memory_status;
-
-    ptr = ecalloc(42, sizeof(*ptr));
-    ck_assert_ptr_ne(ptr, NULL);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
-    }
-
-    if (memory_get_size(ptr, &size)) {
-        ck_assert_uint_eq(size, 42 * sizeof(*ptr));
-    }
-
-    for (size_t i = 0; i < 42; i++) {
-        ck_assert_uint_eq(ptr[i], 0);
-    }
-
-    efree(ptr);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_FREE);
-    }
+START_TEST(test_memory_array_overflow) {
+    (void)xreallocarray(NULL, SIZE_MAX, 2);
 }
 END_TEST
 
-START_TEST(test_memory_erealloc) {
-    char *ptr;
-    memory_status_t memory_status;
-    size_t size;
-
-    ptr = emalloc(4);
-    ck_assert_ptr_ne(ptr, NULL);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
-    }
-
-    if (memory_get_size(ptr, &size)) {
-        ck_assert_uint_eq(size, 4);
-    }
-
-    memcpy(ptr, "tes", 4);
-    ck_assert_str_eq(ptr, "tes");
-
-    ptr = erealloc(ptr, 8);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
-    }
-
-    if (memory_get_size(ptr, &size)) {
-        ck_assert_uint_eq(size, 8);
-    }
-
-    ck_assert_str_eq(ptr, "tes");
-    snprintf(ptr, 8, "%s", "testing");
-    ck_assert_str_eq(ptr, "testing");
-
-    ptr = erealloc(ptr, 20);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
-    }
-
-    if (memory_get_size(ptr, &size)) {
-        ck_assert_uint_eq(size, 20);
-    }
-
-    ck_assert_str_eq(ptr, "testing");
-
-    ptr = erealloc(ptr, 8);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
-    }
-
-    if (memory_get_size(ptr, &size)) {
-        ck_assert_uint_eq(size, 8);
-    }
-
-    ck_assert_str_eq(ptr, "testing");
-
-    efree(ptr);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_FREE);
-    }
-}
-END_TEST
-
-START_TEST(test_memory_reallocz) {
-    int32_t *ptr;
-    memory_status_t memory_status;
-    size_t size, i;
-
-    ptr = emalloc(sizeof(*ptr) * 42);
-    ck_assert_ptr_ne(ptr, NULL);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
-    }
-
-    if (memory_get_size(ptr, &size)) {
-        ck_assert_uint_eq(size, sizeof(*ptr) * 42);
-    }
-
-    for (i = 0; i < 42; i++) {
-        ptr[i] = 1337;
-    }
-
-    for (i = 0; i < 42; i++) {
-        ck_assert_uint_eq(ptr[i], 1337);
-    }
-
-    ptr = ereallocz(ptr, sizeof(*ptr) * 42, sizeof(*ptr) * 42 * 2);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
-    }
-
-    if (memory_get_size(ptr, &size)) {
-        ck_assert_uint_eq(size, sizeof(*ptr) * 42 * 2);
-    }
-
-    for (i = 0; i < 42; i++) {
-        ck_assert_uint_eq(ptr[i], 1337);
-    }
-
-    for (i = 42; i < 42 * 2; i++) {
-        ck_assert_uint_eq(ptr[i], 0);
-    }
-
-    ptr = ereallocz(ptr, sizeof(*ptr) * 42 * 2, sizeof(*ptr) * 42);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
-    }
-
-    if (memory_get_size(ptr, &size)) {
-        ck_assert_uint_eq(size, sizeof(*ptr) * 42);
-    }
-
-    for (i = 0; i < 42; i++) {
-        ck_assert_uint_eq(ptr[i], 1337);
-    }
-
-    efree(ptr);
-
-    if (memory_get_status(ptr, &memory_status)) {
-        ck_assert_uint_eq(memory_status, MEMORY_STATUS_FREE);
-    }
+START_TEST(test_memory_initial_array_overflow) {
+    (void)xmallocarray(SIZE_MAX, 2);
 }
 END_TEST
 
@@ -239,11 +75,10 @@ static Suite *suite(void) {
     tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
 
     suite_add_tcase(s, tc_core);
-    tcase_add_test(tc_core, test_memory_emalloc);
-    tcase_add_test(tc_core, test_memory_efree);
-    tcase_add_test(tc_core, test_memory_ecalloc);
-    tcase_add_test(tc_core, test_memory_erealloc);
-    tcase_add_test(tc_core, test_memory_reallocz);
+    tcase_add_test(tc_core, test_memory_zero_size);
+    tcase_add_test(tc_core, test_memory_array_reallocation);
+    tcase_add_test_raise_signal(tc_core, test_memory_array_overflow, SIGABRT);
+    tcase_add_test_raise_signal(tc_core, test_memory_initial_array_overflow, SIGABRT);
 
     return s;
 }

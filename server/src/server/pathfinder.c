@@ -154,12 +154,12 @@ static bool clioptions_option_pathfinder_algorithm(const char *arg, char **errms
     }
 
     if (algo == PATH_ALGO_NUM) {
-        *errmsg = estrdup("Unknown algorithm");
+        *errmsg = xstrdup("Unknown algorithm");
         return false;
     }
 
     if (path_algo == algo) {
-        *errmsg = estrdup("Algorithm unchanged");
+        *errmsg = xstrdup("Algorithm unchanged");
         return false;
     }
 
@@ -177,7 +177,7 @@ static const char *clioptions_option_pathfinder_greed_desc =
 static bool clioptions_option_pathfinder_greed(const char *arg, char **errmsg) {
     double greed = atof(arg);
     if (DBL_EQUAL(path_greed, greed)) {
-        *errmsg = estrdup("Greed modifier unchanged");
+        *errmsg = xstrdup("Greed modifier unchanged");
         return false;
     }
 
@@ -573,7 +573,7 @@ shstr *path_encode(path_node_t *path) {
 
     cp = stringbuffer_finish(sb);
     ret = add_string(cp);
-    efree(cp);
+    free(cp);
 
     return ret;
 }
@@ -795,7 +795,7 @@ void path_visualize(path_visualization_t **visualization, path_visualizer_t **vi
         HASH_FIND(hh, *visualization, &node->map->path, sizeof(shstr *), visualization_node);
 
         if (visualization_node == NULL) {
-            visualization_node = ecalloc(1, sizeof(*visualization_node));
+            visualization_node = xcalloc(1, sizeof(*visualization_node));
             FREE_AND_ADD_REF_HASH(visualization_node->path, node->map->path);
             HASH_ADD(hh, *visualization, path, sizeof(shstr *), visualization_node);
         }
@@ -1136,7 +1136,7 @@ path_node_t *path_find(object *op,
                     fprintf(fp, "\n");
 
                     DL_DELETE(curr->nodes, visualizer_node);
-                    efree(visualizer_node);
+                    free(visualizer_node);
                 }
 
                 sb = stringbuffer_new();
@@ -1161,11 +1161,11 @@ path_node_t *path_find(object *op,
 
                 cp = stringbuffer_finish(sb);
                 fprintf(fp, "],\n\"walls\": [%s\n]}%s\n", cp, tmp != NULL ? "," : "");
-                efree(cp);
+                free(cp);
 
                 HASH_DEL(visualization, curr);
                 FREE_ONLY_HASH(curr->path);
-                efree(curr);
+                free(curr);
             }
 
             fprintf(fp, "},\n\"path\": [\n");

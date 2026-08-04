@@ -68,7 +68,7 @@ static int apply_func(object *op, object *applier, int aflags) {
 
         /* It's not applied, nothing else to do. */
         if (!QUERY_FLAG(op, FLAG_APPLIED)) {
-            efree(name);
+            free(name);
             return OBJECT_METHOD_OK;
         }
     } else if (op->last_sp != 0) {
@@ -96,16 +96,16 @@ static int apply_func(object *op, object *applier, int aflags) {
 
         /* It's already applied, nothing else to do. */
         if (QUERY_FLAG(op, FLAG_APPLIED)) {
-            efree(name);
+            free(name);
             return OBJECT_METHOD_OK;
         }
     } else {
         draw_info_format(COLOR_WHITE, applier, "The %s can't be lit.", name);
-        efree(name);
+        free(name);
         return OBJECT_METHOD_OK;
     }
 
-    efree(name);
+    free(name);
 
     if (op->env != NULL && op->env->type == PLAYER) {
         /* Handle applying/unapplying the light.  */

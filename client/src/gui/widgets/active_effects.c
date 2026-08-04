@@ -248,15 +248,15 @@ void widget_active_effects_update(widgetdata *widget, object *op, int32_t sec, c
     }
 
     if (!effect) {
-        effect = ecalloc(1, sizeof(*effect));
+        effect = xcalloc(1, sizeof(*effect));
         DL_APPEND(tmp->active_effects, effect);
     } else {
-        efree(effect->msg);
+        free(effect->msg);
     }
 
     effect->op = op;
     effect->sec = sec;
-    effect->msg = estrdup(msg);
+    effect->msg = xstrdup(msg);
 
     WIDGET_REDRAW(widget);
 }
@@ -270,8 +270,8 @@ void widget_active_effects_remove(widgetdata *widget, object *op) {
     DL_FOREACH_SAFE(tmp->active_effects, effect, next) {
         if (effect->op == op) {
             DL_DELETE(tmp->active_effects, effect);
-            efree(effect->msg);
-            efree(effect);
+            free(effect->msg);
+            free(effect);
             WIDGET_REDRAW(widget);
             break;
         }
@@ -284,7 +284,7 @@ void widget_active_effects_remove(widgetdata *widget, object *op) {
 void widget_active_effects_init(widgetdata *widget) {
     widget_active_effects_struct *tmp;
 
-    tmp = ecalloc(1, sizeof(*tmp));
+    tmp = xcalloc(1, sizeof(*tmp));
 
     widget->draw_func = widget_draw;
     widget->event_func = widget_event;

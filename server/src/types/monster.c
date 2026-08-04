@@ -1559,12 +1559,12 @@ static char *find_matching_message(const char *msg, const char *match) {
 
             if (gotmatch) {
                 if (cp1) {
-                    cp3 = emalloc(cp1 - cp2 + 1);
+                    cp3 = xmalloc(cp1 - cp2 + 1);
                     strncpy(cp3, cp2 + 1, cp1 - cp2);
                     cp3[cp1 - cp2 - 1] = '\0';
                 } else {
                     /* If no next match, just want the rest of the string */
-                    cp3 = estrdup(cp2 + 1);
+                    cp3 = xstrdup(cp2 + 1);
                 }
 
                 return cp3;
@@ -1634,7 +1634,7 @@ int talk_to_npc(object *op, object *npc, char *txt) {
                 char buf[HUGE_BUF];
                 char *name = object_get_name_s(npc, NULL);
                 snprintf(buf, sizeof(buf), "\n%s says: %s", name, cp);
-                efree(name);
+                free(name);
                 draw_info_map(CHAT_TYPE_GAME,
                               NULL,
                               COLOR_WHITE,
@@ -1647,7 +1647,7 @@ int talk_to_npc(object *op, object *npc, char *txt) {
                               buf);
             }
 
-            efree(cp);
+            free(cp);
         }
     }
 

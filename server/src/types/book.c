@@ -151,6 +151,7 @@ static int apply_func(object *op, object *applier, int aflags) {
 
         /* So no more exp gained from this book. */
         SET_FLAG(op, FLAG_NO_SKILL_IDENT);
+        esrv_update_item(UPD_FLAGS, op);
         /* Restore old experience value. */
         op->stats.exp = old_exp;
     }

@@ -275,7 +275,7 @@ socket_local_candidates(uint16_t port, socket_direct_candidate_t *candidates, si
     size_t count = 0;
 #ifdef WIN32
     ULONG size = 16 * 1024;
-    IP_ADAPTER_ADDRESSES *adapters = emalloc(size);
+    IP_ADAPTER_ADDRESSES *adapters = xmalloc(size);
     ULONG rc = GetAdaptersAddresses(AF_UNSPEC,
                                     GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST |
                                         GAA_FLAG_SKIP_DNS_SERVER,
@@ -283,7 +283,7 @@ socket_local_candidates(uint16_t port, socket_direct_candidate_t *candidates, si
                                     adapters,
                                     &size);
     if (rc == ERROR_BUFFER_OVERFLOW) {
-        adapters = erealloc(adapters, size);
+        adapters = xrealloc(adapters, size);
         rc = GetAdaptersAddresses(AF_UNSPEC,
                                   GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST |
                                       GAA_FLAG_SKIP_DNS_SERVER,
@@ -321,7 +321,7 @@ socket_local_candidates(uint16_t port, socket_direct_candidate_t *candidates, si
             }
         }
     }
-    efree(adapters);
+    free(adapters);
 #else
     struct ifaddrs *interfaces = NULL;
     if (getifaddrs(&interfaces) != 0) {

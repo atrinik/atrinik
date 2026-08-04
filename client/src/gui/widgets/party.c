@@ -207,8 +207,8 @@ void socket_command_party(uint8_t *data, size_t len, size_t pos) {
 
         for (row = 0; row < list_party->rows; row++) {
             if (!strcmp(list_party->text[row][0], name)) {
-                efree(list_party->text[row][1]);
-                list_party->text[row][1] = estrdup(bars);
+                free(list_party->text[row][1]);
+                list_party->text[row][1] = xstrdup(bars);
                 return;
             }
         }

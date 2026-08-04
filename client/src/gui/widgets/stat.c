@@ -213,7 +213,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
 /** @copydoc widgetdata::deinit_func */
 static void widget_deinit(widgetdata *widget) {
     widget_stat_t *stat_widget = widget->subwidget;
-    efree(stat_widget->texture);
+    free(stat_widget->texture);
 }
 
 /** @copydoc widgetdata::load_func */
@@ -221,7 +221,7 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
     widget_stat_t *stat_widget = widget->subwidget;
 
     if (strcmp(keyword, "texture") == 0) {
-        stat_widget->texture = estrdup(parameter);
+        stat_widget->texture = xstrdup(parameter);
         return 1;
     }
 
@@ -240,8 +240,8 @@ static void menu_stat_display_change(widgetdata *widget, widgetdata *menuitem, S
     for (widgetdata *tmp = menuitem->inv; tmp != NULL; tmp = tmp->next) {
         if (tmp->type == LABEL_ID) {
             _widget_label *label = LABEL(tmp);
-            efree(stat_widget->texture);
-            stat_widget->texture = estrdup(label->text);
+            free(stat_widget->texture);
+            stat_widget->texture = xstrdup(label->text);
             string_tolower(stat_widget->texture);
             WIDGET_REDRAW(widget);
             break;
@@ -277,7 +277,7 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event) {
  * The widget to initialize.
  */
 void widget_stat_init(widgetdata *widget) {
-    widget_stat_t *stat_widget = ecalloc(1, sizeof(*stat_widget));
+    widget_stat_t *stat_widget = xcalloc(1, sizeof(*stat_widget));
 
     widget->draw_func = widget_draw;
     widget->event_func = widget_event;

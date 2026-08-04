@@ -75,10 +75,10 @@ char **map_gen_onion(int xsize, int ysize, int option, int layers, rng_state_t *
     int i, j;
 
     /* Allocate that array, set it up */
-    char **maze = ecalloc(sizeof(char *), xsize);
+    char **maze = xcalloc(xsize, sizeof(*maze));
 
     for (i = 0; i < xsize; i++) {
-        maze[i] = ecalloc(sizeof(char), ysize);
+        maze[i] = xcalloc(sizeof(char), ysize);
     }
 
     /* Pick some random options if option = 0 */
@@ -165,8 +165,8 @@ void centered_onion(char **maze, int xsize, int ysize, int option, int layers, r
         layers = rng_range(rng, 1, maxlayers);
     }
 
-    xlocations = ecalloc(sizeof(float), 2 * layers);
-    ylocations = ecalloc(sizeof(float), 2 * layers);
+    xlocations = xcalloc(layers, 2 * sizeof(*xlocations));
+    ylocations = xcalloc(layers, 2 * sizeof(*ylocations));
 
     /* Place all the walls */
 
@@ -257,8 +257,8 @@ void bottom_centered_onion(char **maze,
         layers = rng_range(rng, 1, maxlayers);
     }
 
-    xlocations = ecalloc(sizeof(float), 2 * layers);
-    ylocations = ecalloc(sizeof(float), 2 * layers);
+    xlocations = xcalloc(layers, 2 * sizeof(*xlocations));
+    ylocations = xcalloc(layers, 2 * sizeof(*ylocations));
 
     /* place all the walls */
 
@@ -513,8 +513,8 @@ void make_doors(char **maze,
     maze[x][y] = 'C';
 
     /* Not needed anymore */
-    efree(xlocations);
-    efree(ylocations);
+    free(xlocations);
+    free(ylocations);
 }
 
 /**
@@ -554,8 +554,8 @@ void bottom_right_centered_onion(char **maze,
         layers = rng_range(rng, 1, maxlayers);
     }
 
-    xlocations = ecalloc(sizeof(float), 2 * layers);
-    ylocations = ecalloc(sizeof(float), 2 * layers);
+    xlocations = xcalloc(layers, 2 * sizeof(*xlocations));
+    ylocations = xcalloc(layers, 2 * sizeof(*ylocations));
 
     /* place all the walls */
 

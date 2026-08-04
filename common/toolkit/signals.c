@@ -40,6 +40,7 @@
 #endif
 
 #include "signals.h"
+#include "memory.h"
 #include <signal.h>
 
 #ifdef HAVE_SIGACTION
@@ -347,9 +348,7 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
             fprintf(fp, "%d: %s\n", i, messages[i]);
         }
 
-        if (messages) {
-            free(messages);
-        }
+        free(messages);
     }
 #endif
 
@@ -374,12 +373,7 @@ TOOLKIT_INIT_FUNC(signals) {
     stack_t ss;
 
     HARD_ASSERT(alternate_signal_stack == NULL);
-    alternate_signal_stack = malloc(SIGSTKSZ * 4);
-
-    if (alternate_signal_stack == NULL) {
-        log_error("OOM.");
-        abort();
-    }
+    alternate_signal_stack = xmalloc(SIGSTKSZ * 4);
 
     ss.ss_sp = alternate_signal_stack;
     ss.ss_size = SIGSTKSZ * 4;

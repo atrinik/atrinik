@@ -550,6 +550,10 @@ typedef struct socket_asset_response {
  * The item is a two-handed weapon.
  */
 #define CS_FLAG_WEAPON_2H 256
+/**
+ * The lore book has already granted its one-time reading experience.
+ */
+#define CS_FLAG_NO_SKILL_IDENT 512
 /*@}*/
 
 /**

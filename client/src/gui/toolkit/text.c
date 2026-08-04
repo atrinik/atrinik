@@ -149,9 +149,9 @@ static font_struct *font_new(const char *name, uint8_t size) {
         return NULL;
     }
 
-    font = ecalloc(1, sizeof(*font));
-    font->key = estrdup(font_get_hash_key(name, size, key, sizeof(key)));
-    font->name = estrdup(name);
+    font = xcalloc(1, sizeof(*font));
+    font->key = xstrdup(font_get_hash_key(name, size, key, sizeof(key)));
+    font->name = xstrdup(name);
     font->size = size;
     font->last_used = time(NULL);
     font->font = ttf_font;
@@ -279,10 +279,10 @@ void font_free(font_struct *font) {
     }
 #endif
 
-    efree(font->name);
-    efree(font->key);
+    free(font->name);
+    free(font->key);
     TTF_CloseFont(font->font);
-    efree(font);
+    free(font);
 }
 
 /**
@@ -461,7 +461,7 @@ char *text_strip_markup(char *buf, size_t *buf_len, uint8_t do_free) {
         len = strlen(buf);
     }
 
-    cp = emalloc(sizeof(char) * (len + 1));
+    cp = xmalloc(sizeof(char) * (len + 1));
 
     while (pos < len) {
         if (buf[pos] == '[') {
@@ -496,7 +496,7 @@ char *text_strip_markup(char *buf, size_t *buf_len, uint8_t do_free) {
     cp[cp_pos] = '\0';
 
     if (do_free) {
-        efree(buf);
+        free(buf);
     }
 
     if (buf_len) {
@@ -622,7 +622,7 @@ void text_anchor_execute(text_info_struct *info, void *custom_data) {
     pos = strchr(info->anchor_action, ':');
 
     if (pos != NULL && pos[1] != '\0') {
-        buf = estrdup(pos + 1);
+        buf = xstrdup(pos + 1);
         len = strlen(buf);
         info->anchor_action[pos - info->anchor_action] = '\0';
     } else {
@@ -638,7 +638,7 @@ void text_anchor_execute(text_info_struct *info, void *custom_data) {
         len = tag - info->anchor_tag;
         /* Allocate a temporary buffer and copy the text until the
          * ending [/a], so we have the text between the anchor tags. */
-        buf = emalloc(len + 1);
+        buf = xmalloc(len + 1);
         memcpy(buf, info->anchor_tag, len);
         buf[len] = '\0';
     }
@@ -653,7 +653,7 @@ void text_anchor_execute(text_info_struct *info, void *custom_data) {
             /* It's not a command, so prepend "/say " to it. */
             if (buf[0] != '/') {
                 /* Resize the buffer so it can hold 5 more bytes. */
-                buf = erealloc(buf, len + 5 + 1);
+                buf = xrealloc(buf, len + 5 + 1);
                 /* Copy the existing bytes to the end, so we have 5
                  * we can use in the front. */
                 memmove(buf + 5, buf, len + 1);
@@ -672,7 +672,7 @@ void text_anchor_execute(text_info_struct *info, void *custom_data) {
         browser_open(buf);
     }
 
-    efree(buf);
+    free(buf);
 }
 
 /**
@@ -928,11 +928,11 @@ int text_show_character(font_struct **font,
             if (tag2 != NULL && box != NULL && box->w != 0) {
                 /* Copy the string between [center] and [/center] to a
                  * temporary buffer so we can calculate its width. */
-                char *buf = emalloc(tag2 - cp - 8 + 1);
+                char *buf = xmalloc(tag2 - cp - 8 + 1);
                 memcpy(buf, cp + 8, tag2 - cp - 8);
                 buf[tag2 - cp - 8] = '\0';
                 int text_width = text_get_width(*font, buf, flags);
-                efree(buf);
+                free(buf);
 
                 if (surface != NULL && text_width < box->w - dest->x) {
                     dest->x += box->w / 2 - text_width / 2;
@@ -944,7 +944,7 @@ int text_show_character(font_struct **font,
             tag2 = strstr(tag + tag_len, "[/right]");
 
             if (tag2 && box && box->w) {
-                char *buf = emalloc(tag2 - cp - 7 + 1);
+                char *buf = xmalloc(tag2 - cp - 7 + 1);
                 int w;
 
                 /* Copy the string between [right] and [/right] to a
@@ -952,7 +952,7 @@ int text_show_character(font_struct **font,
                 memcpy(buf, cp + 7, tag2 - cp - 7);
                 buf[tag2 - cp - 7] = '\0';
                 w = info->start_x + box->w - text_get_width(*font, buf, flags);
-                efree(buf);
+                free(buf);
 
                 if (surface) {
                     if (w > dest->x) {
@@ -1282,7 +1282,7 @@ int text_show_character(font_struct **font,
                     SDL_Rect hcenter_box;
 
                     len = tag2 - (tag + tag_len + 1);
-                    tmpbuf = emalloc(len + 1);
+                    tmpbuf = xmalloc(len + 1);
                     memcpy(tmpbuf, tag + tag_len + 1, len);
                     tmpbuf[len] = '\0';
 
@@ -1299,7 +1299,7 @@ int text_show_character(font_struct **font,
                               &hcenter_box);
                     dest->y += ht / 2 - hcenter_box.h / 2;
                     info->hcenter_y = MAX(0, ht / 2 - hcenter_box.h / 2);
-                    efree(tmpbuf);
+                    free(tmpbuf);
                 }
             }
         } else if (tag_len == 8 && strncmp(tag, "/hcenter", tag_len) == 0) {
@@ -1572,14 +1572,14 @@ int text_show_character(font_struct **font,
                 if (tag2) {
                     char *buf;
 
-                    buf = emalloc(tag2 - cp - 11 + 1);
+                    buf = xmalloc(tag2 - cp - 11 + 1);
                     memcpy(buf, cp + 11, tag2 - cp - 11);
                     buf[tag2 - cp - 11] = '\0';
                     info->highlight_rect.x = dest->x;
                     info->highlight_rect.y = dest->y;
                     info->highlight_rect.w = text_get_width(*font, buf, flags);
                     info->highlight_rect.h = text_get_height(*font, buf, flags);
-                    efree(buf);
+                    free(buf);
 
                     info->highlight = 1;
                     info->highlight_color.r = r;
@@ -1643,7 +1643,7 @@ int text_show_character(font_struct **font,
 
             cp2 = text_escape_markup(cp);
             log_error("Unknown tag found in message: %s", cp2);
-            efree(cp2);
+            free(cp2);
         }
 
         if (tag_len != 0) {
@@ -2239,7 +2239,7 @@ void text_show(SDL_Surface *surface,
 
             /* Calculating lines, store the height of this line. */
             if (flags & TEXT_LINES_CALC) {
-                heights = erealloc(heights, sizeof(*heights) * (num_heights + 1));
+                heights = xreallocarray(heights, (num_heights + 1), sizeof(*heights));
                 heights[num_heights] = max_height;
                 num_heights++;
             }
@@ -2353,7 +2353,7 @@ void text_show(SDL_Surface *surface,
     if (box && flags & TEXT_LINES_CALC) {
         int total_height = 0, i, last_lines = 0;
 
-        heights = erealloc(heights, sizeof(*heights) * (num_heights + 1));
+        heights = xreallocarray(heights, (num_heights + 1), sizeof(*heights));
         heights[num_heights] = max_height;
         num_heights++;
 
@@ -2368,7 +2368,7 @@ void text_show(SDL_Surface *surface,
             last_lines++;
         }
 
-        efree(heights);
+        free(heights);
         box->y = last_lines;
         box->h = lines;
     }

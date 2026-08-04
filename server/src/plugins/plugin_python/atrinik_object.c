@@ -889,9 +889,9 @@ static PyObject *Atrinik_Object_Take(Atrinik_Object *self, PyObject *what) {
         OBJEXISTCHECK((Atrinik_Object *)what);
         hooks->pick_up(self->obj, ((Atrinik_Object *)what)->obj, 0);
     } else if (PyString_Check(what)) {
-        char *params = estrdup(PyString_AsString(what));
+        char *params = xstrdup(PyString_AsString(what));
         hooks->command_take(self->obj, "take", params);
-        efree(params);
+        xfree(params);
     } else {
         PyErr_SetString(PyExc_TypeError,
                         "Argument 'what' must be either Atrinik object or string.");
@@ -921,9 +921,9 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *self, PyObject *what) {
         OBJEXISTCHECK((Atrinik_Object *)what);
         hooks->drop(self->obj, ((Atrinik_Object *)what)->obj, 0);
     } else if (PyString_Check(what)) {
-        char *params = estrdup(PyString_AsString(what));
+        char *params = xstrdup(PyString_AsString(what));
         hooks->command_drop(self->obj, "drop", params);
-        efree(params);
+        xfree(params);
     } else {
         PyErr_SetString(PyExc_TypeError,
                         "Argument 'what' must be either Atrinik object or string.");
@@ -957,7 +957,7 @@ static PyObject *Atrinik_Object_Say(Atrinik_Object *self, PyObject *args) {
 
     char *name = hooks->stringbuffer_finish(hooks->object_get_name(self->obj, NULL, NULL));
     snprintf(VS(buf), "%s says: %s", name, message);
-    efree(name);
+    xfree(name);
     hooks->draw_info_map(CHAT_TYPE_GAME,
                          NULL,
                          COLOR_NAVY,
@@ -1643,7 +1643,7 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *self, PyObject *ignored) {
     hooks->object_dump_rec(self->obj, sb);
     char *result = hooks->stringbuffer_finish(sb);
     PyObject *ret = Py_BuildValue("s", result);
-    efree(result);
+    xfree(result);
 
     return ret;
 }
@@ -1841,7 +1841,7 @@ static PyObject *Atrinik_Object_GetName(Atrinik_Object *self, PyObject *args) {
     char *name = hooks->stringbuffer_finish(
         hooks->object_get_short_name(self->obj, ob != NULL ? ob->obj : NULL, NULL));
     PyObject *ret = Py_BuildValue("s", name);
-    efree(name);
+    xfree(name);
     return ret;
 }
 

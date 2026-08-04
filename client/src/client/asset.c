@@ -70,13 +70,13 @@ static void asset_request_cache_load(asset_request_t *request) {
         return;
     }
 
-    uint8_t *data = emalloc((size_t)sb.st_size + 1);
+    uint8_t *data = xmalloc((size_t)sb.st_size + 1);
     bool success = fread(data, 1, (size_t)sb.st_size, fp) == (size_t)sb.st_size;
     if (fclose(fp) != 0) {
         success = false;
     }
     if (!success) {
-        efree(data);
+        free(data);
         return;
     }
 
@@ -91,7 +91,7 @@ static void asset_request_cache_load(asset_request_t *request) {
                    EVP_sha256(),
                    NULL) != 1 ||
         digest_size != ASSET_DIGEST_SIZE) {
-        efree(request->data);
+        free(request->data);
         request->data = NULL;
         request->size = 0;
         return;
@@ -110,7 +110,7 @@ static void asset_request_cache_save(const asset_request_t *request) {
 
     char *path = file_path(request->cache_path, "wb");
     bool success = path_write_atomic(path, request->data, request->size, 0600);
-    efree(path);
+    free(path);
     if (!success) {
         LOG(ERROR, "Could not write QUIC asset cache %s", request->cache_path);
     } else {
@@ -134,11 +134,11 @@ asset_request_start_internal(const char *path, const char *cache_path, bool meta
         return request;
     }
 
-    request = ecalloc(1, sizeof(*request));
-    request->key = estrdup(key);
-    request->path = estrdup(path);
+    request = xcalloc(1, sizeof(*request));
+    request->key = xstrdup(key);
+    request->path = xstrdup(path);
     if (cache_path != NULL) {
-        request->cache_path = estrdup(cache_path);
+        request->cache_path = xstrdup(cache_path);
     }
     request->references = 1;
     request->metadata_only = metadata_only;
@@ -196,15 +196,11 @@ void asset_request_free(asset_request_t *request) {
     }
 
     HASH_DEL(asset_requests, request);
-    efree(request->key);
-    efree(request->path);
-    if (request->cache_path != NULL) {
-        efree(request->cache_path);
-    }
-    if (request->data != NULL) {
-        efree(request->data);
-    }
-    efree(request);
+    free(request->key);
+    free(request->path);
+    free(request->cache_path);
+    free(request->data);
+    free(request);
 }
 
 void socket_command_asset(uint8_t *data, size_t len, size_t pos) {
@@ -278,10 +274,8 @@ void socket_command_asset(uint8_t *data, size_t len, size_t pos) {
     }
 
     if (response.offset == 0) {
-        if (request->data != NULL) {
-            efree(request->data);
-            request->data = NULL;
-        }
+        free(request->data);
+        request->data = NULL;
         request->size = 0;
         request->cache_loaded = false;
         memcpy(request->expected_digest, response.digest, ASSET_DIGEST_SIZE);
@@ -292,7 +286,7 @@ void socket_command_asset(uint8_t *data, size_t len, size_t pos) {
     }
 
     if (request->data == NULL) {
-        request->data = emalloc((size_t)response.total_size + 1);
+        request->data = xmalloc((size_t)response.total_size + 1);
         request->size = response.total_size;
     }
 
