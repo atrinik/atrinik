@@ -55,6 +55,18 @@ typedef struct MapCell_struct {
     /** Whether each normalized light level has been sent at least once. */
     uint8_t light_known[NUM_SUB_LAYERS];
 
+    /** Last base-map structural support height sent to the client. */
+    int16_t support_height;
+
+    /** Whether the structural support height has been sent at least once. */
+    uint8_t support_height_known;
+
+    /** Last explicit fog-of-war state sent to the client. */
+    uint8_t fow;
+
+    /** Whether the fog-of-war state has been sent at least once. */
+    uint8_t fow_known;
+
     /** Faces we sent. */
     int16_t faces[NUM_REAL_LAYERS];
 

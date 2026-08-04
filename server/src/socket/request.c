@@ -823,12 +823,8 @@ static bool map_space_blocks_vertical_view(mapstruct *map, int x, int y) {
     return false;
 }
 
-/** A surface that occludes lower map levels from the isometric camera. */
-static bool map_space_blocks_camera_view(mapstruct *map, int x, int y) {
-    if (map_space_blocks_vertical_view(map, x, y)) {
-        return true;
-    }
-
+/** Whether one map space contains an explicit roof/camera surface. */
+static bool map_space_has_roof(mapstruct *map, int x, int y) {
     for (object *tmp = GET_MAP_OB(map, x, y); tmp != NULL; tmp = tmp->above) {
         /* Roof archetypes deliberately use the hidden wall layer rather than
          * blocksview: they are camera occluders, not gameplay LOS blockers. */
@@ -838,6 +834,10 @@ static bool map_space_blocks_camera_view(mapstruct *map, int x, int y) {
     }
 
     return false;
+}
+
+static bool map_space_blocks_camera_view(mapstruct *map, int x, int y) {
+    return map_space_blocks_vertical_view(map, x, y) || map_space_has_roof(map, x, y);
 }
 
 static bool map_level_layer_visible(map_level_visibility visibility, int layer) {
@@ -877,6 +877,23 @@ static bool map_space_has_wall(MapSpace *msp) {
     }
 
     return false;
+}
+
+/** Return the nonnegative ground elevation supporting linked upper levels. */
+static int16_t map_space_support_height(MapSpace *msp) {
+    int16_t support_height = 0;
+
+    for (int sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+        object *floor = GET_MAP_SPACE_LAYER(msp, LAYER_FLOOR, sub_layer);
+        if (floor == NULL) {
+            continue;
+        }
+
+        object *head = floor->head != NULL ? floor->head : floor;
+        support_height = MAX(support_height, head->z);
+    }
+
+    return support_height;
 }
 
 /** Resolve one linked map depth without applying camera visibility. */
@@ -1062,6 +1079,35 @@ static void map_build_level_cutaway(object *pl,
     }
 }
 
+/**
+ * Whether a structural column has a higher roof visible to the camera.
+ *
+ * Roof components can be disconnected even when their supporting walls and
+ * interior floors form one connected component. Cutting the latter as a whole
+ * must not leave a retained roof floating without its wall layer.
+ */
+static bool
+map_column_has_visible_roof(mapstruct *base,
+                            int x,
+                            int y,
+                            int depth,
+                            int ax,
+                            int ay,
+                            const bool cutaway[MAP2_LEVELS][MAP_CLIENT_X][MAP_CLIENT_Y]) {
+    for (int roof_depth = depth + 1; roof_depth <= MAP2_MAX_DEPTH; roof_depth++) {
+        mapstruct *roof_map = map_resolve_raw_level(base, roof_depth);
+        if (roof_map == NULL) {
+            break;
+        }
+
+        if (!cutaway[MAP2_DEPTH_INDEX(roof_depth)][ax][ay] && map_space_has_roof(roof_map, x, y)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /** Clear a map cell, but only if it has not been cleared before. */
 #define map_if_clearcell(_hard_)                                                                  \
     {                                                                                             \
@@ -1071,8 +1117,34 @@ static void map_build_level_cutaway(object *pl,
             packet_append_uint16(packet,                                                          \
                                  mask | MAP2_MASK_CLEAR | ((_hard_) ? MAP2_MASK_HARD_CLEAR : 0)); \
             map_clearcell(cached);                                                                \
+            level_present = true;                                                                 \
         }                                                                                         \
     }
+
+/** Send changed base geometry without disclosing any drawable object layer. */
+static bool map_append_support_height(packet_struct *packet,
+                                      MapCell *cached,
+                                      uint16_t mask,
+                                      int16_t support_height) {
+    bool support_changed =
+        !cached->support_height_known || cached->support_height != support_height;
+    if (!support_changed) {
+        return false;
+    }
+
+    packet_debug_data(packet, 0, "Tile structural support height, mask");
+    packet_append_uint16(packet, mask | MAP2_MASK_SUPPORT_HEIGHT);
+    packet_debug_data(packet, 1, "Structural support height");
+    packet_append_int16(packet, support_height);
+    packet_debug_data(packet, 1, "Number of layers");
+    packet_append_uint8(packet, 0);
+    packet_debug_data(packet, 1, "Extended tile flags");
+    packet_append_uint8(packet, 0);
+
+    cached->support_height = support_height;
+    cached->support_height_known = 1;
+    return true;
+}
 
 /** Draw the client map. */
 void draw_client_map2(object *pl) {
@@ -1227,11 +1299,6 @@ void draw_client_map2(object *pl) {
                     continue;
                 }
 
-                if (depth > 0 && level_cutaway[MAP2_DEPTH_INDEX(depth)][ax][ay]) {
-                    map_if_clearcell(true);
-                    continue;
-                }
-
                 nx = x;
                 ny = y;
 
@@ -1240,6 +1307,7 @@ void draw_client_map2(object *pl) {
                     continue;
                 }
 
+                mapstruct *base_map = m;
                 mapstruct *level_map = NULL;
                 map_level_visibility level_visibility =
                     map_resolve_level(m, nx, ny, depth, &level_map);
@@ -1250,8 +1318,22 @@ void draw_client_map2(object *pl) {
 
                 m = level_map;
                 msp = GET_MAP_SPACE_PTR(m, nx, ny);
+                bool visible_roof_above =
+                    depth >= 0 &&
+                    map_column_has_visible_roof(base_map, nx, ny, depth, ax, ay, level_cutaway);
+
+                if (depth > 0 && level_cutaway[MAP2_DEPTH_INDEX(depth)][ax][ay]) {
+                    if (visible_roof_above &&
+                        map_space_has_client_content(msp, MAP_LEVEL_BOUNDARY)) {
+                        level_visibility = MAP_LEVEL_BOUNDARY;
+                    } else {
+                        map_if_clearcell(true);
+                        continue;
+                    }
+                }
 
                 blocksview = d & BLOCKED_LOS_BLOCKED;
+                bool tile_fow = false;
                 /* A lower level behind gameplay LOS cannot disclose content.
                  * It has no structural shell that the top-down camera needs to
                  * preserve, so discard the complete cached cell. */
@@ -1264,20 +1346,44 @@ void draw_client_map2(object *pl) {
                  * that has never been sent remains empty, while previously
                  * seen contents are retained and rendered as grayscale FOW. */
                 if (depth == 0 && blocksview) {
-                    map_if_clearcell(false);
-                    continue;
+                    if (visible_roof_above) {
+                        level_visibility = MAP_LEVEL_BOUNDARY;
+                        tile_fow = true;
+                    } else {
+                        map_if_clearcell(false);
+                        mp = map_client_cache_cell(&CONTR(pl)->cs->lastmap, depth, ax, ay, true);
+                        if (map_append_support_height(packet,
+                                                      mp,
+                                                      mask,
+                                                      map_space_support_height(msp))) {
+                            level_present = true;
+                        }
+                        continue;
+                    }
                 }
 
                 /* Gameplay LOS protects actors, items, and effects at and
                  * above the player's level. Positive depths retain floors,
                  * masks, and walls so clearing their complete cells does not
                  * slice roofs into the base level's LOS silhouette. */
-                if (depth > 0 && blocksview && level_visibility == MAP_LEVEL_VISIBLE) {
-                    level_visibility = MAP_LEVEL_BOUNDARY;
+                if (depth > 0 && blocksview) {
+                    if (level_visibility == MAP_LEVEL_VISIBLE || visible_roof_above) {
+                        level_visibility = MAP_LEVEL_BOUNDARY;
+                    }
+                    tile_fow = true;
                 }
 
                 if (!map_space_has_client_content(msp, level_visibility)) {
                     map_if_clearcell(false);
+                    if (depth == 0) {
+                        mp = map_client_cache_cell(&CONTR(pl)->cs->lastmap, depth, ax, ay, true);
+                        if (map_append_support_height(packet,
+                                                      mp,
+                                                      mask,
+                                                      map_space_support_height(msp))) {
+                            level_present = true;
+                        }
+                    }
                     continue;
                 }
 
@@ -1360,6 +1466,16 @@ void draw_client_map2(object *pl) {
 
                 packet_layer = packet_new(0, 0, 128);
                 num_layers = 0;
+
+                if (depth == 0) {
+                    int16_t support_height = map_space_support_height(msp);
+                    if (!mp->support_height_known || mp->support_height != support_height) {
+                        mask |= MAP2_MASK_SUPPORT_HEIGHT;
+                    }
+                }
+                if (!mp->fow_known || (mp->fow != 0) != tile_fow) {
+                    mask |= MAP2_MASK_FOW;
+                }
 
                 /* Go through the visible layers. */
                 for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
@@ -1821,6 +1937,20 @@ void draw_client_map2(object *pl) {
                 /* Add the mask. Any mask changes should go above this line. */
                 packet_debug_data(packet, 0, "Tile %d,%d data, mask", ax, ay);
                 packet_append_uint16(packet, mask);
+
+                if (mask & MAP2_MASK_SUPPORT_HEIGHT) {
+                    mp->support_height = map_space_support_height(msp);
+                    mp->support_height_known = 1;
+                    packet_debug_data(packet, 1, "Structural support height");
+                    packet_append_int16(packet, mp->support_height);
+                }
+
+                if (mask & MAP2_MASK_FOW) {
+                    mp->fow = tile_fow;
+                    mp->fow_known = 1;
+                    packet_debug_data(packet, 1, "Fog-of-war state");
+                    packet_append_uint8(packet, mp->fow);
+                }
 
                 for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
                     if ((sub_layer == 0 && !(mask & MAP2_MASK_LIGHT_LEVEL)) ||

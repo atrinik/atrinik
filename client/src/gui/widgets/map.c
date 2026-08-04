@@ -919,7 +919,7 @@ void map_set_data(int x,
     int sub_layer;
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
-    bool stretch_geometry_reset = cell->fow != 0;
+    bool stretch_geometry_reset = cell->fow != 0 && cell->structural_fow == 0;
     sub_layer = layer / NUM_LAYERS;
     int object_layer = (layer % NUM_LAYERS) + 1;
     bool stretch_geometry_changed =
@@ -931,10 +931,11 @@ void map_set_data(int x,
         stretch_geometry_reset || ((object_layer == LAYER_FLOOR || object_layer == LAYER_EFFECT) &&
                                    cell->height[layer] != height);
 
-    if (cell->fow) {
+    if (cell->fow && !cell->structural_fow) {
         int i;
 
         cell->fow = 0;
+        cell->structural_fow = 0;
 
         for (i = 0; i < NUM_REAL_LAYERS; i++) {
             cell->faces[i] = 0;
@@ -1074,6 +1075,7 @@ void map_clear_cell(int x, int y, bool hard) {
     }
 
     cell->fow = 1;
+    cell->structural_fow = 0;
     memset(cell->light_known, 0, sizeof(cell->light_known));
 
     for (layer = 0; layer < NUM_REAL_LAYERS; layer++) {
@@ -1086,6 +1088,36 @@ void map_clear_cell(int x, int y, bool hard) {
     if (had_known_light) {
         level_lighting_revision[current_level_index]++;
     }
+}
+
+/** Store base-map elevation needed to project independently cached upper levels. */
+void map_set_structural_support_height(int x, int y, int16_t height) {
+    struct MapCell *cell = MAP_CELL_GET_MIDDLE(x, y);
+
+    if (cell->structural_support_height == height) {
+        return;
+    }
+
+    cell->structural_support_height = height;
+    level_lighting_revision[current_level_index]++;
+}
+
+/** Apply an explicit server visibility state after a tile's layer deltas. */
+void map_set_fow(int x, int y, bool fow) {
+    struct MapCell *cell = MAP_CELL_GET_MIDDLE(x, y);
+
+    if ((cell->fow != 0) == fow && (cell->structural_fow != 0) == fow) {
+        return;
+    }
+
+    cell->fow = fow;
+    cell->structural_fow = fow;
+    level_lighting_revision[current_level_index]++;
+}
+
+/** Return the currently cached visibility state for one map tile. */
+bool map_get_fow(int x, int y) {
+    return MAP_CELL_GET_MIDDLE(x, y)->fow != 0;
 }
 
 /**
@@ -1400,7 +1432,7 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
         BIT_SET(effects.flags, SPRITE_FLAG_EFFECTS);
     }
 
-    if (data->cell->fow) {
+    if (data->cell->fow && (!data->cell->structural_fow || data->layer <= LAYER_FMASK)) {
         BIT_SET(effects.flags, SPRITE_FLAG_FOW);
     } else if (data->cell->infravision[map_layer]) {
         BIT_SET(effects.flags, SPRITE_FLAG_RED);
@@ -1706,7 +1738,7 @@ static int map_level_support_height(int x, int y, int depth) {
         return 0;
     }
 
-    return map_cache_cell(base_cells, x, y)->level_support_height;
+    return map_cache_cell(base_cells, x, y)->structural_support_height;
 }
 
 /**

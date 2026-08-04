@@ -861,27 +861,30 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos) {
                 continue;
             }
 
-            if (depth == 0 && MapData.region_name[0] != '\0') {
-                if (region_map_fow_set_visited(MapData.region_map,
-                                               def_map,
-                                               MapData.map_path,
-                                               rx + x,
-                                               ry + y)) {
-                    region_map_fow_need_update = true;
-                }
+            size_t tile_values = 0;
+            if (mask & MAP2_MASK_SUPPORT_HEIGHT) {
+                tile_values += sizeof(int16_t);
             }
-
-            size_t light_values = 0;
+            if (mask & MAP2_MASK_FOW) {
+                tile_values++;
+            }
             if (mask & MAP2_MASK_LIGHT_LEVEL) {
-                light_values++;
+                tile_values++;
             }
             if (mask & MAP2_MASK_LIGHT_LEVEL_MORE) {
-                light_values += NUM_SUB_LAYERS - 1;
+                tile_values += NUM_SUB_LAYERS - 1;
             }
-            if (len - pos < light_values + sizeof(num_layers)) {
-                LOG(PACKET, "Truncated map tile light levels.");
+            if (len - pos < tile_values + sizeof(num_layers)) {
+                LOG(PACKET, "Truncated map tile metadata.");
                 return;
             }
+
+            if (mask & MAP2_MASK_SUPPORT_HEIGHT) {
+                map_set_structural_support_height(x, y, packet_to_int16(data, len, &pos));
+            }
+
+            bool fow_updated = (mask & MAP2_MASK_FOW) != 0;
+            bool tile_fow = fow_updated ? packet_to_uint8(data, len, &pos) != 0 : map_get_fow(x, y);
 
             /* Do we have light-level information? */
             if (mask & MAP2_MASK_LIGHT_LEVEL) {
@@ -1089,6 +1092,20 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos) {
                     int16_t anim_value = packet_to_int16(data, len, &pos);
 
                     map_anims_add(anim_type, x, y, sub_layer, depth, anim_value);
+                }
+            }
+
+            if (fow_updated) {
+                map_set_fow(x, y, tile_fow);
+            }
+
+            if (depth == 0 && !tile_fow && MapData.region_name[0] != '\0') {
+                if (region_map_fow_set_visited(MapData.region_map,
+                                               def_map,
+                                               MapData.map_path,
+                                               rx + x,
+                                               ry + y)) {
+                    region_map_fow_need_update = true;
                 }
             }
         }

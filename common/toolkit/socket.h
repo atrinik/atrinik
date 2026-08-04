@@ -384,6 +384,8 @@ typedef struct socket_asset_response {
  * @defgroup MAP2_MASK_xxx Map2 mask flags
  * Flags used for masks in map2 protocol.
  *@{*/
+/** Base-map structural support height follows the mask. */
+#define MAP2_MASK_SUPPORT_HEIGHT 0x1
 /** Clear cell, with all layers. */
 #define MAP2_MASK_CLEAR 0x2
 /** Clear cell and discard cached fog-of-war geometry. */
@@ -392,6 +394,8 @@ typedef struct socket_asset_response {
 #define MAP2_MASK_LIGHT_LEVEL 0x4
 /** Tile light levels for sub-layers one through six follow the mask. */
 #define MAP2_MASK_LIGHT_LEVEL_MORE 0x8
+/** Tile fog-of-war state follows the mask. */
+#define MAP2_MASK_FOW 0x20
 /*@}*/
 
 /**

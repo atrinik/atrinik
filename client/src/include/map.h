@@ -205,6 +205,9 @@ typedef struct MapCell {
     /** Object flags. */
     uint8_t flags[NUM_REAL_LAYERS];
 
+    /** Whether fogged geometry is an authoritative structural boundary. */
+    uint8_t structural_fow;
+
     /** Whether terrain stretch must be recomputed for this cell. */
     uint8_t stretch_dirty;
 
@@ -216,6 +219,9 @@ typedef struct MapCell {
 
     /** Maximum nonnegative floor elevation supporting linked upper levels. */
     int16_t level_support_height;
+
+    /** Server-provided base-map elevation used to project linked upper levels. */
+    int16_t structural_support_height;
 
     /** Maximum floor/effect elevation used for screen-space rejection. */
     int16_t render_max_height;
