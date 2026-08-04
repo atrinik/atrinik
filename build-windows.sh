@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# windows-build:0.0.2 contains MXE's real compiler drivers here, while the
+# windows-build:0.0.3 contains MXE's real compiler drivers here, while the
 # toolchain's compiler path is a ccache symlink that locates them through PATH.
 if [[ -d /opt/mxe/usr/bin && ":${PATH}:" != *":/opt/mxe/usr/bin:"* ]]; then
     export PATH="/opt/mxe/usr/bin:${PATH}"

@@ -1,6 +1,6 @@
 {
   "name": "Atrinik 2026 Linux Build",
-  "image": "ghcr.io/atrinik/linux-build:0.0.2",
+  "image": "ghcr.io/atrinik/linux-build:0.0.3",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:4": {
       "moby": false
@@ -13,10 +13,11 @@
     "--security-opt", "seccomp=unconfined",
     "--security-opt", "no-new-privileges=false"
   ],
-  "initializeCommand": "install -d -m 700 \"${localEnv:HOME}/.codex-atrinik\"",
+  "initializeCommand": "install -d -m 700 \"${localEnv:HOME}/.codex-atrinik\" && if [ ! -e \"${localEnv:HOME}/.gitconfig\" ]; then install -m 600 /dev/null \"${localEnv:HOME}/.gitconfig\"; fi",
   "workspaceFolder": "/workspaces/atrinik",
   "mounts": [
     "source=${localEnv:HOME}/.codex-atrinik,target=/home/ubuntu/.codex,type=bind",
+    "source=${localEnv:HOME}/.gitconfig,target=/home/ubuntu/.gitconfig,type=bind,readonly",
     "source=/mnt/wslg/PulseServer,target=/mnt/wslg/PulseServer,type=bind"
   ],
   "containerEnv": {

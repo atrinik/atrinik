@@ -1,0 +1,6 @@
+self-hosted-runner:
+  # GitHub-hosted Ubuntu 26.04 is newer than actionlint 1.7.12's embedded
+  # runner-label list. Keep the exception narrow so other misspellings remain
+  # errors, and remove it once actionlint recognizes the label itself.
+  labels:
+    - ubuntu-26.04
