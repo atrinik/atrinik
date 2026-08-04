@@ -572,7 +572,8 @@ bool disease_reduce_symptoms(object *op, int reduction) {
 
     bool success = false;
     FOR_INV_PREPARE(op, tmp) {
-        if (tmp->type != SYMPTOM) {
+        /* Non-progressive symptoms have no severity to reduce. */
+        if (tmp->type != SYMPTOM || tmp->value <= 0) {
             continue;
         }
 
