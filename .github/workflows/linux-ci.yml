@@ -29,7 +29,7 @@ jobs:
     name: GCC build and CTest
     runs-on: ubuntu-26.04
     container:
-      image: ghcr.io/atrinik/linux-build:0.0.2
+      image: ghcr.io/atrinik/linux-build:0.0.3
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -93,7 +93,7 @@ jobs:
     if: github.event_name != 'workflow_call'
     runs-on: ubuntu-26.04
     container:
-      image: ghcr.io/atrinik/linux-build:0.0.2
+      image: ghcr.io/atrinik/linux-build:0.0.3
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -112,13 +112,6 @@ jobs:
 
       - name: Trust checked-out workspace
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-
-      # linux-build:0.0.2 does not include Clang. Install it in the pinned,
-      # ephemeral job container until the next build-image release.
-      - name: Install Clang
-        run: |
-          apt-get update
-          apt-get install --yes --no-install-recommends clang libclang-rt-dev llvm
 
       - name: Configure
         run: |
@@ -169,7 +162,7 @@ jobs:
             --env PATH=/opt/mxe/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
             --volume "${GITHUB_WORKSPACE}:/workspaces/atrinik" \
             --workdir /workspaces/atrinik \
-            ghcr.io/atrinik/windows-build:0.0.2 \
+            ghcr.io/atrinik/windows-build:0.0.3 \
             bash -c \
               'x86_64-w64-mingw32.shared-cmake \
                  --no-warn-unused-cli \

@@ -37,8 +37,13 @@ set(HAVE_SDL_TTF true)
 # LibXML2 is required.
 find_package(LibXml2 REQUIRED)
 
-# SDL_mixer is optional, as sound is not a must-have.
-find_package(SDL_mixer)
+# SDL_mixer is optional on other platforms, but a Windows client without it
+# silently produces an executable that cannot play any of the bundled audio.
+if (MINGW)
+    find_package(SDL_mixer REQUIRED)
+else ()
+    find_package(SDL_mixer)
+endif ()
 
 if (NOT SDLMIXER_FOUND AND SDL_mixer_FOUND)
     set(SDLMIXER_FOUND ${SDL_mixer_FOUND})
@@ -99,7 +104,23 @@ endif ()
 
 # Link SDL_mixer if available.
 if (HAVE_SDL_MIXER)
+    target_compile_definitions(${EXECUTABLE} PRIVATE HAVE_SDL_MIXER)
     target_link_libraries(${EXECUTABLE} PRIVATE ${SDLMIXER_LIBRARY})
+
+    if (MINGW)
+        if (NOT CMAKE_OBJDUMP)
+            message(FATAL_ERROR
+                "CMAKE_OBJDUMP is required to validate Windows client sound support")
+        endif ()
+
+        add_custom_command(TARGET ${EXECUTABLE} POST_BUILD
+            COMMAND ${CMAKE_COMMAND}
+                "-DATRINIK_OBJDUMP=${CMAKE_OBJDUMP}"
+                "-DATRINIK_CLIENT_EXECUTABLE=$<TARGET_FILE:${EXECUTABLE}>"
+                -P "${CMAKE_SOURCE_DIR}/cmake/verify_windows_client_sound.cmake"
+            COMMENT "Verifying that the Windows client imports SDL_mixer"
+            VERBATIM)
+    endif ()
 endif ()
 
 # Installer.

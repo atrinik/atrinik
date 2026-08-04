@@ -90,7 +90,7 @@ jobs:
       - name: Set image name
         env:
           IMAGE_NAME: windows-build
-          IMAGE_VERSION: 0.0.2
+          IMAGE_VERSION: 0.0.3
         run: |
           echo "WINDOWS_BUILD_IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${IMAGE_NAME}:${IMAGE_VERSION}" \
             >> "${GITHUB_ENV}"

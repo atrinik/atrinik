@@ -1,6 +1,6 @@
 services:
   windows-build:
-    image: ${ATRINIK_WINDOWS_BUILD_IMAGE:-ghcr.io/atrinik/windows-build:0.0.2}
+    image: ${ATRINIK_WINDOWS_BUILD_IMAGE:-ghcr.io/atrinik/windows-build:0.0.3}
     working_dir: /workspaces/atrinik
     user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
     environment:

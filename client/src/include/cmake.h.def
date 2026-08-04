@@ -34,9 +34,6 @@
 /* Is SDL_ttf available? (same as SDL, should be available) */
 #cmakedefine HAVE_SDL_TTF
 
-/* Is SDL_mixer available? */
-#cmakedefine HAVE_SDL_MIXER
-
 #define INSTALL_SUBDIR_SHARE "@INSTALL_SUBDIR_SHARE@"
 
 /* Name of the generated executable. */
