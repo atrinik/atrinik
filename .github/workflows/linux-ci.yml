@@ -71,7 +71,7 @@ jobs:
               client/*)
                 client=true
                 ;;
-              arch/*|maps/*|server/*|Dockerfile.server|generate-region-maps.sh|tools/collect.py|tools/compilers/*)
+              arch/*|maps/*|server/*|Dockerfile.server|generate-region-maps.sh|tools/collect.py|tools/utils.py|tools/compilers/*)
                 server=true
                 ;;
               .devcontainer/*|.github/workflows/linux-ci.yml|.github/workflows/release.yml|CMakeLists.txt|CMakePresets.json|build.config|build.sh|build-windows.sh|cmake/*|common/*|compose.windows.yaml|tests/e2e/*)
@@ -132,7 +132,8 @@ jobs:
           source_hash=$(
             git ls-files --stage -- \
               CMakeLists.txt build.config CMakePresets.json \
-              client cmake common server \
+              client cmake common server tests/e2e \
+              tools/collect.py tools/compilers tools/utils.py \
               | sha256sum \
               | cut -d ' ' -f 1
           )

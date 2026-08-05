@@ -108,6 +108,7 @@ jobs:
             git ls-files --stage -- \
               CMakeLists.txt CMakePresets.json build-windows.sh build.config \
               arch client cmake common maps server tools/compilers \
+              tools/collect.py tools/utils.py \
               | sha256sum \
               | cut -d ' ' -f 1
           )

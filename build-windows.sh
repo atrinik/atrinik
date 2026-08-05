@@ -51,7 +51,7 @@ case "${SERVER_PACKAGE_ROOT}" in
 esac
 
 prepare_server_content() {
-    local content_hash cached_hash=""
+    local ccache_command="" content_hash cached_hash=""
     local region_cmake_args=(
         -S .
         -B "${REGION_BUILD_DIR}"
@@ -61,14 +61,19 @@ prepare_server_content() {
         -DBUILD_SERVER=ON
     )
     if command -v ccache >/dev/null; then
+        ccache_command=$(command -v ccache)
+    elif [[ -x /opt/mxe/.ccache/bin/ccache ]]; then
+        ccache_command=/opt/mxe/.ccache/bin/ccache
+    fi
+    if [[ -n "${ccache_command}" ]]; then
         region_cmake_args+=(
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+            -DCMAKE_C_COMPILER_LAUNCHER="${ccache_command}"
         )
     fi
 
     content_hash=$(
         {
-            find arch maps server/install_data server/resources server/src \
+            find arch cmake maps server/install_data server/resources server/src \
                 common/toolkit tools/compilers \
                 -type f \
                 ! -path '*/__pycache__/*' \
