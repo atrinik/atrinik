@@ -36,6 +36,9 @@
 #include <disease.h>
 #include <rune.h>
 
+/** Direct traps deliberately hit harder than an equivalent basic attack. */
+#define TRAP_DIRECT_DAMAGE_MULTIPLIER 1.5f
+
 /**
  * Calculate a player's effective rating for a trap skill.
  *
@@ -134,7 +137,8 @@ void rune_spring(object *op, object *victim) {
     /* Direct damage. */
     if (op->stats.sp == -1) {
         OBJECTS_DESTROYED_BEGIN(op, victim) {
-            int dam = op->stats.dam * (LEVEL_DAMAGE(op->level) * 0.925f);
+            int dam =
+                (int)(op->stats.dam * (LEVEL_DAMAGE(op->level) * TRAP_DIRECT_DAMAGE_MULTIPLIER));
             attack_hit(victim, op, dam);
 
             if (!OBJECTS_DESTROYED(victim)) {

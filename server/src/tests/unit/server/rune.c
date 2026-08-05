@@ -10,6 +10,7 @@
 #include <object_methods.h>
 #include <player.h>
 #include <rune.h>
+#include <container.h>
 
 START_TEST(test_trap_skill_ratings_scale_with_character_skill_and_stat) {
     mapstruct *map;
@@ -89,28 +90,68 @@ START_TEST(test_trap_see_is_deterministic_at_capability_boundary) {
     trap->level = 10;
     trap = object_insert_map(trap, map, NULL, 0);
 
+    int result = trap_see(pl, trap, 9);
     for (int i = 0; i < 100; i++) {
-        ck_assert_int_eq(trap_see(pl, trap, 9), 0);
+        ck_assert_int_eq(trap_see(pl, trap, 9), result);
     }
-    ck_assert_int_eq(trap_see(pl, trap, 10), 1);
 }
 END_TEST
 
-START_TEST(test_trap_disarm_succeeds_once_with_sufficient_capability) {
+START_TEST(test_trap_find_can_succeed_or_fail_at_equal_rating) {
     mapstruct *map;
-    object *pl, *trap;
+    object *pl;
+    int successes = 0;
 
     check_setup_env_pl(&map, &pl);
-    pl->level = 10;
-    pl->stats.Dex = 10;
-    trap = arch_get("rune_fire");
-    trap->x = pl->x + 1;
-    trap->y = pl->y;
-    trap->level = 10;
-    trap = object_insert_map(trap, map, NULL, 0);
+    for (int i = 0; i < 1000; i++) {
+        object *trap = arch_get("rune_fire");
+        trap->level = 10;
+        trap->stats.Int = 10;
+        successes += trap_see(pl, trap, 10);
+        object_destroy(trap);
+    }
 
-    ck_assert_int_eq(trap_disarm(pl, trap), 1);
-    ck_assert(QUERY_FLAG(trap, FLAG_REMOVED));
+    ck_assert_int_gt(successes, 600);
+    ck_assert_int_lt(successes, 800);
+}
+END_TEST
+
+START_TEST(test_trap_disarm_always_retains_failure_and_trip_risk) {
+    mapstruct *map;
+    object *pl;
+    int successes = 0;
+    int tripped = 0;
+
+    check_setup_env_pl(&map, &pl);
+    pl->level = MAXLEVEL;
+    pl->stats.Dex = MAX_STAT;
+
+    for (int i = 0; i < 1000; i++) {
+        object *trap = arch_get("rune_fire");
+        trap->x = pl->x + 1;
+        trap->y = pl->y;
+        trap->level = 1;
+        trap->stats.Int = 1;
+        trap->stats.dam = 0;
+        trap = object_insert_map(trap, map, NULL, 0);
+
+        int result = trap_disarm(pl, trap);
+        if (result == TRAP_DISARM_SUCCESS) {
+            successes++;
+        } else if (result == TRAP_DISARM_TRIPPED) {
+            tripped++;
+        }
+
+        if (!QUERY_FLAG(trap, FLAG_REMOVED)) {
+            object_remove(trap, 0);
+        }
+        object_destroy(trap);
+    }
+
+    ck_assert_int_gt(successes, 850);
+    ck_assert_int_lt(successes, 950);
+    ck_assert_int_gt(tripped, 20);
+    ck_assert_int_lt(tripped, 90);
 }
 END_TEST
 
@@ -133,26 +174,58 @@ START_TEST(test_trap_successes_award_skill_and_character_experience_once) {
     int64_t find_exp = find_skill->stats.exp;
     int64_t remove_exp = remove_skill->stats.exp;
 
-    trap = arch_get("rune_fire");
-    trap->x = pl->x + 1;
-    trap->y = pl->y;
-    trap->level = 1;
-    trap->stats.Int = 20;
-    trap->stats.exp = 100;
-    trap = object_insert_map(trap, map, NULL, 0);
+    int64_t expected_find_gain = 0;
+    for (int i = 0; i < 100 && expected_find_gain == 0; i++) {
+        trap = arch_get("rune_fire");
+        trap->level = 1;
+        trap->stats.Int = 2;
+        trap->stats.exp = 100;
+        int64_t expected = calc_skill_exp(pl, trap, find_skill->level);
+        if (trap_see(pl, trap, trap_skill_rating(pl, SK_FIND_TRAPS))) {
+            expected_find_gain = expected;
+        } else {
+            object_destroy(trap);
+            trap = NULL;
+        }
+    }
 
-    ck_assert_int_eq(trap_see(pl, trap, trap_skill_rating(pl, SK_FIND_TRAPS)), 1);
+    ck_assert_ptr_nonnull(trap);
     int64_t find_gain = find_skill->stats.exp - find_exp;
-    ck_assert_int_gt(find_gain, 0);
+    ck_assert_int_eq(find_gain, expected_find_gain);
     ck_assert_int_eq(pl->stats.exp - character_exp, find_gain / 5);
 
     ck_assert_int_eq(trap_see(pl, trap, trap_skill_rating(pl, SK_FIND_TRAPS)), 1);
     ck_assert_int_eq(find_skill->stats.exp - find_exp, find_gain);
+    object_destroy(trap);
 
-    ck_assert_int_eq(trap_disarm(pl, trap), 1);
+    int64_t expected_remove_gain = 0;
+    trap = NULL;
+    for (int i = 0; i < 100 && expected_remove_gain == 0; i++) {
+        trap = arch_get("rune_fire");
+        trap->x = pl->x + 1;
+        trap->y = pl->y;
+        trap->level = 1;
+        trap->stats.Int = 1;
+        trap->stats.dam = 0;
+        trap->stats.exp = 100;
+        trap = object_insert_map(trap, map, NULL, 0);
+        int64_t expected = calc_skill_exp(pl, trap, remove_skill->level);
+        if (trap_disarm(pl, trap) == TRAP_DISARM_SUCCESS) {
+            expected_remove_gain = expected;
+        } else {
+            if (!QUERY_FLAG(trap, FLAG_REMOVED)) {
+                object_remove(trap, 0);
+            }
+            object_destroy(trap);
+            trap = NULL;
+        }
+    }
+
+    ck_assert_ptr_nonnull(trap);
     int64_t remove_gain = remove_skill->stats.exp - remove_exp;
-    ck_assert_int_gt(remove_gain, 0);
+    ck_assert_int_eq(remove_gain, expected_remove_gain);
     ck_assert_int_eq(pl->stats.exp - character_exp, find_gain / 5 + remove_gain / 5);
+    object_destroy(trap);
 
     link_player_skills(pl);
     ck_assert_int_eq(pl->stats.exp, find_skill->stats.exp / 5 + remove_skill->stats.exp / 5);
@@ -179,9 +252,49 @@ START_TEST(test_traps_auto_disarm_container) {
 
     object_apply(container, pl, 0);
 
-    ck_assert(QUERY_FLAG(trap, FLAG_REMOVED));
-    ck_assert_ptr_null(container->inv);
+    if (container->inv != NULL) {
+        ck_assert_int_ne(container->inv->type, RUNE);
+        ck_assert(QUERY_FLAG(container->inv, FLAG_IS_USED_UP));
+    }
     ck_assert_ptr_eq(CONTR(pl)->container, container);
+}
+END_TEST
+
+START_TEST(test_auto_disarm_trip_does_not_spring_reusable_trap_twice) {
+    mapstruct *map;
+    object *pl;
+    int remaining = 0;
+
+    check_setup_env_pl(&map, &pl);
+    pl->level = MAXLEVEL;
+
+    for (int i = 0; i < 250; i++) {
+        object *container = arch_get("sack");
+        container->x = pl->x + 1;
+        container->y = pl->y;
+        container = object_insert_map(container, map, NULL, 0);
+
+        object *trap = arch_get("rune_fire");
+        trap->level = 1;
+        trap->stats.Int = 1;
+        trap->stats.hp = 2;
+        trap->stats.dam = 0;
+        trap = object_insert_into(trap, container, 0);
+
+        object_apply(container, pl, 0);
+        if (container->inv != NULL) {
+            remaining++;
+            ck_assert_int_eq(container->inv->type, RUNE);
+            ck_assert_int_eq(container->inv->stats.hp, 1);
+            ck_assert(!QUERY_FLAG(container->inv, FLAG_IS_USED_UP));
+        }
+
+        container_close(pl, container);
+        object_remove(container, 0);
+        object_destroy(container);
+    }
+
+    ck_assert_int_gt(remaining, 5);
 }
 END_TEST
 
@@ -196,9 +309,11 @@ static Suite *suite(void) {
     tcase_add_test(tc_core, test_generated_trap_level_distribution);
     tcase_add_test(tc_core, test_generated_trap_inherits_monster_base_experience);
     tcase_add_test(tc_core, test_trap_see_is_deterministic_at_capability_boundary);
-    tcase_add_test(tc_core, test_trap_disarm_succeeds_once_with_sufficient_capability);
+    tcase_add_test(tc_core, test_trap_find_can_succeed_or_fail_at_equal_rating);
+    tcase_add_test(tc_core, test_trap_disarm_always_retains_failure_and_trip_risk);
     tcase_add_test(tc_core, test_trap_successes_award_skill_and_character_experience_once);
     tcase_add_test(tc_core, test_traps_auto_disarm_container);
+    tcase_add_test(tc_core, test_auto_disarm_trip_does_not_spring_reusable_trap_twice);
 
     return s;
 }

@@ -52,14 +52,34 @@ static void trap_award_exp(object *pl, object *trap, int skill_nr) {
         return;
     }
 
-    int64_t exp = trap->stats.exp;
-    if (exp > INT64_MAX / trap->level) {
-        exp = INT64_MAX;
-    } else {
-        exp *= trap->level;
-    }
-
+    object *skill = CONTR(pl)->skill_ptr[skill_nr];
+    HARD_ASSERT(skill != NULL);
+    int64_t exp = calc_skill_exp(pl, trap, skill->level);
     add_exp(pl, exp, skill_nr, 0);
+}
+
+/** Stable per-player/per-trap roll, preventing command-spam rerolls. */
+static int trap_skill_roll(const object *pl, const object *trap, int skill_nr, uint64_t salt) {
+    uint64_t value = (uint64_t)pl->count * UINT64_C(0x9e3779b185ebca87) ^
+                     (uint64_t)trap->count * UINT64_C(0xc2b2ae3d27d4eb4f) ^
+                     (uint64_t)skill_nr * UINT64_C(0x165667b19e3779f9) ^ salt;
+    value ^= value >> 33;
+    value *= UINT64_C(0xff51afd7ed558ccd);
+    value ^= value >> 33;
+    value *= UINT64_C(0xc4ceb9fe1a85ec53);
+    value ^= value >> 33;
+    return (int)(value % 100) + 1;
+}
+
+/** Chance to find a still-hidden trap. */
+static int trap_find_chance(const object *trap, int rating) {
+    int difficulty = MAX(trap->level, trap->stats.Int);
+    return MAX(15, MIN(95, 70 + (rating - difficulty) * 4));
+}
+
+/** Chance to disarm a discovered trap without triggering failure handling. */
+static int trap_disarm_chance(const object *trap, int rating) {
+    return MAX(10, MIN(90, 65 + (rating - trap->level) * 5));
 }
 
 /**
@@ -74,10 +94,10 @@ static void trap_award_exp(object *pl, object *trap, int skill_nr) {
  * @retval 1 Trap was spotted.
  */
 int trap_see(object *op, object *trap, int level) {
-    /* Explicit searching is a capability check, not a rerollable lottery.
-     * This prevents repeated skill commands from being strictly better than
-     * one deliberate search while still leaving over-level traps hidden. */
-    if (trap->stats.Int == 1 || trap->level <= level) {
+    /* A stable roll makes individual traps uncertain without making repeated
+     * skill-command spam better than one deliberate attempt. */
+    if (trap->stats.Int == 1 || trap_skill_roll(op, trap, SK_FIND_TRAPS, UINT64_C(0x21f0aaad)) <=
+                                    trap_find_chance(trap, level)) {
         draw_info_format(COLOR_WHITE, op, "You spot a %s (lvl %d)!", trap->name, trap->level);
 
         if (trap->stats.Int != 1) {
@@ -144,15 +164,14 @@ int trap_show(object *trap, object *where) {
  * @param trap
  * Trap to disarm.
  * @return
- * 1 if trap was disarmed, 0 otherwise.
+ * One of @ref trap_disarm_result_t.
  */
 int trap_disarm(object *disarmer, object *trap) {
     object *env = trap->env;
     int disarmer_level = trap_skill_rating(disarmer, SK_REMOVE_TRAPS);
 
-    /* As with explicit detection, disarming is deterministic at a given
-     * capability. Repeating the same command cannot reroll a failure. */
-    if (trap->level <= disarmer_level) {
+    if (trap_skill_roll(disarmer, trap, SK_REMOVE_TRAPS, UINT64_C(0x8b8b8b8b)) <=
+        trap_disarm_chance(trap, disarmer_level)) {
         draw_info_format(COLOR_WHITE,
                          disarmer,
                          "You successfully remove the %s (lvl %d)!",
@@ -162,7 +181,7 @@ int trap_disarm(object *disarmer, object *trap) {
         set_trapped_flag(env);
         CONTR(disarmer)->stat_traps_disarmed++;
         trap_award_exp(disarmer, trap, SK_REMOVE_TRAPS);
-        return 1;
+        return TRAP_DISARM_SUCCESS;
     } else {
         draw_info_format(COLOR_WHITE,
                          disarmer,
@@ -170,14 +189,13 @@ int trap_disarm(object *disarmer, object *trap) {
                          trap->name,
                          trap->level);
 
-        if (trap->level > disarmer_level * 1.4f || rndm(0, 2)) {
-            if (!(rndm(0,
-                       (MAX(2, disarmer_level - trap->level + disarmer->stats.Dex / 2 - 6)) - 1))) {
-                draw_info(COLOR_WHITE, disarmer, "In fact, you set it off!");
-                rune_spring(trap, disarmer);
-            }
+        int trip_chance = MAX(50, MIN(90, 55 + (trap->level - disarmer_level) * 5));
+        if (trap_skill_roll(disarmer, trap, SK_REMOVE_TRAPS, UINT64_C(0xf00dcafe)) <= trip_chance) {
+            draw_info(COLOR_WHITE, disarmer, "In fact, you set it off!");
+            rune_spring(trap, disarmer);
+            return TRAP_DISARM_TRIPPED;
         }
 
-        return 0;
+        return TRAP_DISARM_FAILED;
     }
 }
