@@ -836,40 +836,131 @@
 ===============================================================================
 = 3.1. Client command MAP                                                     =
 ===============================================================================
- This server-to-client command updates the visible isometric map. The smooth
- light-level contract described here is available beginning with socket
- protocol version 1068. A server MUST reject older clients before sending MAP
- data, and a client MUST reject an older server before requesting game state.
+ This server-to-client command updates the visible isometric map. The framed,
+ multi-level form described here is the only MAP format beginning with socket
+ protocol version 1068. A server MUST reject older clients before sending it,
+ and a client MUST reject an older server before requesting game state. All
+ multi-byte integers use the network byte order defined in section 1.1.
 
- After the map metadata and player-position fields, the remainder contains
- zero or more tile records. Each tile record begins with a mask (uint16). Bits
- 15 through 11 contain the client-local X coordinate, and bits 10 through 6
- contain the client-local Y coordinate. The following mask bits affect light
- data:
+ The packet begins with update_type (uint8):
 
-  - 0x0002 (CLEAR):
-     Clear the complete cell. No fields follow this record.
-  - 0x0004 (LIGHT_LEVEL):
-     One light_level (uint8) for sub-layer zero follows the mask.
-  - 0x0008 (LIGHT_LEVEL_MORE):
-     Six light_level values (uint8), ordered by sub-layer one through six,
-     follow the mask.
+  - 0 (SAME): the player remains on the same physical map. No map metadata
+    follows.
+  - 1 (NEW): the client MUST discard its previous physical-map state.
+  - 2 (CONNECTED): the player crossed one of the previous map's tiled links;
+    compatible cached levels are shifted instead of all being discarded.
 
- LIGHT_LEVEL and LIGHT_LEVEL_MORE are independent and, when both are present,
- the sub-layer-zero byte comes first. Light data is followed by num_layers
- (uint8) and the layer records selected by that count.
+ NEW and CONNECTED are followed by this common metadata, in order:
 
- A light_level of zero means completely unlit and 255 means fully lit. Values
- between those endpoints are perceptually normalized scalar illumination and
- clients SHOULD interpolate them spatially for presentation. The level is
- cosmetic: the server remains authoritative for line of sight and whether an
- object is included in the layer records. A client MUST NOT infer visibility
- from interpolation or reveal an object omitted by the server.
+  - map_name (string)
+  - background_music (string)
+  - weather (string)
+  - height_diff (uint8): zero or one
+  - region_has_map (uint8): zero or one
+  - region_name (string)
+  - region_long_name (string)
+  - map_path (string)
 
- The server sends a light field only when its mask bit is present. Otherwise
- the client retains the previous value for that cell and sub-layer. A client
- MUST discard a MAP command with a truncated tile mask, light field, or layer
- count instead of synthesizing missing light bytes.
+ For NEW, the metadata is followed by physical_map_width (uint8) and
+ physical_map_height (uint8). Both MUST be nonzero. For CONNECTED, it is
+ instead followed by:
+
+  - tile (uint8): 1 through 8 for a horizontal tiled link, 9 for TILED_UP, or
+    10 for TILED_DOWN;
+  - map_x_offset (sint8);
+  - map_y_offset (sint8); and
+  - depth_offset (sint8): zero for tile 1 through 8, +1 for tile 9, and -1 for
+    tile 10.
+
+ Every update type then carries player_x (uint8), player_y (uint8),
+ player_sub_layer (uint8 in the range 0 through 6), and level_count (uint8 in
+ the range 1 through 13). A NEW player's coordinates MUST be inside the stated
+ physical dimensions.
+
+ Exactly level_count framed level blocks follow. Each block contains:
+
+  - depth (sint8): relative to the player's physical map, from -6 through +6;
+    zero is the player's map, negative values follow TILED_DOWN, and positive
+    values follow TILED_UP;
+  - payload_size (uint32): the exact number of bytes in this level's tile-record
+    stream; and
+  - payload (payload_size bytes).
+
+ Depths MUST be unique and depth zero MUST be present. No bytes may occur after
+ the final framed block. The client maintains one delta cache per depth in the
+ current update. A depth omitted from the new level set becomes inactive and
+ its cache may be freed. On CONNECTED, caches are shifted by depth_offset before
+ the received deltas are applied.
+
+ Each level payload contains zero or more tile records. Each record begins with
+ mask (uint16). Bits 15 through 11 are the client-local X coordinate and bits
+ 10 through 6 are client-local Y. Both coordinates MUST be inside the negotiated
+ wire look size. Bits 5 through 0 have these meanings:
+
+  - 0x01 (SUPPORT_HEIGHT): structural_support_height (sint16) follows.
+  - 0x02 (CLEAR): mark the complete cell as fog. No other fields follow this
+    tile record. CLEAR may be combined only with HARD_CLEAR.
+  - 0x04 (LIGHT_LEVEL): one light_level (uint8) for sub-layer zero follows.
+  - 0x08 (LIGHT_LEVEL_MORE): six light_level values (uint8), ordered by
+    sub-layer one through six, follow.
+  - 0x10 (HARD_CLEAR): valid only with CLEAR; discard cached fog geometry rather
+    than retaining its structural silhouette.
+  - 0x20 (FOW): fow (uint8, zero or one) follows.
+
+ Non-CLEAR fields occur in the order listed above, followed by num_layers
+ (uint8, 0 through 49) and exactly that many layer records. LIGHT_LEVEL and
+ LIGHT_LEVEL_MORE are independent. A light_level of zero means completely
+ unlit and 255 means fully lit. Intermediate values are perceptually normalized
+ scalar illumination and clients SHOULD interpolate them spatially. Omitted
+ light fields retain their previous cached value.
+
+ Each layer record begins with layer_type (uint8). Values 0 through 48 identify
+ one real layer: seven object layers for each of seven sub-layers. Layer IDs in
+ one tile record MUST be unique. A layer_type of 255 (LAYER_CLEAR) is followed
+ only by actual_layer (uint8, 0 through 48), which clears that layer. Other
+ layer records continue with face (uint16), object_flags (uint8), and
+ layer_flags (uint8). layer_flags contains:
+
+  - 0x01 (MULTI): quick_position (uint8) follows.
+  - 0x02 (NAME): name (string), then name_color (string), follow.
+  - 0x04 (ANIMATION): speed (uint8), facing (uint8), and animation_flags
+    (uint8) follow. If animation_flags has MOVING (0x01), state (uint8) also
+    follows. The remaining defined animation flags are ATTACKING (0x02),
+    STOP_MOVING (0x04), and STOP_ATTACKING (0x08).
+  - 0x08 (HEIGHT): height (sint16) follows.
+  - 0x10 (INFRAVISION): no field; render this object highlighted.
+  - 0x20 (ALIGN): horizontal_align (sint16) follows.
+  - 0x40 (DOUBLE): no field; draw the face twice vertically.
+  - 0x80 (MORE): extended_flags (uint32) follows.
+
+ Optional extended fields follow extended_flags in this order:
+
+  - 0x001 (ALPHA): alpha (uint8).
+  - 0x002 (ROTATE): rotation_degrees (sint16).
+  - 0x004 (ZOOM): zoom_x (uint16), then zoom_y (uint16).
+  - 0x008 (TARGET): object_id (uint32), then is_friend (uint8, zero or one).
+  - 0x010 (PROBE): hit_point_percentage (uint8, 0 through 100).
+  - 0x020 (PRIORITY): no field; draw in the priority pass.
+  - 0x040 (SECOND_PASS): no field; draw in the second alpha pass.
+  - 0x080 (GLOW): glow_color (string), then glow_speed (uint8).
+  - 0x100 (ROOF): no field; this wall-layer object is a camera/roof surface.
+  - 0x200 (DOOR): no field; this object is a door eligible for a local camera
+    hint.
+
+ After all layer records, tile_extended_flags (uint8) follows. Its only defined
+ bit is 0x01 (ANIMATION). If set, anim_count (uint8, 0 through 7) follows, then
+ anim_count records of sub_layer (uint8, 0 through 6), animation_type (uint8;
+ 1 DAMAGE or 2 KILL), and value (sint16). Animation sub-layers in one tile
+ record MUST be unique.
+
+ The server remains authoritative for line of sight, fog, and whether an object
+ is included. Smooth interpolation is cosmetic and MUST NOT reveal omitted
+ objects. A client MUST validate the entire MAP packet, including every framed
+ payload and string terminator, before applying metadata, scrolling caches, or
+ changing any cell. Unknown flags, invalid indices, duplicate depths/layers,
+ inconsistent connected depth offsets, truncation, size mismatches, or trailing
+ bytes invalidate the complete command; the client MUST log and ignore it
+ without partially applying an earlier block.
 
 ===============================================================================
 = 3.4 and 3.7. Shared ITEM flag semantics                                     =

@@ -120,6 +120,15 @@ typedef enum socket_role {
 #define MAP_UPDATE_CMD_NEW 1
 #define MAP_UPDATE_CMD_CONNECTED 2
 
+/** First valid tiled-map identifier in a connected MAP update. */
+#define MAP_UPDATE_TILE_MIN 1
+/** Connected-map identifier for a TILED_UP transition. */
+#define MAP_UPDATE_TILE_UP 9
+/** Connected-map identifier for a TILED_DOWN transition. */
+#define MAP_UPDATE_TILE_DOWN 10
+/** Last valid tiled-map identifier in a connected MAP update. */
+#define MAP_UPDATE_TILE_MAX MAP_UPDATE_TILE_DOWN
+
 /**
  * Maximum linked-map depth carried by one map update.
  *
