@@ -1113,7 +1113,7 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos) {
         } else {
             int xoff, yoff, zoff;
 
-            mapstat = packet_to_uint8(data, len, &pos);
+            packet_to_uint8(data, len, &pos);
             xoff = packet_to_int8(data, len, &pos);
             yoff = packet_to_int8(data, len, &pos);
             zoff = packet_to_int8(data, len, &pos);
