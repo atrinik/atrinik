@@ -935,6 +935,7 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos) {
                                  0,
                                  0,
                                  0,
+                                 0,
                                  "",
                                  0);
                 } else { /* We have some data. */
@@ -942,12 +943,12 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos) {
                     uint8_t flags, obj_flags, quick_pos = 0, probe = 0, draw_double = 0, alpha = 0,
                                               infravision = 0, target_is_friend = 0;
                     uint8_t anim_speed, anim_facing, anim_flags, anim_state, priority, secondpass,
-                        roof, glow_speed;
+                        roof, door, glow_speed;
                     char player_name[64], player_color[COLOR_BUF], glow[COLOR_BUF];
                     uint32_t target_object_count = 0;
 
                     anim_speed = anim_facing = anim_flags = anim_state = 0;
-                    priority = secondpass = roof = glow_speed = 0;
+                    priority = secondpass = roof = door = glow_speed = 0;
 
                     player_name[0] = '\0';
                     player_color[0] = '\0';
@@ -1045,6 +1046,10 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos) {
                         if (flags2 & MAP2_FLAG2_ROOF) {
                             roof = 1;
                         }
+
+                        if (flags2 & MAP2_FLAG2_DOOR) {
+                            door = 1;
+                        }
                     }
 
                     /* Set the data we figured out. */
@@ -1074,6 +1079,7 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos) {
                                  priority,
                                  secondpass,
                                  roof,
+                                 door,
                                  glow,
                                  glow_speed);
                 }

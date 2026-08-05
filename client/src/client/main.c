@@ -868,7 +868,7 @@ int main(int argc, char *argv[]) {
                 update = 1;
             } else if (tooltip_need_redraw()) {
                 update = 1;
-            } else if (map_redraw_flag || minimap_redraw_flag) {
+            } else if (map_redraw_flag || minimap_redraw_due()) {
                 update = 1;
             } else if (map_anims_need_redraw()) {
                 update = 1;

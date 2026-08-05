@@ -1587,6 +1587,7 @@ void draw_client_map2(object *pl) {
                             uint8_t client_flags;
                             int is_friend = 0;
                             uint8_t is_roof = 0;
+                            uint8_t is_door = 0;
 
                             face_obj = NULL;
                             anim_speed = anim_facing = anim_flags = 0;
@@ -1669,10 +1670,12 @@ void draw_client_map2(object *pl) {
                                 flags |= MAP2_FLAG_ALIGN;
                             }
 
-                            /* Draw the object twice if set, but only if it's not
-                             * in the bottom quadrant of the map. */
-                            if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) &&
-                                 (ax < CONTR(pl)->cs->mapx_2 || ay < CONTR(pl)->cs->mapy_2)) ||
+                            /* The unified stacked-map painter keeps tall wall
+                             * faces in the correct global order. Omitting the
+                             * upper copy in the player's lower quadrant now
+                             * creates holes in building facades instead of
+                             * providing the old directional camera cutaway. */
+                            if (QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) ||
                                 QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS)) {
                                 flags |= MAP2_FLAG_DOUBLE;
                             }
@@ -1699,6 +1702,11 @@ void draw_client_map2(object *pl) {
 
                             if (head->type == DOOR || layer == LAYER_LIVING) {
                                 flags2 |= MAP2_FLAG2_SECONDPASS;
+                            }
+
+                            if (head->type == DOOR) {
+                                flags2 |= MAP2_FLAG2_DOOR;
+                                is_door = 1;
                             }
 
                             if (head->glow != NULL && CONTR(pl)->cs->socket_version >= 1060) {
@@ -1729,6 +1737,7 @@ void draw_client_map2(object *pl) {
                                 mp->quick_pos[socket_layer] == quick_pos &&
                                 mp->flags[socket_layer] == flags &&
                                 mp->roof[socket_layer] == is_roof &&
+                                mp->door[socket_layer] == is_door &&
                                 (layer != LAYER_LIVING || !IS_LIVE(head) ||
                                  (mp->probe == probe_val &&
                                   mp->target_object_count == target_object_count)) &&
@@ -1748,6 +1757,7 @@ void draw_client_map2(object *pl) {
                             mp->quick_pos[socket_layer] = quick_pos;
                             mp->flags[socket_layer] = flags;
                             mp->roof[socket_layer] = is_roof;
+                            mp->door[socket_layer] = is_door;
                             mp->anim_speed[socket_layer] = anim_speed;
                             mp->anim_facing[socket_layer] = anim_facing;
 
@@ -1902,6 +1912,7 @@ void draw_client_map2(object *pl) {
                             mp->quick_pos[socket_layer] = 0;
                             mp->flags[socket_layer] = 0;
                             mp->roof[socket_layer] = 0;
+                            mp->door[socket_layer] = 0;
                             mp->anim_speed[socket_layer] = 0;
                             mp->anim_facing[socket_layer] = 0;
 

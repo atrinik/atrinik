@@ -51,19 +51,19 @@ typedef struct sprite_effects {
     int16_t zoom_y; ///< Vertical zoom.
     int16_t rotate; ///< Rotate value.
     char glow[COLOR_BUF];
+    char outline[COLOR_BUF]; ///< Outline-only effect color.
     uint8_t glow_speed;
     uint8_t glow_state;
     int32_t smooth_dark_y; ///< Lightmap row used for smooth structural lighting.
 } sprite_effects_t;
 
-#define SPRITE_EFFECTS_NEED_RENDERING(_effects)                                           \
-    (((_effects)->flags &                                                               \
-       ~(BIT_MASK(SPRITE_FLAG_SMOOTH_DARK) | BIT_MASK(SPRITE_FLAG_SMOOTH_DARK_SURFACE))) != \
-          0 ||                                                                          \
-      (_effects)->alpha != 0 || (_effects)->stretch != 0 ||                             \
-      ((_effects)->zoom_x != 0 && (_effects)->zoom_x != 100) ||                         \
-      ((_effects)->zoom_y != 0 && (_effects)->zoom_y != 100) || (_effects)->rotate != 0 || \
-     (_effects)->glow[0] != '\0')
+#define SPRITE_EFFECTS_NEED_RENDERING(_effects)                                                 \
+    (((_effects)->flags &                                                                       \
+      ~(BIT_MASK(SPRITE_FLAG_SMOOTH_DARK) | BIT_MASK(SPRITE_FLAG_SMOOTH_DARK_SURFACE))) != 0 || \
+     (_effects)->alpha != 0 || (_effects)->stretch != 0 ||                                      \
+     ((_effects)->zoom_x != 0 && (_effects)->zoom_x != 100) ||                                  \
+     ((_effects)->zoom_y != 0 && (_effects)->zoom_y != 100) || (_effects)->rotate != 0 ||       \
+     (_effects)->glow[0] != '\0' || (_effects)->outline[0] != '\0')
 
 /**
  * @defgroup SPRITE_FLAG_xxx Sprite drawing flags

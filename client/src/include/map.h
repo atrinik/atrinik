@@ -229,6 +229,9 @@ typedef struct MapCell {
     /** Whether a wall-layer object is a roof/camera surface. */
     uint8_t roof[NUM_REAL_LAYERS];
 
+    /** Door bits for each object layer, grouped by sub-layer. */
+    uint8_t door[NUM_SUB_LAYERS];
+
     /** Double drawing. */
     uint8_t draw_double[NUM_REAL_LAYERS];
 

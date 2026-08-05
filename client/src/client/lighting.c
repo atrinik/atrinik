@@ -46,6 +46,7 @@ typedef struct lighting_context {
     size_t light_samples_num;
     bool active;
     bool cache_valid;
+    bool surface_valid;
     bool update_needed;
     uint64_t cache_key;
     uint64_t pending_cache_key;
@@ -286,9 +287,11 @@ lighting_edge(const lighting_vertex_t *a, const lighting_vertex_t *b, int x2, in
     return (int64_t)(x2 - a->x * 2) * (b->y - a->y) - (int64_t)(y2 - a->y * 2) * (b->x - a->x);
 }
 
-static void lighting_draw_triangle(const lighting_vertex_t *a,
-                                   const lighting_vertex_t *b,
-                                   const lighting_vertex_t *c) {
+/** Rasterize one half of a quad while interpolating its four corner levels. */
+static void lighting_draw_triangle(const lighting_vertex_t vertices[4], bool first_half) {
+    const lighting_vertex_t *a = &vertices[0];
+    const lighting_vertex_t *b = &vertices[first_half ? 1 : 2];
+    const lighting_vertex_t *c = &vertices[first_half ? 2 : 3];
     int64_t area = lighting_edge(a, b, c->x * 2, c->y * 2);
     if (area == 0) {
         return;
@@ -319,9 +322,19 @@ static void lighting_draw_triangle(const lighting_vertex_t *a,
 
         for (int x = min_x; x <= max_x; x++) {
             if (weight_a >= 0 && weight_b >= 0 && weight_c >= 0) {
+                /* Recover the quad's logical U/V coordinates from this
+                 * triangle's barycentric weights, then blend all four light
+                 * samples. This removes the visible gradient crease created
+                 * by treating the two halves as unrelated planes. */
+                int64_t u = first_half ? weight_b + weight_c : weight_b;
+                int64_t v = first_half ? weight_c : weight_b + weight_c;
+                int64_t inverse_u = area - u;
+                int64_t inverse_v = area - v;
+                int64_t divisor = area * area;
                 int64_t level =
-                    (weight_a * a->level + weight_b * b->level + weight_c * c->level + area / 2) /
-                    area;
+                    (vertices[0].level * inverse_u * inverse_v + vertices[1].level * u * inverse_v +
+                     vertices[2].level * u * v + vertices[3].level * inverse_u * v + divisor / 2) /
+                    divisor;
                 uint8_t alpha = UINT8_MAX - (uint8_t)MIN((int64_t)UINT8_MAX, level);
                 light_samples[(size_t)y * (size_t)lightmap->w + (size_t)x] =
                     LIGHT_SAMPLE_PRESENT | alpha;
@@ -352,8 +365,8 @@ void lighting_draw_quad(const lighting_vertex_t vertices[4]) {
         return;
     }
 
-    lighting_draw_triangle(&vertices[0], &vertices[1], &vertices[2]);
-    lighting_draw_triangle(&vertices[0], &vertices[2], &vertices[3]);
+    lighting_draw_triangle(vertices, true);
+    lighting_draw_triangle(vertices, false);
 }
 
 /**
@@ -508,20 +521,25 @@ void lighting_render(SDL_Surface *destination) {
     HARD_ASSERT(lightmap != NULL);
     HARD_ASSERT(lighting_active);
 
-    if (!lighting_update_needed) {
-        lighting_active = false;
-        if (destination != NULL) {
-            SDL_BlitSurface(lightmap, NULL, destination, NULL);
-        }
+    bool samples_updated = lighting_update_needed;
+    if (samples_updated) {
+        lighting_extrapolate();
+        memset(structure_rows_valid, 0, (size_t)lightmap->h * sizeof(*structure_rows_valid));
+        lighting_cache_key = lighting_pending_cache_key;
+        lighting_cache_valid = true;
+        lighting_context_current->surface_valid = false;
+    }
+    lighting_active = false;
+    if (destination == NULL) {
+        return;
+    }
+    if (lighting_context_current->surface_valid) {
+        SDL_BlitSurface(lightmap, NULL, destination, NULL);
         return;
     }
 
-    lighting_extrapolate();
-    memset(structure_rows_valid, 0, (size_t)lightmap->h * sizeof(*structure_rows_valid));
-
     if (SDL_LockSurface(lightmap) != 0) {
         LOG(ERROR, "Could not lock map lightmap: %s", SDL_GetError());
-        lighting_active = false;
         lighting_cache_valid = false;
         return;
     }
@@ -536,12 +554,8 @@ void lighting_render(SDL_Surface *destination) {
     }
 
     SDL_UnlockSurface(lightmap);
-    lighting_active = false;
-    lighting_cache_key = lighting_pending_cache_key;
-    lighting_cache_valid = true;
-    if (destination != NULL) {
-        SDL_BlitSurface(lightmap, NULL, destination, NULL);
-    }
+    lighting_context_current->surface_valid = true;
+    SDL_BlitSurface(lightmap, NULL, destination, NULL);
 }
 
 /** Ensure the reusable smoothly lit sprite surface is large enough. */

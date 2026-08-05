@@ -359,6 +359,8 @@ typedef struct socket_asset_response {
 #define MAP2_FLAG2_GLOW 128
 /** The wall-layer object is a roof/camera surface. */
 #define MAP2_FLAG2_ROOF 256
+/** The object is a door and may need a local camera reveal. */
+#define MAP2_FLAG2_DOOR 512
 /*@}*/
 
 /**

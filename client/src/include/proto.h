@@ -1183,6 +1183,7 @@ extern void map_set_data(int x,
                          uint8_t priority,
                          uint8_t secondpass,
                          uint8_t roof,
+                         uint8_t door,
                          const char *glow,
                          uint8_t glow_speed);
 extern bool map_select_level(int depth, bool create);
@@ -1207,6 +1208,7 @@ extern void widget_highlight_menu(widgetdata *widget);
 /* src/gui/widgets/menu_buttons.c */
 extern void widget_menu_buttons_init(widgetdata *widget);
 /* src/gui/widgets/minimap.c */
+extern bool minimap_redraw_due(void);
 extern void widget_minimap_init(widgetdata *widget);
 /* src/gui/widgets/mplayer.c */
 extern void widget_mplayer_init(widgetdata *widget);
