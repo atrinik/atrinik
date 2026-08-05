@@ -2829,7 +2829,7 @@ void map_draw_map(SDL_Surface *surface) {
  * What to draw.
  */
 void map_draw_one(int x, int y, SDL_Surface *surface) {
-    map_render_data_t data = {0};
+    map_render_data_t data = {.world_surface = true};
 
     map_setup_render_data(cur_widget[MAP_ID]->surface, &data, NULL, NULL, NULL, NULL);
 
@@ -3043,7 +3043,7 @@ void map_target_handle(uint8_t is_friend) {
  * True on success, false on failure.
  */
 bool mouse_to_tile_coords(int mx, int my, int *tx, int *ty) {
-    map_render_data_t data = {0};
+    map_render_data_t data = {.world_surface = true};
     int x, y, w, h;
     map_setup_render_data(cur_widget[MAP_ID]->surface, &data, &x, &y, &w, &h);
 
