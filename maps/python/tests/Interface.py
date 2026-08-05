@@ -4,7 +4,7 @@ from collections import OrderedDict
 import Atrinik
 from tests import TestSuite, ib_wrapper
 from QuestManager import QuestManager
-from Interface import InterfaceBuilder
+from Interface import Interface, InterfaceBuilder
 
 
 class InterfaceBuilderSuite(TestSuite):
@@ -470,6 +470,19 @@ class InterfaceBuilderSuite(TestSuite):
         qm.complete("special")
         ib.finish(locals(), "hello")
         self.IB_test("InterfaceDialog_completed.dialog_hello")
+
+    def test_08_send_and_close(self):
+        packets = activator.Controller().s_packets
+        packets.clear()
+
+        interface = Interface(activator, self.npc)
+        interface.add_msg("Hello")
+        interface.send()
+        self.assertTrue(packets)
+
+        packets.clear()
+        interface.dialog_close()
+        self.assertTrue(packets)
 
 
 activator = Atrinik.WhoIsActivator()
