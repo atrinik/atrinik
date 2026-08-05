@@ -335,7 +335,7 @@ class Interface:
         Closes any previously opened interface dialog.
         """
 
-        self._activator.Controller().SendPacket(26, "", None)
+        self._activator.Controller().SendPacket(CLIENT_CMD_INTERFACE, "", None)
 
     def send(self):
         """
@@ -410,7 +410,7 @@ class Interface:
             data += [14] + obj_data
 
         # Send the data.
-        pl.SendPacket(26, fmt, *data)
+        pl.SendPacket(CLIENT_CMD_INTERFACE, fmt, *data)
 
 
 IB_CHECKS_STATE1 = frozenset(["need_complete_before_start", "need_start",
