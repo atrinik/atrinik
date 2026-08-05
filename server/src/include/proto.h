@@ -731,6 +731,7 @@ extern void packet_append_map_name(struct packet_struct *packet, object *op, obj
 extern void packet_append_map_music(struct packet_struct *packet, object *op, object *map_info);
 extern void packet_append_map_weather(struct packet_struct *packet, object *op, object *map_info);
 extern void draw_client_map2(object *pl);
+extern void send_game_time(player *recipient);
 extern void
 socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void

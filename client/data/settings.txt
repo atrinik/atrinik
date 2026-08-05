@@ -151,14 +151,14 @@ category Client
 end
 
 category Map
-	setting Player names
+	setting Living names
 		type select
 		option No names
 		option All names
-		option Only other
-		option Only yours
+		option Others only
+		option Yours only
 		default 1
-		desc Show names of players above their heads.
+		desc Show names of players and creatures above their heads.
 	end
 	setting Map zoom
 		type range

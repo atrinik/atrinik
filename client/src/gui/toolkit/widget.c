@@ -57,6 +57,7 @@ static const char *const widget_names[TOTAL_SUBWIDGETS] = {"map",
                                                            "mapname",
                                                            "input",
                                                            "fps",
+                                                           "game_time",
                                                            "mplayer",
                                                            "spells",
                                                            "skills",
@@ -73,6 +74,7 @@ static const char *const widget_names[TOTAL_SUBWIDGETS] = {"map",
                                                            "inventory",
                                                            "network_graph",
                                                            "render_profiler",
+                                                           "xp_tracker",
 
                                                            "container_strip",
                                                            "menu",
@@ -260,6 +262,7 @@ void toolkit_widget_init(void) {
     widget_initializers[BUDDY_ID] = widget_buddy_init;
     widget_initializers[CONTAINER_ID] = widget_container_init;
     widget_initializers[FPS_ID] = widget_fps_init;
+    widget_initializers[GAME_TIME_ID] = widget_game_time_init;
     widget_initializers[INPUT_ID] = widget_input_init;
     widget_initializers[INVENTORY_ID] = widget_inventory_init;
     widget_initializers[LABEL_ID] = widget_label_init;
@@ -270,6 +273,7 @@ void toolkit_widget_init(void) {
     widget_initializers[MPLAYER_ID] = widget_mplayer_init;
     widget_initializers[NETWORK_GRAPH_ID] = widget_network_graph_init;
     widget_initializers[RENDER_PROFILER_ID] = widget_render_profiler_init;
+    widget_initializers[XP_TRACKER_ID] = widget_xp_tracker_init;
     widget_initializers[NOTIFICATION_ID] = widget_notification_init;
     widget_initializers[PARTY_ID] = widget_party_init;
     widget_initializers[PDOLL_ID] = widget_playerdoll_init;
@@ -290,11 +294,18 @@ void toolkit_widget_init(void) {
 
     widget_load("settings/interface.cfg", 0, widgets);
 
-    /* Older saved layouts predate the profiler widget. Ensure the singleton
-     * exists so enabling its setting works without resetting the interface. */
-    if (cur_widget[RENDER_PROFILER_ID] == NULL) {
-        widgetdata *profiler = create_widget_object(RENDER_PROFILER_ID);
-        SOFT_ASSERT(profiler != NULL, "Could not create render profiler widget");
+    /* Older saved layouts predate these singleton widgets. Create missing
+     * entries from their defaults without requiring an interface reset. */
+    static const int ensured_widgets[] = {
+        RENDER_PROFILER_ID,
+        GAME_TIME_ID,
+        XP_TRACKER_ID,
+    };
+    for (size_t i = 0; i < arraysize(ensured_widgets); i++) {
+        if (cur_widget[ensured_widgets[i]] == NULL) {
+            widgetdata *widget = create_widget_object(ensured_widgets[i]);
+            SOFT_ASSERT(widget != NULL, "Could not create ensured widget");
+        }
     }
 
     widgets_ensure_onscreen();

@@ -109,7 +109,7 @@ enum {
  * Options in the ::OPT_CAT_MAP category.
  */
 enum {
-    /** Which player names to show. */
+    /** Which living-object names to show. */
     OPT_PLAYER_NAMES,
     /** How much to zoom the map. */
     OPT_MAP_ZOOM,

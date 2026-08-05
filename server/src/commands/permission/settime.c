@@ -46,4 +46,6 @@ void command_settime(object *op, const char *command, char *params) {
         tick_the_clock();
         get_tod(&tod);
     }
+
+    send_game_time(NULL);
 }

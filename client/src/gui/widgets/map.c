@@ -1674,9 +1674,9 @@ static void map_draw_annotations(SDL_Surface *surface, map_render_context_t *con
             if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 1) {
                 draw_name = true;
             } else if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 2) {
-                draw_name = strncasecmp(name, cpl.name, strlen(name)) != 0;
+                draw_name = cell->target_object_count[sub_layer] != 0;
             } else if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 3) {
-                draw_name = strncasecmp(name, cpl.name, strlen(name)) == 0;
+                draw_name = cell->target_object_count[sub_layer] == 0;
             }
 
             if (draw_name) {

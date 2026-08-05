@@ -436,6 +436,8 @@ typedef struct socket_asset_response {
 #define CMD_MAPSTATS_WEATHER 3
 /** Text animation. */
 #define CMD_MAPSTATS_TEXT_ANIM 4
+/** Synchronize the in-game clock and its real-time rate. */
+#define CMD_MAPSTATS_TIME 5
 /*@}*/
 
 /**

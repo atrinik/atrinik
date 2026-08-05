@@ -143,6 +143,14 @@ extern void client_send_move(tag_t loc, tag_t tag, uint32_t nrof);
 extern void send_command(const char *command);
 extern void init_player_data(void);
 extern int gender_to_id(const char *gender);
+extern void telemetry_reset(void);
+extern void telemetry_exp_update(uint64_t exp);
+extern void telemetry_exp_tracker_reset(void);
+extern uint64_t telemetry_exp_gained(void);
+extern uint64_t telemetry_exp_per_hour(void);
+extern uint64_t telemetry_exp_elapsed_seconds(void);
+extern void telemetry_game_time_sync(uint64_t game_seconds, uint32_t millis_per_game_minute);
+extern bool telemetry_game_time_get(uint64_t *game_minutes, uint32_t *millis_per_game_minute);
 extern void player_draw_exp_progress(SDL_Surface *surface, int x, int y, int64_t xp, uint8_t level);
 /* src/client/region_map.c */
 /* src/client/server_files.c */
@@ -1099,6 +1107,7 @@ extern void widget_buddy_init(widgetdata *widget);
 extern void widget_container_init(widgetdata *widget);
 /* src/gui/widgets/fps.c */
 extern void widget_fps_init(widgetdata *widget);
+extern void widget_game_time_init(widgetdata *widget);
 /* src/gui/widgets/input.c */
 extern void widget_input_init(widgetdata *widget);
 /* src/gui/widgets/inventory.c */
@@ -1274,5 +1283,6 @@ extern void textwin_show(SDL_Surface *surface, int x, int y, int w, int h);
 extern int textwin_tabs_height(widgetdata *widget);
 extern void textwin_create_scrollbar(widgetdata *widget);
 extern void widget_textwin_init(widgetdata *widget);
+extern void widget_xp_tracker_init(widgetdata *widget);
 extern void widget_textwin_handle_console(const char *text);
 #endif

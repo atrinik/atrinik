@@ -74,6 +74,8 @@ static int sound_background_loop;
  * Volume the background music was started at.
  */
 static int sound_background_volume;
+/** Per-track adjustment supplied by the current map. */
+static int sound_background_volume_adjustment;
 /**
  * Loaded sounds.
  */
@@ -82,6 +84,33 @@ static sound_data_struct *sound_data;
  * Hook function calle whenever ::sound_background changes its value.
  */
 static void (*sound_background_hook)(void);
+
+static int sound_percent_to_mixer(int64_t percent) {
+    percent = MAX(INT64_C(0), MIN(INT64_C(100), percent));
+    return (int)((percent * MIX_MAX_VOLUME + 50) / 100);
+}
+
+static void sound_apply_music_volume(int64_t percent) {
+    sound_background_volume = (int)MAX(INT64_C(0), MIN(INT64_C(100), percent));
+    Mix_VolumeMusic(sound_percent_to_mixer(sound_background_volume));
+
+    if (sound_background == NULL) {
+        return;
+    }
+
+    if (sound_background_volume == 0) {
+        if (!Mix_PausedMusic()) {
+            sound_pause_music();
+        }
+    } else if (Mix_PausedMusic()) {
+        sound_resume_music();
+    }
+}
+
+static void sound_start_bg_music_internal(const char *filename,
+                                          int64_t volume,
+                                          int loop,
+                                          int volume_adjustment);
 
 /**
  * Execute the ::sound_background_hook callback.
@@ -230,7 +259,10 @@ static void sound_music_finished_process(void) {
             sound_background_loop--;
         }
 
-        sound_start_bg_music(bg_music, sound_background_volume, sound_background_loop);
+        sound_start_bg_music_internal(bg_music,
+                                      sound_background_volume,
+                                      sound_background_loop,
+                                      sound_background_volume_adjustment);
     }
 
     free(tmp);
@@ -379,9 +411,9 @@ static int sound_add_effect(const char *filename, int volume, int loop) {
         return -1;
     }
 
-    Mix_Volume(channel,
-               (int)((setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_SOUND) / 100.0) *
-                     ((double)volume * (MIX_MAX_VOLUME / 100.0))));
+    int64_t effective_percent =
+        setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_SOUND) * MAX(0, volume) / 100;
+    Mix_Volume(channel, sound_percent_to_mixer(effective_percent));
 
     return channel;
 #else
@@ -439,7 +471,10 @@ int sound_play_effect_loop(const char *filename, int volume, int loop) {
  * @param loop
  * How many times to loop, -1 for infinite number.
  */
-void sound_start_bg_music(const char *filename, int volume, int loop) {
+static void sound_start_bg_music_internal(const char *filename,
+                                          int64_t volume,
+                                          int loop,
+                                          int volume_adjustment) {
 #ifdef HAVE_SDL_MIXER
     char path[HUGE_BUF];
     sound_data_struct *tmp;
@@ -457,6 +492,9 @@ void sound_start_bg_music(const char *filename, int volume, int loop) {
 
     /* Same background music, nothing to do. */
     if (sound_background && !strcmp(sound_background, path)) {
+        sound_background_loop = loop;
+        sound_background_volume_adjustment = volume_adjustment;
+        sound_apply_music_volume(volume);
         return;
     }
 
@@ -485,12 +523,12 @@ void sound_start_bg_music(const char *filename, int volume, int loop) {
     sound_background = xstrdup(path);
     sound_background_hook_execute();
     sound_background_loop = loop;
-    sound_background_volume = volume;
+    sound_background_volume_adjustment = volume_adjustment;
     sound_background_duration = sound_music_file_get_duration(filename);
     sound_background_update_duration = 1;
 
-    Mix_VolumeMusic(volume);
     Mix_PlayMusic(tmp->data, 0);
+    sound_apply_music_volume(volume);
 
     sound_background_started = SDL_GetTicks();
 
@@ -498,10 +536,11 @@ void sound_start_bg_music(const char *filename, int volume, int loop) {
      * others) will continue playing even when the volume has been set to
      * 0, which means we need to manually pause the music if volume is 0,
      * and unpause it in sound_update_volume(), if the volume changes. */
-    if (volume == 0) {
-        sound_pause_music();
-    }
 #endif
+}
+
+void sound_start_bg_music(const char *filename, int volume, int loop) {
+    sound_start_bg_music_internal(filename, volume, loop, 0);
 }
 
 /**
@@ -562,9 +601,10 @@ void update_map_bg_music(const char *bg_music) {
             return;
         }
 
-        sound_start_bg_music(filename,
-                             setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) + vol,
-                             loop);
+        sound_start_bg_music_internal(filename,
+                                      setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) + vol,
+                                      loop,
+                                      vol);
     }
 }
 
@@ -577,21 +617,9 @@ void sound_update_volume(void) {
     }
 
 #ifdef HAVE_SDL_MIXER
-    Mix_VolumeMusic(setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC));
-
-    /* If there is any background music, due to a bug in SDL_mixer, we
-     * may need to pause or unpause the music. */
-    if (sound_background) {
-        /* If the new volume is 0, pause the music. */
-        if (setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) == 0) {
-            if (!Mix_PausedMusic()) {
-                sound_pause_music();
-            }
-        } else if (Mix_PausedMusic()) {
-            /* Non-zero and already paused, so resume the music. */
-            sound_resume_music();
-        }
-    }
+    int64_t volume =
+        setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) + sound_background_volume_adjustment;
+    sound_apply_music_volume(volume);
 #endif
 }
 
@@ -734,7 +762,12 @@ void socket_command_sound(uint8_t *data, size_t len, size_t pos) {
         x = packet_to_uint8(data, len, &pos);
         y = packet_to_uint8(data, len, &pos);
 
-        channel = sound_play_effect_loop(filename, 100 + volume, loop);
+        const char *effect = filename;
+        if (strcmp(filename, "player_hurt.ogg") == 0) {
+            effect = cpl.gender == GENDER_FEMALE ? "doh_female.ogg" : "doh.ogg";
+        }
+
+        channel = sound_play_effect_loop(effect, 100 + volume, loop);
 
         if (channel != -1) {
             int angle, distance;
@@ -754,9 +787,10 @@ void socket_command_sound(uint8_t *data, size_t len, size_t pos) {
         }
     } else if (type == CMD_SOUND_BACKGROUND) {
         if (!sound_map_background_disabled) {
-            sound_start_bg_music(filename,
-                                 setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) + volume,
-                                 loop);
+            sound_start_bg_music_internal(filename,
+                                          setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) + volume,
+                                          loop,
+                                          volume);
         }
     } else if (type == CMD_SOUND_ABSOLUTE) {
         sound_add_effect(filename, (uint8_t)volume, loop);

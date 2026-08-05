@@ -254,6 +254,7 @@ void set_max_time(long t) {
               "You feel a sudden and inexplicable change in the fabric of "
               "time and space...");
     max_time = t;
+    send_game_time(NULL);
 }
 
 /**
@@ -272,6 +273,7 @@ void set_max_time_multiplier(int t) {
               "You feel a sudden and inexplicable change in the fabric of "
               "time and space...");
     max_time_multiplier = t;
+    send_game_time(NULL);
 }
 
 /**
