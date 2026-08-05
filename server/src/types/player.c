@@ -675,26 +675,23 @@ static void player_death_deplete_stats(object *op) {
     }
 
     object *depletion = NULL;
-    for (int i = 0; i < num_lose; i++) {
+    if (num_lose > 0) {
         static archetype_t *at = NULL;
         if (at == NULL) {
             at = arch_find("depletion");
             SOFT_ASSERT(at != NULL, "Could not find depletion archetype");
         }
 
-        if (depletion == NULL) {
+        if (at != NULL) {
             depletion = object_find_arch(op, at);
-            if (depletion == NULL) {
-                depletion = arch_to_object(at);
-                depletion = object_insert_into(depletion, op, 0);
-                SOFT_ASSERT(depletion != NULL, "Could not insert depletion");
-            }
         }
+    }
 
+    for (int i = 0; i < num_lose; i++) {
         int stat = rndm(0, NUM_STATS - 1);
         bool lose = true;
 
-        int8_t value = get_attr_value(&depletion->stats, stat);
+        int8_t value = depletion != NULL ? get_attr_value(&depletion->stats, stat) : 0;
         if (value < 0) {
             int loss_chance = 1 + op->level / BALSL_LOSS_CHANCE_RATIO;
             int keep_chance = value * value;
@@ -711,6 +708,13 @@ static void player_death_deplete_stats(object *op) {
             continue;
         }
 
+        if (depletion == NULL) {
+            depletion = depletion_get_or_create(op);
+            if (depletion == NULL) {
+                continue;
+            }
+        }
+
         change_attr_value(&depletion->stats, stat, -1);
         SET_FLAG(depletion, FLAG_APPLIED);
         lost_stat = true;
@@ -718,7 +722,7 @@ static void player_death_deplete_stats(object *op) {
     }
 
     if (lost_stat) {
-        esrv_update_item(UPD_EXTRA, depletion);
+        esrv_update_item(UPD_FLAGS | UPD_EXTRA, depletion);
         living_update_player(op);
     } else {
         draw_info(COLOR_WHITE,
