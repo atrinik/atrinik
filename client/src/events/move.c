@@ -83,8 +83,8 @@ void move_keys(int num) {
  * The direction, 1-9.
  */
 int dir_from_tile_coords(int tx, int ty) {
-    int player_tile_x = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) / 2,
-        player_tile_y = setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT) / 2;
+    int player_tile_x = MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH)) / 2,
+        player_tile_y = MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT)) / 2;
     int q, x, y;
 
     if (tx == player_tile_x && ty == player_tile_y) {

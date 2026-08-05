@@ -310,6 +310,7 @@ typedef enum WidgetID {
     TARGET_ID,
     INVENTORY_ID,
     NETWORK_GRAPH_ID,
+    RENDER_PROFILER_ID,
 
     /** The total number of widgets. */
     TOTAL_WIDGETS

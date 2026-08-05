@@ -115,6 +115,8 @@ enum {
     OPT_PLAYER_NAMES,
     /** How much to zoom the map. */
     OPT_MAP_ZOOM,
+    /** Whether to render smoothly interpolated ground lighting. */
+    OPT_SMOOTH_LIGHTING,
     /** Health warning. */
     OPT_HEALTH_WARNING,
     /** Food warning. */
@@ -143,6 +145,8 @@ enum {
 enum {
     /** Whether to show FPS. */
     OPT_SHOW_FPS,
+    /** Whether to collect and show detailed render timings. */
+    OPT_SHOW_RENDER_PROFILER,
     /** Whether to always try to reload graphics from gfx_user directory. */
     OPT_RELOAD_GFX,
     /** Whether to disable /region_map cache. */

@@ -31,6 +31,7 @@
 #include <global.h>
 #include <openssl/crypto.h>
 #include <region_map.h>
+#include <toolkit/map_protocol.h>
 #include <toolkit/packet.h>
 #include <toolkit/path.h>
 #include <toolkit/string.h>
@@ -58,8 +59,8 @@ void socket_command_setup(uint8_t *data, size_t len, size_t pos) {
             x = packet_to_uint8(data, len, &pos);
             y = packet_to_uint8(data, len, &pos);
 
-            setting_set_int(OPT_CAT_MAP, OPT_MAP_WIDTH, x);
-            setting_set_int(OPT_CAT_MAP, OPT_MAP_HEIGHT, y);
+            setting_set_int(OPT_CAT_MAP, OPT_MAP_WIDTH, MAP_WIRE_TO_LOOK_SIZE(x));
+            setting_set_int(OPT_CAT_MAP, OPT_MAP_HEIGHT, MAP_WIRE_TO_LOOK_SIZE(y));
         } else if (type == CMD_SETUP_DATA_URL) {
             packet_to_string(data, len, &pos, cpl.http_url, sizeof(cpl.http_url));
         } else if (type == CMD_SETUP_ASSET_TRANSPORT) {
@@ -729,9 +730,19 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos) {
     int mapstat;
     int xpos, ypos;
     int layer, ext_flags;
-    uint8_t num_layers, in_building;
+    uint8_t num_layers;
     region_map_def_map_t *def_map;
     bool region_map_fow_need_update;
+
+    if (!map_protocol_validate(
+            data,
+            len,
+            pos,
+            MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH)),
+            MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT)))) {
+        LOG(PACKET, "Rejected malformed map packet.");
+        return;
+    }
 
     mapstat = packet_to_uint8(data, len, &pos);
 
@@ -760,16 +771,18 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos) {
             my = ypos;
             init_map_data(map_w, map_h, xpos, ypos);
         } else {
-            int xoff, yoff;
+            int xoff, yoff, zoff;
 
-            mapstat = packet_to_uint8(data, len, &pos);
+            packet_to_uint8(data, len, &pos);
             xoff = packet_to_int8(data, len, &pos);
             yoff = packet_to_int8(data, len, &pos);
+            zoff = packet_to_int8(data, len, &pos);
             xpos = packet_to_uint8(data, len, &pos);
             ypos = packet_to_uint8(data, len, &pos);
             mx = xpos;
             my = ypos;
             display_mapscroll(xoff, yoff, 0, 0);
+            map_level_scroll(zoff);
 
             map_play_footstep();
         }
@@ -800,238 +813,342 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos) {
     MapData.player_sub_layer = packet_to_uint8(data, len, &pos);
     def_map = region_map_find_map(MapData.region_map, MapData.map_path);
 
-    in_building = packet_to_uint8(data, len, &pos);
-
     map_get_real_coords(&rx, &ry);
     region_map_fow_need_update = false;
 
-    while (pos < len) {
-        mask = packet_to_uint16(data, len, &pos);
-        x = (mask >> 11) & 0x1f;
-        y = (mask >> 6) & 0x1f;
-
-        /* Clear the whole cell? */
-        if (mask & MAP2_MASK_CLEAR) {
-            map_clear_cell(x, y);
-            continue;
-        }
-
-        if (MapData.region_name[0] != '\0') {
-            if (region_map_fow_set_visited(MapData.region_map,
-                                           def_map,
-                                           MapData.map_path,
-                                           rx + x,
-                                           ry + y)) {
-                region_map_fow_need_update = true;
-            }
-        }
-
-        /* Do we have darkness information? */
-        if (mask & MAP2_MASK_DARKNESS) {
-            map_set_darkness(x, y, 0, packet_to_uint8(data, len, &pos));
-        }
-
-        if (mask & MAP2_MASK_DARKNESS_MORE) {
-            int sub_layer;
-
-            for (sub_layer = 1; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                map_set_darkness(x, y, sub_layer, packet_to_uint8(data, len, &pos));
-            }
-        }
-
-        num_layers = packet_to_uint8(data, len, &pos);
-
-        /* Go through all the layers on this tile. */
-        for (layer = 0; layer < num_layers; layer++) {
-            uint8_t type;
-
-            type = packet_to_uint8(data, len, &pos);
-
-            /* Clear this layer. */
-            if (type == MAP2_LAYER_CLEAR) {
-                map_set_data(x,
-                             y,
-                             packet_to_uint8(data, len, &pos),
-                             0,
-                             0,
-                             0,
-                             "",
-                             "",
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             0,
-                             "",
-                             0);
-            } else { /* We have some data. */
-                int16_t face, height = 0, zoom_x = 0, zoom_y = 0, align = 0, rotate = 0;
-                uint8_t flags, obj_flags, quick_pos = 0, probe = 0, draw_double = 0, alpha = 0,
-                                          infravision = 0, target_is_friend = 0;
-                uint8_t anim_speed, anim_facing, anim_flags, anim_state, priority, secondpass,
-                    glow_speed;
-                char player_name[64], player_color[COLOR_BUF], glow[COLOR_BUF];
-                uint32_t target_object_count = 0;
-
-                anim_speed = anim_facing = anim_flags = anim_state = 0;
-                priority = secondpass = glow_speed = 0;
-
-                player_name[0] = '\0';
-                player_color[0] = '\0';
-                glow[0] = '\0';
-
-                face = packet_to_uint16(data, len, &pos);
-                /* Object flags. */
-                obj_flags = packet_to_uint8(data, len, &pos);
-                /* Flags of this layer. */
-                flags = packet_to_uint8(data, len, &pos);
-
-                /* Multi-arch? */
-                if (flags & MAP2_FLAG_MULTI) {
-                    quick_pos = packet_to_uint8(data, len, &pos);
-                }
-
-                /* Player name? */
-                if (flags & MAP2_FLAG_NAME) {
-                    packet_to_string(data, len, &pos, VS(player_name));
-                    packet_to_string(data, len, &pos, VS(player_color));
-                }
-
-                /* Animation? */
-                if (flags & MAP2_FLAG_ANIMATION) {
-                    anim_speed = packet_to_uint8(data, len, &pos);
-                    anim_facing = packet_to_uint8(data, len, &pos);
-                    anim_flags = packet_to_uint8(data, len, &pos);
-
-                    if (anim_flags & ANIM_FLAG_MOVING) {
-                        anim_state = packet_to_uint8(data, len, &pos);
-                    }
-                }
-
-                /* Z position? */
-                if (flags & MAP2_FLAG_HEIGHT) {
-                    height = packet_to_int16(data, len, &pos);
-                }
-
-                /* Align? */
-                if (flags & MAP2_FLAG_ALIGN) {
-                    align = packet_to_int16(data, len, &pos);
-                }
-
-                if (flags & MAP2_FLAG_INFRAVISION) {
-                    infravision = 1;
-                }
-
-                /* Double? */
-                if (flags & MAP2_FLAG_DOUBLE) {
-                    draw_double = 1;
-                }
-
-                if (flags & MAP2_FLAG_MORE) {
-                    uint32_t flags2;
-
-                    flags2 = packet_to_uint32(data, len, &pos);
-
-                    if (flags2 & MAP2_FLAG2_ALPHA) {
-                        alpha = packet_to_uint8(data, len, &pos);
-                    }
-
-                    if (flags2 & MAP2_FLAG2_ROTATE) {
-                        rotate = packet_to_int16(data, len, &pos);
-                    }
-
-                    /* Zoom? */
-                    if (flags2 & MAP2_FLAG2_ZOOM) {
-                        zoom_x = packet_to_uint16(data, len, &pos);
-                        zoom_y = packet_to_uint16(data, len, &pos);
-                    }
-
-                    if (flags2 & MAP2_FLAG2_TARGET) {
-                        target_object_count = packet_to_uint32(data, len, &pos);
-                        target_is_friend = packet_to_uint8(data, len, &pos);
-                    }
-
-                    /* Target's HP? */
-                    if (flags2 & MAP2_FLAG2_PROBE) {
-                        probe = packet_to_uint8(data, len, &pos);
-                    }
-
-                    if (flags2 & MAP2_FLAG2_PRIORITY) {
-                        priority = 1;
-                    }
-
-                    if (flags2 & MAP2_FLAG2_SECONDPASS) {
-                        secondpass = 1;
-                    }
-
-                    if (flags2 & MAP2_FLAG2_GLOW) {
-                        packet_to_string(data, len, &pos, VS(glow));
-                        glow_speed = packet_to_uint8(data, len, &pos);
-                    }
-                }
-
-                /* Set the data we figured out. */
-                map_set_data(x,
-                             y,
-                             type,
-                             face,
-                             quick_pos,
-                             obj_flags,
-                             player_name,
-                             player_color,
-                             height,
-                             probe,
-                             zoom_x,
-                             zoom_y,
-                             align,
-                             draw_double,
-                             alpha,
-                             rotate,
-                             infravision,
-                             target_object_count,
-                             target_is_friend,
-                             anim_speed,
-                             anim_facing,
-                             anim_flags,
-                             anim_state,
-                             priority,
-                             secondpass,
-                             glow,
-                             glow_speed);
-            }
-        }
-
-        /* Get tile flags. */
-        ext_flags = packet_to_uint8(data, len, &pos);
-
-        /* Animation? */
-        if (ext_flags & MAP2_FLAG_EXT_ANIM) {
-            uint8_t anim_num = packet_to_uint8(data, len, &pos);
-
-            for (uint8_t i = 0; i < anim_num; i++) {
-                uint8_t sub_layer = packet_to_uint8(data, len, &pos);
-                uint8_t anim_type = packet_to_uint8(data, len, &pos);
-                int16_t anim_value = packet_to_int16(data, len, &pos);
-
-                map_anims_add(anim_type, x, y, sub_layer, anim_value);
-            }
-        }
+    if (pos >= len) {
+        LOG(PACKET, "Map packet has no level count.");
+        return;
     }
 
-    adjust_tile_stretch();
-    map_update_in_building(in_building);
+    uint8_t level_count = packet_to_uint8(data, len, &pos);
+    if (level_count > MAP2_LEVELS) {
+        LOG(PACKET, "Map packet contains too many levels: %" PRIu8 ".", level_count);
+        return;
+    }
+
+    uint16_t level_mask = 0;
+    size_t packet_end = len;
+
+    for (uint8_t level_num = 0; level_num < level_count; level_num++) {
+        if (len - pos < sizeof(int8_t) + sizeof(uint32_t)) {
+            LOG(PACKET, "Truncated map level header.");
+            return;
+        }
+
+        int depth = packet_to_int8(data, len, &pos);
+        uint32_t level_size = packet_to_uint32(data, len, &pos);
+        if (depth < -MAP2_MAX_DEPTH || depth > MAP2_MAX_DEPTH || level_size > len - pos) {
+            LOG(PACKET, "Invalid map level depth or payload size.");
+            return;
+        }
+
+        size_t level_end = pos + level_size;
+        len = level_end;
+        if (!map_select_level(depth, true)) {
+            LOG(PACKET, "Could not select map level %d.", depth);
+            return;
+        }
+        uint16_t level_bit = UINT16_C(1) << MAP2_DEPTH_INDEX(depth);
+        if (level_mask & level_bit) {
+            LOG(PACKET, "Map packet contains duplicate depth %d.", depth);
+            return;
+        }
+        level_mask |= level_bit;
+
+        while (pos < level_end) {
+            if (len - pos < sizeof(uint16_t)) {
+                LOG(PACKET, "Truncated map tile mask.");
+                return;
+            }
+
+            mask = packet_to_uint16(data, len, &pos);
+            x = (mask >> 11) & 0x1f;
+            y = (mask >> 6) & 0x1f;
+
+            /* Clear the whole cell? */
+            if (mask & MAP2_MASK_CLEAR) {
+                map_clear_cell(x, y, (mask & MAP2_MASK_HARD_CLEAR) != 0);
+                continue;
+            }
+
+            size_t tile_values = 0;
+            if (mask & MAP2_MASK_SUPPORT_HEIGHT) {
+                tile_values += sizeof(int16_t);
+            }
+            if (mask & MAP2_MASK_FOW) {
+                tile_values++;
+            }
+            if (mask & MAP2_MASK_LIGHT_LEVEL) {
+                tile_values++;
+            }
+            if (mask & MAP2_MASK_LIGHT_LEVEL_MORE) {
+                tile_values += NUM_SUB_LAYERS - 1;
+            }
+            if (len - pos < tile_values + sizeof(num_layers)) {
+                LOG(PACKET, "Truncated map tile metadata.");
+                return;
+            }
+
+            if (mask & MAP2_MASK_SUPPORT_HEIGHT) {
+                map_set_structural_support_height(x, y, packet_to_int16(data, len, &pos));
+            }
+
+            bool fow_updated = (mask & MAP2_MASK_FOW) != 0;
+            bool tile_fow = fow_updated ? packet_to_uint8(data, len, &pos) != 0 : map_get_fow(x, y);
+
+            /* Do we have light-level information? */
+            if (mask & MAP2_MASK_LIGHT_LEVEL) {
+                map_set_light_level(x, y, 0, packet_to_uint8(data, len, &pos));
+            }
+
+            if (mask & MAP2_MASK_LIGHT_LEVEL_MORE) {
+                int sub_layer;
+
+                for (sub_layer = 1; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                    map_set_light_level(x, y, sub_layer, packet_to_uint8(data, len, &pos));
+                }
+            }
+
+            num_layers = packet_to_uint8(data, len, &pos);
+
+            /* Go through all the layers on this tile. */
+            for (layer = 0; layer < num_layers; layer++) {
+                uint8_t type;
+
+                type = packet_to_uint8(data, len, &pos);
+
+                /* Clear this layer. */
+                if (type == MAP2_LAYER_CLEAR) {
+                    map_set_data(x,
+                                 y,
+                                 packet_to_uint8(data, len, &pos),
+                                 0,
+                                 0,
+                                 0,
+                                 "",
+                                 "",
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 "",
+                                 0);
+                } else { /* We have some data. */
+                    int16_t face, height = 0, zoom_x = 0, zoom_y = 0, align = 0, rotate = 0;
+                    uint8_t flags, obj_flags, quick_pos = 0, probe = 0, draw_double = 0, alpha = 0,
+                                              infravision = 0, target_is_friend = 0;
+                    uint8_t anim_speed, anim_facing, anim_flags, anim_state, priority, secondpass,
+                        roof, door, glow_speed;
+                    char player_name[64], player_color[COLOR_BUF], glow[COLOR_BUF];
+                    uint32_t target_object_count = 0;
+
+                    anim_speed = anim_facing = anim_flags = anim_state = 0;
+                    priority = secondpass = roof = door = glow_speed = 0;
+
+                    player_name[0] = '\0';
+                    player_color[0] = '\0';
+                    glow[0] = '\0';
+
+                    face = packet_to_uint16(data, len, &pos);
+                    /* Object flags. */
+                    obj_flags = packet_to_uint8(data, len, &pos);
+                    /* Flags of this layer. */
+                    flags = packet_to_uint8(data, len, &pos);
+
+                    /* Multi-arch? */
+                    if (flags & MAP2_FLAG_MULTI) {
+                        quick_pos = packet_to_uint8(data, len, &pos);
+                    }
+
+                    /* Player name? */
+                    if (flags & MAP2_FLAG_NAME) {
+                        packet_to_string(data, len, &pos, VS(player_name));
+                        packet_to_string(data, len, &pos, VS(player_color));
+                    }
+
+                    /* Animation? */
+                    if (flags & MAP2_FLAG_ANIMATION) {
+                        anim_speed = packet_to_uint8(data, len, &pos);
+                        anim_facing = packet_to_uint8(data, len, &pos);
+                        anim_flags = packet_to_uint8(data, len, &pos);
+
+                        if (anim_flags & ANIM_FLAG_MOVING) {
+                            anim_state = packet_to_uint8(data, len, &pos);
+                        }
+                    }
+
+                    /* Z position? */
+                    if (flags & MAP2_FLAG_HEIGHT) {
+                        height = packet_to_int16(data, len, &pos);
+                    }
+
+                    /* Align? */
+                    if (flags & MAP2_FLAG_ALIGN) {
+                        align = packet_to_int16(data, len, &pos);
+                    }
+
+                    if (flags & MAP2_FLAG_INFRAVISION) {
+                        infravision = 1;
+                    }
+
+                    /* Double? */
+                    if (flags & MAP2_FLAG_DOUBLE) {
+                        draw_double = 1;
+                    }
+
+                    if (flags & MAP2_FLAG_MORE) {
+                        uint32_t flags2;
+
+                        flags2 = packet_to_uint32(data, len, &pos);
+
+                        if (flags2 & MAP2_FLAG2_ALPHA) {
+                            alpha = packet_to_uint8(data, len, &pos);
+                        }
+
+                        if (flags2 & MAP2_FLAG2_ROTATE) {
+                            rotate = packet_to_int16(data, len, &pos);
+                        }
+
+                        /* Zoom? */
+                        if (flags2 & MAP2_FLAG2_ZOOM) {
+                            zoom_x = packet_to_uint16(data, len, &pos);
+                            zoom_y = packet_to_uint16(data, len, &pos);
+                        }
+
+                        if (flags2 & MAP2_FLAG2_TARGET) {
+                            target_object_count = packet_to_uint32(data, len, &pos);
+                            target_is_friend = packet_to_uint8(data, len, &pos);
+                        }
+
+                        /* Target's HP? */
+                        if (flags2 & MAP2_FLAG2_PROBE) {
+                            probe = packet_to_uint8(data, len, &pos);
+                        }
+
+                        if (flags2 & MAP2_FLAG2_PRIORITY) {
+                            priority = 1;
+                        }
+
+                        if (flags2 & MAP2_FLAG2_SECONDPASS) {
+                            secondpass = 1;
+                        }
+
+                        if (flags2 & MAP2_FLAG2_GLOW) {
+                            packet_to_string(data, len, &pos, VS(glow));
+                            glow_speed = packet_to_uint8(data, len, &pos);
+                        }
+
+                        if (flags2 & MAP2_FLAG2_ROOF) {
+                            roof = 1;
+                        }
+
+                        if (flags2 & MAP2_FLAG2_DOOR) {
+                            door = 1;
+                        }
+                    }
+
+                    /* Set the data we figured out. */
+                    map_set_data(x,
+                                 y,
+                                 type,
+                                 face,
+                                 quick_pos,
+                                 obj_flags,
+                                 player_name,
+                                 player_color,
+                                 height,
+                                 probe,
+                                 zoom_x,
+                                 zoom_y,
+                                 align,
+                                 draw_double,
+                                 alpha,
+                                 rotate,
+                                 infravision,
+                                 target_object_count,
+                                 target_is_friend,
+                                 anim_speed,
+                                 anim_facing,
+                                 anim_flags,
+                                 anim_state,
+                                 priority,
+                                 secondpass,
+                                 roof,
+                                 door,
+                                 glow,
+                                 glow_speed);
+                }
+            }
+
+            /* Get tile flags. */
+            ext_flags = packet_to_uint8(data, len, &pos);
+
+            /* Animation? */
+            if (ext_flags & MAP2_FLAG_EXT_ANIM) {
+                uint8_t anim_num = packet_to_uint8(data, len, &pos);
+
+                for (uint8_t i = 0; i < anim_num; i++) {
+                    uint8_t sub_layer = packet_to_uint8(data, len, &pos);
+                    uint8_t anim_type = packet_to_uint8(data, len, &pos);
+                    int16_t anim_value = packet_to_int16(data, len, &pos);
+
+                    map_anims_add(anim_type, x, y, sub_layer, depth, anim_value);
+                }
+            }
+
+            if (fow_updated) {
+                map_set_fow(x, y, tile_fow);
+            }
+
+            if (depth == 0 && !tile_fow && MapData.region_name[0] != '\0') {
+                if (region_map_fow_set_visited(MapData.region_map,
+                                               def_map,
+                                               MapData.map_path,
+                                               rx + x,
+                                               ry + y)) {
+                    region_map_fow_need_update = true;
+                }
+            }
+        }
+
+        if (pos != level_end) {
+            LOG(PACKET, "Map level payload was not consumed exactly.");
+            return;
+        }
+
+        len = packet_end;
+    }
+
+    if (pos != packet_end) {
+        LOG(PACKET, "Map packet has trailing data after its level blocks.");
+        return;
+    }
+
+    map_set_level_mask(level_mask);
+
+    for (int depth = -MAP2_MAX_DEPTH; depth <= MAP2_MAX_DEPTH; depth++) {
+        if ((level_mask & (UINT16_C(1) << MAP2_DEPTH_INDEX(depth))) &&
+            map_select_level(depth, false)) {
+            adjust_tile_stretch();
+        }
+    }
+    map_select_level(0, true);
     map_redraw_flag = minimap_redraw_flag = 1;
 
     if (region_map_fow_need_update) {
@@ -1051,6 +1168,14 @@ void socket_command_version(uint8_t *data, size_t len, size_t pos) {
     }
 
     cpl.server_socket_version = packet_to_uint32(data, len, &pos);
+    if (cpl.server_socket_version < SOCKET_VERSION) {
+        draw_info(COLOR_RED,
+                  "The server uses an incompatible map lighting protocol. Please update the "
+                  "server.");
+        cpl.state = ST_START;
+        return;
+    }
+
     cpl.state = ST_VERSION;
 }
 

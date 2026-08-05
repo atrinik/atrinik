@@ -235,6 +235,7 @@ struct pl_player {
 
     /** Map update command. */
     int map_update_cmd;
+    int8_t map_off_z; ///< Linked-level cache offset for a connected map transition.
 
     /** Tile for map update. */
     int map_update_tile;

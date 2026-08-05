@@ -36,9 +36,45 @@
 #include <exit.h>
 #include <door.h>
 #include <check_inv.h>
-#include <magic_mirror.h>
 #include <object_methods.h>
 #include <toolkit/path.h>
+
+MapCell *map_client_cache_cell(struct Map *cache, int depth, int x, int y, bool create) {
+    HARD_ASSERT(cache != NULL);
+    HARD_ASSERT(depth >= -MAP2_MAX_DEPTH && depth <= MAP2_MAX_DEPTH);
+    HARD_ASSERT(x >= 0 && x < MAP_CLIENT_X);
+    HARD_ASSERT(y >= 0 && y < MAP_CLIENT_Y);
+
+    size_t index = MAP2_DEPTH_INDEX(depth);
+    if (cache->levels[index] == NULL && create) {
+        cache->levels[index] =
+            xcalloc((size_t)MAP_CLIENT_X * MAP_CLIENT_Y, sizeof(*cache->levels[index]));
+    }
+
+    return cache->levels[index] != NULL ? &cache->levels[index][(size_t)x * MAP_CLIENT_Y + y]
+                                        : NULL;
+}
+
+void map_client_cache_clear(struct Map *cache) {
+    HARD_ASSERT(cache != NULL);
+
+    for (size_t i = 0; i < arraysize(cache->levels); i++) {
+        if (cache->levels[i] != NULL) {
+            memset(cache->levels[i],
+                   0,
+                   (size_t)MAP_CLIENT_X * MAP_CLIENT_Y * sizeof(*cache->levels[i]));
+        }
+    }
+}
+
+void map_client_cache_free(struct Map *cache) {
+    HARD_ASSERT(cache != NULL);
+
+    for (size_t i = 0; i < arraysize(cache->levels); i++) {
+        free(cache->levels[i]);
+        cache->levels[i] = NULL;
+    }
+}
 
 int global_darkness_table[MAX_DARKNESS + 1] = {0, 20, 40, 80, 160, 320, 640, 1280};
 
@@ -2520,7 +2556,8 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror) {
     if (((outdoor && !(msp->flags & P_OUTDOOR)) || (!outdoor && msp->flags & P_OUTDOOR)) &&
         (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) ||
          msp->map_info->item_power < 0)) {
-        darkness = msp->light_value + global_darkness_table[world_darkness];
+        darkness =
+            msp->light_value + msp->light_source_value + global_darkness_table[world_darkness];
     } else {
         /* Check if map info object bound to this tile has a darkness. */
         if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) &&
@@ -2533,41 +2570,11 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror) {
                 dark_value = MAX_DARKNESS;
             }
 
-            darkness = global_darkness_table[dark_value] + msp->light_value;
+            darkness =
+                global_darkness_table[dark_value] + msp->light_value + msp->light_source_value;
         } else {
-            darkness = m->light_value + msp->light_value;
+            darkness = m->light_value + msp->light_value + msp->light_source_value;
         }
-    }
-
-    if (msp->flags & P_MAGIC_MIRROR) {
-        object *tmp;
-        magic_mirror_struct *m_data;
-        mapstruct *mirror_map;
-
-        FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_SYS, -1, tmp) {
-            if (tmp->type == MAGIC_MIRROR) {
-                if (mirror) {
-                    *mirror = tmp;
-                }
-
-                m_data = MMIRROR(tmp);
-
-                if (m_data && (mirror_map = magic_mirror_get_map(tmp)) &&
-                    !OUT_OF_MAP(mirror_map, m_data->x, m_data->y)) {
-                    MapSpace *mirror_msp = GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y);
-
-                    if ((MAP_OUTDOORS(mirror_map) && !(mirror_msp->flags & P_OUTDOOR)) ||
-                        (!MAP_OUTDOORS(mirror_map) && mirror_msp->flags & P_OUTDOOR)) {
-                        darkness = mirror_msp->light_value + global_darkness_table[world_darkness];
-                    } else {
-                        darkness = mirror_map->light_value + mirror_msp->light_value;
-                    }
-                }
-
-                break;
-            }
-        }
-        FOR_MAP_LAYER_END
     }
 
     return darkness;
@@ -2810,7 +2817,16 @@ map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y, int layer, i
             for (sub_layer = sub_layer_start; sub_layer <= sub_layer_end; sub_layer++) {
                 socket_layer = NUM_LAYERS * sub_layer + layer - 1;
 
-                CONTR(pl)->cs->lastmap.cells[ax][ay].faces[socket_layer] = 0;
+                if (rv.distance_z < -MAP2_MAX_DEPTH || rv.distance_z > MAP2_MAX_DEPTH) {
+                    continue;
+                }
+
+                int depth = rv.distance_z;
+                MapCell *cached =
+                    map_client_cache_cell(&CONTR(pl)->cs->lastmap, depth, ax, ay, false);
+                if (cached != NULL) {
+                    cached->faces[socket_layer] = 0;
+                }
             }
         }
     }

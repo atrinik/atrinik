@@ -1437,6 +1437,11 @@ void object_update(object *op, int action) {
         }
     }
 
+    if (op->map->in_memory == MAP_IN_MEMORY &&
+        (QUERY_FLAG(op, FLAG_BLOCKSVIEW) || QUERY_FLAG(op, FLAG_IS_FLOOR))) {
+        recalculate_light_sources(op->map);
+    }
+
     if (op->more != NULL && action != UP_OBJ_INSERT) {
         object_update(op->more, action);
     }

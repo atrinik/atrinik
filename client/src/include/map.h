@@ -49,6 +49,19 @@
 #define MAP_TILE_YOFF 24
 
 /**
+ * Number of off-screen tile anchors requested on each edge of the logical
+ * look window. Large isometric sprites can project into the viewport from
+ * these tiles even though their owning tile is outside it.
+ */
+#define MAP_RENDER_OVERSCAN 2
+
+/** Convert a user-selected logical look size to the map protocol size. */
+#define MAP_LOOK_TO_WIRE_SIZE(_size) ((_size) + MAP_RENDER_OVERSCAN * 2)
+
+/** Convert a map protocol size back to the user-selected logical look size. */
+#define MAP_WIRE_TO_LOOK_SIZE(_size) ((_size) - MAP_RENDER_OVERSCAN * 2)
+
+/**
  * @defgroup LAYER_xxx Layer types
  * The layer types used for different objects.
  *@{*/
@@ -73,15 +86,15 @@
 /**
  * The number of object layers.
  */
-#define NUM_LAYERS 7
+#define NUM_LAYERS MAP2_PROTOCOL_OBJECT_LAYERS
 /**
  * Number of sub-layers.
  */
-#define NUM_SUB_LAYERS 7
+#define NUM_SUB_LAYERS MAP2_PROTOCOL_SUB_LAYERS
 /**
  * Effective number of all the visible layers.
  */
-#define NUM_REAL_LAYERS (NUM_LAYERS * NUM_SUB_LAYERS)
+#define NUM_REAL_LAYERS MAP2_PROTOCOL_REAL_LAYERS
 
 #define GET_MAP_LAYER(_layer, _sub_layer) (NUM_LAYERS * (_sub_layer) + (_layer) - 1)
 
@@ -155,7 +168,6 @@ typedef struct _mapdata {
     /**
      * If 1, the player is currently in a building.
      */
-    unsigned int in_building : 1;
 
     /**
      * Player's current sub-layer.
@@ -172,23 +184,53 @@ typedef struct _mapdata {
  * Map cell structure.
  */
 typedef struct MapCell {
-    /** Name of player on this cell. */
-    char pname[NUM_REAL_LAYERS][64];
+    /** Name of the living object on each sub-layer. */
+    char pname[NUM_SUB_LAYERS][64];
 
-    /** Player name color on this cell. */
-    char pcolor[NUM_REAL_LAYERS][COLOR_BUF];
+    /** Living-object name color on each sub-layer. */
+    char pcolor[NUM_SUB_LAYERS][COLOR_BUF];
 
     /** Position. */
     uint8_t quick_pos[NUM_REAL_LAYERS];
 
-    /** If this is where our enemy is. */
-    uint8_t probe[NUM_REAL_LAYERS];
+    /** Target HP percentage for the living object on each sub-layer. */
+    uint8_t probe[NUM_SUB_LAYERS];
 
-    /** Cell darkness. */
-    uint8_t darkness[NUM_SUB_LAYERS];
+    /** Normalized cell light levels: zero is unlit, 255 is fully lit. */
+    uint8_t light_level[NUM_SUB_LAYERS];
+
+    /** Whether each light level has been received from the server. */
+    uint8_t light_known[NUM_SUB_LAYERS];
 
     /** Object flags. */
     uint8_t flags[NUM_REAL_LAYERS];
+
+    /** Whether fogged geometry is an authoritative structural boundary. */
+    uint8_t structural_fow;
+
+    /** Whether terrain stretch must be recomputed for this cell. */
+    uint8_t stretch_dirty;
+
+    /** Topmost nonzero floor height, cached for negative terrain seams. */
+    int16_t stretch_top_height;
+
+    /** Topmost nonzero floor height above the base sub-layer. */
+    int16_t stretch_upper_height;
+
+    /** Maximum nonnegative floor elevation supporting linked upper levels. */
+    int16_t level_support_height;
+
+    /** Server-provided base-map elevation used to project linked upper levels. */
+    int16_t structural_support_height;
+
+    /** Maximum floor/effect elevation used for screen-space rejection. */
+    int16_t render_max_height;
+
+    /** Whether a wall-layer object is a roof/camera surface. */
+    uint8_t roof[NUM_REAL_LAYERS];
+
+    /** Door bits for each object layer, grouped by sub-layer. */
+    uint8_t door[NUM_SUB_LAYERS];
 
     /** Double drawing. */
     uint8_t draw_double[NUM_REAL_LAYERS];
@@ -220,15 +262,11 @@ typedef struct MapCell {
     /** How we stretch this is really 8 char for N S E W. */
     int32_t stretch[NUM_SUB_LAYERS];
 
-    /**
-     * Target object.
-     */
-    uint32_t target_object_count[NUM_REAL_LAYERS];
+    /** Targetable living-object ID on each sub-layer. */
+    uint32_t target_object_count[NUM_SUB_LAYERS];
 
-    /**
-     * Whether the target is a friend.
-     */
-    uint8_t target_is_friend[NUM_REAL_LAYERS];
+    /** Whether the targetable living object on each sub-layer is a friend. */
+    uint8_t target_is_friend[NUM_SUB_LAYERS];
 
     uint8_t anim_last[NUM_REAL_LAYERS];
 
@@ -258,11 +296,6 @@ typedef struct MapCell {
 #define MAP_STARTY map_height *(MAP_FOW_SIZE / 2)
 #define MAP_WIDTH map_width
 #define MAP_HEIGHT map_height
-
-#define MAP_CELL_GET(_x, _y) (&cells[(_y) * (map_width * MAP_FOW_SIZE) + (_x)])
-#define MAP_CELL_GET_MIDDLE(_x, _y)                                                        \
-    (&cells[((_y) + map_height * (MAP_FOW_SIZE / 2)) * (map_width * MAP_FOW_SIZE) + (_x) + \
-            map_width * (MAP_FOW_SIZE / 2)])
 
 typedef struct map_target_struct {
     uint32_t count;
@@ -306,6 +339,7 @@ typedef struct map_anim {
 
     int type; ///< Type of the animation, one of @ref ANIM_xxx.
     int sub_layer; ///< Sub-layer the damage is happening on.
+    int8_t depth; ///< Linked-map depth where the animation occurred.
     int value; ///< This is the number to display.
     int mapx; ///< Map position X.
     int mapy; ///< Map position Y.

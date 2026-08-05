@@ -1136,7 +1136,8 @@ extern void widget_label_init(widgetdata *widget);
 /* src/gui/widgets/map.c */
 extern _mapdata MapData;
 extern _multi_part_obj MultiArchs[16];
-extern struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer, int value);
+extern struct map_anim *
+map_anims_add(int type, int mapx, int mapy, int sub_layer, int depth, int value);
 extern void maps_anims_remove(map_anim_t *anim);
 extern void map_anims_mapscroll(int xoff, int yoff);
 extern void map_anims_clear(void);
@@ -1152,7 +1153,6 @@ extern void update_map_height_diff(uint8_t height_diff);
 extern void update_map_region_name(const char *region_name);
 extern void update_map_region_longname(const char *region_longname);
 extern void update_map_path(const char *map_path);
-extern void map_update_in_building(uint8_t in_building);
 extern int map_get_player_direction(void);
 extern void map_get_real_coords(int *x, int *y);
 extern void init_map_data(int xl, int yl, int px, int py);
@@ -1182,10 +1182,18 @@ extern void map_set_data(int x,
                          uint8_t anim_state,
                          uint8_t priority,
                          uint8_t secondpass,
+                         uint8_t roof,
+                         uint8_t door,
                          const char *glow,
                          uint8_t glow_speed);
-extern void map_clear_cell(int x, int y);
-extern void map_set_darkness(int x, int y, int sub_layer, uint8_t darkness);
+extern bool map_select_level(int depth, bool create);
+extern void map_set_level_mask(uint16_t mask);
+extern void map_level_scroll(int dz);
+extern void map_clear_cell(int x, int y, bool hard);
+extern void map_set_structural_support_height(int x, int y, int16_t height);
+extern void map_set_fow(int x, int y, bool fow);
+extern bool map_get_fow(int x, int y);
+extern void map_set_light_level(int x, int y, int sub_layer, uint8_t light_level);
 extern void map_animate(void);
 extern void map_draw_map(SDL_Surface *surface);
 extern void map_draw_one(int x, int y, SDL_Surface *surface);
@@ -1200,6 +1208,7 @@ extern void widget_highlight_menu(widgetdata *widget);
 /* src/gui/widgets/menu_buttons.c */
 extern void widget_menu_buttons_init(widgetdata *widget);
 /* src/gui/widgets/minimap.c */
+extern bool minimap_redraw_due(void);
 extern void widget_minimap_init(widgetdata *widget);
 /* src/gui/widgets/mplayer.c */
 extern void widget_mplayer_init(widgetdata *widget);

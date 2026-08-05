@@ -49,8 +49,23 @@ typedef struct MapCell_struct {
 
     uint8_t cleared;
 
-    /** Darkness cache. */
-    uint16_t darkness[NUM_SUB_LAYERS];
+    /** Last normalized light levels sent to the client. */
+    uint8_t light_level[NUM_SUB_LAYERS];
+
+    /** Whether each normalized light level has been sent at least once. */
+    uint8_t light_known[NUM_SUB_LAYERS];
+
+    /** Last base-map structural support height sent to the client. */
+    int16_t support_height;
+
+    /** Whether the structural support height has been sent at least once. */
+    uint8_t support_height_known;
+
+    /** Last explicit fog-of-war state sent to the client. */
+    uint8_t fow;
+
+    /** Whether the fog-of-war state has been sent at least once. */
+    uint8_t fow_known;
 
     /** Faces we sent. */
     int16_t faces[NUM_REAL_LAYERS];
@@ -60,6 +75,12 @@ typedef struct MapCell_struct {
 
     /** Flags cache. */
     uint8_t flags[NUM_REAL_LAYERS];
+
+    /** Whether a wall-layer object is a roof/camera surface. */
+    uint8_t roof[NUM_REAL_LAYERS];
+
+    /** Whether each sent object is a door. */
+    uint8_t door[NUM_REAL_LAYERS];
 
     uint8_t anim_speed[NUM_REAL_LAYERS];
 
@@ -89,9 +110,13 @@ typedef struct MapCell_struct {
 
 /** One map for a player. */
 struct Map {
-    /** The map cells. */
-    struct MapCell_struct cells[MAP_CLIENT_X][MAP_CLIENT_Y];
+    /** Lazily allocated cells for each linked-map depth. */
+    struct MapCell_struct *levels[MAP2_LEVELS];
 };
+
+MapCell *map_client_cache_cell(struct Map *cache, int depth, int x, int y, bool create);
+void map_client_cache_clear(struct Map *cache);
+void map_client_cache_free(struct Map *cache);
 
 /** Possible socket statuses. */
 enum {

@@ -72,6 +72,7 @@ static const char *const widget_names[TOTAL_SUBWIDGETS] = {"map",
                                                            "target",
                                                            "inventory",
                                                            "network_graph",
+                                                           "render_profiler",
 
                                                            "container_strip",
                                                            "menu",
@@ -268,6 +269,7 @@ void toolkit_widget_init(void) {
     widget_initializers[MINIMAP_ID] = widget_minimap_init;
     widget_initializers[MPLAYER_ID] = widget_mplayer_init;
     widget_initializers[NETWORK_GRAPH_ID] = widget_network_graph_init;
+    widget_initializers[RENDER_PROFILER_ID] = widget_render_profiler_init;
     widget_initializers[NOTIFICATION_ID] = widget_notification_init;
     widget_initializers[PARTY_ID] = widget_party_init;
     widget_initializers[PDOLL_ID] = widget_playerdoll_init;
@@ -287,6 +289,14 @@ void toolkit_widget_init(void) {
     }
 
     widget_load("settings/interface.cfg", 0, widgets);
+
+    /* Older saved layouts predate the profiler widget. Ensure the singleton
+     * exists so enabling its setting works without resetting the interface. */
+    if (cur_widget[RENDER_PROFILER_ID] == NULL) {
+        widgetdata *profiler = create_widget_object(RENDER_PROFILER_ID);
+        SOFT_ASSERT(profiler != NULL, "Could not create render profiler widget");
+    }
+
     widgets_ensure_onscreen();
 }
 

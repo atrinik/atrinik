@@ -57,8 +57,8 @@
  * need to spend to figure this out in addition to bandwidth needs.
  * The server CPU time should be pretty trivial.
  */
-#define MAP_CLIENT_X 17
-#define MAP_CLIENT_Y 17
+#define MAP_CLIENT_X 21
+#define MAP_CLIENT_Y 21
 
 /**
  * If you feel the game is too fast or too slow, change MAX_TIME.
@@ -176,7 +176,7 @@
 #define AUTOSAVE 5000
 
 /** Socket version. */
-#define SOCKET_VERSION 1067
+#define SOCKET_VERSION 1068
 
 /**
  * If 1, all data packets that are longer than @ref COMPRESS_DATA_PACKETS_SIZE

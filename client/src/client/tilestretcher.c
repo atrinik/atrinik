@@ -210,6 +210,10 @@ int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue) 
     HARD_ASSERT(dest != NULL);
 
     SDL_Color colors[256];
+    if (dest->format->palette == NULL || dest->format->palette->ncolors >= (int)arraysize(colors)) {
+        return -1;
+    }
+
     int ncol = dest->format->palette->ncolors;
 
     for (int i = 0; i < ncol; i++) {
@@ -414,9 +418,17 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w) {
                                             src->format->Gmask,
                                             src->format->Bmask,
                                             src->format->Amask);
+    if (tmp == NULL) {
+        SDL_UnlockSurface(src);
+        return NULL;
+    }
 
     SDL_Surface *destination = SDL_DisplayFormatAlpha(tmp);
     SDL_FreeSurface(tmp);
+    if (destination == NULL) {
+        SDL_UnlockSurface(src);
+        return NULL;
+    }
     SDL_LockSurface(destination);
 
     Uint32 color = getpixel(src, 0, 0);
@@ -424,7 +436,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w) {
     Uint8 red, green, blue, alpha;
     SDL_GetRGBA(color, src->format, &red, &green, &blue, &alpha);
 
-    if (src->format->BitsPerPixel == 8) {
+    if (destination->format->palette != NULL) {
         add_color_to_surface(destination, red, green, blue);
     }
 
@@ -432,7 +444,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w) {
     color = SDL_MapRGBA(destination->format, 0, 0, 0, 0);
     SDL_FillRect(destination, NULL, color);
 
-    if (src->format->BitsPerPixel == 8) {
+    if (destination->format->palette != NULL) {
         SDL_SetColorKey(destination, SDL_SRCCOLORKEY, color);
     }
 

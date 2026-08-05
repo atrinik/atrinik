@@ -434,6 +434,14 @@ static int setting_apply_always(int cat, int setting) {
                 case OPT_SHOW_FPS:
                     WIDGET_SHOW_CHANGE(FPS_ID, setting_get_int(cat, setting));
                     return 1;
+
+                case OPT_SHOW_RENDER_PROFILER:
+                    render_profiler_set_enabled(setting_get_int(cat, setting));
+                    WIDGET_SHOW_CHANGE(RENDER_PROFILER_ID, setting_get_int(cat, setting));
+                    if (setting_get_int(cat, setting)) {
+                        SetPriorityWidget(cur_widget[RENDER_PROFILER_ID]);
+                    }
+                    return 1;
             }
 
             break;
@@ -501,6 +509,13 @@ static void setting_apply_runtime(int cat, int setting) {
 
         case OPT_CAT_MAP:
             switch (setting) {
+                case OPT_SMOOTH_LIGHTING:
+                    if (!setting_get_int(cat, setting)) {
+                        lighting_deinit();
+                    }
+                    map_redraw_flag = 1;
+                    break;
+
                     /* Map width/height change. */
                 case OPT_MAP_WIDTH:
                 case OPT_MAP_HEIGHT:
@@ -514,11 +529,11 @@ static void setting_apply_runtime(int cat, int setting) {
 
                         packet = packet_new(SERVER_CMD_SETUP, 32, 0);
                         packet_append_uint8(packet, CMD_SETUP_MAPSIZE);
-                        packet_append_uint8(packet, w);
-                        packet_append_uint8(packet, h);
+                        packet_append_uint8(packet, MAP_LOOK_TO_WIRE_SIZE(w));
+                        packet_append_uint8(packet, MAP_LOOK_TO_WIRE_SIZE(h));
                         socket_send_packet(packet);
 
-                        map_update_size(w, h);
+                        map_update_size(MAP_LOOK_TO_WIRE_SIZE(w), MAP_LOOK_TO_WIRE_SIZE(h));
 
                         setting_update_mapsize = 0;
                     }

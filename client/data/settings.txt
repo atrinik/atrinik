@@ -172,6 +172,11 @@ category Map
 		default 100
 		desc Zoom percentage of the map.
 	end
+	setting Smooth lighting
+		type bool
+		default on
+		desc Smoothly interpolate ground lighting between tiles. Disable to use the faster discrete per-tile renderer.
+	end
 	setting Low health warning
 		type range
 		range 0 - 100
@@ -229,6 +234,11 @@ category Devel
 		type bool
 		default off
 		desc Show the fps (frames per second) widget.
+	end
+	setting Show render profiler
+		type bool
+		default off
+		desc Show detailed frame and map-renderer timings. Profiling is disabled when this setting is off.
 	end
 	setting Reload user's graphics
 		type bool

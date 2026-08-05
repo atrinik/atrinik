@@ -245,6 +245,8 @@ void sprite_cache_free_all(void) {
         sprite_cache_remove(cache);
         sprite_cache_free(cache);
     }
+
+    lighting_clear_sprite_cache();
 }
 
 /**
@@ -261,10 +263,12 @@ void sprite_cache_gc(void) {
     gettimeofday(&tv1, NULL);
 
     sprite_cache_t *cache, *tmp;
+    bool removed = false;
     HASH_ITER(hh, sprites_cache, cache, tmp) {
         if (now - cache->last_used >= SPRITE_CACHE_GC_FREE_TIME) {
             sprite_cache_remove(cache);
             sprite_cache_free(cache);
+            removed = true;
         }
 
         /* Avoid executing this loop for too long. */
@@ -273,6 +277,10 @@ void sprite_cache_gc(void) {
             tv2.tv_usec - tv1.tv_usec >= SPRITE_CACHE_GC_MAX_TIME) {
             break;
         }
+    }
+
+    if (removed) {
+        lighting_clear_sprite_cache();
     }
 }
 
@@ -367,6 +375,107 @@ static SDL_Surface *sprite_effect_fow(SDL_Surface *surface) {
     SDL_Surface *ret = SDL_DisplayFormatAlpha(tmp);
     SDL_FreeSurface(tmp);
     return ret;
+}
+
+/** Return whether a source pixel contributes to a sprite's visible silhouette. */
+bool surface_pixel_visible(SDL_Surface *surface, int x, int y) {
+    if (x < 0 || x >= surface->w || y < 0 || y >= surface->h) {
+        return false;
+    }
+
+    Uint32 pixel = getpixel(surface, x, y);
+    if ((surface->flags & SDL_SRCCOLORKEY) && pixel == surface->format->colorkey) {
+        return false;
+    }
+
+    if (surface->format->Amask != 0) {
+        Uint8 red, green, blue, alpha;
+        SDL_GetRGBA(pixel, surface->format, &red, &green, &blue, &alpha);
+        return alpha >= 64;
+    }
+
+    return true;
+}
+
+/** Create an outline-only version of a sprite without exposing pixels behind it. */
+static SDL_Surface *sprite_effect_outline(SDL_Surface *surface, const SDL_Color *color) {
+    SDL_Surface *outline = SDL_CreateRGBSurface(SDL_SWSURFACE,
+                                                surface->w + SPRITE_GLOW_SIZE * 2,
+                                                surface->h + SPRITE_GLOW_SIZE * 2,
+                                                FormatHolder->format->BitsPerPixel,
+                                                FormatHolder->format->Rmask,
+                                                FormatHolder->format->Gmask,
+                                                FormatHolder->format->Bmask,
+                                                FormatHolder->format->Amask);
+    if (outline == NULL) {
+        return NULL;
+    }
+
+    Uint32 transparent = SDL_MapRGBA(outline->format, 0, 0, 0, 0);
+    SDL_FillRect(outline, NULL, transparent);
+
+    bool source_locked = false;
+    bool outline_locked = false;
+    if (SDL_MUSTLOCK(surface)) {
+        if (SDL_LockSurface(surface) != 0) {
+            SDL_FreeSurface(outline);
+            return NULL;
+        }
+        source_locked = true;
+    }
+    if (SDL_MUSTLOCK(outline)) {
+        if (SDL_LockSurface(outline) != 0) {
+            if (source_locked) {
+                SDL_UnlockSurface(surface);
+            }
+            SDL_FreeSurface(outline);
+            return NULL;
+        }
+        outline_locked = true;
+    }
+
+    Uint32 edge = SDL_MapRGBA(outline->format, color->r, color->g, color->b, 235);
+    Uint32 halo = SDL_MapRGBA(outline->format, color->r, color->g, color->b, 90);
+    for (int y = 0; y < outline->h; y++) {
+        for (int x = 0; x < outline->w; x++) {
+            int source_x = x - SPRITE_GLOW_SIZE;
+            int source_y = y - SPRITE_GLOW_SIZE;
+            if (surface_pixel_visible(surface, source_x, source_y)) {
+                continue;
+            }
+
+            int nearest = 0;
+            for (int radius = 1; radius <= SPRITE_GLOW_SIZE && nearest == 0; radius++) {
+                for (int offset_y = -radius; offset_y <= radius && nearest == 0; offset_y++) {
+                    for (int offset_x = -radius; offset_x <= radius; offset_x++) {
+                        if (abs(offset_x) != radius && abs(offset_y) != radius) {
+                            continue;
+                        }
+
+                        if (surface_pixel_visible(surface,
+                                                  source_x + offset_x,
+                                                  source_y + offset_y)) {
+                            nearest = radius;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (nearest != 0) {
+                putpixel(outline, x, y, nearest == 1 ? edge : halo);
+            }
+        }
+    }
+
+    if (outline_locked) {
+        SDL_UnlockSurface(outline);
+    }
+    if (source_locked) {
+        SDL_UnlockSurface(surface);
+    }
+    SDL_SetAlpha(outline, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
+    return outline;
 }
 
 /**
@@ -669,6 +778,18 @@ static SDL_Surface *sprite_effects_create(SDL_Surface *surface, const sprite_eff
         }
     }
 
+    if (effects->outline[0] != '\0') {
+        SDL_Color color;
+        if (text_color_parse(effects->outline, &color)) {
+            surface = sprite_effect_outline(surface, &color);
+            if (surface == NULL) {
+                goto done;
+            }
+
+            FREE_TMP_SURFACE();
+        }
+    }
+
     /* Alpha transparency. */
     if (effects->alpha != 0) {
         surface = SDL_DisplayFormatAlpha(surface);
@@ -783,7 +904,7 @@ void surface_show_effects(SDL_Surface *surface,
         /* Construct a cache entry string. */
         char name[HUGE_BUF];
         snprintf(VS(name),
-                 "%p;%u;%u;%s;%u;%u;%d;%d;%d;%s;%u;%u",
+                 "%p;%u;%u;%s;%u;%u;%d;%d;%d;%s;%s;%u;%u",
                  src,
                  effects->flags,
                  effects->dark_level,
@@ -794,6 +915,7 @@ void surface_show_effects(SDL_Surface *surface,
                  effects->zoom_y,
                  effects->rotate,
                  effects->glow,
+                 effects->outline,
                  effects->glow_speed,
                  effects->glow_state);
 
@@ -822,9 +944,26 @@ void surface_show_effects(SDL_Surface *surface,
             y -= SPRITE_GLOW_SIZE;
             x -= SPRITE_GLOW_SIZE;
         }
+
+        if (effects->outline[0] != '\0') {
+            y -= SPRITE_GLOW_SIZE;
+            x -= SPRITE_GLOW_SIZE;
+        }
     }
 
-    surface_show(surface, x, y, srcrect, src);
+    if (effects != NULL && BIT_QUERY(effects->flags, SPRITE_FLAG_SMOOTH_DARK)) {
+        lighting_show_surface(surface,
+                              x,
+                              y,
+                              srcrect,
+                              src,
+                              effects->smooth_dark_y,
+                              LIGHTING_SURFACE_STRUCTURE);
+    } else if (effects != NULL && BIT_QUERY(effects->flags, SPRITE_FLAG_SMOOTH_DARK_SURFACE)) {
+        lighting_show_surface(surface, x, y, srcrect, src, 0, LIGHTING_SURFACE_PROJECTED);
+    } else {
+        surface_show(surface, x, y, srcrect, src);
+    }
 }
 
 /**

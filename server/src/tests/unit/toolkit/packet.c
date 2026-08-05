@@ -26,6 +26,7 @@
 #include <check.h>
 #include <checkstd.h>
 #include <check_proto.h>
+#include <toolkit/map_protocol.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 
@@ -78,6 +79,151 @@ START_TEST(test_packet_new) {
     packet = packet_new(0, 0, 100);
     packet_append_string_terminated(packet, "hello world");
     ck_assert_str_eq((const char *)packet->data, "hello world");
+    packet_free(packet);
+}
+END_TEST
+
+/** Build the invariant prefix of a same-map protocol-v1068 MAP update. */
+static packet_struct *map_protocol_test_packet(uint8_t level_count) {
+    packet_struct *packet = packet_new(0, 16, 16);
+    packet_append_uint8(packet, MAP_UPDATE_CMD_SAME);
+    packet_append_uint8(packet, 0);
+    packet_append_uint8(packet, 0);
+    packet_append_uint8(packet, 0);
+    packet_append_uint8(packet, level_count);
+    return packet;
+}
+
+/** Append one framed MAP level to a test packet. */
+static void map_protocol_test_level(packet_struct *packet, int8_t depth, packet_struct *level) {
+    packet_append_int8(packet, depth);
+    packet_append_uint32(packet, level != NULL ? level->len : 0);
+    if (level != NULL) {
+        packet_append_packet(packet, level);
+    }
+}
+
+START_TEST(test_map_protocol_validate_minimal_and_truncation) {
+    packet_struct *packet = map_protocol_test_packet(1);
+    map_protocol_test_level(packet, 0, NULL);
+
+    ck_assert(map_protocol_validate(packet->data, packet->len, 0, 21, 21));
+    ck_assert(!map_protocol_validate(NULL, 0, 0, 21, 21));
+    ck_assert(!map_protocol_validate(packet->data, packet->len, packet->len + 1, 21, 21));
+    ck_assert(!map_protocol_validate(packet->data, packet->len, 0, 0, 21));
+    ck_assert(!map_protocol_validate(packet->data, packet->len, 0, 21, 33));
+    for (size_t len = 0; len < packet->len; len++) {
+        ck_assert(!map_protocol_validate(packet->data, len, 0, 21, 21));
+    }
+
+    packet_append_uint8(packet, 0);
+    ck_assert(!map_protocol_validate(packet->data, packet->len, 0, 21, 21));
+    packet_free(packet);
+}
+END_TEST
+
+START_TEST(test_map_protocol_rejects_duplicate_depth) {
+    packet_struct *packet = map_protocol_test_packet(2);
+    map_protocol_test_level(packet, 0, NULL);
+    map_protocol_test_level(packet, 0, NULL);
+
+    ck_assert(!map_protocol_validate(packet->data, packet->len, 0, 21, 21));
+    packet_free(packet);
+}
+END_TEST
+
+START_TEST(test_map_protocol_enforces_level_framing) {
+    packet_struct *packet = map_protocol_test_packet(2);
+    map_protocol_test_level(packet, -1, NULL);
+    map_protocol_test_level(packet, 0, NULL);
+    ck_assert(map_protocol_validate(packet->data, packet->len, 0, 21, 21));
+    packet_free(packet);
+
+    packet = map_protocol_test_packet(1);
+    map_protocol_test_level(packet, 1, NULL);
+    ck_assert(!map_protocol_validate(packet->data, packet->len, 0, 21, 21));
+    packet_free(packet);
+
+    packet = map_protocol_test_packet(1);
+    packet_append_int8(packet, 0);
+    packet_append_uint32(packet, 1);
+    ck_assert(!map_protocol_validate(packet->data, packet->len, 0, 21, 21));
+    packet_free(packet);
+
+    packet = map_protocol_test_packet(1);
+    map_protocol_test_level(packet, MAP2_MAX_DEPTH + 1, NULL);
+    ck_assert(!map_protocol_validate(packet->data, packet->len, 0, 21, 21));
+    packet_free(packet);
+}
+END_TEST
+
+START_TEST(test_map_protocol_rejects_bad_tile_and_layer_indices) {
+    packet_struct *level = packet_new(0, 16, 16);
+    packet_append_uint16(level, 21 << 11);
+    packet_append_uint8(level, 0);
+    packet_append_uint8(level, 0);
+    packet_struct *packet = map_protocol_test_packet(1);
+    map_protocol_test_level(packet, 0, level);
+    ck_assert(!map_protocol_validate(packet->data, packet->len, 0, 21, 21));
+    packet_free(packet);
+    packet_free(level);
+
+    level = packet_new(0, 16, 16);
+    packet_append_uint16(level, 0);
+    packet_append_uint8(level, 1);
+    packet_append_uint8(level, MAP2_PROTOCOL_REAL_LAYERS);
+    packet_append_uint8(level, 0);
+    packet = map_protocol_test_packet(1);
+    map_protocol_test_level(packet, 0, level);
+    ck_assert(!map_protocol_validate(packet->data, packet->len, 0, 21, 21));
+    packet_free(packet);
+    packet_free(level);
+
+    level = packet_new(0, 16, 16);
+    packet_append_uint16(level, 0);
+    packet_append_uint8(level, 1);
+    packet_append_uint8(level, MAP2_LAYER_CLEAR);
+    packet_append_uint8(level, MAP2_PROTOCOL_REAL_LAYERS);
+    packet_append_uint8(level, 0);
+    packet = map_protocol_test_packet(1);
+    map_protocol_test_level(packet, 0, level);
+    ck_assert(!map_protocol_validate(packet->data, packet->len, 0, 21, 21));
+    packet_free(packet);
+    packet_free(level);
+}
+END_TEST
+
+START_TEST(test_map_protocol_validates_tile_record_flags) {
+    packet_struct *level = packet_new(0, 16, 16);
+    packet_append_uint16(level, MAP2_MASK_FOW | MAP2_MASK_LIGHT_LEVEL);
+    packet_append_uint8(level, 1);
+    packet_append_uint8(level, 128);
+    packet_append_uint8(level, 0);
+    packet_append_uint8(level, 0);
+    packet_struct *packet = map_protocol_test_packet(1);
+    map_protocol_test_level(packet, 0, level);
+    ck_assert(map_protocol_validate(packet->data, packet->len, 0, 21, 21));
+    packet_free(packet);
+    packet_free(level);
+
+    level = packet_new(0, 16, 16);
+    packet_append_uint16(level, 0);
+    packet_append_uint8(level, 0);
+    packet_append_uint8(level, 2);
+    packet = map_protocol_test_packet(1);
+    map_protocol_test_level(packet, 0, level);
+    ck_assert(!map_protocol_validate(packet->data, packet->len, 0, 21, 21));
+    packet_free(packet);
+    packet_free(level);
+}
+END_TEST
+
+START_TEST(test_map_protocol_rejects_unterminated_metadata) {
+    packet_struct *packet = packet_new(0, 16, 16);
+    packet_append_uint8(packet, MAP_UPDATE_CMD_NEW);
+    packet_append_string(packet, "unterminated");
+
+    ck_assert(!map_protocol_validate(packet->data, packet->len, 0, 21, 21));
     packet_free(packet);
 }
 END_TEST
@@ -856,6 +1002,12 @@ static Suite *suite(void) {
     tcase_add_test(tc_core, test_packet_to_double);
     tcase_add_test(tc_core, test_packet_to_string);
     tcase_add_test(tc_core, test_packet_to_stringbuffer);
+    tcase_add_test(tc_core, test_map_protocol_validate_minimal_and_truncation);
+    tcase_add_test(tc_core, test_map_protocol_rejects_duplicate_depth);
+    tcase_add_test(tc_core, test_map_protocol_enforces_level_framing);
+    tcase_add_test(tc_core, test_map_protocol_rejects_bad_tile_and_layer_indices);
+    tcase_add_test(tc_core, test_map_protocol_validates_tile_record_flags);
+    tcase_add_test(tc_core, test_map_protocol_rejects_unterminated_metadata);
 
     return s;
 }

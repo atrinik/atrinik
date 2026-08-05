@@ -78,7 +78,13 @@ typedef struct minimap_widget {
      * Display type.
      */
     minimap_type_t type;
+
+    /** Last expensive dynamic-world render, in SDL ticks. */
+    uint32_t dynamic_redraw_ticks;
 } minimap_widget_t;
+
+/** Dynamic minimaps are informational and do not need frame-rate updates. */
+#define MINIMAP_DYNAMIC_REDRAW_INTERVAL 250
 
 /**
  * Texture names to load.
@@ -94,6 +100,34 @@ static const char *const minimap_texture_names[MINIMAP_TEXTURE_NUM] = {"minimap_
 static const char *const minimap_display_modes[MINIMAP_TYPE_NUM] = {"Prefer region maps",
                                                                     "Only region maps",
                                                                     "Only dynamic maps"};
+
+/** Return whether this minimap currently uses the dynamic world renderer. */
+static bool minimap_is_dynamic(const minimap_widget_t *minimap) {
+    return minimap->type == MINIMAP_TYPE_DYNAMIC ||
+           (minimap->type == MINIMAP_TYPE_PREFER_REGION_MAP && !MapData.region_has_map);
+}
+
+/** Return whether a requested minimap refresh should run this frame. */
+bool minimap_redraw_due(void) {
+    if (!minimap_redraw_flag) {
+        return false;
+    }
+
+    widgetdata *widget = cur_widget[MINIMAP_ID];
+    if (widget == NULL || widget->hidden) {
+        return false;
+    }
+    if (widget->subwidget == NULL) {
+        return true;
+    }
+
+    minimap_widget_t *minimap = widget->subwidget;
+    if (!minimap_is_dynamic(minimap) || minimap->surface == NULL) {
+        return true;
+    }
+
+    return SDL_GetTicks() - minimap->dynamic_redraw_ticks >= MINIMAP_DYNAMIC_REDRAW_INTERVAL;
+}
 
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget) {
@@ -122,6 +156,7 @@ static void widget_draw(widgetdata *widget) {
                                                0,
                                                0);
         minimap_redraw_flag = 1;
+        minimap->dynamic_redraw_ticks = 0;
 
         for (i = 0; i < MINIMAP_TEXTURE_NUM; i++) {
             if (minimap->textures[i] != NULL) {
@@ -136,7 +171,7 @@ static void widget_draw(widgetdata *widget) {
         }
     }
 
-    if (minimap_redraw_flag) {
+    if (minimap_redraw_due()) {
         minimap_redraw_flag = 0;
         SDL_FillRect(widget->surface, NULL, 0);
         SDL_BlitSurface(minimap->textures[MINIMAP_TEXTURE_BG], NULL, widget->surface, NULL);
@@ -226,6 +261,7 @@ static void widget_draw(widgetdata *widget) {
 
             SDL_FillRect(minimap->surface, NULL, 0);
             map_draw_map(minimap->surface);
+            minimap->dynamic_redraw_ticks = SDL_GetTicks();
 
             zoomx = (MapData.region_map->zoom) / 100.0 * (zoomx / 100.0);
             zoomy = (MapData.region_map->zoom) / 100.0 * (zoomy / 100.0);

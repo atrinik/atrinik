@@ -302,9 +302,11 @@ extern bool need_identify(const object *op);
 extern void identify(object *op);
 extern void set_trapped_flag(object *op);
 /* src/server/light.c */
+extern uint8_t light_level_from_raw(int raw_light);
 extern void adjust_light_source(mapstruct *map, int x, int y, int light);
 extern void check_light_source_list(mapstruct *map);
 extern void remove_light_source_list(mapstruct *map);
+extern void recalculate_light_sources(mapstruct *map);
 /* src/server/links.c */
 extern mempool_struct *pool_objectlink;
 extern void objectlink_init(void);
