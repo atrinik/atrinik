@@ -295,6 +295,7 @@ typedef enum WidgetID {
     MAPNAME_ID,
     INPUT_ID,
     FPS_ID,
+    GAME_TIME_ID,
     MPLAYER_ID,
     SPELLS_ID,
     SKILLS_ID,
@@ -311,6 +312,7 @@ typedef enum WidgetID {
     INVENTORY_ID,
     NETWORK_GRAPH_ID,
     RENDER_PROFILER_ID,
+    XP_TRACKER_ID,
 
     /** The total number of widgets. */
     TOTAL_WIDGETS

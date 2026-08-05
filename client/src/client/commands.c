@@ -323,6 +323,7 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos) {
 
                 case CS_STAT_EXP:
                     cpl.stats.exp = packet_to_uint64(data, len, &pos);
+                    telemetry_exp_update(cpl.stats.exp);
                     widget_redraw_type_id(STAT_ID, "exp");
                     break;
 
@@ -717,6 +718,11 @@ void socket_command_mapstats(uint8_t *data, size_t len, size_t pos) {
             packet_to_string(data, len, &pos, msg_anim.color, sizeof(msg_anim.color));
             packet_to_string(data, len, &pos, msg_anim.message, sizeof(msg_anim.message));
             msg_anim.tick = LastTick;
+        } else if (type == CMD_MAPSTATS_TIME) {
+            uint64_t game_seconds = packet_to_uint64(data, len, &pos);
+            uint32_t millis_per_game_minute = packet_to_uint32(data, len, &pos);
+            telemetry_game_time_sync(game_seconds, millis_per_game_minute);
+            WIDGET_REDRAW_ALL(GAME_TIME_ID);
         }
     }
 }
@@ -1168,7 +1174,7 @@ void socket_command_version(uint8_t *data, size_t len, size_t pos) {
     cpl.server_socket_version = packet_to_uint32(data, len, &pos);
     if (cpl.server_socket_version < SOCKET_VERSION) {
         draw_info(COLOR_RED,
-                  "The server uses an incompatible map lighting protocol. Please update the "
+                  "The server uses an incompatible gameplay protocol. Please update the "
                   "server.");
         cpl.state = ST_START;
         return;

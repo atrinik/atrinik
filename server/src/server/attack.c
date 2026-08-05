@@ -530,10 +530,11 @@ send_attack_msg(object *op, object *hitter, atnr_t atnr, double dam_done, double
     if (op->type == PLAYER) {
         draw_info_format(COLOR_PURPLE,
                          op,
-                         "%s hit you for %d (%d) damage.",
+                         "%s hit you for %d (%d) %s damage.",
                          hitter->name,
                          (int)(dam_done + 0.5),
-                         (int)(dam_done - dam_orig + 0.5));
+                         (int)(dam_done - dam_orig + 0.5),
+                         attack_name[atnr]);
     }
 
     const char *hitter_name = atnr == ATNR_INTERNAL ? hitter->name : attack_name[atnr];
@@ -812,6 +813,9 @@ int attack_hit(object *op, object *hitter, int dam) {
     if (op->type == PLAYER) {
         CONTR(op)->last_combat = pticks;
         CONTR(op)->stat_damage_taken += maxdam;
+        if (maxdam > 0.0) {
+            play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "player_hurt.ogg", 0, 0, 0, 0);
+        }
     }
 
     op->last_damage += maxdam;

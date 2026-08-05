@@ -262,7 +262,7 @@ void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t
                        NULL,
                        COLOR_RED,
                        ns,
-                       "Your client uses an incompatible map lighting protocol.\n"
+                       "Your client uses an incompatible gameplay protocol.\n"
                        "Please update to the latest Atrinik client.");
         ns->state = ST_ZOMBIE;
         return;
@@ -769,6 +769,29 @@ static const char *get_playername_color(object *pl, object *op) {
     return COLOR_WHITE;
 }
 
+/** Return the target-difficulty color used for non-player living names. */
+static const char *get_living_level_color(const object *pl, const object *op) {
+    if (op->level < level_color[pl->level].yellow) {
+        if (op->level < level_color[pl->level].green) {
+            return COLOR_GRAY;
+        }
+        if (op->level < level_color[pl->level].blue) {
+            return COLOR_GREEN;
+        }
+        return COLOR_BLUE;
+    }
+    if (op->level >= level_color[pl->level].purple) {
+        return COLOR_PURPLE;
+    }
+    if (op->level >= level_color[pl->level].red) {
+        return COLOR_RED;
+    }
+    if (op->level >= level_color[pl->level].orange) {
+        return COLOR_ORANGE;
+    }
+    return COLOR_YELLOW;
+}
+
 void packet_append_map_name(struct packet_struct *packet, object *op, object *map_info) {
     packet_debug_data(packet, 0, "Map name");
     packet_append_string(packet, "[b][o=#000000]");
@@ -790,6 +813,41 @@ void packet_append_map_weather(struct packet_struct *packet, object *op, object 
                                     map_info && map_info->title
                                         ? map_info->title
                                         : (op->map->weather ? op->map->weather : "none"));
+}
+
+/**
+ * Synchronize the in-game clock with one client or every connected player.
+ *
+ * The client receives an absolute game-second value and the number of real
+ * milliseconds per game minute, allowing it to advance the display without
+ * receiving a packet every minute. Seconds preserve the partial minute at
+ * login so the first locally advanced minute does not start late.
+ *
+ * @param recipient
+ * Player to synchronize, or NULL to synchronize every player.
+ */
+void send_game_time(player *recipient) {
+    uint64_t game_seconds = (uint64_t)todtick * 60 * 60 +
+                            (uint64_t)(pticks % PTICKS_PER_CLOCK) * 60 * 60 / PTICKS_PER_CLOCK;
+    uint64_t rate = max_time > 0 && max_time_multiplier > 0
+                        ? (uint64_t)PTICKS_PER_CLOCK * (uint64_t)max_time /
+                              (UINT64_C(60) * 1000 * (uint64_t)max_time_multiplier)
+                        : 1;
+    rate = MAX(rate, UINT64_C(1));
+    uint32_t millis_per_game_minute = (uint32_t)MIN(UINT32_MAX, MAX(1, rate));
+
+    for (player *pl = recipient != NULL ? recipient : first_player; pl != NULL;
+         pl = recipient != NULL ? NULL : pl->next) {
+        if (pl->ob == NULL || pl->ob->map == NULL) {
+            continue;
+        }
+
+        packet_struct *packet = packet_new(CLIENT_CMD_MAPSTATS, 16, 0);
+        packet_append_uint8(packet, CMD_MAPSTATS_TIME);
+        packet_append_uint64(packet, game_seconds);
+        packet_append_uint32(packet, millis_per_game_minute);
+        socket_send_packet(pl->cs, packet);
+    }
 }
 
 /** Clear a map cell. */
@@ -1635,8 +1693,8 @@ void draw_client_map2(object *pl) {
 
                             client_flags = GET_CLIENT_FLAGS(head);
 
-                            /* Player? So we want to send their name. */
-                            if (tmp->type == PLAYER) {
+                            /* Keep every visible living creature identified. */
+                            if (head->type == PLAYER || (layer == LAYER_LIVING && IS_LIVE(head))) {
                                 flags |= MAP2_FLAG_NAME;
                             }
 
@@ -1745,7 +1803,8 @@ void draw_client_map2(object *pl) {
                                 (layer != LAYER_LIVING ||
                                  (mp->anim_flags[sub_layer] == anim_flags &&
                                   mp->client_flags[sub_layer] == client_flags)) &&
-                                (!(flags & MAP2_FLAG_NAME) || !CONTR(tmp)->cs->ext_title_flag) &&
+                                (!(flags & MAP2_FLAG_NAME) || head->type != PLAYER ||
+                                 !CONTR(head)->cs->ext_title_flag) &&
                                 (!(flags2 & MAP2_FLAG2_TARGET) ||
                                  ((mp->is_friend & (1 << sub_layer)) != 0) == is_friend)) {
                                 continue;
@@ -1818,15 +1877,29 @@ void draw_client_map2(object *pl) {
                                 packet_append_uint8(packet_layer, quick_pos);
                             }
 
-                            /* Player name? Add the player's name, and their player
-                             * name color. */
+                            /* Add a visible living object's name and display color. */
                             if (flags & MAP2_FLAG_NAME) {
-                                packet_debug_data(packet_layer, 2, "Player name");
-                                packet_append_string_terminated(packet_layer,
-                                                                CONTR(tmp)->quick_name);
-                                packet_debug_data(packet_layer, 2, "Player name color");
-                                packet_append_string_terminated(packet_layer,
-                                                                get_playername_color(pl, tmp));
+                                const char *name_color;
+                                char *living_name = NULL;
+                                const char *name;
+
+                                if (head->type == PLAYER) {
+                                    name = CONTR(head)->quick_name;
+                                    name_color = get_playername_color(pl, head);
+                                } else {
+                                    living_name = object_get_short_name_s(head, pl);
+                                    name = living_name;
+                                    /* A stable color keeps cached map labels valid when
+                                     * the viewer levels up. The target UI separately
+                                     * communicates relative difficulty. */
+                                    name_color = COLOR_WHITE;
+                                }
+
+                                packet_debug_data(packet_layer, 2, "Living object name");
+                                packet_append_string_terminated(packet_layer, name);
+                                packet_debug_data(packet_layer, 2, "Living object name color");
+                                packet_append_string_terminated(packet_layer, name_color);
+                                free(living_name);
                             }
 
                             if (flags & MAP2_FLAG_ANIMATION) {
@@ -2054,7 +2127,12 @@ void draw_client_map2(object *pl) {
     packet_append_uint8(packet_header, level_count);
     packet_append_packet(packet_header, packet_levels);
     packet_free(packet_levels);
+    bool connected = CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED;
     socket_send_packet(CONTR(pl)->cs, packet_header);
+
+    if (connected) {
+        send_game_time(CONTR(pl));
+    }
 
     if (packet_sound->len >= 1) {
         socket_send_packet(CONTR(pl)->cs, packet_sound);
@@ -2381,27 +2459,7 @@ void send_target_command(player *pl) {
 
         packet_debug_data(packet, 0, "Color");
 
-        if (pl->target_object->level < level_color[pl->ob->level].yellow) {
-            if (pl->target_object->level < level_color[pl->ob->level].green) {
-                packet_append_string_terminated(packet, COLOR_GRAY);
-            } else {
-                if (pl->target_object->level < level_color[pl->ob->level].blue) {
-                    packet_append_string_terminated(packet, COLOR_GREEN);
-                } else {
-                    packet_append_string_terminated(packet, COLOR_BLUE);
-                }
-            }
-        } else {
-            if (pl->target_object->level >= level_color[pl->ob->level].purple) {
-                packet_append_string_terminated(packet, COLOR_PURPLE);
-            } else if (pl->target_object->level >= level_color[pl->ob->level].red) {
-                packet_append_string_terminated(packet, COLOR_RED);
-            } else if (pl->target_object->level >= level_color[pl->ob->level].orange) {
-                packet_append_string_terminated(packet, COLOR_ORANGE);
-            } else {
-                packet_append_string_terminated(packet, COLOR_YELLOW);
-            }
-        }
+        packet_append_string_terminated(packet, get_living_level_color(pl->ob, pl->target_object));
 
         packet_debug_data(packet, 0, "Target name");
 

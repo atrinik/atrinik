@@ -491,6 +491,10 @@ static void do_specials(void) {
         tick_the_clock();
     }
 
+    if (!(pticks % (PTICKS_PER_CLOCK / 6))) {
+        send_game_time(NULL);
+    }
+
     /* Clears the tmp-files of maps which have reset */
     if (!(pticks % 509)) {
         flush_old_maps();
