@@ -101,7 +101,7 @@ static void container_open(object *applier, object *op) {
         CONTR(op->attacked_by)->container_below = applier;
     } else {
         /* Not open yet. */
-        traps_auto_disarm(applier, op);
+        tag_t tripped_trap = traps_auto_disarm(applier, op);
         SET_FLAG(op, FLAG_APPLIED);
 
         if (op->other_arch != NULL) {
@@ -116,7 +116,7 @@ static void container_open(object *applier, object *op) {
         object_update(op, UP_OBJ_FACE);
 
         FOR_INV_PREPARE(op, tmp) {
-            if (tmp->type == RUNE) {
+            if (tmp->type == RUNE && tmp->count != tripped_trap) {
                 rune_spring(tmp, applier);
             } else if (tmp->type == MONSTER) {
                 object_remove(tmp, 0);

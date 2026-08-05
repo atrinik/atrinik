@@ -1072,6 +1072,18 @@ object *object_owner(object *op) {
     return op->owner;
 }
 
+/** Free combat participation state that must not survive object reuse/copy. */
+static void object_combat_contributions_free(object *op) {
+    combat_contribution_t *contribution = op->combat_contributions;
+    while (contribution != NULL) {
+        combat_contribution_t *next = contribution->next;
+        free(contribution);
+        contribution = next;
+    }
+
+    op->combat_contributions = NULL;
+}
+
 /**
  * Copy object first frees everything allocated by the second object,
  * and then copies the contents of the first object into the second
@@ -1089,6 +1101,8 @@ void object_copy(object *op, const object *src, bool no_speed) {
     HARD_ASSERT(src != NULL);
 
     bool is_removed = QUERY_FLAG(op, FLAG_REMOVED);
+
+    object_combat_contributions_free(op);
 
     FREE_ONLY_HASH(op->name);
     FREE_ONLY_HASH(op->title);
@@ -1621,6 +1635,7 @@ void object_destroy(object *op) {
     }
 
     object_free_key_values(op);
+    object_combat_contributions_free(op);
 
     if (QUERY_FLAG(op, FLAG_IS_LINKED)) {
         connection_object_remove(op);

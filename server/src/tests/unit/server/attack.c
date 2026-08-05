@@ -28,6 +28,7 @@
 #include <check_proto.h>
 #include <arch.h>
 #include <monster_data.h>
+#include <player.h>
 
 START_TEST(test_attack_is_melee_range) {
     mapstruct *map;
@@ -142,6 +143,66 @@ START_TEST(test_attack_roll_adjust_describes_positional_bonuses) {
 }
 END_TEST
 
+START_TEST(test_kill_experience_follows_damage_skill_participation) {
+    mapstruct *map;
+    object *pl, *monster;
+
+    check_setup_env_pl(&map, &pl);
+    monster = arch_get("goblin");
+    monster->x = pl->x + 1;
+    monster->y = pl->y;
+    monster->level = 1;
+    monster->stats.hp = 100;
+    monster->stats.maxhp = 100;
+    monster->stats.exp = 1000;
+    memset(monster->protection, 0, sizeof(monster->protection));
+    monster = object_insert_map(monster, map, NULL, 0);
+    monster_data_init(monster);
+    monster->enemy = pl;
+    monster->enemy_count = pl->count;
+
+    memset(pl->attack, 0, sizeof(pl->attack));
+    pl->attack[ATNR_IMPACT] = 100;
+    object *saved_chosen_skill = pl->chosen_skill;
+    object *saved_unarmed = CONTR(pl)->skill_ptr[SK_UNARMED];
+    object *saved_find_traps = CONTR(pl)->skill_ptr[SK_FIND_TRAPS];
+    object *unarmed = arch_get("skill_unarmed");
+    unarmed->stats.sp = SK_UNARMED;
+    object *other_skill = arch_get("skill_find_traps");
+    other_skill->stats.sp = SK_FIND_TRAPS;
+    CONTR(pl)->skill_ptr[SK_UNARMED] = unarmed;
+    CONTR(pl)->skill_ptr[SK_FIND_TRAPS] = other_skill;
+
+    int64_t unarmed_before = unarmed->stats.exp;
+    int64_t other_before = other_skill->stats.exp;
+    int64_t unarmed_full = calc_skill_exp(pl, monster, unarmed->level);
+    int64_t other_full = calc_skill_exp(pl, monster, other_skill->level);
+
+    pl->chosen_skill = unarmed;
+    int unarmed_damage = attack_hit(monster, pl, 25);
+    ck_assert_int_gt(unarmed_damage, 0);
+    ck_assert_int_gt(monster->stats.hp, 0);
+
+    pl->chosen_skill = other_skill;
+    int other_damage = attack_hit(monster, pl, 100);
+    ck_assert_int_gt(other_damage, unarmed_damage);
+
+    int total_damage = unarmed_damage + other_damage;
+    int64_t expected_unarmed =
+        (int64_t)((long double)unarmed_full * unarmed_damage / total_damage + 0.5L);
+    int64_t expected_other =
+        (int64_t)((long double)other_full * other_damage / total_damage + 0.5L);
+    ck_assert_int_eq(unarmed->stats.exp - unarmed_before, expected_unarmed);
+    ck_assert_int_eq(other_skill->stats.exp - other_before, expected_other);
+    ck_assert_int_gt(other_skill->stats.exp - other_before, unarmed->stats.exp - unarmed_before);
+    pl->chosen_skill = saved_chosen_skill;
+    CONTR(pl)->skill_ptr[SK_UNARMED] = saved_unarmed;
+    CONTR(pl)->skill_ptr[SK_FIND_TRAPS] = saved_find_traps;
+    object_destroy(unarmed);
+    object_destroy(other_skill);
+}
+END_TEST
+
 static Suite *suite(void) {
     Suite *s = suite_create("attack");
     TCase *tc_core = tcase_create("Core");
@@ -153,6 +214,7 @@ static Suite *suite(void) {
     tcase_add_test(tc_core, test_attack_is_melee_range);
     tcase_add_test(tc_core, test_attack_roll_adjust_describes_positional_bonuses);
     tcase_add_test(tc_core, test_attack_roll_adjust_describes_moved_target_penalty);
+    tcase_add_test(tc_core, test_kill_experience_follows_damage_skill_participation);
 
     return s;
 }

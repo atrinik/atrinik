@@ -30,6 +30,13 @@
 #ifndef RUNE_H
 #define RUNE_H
 
+/** Outcomes from attempting to disarm a trap. */
+typedef enum trap_disarm_result {
+    TRAP_DISARM_TRIPPED = -1,
+    TRAP_DISARM_FAILED,
+    TRAP_DISARM_SUCCESS
+} trap_disarm_result_t;
+
 /* Prototypes */
 
 int trap_skill_rating(object *pl, int skill_nr);

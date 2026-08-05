@@ -335,6 +335,7 @@ extern const char *const lose_msg[5];
 extern const char *const statname[5];
 extern const char *const short_stat_name[5];
 extern StringBuffer *depletion_get_tooltip(const object *depletion, StringBuffer *sb);
+extern object *depletion_get_or_create(object *op);
 extern void set_attr_value(living *stats, int attr, int8_t value);
 extern void change_attr_value(living *stats, int attr, int8_t value);
 extern int8_t get_attr_value(const living *stats, int attr);
@@ -505,7 +506,7 @@ extern object *SK_skill(object *op);
 extern skill_struct skills[NROFSKILLS];
 extern void find_traps(object *pl);
 extern void remove_trap(object *op);
-extern void traps_auto_disarm(object *pl, object *container);
+extern tag_t traps_auto_disarm(object *pl, object *container);
 /* src/server/spell_effect.c */
 extern void cast_magic_storm(object *op, object *tmp, int lvl);
 extern int recharge(object *op);

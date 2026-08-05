@@ -250,6 +250,35 @@ StringBuffer *depletion_get_tooltip(const object *depletion, StringBuffer *sb) {
     return sb;
 }
 
+/** Find or create the applied depletion force for a living object. */
+object *depletion_get_or_create(object *op) {
+    HARD_ASSERT(op != NULL);
+
+    static archetype_t *at = NULL;
+    if (at == NULL) {
+        at = arch_find("depletion");
+        SOFT_ASSERT_RC(at != NULL, NULL, "Couldn't find archetype depletion");
+    }
+
+    object *depletion = object_find_arch(op, at);
+    if (depletion == NULL) {
+        depletion = arch_to_object(at);
+        /* The complete item packet emitted by insertion must already identify
+         * this as an active effect; a later partial update cannot create the
+         * missing active-effect icon. */
+        SET_FLAG(depletion, FLAG_APPLIED);
+        depletion = object_insert_into(depletion, op, 0);
+        SOFT_ASSERT_RC(depletion != NULL,
+                       NULL,
+                       "Failed to insert depletion into %s",
+                       object_get_str(op));
+    }
+
+    SET_FLAG(depletion, FLAG_APPLIED);
+
+    return depletion;
+}
+
 /**
  * Sets Str/Dex/con/Wis/Cha/Int/Pow in stats to value, depending on what
  * attr is (STR to POW).
@@ -382,25 +411,14 @@ void drain_stat(object *op) {
  * Statistic to drain.
  */
 void drain_specific_stat(object *op, int deplete_stats) {
-    object *tmp;
-    archetype_t *at = arch_find("depletion");
-
-    if (!at) {
-        LOG(BUG, "Couldn't find archetype depletion.");
+    object *tmp = depletion_get_or_create(op);
+    if (tmp == NULL) {
         return;
-    } else {
-        tmp = object_find_arch(op, at);
-
-        if (!tmp) {
-            tmp = arch_to_object(at);
-            tmp = object_insert_into(tmp, op, 0);
-            SET_FLAG(tmp, FLAG_APPLIED);
-        }
     }
 
     draw_info(COLOR_GRAY, op, drain_msg[deplete_stats]);
     change_attr_value(&tmp->stats, deplete_stats, -1);
-    esrv_update_item(UPD_EXTRA, tmp);
+    esrv_update_item(UPD_FLAGS | UPD_EXTRA, tmp);
     living_update_player(op);
 }
 

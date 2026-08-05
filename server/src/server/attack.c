@@ -56,6 +56,53 @@ const char *const attack_name[NROFATTACKS] = {
     "electricity", "poison",   "acid",   "magic",  "lifesteal",    "blind",     "paralyze",
     "force",       "godpower", "chaos",  "drain",  "slow",         "confusion", "internal"};
 
+/** Bound participation metadata retained by any one victim. */
+#define MAX_COMBAT_CONTRIBUTIONS 128
+
+/** Record actual damage participation for later skill-aware kill XP. */
+static void attack_record_combat_contribution(object *victim,
+                                              object *contributor,
+                                              object *skill,
+                                              double damage) {
+    if (victim->type == PLAYER || contributor->type != PLAYER || skill == NULL || damage <= 0.0 ||
+        !isfinite(damage) || skill->stats.sp < 0 || skill->stats.sp >= NROFSKILLS ||
+        CONTR(contributor)->skill_ptr[skill->stats.sp] == NULL) {
+        return;
+    }
+
+    size_t count = 0;
+    combat_contribution_t **link = &victim->combat_contributions;
+    while (*link != NULL) {
+        combat_contribution_t *entry = *link;
+        if (!OBJECT_VALID(entry->player, entry->player_count)) {
+            *link = entry->next;
+            free(entry);
+            continue;
+        }
+
+        if (entry->player == contributor && entry->player_count == contributor->count &&
+            entry->skill_nr == skill->stats.sp) {
+            entry->damage = DBL_MAX - entry->damage < damage ? DBL_MAX : entry->damage + damage;
+            return;
+        }
+
+        count++;
+        link = &entry->next;
+    }
+
+    if (count >= MAX_COMBAT_CONTRIBUTIONS) {
+        return;
+    }
+
+    combat_contribution_t *entry = xcalloc(1, sizeof(*entry));
+    entry->player = contributor;
+    entry->player_count = contributor->count;
+    entry->skill_nr = skill->stats.sp;
+    entry->damage = damage;
+    entry->next = victim->combat_contributions;
+    victim->combat_contributions = entry;
+}
+
 /**
  * Perform sanity checks to make sure the attacker can actually attack the
  * target.
@@ -828,6 +875,12 @@ int attack_hit(object *op, object *hitter, int dam) {
         maxdam = op->stats.hp;
     }
 
+    object *damage_skill = hitter->chosen_skill;
+    if (damage_skill == NULL) {
+        damage_skill = hitter_owner->chosen_skill;
+    }
+    attack_record_combat_contribution(op, hitter_owner, damage_skill, maxdam);
+
     /* Damage the target got */
     op->stats.hp -= maxdam;
 
@@ -912,18 +965,18 @@ void attack_hit_map(object *op, int dir, bool multi_reduce) {
  * Player. This should be the killer.
  * @param exp_gain
  * Experience to gain.
- * @param skill
- * Skill that was used to kill the monster.
+ * @param skill_nr
+ * Skill that receives the experience.
  */
-static inline void share_kill_exp_one(object *op, int64_t exp_gain, object *skill) {
+static void share_kill_exp_one(object *op, int64_t exp_gain, int skill_nr) {
     HARD_ASSERT(op != NULL);
-    HARD_ASSERT(skill != NULL);
 
-    if (exp_gain != 0) {
-        add_exp(op, exp_gain, skill->stats.sp, 0);
-    } else {
-        draw_info(COLOR_WHITE, op, "Your enemy wasn't worth any experience to you.");
+    if (exp_gain <= 0 || skill_nr < 0 || skill_nr >= NROFSKILLS ||
+        CONTR(op)->skill_ptr[skill_nr] == NULL) {
+        return;
     }
+
+    add_exp(op, exp_gain, skill_nr, 0);
 }
 
 /**
@@ -935,18 +988,20 @@ static inline void share_kill_exp_one(object *op, int64_t exp_gain, object *skil
  * Player that killed the monster.
  * @param exp_gain
  * Experience to share.
- * @param skill
- * Skill that was used to kill the monster.
+ * @param skill_nr
+ * Participating skill that receives the experience.
+ * @param preferred
+ * Participating player who receives indivisible remainder XP.
  */
-static void share_kill_exp(object *op, int64_t exp_gain, object *skill) {
+static void share_kill_exp(object *op, int64_t exp_gain, int skill_nr, object *preferred) {
     HARD_ASSERT(op != NULL);
-    HARD_ASSERT(skill != NULL);
+    HARD_ASSERT(preferred != NULL);
 
     int shares = 0, count = 0;
 
     /* No party, no sharing. */
     if (CONTR(op)->party == NULL) {
-        share_kill_exp_one(op, exp_gain, skill);
+        share_kill_exp_one(preferred, exp_gain, skill_nr);
         return;
     }
 
@@ -956,7 +1011,7 @@ static void share_kill_exp(object *op, int64_t exp_gain, object *skill) {
             continue;
         }
 
-        object *player_skill = CONTR(ol->objlink.ob)->skill_ptr[skill->stats.sp];
+        object *player_skill = CONTR(ol->objlink.ob)->skill_ptr[skill_nr];
         if (player_skill == NULL) {
             continue;
         }
@@ -966,26 +1021,111 @@ static void share_kill_exp(object *op, int64_t exp_gain, object *skill) {
     }
 
     if (count <= 1 || shares > exp_gain) {
-        share_kill_exp_one(op, exp_gain, skill);
-    } else {
-        int64_t share = exp_gain / shares;
-        int64_t given = 0;
-        for (objectlink *ol = party->members; ol != NULL; ol = ol->next) {
-            if (ol->objlink.ob == op || !on_same_map(ol->objlink.ob, op)) {
-                continue;
-            }
+        share_kill_exp_one(preferred, exp_gain, skill_nr);
+        return;
+    }
 
-            object *player_skill = CONTR(ol->objlink.ob)->skill_ptr[skill->stats.sp];
-            if (player_skill == NULL) {
-                continue;
-            }
-
-            given += add_exp(ol->objlink.ob, (player_skill->level + 4) * share, skill->stats.sp, 0);
+    int64_t share = exp_gain / shares;
+    int64_t given = 0;
+    for (objectlink *ol = party->members; ol != NULL; ol = ol->next) {
+        if (!on_same_map(ol->objlink.ob, op)) {
+            continue;
         }
 
-        exp_gain -= given;
-        share_kill_exp_one(op, exp_gain, skill);
+        object *player_skill = CONTR(ol->objlink.ob)->skill_ptr[skill_nr];
+        if (player_skill == NULL) {
+            continue;
+        }
+
+        given += add_exp(ol->objlink.ob, (player_skill->level + 4) * share, skill_nr, 0);
     }
+
+    share_kill_exp_one(preferred, MAX(0, exp_gain - given), skill_nr);
+}
+
+/** Whether a contributor belongs to the killer's XP-sharing group. */
+static bool kill_exp_group_member(object *killer, object *contributor) {
+    if (killer == contributor) {
+        return true;
+    }
+
+    return CONTR(killer)->party != NULL && CONTR(contributor)->party == CONTR(killer)->party &&
+           on_same_map(killer, contributor);
+}
+
+/** Award kill XP proportionally across every skill that dealt damage. */
+static int64_t award_kill_exp(object *killer, object *victim, object *fatal_skill) {
+    HARD_ASSERT(killer != NULL);
+    HARD_ASSERT(victim != NULL);
+    HARD_ASSERT(fatal_skill != NULL);
+
+    double skill_damage[NROFSKILLS] = {0};
+    double preferred_damage[NROFSKILLS] = {0};
+    object *preferred[NROFSKILLS] = {0};
+    double total_damage = 0.0;
+
+    for (combat_contribution_t *entry = victim->combat_contributions; entry != NULL;
+         entry = entry->next) {
+        if (!OBJECT_VALID(entry->player, entry->player_count) || entry->player->type != PLAYER ||
+            entry->skill_nr >= NROFSKILLS || !isfinite(entry->damage) || entry->damage <= 0.0 ||
+            CONTR(entry->player)->skill_ptr[entry->skill_nr] == NULL ||
+            !kill_exp_group_member(killer, entry->player)) {
+            continue;
+        }
+
+        skill_damage[entry->skill_nr] += entry->damage;
+        total_damage += entry->damage;
+        if (preferred[entry->skill_nr] == NULL ||
+            entry->damage > preferred_damage[entry->skill_nr]) {
+            preferred[entry->skill_nr] = entry->player;
+            preferred_damage[entry->skill_nr] = entry->damage;
+        }
+    }
+
+    if (total_damage <= 0.0 || !isfinite(total_damage)) {
+        int skill_nr = fatal_skill->stats.sp;
+        if (skill_nr < 0 || skill_nr >= NROFSKILLS || CONTR(killer)->skill_ptr[skill_nr] == NULL) {
+            return 0;
+        }
+
+        int64_t exp = calc_skill_exp(killer, victim, fatal_skill->level);
+        if (exp == 0) {
+            draw_info(COLOR_WHITE, killer, "Your enemy wasn't worth any experience to you.");
+            return 0;
+        }
+
+        share_kill_exp(killer, exp, skill_nr, killer);
+        return exp;
+    }
+
+    int64_t total_exp = 0;
+    for (int skill_nr = 0; skill_nr < NROFSKILLS; skill_nr++) {
+        if (preferred[skill_nr] == NULL || skill_damage[skill_nr] <= 0.0) {
+            continue;
+        }
+
+        object *skill = CONTR(preferred[skill_nr])->skill_ptr[skill_nr];
+        int64_t full_exp = calc_skill_exp(preferred[skill_nr], victim, skill->level);
+        long double weighted =
+            (long double)full_exp * (long double)skill_damage[skill_nr] / total_damage;
+        int64_t exp = (int64_t)(weighted + 0.5L);
+        if (exp <= 0) {
+            continue;
+        }
+
+        share_kill_exp(killer, exp, skill_nr, preferred[skill_nr]);
+        if (INT64_MAX - total_exp < exp) {
+            total_exp = INT64_MAX;
+        } else {
+            total_exp += exp;
+        }
+    }
+
+    if (total_exp == 0) {
+        draw_info(COLOR_WHITE, killer, "Your enemy wasn't worth any experience to you.");
+    }
+
+    return total_exp;
 }
 
 /**
@@ -1077,11 +1217,7 @@ bool attack_kill(object *op, object *hitter) {
         }
 
         if (skill != NULL) {
-            /* Calculate how much experience to gain. */
-            exp_gain = calc_skill_exp(owner, op, skill->level);
-            /* Give the experience, sharing it with party members if
-             * applicable. */
-            share_kill_exp(owner, exp_gain, skill);
+            exp_gain = award_kill_exp(owner, op, skill);
         }
     }
 

@@ -63,7 +63,8 @@ static trap_search_result find_traps_in_object(object *pl, object *where, int se
         if (trap_see(pl, trap, search_level)) {
             trap_show(trap, where);
             result = TRAP_SEARCH_FOUND;
-        } else if (result == TRAP_SEARCH_NONE && trap->level <= search_level * 1.8f) {
+        } else if (result == TRAP_SEARCH_NONE &&
+                   MAX(trap->level, trap->stats.Int) <= search_level * 1.8f) {
             result = TRAP_SEARCH_SIGNS;
         }
     }
@@ -80,7 +81,7 @@ static trap_search_result find_traps_in_object(object *pl, object *where, int se
  * @param where
  * Object whose inventory is checked.
  */
-static void remove_traps_from_object(object *pl, object *where) {
+static tag_t remove_traps_from_object(object *pl, object *where) {
     FOR_INV_PREPARE(where, trap) {
         if (trap->type != RUNE || trap->stats.Int > 1) {
             continue;
@@ -90,11 +91,14 @@ static void remove_traps_from_object(object *pl, object *where) {
             trap_show(trap, where);
         }
 
-        if (!trap_disarm(pl, trap)) {
-            return;
+        int result = trap_disarm(pl, trap);
+        if (result != TRAP_DISARM_SUCCESS) {
+            return result == TRAP_DISARM_TRIPPED ? trap->count : 0;
         }
     }
     FOR_INV_FINISH();
+
+    return 0;
 }
 
 /**
@@ -109,19 +113,21 @@ static void remove_traps_from_object(object *pl, object *where) {
  * @param container
  * Container about to be opened.
  */
-void traps_auto_disarm(object *pl, object *container) {
+tag_t traps_auto_disarm(object *pl, object *container) {
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(container != NULL);
 
     if (pl->type != PLAYER || CONTR(pl)->skill_ptr[SK_FIND_TRAPS] == NULL ||
         CONTR(pl)->skill_ptr[SK_REMOVE_TRAPS] == NULL) {
-        return;
+        return 0;
     }
 
     int search_level = trap_skill_rating(pl, SK_FIND_TRAPS);
     if (find_traps_in_object(pl, container, search_level) == TRAP_SEARCH_FOUND) {
-        remove_traps_from_object(pl, container);
+        return remove_traps_from_object(pl, container);
     }
+
+    return 0;
 }
 
 /**
@@ -167,7 +173,8 @@ void find_traps(object *pl) {
                 } else {
                     /* Give out a "we have found signs of traps"
                      * if the traps level is not 1.8 times higher. */
-                    if (suc == TRAP_SEARCH_NONE && tmp->level <= search_level * 1.8f) {
+                    if (suc == TRAP_SEARCH_NONE &&
+                        MAX(tmp->level, tmp->stats.Int) <= search_level * 1.8f) {
                         suc = TRAP_SEARCH_SIGNS;
                     }
                 }
