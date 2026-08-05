@@ -103,6 +103,13 @@ typedef struct sprite_struct {
     SDL_Surface *bitmap;
 } sprite_struct;
 
+/**
+ * Return whether a surface pixel belongs to its visible silhouette.
+ *
+ * The caller must lock the surface first when SDL_MUSTLOCK() is true.
+ */
+bool surface_pixel_visible(SDL_Surface *surface, int x, int y);
+
 #define BORDER_CREATE_TOP(_surface, _x, _y, _w, _h, _color, _thickness) \
     border_create_line((_surface), (_x), (_y), (_w), (_thickness), (_color))
 #define BORDER_CREATE_BOTTOM(_surface, _x, _y, _w, _h, _color, _thickness) \

@@ -125,16 +125,15 @@ bool map_select_level(int depth, bool create) {
 }
 
 void map_set_level_mask(uint16_t mask) {
-    uint16_t old_mask = map_level_mask;
     map_level_mask = mask;
 
     for (int depth = -MAP2_MAX_DEPTH; depth <= MAP2_MAX_DEPTH; depth++) {
         size_t index = (size_t)MAP2_DEPTH_INDEX(depth);
 
         uint16_t bit = UINT16_C(1) << index;
-        if ((old_mask & bit) && !(mask & bit) && level_cells[index] != NULL) {
-            size_t count = (size_t)map_width * MAP_FOW_SIZE * (size_t)map_height * MAP_FOW_SIZE;
-            memset(level_cells[index], 0, count * sizeof(*level_cells[index]));
+        if (!(mask & bit) && level_cells[index] != NULL) {
+            free(level_cells[index]);
+            level_cells[index] = NULL;
             level_lighting_revision[index]++;
         }
     }
@@ -964,6 +963,11 @@ void map_set_data(int x,
             cell->priority[i] = 0;
             cell->secondpass[i] = 0;
             cell->door[i] = 0;
+            cell->probe[i] = 0;
+            cell->target_object_count[i] = 0;
+            cell->target_is_friend[i] = 0;
+            cell->pname[i][0] = '\0';
+            cell->pcolor[i][0] = '\0';
         }
     }
 
@@ -972,8 +976,14 @@ void map_set_data(int x,
     }
 
     uint8_t object_layer_mask = UINT8_C(1) << (object_layer - 1);
-    cell->priority[sub_layer] |= priority << (((layer % NUM_LAYERS) + 1) - 1);
-    cell->secondpass[sub_layer] |= secondpass << (((layer % NUM_LAYERS) + 1) - 1);
+    cell->priority[sub_layer] &= ~object_layer_mask;
+    cell->secondpass[sub_layer] &= ~object_layer_mask;
+    if (priority) {
+        cell->priority[sub_layer] |= object_layer_mask;
+    }
+    if (secondpass) {
+        cell->secondpass[sub_layer] |= object_layer_mask;
+    }
 
     cell->faces[layer] = face;
     cell->flags[layer] = obj_flags;
@@ -983,11 +993,8 @@ void map_set_data(int x,
         cell->door[sub_layer] |= object_layer_mask;
     }
 
-    cell->probe[layer] = probe;
     cell->quick_pos[layer] = quick_pos;
 
-    snprintf(VS(cell->pcolor[layer]), "%s", name_color);
-    snprintf(VS(cell->pname[layer]), "%s", name);
     snprintf(VS(cell->glow[layer]), "%s", glow);
 
     cell->height[layer] = height;
@@ -1009,18 +1016,21 @@ void map_set_data(int x,
         map_update_render_height(cell);
     }
 
-    if (cell->target_object_count[layer] != target_object_count ||
-        cell->target_is_friend[layer] != target_is_friend) {
-        cpl.target_object_index = 0;
-    }
-
-    cell->target_object_count[layer] = target_object_count;
-    cell->target_is_friend[layer] = target_is_friend;
-
     cell->anim_speed[layer] = anim_speed;
     cell->anim_facing[layer] = anim_facing;
 
-    if (((layer % NUM_LAYERS) + 1) == LAYER_LIVING) {
+    if (object_layer == LAYER_LIVING) {
+        if (cell->target_object_count[sub_layer] != target_object_count ||
+            cell->target_is_friend[sub_layer] != target_is_friend) {
+            cpl.target_object_index = 0;
+        }
+
+        cell->probe[sub_layer] = probe;
+        cell->target_object_count[sub_layer] = target_object_count;
+        cell->target_is_friend[sub_layer] = target_is_friend;
+        snprintf(VS(cell->pcolor[sub_layer]), "%s", name_color);
+        snprintf(VS(cell->pname[sub_layer]), "%s", name);
+
         if (anim_flags & ANIM_FLAG_ATTACKING &&
             !(cell->anim_flags[sub_layer] & ANIM_FLAG_ATTACKING)) {
             cell->anim_state[layer] = 0;
@@ -1057,8 +1067,6 @@ void map_set_data(int x,
  */
 void map_clear_cell(int x, int y, bool hard) {
     struct MapCell *cell;
-    int layer;
-
     cell = MAP_CELL_GET_MIDDLE(x, y);
     bool had_known_light = false;
     for (size_t sub_layer = 0; sub_layer < arraysize(cell->light_known); sub_layer++) {
@@ -1089,11 +1097,12 @@ void map_clear_cell(int x, int y, bool hard) {
     cell->structural_fow = 0;
     memset(cell->light_known, 0, sizeof(cell->light_known));
 
-    for (layer = 0; layer < NUM_REAL_LAYERS; layer++) {
-        cell->probe[layer] = 0;
-        cell->target_object_count[layer] = 0;
-        cell->target_is_friend[layer] = 0;
-        cell->pname[layer][0] = '\0';
+    for (int sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+        cell->probe[sub_layer] = 0;
+        cell->target_object_count[sub_layer] = 0;
+        cell->target_is_friend[sub_layer] = 0;
+        cell->pname[sub_layer][0] = '\0';
+        cell->pcolor[sub_layer][0] = '\0';
     }
 
     if (had_known_light) {
@@ -1281,6 +1290,7 @@ typedef struct map_annotation {
     int32_t xlen;
     int32_t bitmap_w;
     uint8_t map_layer;
+    uint8_t sub_layer;
 } map_annotation_t;
 
 /** One sprite deferred into the unified isometric painter order. */
@@ -1319,7 +1329,7 @@ typedef struct map_render_context {
     size_t tiles_capacity;
     struct MapCell *target_cell;
     SDL_Rect target_rect;
-    uint8_t target_layer;
+    uint8_t target_sub_layer;
 } map_render_context_t;
 
 /**
@@ -1589,7 +1599,8 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
         xoff2 = (int)(((double)xlen / 100.0) * 20.0);
     }
 
-    if (data->cell->pname[map_layer][0] != '\0' || data->cell->flags[map_layer] != 0) {
+    if ((data->layer == LAYER_LIVING && data->cell->pname[data->sub_layer][0] != '\0') ||
+        data->cell->flags[map_layer] != 0) {
         map_render_context_t *context = data->render_context;
         if (context->annotations_num == context->annotations_capacity) {
             context->annotations_capacity =
@@ -1608,6 +1619,7 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
             .xlen = xlen,
             .bitmap_w = bitmap_w,
             .map_layer = map_layer,
+            .sub_layer = data->sub_layer,
         };
         annotation->effects.alpha = effects.alpha;
         annotation->effects.stretch = effects.stretch;
@@ -1631,10 +1643,11 @@ static void draw_map_object(SDL_Surface *surface, map_render_data_t *data) {
         context->tiles_num++;
     }
 
-    if (data->primary_level && !data->cell->fow && data->cell->probe[map_layer] != 0) {
+    if (data->primary_level && data->layer == LAYER_LIVING && !data->cell->fow &&
+        data->cell->probe[data->sub_layer] != 0) {
         map_render_context_t *context = data->render_context;
         context->target_cell = data->cell;
-        context->target_layer = map_layer;
+        context->target_sub_layer = data->sub_layer;
         context->target_rect.x = xoff + xoff2;
         context->target_rect.y = yl - 9;
         context->target_rect.w = (xlen - xoff2 * 2);
@@ -1651,10 +1664,12 @@ static void map_draw_annotations(SDL_Surface *surface, map_render_context_t *con
         map_annotation_t *annotation = &context->annotations[i];
         struct MapCell *cell = annotation->cell;
         uint8_t map_layer = annotation->map_layer;
+        uint8_t sub_layer = annotation->sub_layer;
 
-        if (cell->pname[map_layer][0] != '\0' && setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES)) {
+        if ((map_layer % NUM_LAYERS) + 1 == LAYER_LIVING && cell->pname[sub_layer][0] != '\0' &&
+            setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES)) {
             bool draw_name = false;
-            char *name = cell->pname[map_layer];
+            char *name = cell->pname[sub_layer];
 
             if (setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) == 1) {
                 draw_name = true;
@@ -1672,7 +1687,7 @@ static void map_draw_annotations(SDL_Surface *surface, map_render_context_t *con
                               (annotation->xlen - annotation->xoff2 * 2) / 2 -
                               text_get_width(FONT_SANS9, name, 0) / 2 - 2,
                           annotation->yl - 24,
-                          cell->pcolor[map_layer],
+                          cell->pcolor[sub_layer],
                           TEXT_OUTLINE,
                           NULL);
             }
@@ -2452,26 +2467,6 @@ static bool map_render_command_overlaps(const map_render_command_t *left,
            right->bounds_y < left->bounds_y + left->bounds_h;
 }
 
-/** Return whether a sprite source pixel is visually opaque. */
-static bool map_render_source_pixel_visible(SDL_Surface *source, int x, int y) {
-    if (x < 0 || x >= source->w || y < 0 || y >= source->h) {
-        return false;
-    }
-
-    Uint32 pixel = getpixel(source, x, y);
-    if ((source->flags & SDL_SRCCOLORKEY) && pixel == source->format->colorkey) {
-        return false;
-    }
-
-    if (source->format->Amask != 0) {
-        Uint8 red, green, blue, alpha;
-        SDL_GetRGBA(pixel, source->format, &red, &green, &blue, &alpha);
-        return alpha >= 64;
-    }
-
-    return true;
-}
-
 /** Return whether an opaque later sprite hides a substantial part of a door. */
 static bool map_render_command_covers_door(const map_render_command_t *door,
                                            const map_render_command_t *occluder) {
@@ -2507,7 +2502,7 @@ static bool map_render_command_covers_door(const map_render_command_t *door,
     size_t door_pixels = 0;
     for (int y = 0; y < door->source->h; y++) {
         for (int x = 0; x < door->source->w; x++) {
-            door_pixels += map_render_source_pixel_visible(door->source, x, y);
+            door_pixels += surface_pixel_visible(door->source, x, y);
         }
     }
 
@@ -2526,10 +2521,8 @@ static bool map_render_command_covers_door(const map_render_command_t *door,
 
             for (int y = y_start; y < y_end && !covered; y++) {
                 for (int x = x_start; x < x_end; x++) {
-                    if (!map_render_source_pixel_visible(door->source, x - door->x, y - door_y) ||
-                        !map_render_source_pixel_visible(occluder->source,
-                                                         x - occluder->x,
-                                                         y - occluder_y)) {
+                    if (!surface_pixel_visible(door->source, x - door->x, y - door_y) ||
+                        !surface_pixel_visible(occluder->source, x - occluder->x, y - occluder_y)) {
                         continue;
                     }
 
@@ -2704,7 +2697,7 @@ static void map_draw_ui(SDL_Surface *surface, map_render_context_t *context) {
         }
 
         if (!(setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES) &&
-              context->target_cell->pname[context->target_layer][0] != '\0')) {
+              context->target_cell->pname[context->target_sub_layer][0] != '\0')) {
             text_show(surface,
                       FONT_SANS9,
                       cpl.target_name,
@@ -2754,7 +2747,7 @@ static void map_draw_ui(SDL_Surface *surface, map_render_context_t *context) {
                          hp_color);
 
         context->target_rect.w =
-            context->target_rect.w / 100.0 * context->target_cell->probe[context->target_layer];
+            context->target_rect.w / 100.0 * context->target_cell->probe[context->target_sub_layer];
         context->target_rect.w = MAX(1, MIN(100, context->target_rect.w));
         rectangle_create(surface,
                          context->target_rect.x,
@@ -2987,17 +2980,18 @@ void map_target_handle(uint8_t is_friend) {
                 continue;
             }
 
-            for (layer = 0; layer < NUM_REAL_LAYERS; layer++) {
-                if (cell->faces[layer] && cell->target_object_count[layer] &&
-                    cell->target_is_friend[layer] == is_friend) {
+            for (int sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                layer = GET_MAP_LAYER(LAYER_LIVING, sub_layer);
+                if (cell->faces[layer] && cell->target_object_count[sub_layer] &&
+                    cell->target_is_friend[sub_layer] == is_friend) {
                     map_target_struct target;
 
-                    target.count = cell->target_object_count[layer];
+                    target.count = cell->target_object_count[sub_layer];
                     target.x = x;
                     target.y = y;
                     utarray_push_back(targets, &target);
 
-                    if (cell->probe[layer] != 0) {
+                    if (cell->probe[sub_layer] != 0) {
                         curr_target = target.count;
                     }
                 }

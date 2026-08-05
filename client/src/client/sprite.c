@@ -378,7 +378,7 @@ static SDL_Surface *sprite_effect_fow(SDL_Surface *surface) {
 }
 
 /** Return whether a source pixel contributes to a sprite's visible silhouette. */
-static bool sprite_effect_pixel_visible(SDL_Surface *surface, int x, int y) {
+bool surface_pixel_visible(SDL_Surface *surface, int x, int y) {
     if (x < 0 || x >= surface->w || y < 0 || y >= surface->h) {
         return false;
     }
@@ -440,7 +440,7 @@ static SDL_Surface *sprite_effect_outline(SDL_Surface *surface, const SDL_Color 
         for (int x = 0; x < outline->w; x++) {
             int source_x = x - SPRITE_GLOW_SIZE;
             int source_y = y - SPRITE_GLOW_SIZE;
-            if (sprite_effect_pixel_visible(surface, source_x, source_y)) {
+            if (surface_pixel_visible(surface, source_x, source_y)) {
                 continue;
             }
 
@@ -452,9 +452,9 @@ static SDL_Surface *sprite_effect_outline(SDL_Surface *surface, const SDL_Color 
                             continue;
                         }
 
-                        if (sprite_effect_pixel_visible(surface,
-                                                        source_x + offset_x,
-                                                        source_y + offset_y)) {
+                        if (surface_pixel_visible(surface,
+                                                  source_x + offset_x,
+                                                  source_y + offset_y)) {
                             nearest = radius;
                             break;
                         }
@@ -474,6 +474,7 @@ static SDL_Surface *sprite_effect_outline(SDL_Surface *surface, const SDL_Color 
     if (source_locked) {
         SDL_UnlockSurface(surface);
     }
+    SDL_SetAlpha(outline, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
     return outline;
 }
 

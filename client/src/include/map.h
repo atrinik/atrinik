@@ -184,17 +184,17 @@ typedef struct _mapdata {
  * Map cell structure.
  */
 typedef struct MapCell {
-    /** Name of player on this cell. */
-    char pname[NUM_REAL_LAYERS][64];
+    /** Name of the living object on each sub-layer. */
+    char pname[NUM_SUB_LAYERS][64];
 
-    /** Player name color on this cell. */
-    char pcolor[NUM_REAL_LAYERS][COLOR_BUF];
+    /** Living-object name color on each sub-layer. */
+    char pcolor[NUM_SUB_LAYERS][COLOR_BUF];
 
     /** Position. */
     uint8_t quick_pos[NUM_REAL_LAYERS];
 
-    /** If this is where our enemy is. */
-    uint8_t probe[NUM_REAL_LAYERS];
+    /** Target HP percentage for the living object on each sub-layer. */
+    uint8_t probe[NUM_SUB_LAYERS];
 
     /** Normalized cell light levels: zero is unlit, 255 is fully lit. */
     uint8_t light_level[NUM_SUB_LAYERS];
@@ -262,15 +262,11 @@ typedef struct MapCell {
     /** How we stretch this is really 8 char for N S E W. */
     int32_t stretch[NUM_SUB_LAYERS];
 
-    /**
-     * Target object.
-     */
-    uint32_t target_object_count[NUM_REAL_LAYERS];
+    /** Targetable living-object ID on each sub-layer. */
+    uint32_t target_object_count[NUM_SUB_LAYERS];
 
-    /**
-     * Whether the target is a friend.
-     */
-    uint8_t target_is_friend[NUM_REAL_LAYERS];
+    /** Whether the targetable living object on each sub-layer is a friend. */
+    uint8_t target_is_friend[NUM_SUB_LAYERS];
 
     uint8_t anim_last[NUM_REAL_LAYERS];
 
