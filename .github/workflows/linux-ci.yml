@@ -226,7 +226,7 @@ jobs:
         run: ccache --show-stats
 
   windows:
-    name: Windows ${{ matrix.component }} (MinGW)
+    name: Windows ${{ matrix.component }} package (MinGW)
     needs: changes
     if: inputs.gcc_only != true && needs.changes.outputs.windows != '[]'
     runs-on: ubuntu-26.04
@@ -256,7 +256,16 @@ jobs:
           restore-keys: |
             ccache-windows-build-0.0.3-${{ matrix.component }}-
 
-      - name: Build with pinned MinGW image
+      - name: Restore server package content
+        if: matrix.component == 'server'
+        uses: actions/cache@v6
+        with:
+          path: build/windows-mxe-server-release/package-root
+          key: windows-server-content-0.0.3-${{ github.sha }}
+          restore-keys: |
+            windows-server-content-0.0.3-
+
+      - name: Build and verify package with pinned MinGW image
         env:
           COMPONENT: ${{ matrix.component }}
         run: |
@@ -271,10 +280,17 @@ jobs:
             --workdir /workspaces/atrinik \
             ghcr.io/atrinik/windows-build:0.0.3 \
             bash -c \
-              'ccache --zero-stats && \
-               x86_64-w64-mingw32.shared-cmake \
-                 --no-warn-unused-cli \
-                 --preset "windows-mxe-ci-${1}" && \
-               cmake --build --preset "windows-mxe-ci-${1}" --parallel && \
+              'set -euo pipefail
+               ccache --zero-stats
+               bash ./build-windows.sh "${1}"
+               mapfile -t packages < <(
+                 find build/packages -maxdepth 1 -type f \
+                   -name "atrinik-${1}-*-windows-x86_64.zip" -print
+               )
+               if [[ "${#packages[@]}" -ne 1 ]]; then
+                 echo "Expected one Windows ${1} package, found ${#packages[@]}." >&2
+                 exit 1
+               fi
+               python3 -m zipfile --test "${packages[0]}"
                ccache --show-stats' \
             bash "${COMPONENT}"
