@@ -88,6 +88,24 @@ typedef struct key_value {
     struct key_value *next;
 } key_value_t;
 
+/** Damage dealt to a living object by one player's skill. */
+typedef struct combat_contribution {
+    /** Player responsible for the damage. */
+    struct obj *player;
+
+    /** Player tag used to reject stale object pointers. */
+    tag_t player_count;
+
+    /** Skill that dealt the damage. */
+    uint8_t skill_nr;
+
+    /** Actual, overkill-capped damage dealt. */
+    double damage;
+
+    /** Next contribution. */
+    struct combat_contribution *next;
+} combat_contribution_t;
+
 /**
  * Object structure.
  */
@@ -158,6 +176,9 @@ struct obj {
 
     /** Type-dependant extra data. */
     void *custom_attrset;
+
+    /** Per-player, per-skill damage participation for kill experience. */
+    combat_contribution_t *combat_contributions;
 
     /* These get an extra add_refcount(), after having been copied by memcpy().
      * All fields below this point are automatically copied by memcpy. If
