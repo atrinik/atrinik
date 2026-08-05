@@ -43,6 +43,9 @@
 #include <cmake.h>
 #include <openssl/crypto.h>
 
+/** Y coordinate of the default arrow's click tip within its texture. */
+#define CURSOR_DEFAULT_HOTSPOT_Y 5
+
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
 /** Server's attributes */
@@ -858,11 +861,23 @@ int main(int argc, char *argv[]) {
 
         if (!setting_get_int(OPT_CAT_CLIENT, OPT_SYSTEM_CURSOR) && cursor_x != -1 &&
             cursor_y != -1 && SDL_GetAppState() & SDL_APPMOUSEFOCUS) {
+            SDL_Surface *cursor_surface = texture_surface(cursor_texture);
+            int hotspot_x = cursor_surface->w / 2;
+            int hotspot_y = cursor_surface->h / 2;
+
+            /* The default arrow is centered horizontally in its padded asset,
+             * but its actionable tip is near the top. Keep the rendered tip
+             * on SDL's actual mouse coordinate so map clicks match the tile
+             * indicated by the cursor. */
+            if (cursor_texture == texture_get(TEXTURE_TYPE_CLIENT, "cursor_default")) {
+                hotspot_y = CURSOR_DEFAULT_HOTSPOT_Y;
+            }
+
             surface_show(ScreenSurface,
-                         cursor_x - texture_surface(cursor_texture)->w / 2,
-                         cursor_y - texture_surface(cursor_texture)->h / 2,
+                         cursor_x - hotspot_x,
+                         cursor_y - hotspot_y,
                          NULL,
-                         texture_surface(cursor_texture));
+                         cursor_surface);
         }
         render_profiler_end(RENDER_PROFILE_OVERLAYS, profile_overlays_started);
 

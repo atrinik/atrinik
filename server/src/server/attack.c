@@ -59,6 +59,25 @@ const char *const attack_name[NROFATTACKS] = {
 /** Bound participation metadata retained by any one victim. */
 #define MAX_COMBAT_CONTRIBUTIONS 128
 
+/** Select the authoritative hurt vocal for a player. */
+static const char *attack_player_hurt_sound(const object *player) {
+    static const char *const female_hurt_sounds[] = {
+        "doh_female_1.ogg",
+        "doh_female_2.ogg",
+        "doh_female_3.ogg",
+        "doh_female_4.ogg",
+        "doh_female_5.ogg",
+        "doh_female_6.ogg",
+        "doh_female_7.ogg",
+    };
+
+    if (object_get_gender(player) == GENDER_FEMALE) {
+        return female_hurt_sounds[rndm(0, arraysize(female_hurt_sounds) - 1)];
+    }
+
+    return "doh.ogg";
+}
+
 /** Record actual damage participation for later skill-aware kill XP. */
 static void attack_record_combat_contribution(object *victim,
                                               object *contributor,
@@ -861,7 +880,13 @@ int attack_hit(object *op, object *hitter, int dam) {
         CONTR(op)->last_combat = pticks;
         CONTR(op)->stat_damage_taken += maxdam;
         if (maxdam > 0.0) {
-            play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "player_hurt.ogg", 0, 0, 0, 0);
+            play_sound_player_only(CONTR(op),
+                                   CMD_SOUND_EFFECT,
+                                   attack_player_hurt_sound(op),
+                                   0,
+                                   0,
+                                   0,
+                                   0);
         }
     }
 

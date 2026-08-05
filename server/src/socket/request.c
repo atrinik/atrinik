@@ -1228,6 +1228,16 @@ void draw_client_map2(object *pl) {
         (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
     map2_count++;
 
+    /* Non-player name colors are relative to the viewer's level. Invalidate
+     * the delta cache when that level changes so every visible label is sent
+     * again with its newly authoritative color. */
+    if (!CONTR(pl)->cs->lastmap_player_level_known ||
+        CONTR(pl)->cs->lastmap_player_level != pl->level) {
+        map_client_cache_clear(&CONTR(pl)->cs->lastmap);
+        CONTR(pl)->cs->lastmap_player_level = pl->level;
+        CONTR(pl)->cs->lastmap_player_level_known = true;
+    }
+
     packet = packet_new(CLIENT_CMD_MAP, 0, 512);
     packet_sound = packet_new(CLIENT_CMD_SOUND_AMBIENT, 0, 256);
 
@@ -1889,10 +1899,7 @@ void draw_client_map2(object *pl) {
                                 } else {
                                     living_name = object_get_short_name_s(head, pl);
                                     name = living_name;
-                                    /* A stable color keeps cached map labels valid when
-                                     * the viewer levels up. The target UI separately
-                                     * communicates relative difficulty. */
-                                    name_color = COLOR_WHITE;
+                                    name_color = get_living_level_color(pl, head);
                                 }
 
                                 packet_debug_data(packet_layer, 2, "Living object name");

@@ -205,6 +205,12 @@ typedef struct socket_struct {
     /** Last map. */
     struct Map lastmap;
 
+    /** Player level used to calculate cached non-player name colors. */
+    uint8_t lastmap_player_level;
+
+    /** Whether ::lastmap_player_level has been initialized. */
+    bool lastmap_player_level_known;
+
     /** Outgoing packets. */
     struct packet_struct *packets;
 
