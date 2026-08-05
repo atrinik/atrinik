@@ -5,7 +5,6 @@
  */
 
 #include "socket_private.h"
-#include "socket_crypto.h"
 #include "path.h"
 #include "string.h"
 #include "datetime.h"
@@ -158,37 +157,21 @@ static SSL_CTX *socket_quic_server_ctx(const char *identity_path) {
         return NULL;
     }
 
-    const char *cert_pem = socket_crypto_get_cert();
-    const char *key_pem = socket_crypto_get_cert_key();
     bool ok;
-    if (cert_pem == NULL || key_pem == NULL) {
-        if (identity_path == NULL || *identity_path == '\0') {
-            ok = false;
-        } else if (access(identity_path, F_OK) == 0) {
-            ok = socket_quic_load_identity(ctx, identity_path);
-            if (!ok) {
-                LOG(ERROR, "Failed to load persistent QUIC identity %s", identity_path);
-            }
-        } else if (errno == ENOENT) {
-            ok = socket_quic_generate_identity(ctx, identity_path);
-            if (ok) {
-                LOG(INFO, "Created persistent QUIC identity %s", identity_path);
-            }
-        } else {
-            ok = false;
+    if (identity_path == NULL || *identity_path == '\0') {
+        ok = false;
+    } else if (access(identity_path, F_OK) == 0) {
+        ok = socket_quic_load_identity(ctx, identity_path);
+        if (!ok) {
+            LOG(ERROR, "Failed to load persistent QUIC identity %s", identity_path);
+        }
+    } else if (errno == ENOENT) {
+        ok = socket_quic_generate_identity(ctx, identity_path);
+        if (ok) {
+            LOG(INFO, "Created persistent QUIC identity %s", identity_path);
         }
     } else {
-        BIO *cert_bio = BIO_new_mem_buf(cert_pem, -1);
-        BIO *key_bio = BIO_new_mem_buf(key_pem, -1);
-        X509 *cert = cert_bio != NULL ? PEM_read_bio_X509(cert_bio, NULL, NULL, NULL) : NULL;
-        EVP_PKEY *key = key_bio != NULL ? PEM_read_bio_PrivateKey(key_bio, NULL, NULL, NULL) : NULL;
-
-        ok = socket_quic_use_identity(ctx, cert, key);
-
-        X509_free(cert);
-        EVP_PKEY_free(key);
-        BIO_free(cert_bio);
-        BIO_free(key_bio);
+        ok = false;
     }
 
     if (!ok) {
@@ -492,6 +475,9 @@ static bool socket_quic_client_handshake(socket_t *sc,
         SSL_set_bio(sc->quic, bio, bio);
         bio = NULL;
         configured =
+            SSL_set_feature_request_uint(sc->quic,
+                                         SSL_VALUE_QUIC_IDLE_TIMEOUT,
+                                         SOCKET_QUIC_IDLE_TIMEOUT_MS) == 1 &&
             SSL_set_default_stream_mode(sc->quic, SSL_DEFAULT_STREAM_MODE_AUTO_BIDI) == 1 &&
             SSL_set_blocking_mode(sc->quic, 0) == 1 &&
             SSL_set_alpn_protos(sc->quic, socket_quic_alpn, sizeof(socket_quic_alpn)) == 0 &&
@@ -1040,7 +1026,11 @@ bool socket_quic_service(socket_t *sc, bool network_ready, bool app_write_pendin
         return true;
     }
     socket_quic_schedule_event(sc);
-    return network_ready || buffered || app_write_pending || SSL_has_pending(sc->quic) != 0;
+    /* A timer can transition the connection to its terminal state without
+     * producing readable application data. Give the caller one I/O pass so
+     * SSL_read_ex() observes and reports that closure immediately. */
+    return network_ready || buffered || app_write_pending || timer_due ||
+           SSL_has_pending(sc->quic) != 0;
 }
 
 #else
@@ -1106,15 +1096,12 @@ socket_connection_mode_t socket_connection_mode_get(socket_t *sc) {
 }
 
 const char *socket_connection_mode_name(socket_connection_mode_t mode) {
-    static const char *const names[SOCKET_CONNECTION_MODE_NUM] = {"TCP",
-                                                                  "TLS",
-                                                                  "QUIC",
-                                                                  "QUIC/LAN",
-                                                                  "QUIC/IPv6",
-                                                                  "QUIC/mapped",
-                                                                  "QUIC/STUN",
-                                                                  "QUIC/directory"};
+    static const char *const names[SOCKET_CONNECTION_MODE_NUM] =
+        {"QUIC", "QUIC/LAN", "QUIC/IPv6", "QUIC/mapped", "QUIC/STUN", "QUIC/directory"};
 
+    if (mode == SOCKET_CONNECTION_MODE_INTERNAL) {
+        return "internal";
+    }
     if ((unsigned int)mode >= SOCKET_CONNECTION_MODE_NUM) {
         return "unknown";
     }

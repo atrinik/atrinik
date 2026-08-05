@@ -1866,7 +1866,7 @@ static const char doc_Atrinik_GetSettings[] =
  */
 static PyObject *Atrinik_GetSettings(PyObject *self, PyObject *ignored) {
     PyObject *dict = PyDict_New();
-    PyDict_SetItemString(dict, "port", Py_BuildValue("H", hooks->settings->port));
+    PyDict_SetItemString(dict, "port_quic", Py_BuildValue("H", hooks->settings->port_quic));
     PyDict_SetItemString(dict, "libpath", Py_BuildValue("s", hooks->settings->libpath));
     PyDict_SetItemString(dict, "datapath", Py_BuildValue("s", hooks->settings->datapath));
     PyDict_SetItemString(dict, "mapspath", Py_BuildValue("s", hooks->settings->mapspath));

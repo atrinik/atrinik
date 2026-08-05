@@ -6,7 +6,6 @@ services:
       dockerfile: Dockerfile.server
     environment:
       ATRINIK_HTTP_URL: ${ATRINIK_HTTP_URL:-off}
-      ATRINIK_CONNECTIVITY_MODE: ${ATRINIK_CONNECTIVITY_MODE:-direct_only}
       ATRINIK_SERVER_PUBLIC: ${ATRINIK_SERVER_PUBLIC:-false}
       ATRINIK_SERVER_HOST: ${ATRINIK_SERVER_HOST:-}
       ATRINIK_JOIN_PASSWORD: ${ATRINIK_JOIN_PASSWORD:-}

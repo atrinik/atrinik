@@ -16,6 +16,7 @@ The aggregate target covers:
 - QUIC identity creation, mode `0600`, persistence, and corrupt-file failure;
 - a real OpenSSL QUIC handshake, ALPN, certificate pinning, shared connection
   identity, bidirectional application data, and wrong-pin rejection;
+- rapid client and server peer-close detection with a one-second upper bound;
 - STUN binding discovery through a local RFC 5389 responder, including a
   malformed transaction response;
 - bounded bilateral UDP punch probes and observed source endpoints; and

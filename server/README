@@ -78,12 +78,10 @@
  For a quiet, local-only devcontainer run that exercises QUIC without public
  discovery, use:
 
-  $ ./server.sh --connectivity_mode=direct_only \
-      --port_mapping=off --stun_server=off
+  $ ./server.sh --port_mapping=off --stun_server=off
 
  The startup log prints the QUIC certificate SHA-256 fingerprint. The matching
- pinned client command and the faster legacy-TCP alternative are documented in
- client/README section 2.1.
+ pinned client command is documented in client/README section 2.1.
 
  Developers can validate the transport without preparing or modifying this
  source-tree runtime. From the repository root, the `network-e2e` target uses
@@ -153,10 +151,10 @@
  executing the server to learn about all the possible options (there is a 1:1
  mapping between the configuration files and arguments passed on the command
  line, so you can use the same options either way; eg, "port = 900" in a
- configuration file and ./atrinik-server --port=900 are the same thing).
+ configuration file and ./atrinik-server --port_quic=900 are the same thing).
 
  See section 3. for information about running a public server and the necessary
- configuration, and section 4. for enabling crypto extensions.
+ configuration.
 
 =================================================
 = 2.2. Optional HTTP CDN                        =
@@ -176,8 +174,7 @@
  When http_url is configured, clients first obtain each asset's immutable size
  and SHA-256 digest over the authenticated QUIC connection, then accept the HTTP
  body only when both match. A failed or mismatched request falls back to
- in-band QUIC delivery. Non-loopback origins must use HTTPS. Legacy TCP clients
- still require a working HTTP URL.
+ in-band QUIC delivery. Non-loopback origins must use HTTPS.
 
  You will need to map the following URLs to their directory counterparts:
   - https://cdn.example.com/atrinik/          -> server/data/http/
@@ -211,9 +208,8 @@
  containers inside its VM; host mode there can expose the VM gateway instead
  of the physical router, preventing automatic router discovery. There are no
  Docker `ports` translations: direct gameplay and
- in-band asset delivery bind host UDP port 1730, legacy modes bind host TCP
- ports 1728/1729, and the optional HTTP server binds host port 8080. Player
- data, the persistent QUIC
+ in-band asset delivery bind host UDP port 1730, and the optional HTTP server
+ binds host port 8080. Player data, the persistent QUIC
  identity, and other mutable state are kept directly in the host's
  server-data/ folder. Region maps are generated while building the image and
  refreshed into that folder when the container starts. On Linux, LOCAL_UID and
@@ -289,7 +285,6 @@
  Put the following in server-custom.cfg for a public friend server:
   [meta]
   server_public = true
-  connectivity_mode = direct_only
   server_name = Your Server Name
   server_desc = Private server for friends
   port_quic = 1730
@@ -307,12 +302,6 @@
  values. The file must be a regular, non-symlink file containing exactly one
  nonempty line shorter than 1024 bytes. Mode 0600 is recommended; group/other
  permissions produce a startup warning.
-
- Connectivity modes:
-  - direct_only: QUIC plus rendezvous; no legacy gameplay listener is needed.
-  - direct_preferred: try direct QUIC while retaining legacy TCP listeners for
-    manually reachable deployments. It does not enable a game-traffic relay.
-  - legacy_tcp: classic TCP ports only; requires a publicly reachable port.
 
  The server advertises same-LAN and direct global IPv6 addresses, tries PCP
  with automatic NAT-PMP negotiation and UPnP IGD to create and renew a UDP
@@ -348,9 +337,8 @@ mode and connection ID in `/who`, formatted as `(route: QUIC/mapped; connection:
  LAN/IPv6/directory candidates do not require it.
 
  Direct servers are identified by their QUIC certificate fingerprint rather
- than a DNS hostname. If crypto_cert and crypto_cert_key are configured, that
- certificate provides the identity. Otherwise the server generates
- data/quic-identity.pem on first start and reuses it thereafter. Keep the file
+ than a DNS hostname. The server generates data/quic-identity.pem on first
+ start and reuses it thereafter. Keep the file
  private and include it in server-data backups; replacing it makes the
  metaserver and clients see a different server.
 
@@ -399,9 +387,8 @@ mode and connection ID in `/who`, formatted as `(route: QUIC/mapped; connection:
   - Dual-stack:
      network_stack = dual
 
- Third, it's STRONGLY recommended to enable the crypto extensions for secure
- password exchange and in-game communications, on top of establishing server
- trust and authenticity. See section 4. for details.
+ Third, keep data/quic-identity.pem private and back it up. QUIC encrypts game
+ traffic and the client pins this identity's certificate fingerprint.
 
  In order to advertise the server to the public, you will need to configure
  metaserver options. This will enable periodic flooding of your server details
@@ -412,14 +399,9 @@ mode and connection ID in `/who`, formatted as `(route: QUIC/mapped; connection:
   server_name = Your Server Name
   server_desc = Description about your server.
 
- Direct QUIC modes do not require server_host, an HTTP URL, or a forwarded TCP
- port. For legacy_tcp only, also configure server_host, make its DNS record
- match the server's public IP, configure a reachable http_url, and forward the
- selected TCP ports.
-
- Do note that for security reasons, the metaserver will block IP changes for
- up to an hour, so public servers with dynamic IPs are not encouraged due to
- the possible outage period.
+ QUIC does not require server_host or an HTTP URL. When set, server_host must be
+ a public IP literal; automatic mapping or STUN discovery normally publishes
+ the endpoint instead.
 
  Direct mode automatically tries a router mapping and does not normally require
  a manual port-forwarding rule. The local firewall must still allow the server
@@ -433,8 +415,7 @@ mode and connection ID in `/who`, formatted as `(route: QUIC/mapped; connection:
  Be aware that the first time the server uploads the information to the
  metaserver, a secret key is generated. If you LOSE this key, you will be
  LOCKED out of updating the metaserver ever again (for the particular
- identity). Direct mode stores it in server/data/metaserver_key_direct; legacy
- mode uses server/data/metaserver_key.
+ identity). It is stored in server/data/metaserver_key.
 
 =================================================
 = 3.1. Metaserver-exposed information           =
@@ -444,16 +425,14 @@ mode and connection ID in `/who`, formatted as `(route: QUIC/mapped; connection:
  (such as the server IP address), the following information is exposed to the
  metaserver, and flooded in periodic intervals, if reporting to the metaserver
  has been enabled (as per section 3.):
-  - Configured server name and description, plus hostname in legacy mode
-  - Connectivity mode and enabled game data ports
-  - Direct QUIC candidate, certificate fingerprint, and server identity
+  - Configured server name and description, plus an optional public IP address
+  - QUIC endpoint, certificate fingerprint, and server identity
   - Server version
   - Atrinik HTTP client version and platform (Windows/Linux/other)
-  - Generated metaserver key (for authentication purposes)
+  - One-time authentication proofs derived from the generated metaserver key;
+    the key itself is never uploaded
   - Number of players online
-  - List of online players (apart from hidden ones)
-  - ADS-7 compatible Atrinik server certificate, if configured
-  - RSA public key, if configured
+  - Whether a join password is required (never the password itself)
 
  The above information is sent to https://meta.atrinik.org/ (unless otherwise
  specified), again, only if enabled as per section 3. Application-based HPKP is
@@ -470,173 +449,11 @@ mode and connection ID in `/who`, formatted as `(route: QUIC/mapped; connection:
 
   - 1730/UDP: Direct QUIC gameplay and asset delivery. PCP/NAT-PMP/UPnP mapping,
               IPv6, and rendezvous normally avoid a manual forwarding rule.
-  - 1728: The main legacy TCP game data port
-  - 1729: The security extension port; clients will connect to this port
-          instead of the one above if the security extensions are enabled.
   - 8080: Optional bundled HTTP asset server. It is unused when http_server is
           off, and external CDN deployments normally use HTTPS port 443.
 
 =================================================
-= 4. Enabling crypto extensions                 =
-=================================================
-
- Protecting player data and ensuring communication privacy is a crucial aspect
- of Atrinik. With the crypto extensions enabled, all text input commands and
- communications are encrypted using ECDHE-RSA. These keys are ephemeral;
- created for every new connection and destroyed on disconnect.
-
- An X509 certificate is used to validate the server's identity. It is strongly
- recommended to use a trusted CA; self-signed certificates are frowned upon and
- will generate a one-time warning when connecting to a server using one.
-
- See section 4.1. for generating an X509 certificate, and an RSA private key
- for it.
-
- Do NOT lose your RSA private key; the client deploys a public-key pinning
- technology which means if it ever sees your server using a different key, it
- will raise red flags and show a warning to the player before they can connect.
-
- You can enable the security extensions like this:
-  [crypto]
-  crypto = true
-  crypto_cert = </path/to/cert.pem
-  crypto_cert_key = </path/to/key.pem
-
- The cert.pem file should contain your X509 certificate, while the key.pem file
- should countain your RSA private key that was used to sign the certificate.
- Note that if you protected the private key with a passphrase, you will need to
- enter it every time you start up the server.
-
- If you need to specify a certificate chain file (eg, one provided by a CA of
- your choice), you can do so like this:
-  [crypto]
-  crypto_cert_chain = </path/to/chain.pem
-
- It is recommended to disable the regular port when using the crypto
- extensions, unless you need to support clients without crypto extensions
- support:
-  [general]
-  port = 0
-
- By default, the port used by the crypto extensions is 1729. You can change it
- like this:
-  [crypto]
-  port_crypto = 1729
-
- If you've set up everything correctly, the server should now be reporting its
- public key to the metaserver, and advertising crypto extension capabilities,
- which means that clients should be connecting via a secure channel.
-
- However, this is not the end of it; so far, all you have established is a
- secure channel between the server and its clients. While all the different
- security checks put in place should stop a rogue server takeover or a MITM
- attack, they require a client to connect at least once before any such
- attack (to pin the public key), and they do not completely thwart DNS
- spoofing attacks.
-
- Please see section 4.2. for the absolute way of establishing server trust
- and authenticity.
-
-=================================================
-= 4.1. Generating an X509 certificate           =
-=================================================
-
- You can create a self-signed X509 certificate using a command like this:
-  $ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days X
-
- Add -nodes if you don't want a passphrase for the RSA key (otherwise you will
- be prompted for it each time the server starts up), and change X to the number
- of days you want the certificate to remain valid for. Use the server's
- hostname for the CN.
-
- Keep the generated RSA key secure and backed up; if you lose access to it and
- generate an X509 certificate using a different one in the future, clients that
- previously connected to your server will first have to go through a warning
- sign due to public key pinning.
-
- The preferred alternative is to go through the process of generating an X509
- certificate signing request and getting the X509 certificate from a CA. Let's
- Encrypt provides a free service for trusted certificates, although they have a
- short expire time, and there's some manual work involved in making them use
- your own RSA key for the signing part. At any rate, the process is outside of
- the scope of this document; the only requirement is that the CN must match
- that of your configured server hostname.
-
-=================================================
-= 4.2. Server vetting                           =
-=================================================
-
- Server vetting is a process by which an Atrinik team member examines a
- server and confirms its identity, generating a signature that clients can
- verify to establish the server is who they claim to be.
-
- At its core is a specially designed certificate format (the design
- specification of which can be found in ADS-7). This certificate is something
- that the server owner must fill out and send to the Atrinik team for review;
- either via email to admin@atrinik.org, a post on the forums (www.atrinik.org)
- or a direct PM to one of the team members.
-
- The certificate looks like this:
-========================== BEGIN ATRINIK CERTIFICATE ==========================
-
-The purpose of this certificate is to establish authenticity of the
-below-described Atrinik server.
-
-This certificate comes with a SHA512 hash of the certificate's contents,
-signed with one of the ultimate trust Atrinik keys, and MUST be considered
-void if it can't be verified using one of those keys.
-
-==========================     BEGIN INFORMATION     ==========================
-Name:                                                          Your Server Name
-Hostname:                                                       www.example.com
-Port:                                                                      1728
-Crypto port:                                                               1729
-IPv4 address:                                                         127.0.0.1
-IPv6 address:                                                               ::1
-Public key:    -----BEGIN PUBLIC KEY-----
-Public key:    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4v8dM+Hw1DfbRVGBITcy
-Public key:    t9AfxLGpHZrGPpZgyHXy0ZAEldT221BmqI3B1U7mm6lnbzRRwZ9E2yCZVt0ItVoj
-Public key:    uINkm3fsiQpKTuf0BmeolQ7ZJ/USe1hIhSG8cGhfC2fXa1RxKbJasyehgFsQY+JR
-Public key:    tIoKt0yTpAe7TnHF3FlWt/R+j7Slz3vVsjIDBSr5V8F+/9OjQBGZ86TM9vGHR7MI
-Public key:    MxzTFKuJWpY5l2gVz8fQDNepmqNqvKvgoyCt2lEXANQYDBhtKE0H6QorYuQu4zGj
-Public key:    EPhW+U84TgDA4bm7nY37fk2kNTgQKRaqnQ//cXJGpcrieqHiqeYCpzcTofeWtbE/
-Public key:    swIDAQAB
-Public key:    -----END PUBLIC KEY-----
-==========================      END INFORMATION      ==========================
-
-The above information MUST be validated whenever establishing a connection
-to the Atrinik server.
-
-==========================  END ATRINIK CERTIFICATE  ==========================
-
- The name, hostname and ports must match that of your server configuration. The
- public key is that of the RSA key you used to sign your X509 certificate.
-
- Now, the IPv4 and IPv6 addresses are optional. It is understood that there may
- be servers with dynamic IPs, and renewing the certificate for such servers may
- not be viable. However, a certificate with no IP addresses specified will have
- a weaker security rating in the client, and it's strongly recommended to use
- static IP addresses anyway.
-
- If you do specify the IP addresses, and you only have an IPv4 address, you must
- include the IPv6 address line as well, but leave it blank. The same applies
- vice-versa.
-
- Once you have a certificate like the one above, save it to a file (refer to it
- as server-cert.txt from now on) and send a copy to the Atrinik team, who will
- produce a signature, after the confirmation process (during which you may be
- contacted for more information). Save this signature to another file (refer to
- it as server-cert-sig.txt from now on), and adjust your configuration like so:
-    [crypto]
-    server_cert = </path/to/server-cert.txt
-    server_cert_sig = </path/to/servert-cert-sig.txt
-
- After (re-)starting the server, it should update the metaserver with the
- certificate contents and its signature, and your clients should be protected
- with the highest level of security available at this time.
-
-=================================================
-= 5.1. Licensing (Atrinik server)               =
+= 4.1. Licensing (Atrinik server)               =
 =================================================
 
  This program is free software; you can redistribute it and/or modify
@@ -656,7 +473,7 @@ to the Atrinik server.
  The author can be reached at admin@atrinik.org
  
 =================================================
-= 5.2. Licensing (uthash)                       =
+= 4.2. Licensing (uthash)                       =
 =================================================
 
  Copyright (c) 2005-2011, Troy D. Hanson    http://uthash.sourceforge.net

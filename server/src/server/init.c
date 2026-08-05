@@ -40,7 +40,6 @@
 #include <toolkit/clioptions.h>
 #include <toolkit/curl.h>
 #include <server.h>
-#include <toolkit/socket_crypto.h>
 #include <toolkit/path.h>
 #include <resources.h>
 #include <http_server.h>
@@ -109,15 +108,6 @@ void free_strings(void) {
     for (i = 0; i < nrof_strings; i++) {
         FREE_ONLY_HASH(ptr[i]);
     }
-}
-
-/**
- * Free the server settings.
- */
-static void free_settings(void) {
-    free(settings.server_cert);
-
-    free(settings.server_cert_sig);
 }
 
 static void console_command_shutdown(const char *params) {
@@ -200,7 +190,6 @@ void cleanup(void) {
     metaserver_deinit();
     party_deinit();
     OPENSSL_cleanse(settings.join_password, sizeof(settings.join_password));
-    free_settings();
     toolkit_deinit();
     free_object_loader();
     free_random_map_loader();
@@ -270,41 +259,6 @@ static bool clioptions_option_version(const char *arg, char **errmsg) {
     exit(0);
 
     /* Not reached */
-    return true;
-}
-
-/**
- * Description of the --port command.
- */
-static const char *clioptions_option_port_desc =
-    "Sets the port to use for server/client communication. Set to zero to disable.";
-/** @copydoc clioptions_handler_func */
-static bool clioptions_option_port(const char *arg, char **errmsg) {
-    int val = atoi(arg);
-    if (val < 0 || val > UINT16_MAX) {
-        string_fmt(*errmsg, "%d is an invalid port number, must be 1-%d", val, UINT16_MAX);
-        return false;
-    }
-
-    settings.port = val;
-    return true;
-}
-
-/**
- * Description of the --port_crypto command.
- */
-static const char *clioptions_option_port_crypto_desc =
-    "Sets the port to use for crypto server/client communication. Set to zero to "
-    "disable.";
-/** @copydoc clioptions_handler_func */
-static bool clioptions_option_port_crypto(const char *arg, char **errmsg) {
-    uint64_t val;
-    if (!string_parse_uint64(arg, 10, 0, UINT16_MAX, &val)) {
-        string_fmt(*errmsg, "%s is an invalid port number, must be 0-%d", arg, UINT16_MAX);
-        return false;
-    }
-
-    settings.port_crypto = (uint16_t)val;
     return true;
 }
 
@@ -392,24 +346,6 @@ static const char *clioptions_option_metaserver_url_desc =
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_metaserver_url(const char *arg, char **errmsg) {
     snprintf(VS(settings.metaserver_url), "%s", arg);
-    return true;
-}
-
-/**
- * Description of the --connectivity_mode command.
- */
-static const char *clioptions_option_connectivity_mode_desc =
-    "Connection policy: direct_only, direct_preferred, or legacy_tcp.";
-/** @copydoc clioptions_handler_func */
-static bool clioptions_option_connectivity_mode(const char *arg, char **errmsg) {
-    if (strcmp(arg, "direct_only") != 0 && strcmp(arg, "direct_preferred") != 0 &&
-        strcmp(arg, "legacy_tcp") != 0) {
-        *errmsg = xstrdup("Expected direct_only, direct_preferred, or "
-                          "legacy_tcp");
-        return false;
-    }
-
-    snprintf(VS(settings.connectivity_mode), "%s", arg);
     return true;
 }
 
@@ -505,19 +441,21 @@ static bool clioptions_option_server_public(const char *arg, char **errmsg) {
  * Description of the --server_host command.
  */
 static const char *clioptions_option_server_host_desc =
-    "Hostname of a legacy TCP server published through the metaserver. Direct "
-    "QUIC servers use their certificate identity instead.\n\n"
-    "Updates will be refused if the hostname does not resolve to the incoming IP.";
+    "Optional public QUIC IP address published through the metaserver.";
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_server_host(const char *arg, char **errmsg) {
-    snprintf(VS(settings.server_host), "%s", arg);
-    string_tolower(settings.server_host);
-
-    size_t len = strlen(settings.server_host);
-    if (len > 0 && settings.server_host[len - 1] == '.') {
-        settings.server_host[len - 1] = '\0';
+    struct in_addr address4;
+    bool valid = *arg == '\0' || inet_pton(AF_INET, arg, &address4) == 1;
+#ifdef HAVE_IPV6
+    struct in6_addr address6;
+    valid = valid || inet_pton(AF_INET6, arg, &address6) == 1;
+#endif
+    if (!valid || (*arg != '\0' && !socket_host_is_global(arg))) {
+        *errmsg = xstrdup("Expected an empty value or a public IPv4/IPv6 address");
+        return false;
     }
 
+    snprintf(VS(settings.server_host), "%s", arg);
     return true;
 }
 
@@ -541,33 +479,6 @@ static const char *clioptions_option_server_desc_desc =
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_server_desc(const char *arg, char **errmsg) {
     snprintf(VS(settings.server_desc), "%s", arg);
-    return true;
-}
-
-/**
- * Description of the --server_cert command.
- */
-static const char *clioptions_option_server_cert_desc =
-    "Server certificate, in the format specified by ADS-7. Void unless signed by "
-    "the Atrinik staff.";
-/** @copydoc clioptions_handler_func */
-static bool clioptions_option_server_cert(const char *arg, char **errmsg) {
-    free(settings.server_cert);
-
-    settings.server_cert = xstrdup(arg);
-    return true;
-}
-
-/**
- * Description of the --server_cert_sig command.
- */
-static const char *clioptions_option_server_cert_sig_desc =
-    "Signature of the server certificate, as provided by the Atrinik staff.";
-/** @copydoc clioptions_handler_func */
-static bool clioptions_option_server_cert_sig(const char *arg, char **errmsg) {
-    free(settings.server_cert_sig);
-
-    settings.server_cert_sig = xstrdup(arg);
     return true;
 }
 
@@ -910,7 +821,6 @@ static void init_library(int argc, char *argv[]) {
     toolkit_import(path);
     toolkit_import(shstr);
     toolkit_import(socket);
-    toolkit_import(socket_crypto);
     toolkit_import(string);
     toolkit_import(stringbuffer);
 
@@ -959,8 +869,6 @@ static void init_library(int argc, char *argv[]) {
     CLIOPTIONS_CREATE(cli, version, "Displays the server version");
 
     /* Argument options */
-    CLIOPTIONS_CREATE_ARGUMENT(cli, port, "Sets the port to use");
-    CLIOPTIONS_CREATE_ARGUMENT(cli, port_crypto, "Sets the crypto port to use");
     CLIOPTIONS_CREATE_ARGUMENT(cli, port_quic, "Sets the QUIC UDP port");
     CLIOPTIONS_CREATE_ARGUMENT(cli, libpath, "Read-only data files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, datapath, "Read/write data files location");
@@ -969,17 +877,14 @@ static void init_library(int argc, char *argv[]) {
     CLIOPTIONS_CREATE_ARGUMENT(cli, resourcespath, "Resource files location");
     CLIOPTIONS_CREATE_ARGUMENT(cli, metaserver_url, "URL of the metaserver");
     CLIOPTIONS_CREATE_ARGUMENT(cli, http_url, "URL of the HTTP server");
-    CLIOPTIONS_CREATE_ARGUMENT(cli, connectivity_mode, "Direct connection policy");
     CLIOPTIONS_CREATE_ARGUMENT(cli, stun_server, "STUN discovery endpoint");
     CLIOPTIONS_CREATE_ARGUMENT(cli, port_mapping, "Router port mapping policy");
     CLIOPTIONS_CREATE_ARGUMENT(cli, join_password, "Private server password");
     CLIOPTIONS_CREATE_ARGUMENT(cli, join_password_file, "Private server password file");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_public, "Public server listing");
-    CLIOPTIONS_CREATE_ARGUMENT(cli, server_host, "Hostname of the server");
+    CLIOPTIONS_CREATE_ARGUMENT(cli, server_host, "Public IP address of the server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_name, "Name of the server");
     CLIOPTIONS_CREATE_ARGUMENT(cli, server_desc, "Description of the server");
-    CLIOPTIONS_CREATE_ARGUMENT(cli, server_cert, "Server certificate");
-    CLIOPTIONS_CREATE_ARGUMENT(cli, server_cert_sig, "Certificate signature");
     CLIOPTIONS_CREATE_ARGUMENT(cli, allowed_chars, "Limits for accounts/names");
 
     /* Changeable options */
@@ -1083,7 +988,6 @@ static void init_library(int argc, char *argv[]) {
     closedir(dir);
 
     curl_set_data_dir(settings.datapath);
-    socket_crypto_set_path(settings.datapath);
 
     /* Import game APIs that need settings. The world maker and test modes do
      * not serve clients; starting listeners for them adds an unnecessary
@@ -1113,8 +1017,7 @@ static void init_library(int argc, char *argv[]) {
     init_clocks();
     account_init();
     resources_init();
-    if (!settings.world_maker && !settings.unit_tests && !settings.plugin_unit_tests &&
-        strcmp(settings.connectivity_mode, "legacy_tcp") != 0) {
+    if (!settings.world_maker && !settings.unit_tests && !settings.plugin_unit_tests) {
         socket_assets_init();
     }
 }

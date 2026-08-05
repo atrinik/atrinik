@@ -30,7 +30,6 @@
 #include <global.h>
 #include <toolkit/packet.h>
 #include <network_graph.h>
-#include <toolkit/socket_crypto.h>
 
 static SDL_Thread *io_thread;
 static SDL_mutex *input_buffer_mutex;
@@ -160,20 +159,8 @@ void socket_send_packet(struct packet_struct *packet) {
     }
 
     packet_struct *packet_meta = packet_new(0, 4, 0);
-    if (socket_is_secure(csocket.sc)) {
-        bool checksum_only = !socket_crypto_client_should_encrypt(packet->type);
-        packet = socket_crypto_encrypt(csocket.sc, packet, packet_meta, checksum_only);
-        if (packet == NULL) {
-            /* Logging already done. */
-            cpl.state = ST_START;
-            packet_free(packet_meta);
-            SDL_UnlockMutex(socket_mutex);
-            return;
-        }
-    } else {
-        packet_append_uint16(packet_meta, packet->len + 1);
-        packet_append_uint8(packet_meta, packet->type);
-    }
+    packet_append_uint16(packet_meta, packet->len + 1);
+    packet_append_uint8(packet_meta, packet->type);
 
     command_buffer *buf1 = command_buffer_new(packet_meta->len, packet_meta->data);
     packet_free(packet_meta);
@@ -456,49 +443,32 @@ void client_socket_deinitialize(void) {
  * Host to connect to.
  * @param port
  * Port to connect to.
- * @param secure
- * Whether the port is the secure port.
+ * @param quic_certificate_sha256
+ * Expected SHA-256 certificate fingerprint.
  * @return
  * True on success, false on failure.
  */
 bool client_socket_open(client_socket_t *csock,
                         const char *host,
                         int port,
-                        bool secure,
                         const char *quic_certificate_sha256,
                         socket_connection_preference_t preference) {
     HARD_ASSERT(csock != NULL);
     HARD_ASSERT(host != NULL);
 
-    if (quic_certificate_sha256 != NULL) {
-        char rendezvous_url[HUGE_BUF];
-        const char *rendezvous =
-            metaserver_rendezvous_url(selected_server, VS(rendezvous_url)) ? rendezvous_url : NULL;
-        csock->sc = socket_quic_client_create(host,
-                                              port,
-                                              quic_certificate_sha256,
-                                              rendezvous,
-                                              clioption_settings.stun_server,
-                                              preference);
-    } else {
-        csock->sc = socket_create(host, port, secure, SOCKET_ROLE_CLIENT, false);
-    }
+    SOFT_ASSERT_RC(quic_certificate_sha256 != NULL, false, "Missing QUIC certificate fingerprint");
+
+    char rendezvous_url[HUGE_BUF];
+    const char *rendezvous =
+        metaserver_rendezvous_url(selected_server, VS(rendezvous_url)) ? rendezvous_url : NULL;
+    csock->sc = socket_quic_client_create(host,
+                                          port,
+                                          quic_certificate_sha256,
+                                          rendezvous,
+                                          clioption_settings.stun_server,
+                                          preference);
     if (csock->sc == NULL) {
         return false;
-    }
-
-    if (quic_certificate_sha256 == NULL && !socket_connect(csock->sc)) {
-        goto error;
-    }
-
-    if (!socket_opt_linger(csock->sc, true, 5)) {
-        goto error;
-    }
-
-    if (setting_get_int(OPT_CAT_CLIENT, OPT_MINIMIZE_LATENCY)) {
-        if (!socket_opt_ndelay(csock->sc, true)) {
-            goto error;
-        }
     }
 
     if (!socket_opt_recv_buffer(csock->sc, 65535)) {

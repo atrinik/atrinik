@@ -189,7 +189,6 @@ set(TOOLKIT_SOURCES
     socket_asset.c
     socket_direct.c
     socket_quic.c
-    socket_crypto.c
     stringbuffer.c
     string.c
     toolkit.c

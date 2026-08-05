@@ -318,16 +318,6 @@ enum {
  */
 typedef struct settings_struct {
     /**
-     * Port to use for client/server communication.
-     */
-    uint16_t port;
-
-    /**
-     * Port to use for crypto client/server communication.
-     */
-    uint16_t port_crypto;
-
-    /**
      * UDP port used for direct QUIC client/server communication.
      */
     uint16_t port_quic;
@@ -361,11 +351,6 @@ typedef struct settings_struct {
      * HTTP URL of the metaserver.
      */
     char metaserver_url[MAX_BUF];
-
-    /**
-     * Connectivity policy advertised through the metaserver.
-     */
-    char connectivity_mode[32];
 
     /**
      * STUN endpoint used to discover this server's public UDP candidate.
@@ -486,15 +471,6 @@ typedef struct settings_struct {
      */
     char network_stack[MAX_BUF];
 
-    /**
-     * Server certificate, in the format specified by ADS-7.
-     */
-    char *server_cert;
-
-    /**
-     * Signature of the server certificate, as provided by Atrinik staff.
-     */
-    char *server_cert_sig;
 } settings_struct;
 
 /** Constant shared string pointers. */

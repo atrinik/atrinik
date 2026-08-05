@@ -32,7 +32,8 @@
 #include <toolkit/string.h>
 
 /** Text input buffers. */
-static text_input_struct text_input_server_host, text_input_server_port;
+static text_input_struct text_input_server_host, text_input_server_port,
+    text_input_server_fingerprint;
 /** Add button. */
 static button_struct button_add;
 
@@ -56,9 +57,8 @@ static int popup_draw(popup_struct *popup) {
 
     text_show(popup->surface,
               FONT_ARIAL11,
-              "Here you can add a server to the list of available servers if you know the server's "
-              "hostname and port.\n\nBe careful about connecting to unlisted servers, since they "
-              "could be dangerous.",
+              "Add a QUIC server using its host, UDP port, and trusted certificate SHA-256 "
+              "fingerprint. Verify the fingerprint with the server operator before connecting.",
               10,
               45,
               COLOR_WHITE,
@@ -69,7 +69,7 @@ static int popup_draw(popup_struct *popup) {
               FONT_ARIAL11,
               "[b]Hostname:[/b]",
               10,
-              130,
+              120,
               COLOR_WHITE,
               TEXT_MARKUP,
               NULL);
@@ -77,20 +77,30 @@ static int popup_draw(popup_struct *popup) {
               FONT_ARIAL11,
               "[b]Port:[/b]",
               10,
-              150,
+              140,
+              COLOR_WHITE,
+              TEXT_MARKUP,
+              NULL);
+    text_show(popup->surface,
+              FONT_ARIAL11,
+              "[b]Certificate SHA-256:[/b]",
+              10,
+              160,
               COLOR_WHITE,
               TEXT_MARKUP,
               NULL);
 
     text_input_set_parent(&text_input_server_host, popup->x, popup->y);
     text_input_set_parent(&text_input_server_port, popup->x, popup->y);
+    text_input_set_parent(&text_input_server_fingerprint, popup->x, popup->y);
 
-    text_input_show(&text_input_server_host, popup->surface, 80, 130);
-    text_input_show(&text_input_server_port, popup->surface, 80, 150);
+    text_input_show(&text_input_server_host, popup->surface, 130, 120);
+    text_input_show(&text_input_server_port, popup->surface, 130, 140);
+    text_input_show(&text_input_server_fingerprint, popup->surface, 130, 160);
 
     button_set_parent(&button_add, popup->x, popup->y);
     button_add.x = 230;
-    button_add.y = 170;
+    button_add.y = 190;
     button_add.surface = popup->surface;
     button_show(&button_add, "Add");
 
@@ -101,16 +111,25 @@ static int popup_draw(popup_struct *popup) {
 static int popup_event(popup_struct *popup, SDL_Event *event) {
     if (button_event(&button_add, event) ||
         (event->type == SDL_KEYDOWN && IS_ENTER(event->key.keysym.sym))) {
-        if (*text_input_server_host.str == '\0' || *text_input_server_port.str == '\0' ||
-            atoi(text_input_server_port.str) <= 0) {
+        uint64_t port;
+        if (*text_input_server_host.str == '\0' ||
+            !string_parse_uint64(text_input_server_port.str, 10, 1, UINT16_MAX, &port) ||
+            !string_is_hex_fixed(text_input_server_fingerprint.str, 64, false)) {
             return -1;
         }
 
         clioption_settings.servers = xreallocarray(clioption_settings.servers,
                                                    clioption_settings.servers_num + 1,
                                                    sizeof(*clioption_settings.servers));
+        string_tolower(text_input_server_fingerprint.str);
         clioption_settings.servers[clioption_settings.servers_num] =
-            string_join("", text_input_server_host.str, " ", text_input_server_port.str, NULL);
+            string_join("",
+                        text_input_server_host.str,
+                        " ",
+                        text_input_server_port.str,
+                        " ",
+                        text_input_server_fingerprint.str,
+                        NULL);
         clioption_settings.servers_num++;
 
         if (!ms_connecting(-1)) {
@@ -122,24 +141,41 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
     }
 
     if (text_input_event(&text_input_server_host, event) ||
-        text_input_event(&text_input_server_port, event)) {
+        text_input_event(&text_input_server_port, event) ||
+        text_input_event(&text_input_server_fingerprint, event)) {
         return 1;
     }
 
     if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
         if (text_input_mouse_over(&text_input_server_host, event->button.x, event->button.y)) {
             text_input_server_port.focus = 0;
+            text_input_server_fingerprint.focus = 0;
             text_input_server_host.focus = 1;
         } else if (text_input_mouse_over(&text_input_server_port,
                                          event->button.x,
                                          event->button.y)) {
             text_input_server_host.focus = 0;
+            text_input_server_fingerprint.focus = 0;
             text_input_server_port.focus = 1;
+        } else if (text_input_mouse_over(&text_input_server_fingerprint,
+                                         event->button.x,
+                                         event->button.y)) {
+            text_input_server_host.focus = 0;
+            text_input_server_port.focus = 0;
+            text_input_server_fingerprint.focus = 1;
         }
     } else if (event->type == SDL_KEYDOWN) {
         if (event->key.keysym.sym == SDLK_TAB) {
-            text_input_server_host.focus = !text_input_server_host.focus;
-            text_input_server_port.focus = !text_input_server_port.focus;
+            if (text_input_server_host.focus) {
+                text_input_server_host.focus = 0;
+                text_input_server_port.focus = 1;
+            } else if (text_input_server_port.focus) {
+                text_input_server_port.focus = 0;
+                text_input_server_fingerprint.focus = 1;
+            } else {
+                text_input_server_fingerprint.focus = 0;
+                text_input_server_host.focus = 1;
+            }
             return 1;
         }
     }
@@ -151,6 +187,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
 static int popup_destroy_callback(popup_struct *popup) {
     text_input_destroy(&text_input_server_host);
     text_input_destroy(&text_input_server_port);
+    text_input_destroy(&text_input_server_fingerprint);
 
     button_destroy(&button_add);
 
@@ -170,9 +207,11 @@ void server_add_open(void) {
 
     text_input_create(&text_input_server_host);
     text_input_create(&text_input_server_port);
+    text_input_create(&text_input_server_fingerprint);
 
     text_input_server_port.focus = 0;
-    text_input_set(&text_input_server_port, "13327");
+    text_input_server_fingerprint.focus = 0;
+    text_input_set(&text_input_server_port, "1730");
 
     button_create(&button_add);
 }

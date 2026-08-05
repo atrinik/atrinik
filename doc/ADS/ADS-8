@@ -1,5 +1,5 @@
 ================================================================================
-= ADS-8, rev: 1.3: Atrinik Direct Rendezvous Specification                     =
+= ADS-8, rev: 1.4: Atrinik Direct Rendezvous Specification                     =
 ================================================================================
 
 1. Scope
@@ -9,6 +9,10 @@ Atrinik direct mode carries gameplay and assets over QUIC without relaying game
 traffic through the metaserver. The metaserver WebSocket is signaling-only. It
 forwards bounded JSON candidate messages and cannot carry binary messages,
 arbitrary JSON, QUIC datagrams, assets, or game protocol packets.
+
+The directory endpoint is GET /v2/servers. Protocol 3 returns only QUIC server
+identities, IP endpoints, and pinned SHA-256 certificate fingerprints. The
+removed hostname/TCP directory has no fallback endpoint.
 
 2. Candidate gathering
 ======================
@@ -99,8 +103,8 @@ probe receives at most one equal-size response and never creates a connection.
 Signaling completion never claims that a network route works.
 
 If every candidate fails, the client reports that no confirmed direct route is
-available. It does not silently use a TURN relay, metaserver relay, or legacy
-TCP connection. Networks that block UDP or provide incompatible symmetric NAT
+available. It does not silently use a TURN relay or metaserver relay. Networks
+that block UDP or provide incompatible symmetric NAT
 therefore need direct IPv6, an automatic/manual router mapping, or an external
 VPN/overlay chosen by the operator.
 

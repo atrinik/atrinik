@@ -34,7 +34,6 @@
 #include <toolkit/path.h>
 #include <toolkit/string.h>
 #include <toolkit/packet.h>
-#include <toolkit/socket_crypto.h>
 #include <server.h>
 #include <player.h>
 #include <object.h>
@@ -58,15 +57,6 @@ TOOLKIT_API(DEPENDS(socket), IMPORTS(logger));
  * iteration.
  */
 #define SOCKET_SERVER_PLAYER_MAX_COMMANDS 15
-
-typedef enum socket_server_id {
-    SOCKET_SERVER_ID_CLASSIC_V4,
-    SOCKET_SERVER_ID_SECURE_V4,
-    SOCKET_SERVER_ID_CLASSIC_V6,
-    SOCKET_SERVER_ID_SECURE_V6,
-
-    SOCKET_SERVER_ID_NUM
-} socket_server_id_t;
 
 /**
  * Structure to provide link linkage for client socket entries.
@@ -96,22 +86,11 @@ typedef struct socket_command {
  * File descriptors that have data available.
  */
 static fd_set fds_read;
-/**
- * File descriptors that are ready to receive data.
- */
-static fd_set fds_write;
-/**
- * File descriptors with errors.
- */
-static fd_set fds_error;
-/**
- * The server's listening sockets.
- */
-static socket_t *server_sockets[SOCKET_SERVER_ID_NUM];
 /** Direct UDP/QUIC listeners (IPv4 and IPv6), when enabled. */
 static socket_t *quic_server_sockets[2];
 static socket_direct_candidate_t quic_candidates[SOCKET_DIRECT_MAX_CANDIDATES];
 static size_t quic_candidate_count;
+static void socket_server_csocket_drop(csocket_entry_t *entry);
 static char quic_public_host[MAX_BUF];
 static uint16_t quic_public_port;
 static char quic_certificate_sha256[65];
@@ -134,7 +113,6 @@ static const socket_command_t socket_commands[] = {
     {socket_command_ask_face, 0},
     {socket_command_setup, 0},
     {socket_command_version, 0},
-    {socket_command_crypto, 0},
     {socket_command_clear, 0},
     {socket_command_request_update, 0},
     {socket_command_keepalive, 0},
@@ -157,54 +135,6 @@ static const socket_command_t socket_commands[] = {
     {socket_command_asset, 0},
 };
 CASSERT_ARRAY(socket_commands, SERVER_CMD_NROF);
-
-/**
- * Checks if the specified socket ID is for a secure connection.
- *
- * @param id
- * ID to check.
- * @return
- * Whether the ID is for a secure connection.
- */
-static inline bool server_socket_id_is_secure(socket_server_id_t id) {
-    if (id == SOCKET_SERVER_ID_SECURE_V4 || id == SOCKET_SERVER_ID_SECURE_V6) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * Checks if the specified socket ID is for an IPv6 connection.
- *
- * @param id
- * ID to check.
- * @return
- * Whether the ID is for an IPv6 connection.
- */
-static inline bool server_socket_id_is_v6(socket_server_id_t id) {
-    if (id == SOCKET_SERVER_ID_CLASSIC_V6 || id == SOCKET_SERVER_ID_SECURE_V6) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * Checks if the specified socket ID is for an IPv4 connection.
- *
- * @param id
- * ID to check.
- * @return
- * Whether the ID is for an IPv4 connection.
- */
-static inline bool server_socket_id_is_v4(socket_server_id_t id) {
-    if (id == SOCKET_SERVER_ID_CLASSIC_V4 || id == SOCKET_SERVER_ID_SECURE_V4) {
-        return true;
-    }
-
-    return false;
-}
 
 /**
  * Initialize the socket server API.
@@ -273,83 +203,7 @@ TOOLKIT_INIT_FUNC(socket_server) {
         exit(1);
     }
 
-    bool legacy_enabled = *settings.connectivity_mode == '\0' ||
-                          strcmp(settings.connectivity_mode, "legacy_tcp") == 0 ||
-                          strcmp(settings.connectivity_mode, "direct_preferred") == 0;
-    bool direct_enabled = strcmp(settings.connectivity_mode, "legacy_tcp") != 0;
-
-    if (legacy_enabled && (settings.port_crypto == 0 || settings.port == 0)) {
-        LOG(ERROR, "No legacy TCP port configured");
-        exit(1);
-    }
-
-    for (socket_server_id_t i = 0; legacy_enabled && i < SOCKET_SERVER_ID_NUM; i++) {
-        uint16_t port;
-        bool secure = server_socket_id_is_secure(i);
-        if (secure) {
-            port = settings.port_crypto;
-        } else {
-            port = settings.port;
-        }
-
-        if (port == 0) {
-            continue;
-        }
-
-        const char *host = NULL;
-        if (BIT_QUERY(stack_setting.type, STACK_DUAL)) {
-            /* Avoid binding more than once. */
-            if (server_socket_id_is_v4(i)) {
-                continue;
-            }
-        } else {
-            struct sockaddr_storage *addr;
-            if (server_socket_id_is_v4(i)) {
-                if (!BIT_QUERY(stack_setting.type, STACK_IPV4)) {
-                    continue;
-                }
-
-                addr = &stack_setting.v4;
-            } else if (server_socket_id_is_v6(i)) {
-                if (!BIT_QUERY(stack_setting.type, STACK_IPV6)) {
-                    continue;
-                }
-
-                addr = &stack_setting.v6;
-            } else {
-                LOG(ERROR, "Reached impossible code branch");
-                exit(1);
-            }
-
-            char hostname[MAX_BUF];
-            if (socket_addr2host(addr, VS(hostname)) == NULL) {
-                LOG(ERROR, "Failed to convert address to host");
-                exit(1);
-            }
-
-            host = hostname;
-        }
-
-        bool dual_stack = BIT_QUERY(stack_setting.type, STACK_DUAL);
-        server_sockets[i] = socket_create(host, port, secure, SOCKET_ROLE_SERVER, dual_stack);
-        if (server_sockets[i] == NULL) {
-            exit(1);
-        }
-
-        if (!socket_opt_linger(server_sockets[i], false, 0)) {
-            exit(1);
-        }
-
-        if (!socket_opt_reuse_addr(server_sockets[i], true)) {
-            exit(1);
-        }
-
-        if (!socket_bind(server_sockets[i])) {
-            exit(1);
-        }
-    }
-
-    if (direct_enabled) {
+    {
         if (settings.port_quic == 0) {
             LOG(ERROR, "No QUIC UDP port configured");
             exit(1);
@@ -496,14 +350,10 @@ TOOLKIT_INIT_FUNC_FINISH
  * Deinitialize the socket server API.
  */
 TOOLKIT_DEINIT_FUNC(socket_server) {
-    for (int i = 0; i < SOCKET_SERVER_ID_NUM; i++) {
-        if (server_sockets[i] == NULL) {
-            continue;
-        }
-
-        socket_destroy(server_sockets[i]);
+    csocket_entry_t *entry, *tmp;
+    DL_FOREACH_SAFE(client_sockets, entry, tmp) {
+        socket_server_csocket_drop(entry);
     }
-
     socket_port_mapping_deinit();
     for (size_t i = 0; i < arraysize(quic_server_sockets); i++) {
         if (quic_server_sockets[i] != NULL) {
@@ -592,22 +442,6 @@ static bool socket_server_handle_command(socket_struct *cs, player *pl, uint8_t 
     size_t pos = 0;
     uint8_t type = packet_to_uint8(data, len, &pos);
 
-    bool is_secure = socket_is_secure(cs->sc);
-    if (!is_secure && type == SERVER_CMD_CRYPTO) {
-        LOG(PACKET, "Received crypto packet on wrong port from %s", socket_get_id(cs->sc));
-        cs->state = ST_DEAD;
-        return false;
-    }
-
-    if (socket_is_secure(cs->sc) && type != SERVER_CMD_CRYPTO &&
-        !socket_crypto_is_done(socket_get_crypto(cs->sc))) {
-        LOG(PACKET,
-            "Received non-crypto packet before crypto exchange from %s",
-            socket_get_id(cs->sc));
-        cs->state = ST_DEAD;
-        return false;
-    }
-
 #ifndef DEBUG
     char *cp;
 
@@ -652,12 +486,6 @@ static void socket_server_csocket_create(socket_t *server_socket) {
     entry->cs->sc = accepted;
 
     init_connection(entry->cs);
-    if (!socket_is_quic(entry->cs->sc)) {
-        LOG(SYSTEM,
-            "Connection %s accepted using %s",
-            socket_get_id(entry->cs->sc),
-            socket_connection_mode_name(socket_connection_mode_get(entry->cs->sc)));
-    }
     DL_APPEND(client_sockets, entry);
     client_sockets_count++;
     server_metrics_connection_accepted(client_sockets_count);
@@ -846,23 +674,8 @@ static inline void socket_server_csocket_read(socket_struct *cs) {
         uint8_t *data = cs->packet_recv->data;
         size_t len = size;
 
-        uint8_t *decrypted_data;
-        size_t decrypted_len;
-        bool was_decrypted = true;
-        if (socket_is_secure(cs->sc)) {
-            if (!socket_crypto_decrypt(cs->sc,
-                                       data + 2,
-                                       len - 2,
-                                       &decrypted_data,
-                                       &decrypted_len)) {
-                cs->state = ST_DEAD;
-                break;
-            }
-        } else {
-            decrypted_data = data + 2;
-            decrypted_len = len - 2;
-            was_decrypted = false;
-        }
+        uint8_t *decrypted_data = data + 2;
+        size_t decrypted_len = len - 2;
 
         /* Try to handle the command. */
         if (!socket_server_handle_command(cs, NULL, decrypted_data, decrypted_len)) {
@@ -870,10 +683,6 @@ static inline void socket_server_csocket_read(socket_struct *cs) {
              * packet. */
             packet_append_uint16(cs->packet_recv_cmd, decrypted_len);
             packet_append_data_len(cs->packet_recv_cmd, decrypted_data, decrypted_len);
-        }
-
-        if (was_decrypted) {
-            free(decrypted_data);
         }
 
         packet_delete(cs->packet_recv, 0, size);
@@ -899,23 +708,8 @@ void socket_server_process(void) {
     }
     socket_port_mapping_process();
     FD_ZERO(&fds_read);
-    FD_ZERO(&fds_write);
-    FD_ZERO(&fds_error);
 
     int nfds = 0;
-
-    for (socket_server_id_t i = 0; i < SOCKET_SERVER_ID_NUM; i++) {
-        if (server_sockets[i] == NULL) {
-            continue;
-        }
-
-        int fd = socket_fd(server_sockets[i]);
-        if (nfds < fd) {
-            nfds = fd;
-        }
-
-        FD_SET(fd, &fds_read);
-    }
 
     for (size_t i = 0; i < arraysize(quic_server_sockets); i++) {
         if (quic_server_sockets[i] == NULL) {
@@ -952,21 +746,7 @@ void socket_server_process(void) {
         }
 
         /* Accepted OpenSSL QUIC connections share the listener's UDP handle.
-         * A readiness bit for that handle cannot identify which SSL object
-         * has buffered application data or protocol timers to process. QUIC
-         * connections are nonblocking and are polled explicitly below. */
-        if (socket_is_quic(entry->cs->sc)) {
-            continue;
-        }
-
-        int fd = socket_fd(entry->cs->sc);
-        if (nfds < fd) {
-            nfds = fd;
-        }
-
-        FD_SET(fd, &fds_read);
-        FD_SET(fd, &fds_write);
-        FD_SET(fd, &fds_error);
+         * Poll each SSL object explicitly after servicing that handle. */
     }
 
     player *pl, *pl_tmp;
@@ -998,19 +778,6 @@ void socket_server_process(void) {
         if (server_socket_csocket_is_zombie(pl->cs)) {
             continue;
         }
-
-        if (socket_is_quic(pl->cs->sc)) {
-            continue;
-        }
-
-        int fd = socket_fd(pl->cs->sc);
-        if (nfds < fd) {
-            nfds = fd;
-        }
-
-        FD_SET(fd, &fds_read);
-        FD_SET(fd, &fds_write);
-        FD_SET(fd, &fds_error);
     }
 
     int ready;
@@ -1018,28 +785,16 @@ void socket_server_process(void) {
     static struct timespec timeout;
     /* pselect does not change the timeout argument, so we're OK with a
      * static storage duration one. */
-    ready = pselect(nfds + 1, &fds_read, &fds_write, &fds_error, &timeout, NULL);
+    ready = pselect(nfds + 1, &fds_read, NULL, NULL, &timeout, NULL);
 #else
     struct timeval timeout;
     timeout.tv_sec = 0;
     timeout.tv_usec = 0;
-    ready = select(nfds + 1, &fds_read, &fds_write, &fds_error, &timeout);
+    ready = select(nfds + 1, &fds_read, NULL, NULL, &timeout);
 #endif
     if (unlikely(ready == -1)) {
         LOG(ERROR, "pselect/select() returned an error: %s (%d)", strerror(errno), errno);
         return;
-    }
-
-    for (socket_server_id_t i = 0; i < SOCKET_SERVER_ID_NUM; i++) {
-        if (server_sockets[i] == NULL) {
-            continue;
-        }
-
-        if (!FD_ISSET(socket_fd(server_sockets[i]), &fds_read)) {
-            continue;
-        }
-
-        socket_server_csocket_create(server_sockets[i]);
     }
 
     for (size_t i = 0; i < arraysize(quic_server_sockets); i++) {
@@ -1053,95 +808,49 @@ void socket_server_process(void) {
     }
 
     DL_FOREACH_SAFE(client_sockets, entry, entry_tmp) {
-        int fd = socket_fd(entry->cs->sc);
-
-        if (socket_is_quic(entry->cs->sc)) {
-            if (entry->cs->state == ST_ZOMBIE) {
-                continue;
-            }
-            socket_struct *cs = entry->cs;
-            bool network_ready = socket_server_quic_network_ready(cs->sc);
-            server_metrics_quic_service(network_ready);
-            if (!socket_quic_service(cs->sc, network_ready, cs->packets != NULL)) {
-                continue;
-            }
-            socket_server_csocket_read(cs);
-            entry = socket_server_csocket_find(cs);
-            if (entry == NULL) {
-                /* Login moved the live socket to first_player; the player
-                 * pass below will flush its queued response. */
-                continue;
-            }
-            if (cs->state == ST_DEAD) {
-                socket_server_csocket_drop(entry);
-                continue;
-            }
-            /* Flush responses in the same pass as the command that queued
-             * them. SSL_write_ex() remains nonblocking. */
-            socket_buffer_write(entry->cs);
+        if (entry->cs->state == ST_ZOMBIE) {
             continue;
         }
-
-        if (FD_ISSET(fd, &fds_error)) {
-            entry->cs->state = ST_DEAD;
-            continue;
-        } else if (FD_ISSET(fd, &fds_read)) {
-            socket_server_csocket_read(entry->cs);
+        socket_struct *cs = entry->cs;
+        bool network_ready = socket_server_quic_network_ready(cs->sc);
+        server_metrics_quic_service(network_ready);
+        if (!socket_quic_service(cs->sc, network_ready, cs->packets != NULL)) {
             continue;
         }
-
-        if (entry->cs->state == ST_DEAD) {
+        socket_server_csocket_read(cs);
+        entry = socket_server_csocket_find(cs);
+        if (entry == NULL) {
+            /* Login moved the live socket to first_player; the player pass
+             * below will flush its queued response. */
+            continue;
+        }
+        if (cs->state == ST_DEAD) {
             socket_server_csocket_drop(entry);
             continue;
         }
-
-        if (FD_ISSET(fd, &fds_write)) {
-            socket_buffer_write(entry->cs);
-        }
+        socket_buffer_write(entry->cs);
     }
 
     DL_FOREACH_SAFE(first_player, pl, pl_tmp) {
-        int fd = socket_fd(pl->cs->sc);
-
-        if (socket_is_quic(pl->cs->sc)) {
-            if (pl->cs->state == ST_ZOMBIE) {
-                continue;
-            }
-            socket_struct *cs = pl->cs;
-            bool network_ready = socket_server_quic_network_ready(cs->sc);
-            server_metrics_quic_service(network_ready);
-            if (!socket_quic_service(cs->sc, network_ready, cs->packets != NULL)) {
-                continue;
-            }
-            socket_server_csocket_read(cs);
-            pl = socket_server_player_find(cs);
-            if (pl == NULL) {
-                continue;
-            }
-            if (cs->state == ST_DEAD) {
-                player_logout(pl);
-                continue;
-            }
-            socket_buffer_write(cs);
+        if (pl->cs->state == ST_ZOMBIE) {
             continue;
         }
-
-        if (FD_ISSET(fd, &fds_error)) {
-            pl->cs->state = ST_DEAD;
-            continue;
-        } else if (FD_ISSET(fd, &fds_read)) {
-            socket_server_csocket_read(pl->cs);
+        socket_struct *cs = pl->cs;
+        bool network_ready = socket_server_quic_network_ready(cs->sc);
+        server_metrics_quic_service(network_ready);
+        if (!socket_quic_service(cs->sc, network_ready, cs->packets != NULL)) {
             continue;
         }
-
-        if (pl->cs->state == ST_DEAD) {
+        socket_server_csocket_read(cs);
+        pl = socket_server_player_find(cs);
+        if (pl == NULL) {
+            continue;
+        }
+        if (cs->state == ST_DEAD) {
             player_logout(pl);
             continue;
         }
-
-        if (FD_ISSET(fd, &fds_write)) {
-            socket_buffer_write(pl->cs);
-        }
+        socket_buffer_write(cs);
     }
 }
 
@@ -1180,8 +889,6 @@ void socket_server_post_process(void) {
             }
         }
 
-        if (FD_ISSET(socket_fd(pl->cs->sc), &fds_write)) {
-            socket_buffer_write(pl->cs);
-        }
+        socket_buffer_write(pl->cs);
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Direct-connect metaserver directory parser (protocol 2).
+ * QUIC metaserver directory parser (protocol 3).
  */
 
 #include <global.h>
@@ -35,7 +35,7 @@ static bool parse_direct_server_field(xmlNodePtr node, server_struct *server) {
         } else {
             server->server_id = xstrdup(value);
         }
-    } else if (XML_STR_EQUAL(node->name, "Address") || XML_STR_EQUAL(node->name, "Hostname")) {
+    } else if (XML_STR_EQUAL(node->name, "Address")) {
         if (server->hostname != NULL) {
             ok = false;
         } else {
@@ -73,8 +73,6 @@ static bool parse_direct_server_field(xmlNodePtr node, server_struct *server) {
         } else {
             server->desc = xstrdup(value);
         }
-    } else if (XML_STR_EQUAL(node->name, "ConnectivityMode")) {
-        ok = strcmp(value, "direct_only") == 0 || strcmp(value, "direct_preferred") == 0;
     } else if (XML_STR_EQUAL(node->name, "CertificateSha256")) {
         if (server->quic_certificate_sha256 != NULL) {
             ok = false;
@@ -87,6 +85,8 @@ static bool parse_direct_server_field(xmlNodePtr node, server_struct *server) {
         } else if (strcmp(value, "false") != 0) {
             ok = false;
         }
+    } else {
+        ok = false;
     }
 
     xmlFree(content);
@@ -95,7 +95,6 @@ static bool parse_direct_server_field(xmlNodePtr node, server_struct *server) {
 
 static void parse_direct_server(xmlNodePtr node, const char *origin) {
     server_struct *server = xcalloc(1, sizeof(*server));
-    server->port_crypto = -1;
     server->is_meta = true;
     server->direct = true;
     server->rendezvous_origin = xstrdup(origin);
@@ -133,7 +132,7 @@ bool metaserver_direct_parse(const char *body, size_t body_size, const char *ori
     xmlNodePtr root = xmlDocGetRootElement(doc);
     xmlChar *protocol = root != NULL ? xmlGetProp(root, (const xmlChar *)"protocol") : NULL;
     bool valid = root != NULL && XML_STR_EQUAL(root->name, "Servers") && protocol != NULL &&
-                 XML_STR_EQUAL(protocol, "2");
+                 XML_STR_EQUAL(protocol, "3");
     xmlFree(protocol);
     if (!valid) {
         LOG(ERROR, "Invalid direct metaserver directory root");
@@ -151,10 +150,10 @@ bool metaserver_direct_parse(const char *body, size_t body_size, const char *ori
     return true;
 }
 
-void metaserver_direct_url(const char *legacy_url, char *url, size_t url_size) {
+void metaserver_direct_url(const char *base_url, char *url, size_t url_size) {
     CURLU *parsed = curl_url();
     char *rendered = NULL;
-    bool ok = parsed != NULL && curl_url_set(parsed, CURLUPART_URL, legacy_url, 0) == CURLUE_OK &&
+    bool ok = parsed != NULL && curl_url_set(parsed, CURLUPART_URL, base_url, 0) == CURLUE_OK &&
               curl_url_set(parsed, CURLUPART_PATH, "/v2/servers", 0) == CURLUE_OK &&
               curl_url_set(parsed, CURLUPART_QUERY, NULL, 0) == CURLUE_OK &&
               curl_url_set(parsed, CURLUPART_FRAGMENT, NULL, 0) == CURLUE_OK &&

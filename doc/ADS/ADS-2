@@ -1,5 +1,5 @@
 ===============================================================================
-= ADS-2, rev: 0.5: Atrinik Protocol Specification                             =
+= ADS-2, rev: 0.6: Atrinik Protocol Specification                             =
 ===============================================================================
  This document contains design specification for the Atrinik client<->server
  protocol. The following sections exist:
@@ -12,27 +12,26 @@
     2.2  Server command ASK_FACE
     2.3  Server command SETUP
     2.4  Server command VERSION
-    2.5  Server command CRYPTO
-    2.6  Server command CLEAR
-    2.7  Server command REQUEST_UPDATE
-    2.8  Server command KEEPALIVE
-    2.9  Server command ACCOUNT
-    2.10 Server command ITEM_EXAMINE
-    2.11 Server command ITEM_APPLY
-    2.12 Server command ITEM_MOVE
-    2.13 Server command REPLY
-    2.14 Server command PLAYER_CMD
-    2.15 Server command ITEM_LOCK
-    2.16 Server command ITEM_MARK
-    2.17 Server command FIRE
-    2.18 Server command QUICKSLOT
-    2.19 Server command QUESTLIST
-    2.20 Server command MOVE_PATH
-    2.21 Server command COMBAT
-    2.22 Server command TALK
-    2.23 Server command MOVE
-    2.24 Server command TARGET
-    2.25 Server command ASSET
+    2.5  Server command CLEAR
+    2.6  Server command REQUEST_UPDATE
+    2.7  Server command KEEPALIVE
+    2.8  Server command ACCOUNT
+    2.9 Server command ITEM_EXAMINE
+    2.10 Server command ITEM_APPLY
+    2.11 Server command ITEM_MOVE
+    2.12 Server command ASK_RESOURCE
+    2.13 Server command PLAYER_CMD
+    2.14 Server command ITEM_LOCK
+    2.15 Server command ITEM_MARK
+    2.16 Server command FIRE
+    2.17 Server command QUICKSLOT
+    2.18 Server command QUESTLIST
+    2.19 Server command MOVE_PATH
+    2.20 Server command COMBAT
+    2.21 Server command TALK
+    2.22 Server command MOVE
+    2.23 Server command TARGET
+    2.24 Server command ASSET
  3. Client commands
     3.1  Client command MAP
     3.2  Client command DRAWINFO
@@ -45,38 +44,37 @@
     3.9  Client command STATS
     3.10 Client command IMAGE
     3.11 Client command ANIM
-    3.12 Client command SKILL_READY
-    3.13 Client command PLAYER
-    3.14 Client command MAPSTATS
-    3.15 Client command SKILL_LIST
-    3.16 Client command VERSION
-    3.17 Client command SETUP
-    3.18 Client command CONTROL
-    3.19 Client command DATA
-    3.20 Client command CHARACTERS
-    3.21 Client command BOOK
-    3.22 Client command PARTY
-    3.23 Client command QUICKSLOT
-    3.24 Client command COMPRESSED
-    3.25 Client command REGION_MAP
-    3.26 Client command SOUND_AMBIENT
-    3.27 Client command INTERFACE
-    3.28 Client command NOTIFICATION
-    3.29 Client command KEEPALIVE
-    3.30 Client command ASSET
+    3.12 Client command PLAYER
+    3.13 Client command MAPSTATS
+    3.14 Client command RESOURCE
+    3.15 Client command VERSION
+    3.16 Client command SETUP
+    3.17 Client command CONTROL
+    3.18 Client command PAINTING
+    3.19 Client command CHARACTERS
+    3.20 Client command BOOK
+    3.21 Client command PARTY
+    3.22 Client command QUICKSLOT
+    3.23 Client command COMPRESSED
+    3.24 Client command REGION_MAP
+    3.25 Client command SOUND_AMBIENT
+    3.26 Client command INTERFACE
+    3.27 Client command NOTIFICATION
+    3.28 Client command KEEPALIVE
+    3.29 Client command ASSET
  4. Example logic
  5. Authors
 
 ===============================================================================
 = 1. Session                                                                  =
 ===============================================================================
- Atrinik uses a standard TCP/IP connection to establish a session. Once a
- session has been established, the client and the server are free to exchange
- data at will, in an asynchronous mode of data exchange. After this is done, it
+ Atrinik uses a certificate-pinned QUIC connection to establish a session.
+ Application packets use the connection's default bidirectional stream. Once
+ a session has been established, the client and the server are free to exchange
+ data asynchronously. After this is done, it
  is MANDATORY that the server and the client exchange version information,
- with the use of the version command (see section 2.4 and section 3.16).
- This allows both sides to implement backward compatibility for older versions
- of the protocol.
+ with the use of the version command (see section 2.4 and section 3.15).
+ This ensures that both sides implement the same protocol contract.
 
  Both IPv4 and IPv6 sessions are supported, and must be implemented in order
  to be compliant with this document specification. Support for dual-stack
@@ -84,19 +82,11 @@
 
  The network order is MSB (Most Significant Byte), also known as big-endian.
 
- The default Atrinik port is 1728, however, it is recommended that server
- implementations allow this to be changed.
+ The default Atrinik game port is UDP 1730, although implementations SHOULD
+ allow it to be changed.
 
  The implementation SHOULD use non-blocking sockets to receive and send data.
  Using threads for this is highly recommended.
-
- The implementation SHOULD disable Nagle's algorithm, as this algorithm is
- enabled by default but introduces artificial lag due to buffering data until
- some amount of data has been buffered, then flushing the buffer. This
- behaviour has no place in a real-time action RPG such as Atrinik, where player
- should get feedback to their actions as quickly as possible. HOWEVER, it is
- recommended to enable Nagle's algorithm selectively for packets that do not
- need to be sent out immediately (such as chat, player statistics, etc).
 
  The server implementation MUST use some sort of buffers for data to send and
  receive, in order to allow for cancellation/compression/prioritisation/etc.
@@ -147,9 +137,10 @@
  explained in section 3.8) packets to the server, at an interval of no more
  than one packet per minute.
 
- If the server does not receive a keepalive packet from the client for a period
- longer than 10 minutes, it MUST, for all intents and purposes, consider the
- session as dead and drop the connection.
+ Endpoints advertise a five-second QUIC idle timeout. A client sends an
+ application keepalive every two seconds while connected so an otherwise idle
+ session remains active and silent peer failure is detected promptly. An
+ orderly endpoint sends QUIC CONNECTION_CLOSE before releasing the connection.
 
 ===============================================================================
 = 2. Server commands                                                        =
@@ -172,48 +163,46 @@
   See section 2.3.
  VERSION:
   See section 2.4.
- CRYPTO:
-  See section 2.5.
  CLEAR:
-  See section 2.6.
+  See section 2.5.
  REQUEST_UPDATE:
-  See section 2.7.
+  See section 2.6.
  KEEPALIVE:
-  See section 2.8.
+  See section 2.7.
  ACCOUNT:
-  See section 2.9.
+  See section 2.8.
  ITEM_EXAMINE (player only):
-  See section 2.10.
+  See section 2.9.
  ITEM_APPLY (player only):
-  See section 2.11.
+  See section 2.10.
  ITEM_MOVE (player only):
+  See section 2.11.
+ ASK_RESOURCE (player only):
   See section 2.12.
- REPLY (player only):
-  See section 2.13.
  PLAYER_CMD (player only):
-  See section 2.14.
+  See section 2.13.
  ITEM_LOCK (player only):
-  See section 2.15.
+  See section 2.14.
  ITEM_MARK (player only):
-  See section 2.16.
+  See section 2.15.
  FIRE (player only):
-  See section 2.17.
+  See section 2.16.
  QUICKSLOT (player only):
-  See section 2.18.
+  See section 2.17.
  QUESTLIST (player only):
-  See section 2.19.
+  See section 2.18.
  MOVE_PATH (player only):
-  See section 2.20.
+  See section 2.19.
  COMBAT (player only):
-  See section 2.21.
+  See section 2.20.
  TALK (player only):
-  See section 2.22.
+  See section 2.21.
  MOVE (player only):
-  See section 2.23.
+  See section 2.22.
  TARGET (player only):
-  See section 2.24.
+  See section 2.23.
  ASSET:
-  See section 2.25.
+  See section 2.24.
 
 ===============================================================================
 = 2.1. Server command CONTROL                                                 =
@@ -279,7 +268,7 @@
 
   If a player has been successfully found (logged in), the entire packet
   payload MUST be forwarded to the player's client as client command CONTROL
-  (see section 3.18).
+  (see section 3.17).
 
   The following is a list of possible sub-types for this command type, starting
   at an index of one.
@@ -320,7 +309,7 @@
  This command is used to exchange information about supported capabilities,
  features, etc between the server and the client after having established a
  connection, and, ideally, after exchanging version information (see sections
- 2.4. and 3.16.).
+ 2.4. and 3.15.).
 
  As the packet data is being parsed by the server, a cloned packet MUST be
  constructed at the same or later time, as a response for the client. This new
@@ -328,7 +317,7 @@
  different values: in essence, values that were accepted and *really*
  configured by the server. What options get accepted are up to the server's
  implementation, but the proper response MUST be sent to the client as client
- command SETUP (see section 3.17.).
+ command SETUP (see section 3.16.).
 
  The packet MUST be constructed as thus, in the listed order, repeating any
  number of times (for different setup options):
@@ -379,16 +368,14 @@
   The direct route selected by a QUIC client. The request and response each
   contain one uint8 with one of these values:
 
-   0  TCP
-   1  TLS
-   2  QUIC with no more specific classification
-   3  QUIC through a same-LAN candidate
-   4  QUIC through a direct IPv6 candidate
-   5  QUIC through a PCP, NAT-PMP, or UPnP mapped candidate
-   6  QUIC through a STUN server-reflexive candidate
-   7  QUIC through the directory fallback candidate
+   0  QUIC with no more specific classification
+   1  QUIC through a same-LAN candidate
+   2  QUIC through a direct IPv6 candidate
+   3  QUIC through a PCP, NAT-PMP, or UPnP mapped candidate
+   4  QUIC through a STUN server-reflexive candidate
+   5  QUIC through the directory fallback candidate
 
-  A server MUST accept values 3 through 7 only on an established QUIC
+  A server MUST accept values 1 through 5 only on an established QUIC
   transport. The value is diagnostic metadata reported by the client and MUST
   NOT be used as a security assertion.
 
@@ -410,27 +397,17 @@
 
  After successfully storing the version number (establishing that is valid and
  compatible), the server MUST respond with its own version number, sending
- client command VERSION (see section 3.16.) to the client.
+ client command VERSION (see section 3.15.) to the client.
 
 ===============================================================================
-= 2.5. Server command CRYPTO                                                  =
-===============================================================================
- This command is used to establish a secure cryptographic session.
-
- See ADS-6 for details about how this command works.
-
- This command MUST not be sent over the classic non-crypto port that was
- described in the beginning of this document.
-
-===============================================================================
-= 2.6. Server command CLEAR                                                   =
+= 2.5. Server command CLEAR                                                   =
 ===============================================================================
  This command is used to clear the player packet commands queue. Thus, any
  previously read player packet commands that haven't been handled yet will be
  completely cleared.
 
 ===============================================================================
-= 2.7. Server command REQUEST_UPDATE                                          =
+= 2.6. Server command REQUEST_UPDATE                                          =
 ===============================================================================
  This command is used to request an update of the specified file under the
  client's directory, whatever it may be.
@@ -445,7 +422,7 @@
  as a response.
 
 ===============================================================================
-= 2.8. Server command KEEPALIVE                                               =
+= 2.7. Server command KEEPALIVE                                               =
 ===============================================================================
  This command is used to inform the server that the connection is still alive.
 
@@ -461,7 +438,7 @@
      The keepalive ID.
 
 ===============================================================================
-= 2.9. Server command ACCOUNT                                                 =
+= 2.8. Server command ACCOUNT                                                 =
 ===============================================================================
  This command is used to perform account related operations, such as creating
  new account, logging into an account, logging into an account's character, and
@@ -519,7 +496,7 @@
       Verification of the new password.
 
 ===============================================================================
-= 2.10. Server command ITEM_EXAMINE                                           =
+= 2.9. Server command ITEM_EXAMINE                                           =
 ===============================================================================
  Used to request examining of a specified item.
 
@@ -528,7 +505,7 @@
      UID of the item to examine. If zero, no item will be examined.
 
 ===============================================================================
-= 2.11. Server command ITEM_APPLY                                             =
+= 2.10. Server command ITEM_APPLY                                             =
 ===============================================================================
  Used to request applying of a specified item.
 
@@ -537,7 +514,7 @@
      UID of the item to apply. If zero, no item will be applied.
 
 ===============================================================================
-= 2.12. Server command ITEM_MOVE                                              =
+= 2.11. Server command ITEM_MOVE                                              =
 ===============================================================================
  Used to request moving any number of items from one inventory to another.
 
@@ -550,13 +527,14 @@
      How many items to move.
 
 ===============================================================================
-= 2.13. Server command REPLY                                                  =
+= 2.12. Server command ASK_RESOURCE                                           =
 ===============================================================================
- This is an obsolete command that is kept for backwards compatibility, but has
- no use and may be renamed in future versions of this document specification.
+ Requests a named server resource.
+
+ The packet MUST contain the resource name as a NUL-terminated string.
 
 ===============================================================================
-= 2.14. Server command PLAYER_CMD                                             =
+= 2.13. Server command PLAYER_CMD                                             =
 ===============================================================================
  This command is used to run arbitrary game commands such as /chat, /ban, etc.
 
@@ -565,7 +543,7 @@
      Command to execute, for example, "/chat hello world".
 
 ===============================================================================
-= 2.15. Server command ITEM_LOCK                                              =
+= 2.14. Server command ITEM_LOCK                                              =
 ===============================================================================
  Used to request locking of a specified item.
 
@@ -574,7 +552,7 @@
      UID of the item to lock. If zero, no item will be locked.
 
 ===============================================================================
-= 2.16. Server command ITEM_MARK                                              =
+= 2.15. Server command ITEM_MARK                                              =
 ===============================================================================
  Used to request marking of a specified item.
 
@@ -583,7 +561,7 @@
      UID of the item to mark. If zero, no item will be marked.
 
 ===============================================================================
-= 2.17. Server command FIRE                                                   =
+= 2.16. Server command FIRE                                                   =
 ===============================================================================
  Used to request firing a specified ranged weapon.
 
@@ -597,7 +575,7 @@
      fired.
 
 ===============================================================================
-= 2.18. Server command QUICKSLOT                                              =
+= 2.17. Server command QUICKSLOT                                              =
 ===============================================================================
  Used to request setting a specified quickslot to a particular item, or
  removing quickslot.
@@ -611,12 +589,12 @@
      quickslot). If zero, remove any previous item from the quickslot.
 
 ===============================================================================
-= 2.19. Server command QUESTLIST                                              =
+= 2.18. Server command QUESTLIST                                              =
 ===============================================================================
  This command is used to request displaying of the player's quest list.
 
 ===============================================================================
-= 2.20. Server command MOVE_PATH                                              =
+= 2.19. Server command MOVE_PATH                                              =
 ===============================================================================
  This command is used to make the player intelligently walk to the specified
  coordinates. This is done through path computation.
@@ -635,7 +613,7 @@
  coordinates.
 
 ===============================================================================
-= 2.21. Server command COMBAT                                                 =
+= 2.20. Server command COMBAT                                                 =
 ===============================================================================
  This command is used to switch between combat modes.
 
@@ -646,7 +624,7 @@
      Combat force flag; if 1, friendlies will be treated as enemies.
 
 ===============================================================================
-= 2.22. Server command TALK                                                   =
+= 2.21. Server command TALK                                                   =
 ===============================================================================
  This command is used to talk to a specific object, for example, an NPC.
 
@@ -698,7 +676,7 @@
   Stop talking to an NPC/object.
 
 ===============================================================================
-= 2.23. Server command MOVE                                                   =
+= 2.22. Server command MOVE                                                   =
 ===============================================================================
  This command is used to move in a particular direction.
 
@@ -709,7 +687,7 @@
      If 1, enable running mode.
 
 ===============================================================================
-= 2.24. Server command TARGET                                             =
+= 2.23. Server command TARGET                                             =
 ===============================================================================
  This command is used to target a specifi monster/NPC/etc.
 
@@ -736,7 +714,7 @@
   Clears the player's target.
 
 ===============================================================================
-= 2.25. Server command ASSET                                                  =
+= 2.24. Server command ASSET                                                  =
 ===============================================================================
  This command requests an asset over an established QUIC game connection. It
  is available beginning with socket protocol version 1067 and MUST NOT be
@@ -762,7 +740,7 @@
 
  When offset is zero and both cached fields match the current server file, the
  server SHOULD return ASSET status NOT_MODIFIED instead of transferring the
- body. See section 3.30.
+ body. See section 3.29.
 
 ===============================================================================
 = 3. Client commands                                                          =
@@ -794,44 +772,42 @@
   See section 3.10.
  ANIM:
   See section 3.11.
- SKILL_READY:
+PLAYER:
   See section 3.12.
- PLAYER:
+MAPSTATS:
   See section 3.13.
- MAPSTATS:
+ RESOURCE:
   See section 3.14.
- SKILL_LIST:
+VERSION:
   See section 3.15.
- VERSION:
+SETUP:
   See section 3.16.
- SETUP:
+CONTROL:
   See section 3.17.
- CONTROL:
+ PAINTING:
   See section 3.18.
- DATA:
+CHARACTERS:
   See section 3.19.
- CHARACTERS:
+BOOK:
   See section 3.20.
- BOOK:
+PARTY:
   See section 3.21.
- PARTY:
+QUICKSLOT:
   See section 3.22.
- QUICKSLOT:
+COMPRESSED:
   See section 3.23.
- COMPRESSED:
+REGION_MAP:
   See section 3.24.
- REGION_MAP:
+SOUND_AMBIENT:
   See section 3.25.
- SOUND_AMBIENT:
+INTERFACE:
   See section 3.26.
- INTERFACE:
+NOTIFICATION:
   See section 3.27.
- NOTIFICATION:
+KEEPALIVE:
   See section 3.28.
- KEEPALIVE:
+ASSET:
   See section 3.29.
- ASSET:
-  See section 3.30.
 
 ===============================================================================
 = 3.1. Client command MAP                                                     =
@@ -987,7 +963,7 @@
  item UIDs are connection-local and MUST NOT be used as durable read identity.
 
 ===============================================================================
-= 3.20. Client command CHARACTERS                                             =
+= 3.19. Client command CHARACTERS                                             =
 ===============================================================================
  This command reports account metadata and the account's available characters
  after a successful account login or registration.
@@ -1022,12 +998,12 @@
  for authorization or banning.
 
 ===============================================================================
-= 3.29. Client command KEEPALIVE                                               =
+= 3.28. Client command KEEPALIVE                                               =
 ===============================================================================
  This command is the server-to-client keepalive response. It has no payload.
 
 ===============================================================================
-= 3.30. Client command ASSET                                                   =
+= 3.29. Client command ASSET                                                   =
 ===============================================================================
  This command returns an asset response over the established QUIC game
  connection. The packet begins with these fields:
@@ -1067,7 +1043,7 @@
  same-directory temporary file with exclusive creation followed by an atomic
  rename. Cached assets MUST be scoped to the stable server ID or authenticated
  certificate fingerprint. A client MAY use a digest of the endpoint only for
- a manual legacy entry that has no authenticated server identity.
+ a manual entry that has no directory server identity.
 
 ===============================================================================
 = 5. Authors                                                                  =

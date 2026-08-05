@@ -37,22 +37,6 @@
 /* For hash table (bmap, ...) */
 #define MAXSTRING 20
 
-/**
- * Structure containing Atrinik server certificate information.
- */
-typedef struct server_cert_info {
-    char *name; ///< Server name.
-    char *hostname; ///< Server hostname.
-
-    int port; ///< Regular port.
-    int port_crypto; ///< Crypto port.
-
-    char *ipv4_address; ///< IPv4 address. Can be NULL.
-    char *ipv6_address; ///< IPv6 address. Can be NULL.
-
-    char *pubkey; ///< Public key.
-} server_cert_info_t;
-
 /** The servers list, as given by the metaserver. */
 typedef struct server_struct {
     /** Next server in the list. */
@@ -90,45 +74,9 @@ typedef struct server_struct {
     /** Server port. */
     int port;
 
-    /** Crypto port. -1 if disabled. */
-    int port_crypto;
-
-    /** Certificate public key. */
-    char *cert_pubkey;
-
-    /** Atrinik certificate entry. */
-    char *cert;
-
-    /**
-     * Atrinik certificate signature. The certificate is invalid without
-     * a valid signature.
-     */
-    unsigned char *cert_sig;
-
-    /**
-     * Length of the certificate signature.
-     */
-    size_t cert_sig_len;
-
-    /** Parsed certificate information. */
-    server_cert_info_t *cert_info;
-
     /** Whether the entry was learned from the metaserver. */
     bool is_meta : 1;
 } server_struct;
-
-/**
- * Acquire public key to use for the specified server.
- *
- * @param server
- * Server.
- * @return
- * Public key, NULL if there's no public key.
- * @todo
- * This should really be a function.
- */
-#define METASERVER_GET_PUBKEY(server) \
-    ((server)->cert_info != NULL ? (server)->cert_info->pubkey : (server)->cert_pubkey)
 
 /**
  * Message animation structure. Used when NDI_ANIM is passed to
@@ -275,11 +223,6 @@ typedef enum player_state_t {
      * Open a connection to the server.
      */
     ST_CONNECT,
-
-    /**
-     * Wait for crypto handshake to complete.
-     */
-    ST_WAITCRYPTO,
 
     /**
      * Start sending game data.

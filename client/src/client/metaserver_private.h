@@ -25,6 +25,6 @@ void metaserver_server_free(server_struct *server);
 
 bool metaserver_direct_parse(const char *body, size_t body_size, const char *origin);
 
-void metaserver_direct_url(const char *legacy_url, char *url, size_t url_size);
+void metaserver_direct_url(const char *base_url, char *url, size_t url_size);
 
 #endif
