@@ -963,6 +963,33 @@ ASSET:
  item UIDs are connection-local and MUST NOT be used as durable read identity.
 
 ===============================================================================
+= 3.13. Client command MAPSTATS                                               =
+===============================================================================
+ This server-to-client command contains one or more map-state records. Records
+ are concatenated without a count; the packet boundary terminates the final
+ record. Each record begins with type (uint8), followed by the fields defined
+ for that type:
+
+  - 1 (NAME): map_name (string).
+  - 2 (MUSIC): background_music (string).
+  - 3 (WEATHER): weather (string).
+  - 4 (TEXT_ANIM): color (string), then message (string).
+  - 5 (TIME): game_seconds (uint64), then
+    milliseconds_per_game_minute (uint32).
+
+ Multi-byte values use network byte order. game_seconds is the authoritative
+ absolute in-game time in seconds. milliseconds_per_game_minute is nonzero and
+ gives the nominal real-time duration of one in-game minute, including the
+ server's configured time multiplier. A client may extrapolate between TIME
+ records using a monotonic local clock, but each new record replaces that
+ estimate so server scheduling delay cannot accumulate as permanent drift.
+
+ TIME is part of socket protocol version 1070. MAPSTATS records are not
+ length-delimited, so a new record type or a changed record layout requires a
+ socket-version increment and clients and servers using different versions
+ MUST reject each other before gameplay state is exchanged.
+
+===============================================================================
 = 3.19. Client command CHARACTERS                                             =
 ===============================================================================
  This command reports account metadata and the account's available characters
