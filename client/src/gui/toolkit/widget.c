@@ -306,6 +306,10 @@ void toolkit_widget_init(void) {
             widgetdata *widget = create_widget_object(ensured_widgets[i]);
             SOFT_ASSERT(widget != NULL, "Could not create ensured widget");
         }
+
+        if (cur_widget[ensured_widgets[i]] != NULL) {
+            SetPriorityWidget(cur_widget[ensured_widgets[i]]);
+        }
     }
 
     widgets_ensure_onscreen();
