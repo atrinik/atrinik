@@ -108,6 +108,19 @@ START_TEST(test_light_mask_recalculates_around_opaque_cells) {
 }
 END_TEST
 
+START_TEST(test_loaded_map_light_check_is_idempotent) {
+    mapstruct *map = get_empty_map(9, 9);
+    add_light_source(map, 4, 4);
+    int expected = GET_MAP_SPACE_PTR(map, 4, 4)->light_source_value;
+
+    check_light_source_list(map);
+    ck_assert_int_eq(GET_MAP_SPACE_PTR(map, 4, 4)->light_source_value, expected);
+
+    check_light_source_list(map);
+    ck_assert_int_eq(GET_MAP_SPACE_PTR(map, 4, 4)->light_source_value, expected);
+}
+END_TEST
+
 START_TEST(test_light_level_interpolation) {
     ck_assert_uint_eq(light_level_from_raw(10), 23);
     ck_assert_uint_eq(light_level_from_raw(30), 63);
@@ -136,6 +149,7 @@ static Suite *suite(void) {
     tcase_add_test(tc_core, test_light_mask_is_blocked_by_floors_in_both_directions);
     tcase_add_test(tc_core, test_light_mask_lights_exposed_upper_wall_face);
     tcase_add_test(tc_core, test_light_mask_recalculates_around_opaque_cells);
+    tcase_add_test(tc_core, test_loaded_map_light_check_is_idempotent);
 
     return s;
 }

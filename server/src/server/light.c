@@ -34,7 +34,9 @@
 #define NR_LIGHT_MASK 10
 #define MAX_LIGHT_SOURCE 13
 #define MAX_LIGHT_RADIUS 4
-#define LIGHT_MAP_SET_MAX 512
+/** Maximum unique maps visited by light_map_set_collect(). */
+#define LIGHT_COLUMN_MAPS_MAX (1 + 2 * MAP2_MAX_DEPTH * (1 + TILED_NUM_DIR))
+#define LIGHT_MAP_SET_MAX ((1 + TILED_NUM_DIR) * LIGHT_COLUMN_MAPS_MAX)
 
 typedef struct light_map_set {
     mapstruct *maps[LIGHT_MAP_SET_MAX];
@@ -517,45 +519,10 @@ void adjust_light_source(mapstruct *map, int x, int y, int light) {
  * The map to check.
  */
 void check_light_source_list(mapstruct *map) {
-    light_map_set maps;
-    light_map_set_collect(&maps, map);
-
-    /* Sources on this just-loaded map were deferred until its complete
-     * geometry was available. */
-    for (MapSpace *tmp = map->first_light; tmp != NULL; tmp = tmp->next_light) {
-        if (tmp->first != NULL) {
-            light_mask_adjust(map,
-                              tmp->first->x,
-                              tmp->first->y,
-                              get_real_light_source_value(tmp->light_source),
-                              1,
-                              NULL,
-                              NULL,
-                              false);
-        }
-    }
-
-    /* Restore already-active sources into the newly loaded level. */
-    for (size_t i = 0; i < maps.count; i++) {
-        mapstruct *source_map = maps.maps[i];
-
-        if (source_map == map) {
-            continue;
-        }
-
-        for (MapSpace *tmp = source_map->first_light; tmp != NULL; tmp = tmp->next_light) {
-            if (tmp->first != NULL) {
-                light_mask_adjust(source_map,
-                                  tmp->first->x,
-                                  tmp->first->y,
-                                  get_real_light_source_value(tmp->light_source),
-                                  1,
-                                  map,
-                                  NULL,
-                                  false);
-            }
-        }
-    }
+    /* Rebuild the complete bounded linked volume now that this map's floors
+     * and blockers exist. Rebuilding also makes repeated lifecycle calls
+     * idempotent instead of adding the same source masks twice. */
+    recalculate_light_sources(map);
 }
 
 /** Rebuild source illumination after opaque map geometry changes. */
