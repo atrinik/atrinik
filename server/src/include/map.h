@@ -64,15 +64,15 @@
 /**
  * The number of object layers.
  */
-#define NUM_LAYERS 7
+#define NUM_LAYERS MAP2_PROTOCOL_OBJECT_LAYERS
 /**
  * Number of sub-layers.
  */
-#define NUM_SUB_LAYERS 7
+#define NUM_SUB_LAYERS MAP2_PROTOCOL_SUB_LAYERS
 /**
  * Effective number of all the visible layers.
  */
-#define NUM_REAL_LAYERS (NUM_LAYERS * NUM_SUB_LAYERS)
+#define NUM_REAL_LAYERS MAP2_PROTOCOL_REAL_LAYERS
 
 /**
  * @defgroup map_struct_macros Map structure macros

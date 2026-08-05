@@ -173,6 +173,7 @@ set(TOOLKIT_SOURCES
     curl.c
     datetime.c
     logger.c
+    map_protocol.c
     math.c
     memory.c
     mempool.c

@@ -144,6 +144,12 @@ typedef enum socket_role {
 /** Number of independently cached linked-map levels. */
 #define MAP2_LEVELS (MAP2_MAX_DEPTH * 2 + 1)
 #define MAP2_DEPTH_INDEX(_depth) ((_depth) + MAP2_MAX_DEPTH)
+/** Number of object layers represented in each MAP sub-layer. */
+#define MAP2_PROTOCOL_OBJECT_LAYERS 7
+/** Number of vertical object sub-layers represented in each MAP cell. */
+#define MAP2_PROTOCOL_SUB_LAYERS 7
+/** Total number of addressable real layers in one MAP cell. */
+#define MAP2_PROTOCOL_REAL_LAYERS (MAP2_PROTOCOL_OBJECT_LAYERS * MAP2_PROTOCOL_SUB_LAYERS)
 
 /**
  * @defgroup CMD_TARGET_xxx Target command types
