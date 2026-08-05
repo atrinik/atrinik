@@ -111,11 +111,6 @@ category Client
 		default off
 		desc If on, will not update sound effects/background music/etc on server connect. This may be useful for users with low bandwidth.
 	end
-	setting Minimize latency
-		type bool
-		default on
-		desc Disables Nagle's Algorithm in order to minimize latency, at the expense of more outgoing bandwidth.\nRequires server re-connection.
-	end
 	setting Show network graph
 		type bool
 		default off

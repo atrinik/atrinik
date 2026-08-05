@@ -31,7 +31,6 @@
 #define TOOLKIT_SOCKET_H
 
 #include "toolkit.h"
-#include "socket_crypto_dec.h"
 #include "socket_dec.h"
 
 /**
@@ -42,7 +41,6 @@ enum {
     SERVER_CMD_ASK_FACE,
     SERVER_CMD_SETUP,
     SERVER_CMD_VERSION,
-    SERVER_CMD_CRYPTO,
     SERVER_CMD_CLEAR,
     SERVER_CMD_REQUEST_UPDATE,
     SERVER_CMD_KEEPALIVE,
@@ -83,7 +81,6 @@ enum {
     CLIENT_CMD_STATS,
     CLIENT_CMD_IMAGE,
     CLIENT_CMD_ANIM,
-    CLIENT_CMD_CRYPTO,
     CLIENT_CMD_PLAYER,
     CLIENT_CMD_MAPSTATS,
     CLIENT_CMD_RESOURCE,
@@ -252,17 +249,22 @@ typedef enum socket_role {
 /** Buffer size for a 128-bit hexadecimal connection ID and terminator. */
 #define SOCKET_CONNECTION_ID_SIZE 33
 
+/** Maximum time a silent QUIC peer may remain undetected. */
+#define SOCKET_QUIC_IDLE_TIMEOUT_MS 5000
+/** Client heartbeat interval kept comfortably below the QUIC idle timeout. */
+#define SOCKET_QUIC_KEEPALIVE_INTERVAL_MS 2000
+
 /** Transport route used by an established client connection. */
 typedef enum socket_connection_mode {
-    SOCKET_CONNECTION_MODE_TCP,
-    SOCKET_CONNECTION_MODE_TLS,
     SOCKET_CONNECTION_MODE_QUIC,
     SOCKET_CONNECTION_MODE_QUIC_LAN,
     SOCKET_CONNECTION_MODE_QUIC_IPV6,
     SOCKET_CONNECTION_MODE_QUIC_MAPPED,
     SOCKET_CONNECTION_MODE_QUIC_SRFLX,
     SOCKET_CONNECTION_MODE_QUIC_DIRECTORY,
-    SOCKET_CONNECTION_MODE_NUM
+    SOCKET_CONNECTION_MODE_NUM,
+    /** Non-game toolkit control connection; never transmitted on the wire. */
+    SOCKET_CONNECTION_MODE_INTERNAL = UINT8_MAX
 } socket_connection_mode_t;
 
 /** Preferred ordering for direct QUIC candidate checks. */
@@ -809,78 +811,6 @@ typedef struct socket_asset_response {
 /*@}*/
 
 /**
- * @defgroup CMD_CRYPTO_xxx Crypto command types
- * Used to create different sub-commands for the crypto command.
- *@{*/
-/**
- * The hello sub-command.
- *
- * This is the ONLY command in the exchange that is not encrypted, and is
- * merely used to begin the crypto exchange.
- *
- * The client sends this command, containing zero bytes of data *or* an X509
- * certificate to be authenticated against, to the server, which responds
- * with its own X509 certificate.
- */
-#define CMD_CRYPTO_HELLO 1
-/**
- * The key sub-command.
- *
- * Client exchanges key to use for AES encryption with the server, until such
- * a time as the ECDH keys are derived.
- *
- * The client will also include an IV buffer of variable size that the server
- * must store (for its own AES encryption/decryption) and replicate in its key
- * response (which will be encrypted with the received key).
- *
- * Client encrypts this with the server's public key.
- */
-#define CMD_CRYPTO_KEY 2
-/**
- * The curves sub-command. Establishes elliptic curve to use.
- *
- * The client uses this to inform the server about the list of curves it
- * supports. It is an error if the server receives an empty set, and MUST
- * close the connection immediately. The server MUST choose one of the
- * curves to use; if it doesn't support any in the set, the connection MUST
- * be terminated immediately.
- *
- * In turn, the server sends the chosen curve to use to the client. The client
- * MUST verify that it supports the given curve, and that a curve was, in fact,
- * provided in the hello message. It is an error if the client cannot select a
- * usable curve and MUST terminate the connection immediately.
- *
- * Encrypted with AES and the previously agreed-upon key.
- */
-#define CMD_CRYPTO_CURVES 3
-/**
- * The pubkey sub-command. Exchanges ECDH public keys.
- *
- * Client and server both use this command to exchange their public keys with
- * each other, and to subsequently derive the shared secret key.
- *
- * Both sides also exchange IV buffers to use for AES and they locally combine
- * them.
- *
- * This communication is also encrypted with AES and the previously
- * agreed-upon key.
- */
-#define CMD_CRYPTO_PUBKEY 4
-/**
- * The secret sub-command. Sets a secret key to use for checksums.
- *
- * The client uses this to inform the server about the secret key (a salt)
- * to use for protocol message checksums, and the other way around.
- */
-#define CMD_CRYPTO_SECRET 5
-/**
- * The done sub-command. This command indicates a successful crypto handshake,
- * and marks the connection ready for receiving/sending Atrinik game data.
- */
-#define CMD_CRYPTO_DONE 6
-/*@}*/
-
-/**
  * Player equipment.
  * @anchor PLAYER_EQUIP_xxx
  */
@@ -1077,8 +1007,7 @@ bool socket_asset_response_parse(uint8_t *data,
                                  size_t pos,
                                  socket_asset_response_t *response);
 
-socket_t *
-socket_create(const char *host, uint16_t port, bool secure, socket_role_t role, bool dual_stack);
+socket_t *socket_create(const char *host, uint16_t port, socket_role_t role, bool dual_stack);
 socket_t *socket_quic_server_create(const char *host,
                                     uint16_t port,
                                     bool dual_stack,
@@ -1144,10 +1073,8 @@ bool socket_wait(socket_t *sc, bool readable, bool writable, unsigned int timeou
 bool socket_quic_service(socket_t *sc, bool network_ready, bool app_write_pending);
 unsigned int socket_quic_timeout(socket_t *sc, unsigned int maximum_ms);
 bool socket_is_fd_valid(socket_t *sc);
-bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger);
 bool socket_opt_reuse_addr(socket_t *sc, bool enable);
 bool socket_opt_non_blocking(socket_t *sc, bool enable);
-bool socket_opt_ndelay(socket_t *sc, bool enable);
 bool socket_opt_send_buffer(socket_t *sc, int bufsize);
 bool socket_opt_recv_buffer(socket_t *sc, int bufsize);
 void socket_destroy(socket_t *sc);
@@ -1158,10 +1085,7 @@ unsigned short socket_addr_plen(const struct sockaddr_storage *addr);
 int socket_addr_cmp(const struct sockaddr_storage *a,
                     const struct sockaddr_storage *b,
                     unsigned short plen);
-void socket_set_crypto(socket_t *sc, socket_crypto_t *crypto);
-socket_crypto_t *socket_get_crypto(socket_t *sc);
 const char *socket_get_host(socket_t *sc);
-bool socket_is_secure(socket_t *sc);
 bool socket_rendezvous_url(const char *base_url,
                            const char *server_id,
                            const char *role,

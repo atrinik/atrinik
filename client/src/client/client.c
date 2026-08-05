@@ -28,7 +28,7 @@
  *
  * This file sets up a few global variables, connects to the server,
  * tells it what kind of pictures it wants, adds the client and enters
- * the main event loop (event_loop()) checks the tcp socket for input and
+ * the main event loop (event_loop()) checks the game socket for input and
  * then polls for x events. This should be fixed since you can just block
  * on both filedescriptors.
  *
@@ -44,7 +44,6 @@
 #include <global.h>
 #include <resources.h>
 #include <toolkit/datetime.h>
-#include <toolkit/socket_crypto.h>
 #include <toolkit/packet.h>
 
 /** Maximum time spent draining server commands before yielding to rendering. */
@@ -55,36 +54,16 @@ Client_Player cpl;
 
 /** Structure of all the socket commands */
 static socket_command_struct commands[CLIENT_CMD_NROF] = {
-    {socket_command_map},
-    {socket_command_drawinfo},
-    {socket_command_file_update},
-    {socket_command_item},
-    {socket_command_sound},
-    {socket_command_target},
-    {socket_command_item_update},
-    {socket_command_item_delete},
-    {socket_command_stats},
-    {socket_command_image},
-    {socket_command_anim},
-    {socket_command_crypto},
-    {socket_command_player},
-    {socket_command_mapstats},
-    {socket_command_resource},
-    {socket_command_version},
-    {socket_command_setup},
-    {socket_command_control},
-    {socket_command_painting},
-    {socket_command_characters},
-    {socket_command_book},
-    {socket_command_party},
-    {socket_command_quickslots},
-    {socket_command_compressed},
-    {NULL},
-    {socket_command_sound_ambient},
-    {socket_command_interface},
-    {socket_command_notification},
-    {socket_command_keepalive},
-    {socket_command_asset},
+    {socket_command_map},           {socket_command_drawinfo},    {socket_command_file_update},
+    {socket_command_item},          {socket_command_sound},       {socket_command_target},
+    {socket_command_item_update},   {socket_command_item_delete}, {socket_command_stats},
+    {socket_command_image},         {socket_command_anim},        {socket_command_player},
+    {socket_command_mapstats},      {socket_command_resource},    {socket_command_version},
+    {socket_command_setup},         {socket_command_control},     {socket_command_painting},
+    {socket_command_characters},    {socket_command_book},        {socket_command_party},
+    {socket_command_quickslots},    {socket_command_compressed},  {NULL},
+    {socket_command_sound_ambient}, {socket_command_interface},   {socket_command_notification},
+    {socket_command_keepalive},     {socket_command_asset},
 };
 
 /**
@@ -100,43 +79,13 @@ void DoClient(void) {
         uint8_t *data = cmd->data;
         size_t len = cmd->len;
 
-        uint8_t *decrypted_data;
-        size_t decrypted_len;
-        bool was_decrypted = true;
-        if (socket_is_secure(csocket.sc)) {
-            if (!socket_crypto_decrypt(csocket.sc, data, len, &decrypted_data, &decrypted_len)) {
-                draw_info(COLOR_RED,
-                          "!!! Cryptography decryption failed; someone is "
-                          "likely hijacking your connection (MITM attack) !!!");
-                cpl.state = ST_START;
-                break;
-            }
-        } else {
-            decrypted_data = data;
-            decrypted_len = len;
-            was_decrypted = false;
-        }
-
         size_t pos = 0;
-        uint8_t type = packet_to_uint8(decrypted_data, decrypted_len, &pos);
-
-        if (socket_is_secure(csocket.sc) && type != CLIENT_CMD_CRYPTO &&
-            !socket_crypto_is_done(socket_get_crypto(csocket.sc))) {
-            LOG(PACKET,
-                "Received non-crypto packet before crypto exchange from %s",
-                socket_get_id(csocket.sc));
-            cpl.state = ST_START;
-            break;
-        }
+        uint8_t type = packet_to_uint8(data, len, &pos);
 
         if (type >= CLIENT_CMD_NROF || commands[type].handle_func == NULL) {
             LOG(ERROR, "Bad command from server (%d)", type);
         } else {
-            commands[type].handle_func(decrypted_data, decrypted_len, pos);
-        }
-
-        if (was_decrypted) {
-            free(decrypted_data);
+            commands[type].handle_func(data, len, pos);
         }
 
         command_buffer_free(cmd);

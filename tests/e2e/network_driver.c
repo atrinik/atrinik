@@ -7,12 +7,12 @@
 #include <toolkit/logger.h>
 #include <toolkit/path.h>
 #include <toolkit/socket.h>
-#include <toolkit/socket_crypto.h>
 #include <toolkit/datetime.h>
 #include <toolkit/toolkit.h>
 #include <port_mapping.h>
 
 #define DRIVER_TIMEOUT_MS 8000U
+#define DRIVER_DISCONNECT_TIMEOUT_MS 1000U
 #define DRIVER_BUFFER_SIZE 1024U
 
 #define DRIVER_REQUIRE(condition, message)              \
@@ -77,6 +77,24 @@ static bool driver_read_all(socket_t *socket, void *data, size_t length) {
         }
     }
     return offset == length;
+}
+
+static bool driver_wait_for_close(socket_t *socket, const char *marker) {
+    uint64_t started = datetime_monotonic_ms();
+    uint64_t deadline = started + DRIVER_DISCONNECT_TIMEOUT_MS;
+    while (datetime_monotonic_ms() < deadline) {
+        bool ready = socket_wait(socket, true, false, socket_quic_timeout(socket, 20));
+        socket_quic_service(socket, ready, false);
+        uint8_t byte;
+        size_t amount;
+        if (!socket_read(socket, &byte, sizeof(byte), &amount)) {
+            printf("%s %" PRIu64 "\n", marker, datetime_monotonic_ms() - started);
+            fflush(stdout);
+            return true;
+        }
+        DRIVER_REQUIRE(amount == 0, "received unexpected data while waiting for peer closure");
+    }
+    return false;
 }
 
 static bool driver_fingerprint(uint16_t port, const char *identity_path) {
@@ -154,6 +172,69 @@ driver_client(const char *host, uint16_t port, const char *fingerprint, const ch
         fflush(stdout);
     }
     socket_destroy(connection);
+    return ok;
+}
+
+static bool driver_disconnect_server(uint16_t port, const char *identity_path, bool close_locally) {
+    socket_t *listener = driver_listener(port, identity_path);
+    DRIVER_REQUIRE(listener != NULL, "could not create disconnect-test listener");
+    char fingerprint[65];
+    uint16_t bound_port;
+    DRIVER_REQUIRE(socket_certificate_sha256(listener, fingerprint) &&
+                       socket_local_port(listener, &bound_port),
+                   "could not inspect disconnect-test listener");
+    printf("READY %" PRIu16 " %s\n", bound_port, fingerprint);
+    fflush(stdout);
+
+    socket_t *connection = NULL;
+    uint64_t deadline = datetime_monotonic_ms() + DRIVER_TIMEOUT_MS;
+    while (connection == NULL && datetime_monotonic_ms() < deadline) {
+        if (socket_wait(listener, true, false, 20)) {
+            connection = socket_accept(listener);
+        }
+    }
+    DRIVER_REQUIRE(connection != NULL, "could not establish disconnect-test connection");
+
+    bool ok;
+    if (close_locally) {
+        char marker;
+        ok = driver_read_all(connection, &marker, 1) && marker == '!';
+        socket_destroy(connection);
+        printf("LOCAL_CLOSE\n");
+        fflush(stdout);
+    } else {
+        ok =
+            driver_write_all(connection, "!", 1) && driver_wait_for_close(connection, "PEER_CLOSE");
+        socket_destroy(connection);
+    }
+    socket_destroy(listener);
+    return ok;
+}
+
+static bool driver_disconnect_client(const char *host,
+                                     uint16_t port,
+                                     const char *fingerprint,
+                                     bool close_locally) {
+    socket_t *connection = socket_quic_client_create(host,
+                                                     port,
+                                                     fingerprint,
+                                                     NULL,
+                                                     NULL,
+                                                     SOCKET_CONNECTION_PREFERENCE_AUTO);
+    DRIVER_REQUIRE(connection != NULL, "disconnect-test QUIC connection failed");
+
+    bool ok;
+    if (close_locally) {
+        char marker;
+        ok = driver_read_all(connection, &marker, 1) && marker == '!';
+        socket_destroy(connection);
+        printf("LOCAL_CLOSE\n");
+        fflush(stdout);
+    } else {
+        ok =
+            driver_write_all(connection, "!", 1) && driver_wait_for_close(connection, "PEER_CLOSE");
+        socket_destroy(connection);
+    }
     return ok;
 }
 
@@ -336,9 +417,17 @@ static void driver_usage(const char *program) {
             "  %s fingerprint PORT IDENTITY\n"
             "  %s server PORT IDENTITY PAYLOAD\n"
             "  %s client HOST PORT FINGERPRINT PAYLOAD\n"
+            "  %s close-server PORT IDENTITY\n"
+            "  %s wait-server PORT IDENTITY\n"
+            "  %s close-client HOST PORT FINGERPRINT\n"
+            "  %s wait-client HOST PORT FINGERPRINT\n"
             "  %s stun PORT IDENTITY ENDPOINT\n"
             "  %s punch PORT IDENTITY PORT IDENTITY\n"
             "  %s mapping\n",
+            program,
+            program,
+            program,
+            program,
             program,
             program,
             program,
@@ -351,7 +440,6 @@ int main(int argc, char **argv) {
     toolkit_import(logger);
     toolkit_import(path);
     toolkit_import(socket);
-    toolkit_import(socket_crypto);
 
     bool ok = false;
     uint16_t first_port, second_port;
@@ -364,6 +452,18 @@ int main(int argc, char **argv) {
     } else if (argc == 6 && strcmp(argv[1], "client") == 0 &&
                driver_parse_port(argv[3], &first_port)) {
         ok = driver_client(argv[2], first_port, argv[4], argv[5]);
+    } else if (argc == 4 && strcmp(argv[1], "close-server") == 0 &&
+               driver_parse_port(argv[2], &first_port)) {
+        ok = driver_disconnect_server(first_port, argv[3], true);
+    } else if (argc == 4 && strcmp(argv[1], "wait-server") == 0 &&
+               driver_parse_port(argv[2], &first_port)) {
+        ok = driver_disconnect_server(first_port, argv[3], false);
+    } else if (argc == 5 && strcmp(argv[1], "close-client") == 0 &&
+               driver_parse_port(argv[3], &first_port)) {
+        ok = driver_disconnect_client(argv[2], first_port, argv[4], true);
+    } else if (argc == 5 && strcmp(argv[1], "wait-client") == 0 &&
+               driver_parse_port(argv[3], &first_port)) {
+        ok = driver_disconnect_client(argv[2], first_port, argv[4], false);
     } else if (argc == 5 && strcmp(argv[1], "stun") == 0 &&
                driver_parse_port(argv[2], &first_port)) {
         ok = driver_stun(first_port, argv[3], argv[4]);

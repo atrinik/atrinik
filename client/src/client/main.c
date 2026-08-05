@@ -39,7 +39,6 @@
 #include <toolkit/colorspace.h>
 #include <toolkit/binreloc.h>
 #include <toolkit/datetime.h>
-#include <toolkit/socket_crypto.h>
 #include <toolkit/x11.h>
 #include <cmake.h>
 #include <openssl/crypto.h>
@@ -216,45 +215,36 @@ static int game_status_chain(void) {
     } else if (cpl.state == ST_META) {
         metaserver_clear_data();
 
-        metaserver_add("localhost",
-                       1728,
-                       -1,
-                       "Localhost",
-                       "local",
-                       "Localhost. Start server before you try to connect.");
-
         for (size_t i = 0; i < clioption_settings.servers_num; i++) {
             size_t pos = 0;
             char host[MAX_BUF];
             string_get_word(clioption_settings.servers[i], &pos, ' ', VS(host), 0);
             char port[MAX_BUF];
             string_get_word(clioption_settings.servers[i], &pos, ' ', VS(port), 0);
-            char port_crypto[MAX_BUF];
-            string_get_word(clioption_settings.servers[i], &pos, ' ', VS(port_crypto), 0);
             char quic_fingerprint[65];
             string_get_word(clioption_settings.servers[i], &pos, ' ', VS(quic_fingerprint), 0);
+            char extra[2];
+            string_get_word(clioption_settings.servers[i], &pos, ' ', VS(extra), 0);
             uint64_t port_num = 0;
-            uint64_t port_crypto_num = 0;
-            if ((*port != '\0' && !string_parse_uint64(port, 10, 0, UINT16_MAX, &port_num)) ||
-                (*port_crypto != '\0' &&
-                 !string_parse_uint64(port_crypto, 10, 0, UINT16_MAX, &port_crypto_num))) {
-                LOG(ERROR, "Ignoring command-line server %s with an invalid port", host);
+            if (*host == '\0' || !string_parse_uint64(port, 10, 1, UINT16_MAX, &port_num) ||
+                *extra != '\0') {
+                LOG(ERROR, "Ignoring command-line server with an invalid HOST PORT SHA256 format");
+                continue;
+            }
+            if (!string_is_hex_fixed(quic_fingerprint, 64, false)) {
+                LOG(ERROR,
+                    "Ignoring command-line server %s without a valid QUIC certificate fingerprint",
+                    host);
                 continue;
             }
             server_struct *server = metaserver_add(host,
-                                                   port_num != 0 ? (uint16_t)port_num : 1728,
-                                                   port_crypto_num != 0 ? (int)port_crypto_num : -1,
+                                                   (uint16_t)port_num,
                                                    host,
                                                    "user server",
                                                    "Server from command line --server option.");
-            if (string_is_hex_fixed(quic_fingerprint, 64, false)) {
-                string_tolower(quic_fingerprint);
-                server->quic_certificate_sha256 = xstrdup(quic_fingerprint);
-                server->port_crypto = -1;
-                server->direct = true;
-            } else if (*quic_fingerprint != '\0') {
-                LOG(ERROR, "Ignoring invalid QUIC certificate fingerprint for %s", host);
-            }
+            string_tolower(quic_fingerprint);
+            server->quic_certificate_sha256 = xstrdup(quic_fingerprint);
+            server->direct = true;
         }
 
         metaserver_get_servers();
@@ -270,26 +260,17 @@ static int game_status_chain(void) {
         map_redraw_flag = minimap_redraw_flag = 1;
         cpl.state = ST_WAITLOOP;
     } else if (cpl.state == ST_STARTCONNECT) {
-        int port = selected_server->port;
-        if (selected_server->port_crypto != -1) {
-            port = selected_server->port_crypto;
-        }
-        draw_info_format(COLOR_GREEN, "Trying server %s (%d)...", selected_server->name, port);
+        draw_info_format(COLOR_GREEN,
+                         "Trying server %s (%d)...",
+                         selected_server->name,
+                         selected_server->port);
         keepalive_reset();
         cpl.state = ST_CONNECT;
     } else if (cpl.state == ST_CONNECT) {
-        bool secure = false;
-        int port = selected_server->port;
-        if (selected_server->port_crypto != -1) {
-            secure = true;
-            port = selected_server->port_crypto;
-        }
-
-        /* Ensure we have a public key record. */
-        if (secure && METASERVER_GET_PUBKEY(selected_server) == NULL) {
+        if (!string_is_hex_fixed(selected_server->quic_certificate_sha256, 64, true)) {
             draw_info_format(COLOR_RED,
-                             "The server %s (%d) does not have a public key "
-                             "record, refusing to connect.",
+                             "The server %s (%d) does not have a valid QUIC certificate "
+                             "fingerprint, refusing to connect.",
                              selected_server->name,
                              selected_server->port);
             cpl.state = ST_START;
@@ -298,8 +279,7 @@ static int game_status_chain(void) {
 
         if (!client_socket_open(&csocket,
                                 selected_server->hostname,
-                                port,
-                                secure,
+                                selected_server->port,
                                 selected_server->quic_certificate_sha256,
                                 connection_preference_get(selected_server))) {
             draw_info(COLOR_RED, "Connection failed!");
@@ -307,27 +287,9 @@ static int game_status_chain(void) {
             return 1;
         }
 
-        if (!selected_server->direct &&
-            !metaserver_cert_verify_host(selected_server, socket_get_addr(csocket.sc))) {
-            draw_info(COLOR_RED,
-                      "Failed to verify the IP address of the "
-                      "specified server - it is very likely the "
-                      "server has been compromised!");
-            cpl.state = ST_START;
-            return 1;
-        }
-
         socket_thread_start();
         clear_player();
-
-        if (secure) {
-            packet_struct *packet = packet_new(SERVER_CMD_CRYPTO, 16, 0);
-            packet_append_uint8(packet, CMD_CRYPTO_HELLO);
-            socket_send_packet(packet);
-            cpl.state = ST_WAITCRYPTO;
-        } else {
-            cpl.state = ST_START_DATA;
-        }
+        cpl.state = ST_START_DATA;
     } else if (cpl.state == ST_START_DATA) {
         packet_struct *packet = packet_new(SERVER_CMD_VERSION, 16, 0);
         packet_append_uint32(packet, SOCKET_VERSION);
@@ -352,11 +314,7 @@ static int game_status_chain(void) {
         const char *join_password = selected_server->join_password != NULL
                                         ? selected_server->join_password
                                         : clioption_settings.join_password;
-        packet_append_string_terminated(
-            packet,
-            join_password != NULL && (socket_is_quic(csocket.sc) || socket_is_secure(csocket.sc))
-                ? join_password
-                : "");
+        packet_append_string_terminated(packet, join_password != NULL ? join_password : "");
         if (cpl.server_socket_version >= ASSET_TRANSPORT_SOCKET_VERSION) {
             packet_append_uint8(packet, CMD_SETUP_ASSET_TRANSPORT);
         }
@@ -472,9 +430,8 @@ void clioption_settings_deinit(void) {
 static const char *const clioptions_option_server_desc =
     "Adds a server to the list of servers.\n\n"
     "Usage:\n"
-    " --server=\"HOST [PORT [CRYPTO_PORT [QUIC_SHA256]]]\"\n\n"
-    "For a pinned local QUIC server, use its UDP port, -1 for CRYPTO_PORT, and "
-    "the 64-character certificate SHA-256 fingerprint.";
+    " --server=\"HOST PORT QUIC_SHA256\"\n\n"
+    "Use the server's UDP port and 64-character certificate SHA-256 fingerprint.";
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_server(const char *arg, char **errmsg) {
     clioption_settings.servers = xreallocarray(clioption_settings.servers,
@@ -491,7 +448,7 @@ static bool clioptions_option_server(const char *arg, char **errmsg) {
 static const char *const clioptions_option_metaserver_desc =
     "Adds a metaserver to the list of metaserver that will be tried.\n\n"
     "Usage:\n"
-    " --metaserver=example.com";
+    " --metaserver=https://meta.example.com";
 /** @copydoc clioptions_handler_func */
 static bool clioptions_option_metaserver(const char *arg, char **errmsg) {
     clioption_settings.metaservers = xreallocarray(clioption_settings.metaservers,
@@ -673,7 +630,6 @@ int main(int argc, char *argv[]) {
     toolkit_import(math);
     toolkit_import(packet);
     toolkit_import(socket);
-    toolkit_import(socket_crypto);
     toolkit_import(string);
     toolkit_import(stringbuffer);
     toolkit_import(x11);
@@ -758,12 +714,6 @@ int main(int argc, char *argv[]) {
     toolkit_widget_init();
     resources_init();
 
-    StringBuffer *sb = stringbuffer_new();
-    stringbuffer_append_printf(sb, "%s/.atrinik/%s", get_config_dir(), version);
-    path = stringbuffer_finish(sb);
-    socket_crypto_set_path(path);
-    free(path);
-
     char buf[HUGE_BUF];
     snprintf(VS(buf), "Welcome to Atrinik version %s", version);
 #ifdef GITVERSION
@@ -818,8 +768,9 @@ int main(int argc, char *argv[]) {
         }
 
         if (cpl.state > ST_CONNECT) {
-            /* Send keepalive command every 2 minutes. */
-            if (SDL_GetTicks() - last_keepalive > (2 * 60) * 1000) {
+            /* Keep the negotiated five-second QUIC idle timeout alive while
+             * retaining a short bound on silent peer failure. */
+            if (SDL_GetTicks() - last_keepalive > SOCKET_QUIC_KEEPALIVE_INTERVAL_MS) {
                 keepalive_send();
             }
 

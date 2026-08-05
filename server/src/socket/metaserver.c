@@ -31,7 +31,6 @@
 #include <toolkit/string.h>
 #include <toolkit/curl.h>
 #include <toolkit/datetime.h>
-#include <toolkit/socket_crypto.h>
 #include <player.h>
 #include <server.h>
 #include <openssl/rand.h>
@@ -59,7 +58,6 @@ static struct {
  * Where the metaserver key file is located.
  */
 #define METASERVER_KEY_FILE "metaserver_key"
-#define METASERVER_DIRECT_KEY_FILE "metaserver_key_direct"
 
 /**
  * Mutex for the metaserver stats.
@@ -75,10 +73,6 @@ static curl_request_t *current_request = NULL;
  */
 static pthread_mutex_t request_lock;
 /**
- * Temporary string used to send a list of players to the metaserver.
- */
-static char *request_players = NULL;
-/**
  * Number of players.
  */
 static uint32_t request_num_players = 0;
@@ -87,29 +81,14 @@ static uint32_t request_num_players = 0;
  */
 static bool key_is_new = false;
 
-static bool metaserver_direct_mode(void) {
-    return strcmp(settings.connectivity_mode, "legacy_tcp") != 0;
-}
-
 static bool metaserver_identity(char *identity, size_t identity_size) {
-    if (!metaserver_direct_mode()) {
-        if (*settings.server_host == '\0') {
-            return false;
-        }
-        return snprintf(identity, identity_size, "%s", settings.server_host) < (int)identity_size;
-    }
-
     char host[MAX_BUF];
     uint16_t port;
     return socket_server_quic_info(VS(host), &port, identity);
 }
 
 static void metaserver_key_path(char *path, size_t path_size) {
-    snprintf(path,
-             path_size,
-             "%s/%s",
-             settings.datapath,
-             metaserver_direct_mode() ? METASERVER_DIRECT_KEY_FILE : METASERVER_KEY_FILE);
+    snprintf(path, path_size, "%s/%s", settings.datapath, METASERVER_KEY_FILE);
 }
 
 bool metaserver_rendezvous_token_parse(const char *body, size_t body_size, char token[65]) {
@@ -557,9 +536,6 @@ void metaserver_deinit(void) {
     pthread_mutex_destroy(&rendezvous_lock);
 #endif
 
-    free(request_players);
-    request_players = NULL;
-
     pthread_mutex_destroy(&stats_lock);
     pthread_mutex_destroy(&request_lock);
 }
@@ -888,9 +864,6 @@ static void metaserver_otp_request(curl_request_t *request, void *user_data) {
     current_request = curl_request_create(url, CURL_PKEY_TRUST_SYSTEM);
     curl_request_set_cb(current_request, metaserver_update_request, NULL);
 
-    if (*settings.server_host != '\0') {
-        curl_request_form_add(current_request, "hostname", settings.server_host);
-    }
     curl_request_form_add(current_request, "version", PACKAGE_VERSION);
     curl_request_form_add(current_request, "text_comment", settings.server_desc);
     curl_request_form_add(current_request, "name", settings.server_name);
@@ -898,14 +871,10 @@ static void metaserver_otp_request(curl_request_t *request, void *user_data) {
     curl_request_form_add(current_request, "cotp", cotp_hash);
     curl_request_form_add(current_request, "key", key);
     curl_request_form_add(current_request, "registration", key_is_new ? "1" : "0");
-    curl_request_form_add(current_request, "ptr_check", "");
-    curl_request_form_add(current_request, "players", request_players);
-
     char buf[32];
     snprintf(VS(buf), "%" PRIu32, request_num_players);
     curl_request_form_add(current_request, "num_players", buf);
     curl_request_form_add(current_request, "public", settings.server_public ? "1" : "0");
-    curl_request_form_add(current_request, "connectivity_mode", settings.connectivity_mode);
     curl_request_form_add(current_request,
                           "password_required",
                           *settings.join_password != '\0' ? "1" : "0");
@@ -919,25 +888,6 @@ static void metaserver_otp_request(curl_request_t *request, void *user_data) {
         snprintf(VS(buf), "%" PRIu16, quic_port);
         curl_request_form_add(current_request, "quic_port", buf);
         curl_request_form_add(current_request, "quic_cert_sha256", quic_fingerprint);
-    }
-
-    snprintf(VS(buf), "%" PRIu16, settings.port);
-    curl_request_form_add(current_request, "port", buf);
-
-    if (socket_crypto_enabled()) {
-        snprintf(VS(buf), "%" PRIu16, settings.port_crypto);
-        curl_request_form_add(current_request, "port_crypto", buf);
-
-        const char *cert_pubkey = socket_crypto_get_cert_pubkey();
-        if (cert_pubkey != NULL) {
-            curl_request_form_add(current_request, "cert_pubkey", cert_pubkey);
-        }
-
-        /* Add the server certificate and its signature, if configured. */
-        if (settings.server_cert != NULL && settings.server_cert_sig != NULL) {
-            curl_request_form_add(current_request, "server_cert", settings.server_cert);
-            curl_request_form_add(current_request, "server_cert_sig", settings.server_cert_sig);
-        }
     }
 
     /* Send off the POST request */
@@ -973,18 +923,9 @@ void metaserver_info_update(void) {
     pthread_mutex_unlock(&request_lock);
 
     request_num_players = 0;
-    StringBuffer *sb = stringbuffer_new();
     for (player *pl = first_player; pl != NULL; pl = pl->next) {
-        if (stringbuffer_length(sb) != 0) {
-            stringbuffer_append_string(sb, ":");
-        }
-
-        stringbuffer_append_string(sb, pl->quick_name);
         request_num_players++;
     }
-
-    free(request_players);
-    request_players = stringbuffer_finish(sb);
 
     char url[HUGE_BUF];
     snprintf(VS(url), "%s/otp", settings.metaserver_url);

@@ -2879,8 +2879,7 @@ object *player_get_dummy(const char *name, const char *host) {
 
     pl = get_player(NULL);
     pl->cs = xcalloc(1, sizeof(*pl->cs));
-    pl->cs->sc =
-        socket_create(host != NULL ? host : "127.0.0.1", 13327, false, SOCKET_ROLE_SERVER, false);
+    pl->cs->sc = socket_create(host != NULL ? host : "127.0.0.1", 13327, SOCKET_ROLE_SERVER, false);
     if (pl->cs->sc == NULL) {
         abort();
     }

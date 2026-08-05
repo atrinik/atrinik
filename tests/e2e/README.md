@@ -16,6 +16,7 @@ The aggregate target covers:
 - QUIC identity creation, mode `0600`, persistence, and corrupt-file failure;
 - a real OpenSSL QUIC handshake, ALPN, certificate pinning, shared connection
   identity, bidirectional application data, and wrong-pin rejection;
+- rapid client and server peer-close detection with a one-second upper bound;
 - STUN binding discovery through a local RFC 5389 responder, including a
   malformed transaction response;
 - bounded bilateral UDP punch probes and observed source endpoints; and
@@ -32,5 +33,5 @@ The port-mapping scenario validates Atrinik's orchestration and lifecycle, not
 a particular home router. Real PCP, NAT-PMP, and UPnP interoperability requires
 an opt-in lab or network-namespace suite with an emulated gateway; it is not a
 safe or deterministic default CI dependency. Metaserver directory and
-rendezvous behavior is covered in the local Worker runtime by
-`npm --prefix metaserver/worker test`.
+rendezvous behavior is covered in the standalone
+[metaserver Worker](https://github.com/atrinik/metaserver-worker) repository.

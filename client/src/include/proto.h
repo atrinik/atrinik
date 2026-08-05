@@ -34,7 +34,6 @@ extern void socket_command_map(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_version(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_compressed(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_control(uint8_t *data, size_t len, size_t pos);
-void socket_command_crypto(uint8_t *data, size_t len, size_t pos);
 /* src/client/connection_preferences.c */
 extern void connection_preferences_init(void);
 extern void connection_preferences_deinit(void);
@@ -112,14 +111,12 @@ extern int send_command_check(const char *cmd);
 extern void metaserver_init(void);
 extern void metaserver_disable(void);
 extern server_struct *server_get_id(size_t num);
-bool metaserver_cert_verify_host(server_struct *server, const char *host);
 bool metaserver_rendezvous_url(const server_struct *server, char *url, size_t url_size);
 extern size_t server_get_count(void);
 extern int ms_connecting(int val);
 extern void metaserver_clear_data(void);
 extern server_struct *metaserver_add(const char *hostname,
                                      int port,
-                                     int port_crypto,
                                      const char *name,
                                      const char *version,
                                      const char *desc);
@@ -196,7 +193,6 @@ extern void client_socket_deinitialize(void);
 extern bool client_socket_open(client_socket_t *csock,
                                const char *host,
                                int port,
-                               bool secure,
                                const char *quic_certificate_sha256,
                                socket_connection_preference_t preference);
 /* src/client/sound.c */

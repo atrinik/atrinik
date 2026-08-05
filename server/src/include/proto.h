@@ -755,7 +755,6 @@ extern void
 socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void
 socket_command_combat(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
-void socket_command_crypto(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 void socket_command_ask_resource(socket_struct *ns,
                                  player *pl,
                                  uint8_t *data,

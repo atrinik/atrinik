@@ -35,7 +35,6 @@
 
 #include "socket.h"
 #include "socket_private.h"
-#include "socket_crypto.h"
 #include "string.h"
 #include "datetime.h"
 
@@ -99,8 +98,6 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * a hostname. Can be NULL.
  * @param port
  * Port to connec to.
- * @param secure
- * Whether the connection is over the secure port.
  * @param role
  * Role of the socket.
  * @param dual_stack
@@ -108,14 +105,12 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @return
  * Newly allocated socket, NULL in case of failure.
  */
-socket_t *
-socket_create(const char *host, uint16_t port, bool secure, socket_role_t role, bool dual_stack) {
+socket_t *socket_create(const char *host, uint16_t port, socket_role_t role, bool dual_stack) {
     socket_t *sc = xcalloc(1, sizeof(*sc));
     sc->handle = -1;
     sc->owns_handle = true;
-    sc->secure = !!secure;
     sc->role = role;
-    sc->connection_mode = secure ? SOCKET_CONNECTION_MODE_TLS : SOCKET_CONNECTION_MODE_TCP;
+    sc->connection_mode = SOCKET_CONNECTION_MODE_INTERNAL;
     if (!socket_connection_id_generate(sc)) {
         LOG(ERROR, "Failed to generate connection diagnostic ID");
         goto error;
@@ -459,7 +454,7 @@ bool socket_local_port(socket_t *sc, uint16_t *port) {
     HARD_ASSERT(sc != NULL);
     HARD_ASSERT(port != NULL);
 
-    struct sockaddr_storage address;
+    struct sockaddr_storage address = {0};
     socklen_t length = sizeof(address);
     if (sc->handle == -1 || getsockname(sc->handle, (struct sockaddr *)&address, &length) != 0) {
         return false;
@@ -578,7 +573,10 @@ socket_t *socket_accept(socket_t *sc) {
             return NULL;
         }
 
-        if (SSL_set_default_stream_mode(connection, SSL_DEFAULT_STREAM_MODE_AUTO_BIDI) != 1) {
+        if (SSL_set_feature_request_uint(connection,
+                                         SSL_VALUE_QUIC_IDLE_TIMEOUT,
+                                         SOCKET_QUIC_IDLE_TIMEOUT_MS) != 1 ||
+            SSL_set_default_stream_mode(connection, SSL_DEFAULT_STREAM_MODE_AUTO_BIDI) != 1) {
             unsigned long code = ERR_peek_error();
             LOG(ERROR,
                 "Failed to configure accepted QUIC application stream: %s",
@@ -636,9 +634,7 @@ socket_t *socket_accept(socket_t *sc) {
     }
 
     tmp->port = ((struct sockaddr_in *)&tmp->addr)->sin_port;
-    /* Copy over the secure flag from the accepting socket. */
-    tmp->secure = sc->secure;
-    tmp->connection_mode = tmp->secure ? SOCKET_CONNECTION_MODE_TLS : SOCKET_CONNECTION_MODE_TCP;
+    tmp->connection_mode = SOCKET_CONNECTION_MODE_INTERNAL;
     /* And the role. */
     tmp->role = sc->role;
     if (!socket_connection_id_generate(tmp)) {
@@ -850,42 +846,6 @@ bool socket_is_fd_valid(socket_t *sc) {
 }
 
 /**
- * Changes the socket's linger option.
- * @param sc
- * Socket.
- * @param enable
- * Whether to enable linger.
- * @param linger
- * Linger value.
- * @return
- * True on success, false on failure.
- */
-bool socket_opt_linger(socket_t *sc, bool enable, unsigned short linger) {
-    HARD_ASSERT(sc != NULL);
-
-    if (socket_is_quic(sc)) {
-        return true;
-    }
-
-    SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
-
-    struct linger linger_opt;
-    linger_opt.l_onoff = !!enable;
-    linger_opt.l_linger = linger;
-
-    if (setsockopt(sc->handle,
-                   SOL_SOCKET,
-                   SO_LINGER,
-                   (const char *)&linger_opt,
-                   sizeof(struct linger)) == -1) {
-        LOG(ERROR, "Cannot setsockopt(SO_LINGER): %s (%d)", s_strerror(s_errno), s_errno);
-        return false;
-    }
-
-    return true;
-}
-
-/**
  * Changes the socket's reuse address option.
  * @param sc
  * Socket.
@@ -906,9 +866,9 @@ bool socket_opt_reuse_addr(socket_t *sc, bool enable) {
     }
 
 #ifndef WIN32
-    int flags = fcntl(sc->handle, F_GETFL);
+    int flags = fcntl(sc->handle, F_GETFD);
     if (flags == -1) {
-        LOG(ERROR, "Cannot fcntl(F_GETFL): %s (%d)", s_strerror(s_errno), s_errno);
+        LOG(ERROR, "Cannot fcntl(F_GETFD): %s (%d)", s_strerror(s_errno), s_errno);
         return false;
     }
 
@@ -920,7 +880,7 @@ bool socket_opt_reuse_addr(socket_t *sc, bool enable) {
         flags &= ~FD_CLOEXEC;
     }
 
-    if (fcntl(sc->handle, F_SETFD, FD_CLOEXEC) == -1) {
+    if (fcntl(sc->handle, F_SETFD, flags) == -1) {
         LOG(ERROR, "Cannot fcntl(F_SETFD): %s (%d)", s_strerror(s_errno), s_errno);
         return false;
     }
@@ -964,33 +924,6 @@ bool socket_opt_non_blocking(socket_t *sc, bool enable) {
     if (fcntl(sc->handle, F_SETFL, flags) == -1) {
         LOG(ERROR, "Cannot fcntl(F_SETFL), flags %d: %s (%d)", flags, s_strerror(s_errno), s_errno);
 #endif
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * Turns TCP_NODELAY socket option on/off.
- * @param sc
- * Socket.
- * @param enable
- * Whether to enable or disable TCP_NODELAY.
- * @return
- * True on success, false on failure.
- */
-bool socket_opt_ndelay(socket_t *sc, bool enable) {
-    HARD_ASSERT(sc != NULL);
-
-    if (socket_is_quic(sc)) {
-        return true;
-    }
-
-    SOFT_ASSERT_RC(sc->handle != -1, false, "Invalid socket file handle");
-
-    int flag = !!enable;
-    if (setsockopt(sc->handle, IPPROTO_TCP, TCP_NODELAY, (const char *)&flag, sizeof(flag)) == -1) {
-        LOG(ERROR, "Cannot setsockopt(TCP_NODELAY): %s (%d)", s_strerror(s_errno), s_errno);
         return false;
     }
 
@@ -1088,10 +1021,6 @@ void socket_destroy(socket_t *sc) {
 
     free(sc->host);
 
-    if (sc->crypto != NULL) {
-        socket_crypto_free(sc->crypto);
-    }
-
     socket_close(sc);
     free(sc);
 }
@@ -1104,10 +1033,24 @@ void socket_destroy(socket_t *sc) {
 void socket_close(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
 
-    SOFT_ASSERT(sc->handle != -1, "Invalid socket handle");
-
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
     if (sc->quic != NULL) {
+        if (sc->transport == SOCKET_TRANSPORT_QUIC_CONNECTION && !sc->quic_shutdown_sent) {
+            sc->quic_shutdown_sent = true;
+            ERR_clear_error();
+            int result =
+                SSL_shutdown_ex(sc->quic,
+                                SSL_SHUTDOWN_FLAG_RAPID | SSL_SHUTDOWN_FLAG_NO_STREAM_FLUSH |
+                                    SSL_SHUTDOWN_FLAG_NO_BLOCK,
+                                NULL,
+                                0);
+            if (result < 0) {
+                int error = SSL_get_error(sc->quic, result);
+                if (error != SSL_ERROR_WANT_READ && error != SSL_ERROR_WANT_WRITE) {
+                    socket_quic_log_io_failure(sc, "shutdown", error);
+                }
+            }
+        }
         SSL_free(sc->quic);
         sc->quic = NULL;
     }
@@ -1371,33 +1314,6 @@ int socket_addr_cmp(const struct sockaddr_storage *a,
 }
 
 /**
- * Installs the specified crypto pointer into the specified socket.
- *
- * @param sc
- * Socket.
- * @param crypto
- * Socket crypto pointer.
- */
-void socket_set_crypto(socket_t *sc, socket_crypto_t *crypto) {
-    HARD_ASSERT(sc != NULL);
-    HARD_ASSERT(crypto != NULL);
-    sc->crypto = crypto;
-}
-
-/**
- * Returns the installed crypto pointer on the specified socket, if any.
- *
- * @param sc
- * Socket.
- * @return
- * Crypto socket. Can be NULL.
- */
-socket_crypto_t *socket_get_crypto(socket_t *sc) {
-    HARD_ASSERT(sc != NULL);
-    return sc->crypto;
-}
-
-/**
  * Get the hostname of the specified socket.
  *
  * @param sc
@@ -1408,19 +1324,6 @@ socket_crypto_t *socket_get_crypto(socket_t *sc) {
 const char *socket_get_host(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
     return sc->host;
-}
-
-/**
- * Check if the specified socket was created on the secure port.
- *
- * @param sc
- * Socket.
- * @return
- * True if on secure port, false otherwise.
- */
-bool socket_is_secure(socket_t *sc) {
-    HARD_ASSERT(sc != NULL);
-    return sc->secure;
 }
 
 /**

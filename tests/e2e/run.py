@@ -19,7 +19,7 @@ import unittest
 
 TIMEOUT_SECONDS = 12
 PAYLOAD = "atrinik-quic-e2e"
-SCENARIOS = ("identity", "quic", "stun", "punch", "mapping")
+SCENARIOS = ("identity", "quic", "disconnect", "stun", "punch", "mapping")
 
 
 class NativeDriver:
@@ -63,10 +63,12 @@ class NativeDriver:
         return matches[0].removeprefix(prefix)
 
     def server(
-        self, identity: Path
+        self, identity: Path, mode: str = "server"
     ) -> tuple[subprocess.Popen[str], int, str]:
         port = 0
-        command = [str(self.path), "server", str(port), str(identity), PAYLOAD]
+        command = [str(self.path), mode, str(port), str(identity)]
+        if mode == "server":
+            command.append(PAYLOAD)
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
@@ -279,6 +281,37 @@ class NetworkE2ETest(unittest.TestCase):
                 check=False,
             )
         self.assertNotEqual(rejected.returncode, 0)
+
+    def test_disconnect(self) -> None:
+        server, port, fingerprint = self.driver.server(
+            self.temp / "server-close.pem", "close-server"
+        )
+        try:
+            client = self.driver.command(
+                "wait-client", "127.0.0.1", port, fingerprint
+            )
+            server_output = self.driver.finish_server(server)
+        except BaseException:
+            self.driver.stop_server(server)
+            raise
+        self.driver.marker(server_output, "LOCAL_CLOSE")
+        client_latency = int(self.driver.marker(client.stdout, "PEER_CLOSE "))
+        self.assertLess(client_latency, 1000)
+
+        server, port, fingerprint = self.driver.server(
+            self.temp / "client-close.pem", "wait-server"
+        )
+        try:
+            client = self.driver.command(
+                "close-client", "127.0.0.1", port, fingerprint
+            )
+            server_output = self.driver.finish_server(server)
+        except BaseException:
+            self.driver.stop_server(server)
+            raise
+        self.driver.marker(client.stdout, "LOCAL_CLOSE")
+        server_latency = int(self.driver.marker(server_output, "PEER_CLOSE "))
+        self.assertLess(server_latency, 1000)
 
     def test_punch(self) -> None:
         result = self.driver.command(

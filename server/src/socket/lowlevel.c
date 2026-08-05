@@ -30,7 +30,6 @@
 #include <global.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
-#include <toolkit/socket_crypto.h>
 #include <network_metrics.h>
 
 #define SOCKET_QUEUE_BULK_LIMIT (1024U * 1024U)
@@ -114,19 +113,11 @@ void socket_buffer_write(socket_struct *ns) {
     while (ns->packets != NULL) {
         packet_struct *packet = ns->packets;
 
-        if (packet->ndelay) {
-            socket_opt_ndelay(ns->sc, true);
-        }
-
         size_t amt;
         bool success = socket_write(ns->sc,
                                     (const void *)(packet->data + packet->pos),
                                     packet->len - packet->pos,
                                     &amt);
-
-        if (packet->ndelay) {
-            socket_opt_ndelay(ns->sc, false);
-        }
 
         if (!success) {
             ns->state = ST_DEAD;
@@ -169,26 +160,15 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet) {
     packet_struct *packet_meta = packet_new(0, 4, 0);
     packet_meta->ndelay = packet->ndelay;
 
-    if (socket_is_secure(ns->sc)) {
-        bool checksum_only = !socket_crypto_server_should_encrypt(packet->type);
-        packet = socket_crypto_encrypt(ns->sc, packet, packet_meta, checksum_only);
-        if (packet == NULL) {
-            /* Logging already done. */
-            packet_free(packet_meta);
-            ns->state = ST_DEAD;
-            return;
-        }
+    packet_compress(packet);
+    uint32_t payload_len = (uint32_t)packet->len + 1;
+    if (payload_len < 0x8000) {
+        packet_append_uint16(packet_meta, (uint16_t)payload_len);
     } else {
-        packet_compress(packet);
-        uint32_t payload_len = (uint32_t)packet->len + 1;
-        if (payload_len < 0x8000) {
-            packet_append_uint16(packet_meta, (uint16_t)payload_len);
-        } else {
-            packet_append_uint8(packet_meta, (uint8_t)(0x80 | (payload_len >> 16)));
-            packet_append_uint16(packet_meta, (uint16_t)(payload_len & 0xffff));
-        }
-        packet_append_uint8(packet_meta, packet->type);
+        packet_append_uint8(packet_meta, (uint8_t)(0x80 | (payload_len >> 16)));
+        packet_append_uint16(packet_meta, (uint16_t)(payload_len & 0xffff));
     }
+    packet_append_uint8(packet_meta, packet->type);
 
     size_t queued_size = packet_meta->len + packet->len;
     size_t queued_packets = packet->len != 0 ? 2 : 1;

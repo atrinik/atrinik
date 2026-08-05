@@ -29,6 +29,7 @@
 #include <openssl/opensslv.h>
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
 #include <openssl/ssl.h>
+
 #endif
 
 struct sock_struct {
@@ -43,8 +44,6 @@ struct sock_struct {
     char *host;
     uint16_t port;
     char connection_id[SOCKET_CONNECTION_ID_SIZE];
-    socket_crypto_t *crypto;
-    bool secure : 1;
     socket_role_t role;
     socket_connection_mode_t connection_mode;
 
@@ -58,6 +57,8 @@ struct sock_struct {
     bool owns_handle : 1;
     /** Whether connection_id is the final shared QUIC diagnostic ID. */
     bool connection_id_final : 1;
+    /** Whether a QUIC CONNECTION_CLOSE has already been requested. */
+    bool quic_shutdown_sent : 1;
 };
 
 size_t socket_rendezvous_client(socket_t *sc,
