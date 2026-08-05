@@ -15,6 +15,11 @@ on:
         description: Package version without the leading v
         required: false
         type: string
+      gcc_only:
+        description: Run only the release-gating GCC build and CTest suites
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -25,6 +30,81 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Classify native changes
+    if: inputs.gcc_only != true
+    runs-on: ubuntu-26.04
+    outputs:
+      native: ${{ steps.classify.outputs.native }}
+      windows: ${{ steps.classify.outputs.windows }}
+    steps:
+      - name: Check out source history
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Select native validation lanes
+        id: classify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          client=false
+          server=false
+          changed_files=()
+
+          if [[ "${EVENT_NAME}" == "pull_request" ||
+                "${EVENT_NAME}" == "push" ]]; then
+            if [[ ! "${BASE_SHA}" =~ ^[0-9a-f]{40}$ ||
+                  "${BASE_SHA}" =~ ^0+$ ]] ||
+                ! git cat-file -e "${BASE_SHA}^{commit}"; then
+              client=true
+              server=true
+            else
+              mapfile -d '' changed_files < <(
+                git diff --name-only -z "${BASE_SHA}" "${HEAD_SHA}"
+              )
+            fi
+          else
+            # A reusable caller may select an arbitrary ref without providing
+            # a meaningful comparison base. Validate both components unless
+            # that caller explicitly requested the GCC-only release gate.
+            client=true
+            server=true
+          fi
+
+          for path in "${changed_files[@]}"; do
+            case "${path}" in
+              client/*)
+                client=true
+                ;;
+              arch/*|maps/*|server/*|Dockerfile.server|generate-region-maps.sh|tools/collect.py|tools/compilers/*)
+                server=true
+                ;;
+              .devcontainer/*|.github/workflows/linux-ci.yml|.github/workflows/release.yml|CMakeLists.txt|CMakePresets.json|build.config|build.sh|build-windows.sh|cmake/*|common/*|compose.windows.yaml|tests/e2e/*)
+                client=true
+                server=true
+                ;;
+            esac
+          done
+
+          native=false
+          windows='[]'
+          if [[ "${client}" == true && "${server}" == true ]]; then
+            native=true
+            windows='["client","server"]'
+          elif [[ "${client}" == true ]]; then
+            native=true
+            windows='["client"]'
+          elif [[ "${server}" == true ]]; then
+            native=true
+            windows='["server"]'
+          fi
+
+          echo "native=${native}" >> "${GITHUB_OUTPUT}"
+          echo "windows=${windows}" >> "${GITHUB_OUTPUT}"
+
   gcc:
     name: GCC build and CTest
     runs-on: ubuntu-26.04
@@ -40,6 +120,7 @@ jobs:
     env:
       ATRINIK_PACKAGE_VERSION: ${{ inputs.package-version }}
       CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_MAXSIZE: 250M
     steps:
       - name: Check out source
         uses: actions/checkout@v6
@@ -73,6 +154,9 @@ jobs:
           restore-keys: |
             ccache-linux-
 
+      - name: Reset compiler cache statistics
+        run: ccache --zero-stats
+
       - name: Configure
         run: |
           cmake --preset gcc-debug \
@@ -90,7 +174,8 @@ jobs:
 
   clang-sanitizers:
     name: Clang ASan/UBSan
-    if: github.event_name != 'workflow_call'
+    needs: changes
+    if: inputs.gcc_only != true && needs.changes.outputs.native == 'true'
     runs-on: ubuntu-26.04
     container:
       image: ghcr.io/atrinik/linux-build:0.0.3
@@ -104,6 +189,7 @@ jobs:
     timeout-minutes: 30
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache-clang
+      CCACHE_MAXSIZE: 250M
     steps:
       - name: Check out source
         uses: actions/checkout@v6
@@ -112,6 +198,17 @@ jobs:
 
       - name: Trust checked-out workspace
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+      - name: Restore compiler cache
+        uses: actions/cache@v6
+        with:
+          path: .ccache-clang
+          key: ccache-clang-linux-build-0.0.3-${{ github.sha }}
+          restore-keys: |
+            ccache-clang-linux-build-0.0.3-
+
+      - name: Reset compiler cache statistics
+        run: ccache --zero-stats
 
       - name: Configure
         run: |
@@ -130,15 +227,14 @@ jobs:
 
   windows:
     name: Windows ${{ matrix.component }} (MinGW)
-    if: github.event_name != 'workflow_call'
+    needs: changes
+    if: inputs.gcc_only != true && needs.changes.outputs.windows != '[]'
     runs-on: ubuntu-26.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        component:
-          - client
-          - server
+        component: ${{ fromJSON(needs.changes.outputs.windows) }}
     steps:
       - name: Check out source
         uses: actions/checkout@v6
@@ -152,6 +248,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Restore compiler cache
+        uses: actions/cache@v6
+        with:
+          path: .ccache-windows-${{ matrix.component }}
+          key: ccache-windows-build-0.0.3-${{ matrix.component }}-${{ github.sha }}
+          restore-keys: |
+            ccache-windows-build-0.0.3-${{ matrix.component }}-
+
       - name: Build with pinned MinGW image
         env:
           COMPONENT: ${{ matrix.component }}
@@ -160,14 +264,17 @@ jobs:
             --user "$(id -u):$(id -g)" \
             --env HOME=/tmp \
             --env PATH=/opt/mxe/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-            --env CCACHE_DIR=/tmp/atrinik-ccache \
+            --env CCACHE_DIR="/workspaces/atrinik/.ccache-windows-${COMPONENT}" \
+            --env CCACHE_MAXSIZE=250M \
             --env CCACHE_TEMPDIR=/tmp/atrinik-ccache-tmp \
             --volume "${GITHUB_WORKSPACE}:/workspaces/atrinik" \
             --workdir /workspaces/atrinik \
             ghcr.io/atrinik/windows-build:0.0.3 \
             bash -c \
-              'x86_64-w64-mingw32.shared-cmake \
+              'ccache --zero-stats && \
+               x86_64-w64-mingw32.shared-cmake \
                  --no-warn-unused-cli \
                  --preset "windows-mxe-ci-${1}" && \
-               cmake --build --preset "windows-mxe-ci-${1}" --parallel' \
+               cmake --build --preset "windows-mxe-ci-${1}" --parallel && \
+               ccache --show-stats' \
             bash "${COMPONENT}"

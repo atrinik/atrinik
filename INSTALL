@@ -177,10 +177,18 @@ and opt-in physical-router interoperability tests.
 
 ## Continuous integration and releases
 
-GitHub Actions validates every pull request with GCC on Linux, Clang
-ASan/UBSan on Linux, and separate MinGW client/server builds. All lanes use the
-pinned build containers. Tagged releases reuse the GCC validation before
-packaging.
+GitHub Actions always validates pull requests with GCC and the server CTest
+suites. A native-path classifier adds Clang ASan/UBSan and the affected MinGW
+client or server lane. Shared toolkit, native build, devcontainer, and workflow
+changes exercise both MinGW components. Compiler caches are persisted
+separately for GCC, Clang, and each MinGW component.
+
+Tagged releases reuse only the GCC validation gate rather than repeating the
+pull request's sanitizer and non-packaging MinGW builds. Windows package
+construction starts after tag validation and can overlap GCC, but the packages
+are not published unless both jobs succeed. The Linux server image remains
+gated on GCC and imports and exports a scoped BuildKit cache through GitHub
+Actions.
 
 The Linux and Windows build environments are published independently from the
 `atrinik/devcontainer` repository. Its change-aware auto-tag workflow updates
