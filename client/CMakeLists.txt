@@ -179,7 +179,10 @@ install(FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/COPYING
         ${CMAKE_CURRENT_SOURCE_DIR}/client.cfg
         DESTINATION ${INSTALL_SUBDIR_DOC})
-install(DIRECTORY textures cache data fonts gfx_user schemas settings sound srv_files DESTINATION ${INSTALL_SUBDIR_SHARE} PATTERN ".git" EXCLUDE)
+install(DIRECTORY
+        textures cache data fonts gfx_user settings sound srv_files
+        DESTINATION ${INSTALL_SUBDIR_SHARE}
+        PATTERN ".git" EXCLUDE)
 
 include(InstallRequiredSystemLibraries)
 
