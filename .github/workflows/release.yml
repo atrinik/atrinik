@@ -176,6 +176,9 @@ jobs:
 
       - name: Publish GitHub release
         env:
+          # This job intentionally has no checkout, so gh cannot infer the
+          # repository from local Git metadata.
+          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.metadata.outputs.tag }}
         run: |
