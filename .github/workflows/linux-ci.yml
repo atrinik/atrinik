@@ -244,7 +244,9 @@ jobs:
         if: matrix.component == 'client'
         uses: actions/cache@v6
         with:
-          path: build/windows-mxe-release
+          path: |
+            .ccache-windows-client
+            build/windows-mxe-release
           key: windows-package-build-0.0.3-client-${{ github.sha }}
           restore-keys: |
             windows-package-build-0.0.3-client-
@@ -254,6 +256,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: |
+            .ccache-windows-server
             build/windows-mxe-server-release
             build/windows-region-map-generator
           key: windows-package-build-0.0.3-server-${{ github.sha }}
@@ -268,6 +271,9 @@ jobs:
             --user "$(id -u):$(id -g)" \
             --env HOME=/tmp \
             --env PATH=/opt/mxe/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+            --env CCACHE_DIR="/workspaces/atrinik/.ccache-windows-${COMPONENT}" \
+            --env CCACHE_MAXSIZE=250M \
+            --env CCACHE_TEMPDIR=/tmp/atrinik-ccache-tmp \
             --volume "${GITHUB_WORKSPACE}:/workspaces/atrinik" \
             --workdir /workspaces/atrinik \
             ghcr.io/atrinik/windows-build:0.0.3 \
