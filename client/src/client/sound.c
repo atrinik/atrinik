@@ -51,6 +51,17 @@ static uint8_t enabled = 0;
  */
 static sound_ambient_struct *sound_ambient_head = NULL;
 
+/** Female player-hurt variants supplied by the sound submodule. */
+static const char *const sound_female_hurt_effects[] = {
+    "doh_female_1.ogg",
+    "doh_female_2.ogg",
+    "doh_female_3.ogg",
+    "doh_female_4.ogg",
+    "doh_female_5.ogg",
+    "doh_female_6.ogg",
+    "doh_female_7.ogg",
+};
+
 #ifdef HAVE_SDL_MIXER
 
 /**
@@ -764,7 +775,12 @@ void socket_command_sound(uint8_t *data, size_t len, size_t pos) {
 
         const char *effect = filename;
         if (strcmp(filename, "player_hurt.ogg") == 0) {
-            effect = cpl.gender == GENDER_FEMALE ? "doh_female.ogg" : "doh.ogg";
+            if (cpl.gender == GENDER_FEMALE) {
+                effect =
+                    sound_female_hurt_effects[rndm(0, arraysize(sound_female_hurt_effects) - 1)];
+            } else {
+                effect = "doh.ogg";
+            }
         }
 
         channel = sound_play_effect_loop(effect, 100 + volume, loop);
