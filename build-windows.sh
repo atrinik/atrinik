@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# windows-build:0.0.3 contains MXE's real compiler drivers here, while the
-# toolchain's compiler path is a ccache symlink that locates them through PATH.
+# windows-build:0.0.3 contains MXE's compiler drivers and CMake wrapper here.
+# Login shells can replace PATH, so restore the directory when necessary.
 if [[ -d /opt/mxe/usr/bin && ":${PATH}:" != *":/opt/mxe/usr/bin:"* ]]; then
     export PATH="/opt/mxe/usr/bin:${PATH}"
 fi

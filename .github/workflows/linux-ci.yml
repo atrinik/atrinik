@@ -38,38 +38,30 @@ jobs:
       native: ${{ steps.classify.outputs.native }}
       windows: ${{ steps.classify.outputs.windows }}
     steps:
-      - name: Check out source history
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
       - name: Select native validation lanes
         id: classify
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           EVENT_NAME: ${{ github.event_name }}
-          HEAD_SHA: ${{ github.sha }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           client=false
           server=false
           changed_files=()
 
-          if [[ "${EVENT_NAME}" == "pull_request" ||
-                "${EVENT_NAME}" == "push" ]]; then
-            if [[ ! "${BASE_SHA}" =~ ^[0-9a-f]{40}$ ||
-                  "${BASE_SHA}" =~ ^0+$ ]] ||
-                ! git cat-file -e "${BASE_SHA}^{commit}"; then
-              client=true
-              server=true
-            else
-              mapfile -d '' changed_files < <(
-                git diff --name-only -z "${BASE_SHA}" "${HEAD_SHA}"
-              )
+          if [[ "${EVENT_NAME}" == "pull_request" &&
+                "${PR_NUMBER}" =~ ^[0-9]+$ ]]; then
+            changed_output=$(
+              gh api --paginate \
+                "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
+                --jq '.[].filename'
+            )
+            if [[ -n "${changed_output}" ]]; then
+              mapfile -t changed_files <<< "${changed_output}"
             fi
           else
-            # A reusable caller may select an arbitrary ref without providing
-            # a meaningful comparison base. Validate both components unless
-            # that caller explicitly requested the GCC-only release gate.
+            # Pushes and reusable callers have no PR-files response. Validate
+            # both components unless the caller selected the GCC-only gate.
             client=true
             server=true
           fi
@@ -248,22 +240,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Restore compiler cache
+      - name: Restore client package build
+        if: matrix.component == 'client'
         uses: actions/cache@v6
         with:
-          path: .ccache-windows-${{ matrix.component }}
-          key: ccache-windows-build-0.0.3-${{ matrix.component }}-${{ github.sha }}
+          path: build/windows-mxe-release
+          key: windows-package-build-0.0.3-client-${{ github.sha }}
           restore-keys: |
-            ccache-windows-build-0.0.3-${{ matrix.component }}-
+            windows-package-build-0.0.3-client-
 
-      - name: Restore server package content
+      - name: Restore server package build
         if: matrix.component == 'server'
         uses: actions/cache@v6
         with:
-          path: build/windows-mxe-server-release/package-root
-          key: windows-server-content-0.0.3-${{ github.sha }}
+          path: |
+            build/windows-mxe-server-release
+            build/windows-region-map-generator
+          key: windows-package-build-0.0.3-server-${{ github.sha }}
           restore-keys: |
-            windows-server-content-0.0.3-
+            windows-package-build-0.0.3-server-
 
       - name: Build and verify package with pinned MinGW image
         env:
@@ -273,15 +268,11 @@ jobs:
             --user "$(id -u):$(id -g)" \
             --env HOME=/tmp \
             --env PATH=/opt/mxe/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-            --env CCACHE_DIR="/workspaces/atrinik/.ccache-windows-${COMPONENT}" \
-            --env CCACHE_MAXSIZE=250M \
-            --env CCACHE_TEMPDIR=/tmp/atrinik-ccache-tmp \
             --volume "${GITHUB_WORKSPACE}:/workspaces/atrinik" \
             --workdir /workspaces/atrinik \
             ghcr.io/atrinik/windows-build:0.0.3 \
             bash -c \
               'set -euo pipefail
-               ccache --zero-stats
                bash ./build-windows.sh "${1}"
                mapfile -t packages < <(
                  find build/packages -maxdepth 1 -type f \
@@ -291,6 +282,5 @@ jobs:
                  echo "Expected one Windows ${1} package, found ${#packages[@]}." >&2
                  exit 1
                fi
-               python3 -m zipfile --test "${packages[0]}"
-               ccache --show-stats' \
+               python3 -m zipfile --test "${packages[0]}"' \
             bash "${COMPONENT}"

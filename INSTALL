@@ -181,7 +181,8 @@ GitHub Actions always validates pull requests with GCC and the server CTest
 suites. A native-path classifier adds Clang ASan/UBSan and builds the affected
 portable MinGW client or server ZIP. Shared toolkit, native build,
 devcontainer, and workflow changes package both MinGW components. Compiler
-caches are persisted separately for GCC, Clang, and each MinGW component.
+caches are persisted separately for GCC and Clang. The MinGW package lanes
+preserve their component-specific CMake build trees for incremental rebuilds.
 
 Tagged releases repeat only the GCC validation gate before producing the two
 publishable Windows packages once. Windows package construction starts after

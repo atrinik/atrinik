@@ -117,8 +117,9 @@ jobs:
         uses: actions/cache@v6
         with:
           path: |
-            .ccache-windows-release
-            build/windows-mxe-server-release/package-root
+            build/windows-mxe-release
+            build/windows-mxe-server-release
+            build/windows-region-map-generator
           key: windows-release-0.0.3-${{ steps.windows-cache-key.outputs.hash }}
           restore-keys: |
             windows-release-0.0.3-
@@ -131,22 +132,17 @@ jobs:
           PACKAGE_VERSION: ${{ needs.metadata.outputs.version }}
         run: |
           # The image's default /opt/mxe cache belongs to its build user. Keep
-          # ccache in the mounted workspace so Actions can preserve it.
+          # generated build trees in the mounted workspace so Actions can
+          # preserve them between release runs.
           docker run --rm \
             --user "$(id -u):$(id -g)" \
             --env HOME=/tmp \
             --env PATH=/opt/mxe/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-            --env CCACHE_DIR=/workspaces/atrinik/.ccache-windows-release \
-            --env CCACHE_MAXSIZE=500M \
-            --env CCACHE_TEMPDIR=/tmp/atrinik-ccache-tmp \
             --env ATRINIK_PACKAGE_VERSION="${PACKAGE_VERSION}" \
             --volume "${GITHUB_WORKSPACE}:/workspaces/atrinik" \
             --workdir /workspaces/atrinik \
             "${WINDOWS_BUILD_IMAGE}" \
-            bash -c \
-              'ccache --zero-stats && \
-               bash ./build-windows.sh && \
-               ccache --show-stats'
+            bash ./build-windows.sh
 
       - name: Upload Windows packages
         uses: actions/upload-artifact@v7
