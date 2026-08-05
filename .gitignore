@@ -10,9 +10,6 @@ build/
 !CMakePresets.json
 !metaserver/worker/package.json
 !metaserver/worker/package-lock.json
-!metaserver/worker/tsconfig.json
-!metaserver/worker/tsconfig.node.json
-!metaserver/worker/test/tsconfig.json
 !.devcontainer/
 !.devcontainer/devcontainer.json
 !.devcontainer/**/*.json

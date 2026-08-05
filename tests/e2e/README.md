@@ -33,5 +33,5 @@ The port-mapping scenario validates Atrinik's orchestration and lifecycle, not
 a particular home router. Real PCP, NAT-PMP, and UPnP interoperability requires
 an opt-in lab or network-namespace suite with an emulated gateway; it is not a
 safe or deterministic default CI dependency. Metaserver directory and
-rendezvous behavior is covered in the local Worker runtime by
-`npm --prefix metaserver/worker test`.
+rendezvous behavior is covered in the standalone
+[metaserver Worker](https://github.com/atrinik/metaserver-worker) repository.
