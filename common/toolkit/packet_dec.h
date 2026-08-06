@@ -33,5 +33,6 @@
 #define TOOLKIT_PACKET_DEC_H
 
 typedef struct packet_struct packet_struct;
+typedef struct packet_reader packet_reader_t;
 
 #endif

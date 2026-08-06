@@ -196,7 +196,7 @@ START_TEST(test_socket_asset_request_rejects_malformed) {
 
     socket_asset_request_t request;
     ck_assert(!socket_asset_request_parse(packet->data, packet->len - 1, 0, &request));
-    packet_append_uint8(packet, 0);
+    packet_writer_write_uint8(packet, 0);
     ck_assert(!socket_asset_request_parse(packet->data, packet->len, 0, &request));
     packet_free(packet);
 
@@ -264,7 +264,7 @@ START_TEST(test_socket_asset_response_rejects_malformed) {
 
     packet_struct *packet = packet_new(0, 0, 0);
     socket_asset_response_append_status(packet, ASSET_STATUS_NOT_MODIFIED, "client-maps/test.png");
-    packet_append_uint8(packet, 0);
+    packet_writer_write_uint8(packet, 0);
     ck_assert(!socket_asset_response_parse(packet->data, packet->len, 0, &response));
     packet_free(packet);
 

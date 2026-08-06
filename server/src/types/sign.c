@@ -114,29 +114,29 @@ static int apply_func(object *op, object *applier, int aflags) {
         packet_struct *packet = packet_new(CLIENT_CMD_NOTIFICATION, 256, 512);
 
         packet_debug_data(packet, 0, "\nNotification command type");
-        packet_append_uint8(packet, CMD_NOTIFICATION_TEXT);
+        packet_writer_write_uint8(packet, CMD_NOTIFICATION_TEXT);
         packet_debug_data(packet, 0, "Text");
-        packet_append_string_terminated(packet, notification_msg);
+        packet_writer_write_cstring(packet, notification_msg);
 
         if (notification_action != NULL) {
             packet_debug_data(packet, 0, "\nNotification command type");
-            packet_append_uint8(packet, CMD_NOTIFICATION_ACTION);
+            packet_writer_write_uint8(packet, CMD_NOTIFICATION_ACTION);
             packet_debug_data(packet, 0, "Action");
-            packet_append_string_terminated(packet, notification_action);
+            packet_writer_write_cstring(packet, notification_action);
         }
 
         if (notification_shortcut != NULL) {
             packet_debug_data(packet, 0, "\nNotification command type");
-            packet_append_uint8(packet, CMD_NOTIFICATION_SHORTCUT);
+            packet_writer_write_uint8(packet, CMD_NOTIFICATION_SHORTCUT);
             packet_debug_data(packet, 0, "Shortcut");
-            packet_append_string_terminated(packet, notification_shortcut);
+            packet_writer_write_cstring(packet, notification_shortcut);
         }
 
         if (notification_delay != NULL) {
             packet_debug_data(packet, 0, "\nNotification command type");
-            packet_append_uint8(packet, CMD_NOTIFICATION_DELAY);
+            packet_writer_write_uint8(packet, CMD_NOTIFICATION_DELAY);
             packet_debug_data(packet, 0, "Delay");
-            packet_append_uint32(packet, atoi(notification_delay));
+            packet_writer_write_uint32(packet, atoi(notification_delay));
         }
 
         socket_send_packet(CONTR(applier)->cs, packet);

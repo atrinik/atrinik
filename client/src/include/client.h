@@ -100,6 +100,7 @@ typedef struct client_socket {
 
 typedef struct socket_command_struct {
     void (*handle_func)(uint8_t *data, size_t len, size_t pos);
+    const char *name;
 } socket_command_struct;
 
 /**

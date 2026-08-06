@@ -146,6 +146,14 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet) {
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(packet != NULL);
 
+    if (!packet_writer_finish(packet)) {
+        LOG(ERROR,
+            "Refusing malformed outbound packet: %s",
+            packet_error_string(packet_writer_error(packet)));
+        packet_free(packet);
+        return;
+    }
+
     if (ns->state == ST_DEAD || ns->state == ST_ZOMBIE) {
         packet_free(packet);
         return;
@@ -163,12 +171,12 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet) {
     packet_compress(packet);
     uint32_t payload_len = (uint32_t)packet->len + 1;
     if (payload_len < 0x8000) {
-        packet_append_uint16(packet_meta, (uint16_t)payload_len);
+        packet_writer_write_uint16(packet_meta, (uint16_t)payload_len);
     } else {
-        packet_append_uint8(packet_meta, (uint8_t)(0x80 | (payload_len >> 16)));
-        packet_append_uint16(packet_meta, (uint16_t)(payload_len & 0xffff));
+        packet_writer_write_uint8(packet_meta, (uint8_t)(0x80 | (payload_len >> 16)));
+        packet_writer_write_uint16(packet_meta, (uint16_t)(payload_len & 0xffff));
     }
-    packet_append_uint8(packet_meta, packet->type);
+    packet_writer_write_uint8(packet_meta, packet->type);
 
     size_t queued_size = packet_meta->len + packet->len;
     size_t queued_packets = packet->len != 0 ? 2 : 1;

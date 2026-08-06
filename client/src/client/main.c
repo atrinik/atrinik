@@ -133,7 +133,7 @@ static void keepalive_send(void) {
     LL_PREPEND(keepalive_data, keepalive);
 
     packet = packet_new(SERVER_CMD_KEEPALIVE, 0, 0);
-    packet_append_uint32(packet, keepalive->id);
+    packet_writer_write_uint32(packet, keepalive->id);
     packet_enable_ndelay(packet);
     socket_send_packet(packet);
     last_keepalive = keepalive->ticks;
@@ -155,10 +155,12 @@ void keepalive_ping_stats(void) {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_keepalive(uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     uint32_t id, ticks;
     keepalive_data_struct *keepalive, *tmp;
 
-    id = packet_to_uint32(data, len, &pos);
+    id = packet_reader_read_uint32(&reader);
     ticks = SDL_GetTicks();
 
     LL_FOREACH_SAFE(keepalive_data, keepalive, tmp) {
@@ -292,7 +294,7 @@ static int game_status_chain(void) {
         cpl.state = ST_START_DATA;
     } else if (cpl.state == ST_START_DATA) {
         packet_struct *packet = packet_new(SERVER_CMD_VERSION, 16, 0);
-        packet_append_uint32(packet, SOCKET_VERSION);
+        packet_writer_write_uint32(packet, SOCKET_VERSION);
         socket_send_packet(packet);
 
         keepalive_send();
@@ -301,26 +303,26 @@ static int game_status_chain(void) {
         packet_struct *packet;
 
         packet = packet_new(SERVER_CMD_SETUP, 256, 256);
-        packet_append_uint8(packet, CMD_SETUP_SOUND);
-        packet_append_uint8(packet, 1);
-        packet_append_uint8(packet, CMD_SETUP_MAPSIZE);
-        packet_append_uint8(packet,
+        packet_writer_write_uint8(packet, CMD_SETUP_SOUND);
+        packet_writer_write_uint8(packet, 1);
+        packet_writer_write_uint8(packet, CMD_SETUP_MAPSIZE);
+        packet_writer_write_uint8(packet,
                             MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH)));
-        packet_append_uint8(packet,
+        packet_writer_write_uint8(packet,
                             MAP_LOOK_TO_WIRE_SIZE(setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT)));
-        packet_append_uint8(packet, CMD_SETUP_DATA_URL);
-        packet_append_string_terminated(packet, "");
-        packet_append_uint8(packet, CMD_SETUP_JOIN_PASSWORD);
+        packet_writer_write_uint8(packet, CMD_SETUP_DATA_URL);
+        packet_writer_write_cstring(packet, "");
+        packet_writer_write_uint8(packet, CMD_SETUP_JOIN_PASSWORD);
         const char *join_password = selected_server->join_password != NULL
                                         ? selected_server->join_password
                                         : clioption_settings.join_password;
-        packet_append_string_terminated(packet, join_password != NULL ? join_password : "");
+        packet_writer_write_cstring(packet, join_password != NULL ? join_password : "");
         if (cpl.server_socket_version >= ASSET_TRANSPORT_SOCKET_VERSION) {
-            packet_append_uint8(packet, CMD_SETUP_ASSET_TRANSPORT);
+            packet_writer_write_uint8(packet, CMD_SETUP_ASSET_TRANSPORT);
         }
         if (socket_is_quic(csocket.sc)) {
-            packet_append_uint8(packet, CMD_SETUP_CONNECTION_MODE);
-            packet_append_uint8(packet, socket_connection_mode_get(csocket.sc));
+            packet_writer_write_uint8(packet, CMD_SETUP_CONNECTION_MODE);
+            packet_writer_write_uint8(packet, socket_connection_mode_get(csocket.sc));
         }
         socket_send_packet(packet);
 

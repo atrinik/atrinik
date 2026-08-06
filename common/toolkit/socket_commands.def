@@ -1,0 +1,82 @@
+/*
+ * Authoritative legacy game command registry.
+ *
+ * Consumers define ATRINIK_SERVER_COMMAND and/or ATRINIK_CLIENT_COMMAND before
+ * including this file. The arguments are symbolic ID, diagnostic name,
+ * handler, and (for server commands) whether a logged-in player is required.
+ */
+
+#ifndef ATRINIK_SERVER_COMMAND
+#define ATRINIK_SERVER_COMMAND(_id, _name, _handler, _player_only)
+#define ATRINIK_SERVER_COMMAND_WAS_UNDEFINED
+#endif
+
+#ifndef ATRINIK_CLIENT_COMMAND
+#define ATRINIK_CLIENT_COMMAND(_id, _name, _handler)
+#define ATRINIK_CLIENT_COMMAND_WAS_UNDEFINED
+#endif
+
+ATRINIK_SERVER_COMMAND(CONTROL, "control", socket_command_control, false)
+ATRINIK_SERVER_COMMAND(ASK_FACE, "ask_face", socket_command_ask_face, false)
+ATRINIK_SERVER_COMMAND(SETUP, "setup", socket_command_setup, false)
+ATRINIK_SERVER_COMMAND(VERSION, "version", socket_command_version, false)
+ATRINIK_SERVER_COMMAND(CLEAR, "clear", socket_command_clear, false)
+ATRINIK_SERVER_COMMAND(REQUEST_UPDATE, "request_update", socket_command_request_update, false)
+ATRINIK_SERVER_COMMAND(KEEPALIVE, "keepalive", socket_command_keepalive, false)
+ATRINIK_SERVER_COMMAND(ACCOUNT, "account", socket_command_account, false)
+ATRINIK_SERVER_COMMAND(ITEM_EXAMINE, "item_examine", socket_command_item_examine, true)
+ATRINIK_SERVER_COMMAND(ITEM_APPLY, "item_apply", socket_command_item_apply, true)
+ATRINIK_SERVER_COMMAND(ITEM_MOVE, "item_move", socket_command_item_move, true)
+ATRINIK_SERVER_COMMAND(ASK_RESOURCE, "ask_resource", socket_command_ask_resource, true)
+ATRINIK_SERVER_COMMAND(PLAYER_CMD, "player_cmd", socket_command_player_cmd, true)
+ATRINIK_SERVER_COMMAND(ITEM_LOCK, "item_lock", socket_command_item_lock, true)
+ATRINIK_SERVER_COMMAND(ITEM_MARK, "item_mark", socket_command_item_mark, true)
+ATRINIK_SERVER_COMMAND(FIRE, "fire", socket_command_fire, true)
+ATRINIK_SERVER_COMMAND(QUICKSLOT, "quickslot", socket_command_quickslot, true)
+ATRINIK_SERVER_COMMAND(QUESTLIST, "questlist", socket_command_quest_list, true)
+ATRINIK_SERVER_COMMAND(MOVE_PATH, "move_path", socket_command_move_path, true)
+ATRINIK_SERVER_COMMAND(COMBAT, "combat", socket_command_combat, true)
+ATRINIK_SERVER_COMMAND(TALK, "talk", socket_command_talk, true)
+ATRINIK_SERVER_COMMAND(MOVE, "move", socket_command_move, true)
+ATRINIK_SERVER_COMMAND(TARGET, "target", socket_command_target, true)
+ATRINIK_SERVER_COMMAND(ASSET, "asset", socket_command_asset, false)
+
+ATRINIK_CLIENT_COMMAND(MAP, "map", socket_command_map)
+ATRINIK_CLIENT_COMMAND(DRAWINFO, "drawinfo", socket_command_drawinfo)
+ATRINIK_CLIENT_COMMAND(FILE_UPDATE, "file_update", socket_command_file_update)
+ATRINIK_CLIENT_COMMAND(ITEM, "item", socket_command_item)
+ATRINIK_CLIENT_COMMAND(SOUND, "sound", socket_command_sound)
+ATRINIK_CLIENT_COMMAND(TARGET, "target", socket_command_target)
+ATRINIK_CLIENT_COMMAND(ITEM_UPDATE, "item_update", socket_command_item_update)
+ATRINIK_CLIENT_COMMAND(ITEM_DELETE, "item_delete", socket_command_item_delete)
+ATRINIK_CLIENT_COMMAND(STATS, "stats", socket_command_stats)
+ATRINIK_CLIENT_COMMAND(IMAGE, "image", socket_command_image)
+ATRINIK_CLIENT_COMMAND(ANIM, "anim", socket_command_anim)
+ATRINIK_CLIENT_COMMAND(PLAYER, "player", socket_command_player)
+ATRINIK_CLIENT_COMMAND(MAPSTATS, "mapstats", socket_command_mapstats)
+ATRINIK_CLIENT_COMMAND(RESOURCE, "resource", socket_command_resource)
+ATRINIK_CLIENT_COMMAND(VERSION, "version", socket_command_version)
+ATRINIK_CLIENT_COMMAND(SETUP, "setup", socket_command_setup)
+ATRINIK_CLIENT_COMMAND(CONTROL, "control", socket_command_control)
+ATRINIK_CLIENT_COMMAND(PAINTING, "painting", socket_command_painting)
+ATRINIK_CLIENT_COMMAND(CHARACTERS, "characters", socket_command_characters)
+ATRINIK_CLIENT_COMMAND(BOOK, "book", socket_command_book)
+ATRINIK_CLIENT_COMMAND(PARTY, "party", socket_command_party)
+ATRINIK_CLIENT_COMMAND(QUICKSLOT, "quickslot", socket_command_quickslots)
+ATRINIK_CLIENT_COMMAND(COMPRESSED, "compressed", socket_command_compressed)
+ATRINIK_CLIENT_COMMAND(REGION_MAP, "region_map", NULL)
+ATRINIK_CLIENT_COMMAND(SOUND_AMBIENT, "sound_ambient", socket_command_sound_ambient)
+ATRINIK_CLIENT_COMMAND(INTERFACE, "interface", socket_command_interface)
+ATRINIK_CLIENT_COMMAND(NOTIFICATION, "notification", socket_command_notification)
+ATRINIK_CLIENT_COMMAND(KEEPALIVE, "keepalive", socket_command_keepalive)
+ATRINIK_CLIENT_COMMAND(ASSET, "asset", socket_command_asset)
+
+#ifdef ATRINIK_SERVER_COMMAND_WAS_UNDEFINED
+#undef ATRINIK_SERVER_COMMAND_WAS_UNDEFINED
+#undef ATRINIK_SERVER_COMMAND
+#endif
+
+#ifdef ATRINIK_CLIENT_COMMAND_WAS_UNDEFINED
+#undef ATRINIK_CLIENT_COMMAND_WAS_UNDEFINED
+#undef ATRINIK_CLIENT_COMMAND
+#endif

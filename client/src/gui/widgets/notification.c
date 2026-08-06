@@ -98,6 +98,8 @@ int notification_keybind_check(const char *cmd) {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_notification(uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     int wd, ht;
     char type, *cp;
     SDL_Rect box;
@@ -118,13 +120,13 @@ void socket_command_notification(uint8_t *data, size_t len, size_t pos) {
 
     /* Parse the data. */
     while (pos < len) {
-        type = packet_to_uint8(data, len, &pos);
+        type = packet_reader_read_uint8(&reader);
 
         switch (type) {
             case CMD_NOTIFICATION_TEXT: {
                 char message[HUGE_BUF];
 
-                packet_to_string(data, len, &pos, message, sizeof(message));
+                packet_reader_read_string(&reader, message, sizeof(message));
                 stringbuffer_append_string(sb, message);
                 break;
             }
@@ -132,7 +134,7 @@ void socket_command_notification(uint8_t *data, size_t len, size_t pos) {
             case CMD_NOTIFICATION_ACTION: {
                 char action[HUGE_BUF];
 
-                packet_to_string(data, len, &pos, action, sizeof(action));
+                packet_reader_read_string(&reader, action, sizeof(action));
                 notification->action = xstrdup(action);
                 break;
             }
@@ -140,14 +142,14 @@ void socket_command_notification(uint8_t *data, size_t len, size_t pos) {
             case CMD_NOTIFICATION_SHORTCUT: {
                 char shortcut[HUGE_BUF];
 
-                packet_to_string(data, len, &pos, shortcut, sizeof(shortcut));
+                packet_reader_read_string(&reader, shortcut, sizeof(shortcut));
                 notification->shortcut = xstrdup(shortcut);
                 break;
             }
 
             case CMD_NOTIFICATION_DELAY:
                 notification->delay =
-                    MAX(NOTIFICATION_DEFAULT_FADEOUT, packet_to_uint32(data, len, &pos));
+                    MAX(NOTIFICATION_DEFAULT_FADEOUT, packet_reader_read_uint32(&reader));
                 break;
 
             default:

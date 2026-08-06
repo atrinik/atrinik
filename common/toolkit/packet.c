@@ -108,6 +108,8 @@ packet_struct *packet_new(uint8_t type, size_t size, size_t expand) {
     packet = mempool_get(pool_packet);
     packet->size = size;
     packet->expand = expand;
+    packet->limit = PACKET_PAYLOAD_MAX;
+    packet->error = PACKET_ERROR_NONE;
 
     /* Allocate the initial data block. */
     if (packet->size) {
@@ -193,6 +195,10 @@ void packet_enable_ndelay(packet_struct *packet) {
 
 void packet_set_pos(packet_struct *packet, size_t pos) {
     TOOLKIT_PROTECT();
+    if (pos > packet->limit) {
+        packet->error = PACKET_ERROR_LIMIT_EXCEEDED;
+        return;
+    }
     packet->len = pos;
 }
 
@@ -208,9 +214,11 @@ packet_struct *packet_dup(packet_struct *packet) {
 
     cp = packet_new(packet->type, packet->size, packet->expand);
     cp->ndelay = packet->ndelay;
+    cp->limit = packet->limit;
+    cp->error = packet->error;
 
     if (packet->data != NULL) {
-        packet_append_data_len(cp, packet->data, packet->len);
+        packet_writer_write_bytes(cp, packet->data, packet->len);
     }
 
     return cp;
@@ -219,7 +227,7 @@ packet_struct *packet_dup(packet_struct *packet) {
 void packet_delete(packet_struct *packet, size_t pos, size_t len) {
     TOOLKIT_PROTECT();
 
-    if (len > packet->len - pos) {
+    if (pos > packet->len || len > packet->len - pos) {
         return;
     }
 
@@ -260,15 +268,34 @@ void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf) {
  * @param size
  * How many bytes we need.
  */
-static void packet_ensure(packet_struct *packet, size_t size) {
+static bool packet_ensure(packet_struct *packet, size_t size) {
     TOOLKIT_PROTECT();
 
-    if (packet->len + size < packet->size) {
-        return;
+    if (packet->error != PACKET_ERROR_NONE) {
+        return false;
     }
 
-    packet->size += MAX(packet->expand, size);
+    if (packet->len > packet->limit || size > packet->limit - packet->len) {
+        packet->error = PACKET_ERROR_LIMIT_EXCEEDED;
+        return false;
+    }
+
+    if (packet->len <= packet->size && size <= packet->size - packet->len) {
+        return true;
+    }
+
+    size_t growth = MAX(packet->expand, size);
+    if (packet->size > packet->limit || growth > packet->limit - packet->size) {
+        growth = packet->limit - MIN(packet->size, packet->limit);
+    }
+    if (growth < size || packet->size > SIZE_MAX - growth) {
+        packet->error = PACKET_ERROR_SIZE_OVERFLOW;
+        return false;
+    }
+
+    packet->size += growth;
     packet->data = xrealloc(packet->data, packet->size);
+    return true;
 }
 
 char *packet_get_debug(packet_struct *packet) {
@@ -289,49 +316,69 @@ char *packet_get_debug(packet_struct *packet) {
     return cp;
 }
 
-static void packet_append_uint8_internal(packet_struct *packet, uint8_t data) {
+packet_error_t packet_writer_error(const packet_writer_t *writer) {
+    HARD_ASSERT(writer != NULL);
+    return writer->error;
+}
+
+bool packet_writer_finish(packet_writer_t *writer) {
+    HARD_ASSERT(writer != NULL);
+    return writer->error == PACKET_ERROR_NONE;
+}
+
+static void packet_writer_write_uint8_internal(packet_struct *packet, uint8_t data) {
     TOOLKIT_PROTECT();
-    packet_ensure(packet, 1);
+    if (!packet_ensure(packet, 1)) {
+        return;
+    }
 
     packet->data[packet->len++] = data;
 }
 
-void packet_append_uint8(packet_struct *packet, uint8_t data) {
+void packet_writer_write_uint8(packet_struct *packet, uint8_t data) {
     TOOLKIT_PROTECT();
 
-    packet_append_uint8_internal(packet, data);
+    packet_writer_write_uint8_internal(packet, data);
     packet_debug(packet, 0, "%u\n", data);
 }
 
-void packet_append_int8(packet_struct *packet, int8_t data) {
+void packet_writer_write_int8(packet_struct *packet, int8_t data) {
     TOOLKIT_PROTECT();
-    packet_ensure(packet, 1);
+    if (!packet_ensure(packet, 1)) {
+        return;
+    }
 
     packet->data[packet->len++] = data;
     packet_debug(packet, 0, "%d\n", data);
 }
 
-void packet_append_uint16(packet_struct *packet, uint16_t data) {
+void packet_writer_write_uint16(packet_struct *packet, uint16_t data) {
     TOOLKIT_PROTECT();
-    packet_ensure(packet, 2);
+    if (!packet_ensure(packet, 2)) {
+        return;
+    }
 
     packet->data[packet->len++] = (data >> 8) & 0xff;
     packet->data[packet->len++] = data & 0xff;
     packet_debug(packet, 0, "%u\n", data);
 }
 
-void packet_append_int16(packet_struct *packet, int16_t data) {
+void packet_writer_write_int16(packet_struct *packet, int16_t data) {
     TOOLKIT_PROTECT();
-    packet_ensure(packet, 2);
+    if (!packet_ensure(packet, 2)) {
+        return;
+    }
 
     packet->data[packet->len++] = (data >> 8) & 0xff;
     packet->data[packet->len++] = data & 0xff;
     packet_debug(packet, 0, "%d\n", data);
 }
 
-static void packet_append_uint32_internal(packet_struct *packet, uint32_t data) {
+static void packet_writer_write_uint32_internal(packet_struct *packet, uint32_t data) {
     TOOLKIT_PROTECT();
-    packet_ensure(packet, 4);
+    if (!packet_ensure(packet, 4)) {
+        return;
+    }
 
     packet->data[packet->len++] = (data >> 24) & 0xff;
     packet->data[packet->len++] = (data >> 16) & 0xff;
@@ -339,16 +386,18 @@ static void packet_append_uint32_internal(packet_struct *packet, uint32_t data) 
     packet->data[packet->len++] = data & 0xff;
 }
 
-void packet_append_uint32(packet_struct *packet, uint32_t data) {
+void packet_writer_write_uint32(packet_struct *packet, uint32_t data) {
     TOOLKIT_PROTECT();
 
-    packet_append_uint32_internal(packet, data);
+    packet_writer_write_uint32_internal(packet, data);
     packet_debug(packet, 0, "%u\n", data);
 }
 
-void packet_append_int32(packet_struct *packet, int32_t data) {
+void packet_writer_write_int32(packet_struct *packet, int32_t data) {
     TOOLKIT_PROTECT();
-    packet_ensure(packet, 4);
+    if (!packet_ensure(packet, 4)) {
+        return;
+    }
 
     packet->data[packet->len++] = (data >> 24) & 0xff;
     packet->data[packet->len++] = (data >> 16) & 0xff;
@@ -357,9 +406,11 @@ void packet_append_int32(packet_struct *packet, int32_t data) {
     packet_debug(packet, 0, "%d\n", data);
 }
 
-static void packet_append_uint64_internal(packet_struct *packet, uint64_t data) {
+static void packet_writer_write_uint64_internal(packet_struct *packet, uint64_t data) {
     TOOLKIT_PROTECT();
-    packet_ensure(packet, 8);
+    if (!packet_ensure(packet, 8)) {
+        return;
+    }
 
     packet->data[packet->len++] = (data >> 56) & 0xff;
     packet->data[packet->len++] = (data >> 48) & 0xff;
@@ -371,16 +422,18 @@ static void packet_append_uint64_internal(packet_struct *packet, uint64_t data) 
     packet->data[packet->len++] = data & 0xff;
 }
 
-void packet_append_uint64(packet_struct *packet, uint64_t data) {
+void packet_writer_write_uint64(packet_struct *packet, uint64_t data) {
     TOOLKIT_PROTECT();
 
-    packet_append_uint64_internal(packet, data);
+    packet_writer_write_uint64_internal(packet, data);
     packet_debug(packet, 0, "%" PRIu64 "\n", data);
 }
 
-void packet_append_int64(packet_struct *packet, int64_t data) {
+void packet_writer_write_int64(packet_struct *packet, int64_t data) {
     TOOLKIT_PROTECT();
-    packet_ensure(packet, 8);
+    if (!packet_ensure(packet, 8)) {
+        return;
+    }
 
     packet->data[packet->len++] = (data >> 56) & 0xff;
     packet->data[packet->len++] = (data >> 48) & 0xff;
@@ -393,28 +446,28 @@ void packet_append_int64(packet_struct *packet, int64_t data) {
     packet_debug(packet, 0, "%" PRId64 "\n", data);
 }
 
-void packet_append_float(packet_struct *packet, float data) {
+void packet_writer_write_float(packet_struct *packet, float data) {
     uint32_t val;
 
     TOOLKIT_PROTECT();
 
     memcpy(&val, &data, sizeof(val));
-    packet_append_uint32_internal(packet, val);
+    packet_writer_write_uint32_internal(packet, val);
     packet_debug(packet, 0, "%f\n", data);
 }
 
-void packet_append_double(packet_struct *packet, double data) {
+void packet_writer_write_double(packet_struct *packet, double data) {
     uint64_t val;
 
     TOOLKIT_PROTECT();
 
     memcpy(&val, &data, sizeof(val));
-    packet_append_uint64_internal(packet, val);
+    packet_writer_write_uint64_internal(packet, val);
     packet_debug(packet, 0, "%f\n", data);
 }
 
 static void
-packet_append_data_len_internal(packet_struct *packet, const uint8_t *data, size_t len) {
+packet_writer_write_bytes_internal(packet_struct *packet, const uint8_t *data, size_t len) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
@@ -424,12 +477,14 @@ packet_append_data_len_internal(packet_struct *packet, const uint8_t *data, size
         return;
     }
 
-    packet_ensure(packet, len);
+    if (!packet_ensure(packet, len)) {
+        return;
+    }
     memcpy(packet->data + packet->len, data, len);
     packet->len += len;
 }
 
-void packet_append_data_len(packet_struct *packet, const uint8_t *data, size_t len) {
+void packet_writer_write_bytes(packet_struct *packet, const uint8_t *data, size_t len) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
@@ -439,7 +494,7 @@ void packet_append_data_len(packet_struct *packet, const uint8_t *data, size_t l
         return;
     }
 
-    packet_append_data_len_internal(packet, data, len);
+    packet_writer_write_bytes_internal(packet, data, len);
 
 #ifndef NDEBUG
     {
@@ -453,7 +508,7 @@ void packet_append_data_len(packet_struct *packet, const uint8_t *data, size_t l
 #endif
 }
 
-void packet_append_string_len(packet_struct *packet, const char *data, size_t len) {
+void packet_writer_write_string_n(packet_struct *packet, const char *data, size_t len) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
@@ -469,43 +524,43 @@ void packet_append_string_len(packet_struct *packet, const char *data, size_t le
     packet_debug(packet, 0, "%.*s", (int)len, data);
 }
 
-void packet_append_string(packet_struct *packet, const char *data) {
+void packet_writer_write_string(packet_struct *packet, const char *data) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
     SOFT_ASSERT(data != NULL, "Data is NULL.");
 
-    packet_append_string_len(packet, data, strlen(data));
+    packet_writer_write_string_n(packet, data, strlen(data));
 }
 
-void packet_append_string_len_terminated(packet_struct *packet, const char *data, size_t len) {
+void packet_writer_write_cstring_n(packet_struct *packet, const char *data, size_t len) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
     SOFT_ASSERT(data != NULL, "Data is NULL.");
 
-    packet_append_string_len(packet, data, len);
-    packet_append_uint8_internal(packet, '\0');
+    packet_writer_write_string_n(packet, data, len);
+    packet_writer_write_uint8_internal(packet, '\0');
     packet_debug(packet, 0, "\n");
 }
 
-void packet_append_string_terminated(packet_struct *packet, const char *data) {
+void packet_writer_write_cstring(packet_struct *packet, const char *data) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
     SOFT_ASSERT(data != NULL, "Data is NULL.");
 
-    packet_append_string_len_terminated(packet, data, strlen(data));
+    packet_writer_write_cstring_n(packet, data, strlen(data));
 }
 
-void packet_append_packet(packet_struct *packet, packet_struct *src) {
+void packet_writer_write_packet(packet_struct *packet, packet_struct *src) {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
     HARD_ASSERT(src != NULL);
 
     if (src->data != NULL) {
-        packet_append_data_len_internal(packet, src->data, src->len);
+        packet_writer_write_bytes_internal(packet, src->data, src->len);
     }
 
 #ifndef NDEBUG
@@ -519,190 +574,277 @@ void packet_append_packet(packet_struct *packet, packet_struct *src) {
 #endif
 }
 
-uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos) {
-    uint8_t ret;
+void packet_reader_init_at(packet_reader_t *reader, const void *data, size_t len, size_t pos) {
+    HARD_ASSERT(reader != NULL);
 
-    TOOLKIT_PROTECT();
+    *reader = (packet_reader_t){
+        .data = data,
+        .len = len,
+        .pos = pos,
+    };
+    if ((data == NULL && len != 0) || pos > len) {
+        reader->pos = 0;
+        reader->error = PACKET_ERROR_INVALID_ENCODING;
+    }
+}
 
-    if (*pos >= len) {
-        *pos = len;
-        return 0;
+void packet_reader_init(packet_reader_t *reader, const void *data, size_t len) {
+    packet_reader_init_at(reader, data, len, 0);
+}
+
+void packet_reader_init_cursor(packet_reader_t *reader,
+                               const void *data,
+                               size_t len,
+                               size_t *position) {
+    HARD_ASSERT(position != NULL);
+    packet_reader_init_at(reader, data, len, *position);
+    reader->position = position;
+}
+
+size_t packet_reader_remaining(const packet_reader_t *reader) {
+    HARD_ASSERT(reader != NULL);
+    return reader->pos <= reader->len ? reader->len - reader->pos : 0;
+}
+
+packet_error_t packet_reader_error(const packet_reader_t *reader) {
+    HARD_ASSERT(reader != NULL);
+    return reader->error;
+}
+
+const char *packet_error_string(packet_error_t error) {
+    static const char *const names[] = {
+        [PACKET_ERROR_NONE] = "none",
+        [PACKET_ERROR_TRUNCATED] = "truncated input",
+        [PACKET_ERROR_INVALID_ENCODING] = "invalid encoding",
+        [PACKET_ERROR_LIMIT_EXCEEDED] = "limit exceeded",
+        [PACKET_ERROR_UNSUPPORTED] = "unsupported value",
+        [PACKET_ERROR_TRAILING_DATA] = "trailing data",
+        [PACKET_ERROR_SIZE_OVERFLOW] = "size overflow",
+        [PACKET_ERROR_ALLOCATION] = "allocation failure",
+    };
+
+    if ((size_t)error >= arraysize(names) || names[error] == NULL) {
+        return "unknown packet error";
+    }
+    return names[error];
+}
+
+void packet_reader_set_error(packet_reader_t *reader, packet_error_t error) {
+    HARD_ASSERT(reader != NULL);
+    HARD_ASSERT(error != PACKET_ERROR_NONE);
+    if (reader->error == PACKET_ERROR_NONE) {
+        reader->error = error;
+    }
+}
+
+bool packet_reader_finish(packet_reader_t *reader) {
+    HARD_ASSERT(reader != NULL);
+    if (reader->error == PACKET_ERROR_NONE && reader->pos != reader->len) {
+        reader->error = PACKET_ERROR_TRAILING_DATA;
+    }
+    return reader->error == PACKET_ERROR_NONE;
+}
+
+static const uint8_t *packet_reader_take(packet_reader_t *reader, size_t len) {
+    if (reader->error != PACKET_ERROR_NONE) {
+        return NULL;
+    }
+    if (len > packet_reader_remaining(reader)) {
+        reader->error = PACKET_ERROR_TRUNCATED;
+        return NULL;
+    }
+    if (len == 0) {
+        return reader->data;
     }
 
-    ret = data[*pos];
-    *pos += 1;
-
-    return ret;
+    const uint8_t *data = reader->data + reader->pos;
+    reader->pos += len;
+    if (reader->position != NULL) {
+        *reader->position = reader->pos;
+    }
+    return data;
 }
 
-int8_t packet_to_int8(uint8_t *data, size_t len, size_t *pos) {
-    uint8_t value;
-    int8_t ret;
+bool packet_reader_skip(packet_reader_t *reader, size_t len) {
+    if (len == 0 && reader->error == PACKET_ERROR_NONE) {
+        return true;
+    }
+    return packet_reader_take(reader, len) != NULL;
+}
 
-    TOOLKIT_PROTECT();
+packet_view_t packet_reader_read_view(packet_reader_t *reader, size_t len) {
+    const uint8_t *data = packet_reader_take(reader, len);
+    if (data == NULL) {
+        return (packet_view_t){0};
+    }
+    return (packet_view_t){.data = data, .len = len};
+}
 
-    if (*pos >= len) {
-        *pos = len;
-        return 0;
+packet_view_t packet_reader_read_string_view(packet_reader_t *reader, size_t max_len) {
+    if (reader->error != PACKET_ERROR_NONE) {
+        return (packet_view_t){0};
     }
 
-    value = data[*pos];
-    *pos += 1;
-    memcpy(&ret, &value, sizeof(ret));
-
-    return ret;
-}
-
-uint16_t packet_to_uint16(uint8_t *data, size_t len, size_t *pos) {
-    uint16_t ret;
-
-    TOOLKIT_PROTECT();
-
-    if (*pos > len || len - *pos < 2) {
-        *pos = len;
-        return 0;
+    size_t remaining = packet_reader_remaining(reader);
+    if (remaining == 0) {
+        reader->error = PACKET_ERROR_TRUNCATED;
+        return (packet_view_t){0};
+    }
+    size_t search_len = MIN(remaining, max_len + (max_len != SIZE_MAX));
+    const uint8_t *end = memchr(reader->data + reader->pos, '\0', search_len);
+    if (end == NULL) {
+        reader->error = remaining > max_len ? PACKET_ERROR_LIMIT_EXCEEDED : PACKET_ERROR_TRUNCATED;
+        return (packet_view_t){0};
     }
 
-    ret = ((uint16_t)data[*pos] << 8) | (uint16_t)data[*pos + 1];
-    *pos += 2;
-
-    return ret;
-}
-
-int16_t packet_to_int16(uint8_t *data, size_t len, size_t *pos) {
-    uint16_t value;
-    int16_t ret;
-
-    TOOLKIT_PROTECT();
-
-    if (*pos > len || len - *pos < 2) {
-        *pos = len;
-        return 0;
+    size_t len = (size_t)(end - (reader->data + reader->pos));
+    if (len > max_len) {
+        reader->error = PACKET_ERROR_LIMIT_EXCEEDED;
+        return (packet_view_t){0};
     }
 
-    value = ((uint16_t)data[*pos] << 8) | (uint16_t)data[*pos + 1];
-    *pos += 2;
-    memcpy(&ret, &value, sizeof(ret));
-
-    return ret;
-}
-
-uint32_t packet_to_uint32(uint8_t *data, size_t len, size_t *pos) {
-    uint32_t ret;
-
-    TOOLKIT_PROTECT();
-
-    if (*pos > len || len - *pos < 4) {
-        *pos = len;
-        return 0;
+    packet_view_t view = {.data = reader->data + reader->pos, .len = len};
+    reader->pos += len + 1;
+    if (reader->position != NULL) {
+        *reader->position = reader->pos;
     }
-
-    ret = ((uint32_t)data[*pos] << 24) | ((uint32_t)data[*pos + 1] << 16) |
-          ((uint32_t)data[*pos + 2] << 8) | (uint32_t)data[*pos + 3];
-    *pos += 4;
-
-    return ret;
+    return view;
 }
 
-int32_t packet_to_int32(uint8_t *data, size_t len, size_t *pos) {
-    uint32_t value;
-    int32_t ret;
-
-    TOOLKIT_PROTECT();
-
-    value = packet_to_uint32(data, len, pos);
-    memcpy(&ret, &value, sizeof(ret));
-
-    return ret;
-}
-
-uint64_t packet_to_uint64(uint8_t *data, size_t len, size_t *pos) {
-    uint64_t ret;
-
-    TOOLKIT_PROTECT();
-
-    if (*pos > len || len - *pos < 8) {
-        *pos = len;
-        return 0;
-    }
-
-    ret = ((uint64_t)data[*pos] << 56) | ((uint64_t)data[*pos + 1] << 48) |
-          ((uint64_t)data[*pos + 2] << 40) | ((uint64_t)data[*pos + 3] << 32) |
-          ((uint64_t)data[*pos + 4] << 24) | ((uint64_t)data[*pos + 5] << 16) |
-          ((uint64_t)data[*pos + 6] << 8) | (uint64_t)data[*pos + 7];
-    *pos += 8;
-
-    return ret;
-}
-
-int64_t packet_to_int64(uint8_t *data, size_t len, size_t *pos) {
-    uint64_t value;
-    int64_t ret;
-
-    TOOLKIT_PROTECT();
-
-    value = packet_to_uint64(data, len, pos);
-    memcpy(&ret, &value, sizeof(ret));
-
-    return ret;
-}
-
-float packet_to_float(uint8_t *data, size_t len, size_t *pos) {
-    uint32_t val;
-    float ret;
-
-    TOOLKIT_PROTECT();
-
-    val = packet_to_uint32(data, len, pos);
-    memcpy(&ret, &val, sizeof(ret));
-
-    return ret;
-}
-
-double packet_to_double(uint8_t *data, size_t len, size_t *pos) {
-    uint64_t val;
-    double ret;
-
-    TOOLKIT_PROTECT();
-
-    val = packet_to_uint64(data, len, pos);
-    memcpy(&ret, &val, sizeof(ret));
-
-    return ret;
-}
-
-char *packet_to_string(uint8_t *data, size_t len, size_t *pos, char *dest, size_t dest_size) {
-    size_t i = 0;
-    char c;
-
-    TOOLKIT_PROTECT();
-
+bool packet_reader_read_string_bounded(packet_reader_t *reader,
+                                       char *dest,
+                                       size_t dest_size,
+                                       size_t max_len) {
     HARD_ASSERT(dest != NULL);
-    HARD_ASSERT(dest_size > 0);
+    HARD_ASSERT(dest_size != 0);
 
-    while (*pos < len && (c = (char)(data[(*pos)++]))) {
-        if (i < dest_size - 1) {
-            dest[i++] = c;
-        }
+    packet_view_t view = packet_reader_read_string_view(reader, max_len);
+    if (reader->error != PACKET_ERROR_NONE) {
+        dest[0] = '\0';
+        return false;
+    }
+    if (view.len >= dest_size) {
+        reader->error = PACKET_ERROR_LIMIT_EXCEEDED;
+        dest[0] = '\0';
+        return false;
     }
 
-    dest[i] = '\0';
-    return dest[0] != '\0' ? dest : NULL;
+    memcpy(dest, view.data, view.len);
+    dest[view.len] = '\0';
+    return true;
 }
 
-void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos, StringBuffer *sb) {
-    TOOLKIT_PROTECT();
+bool packet_reader_read_string(packet_reader_t *reader, char *dest, size_t dest_size) {
+    HARD_ASSERT(dest_size != 0);
+    return packet_reader_read_string_bounded(reader, dest, dest_size, dest_size - 1);
+}
 
-    if (*pos >= len) {
-        return;
+bool packet_reader_read_stringbuffer_bounded(packet_reader_t *reader,
+                                             StringBuffer *sb,
+                                             size_t max_len) {
+    HARD_ASSERT(sb != NULL);
+    packet_view_t view = packet_reader_read_string_view(reader, max_len);
+    if (reader->error != PACKET_ERROR_NONE) {
+        return false;
     }
+    stringbuffer_append_string_len(sb, (const char *)view.data, view.len);
+    return true;
+}
 
-    char *str = (char *)(data + *pos);
-    size_t remaining = len - *pos;
-    size_t string_len = strnlen(str, remaining);
-    stringbuffer_append_string_len(sb, str, string_len);
-    *pos += string_len;
-    if (string_len < remaining) {
-        (*pos)++;
+bool packet_reader_read_stringbuffer(packet_reader_t *reader, StringBuffer *sb) {
+    return packet_reader_read_stringbuffer_bounded(reader, sb, PACKET_PAYLOAD_MAX);
+}
+
+uint8_t packet_reader_read_uint8(packet_reader_t *reader) {
+    const uint8_t *data = packet_reader_take(reader, 1);
+    return data != NULL ? data[0] : 0;
+}
+
+int8_t packet_reader_read_int8(packet_reader_t *reader) {
+    uint8_t value = packet_reader_read_uint8(reader);
+    int8_t result;
+    memcpy(&result, &value, sizeof(result));
+    return result;
+}
+
+uint16_t packet_reader_read_uint16(packet_reader_t *reader) {
+    const uint8_t *data = packet_reader_take(reader, 2);
+    return data != NULL ? ((uint16_t)data[0] << 8) | (uint16_t)data[1] : 0;
+}
+
+int16_t packet_reader_read_int16(packet_reader_t *reader) {
+    uint16_t value = packet_reader_read_uint16(reader);
+    int16_t result;
+    memcpy(&result, &value, sizeof(result));
+    return result;
+}
+
+uint32_t packet_reader_read_uint32(packet_reader_t *reader) {
+    const uint8_t *data = packet_reader_take(reader, 4);
+    return data != NULL ? ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) |
+                              ((uint32_t)data[2] << 8) | (uint32_t)data[3]
+                        : 0;
+}
+
+int32_t packet_reader_read_int32(packet_reader_t *reader) {
+    uint32_t value = packet_reader_read_uint32(reader);
+    int32_t result;
+    memcpy(&result, &value, sizeof(result));
+    return result;
+}
+
+uint64_t packet_reader_read_uint64(packet_reader_t *reader) {
+    const uint8_t *data = packet_reader_take(reader, 8);
+    return data != NULL
+               ? ((uint64_t)data[0] << 56) | ((uint64_t)data[1] << 48) | ((uint64_t)data[2] << 40) |
+                     ((uint64_t)data[3] << 32) | ((uint64_t)data[4] << 24) |
+                     ((uint64_t)data[5] << 16) | ((uint64_t)data[6] << 8) | (uint64_t)data[7]
+               : 0;
+}
+
+int64_t packet_reader_read_int64(packet_reader_t *reader) {
+    uint64_t value = packet_reader_read_uint64(reader);
+    int64_t result;
+    memcpy(&result, &value, sizeof(result));
+    return result;
+}
+
+float packet_reader_read_float(packet_reader_t *reader) {
+    uint32_t value = packet_reader_read_uint32(reader);
+    float result;
+    memcpy(&result, &value, sizeof(result));
+    return result;
+}
+
+double packet_reader_read_double(packet_reader_t *reader) {
+    uint64_t value = packet_reader_read_uint64(reader);
+    double result;
+    memcpy(&result, &value, sizeof(result));
+    return result;
+}
+
+static bool
+packet_reader_check_count(packet_reader_t *reader, uint32_t value, size_t maximum, size_t *count) {
+    HARD_ASSERT(count != NULL);
+    if (reader->error != PACKET_ERROR_NONE) {
+        return false;
     }
+    if (value > maximum) {
+        reader->error = PACKET_ERROR_LIMIT_EXCEEDED;
+        return false;
+    }
+    *count = value;
+    return true;
+}
+
+bool packet_reader_read_count8(packet_reader_t *reader, size_t maximum, size_t *count) {
+    return packet_reader_check_count(reader, packet_reader_read_uint8(reader), maximum, count);
+}
+
+bool packet_reader_read_count16(packet_reader_t *reader, size_t maximum, size_t *count) {
+    return packet_reader_check_count(reader, packet_reader_read_uint16(reader), maximum, count);
+}
+
+bool packet_reader_read_count32(packet_reader_t *reader, size_t maximum, size_t *count) {
+    return packet_reader_check_count(reader, packet_reader_read_uint32(reader), maximum, count);
 }

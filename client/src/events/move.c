@@ -44,10 +44,10 @@ void client_send_fire(int num, tag_t tag) {
     packet_struct *packet;
 
     packet = packet_new(SERVER_CMD_FIRE, 64, 64);
-    packet_append_uint8(packet, directions_fire[num - 1]);
+    packet_writer_write_uint8(packet, directions_fire[num - 1]);
 
     if (tag) {
-        packet_append_uint32(packet, tag);
+        packet_writer_write_uint32(packet, tag);
     }
 
     socket_send_packet(packet);
@@ -64,8 +64,8 @@ void move_keys(int num) {
             socket_send_packet(packet);
         } else {
             packet = packet_new(SERVER_CMD_MOVE, 8, 0);
-            packet_append_uint8(packet, num ? directions_fire[num - 1] : 0);
-            packet_append_uint8(packet, cpl.run_on);
+            packet_writer_write_uint8(packet, num ? directions_fire[num - 1] : 0);
+            packet_writer_write_uint8(packet, cpl.run_on);
             socket_send_packet(packet);
         }
     }

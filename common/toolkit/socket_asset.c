@@ -23,38 +23,47 @@ void socket_asset_request_append(packet_struct *packet,
                                  uint32_t cached_size,
                                  const uint8_t cached_digest[ASSET_DIGEST_SIZE],
                                  uint8_t flags) {
-    packet_append_string_terminated(packet, path);
-    packet_append_uint32(packet, offset);
-    packet_append_uint32(packet, cached_size);
-    packet_append_data_len(packet, cached_digest, ASSET_DIGEST_SIZE);
-    packet_append_uint8(packet, flags);
+    packet_writer_write_cstring(packet, path);
+    packet_writer_write_uint32(packet, offset);
+    packet_writer_write_uint32(packet, cached_size);
+    packet_writer_write_bytes(packet, cached_digest, ASSET_DIGEST_SIZE);
+    packet_writer_write_uint8(packet, flags);
 }
 
-bool socket_asset_request_parse(uint8_t *data,
+bool socket_asset_request_parse(const uint8_t *data,
                                 size_t len,
                                 size_t pos,
                                 socket_asset_request_t *request) {
-    if (data == NULL || request == NULL || pos > len ||
-        packet_to_string(data, len, &pos, VS(request->path)) == NULL ||
-        len - pos != 9 + ASSET_DIGEST_SIZE) {
+    if (request == NULL) {
         return false;
     }
 
-    request->offset = packet_to_uint32(data, len, &pos);
-    request->cached_size = packet_to_uint32(data, len, &pos);
-    memcpy(request->cached_digest, data + pos, ASSET_DIGEST_SIZE);
-    pos += ASSET_DIGEST_SIZE;
-    request->flags = packet_to_uint8(data, len, &pos);
+    socket_asset_request_t parsed = {0};
+    packet_reader_t reader;
+    packet_reader_init_at(&reader, data, len, pos);
+    packet_reader_read_string(&reader, VS(parsed.path));
+    parsed.offset = packet_reader_read_uint32(&reader);
+    parsed.cached_size = packet_reader_read_uint32(&reader);
+    packet_view_t digest = packet_reader_read_view(&reader, ASSET_DIGEST_SIZE);
+    parsed.flags = packet_reader_read_uint8(&reader);
+    if (!packet_reader_finish(&reader) || *parsed.path == '\0') {
+        return false;
+    }
+    memcpy(parsed.cached_digest, digest.data, digest.len);
 
     static const uint8_t empty_digest[ASSET_DIGEST_SIZE];
-    return *request->path != '\0' && pos == len &&
-           (request->flags & ~ASSET_REQUEST_METADATA) == 0 &&
-           (!(request->flags & ASSET_REQUEST_METADATA) ||
-            (request->offset == 0 && request->cached_size == 0 &&
-             memcmp(request->cached_digest, empty_digest, ASSET_DIGEST_SIZE) == 0)) &&
-           (request->offset == 0 ||
-            (request->cached_size == 0 &&
-             memcmp(request->cached_digest, empty_digest, ASSET_DIGEST_SIZE) == 0));
+    if ((parsed.flags & ~ASSET_REQUEST_METADATA) != 0 ||
+        ((parsed.flags & ASSET_REQUEST_METADATA) != 0 &&
+         (parsed.offset != 0 || parsed.cached_size != 0 ||
+          memcmp(parsed.cached_digest, empty_digest, ASSET_DIGEST_SIZE) != 0)) ||
+        (parsed.offset != 0 &&
+         (parsed.cached_size != 0 ||
+          memcmp(parsed.cached_digest, empty_digest, ASSET_DIGEST_SIZE) != 0))) {
+        return false;
+    }
+
+    *request = parsed;
+    return true;
 }
 
 void socket_asset_response_append_metadata(packet_struct *packet,
@@ -62,13 +71,13 @@ void socket_asset_response_append_metadata(packet_struct *packet,
                                            uint32_t total_size,
                                            const uint8_t digest[ASSET_DIGEST_SIZE]) {
     socket_asset_response_append_status(packet, ASSET_STATUS_METADATA, path);
-    packet_append_uint32(packet, total_size);
-    packet_append_data_len(packet, digest, ASSET_DIGEST_SIZE);
+    packet_writer_write_uint32(packet, total_size);
+    packet_writer_write_bytes(packet, digest, ASSET_DIGEST_SIZE);
 }
 
 void socket_asset_response_append_status(packet_struct *packet, uint8_t status, const char *path) {
-    packet_append_uint8(packet, status);
-    packet_append_string_terminated(packet, path);
+    packet_writer_write_uint8(packet, status);
+    packet_writer_write_cstring(packet, path);
 }
 
 void socket_asset_response_append_ok(packet_struct *packet,
@@ -79,54 +88,64 @@ void socket_asset_response_append_ok(packet_struct *packet,
                                      const uint8_t *data,
                                      size_t data_size) {
     socket_asset_response_append_status(packet, ASSET_STATUS_OK, path);
-    packet_append_uint32(packet, total_size);
-    packet_append_uint32(packet, offset);
-    packet_append_data_len(packet, digest, ASSET_DIGEST_SIZE);
-    packet_append_data_len(packet, data, data_size);
+    packet_writer_write_uint32(packet, total_size);
+    packet_writer_write_uint32(packet, offset);
+    packet_writer_write_bytes(packet, digest, ASSET_DIGEST_SIZE);
+    packet_writer_write_bytes(packet, data, data_size);
 }
 
-bool socket_asset_response_parse(uint8_t *data,
+bool socket_asset_response_parse(const uint8_t *data,
                                  size_t len,
                                  size_t pos,
                                  socket_asset_response_t *response) {
-    if (data == NULL || response == NULL || pos >= len) {
+    if (response == NULL) {
         return false;
     }
 
-    memset(response, 0, sizeof(*response));
-    response->status = packet_to_uint8(data, len, &pos);
-    if (packet_to_string(data, len, &pos, VS(response->path)) == NULL) {
-        return false;
-    }
-    if (*response->path == '\0') {
+    socket_asset_response_t parsed = {0};
+    packet_reader_t reader;
+    packet_reader_init_at(&reader, data, len, pos);
+    parsed.status = packet_reader_read_uint8(&reader);
+    packet_reader_read_string(&reader, VS(parsed.path));
+    if (packet_reader_error(&reader) != PACKET_ERROR_NONE || *parsed.path == '\0') {
         return false;
     }
 
-    if (response->status == ASSET_STATUS_NOT_FOUND ||
-        response->status == ASSET_STATUS_METADATA_NOT_FOUND ||
-        response->status == ASSET_STATUS_NOT_MODIFIED) {
-        return pos == len;
-    }
-    if (response->status == ASSET_STATUS_METADATA) {
-        if (len - pos != 4 + ASSET_DIGEST_SIZE) {
+    if (parsed.status == ASSET_STATUS_NOT_FOUND ||
+        parsed.status == ASSET_STATUS_METADATA_NOT_FOUND ||
+        parsed.status == ASSET_STATUS_NOT_MODIFIED) {
+        if (!packet_reader_finish(&reader)) {
             return false;
         }
-        response->total_size = packet_to_uint32(data, len, &pos);
-        memcpy(response->digest, data + pos, ASSET_DIGEST_SIZE);
-        return response->total_size <= ASSET_MAX_SIZE;
+        *response = parsed;
+        return true;
     }
-    if (response->status != ASSET_STATUS_OK || len - pos < 8 + ASSET_DIGEST_SIZE) {
+    if (parsed.status == ASSET_STATUS_METADATA) {
+        parsed.total_size = packet_reader_read_uint32(&reader);
+        packet_view_t digest = packet_reader_read_view(&reader, ASSET_DIGEST_SIZE);
+        if (!packet_reader_finish(&reader) || parsed.total_size > ASSET_MAX_SIZE) {
+            return false;
+        }
+        memcpy(parsed.digest, digest.data, digest.len);
+        *response = parsed;
+        return true;
+    }
+    if (parsed.status != ASSET_STATUS_OK) {
         return false;
     }
 
-    response->total_size = packet_to_uint32(data, len, &pos);
-    response->offset = packet_to_uint32(data, len, &pos);
-    memcpy(response->digest, data + pos, ASSET_DIGEST_SIZE);
-    pos += ASSET_DIGEST_SIZE;
-    response->data = data + pos;
-    response->data_size = len - pos;
-
-    return response->total_size <= ASSET_MAX_SIZE && response->offset <= response->total_size &&
-           response->data_size <= ASSET_CHUNK_SIZE &&
-           response->data_size <= response->total_size - response->offset;
+    parsed.total_size = packet_reader_read_uint32(&reader);
+    parsed.offset = packet_reader_read_uint32(&reader);
+    packet_view_t digest = packet_reader_read_view(&reader, ASSET_DIGEST_SIZE);
+    packet_view_t payload = packet_reader_read_view(&reader, packet_reader_remaining(&reader));
+    if (!packet_reader_finish(&reader) || parsed.total_size > ASSET_MAX_SIZE ||
+        parsed.offset > parsed.total_size || payload.len > ASSET_CHUNK_SIZE ||
+        payload.len > parsed.total_size - parsed.offset) {
+        return false;
+    }
+    memcpy(parsed.digest, digest.data, digest.len);
+    parsed.data = payload.data;
+    parsed.data_size = payload.len;
+    *response = parsed;
+    return true;
 }

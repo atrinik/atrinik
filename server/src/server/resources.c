@@ -190,7 +190,7 @@ void resources_send(resource_t *resource, socket_struct *ns) {
     HARD_ASSERT(ns != NULL);
 
     packet_struct *packet = packet_new(CLIENT_CMD_RESOURCE, 256, 0);
-    packet_append_string_terminated(packet, resource->name);
-    packet_append_data_len(packet, VS(resource->md));
+    packet_writer_write_cstring(packet, resource->name);
+    packet_writer_write_bytes(packet, VS(resource->md));
     socket_send_packet(ns, packet);
 }

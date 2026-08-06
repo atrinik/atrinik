@@ -35,7 +35,7 @@ static packet_struct *queued_command_find(socket_struct *cs, uint8_t type) {
 
 static void request_version(socket_struct *cs, player *pl, uint32_t version) {
     packet_struct *request = packet_new(0, 4, 0);
-    packet_append_uint32(request, version);
+    packet_writer_write_uint32(request, version);
     socket_command_version(cs, pl, request->data, request->len, 0);
     packet_free(request);
 }
@@ -54,17 +54,18 @@ START_TEST(test_target_packet_includes_current_level_and_plain_name) {
     packet_struct *packet = queued_command_find(CONTR(pl)->cs, CLIENT_CMD_TARGET);
     ck_assert_ptr_nonnull(packet);
 
-    size_t pos = 0;
+    packet_reader_t reader;
+    packet_reader_init(&reader, packet->data, packet->len);
     char color[MAX_BUF];
     char name[MAX_BUF];
-    ck_assert_uint_eq(packet_to_uint8(packet->data, packet->len, &pos), CMD_TARGET_SELF);
-    packet_to_string(packet->data, packet->len, &pos, VS(color));
-    packet_to_string(packet->data, packet->len, &pos, VS(name));
+    ck_assert_uint_eq(packet_reader_read_uint8(&reader), CMD_TARGET_SELF);
+    ck_assert(packet_reader_read_string(&reader, VS(color)));
+    ck_assert(packet_reader_read_string(&reader, VS(name)));
     ck_assert_str_eq(name, pl->name);
-    ck_assert_uint_eq(packet_to_uint8(packet->data, packet->len, &pos), 42);
-    ck_assert_uint_eq(packet_to_uint8(packet->data, packet->len, &pos), CONTR(pl)->combat);
-    ck_assert_uint_eq(packet_to_uint8(packet->data, packet->len, &pos), CONTR(pl)->combat_force);
-    ck_assert_uint_eq(pos, packet->len);
+    ck_assert_uint_eq(packet_reader_read_uint8(&reader), 42);
+    ck_assert_uint_eq(packet_reader_read_uint8(&reader), CONTR(pl)->combat);
+    ck_assert_uint_eq(packet_reader_read_uint8(&reader), CONTR(pl)->combat_force);
+    ck_assert(packet_reader_finish(&reader));
 }
 END_TEST
 
@@ -111,13 +112,14 @@ START_TEST(test_setup_round_trip_uses_current_option_ids) {
     packet_struct *response = queued_command_find(cs, CLIENT_CMD_SETUP);
     ck_assert_ptr_nonnull(response);
 
-    size_t pos = 0;
-    ck_assert_uint_eq(packet_to_uint8(response->data, response->len, &pos), CMD_SETUP_SOUND);
-    ck_assert_uint_eq(packet_to_uint8(response->data, response->len, &pos), 1);
-    ck_assert_uint_eq(packet_to_uint8(response->data, response->len, &pos), CMD_SETUP_MAPSIZE);
-    ck_assert_uint_eq(packet_to_uint8(response->data, response->len, &pos), 13);
-    ck_assert_uint_eq(packet_to_uint8(response->data, response->len, &pos), 15);
-    ck_assert_uint_eq(pos, response->len);
+    packet_reader_t reader;
+    packet_reader_init(&reader, response->data, response->len);
+    ck_assert_uint_eq(packet_reader_read_uint8(&reader), CMD_SETUP_SOUND);
+    ck_assert_uint_eq(packet_reader_read_uint8(&reader), 1);
+    ck_assert_uint_eq(packet_reader_read_uint8(&reader), CMD_SETUP_MAPSIZE);
+    ck_assert_uint_eq(packet_reader_read_uint8(&reader), 13);
+    ck_assert_uint_eq(packet_reader_read_uint8(&reader), 15);
+    ck_assert(packet_reader_finish(&reader));
     ck_assert_uint_eq(cs->sound, 1);
     ck_assert_int_eq(cs->mapx, 13);
     ck_assert_int_eq(cs->mapy, 15);
@@ -172,9 +174,10 @@ START_TEST(test_version_requires_exact_match) {
 
     packet_struct *response = queued_command_find(cs, CLIENT_CMD_VERSION);
     ck_assert_ptr_nonnull(response);
-    size_t pos = 0;
-    ck_assert_uint_eq(packet_to_uint32(response->data, response->len, &pos), SOCKET_VERSION);
-    ck_assert_uint_eq(pos, response->len);
+    packet_reader_t reader;
+    packet_reader_init(&reader, response->data, response->len);
+    ck_assert_uint_eq(packet_reader_read_uint32(&reader), SOCKET_VERSION);
+    ck_assert(packet_reader_finish(&reader));
 }
 END_TEST
 

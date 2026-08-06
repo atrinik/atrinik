@@ -131,25 +131,27 @@ static void join_password_failed(socket_struct *ns) {
 }
 
 void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     packet_struct *packet;
     uint8_t type;
 
     packet = packet_new(CLIENT_CMD_SETUP, 256, 256);
 
     while (pos < len) {
-        type = packet_to_uint8(data, len, &pos);
+        type = packet_reader_read_uint8(&reader);
         packet_debug_data(packet, 0, "Setup type");
-        packet_append_uint8(packet, type);
+        packet_writer_write_uint8(packet, type);
 
         if (type == CMD_SETUP_SOUND) {
-            ns->sound = packet_to_uint8(data, len, &pos);
+            ns->sound = packet_reader_read_uint8(&reader);
             packet_debug_data(packet, 0, "Sound");
-            packet_append_uint8(packet, ns->sound);
+            packet_writer_write_uint8(packet, ns->sound);
         } else if (type == CMD_SETUP_MAPSIZE) {
             int x, y;
 
-            x = packet_to_uint8(data, len, &pos);
-            y = packet_to_uint8(data, len, &pos);
+            x = packet_reader_read_uint8(&reader);
+            y = packet_reader_read_uint8(&reader);
 
             if (x < 13 || y < 13 || x > MAP_CLIENT_X || y > MAP_CLIENT_Y) {
                 LOG(PACKET, "X/Y not in range: %d, %d", x, y);
@@ -163,32 +165,32 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             ns->mapy_2 = y / 2;
 
             packet_debug_data(packet, 0, "Map width");
-            packet_append_uint8(packet, x);
+            packet_writer_write_uint8(packet, x);
             packet_debug_data(packet, 0, "Map height");
-            packet_append_uint8(packet, y);
+            packet_writer_write_uint8(packet, y);
         } else if (type == CMD_SETUP_DATA_URL) {
             char url[MAX_BUF];
 
-            packet_to_string(data, len, &pos, url, sizeof(url));
+            packet_reader_read_string(&reader, url, sizeof(url));
             packet_debug_data(packet, 0, "Data URL");
 
             if (!string_isempty(url)) {
-                packet_append_string_terminated(packet, url);
+                packet_writer_write_cstring(packet, url);
             } else {
-                packet_append_string_terminated(packet, settings.http_url);
+                packet_writer_write_cstring(packet, settings.http_url);
             }
         } else if (type == CMD_SETUP_ASSET_TRANSPORT) {
-            packet_append_uint8(packet, socket_is_quic(ns->sc) ? 1 : 0);
+            packet_writer_write_uint8(packet, socket_is_quic(ns->sc) ? 1 : 0);
         } else if (type == CMD_SETUP_CONNECTION_MODE) {
-            socket_connection_mode_t mode = packet_to_uint8(data, len, &pos);
+            socket_connection_mode_t mode = packet_reader_read_uint8(&reader);
             if (socket_is_quic(ns->sc) && mode >= SOCKET_CONNECTION_MODE_QUIC_LAN &&
                 mode <= SOCKET_CONNECTION_MODE_QUIC_DIRECTORY) {
                 ns->connection_mode = mode;
             }
-            packet_append_uint8(packet, ns->connection_mode);
+            packet_writer_write_uint8(packet, ns->connection_mode);
         } else if (type == CMD_SETUP_JOIN_PASSWORD) {
             char password[MAX_BUF] = {0};
-            packet_to_string(data, len, &pos, VS(password));
+            packet_reader_read_string(&reader, VS(password));
 
             bool allowed = join_password_allowed(ns);
             ns->join_authenticated =
@@ -197,7 +199,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
                 join_password_failed(ns);
             }
             OPENSSL_cleanse(password, sizeof(password));
-            packet_append_uint8(packet, ns->join_authenticated ? 1 : 0);
+            packet_writer_write_uint8(packet, ns->join_authenticated ? 1 : 0);
         } else {
             LOG(PACKET, "Unknown setup type: %u", type);
             packet_free(packet);
@@ -231,6 +233,8 @@ void socket_command_player_cmd(socket_struct *ns,
                                uint8_t *data,
                                size_t len,
                                size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     char command[MAX_BUF];
 
     if (pl->cs->state != ST_PLAYING) {
@@ -238,11 +242,13 @@ void socket_command_player_cmd(socket_struct *ns,
         return;
     }
 
-    packet_to_string(data, len, &pos, command, sizeof(command));
+    packet_reader_read_string(&reader, command, sizeof(command));
     commands_handle(pl->ob, command);
 }
 
 void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     uint32_t ver;
     packet_struct *packet;
 
@@ -252,7 +258,7 @@ void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t
         return;
     }
 
-    ver = packet_to_uint32(data, len, &pos);
+    ver = packet_reader_read_uint32(&reader);
 
     if (ver != SOCKET_VERSION) {
         draw_info_send(CHAT_TYPE_GAME,
@@ -268,7 +274,7 @@ void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t
 
     packet = packet_new(CLIENT_CMD_VERSION, 4, 4);
     packet_debug_data(packet, 0, "Socket version");
-    packet_append_uint32(packet, SOCKET_VERSION);
+    packet_writer_write_uint32(packet, SOCKET_VERSION);
     socket_send_packet(ns, packet);
 }
 
@@ -277,12 +283,14 @@ void socket_command_item_move(socket_struct *ns,
                               uint8_t *data,
                               size_t len,
                               size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     tag_t to, tag;
     uint32_t nrof;
 
-    to = packet_to_uint32(data, len, &pos);
-    tag = packet_to_uint32(data, len, &pos);
-    nrof = packet_to_uint32(data, len, &pos);
+    to = packet_reader_read_uint32(&reader);
+    tag = packet_reader_read_uint32(&reader);
+    nrof = packet_reader_read_uint32(&reader);
 
     if (tag == 0) {
         LOG(PACKET, "Tag is zero.");
@@ -310,9 +318,9 @@ void esrv_update_stats(player *pl) {
     }                                                   \
     (_old) = (_new);                                    \
     packet_debug_data(packet, 0, "Stats command type"); \
-    packet_append_uint8(packet, (_type));               \
+    packet_writer_write_uint8(packet, (_type));               \
     packet_debug_data(packet, 0, "%s", #_new);          \
-    packet_append_##_bitsize(packet, (_new));
+    packet_writer_write_##_bitsize(packet, (_new));
 #define AddIf(_old, _new, _type, _bitsize) \
     if ((_old) != (_new)) {                \
         _Add(_old, _new, _type, _bitsize); \
@@ -477,13 +485,13 @@ void esrv_new_player(player *pl, uint32_t weight) {
 
     packet = packet_new(CLIENT_CMD_PLAYER, 12, 0);
     packet_debug_data(packet, 0, "Player object ID");
-    packet_append_uint32(packet, pl->ob->count);
+    packet_writer_write_uint32(packet, pl->ob->count);
     packet_debug_data(packet, 0, "Weight");
-    packet_append_uint32(packet, weight);
+    packet_writer_write_uint32(packet, weight);
     packet_debug_data(packet, 0, "Face number");
-    packet_append_uint32(packet, pl->ob->face->number);
+    packet_writer_write_uint32(packet, pl->ob->face->number);
     packet_debug_data(packet, 0, "Name");
-    packet_append_string_terminated(packet, pl->ob->name);
+    packet_writer_write_cstring(packet, pl->ob->name);
     socket_send_packet(pl->cs, packet);
 }
 
@@ -560,11 +568,11 @@ void draw_map_text_anim(object *pl, const char *color, const char *text) {
 
     packet = packet_new(CLIENT_CMD_MAPSTATS, 64, 64);
     packet_debug_data(packet, 0, "Mapstats command type");
-    packet_append_uint8(packet, CMD_MAPSTATS_TEXT_ANIM);
+    packet_writer_write_uint8(packet, CMD_MAPSTATS_TEXT_ANIM);
     packet_debug_data(packet, 0, "Color");
-    packet_append_string_terminated(packet, color);
+    packet_writer_write_cstring(packet, color);
     packet_debug_data(packet, 0, "Text");
-    packet_append_string_terminated(packet, text);
+    packet_writer_write_cstring(packet, text);
     socket_send_packet(CONTR(pl)->cs, packet);
 }
 
@@ -712,7 +720,7 @@ void draw_client_map(object *pl) {
         if ((map_info && map_info->race && strcmp(map_info->race, CONTR(pl)->map_info_name) != 0) ||
             (!map_info && CONTR(pl)->map_info_name[0] != '\0')) {
             packet_debug_data(packet, 0, "\nMapstats command type");
-            packet_append_uint8(packet, CMD_MAPSTATS_NAME);
+            packet_writer_write_uint8(packet, CMD_MAPSTATS_NAME);
             packet_append_map_name(packet, pl, map_info);
 
             if (map_info) {
@@ -729,7 +737,7 @@ void draw_client_map(object *pl) {
              strcmp(map_info->slaying, CONTR(pl)->map_info_music) != 0) ||
             (!map_info && CONTR(pl)->map_info_music[0] != '\0')) {
             packet_debug_data(packet, 0, "\nMapstats command type");
-            packet_append_uint8(packet, CMD_MAPSTATS_MUSIC);
+            packet_writer_write_uint8(packet, CMD_MAPSTATS_MUSIC);
             packet_append_map_music(packet, pl, map_info);
 
             if (map_info) {
@@ -746,7 +754,7 @@ void draw_client_map(object *pl) {
              strcmp(map_info->title, CONTR(pl)->map_info_weather) != 0) ||
             (!map_info && CONTR(pl)->map_info_weather[0] != '\0')) {
             packet_debug_data(packet, 0, "\nMapstats command type");
-            packet_append_uint8(packet, CMD_MAPSTATS_WEATHER);
+            packet_writer_write_uint8(packet, CMD_MAPSTATS_WEATHER);
             packet_append_map_weather(packet, pl, map_info);
 
             if (map_info) {
@@ -816,14 +824,14 @@ static const char *get_living_level_color(const object *pl, const object *op) {
 
 void packet_append_map_name(struct packet_struct *packet, object *op, object *map_info) {
     packet_debug_data(packet, 0, "Map name");
-    packet_append_string(packet, "[b][o=#000000]");
-    packet_append_string(packet, map_info && map_info->race ? map_info->race : op->map->name);
-    packet_append_string_terminated(packet, "[/o][/b]");
+    packet_writer_write_string(packet, "[b][o=#000000]");
+    packet_writer_write_string(packet, map_info && map_info->race ? map_info->race : op->map->name);
+    packet_writer_write_cstring(packet, "[/o][/b]");
 }
 
 void packet_append_map_music(struct packet_struct *packet, object *op, object *map_info) {
     packet_debug_data(packet, 0, "Map music");
-    packet_append_string_terminated(packet,
+    packet_writer_write_cstring(packet,
                                     map_info && map_info->slaying
                                         ? map_info->slaying
                                         : (op->map->bg_music ? op->map->bg_music : "no_music"));
@@ -831,7 +839,7 @@ void packet_append_map_music(struct packet_struct *packet, object *op, object *m
 
 void packet_append_map_weather(struct packet_struct *packet, object *op, object *map_info) {
     packet_debug_data(packet, 0, "Map weather");
-    packet_append_string_terminated(packet,
+    packet_writer_write_cstring(packet,
                                     map_info && map_info->title
                                         ? map_info->title
                                         : (op->map->weather ? op->map->weather : "none"));
@@ -865,9 +873,9 @@ void send_game_time(player *recipient) {
         }
 
         packet_struct *packet = packet_new(CLIENT_CMD_MAPSTATS, 16, 0);
-        packet_append_uint8(packet, CMD_MAPSTATS_TIME);
-        packet_append_uint64(packet, game_seconds);
-        packet_append_uint32(packet, millis_per_game_minute);
+        packet_writer_write_uint8(packet, CMD_MAPSTATS_TIME);
+        packet_writer_write_uint64(packet, game_seconds);
+        packet_writer_write_uint32(packet, millis_per_game_minute);
         socket_send_packet(pl->cs, packet);
     }
 }
@@ -1193,7 +1201,7 @@ map_column_has_visible_roof(mapstruct *base,
         MapCell *cached = map_client_cache_cell(&CONTR(pl)->cs->lastmap, depth, ax, ay, false);   \
         if (cached != NULL && cached->cleared != 1) {                                             \
             packet_debug_data(packet, 0, "Clearing tile %d,%d, mask", ax, ay);                    \
-            packet_append_uint16(packet,                                                          \
+            packet_writer_write_uint16(packet,                                                          \
                                  mask | MAP2_MASK_CLEAR | ((_hard_) ? MAP2_MASK_HARD_CLEAR : 0)); \
             map_clearcell(cached);                                                                \
             level_present = true;                                                                 \
@@ -1212,13 +1220,13 @@ static bool map_append_support_height(packet_struct *packet,
     }
 
     packet_debug_data(packet, 0, "Tile structural support height, mask");
-    packet_append_uint16(packet, mask | MAP2_MASK_SUPPORT_HEIGHT);
+    packet_writer_write_uint16(packet, mask | MAP2_MASK_SUPPORT_HEIGHT);
     packet_debug_data(packet, 1, "Structural support height");
-    packet_append_int16(packet, support_height);
+    packet_writer_write_int16(packet, support_height);
     packet_debug_data(packet, 1, "Number of layers");
-    packet_append_uint8(packet, 0);
+    packet_writer_write_uint8(packet, 0);
     packet_debug_data(packet, 1, "Extended tile flags");
-    packet_append_uint8(packet, 0);
+    packet_writer_write_uint8(packet, 0);
 
     cached->support_height = support_height;
     cached->support_height_known = 1;
@@ -1265,7 +1273,7 @@ void draw_client_map2(object *pl) {
 
     packet_enable_ndelay(packet);
     packet_debug_data(packet, 0, "Map update command type");
-    packet_append_uint8(packet, CONTR(pl)->map_update_cmd);
+    packet_writer_write_uint8(packet, CONTR(pl)->map_update_cmd);
 
     if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME) {
         object *map_info;
@@ -1279,7 +1287,7 @@ void draw_client_map2(object *pl) {
         packet_append_map_music(packet, pl, map_info);
         packet_append_map_weather(packet, pl, map_info);
         packet_debug_data(packet, 0, "Map height diff");
-        packet_append_uint8(packet, MAP_HEIGHT_DIFF(pl->map) != 0);
+        packet_writer_write_uint8(packet, MAP_HEIGHT_DIFF(pl->map) != 0);
 
         if (map_info) {
             if (map_info->race) {
@@ -1326,39 +1334,39 @@ void draw_client_map2(object *pl) {
             }
 
             packet_debug_data(packet, 0, "Display region map");
-            packet_append_uint8(packet, has_map);
+            packet_writer_write_uint8(packet, has_map);
             packet_debug_data(packet, 0, "Region name");
-            packet_append_string_terminated(packet, region != NULL ? region->name : "");
+            packet_writer_write_cstring(packet, region != NULL ? region->name : "");
             packet_debug_data(packet, 0, "Region long name");
-            packet_append_string_terminated(packet,
+            packet_writer_write_cstring(packet,
                                             region != NULL ? region_get_longname(region) : "");
             packet_debug_data(packet, 0, "Map path");
-            packet_append_string_terminated(packet, pl->map->path);
+            packet_writer_write_cstring(packet, pl->map->path);
         }
 
         if (CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED) {
             packet_debug_data(packet, 0, "Map update tile");
-            packet_append_uint8(packet, CONTR(pl)->map_update_tile);
+            packet_writer_write_uint8(packet, CONTR(pl)->map_update_tile);
             packet_debug_data(packet, 0, "Map X offset");
-            packet_append_int8(packet, CONTR(pl)->map_off_x);
+            packet_writer_write_int8(packet, CONTR(pl)->map_off_x);
             packet_debug_data(packet, 0, "Map Y offset");
-            packet_append_int8(packet, CONTR(pl)->map_off_y);
+            packet_writer_write_int8(packet, CONTR(pl)->map_off_y);
             packet_debug_data(packet, 0, "Map depth offset");
-            packet_append_int8(packet, CONTR(pl)->map_off_z);
+            packet_writer_write_int8(packet, CONTR(pl)->map_off_z);
         } else {
             packet_debug_data(packet, 0, "Map width");
-            packet_append_uint8(packet, pl->map->width);
+            packet_writer_write_uint8(packet, pl->map->width);
             packet_debug_data(packet, 0, "Map height");
-            packet_append_uint8(packet, pl->map->height);
+            packet_writer_write_uint8(packet, pl->map->height);
         }
     }
 
     packet_debug_data(packet, 0, "Player's X coordinate");
-    packet_append_uint8(packet, pl->x);
+    packet_writer_write_uint8(packet, pl->x);
     packet_debug_data(packet, 0, "Player's Y coordinate");
-    packet_append_uint8(packet, pl->y);
+    packet_writer_write_uint8(packet, pl->y);
     packet_debug_data(packet, 0, "Player's sub-layer");
-    packet_append_uint8(packet, pl->sub_layer);
+    packet_writer_write_uint8(packet, pl->sub_layer);
 
     packet_header = packet;
     packet_levels = packet_new(0, 0, 512);
@@ -1500,25 +1508,25 @@ void draw_client_map2(object *pl) {
                      (!have_sound_ambient && mp->sound_ambient_count))) {
                     packet_debug(packet_sound, 0, "\nSound tile data:");
                     packet_debug_data(packet_sound, 1, "X coordinate");
-                    packet_append_uint8(packet_sound, ax);
+                    packet_writer_write_uint8(packet_sound, ax);
                     packet_debug_data(packet_sound, 1, "Y coordinate");
-                    packet_append_uint8(packet_sound, ay);
+                    packet_writer_write_uint8(packet_sound, ay);
                     packet_debug_data(packet_sound, 1, "Last sound object ID");
-                    packet_append_uint32(packet_sound, mp->sound_ambient_count);
+                    packet_writer_write_uint32(packet_sound, mp->sound_ambient_count);
                     packet_debug_data(packet_sound, 1, "Sound object ID");
 
                     if (have_sound_ambient) {
-                        packet_append_uint32(packet_sound, msp->sound_ambient->count);
+                        packet_writer_write_uint32(packet_sound, msp->sound_ambient->count);
                         packet_debug_data(packet_sound, 1, "Sound filename");
-                        packet_append_string_terminated(packet_sound, msp->sound_ambient->race);
+                        packet_writer_write_cstring(packet_sound, msp->sound_ambient->race);
                         packet_debug_data(packet_sound, 1, "Volume");
-                        packet_append_uint8(packet_sound, msp->sound_ambient->item_condition);
+                        packet_writer_write_uint8(packet_sound, msp->sound_ambient->item_condition);
                         packet_debug_data(packet_sound, 1, "Max range");
-                        packet_append_uint8(packet_sound, msp->sound_ambient->item_level);
+                        packet_writer_write_uint8(packet_sound, msp->sound_ambient->item_level);
 
                         mp->sound_ambient_count = msp->sound_ambient->count;
                     } else {
-                        packet_append_uint32(packet_sound, 0);
+                        packet_writer_write_uint32(packet_sound, 0);
 
                         mp->sound_ambient_count = 0;
                     }
@@ -1879,9 +1887,9 @@ void draw_client_map2(object *pl) {
 
                                 if (mp->faces[socket_layer]) {
                                     packet_debug_data(packet_layer, 1, "Socket layer ID (clear)");
-                                    packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
+                                    packet_writer_write_uint8(packet_layer, MAP2_LAYER_CLEAR);
                                     packet_debug_data(packet_layer, 1, "Actual socket layer");
-                                    packet_append_uint8(packet_layer, socket_layer);
+                                    packet_writer_write_uint8(packet_layer, socket_layer);
                                     num_layers++;
                                 }
 
@@ -1895,18 +1903,18 @@ void draw_client_map2(object *pl) {
                                               "Socket layer (layer: %d, sub-layer: %d)",
                                               layer,
                                               sub_layer);
-                            packet_append_uint8(packet_layer, socket_layer);
+                            packet_writer_write_uint8(packet_layer, socket_layer);
                             packet_debug_data(packet_layer, 2, "Face ID");
-                            packet_append_uint16(packet_layer, face);
+                            packet_writer_write_uint16(packet_layer, face);
                             packet_debug_data(packet_layer, 2, "Client flags");
-                            packet_append_uint8(packet_layer, client_flags);
+                            packet_writer_write_uint8(packet_layer, client_flags);
                             packet_debug_data(packet_layer, 2, "Socket flags");
-                            packet_append_uint8(packet_layer, flags);
+                            packet_writer_write_uint8(packet_layer, flags);
 
                             /* Multi-arch? Add it's quick pos. */
                             if (flags & MAP2_FLAG_MULTI) {
                                 packet_debug_data(packet_layer, 2, "Quick pos");
-                                packet_append_uint8(packet_layer, quick_pos);
+                                packet_writer_write_uint8(packet_layer, quick_pos);
                             }
 
                             /* Add a visible living object's name and display color. */
@@ -1925,24 +1933,24 @@ void draw_client_map2(object *pl) {
                                 }
 
                                 packet_debug_data(packet_layer, 2, "Living object name");
-                                packet_append_string_terminated(packet_layer, name);
+                                packet_writer_write_cstring(packet_layer, name);
                                 packet_debug_data(packet_layer, 2, "Living object name color");
-                                packet_append_string_terminated(packet_layer, name_color);
+                                packet_writer_write_cstring(packet_layer, name_color);
                                 free(living_name);
                             }
 
                             if (flags & MAP2_FLAG_ANIMATION) {
                                 packet_debug(packet_layer, 2, "Animation\n");
                                 packet_debug_data(packet_layer, 3, "Speed");
-                                packet_append_uint8(packet_layer, anim_speed);
+                                packet_writer_write_uint8(packet_layer, anim_speed);
                                 packet_debug_data(packet_layer, 3, "Facing");
-                                packet_append_uint8(packet_layer, anim_facing);
+                                packet_writer_write_uint8(packet_layer, anim_facing);
                                 packet_debug_data(packet_layer, 3, "Flags");
-                                packet_append_uint8(packet_layer, anim_flags);
+                                packet_writer_write_uint8(packet_layer, anim_flags);
 
                                 if (anim_flags & ANIM_FLAG_MOVING) {
                                     packet_debug_data(packet_layer, 3, "State");
-                                    packet_append_uint8(packet_layer, face_obj->state);
+                                    packet_writer_write_uint8(packet_layer, face_obj->state);
                                 }
                             }
 
@@ -1953,56 +1961,56 @@ void draw_client_map2(object *pl) {
                                 z = head->z;
 
                                 packet_debug_data(packet_layer, 2, "Z");
-                                packet_append_int16(packet_layer, z);
+                                packet_writer_write_int16(packet_layer, z);
                             }
 
                             if (flags & MAP2_FLAG_ALIGN) {
                                 packet_debug_data(packet_layer, 2, "Align");
 
-                                packet_append_int16(packet_layer, head->align);
+                                packet_writer_write_int16(packet_layer, head->align);
                             }
 
                             if (flags & MAP2_FLAG_MORE) {
                                 packet_debug(packet_layer, 2, "Extended info:\n");
                                 packet_debug_data(packet_layer, 3, "Flags");
-                                packet_append_uint32(packet_layer, flags2);
+                                packet_writer_write_uint32(packet_layer, flags2);
 
                                 if (flags2 & MAP2_FLAG2_ALPHA) {
                                     packet_debug_data(packet_layer, 3, "Alpha");
-                                    packet_append_uint8(packet_layer, head->alpha);
+                                    packet_writer_write_uint8(packet_layer, head->alpha);
                                 }
 
                                 if (flags2 & MAP2_FLAG2_ROTATE) {
                                     packet_debug_data(packet_layer, 3, "Rotate");
-                                    packet_append_int16(packet_layer, head->rotate);
+                                    packet_writer_write_int16(packet_layer, head->rotate);
                                 }
 
                                 if (flags2 & MAP2_FLAG2_ZOOM) {
                                     packet_debug_data(packet_layer, 3, "X zoom");
-                                    packet_append_uint16(packet_layer, head->zoom_x);
+                                    packet_writer_write_uint16(packet_layer, head->zoom_x);
                                     packet_debug_data(packet_layer, 3, "Y zoom");
-                                    packet_append_uint16(packet_layer, head->zoom_y);
+                                    packet_writer_write_uint16(packet_layer, head->zoom_y);
                                 }
 
                                 if (flags2 & MAP2_FLAG2_TARGET) {
                                     packet_debug_data(packet_layer, 3, "Target object ID");
-                                    packet_append_uint32(packet_layer, target_object_count);
+                                    packet_writer_write_uint32(packet_layer, target_object_count);
                                     packet_debug_data(packet_layer, 3, "Target is friend");
-                                    packet_append_uint8(packet_layer, is_friend);
+                                    packet_writer_write_uint8(packet_layer, is_friend);
                                 }
 
                                 /* Target's HP bar. */
                                 if (flags2 & MAP2_FLAG2_PROBE) {
                                     packet_debug_data(packet_layer, 3, "HP percentage");
-                                    packet_append_uint8(packet_layer, probe_val);
+                                    packet_writer_write_uint8(packet_layer, probe_val);
                                 }
 
                                 /* Target's HP bar. */
                                 if (flags2 & MAP2_FLAG2_GLOW) {
                                     packet_debug_data(packet_layer, 3, "Glow color");
-                                    packet_append_string_terminated(packet_layer, head->glow);
+                                    packet_writer_write_cstring(packet_layer, head->glow);
                                     packet_debug_data(packet_layer, 3, "Glow speed");
-                                    packet_append_uint8(packet_layer, head->glow_speed);
+                                    packet_writer_write_uint8(packet_layer, head->glow_speed);
                                 }
                             }
                         } else if (mp->faces[socket_layer]) {
@@ -2022,9 +2030,9 @@ void draw_client_map2(object *pl) {
                             }
 
                             packet_debug_data(packet_layer, 1, "Socket layer ID (clear)");
-                            packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
+                            packet_writer_write_uint8(packet_layer, MAP2_LAYER_CLEAR);
                             packet_debug_data(packet_layer, 1, "Actual socket layer");
-                            packet_append_uint8(packet_layer, socket_layer);
+                            packet_writer_write_uint8(packet_layer, socket_layer);
                             num_layers++;
                         }
                     }
@@ -2048,20 +2056,20 @@ void draw_client_map2(object *pl) {
 
                 /* Add the mask. Any mask changes should go above this line. */
                 packet_debug_data(packet, 0, "Tile %d,%d data, mask", ax, ay);
-                packet_append_uint16(packet, mask);
+                packet_writer_write_uint16(packet, mask);
 
                 if (mask & MAP2_MASK_SUPPORT_HEIGHT) {
                     mp->support_height = map_space_support_height(msp);
                     mp->support_height_known = 1;
                     packet_debug_data(packet, 1, "Structural support height");
-                    packet_append_int16(packet, mp->support_height);
+                    packet_writer_write_int16(packet, mp->support_height);
                 }
 
                 if (mask & MAP2_MASK_FOW) {
                     mp->fow = tile_fow;
                     mp->fow_known = 1;
                     packet_debug_data(packet, 1, "Fog-of-war state");
-                    packet_append_uint8(packet, mp->fow);
+                    packet_writer_write_uint8(packet, mp->fow);
                 }
 
                 for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
@@ -2077,13 +2085,13 @@ void draw_client_map2(object *pl) {
                     packet_debug_data(packet, 1, "Light level (sub-layer: %d)", sub_layer);
                     mp->light_level[sub_layer] = light_set[sub_layer] ? light_level[sub_layer] : 0;
                     mp->light_known[sub_layer] = 1;
-                    packet_append_uint8(packet, mp->light_level[sub_layer]);
+                    packet_writer_write_uint8(packet, mp->light_level[sub_layer]);
                 }
 
                 packet_debug_data(packet, 1, "Number of layers");
-                packet_append_uint8(packet, num_layers);
+                packet_writer_write_uint8(packet, num_layers);
 
-                packet_append_packet(packet, packet_layer);
+                packet_writer_write_packet(packet, packet_layer);
                 packet_free(packet_layer);
 
                 /* Kill animations? */
@@ -2111,12 +2119,12 @@ void draw_client_map2(object *pl) {
 
                 /* Add flags for this tile. */
                 packet_debug_data(packet, 1, "Extended tile flags");
-                packet_append_uint8(packet, ext_flags);
+                packet_writer_write_uint8(packet, ext_flags);
 
                 /* Animation? Add its type and value. */
                 if (ext_flags & MAP2_FLAG_EXT_ANIM) {
                     packet_debug_data(packet, 1, "Number of animations");
-                    packet_append_uint8(packet, anim_num);
+                    packet_writer_write_uint8(packet, anim_num);
 
                     for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
                         if (anim_type[sub_layer] == 0) {
@@ -2124,11 +2132,11 @@ void draw_client_map2(object *pl) {
                         }
 
                         packet_debug_data(packet, 1, "Animation sub-layer");
-                        packet_append_uint8(packet, sub_layer);
+                        packet_writer_write_uint8(packet, sub_layer);
                         packet_debug_data(packet, 1, "Animation type");
-                        packet_append_uint8(packet, anim_type[sub_layer]);
+                        packet_writer_write_uint8(packet, anim_type[sub_layer]);
                         packet_debug_data(packet, 1, "Animation value");
-                        packet_append_int16(packet, anim_value[sub_layer]);
+                        packet_writer_write_int16(packet, anim_value[sub_layer]);
                     }
                 }
 
@@ -2142,10 +2150,10 @@ void draw_client_map2(object *pl) {
 
         if (level_present) {
             packet_debug_data(packet_levels, 0, "Map level depth");
-            packet_append_int8(packet_levels, depth);
+            packet_writer_write_int8(packet_levels, depth);
             packet_debug_data(packet_levels, 0, "Map level payload size");
-            packet_append_uint32(packet_levels, packet->len);
-            packet_append_packet(packet_levels, packet);
+            packet_writer_write_uint32(packet_levels, packet->len);
+            packet_writer_write_packet(packet_levels, packet);
             level_count++;
         }
 
@@ -2153,8 +2161,8 @@ void draw_client_map2(object *pl) {
     }
 
     packet_debug_data(packet_header, 0, "Number of map levels");
-    packet_append_uint8(packet_header, level_count);
-    packet_append_packet(packet_header, packet_levels);
+    packet_writer_write_uint8(packet_header, level_count);
+    packet_writer_write_packet(packet_header, packet_levels);
     packet_free(packet_levels);
     bool connected = CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED;
     socket_send_packet(CONTR(pl)->cs, packet_header);
@@ -2186,7 +2194,7 @@ void socket_command_quest_list(socket_struct *ns,
     if (!quest_container || !quest_container->inv) {
         packet = packet_new(CLIENT_CMD_BOOK, 0, 0);
         packet_debug_data(packet, 0, "Quest list message");
-        packet_append_string_terminated(packet, "[title]No quests to speak of.[/title]");
+        packet_writer_write_cstring(packet, "[title]No quests to speak of.[/title]");
         socket_send_packet(pl->cs, packet);
         return;
     }
@@ -2248,7 +2256,7 @@ void socket_command_quest_list(socket_struct *ns,
 
     packet = packet_new(CLIENT_CMD_BOOK, 0, 0);
     packet_debug_data(packet, 0, "Quest list message");
-    packet_append_string_len(packet, cp, cp_len);
+    packet_writer_write_string_n(packet, cp, cp_len);
     socket_send_packet(pl->cs, packet);
     free(cp);
 }
@@ -2271,13 +2279,15 @@ void socket_command_move_path(socket_struct *ns,
                               uint8_t *data,
                               size_t len,
                               size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     uint8_t x, y;
     mapstruct *m;
     int xt, yt;
     path_node_t *node, *tmp;
 
-    x = packet_to_uint8(data, len, &pos);
-    y = packet_to_uint8(data, len, &pos);
+    x = packet_reader_read_uint8(&reader);
+    y = packet_reader_read_uint8(&reader);
 
     /* Validate the passed x/y. */
     if (x >= pl->cs->mapx || y >= pl->cs->mapy) {
@@ -2329,14 +2339,16 @@ void socket_command_move_path(socket_struct *ns,
 }
 
 void socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     int dir;
     tag_t tag;
     object *tmp;
     double skill_time, delay;
 
-    dir = packet_to_uint8(data, len, &pos);
+    dir = packet_reader_read_uint8(&reader);
     dir = MAX(0, MIN(dir, 8));
-    tag = packet_to_uint32(data, len, &pos);
+    tag = packet_reader_read_uint32(&reader);
 
     if (tag) {
         if (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] &&
@@ -2394,26 +2406,30 @@ void socket_command_keepalive(socket_struct *ns,
                               uint8_t *data,
                               size_t len,
                               size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     ns->keepalive = 0;
 
     if (len == pos) {
         return;
     }
 
-    uint32_t id = packet_to_uint32(data, len, &pos);
+    uint32_t id = packet_reader_read_uint32(&reader);
 
     packet_struct *packet = packet_new(CLIENT_CMD_KEEPALIVE, 20, 0);
     packet_enable_ndelay(packet);
     packet_debug_data(packet, 0, "Keepalive ID");
-    packet_append_uint32(packet, id);
+    packet_writer_write_uint32(packet, id);
     socket_send_packet(ns, packet);
 }
 
 void socket_command_move(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     uint8_t dir, run_on;
 
-    dir = packet_to_uint8(data, len, &pos);
-    run_on = packet_to_uint8(data, len, &pos);
+    dir = packet_reader_read_uint8(&reader);
+    run_on = packet_reader_read_uint8(&reader);
 
     if (dir > 8) {
         LOG(PACKET, "%s: Invalid dir: %d", socket_get_id(ns->sc), dir);
@@ -2462,13 +2478,13 @@ void send_target_command(player *pl) {
         !OBJECT_VALID(pl->target_object, pl->target_object_count) ||
         IS_INVISIBLE(pl->target_object, pl->ob)) {
         packet_debug_data(packet, 0, "Target command type");
-        packet_append_uint8(packet, CMD_TARGET_SELF);
+        packet_writer_write_uint8(packet, CMD_TARGET_SELF);
         packet_debug_data(packet, 0, "Color");
-        packet_append_string_terminated(packet, COLOR_YELLOW);
+        packet_writer_write_cstring(packet, COLOR_YELLOW);
         packet_debug_data(packet, 0, "Target name");
-        packet_append_string_terminated(packet, pl->ob->name);
+        packet_writer_write_cstring(packet, pl->ob->name);
         packet_debug_data(packet, 0, "Target level");
-        packet_append_uint8(packet, pl->ob->level);
+        packet_writer_write_uint8(packet, pl->ob->level);
 
         pl->target_object = pl->ob;
         pl->target_object_count = 0;
@@ -2477,12 +2493,12 @@ void send_target_command(player *pl) {
 
         if (is_friend_of(pl->target_object, pl->ob)) {
             if (pl->target_object->type == PLAYER) {
-                packet_append_uint8(packet, CMD_TARGET_FRIEND);
+                packet_writer_write_uint8(packet, CMD_TARGET_FRIEND);
             } else {
-                packet_append_uint8(packet, CMD_TARGET_NEUTRAL);
+                packet_writer_write_uint8(packet, CMD_TARGET_NEUTRAL);
             }
         } else {
-            packet_append_uint8(packet, CMD_TARGET_ENEMY);
+            packet_writer_write_uint8(packet, CMD_TARGET_ENEMY);
 
             pl->ob->enemy = pl->target_object;
             pl->ob->enemy_count = pl->target_object_count;
@@ -2490,19 +2506,19 @@ void send_target_command(player *pl) {
 
         packet_debug_data(packet, 0, "Color");
 
-        packet_append_string_terminated(packet, get_living_level_color(pl->ob, pl->target_object));
+        packet_writer_write_cstring(packet, get_living_level_color(pl->ob, pl->target_object));
 
         packet_debug_data(packet, 0, "Target name");
 
-        packet_append_string_terminated(packet, pl->target_object->name);
+        packet_writer_write_cstring(packet, pl->target_object->name);
         packet_debug_data(packet, 0, "Target level");
-        packet_append_uint8(packet, pl->target_object->level);
+        packet_writer_write_uint8(packet, pl->target_object->level);
     }
 
     packet_debug_data(packet, 0, "Combat mode");
-    packet_append_uint8(packet, pl->combat);
+    packet_writer_write_uint8(packet, pl->combat);
     packet_debug_data(packet, 0, "Combat force mode");
-    packet_append_uint8(packet, pl->combat_force);
+    packet_writer_write_uint8(packet, pl->combat_force);
 
     pl->last_target_level = pl->target_object->level;
     pl->last_target_viewer_level = pl->ob->level;
@@ -2511,15 +2527,17 @@ void send_target_command(player *pl) {
 }
 
 void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     uint8_t type;
 
-    type = packet_to_uint8(data, len, &pos);
+    type = packet_reader_read_uint8(&reader);
 
     if (type == CMD_ACCOUNT_LOGIN) {
         char name[MAX_BUF], password[MAX_BUF];
 
-        packet_to_string(data, len, &pos, name, sizeof(name));
-        packet_to_string(data, len, &pos, password, sizeof(password));
+        packet_reader_read_string(&reader, name, sizeof(name));
+        packet_reader_read_string(&reader, password, sizeof(password));
 
         if (*name == '\0' || *password == '\0' ||
             string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) ||
@@ -2534,9 +2552,9 @@ void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t
     } else if (type == CMD_ACCOUNT_REGISTER) {
         char name[MAX_BUF], password[MAX_BUF], password2[MAX_BUF];
 
-        packet_to_string(data, len, &pos, name, sizeof(name));
-        packet_to_string(data, len, &pos, password, sizeof(password));
-        packet_to_string(data, len, &pos, password2, sizeof(password2));
+        packet_reader_read_string(&reader, name, sizeof(name));
+        packet_reader_read_string(&reader, password, sizeof(password));
+        packet_reader_read_string(&reader, password2, sizeof(password2));
 
         account_register(ns, name, password, password2);
         OPENSSL_cleanse(password, sizeof(password));
@@ -2544,22 +2562,22 @@ void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t
     } else if (type == CMD_ACCOUNT_LOGIN_CHAR) {
         char name[MAX_BUF];
 
-        packet_to_string(data, len, &pos, name, sizeof(name));
+        packet_reader_read_string(&reader, name, sizeof(name));
 
         account_login_char(ns, name);
     } else if (type == CMD_ACCOUNT_NEW_CHAR) {
         char name[MAX_BUF], archname[MAX_BUF];
 
-        packet_to_string(data, len, &pos, name, sizeof(name));
-        packet_to_string(data, len, &pos, archname, sizeof(archname));
+        packet_reader_read_string(&reader, name, sizeof(name));
+        packet_reader_read_string(&reader, archname, sizeof(archname));
 
         account_new_char(ns, name, archname);
     } else if (type == CMD_ACCOUNT_PSWD) {
         char password[MAX_BUF], password_new[MAX_BUF], password_new2[MAX_BUF];
 
-        packet_to_string(data, len, &pos, password, sizeof(password));
-        packet_to_string(data, len, &pos, password_new, sizeof(password_new));
-        packet_to_string(data, len, &pos, password_new2, sizeof(password_new2));
+        packet_reader_read_string(&reader, password, sizeof(password));
+        packet_reader_read_string(&reader, password_new, sizeof(password_new));
+        packet_reader_read_string(&reader, password_new2, sizeof(password_new2));
 
         account_password_change(ns, password, password_new, password_new2);
         OPENSSL_cleanse(password, sizeof(password));
@@ -2593,9 +2611,11 @@ void generate_quick_name(player *pl) {
 }
 
 void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     uint8_t type;
 
-    type = packet_to_uint8(data, len, &pos);
+    type = packet_reader_read_uint8(&reader);
 
     if (type == CMD_TARGET_MAPXY) {
         uint8_t x, y;
@@ -2604,9 +2624,9 @@ void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t 
         mapstruct *m;
         object *tmp;
 
-        x = packet_to_uint8(data, len, &pos);
-        y = packet_to_uint8(data, len, &pos);
-        count = packet_to_uint32(data, len, &pos);
+        x = packet_reader_read_uint8(&reader);
+        y = packet_reader_read_uint8(&reader);
+        count = packet_reader_read_uint32(&reader);
 
         /* Validate the passed x/y. */
         if (x >= pl->cs->mapx || y >= pl->cs->mapy) {
@@ -2673,12 +2693,14 @@ void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t 
 }
 
 void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     uint8_t type;
     char msg[HUGE_BUF];
 
     pl->ob->speed_left -= 1.0;
 
-    type = packet_to_uint8(data, len, &pos);
+    type = packet_reader_read_uint8(&reader);
 
     if (type == CMD_TALK_NPC || type == CMD_TALK_NPC_NAME) {
         char npc_name[MAX_BUF];
@@ -2687,7 +2709,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
         object *tmp, *npc;
 
         if (type == CMD_TALK_NPC_NAME) {
-            packet_to_string(data, len, &pos, npc_name, sizeof(npc_name));
+            packet_reader_read_string(&reader, npc_name, sizeof(npc_name));
 
             if (string_isempty(npc_name)) {
                 LOG(PACKET, "Empty NPC name.");
@@ -2695,7 +2717,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
             }
         }
 
-        packet_to_string(data, len, &pos, msg, sizeof(msg));
+        packet_reader_read_string(&reader, msg, sizeof(msg));
         player_sanitize_input(msg);
 
         if (string_isempty(msg)) {
@@ -2764,8 +2786,8 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
         tag_t tag;
         object *tmp;
 
-        tag = packet_to_uint32(data, len, &pos);
-        packet_to_string(data, len, &pos, msg, sizeof(msg));
+        tag = packet_reader_read_uint32(&reader);
+        packet_reader_read_string(&reader, msg, sizeof(msg));
         player_sanitize_input(msg);
 
         if (string_isempty(msg)) {
@@ -2801,6 +2823,8 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
 }
 
 void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     char word[MAX_BUF], app_name[MAX_BUF];
     uint8_t type, sub_type;
     packet_struct *packet;
@@ -2845,15 +2869,15 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
         return;
     }
 
-    packet_to_string(data, len, &pos, app_name, sizeof(app_name));
+    packet_reader_read_string(&reader, app_name, sizeof(app_name));
 
     if (string_isempty(app_name)) {
         LOG(PACKET, "Received empty app_name.");
         return;
     }
 
-    type = packet_to_uint8(data, len, &pos);
-    sub_type = packet_to_uint8(data, len, &pos);
+    type = packet_reader_read_uint8(&reader);
+    sub_type = packet_reader_read_uint8(&reader);
 
     switch (type) {
         case CMD_CONTROL_MAP: {
@@ -2861,7 +2885,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
             shstr *mappath_sh;
             mapstruct *control_map;
 
-            packet_to_string(data, len, &pos, mappath, sizeof(mappath));
+            packet_reader_read_string(&reader, mappath, sizeof(mappath));
 
             mappath_sh = add_string(mappath);
             control_map = has_been_loaded_sh(mappath_sh);
@@ -2887,7 +2911,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
             player *control_player;
             int ret;
 
-            packet_to_string(data, len, &pos, playername, sizeof(playername));
+            packet_reader_read_string(&reader, playername, sizeof(playername));
 
             /* Attempt to find a suitable player as the controller. */
             if (!string_isempty(playername)) {
@@ -2912,9 +2936,9 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
                     int16_t x, y;
                     mapstruct *m;
 
-                    packet_to_string(data, len, &pos, mappath, sizeof(mappath));
-                    x = packet_to_int16(data, len, &pos);
-                    y = packet_to_int16(data, len, &pos);
+                    packet_reader_read_string(&reader, mappath, sizeof(mappath));
+                    x = packet_reader_read_int16(&reader);
+                    y = packet_reader_read_int16(&reader);
 
                     m = ready_map_name(mappath, NULL, 0);
 
@@ -2937,7 +2961,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
                 packet = packet_new(CLIENT_CMD_CONTROL, 256, 256);
                 packet_enable_ndelay(packet);
                 packet_debug_data(packet, 0, "Forwarded data");
-                packet_append_data_len(packet, data, len);
+                packet_writer_write_bytes(packet, data, len);
                 socket_send_packet(control_player->cs, packet);
 
                 return;
@@ -2956,8 +2980,10 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
 }
 
 void socket_command_combat(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
-    uint8_t combat = packet_to_uint8(data, len, &pos);
-    uint8_t combat_force = packet_to_uint8(data, len, &pos);
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
+    uint8_t combat = packet_reader_read_uint8(&reader);
+    uint8_t combat_force = packet_reader_read_uint8(&reader);
 
     if (combat_force && !pl->combat_force) {
         combat = true;
@@ -2981,11 +3007,13 @@ void socket_command_ask_resource(socket_struct *ns,
                                  uint8_t *data,
                                  size_t len,
                                  size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     HARD_ASSERT(ns != NULL);
     HARD_ASSERT(data != NULL);
 
     char resource_name[HUGE_BUF];
-    packet_to_string(data, len, &pos, VS(resource_name));
+    packet_reader_read_string(&reader, VS(resource_name));
 
     if (string_isempty(resource_name)) {
         LOG(PACKET, "Empty resource name from client %s", socket_get_id(ns->sc));

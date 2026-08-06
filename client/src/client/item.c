@@ -347,7 +347,7 @@ void toggle_locked(object *op) {
     }
 
     packet = packet_new(SERVER_CMD_ITEM_LOCK, 8, 0);
-    packet_append_uint32(packet, op->tag);
+    packet_writer_write_uint32(packet, op->tag);
     socket_send_packet(packet);
 }
 
@@ -373,7 +373,7 @@ void object_send_mark(object *op) {
     object_redraw(op);
 
     packet = packet_new(SERVER_CMD_ITEM_MARK, 8, 0);
-    packet_append_uint32(packet, op->tag);
+    packet_writer_write_uint32(packet, op->tag);
     socket_send_packet(packet);
 }
 
