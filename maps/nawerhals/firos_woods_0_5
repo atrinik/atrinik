@@ -11,8 +11,12 @@ darkness -1
 outdoor 1
 tile_path_1 abandoned_city_0_4
 tile_path_2 firos_woods_1_5
+tile_path_3 nawerhals_ocean_0_6
+tile_path_4 nawerhals_ocean_-1_5
 tile_path_5 firos_woods_1_4
 tile_path_6 firos_woods_1_6
+tile_path_7 nawerhals_ocean_-1_6
+tile_path_8 nawerhals_ocean_-1_4
 bg_music jungle1.ogg
 region firos_woods
 end

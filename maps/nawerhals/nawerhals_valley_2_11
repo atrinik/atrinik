@@ -11,7 +11,12 @@ darkness -1
 outdoor 1
 tile_path_1 nawerhals_valley_2_10
 tile_path_2 nawerhals_valley_3_11
+tile_path_3 nawerhals_ocean_2_12
+tile_path_4 nawerhals_ocean_1_11
 tile_path_5 nawerhals_valley_3_10
+tile_path_6 nawerhals_ocean_3_12
+tile_path_7 nawerhals_ocean_1_12
+tile_path_8 nawerhals_ocean_1_10
 bg_music rainthunder.ogg
 region mount_winter
 end

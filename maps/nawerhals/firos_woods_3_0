@@ -9,10 +9,14 @@ height 24
 difficulty 1
 darkness -1
 outdoor 1
+tile_path_1 nawerhals_ocean_3_-1
+tile_path_2 nawerhals_ocean_4_0
 tile_path_3 firos_woods_3_1
 tile_path_4 firos_woods_2_0
+tile_path_5 nawerhals_ocean_4_-1
 tile_path_6 firos_woods_4_1
 tile_path_7 firos_woods_2_1
+tile_path_8 nawerhals_ocean_2_-1
 bg_music rainthunder.ogg
 region firos_woods
 end

@@ -9,8 +9,11 @@ height 24
 difficulty 1
 darkness -1
 outdoor 1
+tile_path_1 nawerhals_ocean_4_0
+tile_path_2 nawerhals_ocean_5_1
 tile_path_3 firos_woods_4_2
 tile_path_4 firos_woods_3_1
+tile_path_5 nawerhals_ocean_5_0
 tile_path_6 firos_woods_5_2
 tile_path_7 firos_woods_3_2
 tile_path_8 firos_woods_3_0

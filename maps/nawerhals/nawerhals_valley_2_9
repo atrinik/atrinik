@@ -12,8 +12,10 @@ outdoor 1
 tile_path_1 nawerhals_valley_2_8
 tile_path_2 nawerhals_valley_3_9
 tile_path_3 nawerhals_valley_2_10
+tile_path_4 nawerhals_ocean_1_9
 tile_path_5 nawerhals_valley_3_8
 tile_path_6 nawerhals_valley_3_10
+tile_path_7 nawerhals_ocean_1_10
 tile_path_8 nawerhals_valley_1_8
 bg_music rainthunder.ogg
 region rubble_mountains
