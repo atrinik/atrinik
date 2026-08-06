@@ -28,7 +28,7 @@ permissions:
   packages: read
 
 concurrency:
-  group: linux-ci-${{ github.workflow }}-${{ github.event.pull_request.number || inputs.ref || github.ref }}
+  group: linux-ci-${{ github.workflow }}-${{ github.event_name == 'schedule' && 'scheduled-fuzz' || github.event.pull_request.number || inputs.ref || github.ref }}
   cancel-in-progress: true
 
 jobs:

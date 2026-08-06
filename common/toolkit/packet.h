@@ -147,7 +147,7 @@ typedef struct packet_struct packet_writer_t;
 /**
  * Structure used to save state of the packet so that one can go back to it.
  */
-typedef struct packet_save {
+typedef struct packet_writer_mark {
     /**
      * Position to save.
      */
@@ -159,7 +159,7 @@ typedef struct packet_save {
      */
     size_t sb_pos;
 #endif
-} packet_save_t;
+} packet_writer_mark_t;
 
 /**
  * How many packet structures to allocate when expanding the packets
@@ -188,12 +188,10 @@ packet_struct *packet_new(uint8_t type, size_t size, size_t expand);
 void packet_free(packet_struct *packet);
 void packet_compress(packet_struct *packet);
 void packet_enable_ndelay(packet_struct *packet);
-void packet_set_pos(packet_struct *packet, size_t pos);
-size_t packet_get_pos(packet_struct *packet);
 packet_struct *packet_dup(packet_struct *packet);
 void packet_delete(packet_struct *packet, size_t pos, size_t len);
-void packet_save(packet_struct *packet, packet_save_t *packet_save_buf);
-void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf);
+void packet_writer_mark(packet_writer_t *writer, packet_writer_mark_t *mark);
+void packet_writer_rollback(packet_writer_t *writer, const packet_writer_mark_t *mark);
 char *packet_get_debug(packet_struct *packet);
 packet_error_t packet_writer_error(const packet_writer_t *writer);
 bool packet_writer_finish(packet_writer_t *writer);

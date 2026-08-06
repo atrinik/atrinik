@@ -248,24 +248,24 @@ START_TEST(test_packet_dup) {
 }
 END_TEST
 
-START_TEST(test_packet_save) {
+START_TEST(test_packet_writer_mark) {
     packet_struct *packet;
-    packet_save_t packet_save_buf;
+    packet_writer_mark_t packet_save_buf;
 
     packet = packet_new(0, 0, 0);
-    packet_save(packet, &packet_save_buf);
+    packet_writer_mark(packet, &packet_save_buf);
     ck_assert_uint_eq(packet_save_buf.pos, 0);
     packet_free(packet);
 
     packet = packet_new(0, 0, 0);
     packet_writer_write_uint32(packet, 42);
-    packet_save(packet, &packet_save_buf);
+    packet_writer_mark(packet, &packet_save_buf);
     ck_assert_uint_eq(packet_save_buf.pos, 4);
     packet_free(packet);
 
     packet = packet_new(0, 0, 0);
     packet_writer_write_uint32(packet, 42);
-    packet_save(packet, &packet_save_buf);
+    packet_writer_mark(packet, &packet_save_buf);
     ck_assert_uint_eq(packet_save_buf.pos, 4);
     packet_writer_write_uint32(packet, 42);
     ck_assert_uint_eq(packet_save_buf.pos, 4);
@@ -273,50 +273,43 @@ START_TEST(test_packet_save) {
 }
 END_TEST
 
-START_TEST(test_packet_load) {
+START_TEST(test_packet_writer_rollback) {
     packet_struct *packet;
-    packet_save_t packet_save_buf;
+    packet_writer_mark_t packet_save_buf;
 
     packet = packet_new(0, 0, 0);
-    ck_assert_uint_eq(packet_get_pos(packet), 0);
-    packet_save(packet, &packet_save_buf);
-    packet_load(packet, &packet_save_buf);
-    ck_assert_uint_eq(packet_get_pos(packet), 0);
+    packet_writer_mark(packet, &packet_save_buf);
+    packet_writer_rollback(packet, &packet_save_buf);
+    ck_assert_uint_eq(packet->len, 0);
     packet_free(packet);
 
     packet = packet_new(0, 0, 0);
-    ck_assert_uint_eq(packet_get_pos(packet), 0);
     packet_writer_write_uint32(packet, 42);
-    ck_assert_uint_eq(packet_get_pos(packet), 4);
-    packet_save(packet, &packet_save_buf);
-    packet_load(packet, &packet_save_buf);
-    ck_assert_uint_eq(packet_get_pos(packet), 4);
+    packet_writer_mark(packet, &packet_save_buf);
+    packet_writer_rollback(packet, &packet_save_buf);
+    ck_assert_uint_eq(packet->len, 4);
     packet_free(packet);
 
     packet = packet_new(0, 0, 0);
-    ck_assert_uint_eq(packet_get_pos(packet), 0);
     packet_writer_write_uint32(packet, 42);
-    ck_assert_uint_eq(packet_get_pos(packet), 4);
-    packet_save(packet, &packet_save_buf);
-    packet_load(packet, &packet_save_buf);
-    ck_assert_uint_eq(packet_get_pos(packet), 4);
+    packet_writer_mark(packet, &packet_save_buf);
+    packet_writer_rollback(packet, &packet_save_buf);
+    ck_assert_uint_eq(packet->len, 4);
     packet_writer_write_uint32(packet, 42);
-    ck_assert_uint_eq(packet_get_pos(packet), 8);
+    ck_assert_uint_eq(packet->len, 8);
     packet_free(packet);
 
     packet = packet_new(0, 0, 0);
-    ck_assert_uint_eq(packet_get_pos(packet), 0);
     packet_writer_write_uint32(packet, 42);
-    ck_assert_uint_eq(packet_get_pos(packet), 4);
-    packet_save(packet, &packet_save_buf);
+    packet_writer_mark(packet, &packet_save_buf);
     packet_writer_write_uint32(packet, 42);
-    packet_load(packet, &packet_save_buf);
-    ck_assert_uint_eq(packet_get_pos(packet), 4);
+    packet_writer_rollback(packet, &packet_save_buf);
+    ck_assert_uint_eq(packet->len, 4);
     packet_free(packet);
 }
 END_TEST
 
-START_TEST(test_packet_append_uint8) {
+START_TEST(test_packet_writer_write_uint8) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -336,7 +329,7 @@ START_TEST(test_packet_append_uint8) {
 }
 END_TEST
 
-START_TEST(test_packet_append_int8) {
+START_TEST(test_packet_writer_write_int8) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -366,7 +359,7 @@ START_TEST(test_packet_append_int8) {
 }
 END_TEST
 
-START_TEST(test_packet_append_uint16) {
+START_TEST(test_packet_writer_write_uint16) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -386,7 +379,7 @@ START_TEST(test_packet_append_uint16) {
 }
 END_TEST
 
-START_TEST(test_packet_append_int16) {
+START_TEST(test_packet_writer_write_int16) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -416,7 +409,7 @@ START_TEST(test_packet_append_int16) {
 }
 END_TEST
 
-START_TEST(test_packet_append_uint32) {
+START_TEST(test_packet_writer_write_uint32) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -436,7 +429,7 @@ START_TEST(test_packet_append_uint32) {
 }
 END_TEST
 
-START_TEST(test_packet_append_int32) {
+START_TEST(test_packet_writer_write_int32) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -466,7 +459,7 @@ START_TEST(test_packet_append_int32) {
 }
 END_TEST
 
-START_TEST(test_packet_append_uint64) {
+START_TEST(test_packet_writer_write_uint64) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -486,7 +479,7 @@ START_TEST(test_packet_append_uint64) {
 }
 END_TEST
 
-START_TEST(test_packet_append_int64) {
+START_TEST(test_packet_writer_write_int64) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -516,7 +509,7 @@ START_TEST(test_packet_append_int64) {
 }
 END_TEST
 
-START_TEST(test_packet_append_float) {
+START_TEST(test_packet_writer_write_float) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -546,7 +539,7 @@ START_TEST(test_packet_append_float) {
 }
 END_TEST
 
-START_TEST(test_packet_append_double) {
+START_TEST(test_packet_writer_write_double) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -576,7 +569,7 @@ START_TEST(test_packet_append_double) {
 }
 END_TEST
 
-START_TEST(test_packet_append_data_len) {
+START_TEST(test_packet_writer_write_bytes) {
     packet_struct *packet;
     const uint8_t data[] = {0xff, 0x03, 0x00};
 
@@ -597,7 +590,7 @@ START_TEST(test_packet_append_data_len) {
 }
 END_TEST
 
-START_TEST(test_packet_append_string_len) {
+START_TEST(test_packet_writer_write_string_n) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -617,7 +610,7 @@ START_TEST(test_packet_append_string_len) {
 }
 END_TEST
 
-START_TEST(test_packet_append_string) {
+START_TEST(test_packet_writer_write_string) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -632,7 +625,7 @@ START_TEST(test_packet_append_string) {
 }
 END_TEST
 
-START_TEST(test_packet_append_string_len_terminated) {
+START_TEST(test_packet_writer_write_cstring_n) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -647,7 +640,7 @@ START_TEST(test_packet_append_string_len_terminated) {
 }
 END_TEST
 
-START_TEST(test_packet_append_string_terminated) {
+START_TEST(test_packet_writer_write_cstring) {
     packet_struct *packet;
 
     packet = packet_new(0, 0, 0);
@@ -662,7 +655,7 @@ START_TEST(test_packet_append_string_terminated) {
 }
 END_TEST
 
-START_TEST(test_packet_append_packet) {
+START_TEST(test_packet_writer_write_packet) {
     packet_struct *packet, *packet2;
 
     packet = packet_new(0, 0, 0);
@@ -801,6 +794,21 @@ START_TEST(test_packet_writer_strings_fail_atomically) {
 }
 END_TEST
 
+START_TEST(test_packet_delete_moves_only_trailing_bytes) {
+    packet_writer_t *writer = packet_new(0, 0, 0);
+    packet_writer_write_bytes(writer, (const uint8_t *)"0123456789", 10);
+
+    packet_delete(writer, 3, 2);
+    ck_assert_uint_eq(writer->len, 8);
+    ck_assert_mem_eq(writer->data, "01256789", 8);
+
+    packet_delete(writer, 6, 2);
+    ck_assert_uint_eq(writer->len, 6);
+    ck_assert_mem_eq(writer->data, "012567", 6);
+    packet_free(writer);
+}
+END_TEST
+
 START_TEST(test_packet_reader_scope_tracks_completion_and_errors) {
     const uint8_t data[] = {1, 2};
     packet_reader_scope_t scope;
@@ -840,30 +848,31 @@ static Suite *suite(void) {
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_packet_new);
     tcase_add_test(tc_core, test_packet_dup);
-    tcase_add_test(tc_core, test_packet_save);
-    tcase_add_test(tc_core, test_packet_load);
-    tcase_add_test(tc_core, test_packet_append_uint8);
-    tcase_add_test(tc_core, test_packet_append_int8);
-    tcase_add_test(tc_core, test_packet_append_uint16);
-    tcase_add_test(tc_core, test_packet_append_int16);
-    tcase_add_test(tc_core, test_packet_append_uint32);
-    tcase_add_test(tc_core, test_packet_append_int32);
-    tcase_add_test(tc_core, test_packet_append_uint64);
-    tcase_add_test(tc_core, test_packet_append_int64);
-    tcase_add_test(tc_core, test_packet_append_float);
-    tcase_add_test(tc_core, test_packet_append_double);
-    tcase_add_test(tc_core, test_packet_append_data_len);
-    tcase_add_test(tc_core, test_packet_append_string_len);
-    tcase_add_test(tc_core, test_packet_append_string);
-    tcase_add_test(tc_core, test_packet_append_string_len_terminated);
-    tcase_add_test(tc_core, test_packet_append_string_terminated);
-    tcase_add_test(tc_core, test_packet_append_packet);
+    tcase_add_test(tc_core, test_packet_writer_mark);
+    tcase_add_test(tc_core, test_packet_writer_rollback);
+    tcase_add_test(tc_core, test_packet_writer_write_uint8);
+    tcase_add_test(tc_core, test_packet_writer_write_int8);
+    tcase_add_test(tc_core, test_packet_writer_write_uint16);
+    tcase_add_test(tc_core, test_packet_writer_write_int16);
+    tcase_add_test(tc_core, test_packet_writer_write_uint32);
+    tcase_add_test(tc_core, test_packet_writer_write_int32);
+    tcase_add_test(tc_core, test_packet_writer_write_uint64);
+    tcase_add_test(tc_core, test_packet_writer_write_int64);
+    tcase_add_test(tc_core, test_packet_writer_write_float);
+    tcase_add_test(tc_core, test_packet_writer_write_double);
+    tcase_add_test(tc_core, test_packet_writer_write_bytes);
+    tcase_add_test(tc_core, test_packet_writer_write_string_n);
+    tcase_add_test(tc_core, test_packet_writer_write_string);
+    tcase_add_test(tc_core, test_packet_writer_write_cstring_n);
+    tcase_add_test(tc_core, test_packet_writer_write_cstring);
+    tcase_add_test(tc_core, test_packet_writer_write_packet);
     tcase_add_test(tc_core, test_packet_reader_scalars_round_trip);
     tcase_add_test(tc_core, test_packet_reader_truncation_is_sticky);
     tcase_add_test(tc_core, test_packet_reader_strings_views_and_limits);
     tcase_add_test(tc_core, test_packet_reader_finish_and_counts);
     tcase_add_test(tc_core, test_packet_writer_limit_is_sticky);
     tcase_add_test(tc_core, test_packet_writer_strings_fail_atomically);
+    tcase_add_test(tc_core, test_packet_delete_moves_only_trailing_bytes);
     tcase_add_test(tc_core, test_packet_reader_scope_tracks_completion_and_errors);
     tcase_add_test(tc_core, test_map_protocol_validate_minimal_and_truncation);
     tcase_add_test(tc_core, test_map_protocol_rejects_duplicate_depth);

@@ -1252,7 +1252,7 @@ void draw_client_map2(object *pl) {
     uint8_t have_sound_ambient;
     packet_struct *packet, *packet_header, *packet_levels, *packet_layer, *packet_sound;
     int sub_layer, socket_layer;
-    packet_save_t packet_save_buf;
+    packet_writer_mark_t packet_save_buf;
 
     /* Any kind of special vision? */
     special_vision =
@@ -1556,7 +1556,7 @@ void draw_client_map2(object *pl) {
 
                 /* Initialize default values for some variables. */
                 ext_flags = 0;
-                packet_save(packet, &packet_save_buf);
+                packet_writer_mark(packet, &packet_save_buf);
                 anim_num = 0;
                 uint8_t anim_type[NUM_SUB_LAYERS] = {0};
                 int16_t anim_value[NUM_SUB_LAYERS] = {0};
@@ -2143,7 +2143,7 @@ void draw_client_map2(object *pl) {
                 /* If nothing has really changed, go back to the old position
                  * in the packet. */
                 if (!(mask & 0x3f) && !num_layers && !ext_flags) {
-                    packet_load(packet, &packet_save_buf);
+                    packet_writer_rollback(packet, &packet_save_buf);
                 }
             }
         }

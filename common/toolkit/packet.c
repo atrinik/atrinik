@@ -195,20 +195,6 @@ void packet_enable_ndelay(packet_struct *packet) {
     packet->ndelay = 1;
 }
 
-void packet_set_pos(packet_struct *packet, size_t pos) {
-    TOOLKIT_PROTECT();
-    if (pos > packet->limit) {
-        packet->error = PACKET_ERROR_LIMIT_EXCEEDED;
-        return;
-    }
-    packet->len = pos;
-}
-
-size_t packet_get_pos(packet_struct *packet) {
-    TOOLKIT_PROTECT();
-    return packet->len;
-}
-
 packet_struct *packet_dup(packet_struct *packet) {
     packet_struct *cp;
 
@@ -233,32 +219,34 @@ void packet_delete(packet_struct *packet, size_t pos, size_t len) {
         return;
     }
 
-    if (packet->len - len + pos) {
-        memmove(packet->data + pos, packet->data + pos + len, packet->len - len + pos);
+    size_t trailing = packet->len - pos - len;
+    if (trailing != 0) {
+        memmove(packet->data + pos, packet->data + pos + len, trailing);
     }
 
     packet->len -= len;
 }
 
-void packet_save(packet_struct *packet, packet_save_t *packet_save_buf) {
-    HARD_ASSERT(packet != NULL);
-    HARD_ASSERT(packet_save_buf != NULL);
+void packet_writer_mark(packet_writer_t *writer, packet_writer_mark_t *mark) {
+    HARD_ASSERT(writer != NULL);
+    HARD_ASSERT(mark != NULL);
 
-    packet_save_buf->pos = packet->len;
+    mark->pos = writer->len;
 
 #ifndef NDEBUG
-    packet_save_buf->sb_pos = stringbuffer_length(packet->sb);
+    mark->sb_pos = stringbuffer_length(writer->sb);
 #endif
 }
 
-void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf) {
-    HARD_ASSERT(packet != NULL);
-    HARD_ASSERT(packet_save_buf != NULL);
+void packet_writer_rollback(packet_writer_t *writer, const packet_writer_mark_t *mark) {
+    HARD_ASSERT(writer != NULL);
+    HARD_ASSERT(mark != NULL);
+    HARD_ASSERT(mark->pos <= writer->len);
 
-    packet->len = packet_save_buf->pos;
+    writer->len = mark->pos;
 
 #ifndef NDEBUG
-    stringbuffer_seek(packet->sb, packet_save_buf->sb_pos);
+    stringbuffer_seek(writer->sb, mark->sb_pos);
 #endif
 }
 
