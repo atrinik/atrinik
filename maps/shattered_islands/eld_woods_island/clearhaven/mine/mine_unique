@@ -3937,3 +3937,15 @@ arch wall_cave1b.141
 x 47
 y 23
 end
+arch metal_bucket.101
+x 8
+y 12
+end
+arch trash_wood2.101
+x 8
+y 13
+end
+arch shovel
+x 10
+y 12
+end

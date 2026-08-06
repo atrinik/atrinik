@@ -2093,3 +2093,11 @@ no_pass 1
 x 23
 y 13
 end
+arch metal_bucket.101
+x 3
+y 4
+end
+arch shovel
+x 9
+y 9
+end
