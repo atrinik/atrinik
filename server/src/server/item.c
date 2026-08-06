@@ -172,6 +172,10 @@ StringBuffer *object_get_title(const object *op, const object *caller, StringBuf
                 }
             }
 
+            if (QUERY_FLAG(op, FLAG_IS_TRAPPED)) {
+                stringbuffer_append_string(sb, " (trapped)");
+            }
+
             break;
 
         case SCROLL:
@@ -1335,13 +1339,13 @@ void set_trapped_flag(object *op) {
         /* Must be a rune AND visible */
         if (tmp->type == RUNE && tmp->stats.Int <= 1) {
             SET_FLAG(op, FLAG_IS_TRAPPED);
-            return;
+            break;
         }
     }
 
     if (QUERY_FLAG(op, FLAG_IS_TRAPPED) != flag) {
         if (op->env) {
-            esrv_update_item(UPD_FLAGS, op);
+            esrv_update_item(UPD_FLAGS | UPD_NAME, op);
         } else {
             object_update(op, UP_OBJ_FACE);
         }

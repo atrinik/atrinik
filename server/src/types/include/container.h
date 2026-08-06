@@ -32,7 +32,14 @@
 
 /* Prototypes */
 
+/** Maximum decay process intervals for fresh, searched, and empty corpses. */
+#define CORPSE_DECAY_FRESH 10
+#define CORPSE_DECAY_SEARCHED 5
+#define CORPSE_DECAY_EMPTY 2
+
 bool container_check_magical(object *op, object *container);
 bool container_close(object *applier, object *op);
+bool container_is_corpse(const object *op);
+void container_update_corpse_decay(object *op);
 
 #endif
