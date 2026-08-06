@@ -83,6 +83,7 @@ class ReleaseConfigurationTests(unittest.TestCase):
         config = json.loads((root / ".releaserc.json").read_text(encoding="utf-8"))
         analyzer = config["plugins"][0]
 
+        self.assertEqual(config["branches"], ["main"])
         self.assertEqual(analyzer[0], "@semantic-release/commit-analyzer")
         self.assertEqual(
             analyzer[1]["releaseRules"],

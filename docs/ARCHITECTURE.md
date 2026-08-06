@@ -98,7 +98,7 @@ could lose work.
 ## Release model
 
 Pull-request titles and squash commits use Conventional Commits syntax. A push
-to `master` runs semantic-release with the standard conventional-commits
+to `main` runs semantic-release with the standard conventional-commits
 parser: `fix` and other recognized work produce a patch, `feat` produces a
 minor, and a breaking change produces a major. The catch-all patch rule ensures
 every accepted squash commit produces a release. Releases attach the exact

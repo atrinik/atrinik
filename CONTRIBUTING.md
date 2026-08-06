@@ -8,7 +8,7 @@ type(optional-scope)!: concise description
 
 Examples include `fix(cli): reject mismatched checkout paths` and
 `feat!: revise the profile schema`. Pull requests are squash-merged, and the
-squash title becomes the release-driving commit on `master`.
+squash title becomes the release-driving commit on `main`.
 
 Keep component implementation in its owning repository. Changes here should
 remain focused on the manifest, multi-repository workflows, or their tests and

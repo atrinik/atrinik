@@ -3,7 +3,7 @@ name: Semantic Release
 on:
   workflow_dispatch:
   push:
-    branches: [master]
+    branches: [main]
 
 permissions:
   contents: write
