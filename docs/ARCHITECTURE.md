@@ -21,8 +21,9 @@ when that ref is unavailable.
 ## Managed layout
 
 ~~~text
+<wrapper>/
+  <component>/                       primary independent Git checkouts
 workspace/
-  repos/<component>/                 primary Git checkouts
   worktrees/<component>/<label>/     component Git worktrees
   profiles/<name>.json               checkout selectors
   build/profiles/<name>-<key>/       isolated sources, builds, and runtime
@@ -31,10 +32,14 @@ workspace/
   states.json                        named external-state registry
 ~~~
 
-`ATRINIK_WORKSPACE_DIR` relocates this entire layout. The top-level workspace,
-replaceable build directories, and generated views carry schema-versioned
-ownership markers. Replacement helpers require the exact expected marker and
-verify that the target remains below the build root.
+`ATRINIK_WORKSPACE_DIR` relocates the `workspace/` layout but never the primary
+component repositories beside the wrapper. Exact root-level component names
+and clone-staging directories are ignored by the wrapper repository. Existing
+paths are validated as the expected standalone Git repository and are never
+overwritten. The top-level workspace, replaceable build directories, and
+generated views carry schema-versioned ownership markers. Replacement helpers
+require the exact expected marker and verify that the target remains below the
+build root.
 
 ## Profile resolution and build flow
 

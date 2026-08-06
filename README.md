@@ -7,8 +7,10 @@ command for cloning and synchronizing them, composing arbitrary worktrees into
 review profiles, building the resulting system, and sharing persistent server
 state safely.
 
-No component is a submodule. The ignored `workspace/` directory contains every
-checkout, worktree, build, profile, and default state directory.
+No component is a submodule. Primary component repositories are ignored,
+independent Git checkouts directly beside this README (`./client`, `./server`,
+and so on). Generated worktrees, builds, profiles, and default state live under
+the ignored `workspace/` directory.
 
 ## Requirements
 
@@ -29,11 +31,12 @@ all commands below from this repository's root.
 ./atrinik run client
 ~~~
 
-`init` clones the repositories in `components.json` into `workspace/repos/`.
+`init` clones the repositories in `components.json` directly into the wrapper
+root, such as `./client` and `./server`.
 Rerunning it is safe and validates existing checkouts without changing them.
 `build all` builds the protocol, shared library, client, server, collected
 content, and metaserver Worker. Repositories without a deterministic local
-build contract remain available for direct development in `workspace/repos/`.
+build contract remain available for direct development at `./COMPONENT/`.
 Partial initialization is supported: for example, `./atrinik init content`
 followed by `./atrinik build content` needs no unrelated checkout.
 
@@ -179,16 +182,18 @@ local development launch.
 ## Workspace location and recovery
 
 Set `ATRINIK_WORKSPACE_DIR` to an absolute path before invoking the command to
-place all managed data elsewhere:
+place generated worktrees, profiles, builds, and state elsewhere:
 
 ~~~sh
 export ATRINIK_WORKSPACE_DIR=/workspaces/atrinik-data
 ./atrinik init
 ~~~
 
-The coordinator marks directories it owns and refuses to replace unmarked
-paths. Component Git history is authoritative; profiles are small ignored JSON
-files and can be recreated. Back up persistent state separately. See
+Primary component repositories remain directly beside the wrapper even when
+this variable is set. The coordinator marks directories it owns and refuses to
+replace unmarked paths. Component Git history is authoritative; profiles are
+small ignored JSON files and can be recreated. Back up persistent state
+separately. See
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for data-flow and safety details.
 
 ## Validation

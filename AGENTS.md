@@ -5,8 +5,10 @@
 - For work that spans component repositories, read and follow
   `.agents/skills/atrinik-multi-repo-workspace/SKILL.md` before changing a
   checkout, worktree, profile, release configuration, or GitHub repository.
-- Component checkouts, worktrees, builds, profiles, and mutable state belong
-  below the ignored workspace directory or an explicit external path.
+- Primary component checkouts are independent ignored Git repositories directly
+  below the wrapper root. Component worktrees, builds, profiles, and default
+  mutable state belong below the ignored workspace directory or an explicit
+  external path.
 - Never replace a dirty checkout, remove a dirty worktree, or overwrite an
   existing mutable server-data directory.
 - Use precise component and protocol names; do not use vague age-based labels.
