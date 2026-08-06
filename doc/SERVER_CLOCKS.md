@@ -67,6 +67,7 @@ use the typed service.
 | --- | --- | --- |
 | `server/server_clock.c` | The sole production adapters for monotonic and UTC wall time. | Keep. |
 | `server/time.c`, `server/main.c` (`GETTIMEOFDAY`) | Legacy loop cadence, spare pathfinding budget, and the legacy `seconds()` accessor. Cadence is a separate scheduling mechanism; `seconds()` is ambiguous. | Preserve cadence for now; later replace its wall-based measurement with monotonic scheduling in a dedicated behavior review and remove or retag `seconds()` callers. |
+| `server/main.c` (`pticks` periodic work) | Gameplay/world updates are correctly simulation-based, but metaserver publication is process I/O and currently shares that schedule. | Keep gameplay periodic work on typed simulation deadlines; move metaserver retry/backoff and publication cadence to typed monotonic deadlines. |
 | `server/main.c` (`datetime_monotonic_us`) | Game-loop performance metric. Correct domain, but bypasses the server type. | Replace with typed monotonic elapsed helpers. |
 | `server/plugins.c`, `plugins/plugin_python/plugin_python.c` | Plugin performance measurements using `gettimeofday()`. Wrong domain because wall jumps can corrupt durations. | Replace with typed monotonic elapsed helpers. |
 | `socket/assets.c` | Transfer budget windows and response performance metrics using toolkit monotonic values. Correct domain, untyped. | Migrate to typed monotonic deadlines and durations. |
