@@ -104,7 +104,7 @@ jobs:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-26.04
     container:
-      image: ghcr.io/atrinik/linux-build:0.0.3
+      image: ghcr.io/atrinik/linux-build:0.0.5
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -174,7 +174,7 @@ jobs:
     if: inputs.gcc_only != true && needs.changes.outputs.native == 'true'
     runs-on: ubuntu-26.04
     container:
-      image: ghcr.io/atrinik/linux-build:0.0.3
+      image: ghcr.io/atrinik/linux-build:0.0.5
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -199,9 +199,9 @@ jobs:
         uses: actions/cache@v6
         with:
           path: .ccache-clang
-          key: ccache-clang-linux-build-0.0.3-${{ github.sha }}
+          key: ccache-clang-linux-build-0.0.5-${{ github.sha }}
           restore-keys: |
-            ccache-clang-linux-build-0.0.3-
+            ccache-clang-linux-build-0.0.5-
 
       - name: Reset compiler cache statistics
         run: ccache --zero-stats
@@ -267,9 +267,9 @@ jobs:
           path: |
             .ccache-windows-client
             build/windows-mxe-release
-          key: windows-package-build-0.0.3-client-${{ github.sha }}
+          key: windows-package-build-0.0.5-client-${{ github.sha }}
           restore-keys: |
-            windows-package-build-0.0.3-client-
+            windows-package-build-0.0.5-client-
 
       - name: Restore server package build
         if: matrix.component == 'server' && contains(fromJSON(needs.changes.outputs.windows), matrix.component)
@@ -279,9 +279,9 @@ jobs:
             .ccache-windows-server
             build/windows-mxe-server-release
             build/windows-region-map-generator
-          key: windows-package-build-0.0.3-server-${{ github.sha }}
+          key: windows-package-build-0.0.5-server-${{ github.sha }}
           restore-keys: |
-            windows-package-build-0.0.3-server-
+            windows-package-build-0.0.5-server-
 
       - name: Build and verify package with pinned MinGW image
         if: contains(fromJSON(needs.changes.outputs.windows), matrix.component)
@@ -297,7 +297,7 @@ jobs:
             --env CCACHE_TEMPDIR=/tmp/atrinik-ccache-tmp \
             --volume "${GITHUB_WORKSPACE}:/workspaces/atrinik" \
             --workdir /workspaces/atrinik \
-            ghcr.io/atrinik/windows-build:0.0.3 \
+            ghcr.io/atrinik/windows-build:0.0.5 \
             bash -c \
               'set -euo pipefail
                bash ./build-windows.sh "${1}"

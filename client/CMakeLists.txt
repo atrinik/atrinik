@@ -5,27 +5,27 @@ set(PACKAGE_NAME "Atrinik Client")
 
 # SDL3 is required to run the client. Use its exported CMake targets so Linux
 # and MinGW builds share the same dependency contract.
-find_package(SDL3 CONFIG REQUIRED)
+find_package(SDL3 3.4 CONFIG REQUIRED)
 set(HAVE_SDL true)
 
 # SDL_image is also required, otherwise no bitmaps or map images could be
 # displayed.
-find_package(SDL3_image CONFIG REQUIRED)
+find_package(SDL3_image 3.2 CONFIG REQUIRED)
 set(HAVE_SDL_IMAGE true)
 
 # SDL_ttf is used for all text drawing, so it's required.
-find_package(SDL3_ttf CONFIG REQUIRED)
+find_package(SDL3_ttf 3.2 CONFIG REQUIRED)
 set(HAVE_SDL_TTF true)
 
 # LibXML2 is required.
 find_package(LibXml2 REQUIRED)
 
-# SDL_mixer is optional on other platforms, but a Windows client without it
+# SDL3_mixer is optional on other platforms, but a Windows client without it
 # silently produces an executable that cannot play any of the bundled audio.
 if (MINGW)
-    find_package(SDL3_mixer CONFIG REQUIRED)
+    find_package(SDL3_mixer 3.2.4 CONFIG REQUIRED)
 else ()
-    find_package(SDL3_mixer CONFIG)
+    find_package(SDL3_mixer 3.2.4 CONFIG)
 endif ()
 
 if (SDL3_mixer_FOUND)
@@ -70,7 +70,7 @@ else ()
     target_link_libraries(${EXECUTABLE} PRIVATE ${LIBXML2_LIBRARIES})
 endif ()
 
-# Link SDL_mixer if available.
+# Link SDL3_mixer if available.
 if (HAVE_SDL_MIXER)
     target_compile_definitions(${EXECUTABLE} PRIVATE HAVE_SDL_MIXER)
     target_link_libraries(${EXECUTABLE} PRIVATE SDL3_mixer::SDL3_mixer)
@@ -86,7 +86,7 @@ if (HAVE_SDL_MIXER)
                 "-DATRINIK_OBJDUMP=${CMAKE_OBJDUMP}"
                 "-DATRINIK_CLIENT_EXECUTABLE=$<TARGET_FILE:${EXECUTABLE}>"
                 -P "${CMAKE_SOURCE_DIR}/cmake/verify_windows_client_sound.cmake"
-            COMMENT "Verifying that the Windows client imports SDL_mixer"
+            COMMENT "Verifying that the Windows client imports SDL3_mixer"
             VERBATIM)
     endif ()
 endif ()
@@ -175,7 +175,7 @@ if (MINGW)
 endif ()
 
 set(CPACK_DEBIAN_PACKAGE_NAME "atrinik")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1, libsdl-image1.2, libsdl1.2debian, libcurl4, libsdl-mixer1.2, libsdl-ttf2.0-0, timidity, zlib1g, libx11-6, libxmu6")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1, libsdl3-0, libsdl3-image0, libsdl3-ttf0, libcurl4, timidity, zlib1g, libx11-6, libxmu6")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Fantasy multiplayer online role-playing game with 2.5D graphics\n .\n Homepage: http://www.atrinik.org/")
 set(CPACK_DEBIAN_PACKAGE_SECTION "games")
 

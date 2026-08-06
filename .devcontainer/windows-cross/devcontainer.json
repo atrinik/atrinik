@@ -1,6 +1,6 @@
 {
   "name": "Atrinik Windows cross-build (MXE)",
-  "image": "ghcr.io/atrinik/windows-build:0.0.3",
+  "image": "ghcr.io/atrinik/windows-build:0.0.5",
   "workspaceFolder": "/workspaces/atrinik",
   "remoteUser": "vscode",
   "initializeCommand": "if [ ! -e \"${localEnv:HOME}/.gitconfig\" ]; then install -m 600 /dev/null \"${localEnv:HOME}/.gitconfig\"; fi",
