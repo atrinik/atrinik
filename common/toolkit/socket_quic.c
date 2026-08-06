@@ -24,7 +24,7 @@
 
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
 
-static const unsigned char socket_quic_alpn[] = {9, 'a', 't', 'r', 'i', 'n', 'i', 'k', '/', '1'};
+static const unsigned char socket_quic_alpn[] = {9, 'a', 't', 'r', 'i', 'n', 'i', 'k', '/', '2'};
 
 /**
  * Prevent an ICMP error for one UDP datagram from failing a multiplexed QUIC
@@ -479,7 +479,7 @@ static bool socket_quic_client_handshake(socket_t *sc,
             SSL_set_feature_request_uint(sc->quic,
                                          SSL_VALUE_QUIC_IDLE_TIMEOUT,
                                          SOCKET_QUIC_IDLE_TIMEOUT_MS) == 1 &&
-            SSL_set_default_stream_mode(sc->quic, SSL_DEFAULT_STREAM_MODE_AUTO_BIDI) == 1 &&
+            SSL_set_default_stream_mode(sc->quic, SSL_DEFAULT_STREAM_MODE_NONE) == 1 &&
             SSL_set_blocking_mode(sc->quic, 0) == 1 &&
             SSL_set_alpn_protos(sc->quic, socket_quic_alpn, sizeof(socket_quic_alpn)) == 0 &&
             SSL_set1_initial_peer_addr(sc->quic, peer) == 1;
@@ -1015,7 +1015,9 @@ bool socket_quic_service(socket_t *sc, bool network_ready, bool app_write_pendin
     }
 
     uint64_t now = datetime_monotonic_ms();
-    bool buffered = SSL_has_pending(sc->quic) != 0;
+    bool buffered = SSL_has_pending(sc->quic) != 0 ||
+                    (sc->game_stream != NULL && SSL_has_pending(sc->game_stream->ssl) != 0) ||
+                    SSL_get_accept_stream_queue_len(sc->quic) != 0;
     bool timer_due = sc->quic_event_deadline_ms == 0 || (sc->quic_event_deadline_ms != UINT64_MAX &&
                                                          now >= sc->quic_event_deadline_ms);
     if (!network_ready && !buffered && !app_write_pending && !timer_due) {
@@ -1031,7 +1033,9 @@ bool socket_quic_service(socket_t *sc, bool network_ready, bool app_write_pendin
      * producing readable application data. Give the caller one I/O pass so
      * SSL_read_ex() observes and reports that closure immediately. */
     return network_ready || buffered || app_write_pending || timer_due ||
-           SSL_has_pending(sc->quic) != 0;
+           SSL_has_pending(sc->quic) != 0 ||
+           (sc->game_stream != NULL && SSL_has_pending(sc->game_stream->ssl) != 0) ||
+           SSL_get_accept_stream_queue_len(sc->quic) != 0;
 }
 
 #else

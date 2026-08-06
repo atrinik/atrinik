@@ -28,6 +28,9 @@
 #define ASSET_CACHE_MAX_TOTAL (1024ULL * 1024ULL * 1024ULL)
 #define ASSET_RATE_BYTES_PER_SECOND (8U * 1024U * 1024U)
 #define ASSET_RATE_REQUESTS_PER_SECOND 256U
+#define ASSET_TOKEN_BUCKET_CAPACITY ASSET_RATE_BYTES_PER_SECOND
+#define ASSET_REQUEST_WIRE_MAX (MAX_BUF + 4U + ASSET_DIGEST_SIZE + 1U)
+#define ASSET_STREAM_ACCEPT_QUANTUM 16U
 
 typedef struct asset_cache_entry {
     UT_hash_handle hh;
@@ -35,7 +38,29 @@ typedef struct asset_cache_entry {
     uint8_t *data;
     uint32_t size;
     uint8_t digest[ASSET_DIGEST_SIZE];
+    size_t references;
 } asset_cache_entry_t;
+
+typedef enum asset_server_stream_state {
+    ASSET_SERVER_READ_REQUEST,
+    ASSET_SERVER_SEND_HEADER,
+    ASSET_SERVER_SEND_BODY,
+} asset_server_stream_state_t;
+
+struct asset_stream_state {
+    struct asset_stream_state *next;
+    struct asset_stream_state *prev;
+    socket_stream_t *stream;
+    asset_cache_entry_t *entry;
+    asset_server_stream_state_t state;
+    uint64_t started_us;
+    uint8_t request[ASSET_REQUEST_WIRE_MAX];
+    size_t request_size;
+    packet_struct *header;
+    size_t header_pos;
+    size_t body_pos;
+    bool concluded;
+};
 
 static asset_cache_entry_t *asset_cache;
 static uint64_t asset_cache_size;
@@ -203,6 +228,7 @@ void socket_assets_init(void) {
 void socket_assets_deinit(void) {
     asset_cache_entry_t *entry, *next;
     HASH_ITER(hh, asset_cache, entry, next) {
+        HARD_ASSERT(entry->references == 0);
         HASH_DEL(asset_cache, entry);
         free(entry->data);
         free(entry->name);
@@ -219,111 +245,250 @@ static asset_cache_entry_t *asset_cache_find(const char *name) {
     return entry;
 }
 
-static bool asset_rate_allow(socket_struct *ns, size_t bytes, bool count_request) {
+static bool asset_request_rate_allow(socket_struct *ns) {
     uint64_t now = datetime_monotonic_ms();
-    if (ns->asset_window_ms == 0 || now - ns->asset_window_ms >= 1000) {
-        ns->asset_window_ms = now;
-        ns->asset_window_bytes = 0;
+    if (ns->asset_request_window_ms == 0 || now - ns->asset_request_window_ms >= 1000) {
+        ns->asset_request_window_ms = now;
         ns->asset_window_requests = 0;
     }
-    if ((count_request && ns->asset_window_requests >= ASSET_RATE_REQUESTS_PER_SECOND) ||
-        ns->asset_window_bytes + bytes > ASSET_RATE_BYTES_PER_SECOND) {
+    if (ns->asset_window_requests >= ASSET_RATE_REQUESTS_PER_SECOND) {
         LOG(ERROR,
-            "Connection %s exceeded the in-band asset transfer budget",
+            "Connection %s exceeded the in-band asset request-rate limit",
             socket_get_id(ns->sc));
-        server_metrics_asset_response(0, true);
         ns->state = ST_ZOMBIE;
         return false;
     }
-    if (count_request) {
-        ns->asset_window_requests++;
-    }
-    ns->asset_window_bytes += bytes;
+    ns->asset_window_requests++;
     return true;
 }
 
-static void asset_send_error(socket_struct *ns, const char *asset, bool metadata) {
-    packet_struct *packet = packet_new(CLIENT_CMD_ASSET, 128, 128);
-    socket_asset_response_append_status(packet,
-                                        metadata ? ASSET_STATUS_METADATA_NOT_FOUND
-                                                 : ASSET_STATUS_NOT_FOUND,
-                                        asset);
-    socket_send_packet(ns, packet);
+static size_t asset_tokens_available(socket_struct *ns) {
+    uint64_t now = datetime_monotonic_ms();
+    if (ns->asset_token_updated_ms == 0) {
+        ns->asset_token_updated_ms = now;
+        ns->asset_tokens = ASSET_TOKEN_BUCKET_CAPACITY;
+        return ns->asset_tokens;
+    }
+    uint64_t elapsed = now - ns->asset_token_updated_ms;
+    if (elapsed != 0) {
+        if (elapsed >= 1000U) {
+            ns->asset_tokens = ASSET_TOKEN_BUCKET_CAPACITY;
+        } else {
+            uint64_t refill = elapsed * ASSET_RATE_BYTES_PER_SECOND / 1000U;
+            ns->asset_tokens =
+                (size_t)MIN((uint64_t)ASSET_TOKEN_BUCKET_CAPACITY, ns->asset_tokens + refill);
+        }
+        ns->asset_token_updated_ms = now;
+    }
+    return ns->asset_tokens;
 }
 
-void socket_command_asset(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
-    (void)pl;
-    uint64_t started_us = datetime_monotonic_us();
-
-    if (!socket_is_quic(ns->sc) || (*settings.join_password != '\0' && !ns->join_authenticated)) {
-        return;
+static void
+asset_stream_free(socket_struct *ns, asset_stream_state_t *state, bool reset, bool rejected) {
+    if (reset) {
+        socket_stream_reset(state->stream, SOCKET_STREAM_ERROR_SERVER_PROTOCOL);
     }
+    socket_stream_destroy(state->stream);
+    if (state->entry != NULL) {
+        HARD_ASSERT(state->entry->references != 0);
+        state->entry->references--;
+    }
+    if (state->header != NULL) {
+        packet_free(state->header);
+    }
+    DL_DELETE(ns->asset_streams, state);
+    HARD_ASSERT(ns->asset_stream_count != 0);
+    ns->asset_stream_count--;
+    server_metrics_asset_stream(-1, 0, rejected);
+    free(state);
+}
 
+static void asset_stream_header(asset_stream_state_t *state,
+                                uint8_t status,
+                                uint32_t total_size,
+                                const uint8_t digest[ASSET_DIGEST_SIZE]) {
+    state->header = packet_new(0, SOCKET_ASSET_RESPONSE_HEADER_SIZE, 0);
+    socket_asset_response_append_status(state->header, status, total_size, digest);
+    HARD_ASSERT(packet_writer_finish(state->header));
+    state->state = ASSET_SERVER_SEND_HEADER;
+}
+
+static bool asset_stream_prepare(socket_struct *ns, asset_stream_state_t *state) {
     socket_asset_request_t request;
-    if (!socket_asset_request_parse(data, len, pos, &request)) {
+    if (!socket_asset_request_parse(state->request, state->request_size, 0, &request)) {
         LOG(ERROR, "Connection %s sent a malformed QUIC asset request", socket_get_id(ns->sc));
-        return;
+        return false;
     }
-    if (!asset_rate_allow(ns, 0, true)) {
-        return;
+    if (!asset_request_rate_allow(ns)) {
+        return false;
+    }
+    if (*settings.join_password != '\0' && !ns->join_authenticated) {
+        LOG(ERROR,
+            "Connection %s opened an asset stream before authentication",
+            socket_get_id(ns->sc));
+        return false;
+    }
+
+    char resolved[HUGE_BUF];
+    asset_cache_entry_t *entry = NULL;
+    if (asset_resolve_path(request.path, VS(resolved))) {
+        entry = asset_cache_find(request.path);
+    }
+    if (entry == NULL) {
+        asset_stream_header(state,
+                            request.flags & ASSET_REQUEST_METADATA ? ASSET_STATUS_METADATA_NOT_FOUND
+                                                                   : ASSET_STATUS_NOT_FOUND,
+                            0,
+                            NULL);
+    } else if (request.flags & ASSET_REQUEST_METADATA) {
+        asset_stream_header(state, ASSET_STATUS_METADATA, entry->size, entry->digest);
+    } else if (request.cached_size == entry->size &&
+               memcmp(request.cached_digest, entry->digest, ASSET_DIGEST_SIZE) == 0) {
+        asset_stream_header(state, ASSET_STATUS_NOT_MODIFIED, entry->size, entry->digest);
+    } else {
+        state->entry = entry;
+        entry->references++;
+        asset_stream_header(state, ASSET_STATUS_OK, entry->size, entry->digest);
     }
     LOG(DEBUG,
-        "Connection %s requested QUIC asset %s at offset %" PRIu32 "%s",
+        "Connection %s opened QUIC asset stream for %s",
         socket_get_id(ns->sc),
-        request.path,
-        request.offset,
-        request.flags & ASSET_REQUEST_METADATA ? " (metadata)" : "");
+        request.path);
+    return true;
+}
 
-    char path[HUGE_BUF];
-    if (!asset_resolve_path(request.path, VS(path))) {
-        asset_send_error(ns, request.path, request.flags & ASSET_REQUEST_METADATA);
-        server_metrics_asset_response(datetime_monotonic_us() - started_us, false);
-        return;
+static bool asset_stream_read_request(socket_struct *ns, asset_stream_state_t *state) {
+    uint8_t surplus;
+    void *buffer = &surplus;
+    size_t capacity = 1;
+    if (state->request_size < sizeof(state->request)) {
+        buffer = state->request + state->request_size;
+        capacity = sizeof(state->request) - state->request_size;
+    }
+    size_t amount = 0;
+    socket_stream_result_t result = socket_stream_read(state->stream, buffer, capacity, &amount);
+    if (result == SOCKET_STREAM_RESULT_ERROR) {
+        return false;
+    }
+    if (result == SOCKET_STREAM_RESULT_FINISHED) {
+        return asset_stream_prepare(ns, state);
+    }
+    if (state->request_size == sizeof(state->request) && amount != 0) {
+        return false;
+    }
+    state->request_size += amount;
+    return true;
+}
+
+static bool asset_stream_write(socket_struct *ns, asset_stream_state_t *state) {
+    const uint8_t *data;
+    size_t remaining;
+    if (state->state == ASSET_SERVER_SEND_HEADER) {
+        data = state->header->data + state->header_pos;
+        remaining = state->header->len - state->header_pos;
+    } else {
+        HARD_ASSERT(state->entry != NULL);
+        data = state->entry->data + state->body_pos;
+        remaining = state->entry->size - state->body_pos;
+        size_t tokens = asset_tokens_available(ns);
+        if (tokens == 0) {
+            server_metrics_asset_paced();
+            return true;
+        }
+        remaining = MIN(remaining, MIN((size_t)ASSET_STREAM_QUANTUM, tokens));
     }
 
-    asset_cache_entry_t *entry = asset_cache_find(request.path);
-    if (entry == NULL || request.offset > entry->size) {
-        asset_send_error(ns, request.path, request.flags & ASSET_REQUEST_METADATA);
-        server_metrics_asset_response(datetime_monotonic_us() - started_us, false);
-        return;
+    size_t amount = 0;
+    socket_stream_result_t result = socket_stream_write(state->stream, data, remaining, &amount);
+    if (result == SOCKET_STREAM_RESULT_ERROR || result == SOCKET_STREAM_RESULT_FINISHED) {
+        return false;
     }
+    if (state->state == ASSET_SERVER_SEND_HEADER) {
+        state->header_pos += amount;
+        if (state->header_pos == state->header->len) {
+            server_metrics_asset_response(datetime_monotonic_us() - state->started_us);
+            packet_free(state->header);
+            state->header = NULL;
+            if (state->entry == NULL || state->entry->size == 0) {
+                state->concluded = socket_stream_conclude(state->stream);
+                return false;
+            }
+            state->state = ASSET_SERVER_SEND_BODY;
+        }
+    } else {
+        HARD_ASSERT(ns->asset_tokens >= amount);
+        ns->asset_tokens -= amount;
+        state->body_pos += amount;
+        server_metrics_asset_stream(0, amount, false);
+        if (state->body_pos == state->entry->size) {
+            state->concluded = socket_stream_conclude(state->stream);
+            return false;
+        }
+    }
+    return true;
+}
 
-    if (request.flags & ASSET_REQUEST_METADATA) {
-        packet_struct *packet = packet_new(CLIENT_CMD_ASSET, 128, 128);
-        socket_asset_response_append_metadata(packet, request.path, entry->size, entry->digest);
-        socket_send_packet(ns, packet);
-        server_metrics_asset_response(datetime_monotonic_us() - started_us, false);
-        return;
+static void asset_stream_accept(socket_struct *ns) {
+    for (size_t accepted = 0; accepted < ASSET_STREAM_ACCEPT_QUANTUM; accepted++) {
+        socket_stream_t *stream = socket_stream_accept(ns->sc, SOCKET_STREAM_ASSET);
+        if (stream == NULL) {
+            break;
+        }
+        if (ns->asset_stream_count >= ASSET_STREAM_ACTIVE_MAX) {
+            LOG(ERROR,
+                "Connection %s exceeded the active asset-stream limit",
+                socket_get_id(ns->sc));
+            socket_stream_reset(stream, SOCKET_STREAM_ERROR_LIMIT);
+            socket_stream_destroy(stream);
+            server_metrics_asset_stream(0, 0, true);
+            continue;
+        }
+        asset_stream_state_t *state = xcalloc(1, sizeof(*state));
+        state->stream = stream;
+        state->started_us = datetime_monotonic_us();
+        DL_APPEND(ns->asset_streams, state);
+        ns->asset_stream_count++;
+        server_metrics_asset_stream(1, 0, false);
     }
+}
 
-    if (request.offset == 0 && request.cached_size == entry->size &&
-        memcmp(request.cached_digest, entry->digest, ASSET_DIGEST_SIZE) == 0) {
-        packet_struct *packet = packet_new(CLIENT_CMD_ASSET, 128, 128);
-        socket_asset_response_append_status(packet, ASSET_STATUS_NOT_MODIFIED, request.path);
-        socket_send_packet(ns, packet);
-        server_metrics_asset_response(datetime_monotonic_us() - started_us, false);
-        return;
+bool socket_assets_service(socket_struct *ns) {
+    HARD_ASSERT(ns != NULL);
+    if (!socket_is_quic(ns->sc)) {
+        return true;
     }
+    asset_stream_accept(ns);
 
-    size_t chunk_size = MIN((size_t)(entry->size - request.offset), (size_t)ASSET_CHUNK_SIZE);
-    if (!asset_rate_allow(ns, chunk_size, false)) {
-        return;
+    asset_stream_state_t *state, *next;
+    DL_FOREACH_SAFE(ns->asset_streams, state, next) {
+        bool keep = state->state == ASSET_SERVER_READ_REQUEST ? asset_stream_read_request(ns, state)
+                                                              : asset_stream_write(ns, state);
+        if (!keep) {
+            asset_stream_free(ns, state, !state->concluded, !state->concluded);
+        }
     }
-    if (!socket_buffer_can_enqueue(ns, chunk_size + 256, true)) {
-        server_metrics_asset_response(0, true);
-        LOG(ERROR, "Connection %s exceeded the bulk-asset queue reserve", socket_get_id(ns->sc));
-        ns->state = ST_ZOMBIE;
-        return;
+    if (ns->asset_streams != NULL && ns->asset_streams->next != NULL) {
+        asset_stream_state_t *first = ns->asset_streams;
+        DL_DELETE(ns->asset_streams, first);
+        DL_APPEND(ns->asset_streams, first);
     }
+    return ns->state != ST_DEAD && ns->state != ST_ZOMBIE;
+}
 
-    packet_struct *packet = packet_new(CLIENT_CMD_ASSET, chunk_size + 128, 128);
-    socket_asset_response_append_ok(packet,
-                                    request.path,
-                                    entry->size,
-                                    request.offset,
-                                    entry->digest,
-                                    entry->data + request.offset,
-                                    chunk_size);
-    socket_send_packet(ns, packet);
-    server_metrics_asset_response(datetime_monotonic_us() - started_us, false);
+bool socket_assets_pending(const socket_struct *ns) {
+    HARD_ASSERT(ns != NULL);
+    asset_stream_state_t *state;
+    DL_FOREACH(ns->asset_streams, state) {
+        if (state->state != ASSET_SERVER_READ_REQUEST) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void socket_assets_connection_clear(socket_struct *ns) {
+    asset_stream_state_t *state, *next;
+    DL_FOREACH_SAFE(ns->asset_streams, state, next) {
+        asset_stream_free(ns, state, true, false);
+    }
 }

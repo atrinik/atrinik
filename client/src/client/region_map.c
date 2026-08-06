@@ -258,6 +258,7 @@ bool region_map_ready(region_map_t *region_map) {
         return false;
     }
 
+    uint64_t decode_started = SDL_GetTicksNS();
     SDL_IOStream *rw = SDL_IOFromConstMem(body_png, (int)body_png_size);
     img = rw != NULL ? IMG_Load_IO(rw, 1) : NULL;
     if (img == NULL) {
@@ -279,6 +280,11 @@ bool region_map_ready(region_map_t *region_map) {
         LOG(ERROR, "%s", region_map->error);
         return false;
     }
+    LOG(DEBUG,
+        "Decoded region map %s (%" PRIu64 " bytes) in %.3f ms",
+        region_map->download_name,
+        (uint64_t)body_png_size,
+        (double)(SDL_GetTicksNS() - decode_started) / 1000000.0);
 
     region_map_def_load(region_map->def, (const char *)body_def);
     region_map_pan(region_map);

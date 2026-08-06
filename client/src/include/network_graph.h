@@ -34,6 +34,7 @@
 
 enum {
     NETWORK_GRAPH_TYPE_GAME, ///< Game data.
+    NETWORK_GRAPH_TYPE_ASSET, ///< In-band QUIC asset data.
     NETWORK_GRAPH_TYPE_HTTP, ///< HTTP data.
 
     NETWORK_GRAPH_TYPE_MAX ///< Maximum number of data types.

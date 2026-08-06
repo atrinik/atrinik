@@ -14,6 +14,9 @@
 #define DRIVER_TIMEOUT_MS 8000U
 #define DRIVER_DISCONNECT_TIMEOUT_MS 1000U
 #define DRIVER_BUFFER_SIZE 1024U
+#define DRIVER_ASSET_STREAMS 3U
+#define DRIVER_ASSET_SIZE (64U * 1024U)
+#define DRIVER_ASSET_QUANTUM 1024U
 
 #define DRIVER_REQUIRE(condition, message)              \
     do {                                                \
@@ -77,6 +80,50 @@ static bool driver_read_all(socket_t *socket, void *data, size_t length) {
         }
     }
     return offset == length;
+}
+
+static bool driver_stream_write_all(socket_stream_t *stream, const void *data, size_t length) {
+    size_t offset = 0;
+    uint64_t deadline = datetime_monotonic_ms() + DRIVER_TIMEOUT_MS;
+    while (offset < length && datetime_monotonic_ms() < deadline) {
+        size_t amount = 0;
+        socket_stream_result_t result =
+            socket_stream_write(stream, (const uint8_t *)data + offset, length - offset, &amount);
+        if (result == SOCKET_STREAM_RESULT_ERROR || result == SOCKET_STREAM_RESULT_FINISHED) {
+            return false;
+        }
+        offset += amount;
+        if (amount == 0) {
+            driver_pause();
+        }
+    }
+    return offset == length;
+}
+
+static bool driver_stream_read_request(socket_stream_t *stream, uint8_t *value) {
+    bool received = false;
+    uint64_t deadline = datetime_monotonic_ms() + DRIVER_TIMEOUT_MS;
+    while (datetime_monotonic_ms() < deadline) {
+        uint8_t byte;
+        size_t amount = 0;
+        socket_stream_result_t result = socket_stream_read(stream, &byte, sizeof(byte), &amount);
+        if (result == SOCKET_STREAM_RESULT_ERROR) {
+            return false;
+        }
+        if (result == SOCKET_STREAM_RESULT_FINISHED) {
+            return received;
+        }
+        if (amount != 0) {
+            if (received) {
+                return false;
+            }
+            *value = byte;
+            received = true;
+        } else {
+            driver_pause();
+        }
+    }
+    return false;
 }
 
 static bool driver_wait_for_close(socket_t *socket, const char *marker) {
@@ -169,6 +216,225 @@ driver_client(const char *host, uint16_t port, const char *fingerprint, const ch
               driver_read_all(connection, echoed, length) && memcmp(echoed, payload, length) == 0;
     if (ok) {
         printf("CLIENT %s\n", socket_get_id(connection));
+        fflush(stdout);
+    }
+    socket_destroy(connection);
+    return ok;
+}
+
+static bool driver_streams_server(uint16_t port, const char *identity_path) {
+    socket_t *listener = driver_listener(port, identity_path);
+    DRIVER_REQUIRE(listener != NULL, "could not create multi-stream listener");
+    char fingerprint[65];
+    uint16_t bound_port;
+    DRIVER_REQUIRE(socket_certificate_sha256(listener, fingerprint) &&
+                       socket_local_port(listener, &bound_port),
+                   "could not inspect multi-stream listener");
+    printf("READY %" PRIu16 " %s\n", bound_port, fingerprint);
+    fflush(stdout);
+
+    socket_t *connection = NULL;
+    uint64_t deadline = datetime_monotonic_ms() + DRIVER_TIMEOUT_MS;
+    while (connection == NULL && datetime_monotonic_ms() < deadline) {
+        if (socket_wait(listener, true, false, 20)) {
+            connection = socket_accept(listener);
+        }
+    }
+    DRIVER_REQUIRE(connection != NULL, "timed out accepting multi-stream connection");
+
+    socket_stream_t *accepted[DRIVER_ASSET_STREAMS] = {0};
+    socket_stream_t *streams[DRIVER_ASSET_STREAMS] = {0};
+    bool accepted_read[DRIVER_ASSET_STREAMS] = {0};
+    bool request_received[DRIVER_ASSET_STREAMS] = {0};
+    size_t stream_count = 0;
+    char start[5] = {0};
+    size_t start_received = 0;
+    deadline = datetime_monotonic_ms() + DRIVER_TIMEOUT_MS;
+    while ((stream_count < DRIVER_ASSET_STREAMS || start_received < sizeof(start)) &&
+           datetime_monotonic_ms() < deadline) {
+        bool ready = socket_wait(connection, true, true, socket_quic_timeout(connection, 10));
+        socket_quic_service(connection, ready, true);
+
+        size_t amount = 0;
+        if (start_received < sizeof(start) && !socket_read(connection,
+                                                           start + start_received,
+                                                           sizeof(start) - start_received,
+                                                           &amount)) {
+            break;
+        }
+        start_received += amount;
+        while (stream_count < DRIVER_ASSET_STREAMS) {
+            socket_stream_t *stream = socket_stream_accept(connection, SOCKET_STREAM_ASSET);
+            if (stream == NULL) {
+                break;
+            }
+            accepted[stream_count++] = stream;
+        }
+        for (size_t i = 0; i < stream_count; i++) {
+            if (!accepted_read[i]) {
+                uint8_t id = UINT8_MAX;
+                if (driver_stream_read_request(accepted[i], &id) && id < DRIVER_ASSET_STREAMS &&
+                    streams[id] == NULL) {
+                    accepted_read[i] = true;
+                    request_received[id] = true;
+                    streams[id] = accepted[i];
+                }
+            }
+        }
+    }
+    DRIVER_REQUIRE(start_received == sizeof(start) && memcmp(start, "start", sizeof(start)) == 0,
+                   "game stream did not start the asset transfer");
+    for (size_t i = 0; i < DRIVER_ASSET_STREAMS; i++) {
+        DRIVER_REQUIRE(request_received[i], "asset request stream was not classified cleanly");
+    }
+    size_t sent[DRIVER_ASSET_STREAMS] = {0};
+    bool cancelled = false;
+    char probe[4] = {0};
+    size_t probe_received = 0;
+    bool probe_echoed = false;
+    uint8_t body[DRIVER_ASSET_QUANTUM];
+    deadline = datetime_monotonic_ms() + DRIVER_TIMEOUT_MS;
+    while ((sent[0] < DRIVER_ASSET_SIZE || sent[1] < DRIVER_ASSET_SIZE || !cancelled ||
+            !probe_echoed) &&
+           datetime_monotonic_ms() < deadline) {
+        size_t game_amount = 0;
+        if (probe_received < sizeof(probe)) {
+            DRIVER_REQUIRE(socket_read(connection,
+                                       probe + probe_received,
+                                       sizeof(probe) - probe_received,
+                                       &game_amount),
+                           "game probe stream failed during asset transfer");
+            probe_received += game_amount;
+        }
+        if (!probe_echoed && probe_received == sizeof(probe)) {
+            DRIVER_REQUIRE(memcmp(probe, "ping", sizeof(probe)) == 0,
+                           "unexpected game probe during asset transfer");
+            DRIVER_REQUIRE(driver_write_all(connection, probe, sizeof(probe)),
+                           "could not echo game probe during asset transfer");
+            probe_echoed = true;
+        }
+        for (size_t i = 0; i < DRIVER_ASSET_STREAMS; i++) {
+            if (streams[i] == NULL || sent[i] == DRIVER_ASSET_SIZE) {
+                continue;
+            }
+            memset(body, 'A' + (int)i, sizeof(body));
+            size_t amount = 0;
+            socket_stream_result_t result =
+                socket_stream_write(streams[i], body, sizeof(body), &amount);
+            if (result == SOCKET_STREAM_RESULT_ERROR || result == SOCKET_STREAM_RESULT_FINISHED) {
+                DRIVER_REQUIRE(i == 2, "completed asset stream failed");
+                socket_stream_destroy(streams[i]);
+                streams[i] = NULL;
+                cancelled = true;
+                continue;
+            }
+            sent[i] += amount;
+            if (sent[i] == DRIVER_ASSET_SIZE) {
+                DRIVER_REQUIRE(socket_stream_conclude(streams[i]), "could not conclude asset body");
+                socket_stream_destroy(streams[i]);
+                streams[i] = NULL;
+            }
+        }
+        socket_quic_service(connection, false, true);
+        driver_pause();
+    }
+    DRIVER_REQUIRE(sent[0] == DRIVER_ASSET_SIZE && sent[1] == DRIVER_ASSET_SIZE && cancelled &&
+                       probe_echoed,
+                   "asset streams and game probe did not complete independently");
+
+    char done[4] = {0};
+    bool ok = driver_read_all(connection, done, sizeof(done)) &&
+              memcmp(done, "done", sizeof(done)) == 0 &&
+              driver_write_all(connection, done, sizeof(done));
+    if (ok) {
+        printf("STREAMS server fairness cancellation\n");
+        fflush(stdout);
+    }
+    socket_destroy(connection);
+    socket_destroy(listener);
+    return ok;
+}
+
+static bool driver_streams_client(const char *host, uint16_t port, const char *fingerprint) {
+    socket_t *connection = socket_quic_client_create(host,
+                                                     port,
+                                                     fingerprint,
+                                                     NULL,
+                                                     NULL,
+                                                     SOCKET_CONNECTION_PREFERENCE_AUTO);
+    DRIVER_REQUIRE(connection != NULL, "multi-stream QUIC connection failed");
+    socket_stream_t *streams[DRIVER_ASSET_STREAMS] = {0};
+    for (size_t i = 0; i < DRIVER_ASSET_STREAMS; i++) {
+        streams[i] = socket_stream_open(connection, SOCKET_STREAM_ASSET);
+        DRIVER_REQUIRE(streams[i] != NULL, "could not open bounded asset stream");
+        uint8_t id = (uint8_t)i;
+        DRIVER_REQUIRE(driver_stream_write_all(streams[i], &id, sizeof(id)) &&
+                           socket_stream_conclude(streams[i]),
+                       "could not send one-request asset stream");
+    }
+
+    DRIVER_REQUIRE(driver_write_all(connection, "start", 5), "could not start the asset transfer");
+
+    size_t received[2] = {0};
+    bool finished[2] = {0};
+    uint64_t latency = UINT64_MAX;
+    uint8_t body[DRIVER_ASSET_QUANTUM];
+    while (!finished[0] || !finished[1]) {
+        for (size_t i = 0; i < 2; i++) {
+            if (finished[i]) {
+                continue;
+            }
+            size_t amount = 0;
+            socket_stream_result_t result =
+                socket_stream_read(streams[i], body, sizeof(body), &amount);
+            DRIVER_REQUIRE(result != SOCKET_STREAM_RESULT_ERROR, "asset stream failed");
+            for (size_t j = 0; j < amount; j++) {
+                DRIVER_REQUIRE(body[j] == 'A' + (int)i, "asset stream bytes crossed streams");
+            }
+            received[i] += amount;
+            if (result == SOCKET_STREAM_RESULT_FINISHED) {
+                DRIVER_REQUIRE(received[i] == DRIVER_ASSET_SIZE, "asset stream ended early");
+                socket_stream_destroy(streams[i]);
+                streams[i] = NULL;
+                finished[i] = true;
+            }
+        }
+        if (streams[2] != NULL) {
+            size_t amount = 0;
+            socket_stream_result_t result =
+                socket_stream_read(streams[2], body, sizeof(body), &amount);
+            DRIVER_REQUIRE(result != SOCKET_STREAM_RESULT_ERROR, "asset reset raced before data");
+            if (amount != 0) {
+                socket_stream_reset(streams[2], 42);
+                socket_stream_destroy(streams[2]);
+                streams[2] = NULL;
+            }
+        }
+        if (latency == UINT64_MAX && received[0] != 0 && received[1] != 0) {
+            uint64_t started = datetime_monotonic_ms();
+            char echoed[4] = {0};
+            DRIVER_REQUIRE(driver_write_all(connection, "ping", sizeof(echoed)) &&
+                               driver_read_all(connection, echoed, sizeof(echoed)) &&
+                               memcmp(echoed, "ping", sizeof(echoed)) == 0,
+                           "game probe was blocked by active asset bodies");
+            latency = datetime_monotonic_ms() - started;
+            DRIVER_REQUIRE(latency < 250,
+                           "game probe exceeded the active asset-load latency bound");
+        }
+        socket_quic_service(connection, false, false);
+        driver_pause();
+    }
+    DRIVER_REQUIRE(streams[2] == NULL && latency != UINT64_MAX,
+                   "active-body latency or asset cancellation was not exercised");
+
+    char done[4] = {0};
+    bool ok = driver_write_all(connection, "done", sizeof(done)) &&
+              driver_read_all(connection, done, sizeof(done)) &&
+              memcmp(done, "done", sizeof(done)) == 0;
+    if (ok) {
+        printf("STREAMS client latency_ms=%" PRIu64 " bytes=%u cancellation\n",
+               latency,
+               2U * DRIVER_ASSET_SIZE);
         fflush(stdout);
     }
     socket_destroy(connection);
@@ -417,6 +683,8 @@ static void driver_usage(const char *program) {
             "  %s fingerprint PORT IDENTITY\n"
             "  %s server PORT IDENTITY PAYLOAD\n"
             "  %s client HOST PORT FINGERPRINT PAYLOAD\n"
+            "  %s streams-server PORT IDENTITY\n"
+            "  %s streams-client HOST PORT FINGERPRINT\n"
             "  %s close-server PORT IDENTITY\n"
             "  %s wait-server PORT IDENTITY\n"
             "  %s close-client HOST PORT FINGERPRINT\n"
@@ -424,6 +692,8 @@ static void driver_usage(const char *program) {
             "  %s stun PORT IDENTITY ENDPOINT\n"
             "  %s punch PORT IDENTITY PORT IDENTITY\n"
             "  %s mapping\n",
+            program,
+            program,
             program,
             program,
             program,
@@ -452,6 +722,12 @@ int main(int argc, char **argv) {
     } else if (argc == 6 && strcmp(argv[1], "client") == 0 &&
                driver_parse_port(argv[3], &first_port)) {
         ok = driver_client(argv[2], first_port, argv[4], argv[5]);
+    } else if (argc == 4 && strcmp(argv[1], "streams-server") == 0 &&
+               driver_parse_port(argv[2], &first_port)) {
+        ok = driver_streams_server(first_port, argv[3]);
+    } else if (argc == 5 && strcmp(argv[1], "streams-client") == 0 &&
+               driver_parse_port(argv[3], &first_port)) {
+        ok = driver_streams_client(argv[2], first_port, argv[4]);
     } else if (argc == 4 && strcmp(argv[1], "close-server") == 0 &&
                driver_parse_port(argv[2], &first_port)) {
         ok = driver_disconnect_server(first_port, argv[3], true);

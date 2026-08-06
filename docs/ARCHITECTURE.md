@@ -42,6 +42,28 @@ runtime DLLs. The dependency policy and local build commands are documented in
 `INSTALL` and `client/README`; `client/CMakeLists.txt` is the authoritative
 dependency and packaging definition.
 
+## Legacy QUIC gameplay and asset transport
+
+`common/toolkit/socket_quic.c` owns the certificate-pinned OpenSSL QUIC
+connection and `common/toolkit/socket.c` owns explicit application-stream
+lifecycle. The `atrinik/2` ALPN disables OpenSSL's default stream. The client
+opens one typed bidirectional game stream; existing `socket_read()` and
+`socket_write()` target only that stream. Explicit asset stream helpers are
+used by `client/src/client/asset.c` and `server/src/socket/assets.c`. Each asset
+stream carries one request and one immutable response, so bulk bytes never
+enter the game stream or `server/src/socket/lowlevel.c`'s packet FIFO.
+
+The client's single transport thread owns the connection and every client
+stream. It drains game output/input before servicing at most three active asset
+streams in bounded round-robin quanta. The server game-loop networking path is
+the corresponding sole owner: it processes and flushes game traffic before
+accepting or advancing asset streams. Server asset states retain only a
+snapshot entry reference and cursor; `server/src/socket/assets.c` owns the
+allowlist, immutable 1 GiB snapshot, 128 MiB object ceiling, request abuse
+limit, and per-connection token bucket. `common/toolkit/socket_asset.c` owns
+the request and fixed response-header encoding. `doc/ADS/ADS-2` is the
+authoritative byte-level contract.
+
 ## Build images
 
 The Dockerfiles that produce Atrinik's Linux and Windows build images live in

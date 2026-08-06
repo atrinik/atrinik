@@ -23,16 +23,43 @@ START_TEST(test_socket_asset_request_round_trip) {
     uint8_t digest[ASSET_DIGEST_SIZE];
     memset(digest, 0x89, sizeof(digest));
     packet_struct *packet = packet_new(0, 0, 0);
-    socket_asset_request_append(packet, "client-maps/test.png", 0, 123456, digest, 0);
+    socket_asset_request_append(packet, "client-maps/test.png", 123456, digest, 0);
 
     socket_asset_request_t request;
     ck_assert(socket_asset_request_parse(packet->data, packet->len, 0, &request));
     ck_assert_str_eq(request.path, "client-maps/test.png");
-    ck_assert_uint_eq(request.offset, 0);
     ck_assert_uint_eq(request.cached_size, 123456);
     ck_assert_uint_eq(request.flags, 0);
     ck_assert_mem_eq(request.cached_digest, digest, sizeof(digest));
     packet_free(packet);
+}
+END_TEST
+
+START_TEST(test_socket_stream_preface_round_trip_and_malformed) {
+    uint8_t preface[SOCKET_STREAM_PREFACE_SIZE];
+    socket_stream_kind_t kind = SOCKET_STREAM_ASSET;
+    socket_stream_preface_encode(preface, SOCKET_STREAM_GAME);
+    ck_assert(socket_stream_preface_decode(preface, sizeof(preface), &kind));
+    ck_assert_int_eq(kind, SOCKET_STREAM_GAME);
+
+    for (size_t truncated = 0; truncated < sizeof(preface); truncated++) {
+        kind = SOCKET_STREAM_ASSET;
+        ck_assert(!socket_stream_preface_decode(preface, truncated, &kind));
+        ck_assert_int_eq(kind, SOCKET_STREAM_ASSET);
+    }
+
+    static const size_t malformed_offsets[] = {0, 4, 5, 6, 7};
+    for (size_t i = 0; i < arraysize(malformed_offsets); i++) {
+        socket_stream_preface_encode(preface, SOCKET_STREAM_GAME);
+        preface[malformed_offsets[i]] ^= 0xff;
+        kind = SOCKET_STREAM_ASSET;
+        ck_assert(!socket_stream_preface_decode(preface, sizeof(preface), &kind));
+        ck_assert_int_eq(kind, SOCKET_STREAM_ASSET);
+    }
+
+    socket_stream_preface_encode(preface, SOCKET_STREAM_ASSET);
+    ck_assert(socket_stream_preface_decode(preface, sizeof(preface), &kind));
+    ck_assert_int_eq(kind, SOCKET_STREAM_ASSET);
 }
 END_TEST
 
@@ -195,7 +222,7 @@ END_TEST
 START_TEST(test_socket_asset_request_rejects_malformed) {
     packet_struct *packet = packet_new(0, 0, 0);
     uint8_t digest[ASSET_DIGEST_SIZE] = {0};
-    socket_asset_request_append(packet, "data/listing.txt", 0, 0, digest, 0);
+    socket_asset_request_append(packet, "data/listing.txt", 0, digest, 0);
 
     socket_asset_request_t request;
     memset(&request, 0xa5, sizeof(request));
@@ -210,13 +237,13 @@ START_TEST(test_socket_asset_request_rejects_malformed) {
 
     packet = packet_new(0, 0, 0);
     digest[0] = 3;
-    socket_asset_request_append(packet, "data/listing.txt", 1, 2, digest, 0);
+    socket_asset_request_append(packet, "data/listing.txt", 2, digest, ASSET_REQUEST_METADATA);
     ck_assert(!socket_asset_request_parse(packet->data, packet->len, 0, &request));
     packet_free(packet);
 
     packet = packet_new(0, 0, 0);
     memset(digest, 0, sizeof(digest));
-    socket_asset_request_append(packet, "data/listing.txt", 0, 0, digest, ASSET_REQUEST_METADATA);
+    socket_asset_request_append(packet, "data/listing.txt", 0, digest, ASSET_REQUEST_METADATA);
     ck_assert(socket_asset_request_parse(packet->data, packet->len, 0, &request));
     ck_assert_uint_eq(request.flags, ASSET_REQUEST_METADATA);
     packet_free(packet);
@@ -228,41 +255,29 @@ START_TEST(test_socket_asset_response_round_trip) {
     uint8_t digest[ASSET_DIGEST_SIZE];
     memset(digest, 0x12, sizeof(digest));
     packet_struct *packet = packet_new(0, 0, 0);
-    socket_asset_response_append_ok(packet,
-                                    "client-maps/test.def",
-                                    sizeof(chunk),
-                                    0,
-                                    digest,
-                                    chunk,
-                                    sizeof(chunk));
+    socket_asset_response_append_ok(packet, sizeof(chunk), digest);
 
     socket_asset_response_t response;
     memset(&response, 0xa5, sizeof(response));
     const socket_asset_response_t unchanged_response = response;
-    size_t fixed_header_size = packet->len - sizeof(chunk);
-    for (size_t truncated = 0; truncated < fixed_header_size; truncated++) {
+    for (size_t truncated = 0; truncated < packet->len; truncated++) {
         ck_assert(!socket_asset_response_parse(packet->data, truncated, 0, &response));
         ck_assert_mem_eq(&response, &unchanged_response, sizeof(response));
     }
     ck_assert(socket_asset_response_parse(packet->data, packet->len, 0, &response));
     ck_assert_uint_eq(response.status, ASSET_STATUS_OK);
-    ck_assert_str_eq(response.path, "client-maps/test.def");
     ck_assert_uint_eq(response.total_size, sizeof(chunk));
-    ck_assert_uint_eq(response.offset, 0);
     ck_assert_mem_eq(response.digest, digest, sizeof(digest));
-    ck_assert_uint_eq(response.data_size, sizeof(chunk));
-    ck_assert_mem_eq(response.data, chunk, sizeof(chunk));
     packet_free(packet);
 
     packet = packet_new(0, 0, 0);
-    socket_asset_response_append_status(packet, ASSET_STATUS_NOT_MODIFIED, "client-maps/test.def");
+    socket_asset_response_append_status(packet, ASSET_STATUS_NOT_MODIFIED, sizeof(chunk), digest);
     ck_assert(socket_asset_response_parse(packet->data, packet->len, 0, &response));
     ck_assert_uint_eq(response.status, ASSET_STATUS_NOT_MODIFIED);
-    ck_assert_str_eq(response.path, "client-maps/test.def");
     packet_free(packet);
 
     packet = packet_new(0, 0, 0);
-    socket_asset_response_append_metadata(packet, "client-maps/test.def", sizeof(chunk), digest);
+    socket_asset_response_append_metadata(packet, sizeof(chunk), digest);
     ck_assert(socket_asset_response_parse(packet->data, packet->len, 0, &response));
     ck_assert_uint_eq(response.status, ASSET_STATUS_METADATA);
     ck_assert_uint_eq(response.total_size, sizeof(chunk));
@@ -278,30 +293,24 @@ START_TEST(test_socket_asset_response_rejects_malformed) {
     ck_assert(!socket_asset_response_parse(unknown, sizeof(unknown), 0, &response));
 
     packet_struct *packet = packet_new(0, 0, 0);
-    socket_asset_response_append_status(packet, ASSET_STATUS_NOT_MODIFIED, "client-maps/test.png");
+    socket_asset_response_append_status(packet, ASSET_STATUS_NOT_MODIFIED, 0, digest);
     packet_writer_write_uint8(packet, 0);
     ck_assert(!socket_asset_response_parse(packet->data, packet->len, 0, &response));
     packet_free(packet);
 
     packet = packet_new(0, 0, 0);
-    socket_asset_response_append_ok(packet,
-                                    "client-maps/test.png",
-                                    3,
-                                    0,
-                                    digest,
-                                    (const uint8_t *)"four",
-                                    4);
+    socket_asset_response_append_ok(packet, ASSET_MAX_SIZE + 1U, digest);
     ck_assert(!socket_asset_response_parse(packet->data, packet->len, 0, &response));
     packet_free(packet);
 
     packet = packet_new(0, 0, 0);
-    socket_asset_response_append_ok(packet,
-                                    "client-maps/test.png",
-                                    4,
-                                    5,
-                                    digest,
-                                    (const uint8_t *)"one",
-                                    3);
+    socket_asset_response_append_status(packet, ASSET_STATUS_NOT_FOUND, 1, digest);
+    ck_assert(!socket_asset_response_parse(packet->data, packet->len, 0, &response));
+    packet_free(packet);
+
+    packet = packet_new(0, 0, 0);
+    digest[0] = 1;
+    socket_asset_response_append_status(packet, ASSET_STATUS_NOT_FOUND, 0, digest);
     ck_assert(!socket_asset_response_parse(packet->data, packet->len, 0, &response));
     packet_free(packet);
 }
@@ -315,6 +324,7 @@ static Suite *suite(void) {
     tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_socket_asset_request_round_trip);
+    tcase_add_test(tc_core, test_socket_stream_preface_round_trip_and_malformed);
     tcase_add_test(tc_core, test_socket_asset_request_rejects_malformed);
     tcase_add_test(tc_core, test_socket_asset_response_round_trip);
     tcase_add_test(tc_core, test_socket_asset_response_rejects_malformed);

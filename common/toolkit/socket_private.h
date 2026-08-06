@@ -32,6 +32,19 @@
 
 #endif
 
+struct socket_stream {
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+    SSL *ssl;
+#endif
+    struct sock_struct *connection;
+    struct socket_stream *next;
+    socket_stream_kind_t kind;
+    uint8_t preface[SOCKET_STREAM_PREFACE_SIZE];
+    size_t preface_pos;
+    uint64_t created_ms;
+    bool local;
+};
+
 struct sock_struct {
     enum {
         SOCKET_TRANSPORT_TCP,
@@ -50,6 +63,9 @@ struct sock_struct {
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
     SSL_CTX *quic_ctx;
     SSL *quic;
+    socket_stream_t *game_stream;
+    socket_stream_t *pending_streams;
+    size_t pending_stream_count;
     uint64_t quic_event_deadline_ms;
 #endif
 

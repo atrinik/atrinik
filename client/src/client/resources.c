@@ -159,6 +159,7 @@ bool resources_is_ready(resource_t *resource) {
         goto error;
     }
 
+    uint64_t verify_started = SDL_GetTicksNS();
     unsigned char md[SHA512_DIGEST_LENGTH];
     if (SHA512(body, body_size, md) == NULL) {
         LOG(ERROR, "SHA512() failed");
@@ -169,9 +170,15 @@ bool resources_is_ready(resource_t *resource) {
         LOG(ERROR, "!!! SHA512 digests do not match for resource %s !!!", resource->name);
         goto error;
     }
+    LOG(DEBUG,
+        "Verified resource %s (%" PRIu64 " bytes) in %.3f ms",
+        resource->name,
+        (uint64_t)body_size,
+        (double)(SDL_GetTicksNS() - verify_started) / 1000000.0);
 
     char *path = path_join("resources", resource->digest);
     char *resolved = file_path(path, "wb");
+    uint64_t write_started = SDL_GetTicksNS();
     bool saved = path_write_atomic(resolved, body, body_size, 0600);
     free(resolved);
     if (!saved) {
@@ -179,6 +186,10 @@ bool resources_is_ready(resource_t *resource) {
         free(path);
         goto error;
     }
+    LOG(DEBUG,
+        "Wrote resource cache %s in %.3f ms",
+        resource->name,
+        (double)(SDL_GetTicksNS() - write_started) / 1000000.0);
     free(path);
     resource->loaded = true;
 

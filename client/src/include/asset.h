@@ -31,7 +31,7 @@ asset_request_t *asset_request_start_cached(const char *path, const char *cache_
 
 asset_request_t *asset_request_start_metadata(const char *path);
 
-asset_request_state_t asset_request_get_state(const asset_request_t *request);
+asset_request_state_t asset_request_get_state(asset_request_t *request);
 
 const uint8_t *asset_request_get_data(const asset_request_t *request, size_t *size);
 
@@ -41,6 +41,10 @@ bool asset_request_get_metadata(const asset_request_t *request,
 
 void asset_request_free(asset_request_t *request);
 
-void socket_command_asset(uint8_t *data, size_t len, size_t pos);
+bool asset_requests_service(socket_t *sc, bool *write_pending);
+
+void asset_requests_disconnect(void);
+
+void asset_requests_deinit(void);
 
 #endif

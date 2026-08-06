@@ -40,6 +40,8 @@
 /** Maximum buffered player-command bytes retained by one connection. */
 #define SOCKET_COMMAND_QUEUE_MAX (1024U * 1024U)
 
+typedef struct asset_stream_state asset_stream_state_t;
+
 /** How many items to show in the below window. Used in esrv_draw_look(). */
 #define NUM_LOOK_OBJECTS 15
 
@@ -180,10 +182,15 @@ typedef struct socket_struct {
     /** Whether the configured server join password was accepted. */
     bool join_authenticated;
 
-    /** One-second in-band asset transfer budget. */
-    uint64_t asset_window_ms;
-    size_t asset_window_bytes;
+    /** Abuse-rate window and paced in-band asset response token bucket. */
+    uint64_t asset_request_window_ms;
     unsigned int asset_window_requests;
+    uint64_t asset_token_updated_ms;
+    size_t asset_tokens;
+
+    /** Active explicit asset streams, serviced round-robin after gameplay. */
+    asset_stream_state_t *asset_streams;
+    size_t asset_stream_count;
 
     /** Transport route selected for this connection. */
     socket_connection_mode_t connection_mode;

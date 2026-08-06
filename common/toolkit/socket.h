@@ -226,7 +226,41 @@ typedef enum socket_connection_preference {
     SOCKET_CONNECTION_PREFERENCE_NUM
 } socket_connection_preference_t;
 
-/** Asset chunk was returned successfully. */
+/** QUIC application-stream contract version carried by every stream preface. */
+#define SOCKET_STREAM_PROTOCOL_VERSION 1
+/** Fixed typed-stream preface size. */
+#define SOCKET_STREAM_PREFACE_SIZE 8U
+/** Reset codes used by the typed-stream protocol. */
+#define SOCKET_STREAM_ERROR_PREFACE 1U
+#define SOCKET_STREAM_ERROR_CANCELLED 2U
+#define SOCKET_STREAM_ERROR_CLIENT_PROTOCOL 3U
+#define SOCKET_STREAM_ERROR_LIMIT 4U
+#define SOCKET_STREAM_ERROR_SERVER_PROTOCOL 5U
+/** Maximum simultaneous in-band asset streams opened by one client. */
+#define ASSET_STREAM_ACTIVE_MAX 3U
+/** Maximum queued in-band asset requests retained by one client connection. */
+#define ASSET_REQUEST_PENDING_MAX 64U
+/** Per-stream bytes serviced before yielding to another asset stream. */
+#define ASSET_STREAM_QUANTUM (16U * 1024U)
+
+/** Explicit role of a QUIC application stream. */
+typedef enum socket_stream_kind {
+    SOCKET_STREAM_UNKNOWN = 0,
+    SOCKET_STREAM_GAME = 1,
+    SOCKET_STREAM_ASSET = 2,
+} socket_stream_kind_t;
+
+/** Result of one nonblocking explicit-stream operation. */
+typedef enum socket_stream_result {
+    SOCKET_STREAM_RESULT_OK,
+    SOCKET_STREAM_RESULT_WOULD_BLOCK,
+    SOCKET_STREAM_RESULT_FINISHED,
+    SOCKET_STREAM_RESULT_ERROR,
+} socket_stream_result_t;
+
+typedef struct socket_stream socket_stream_t;
+
+/** Asset body was returned successfully. */
 #define ASSET_STATUS_OK 0
 /** The requested asset does not exist or cannot be served. */
 #define ASSET_STATUS_NOT_FOUND 1
@@ -238,17 +272,16 @@ typedef enum socket_connection_preference {
 #define ASSET_STATUS_METADATA_NOT_FOUND 4
 /** Request only authenticated size and digest metadata. */
 #define ASSET_REQUEST_METADATA 0x01
-/** Maximum payload in one asset response packet. */
-#define ASSET_CHUNK_SIZE 60000
 /** Maximum complete asset size accepted by the client. */
 #define ASSET_MAX_SIZE (128U * 1024U * 1024U)
 /** SHA-256 digest size used by the asset cache protocol. */
 #define ASSET_DIGEST_SIZE 32
+/** Fixed response header: status, total size, and SHA-256 digest. */
+#define SOCKET_ASSET_RESPONSE_HEADER_SIZE (1U + 4U + ASSET_DIGEST_SIZE)
 
 /** Decoded client-to-server asset request. */
 typedef struct socket_asset_request {
     char path[MAX_BUF];
-    uint32_t offset;
     uint32_t cached_size;
     uint8_t cached_digest[ASSET_DIGEST_SIZE];
     uint8_t flags;
@@ -257,12 +290,8 @@ typedef struct socket_asset_request {
 /** Decoded server-to-client asset response. */
 typedef struct socket_asset_response {
     uint8_t status;
-    char path[MAX_BUF];
     uint32_t total_size;
-    uint32_t offset;
     uint8_t digest[ASSET_DIGEST_SIZE];
-    const uint8_t *data;
-    size_t data_size;
 } socket_asset_response_t;
 /*@}*/
 
@@ -930,7 +959,6 @@ TOOLKIT_FUNCS_DECLARE(socket);
 struct packet_struct;
 void socket_asset_request_append(struct packet_struct *packet,
                                  const char *path,
-                                 uint32_t offset,
                                  uint32_t cached_size,
                                  const uint8_t cached_digest[ASSET_DIGEST_SIZE],
                                  uint8_t flags);
@@ -940,16 +968,12 @@ bool socket_asset_request_parse(const uint8_t *data,
                                 socket_asset_request_t *request);
 void socket_asset_response_append_status(struct packet_struct *packet,
                                          uint8_t status,
-                                         const char *path);
+                                         uint32_t total_size,
+                                         const uint8_t digest[ASSET_DIGEST_SIZE]);
 void socket_asset_response_append_ok(struct packet_struct *packet,
-                                     const char *path,
                                      uint32_t total_size,
-                                     uint32_t offset,
-                                     const uint8_t digest[ASSET_DIGEST_SIZE],
-                                     const uint8_t *data,
-                                     size_t data_size);
+                                     const uint8_t digest[ASSET_DIGEST_SIZE]);
 void socket_asset_response_append_metadata(struct packet_struct *packet,
-                                           const char *path,
                                            uint32_t total_size,
                                            const uint8_t digest[ASSET_DIGEST_SIZE]);
 bool socket_asset_response_parse(const uint8_t *data,
@@ -1019,6 +1043,18 @@ bool socket_bind(socket_t *sc);
 socket_t *socket_accept(socket_t *sc);
 bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt);
 bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt);
+void socket_stream_preface_encode(uint8_t preface[SOCKET_STREAM_PREFACE_SIZE],
+                                  socket_stream_kind_t kind);
+bool socket_stream_preface_decode(const uint8_t *preface, size_t size, socket_stream_kind_t *kind);
+socket_stream_t *socket_stream_open(socket_t *sc, socket_stream_kind_t kind);
+socket_stream_t *socket_stream_accept(socket_t *sc, socket_stream_kind_t kind);
+socket_stream_result_t
+socket_stream_read(socket_stream_t *stream, void *buf, size_t len, size_t *amt);
+socket_stream_result_t
+socket_stream_write(socket_stream_t *stream, const void *buf, size_t len, size_t *amt);
+bool socket_stream_conclude(socket_stream_t *stream);
+void socket_stream_reset(socket_stream_t *stream, uint64_t error_code);
+void socket_stream_destroy(socket_stream_t *stream);
 bool socket_wait(socket_t *sc, bool readable, bool writable, unsigned int timeout_ms);
 bool socket_quic_service(socket_t *sc, bool network_ready, bool app_write_pending);
 unsigned int socket_quic_timeout(socket_t *sc, unsigned int maximum_ms);
