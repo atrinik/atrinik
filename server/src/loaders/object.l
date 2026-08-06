@@ -412,6 +412,24 @@ lex_error = 0;
 ^hp{S}               op->stats.hp = IVAL;
 ^maxhp{S}            op->stats.maxhp = IVAL;
 ^sp{S}               op->stats.sp = IVAL;
+^spell_id{S}         {
+    int spell = spell_index_from_id(yval());
+    if (spell == SP_NO_SPELL) {
+        LOG(ERROR, "Unknown stable spell ID %s for object %s.", yval(), object_get_str(op));
+        lex_error = 1;
+    } else {
+        op->stats.sp = spell;
+    }
+}
+^skill_id{S}         {
+    int skill = skill_index_from_id(yval());
+    if (skill < 0) {
+        LOG(ERROR, "Unknown stable skill ID %s for object %s.", yval(), object_get_str(op));
+        lex_error = 1;
+    } else {
+        op->stats.sp = skill;
+    }
+}
 ^maxsp{S}            op->stats.maxsp = IVAL;
 ^exp{S}              op->stats.exp = atoll(yval());
 ^food{S}             op->stats.food = IVAL;
@@ -1215,7 +1233,21 @@ get_ob_diff (StringBuffer *sb, const object *op, const object *op2)
     }
 
     if (op->stats.sp != op2->stats.sp) {
-        SAVE_INT(sb, "sp", op->stats.sp);
+        const char *stable_id = NULL;
+        const char *field_name = NULL;
+        if (op->type == SKILL) {
+            stable_id = skill_id_from_index(op->stats.sp);
+            field_name = "skill_id";
+        } else if (op->type == SPELL || OBJECT_IS_SPELL_TOOL(op)) {
+            stable_id = spell_id_from_index(op->stats.sp);
+            field_name = "spell_id";
+        }
+
+        if (stable_id != NULL) {
+            SAVE_STRING(sb, field_name, stable_id);
+        } else {
+            SAVE_INT(sb, "sp", op->stats.sp);
+        }
     }
 
     if (op->stats.maxsp != op2->stats.maxsp) {

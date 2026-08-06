@@ -36,6 +36,40 @@
 #include <player.h>
 #include <rune.h>
 
+/**
+ * Resolve a stable skill ID to its process-local table index.
+ *
+ * @param id Stable skill key.
+ * @return Skill index, or -1 when the ID is unknown.
+ */
+int skill_index_from_id(const char *id) {
+    if (id == NULL) {
+        return -1;
+    }
+
+    for (int i = 0; i < NROFSKILLS; i++) {
+        if (strcmp(skills[i].id, id) == 0) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+/**
+ * Get the stable ID for a process-local skill table index.
+ *
+ * @param skillnr Skill index.
+ * @return Stable skill ID, or NULL when the index is invalid.
+ */
+const char *skill_id_from_index(int skillnr) {
+    if (skillnr < 0 || skillnr >= NROFSKILLS) {
+        return NULL;
+    }
+
+    return skills[skillnr].id;
+}
+
 typedef enum trap_search_result {
     TRAP_SEARCH_NONE,
     TRAP_SEARCH_FOUND,

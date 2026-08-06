@@ -205,13 +205,9 @@ int64_t calc_skill_exp(object *who, object *op, int level) {
 void init_new_exp_system(void) {
     int i;
     archetype_t *at;
-    char buf[MAX_BUF];
 
     for (i = 0; i < NROFSKILLS; i++) {
-        snprintf(buf, sizeof(buf), "skill_%s", skills[i].name);
-        string_replace_char(buf, " ", '_');
-
-        at = arch_find(buf);
+        at = arch_find(skills[i].id);
 
         if (!at) {
             continue;

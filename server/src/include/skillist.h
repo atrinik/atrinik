@@ -60,14 +60,28 @@
  * file
  */
 skill_struct skills[NROFSKILLS] = {
-    {"alchemy", NULL, 10},       {"literacy", NULL, 0},         {"bargaining", NULL, 0},
-    {"construction", NULL, 0},   {"unarmed", NULL, 0},          {"karate", NULL, 0},
-    {"throwing", NULL, 1},       {"wizardry spells", NULL, 1},  {"magic devices", NULL, 4},
-    {"meditation", NULL, 0},     {"find traps", NULL, 0},       {"remove traps", NULL, 0},
-    {"bow archery", NULL, 0},    {"crossbow archery", NULL, 0}, {"sling archery", NULL, 0},
-    {"slash weapons", NULL, 0},  {"cleave weapons", NULL, 0},   {"pierce weapons", NULL, 0},
-    {"impact weapons", NULL, 0}, {"two-hand mastery", NULL, 0}, {"polearm mastery", NULL, 0},
-    {"inscription", NULL, 0},
+    {"skill_alchemy", "alchemy", NULL, 10},
+    {"skill_literacy", "literacy", NULL, 0},
+    {"skill_bargaining", "bargaining", NULL, 0},
+    {"skill_construction", "construction", NULL, 0},
+    {"skill_unarmed", "unarmed", NULL, 0},
+    {"skill_karate", "karate", NULL, 0},
+    {"skill_throwing", "throwing", NULL, 1},
+    {"skill_wizardry_spells", "wizardry spells", NULL, 1},
+    {"skill_magic_devices", "magic devices", NULL, 4},
+    {"skill_meditation", "meditation", NULL, 0},
+    {"skill_find_traps", "find traps", NULL, 0},
+    {"skill_remove_traps", "remove traps", NULL, 0},
+    {"skill_bow_archery", "bow archery", NULL, 0},
+    {"skill_crossbow_archery", "crossbow archery", NULL, 0},
+    {"skill_sling_archery", "sling archery", NULL, 0},
+    {"skill_slash_weapons", "slash weapons", NULL, 0},
+    {"skill_cleave_weapons", "cleave weapons", NULL, 0},
+    {"skill_pierce_weapons", "pierce weapons", NULL, 0},
+    {"skill_impact_weapons", "impact weapons", NULL, 0},
+    {"skill_two_hand_mastery", "two-hand mastery", NULL, 0},
+    {"skill_polearm_mastery", "polearm mastery", NULL, 0},
+    {"skill_inscription", "inscription", NULL, 0},
 };
 
 #endif

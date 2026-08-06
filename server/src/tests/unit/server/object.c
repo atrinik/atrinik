@@ -384,6 +384,41 @@ START_TEST(test_object_load_str) {
 }
 END_TEST
 
+START_TEST(test_object_stable_spell_and_skill_ids) {
+    ck_assert_int_eq(spell_index_from_id("spell_firestorm"), SP_FIRESTORM);
+    ck_assert_str_eq(spell_id_from_index(SP_FIRESTORM), "spell_firestorm");
+    ck_assert_int_eq(spell_index_from_id("unknown"), SP_NO_SPELL);
+    ck_assert_ptr_eq(spell_id_from_index(SP_NO_SPELL), NULL);
+
+    ck_assert_int_eq(skill_index_from_id("skill_literacy"), SK_LITERACY);
+    ck_assert_str_eq(skill_id_from_index(SK_LITERACY), "skill_literacy");
+    ck_assert_int_eq(skill_index_from_id("unknown"), -1);
+    ck_assert_ptr_eq(skill_id_from_index(-1), NULL);
+
+    object *ob = object_load_str("arch wand\nspell_id spell_firestorm\nend\n");
+    ck_assert_ptr_ne(ob, NULL);
+    ck_assert_int_eq(ob->stats.sp, SP_FIRESTORM);
+    StringBuffer *sb = stringbuffer_new();
+    object_dump_rec(ob, sb);
+    char *dump = stringbuffer_finish(sb);
+    ck_assert_ptr_ne(strstr(dump, "spell_id spell_firestorm\n"), NULL);
+    ck_assert_ptr_eq(strstr(dump, "\nsp "), NULL);
+    free(dump);
+    object_destroy(ob);
+
+    ob = object_load_str("arch skill_literacy\nskill_id skill_throwing\nend\n");
+    ck_assert_ptr_ne(ob, NULL);
+    ck_assert_int_eq(ob->stats.sp, SK_THROWING);
+    sb = stringbuffer_new();
+    object_dump_rec(ob, sb);
+    dump = stringbuffer_finish(sb);
+    ck_assert_ptr_ne(strstr(dump, "skill_id skill_throwing\n"), NULL);
+    ck_assert_ptr_eq(strstr(dump, "\nsp "), NULL);
+    free(dump);
+    object_destroy(ob);
+}
+END_TEST
+
 START_TEST(test_object_reverse_inventory) {
     char *cp, *cp2;
     object *ob;
@@ -468,6 +503,7 @@ static Suite *suite(void) {
     tcase_add_test(tc_core, test_object_can_pick);
     tcase_add_test(tc_core, test_object_clone);
     tcase_add_test(tc_core, test_object_load_str);
+    tcase_add_test(tc_core, test_object_stable_spell_and_skill_ids);
     tcase_add_test(tc_core, test_object_reverse_inventory);
     tcase_add_test(tc_core, test_object_create_singularity);
     tcase_add_test(tc_core, test_OBJECT_DESTROYED);

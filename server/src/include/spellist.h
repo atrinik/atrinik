@@ -32,7 +32,8 @@
 
 /** Array of all the spells. */
 spell_struct spells[NROFREALSPELLS] = {
-    {"firestorm",
+    {"spell_firestorm",
+     "firestorm",
      5,
      8,
      3,
@@ -51,7 +52,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "firebreath",
      NULL},
 
-    {"icestorm",
+    {"spell_icestorm",
+     "icestorm",
      5,
      8,
      3,
@@ -70,7 +72,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "icestorm",
      NULL},
 
-    {"minor healing",
+    {"spell_minor_healing",
+     "minor healing",
      4,
      8,
      3,
@@ -89,7 +92,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_green",
      NULL},
 
-    {"cure poison",
+    {"spell_cure_poison",
+     "cure poison",
      5,
      8,
      3,
@@ -108,7 +112,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_purple",
      NULL},
 
-    {"cure disease",
+    {"spell_cure_disease",
+     "cure disease",
      5,
      8,
      3,
@@ -127,7 +132,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_purple",
      NULL},
 
-    {"strength self",
+    {"spell_strength_self",
+     "strength self",
      5,
      8,
      3,
@@ -146,7 +152,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_yellow",
      NULL},
 
-    {"identify",
+    {"spell_identify",
+     "identify",
      5,
      8,
      3,
@@ -165,7 +172,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_pink",
      NULL},
 
-    {"asteroid",
+    {"spell_asteroid",
+     "asteroid",
      5,
      32,
      2,
@@ -184,7 +192,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "asteroid",
      NULL},
 
-    {"frost nova",
+    {"spell_frost_nova",
+     "frost nova",
      5,
      42,
      2,
@@ -203,7 +212,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "asteroid",
      NULL},
 
-    {"remove curse",
+    {"spell_remove_curse",
+     "remove curse",
      5,
      8,
      3,
@@ -222,7 +232,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_blue",
      NULL},
 
-    {"remove damnation",
+    {"spell_remove_damnation",
+     "remove damnation",
      5,
      8,
      3,
@@ -241,7 +252,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_blue",
      NULL},
 
-    {"cause light wounds",
+    {"spell_cause_light_wounds",
+     "cause light wounds",
      4,
      8,
      3,
@@ -260,7 +272,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "cause_wounds",
      NULL},
 
-    {"confuse",
+    {"spell_confuse",
+     "confuse",
      5,
      8,
      3,
@@ -279,7 +292,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"magic bullet",
+    {"spell_magic_bullet",
+     "magic bullet",
      4,
      8,
      3,
@@ -298,7 +312,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "bullet",
      NULL},
 
-    {"summon golem",
+    {"spell_summon_golem",
+     "summon golem",
      5,
      8,
      3,
@@ -317,7 +332,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"remove depletion",
+    {"spell_remove_depletion",
+     "remove depletion",
      5,
      8,
      3,
@@ -336,7 +352,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_purple",
      NULL},
 
-    {"probe",
+    {"spell_probe",
+     "probe",
      2,
      8,
      3,
@@ -355,7 +372,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "probebullet",
      NULL},
 
-    {"town portal",
+    {"spell_town_portal",
+     "town portal",
      30,
      8,
      1,
@@ -374,7 +392,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "perm_magic_portal",
      NULL},
 
-    {"create food",
+    {"spell_create_food",
+     "create food",
      30,
      8,
      1,
@@ -393,7 +412,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"word of recall",
+    {"spell_word_of_recall",
+     "word of recall",
      5,
      24,
      1,
@@ -412,7 +432,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"recharge",
+    {"spell_recharge",
+     "recharge",
      50,
      100,
      2,
@@ -431,7 +452,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"greater healing",
+    {"spell_greater_healing",
+     "greater healing",
      6,
      8,
      3,
@@ -450,7 +472,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_green",
      NULL},
 
-    {"restoration",
+    {"spell_restoration",
+     "restoration",
      10,
      12,
      3,
@@ -469,7 +492,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_green",
      NULL},
 
-    {"protection from cold",
+    {"spell_protection_from_cold",
+     "protection from cold",
      22,
      100,
      2,
@@ -488,7 +512,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"protection from fire",
+    {"spell_protection_from_fire",
+     "protection from fire",
      22,
      100,
      2,
@@ -507,7 +532,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"protection from electricity",
+    {"spell_protection_from_electricity",
+     "protection from electricity",
      22,
      100,
      2,
@@ -526,7 +552,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"protection from poison",
+    {"spell_protection_from_poison",
+     "protection from poison",
      22,
      100,
      2,
@@ -545,7 +572,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"consecrate",
+    {"spell_consecrate",
+     "consecrate",
      10,
      70,
      2,
@@ -564,7 +592,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"finger of death",
+    {"spell_finger_of_death",
+     "finger of death",
      7,
      12,
      2,
@@ -583,7 +612,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "spellobject_finger_of_death",
      NULL},
 
-    {"cause cold",
+    {"spell_cause_cold",
+     "cause cold",
      10,
      50,
      2,
@@ -602,7 +632,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "disease_cold",
      NULL},
 
-    {"cause flu",
+    {"spell_cause_flu",
+     "cause flu",
      12,
      50,
      2,
@@ -621,7 +652,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "flu",
      NULL},
 
-    {"cause leprosy",
+    {"spell_cause_leprosy",
+     "cause leprosy",
      14,
      58,
      2,
@@ -640,7 +672,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "leprosy",
      NULL},
 
-    {"cause smallpox",
+    {"spell_cause_smallpox",
+     "cause smallpox",
      16,
      58,
      2,
@@ -659,7 +692,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "smallpox",
      NULL},
 
-    {"cause pneumonic plague",
+    {"spell_cause_pneumonic_plague",
+     "cause pneumonic plague",
      18,
      58,
      2,
@@ -678,7 +712,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "pneumonic_plague",
      NULL},
 
-    {"meteor",
+    {"spell_meteor",
+     "meteor",
      5,
      32,
      2,
@@ -697,7 +732,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meteor",
      NULL},
 
-    {"meteor swarm",
+    {"spell_meteor_swarm",
+     "meteor swarm",
      5,
      42,
      2,
@@ -716,7 +752,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meteor",
      NULL},
 
-    {"poison fog",
+    {"spell_poison_fog",
+     "poison fog",
      18,
      86,
      2,
@@ -735,7 +772,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"bullet swarm",
+    {"spell_bullet_swarm",
+     "bullet swarm",
      5,
      86,
      2,
@@ -754,7 +792,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "bullet",
      NULL},
 
-    {"bullet storm",
+    {"spell_bullet_storm",
+     "bullet storm",
      4,
      86,
      2,
@@ -773,7 +812,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "bullet",
      NULL},
 
-    {"destruction",
+    {"spell_destruction",
+     "destruction",
      20,
      20,
      0,
@@ -792,7 +832,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "spellobject_destruction",
      NULL},
 
-    {"create bomb",
+    {"spell_create_bomb",
+     "create bomb",
      10,
      30,
      2,
@@ -811,7 +852,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"cure confusion",
+    {"spell_cure_confusion",
+     "cure confusion",
      5,
      8,
      3,
@@ -830,7 +872,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_purple",
      NULL},
 
-    {"transform wealth",
+    {"spell_transform_wealth",
+     "transform wealth",
      18,
      40,
      2,
@@ -849,7 +892,8 @@ spell_struct spells[NROFREALSPELLS] = {
      NULL,
      NULL},
 
-    {"magic missile",
+    {"spell_magic_missile",
+     "magic missile",
      3,
      8,
      3,
@@ -868,7 +912,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "magic_missile",
      NULL},
 
-    {"rain of healing",
+    {"spell_rain_of_healing",
+     "rain of healing",
      6,
      18,
      0,
@@ -887,7 +932,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_green",
      NULL},
 
-    {"party heal",
+    {"spell_party_heal",
+     "party heal",
      6,
      16,
      0,
@@ -906,7 +952,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "meffect_green",
      NULL},
 
-    {"frostbolt",
+    {"spell_frostbolt",
+     "frostbolt",
      5,
      8,
      3,
@@ -925,7 +972,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "frostbolt",
      NULL},
 
-    {"firebolt",
+    {"spell_firebolt",
+     "firebolt",
      5,
      8,
      3,
@@ -944,7 +992,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "firebolt",
      NULL},
 
-    {"lightning",
+    {"spell_lightning",
+     "lightning",
      5,
      8,
      3,
@@ -963,7 +1012,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "lightning",
      NULL},
 
-    {"forked lightning",
+    {"spell_forked_lightning",
+     "forked lightning",
      5,
      8,
      3,
@@ -982,7 +1032,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "forked_lightning",
      NULL},
 
-    {"negative energy bolt",
+    {"spell_negative_energy_bolt",
+     "negative energy bolt",
      5,
      8,
      3,
@@ -1001,7 +1052,8 @@ spell_struct spells[NROFREALSPELLS] = {
      "negabolt",
      NULL},
 
-    {"holy word",
+    {"spell_holy_word",
+     "holy word",
      6,
      12,
      0,

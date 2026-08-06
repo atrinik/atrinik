@@ -114,6 +114,9 @@ struct archetype;
 
 /** Skill structure for the skills array. */
 typedef struct skill_struct {
+    /** Stable ID used at persistence and interchange boundaries. */
+    const char *id;
+
     /** How to describe it to the player */
     const char *name;
 
@@ -149,6 +152,10 @@ extern object *SK_skill(object *op);
 /** Public API implemented in src/server/skills.c. */
 
 extern skill_struct skills[NROFSKILLS];
+
+extern int skill_index_from_id(const char *id);
+
+extern const char *skill_id_from_index(int skillnr);
 
 extern void find_traps(object *pl);
 

@@ -128,6 +128,9 @@ struct archetype;
 
 /** Spell structure. */
 typedef struct spell_struct {
+    /** Stable ID used at persistence and interchange boundaries. */
+    const char *id;
+
     /** Name of this spell. */
     const char *name;
 
@@ -346,6 +349,10 @@ extern void init_spells(void);
 extern int insert_spell_effect(const char *archname, mapstruct *m, int x, int y);
 
 extern spell_struct *find_spell(int spelltype);
+
+extern int spell_index_from_id(const char *id);
+
+extern const char *spell_id_from_index(int spelltype);
 
 extern int cast_spell(object *op,
                       object *caster,
