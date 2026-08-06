@@ -7,7 +7,7 @@ endmsg
 width 48
 height 24
 difficulty 5
-darkness 4
+darkness 1
 region clearhaven
 end
 arch floor_grit3a
