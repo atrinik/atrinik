@@ -17,7 +17,7 @@ set(ATRINIK_SERVER_TEST_SUITES
     "toolkit.math|check_server_math|src/tests/unit/toolkit/math.c"
     "toolkit.memory|check_server_memory|src/tests/unit/toolkit/memory.c"
     "toolkit.packet|check_server_packet|src/tests/unit/toolkit/packet.c"
-    "toolkit.pbkdf2|check_server_pbkdf2|src/tests/unit/toolkit/pbkdf2.c"
+    "toolkit.password|check_server_password|src/tests/unit/toolkit/password.c"
     "toolkit.shstr|check_server_shstr|src/tests/unit/toolkit/shstr.c"
     "toolkit.socket_asset|check_server_socket_asset|src/tests/unit/toolkit/socket_asset.c"
     "toolkit.string|check_server_string|src/tests/unit/toolkit/string.c"

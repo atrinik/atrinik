@@ -33,7 +33,6 @@
 #include "curl.h"
 #include "path.h"
 #include "clioptions.h"
-#include "sha1.h"
 
 #include <curl/curl.h>
 #include <openssl/ssl.h>
@@ -1026,16 +1025,27 @@ static bool curl_verify_cert_chain(curl_request_t *request) {
         return false;
     }
 
-    unsigned char sha1_output[20];
-    sha1((unsigned char *)request->cert_cn, strlen(request->cert_cn), sha1_output);
+    unsigned char digest[EVP_MAX_MD_SIZE];
+    unsigned int digest_size;
+    if (EVP_Digest(request->cert_cn,
+                   strlen(request->cert_cn),
+                   digest,
+                   &digest_size,
+                   EVP_sha256(),
+                   NULL) != 1 ||
+        digest_size != 32) {
+        LOG(ERROR, "Failed to compute certificate cache key for URL: %s", request->url);
+        return false;
+    }
 
-    char sha1_output_ascii[sizeof(sha1_output) * 2 + 1];
-    for (size_t i = 0; i < sizeof(sha1_output); i++) {
-        sprintf(sha1_output_ascii + i * 2, "%02x", sha1_output[i]);
+    char digest_ascii[32 * 2 + 1];
+    if (string_tohex(digest, digest_size, digest_ascii, sizeof(digest_ascii), false) !=
+        sizeof(digest_ascii) - 1) {
+        return false;
     }
 
     char path[HUGE_BUF];
-    snprintf(VS(path), "%s/certchains/%s", curl_data_dir, sha1_output_ascii);
+    snprintf(VS(path), "%s/certchains/%s", curl_data_dir, digest_ascii);
 
     pthread_mutex_lock(&certchains_mutex);
     FILE *fp = path_fopen(path, "rb");

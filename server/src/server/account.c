@@ -36,19 +36,27 @@
 #include <player.h>
 #include <toolkit/path.h>
 #include <toolkit/datetime.h>
-#include <toolkit/pbkdf2.h>
+#include <toolkit/password.h>
 
-#include <openssl/err.h>
-#include <openssl/rand.h>
+#include <openssl/crypto.h>
 
 #define ACCOUNT_CHARACTERS_LIMIT 16
-#define ACCOUNT_PASSWORD_SIZE 32
-#define ACCOUNT_PASSWORD_ITERATIONS 4096
+#define ACCOUNT_LEGACY_PASSWORD_SIZE 32
+#define ACCOUNT_AUTH_WORK_LIMIT 128
+#define ACCOUNT_AUTH_WORK_WINDOW 60
+
+static time_t account_auth_work_window;
+static unsigned int account_auth_work_count;
 
 typedef struct account_struct {
-    unsigned char password[ACCOUNT_PASSWORD_SIZE];
+    char password_record[PASSWORD_RECORD_SIZE];
 
-    unsigned char salt[ACCOUNT_PASSWORD_SIZE];
+    unsigned char legacy_password[ACCOUNT_LEGACY_PASSWORD_SIZE];
+
+    unsigned char legacy_salt[ACCOUNT_LEGACY_PASSWORD_SIZE];
+
+    bool has_legacy_pbkdf2;
+    bool has_legacy_salt;
 
     char *password_old;
 
@@ -69,9 +77,29 @@ typedef struct account_struct {
     size_t characters_num;
 } account_struct;
 
-void account_init(void) {}
+void account_init(void) {
+    account_auth_work_window = 0;
+    account_auth_work_count = 0;
+}
 
 void account_deinit(void) {}
+
+static bool account_auth_work_allowed(void) {
+    time_t now = datetime_getutc();
+
+    if (now < account_auth_work_window ||
+        now - account_auth_work_window >= ACCOUNT_AUTH_WORK_WINDOW) {
+        account_auth_work_window = now;
+        account_auth_work_count = 0;
+    }
+
+    if (account_auth_work_count >= ACCOUNT_AUTH_WORK_LIMIT) {
+        return false;
+    }
+
+    account_auth_work_count++;
+    return true;
+}
 
 static void account_free(account_struct *account) {
     size_t i;
@@ -86,6 +114,9 @@ static void account_free(account_struct *account) {
     }
 
     free(account->characters);
+    OPENSSL_cleanse(account->password_record, sizeof(account->password_record));
+    OPENSSL_cleanse(account->legacy_password, sizeof(account->legacy_password));
+    OPENSSL_cleanse(account->legacy_salt, sizeof(account->legacy_salt));
 }
 
 static char *account_old_crypt(char *str, const char *salt) {
@@ -97,77 +128,72 @@ static char *account_old_crypt(char *str, const char *salt) {
 }
 
 static bool account_set_password(account_struct *account, const char *password) {
-    if (RAND_bytes(account->salt, sizeof(account->salt)) != 1) {
-        LOG(ERROR,
-            "RAND_bytes() failed while generating an account password salt: %s",
-            ERR_error_string(ERR_get_error(), NULL));
+    if (!password_record_create(password, account->password_record)) {
+        LOG(ERROR, "Failed to create Argon2id account password record");
         return false;
     }
 
-    PKCS5_PBKDF2_HMAC_SHA2((const unsigned char *)password,
-                           strlen(password),
-                           account->salt,
-                           ACCOUNT_PASSWORD_SIZE,
-                           ACCOUNT_PASSWORD_ITERATIONS,
-                           ACCOUNT_PASSWORD_SIZE,
-                           account->password);
+    OPENSSL_cleanse(account->legacy_password, sizeof(account->legacy_password));
+    OPENSSL_cleanse(account->legacy_salt, sizeof(account->legacy_salt));
+    account->has_legacy_pbkdf2 = false;
+    account->has_legacy_salt = false;
+    free(account->password_old);
+    account->password_old = NULL;
     return true;
 }
 
-static int account_check_password(account_struct *account, char *password) {
-    unsigned char output[ACCOUNT_PASSWORD_SIZE];
-
+static password_verify_result_t account_check_password(account_struct *account,
+                                                       const char *password) {
     if (account->password_old) {
-        return strcmp(account_old_crypt(password, account->password_old), account->password_old) ==
-               0;
+        const char *calculated = account_old_crypt((char *)password, account->password_old);
+        size_t expected_length = strlen(account->password_old);
+        return calculated != NULL && strlen(calculated) == expected_length &&
+                       CRYPTO_memcmp(calculated, account->password_old, expected_length) == 0
+                   ? PASSWORD_VERIFY_MATCH
+                   : PASSWORD_VERIFY_MISMATCH;
     }
 
-    PKCS5_PBKDF2_HMAC_SHA2((const unsigned char *)password,
-                           strlen(password),
-                           account->salt,
-                           ACCOUNT_PASSWORD_SIZE,
-                           ACCOUNT_PASSWORD_ITERATIONS,
-                           ACCOUNT_PASSWORD_SIZE,
-                           output);
+    if (account->has_legacy_pbkdf2 && account->has_legacy_salt) {
+        return password_legacy_pbkdf2_verify(password,
+                                             account->legacy_salt,
+                                             account->legacy_password);
+    }
 
-    return memcmp(account->password, output, sizeof(output)) == 0;
+    return password_record_verify(password, account->password_record);
 }
 
 static int account_save(account_struct *account, const char *path) {
-    FILE *fp;
-    char hex[ACCOUNT_PASSWORD_SIZE * 2 + 1];
+    StringBuffer *buffer;
+    char *contents;
     size_t i;
 
-    fp = fopen(path, "w");
-
-    if (!fp) {
-        LOG(BUG, "Could not open %s for writing.", path);
+    if (!password_record_is_valid(account->password_record)) {
+        LOG(BUG, "Refusing to save account with an invalid password record: %s", path);
         return 0;
     }
 
-    if (string_tohex(account->password, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex), false) ==
-        sizeof(hex) - 1) {
-        fprintf(fp, "pswd %s\n", hex);
-    }
-
-    if (string_tohex(account->salt, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex), false) ==
-        sizeof(hex) - 1) {
-        fprintf(fp, "salt %s\n", hex);
-    }
-
-    fprintf(fp, "connection %s\n", account->last_connection_id);
-    fprintf(fp, "time %" PRIu64 "\n", (uint64_t)account->last_time);
+    buffer = stringbuffer_new();
+    stringbuffer_append_printf(buffer, "password %s\n", account->password_record);
+    stringbuffer_append_printf(buffer, "connection %s\n", account->last_connection_id);
+    stringbuffer_append_printf(buffer, "time %" PRIu64 "\n", (uint64_t)account->last_time);
 
     for (i = 0; i < account->characters_num; i++) {
-        fprintf(fp,
-                "char %s:%s:%s:%d\n",
-                account->characters[i].at->name,
-                account->characters[i].name,
-                account->characters[i].region_name,
-                account->characters[i].level);
+        stringbuffer_append_printf(buffer,
+                                   "char %s:%s:%s:%d\n",
+                                   account->characters[i].at->name,
+                                   account->characters[i].name,
+                                   account->characters[i].region_name,
+                                   account->characters[i].level);
     }
 
-    fclose(fp);
+    contents = stringbuffer_finish(buffer);
+    bool ok = path_write_atomic(path, contents, strlen(contents), 0600);
+    OPENSSL_cleanse(contents, strlen(contents));
+    free(contents);
+    if (!ok) {
+        LOG(BUG, "Could not atomically replace account file: %s", path);
+        return 0;
+    }
 
     return 1;
 }
@@ -175,6 +201,7 @@ static int account_save(account_struct *account, const char *path) {
 static int account_load(account_struct *account, const char *path) {
     FILE *fp;
     char buf[MAX_BUF], *end;
+    unsigned int credential_count = 0;
 
     fp = fopen(path, "rb");
 
@@ -193,23 +220,41 @@ static int account_load(account_struct *account, const char *path) {
             *end = '\0';
         }
 
-        if (strncmp(buf, "pswd ", 5) == 0) {
+        if (strncmp(buf, "password ", 9) == 0) {
+            credential_count++;
+            if (!password_record_is_valid(buf + 9)) {
+                LOG(BUG, "Invalid password record in file: %s", path);
+            } else {
+                snprintf(VS(account->password_record), "%s", buf + 9);
+            }
+        } else if (strncmp(buf, "pswd ", 5) == 0) {
             size_t len;
 
+            credential_count++;
             len = strlen(buf + 5);
 
             if (len == 13 || len == 40) {
                 account->password_old = xstrdup(buf + 5);
-            } else if (string_fromhex(buf + 5, len, account->password, ACCOUNT_PASSWORD_SIZE) !=
-                       ACCOUNT_PASSWORD_SIZE) {
+            } else if (string_fromhex(buf + 5,
+                                      len,
+                                      account->legacy_password,
+                                      ACCOUNT_LEGACY_PASSWORD_SIZE) !=
+                       ACCOUNT_LEGACY_PASSWORD_SIZE) {
                 LOG(BUG, "Invalid password entry in file: %s", path);
-                memset(account->password, 0, sizeof(account->password));
+                OPENSSL_cleanse(account->legacy_password, sizeof(account->legacy_password));
+            } else {
+                account->has_legacy_pbkdf2 = true;
             }
         } else if (strncmp(buf, "salt ", 5) == 0) {
-            if (string_fromhex(buf + 5, strlen(buf + 5), account->salt, ACCOUNT_PASSWORD_SIZE) !=
-                ACCOUNT_PASSWORD_SIZE) {
+            if (string_fromhex(buf + 5,
+                               strlen(buf + 5),
+                               account->legacy_salt,
+                               ACCOUNT_LEGACY_PASSWORD_SIZE) != ACCOUNT_LEGACY_PASSWORD_SIZE) {
                 LOG(BUG, "Invalid salt entry in file: %s", path);
-                memset(account->salt, 0, sizeof(account->salt));
+                OPENSSL_cleanse(account->legacy_salt, sizeof(account->legacy_salt));
+                account->has_legacy_salt = false;
+            } else {
+                account->has_legacy_salt = true;
             }
         } else if (strncmp(buf, "connection ", 11) == 0) {
             free(account->last_connection_id);
@@ -236,6 +281,14 @@ static int account_load(account_struct *account, const char *path) {
     }
 
     fclose(fp);
+
+    if (credential_count != 1 ||
+        (account->password_record[0] == '\0' && account->password_old == NULL &&
+         !(account->has_legacy_pbkdf2 && account->has_legacy_salt))) {
+        LOG(BUG, "Account file has no valid password record: %s", path);
+        account_free(account);
+        return 0;
+    }
 
     return 1;
 }
@@ -332,7 +385,20 @@ void account_login(socket_struct *ns, char *name, char *password) {
         return;
     }
 
-    if (!account_check_password(&account, password)) {
+    if (!account_auth_work_allowed()) {
+        draw_info_send(CHAT_TYPE_GAME,
+                       NULL,
+                       COLOR_RED,
+                       ns,
+                       "Authentication is temporarily busy; please retry shortly.");
+        account_send_characters(ns, NULL);
+        account_free(&account);
+        free(path);
+        return;
+    }
+
+    password_verify_result_t password_result = account_check_password(&account, password);
+    if (password_result != PASSWORD_VERIFY_MATCH) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid password.");
         account_send_characters(ns, NULL);
         account_free(&account);
@@ -360,7 +426,8 @@ void account_login(socket_struct *ns, char *name, char *password) {
         return;
     }
 
-    if (account.password_old && !account_set_password(&account, password)) {
+    if ((account.password_old || account.has_legacy_pbkdf2) &&
+        !account_set_password(&account, password)) {
         draw_info_send(CHAT_TYPE_GAME,
                        NULL,
                        COLOR_RED,
@@ -449,7 +516,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 
     path_ensure_directories(path);
 
-    if (!account_set_password(&account, password)) {
+    if (!account_auth_work_allowed() || !account_set_password(&account, password)) {
         draw_info_send(CHAT_TYPE_GAME,
                        NULL,
                        COLOR_RED,
@@ -698,7 +765,18 @@ void account_password_change(socket_struct *ns,
         return;
     }
 
-    if (!account_check_password(&account, password)) {
+    if (!account_auth_work_allowed()) {
+        draw_info_send(CHAT_TYPE_GAME,
+                       NULL,
+                       COLOR_RED,
+                       ns,
+                       "Authentication is temporarily busy; please retry shortly.");
+        account_free(&account);
+        free(path);
+        return;
+    }
+
+    if (account_check_password(&account, password) != PASSWORD_VERIFY_MATCH) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid password.");
         account_free(&account);
         free(path);
