@@ -70,8 +70,6 @@ enum {
 
 /* Prototypes */
 
-#ifndef __CPROTO__
-
 extern archetype_t *arch_table;
 extern archetype_t *arches[ARCH_MAX];
 extern bool arch_in_init;
@@ -83,7 +81,5 @@ archetype_t *arch_find(const char *name);
 object *arch_get(const char *name);
 object *arch_to_object(archetype_t *at);
 archetype_t *arch_clone(archetype_t *at);
-
-#endif
 
 #endif

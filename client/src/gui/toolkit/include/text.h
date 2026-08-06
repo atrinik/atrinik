@@ -351,4 +351,115 @@ typedef int (*text_anchor_handle_func)(const char *anchor_action,
                                        size_t len,
                                        void *custom_data);
 
+/** Public API implemented in src/gui/toolkit/text.c. */
+
+extern font_struct *font_get_weak(const char *name, uint8_t size);
+
+extern font_struct *font_get(const char *name, uint8_t size);
+
+extern font_struct *font_get_size(font_struct *font, int8_t size);
+
+extern void font_free(font_struct *font);
+
+extern void font_gc(void);
+
+extern void text_init(void);
+
+extern void text_deinit(void);
+
+extern void text_offset_set(int x, int y);
+
+extern void text_offset_reset(void);
+
+extern void text_color_set(int r, int g, int b);
+
+extern void text_set_selection(int64_t *start, int64_t *end, uint8_t *started);
+
+extern void text_set_anchor_handle(text_anchor_handle_func func);
+
+extern void text_set_anchor_info(void *ptr);
+
+extern char *text_strip_markup(char *buf, size_t *buf_len, uint8_t do_free);
+
+extern char *text_escape_markup(const char *buf);
+
+extern int text_color_parse(const char *color_notation, SDL_Color *color);
+
+extern void text_anchor_execute(text_info_struct *info, void *custom_data);
+
+extern void text_show_character_init(text_info_struct *info);
+
+extern int text_show_character(font_struct **font,
+                               font_struct *orig_font,
+                               SDL_Surface *surface,
+                               SDL_Rect *dest,
+                               const char *cp,
+                               SDL_Color *color,
+                               SDL_Color *orig_color,
+                               uint64_t flags,
+                               SDL_Rect *box,
+                               int *x_adjust,
+                               text_info_struct *info);
+
+extern int glyph_get_width(font_struct *font, char c);
+
+extern int glyph_get_height(font_struct *font, char c);
+
+extern void text_show(SDL_Surface *surface,
+                      font_struct *font,
+                      const char *text,
+                      int x,
+                      int y,
+                      const char *color_notation,
+                      uint64_t flags,
+                      SDL_Rect *box);
+
+extern void text_show_shadow(SDL_Surface *surface,
+                             font_struct *font,
+                             const char *text,
+                             int x,
+                             int y,
+                             const char *color_notation,
+                             const char *color_shadow_notation,
+                             uint64_t flags,
+                             SDL_Rect *box);
+
+extern void text_show_format(SDL_Surface *surface,
+                             font_struct *font,
+                             int x,
+                             int y,
+                             const char *color_notation,
+                             uint64_t flags,
+                             SDL_Rect *box,
+                             const char *format,
+                             ...) __attribute__((format(printf, 8, 9)));
+
+extern void text_show_shadow_format(SDL_Surface *surface,
+                                    font_struct *font,
+                                    int x,
+                                    int y,
+                                    const char *color_notation,
+                                    const char *color_shadow_notation,
+                                    uint64_t flags,
+                                    SDL_Rect *box,
+                                    const char *format,
+                                    ...) __attribute__((format(printf, 9, 10)));
+
+extern int text_get_width(font_struct *font, const char *text, uint64_t flags);
+
+extern int text_get_height(font_struct *font, const char *text, uint64_t flags);
+
+extern void text_get_width_height(font_struct *font,
+                                  const char *text,
+                                  uint64_t flags,
+                                  SDL_Rect *box,
+                                  uint16_t *w,
+                                  uint16_t *h);
+
+extern void text_truncate_overflow(font_struct *font, char *text, int max_width);
+
+extern void text_anchor_parse(text_info_struct *info, const char *text);
+
+extern void text_enable_debug(void);
+
 #endif

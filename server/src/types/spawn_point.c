@@ -30,6 +30,9 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <monster.h>
+#include <links.h>
 #include <monster_guard.h>
 #include <arch.h>
 #include <object.h>

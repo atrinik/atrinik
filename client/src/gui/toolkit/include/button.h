@@ -133,4 +133,22 @@ typedef struct button_struct {
     uint8_t redraw;
 } button_struct;
 
+/** Public API implemented in src/gui/toolkit/button.c. */
+
+extern void button_init(void);
+
+extern void button_create(button_struct *button);
+
+extern void button_destroy(button_struct *button);
+
+extern void button_set_parent(button_struct *button, int px, int py);
+
+extern void button_set_font(button_struct *button, font_struct *font);
+
+extern int button_need_redraw(button_struct *button);
+
+extern void button_show(button_struct *button, const char *text);
+
+extern int button_event(button_struct *button, SDL_Event *event);
+
 #endif

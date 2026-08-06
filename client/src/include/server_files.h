@@ -84,4 +84,38 @@ typedef struct server_files_struct {
     UT_hash_handle hh;
 } server_files_struct;
 
+/** Public API implemented in src/client/server_files.c. */
+
+extern void server_files_init(void);
+
+extern void server_files_deinit(void);
+
+extern void server_files_init_all(void);
+
+extern server_files_struct *server_files_create(const char *name);
+
+extern server_files_struct *server_files_find(const char *name);
+
+extern void server_files_load(int post_load);
+
+extern void server_files_listing_retrieve(void);
+
+extern int server_files_listing_processed(void);
+
+extern int server_files_processed(void);
+
+extern FILE *server_file_open(server_files_struct *tmp);
+
+extern FILE *server_file_open_name(const char *name);
+
+extern bool server_file_save(server_files_struct *tmp, unsigned char *data, size_t len);
+
+/** Public API implemented in src/client/updates.c. */
+
+extern void socket_command_file_update(uint8_t *data, size_t len, size_t pos);
+
+extern int file_updates_finished(void);
+
+extern void file_updates_parse(void);
+
 #endif

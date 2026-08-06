@@ -27,8 +27,6 @@
  * Fail-fast allocation helpers.
  */
 
-#ifndef __CPROTO__
-
 #include "memory.h"
 
 static void allocation_failure(void) {
@@ -132,5 +130,3 @@ char *xstrndup(const char *str, size_t max_length) {
 void xfree(void *ptr) {
     free(ptr);
 }
-
-#endif

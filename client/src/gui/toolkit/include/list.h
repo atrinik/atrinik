@@ -298,4 +298,51 @@ typedef struct list_struct {
 /** Double click delay in ticks. */
 #define DOUBLE_CLICK_DELAY 300
 
+/** Public API implemented in src/gui/toolkit/list.c. */
+
+extern void list_set_parent(list_struct *list, int px, int py);
+
+extern list_struct *list_create(uint32_t max_rows, uint32_t cols, int spacing);
+
+extern void list_add(list_struct *list, uint32_t row, uint32_t col, const char *str);
+
+extern void list_remove_row(list_struct *list, uint32_t row);
+
+extern void list_set_column(list_struct *list,
+                            uint32_t col,
+                            int width,
+                            int spacing,
+                            const char *name,
+                            int centered);
+
+extern void list_set_font(list_struct *list, font_struct *font);
+
+extern void list_scrollbar_enable(list_struct *list);
+
+extern int list_need_redraw(list_struct *list);
+
+extern void list_show(list_struct *list, int x, int y);
+
+extern void list_clear_rows(list_struct *list);
+
+extern void list_clear(list_struct *list);
+
+extern void list_offsets_ensure(list_struct *list);
+
+extern void list_remove(list_struct *list);
+
+extern void list_scroll(list_struct *list, int up, int scroll);
+
+extern int list_handle_keyboard(list_struct *list, SDL_Event *event);
+
+extern int list_handle_mouse(list_struct *list, SDL_Event *event);
+
+extern int list_mouse_get_pos(list_struct *list, int mx, int my, uint32_t *row, uint32_t *col);
+
+extern void list_sort(list_struct *list, int type);
+
+extern int list_set_selected(list_struct *list, const char *str, uint32_t col);
+
+extern const char *list_get_selected(list_struct *list, uint32_t col);
+
 #endif

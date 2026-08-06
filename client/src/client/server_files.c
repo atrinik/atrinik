@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <animations.h>
+#include <wrapper.h>
 #include <toolkit/string.h>
 #include <toolkit/path.h>
 #include <toolkit/curl.h>

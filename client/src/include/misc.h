@@ -32,4 +32,22 @@
 
 #define MAX_INPUT_STR 256
 
+/** Public API implemented in src/client/misc.c. */
+
+extern void browser_open(const char *url);
+
+extern char *package_get_version_full(char *dst, size_t dstlen);
+
+extern char *package_get_version_partial(char *dst, size_t dstlen);
+
+extern int bmp2png(const char *path);
+
+extern void screenshot_create(SDL_Surface *surface);
+
+/** Public API implemented in src/client/upgrader.c. */
+
+extern void upgrader_init(void);
+
+extern char *upgrader_get_version_partial(char *dst, size_t dstlen);
+
 #endif

@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <movement.h>
 #include <plugin.h>
 #include <arch.h>
 #include <player.h>

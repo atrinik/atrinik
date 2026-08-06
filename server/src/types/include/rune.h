@@ -43,4 +43,14 @@ int trap_skill_rating(object *pl, int skill_nr);
 int rune_generate_level(int difficulty);
 void rune_spring(object *op, object *victim);
 
+/** Public API implemented in src/server/rune.c. */
+
+extern int trap_see(object *op, object *trap, int level);
+
+extern int trap_show(object *trap, object *where);
+
+extern int trap_disarm(object *disarmer, object *trap);
+
+extern void trap_adjust(object *trap, int difficulty);
+
 #endif

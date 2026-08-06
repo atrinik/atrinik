@@ -29,8 +29,6 @@
 
 #include "porting.h"
 
-#ifndef __CPROTO__
-
 #ifndef HAVE_STRTOK_R
 
 /**
@@ -409,6 +407,4 @@ void _sincos(double x, double *s, double *c) {
         *c = cos(x);
     }
 }
-#endif
-
 #endif

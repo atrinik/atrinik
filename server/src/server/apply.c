@@ -28,6 +28,9 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
 #include <plugin.h>
 #include <object.h>
 #include <player.h>

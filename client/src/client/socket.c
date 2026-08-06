@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <metaserver.h>
+#include <client_socket.h>
 #include <toolkit/packet.h>
 #include <network_graph.h>
 
@@ -146,6 +148,12 @@ static command_buffer *command_buffer_dequeue(command_buffer **queue_start,
 void socket_send_packet(struct packet_struct *packet) {
     HARD_ASSERT(packet != NULL);
 
+    if (!packet_writer_finish(packet)) {
+        LOG(ERROR, "Refusing malformed outbound packet: %s", packet_error_string(packet->error));
+        packet_free(packet);
+        return;
+    }
+
     if (socket_mutex == NULL) {
         packet_free(packet);
         return;
@@ -159,8 +167,8 @@ void socket_send_packet(struct packet_struct *packet) {
     }
 
     packet_struct *packet_meta = packet_new(0, 4, 0);
-    packet_append_uint16(packet_meta, packet->len + 1);
-    packet_append_uint8(packet_meta, packet->type);
+    packet_writer_write_uint16(packet_meta, packet->len + 1);
+    packet_writer_write_uint8(packet_meta, packet->type);
 
     command_buffer *buf1 = command_buffer_new(packet_meta->len, packet_meta->data);
     packet_free(packet_meta);

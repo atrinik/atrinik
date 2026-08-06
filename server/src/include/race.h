@@ -71,4 +71,16 @@ typedef struct ob_race {
  */
 #define NROF_ITEM_RACES 13
 
+/** Public API implemented in src/server/race.c. */
+
+extern const char *item_races[13];
+
+extern ob_race *race_find(shstr *name);
+
+extern ob_race *race_get_random(void);
+
+extern void race_init(void);
+
+extern void race_free(void);
+
 #endif

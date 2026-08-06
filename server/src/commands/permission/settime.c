@@ -30,6 +30,9 @@
  */
 
 #include <global.h>
+#include <weather.h>
+#include <server_main.h>
+#include <server.h>
 
 /** @copydoc command_func */
 void command_settime(object *op, const char *command, char *params) {

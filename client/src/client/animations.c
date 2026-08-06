@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <animations.h>
 
 /**
  * Load animations.

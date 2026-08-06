@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <server_main.h>
 
 typedef struct {
     /* coordinates of room centers */

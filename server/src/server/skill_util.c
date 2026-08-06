@@ -31,6 +31,10 @@
 /* #define SKILL_UTIL_DEBUG */
 
 #include <global.h>
+#include <movement.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
 #include <toolkit/string.h>
 #include <plugin.h>
 #include <arch.h>

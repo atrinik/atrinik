@@ -29,9 +29,9 @@
  * @author Zoey Rose
  */
 
-#ifndef __CPROTO__
-
 #include <global.h>
+#include <server_main.h>
+#include <initialization.h>
 #include <faction.h>
 #include <toolkit/string.h>
 #include <player.h>
@@ -781,5 +781,3 @@ void faction_clear_bounty(faction_t faction, player *pl) {
 
     return _faction_clear_bounty(faction, pl);
 }
-
-#endif

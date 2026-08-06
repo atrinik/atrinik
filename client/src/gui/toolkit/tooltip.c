@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <sdl_gfx.h>
 
 /** Tooltip's text. */
 static char tooltip_text[HUGE_BUF * 4];

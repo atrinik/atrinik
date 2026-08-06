@@ -29,6 +29,9 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <movement.h>
+#include <monster.h>
 #include <arch.h>
 #include <object_methods.h>
 

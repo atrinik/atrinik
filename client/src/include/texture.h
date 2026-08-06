@@ -60,4 +60,24 @@ typedef struct texture_struct {
 #define TEXTURE_GC_CHANCE 500
 #define TEXTURE_GC_FREE_TIME 60 * 15
 
+/** Public API implemented in src/client/texture.c. */
+
+extern void texture_init(void);
+
+extern void texture_deinit(void);
+
+extern void texture_delete(texture_struct *texture);
+
+extern void texture_reload(void);
+
+extern void texture_gc(void);
+
+extern texture_struct *texture_get(texture_type_t type, const char *name);
+
+extern SDL_Surface *texture_surface(texture_struct *texture);
+
+/** Public API implemented in src/gui/widgets/texture.c. */
+
+extern void widget_texture_init(widgetdata *widget);
+
 #endif

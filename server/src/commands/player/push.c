@@ -30,6 +30,10 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <movement.h>
 #include <object.h>
 
 /** @copydoc command_func */

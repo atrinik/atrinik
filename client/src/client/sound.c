@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <toolkit/path.h>
@@ -757,21 +758,23 @@ uint32_t sound_music_get_duration() {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_sound(uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     uint8_t type;
     int loop, volume;
     char filename[MAX_BUF];
 
-    type = packet_to_uint8(data, len, &pos);
-    packet_to_string(data, len, &pos, filename, sizeof(filename));
-    loop = packet_to_int8(data, len, &pos);
-    volume = packet_to_int8(data, len, &pos);
+    type = packet_reader_read_uint8(&reader);
+    packet_reader_read_string(&reader, filename, sizeof(filename));
+    loop = packet_reader_read_int8(&reader);
+    volume = packet_reader_read_int8(&reader);
 
     if (type == CMD_SOUND_EFFECT) {
         int8_t x, y;
         int channel;
 
-        x = packet_to_uint8(data, len, &pos);
-        y = packet_to_uint8(data, len, &pos);
+        x = packet_reader_read_uint8(&reader);
+        y = packet_reader_read_uint8(&reader);
 
         const char *effect = filename;
         if (strcmp(filename, "player_hurt.ogg") == 0) {
@@ -912,16 +915,18 @@ void sound_ambient_clear(void) {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_sound_ambient(uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     int tag, tag_old;
     uint8_t x, y;
     sound_ambient_struct *sound_ambient;
 
     /* Loop through the data, as there may be multiple sound effects. */
     while (pos < len) {
-        x = packet_to_uint8(data, len, &pos);
-        y = packet_to_uint8(data, len, &pos);
-        tag_old = packet_to_uint32(data, len, &pos);
-        tag = packet_to_uint32(data, len, &pos);
+        x = packet_reader_read_uint8(&reader);
+        y = packet_reader_read_uint8(&reader);
+        tag_old = packet_reader_read_uint32(&reader);
+        tag = packet_reader_read_uint32(&reader);
 
         /* If there is an old tag, the server is telling us to stop
          * playing a sound effect. */
@@ -941,9 +946,9 @@ void socket_command_sound_ambient(uint8_t *data, size_t len, size_t pos) {
             int channel;
 
             /* Get the sound effect filename, volume, etc. */
-            packet_to_string(data, len, &pos, filename, sizeof(filename));
-            volume = packet_to_uint8(data, len, &pos);
-            max_range = packet_to_uint8(data, len, &pos);
+            packet_reader_read_string(&reader, filename, sizeof(filename));
+            volume = packet_reader_read_uint8(&reader);
+            max_range = packet_reader_read_uint8(&reader);
 
             /* Try to start playing the sound effect. */
             channel = sound_play_effect_loop(filename, volume, -1);

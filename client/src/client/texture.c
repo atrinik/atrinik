@@ -30,6 +30,9 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
+#include <video.h>
+#include <sdl_gfx.h>
 #include <toolkit/string.h>
 
 /**

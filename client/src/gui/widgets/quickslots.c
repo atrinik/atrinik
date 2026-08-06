@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <client_socket.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 
@@ -67,8 +68,8 @@ static void quickslots_set(widgetdata *widget, uint32_t row, uint32_t col, tag_t
     widget_quickslots_t *tmp = widget->subwidget;
 
     packet_struct *packet = packet_new(SERVER_CMD_QUICKSLOT, 32, 0);
-    packet_append_uint8(packet, (row * MAX_QUICK_SLOTS) + col + 1);
-    packet_append_uint32(packet, tag);
+    packet_writer_write_uint8(packet, (row * MAX_QUICK_SLOTS) + col + 1);
+    packet_writer_write_uint32(packet, tag);
     socket_send_packet(packet);
 
     free(tmp->list->text[row][col]);
@@ -389,11 +390,13 @@ void widget_quickslots_init(widgetdata *widget) {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_quickslots(uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     quickslots_init();
 
     while (pos < len) {
-        uint8_t slot = packet_to_uint8(data, len, &pos);
-        tag_t tag = packet_to_uint32(data, len, &pos);
+        uint8_t slot = packet_reader_read_uint8(&reader);
+        tag_t tag = packet_reader_read_uint32(&reader);
         char buf[MAX_BUF];
         snprintf(VS(buf), "%" PRIu32, tag);
 

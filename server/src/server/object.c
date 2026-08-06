@@ -28,6 +28,13 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <quest.h>
+#include <los.h>
+#include <light.h>
+#include <connection.h>
 #include <loader.h>
 #include <toolkit/string.h>
 #include <monster_data.h>

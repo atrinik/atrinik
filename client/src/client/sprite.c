@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
+#include <sdl_rotozoom.h>
 #include <toolkit/string.h>
 #include <toolkit/colorspace.h>
 

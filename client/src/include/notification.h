@@ -84,4 +84,14 @@ typedef struct notification_struct {
 #define NOTIFICATION_DEFAULT_FADEOUT (5 * 1000)
 /*@}*/
 
+/** Public API implemented in src/gui/widgets/notification.c. */
+
+extern void notification_destroy(void);
+
+extern int notification_keybind_check(const char *cmd);
+
+extern void socket_command_notification(uint8_t *data, size_t len, size_t pos);
+
+extern void widget_notification_init(widgetdata *widget);
+
 #endif

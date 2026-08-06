@@ -437,4 +437,193 @@ typedef struct widgetresize {
 
 #define WIDGET_BORDER_SIZE 1
 
+/** Public API implemented in src/gui/toolkit/range_buttons.c. */
+
+extern int range_buttons_show(int x, int y, int *val, int advance);
+
+/** Public API implemented in src/gui/toolkit/tooltip.c. */
+
+extern void tooltip_create(int mx, int my, font_struct *font, const char *text);
+
+extern void tooltip_enable_delay(uint32_t delay);
+
+extern void tooltip_multiline(int max_width);
+
+extern void tooltip_show(void);
+
+extern void tooltip_dismiss(void);
+
+extern int tooltip_need_redraw(void);
+
+/** Public API implemented in src/gui/toolkit/widget.c. */
+
+extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];
+
+extern widgetevent widget_mouse_event;
+
+extern int widget_id_from_name(const char *name);
+
+extern void toolkit_widget_init(void);
+
+extern void menu_container_move(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_container_detach(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_container_attach(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void
+menu_container_background_change(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_container_background(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void widget_menu_standard_items(widgetdata *widget, widgetdata *menu);
+
+extern widgetdata *create_widget_object(int widget_subtype_id);
+
+extern void remove_widget_object(widgetdata *widget);
+
+extern void remove_widget_object_intern(widgetdata *widget);
+
+extern void remove_widget_inv(widgetdata *widget);
+
+extern void kill_widgets(void);
+
+extern void widgets_reset(void);
+
+extern int widget_x(const widgetdata *widget);
+
+extern int widget_y(const widgetdata *widget);
+
+extern int widget_w(const widgetdata *widget);
+
+extern int widget_h(const widgetdata *widget);
+
+extern bool widget_set_zoom(widgetdata *widget, double zoom);
+
+extern void widgets_ensure_onscreen(void);
+
+extern void kill_widget_tree(widgetdata *widget);
+
+extern widgetdata *create_widget(int widget_id);
+
+extern void remove_widget(widgetdata *widget);
+
+extern void detach_widget(widgetdata *widget);
+
+extern void toolkit_widget_deinit(void);
+
+extern int widgets_event(SDL_Event *event);
+
+extern int widget_event_start_move(widgetdata *widget);
+
+extern int widget_event_move_stop(int x, int y);
+
+extern int widget_event_respond(int x, int y);
+
+extern widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end);
+
+extern widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *end);
+
+extern int widgets_need_redraw(void);
+
+extern void process_widgets(int draw);
+
+extern void SetPriorityWidget(widgetdata *node);
+
+extern void SetPriorityWidget_reverse(widgetdata *node);
+
+extern void
+insert_widget_in_container(widgetdata *widget_container, widgetdata *widget, int absolute);
+
+extern widgetdata *get_outermost_container(widgetdata *widget);
+
+extern widgetdata *get_innermost_container(widgetdata *widget);
+
+extern widgetdata *widget_find(widgetdata *where, int type, const char *id, SDL_Surface *surface);
+
+extern widgetdata *widget_find_create_id(int type, const char *id);
+
+extern void widget_switch_focus(int type, const char *id);
+
+extern void move_widget(widgetdata *widget, int x, int y);
+
+extern void move_widget_rec(widgetdata *widget, int x, int y);
+
+extern void resize_widget(widgetdata *widget, int side, int offset);
+
+extern void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height);
+
+extern widgetdata *add_label(const char *text, font_struct *font, const char *color);
+
+extern widgetdata *add_texture(const char *texture);
+
+extern widgetdata *create_menu(int x, int y, widgetdata *owner);
+
+extern void add_menuitem(widgetdata *menu,
+                         const char *text,
+                         void (*menu_func_ptr)(widgetdata *, widgetdata *, SDL_Event *event),
+                         int menu_type,
+                         int val);
+
+extern void add_separator(widgetdata *widget);
+
+extern void menu_finalize(widgetdata *widget);
+
+extern void widget_redraw_all(int widget_type_id);
+
+extern void widget_redraw_type_id(int type, const char *id);
+
+extern void widget_show(widgetdata *widget, int show);
+
+extern void widget_show_toggle_all(int type_id);
+
+extern void menu_move_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_remove_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_detach_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void
+menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void widget_render_enable_debug(void);
+
+/** Public API implemented in src/gui/widgets/buddy.c. */
+
+extern void widget_buddy_add(widgetdata *widget, const char *name, uint8_t sort);
+
+extern void widget_buddy_remove(widgetdata *widget, const char *name);
+
+extern ssize_t widget_buddy_check(widgetdata *widget, const char *name);
+
+extern void widget_buddy_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/container.c. */
+
+extern void widget_container_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/fps.c. */
+
+extern void widget_fps_init(widgetdata *widget);
+
+extern void widget_game_time_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/input.c. */
+
+extern void widget_input_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/label.c. */
+
+extern void widget_label_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/mapname.c. */
+
+extern void widget_mapname_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/mplayer.c. */
+
+extern void widget_mplayer_init(widgetdata *widget);
+
 #endif

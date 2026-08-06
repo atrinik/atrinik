@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
 
 /**
  * Client versions we know about. The process how these are checked is

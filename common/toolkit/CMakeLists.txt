@@ -196,6 +196,9 @@ set(TOOLKIT_SOURCES
 
 add_library(${ATRINIK_TOOLKIT} STATIC ${TOOLKIT_SOURCES})
 atrinik_configure_target(${ATRINIK_TOOLKIT})
+if (BUILD_FUZZING)
+    target_compile_options(${ATRINIK_TOOLKIT} PRIVATE -fsanitize=fuzzer-no-link)
+endif ()
 target_include_directories(${ATRINIK_TOOLKIT}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>

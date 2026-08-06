@@ -303,4 +303,48 @@ enum {
 #define IS_ENTER(_keysym) ((_keysym) == SDLK_RETURN || (_keysym) == SDLK_KP_ENTER)
 #define IS_NEXT(_keysym) ((_keysym) == SDLK_TAB || IS_ENTER((_keysym)))
 
+/** Public API implemented in src/client/main.c. */
+
+extern SDL_Surface *ScreenSurface;
+
+extern struct sockaddr_in insock;
+
+extern client_socket_t csocket;
+
+extern server_struct *selected_server;
+
+extern uint32_t LastTick;
+
+extern texture_struct *cursor_texture;
+
+extern int cursor_x;
+
+extern int cursor_y;
+
+extern int map_redraw_flag;
+
+extern int minimap_redraw_flag;
+
+extern _anim_table *anim_table;
+
+extern Animations *animations;
+
+extern size_t animations_num;
+
+extern struct screensize *Screensize;
+
+extern _face_struct FaceList[MAX_FACE_TILES];
+
+extern struct msg_anim_struct msg_anim;
+
+extern clioption_settings_struct clioption_settings;
+
+extern void keepalive_ping_stats(void);
+
+extern void socket_command_keepalive(uint8_t *data, size_t len, size_t pos);
+
+extern void list_vid_modes(void);
+
+extern void clioption_settings_deinit(void);
+
 #endif

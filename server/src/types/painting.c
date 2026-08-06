@@ -30,6 +30,9 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
 #include <object_methods.h>
 #include <object.h>
 #include <resources.h>
@@ -72,16 +75,16 @@ static int apply_func(object *op, object *applier, int aflags) {
     resources_send(resource, CONTR(applier)->cs);
 
     packet_struct *packet = packet_new(CLIENT_CMD_PAINTING, 256, 0);
-    packet_append_string_terminated(packet, op->slaying);
+    packet_writer_write_cstring(packet, op->slaying);
     char *name = object_get_base_name_s(op, applier);
-    packet_append_string_terminated(packet, name);
+    packet_writer_write_cstring(packet, name);
     free(name);
 
     if (op->msg != NULL) {
         if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-            packet_append_string_terminated(packet, op->msg);
+            packet_writer_write_cstring(packet, op->msg);
         } else {
-            packet_append_string_terminated(packet, painting_message_decipher);
+            packet_writer_write_cstring(packet, painting_message_decipher);
         }
     }
 

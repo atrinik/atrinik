@@ -55,6 +55,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <cache.h>
 #include <plugin.h>
 
 /** Array of the cached entries. */

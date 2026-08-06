@@ -28,6 +28,9 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <initialization.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <toolkit/path.h>
@@ -92,15 +95,15 @@ static void updates_file_new(const char *filename, struct stat *sb) {
 
     update_files[update_files_num].packet = packet_new(CLIENT_CMD_FILE_UPDATE, 0, 0);
     packet_debug_data(update_files[update_files_num].packet, 0, "Filename");
-    packet_append_string_terminated(update_files[update_files_num].packet,
-                                    update_files[update_files_num].filename);
+    packet_writer_write_cstring(update_files[update_files_num].packet,
+                                update_files[update_files_num].filename);
     packet_debug_data(update_files[update_files_num].packet, 0, "File size");
-    packet_append_uint32(update_files[update_files_num].packet,
-                         update_files[update_files_num].ucomp_len);
+    packet_writer_write_uint32(update_files[update_files_num].packet,
+                               update_files[update_files_num].ucomp_len);
     packet_debug_data(update_files[update_files_num].packet, 0, "File data");
-    packet_append_data_len(update_files[update_files_num].packet,
-                           update_files[update_files_num].contents,
-                           update_files[update_files_num].len);
+    packet_writer_write_bytes(update_files[update_files_num].packet,
+                              update_files[update_files_num].contents,
+                              update_files[update_files_num].len);
     update_files_num++;
 }
 
@@ -216,6 +219,8 @@ void socket_command_request_update(socket_struct *ns,
                                    uint8_t *data,
                                    size_t len,
                                    size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     char buf[MAX_BUF];
     update_file_struct *tmp;
 
@@ -224,7 +229,10 @@ void socket_command_request_update(socket_struct *ns,
     }
 
     /* Try to find the file. */
-    tmp = updates_file_find(packet_to_string(data, len, &pos, buf, sizeof(buf)));
+    if (!packet_reader_read_string(&reader, VS(buf)) || !packet_reader_finish(&reader)) {
+        return;
+    }
+    tmp = updates_file_find(buf);
 
     /* Invalid file. */
     if (!tmp) {

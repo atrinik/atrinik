@@ -5,7 +5,7 @@
 #include <global.h>
 #include <check.h>
 #include <checkstd.h>
-#include <check_proto.h>
+#include <check_utils.h>
 #include <arch.h>
 #include <disease.h>
 

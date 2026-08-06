@@ -31,6 +31,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <initialization.h>
 #include <http_server.h>
 #include <toolkit/process.h>
 #include <toolkit/curl.h>
@@ -52,7 +54,9 @@ static pthread_mutex_t request_lock;
 static void http_data_cb(process_t *process, uint8_t *data, size_t len) {
     char buf[HUGE_BUF * 4];
     size_t pos = 0;
-    while (packet_to_string(data, len, &pos, VS(buf)) != NULL) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
+    while (packet_reader_read_string(&reader, VS(buf))) {
         LOG(HTTP, "%s", buf);
     }
 }

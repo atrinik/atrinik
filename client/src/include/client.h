@@ -100,6 +100,7 @@ typedef struct client_socket {
 
 typedef struct socket_command_struct {
     void (*handle_func)(uint8_t *data, size_t len, size_t pos);
+    const char *name;
 } socket_command_struct;
 
 /**
@@ -139,5 +140,13 @@ typedef struct clioption_settings_struct {
 
     uint8_t reconnect;
 } clioption_settings_struct;
+
+/** Public API implemented in src/client/client.c. */
+
+extern Client_Player cpl;
+
+extern void DoClient(void);
+
+extern bool check_animation_status(int anum);
 
 #endif

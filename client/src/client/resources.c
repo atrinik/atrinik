@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
 #include <resources.h>
 #include <toolkit/string.h>
 #include <toolkit/path.h>
@@ -84,8 +85,10 @@ resource_t *resources_find(const char *name) {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_resource(uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     char resource_name[HUGE_BUF];
-    packet_to_string(data, len, &pos, VS(resource_name));
+    packet_reader_read_string(&reader, VS(resource_name));
     if (string_isempty(resource_name)) {
         LOG(PACKET, "Received empty resource name");
         return;

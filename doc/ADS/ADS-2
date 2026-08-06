@@ -1,5 +1,5 @@
 ===============================================================================
-= ADS-2, rev: 0.7: Atrinik Protocol Specification                             =
+= ADS-2, rev: 0.8: Atrinik Protocol Specification                             =
 ===============================================================================
  This document contains design specification for the Atrinik client<->server
  protocol. The following sections exist:
@@ -114,6 +114,26 @@
  by any data, in any format whatsoever, but still binary. See section 2. for
  the available server commands organized by command type, and section 3. for
  the available client commands.
+
+ A game-protocol envelope MUST NOT contain more than 65534 payload bytes. An
+ endpoint MUST reject an unknown command identifier, a truncated field, an
+ unterminated or over-limit string, an invalid count, arithmetic overflow, or
+ trailing bytes after the selected command has been decoded. A rejected packet
+ MUST NOT be interpreted as a shorter valid packet. Implementations SHOULD
+ retain an explicit error category for diagnostics and testing.
+
+ Every command decoder MUST consume its complete payload. Length and count
+ fields are unsigned network-order values and MUST be checked against both the
+ remaining payload and the command-specific semantic limit before allocation,
+ iteration, copying, or mutation of long-lived game state. String data is UTF-8
+ terminated by one NUL byte; the terminator MUST occur inside the envelope and
+ is not part of the decoded string. Borrowed byte/string views MUST remain
+ valid only while their enclosing packet storage remains alive.
+
+ The authoritative command identifier, handler, name, and player-only metadata
+ for the C client and server live in `common/toolkit/socket_commands.def`.
+ Protocol implementations and test fixtures MUST derive their numeric command
+ values from that registry rather than duplicating parallel tables.
 
  Left shifting is done to convert any integers of size more than 1 byte. Signed
  integers are converted to signed data type.

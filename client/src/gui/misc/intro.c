@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <metaserver.h>
+#include <connection_preferences.h>
 #include <toolkit/string.h>
 #include <toolkit/curl.h>
 

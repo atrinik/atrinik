@@ -50,6 +50,7 @@
  */
 
 #include <global.h>
+#include <server_main.h>
 
 static float random_pitch(rng_state_t *rng, int spaces_available) {
     int total = rng_range(rng, 0, spaces_available - 1);

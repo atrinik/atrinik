@@ -268,4 +268,111 @@ typedef struct Player_Struct {
     uint8_t combat_force;
 } Client_Player;
 
+/** Public API implemented in src/client/player.c. */
+
+extern const char *gender_noun[4];
+
+extern const char *gender_subjective[4];
+
+extern const char *gender_subjective_upper[4];
+
+extern const char *gender_objective[4];
+
+extern const char *gender_possessive[4];
+
+extern const char *gender_reflexive[4];
+
+extern void clear_player(void);
+
+extern void new_player(tag_t tag, long weight, uint16_t face);
+
+extern void client_send_apply(object *op);
+
+extern void client_send_examine(tag_t tag);
+
+extern void client_send_move(tag_t loc, tag_t tag, uint32_t nrof);
+
+extern void send_command(const char *command);
+
+extern void init_player_data(void);
+
+extern int gender_to_id(const char *gender);
+
+extern void telemetry_reset(void);
+
+extern void telemetry_exp_update(uint64_t exp);
+
+extern void telemetry_exp_tracker_reset(void);
+
+extern uint64_t telemetry_exp_gained(void);
+
+extern uint64_t telemetry_exp_per_hour(void);
+
+extern uint64_t telemetry_exp_elapsed_seconds(void);
+
+extern void telemetry_game_time_sync(uint64_t game_seconds, uint32_t millis_per_game_minute);
+
+extern bool telemetry_game_time_get(uint64_t *game_minutes, uint32_t *millis_per_game_minute);
+
+extern void player_draw_exp_progress(SDL_Surface *surface, int x, int y, int64_t xp, uint8_t level);
+
+/** Public API implemented in src/gui/widgets/playerdoll.c. */
+
+extern object *playerdoll_get_equipment(int i, int *xpos, int *ypos);
+
+extern void widget_playerdoll_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/playerinfo.c. */
+
+extern void widget_playerinfo_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/protections.c. */
+
+extern void widget_protections_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/skills.c. */
+
+extern void skills_init(void);
+
+extern void skills_deinit(void);
+
+extern int skill_find(const char *name, size_t *id);
+
+extern int skill_find_object(object *op, size_t *id);
+
+extern skill_entry_struct *skill_get(size_t id);
+
+extern void skills_update(object *op, uint8_t level, int64_t xp, const char *msg);
+
+extern void skills_remove(object *op);
+
+extern void widget_skills_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/spells.c. */
+
+extern void spells_init(void);
+
+extern void spells_deinit(void);
+
+extern int spell_find(const char *name, size_t *spell_path, size_t *spell_id);
+
+extern int spell_find_object(object *op, size_t *spell_path, size_t *spell_id);
+
+extern spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);
+
+extern void
+spells_update(object *op, uint16_t cost, uint32_t path, uint32_t flags, const char *msg);
+
+extern void spells_remove(object *op);
+
+extern void widget_spells_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/stat.c. */
+
+extern void widget_stat_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/target.c. */
+
+extern void widget_target_init(widgetdata *widget);
+
 #endif

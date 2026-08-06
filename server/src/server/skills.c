@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
 #include <book.h>
 #include <skillist.h>
 #include <object.h>

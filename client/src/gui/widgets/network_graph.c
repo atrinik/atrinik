@@ -30,10 +30,9 @@
  */
 
 #include <global.h>
+#include <sdl_gfx.h>
 #include <network_graph.h>
 #include <toolkit/string.h>
-
-#ifndef __CPROTO__
 
 /**
  * Holds network graph data about a particular data type.
@@ -466,5 +465,3 @@ void widget_network_graph_init(widgetdata *widget) {
     widget->menu_handle_func = widget_menu_handle;
     widget->subwidget = network_graph;
 }
-
-#endif

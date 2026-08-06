@@ -5,7 +5,7 @@
 #include <check.h>
 #include <global.h>
 #include <checkstd.h>
-#include <check_proto.h>
+#include <check_utils.h>
 #include <toolkit/password.h>
 
 START_TEST(test_password_known_answer) {

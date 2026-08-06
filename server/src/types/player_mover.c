@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <movement.h>
+#include <server_main.h>
 #include <object.h>
 #include <player.h>
 #include <object_methods.h>

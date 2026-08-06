@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <client_socket.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <toolkit/path.h>
@@ -292,7 +293,7 @@ void finish_face_cmd(int facenum, uint32_t checksum, const char *face) {
     }
 
     packet_struct *packet = packet_new(SERVER_CMD_ASK_FACE, 16, 0);
-    packet_append_uint16(packet, facenum);
+    packet_writer_write_uint16(packet, facenum);
     socket_send_packet(packet);
 }
 

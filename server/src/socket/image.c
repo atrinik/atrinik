@@ -28,6 +28,9 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <initialization.h>
 #include <loader.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
@@ -242,10 +245,12 @@ void read_client_images(void) {
 }
 
 void socket_command_ask_face(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     uint16_t facenum;
     packet_struct *packet;
 
-    facenum = packet_to_uint16(data, len, &pos);
+    facenum = packet_reader_read_uint16(&reader);
 
     if (facenum == 0 || facenum >= nrofpixmaps || facesets[0].faces[facenum].data == NULL) {
         return;
@@ -253,13 +258,13 @@ void socket_command_ask_face(socket_struct *ns, player *pl, uint8_t *data, size_
 
     packet = packet_new(CLIENT_CMD_IMAGE, 16, 0);
     packet_debug_data(packet, 0, "Face ID");
-    packet_append_uint32(packet, facenum);
+    packet_writer_write_uint32(packet, facenum);
     packet_debug_data(packet, 0, "Face size");
-    packet_append_uint32(packet, facesets[0].faces[facenum].datalen);
+    packet_writer_write_uint32(packet, facesets[0].faces[facenum].datalen);
     packet_debug_data(packet, 0, "Face data");
-    packet_append_data_len(packet,
-                           facesets[0].faces[facenum].data,
-                           facesets[0].faces[facenum].datalen);
+    packet_writer_write_bytes(packet,
+                              facesets[0].faces[facenum].data,
+                              facesets[0].faces[facenum].datalen);
     socket_send_packet(ns, packet);
 }
 

@@ -30,6 +30,9 @@
  */
 
 #include <plugin_python.h>
+#include <shop.h>
+#include <server_main.h>
+#include <server.h>
 #include <toolkit/packet.h>
 #include <faction.h>
 #include <player.h>
@@ -681,42 +684,42 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *self, PyObject *args)
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
                 CHECK_INT_RANGE(INT8_MIN, INT8_MAX);
-                hooks->packet_append_int8(packet, val);
+                hooks->packet_writer_write_int8(packet, val);
                 continue;
             }
         } else if (format[i] == 'B') {
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
                 CHECK_INT_RANGE(0, UINT8_MAX);
-                hooks->packet_append_uint8(packet, val);
+                hooks->packet_writer_write_uint8(packet, val);
                 continue;
             }
         } else if (format[i] == 'h') {
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
                 CHECK_INT_RANGE(INT16_MIN, INT16_MAX);
-                hooks->packet_append_int16(packet, val);
+                hooks->packet_writer_write_int16(packet, val);
                 continue;
             }
         } else if (format[i] == 'H') {
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
                 CHECK_INT_RANGE(0, UINT16_MAX);
-                hooks->packet_append_uint16(packet, val);
+                hooks->packet_writer_write_uint16(packet, val);
                 continue;
             }
         } else if (format[i] == 'i') {
             if (PyInt_Check(value)) {
                 PY_LONG_LONG val = PyLong_AsLongLong(value);
                 CHECK_INT_RANGE(INT32_MIN, INT32_MAX);
-                hooks->packet_append_int32(packet, val);
+                hooks->packet_writer_write_int32(packet, val);
                 continue;
             }
         } else if (format[i] == 'I') {
             if (PyInt_Check(value)) {
                 unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
                 CHECK_UINT_RANGE(UINT32_MAX);
-                hooks->packet_append_uint32(packet, val);
+                hooks->packet_writer_write_uint32(packet, val);
                 continue;
             }
         } else if (format[i] == 'l') {
@@ -729,7 +732,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *self, PyObject *args)
                     goto error;
                 }
 
-                hooks->packet_append_int64(packet, val);
+                hooks->packet_writer_write_int64(packet, val);
                 continue;
             }
         } else if (format[i] == 'L') {
@@ -742,7 +745,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *self, PyObject *args)
                     goto error;
                 }
 
-                hooks->packet_append_uint64(packet, val);
+                hooks->packet_writer_write_uint64(packet, val);
                 continue;
             }
         } else if (format[i] == 's') {
@@ -759,14 +762,14 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *self, PyObject *args)
                                  format[i]);
                 }
 #endif
-                hooks->packet_append_string_len_terminated(packet, data, size);
+                hooks->packet_writer_write_cstring_n(packet, data, size);
                 continue;
             }
         } else if (format[i] == 'x') {
             if (PyBytes_Check(value)) {
-                hooks->packet_append_data_len(packet,
-                                              (uint8_t *)PyBytes_AsString(value),
-                                              PyBytes_Size(value));
+                hooks->packet_writer_write_bytes(packet,
+                                                 (uint8_t *)PyBytes_AsString(value),
+                                                 PyBytes_Size(value));
                 continue;
             }
         } else {

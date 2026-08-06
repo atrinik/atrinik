@@ -28,6 +28,13 @@
  */
 
 #include <global.h>
+#include <swap.h>
+#include <server_main.h>
+#include <plugin.h>
+#include <links.h>
+#include <light.h>
+#include <initialization.h>
+#include <connection.h>
 #include <loader.h>
 #include <toolkit/string.h>
 #include <arch.h>

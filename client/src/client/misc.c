@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
 
 /**
  * Opens an url in the system's default browser.

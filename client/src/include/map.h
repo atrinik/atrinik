@@ -351,4 +351,117 @@ typedef struct map_anim {
     uint32_t last_tick; ///< This is the end-tick.
 } map_anim_t;
 
+/** Public API implemented in src/gui/widgets/map.c. */
+
+extern _mapdata MapData;
+
+extern _multi_part_obj MultiArchs[16];
+
+extern struct map_anim *
+map_anims_add(int type, int mapx, int mapy, int sub_layer, int depth, int value);
+
+extern void maps_anims_remove(map_anim_t *anim);
+
+extern void map_anims_mapscroll(int xoff, int yoff);
+
+extern void map_anims_clear(void);
+
+extern void map_anims_play(void);
+
+extern int map_anims_need_redraw(void);
+
+extern void load_mapdef_dat(void);
+
+extern void clear_map(_Bool hard);
+
+extern void map_update_size(int w, int h);
+
+extern void display_mapscroll(int dx, int dy, int old_w, int old_h);
+
+extern void update_map_name(const char *name);
+
+extern void update_map_weather(const char *weather);
+
+extern void update_map_height_diff(uint8_t height_diff);
+
+extern void update_map_region_name(const char *region_name);
+
+extern void update_map_region_longname(const char *region_longname);
+
+extern void update_map_path(const char *map_path);
+
+extern int map_get_player_direction(void);
+
+extern void map_get_real_coords(int *x, int *y);
+
+extern void init_map_data(int xl, int yl, int px, int py);
+
+extern void adjust_tile_stretch(void);
+
+extern void map_set_data(int x,
+                         int y,
+                         int layer,
+                         int16_t face,
+                         uint8_t quick_pos,
+                         uint8_t obj_flags,
+                         const char *name,
+                         const char *name_color,
+                         int16_t height,
+                         uint8_t probe,
+                         int16_t zoom_x,
+                         int16_t zoom_y,
+                         int16_t align,
+                         uint8_t draw_double,
+                         uint8_t alpha,
+                         int16_t rotate,
+                         uint8_t infravision,
+                         uint32_t target_object_count,
+                         uint8_t target_is_friend,
+                         uint8_t anim_speed,
+                         uint8_t anim_facing,
+                         uint8_t anim_flags,
+                         uint8_t anim_state,
+                         uint8_t priority,
+                         uint8_t secondpass,
+                         uint8_t roof,
+                         uint8_t door,
+                         const char *glow,
+                         uint8_t glow_speed);
+
+extern bool map_select_level(int depth, bool create);
+
+extern void map_set_level_mask(uint16_t mask);
+
+extern void map_level_scroll(int dz);
+
+extern void map_clear_cell(int x, int y, bool hard);
+
+extern void map_set_structural_support_height(int x, int y, int16_t height);
+
+extern void map_set_fow(int x, int y, bool fow);
+
+extern bool map_get_fow(int x, int y);
+
+extern void map_set_light_level(int x, int y, int sub_layer, uint8_t light_level);
+
+extern void map_animate(void);
+
+extern void map_draw_map(SDL_Surface *surface);
+
+extern void map_draw_one(int x, int y, SDL_Surface *surface);
+
+extern void map_target_handle(uint8_t is_friend);
+
+extern bool mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
+
+extern bool map_mouse_fire(void);
+
+extern void widget_map_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/minimap.c. */
+
+extern bool minimap_redraw_due(void);
+
+extern void widget_minimap_init(widgetdata *widget);
+
 #endif

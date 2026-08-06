@@ -30,6 +30,9 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <account.h>
 #include <toolkit/string.h>
 
 #include <openssl/crypto.h>

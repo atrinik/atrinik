@@ -268,4 +268,8 @@ SDL_Surface *region_map_fow_surface(region_map_t *region_map);
 bool region_map_fow_is_visited(region_map_t *region_map, int x, int y);
 bool region_map_fow_is_visible(region_map_t *region_map, int x, int y);
 
+/** Public API implemented in src/gui/popups/region_map.c. */
+
+extern void region_map_open(void);
+
 #endif

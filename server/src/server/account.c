@@ -30,6 +30,11 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <region.h>
+#include <initialization.h>
+#include <account.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <arch.h>
@@ -311,26 +316,26 @@ static void account_send_characters(socket_struct *ns, account_struct *account) 
         size_t i;
 
         packet_debug_data(packet, 0, "Account name");
-        packet_append_string_terminated(packet, ns->account);
+        packet_writer_write_cstring(packet, ns->account);
         packet_debug_data(packet, 0, "Connection ID");
-        packet_append_string_terminated(packet, socket_get_id(ns->sc));
+        packet_writer_write_cstring(packet, socket_get_id(ns->sc));
         packet_debug_data(packet, 0, "Previous connection ID");
-        packet_append_string_terminated(packet, account->last_connection_id);
+        packet_writer_write_cstring(packet, account->last_connection_id);
         packet_debug_data(packet, 0, "Last time");
-        packet_append_uint64(packet, account->last_time);
+        packet_writer_write_uint64(packet, account->last_time);
 
         for (i = 0; i < account->characters_num; i++) {
             packet_debug(packet, 0, "Character #%" PRIu64 ":\n", (uint64_t)i);
             packet_debug_data(packet, 1, "Archname");
-            packet_append_string_terminated(packet, account->characters[i].at->name);
+            packet_writer_write_cstring(packet, account->characters[i].at->name);
             packet_debug_data(packet, 1, "Name");
-            packet_append_string_terminated(packet, account->characters[i].name);
+            packet_writer_write_cstring(packet, account->characters[i].name);
             packet_debug_data(packet, 1, "Region name");
-            packet_append_string_terminated(packet, account->characters[i].region_name);
+            packet_writer_write_cstring(packet, account->characters[i].region_name);
             packet_debug_data(packet, 1, "Animation ID");
-            packet_append_uint16(packet, account->characters[i].at->clone.animation_id);
+            packet_writer_write_uint16(packet, account->characters[i].at->clone.animation_id);
             packet_debug_data(packet, 1, "Level");
-            packet_append_uint8(packet, account->characters[i].level);
+            packet_writer_write_uint8(packet, account->characters[i].level);
         }
     }
 

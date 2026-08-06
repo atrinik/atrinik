@@ -30,6 +30,10 @@
 #include "zlib.h"
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <initialization.h>
+#include <animation.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <exp.h>
@@ -77,6 +81,7 @@ bool init_connection(socket_struct *ns) {
 
     ns->packet_recv = packet_new(0, 1024 * 3, 0);
     ns->packet_recv_cmd = packet_new(0, 1024 * 64, 0);
+    packet_writer_set_limit(ns->packet_recv_cmd, SOCKET_COMMAND_QUEUE_MAX);
 
     memset(&ns->lastmap, 0, sizeof(struct Map));
     ns->packets = NULL;
