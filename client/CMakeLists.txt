@@ -20,19 +20,9 @@ set(HAVE_SDL_TTF true)
 # LibXML2 is required.
 find_package(LibXml2 REQUIRED)
 
-# SDL3_mixer is optional on other platforms, but a Windows client without it
-# silently produces an executable that cannot play any of the bundled audio.
-if (MINGW)
-    find_package(SDL3_mixer 3.2.4 CONFIG REQUIRED)
-else ()
-    find_package(SDL3_mixer 3.2.4 CONFIG)
-endif ()
-
-if (SDL3_mixer_FOUND)
-    set(HAVE_SDL_MIXER true)
-else ()
-    message(STATUS "Warning: SDL3_mixer not found - sound support will be disabled")
-endif ()
+# Sound effects and music are core client functionality on every platform.
+find_package(SDL3_mixer 3.2.4 CONFIG REQUIRED)
+set(HAVE_SDL_MIXER true)
 
 # Add sources.
 include(src/cmake.txt)
@@ -70,25 +60,23 @@ else ()
     target_link_libraries(${EXECUTABLE} PRIVATE ${LIBXML2_LIBRARIES})
 endif ()
 
-# Link SDL3_mixer if available.
-if (HAVE_SDL_MIXER)
-    target_compile_definitions(${EXECUTABLE} PRIVATE HAVE_SDL_MIXER)
-    target_link_libraries(${EXECUTABLE} PRIVATE SDL3_mixer::SDL3_mixer)
+# Sound effects and music are required on every supported platform.
+target_compile_definitions(${EXECUTABLE} PRIVATE HAVE_SDL_MIXER)
+target_link_libraries(${EXECUTABLE} PRIVATE SDL3_mixer::SDL3_mixer)
 
-    if (MINGW)
-        if (NOT CMAKE_OBJDUMP)
-            message(FATAL_ERROR
-                "CMAKE_OBJDUMP is required to validate Windows client sound support")
-        endif ()
-
-        add_custom_command(TARGET ${EXECUTABLE} POST_BUILD
-            COMMAND ${CMAKE_COMMAND}
-                "-DATRINIK_OBJDUMP=${CMAKE_OBJDUMP}"
-                "-DATRINIK_CLIENT_EXECUTABLE=$<TARGET_FILE:${EXECUTABLE}>"
-                -P "${CMAKE_SOURCE_DIR}/cmake/verify_windows_client_sound.cmake"
-            COMMENT "Verifying that the Windows client imports SDL3_mixer"
-            VERBATIM)
+if (MINGW)
+    if (NOT CMAKE_OBJDUMP)
+        message(FATAL_ERROR
+            "CMAKE_OBJDUMP is required to validate Windows client sound support")
     endif ()
+
+    add_custom_command(TARGET ${EXECUTABLE} POST_BUILD
+        COMMAND ${CMAKE_COMMAND}
+            "-DATRINIK_OBJDUMP=${CMAKE_OBJDUMP}"
+            "-DATRINIK_CLIENT_EXECUTABLE=$<TARGET_FILE:${EXECUTABLE}>"
+            -P "${CMAKE_SOURCE_DIR}/cmake/verify_windows_client_sound.cmake"
+        COMMENT "Verifying that the Windows client imports SDL3_mixer"
+        VERBATIM)
 endif ()
 
 # Installer.

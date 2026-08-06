@@ -92,8 +92,9 @@ Ubuntu 26.04 does not currently package SDL3_mixer. The recommended
 devcontainer builds SDL3_mixer 3.2.4 from its checksum-pinned upstream release
 with the WAV, AIFF, VOC, AU, Ogg Vorbis, and MP3 decoders enabled. Manual
 environments must provide SDL3_mixer 3.2.4 or newer through the same upstream
-release or another trusted package source; without it, non-Windows builds still
-compile but disable sound support.
+release or another trusted package source. Client configuration fails when it
+is unavailable so Linux and Windows builds cannot silently omit sound effects
+or music.
 
 Ubuntu does not currently package libpcpnatpmp. Server configurations acquire
 and build the pinned static library through CMake FetchContent, so no system

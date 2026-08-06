@@ -18,10 +18,10 @@
 
  The executable is written to build/linux-debug/client/atrinik.
 
- The client requires SDL 3.4 or newer, SDL3_image 3.2 or newer, and SDL3_ttf
- 3.2 or newer. SDL3_mixer 3.2.4 or newer enables sound and is mandatory for
- portable Windows packages. The client uses an SDL window-backed CPU surface;
- it does not require a hardware renderer.
+ The client requires SDL 3.4 or newer, SDL3_image 3.2 or newer, SDL3_ttf 3.2
+ or newer, and SDL3_mixer 3.2.4 or newer. Sound effects and music are required
+ on every supported platform. The client uses an SDL window-backed CPU
+ surface; it does not require a hardware renderer.
 
 =================================================
 = 2. Running the client                         =

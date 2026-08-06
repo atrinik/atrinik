@@ -35,8 +35,9 @@ known-opaque surfaces use the window-native `surface_to_display()` path. The
 client uses SDL's clipboard and window APIs directly and has no X11-specific
 platform layer.
 
-Audio is optional on Linux and is owned by `client/src/client/sound.c` through
-SDL3_mixer. Windows packages require SDL3_mixer and bundle the SDL3 family of
+Audio is owned by `client/src/client/sound.c` through SDL3_mixer. Sound effects
+and music are required on every supported platform; client configuration fails
+when SDL3_mixer is unavailable. Windows packages bundle the SDL3 family of
 runtime DLLs. The dependency policy and local build commands are documented in
 `INSTALL` and `client/README`; `client/CMakeLists.txt` is the authoritative
 dependency and packaging definition.
