@@ -1,0 +1,10 @@
+{
+  "branches": ["master"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    ["@semantic-release/commit-analyzer", {"preset": "conventionalcommits", "releaseRules": [{"type": "*", "release": "patch"}]}],
+    ["@semantic-release/release-notes-generator", {"preset": "conventionalcommits"}],
+    ["@semantic-release/exec", {"publishCmd": "scripts/build-release-assets.sh ${nextRelease.version}"}],
+    ["@semantic-release/github", {"assets": [{"path": "build/release/*"}]}]
+  ]
+}

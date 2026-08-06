@@ -1,0 +1,6 @@
+/workspace/
+/build/
+*.log
+*.py[cod]
+__pycache__/
+.venv/

@@ -1,0 +1,4 @@
+#!/usr/bin/env python3
+from atrinik_workspace.cli import main
+
+raise SystemExit(main())
