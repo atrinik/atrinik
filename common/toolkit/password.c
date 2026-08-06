@@ -20,6 +20,14 @@
 #define PASSWORD_SALT_SIZE 16
 #define PASSWORD_HASH_SIZE 32
 
+/* These are part of the OpenSSL 3.5 Argon2 provider contract. Keep the stable
+ * string names local so packaging-only native tools can compile with older
+ * headers; account authentication still fails closed when ARGON2ID is absent. */
+#define PASSWORD_PARAM_MEMORY "memcost"
+#define PASSWORD_PARAM_LANES "lanes"
+#define PASSWORD_PARAM_THREADS "threads"
+#define PASSWORD_PARAM_VERSION "version"
+
 #define PASSWORD_MIN_MEMORY_KIB 8192U
 #define PASSWORD_MAX_MEMORY_KIB 262144U
 #define PASSWORD_MIN_ITERATIONS 1U
@@ -61,10 +69,10 @@ static bool password_derive(const char *password,
                                           (void *)parameters->salt,
                                           sizeof(parameters->salt)),
         OSSL_PARAM_construct_uint32(OSSL_KDF_PARAM_ITER, &iterations),
-        OSSL_PARAM_construct_uint32(OSSL_KDF_PARAM_ARGON2_MEMCOST, &memory_kib),
-        OSSL_PARAM_construct_uint32(OSSL_KDF_PARAM_ARGON2_LANES, &lanes),
-        OSSL_PARAM_construct_uint32(OSSL_KDF_PARAM_THREADS, &threads),
-        OSSL_PARAM_construct_uint32(OSSL_KDF_PARAM_ARGON2_VERSION, &version),
+        OSSL_PARAM_construct_uint32(PASSWORD_PARAM_MEMORY, &memory_kib),
+        OSSL_PARAM_construct_uint32(PASSWORD_PARAM_LANES, &lanes),
+        OSSL_PARAM_construct_uint32(PASSWORD_PARAM_THREADS, &threads),
+        OSSL_PARAM_construct_uint32(PASSWORD_PARAM_VERSION, &version),
         OSSL_PARAM_construct_end(),
     };
     bool ok = context != NULL && EVP_KDF_derive(context, output, PASSWORD_HASH_SIZE, params) == 1;
