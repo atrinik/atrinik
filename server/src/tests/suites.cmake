@@ -11,6 +11,7 @@ set(ATRINIK_SERVER_TEST_SUITES
     "server.light|check_server_light|src/tests/unit/server/light.c"
     "server.object|check_server_object|src/tests/unit/server/object.c"
     "server.re_cmp|check_server_re_cmp|src/tests/unit/server/re_cmp.c"
+    "server.request|check_server_request|src/tests/unit/server/request.c"
     "server.rune|check_server_rune|src/tests/unit/server/rune.c"
     "server.shop|check_server_shop|src/tests/unit/server/shop.c"
     "toolkit.math|check_server_math|src/tests/unit/toolkit/math.c"

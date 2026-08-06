@@ -196,6 +196,9 @@ static player *get_player(player *p) {
     p->target_hp = -1;
     p->gen_sp_armour = 0;
     p->last_speed = -1;
+    p->last_spell_cost_level = -1;
+    p->last_target_level = -1;
+    p->last_target_viewer_level = -1;
     p->update_los = 1;
 
     p->last_stats.exp = -1;

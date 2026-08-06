@@ -148,8 +148,9 @@ static void widget_draw(widgetdata *widget) {
                          cpl.target_color,
                          TEXT_MARKUP | TEXT_VALIGN_CENTER,
                          &box,
-                         "%s\n[c=#%s]HP: %d%%[/c] %s",
+                         "%s (level %u)\n[c=#%s]HP: %d%%[/c] %s",
                          cpl.target_name,
+                         cpl.target_level,
                          hp_color,
                          hp,
                          str);
