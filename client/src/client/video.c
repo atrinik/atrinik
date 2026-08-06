@@ -30,7 +30,8 @@ void video_set_icon(SDL_Surface *icon) {
     HARD_ASSERT(icon != NULL);
 
     if (!SDL_SetWindowIcon(ScreenWindow, icon)) {
-        LOG(BUG, "Could not set the window icon: %s", SDL_GetError());
+        /* Some compositors intentionally do not implement window icons. */
+        LOG(DEBUG, "Could not set the window icon: %s", SDL_GetError());
     }
 
     SDL_DestroySurface(icon);
@@ -63,7 +64,13 @@ int video_set_size(void) {
     }
 
     ScreenSurface = SDL_GetWindowSurface(ScreenWindow);
-    return ScreenSurface != NULL;
+    if (ScreenSurface == NULL) {
+        SDL_DestroyWindow(ScreenWindow);
+        ScreenWindow = NULL;
+        return 0;
+    }
+
+    return 1;
 }
 
 uint32_t get_video_flags(void) {
@@ -90,7 +97,10 @@ int video_fullscreen_toggle(SDL_Surface **surface, uint32_t *flags) {
     }
 
     if (flags != NULL) {
-        *flags = get_video_flags();
+        *flags = SDL_WINDOW_RESIZABLE;
+        if (SDL_GetWindowFlags(ScreenWindow) & SDL_WINDOW_FULLSCREEN) {
+            *flags |= SDL_WINDOW_FULLSCREEN;
+        }
     }
 
     return 1;

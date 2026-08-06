@@ -283,13 +283,12 @@ static bool lighting_surface_create(int width, int height) {
         }
 
         for (int alpha = 0; alpha <= UINT8_MAX; alpha++) {
-            alpha_pixels[alpha] =
-                SDL_MapRGBA(SDL_GetPixelFormatDetails(lightmap->format),
-                            SDL_GetSurfacePalette(lightmap),
-                            0,
-                            0,
-                            0,
-                            alpha);
+            alpha_pixels[alpha] = SDL_MapRGBA(SDL_GetPixelFormatDetails(lightmap->format),
+                                              SDL_GetSurfacePalette(lightmap),
+                                              0,
+                                              0,
+                                              0,
+                                              alpha);
         }
 
         surface_set_alpha(lightmap, SDL_ALPHA_OPAQUE);
@@ -637,10 +636,8 @@ static bool lighting_lit_surface_create(int width, int height) {
 }
 
 /** Get a source pixel's intrinsic alpha, excluding whole-surface opacity. */
-static uint8_t lighting_source_alpha(SDL_Surface *source,
-                                     Uint32 pixel,
-                                     bool has_colorkey,
-                                     Uint32 colorkey) {
+static uint8_t
+lighting_source_alpha(SDL_Surface *source, Uint32 pixel, bool has_colorkey, Uint32 colorkey) {
     if (has_colorkey && pixel == colorkey) {
         return SDL_ALPHA_TRANSPARENT;
     }
@@ -673,8 +670,7 @@ static SDL_Surface *lighting_lit_surface_copy(int width, int height) {
         return NULL;
     }
 
-    size_t row_bytes =
-        (size_t)width * SDL_GetPixelFormatDetails(copy->format)->bytes_per_pixel;
+    size_t row_bytes = (size_t)width * SDL_GetPixelFormatDetails(copy->format)->bytes_per_pixel;
     for (int row = 0; row < height; row++) {
         memcpy((Uint8 *)copy->pixels + row * copy->pitch,
                (Uint8 *)lighting_lit_surface->pixels + row * lighting_lit_surface->pitch,
@@ -854,8 +850,8 @@ void lighting_show_surface(SDL_Surface *destination,
                             &source_alpha);
             }
             if (has_surface_alpha) {
-                source_alpha = (uint8_t)((unsigned int)source_alpha * surface_alpha /
-                                         SDL_ALPHA_OPAQUE);
+                source_alpha =
+                    (uint8_t)((unsigned int)source_alpha * surface_alpha / SDL_ALPHA_OPAQUE);
             }
 
             uint8_t illumination;

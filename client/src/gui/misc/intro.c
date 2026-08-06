@@ -454,10 +454,10 @@ int intro_event(SDL_Event *event) {
     }
 
     if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT) {
-        if (LIST_MOUSE_OVER(list_news, event->motion.x, event->motion.y)) {
+        if (LIST_MOUSE_OVER(list_news, event_mouse_x(event), event_mouse_y(event))) {
             list_news->focus = 1;
             list_servers->focus = 0;
-        } else if (LIST_MOUSE_OVER(list_servers, event->motion.x, event->motion.y)) {
+        } else if (LIST_MOUSE_OVER(list_servers, event_mouse_x(event), event_mouse_y(event))) {
             list_servers->focus = 1;
             list_news->focus = 0;
         }

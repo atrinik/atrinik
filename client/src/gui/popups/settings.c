@@ -155,7 +155,8 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
             settings_button_handle(popup, button_selected);
             return 1;
         }
-    } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN || event->type == SDL_EVENT_MOUSE_MOTION) {
+    } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
+               event->type == SDL_EVENT_MOUSE_MOTION) {
         size_t i;
         int x, y, width;
 
@@ -166,11 +167,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
 
             y = popup->y + 60 + i * FONT_HEIGHT(FONT_SERIF40);
 
-            if (event->motion.y >= y && event->motion.y < y + FONT_HEIGHT(FONT_SERIF40)) {
+            if (event_mouse_y(event) >= y && event_mouse_y(event) < y + FONT_HEIGHT(FONT_SERIF40)) {
                 width = text_get_width(FONT_SERIF40, button_names[i], 0);
                 x = popup->x + popup->surface->w / 2 - width / 2;
 
-                if (event->motion.x >= x && event->motion.x < x + width) {
+                if (event_mouse_x(event) >= x && event_mouse_x(event) < x + width) {
                     if (event->type == SDL_EVENT_MOUSE_MOTION) {
                         button_selected = i;
                     } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&

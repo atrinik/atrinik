@@ -57,7 +57,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
                  elapsed / 3600,
                  elapsed / 60 % 60,
                  elapsed % 60);
-        tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
+        tooltip_create(event_mouse_x(event), event_mouse_y(event), FONT_ARIAL11, buf);
         tooltip_multiline(220);
         tooltip_enable_delay(100);
         return 1;
@@ -71,7 +71,7 @@ static void menu_reset(widgetdata *widget, widgetdata *menuitem, SDL_Event *even
 }
 
 static int widget_menu_handle(widgetdata *widget, SDL_Event *event) {
-    widgetdata *menu = create_menu(event->motion.x, event->motion.y, widget);
+    widgetdata *menu = create_menu(event_mouse_x(event), event_mouse_y(event), widget);
     widget_menu_standard_items(widget, menu);
     add_menuitem(menu, "Reset XP tracker", &menu_reset, MENU_NORMAL, 0);
     menu_finalize(menu);

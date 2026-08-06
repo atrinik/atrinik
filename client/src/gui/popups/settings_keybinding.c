@@ -320,7 +320,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
         if (event->button.button == SDL_BUTTON_LEFT) {
             uint32_t row, col;
 
-            if (text_input_mouse_over(&text_input_command, event->motion.x, event->motion.y)) {
+            if (text_input_mouse_over(&text_input_command,
+                                      event_mouse_x(event),
+                                      event_mouse_y(event))) {
                 text_input_command.focus = 1;
                 text_input_key.focus = 0;
 
@@ -339,14 +341,16 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
                 }
 
                 return 1;
-            } else if (text_input_mouse_over(&text_input_key, event->motion.x, event->motion.y)) {
+            } else if (text_input_mouse_over(&text_input_key,
+                                             event_mouse_x(event),
+                                             event_mouse_y(event))) {
                 text_input_set(&text_input_key, "0 0");
                 text_input_key.focus = 1;
                 text_input_command.focus = 0;
                 return 1;
             } else if (list_mouse_get_pos(list_keybindings,
-                                          event->motion.x,
-                                          event->motion.y,
+                                          event_mouse_x(event),
+                                          event_mouse_y(event),
                                           &row,
                                           &col)) {
                 if (col == 2) {

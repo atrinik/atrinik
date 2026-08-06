@@ -563,7 +563,12 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
                 continue;
             }
 
-            if (inventory_render_object(widget, tmp, i, &r, event->motion.x, event->motion.y)) {
+            if (inventory_render_object(widget,
+                                        tmp,
+                                        i,
+                                        &r,
+                                        event_mouse_x(event),
+                                        event_mouse_y(event))) {
                 found = tmp;
                 break;
             }
@@ -580,8 +585,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
                                                 tmp2,
                                                 i,
                                                 &r,
-                                                event->motion.x,
-                                                event->motion.y)) {
+                                                event_mouse_x(event),
+                                                event_mouse_y(event))) {
                         found = tmp2;
                         break;
                     }
@@ -594,7 +599,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         if (found != NULL) {
             if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                 if (event->button.button == SDL_BUTTON_LEFT) {
-                    event_dragging_start(found->tag, event->motion.x, event->motion.y);
+                    event_dragging_start(found->tag, event_mouse_x(event), event_mouse_y(event));
                     event_dragging_set_callback(event_drag_cb);
                 }
             } else {
@@ -623,9 +628,9 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
 /** @copydoc widgetdata::menu_handle_func */
 static int widget_menu_handle(widgetdata *widget, SDL_Event *event) {
     inventory_struct *inventory = INVENTORY(widget);
-    widgetdata *menu = create_menu(event->motion.x, event->motion.y, widget);
+    widgetdata *menu = create_menu(event_mouse_x(event), event_mouse_y(event), widget);
 
-    if (INVENTORY_MOUSE_INSIDE(widget, event->motion.x, event->motion.y)) {
+    if (INVENTORY_MOUSE_INSIDE(widget, event_mouse_x(event), event_mouse_y(event))) {
         if (inventory->display == INVENTORY_DISPLAY_MAIN) {
             add_menuitem(menu, "Drop", &menu_inventory_drop, MENU_NORMAL, 0);
         }
@@ -1221,8 +1226,8 @@ void menu_inventory_drag(widgetdata *widget, widgetdata *menuitem, SDL_Event *ev
     }
 
     cpl.dragging_tag = ob->tag;
-    cpl.dragging_startx = event->motion.x;
-    cpl.dragging_starty = event->motion.y;
+    cpl.dragging_startx = event_mouse_x(event);
+    cpl.dragging_starty = event_mouse_y(event);
 }
 
 /**

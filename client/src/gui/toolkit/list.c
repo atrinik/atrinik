@@ -56,9 +56,13 @@ static void list_draw_frame(list_struct *list) {
  */
 static void list_row_color(list_struct *list, int row, SDL_Rect box) {
     if (row & 1) {
-        SDL_FillSurfaceRect(list->surface, &box, pixel_format_map_rgb(list->surface->format, 0x55, 0x55, 0x55));
+        SDL_FillSurfaceRect(list->surface,
+                            &box,
+                            pixel_format_map_rgb(list->surface->format, 0x55, 0x55, 0x55));
     } else {
-        SDL_FillSurfaceRect(list->surface, &box, pixel_format_map_rgb(list->surface->format, 0x45, 0x45, 0x45));
+        SDL_FillSurfaceRect(list->surface,
+                            &box,
+                            pixel_format_map_rgb(list->surface->format, 0x45, 0x45, 0x45));
     }
 }
 
@@ -70,7 +74,9 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box) {
  * Contains base x/y/width/height information to use.
  */
 static void list_row_highlight(list_struct *list, SDL_Rect box) {
-    SDL_FillSurfaceRect(list->surface, &box, pixel_format_map_rgb(list->surface->format, 0x00, 0x80, 0x00));
+    SDL_FillSurfaceRect(list->surface,
+                        &box,
+                        pixel_format_map_rgb(list->surface->format, 0x00, 0x80, 0x00));
 }
 
 /**
@@ -81,7 +87,9 @@ static void list_row_highlight(list_struct *list, SDL_Rect box) {
  * Contains base x/y/width/height information to use.
  */
 static void list_row_selected(list_struct *list, SDL_Rect box) {
-    SDL_FillSurfaceRect(list->surface, &box, pixel_format_map_rgb(list->surface->format, 0x00, 0x00, 0xef));
+    SDL_FillSurfaceRect(list->surface,
+                        &box,
+                        pixel_format_map_rgb(list->surface->format, 0x00, 0x00, 0xef));
 }
 
 /**
@@ -725,8 +733,8 @@ int list_handle_mouse(list_struct *list, SDL_Event *event) {
         return 0;
     }
 
-    mx = event->motion.x - list->px;
-    my = event->motion.y - list->py;
+    mx = event_mouse_x(event) - list->px;
+    my = event_mouse_y(event) - list->py;
 
     if (list->scrollbar_enabled) {
         list->scrollbar.px = list->px;
@@ -748,7 +756,7 @@ int list_handle_mouse(list_struct *list, SDL_Event *event) {
      * below. */
     list->row_highlighted = 0;
 
-    if (list_mouse_get_pos(list, event->motion.x, event->motion.y, &row, &col)) {
+    if (list_mouse_get_pos(list, event_mouse_x(event), event_mouse_y(event), &row, &col)) {
         if (list->handle_mouse_row_func) {
             list->handle_mouse_row_func(list, row, event);
         }

@@ -233,8 +233,8 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
 
     if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         if (event->button.button == SDL_BUTTON_LEFT) {
-            painting_data->mx = event->motion.x;
-            painting_data->my = event->motion.y;
+            painting_data->mx = event_mouse_x(event);
+            painting_data->my = event_mouse_y(event);
         }
     } else if (event->type == SDL_EVENT_MOUSE_WHEEL) {
         if (painting_data->zoomed != NULL) {
@@ -258,10 +258,10 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
         }
     } else if (event->type == SDL_EVENT_MOUSE_MOTION && painting_data->mx != -1 &&
                painting_data->my != -1) {
-        painting_data->coords.x += painting_data->mx - event->motion.x;
-        painting_data->coords.y += painting_data->my - event->motion.y;
-        painting_data->mx = event->motion.x;
-        painting_data->my = event->motion.y;
+        painting_data->coords.x += painting_data->mx - event_mouse_x(event);
+        painting_data->coords.y += painting_data->my - event_mouse_y(event);
+        painting_data->mx = event_mouse_x(event);
+        painting_data->my = event_mouse_y(event);
         surface_pan(popup_painting_data_surface(painting_data), &painting_data->coords);
         popup->redraw = 1;
     }

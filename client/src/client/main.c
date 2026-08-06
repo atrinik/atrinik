@@ -704,7 +704,9 @@ int main(int argc, char *argv[]) {
     video_init();
     system_start();
     sprite_init_system();
-    SDL_StartTextInput(ScreenWindow);
+    if (!SDL_StartTextInput(ScreenWindow)) {
+        LOG(ERROR, "Could not start text input: %s", SDL_GetError());
+    }
     text_init();
     texture_init();
     sound_init();

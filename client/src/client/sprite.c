@@ -106,6 +106,9 @@ sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_IOStream *rwo
     } else {
         bitmap = IMG_LoadPNG_IO(rwop);
     }
+    if (bitmap == NULL) {
+        return NULL;
+    }
 
     sprite_struct *sprite = xcalloc(1, sizeof(*sprite));
     if (sprite == NULL) {
@@ -132,12 +135,13 @@ sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_IOStream *rwo
                         ckey);
     sprite->bitmap = bitmap;
 
-    if (flag & SURFACE_FLAG_DISPLAYFORMATALPHA) {
+    if (flag & (SURFACE_FLAG_DISPLAYFORMATALPHA | SURFACE_FLAG_DISPLAYFORMAT)) {
         sprite->bitmap = surface_to_display(bitmap);
         SDL_DestroySurface(bitmap);
-    } else if (flag & SURFACE_FLAG_DISPLAYFORMAT) {
-        sprite->bitmap = surface_to_display(bitmap);
-        SDL_DestroySurface(bitmap);
+        if (sprite->bitmap == NULL) {
+            free(sprite);
+            return NULL;
+        }
     }
 
     return sprite;
@@ -1461,10 +1465,8 @@ void rectangle_create(SDL_Surface *surface,
 }
 
 /**
- * Changes alpha value of the specified surface.
- *
- * If the surface is per-pixel alpha, changes every pixel on the surface
- * to match the specified alpha value.
+ * Sets the whole-surface alpha modulation used when the surface is blitted.
+ * Per-pixel alpha remains intact and is multiplied by this value.
  *
  * @param surface
  * Surface to change alpha value of.

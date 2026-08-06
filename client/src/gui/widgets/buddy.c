@@ -425,7 +425,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
 
     if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         if (event->button.button == SDL_BUTTON_LEFT &&
-            text_input_mouse_over(&tmp->text_input, event->motion.x, event->motion.y)) {
+            text_input_mouse_over(&tmp->text_input, event_mouse_x(event), event_mouse_y(event))) {
             tmp->text_input.focus = 1;
             widget->redraw = 1;
             return 1;

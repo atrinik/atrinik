@@ -97,8 +97,8 @@ static void widget_draw(widgetdata *widget) {
 
     const render_profile_snapshot_t *snapshot = render_profiler_snapshot();
     SDL_FillSurfaceRect(widget->surface,
-                 NULL,
-                 pixel_format_map_rgba(widget->surface->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
+                        NULL,
+                        pixel_format_map_rgba(widget->surface->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
 
     SDL_Rect box = {.x = 5, .y = 4, .w = widget->w - 10, .h = widget->h - 8};
     double frame_ms = render_profile_average_ms(snapshot, RENDER_PROFILE_FRAME);

@@ -571,9 +571,9 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         xpos = widget->x + widget->w - 5;
         ypos = widget->y + widget->h - 5;
 
-        if (event->motion.x >= xpos - icon->bitmap->w &&
-            event->motion.y >= ypos - icon->bitmap->h && event->motion.x < xpos &&
-            event->motion.y < ypos) {
+        if (event_mouse_x(event) >= xpos - icon->bitmap->w &&
+            event_mouse_y(event) >= ypos - icon->bitmap->h && event_mouse_x(event) < xpos &&
+            event_mouse_y(event) < ypos) {
             cpl.dragging_tag = spell->spell->tag;
             return 1;
         }

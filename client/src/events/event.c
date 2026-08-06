@@ -143,11 +143,13 @@ int Event_PollInputDevice(void) {
         if (event.type == SDL_EVENT_MOUSE_WHEEL) {
             x = (int)event.wheel.mouse_x;
             y = (int)event.wheel.mouse_y;
-        } else if (event.type == SDL_EVENT_MOUSE_MOTION ||
-                   event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
-                   event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+        } else if (event.type == SDL_EVENT_MOUSE_MOTION) {
             x = (int)event.motion.x;
             y = (int)event.motion.y;
+        } else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
+                   event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+            x = (int)event.button.x;
+            y = (int)event.button.y;
         }
 
         if (event.type == SDL_EVENT_KEY_DOWN) {
@@ -167,6 +169,7 @@ int Event_PollInputDevice(void) {
         switch (event.type) {
                 /* Screen has been resized, update screen size. */
             case SDL_EVENT_WINDOW_RESIZED:
+            case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
                 ScreenSurface = SDL_GetWindowSurface(ScreenWindow);
 
                 if (!ScreenSurface) {
@@ -174,9 +177,17 @@ int Event_PollInputDevice(void) {
                     exit(1);
                 }
 
-                /* Set resolution to custom. */
-                setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
-                resize_window(event.window.data1, event.window.data2);
+                if (event.type == SDL_EVENT_WINDOW_RESIZED) {
+                    /* Set resolution to custom. */
+                    setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
+                }
+                resize_window(ScreenSurface->w, ScreenSurface->h);
+                break;
+
+            case SDL_EVENT_WINDOW_EXPOSED:
+                if (!SDL_UpdateWindowSurface(ScreenWindow)) {
+                    LOG(ERROR, "Could not repaint the exposed window surface: %s", SDL_GetError());
+                }
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:

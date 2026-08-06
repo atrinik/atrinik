@@ -63,7 +63,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
                      game_minutes / 60 % 24,
                      game_minutes % 60,
                      millis_per_game_minute / 1000.0);
-            tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
+            tooltip_create(event_mouse_x(event), event_mouse_y(event), FONT_ARIAL11, buf);
             tooltip_multiline(260);
             tooltip_enable_delay(100);
         }

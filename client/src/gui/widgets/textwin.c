@@ -174,7 +174,7 @@ static void textwin_tab_append(widgetdata *widget,
         textwin->tabs[id].unread = 1;
     }
 
-    cp = string_join("", "[c=#", color, " 1]", timebuf, tabname, str, "\n", NULL);
+    cp = string_join("", "[c=#", color, " 1]", timebuf, tabname, str, "\n", (const char *)NULL);
     len = strlen(cp);
     /* Resize the characters array as needed. */
     textwin->tabs[id].entries =
@@ -928,7 +928,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         WIDGET_REDRAW(widget);
     }
 
-    if (event->button.button == SDL_BUTTON_LEFT) {
+    if (event_mouse_button_matches(event, SDL_BUTTON_LEFT)) {
         if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
             return 1;
         } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
@@ -1317,7 +1317,7 @@ static void menu_textwin_players(widgetdata *widget, widgetdata *menuitem, SDL_E
 static int widget_menu_handle(widgetdata *widget, SDL_Event *event) {
     widgetdata *menu;
 
-    menu = create_menu(event->motion.x, event->motion.y, widget);
+    menu = create_menu(event_mouse_x(event), event_mouse_y(event), widget);
 
     widget_menu_standard_items(widget, menu);
     add_menuitem(menu, "New Window", &menu_create_widget, MENU_NORMAL, 0);
@@ -1351,8 +1351,6 @@ void widget_textwin_init(widgetdata *widget) {
     widget->deinit_func = widget_deinit;
     widget->menu_handle_func = widget_menu_handle;
     widget->subwidget = textwin;
-
-    textwin_create_scrollbar(widget);
 }
 
 void widget_textwin_handle_console(const char *text) {

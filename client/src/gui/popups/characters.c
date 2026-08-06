@@ -513,8 +513,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
     } else if (button_tab_password.pressed_forced) {
         if (event->type == SDL_EVENT_KEY_DOWN) {
             if (IS_NEXT(event->key.key)) {
-                if (IS_ENTER(event->key.key) &&
-                    text_input_current == TEXT_INPUT_PASSWORD_NEW2) {
+                if (IS_ENTER(event->key.key) && text_input_current == TEXT_INPUT_PASSWORD_NEW2) {
                     packet_struct *packet;
                     uint32_t lower, upper;
 
@@ -576,7 +575,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
         } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
             if (event->button.button == SDL_BUTTON_LEFT) {
                 for (i = TEXT_INPUT_PASSWORD; i < TEXT_INPUT_NUM; i++) {
-                    if (text_input_mouse_over(&text_inputs[i], event->motion.x, event->motion.y)) {
+                    if (text_input_mouse_over(&text_inputs[i],
+                                              event_mouse_x(event),
+                                              event_mouse_y(event))) {
                         text_inputs[text_input_current].focus = 0;
                         text_input_current = i;
                         text_inputs[text_input_current].focus = 1;

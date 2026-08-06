@@ -66,10 +66,6 @@ static const char *const sound_female_hurt_effects[] = {
 #ifdef HAVE_SDL_MIXER
 
 /**
- * When the background music started playing.
- */
-static uint32_t sound_background_started;
-/**
  * Duration of this background music.
  */
 static uint32_t sound_background_duration;
@@ -135,6 +131,17 @@ static void sound_background_hook_execute(void) {
     if (sound_background_hook) {
         sound_background_hook();
     }
+}
+
+static uint32_t sound_music_track_get_offset(void) {
+    Sint64 frames = MIX_GetTrackPlaybackPosition(sound_music_track);
+    Sint64 milliseconds = frames >= 0 ? MIX_TrackFramesToMS(sound_music_track, frames) : -1;
+
+    if (milliseconds <= 0) {
+        return 0;
+    }
+
+    return (uint32_t)MIN((Uint64)milliseconds / 1000, UINT32_MAX);
 }
 
 /**
@@ -278,7 +285,11 @@ static void sound_music_finished_process(void) {
  */
 void sound_music_finished_handle(void) {
 #ifdef HAVE_SDL_MIXER
-    if (enabled && !MIX_TrackPlaying(sound_music_track) && !MIX_TrackPaused(sound_music_track)) {
+    /* SDL3_mixer also invokes the stopped callback for an explicit stop.
+     * sound_stop_bg_music() clears this pointer before stopping the track, so
+     * only a naturally exhausted background advances the playlist here. */
+    if (enabled && sound_background != NULL && !MIX_TrackPlaying(sound_music_track) &&
+        !MIX_TrackPaused(sound_music_track)) {
         sound_music_finished_process();
     }
 #endif
@@ -383,13 +394,13 @@ void sound_deinit(void) {
     sound_background = NULL;
 
 #ifdef HAVE_SDL_MIXER
+    sound_cache_free();
     if (sound_mixer != NULL) {
         MIX_DestroyMixer(sound_mixer);
         sound_mixer = NULL;
         sound_music_track = NULL;
         memset(sound_effect_tracks, 0, sizeof(sound_effect_tracks));
     }
-    sound_cache_free();
     MIX_Quit();
 #endif
 }
@@ -469,7 +480,9 @@ static int sound_add_effect(const char *filename, int volume, int loop) {
         options = SDL_CreateProperties();
         if (options == 0 || !SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, loop)) {
             LOG(BUG, "Could not configure loops for '%s'. Reason: %s.", filename, SDL_GetError());
-            SDL_DestroyProperties(options);
+            if (options != 0) {
+                SDL_DestroyProperties(options);
+            }
             return -1;
         }
     }
@@ -479,10 +492,14 @@ static int sound_add_effect(const char *filename, int volume, int loop) {
         !MIX_SetTrackStereo(track, &stereo) || !MIX_PlayTrack(track, options)) {
         LOG(BUG, "Could not play '%s'. Reason: %s.", filename, SDL_GetError());
         MIX_StopTrack(track, 0);
-        SDL_DestroyProperties(options);
+        if (options != 0) {
+            SDL_DestroyProperties(options);
+        }
         return -1;
     }
-    SDL_DestroyProperties(options);
+    if (options != 0) {
+        SDL_DestroyProperties(options);
+    }
 
     return channel;
 #else
@@ -605,12 +622,6 @@ static void sound_start_bg_music_internal(const char *filename,
     }
     sound_apply_music_volume(volume);
 
-    sound_background_started = SDL_GetTicks();
-
-    /* Due to a bug in SDL_mixer, some audio types (such as XM, among
-     * others) will continue playing even when the volume has been set to
-     * 0, which means we need to manually pause the music if volume is 0,
-     * and unpause it in sound_update_volume(), if the volume changes. */
 #endif
 }
 
@@ -671,7 +682,7 @@ void update_map_bg_music(const char *bg_music) {
         int loop = -1, vol = 0;
         char filename[MAX_BUF];
 
-        if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1) {
+        if (sscanf(bg_music, "%255s %d %d", filename, &loop, &vol) < 1) {
             LOG(BUG, "Bogus background music: '%s'", bg_music);
             return;
         }
@@ -752,7 +763,7 @@ uint32_t sound_music_get_offset(void) {
     }
 
 #ifdef HAVE_SDL_MIXER
-    return (SDL_GetTicks() - sound_background_started) / 1000;
+    return sound_music_track_get_offset();
 #else
     return 0;
 #endif
@@ -793,7 +804,6 @@ void sound_music_seek(uint32_t offset) {
         LOG(BUG, "Could not seek music: %s", SDL_GetError());
     }
 
-    sound_background_started = SDL_GetTicks() - offset * 1000;
 #endif
 }
 

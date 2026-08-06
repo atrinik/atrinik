@@ -292,7 +292,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
     } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         if (event->button.button == SDL_BUTTON_LEFT) {
             for (i = 0; i < LOGIN_TEXT_INPUT_MAX; i++) {
-                if (text_input_mouse_over(&text_inputs[i], event->motion.x, event->motion.y)) {
+                if (text_input_mouse_over(&text_inputs[i],
+                                          event_mouse_x(event),
+                                          event_mouse_y(event))) {
                     text_inputs[text_input_current].focus = 0;
                     text_input_current = i;
                     text_inputs[text_input_current].focus = 1;

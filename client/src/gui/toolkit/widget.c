@@ -320,7 +320,7 @@ void toolkit_widget_init(void) {
 
 /** @copydoc widgetdata::menu_handle_func */
 static int widget_menu_handle(widgetdata *widget, SDL_Event *event) {
-    widgetdata *menu = create_menu(event->motion.x, event->motion.y, widget);
+    widgetdata *menu = create_menu(event_mouse_x(event), event_mouse_y(event), widget);
     widget_menu_standard_items(widget, menu);
     menu_finalize(menu);
     return 1;
@@ -1220,8 +1220,8 @@ int widgets_event(SDL_Event *event) {
         if (event->type == SDL_EVENT_MOUSE_MOTION) {
             int x, y, nx, ny;
 
-            x = event->motion.x - widget_event_move.xOffset;
-            y = event->motion.y - widget_event_move.yOffset;
+            x = event_mouse_x(event) - widget_event_move.xOffset;
+            y = event_mouse_y(event) - widget_event_move.yOffset;
             nx = x;
             ny = y;
 
@@ -1315,7 +1315,7 @@ int widgets_event(SDL_Event *event) {
             move_widget_rec(widget, nx - widget->x, ny - widget->y);
             widget_ensure_onscreen(widget);
         } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-            return widget_event_move_stop(event->motion.x, event->motion.y);
+            return widget_event_move_stop(event_mouse_x(event), event_mouse_y(event));
         }
 
         return 1;
@@ -1332,7 +1332,7 @@ int widgets_event(SDL_Event *event) {
                 resize_widget(widget,
                               widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT),
                               MAX(MAX(5, widget->min_w),
-                                  widget->w + (event->motion.x - widget_event_resize.xoff) *
+                                  widget->w + (event_mouse_x(event) - widget_event_resize.xoff) *
                                                   (widget->resize_flags & RESIZE_LEFT ? -1 : 1)));
             }
 
@@ -1340,19 +1340,19 @@ int widgets_event(SDL_Event *event) {
                 resize_widget(widget,
                               widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM),
                               MAX(MAX(5, widget->min_h),
-                                  widget->h + (event->motion.y - widget_event_resize.yoff) *
+                                  widget->h + (event_mouse_y(event) - widget_event_resize.yoff) *
                                                   (widget->resize_flags & RESIZE_TOP ? -1 : 1)));
             }
 
-            widget_event_resize.xoff = event->motion.x;
-            widget_event_resize.yoff = event->motion.y;
+            widget_event_resize.xoff = event_mouse_x(event);
+            widget_event_resize.yoff = event_mouse_y(event);
         }
 
         return 1;
     }
 
     if (EVENT_IS_MOUSE(event)) {
-        if (!widget_event_respond(event->motion.x, event->motion.y)) {
+        if (!widget_event_respond(event_mouse_x(event), event_mouse_y(event))) {
             return 0;
         }
 
@@ -1374,8 +1374,8 @@ int widgets_event(SDL_Event *event) {
                 /* Start resizing. */
                 widget_event_resize.active = 1;
                 widget_event_resize.owner = widget;
-                widget_event_resize.xoff = event->motion.x;
-                widget_event_resize.yoff = event->motion.y;
+                widget_event_resize.xoff = event_mouse_x(event);
+                widget_event_resize.yoff = event_mouse_y(event);
                 return 1;
             }
 
@@ -1400,8 +1400,8 @@ int widgets_event(SDL_Event *event) {
                 if (widget->padding_func != NULL) {
                     widget->padding_func(widget, &xpad, &ypad);
                 }
-                int x = event->motion.x - widget_x(widget) - xpad;
-                int y = event->motion.y - widget_y(widget) - ypad;
+                int x = event_mouse_x(event) - widget_x(widget) - xpad;
+                int y = event_mouse_y(event) - widget_y(widget) - ypad;
                 int deg;
                 if (math_point_edge_ellipse(x,
                                             y,

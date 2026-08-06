@@ -130,7 +130,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
                         text_input_server_port.str,
                         " ",
                         text_input_server_fingerprint.str,
-                        NULL);
+                        (const char *)NULL);
         clioption_settings.servers_num++;
 
         if (!ms_connecting(-1)) {

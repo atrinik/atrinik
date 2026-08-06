@@ -104,7 +104,9 @@ static int popup_draw(popup_struct *popup) {
                      popup->surface->w - PREFERENCE_CONTENT_X * 2 - PREFERENCE_LIST_WIDTH -
                          PREFERENCE_CONTENT_GAP,
                      LIST_ROWS_HEIGHT(preference_list)};
-    SDL_FillSurfaceRect(popup->surface, &help, pixel_format_map_rgb(popup->surface->format, 0x45, 0x45, 0x45));
+    SDL_FillSurfaceRect(popup->surface,
+                        &help,
+                        pixel_format_map_rgb(popup->surface->format, 0x45, 0x45, 0x45));
     draw_frame(popup->surface, help.x, help.y, help.w, help.h);
 
     box.x = help.x + 12;

@@ -305,8 +305,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
     widget_quickslots_t *tmp = widget->subwidget;
 
     uint32_t row, col;
-    if (list_mouse_get_pos(tmp->list, event->motion.x, event->motion.y, &row, &col)) {
-        if (event->button.button == SDL_BUTTON_LEFT) {
+    if (list_mouse_get_pos(tmp->list, event_mouse_x(event), event_mouse_y(event), &row, &col)) {
+        if (event_mouse_button_matches(event, SDL_BUTTON_LEFT)) {
             if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
                 if (event_dragging_check()) {
                     if (!object_find_object_inv(cpl.ob, cpl.dragging_tag)) {
@@ -325,10 +325,11 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
                 }
 
                 return 1;
-            } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && tmp->list->text[row][col] != NULL) {
+            } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
+                       tmp->list->text[row][col] != NULL) {
                 event_dragging_start(strtoul(tmp->list->text[row][col], NULL, 10),
-                                     event->motion.x,
-                                     event->motion.y);
+                                     event_mouse_x(event),
+                                     event_mouse_y(event));
                 return 1;
             }
         } else if (event->type == SDL_EVENT_MOUSE_MOTION) {
@@ -337,7 +338,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
                     object_find_object(cpl.ob, strtoul(tmp->list->text[row][col], NULL, 10));
 
                 if (ob != NULL) {
-                    tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, ob->s_name);
+                    tooltip_create(event_mouse_x(event),
+                                   event_mouse_y(event),
+                                   FONT_ARIAL11,
+                                   ob->s_name);
                 }
             }
         }

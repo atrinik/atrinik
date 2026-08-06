@@ -209,10 +209,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
                 y += sprite->bitmap->h + 5;
             }
 
-            if (event->motion.x >= widget->x + x &&
-                event->motion.x < widget->x + x + sprite->bitmap->w &&
-                event->motion.y >= widget->y + y &&
-                event->motion.y < widget->y + y + sprite->bitmap->h) {
+            if (event_mouse_x(event) >= widget->x + x &&
+                event_mouse_x(event) < widget->x + x + sprite->bitmap->w &&
+                event_mouse_y(event) >= widget->y + y &&
+                event_mouse_y(event) < widget->y + y + sprite->bitmap->h) {
                 char buf[HUGE_BUF];
 
                 snprintf(buf,
@@ -221,7 +221,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
                          effect->op->s_name,
                          effect->msg[0] != '\0' ? "\n" : "",
                          effect->msg);
-                tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
+                tooltip_create(event_mouse_x(event), event_mouse_y(event), FONT_ARIAL11, buf);
                 tooltip_multiline(200);
                 break;
             }

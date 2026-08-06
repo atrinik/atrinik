@@ -79,6 +79,27 @@ static text_anchor_handle_func text_anchor_handle = NULL;
  */
 static void *text_anchor_info_ptr = NULL;
 
+static Uint32 text_decode_codepoint(const char *text, size_t *bytes) {
+    const char *next = text;
+    Uint32 codepoint = SDL_StepUTF8(&next, NULL);
+
+    *bytes = (size_t)(next - text);
+    if (*bytes == 0) {
+        *bytes = 1;
+    }
+    if (codepoint == SDL_INVALID_UNICODE_CODEPOINT) {
+        codepoint = 0xfffd;
+    }
+
+    return codepoint;
+}
+
+static SDL_Surface *
+text_render_glyph(TTF_Font *font, const char *glyph, uint64_t flags, SDL_Color color) {
+    return flags & TEXT_SOLID ? TTF_RenderText_Solid(font, glyph, 0, color)
+                              : TTF_RenderText_Blended(font, glyph, 0, color);
+}
+
 /**
  * The usable fonts.
  */
@@ -749,6 +770,8 @@ int text_show_character(font_struct **font,
     TTF_FontStyleFlags new_style;
     font_struct *restore_font = NULL;
     char c = *cp;
+    char glyph_text[5];
+    Uint32 codepoint;
     uint8_t remove_bold = 0;
 
     /* Doing markup? */
@@ -1585,7 +1608,7 @@ int text_show_character(font_struct **font,
                 info->tooltip_text[0] = '\0';
             }
         } else if (tag_len >= 3 && strncmp(tag, "h=#", 3) == 0) {
-            int r, g, b;
+            unsigned int r, g, b;
 
             if ((surface || info->obscured) && sscanf(tag + 3, "%2X%2X%2X", &r, &g, &b) == 3) {
                 /* Find the ending tag. */
@@ -1690,6 +1713,15 @@ int text_show_character(font_struct **font,
         }
     }
 
+    codepoint = (unsigned char)c;
+    if (ret == 1 && (unsigned char)c >= 0x80) {
+        size_t bytes;
+
+        codepoint = text_decode_codepoint(cp, &bytes);
+        ret = (int)bytes;
+    }
+    *SDL_UCS4ToUTF8(codepoint, glyph_text) = '\0';
+
     new_style = 0;
 
     /* Try to set applicable font style. */
@@ -1734,7 +1766,7 @@ int text_show_character(font_struct **font,
 
     /* Get the glyph's metrics. */
     if (!TTF_GetGlyphMetrics((*font)->font,
-                             c == '\t' ? ' ' : (unsigned char)c,
+                             codepoint == '\t' ? ' ' : codepoint,
                              &minx,
                              NULL,
                              NULL,
@@ -1763,22 +1795,19 @@ int text_show_character(font_struct **font,
         width += 2;
     }
 
-    if (c == '\t') {
+    if (codepoint == '\t') {
         width *= 4;
     }
 
     /* Draw the character (unless it's a space, since there's no point in
      * drawing whitespace [but only if underline style is not active,
      * since we do want the underline below the space]). */
-    if (surface && ((c != ' ' && c != '\t') || info->in_underline || info->anchor_tag ||
-                    info->highlight || *info->tooltip_text != '\0')) {
+    if (surface && ((codepoint != ' ' && codepoint != '\t') || info->in_underline ||
+                    info->anchor_tag || info->highlight || *info->tooltip_text != '\0')) {
         SDL_Surface *ttf_surface;
-        char buf[2];
         SDL_Color *use_color;
         SDL_Rect dstrect, srcrect;
 
-        buf[0] = c;
-        buf[1] = '\0';
         use_color = color;
 
         if (info->anchor_tag || info->highlight || *info->tooltip_text != '\0') {
@@ -1830,47 +1859,50 @@ int text_show_character(font_struct **font,
         if (info->outline_show || flags & TEXT_OUTLINE) {
             int outline_x, outline_y;
             SDL_Rect outline_box;
+            SDL_Surface *outline_surface =
+                text_render_glyph((*font)->font, glyph_text, flags, info->outline_color);
 
-            for (outline_x = -1; outline_x < 2; outline_x++) {
-                for (outline_y = -1; outline_y < 2; outline_y++) {
-                    if (outline_x == 0 && outline_y == 0) {
-                        continue;
-                    }
-
-                    outline_box.x = dest->x + outline_x;
-                    outline_box.y =
-                        dest->y + outline_y + MAX(info->start_y - dest->y + outline_y, 0);
-
-                    if (flags & TEXT_SOLID) {
-                        ttf_surface =
-                            TTF_RenderText_Solid((*font)->font, buf, 0, info->outline_color);
-                    } else {
-                        ttf_surface =
-                            TTF_RenderText_Blended((*font)->font, buf, 0, info->outline_color);
-                    }
-
-                    if (info->used_alpha != 255) {
-                        surface_set_alpha(ttf_surface, info->used_alpha);
-                    }
-
-                    srcrect.x = 0;
-                    srcrect.y = MAX(info->start_y - dest->y + outline_y, 0);
-                    srcrect.w = ttf_surface->w;
-                    srcrect.h =
-                        box && box->h
-                            ? MAX(MIN(box->h - (outline_box.y - info->start_y), ttf_surface->h), 0)
-                            : ttf_surface->h;
-
-                    SDL_BlitSurface(ttf_surface, &srcrect, surface, &outline_box);
-                    SDL_DestroySurface(ttf_surface);
+            if (outline_surface == NULL) {
+                LOG(ERROR, "Could not render text outline: %s", SDL_GetError());
+            } else {
+                if (info->used_alpha != 255) {
+                    surface_set_alpha(outline_surface, info->used_alpha);
                 }
+
+                for (outline_x = -1; outline_x < 2; outline_x++) {
+                    for (outline_y = -1; outline_y < 2; outline_y++) {
+                        if (outline_x == 0 && outline_y == 0) {
+                            continue;
+                        }
+
+                        outline_box.x = dest->x + outline_x;
+                        outline_box.y =
+                            dest->y + outline_y + MAX(info->start_y - dest->y + outline_y, 0);
+
+                        srcrect.x = 0;
+                        srcrect.y = MAX(info->start_y - dest->y + outline_y, 0);
+                        srcrect.w = outline_surface->w;
+                        srcrect.h = box && box->h
+                                        ? MAX(MIN(box->h - (outline_box.y - info->start_y),
+                                                  outline_surface->h),
+                                              0)
+                                        : outline_surface->h;
+
+                        SDL_BlitSurface(outline_surface, &srcrect, surface, &outline_box);
+                    }
+                }
+                SDL_DestroySurface(outline_surface);
             }
         }
 
         /* Render the character. */
-        if (flags & TEXT_SOLID) {
-            ttf_surface = TTF_RenderText_Solid((*font)->font, buf, 0, *use_color);
+        ttf_surface = text_render_glyph((*font)->font, glyph_text, flags, *use_color);
+        if (ttf_surface == NULL) {
+            LOG(ERROR, "Could not render text glyph: %s", SDL_GetError());
+            goto rendered;
+        }
 
+        if (flags & TEXT_SOLID) {
             /* Opacity. */
             if (info->used_alpha != 255) {
                 SDL_Surface *new_ttf_surface;
@@ -1885,10 +1917,12 @@ int text_show_character(font_struct **font,
                 /* Free the old one. */
                 SDL_DestroySurface(ttf_surface);
                 ttf_surface = new_ttf_surface;
+                if (ttf_surface == NULL) {
+                    LOG(ERROR, "Could not convert text glyph: %s", SDL_GetError());
+                    goto rendered;
+                }
             }
         } else {
-            ttf_surface = TTF_RenderText_Blended((*font)->font, buf, 0, *use_color);
-
             if (info->used_alpha != 255) {
                 surface_set_alpha(ttf_surface, info->used_alpha);
             }
@@ -1918,6 +1952,10 @@ int text_show_character(font_struct **font,
                                       info->flip & TEXT_FLIP_VERTICAL ? -1.0 : 1.0,
                                       0);
             SDL_DestroySurface(ttf_surface_orig);
+            if (ttf_surface == NULL) {
+                LOG(ERROR, "Could not flip text glyph: %s", SDL_GetError());
+                goto rendered;
+            }
         }
 
         /* Output the rendered character to the screen and free the
@@ -1935,6 +1973,7 @@ int text_show_character(font_struct **font,
         SDL_DestroySurface(ttf_surface);
     }
 
+rendered:
     /* Update the x/w of the destination with the character's width. */
     if (surface) {
         dest->x += width;
@@ -1976,6 +2015,28 @@ int glyph_get_width(font_struct *font, char c) {
     }
 
     return 0;
+}
+
+int glyph_get_utf8_width(font_struct *font, const char *text) {
+    size_t bytes;
+    Uint32 codepoint = text_decode_codepoint(text, &bytes);
+    int minx, width;
+
+    (void)bytes;
+    if (!TTF_GetGlyphMetrics(font->font,
+                             codepoint == '\t' ? ' ' : codepoint,
+                             &minx,
+                             NULL,
+                             NULL,
+                             NULL,
+                             &width)) {
+        return 0;
+    }
+    if (minx < 0) {
+        width -= minx;
+    }
+
+    return codepoint == '\t' ? width * 4 : width;
 }
 
 /**
@@ -2024,17 +2085,18 @@ int glyph_get_height(font_struct *font, char c) {
                 selection_box.w = 0;                                                 \
                 selection_box.h = FONT_HEIGHT(FONT_TRY_INFO(font, info, surface));   \
                                                                                      \
-                if (text_show_character(&font,                                       \
-                                        orig_font,                                   \
-                                        NULL,                                        \
-                                        &selection_box,                              \
-                                        cp,                                          \
-                                        &color,                                      \
-                                        &orig_color,                                 \
-                                        flags,                                       \
-                                        box,                                         \
-                                        &x_adjust,                                   \
-                                        &info) == 1) {                               \
+                int selected_bytes = text_show_character(&font,                      \
+                                                         orig_font,                  \
+                                                         NULL,                       \
+                                                         &selection_box,             \
+                                                         cp,                         \
+                                                         &color,                     \
+                                                         &orig_color,                \
+                                                         flags,                      \
+                                                         box,                        \
+                                                         &x_adjust,                  \
+                                                         &info);                     \
+                if (selected_bytes == 1 || (unsigned char)*cp >= 0x80) {             \
                     SDL_FillSurfaceRect(surface, &selection_box, -1);                \
                                                                                      \
                     select_color_orig = color;                                       \
@@ -2057,7 +2119,7 @@ int glyph_get_height(font_struct *font, char c) {
         if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT) {                      \
             if (my >= dest.y && my <= dest.y + FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) && \
                 mx >= old_x &&                                                                    \
-                mx <= old_x + glyph_get_width(FONT_TRY_INFO(font, info, surface), *cp)) {         \
+                mx <= old_x + glyph_get_utf8_width(FONT_TRY_INFO(font, info, surface), cp)) {     \
                 if (*selection_started) {                                                         \
                     *selection_end = cp - text;                                                   \
                 } else {                                                                          \
@@ -2163,10 +2225,9 @@ void text_show(SDL_Surface *surface,
     dest.y = y;
     dest.w = 0;
     height = 0;
-    max_height = 0;
     max_width = 0;
 
-    if (flags & TEXT_HEIGHT) {
+    if (flags & TEXT_HEIGHT && box != NULL) {
         dest.y -= box->y;
     }
 
@@ -2196,7 +2257,7 @@ void text_show(SDL_Surface *surface,
             (flags & TEXT_WORD_WRAP && box && box->w &&
              dest.w + (flags & TEXT_MARKUP && cp[pos] == '['
                            ? 0
-                           : glyph_get_width(FONT_TRY_INFO(font, info, surface), cp[pos])) >
+                           : glyph_get_utf8_width(FONT_TRY_INFO(font, info, surface), cp + pos)) >
                  box->w)) {
             /* Store the last space. */
             if (is_lf || last_space == 0) {
@@ -2213,7 +2274,7 @@ void text_show(SDL_Surface *surface,
             /* See if we should skip drawing. */
             if (flags & TEXT_MAX_WIDTH) {
                 skip = 1;
-            } else if (flags & TEXT_LINES_SKIP) {
+            } else if (flags & TEXT_LINES_SKIP && box != NULL) {
                 skip = box->y && lines - 1 < box->y;
             }
 
@@ -2297,7 +2358,6 @@ void text_show(SDL_Surface *surface,
             last_space = pos = 0;
             dest.w = x_adjust;
             dest.x = x + x_adjust;
-            max_height = 0;
         } else {
             /* Store last space position. */
             if (cp[pos] == ' ') {
@@ -2325,7 +2385,7 @@ void text_show(SDL_Surface *surface,
     /* Draw leftover characters. */
     while (*cp != '\0') {
         if (flags & TEXT_WIDTH && box) {
-            int w = glyph_get_width(font, *cp);
+            int w = glyph_get_utf8_width(font, cp);
 
             if (box->w && width + w > box->w) {
                 break;
@@ -2646,14 +2706,17 @@ void text_truncate_overflow(font_struct *font, char *text, int max_width) {
     int width = 0;
 
     while (text[pos] != '\0') {
-        width += glyph_get_width(font, text[pos]);
+        size_t bytes;
+
+        text_decode_codepoint(text + pos, &bytes);
+        width += glyph_get_utf8_width(font, text + pos);
 
         if (width > max_width) {
             text[pos] = '\0';
             break;
         }
 
-        pos++;
+        pos += bytes;
     }
 }
 

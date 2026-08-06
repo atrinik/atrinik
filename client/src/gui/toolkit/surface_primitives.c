@@ -188,6 +188,10 @@ int boxRGBA(SDL_Surface *surface,
             Uint8 green,
             Uint8 blue,
             Uint8 alpha) {
+    if (surface == NULL) {
+        return -1;
+    }
+
     if (x1 > x2) {
         Sint16 tmp = x1;
         x1 = x2;
@@ -199,15 +203,34 @@ int boxRGBA(SDL_Surface *surface,
         y2 = tmp;
     }
 
-    for (int y = y1; y <= y2; y++) {
-        for (int x = x1; x <= x2; x++) {
-            if (surface_pixel_blend(surface, x, y, red, green, blue, alpha) < 0) {
-                return -1;
-            }
-        }
+    SDL_Rect destination = {
+        .x = x1,
+        .y = y1,
+        .w = x2 - x1 + 1,
+        .h = y2 - y1 + 1,
+    };
+    if (alpha == SDL_ALPHA_TRANSPARENT) {
+        return 0;
+    }
+    if (alpha == SDL_ALPHA_OPAQUE) {
+        return SDL_FillSurfaceRect(surface,
+                                   &destination,
+                                   surface_map_rgba(surface, red, green, blue, alpha))
+                   ? 0
+                   : -1;
     }
 
-    return 0;
+    SDL_Surface *source = SDL_CreateSurface(1, 1, SDL_PIXELFORMAT_RGBA32);
+    if (source == NULL || !SDL_WriteSurfacePixel(source, 0, 0, red, green, blue, alpha) ||
+        !SDL_SetSurfaceBlendMode(source, SDL_BLENDMODE_BLEND)) {
+        SDL_DestroySurface(source);
+        return -1;
+    }
+
+    bool success =
+        SDL_BlitSurfaceScaled(source, NULL, surface, &destination, SDL_SCALEMODE_NEAREST);
+    SDL_DestroySurface(source);
+    return success ? 0 : -1;
 }
 
 int filledRectAlpha(SDL_Surface *surface,

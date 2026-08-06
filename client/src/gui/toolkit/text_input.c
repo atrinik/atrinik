@@ -34,33 +34,73 @@
 #include <toolkit/string.h>
 
 static size_t utf8_previous(const char *str, size_t pos) {
-    if (pos == 0) {
-        return 0;
-    }
+    const char *cursor = str + pos;
 
-    pos--;
-    while (pos > 0 && ((unsigned char)str[pos] & 0xc0) == 0x80) {
-        pos--;
-    }
-
-    return pos;
+    SDL_StepBackUTF8(str, &cursor);
+    return (size_t)(cursor - str);
 }
 
 static size_t utf8_next(const char *str, size_t len, size_t pos) {
-    if (pos >= len) {
-        return len;
-    }
+    size_t offset = MIN(len, pos);
+    const char *cursor = str + offset;
+    size_t remaining = len - offset;
 
-    pos++;
-    while (pos < len && ((unsigned char)str[pos] & 0xc0) == 0x80) {
-        pos++;
-    }
+    SDL_StepUTF8(&cursor, &remaining);
+    return (size_t)(cursor - str);
+}
 
-    return pos;
+static bool text_input_codepoint_is_space(Uint32 codepoint) {
+    return codepoint <= UCHAR_MAX && isspace((unsigned char)codepoint);
+}
+
+static void text_input_skip_word(const char *str, size_t len, size_t *pos, int direction) {
+    bool whitespace = true;
+
+    while ((direction < 0 && *pos != 0) || (direction > 0 && *pos < len)) {
+        size_t next;
+        const char *cursor;
+
+        if (direction < 0) {
+            next = utf8_previous(str, *pos);
+            cursor = str + next;
+        } else {
+            cursor = str + *pos;
+            next = utf8_next(str, len, *pos);
+        }
+        Uint32 codepoint = SDL_StepUTF8(&cursor, NULL);
+
+        if (text_input_codepoint_is_space(codepoint)) {
+            if (!whitespace) {
+                break;
+            }
+        } else if (whitespace) {
+            whitespace = false;
+        }
+
+        *pos = next;
+    }
+}
+
+static void text_input_sanitize(char *text) {
+    char *cursor = text;
+
+    while (*cursor != '\0') {
+        const char *next = cursor;
+        Uint32 codepoint = SDL_StepUTF8(&next, NULL);
+
+        if (codepoint == SDL_INVALID_UNICODE_CODEPOINT) {
+            *cursor++ = ' ';
+        } else {
+            if (codepoint < ' ' || codepoint == 0x7f) {
+                *cursor = ' ';
+            }
+            cursor = (char *)next;
+        }
+    }
 }
 
 static bool text_input_add_text(text_input_struct *text_input, const char *text) {
-    size_t capacity = MIN(text_input->max, sizeof(text_input->str)) - 1;
+    size_t capacity = MIN(text_input->max, sizeof(text_input->str) - 1);
     size_t available = capacity - MIN(text_input->num, capacity);
     size_t len = MIN(strlen(text), available);
 
@@ -179,9 +219,11 @@ void text_input_set_history(text_input_struct *text_input, text_input_history_st
 }
 
 void text_input_set(text_input_struct *text_input, const char *str) {
-    strncpy(text_input->str, str ? str : "", text_input->max - 1);
-    text_input->str[text_input->max - 1] = '\0';
+    size_t capacity = MIN(text_input->max, sizeof(text_input->str) - 1);
+
+    SDL_utf8strlcpy(text_input->str, str ? str : "", capacity + 1);
     text_input->pos = text_input->num = strlen(text_input->str);
+    text_input->composition[0] = '\0';
 }
 
 void text_input_set_parent(text_input_struct *text_input, int px, int py) {
@@ -246,7 +288,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
         size_t previous = utf8_previous(text_input->str, pos);
 
         /* Reached the maximum yet? */
-        if (box.w + glyph_get_width(text_input->font, *(text_input->str + previous)) +
+        if (box.w + glyph_get_utf8_width(text_input->font, text_input->str + previous) +
                 underscore_width >
             text_input->coords.w - TEXT_INPUT_PADDING * 2) {
             break;
@@ -269,7 +311,11 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
     sb = stringbuffer_new();
     stringbuffer_append_string_len(sb, text_input->str + pos, text_input->pos - pos);
 
-    if (text_input->focus) {
+    if (text_input->focus && text_input->show_edit_func == NULL &&
+        text_input->composition[0] != '\0') {
+        stringbuffer_append_string(sb, text_input->composition);
+        stringbuffer_append_char(sb, '_');
+    } else if (text_input->focus) {
         stringbuffer_append_char(sb, '_');
     }
 
@@ -308,9 +354,11 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
     }
 
     if (event->type == SDL_EVENT_TEXT_INPUT) {
+        text_input->composition[0] = '\0';
         return text_input_add_text(text_input, event->text.text);
     }
     if (event->type == SDL_EVENT_TEXT_EDITING) {
+        SDL_utf8strlcpy(text_input->composition, event->edit.text, sizeof(text_input->composition));
         return 1;
     }
 
@@ -319,7 +367,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
             char *clipboard_contents = SDL_GetClipboardText();
 
             if (clipboard_contents) {
-                string_replace_unprintable_chars(clipboard_contents);
+                text_input_sanitize(clipboard_contents);
                 text_input_add_text(text_input, clipboard_contents);
                 SDL_free(clipboard_contents);
             }
@@ -338,7 +386,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
                 i = j = text_input->pos;
 
                 if (event->key.mod & SDL_KMOD_CTRL) {
-                    string_skip_word(text_input->str, &i, -1);
+                    text_input_skip_word(text_input->str, text_input->num, &i, -1);
                 } else {
                     i = utf8_previous(text_input->str, i);
                 }
@@ -359,7 +407,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
                 i = j = text_input->pos;
 
                 if (event->key.mod & SDL_KMOD_CTRL) {
-                    string_skip_word(text_input->str, &i, 1);
+                    text_input_skip_word(text_input->str, text_input->num, &i, 1);
                 } else {
                     i = utf8_next(text_input->str, text_input->num, i);
                 }
@@ -377,7 +425,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
                 size_t i;
 
                 i = text_input->pos;
-                string_skip_word(text_input->str, &i, -1);
+                text_input_skip_word(text_input->str, text_input->num, &i, -1);
                 text_input->pos = i;
             } else if (text_input->pos != 0) {
                 text_input->pos = utf8_previous(text_input->str, text_input->pos);
@@ -389,7 +437,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
                 size_t i;
 
                 i = text_input->pos;
-                string_skip_word(text_input->str, &i, 1);
+                text_input_skip_word(text_input->str, text_input->num, &i, 1);
                 text_input->pos = i;
             } else if (text_input->pos < text_input->num) {
                 text_input->pos = utf8_next(text_input->str, text_input->num, text_input->pos);
@@ -406,10 +454,9 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
 
                 if (p) {
                     if (text_input->history->pos == 0) {
-                        strncpy(text_input->str_editing,
-                                text_input->str,
-                                sizeof(text_input->str_editing) - 1);
-                        text_input->str_editing[sizeof(text_input->str_editing) - 1] = '\0';
+                        SDL_utf8strlcpy(text_input->str_editing,
+                                        text_input->str,
+                                        sizeof(text_input->str_editing));
                     }
 
                     text_input->history->pos++;

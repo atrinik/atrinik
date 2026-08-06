@@ -56,10 +56,48 @@ typedef struct key_struct {
     uint8_t repeated;
 } key_struct;
 
-#define EVENT_IS_MOUSE(_event)                                                       \
-    ((_event)->type == SDL_EVENT_MOUSE_BUTTON_DOWN || (_event)->type == SDL_EVENT_MOUSE_BUTTON_UP || \
-     (_event)->type == SDL_EVENT_MOUSE_MOTION || (_event)->type == SDL_EVENT_MOUSE_WHEEL)
-#define EVENT_IS_KEY(_event) ((_event)->type == SDL_EVENT_KEY_DOWN || (_event)->type == SDL_EVENT_KEY_UP)
+#define EVENT_IS_MOUSE(_event)                                                                  \
+    ((_event)->type == SDL_EVENT_MOUSE_BUTTON_DOWN ||                                           \
+     (_event)->type == SDL_EVENT_MOUSE_BUTTON_UP || (_event)->type == SDL_EVENT_MOUSE_MOTION || \
+     (_event)->type == SDL_EVENT_MOUSE_WHEEL)
+#define EVENT_IS_KEY(_event) \
+    ((_event)->type == SDL_EVENT_KEY_DOWN || (_event)->type == SDL_EVENT_KEY_UP)
+
+static inline float event_mouse_x(const SDL_Event *event) {
+    if (event->type == SDL_EVENT_MOUSE_WHEEL) {
+        return event->wheel.mouse_x;
+    }
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN || event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
+        return event->button.x;
+    }
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
+        return event->motion.x;
+    }
+    return 0.0f;
+}
+
+static inline float event_mouse_y(const SDL_Event *event) {
+    if (event->type == SDL_EVENT_MOUSE_WHEEL) {
+        return event->wheel.mouse_y;
+    }
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN || event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
+        return event->button.y;
+    }
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
+        return event->motion.y;
+    }
+    return 0.0f;
+}
+
+static inline bool event_mouse_button_matches(const SDL_Event *event, Uint8 button) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
+        return (event->motion.state & SDL_BUTTON_MASK(button)) != 0;
+    }
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN || event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
+        return event->button.button == button;
+    }
+    return false;
+}
 
 static inline float event_wheel_y(const SDL_Event *event) {
     float y = event->wheel.y;

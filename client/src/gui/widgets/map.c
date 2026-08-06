@@ -2216,7 +2216,7 @@ static void map_draw_level(SDL_Surface *surface,
 
         /* Positive-depth ground is composited through a color-keyed scratch
          * surface. Applying the screen-sized alpha lightmap to that surface
-         * changes transparent background pixels on SDL 1.2 and makes the
+         * changes transparent background pixels and makes the
          * higher level erase parts of the levels below it. Keep those floor
          * sprites on the discrete path while still building the continuous
          * field used by their wall faces. */
@@ -3336,7 +3336,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
 
     /* Check if the mouse is in play field. */
     int tx, ty;
-    if (!mouse_to_tile_coords(event->motion.x, event->motion.y, &tx, &ty)) {
+    if (!mouse_to_tile_coords(event_mouse_x(event), event_mouse_y(event), &tx, &ty)) {
         return 0;
     }
 

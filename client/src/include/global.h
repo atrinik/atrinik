@@ -42,8 +42,8 @@
 
 static inline SDL_MouseButtonFlags mouse_get_state(int *x, int *y) {
     float mouse_x, mouse_y;
-    SDL_MouseButtonFlags state = SDL_GetMouseState(x != NULL ? &mouse_x : NULL,
-                                                   y != NULL ? &mouse_y : NULL);
+    SDL_MouseButtonFlags state =
+        SDL_GetMouseState(x != NULL ? &mouse_x : NULL, y != NULL ? &mouse_y : NULL);
 
     if (x != NULL) {
         *x = (int)mouse_x;

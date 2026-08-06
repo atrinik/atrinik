@@ -63,7 +63,7 @@ void system_end(void) {
     resources_deinit();
     toolkit_widget_deinit();
     client_socket_deinitialize();
-    metaserver_clear_data();
+    metaserver_deinit();
     effects_deinit();
     sound_ambient_clear();
     interface_deinit();

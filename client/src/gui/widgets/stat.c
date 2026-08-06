@@ -161,7 +161,9 @@ static void widget_draw(widgetdata *widget) {
         box.y = WIDGET_BORDER_SIZE;
         box.w = widget->w - WIDGET_BORDER_SIZE * 2;
         box.h = widget->h - WIDGET_BORDER_SIZE * 2;
-        SDL_FillSurfaceRect(widget->surface, &box, pixel_format_map_rgb(widget->surface->format, 0, 0, 0));
+        SDL_FillSurfaceRect(widget->surface,
+                            &box,
+                            pixel_format_map_rgb(widget->surface->format, 0, 0, 0));
         border_create_texture(widget->surface, &box, thickness, TEXTURE_CLIENT("stat_border"));
 
         box.x += thickness;
@@ -185,10 +187,11 @@ static void widget_draw(widgetdata *widget) {
 
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event) {
-    if (event->type == SDL_EVENT_MOUSE_MOTION && event->motion.x - widget->x > WIDGET_BORDER_SIZE &&
-        event->motion.x - widget->x < widget->w - WIDGET_BORDER_SIZE &&
-        event->motion.y - widget->y > WIDGET_BORDER_SIZE &&
-        event->motion.y - widget->y < widget->h - WIDGET_BORDER_SIZE) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION &&
+        event_mouse_x(event) - widget->x > WIDGET_BORDER_SIZE &&
+        event_mouse_x(event) - widget->x < widget->w - WIDGET_BORDER_SIZE &&
+        event_mouse_y(event) - widget->y > WIDGET_BORDER_SIZE &&
+        event_mouse_y(event) - widget->y < widget->h - WIDGET_BORDER_SIZE) {
         int64_t curr, max;
         double regen;
         if (!stat_get_data(widget, &curr, &max, &regen)) {
@@ -201,7 +204,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
             snprintf(VS(buf), "%s", widget->id);
             string_title(buf);
             snprintfcat(VS(buf), ": %" PRId64 "/%" PRId64 "\nRegen: %2.1f/s", curr, max, regen);
-            tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
+            tooltip_create(event_mouse_x(event), event_mouse_y(event), FONT_ARIAL11, buf);
             tooltip_enable_delay(300);
             return 1;
         }
@@ -264,7 +267,7 @@ static void menu_stat_display(widgetdata *widget, widgetdata *menuitem, SDL_Even
 
 /** @copydoc widgetdata::menu_handle_func */
 static int widget_menu_handle(widgetdata *widget, SDL_Event *event) {
-    widgetdata *menu = create_menu(event->motion.x, event->motion.y, widget);
+    widgetdata *menu = create_menu(event_mouse_x(event), event_mouse_y(event), widget);
     widget_menu_standard_items(widget, menu);
     add_menuitem(menu, "Display  >", &menu_stat_display, MENU_SUBMENU, 0);
     menu_finalize(menu);

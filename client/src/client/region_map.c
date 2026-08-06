@@ -902,6 +902,10 @@ void region_map_fow_update(region_map_t *region_map) {
         region_map->fow->surface = SDL_CreateSurface(region_map->surface->w,
                                                      region_map->surface->h,
                                                      ScreenSurface->format);
+        if (region_map->fow->surface == NULL) {
+            LOG(ERROR, "Could not create region map fog surface: %s", SDL_GetError());
+            return;
+        }
     }
 
     SDL_FillSurfaceRect(region_map->fow->surface, NULL, 0);

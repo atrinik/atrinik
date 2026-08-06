@@ -398,7 +398,7 @@ static void menu_minimap_display(widgetdata *widget, widgetdata *menuitem, SDL_E
 static int widget_menu_handle(widgetdata *widget, SDL_Event *event) {
     widgetdata *menu;
 
-    menu = create_menu(event->motion.x, event->motion.y, widget);
+    menu = create_menu(event_mouse_x(event), event_mouse_y(event), widget);
 
     widget_menu_standard_items(widget, menu);
     add_menuitem(menu, "Display  >", &menu_minimap_display, MENU_SUBMENU, 0);

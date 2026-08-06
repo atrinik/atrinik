@@ -163,8 +163,8 @@ static int color_picker_element_show(SDL_Surface *surface,
 
     /* Check for events. */
     if (event) {
-        mx = event->motion.x - color_picker->px;
-        my = event->motion.y - color_picker->py;
+        mx = event_mouse_x(event) - color_picker->px;
+        my = event_mouse_y(event) - color_picker->py;
 
         /* If the element is being dragged, clamp the mouse x/y positions
          * to the element's dimensions. */
@@ -243,7 +243,10 @@ static int color_picker_element_show(SDL_Surface *surface,
                 putpixel(surface,
                          dest.x,
                          dest.y,
-                         pixel_format_map_rgb(surface->format, 255 * rgb[0], 255 * rgb[1], 255 * rgb[2]));
+                         pixel_format_map_rgb(surface->format,
+                                              255 * rgb[0],
+                                              255 * rgb[1],
+                                              255 * rgb[2]));
             }
         }
 
@@ -333,7 +336,7 @@ void color_picker_show(SDL_Surface *surface, color_picker_struct *color_picker) 
  */
 int color_picker_event(color_picker_struct *color_picker, SDL_Event *event) {
     if ((event->type == SDL_EVENT_MOUSE_BUTTON_DOWN || event->type == SDL_EVENT_MOUSE_MOTION) &&
-        event->button.button == SDL_BUTTON_LEFT) {
+        event_mouse_button_matches(event, SDL_BUTTON_LEFT)) {
         size_t i;
 
         for (i = 0; i < COLOR_PICKER_ELEM_NUM; i++) {

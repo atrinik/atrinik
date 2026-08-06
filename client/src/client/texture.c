@@ -62,11 +62,16 @@ static void texture_data_free(texture_struct *tmp) {
 static int texture_data_new(texture_struct *tmp) {
     if (tmp->type == TEXTURE_TYPE_SOFTWARE) {
         SDL_Surface *surface;
+        int surface_alpha = SDL_ALPHA_OPAQUE;
 
         if (strcmp(tmp->name, TEXTURE_FALLBACK_NAME) == 0) {
             SDL_Rect box;
 
             surface = surface_create_rgb(get_video_flags(), 20, 20, video_get_bpp(), 0, 0, 0, 0);
+            if (surface == NULL) {
+                LOG(BUG, "Could not create fallback texture: %s", SDL_GetError());
+                return 0;
+            }
             lineRGBA(surface, 0, 0, surface->w, surface->h, 255, 0, 0, 255);
             lineRGBA(surface, surface->w, 0, 0, surface->h, 255, 0, 0, 255);
             box.x = 0;
@@ -79,14 +84,20 @@ static int texture_data_new(texture_struct *tmp) {
 
             alpha = 255;
 
-            if (sscanf(tmp->name + 10, "%d,%d,%d", &w, &h, &alpha) >= 2) {
+            if (sscanf(tmp->name + 10, "%d,%d,%d", &w, &h, &alpha) >= 2 && w > 0 && h > 0 &&
+                alpha >= SDL_ALPHA_TRANSPARENT && alpha <= SDL_ALPHA_OPAQUE) {
                 char *cp;
 
                 surface = surface_create_rgb(get_video_flags(), w, h, video_get_bpp(), 0, 0, 0, 0);
-
-                if (alpha != 255) {
-                    surface_set_alpha(surface, alpha);
+                if (surface == NULL) {
+                    LOG(BUG,
+                        "Could not create rectangle texture %s: %s",
+                        tmp->name,
+                        SDL_GetError());
+                    return 0;
                 }
+
+                surface_alpha = alpha;
 
                 cp = strchr(tmp->name + 10, ';');
 
@@ -109,6 +120,13 @@ static int texture_data_new(texture_struct *tmp) {
         texture_data_free(tmp);
         tmp->surface = surface_to_display(surface);
         SDL_DestroySurface(surface);
+        if (tmp->surface == NULL) {
+            LOG(BUG, "Could not convert software texture %s: %s", tmp->name, SDL_GetError());
+            return 0;
+        }
+        if (tmp->surface != NULL && surface_alpha != SDL_ALPHA_OPAQUE) {
+            surface_set_alpha(tmp->surface, (uint8_t)surface_alpha);
+        }
     } else if (tmp->type == TEXTURE_TYPE_CLIENT) {
         char path[HUGE_BUF];
         SDL_Surface *surface;
@@ -129,6 +147,10 @@ static int texture_data_new(texture_struct *tmp) {
         texture_data_free(tmp);
         tmp->surface = surface_to_display(surface);
         SDL_DestroySurface(surface);
+        if (tmp->surface == NULL) {
+            LOG(BUG, "Could not convert texture %s: %s", path, SDL_GetError());
+            return 0;
+        }
     }
 
     return 1;

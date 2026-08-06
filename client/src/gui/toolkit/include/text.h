@@ -403,6 +403,8 @@ extern int text_show_character(font_struct **font,
 
 extern int glyph_get_width(font_struct *font, char c);
 
+extern int glyph_get_utf8_width(font_struct *font, const char *text);
+
 extern int glyph_get_height(font_struct *font, char c);
 
 extern void text_show(SDL_Surface *surface,

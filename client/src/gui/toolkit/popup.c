@@ -235,10 +235,10 @@ int popup_handle_event(SDL_Event *event) {
     int ret;
 
     if (popup_head && !popup_head->modal && event->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
-        !(event->motion.x >= popup_head->x &&
-          event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w &&
-          event->motion.y >= popup_head->y &&
-          event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h)) {
+        !(event_mouse_x(event) >= popup_head->x &&
+          event_mouse_x(event) < popup_head->x + texture_surface(popup_head->texture)->w &&
+          event_mouse_y(event) >= popup_head->y &&
+          event_mouse_y(event) < popup_head->y + texture_surface(popup_head->texture)->h)) {
         if (popup_head->destroy_on_switch) {
             popup_destroy(popup_head);
             return 1;
@@ -287,17 +287,17 @@ int popup_handle_event(SDL_Event *event) {
         } else if ((event->type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
                     event->type == SDL_EVENT_MOUSE_BUTTON_UP ||
                     event->type == SDL_EVENT_MOUSE_MOTION) &&
-                   event->motion.x >= popup_head->x &&
-                   event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w &&
-                   event->motion.y >= popup_head->y &&
-                   event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h) {
+                   event_mouse_x(event) >= popup_head->x &&
+                   event_mouse_x(event) < popup_head->x + texture_surface(popup_head->texture)->w &&
+                   event_mouse_y(event) >= popup_head->y &&
+                   event_mouse_y(event) < popup_head->y + texture_surface(popup_head->texture)->h) {
             if (event->type == SDL_EVENT_MOUSE_MOTION) {
                 popup_head->redraw = 1;
 
-                if (event->button.button == SDL_BUTTON_LEFT) {
+                if (event_mouse_button_matches(event, SDL_BUTTON_LEFT)) {
                     popup_head->selection_started = 1;
                 }
-            } else if (event->button.button == SDL_BUTTON_LEFT) {
+            } else if (event_mouse_button_matches(event, SDL_BUTTON_LEFT)) {
                 if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
                     popup_head->selection_started = 0;
                 } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {

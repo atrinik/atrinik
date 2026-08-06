@@ -150,7 +150,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
     }
 
     if (book_help_history_enabled && BUTTON_CHECK_TOOLTIP(&popup->button_left.button)) {
-        tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, "Go back");
+        tooltip_create(event_mouse_x(event), event_mouse_y(event), FONT_ARIAL11, "Go back");
         tooltip_enable_delay(300);
     }
 

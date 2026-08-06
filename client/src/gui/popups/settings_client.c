@@ -749,7 +749,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
 
             if ((event->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
                  event->button.button == SDL_BUTTON_LEFT &&
-                 text_input_mouse_over(text_input, event->motion.x, event->motion.y))) {
+                 text_input_mouse_over(text_input, event_mouse_x(event), event_mouse_y(event)))) {
                 text_input_focused = text_input;
                 return 1;
             }

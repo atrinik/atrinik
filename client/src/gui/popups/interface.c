@@ -274,12 +274,13 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
     } else if (button_event(&button_close, event)) {
         popup_destroy(popup);
         return 1;
-    } else if (event->type == SDL_EVENT_TEXT_INPUT) {
+    } else if (event->type == SDL_EVENT_TEXT_INPUT || event->type == SDL_EVENT_TEXT_EDITING) {
         if (interface_data->text_input) {
             return text_input_event(&text_input, event);
         }
 
-        if (event->text.text[0] != '\0' && event->text.text[1] == '\0') {
+        if (event->type == SDL_EVENT_TEXT_INPUT && event->text.text[0] != '\0' &&
+            event->text.text[1] == '\0') {
             const char *shortcut = strchr(character_shortcuts, event->text.text[0]);
             if (shortcut != NULL) {
                 size_t index = (size_t)(shortcut - character_shortcuts);
