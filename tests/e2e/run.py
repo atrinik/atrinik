@@ -201,6 +201,63 @@ class FakeStunServer:
             self.error = error
 
 
+class LossyUdpProxy:
+    """Loopback QUIC relay with deterministic server-to-client packet loss."""
+
+    def __init__(self, target: tuple[str, int]) -> None:
+        self.target = target
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket.bind(("127.0.0.1", 0))
+        self.socket.settimeout(0.05)
+        self.port = int(self.socket.getsockname()[1])
+        self.client: tuple[str, int] | None = None
+        self.server_packets = 0
+        self.dropped = 0
+        self.error: BaseException | None = None
+        self.stopping = threading.Event()
+        self.thread = threading.Thread(target=self._relay, daemon=True)
+
+    def __enter__(self) -> LossyUdpProxy:
+        self.thread.start()
+        return self
+
+    def __exit__(self, *unused: object) -> None:
+        self.stopping.set()
+        self.thread.join(TIMEOUT_SECONDS)
+        self.socket.close()
+        if self.thread.is_alive():
+            raise AssertionError("lossy UDP proxy did not stop")
+        if self.error is not None:
+            raise self.error
+
+    def _relay(self) -> None:
+        try:
+            while not self.stopping.is_set():
+                try:
+                    packet, peer = self.socket.recvfrom(65535)
+                except socket.timeout:
+                    continue
+                if peer == self.target:
+                    self.server_packets += 1
+                    # Preserve handshake setup, then lose two server datagrams
+                    # during the sustained asset transfer. Limiting the loss
+                    # keeps this deterministic under sanitizer slowdown while
+                    # still exercising QUIC recovery.
+                    if self.server_packets in (20, 40):
+                        self.dropped += 1
+                        continue
+                    if self.client is not None:
+                        self.socket.sendto(packet, self.client)
+                else:
+                    self.client = peer
+                    self.socket.sendto(packet, self.target)
+        except OSError as error:
+            if not self.stopping.is_set():
+                self.error = error
+        except BaseException as error:  # Propagate thread failures to the test.
+            self.error = error
+
+
 class NetworkE2ETest(unittest.TestCase):
     __unittest_skip__ = True
     __unittest_skip_why__ = "run through tests/e2e/run.py with a native driver"
@@ -272,10 +329,12 @@ class NetworkE2ETest(unittest.TestCase):
             self.temp / "multi-stream-identity.pem", "streams-server"
         )
         try:
-            client = self.driver.command(
-                "streams-client", "127.0.0.1", port, fingerprint
-            )
-            server_output = self.driver.finish_server(server)
+            with LossyUdpProxy(("127.0.0.1", port)) as proxy:
+                client = self.driver.command(
+                    "streams-client", "127.0.0.1", proxy.port, fingerprint
+                )
+                server_output = self.driver.finish_server(server)
+            self.assertGreaterEqual(proxy.dropped, 2)
         except BaseException:
             self.driver.stop_server(server)
             raise

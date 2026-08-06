@@ -230,6 +230,12 @@ typedef enum socket_connection_preference {
 #define SOCKET_STREAM_PROTOCOL_VERSION 1
 /** Fixed typed-stream preface size. */
 #define SOCKET_STREAM_PREFACE_SIZE 8U
+/** Reset codes used by the typed-stream protocol. */
+#define SOCKET_STREAM_ERROR_PREFACE 1U
+#define SOCKET_STREAM_ERROR_CANCELLED 2U
+#define SOCKET_STREAM_ERROR_CLIENT_PROTOCOL 3U
+#define SOCKET_STREAM_ERROR_LIMIT 4U
+#define SOCKET_STREAM_ERROR_SERVER_PROTOCOL 5U
 /** Maximum simultaneous in-band asset streams opened by one client. */
 #define ASSET_STREAM_ACTIVE_MAX 3U
 /** Maximum queued in-band asset requests retained by one client connection. */
@@ -239,6 +245,7 @@ typedef enum socket_connection_preference {
 
 /** Explicit role of a QUIC application stream. */
 typedef enum socket_stream_kind {
+    SOCKET_STREAM_UNKNOWN = 0,
     SOCKET_STREAM_GAME = 1,
     SOCKET_STREAM_ASSET = 2,
 } socket_stream_kind_t;
@@ -269,6 +276,8 @@ typedef struct socket_stream socket_stream_t;
 #define ASSET_MAX_SIZE (128U * 1024U * 1024U)
 /** SHA-256 digest size used by the asset cache protocol. */
 #define ASSET_DIGEST_SIZE 32
+/** Fixed response header: status, total size, and SHA-256 digest. */
+#define SOCKET_ASSET_RESPONSE_HEADER_SIZE (1U + 4U + ASSET_DIGEST_SIZE)
 
 /** Decoded client-to-server asset request. */
 typedef struct socket_asset_request {

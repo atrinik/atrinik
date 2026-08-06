@@ -18,7 +18,8 @@ The aggregate target covers:
   identity, bidirectional application data, and wrong-pin rejection;
 - explicit game/asset stream classification, two concurrent 64 KiB bodies
   under 1 KiB round-robin service quanta, a 250 ms gameplay-latency bound
-  during the transfers, and independent cancellation/reset of a third stream;
+  during the transfers, recovery from deterministic UDP packet loss, and
+  independent cancellation/reset of a third stream;
 - rapid client and server peer-close detection with a one-second upper bound;
 - STUN binding discovery through a local RFC 5389 responder, including a
   malformed transaction response;

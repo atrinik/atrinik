@@ -219,6 +219,11 @@
  release the stream and snapshot reference without affecting GAME or sibling
  ASSET streams. The immutable startup snapshot remains capped at 1 GiB.
 
+ Application reset codes are 1 MALFORMED_PREFACE, 2 CLIENT_CANCELLED,
+ 3 CLIENT_PROTOCOL_ERROR, 4 SERVER_STREAM_LIMIT, and 5 SERVER_PROTOCOL_ERROR.
+ Receivers MAY reset a stream that does not complete its preface within a
+ bounded implementation-defined deadline.
+
 ===============================================================================
 = 2. Server commands                                                        =
 ===============================================================================

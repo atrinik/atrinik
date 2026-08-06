@@ -30,9 +30,7 @@
 #define ASSET_RATE_REQUESTS_PER_SECOND 256U
 #define ASSET_TOKEN_BUCKET_CAPACITY ASSET_RATE_BYTES_PER_SECOND
 #define ASSET_REQUEST_WIRE_MAX (MAX_BUF + 4U + ASSET_DIGEST_SIZE + 1U)
-#define ASSET_RESPONSE_HEADER_SIZE (1U + 4U + ASSET_DIGEST_SIZE)
-#define ASSET_STREAM_ERROR_LIMIT 4U
-#define ASSET_STREAM_ERROR_PROTOCOL 5U
+#define ASSET_STREAM_ACCEPT_QUANTUM 16U
 
 typedef struct asset_cache_entry {
     UT_hash_handle hh;
@@ -257,7 +255,6 @@ static bool asset_request_rate_allow(socket_struct *ns) {
         LOG(ERROR,
             "Connection %s exceeded the in-band asset request-rate limit",
             socket_get_id(ns->sc));
-        server_metrics_asset_response(0, true);
         ns->state = ST_ZOMBIE;
         return false;
     }
@@ -289,7 +286,7 @@ static size_t asset_tokens_available(socket_struct *ns) {
 static void
 asset_stream_free(socket_struct *ns, asset_stream_state_t *state, bool reset, bool rejected) {
     if (reset) {
-        socket_stream_reset(state->stream, ASSET_STREAM_ERROR_PROTOCOL);
+        socket_stream_reset(state->stream, SOCKET_STREAM_ERROR_SERVER_PROTOCOL);
     }
     socket_stream_destroy(state->stream);
     if (state->entry != NULL) {
@@ -310,7 +307,7 @@ static void asset_stream_header(asset_stream_state_t *state,
                                 uint8_t status,
                                 uint32_t total_size,
                                 const uint8_t digest[ASSET_DIGEST_SIZE]) {
-    state->header = packet_new(0, ASSET_RESPONSE_HEADER_SIZE, 0);
+    state->header = packet_new(0, SOCKET_ASSET_RESPONSE_HEADER_SIZE, 0);
     socket_asset_response_append_status(state->header, status, total_size, digest);
     HARD_ASSERT(packet_writer_finish(state->header));
     state->state = ASSET_SERVER_SEND_HEADER;
@@ -357,7 +354,6 @@ static bool asset_stream_prepare(socket_struct *ns, asset_stream_state_t *state)
         "Connection %s opened QUIC asset stream for %s",
         socket_get_id(ns->sc),
         request.path);
-    server_metrics_asset_response(datetime_monotonic_us() - state->started_us, false);
     return true;
 }
 
@@ -396,7 +392,7 @@ static bool asset_stream_write(socket_struct *ns, asset_stream_state_t *state) {
         remaining = state->entry->size - state->body_pos;
         size_t tokens = asset_tokens_available(ns);
         if (tokens == 0) {
-            server_metrics_asset_response(0, true);
+            server_metrics_asset_paced();
             return true;
         }
         remaining = MIN(remaining, MIN((size_t)ASSET_STREAM_QUANTUM, tokens));
@@ -410,6 +406,7 @@ static bool asset_stream_write(socket_struct *ns, asset_stream_state_t *state) {
     if (state->state == ASSET_SERVER_SEND_HEADER) {
         state->header_pos += amount;
         if (state->header_pos == state->header->len) {
+            server_metrics_asset_response(datetime_monotonic_us() - state->started_us);
             packet_free(state->header);
             state->header = NULL;
             if (state->entry == NULL || state->entry->size == 0) {
@@ -432,7 +429,7 @@ static bool asset_stream_write(socket_struct *ns, asset_stream_state_t *state) {
 }
 
 static void asset_stream_accept(socket_struct *ns) {
-    for (;;) {
+    for (size_t accepted = 0; accepted < ASSET_STREAM_ACCEPT_QUANTUM; accepted++) {
         socket_stream_t *stream = socket_stream_accept(ns->sc, SOCKET_STREAM_ASSET);
         if (stream == NULL) {
             break;
@@ -441,7 +438,7 @@ static void asset_stream_accept(socket_struct *ns) {
             LOG(ERROR,
                 "Connection %s exceeded the active asset-stream limit",
                 socket_get_id(ns->sc));
-            socket_stream_reset(stream, ASSET_STREAM_ERROR_LIMIT);
+            socket_stream_reset(stream, SOCKET_STREAM_ERROR_LIMIT);
             socket_stream_destroy(stream);
             server_metrics_asset_stream(0, 0, true);
             continue;
@@ -480,7 +477,13 @@ bool socket_assets_service(socket_struct *ns) {
 
 bool socket_assets_pending(const socket_struct *ns) {
     HARD_ASSERT(ns != NULL);
-    return ns->asset_streams != NULL;
+    asset_stream_state_t *state;
+    DL_FOREACH(ns->asset_streams, state) {
+        if (state->state != ASSET_SERVER_READ_REQUEST) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void socket_assets_connection_clear(socket_struct *ns) {

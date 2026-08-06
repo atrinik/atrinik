@@ -41,7 +41,7 @@ bool asset_request_get_metadata(const asset_request_t *request,
 
 void asset_request_free(asset_request_t *request);
 
-bool asset_requests_service(socket_t *sc, bool *pending);
+bool asset_requests_service(socket_t *sc, bool *write_pending);
 
 void asset_requests_disconnect(void);
 

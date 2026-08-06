@@ -262,6 +262,8 @@ static const uint8_t socket_stream_magic[4] = {'A', 'T', 'R', 'N'};
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
 /** Maximum classified or partially prefaced streams retained by the toolkit. */
 #define SOCKET_QUIC_PENDING_STREAM_MAX 16U
+/** Maximum time an incoming stream may withhold its complete type preface. */
+#define SOCKET_QUIC_PREFACE_TIMEOUT_MS 5000U
 
 /** Log diagnostic details for a failed QUIC I/O operation. */
 static void socket_quic_log_io_failure(socket_t *sc, const char *operation, int error) {
@@ -432,7 +434,7 @@ static int socket_quic_connection_prepare(socket_t *sc) {
 
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
 static socket_stream_result_t
-socket_stream_ssl_result(socket_stream_t *stream, int result, size_t amount) {
+socket_stream_ssl_result(socket_stream_t *stream, int result, size_t amount, bool reading) {
     if (result == 1) {
         return amount != 0 ? SOCKET_STREAM_RESULT_OK : SOCKET_STREAM_RESULT_WOULD_BLOCK;
     }
@@ -440,7 +442,8 @@ socket_stream_ssl_result(socket_stream_t *stream, int result, size_t amount) {
     if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
         return SOCKET_STREAM_RESULT_WOULD_BLOCK;
     }
-    int state = SSL_get_stream_read_state(stream->ssl);
+    int state =
+        reading ? SSL_get_stream_read_state(stream->ssl) : SSL_get_stream_write_state(stream->ssl);
     if (error == SSL_ERROR_ZERO_RETURN || state == SSL_STREAM_STATE_FINISHED) {
         return SOCKET_STREAM_RESULT_FINISHED;
     }
@@ -455,6 +458,7 @@ socket_stream_allocate(socket_t *sc, SSL *ssl, socket_stream_kind_t kind, bool l
     stream->connection = sc;
     stream->kind = kind;
     stream->local = local;
+    stream->created_ms = datetime_monotonic_ms();
     if (local) {
         socket_stream_preface_encode(stream->preface, kind);
     }
@@ -527,14 +531,17 @@ static void socket_stream_reject(socket_stream_t *stream, uint64_t error_code) {
 }
 
 static void socket_stream_poll_incoming(socket_t *sc) {
+    uint64_t now = datetime_monotonic_ms();
     socket_stream_t *stream = sc->pending_streams;
     while (stream != NULL) {
         socket_stream_t *next = stream->next;
         if (stream->kind == 0 && stream->preface_pos < sizeof(stream->preface)) {
             bool complete = socket_stream_preface_read(stream);
-            if (stream->preface_pos == sizeof(stream->preface) &&
-                (!complete || (stream->kind == SOCKET_STREAM_GAME && sc->game_stream != NULL))) {
-                socket_stream_reject(stream, 1);
+            if ((stream->preface_pos == sizeof(stream->preface) &&
+                 (!complete || (stream->kind == SOCKET_STREAM_GAME && sc->game_stream != NULL))) ||
+                (stream->preface_pos < sizeof(stream->preface) &&
+                 now - stream->created_ms >= SOCKET_QUIC_PREFACE_TIMEOUT_MS)) {
+                socket_stream_reject(stream, SOCKET_STREAM_ERROR_PREFACE);
             }
         }
         stream = next;
@@ -551,7 +558,7 @@ static void socket_stream_poll_incoming(socket_t *sc) {
         sc->pending_stream_count++;
         if (!socket_stream_preface_read(incoming) &&
             incoming->preface_pos == sizeof(incoming->preface)) {
-            socket_stream_reject(incoming, 1);
+            socket_stream_reject(incoming, SOCKET_STREAM_ERROR_PREFACE);
         }
     }
 }
@@ -606,7 +613,7 @@ static socket_stream_result_t socket_stream_preface_write(socket_stream_t *strea
                                   stream->preface + stream->preface_pos,
                                   sizeof(stream->preface) - stream->preface_pos,
                                   &amount);
-        socket_stream_result_t status = socket_stream_ssl_result(stream, result, amount);
+        socket_stream_result_t status = socket_stream_ssl_result(stream, result, amount, false);
         if (status != SOCKET_STREAM_RESULT_OK) {
             return status;
         }
@@ -629,7 +636,7 @@ socket_stream_read(socket_stream_t *stream, void *buf, size_t len, size_t *amt) 
     }
     ERR_clear_error();
     int result = SSL_read_ex(stream->ssl, buf, len, amt);
-    return socket_stream_ssl_result(stream, result, *amt);
+    return socket_stream_ssl_result(stream, result, *amt, true);
 #else
     (void)len;
     return SOCKET_STREAM_RESULT_ERROR;
@@ -652,7 +659,7 @@ socket_stream_write(socket_stream_t *stream, const void *buf, size_t len, size_t
     }
     ERR_clear_error();
     int result = SSL_write_ex(stream->ssl, buf, len, amt);
-    return socket_stream_ssl_result(stream, result, *amt);
+    return socket_stream_ssl_result(stream, result, *amt, false);
 #else
     (void)len;
     return SOCKET_STREAM_RESULT_ERROR;

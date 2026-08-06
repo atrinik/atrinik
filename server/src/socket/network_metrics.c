@@ -23,7 +23,7 @@ static struct {
     uint64_t queue_rejected;
     size_t asset_cache_bytes;
     uint64_t asset_responses;
-    uint64_t asset_throttled;
+    uint64_t asset_paced;
     size_t asset_streams_active;
     size_t asset_streams_peak;
     uint64_t asset_stream_rejected;
@@ -108,16 +108,18 @@ void server_metrics_asset_cache(size_t bytes) {
     pthread_mutex_unlock(&metrics_lock);
 }
 
-void server_metrics_asset_response(uint64_t latency_us, bool throttled) {
+void server_metrics_asset_response(uint64_t latency_us) {
     pthread_mutex_lock(&metrics_lock);
-    if (throttled) {
-        metrics.asset_throttled++;
-    } else {
-        metrics.asset_responses++;
-        metrics.asset_latency_us[metrics.asset_latency_next++] = latency_us;
-        metrics.asset_latency_next %= METRICS_SAMPLES;
-        metrics.asset_latency_count = MIN(metrics.asset_latency_count + 1, (size_t)METRICS_SAMPLES);
-    }
+    metrics.asset_responses++;
+    metrics.asset_latency_us[metrics.asset_latency_next++] = latency_us;
+    metrics.asset_latency_next %= METRICS_SAMPLES;
+    metrics.asset_latency_count = MIN(metrics.asset_latency_count + 1, (size_t)METRICS_SAMPLES);
+    pthread_mutex_unlock(&metrics_lock);
+}
+
+void server_metrics_asset_paced(void) {
+    pthread_mutex_lock(&metrics_lock);
+    metrics.asset_paced++;
     pthread_mutex_unlock(&metrics_lock);
 }
 
@@ -202,7 +204,7 @@ void server_metrics_stats(char *buffer, size_t size) {
                 " body_bytes=%" PRIu64,
                 (uint64_t)metrics.asset_cache_bytes,
                 metrics.asset_responses,
-                metrics.asset_throttled,
+                metrics.asset_paced,
                 (uint64_t)metrics.asset_streams_active,
                 (uint64_t)metrics.asset_streams_peak,
                 metrics.asset_stream_rejected,

@@ -41,6 +41,7 @@ struct socket_stream {
     socket_stream_kind_t kind;
     uint8_t preface[SOCKET_STREAM_PREFACE_SIZE];
     size_t preface_pos;
+    uint64_t created_ms;
     bool local;
 };
 

@@ -308,13 +308,13 @@ static int socket_io_thread_loop(void *dummy) {
 
         /* The gameplay stream always gets the first write and read attempt in
          * a service pass. Bulk streams then receive one bounded quantum each. */
-        bool asset_pending = false;
-        if (asset_requests_service(sc, &asset_pending)) {
+        bool asset_write_pending = false;
+        if (asset_requests_service(sc, &asset_write_pending)) {
             progressed = true;
         }
 
         if (!progressed) {
-            bool write_pending = output != NULL || asset_pending;
+            bool write_pending = output != NULL || asset_write_pending;
             unsigned int timeout = socket_quic_timeout(sc, 20);
             bool ready = socket_wait(sc, true, write_pending, timeout);
             socket_quic_service(sc, ready, write_pending);
