@@ -152,6 +152,22 @@ if (BUILD_TESTING AND NOT MINGW)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
     pkg_check_modules(CHECK_PKG QUIET IMPORTED_TARGET check)
 
+    add_test(NAME content-catalog-unit
+        COMMAND ${Python3_EXECUTABLE} -m unittest
+            tools.tests.test_content_catalog)
+    set_tests_properties(content-catalog-unit PROPERTIES
+        LABELS "server;content;unit"
+        TIMEOUT 60
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+
+    add_test(NAME content-catalog-validate
+        COMMAND ${Python3_EXECUTABLE} -m tools.content_catalog
+            validate --root "${CMAKE_SOURCE_DIR}")
+    set_tests_properties(content-catalog-validate PROPERTIES
+        LABELS "server;content"
+        TIMEOUT 60
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+
     if (CHECK_PKG_FOUND)
         include(src/tests/suites.cmake)
         set(SOURCES_CHECK
@@ -219,8 +235,10 @@ if (BUILD_TESTING AND NOT MINGW)
             CONFIGURE_DEPENDS
             LIST_DIRECTORIES false
             "${CMAKE_SOURCE_DIR}/arch/*"
+            "${CMAKE_SOURCE_DIR}/maps/*"
             "${CMAKE_SOURCE_DIR}/server/install_data/*"
-            "${CMAKE_SOURCE_DIR}/tools/compilers/*.py")
+            "${CMAKE_SOURCE_DIR}/tools/compilers/*.py"
+            "${CMAKE_SOURCE_DIR}/tools/content_catalog/*.py")
         list(APPEND ATRINIK_SERVER_TEST_RESOURCE_INPUTS
             ${CMAKE_SOURCE_DIR}/server/ca-bundle.crt
             ${CMAKE_SOURCE_DIR}/server/permissions.cfg

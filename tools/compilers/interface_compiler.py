@@ -180,7 +180,10 @@ class TagCompilerPart(BaseTagCompiler):
         if "parts" not in self.parent.data:
             self.parent.data["parts"] = OrderedDict()
 
-        self.data["uid"] = re.sub(r"\W+", "", elem.get("uid"))
+        # Content validation guarantees that this is already a stable ID.
+        # Never rewrite authored identities: doing so can merge distinct parts
+        # and makes references disagree with the source XML.
+        self.data["uid"] = elem.get("uid")
         self.data["name"] = elem.get("name", self.data["uid"])
         self.parent.data["parts"][self.data["uid"]] = self.data
 

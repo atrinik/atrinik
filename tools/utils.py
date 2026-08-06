@@ -30,7 +30,9 @@ def find_files(where, ext=None, rec=True, ignore_dirs=True, ignore_files=False,
     :rtype list
     """
 
-    nodes = os.listdir(where)
+    # Collection output is committed and consumed as an ordered stream by the
+    # legacy loaders, so filesystem enumeration order must never leak into it.
+    nodes = sorted(os.listdir(where))
     files = []
 
     for node in nodes:

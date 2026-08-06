@@ -12,8 +12,10 @@ import os
 import getopt
 import shutil
 import platform
+from pathlib import Path
 
 from compilers.interface_compiler import InterfaceCompiler
+from content_catalog import load_catalog
 import compilers
 import utils
 
@@ -172,6 +174,14 @@ def main():
             for entry in dict(globals()):
                 if entry.startswith("collect_"):
                     what_collect.append(entry)
+
+        catalog = load_catalog(Path(paths["root"]))
+        if catalog.has_errors:
+            for diagnostic in catalog.diagnostics:
+                print(diagnostic.format(), file=sys.stderr)
+            print("Content validation failed; collection was not started.",
+                  file=sys.stderr)
+            sys.exit(1)
 
         # Call the collecting functions.
         for collect in what_collect:
