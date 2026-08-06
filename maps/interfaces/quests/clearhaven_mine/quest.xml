@@ -15,7 +15,7 @@
             <item arch="bomb_still" name="small bomb" nrof="10"/>
             <interface npc="Pedro" state="need_start">
                 <dialog name="hello">
-                    <message>Careful! The old entrance collapsed behind you, and half these supports are held together by habit.</message>
+                    <message>Careful! That blast brought down the eastern passage you came through, and half these supports are held together by habit.</message>
                     <message>I'm Pedro. I came looking for emeralds and found a mine that objects strongly to visitors.</message>
                     <response destination="wayout" message="Is there another way out?"/>
                     <response destination="mine" message="What happened to this mine?"/>
@@ -31,7 +31,7 @@
                     <response action="close" message="That sounds alarmingly explosive."/>
                 </dialog>
                 <dialog name="accept">
-                    <message>The old safety latches have rusted through, so the bomb chests should open normally. Try not to test the merchandise.</message>
+                    <message>The old safety latches have rusted through, so the bomb chests should open normally. There should be one usable bomb in each chest. Try not to test the merchandise.</message>
                     <action start="recover_bombs"/>
                 </dialog>
             </interface>

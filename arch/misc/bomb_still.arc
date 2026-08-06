@@ -9,5 +9,4 @@ weight 4000
 can_stack 1
 nrof 1
 identified 1
-startequip 1
 end

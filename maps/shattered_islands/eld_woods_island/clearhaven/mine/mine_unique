@@ -2735,6 +2735,14 @@ y 5
 end
 arch floor_grit3a
 x 28
+y 6
+end
+arch wall_cave1.111
+x 28
+y 6
+end
+arch floor_grit3a
+x 28
 y 9
 end
 arch wall_cave1.111

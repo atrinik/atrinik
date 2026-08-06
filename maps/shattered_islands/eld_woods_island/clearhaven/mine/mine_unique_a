@@ -373,7 +373,14 @@ name bomb chest
 direction 7
 x 2
 y 12
+arch quest_container
+name clearhaven_mine
+arch quest_container
+name recover_bombs
+sub_type 2
 arch bomb_still
+end
+end
 end
 end
 arch floor_grit3c
@@ -604,7 +611,14 @@ arch chest7_111
 name bomb chest
 x 4
 y 3
+arch quest_container
+name clearhaven_mine
+arch quest_container
+name recover_bombs
+sub_type 2
 arch bomb_still
+end
+end
 end
 end
 arch floor_grit3c
@@ -717,7 +731,14 @@ name bomb chest
 direction 7
 x 4
 y 17
+arch quest_container
+name clearhaven_mine
+arch quest_container
+name recover_bombs
+sub_type 2
 arch bomb_still
+end
+end
 end
 end
 arch floor_grit3a
@@ -1205,7 +1226,14 @@ arch chest7_111
 name bomb chest
 x 8
 y 3
+arch quest_container
+name clearhaven_mine
+arch quest_container
+name recover_bombs
+sub_type 2
 arch bomb_still
+end
+end
 end
 end
 arch floor_grit3c
@@ -1256,7 +1284,14 @@ arch chest7_111
 name bomb chest
 x 8
 y 12
+arch quest_container
+name clearhaven_mine
+arch quest_container
+name recover_bombs
+sub_type 2
 arch bomb_still
+end
+end
 end
 end
 arch floor_grit3b
@@ -1454,7 +1489,14 @@ name bomb chest
 direction 7
 x 9
 y 16
+arch quest_container
+name clearhaven_mine
+arch quest_container
+name recover_bombs
+sub_type 2
 arch bomb_still
+end
+end
 end
 end
 arch floor_grit3a
@@ -1684,7 +1726,14 @@ name bomb chest
 direction 7
 x 11
 y 12
+arch quest_container
+name clearhaven_mine
+arch quest_container
+name recover_bombs
+sub_type 2
 arch bomb_still
+end
+end
 end
 end
 arch floor_grit3b
@@ -2455,7 +2504,14 @@ name bomb chest
 direction 7
 x 16
 y 13
+arch quest_container
+name clearhaven_mine
+arch quest_container
+name recover_bombs
+sub_type 2
 arch bomb_still
+end
+end
 end
 end
 arch floor_grit3a
@@ -2657,7 +2713,14 @@ name bomb chest
 direction 7
 x 17
 y 22
+arch quest_container
+name clearhaven_mine
+arch quest_container
+name recover_bombs
+sub_type 2
 arch bomb_still
+end
+end
 end
 end
 arch floor_grit3b
@@ -3317,7 +3380,14 @@ arch chest7_111
 name bomb chest
 x 22
 y 5
+arch quest_container
+name clearhaven_mine
+arch quest_container
+name recover_bombs
+sub_type 2
 arch bomb_still
+end
+end
 end
 end
 arch floor_grit3c
