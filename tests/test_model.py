@@ -77,6 +77,23 @@ class ManifestTests(unittest.TestCase):
                 Manifest.load(path)
 
 
+class ReleaseConfigurationTests(unittest.TestCase):
+    def test_release_rules_preserve_conventional_commit_precedence(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        config = json.loads((root / ".releaserc.json").read_text(encoding="utf-8"))
+        analyzer = config["plugins"][0]
+
+        self.assertEqual(analyzer[0], "@semantic-release/commit-analyzer")
+        self.assertEqual(
+            analyzer[1]["releaseRules"],
+            [
+                {"breaking": True, "release": "major"},
+                {"type": "feat", "release": "minor"},
+                {"type": "*", "release": "patch"},
+            ],
+        )
+
+
 class PathSafetyTests(unittest.TestCase):
     def test_refuses_nonempty_unmanaged_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
