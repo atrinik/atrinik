@@ -465,6 +465,13 @@ struct pl_player {
      */
     uint32_t last_path_denied;
 
+    /** Wizardry level used for the last spell-cost update. */
+    int16_t last_spell_cost_level;
+
+    /** Target and viewer levels used for the last target update. */
+    int16_t last_target_level;
+    int16_t last_target_viewer_level;
+
     /**
      * Last sent UIDs of player's equipment.
      */

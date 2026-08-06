@@ -939,6 +939,24 @@ ASSET:
  without partially applying an earlier block.
 
 ===============================================================================
+= 3.6. Client command TARGET                                                  =
+===============================================================================
+ This command replaces the client's active-target state. The packet contains
+ these fields in order:
+
+  - target_type (uint8): SELF (0), ENEMY (1), NEUTRAL (2), or FRIEND (3).
+  - color (string): display color in hexadecimal RRGGBB notation.
+  - name (string): the target's unadorned object name.
+  - level (uint8): the target's current level.
+  - combat (uint8): zero to hold attacks or one to attack valid targets.
+  - combat_force (uint8): zero to protect friendly targets or one to permit
+    attacking them.
+
+ TARGET includes level beginning with socket protocol version 1071. Clients
+ and servers using different versions MUST reject each other before gameplay
+ state is exchanged.
+
+===============================================================================
 = 3.4 and 3.7. Shared ITEM flag semantics                                     =
 ===============================================================================
  The ITEM command's item records and the ITEM_UPDATE command when its

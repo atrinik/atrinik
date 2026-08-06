@@ -137,6 +137,9 @@ typedef struct Player_Struct {
     /** Target name. */
     char target_name[MAX_BUF];
 
+    /** Target level. */
+    uint8_t target_level;
+
     int warn_hp;
 
     /** Currently marked item. */

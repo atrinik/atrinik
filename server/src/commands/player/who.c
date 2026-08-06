@@ -55,11 +55,11 @@ void command_who(object *op, const char *command, char *params) {
                  pl->ob->level);
 
         if (pl->afk) {
-            strncat(buf, " [AFK]", sizeof(buf) - strlen(buf) - 1);
+            snprintfcat(buf, sizeof(buf), " [AFK]");
         }
 
         if (pl->cs->is_bot) {
-            strncat(buf, " [BOT]", sizeof(buf) - strlen(buf) - 1);
+            snprintfcat(buf, sizeof(buf), " &lsqb;BOT&rsqb;");
         }
 
         if (show_connection) {
