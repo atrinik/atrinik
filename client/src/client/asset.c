@@ -11,16 +11,29 @@
 
 /**
  * @file
- * Cached asset transfer over the established QUIC game connection.
+ * Bounded explicit-QUIC-stream asset scheduler and receiver.
  */
 
 #include <global.h>
 #include <wrapper.h>
 #include <client_socket.h>
+#include <network_graph.h>
 #include <toolkit/packet.h>
 #include <toolkit/path.h>
 #include <toolkit/string.h>
 #include <openssl/evp.h>
+
+#define ASSET_RESPONSE_HEADER_SIZE (1U + 4U + ASSET_DIGEST_SIZE)
+#define ASSET_STREAM_ERROR_CANCELLED 2U
+#define ASSET_STREAM_ERROR_PROTOCOL 3U
+
+typedef enum asset_transport_state {
+    ASSET_TRANSPORT_QUEUED,
+    ASSET_TRANSPORT_SEND_REQUEST,
+    ASSET_TRANSPORT_READ_HEADER,
+    ASSET_TRANSPORT_READ_BODY,
+    ASSET_TRANSPORT_WAIT_FIN,
+} asset_transport_state_t;
 
 struct asset_request {
     UT_hash_handle hh;
@@ -35,26 +48,46 @@ struct asset_request {
     uint8_t expected_digest[ASSET_DIGEST_SIZE];
     bool cache_loaded;
     bool metadata_only;
+    bool cancelled;
+    bool cache_needs_save;
     asset_request_state_t state;
+    asset_transport_state_t transport_state;
+    socket_stream_t *stream;
+    packet_struct *wire_request;
+    size_t wire_pos;
+    uint8_t response_header[ASSET_RESPONSE_HEADER_SIZE];
+    size_t response_header_pos;
+    socket_asset_response_t response;
+    EVP_MD_CTX *digest;
 };
 
 static asset_request_t *asset_requests;
+static SDL_Mutex *asset_mutex;
 
-static void asset_request_send(asset_request_t *request) {
-    LOG(DEBUG,
-        "Requesting QUIC asset %s at offset %" PRIu64,
-        request->path,
-        (uint64_t)request->received);
-    packet_struct *packet = packet_new(SERVER_CMD_ASSET, 128, 128);
-    static const uint8_t empty_digest[ASSET_DIGEST_SIZE];
-    socket_asset_request_append(
-        packet,
-        request->path,
-        (uint32_t)request->received,
-        request->received == 0 && request->cache_loaded ? (uint32_t)request->size : 0,
-        request->received == 0 && request->cache_loaded ? request->cached_digest : empty_digest,
-        request->metadata_only ? ASSET_REQUEST_METADATA : 0);
-    socket_send_packet(packet);
+static bool asset_lock(void) {
+    if (asset_mutex == NULL) {
+        asset_mutex = SDL_CreateMutex();
+    }
+    if (asset_mutex == NULL) {
+        return false;
+    }
+    SDL_LockMutex(asset_mutex);
+    return true;
+}
+
+static void asset_request_destroy(asset_request_t *request) {
+    if (request->stream != NULL) {
+        socket_stream_destroy(request->stream);
+    }
+    if (request->wire_request != NULL) {
+        packet_free(request->wire_request);
+    }
+    EVP_MD_CTX_free(request->digest);
+    free(request->key);
+    free(request->path);
+    free(request->cache_path);
+    free(request->data);
+    free(request);
 }
 
 static void asset_request_cache_load(asset_request_t *request) {
@@ -110,20 +143,38 @@ static void asset_request_cache_save(const asset_request_t *request) {
         return;
     }
 
+    uint64_t started = SDL_GetTicksNS();
     char *path = file_path(request->cache_path, "wb");
     bool success = path_write_atomic(path, request->data, request->size, 0600);
     free(path);
-    if (!success) {
-        LOG(ERROR, "Could not write QUIC asset cache %s", request->cache_path);
+    if (success) {
+        LOG(DEBUG,
+            "Wrote QUIC asset cache %s in %.3f ms",
+            request->cache_path,
+            (double)(SDL_GetTicksNS() - started) / 1000000.0);
     } else {
-        LOG(DEBUG, "Cached QUIC asset %s at %s", request->path, request->cache_path);
+        LOG(ERROR,
+            "Could not write QUIC asset cache %s in %.3f ms",
+            request->cache_path,
+            (double)(SDL_GetTicksNS() - started) / 1000000.0);
     }
+}
+
+static size_t asset_pending_count(void) {
+    size_t count = 0;
+    asset_request_t *request, *next;
+    HASH_ITER(hh, asset_requests, request, next) {
+        if (request->state == ASSET_REQUEST_PENDING && !request->cancelled) {
+            count++;
+        }
+    }
+    return count;
 }
 
 static asset_request_t *
 asset_request_start_internal(const char *path, const char *cache_path, bool metadata_only) {
     if (!cpl.asset_transport || csocket.sc == NULL || !socket_is_quic(csocket.sc) || path == NULL ||
-        *path == '\0' || strlen(path) >= MAX_BUF) {
+        *path == '\0' || strlen(path) >= MAX_BUF || !asset_lock()) {
         return NULL;
     }
 
@@ -132,22 +183,46 @@ asset_request_start_internal(const char *path, const char *cache_path, bool meta
     asset_request_t *request;
     HASH_FIND_STR(asset_requests, key, request);
     if (request != NULL) {
+        if (request->cancelled) {
+            SDL_UnlockMutex(asset_mutex);
+            return NULL;
+        }
         request->references++;
+        SDL_UnlockMutex(asset_mutex);
         return request;
+    }
+    if (asset_pending_count() >= ASSET_REQUEST_PENDING_MAX) {
+        LOG(ERROR, "Refusing QUIC asset %s: pending request limit reached", path);
+        SDL_UnlockMutex(asset_mutex);
+        return NULL;
     }
 
     request = xcalloc(1, sizeof(*request));
     request->key = xstrdup(key);
     request->path = xstrdup(path);
-    if (cache_path != NULL) {
-        request->cache_path = xstrdup(cache_path);
-    }
+    request->cache_path = cache_path != NULL ? xstrdup(cache_path) : NULL;
     request->references = 1;
     request->metadata_only = metadata_only;
     request->state = ASSET_REQUEST_PENDING;
-    HASH_ADD_KEYPTR(hh, asset_requests, request->key, strlen(request->key), request);
+    request->transport_state = ASSET_TRANSPORT_QUEUED;
     asset_request_cache_load(request);
-    asset_request_send(request);
+
+    request->wire_request = packet_new(0, 128, 128);
+    static const uint8_t empty_digest[ASSET_DIGEST_SIZE];
+    socket_asset_request_append(request->wire_request,
+                                request->path,
+                                request->cache_loaded ? (uint32_t)request->size : 0,
+                                request->cache_loaded ? request->cached_digest : empty_digest,
+                                request->metadata_only ? ASSET_REQUEST_METADATA : 0);
+    if (!packet_writer_finish(request->wire_request)) {
+        asset_request_destroy(request);
+        SDL_UnlockMutex(asset_mutex);
+        return NULL;
+    }
+
+    HASH_ADD_KEYPTR(hh, asset_requests, request->key, strlen(request->key), request);
+    LOG(DEBUG, "Queued QUIC asset %s%s", request->path, metadata_only ? " (metadata)" : "");
+    SDL_UnlockMutex(asset_mutex);
     return request;
 }
 
@@ -163,159 +238,318 @@ asset_request_t *asset_request_start_metadata(const char *path) {
     return asset_request_start_internal(path, NULL, true);
 }
 
-asset_request_state_t asset_request_get_state(const asset_request_t *request) {
-    return request != NULL ? request->state : ASSET_REQUEST_ERROR;
+asset_request_state_t asset_request_get_state(asset_request_t *request) {
+    if (request == NULL || !asset_lock()) {
+        return ASSET_REQUEST_ERROR;
+    }
+    bool save_cache = request->state == ASSET_REQUEST_COMPLETE && request->cache_needs_save;
+    if (save_cache) {
+        request->cache_needs_save = false;
+        request->references++;
+    }
+    asset_request_state_t state = request->state;
+    SDL_UnlockMutex(asset_mutex);
+    if (save_cache) {
+        /* The temporary reference keeps this request alive while potentially
+         * slow filesystem I/O runs without stalling the transport thread. */
+        asset_request_cache_save(request);
+        asset_request_free(request);
+    }
+    return state;
 }
 
 const uint8_t *asset_request_get_data(const asset_request_t *request, size_t *size) {
-    if (size != NULL) {
-        *size = request != NULL ? request->size : 0;
-    }
-    if (request == NULL || request->state != ASSET_REQUEST_COMPLETE) {
+    if (request == NULL || !asset_lock()) {
+        if (size != NULL) {
+            *size = 0;
+        }
         return NULL;
     }
-    return request->data;
+    if (size != NULL) {
+        *size = request->size;
+    }
+    const uint8_t *data = request->state == ASSET_REQUEST_COMPLETE ? request->data : NULL;
+    SDL_UnlockMutex(asset_mutex);
+    return data;
 }
 
 bool asset_request_get_metadata(const asset_request_t *request,
                                 size_t *size,
                                 uint8_t digest[ASSET_DIGEST_SIZE]) {
-    if (request == NULL || !request->metadata_only || request->state != ASSET_REQUEST_COMPLETE) {
+    if (request == NULL || !asset_lock()) {
         return false;
     }
-    if (size != NULL) {
+    bool valid = request->metadata_only && request->state == ASSET_REQUEST_COMPLETE;
+    if (valid && size != NULL) {
         *size = request->size;
     }
-    if (digest != NULL) {
+    if (valid && digest != NULL) {
         memcpy(digest, request->expected_digest, ASSET_DIGEST_SIZE);
+    }
+    SDL_UnlockMutex(asset_mutex);
+    return valid;
+}
+
+void asset_request_free(asset_request_t *request) {
+    if (request == NULL || !asset_lock()) {
+        return;
+    }
+    HARD_ASSERT(request->references != 0);
+    request->references--;
+    if (request->references == 0) {
+        if (request->stream != NULL) {
+            request->cancelled = true;
+        } else {
+            HASH_DEL(asset_requests, request);
+            asset_request_destroy(request);
+        }
+    }
+    SDL_UnlockMutex(asset_mutex);
+}
+
+static void asset_request_fail(asset_request_t *request, const char *reason) {
+    LOG(ERROR, "QUIC asset %s failed: %s", request->path, reason);
+    if (request->stream != NULL) {
+        socket_stream_reset(request->stream, ASSET_STREAM_ERROR_PROTOCOL);
+        socket_stream_destroy(request->stream);
+        request->stream = NULL;
+    }
+    EVP_MD_CTX_free(request->digest);
+    request->digest = NULL;
+    request->state = ASSET_REQUEST_ERROR;
+}
+
+static bool asset_request_header(asset_request_t *request) {
+    if (!socket_asset_response_parse(request->response_header,
+                                     sizeof(request->response_header),
+                                     0,
+                                     &request->response)) {
+        asset_request_fail(request, "malformed response header");
+        return false;
+    }
+    request->size = request->response.total_size;
+    memcpy(request->expected_digest, request->response.digest, ASSET_DIGEST_SIZE);
+
+    if (request->response.status == ASSET_STATUS_OK && !request->metadata_only) {
+        free(request->data);
+        request->data = xmalloc(request->size + 1);
+        request->data[0] = '\0';
+        request->received = 0;
+        request->cache_loaded = false;
+        request->digest = EVP_MD_CTX_new();
+        if (request->digest == NULL ||
+            EVP_DigestInit_ex(request->digest, EVP_sha256(), NULL) != 1) {
+            asset_request_fail(request, "could not initialize SHA-256");
+            return false;
+        }
+        request->transport_state =
+            request->size == 0 ? ASSET_TRANSPORT_WAIT_FIN : ASSET_TRANSPORT_READ_BODY;
+        return true;
+    }
+    if (request->response.status == ASSET_STATUS_METADATA && request->metadata_only) {
+        request->transport_state = ASSET_TRANSPORT_WAIT_FIN;
+        return true;
+    }
+    if (request->response.status == ASSET_STATUS_NOT_MODIFIED && !request->metadata_only &&
+        request->cache_loaded && request->response.total_size == request->size &&
+        memcmp(request->response.digest, request->cached_digest, ASSET_DIGEST_SIZE) == 0) {
+        request->size = request->response.total_size;
+        request->transport_state = ASSET_TRANSPORT_WAIT_FIN;
+        return true;
+    }
+    asset_request_fail(request, "server rejected request or returned an invalid status");
+    return false;
+}
+
+static void asset_request_finish(asset_request_t *request) {
+    if (request->response.status == ASSET_STATUS_OK) {
+        uint8_t digest[ASSET_DIGEST_SIZE];
+        unsigned int digest_size = 0;
+        if (request->received != request->size ||
+            EVP_DigestFinal_ex(request->digest, digest, &digest_size) != 1 ||
+            digest_size != ASSET_DIGEST_SIZE ||
+            memcmp(digest, request->expected_digest, ASSET_DIGEST_SIZE) != 0) {
+            asset_request_fail(request, "early EOF, declared-size violation, or SHA-256 mismatch");
+            return;
+        }
+        request->data[request->size] = '\0';
+        request->cache_needs_save = request->cache_path != NULL;
+    }
+    EVP_MD_CTX_free(request->digest);
+    request->digest = NULL;
+    socket_stream_destroy(request->stream);
+    request->stream = NULL;
+    request->state = ASSET_REQUEST_COMPLETE;
+    LOG(DEBUG,
+        "Completed QUIC asset %s (%" PRIu64 " bytes)",
+        request->path,
+        (uint64_t)request->size);
+}
+
+static bool asset_request_service(asset_request_t *request) {
+    if (request->cancelled) {
+        socket_stream_reset(request->stream, ASSET_STREAM_ERROR_CANCELLED);
+        socket_stream_destroy(request->stream);
+        request->stream = NULL;
+        return true;
+    }
+
+    if (request->transport_state == ASSET_TRANSPORT_SEND_REQUEST) {
+        size_t amount = 0;
+        socket_stream_result_t result =
+            socket_stream_write(request->stream,
+                                request->wire_request->data + request->wire_pos,
+                                request->wire_request->len - request->wire_pos,
+                                &amount);
+        if (result == SOCKET_STREAM_RESULT_ERROR || result == SOCKET_STREAM_RESULT_FINISHED) {
+            asset_request_fail(request, "request stream closed while writing");
+            return true;
+        }
+        request->wire_pos += amount;
+        network_graph_update(NETWORK_GRAPH_TYPE_ASSET, NETWORK_GRAPH_TRAFFIC_TX, amount);
+        if (request->wire_pos == request->wire_request->len) {
+            if (!socket_stream_conclude(request->stream)) {
+                asset_request_fail(request, "could not conclude request");
+                return true;
+            }
+            packet_free(request->wire_request);
+            request->wire_request = NULL;
+            request->transport_state = ASSET_TRANSPORT_READ_HEADER;
+        }
+        return amount != 0;
+    }
+
+    uint8_t discard;
+    void *buffer = &discard;
+    size_t capacity = 1;
+    if (request->transport_state == ASSET_TRANSPORT_READ_HEADER) {
+        buffer = request->response_header + request->response_header_pos;
+        capacity = sizeof(request->response_header) - request->response_header_pos;
+    } else if (request->transport_state == ASSET_TRANSPORT_READ_BODY) {
+        capacity = MIN((size_t)ASSET_STREAM_QUANTUM, request->size - request->received);
+        buffer = request->data + request->received;
+    }
+
+    size_t amount = 0;
+    socket_stream_result_t result = socket_stream_read(request->stream, buffer, capacity, &amount);
+    if (result == SOCKET_STREAM_RESULT_ERROR) {
+        asset_request_fail(request, "stream reset or connection error");
+        return true;
+    }
+    if (result == SOCKET_STREAM_RESULT_FINISHED) {
+        if (request->transport_state == ASSET_TRANSPORT_WAIT_FIN) {
+            asset_request_finish(request);
+        } else {
+            asset_request_fail(request, "early EOF");
+        }
+        return true;
+    }
+    if (amount == 0) {
+        return false;
+    }
+    network_graph_update(NETWORK_GRAPH_TYPE_ASSET, NETWORK_GRAPH_TRAFFIC_RX, amount);
+
+    if (request->transport_state == ASSET_TRANSPORT_READ_HEADER) {
+        request->response_header_pos += amount;
+        if (request->response_header_pos == sizeof(request->response_header)) {
+            asset_request_header(request);
+        }
+    } else if (request->transport_state == ASSET_TRANSPORT_READ_BODY) {
+        if (EVP_DigestUpdate(request->digest, buffer, amount) != 1) {
+            asset_request_fail(request, "SHA-256 update failed");
+            return true;
+        }
+        request->received += amount;
+        if (request->received == request->size) {
+            request->transport_state = ASSET_TRANSPORT_WAIT_FIN;
+        }
+    } else {
+        asset_request_fail(request, "received surplus body bytes");
     }
     return true;
 }
 
-void asset_request_free(asset_request_t *request) {
-    if (request == NULL || --request->references != 0) {
-        return;
+bool asset_requests_service(socket_t *sc, bool *pending) {
+    HARD_ASSERT(sc != NULL);
+    HARD_ASSERT(pending != NULL);
+    *pending = false;
+    if (asset_mutex == NULL) {
+        return false;
+    }
+    SDL_LockMutex(asset_mutex);
+
+    size_t active = 0;
+    asset_request_t *request, *next;
+    HASH_ITER(hh, asset_requests, request, next) {
+        if (request->stream != NULL) {
+            active++;
+        }
+    }
+    HASH_ITER(hh, asset_requests, request, next) {
+        if (active >= ASSET_STREAM_ACTIVE_MAX) {
+            break;
+        }
+        if (request->state != ASSET_REQUEST_PENDING || request->cancelled ||
+            request->transport_state != ASSET_TRANSPORT_QUEUED) {
+            continue;
+        }
+        request->stream = socket_stream_open(sc, SOCKET_STREAM_ASSET);
+        if (request->stream == NULL) {
+            break;
+        }
+        request->transport_state = ASSET_TRANSPORT_SEND_REQUEST;
+        active++;
     }
 
-    HASH_DEL(asset_requests, request);
-    free(request->key);
-    free(request->path);
-    free(request->cache_path);
-    free(request->data);
-    free(request);
+    bool progressed = false;
+    HASH_ITER(hh, asset_requests, request, next) {
+        if (request->stream != NULL) {
+            progressed |= asset_request_service(request);
+        }
+        if (request->cancelled && request->stream == NULL) {
+            HASH_DEL(asset_requests, request);
+            asset_request_destroy(request);
+        }
+    }
+    *pending = asset_pending_count() != 0;
+    SDL_UnlockMutex(asset_mutex);
+    return progressed;
 }
 
-void socket_command_asset(uint8_t *data, size_t len, size_t pos) {
-    socket_asset_response_t response;
-    if (!socket_asset_response_parse(data, len, pos, &response)) {
-        LOG(ERROR, "Rejected malformed QUIC asset response");
-        asset_request_t *request, *next;
-        HASH_ITER(hh, asset_requests, request, next) {
-            if (request->state == ASSET_REQUEST_PENDING) {
-                request->state = ASSET_REQUEST_ERROR;
-            }
+void asset_requests_disconnect(void) {
+    if (asset_mutex == NULL) {
+        return;
+    }
+    SDL_LockMutex(asset_mutex);
+    asset_request_t *request, *next;
+    HASH_ITER(hh, asset_requests, request, next) {
+        if (request->stream != NULL) {
+            socket_stream_reset(request->stream, ASSET_STREAM_ERROR_CANCELLED);
+            socket_stream_destroy(request->stream);
+            request->stream = NULL;
         }
-        return;
-    }
-
-    bool metadata_response = response.status == ASSET_STATUS_METADATA ||
-                             response.status == ASSET_STATUS_METADATA_NOT_FOUND;
-    char key[MAX_BUF + 3];
-    snprintf(VS(key), "%c:%s", metadata_response ? 'M' : 'D', response.path);
-    asset_request_t *request;
-    HASH_FIND_STR(asset_requests, key, request);
-    if (request == NULL || request->state != ASSET_REQUEST_PENDING) {
-        return;
-    }
-
-    if (response.status == ASSET_STATUS_METADATA) {
-        request->size = response.total_size;
-        memcpy(request->expected_digest, response.digest, ASSET_DIGEST_SIZE);
-        request->state = ASSET_REQUEST_COMPLETE;
-        return;
-    }
-
-    if (response.status == ASSET_STATUS_NOT_MODIFIED) {
-        if (!request->cache_loaded) {
-            LOG(ERROR, "Server accepted missing QUIC asset cache for %s", response.path);
+        if (request->state == ASSET_REQUEST_PENDING) {
             request->state = ASSET_REQUEST_ERROR;
-            return;
         }
-        LOG(DEBUG, "Server confirmed cached QUIC asset %s is current", response.path);
-        request->state = ASSET_REQUEST_COMPLETE;
-        return;
-    }
-
-    if (response.status != ASSET_STATUS_OK) {
-        LOG(ERROR,
-            "QUIC asset request for %s failed with status %" PRIu8,
-            response.path,
-            response.status);
-        request->state = ASSET_REQUEST_ERROR;
-        return;
-    }
-
-    LOG(DEBUG,
-        "Received QUIC asset %s offset %" PRIu32 "/%" PRIu32 " (%" PRIu64 " bytes)",
-        response.path,
-        response.offset,
-        response.total_size,
-        (uint64_t)response.data_size);
-    if (response.offset != request->received ||
-        (request->data != NULL && !request->cache_loaded && request->size != response.total_size)) {
-        LOG(ERROR,
-            "Rejected malformed QUIC asset chunk for %s: expected offset "
-            "%" PRIu64 ", received offset %" PRIu32 ", total %" PRIu32 ", chunk size %" PRIu64,
-            response.path,
-            (uint64_t)request->received,
-            response.offset,
-            response.total_size,
-            (uint64_t)response.data_size);
-        request->state = ASSET_REQUEST_ERROR;
-        return;
-    }
-
-    if (response.offset == 0) {
-        free(request->data);
-        request->data = NULL;
-        request->size = 0;
-        request->cache_loaded = false;
-        memcpy(request->expected_digest, response.digest, ASSET_DIGEST_SIZE);
-    } else if (memcmp(request->expected_digest, response.digest, ASSET_DIGEST_SIZE) != 0) {
-        LOG(ERROR, "Rejected changing QUIC asset digest for %s", response.path);
-        request->state = ASSET_REQUEST_ERROR;
-        return;
-    }
-
-    if (request->data == NULL) {
-        request->data = xmalloc((size_t)response.total_size + 1);
-        request->size = response.total_size;
-    }
-
-    memcpy(request->data + request->received, response.data, response.data_size);
-    request->received += response.data_size;
-    request->data[request->received] = '\0';
-
-    if (request->received == request->size) {
-        uint8_t actual_digest[ASSET_DIGEST_SIZE];
-        unsigned int digest_size = 0;
-        if (EVP_Digest(request->data,
-                       request->size,
-                       actual_digest,
-                       &digest_size,
-                       EVP_sha256(),
-                       NULL) != 1 ||
-            digest_size != ASSET_DIGEST_SIZE ||
-            memcmp(actual_digest, request->expected_digest, ASSET_DIGEST_SIZE) != 0) {
-            LOG(ERROR, "Rejected QUIC asset %s: SHA-256 mismatch", response.path);
-            request->state = ASSET_REQUEST_ERROR;
-            return;
+        if (request->references == 0) {
+            HASH_DEL(asset_requests, request);
+            asset_request_destroy(request);
         }
-        asset_request_cache_save(request);
-        request->state = ASSET_REQUEST_COMPLETE;
-    } else if (response.data_size == 0) {
-        request->state = ASSET_REQUEST_ERROR;
-    } else {
-        asset_request_send(request);
     }
+    SDL_UnlockMutex(asset_mutex);
+}
+
+void asset_requests_deinit(void) {
+    if (asset_mutex == NULL) {
+        return;
+    }
+    SDL_LockMutex(asset_mutex);
+    asset_request_t *request, *next;
+    HASH_ITER(hh, asset_requests, request, next) {
+        HASH_DEL(asset_requests, request);
+        asset_request_destroy(request);
+    }
+    SDL_UnlockMutex(asset_mutex);
+    SDL_DestroyMutex(asset_mutex);
+    asset_mutex = NULL;
 }

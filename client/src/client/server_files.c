@@ -343,17 +343,18 @@ static int server_file_process(server_files_struct *tmp) {
  */
 int server_files_processed(void) {
     server_files_struct *curr, *tmp;
+    bool pending = false;
     /* Check all files. */
     HASH_ITER(hh, server_files, curr, tmp) {
         if (server_file_process(curr)) {
-            return 0;
+            pending = true;
         }
         if (cpl.state == ST_INIT) {
             return 0;
         }
     }
 
-    return 1;
+    return !pending;
 }
 
 /**

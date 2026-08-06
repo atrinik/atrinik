@@ -38,6 +38,7 @@
 #include <toolkit/string.h>
 #include <toolkit/path.h>
 #include <resources.h>
+#include <asset.h>
 #include <openssl/evp.h>
 
 /**
@@ -84,6 +85,7 @@ void system_end(void) {
     clioption_settings_deinit();
     server_files_deinit();
     image_deinit();
+    asset_requests_deinit();
     toolkit_deinit();
     SDL_DestroyWindow(ScreenWindow);
     ScreenWindow = NULL;

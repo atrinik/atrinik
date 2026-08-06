@@ -122,6 +122,7 @@ void free_all_newserver(void) {
  * The socket.
  */
 void free_newsocket(socket_struct *ns) {
+    socket_assets_connection_clear(ns);
     socket_destroy(ns->sc);
 
     map_client_cache_free(&ns->lastmap);

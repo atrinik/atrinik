@@ -1,5 +1,5 @@
 ===============================================================================
-= ADS-2, rev: 0.8: Atrinik Protocol Specification                             =
+= ADS-2, rev: 0.9: Atrinik Protocol Specification                             =
 ===============================================================================
  This document contains design specification for the Atrinik client<->server
  protocol. The following sections exist:
@@ -7,6 +7,7 @@
  1. Session
     1.1 Packets
     1.2 Keepalive
+    1.3 QUIC application streams
  2. Server commands
     2.1  Server command CONTROL
     2.2  Server command ASK_FACE
@@ -31,7 +32,6 @@
     2.21 Server command TALK
     2.22 Server command MOVE
     2.23 Server command TARGET
-    2.24 Server command ASSET
  3. Client commands
     3.1  Client command MAP
     3.2  Client command DRAWINFO
@@ -61,7 +61,6 @@
     3.26 Client command INTERFACE
     3.27 Client command NOTIFICATION
     3.28 Client command KEEPALIVE
-    3.29 Client command ASSET
  4. Example logic
  5. Authors
 
@@ -69,9 +68,10 @@
 = 1. Session                                                                  =
 ===============================================================================
  Atrinik uses a certificate-pinned QUIC connection to establish a session.
- Application packets use the connection's default bidirectional stream. Once
- a session has been established, the client and the server are free to exchange
- data asynchronously. After this is done, it
+ The ALPN is "atrinik/2". The QUIC connection has no default application
+ stream; section 1.3 defines its explicitly typed streams. Once a session has
+ been established, the client and the server are free to exchange data
+ asynchronously. After this is done, it
  is MANDATORY that the server and the client exchange version information,
  with the use of the version command (see section 2.4 and section 3.15).
  This ensures that both sides implement the same protocol contract.
@@ -163,6 +163,63 @@
  orderly endpoint sends QUIC CONNECTION_CLOSE before releasing the connection.
 
 ===============================================================================
+= 1.3. QUIC application streams                                               =
+===============================================================================
+ Every application stream is bidirectional and begins with this eight-byte
+ preface. Multi-byte integers use network byte order:
+
+  - magic (4 bytes): ASCII "ATRN".
+  - kind (uint8): 1 for GAME or 2 for ASSET.
+  - reserved (uint8): MUST be zero.
+  - stream_version (uint16): 1.
+
+ The receiver MUST classify a stream from this preface, never from stream ID
+ or arrival order. It MUST reset a stream with a truncated or malformed
+ preface, an unknown kind/version, or non-zero reserved byte. A second GAME
+ stream is malformed. The client initiates the one long-lived GAME stream and
+ all ASSET streams. The GAME stream carries the packet framing from section
+ 1.1 in both directions and is serviced before every ASSET stream on each I/O
+ pass.
+
+ An ASSET stream carries exactly one request and response. The client sends
+ this request after the preface, then concludes its send side:
+
+  - path (string): non-empty server-relative allowlisted path.
+  - cached_size (uint32): cached body size, or zero without a cached body.
+  - cached_digest (32 bytes): cached SHA-256 digest, or all zeroes without one.
+  - flags (uint8): bit 0 is METADATA; all other bits MUST be zero. METADATA
+    requires cached_size zero and an all-zero digest.
+
+ The server response begins with a fixed 37-byte header:
+
+  - status (uint8): 0 OK, 1 NOT_FOUND, 2 NOT_MODIFIED, 3 METADATA, or
+    4 METADATA_NOT_FOUND.
+  - total_size (uint32): exact body size for OK and authenticated immutable
+    size for NOT_MODIFIED/METADATA; zero for either NOT_FOUND status.
+  - digest (32 bytes): SHA-256 of the immutable body for OK, NOT_MODIFIED, and
+    METADATA; all zeroes for either NOT_FOUND status.
+
+ OK is followed by exactly total_size raw body bytes and then server FIN. The
+ other statuses have no body and the header is followed immediately by FIN.
+ NOT_MODIFIED is valid only when cached_size and cached_digest both match.
+ METADATA is valid only for a METADATA request. The client MUST hash OK bodies
+ incrementally and reject early FIN, surplus bytes, a body over 128 MiB, or a
+ digest mismatch before exposing or caching the body. Cache replacement MUST
+ use a same-directory temporary file and atomic rename, scoped to the stable
+ server identity or authenticated certificate fingerprint.
+
+ A client opens at most three active ASSET streams and retains at most 64
+ pending requests. The server retains only a fixed request buffer, response
+ header, immutable snapshot reference, and body cursor per active stream; it
+ never appends body bytes to the GAME packet queue. It services streams
+ round-robin with at most 16 KiB per stream per pass. Per connection, it
+ accepts at most 256 requests per second and paces bodies with an 8 MiB/s token
+ bucket. Exhausted body tokens defer writes; excessive streams, requests, or
+ malformed input are rejected. Cancellation uses QUIC stream reset and MUST
+ release the stream and snapshot reference without affecting GAME or sibling
+ ASSET streams. The immutable startup snapshot remains capped at 1 GiB.
+
+===============================================================================
 = 2. Server commands                                                        =
 ===============================================================================
  The following is a list of commands recognised by the server.
@@ -221,8 +278,6 @@
   See section 2.22.
  TARGET (player only):
   See section 2.23.
- ASSET:
-  See section 2.24.
 
 ===============================================================================
 = 2.1. Server command CONTROL                                                 =
@@ -728,35 +783,6 @@
   Clears the player's target.
 
 ===============================================================================
-= 2.24. Server command ASSET                                                  =
-===============================================================================
- This command requests an asset over an established QUIC game connection. It
- is available beginning with socket protocol version 1067 and MUST NOT be
- accepted before join-password authentication succeeds.
-
- The packet MUST be constructed in the following order:
-  - path (string):
-     Server-relative asset path from an implementation-defined allowlist.
-  - offset (uint32):
-     Byte offset requested. The first request MUST use zero. A continuation
-     request MUST use the end offset of the preceding response.
-  - cached_size (uint32):
-     Size of the client's persistent cached copy, or zero when there is no
-     cached copy. This field MUST be zero on continuation requests.
-  - cached_digest (32 bytes):
-     SHA-256 digest of the client's persistent cached copy, or 32 zero bytes
-     when there is no cached copy. This field MUST be all zero on continuation
-     requests.
-  - flags (uint8):
-     Bit 0 (METADATA) requests only the authenticated total size and SHA-256
-     digest. All other bits MUST be zero. A metadata request MUST use offset
-     and cached_size zero and an all-zero cached_digest.
-
- When offset is zero and both cached fields match the current server file, the
- server SHOULD return ASSET status NOT_MODIFIED instead of transferring the
- body. See section 3.29.
-
-===============================================================================
 = 3. Client commands                                                          =
 ===============================================================================
  The following is a list of commands recognised by the client.
@@ -820,8 +846,6 @@ NOTIFICATION:
   See section 3.27.
 KEEPALIVE:
   See section 3.28.
-ASSET:
-  See section 3.29.
 
 ===============================================================================
 = 3.1. Client command MAP                                                     =
@@ -1060,49 +1084,6 @@ ASSET:
 = 3.28. Client command KEEPALIVE                                               =
 ===============================================================================
  This command is the server-to-client keepalive response. It has no payload.
-
-===============================================================================
-= 3.29. Client command ASSET                                                   =
-===============================================================================
- This command returns an asset response over the established QUIC game
- connection. The packet begins with these fields:
-
-  - status (uint8):
-     0 (OK), 1 (NOT_FOUND), 2 (NOT_MODIFIED), 3 (METADATA), or
-     4 (METADATA_NOT_FOUND).
-  - path (string):
-     The path from the corresponding request.
-
- NOT_FOUND, NOT_MODIFIED, and METADATA_NOT_FOUND end after path. NOT_MODIFIED
- is valid only when the client supplied a cached size and SHA-256 digest that
- match the current asset.
-
- A METADATA response continues with total_size (uint32) and digest (32 bytes).
- These values come from the server's immutable startup asset snapshot and are
- authenticated by the established, certificate-pinned QUIC connection. A
- client using a separate HTTP origin MUST obtain this metadata first and MUST
- reject an HTTP body whose exact size or SHA-256 digest differs.
-
- An OK response continues with these fields:
-
-  - total_size (uint32):
-     Complete asset size.
-  - offset (uint32):
-     Offset of this chunk.
-  - digest (32 bytes):
-     SHA-256 digest of the complete asset. Every OK chunk carries the same
-     digest, allowing the client to reject a response that changes mid-stream.
-  - data (bytes):
-     Up to 60000 asset bytes.
-
- The client MUST request continuation chunks until total_size bytes have been
- received. Assets larger than 128 MiB MUST be rejected. Before making the data
- available or replacing its persistent cache, the client MUST calculate the
- complete SHA-256 digest and reject a mismatch. Cache replacement MUST use a
- same-directory temporary file with exclusive creation followed by an atomic
- rename. Cached assets MUST be scoped to the stable server ID or authenticated
- certificate fingerprint. A client MAY use a digest of the endpoint only for
- a manual entry that has no directory server identity.
 
 ===============================================================================
 = 5. Authors                                                                  =

@@ -257,7 +257,12 @@ const char *socket_get_id(socket_t *sc) {
     return sc->connection_id;
 }
 
+static const uint8_t socket_stream_magic[4] = {'A', 'T', 'R', 'N'};
+
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
+/** Maximum classified or partially prefaced streams retained by the toolkit. */
+#define SOCKET_QUIC_PENDING_STREAM_MAX 16U
+
 /** Log diagnostic details for a failed QUIC I/O operation. */
 static void socket_quic_log_io_failure(socket_t *sc, const char *operation, int error) {
     SSL_CONN_CLOSE_INFO close_info;
@@ -360,6 +365,31 @@ bool socket_connection_id_export(socket_t *sc) {
 }
 #endif
 
+void socket_stream_preface_encode(uint8_t preface[SOCKET_STREAM_PREFACE_SIZE],
+                                  socket_stream_kind_t kind) {
+    HARD_ASSERT(preface != NULL);
+    HARD_ASSERT(kind == SOCKET_STREAM_GAME || kind == SOCKET_STREAM_ASSET);
+    memcpy(preface, socket_stream_magic, sizeof(socket_stream_magic));
+    preface[4] = (uint8_t)kind;
+    preface[5] = 0;
+    preface[6] = (uint8_t)(SOCKET_STREAM_PROTOCOL_VERSION >> 8);
+    preface[7] = (uint8_t)SOCKET_STREAM_PROTOCOL_VERSION;
+}
+
+bool socket_stream_preface_decode(const uint8_t *preface, size_t size, socket_stream_kind_t *kind) {
+    if (preface == NULL || size != SOCKET_STREAM_PREFACE_SIZE || kind == NULL) {
+        return false;
+    }
+    uint16_t version = (uint16_t)((uint16_t)preface[6] << 8) | preface[7];
+    if (memcmp(preface, socket_stream_magic, sizeof(socket_stream_magic)) != 0 || preface[5] != 0 ||
+        version != SOCKET_STREAM_PROTOCOL_VERSION ||
+        (preface[4] != SOCKET_STREAM_GAME && preface[4] != SOCKET_STREAM_ASSET)) {
+        return false;
+    }
+    *kind = (socket_stream_kind_t)preface[4];
+    return true;
+}
+
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L
 /**
  * Progress an accepted QUIC handshake and establish its shared diagnostic ID.
@@ -368,29 +398,297 @@ bool socket_connection_id_export(socket_t *sc) {
  * -1 on a fatal error.
  */
 static int socket_quic_connection_prepare(socket_t *sc) {
-    if (sc->connection_id_final) {
-        return 1;
-    }
+    if (!sc->connection_id_final) {
+        ERR_clear_error();
+        int result = SSL_do_handshake(sc->quic);
+        if (result == 1) {
+            if (!socket_connection_id_export(sc)) {
+                socket_quic_log_io_failure(sc, "diagnostic ID derivation", SSL_ERROR_SSL);
+                return -1;
+            }
+        } else {
+            int error = SSL_get_error(sc->quic, result);
+            if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
+                return 0;
+            }
 
-    ERR_clear_error();
-    int result = SSL_do_handshake(sc->quic);
-    if (result == 1) {
-        if (!socket_connection_id_export(sc)) {
-            socket_quic_log_io_failure(sc, "diagnostic ID derivation", SSL_ERROR_SSL);
+            socket_quic_log_io_failure(sc, "handshake", error);
             return -1;
         }
-        return 1;
     }
 
-    int error = SSL_get_error(sc->quic, result);
-    if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
-        return 0;
+    if (sc->game_stream == NULL) {
+        if (sc->role == SOCKET_ROLE_SERVER && SSL_handle_events(sc->quic) != 1) {
+            socket_quic_log_io_failure(sc, "game stream acceptance", SSL_ERROR_SSL);
+            return -1;
+        }
+        sc->game_stream = sc->role == SOCKET_ROLE_CLIENT
+                              ? socket_stream_open(sc, SOCKET_STREAM_GAME)
+                              : socket_stream_accept(sc, SOCKET_STREAM_GAME);
     }
-
-    socket_quic_log_io_failure(sc, "handshake", error);
-    return -1;
+    return sc->game_stream != NULL ? 1 : 0;
 }
 #endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+static socket_stream_result_t
+socket_stream_ssl_result(socket_stream_t *stream, int result, size_t amount) {
+    if (result == 1) {
+        return amount != 0 ? SOCKET_STREAM_RESULT_OK : SOCKET_STREAM_RESULT_WOULD_BLOCK;
+    }
+    int error = SSL_get_error(stream->ssl, result);
+    if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
+        return SOCKET_STREAM_RESULT_WOULD_BLOCK;
+    }
+    int state = SSL_get_stream_read_state(stream->ssl);
+    if (error == SSL_ERROR_ZERO_RETURN || state == SSL_STREAM_STATE_FINISHED) {
+        return SOCKET_STREAM_RESULT_FINISHED;
+    }
+    socket_quic_log_io_failure(stream->connection, "stream I/O", error);
+    return SOCKET_STREAM_RESULT_ERROR;
+}
+
+static socket_stream_t *
+socket_stream_allocate(socket_t *sc, SSL *ssl, socket_stream_kind_t kind, bool local) {
+    socket_stream_t *stream = xcalloc(1, sizeof(*stream));
+    stream->ssl = ssl;
+    stream->connection = sc;
+    stream->kind = kind;
+    stream->local = local;
+    if (local) {
+        socket_stream_preface_encode(stream->preface, kind);
+    }
+    return stream;
+}
+
+static bool socket_stream_preface_valid(socket_stream_t *stream) {
+    socket_stream_kind_t kind;
+    if (!socket_stream_preface_decode(stream->preface, sizeof(stream->preface), &kind)) {
+        return false;
+    }
+    stream->kind = kind;
+    return true;
+}
+
+static bool socket_stream_preface_read(socket_stream_t *stream) {
+    while (stream->preface_pos < sizeof(stream->preface)) {
+        size_t amount = 0;
+        ERR_clear_error();
+        int result = SSL_read_ex(stream->ssl,
+                                 stream->preface + stream->preface_pos,
+                                 sizeof(stream->preface) - stream->preface_pos,
+                                 &amount);
+        if (result == 1) {
+            stream->preface_pos += amount;
+            if (amount == 0) {
+                return false;
+            }
+            continue;
+        }
+        int error = SSL_get_error(stream->ssl, result);
+        if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
+            return false;
+        }
+        memset(stream->preface, 0, sizeof(stream->preface));
+        stream->preface_pos = sizeof(stream->preface);
+        return false;
+    }
+    return socket_stream_preface_valid(stream);
+}
+
+static void socket_stream_unlink(socket_stream_t *stream) {
+    socket_t *sc = stream->connection;
+    if (sc == NULL) {
+        return;
+    }
+    if (sc->game_stream == stream) {
+        sc->game_stream = NULL;
+    }
+    socket_stream_t **link = &sc->pending_streams;
+    while (*link != NULL) {
+        if (*link == stream) {
+            *link = stream->next;
+            HARD_ASSERT(sc->pending_stream_count != 0);
+            sc->pending_stream_count--;
+            break;
+        }
+        link = &(*link)->next;
+    }
+    stream->next = NULL;
+    stream->connection = NULL;
+}
+
+static void socket_stream_reject(socket_stream_t *stream, uint64_t error_code) {
+    SSL_STREAM_RESET_ARGS args = {.quic_error_code = error_code};
+    SSL_stream_reset(stream->ssl, &args, sizeof(args));
+    socket_stream_unlink(stream);
+    SSL_free(stream->ssl);
+    free(stream);
+}
+
+static void socket_stream_poll_incoming(socket_t *sc) {
+    socket_stream_t *stream = sc->pending_streams;
+    while (stream != NULL) {
+        socket_stream_t *next = stream->next;
+        if (stream->kind == 0 && stream->preface_pos < sizeof(stream->preface)) {
+            bool complete = socket_stream_preface_read(stream);
+            if (stream->preface_pos == sizeof(stream->preface) &&
+                (!complete || (stream->kind == SOCKET_STREAM_GAME && sc->game_stream != NULL))) {
+                socket_stream_reject(stream, 1);
+            }
+        }
+        stream = next;
+    }
+
+    while (sc->pending_stream_count < SOCKET_QUIC_PENDING_STREAM_MAX) {
+        SSL *ssl = SSL_accept_stream(sc->quic, SSL_ACCEPT_STREAM_NO_BLOCK);
+        if (ssl == NULL) {
+            break;
+        }
+        socket_stream_t *incoming = socket_stream_allocate(sc, ssl, 0, false);
+        incoming->next = sc->pending_streams;
+        sc->pending_streams = incoming;
+        sc->pending_stream_count++;
+        if (!socket_stream_preface_read(incoming) &&
+            incoming->preface_pos == sizeof(incoming->preface)) {
+            socket_stream_reject(incoming, 1);
+        }
+    }
+}
+#endif
+
+socket_stream_t *socket_stream_open(socket_t *sc, socket_stream_kind_t kind) {
+    HARD_ASSERT(sc != NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+    if (sc->transport != SOCKET_TRANSPORT_QUIC_CONNECTION || !sc->connection_id_final ||
+        (kind != SOCKET_STREAM_GAME && kind != SOCKET_STREAM_ASSET)) {
+        return NULL;
+    }
+    SSL *ssl = SSL_new_stream(sc->quic, SSL_STREAM_FLAG_NO_BLOCK);
+    return ssl != NULL ? socket_stream_allocate(sc, ssl, kind, true) : NULL;
+#else
+    (void)kind;
+    return NULL;
+#endif
+}
+
+socket_stream_t *socket_stream_accept(socket_t *sc, socket_stream_kind_t kind) {
+    HARD_ASSERT(sc != NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+    if (sc->transport != SOCKET_TRANSPORT_QUIC_CONNECTION || !sc->connection_id_final) {
+        return NULL;
+    }
+    socket_stream_poll_incoming(sc);
+    socket_stream_t **link = &sc->pending_streams;
+    while (*link != NULL) {
+        socket_stream_t *stream = *link;
+        if (stream->kind == kind && stream->preface_pos == sizeof(stream->preface)) {
+            *link = stream->next;
+            stream->next = NULL;
+            HARD_ASSERT(sc->pending_stream_count != 0);
+            sc->pending_stream_count--;
+            return stream;
+        }
+        link = &stream->next;
+    }
+#else
+    (void)kind;
+#endif
+    return NULL;
+}
+
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+static socket_stream_result_t socket_stream_preface_write(socket_stream_t *stream) {
+    while (stream->local && stream->preface_pos < sizeof(stream->preface)) {
+        size_t amount = 0;
+        ERR_clear_error();
+        int result = SSL_write_ex(stream->ssl,
+                                  stream->preface + stream->preface_pos,
+                                  sizeof(stream->preface) - stream->preface_pos,
+                                  &amount);
+        socket_stream_result_t status = socket_stream_ssl_result(stream, result, amount);
+        if (status != SOCKET_STREAM_RESULT_OK) {
+            return status;
+        }
+        stream->preface_pos += amount;
+    }
+    return SOCKET_STREAM_RESULT_OK;
+}
+#endif
+
+socket_stream_result_t
+socket_stream_read(socket_stream_t *stream, void *buf, size_t len, size_t *amt) {
+    HARD_ASSERT(stream != NULL);
+    HARD_ASSERT(buf != NULL);
+    HARD_ASSERT(amt != NULL);
+    *amt = 0;
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+    socket_stream_result_t preface = socket_stream_preface_write(stream);
+    if (preface != SOCKET_STREAM_RESULT_OK) {
+        return preface;
+    }
+    ERR_clear_error();
+    int result = SSL_read_ex(stream->ssl, buf, len, amt);
+    return socket_stream_ssl_result(stream, result, *amt);
+#else
+    (void)len;
+    return SOCKET_STREAM_RESULT_ERROR;
+#endif
+}
+
+socket_stream_result_t
+socket_stream_write(socket_stream_t *stream, const void *buf, size_t len, size_t *amt) {
+    HARD_ASSERT(stream != NULL);
+    HARD_ASSERT(buf != NULL);
+    HARD_ASSERT(amt != NULL);
+    *amt = 0;
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+    socket_stream_result_t preface = socket_stream_preface_write(stream);
+    if (preface != SOCKET_STREAM_RESULT_OK) {
+        return preface;
+    }
+    if (len == 0) {
+        return SOCKET_STREAM_RESULT_OK;
+    }
+    ERR_clear_error();
+    int result = SSL_write_ex(stream->ssl, buf, len, amt);
+    return socket_stream_ssl_result(stream, result, *amt);
+#else
+    (void)len;
+    return SOCKET_STREAM_RESULT_ERROR;
+#endif
+}
+
+bool socket_stream_conclude(socket_stream_t *stream) {
+    HARD_ASSERT(stream != NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+    return stream->preface_pos == sizeof(stream->preface) &&
+           SSL_stream_conclude(stream->ssl, 0) == 1;
+#else
+    return false;
+#endif
+}
+
+void socket_stream_reset(socket_stream_t *stream, uint64_t error_code) {
+    HARD_ASSERT(stream != NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+    SSL_STREAM_RESET_ARGS args = {.quic_error_code = error_code};
+    SSL_stream_reset(stream->ssl, &args, sizeof(args));
+#else
+    (void)error_code;
+#endif
+}
+
+void socket_stream_destroy(socket_stream_t *stream) {
+    if (stream == NULL) {
+        return;
+    }
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L
+    socket_stream_unlink(stream);
+    SSL_free(stream->ssl);
+#endif
+    free(stream);
+}
 
 /**
  * Compare the socket's address to another address/subnet.
@@ -574,7 +872,8 @@ socket_t *socket_accept(socket_t *sc) {
         if (SSL_set_feature_request_uint(connection,
                                          SSL_VALUE_QUIC_IDLE_TIMEOUT,
                                          SOCKET_QUIC_IDLE_TIMEOUT_MS) != 1 ||
-            SSL_set_default_stream_mode(connection, SSL_DEFAULT_STREAM_MODE_AUTO_BIDI) != 1) {
+            SSL_set_default_stream_mode(connection, SSL_DEFAULT_STREAM_MODE_NONE) != 1 ||
+            SSL_set_incoming_stream_policy(connection, SSL_INCOMING_STREAM_POLICY_ACCEPT, 0) != 1) {
             unsigned long code = ERR_peek_error();
             LOG(ERROR,
                 "Failed to configure accepted QUIC application stream: %s",
@@ -670,16 +969,8 @@ bool socket_read(socket_t *sc, void *buf, size_t len, size_t *amt) {
         if (ready <= 0) {
             return ready == 0;
         }
-        int result = SSL_read_ex(sc->quic, buf, len, amt);
-        if (result == 1) {
-            return true;
-        }
-        int error = SSL_get_error(sc->quic, result);
-        if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
-            return true;
-        }
-        socket_quic_log_io_failure(sc, "read", error);
-        return false;
+        socket_stream_result_t result = socket_stream_read(sc->game_stream, buf, len, amt);
+        return result == SOCKET_STREAM_RESULT_OK || result == SOCKET_STREAM_RESULT_WOULD_BLOCK;
     }
 #endif
 
@@ -743,16 +1034,8 @@ bool socket_write(socket_t *sc, const void *buf, size_t len, size_t *amt) {
         if (ready <= 0) {
             return ready == 0;
         }
-        int result = SSL_write_ex(sc->quic, buf, len, amt);
-        if (result == 1) {
-            return true;
-        }
-        int error = SSL_get_error(sc->quic, result);
-        if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
-            return true;
-        }
-        socket_quic_log_io_failure(sc, "write", error);
-        return false;
+        socket_stream_result_t result = socket_stream_write(sc->game_stream, buf, len, amt);
+        return result == SOCKET_STREAM_RESULT_OK || result == SOCKET_STREAM_RESULT_WOULD_BLOCK;
     }
 #endif
 
@@ -1035,19 +1318,22 @@ void socket_close(socket_t *sc) {
     if (sc->quic != NULL) {
         if (sc->transport == SOCKET_TRANSPORT_QUIC_CONNECTION && !sc->quic_shutdown_sent) {
             sc->quic_shutdown_sent = true;
+            if (sc->game_stream != NULL) {
+                SSL_stream_conclude(sc->game_stream->ssl, 0);
+            }
             ERR_clear_error();
-            int result =
-                SSL_shutdown_ex(sc->quic,
-                                SSL_SHUTDOWN_FLAG_RAPID | SSL_SHUTDOWN_FLAG_NO_STREAM_FLUSH |
-                                    SSL_SHUTDOWN_FLAG_NO_BLOCK,
-                                NULL,
-                                0);
+            int result = SSL_shutdown_ex(sc->quic, SSL_SHUTDOWN_FLAG_NO_BLOCK, NULL, 0);
             if (result < 0) {
                 int error = SSL_get_error(sc->quic, result);
                 if (error != SSL_ERROR_WANT_READ && error != SSL_ERROR_WANT_WRITE) {
                     socket_quic_log_io_failure(sc, "shutdown", error);
                 }
             }
+        }
+        socket_stream_destroy(sc->game_stream);
+        sc->game_stream = NULL;
+        while (sc->pending_streams != NULL) {
+            socket_stream_destroy(sc->pending_streams);
         }
         SSL_free(sc->quic);
         sc->quic = NULL;

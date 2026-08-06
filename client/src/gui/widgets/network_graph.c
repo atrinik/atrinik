@@ -78,7 +78,11 @@ typedef struct network_graph_work {
 /**
  * String representations of the network graph types.
  */
-static const char *const network_graph_types[NETWORK_GRAPH_TYPE_MAX] = {"Game data", "HTTP data"};
+static const char *const network_graph_types[NETWORK_GRAPH_TYPE_MAX] = {
+    "Game data",
+    "QUIC assets",
+    "HTTP data",
+};
 
 /**
  * String representations of the network traffic types.
@@ -89,7 +93,11 @@ static const char *const network_graph_filters[NETWORK_GRAPH_TRAFFIC_MAX] = {"Re
 /**
  * Colors of the network graph types.
  */
-static const char *const network_graph_colors[NETWORK_GRAPH_TYPE_MAX] = {"#ff0000", "#00ff00"};
+static const char *const network_graph_colors[NETWORK_GRAPH_TYPE_MAX] = {
+    "#ff0000",
+    "#0080ff",
+    "#00ff00",
+};
 
 /**
  * Mutex used to provide reentrant API for network graph updates.

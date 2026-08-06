@@ -24,6 +24,10 @@ static struct {
     size_t asset_cache_bytes;
     uint64_t asset_responses;
     uint64_t asset_throttled;
+    size_t asset_streams_active;
+    size_t asset_streams_peak;
+    uint64_t asset_stream_rejected;
+    uint64_t asset_stream_bytes;
     uint64_t asset_latency_us[METRICS_SAMPLES];
     size_t asset_latency_count;
     size_t asset_latency_next;
@@ -117,6 +121,23 @@ void server_metrics_asset_response(uint64_t latency_us, bool throttled) {
     pthread_mutex_unlock(&metrics_lock);
 }
 
+void server_metrics_asset_stream(int active_delta, size_t bytes, bool rejected) {
+    pthread_mutex_lock(&metrics_lock);
+    if (active_delta < 0) {
+        size_t removed = (size_t)-active_delta;
+        metrics.asset_streams_active =
+            removed <= metrics.asset_streams_active ? metrics.asset_streams_active - removed : 0;
+    } else {
+        metrics.asset_streams_active += (size_t)active_delta;
+    }
+    metrics.asset_streams_peak = MAX(metrics.asset_streams_peak, metrics.asset_streams_active);
+    metrics.asset_stream_bytes += bytes;
+    if (rejected) {
+        metrics.asset_stream_rejected++;
+    }
+    pthread_mutex_unlock(&metrics_lock);
+}
+
 void server_metrics_mapping(const char *method, bool open_failed, bool renewal_failed) {
     pthread_mutex_lock(&metrics_lock);
     if (method != NULL) {
@@ -176,10 +197,16 @@ void server_metrics_stats(char *buffer, size_t size) {
                 metrics.queue_rejected);
     snprintfcat(buffer,
                 size,
-                "\nAssets: cached_rss=%" PRIu64 " responses=%" PRIu64 " throttled=%" PRIu64,
+                "\nAssets: cached_rss=%" PRIu64 " responses=%" PRIu64 " paced=%" PRIu64
+                " streams=%" PRIu64 " stream_peak=%" PRIu64 " stream_rejected=%" PRIu64
+                " body_bytes=%" PRIu64,
                 (uint64_t)metrics.asset_cache_bytes,
                 metrics.asset_responses,
-                metrics.asset_throttled);
+                metrics.asset_throttled,
+                (uint64_t)metrics.asset_streams_active,
+                (uint64_t)metrics.asset_streams_peak,
+                metrics.asset_stream_rejected,
+                metrics.asset_stream_bytes);
     snprintfcat(buffer,
                 size,
                 "\nMapping: method=%s open_failures=%" PRIu64 " renewal_failures=%" PRIu64,

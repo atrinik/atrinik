@@ -39,7 +39,6 @@ ATRINIK_SERVER_COMMAND(COMBAT, "combat", socket_command_combat, true)
 ATRINIK_SERVER_COMMAND(TALK, "talk", socket_command_talk, true)
 ATRINIK_SERVER_COMMAND(MOVE, "move", socket_command_move, true)
 ATRINIK_SERVER_COMMAND(TARGET, "target", socket_command_target, true)
-ATRINIK_SERVER_COMMAND(ASSET, "asset", socket_command_asset, false)
 
 ATRINIK_CLIENT_COMMAND(MAP, "map", socket_command_map)
 ATRINIK_CLIENT_COMMAND(DRAWINFO, "drawinfo", socket_command_drawinfo)
@@ -69,7 +68,6 @@ ATRINIK_CLIENT_COMMAND(SOUND_AMBIENT, "sound_ambient", socket_command_sound_ambi
 ATRINIK_CLIENT_COMMAND(INTERFACE, "interface", socket_command_interface)
 ATRINIK_CLIENT_COMMAND(NOTIFICATION, "notification", socket_command_notification)
 ATRINIK_CLIENT_COMMAND(KEEPALIVE, "keepalive", socket_command_keepalive)
-ATRINIK_CLIENT_COMMAND(ASSET, "asset", socket_command_asset)
 
 #ifdef ATRINIK_SERVER_COMMAND_WAS_UNDEFINED
 #undef ATRINIK_SERVER_COMMAND_WAS_UNDEFINED

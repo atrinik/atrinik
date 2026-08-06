@@ -196,7 +196,7 @@ extern void socket_buffer_clear(socket_struct *ns);
 
 extern void socket_buffer_write(socket_struct *ns);
 
-extern bool socket_buffer_can_enqueue(const socket_struct *ns, size_t bytes, bool bulk);
+extern bool socket_buffer_can_enqueue(const socket_struct *ns, size_t bytes);
 
 extern void socket_send_packet(socket_struct *ns, struct packet_struct *packet);
 
@@ -218,7 +218,11 @@ extern void socket_assets_init(void);
 
 extern void socket_assets_deinit(void);
 
-void socket_command_asset(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+extern bool socket_assets_service(socket_struct *ns);
+
+extern bool socket_assets_pending(const socket_struct *ns);
+
+extern void socket_assets_connection_clear(socket_struct *ns);
 
 /** Public API implemented in src/socket/request.c. */
 

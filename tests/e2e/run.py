@@ -19,7 +19,15 @@ import unittest
 
 TIMEOUT_SECONDS = 12
 PAYLOAD = "atrinik-quic-e2e"
-SCENARIOS = ("identity", "quic", "disconnect", "stun", "punch", "mapping")
+SCENARIOS = (
+    "identity",
+    "quic",
+    "streams",
+    "disconnect",
+    "stun",
+    "punch",
+    "mapping",
+)
 
 
 class NativeDriver:
@@ -258,6 +266,22 @@ class NetworkE2ETest(unittest.TestCase):
         )
         self.assertNotEqual(rejected.returncode, 0)
         self.driver.stop_server(bad_server)
+
+    def test_streams(self) -> None:
+        server, port, fingerprint = self.driver.server(
+            self.temp / "multi-stream-identity.pem", "streams-server"
+        )
+        try:
+            client = self.driver.command(
+                "streams-client", "127.0.0.1", port, fingerprint
+            )
+            server_output = self.driver.finish_server(server)
+        except BaseException:
+            self.driver.stop_server(server)
+            raise
+        marker = self.driver.marker(client.stdout, "STREAMS client ")
+        self.assertRegex(marker, r"latency_ms=[0-9]+ bytes=131072 cancellation")
+        self.driver.marker(server_output, "STREAMS server fairness cancellation")
 
     def test_stun(self) -> None:
         with FakeStunServer() as stun:

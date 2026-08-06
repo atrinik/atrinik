@@ -132,7 +132,9 @@
  maps and not the full region maps).
 
  By default, QUIC clients download the manifest, required game data, resources,
- and region maps over the established game connection. The optional HTTP
+ and region maps on separate typed streams of the established game connection.
+ Up to three downloads make concurrent progress, while the long-lived game
+ stream is serviced first on every network pass. The optional HTTP
  server/CDN path is described in section 2.2. At startup the server reads each
  immutable allowed asset once, computes its SHA-256 digest, and keeps both bytes
  and digest in memory. Region maps are cached per server; later QUIC requests
@@ -373,7 +375,9 @@ mode and connection ID in `/who`, formatted as `(route: QUIC/mapped; connection:
  private and include it in server-data backups; replacing it makes the
  metaserver and clients see a different server.
 
- Asset requests use the same punched QUIC connection as gameplay by default.
+ Asset requests use the same punched QUIC connection as gameplay by default,
+ but use independent QUIC streams so loss or ordering on a bulk transfer
+ cannot hold later gameplay bytes behind an asset body.
  Setting http_url enables a separate CDN path and makes it the preferred asset
  source after its body is pinned to metadata from the authenticated game
  connection, with automatic QUIC fallback. Region-map responses are verified
@@ -383,12 +387,13 @@ mode and connection ID in `/who`, formatted as `(route: QUIC/mapped; connection:
 
  The startup asset snapshot accepts files up to 128 MiB and at most 1 GiB in
  aggregate. Each authenticated connection is limited to 256 asset requests and
- 8 MiB of asset payload per second. These bounds protect the game loop; use the
- optional HTTPS CDN path when a deployment needs higher bulk-transfer capacity.
- The outbound queue reserves 1 MiB for bulk assets and has a 4 MiB/4096-packet
- hard ceiling per connection. Administrators can inspect current/peak queue,
- asset, QUIC, mapping, connection, and game-loop percentile metrics with
- `/stats network`.
+ 8 MiB of asset payload per second. The latter is a token-bucket pacer: normal
+ exhaustion pauses bulk writes instead of disconnecting the client. Each
+ connection has at most three active asset streams, serviced round-robin in
+ 16 KiB quanta after gameplay. The game FIFO retains its 4 MiB/4096-packet hard
+ ceiling and never contains asset bodies. Administrators can inspect separate
+ game queue, asset throughput/active-stream/rejection, QUIC, mapping,
+ connection, and game-loop percentile metrics with `/stats network`.
 
 =================================================
 = 3. Running a public server                    =

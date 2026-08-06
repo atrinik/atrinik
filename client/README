@@ -69,6 +69,14 @@
  their size and SHA-256 match metadata obtained over authenticated QUIC;
  non-loopback origins must use HTTPS.
 
+ In-band bodies use up to three independent QUIC asset streams. Gameplay keeps
+ its own long-lived stream and receives the first service opportunity on every
+ transport-thread pass. Each asset response declares one immutable size and
+ SHA-256 digest, streams the body without per-chunk request round trips, and is
+ rejected on early EOF, surplus bytes, reset, oversize, or digest mismatch.
+ Cancelling one request resets only its stream. Required startup files are fed
+ into the same bounded scheduler instead of downloading serially.
+
 =================================================
 = 2.1. Rapid development in the devcontainer    =
 =================================================

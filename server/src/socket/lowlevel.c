@@ -34,7 +34,6 @@
 #include <toolkit/string.h>
 #include <network_metrics.h>
 
-#define SOCKET_QUEUE_BULK_LIMIT (1024U * 1024U)
 #define SOCKET_QUEUE_HARD_LIMIT (4U * 1024U * 1024U)
 #define SOCKET_QUEUE_PACKET_LIMIT 4096U
 
@@ -78,11 +77,11 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet) {
                                  false);
 }
 
-bool socket_buffer_can_enqueue(const socket_struct *ns, size_t bytes, bool bulk) {
+bool socket_buffer_can_enqueue(const socket_struct *ns, size_t bytes) {
     HARD_ASSERT(ns != NULL);
 
-    size_t limit = bulk ? SOCKET_QUEUE_BULK_LIMIT : SOCKET_QUEUE_HARD_LIMIT;
-    return bytes <= limit && ns->packet_queue_bytes <= limit - bytes &&
+    return bytes <= SOCKET_QUEUE_HARD_LIMIT &&
+           ns->packet_queue_bytes <= SOCKET_QUEUE_HARD_LIMIT - bytes &&
            ns->packet_queue_count < SOCKET_QUEUE_PACKET_LIMIT;
 }
 
@@ -182,7 +181,7 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet) {
 
     size_t queued_size = packet_meta->len + packet->len;
     size_t queued_packets = packet->len != 0 ? 2 : 1;
-    if (!socket_buffer_can_enqueue(ns, queued_size, false) ||
+    if (!socket_buffer_can_enqueue(ns, queued_size) ||
         ns->packet_queue_count > SOCKET_QUEUE_PACKET_LIMIT - queued_packets) {
         ns->packet_queue_rejected++;
         server_metrics_queue_changed(0, ns->packet_queue_bytes, true);
