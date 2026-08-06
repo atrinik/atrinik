@@ -730,9 +730,12 @@ extern void esrv_update_stats(player *pl);
 extern void esrv_new_player(player *pl, uint32_t weight);
 extern void draw_map_text_anim(object *pl, const char *color, const char *text);
 extern void draw_client_map(object *pl);
-extern void packet_append_map_name(struct packet_struct *packet, object *op, object *map_info);
-extern void packet_append_map_music(struct packet_struct *packet, object *op, object *map_info);
-extern void packet_append_map_weather(struct packet_struct *packet, object *op, object *map_info);
+extern void
+packet_writer_write_map_name(struct packet_struct *packet, object *op, object *map_info);
+extern void
+packet_writer_write_map_music(struct packet_struct *packet, object *op, object *map_info);
+extern void
+packet_writer_write_map_weather(struct packet_struct *packet, object *op, object *map_info);
 extern void draw_client_map2(object *pl);
 extern void send_game_time(player *recipient);
 extern void

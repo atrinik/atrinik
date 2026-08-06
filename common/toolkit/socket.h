@@ -37,31 +37,9 @@
  * Commands used for sending data from client to server.
  */
 enum {
-    SERVER_CMD_CONTROL,
-    SERVER_CMD_ASK_FACE,
-    SERVER_CMD_SETUP,
-    SERVER_CMD_VERSION,
-    SERVER_CMD_CLEAR,
-    SERVER_CMD_REQUEST_UPDATE,
-    SERVER_CMD_KEEPALIVE,
-    SERVER_CMD_ACCOUNT,
-    SERVER_CMD_ITEM_EXAMINE,
-    SERVER_CMD_ITEM_APPLY,
-    SERVER_CMD_ITEM_MOVE,
-    SERVER_CMD_ASK_RESOURCE,
-    SERVER_CMD_PLAYER_CMD,
-    SERVER_CMD_ITEM_LOCK,
-    SERVER_CMD_ITEM_MARK,
-    SERVER_CMD_FIRE,
-    SERVER_CMD_QUICKSLOT,
-    SERVER_CMD_QUESTLIST,
-    SERVER_CMD_MOVE_PATH,
-    SERVER_CMD_COMBAT,
-    SERVER_CMD_TALK,
-    SERVER_CMD_MOVE,
-    SERVER_CMD_TARGET,
-    /** Request a cached game asset over the direct QUIC connection. */
-    SERVER_CMD_ASSET,
+#define ATRINIK_SERVER_COMMAND(_id, _name, _handler, _player_only) SERVER_CMD_##_id,
+#include "socket_commands.def"
+#undef ATRINIK_SERVER_COMMAND
 
     SERVER_CMD_NROF
 };
@@ -70,37 +48,9 @@ enum {
  * All the possible socket commands.
  */
 enum {
-    CLIENT_CMD_MAP,
-    CLIENT_CMD_DRAWINFO,
-    CLIENT_CMD_FILE_UPDATE,
-    CLIENT_CMD_ITEM,
-    CLIENT_CMD_SOUND,
-    CLIENT_CMD_TARGET,
-    CLIENT_CMD_ITEM_UPDATE,
-    CLIENT_CMD_ITEM_DELETE,
-    CLIENT_CMD_STATS,
-    CLIENT_CMD_IMAGE,
-    CLIENT_CMD_ANIM,
-    CLIENT_CMD_PLAYER,
-    CLIENT_CMD_MAPSTATS,
-    CLIENT_CMD_RESOURCE,
-    CLIENT_CMD_VERSION,
-    CLIENT_CMD_SETUP,
-    CLIENT_CMD_CONTROL,
-    CLIENT_CMD_PAINTING,
-    CLIENT_CMD_CHARACTERS,
-    CLIENT_CMD_BOOK,
-    CLIENT_CMD_PARTY,
-    CLIENT_CMD_QUICKSLOT,
-    CLIENT_CMD_COMPRESSED,
-    /** @deprecated */
-    CLIENT_CMD_REGION_MAP,
-    CLIENT_CMD_SOUND_AMBIENT,
-    CLIENT_CMD_INTERFACE,
-    CLIENT_CMD_NOTIFICATION,
-    CLIENT_CMD_KEEPALIVE,
-    /** A chunk of a cached game asset sent over direct QUIC. */
-    CLIENT_CMD_ASSET,
+#define ATRINIK_CLIENT_COMMAND(_id, _name, _handler) CLIENT_CMD_##_id,
+#include "socket_commands.def"
+#undef ATRINIK_CLIENT_COMMAND
 
     CLIENT_CMD_NROF
 };
@@ -984,7 +934,7 @@ void socket_asset_request_append(struct packet_struct *packet,
                                  uint32_t cached_size,
                                  const uint8_t cached_digest[ASSET_DIGEST_SIZE],
                                  uint8_t flags);
-bool socket_asset_request_parse(uint8_t *data,
+bool socket_asset_request_parse(const uint8_t *data,
                                 size_t len,
                                 size_t pos,
                                 socket_asset_request_t *request);
@@ -1002,7 +952,7 @@ void socket_asset_response_append_metadata(struct packet_struct *packet,
                                            const char *path,
                                            uint32_t total_size,
                                            const uint8_t digest[ASSET_DIGEST_SIZE]);
-bool socket_asset_response_parse(uint8_t *data,
+bool socket_asset_response_parse(const uint8_t *data,
                                  size_t len,
                                  size_t pos,
                                  socket_asset_response_t *response);

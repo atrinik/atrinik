@@ -120,13 +120,13 @@ static int apply_func(object *op, object *applier, int aflags) {
 
     packet_struct *packet = packet_new(CLIENT_CMD_BOOK, 512, 512);
     packet_debug_data(packet, 0, "Book interface header");
-    packet_append_string(packet, "[book]");
+    packet_writer_write_string(packet, "[book]");
     StringBuffer *sb = object_get_base_name(op, applier, NULL);
-    packet_append_string_len(packet, stringbuffer_data(sb), stringbuffer_length(sb));
+    packet_writer_write_string_n(packet, stringbuffer_data(sb), stringbuffer_length(sb));
     stringbuffer_free(sb);
-    packet_append_string(packet, "[/book]");
+    packet_writer_write_string(packet, "[/book]");
     packet_debug_data(packet, 0, "Book message");
-    packet_append_string_terminated(packet, op->msg);
+    packet_writer_write_cstring(packet, op->msg);
     socket_send_packet(CONTR(applier)->cs, packet);
 
     /* Gain xp from reading but only if not read before. */

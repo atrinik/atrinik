@@ -36,6 +36,48 @@
 #include "stringbuffer_dec.h"
 #include "packet_dec.h"
 
+/** Maximum payload carried by one legacy game-protocol envelope. */
+#define PACKET_PAYLOAD_MAX (UINT16_MAX - 1U)
+
+/** Explicit packet parsing and construction failures. */
+typedef enum packet_error {
+    PACKET_ERROR_NONE,
+    PACKET_ERROR_TRUNCATED,
+    PACKET_ERROR_INVALID_ENCODING,
+    PACKET_ERROR_LIMIT_EXCEEDED,
+    PACKET_ERROR_UNSUPPORTED,
+    PACKET_ERROR_TRAILING_DATA,
+    PACKET_ERROR_SIZE_OVERFLOW,
+    PACKET_ERROR_ALLOCATION,
+} packet_error_t;
+
+/** A borrowed, non-owning byte range. */
+typedef struct packet_view {
+    const uint8_t *data;
+    size_t len;
+} packet_view_t;
+
+/** Bounded cursor for decoding untrusted packet data. */
+typedef struct packet_reader {
+    const uint8_t *data;
+    size_t len;
+    size_t pos;
+    packet_error_t error;
+    /** Optional legacy position mirror used only during whole-tree migration. */
+    size_t *position;
+    struct packet_reader_scope *scope;
+} packet_reader_t;
+
+/** One dispatch-level error and completion boundary. */
+typedef struct packet_reader_scope {
+    const uint8_t *data;
+    size_t len;
+    size_t pos;
+    packet_error_t error;
+    bool initialized;
+    struct packet_reader_scope *previous;
+} packet_reader_scope_t;
+
 /**
  * A single data packet.
  */
@@ -75,6 +117,12 @@ struct packet_struct {
      */
     size_t pos;
 
+    /** Maximum payload size accepted by writer operations. */
+    size_t limit;
+
+    /** Sticky writer failure. */
+    packet_error_t error;
+
     /**
      * Whether to enable NDELAY on this packet.
      */
@@ -93,10 +141,13 @@ struct packet_struct {
 #endif
 };
 
+/** The owned packet is also the protocol's bounded writer cursor. */
+typedef struct packet_struct packet_writer_t;
+
 /**
  * Structure used to save state of the packet so that one can go back to it.
  */
-typedef struct packet_save {
+typedef struct packet_writer_mark {
     /**
      * Position to save.
      */
@@ -108,7 +159,7 @@ typedef struct packet_save {
      */
     size_t sb_pos;
 #endif
-} packet_save_t;
+} packet_writer_mark_t;
 
 /**
  * How many packet structures to allocate when expanding the packets
@@ -137,40 +188,68 @@ packet_struct *packet_new(uint8_t type, size_t size, size_t expand);
 void packet_free(packet_struct *packet);
 void packet_compress(packet_struct *packet);
 void packet_enable_ndelay(packet_struct *packet);
-void packet_set_pos(packet_struct *packet, size_t pos);
-size_t packet_get_pos(packet_struct *packet);
 packet_struct *packet_dup(packet_struct *packet);
 void packet_delete(packet_struct *packet, size_t pos, size_t len);
-void packet_save(packet_struct *packet, packet_save_t *packet_save_buf);
-void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf);
+void packet_writer_mark(packet_writer_t *writer, packet_writer_mark_t *mark);
+void packet_writer_rollback(packet_writer_t *writer, const packet_writer_mark_t *mark);
 char *packet_get_debug(packet_struct *packet);
-void packet_append_uint8(packet_struct *packet, uint8_t data);
-void packet_append_int8(packet_struct *packet, int8_t data);
-void packet_append_uint16(packet_struct *packet, uint16_t data);
-void packet_append_int16(packet_struct *packet, int16_t data);
-void packet_append_uint32(packet_struct *packet, uint32_t data);
-void packet_append_int32(packet_struct *packet, int32_t data);
-void packet_append_uint64(packet_struct *packet, uint64_t data);
-void packet_append_int64(packet_struct *packet, int64_t data);
-void packet_append_float(packet_struct *packet, float data);
-void packet_append_double(packet_struct *packet, double data);
-void packet_append_data_len(packet_struct *packet, const uint8_t *data, size_t len);
-void packet_append_string_len(packet_struct *packet, const char *data, size_t len);
-void packet_append_string(packet_struct *packet, const char *data);
-void packet_append_string_len_terminated(packet_struct *packet, const char *data, size_t len);
-void packet_append_string_terminated(packet_struct *packet, const char *data);
-void packet_append_packet(packet_struct *packet, packet_struct *src);
-uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos);
-int8_t packet_to_int8(uint8_t *data, size_t len, size_t *pos);
-uint16_t packet_to_uint16(uint8_t *data, size_t len, size_t *pos);
-int16_t packet_to_int16(uint8_t *data, size_t len, size_t *pos);
-uint32_t packet_to_uint32(uint8_t *data, size_t len, size_t *pos);
-int32_t packet_to_int32(uint8_t *data, size_t len, size_t *pos);
-uint64_t packet_to_uint64(uint8_t *data, size_t len, size_t *pos);
-int64_t packet_to_int64(uint8_t *data, size_t len, size_t *pos);
-float packet_to_float(uint8_t *data, size_t len, size_t *pos);
-double packet_to_double(uint8_t *data, size_t len, size_t *pos);
-char *packet_to_string(uint8_t *data, size_t len, size_t *pos, char *dest, size_t dest_size);
-void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos, StringBuffer *sb);
+packet_error_t packet_writer_error(const packet_writer_t *writer);
+void packet_writer_set_limit(packet_writer_t *writer, size_t limit);
+bool packet_writer_finish(packet_writer_t *writer);
+void packet_writer_write_uint8(packet_struct *packet, uint8_t data);
+void packet_writer_write_int8(packet_struct *packet, int8_t data);
+void packet_writer_write_uint16(packet_struct *packet, uint16_t data);
+void packet_writer_write_int16(packet_struct *packet, int16_t data);
+void packet_writer_write_uint32(packet_struct *packet, uint32_t data);
+void packet_writer_write_int32(packet_struct *packet, int32_t data);
+void packet_writer_write_uint64(packet_struct *packet, uint64_t data);
+void packet_writer_write_int64(packet_struct *packet, int64_t data);
+void packet_writer_write_float(packet_struct *packet, float data);
+void packet_writer_write_double(packet_struct *packet, double data);
+void packet_writer_write_bytes(packet_struct *packet, const uint8_t *data, size_t len);
+void packet_writer_write_string_n(packet_struct *packet, const char *data, size_t len);
+void packet_writer_write_string(packet_struct *packet, const char *data);
+void packet_writer_write_cstring_n(packet_struct *packet, const char *data, size_t len);
+void packet_writer_write_cstring(packet_struct *packet, const char *data);
+void packet_writer_write_packet(packet_struct *packet, packet_struct *src);
+
+void packet_reader_init(packet_reader_t *reader, const void *data, size_t len);
+void packet_reader_init_at(packet_reader_t *reader, const void *data, size_t len, size_t pos);
+void packet_reader_init_cursor(packet_reader_t *reader,
+                               const void *data,
+                               size_t len,
+                               size_t *position);
+size_t packet_reader_remaining(const packet_reader_t *reader);
+packet_error_t packet_reader_error(const packet_reader_t *reader);
+const char *packet_error_string(packet_error_t error);
+void packet_reader_set_error(packet_reader_t *reader, packet_error_t error);
+bool packet_reader_finish(packet_reader_t *reader);
+void packet_reader_scope_begin(packet_reader_scope_t *scope);
+packet_error_t packet_reader_scope_finish(packet_reader_scope_t *scope);
+bool packet_reader_skip(packet_reader_t *reader, size_t len);
+packet_view_t packet_reader_read_view(packet_reader_t *reader, size_t len);
+packet_view_t packet_reader_read_string_view(packet_reader_t *reader, size_t max_len);
+bool packet_reader_read_string_bounded(packet_reader_t *reader,
+                                       char *dest,
+                                       size_t dest_size,
+                                       size_t max_len);
+bool packet_reader_read_string(packet_reader_t *reader, char *dest, size_t dest_size);
+bool packet_reader_read_stringbuffer_bounded(packet_reader_t *reader,
+                                             StringBuffer *sb,
+                                             size_t max_len);
+bool packet_reader_read_stringbuffer(packet_reader_t *reader, StringBuffer *sb);
+uint8_t packet_reader_read_uint8(packet_reader_t *reader);
+int8_t packet_reader_read_int8(packet_reader_t *reader);
+uint16_t packet_reader_read_uint16(packet_reader_t *reader);
+int16_t packet_reader_read_int16(packet_reader_t *reader);
+uint32_t packet_reader_read_uint32(packet_reader_t *reader);
+int32_t packet_reader_read_int32(packet_reader_t *reader);
+uint64_t packet_reader_read_uint64(packet_reader_t *reader);
+int64_t packet_reader_read_int64(packet_reader_t *reader);
+float packet_reader_read_float(packet_reader_t *reader);
+double packet_reader_read_double(packet_reader_t *reader);
+bool packet_reader_read_count8(packet_reader_t *reader, size_t maximum, size_t *count);
+bool packet_reader_read_count16(packet_reader_t *reader, size_t maximum, size_t *count);
+bool packet_reader_read_count32(packet_reader_t *reader, size_t maximum, size_t *count);
 
 #endif

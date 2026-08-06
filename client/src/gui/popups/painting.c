@@ -279,6 +279,8 @@ static int popup_destroy_callback(popup_struct *popup) {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_painting(uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     popup_painting_t *painting_data = xcalloc(1, sizeof(*painting_data));
 
     painting_data->coords.w = 750;
@@ -287,15 +289,15 @@ void socket_command_painting(uint8_t *data, size_t len, size_t pos) {
     painting_data->zoom_x = painting_data->zoom_y = 1.0;
 
     StringBuffer *sb = stringbuffer_new();
-    packet_to_stringbuffer(data, len, &pos, sb);
+    packet_reader_read_stringbuffer(&reader, sb);
     painting_data->resource_name = stringbuffer_finish(sb);
 
     sb = stringbuffer_new();
-    packet_to_stringbuffer(data, len, &pos, sb);
+    packet_reader_read_stringbuffer(&reader, sb);
     painting_data->name = stringbuffer_finish(sb);
 
     sb = stringbuffer_new();
-    packet_to_stringbuffer(data, len, &pos, sb);
+    packet_reader_read_stringbuffer(&reader, sb);
     painting_data->msg = stringbuffer_finish(sb);
 
     if (string_isempty(painting_data->resource_name) || string_isempty(painting_data->name)) {

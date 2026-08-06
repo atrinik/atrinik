@@ -228,9 +228,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
                 packet = packet_new(SERVER_CMD_ACCOUNT, 64, 64);
 
                 if (button_tab_login.pressed_forced) {
-                    packet_append_uint8(packet, CMD_ACCOUNT_LOGIN);
+                    packet_writer_write_uint8(packet, CMD_ACCOUNT_LOGIN);
                 } else {
-                    packet_append_uint8(packet, CMD_ACCOUNT_REGISTER);
+                    packet_writer_write_uint8(packet, CMD_ACCOUNT_REGISTER);
                 }
 
                 for (i = 0; i < LOGIN_TEXT_INPUT_MAX; i++) {
@@ -255,7 +255,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
                         return 1;
                     }
 
-                    packet_append_string_terminated(packet, text_inputs[i].str);
+                    packet_writer_write_cstring(packet, text_inputs[i].str);
                 }
 
                 strncpy(cpl.password,

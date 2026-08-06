@@ -95,6 +95,7 @@
 
 /* TODO: Remove from here eventually */
 struct packet_struct;
+struct packet_reader;
 
 /* TODO: move to appropriate header */
 FILE *client_fopen_wrapper(const char *fname, const char *mode);

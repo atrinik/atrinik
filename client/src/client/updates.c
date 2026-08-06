@@ -51,12 +51,14 @@ static void file_updates_request(char *filename) {
     file_updates_requested++;
 
     packet = packet_new(SERVER_CMD_REQUEST_UPDATE, 64, 64);
-    packet_append_string_terminated(packet, filename);
+    packet_writer_write_cstring(packet, filename);
     socket_send_packet(packet);
 }
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_file_update(uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     char filename[MAX_BUF];
     unsigned long ucomp_len;
     unsigned char *dest;
@@ -66,8 +68,8 @@ void socket_command_file_update(uint8_t *data, size_t len, size_t pos) {
         file_updates_requested--;
     }
 
-    packet_to_string(data, len, &pos, filename, sizeof(filename));
-    ucomp_len = packet_to_uint32(data, len, &pos);
+    packet_reader_read_string(&reader, filename, sizeof(filename));
+    ucomp_len = packet_reader_read_uint32(&reader);
     len -= pos;
 
     /* Uncompress it. */

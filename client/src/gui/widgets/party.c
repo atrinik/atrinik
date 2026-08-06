@@ -114,9 +114,11 @@ static void list_row_selected(list_struct *list, SDL_Rect box) {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_party(uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     uint8_t type;
 
-    type = packet_to_uint8(data, len, &pos);
+    type = packet_reader_read_uint8(&reader);
 
     /* List of parties, or list of party members. */
     if (type == CMD_PARTY_LIST || type == CMD_PARTY_WHO) {
@@ -126,17 +128,17 @@ void socket_command_party(uint8_t *data, size_t len, size_t pos) {
             if (type == CMD_PARTY_LIST) {
                 char party_name[MAX_BUF], party_leader[MAX_BUF];
 
-                packet_to_string(data, len, &pos, party_name, sizeof(party_name));
-                packet_to_string(data, len, &pos, party_leader, sizeof(party_leader));
+                packet_reader_read_string(&reader, party_name, sizeof(party_name));
+                packet_reader_read_string(&reader, party_leader, sizeof(party_leader));
                 list_add(list_party, list_party->rows, 0, party_name);
                 list_add(list_party, list_party->rows - 1, 1, party_leader);
             } else if (type == CMD_PARTY_WHO) {
                 char name[MAX_BUF], bars[MAX_BUF];
                 uint8_t hp, sp;
 
-                packet_to_string(data, len, &pos, name, sizeof(name));
-                hp = packet_to_uint8(data, len, &pos);
-                sp = packet_to_uint8(data, len, &pos);
+                packet_reader_read_string(&reader, name, sizeof(name));
+                hp = packet_reader_read_uint8(&reader);
+                sp = packet_reader_read_uint8(&reader);
                 list_add(list_party, list_party->rows, 0, name);
                 PARTY_STAT_BAR();
                 list_add(list_party, list_party->rows - 1, 1, bars);
@@ -164,7 +166,7 @@ void socket_command_party(uint8_t *data, size_t len, size_t pos) {
     } else if (type == CMD_PARTY_JOIN) {
         /* Join command; store the party name we're member of, and show the
          * list of party members, if the party widget is not hidden. */
-        packet_to_string(data, len, &pos, cpl.partyname, sizeof(cpl.partyname));
+        packet_reader_read_string(&reader, cpl.partyname, sizeof(cpl.partyname));
 
         if (cur_widget[PARTY_ID]->show) {
             send_command("/party who");
@@ -184,7 +186,7 @@ void socket_command_party(uint8_t *data, size_t len, size_t pos) {
         /* Party requires password, bring up the console for the player to
          * enter the password. */
 
-        packet_to_string(data, len, &pos, cpl.partyjoin, sizeof(cpl.partyjoin));
+        packet_reader_read_string(&reader, cpl.partyjoin, sizeof(cpl.partyjoin));
         snprintf(buf, sizeof(buf), "?MCON /joinpassword ");
         keybind_process_command(buf);
     } else if (type == CMD_PARTY_UPDATE) {
@@ -198,9 +200,9 @@ void socket_command_party(uint8_t *data, size_t len, size_t pos) {
             return;
         }
 
-        packet_to_string(data, len, &pos, name, sizeof(name));
-        hp = packet_to_uint8(data, len, &pos);
-        sp = packet_to_uint8(data, len, &pos);
+        packet_reader_read_string(&reader, name, sizeof(name));
+        hp = packet_reader_read_uint8(&reader);
+        sp = packet_reader_read_uint8(&reader);
 
         PARTY_STAT_BAR();
         cur_widget[PARTY_ID]->redraw = 1;
@@ -226,7 +228,7 @@ void socket_command_party(uint8_t *data, size_t len, size_t pos) {
             return;
         }
 
-        packet_to_string(data, len, &pos, name, sizeof(name));
+        packet_reader_read_string(&reader, name, sizeof(name));
         cur_widget[PARTY_ID]->redraw = 1;
 
         for (row = 0; row < list_party->rows; row++) {

@@ -240,7 +240,7 @@ static int popup_destroy_callback(popup_struct *popup) {
     button_destroy(&button_close);
 
     packet_struct *packet = packet_new(SERVER_CMD_TALK, 32, 0);
-    packet_append_uint8(packet, CMD_TALK_CLOSE);
+    packet_writer_write_uint8(packet, CMD_TALK_CLOSE);
     socket_send_packet(packet);
 
     return 1;
@@ -408,6 +408,8 @@ static const char *popup_clipboard_copy_func(popup_struct *popup) {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     uint8_t scroll_bottom = 0, type;
     StringBuffer *sb_message;
     SDL_Rect box;
@@ -461,7 +463,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
 
     /* Parse the data. */
     while (pos < len) {
-        type = packet_to_uint8(data, len, &pos);
+        type = packet_reader_read_uint8(&reader);
 
         switch (type) {
             case CMD_INTERFACE_TEXT:
@@ -470,13 +472,13 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
                     sb_message = stringbuffer_new();
                 }
 
-                packet_to_stringbuffer(data, len, &pos, sb_message);
+                packet_reader_read_stringbuffer(&reader, sb_message);
                 break;
 
             case CMD_INTERFACE_LINK: {
                 char interface_link[HUGE_BUF], *cp;
 
-                packet_to_string(data, len, &pos, interface_link, sizeof(interface_link));
+                packet_reader_read_string(&reader, interface_link, sizeof(interface_link));
                 cp = interface_link;
                 utarray_push_back(interface_data->links, &cp);
                 break;
@@ -485,7 +487,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
             case CMD_INTERFACE_ICON: {
                 char icon[MAX_BUF];
 
-                packet_to_string(data, len, &pos, icon, sizeof(icon));
+                packet_reader_read_string(&reader, icon, sizeof(icon));
                 interface_data->icon = xstrdup(icon);
                 break;
             }
@@ -493,7 +495,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
             case CMD_INTERFACE_TITLE: {
                 char title[HUGE_BUF];
 
-                packet_to_string(data, len, &pos, title, sizeof(title));
+                packet_reader_read_string(&reader, title, sizeof(title));
                 interface_data->title = xstrdup(title);
                 break;
             }
@@ -502,7 +504,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
                 char text_input_content[HUGE_BUF];
 
                 interface_data->text_input = 1;
-                packet_to_string(data, len, &pos, text_input_content, sizeof(text_input_content));
+                packet_reader_read_string(&reader, text_input_content, sizeof(text_input_content));
                 text_input_reset(&text_input);
                 text_input_set(&text_input, text_input_content);
                 break;
@@ -513,7 +515,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
 
                 char text_input_prepend[HUGE_BUF];
 
-                packet_to_string(data, len, &pos, text_input_prepend, sizeof(text_input_prepend));
+                packet_reader_read_string(&reader, text_input_prepend, sizeof(text_input_prepend));
                 interface_data->text_input_prepend = xstrdup(text_input_prepend);
                 break;
             }
@@ -539,7 +541,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
 
                 char text_autocomplete[HUGE_BUF];
 
-                packet_to_string(data, len, &pos, text_autocomplete, sizeof(text_autocomplete));
+                packet_reader_read_string(&reader, text_autocomplete, sizeof(text_autocomplete));
                 interface_data->text_autocomplete = xstrdup(text_autocomplete);
                 break;
             }
@@ -560,7 +562,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
 
                     sb = stringbuffer_new();
                     stringbuffer_append_string(sb, interface_data->message);
-                    packet_to_stringbuffer(data, len, &pos, sb);
+                    packet_reader_read_stringbuffer(&reader, sb);
 
                     free(interface_data->message);
                     interface_data->message = stringbuffer_finish(sb);
@@ -570,19 +572,19 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
 
             case CMD_INTERFACE_ANIM: {
                 interface_data->anim = object_create(NULL, 0, 0);
-                interface_data->anim->animation_id = packet_to_uint16(data, len, &pos);
-                interface_data->anim->anim_speed = packet_to_uint8(data, len, &pos);
-                interface_data->anim->direction = packet_to_uint8(data, len, &pos);
+                interface_data->anim->animation_id = packet_reader_read_uint16(&reader);
+                interface_data->anim->anim_speed = packet_reader_read_uint8(&reader);
+                interface_data->anim->direction = packet_reader_read_uint8(&reader);
                 interface_data->anim->last_anim = interface_data->anim->anim_speed;
                 break;
             }
 
             case CMD_INTERFACE_OBJECT: {
-                uint16_t flags = packet_to_uint16(data, len, &pos);
-                tag_t tag = packet_to_uint32(data, len, &pos);
+                uint16_t flags = packet_reader_read_uint16(&reader);
+                tag_t tag = packet_reader_read_uint32(&reader);
                 object *old_obj = object_find(tag);
                 object *obj = object_create(interface_data->objects, tag, 0);
-                command_item_update(data, len, &pos, flags, obj);
+                command_item_update(&reader, flags, obj);
 
                 if (old_obj != NULL && old_obj->env != cpl.interface) {
                     object_remove(obj);

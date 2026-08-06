@@ -2886,8 +2886,8 @@ static void send_move_path(int tx, int ty) {
     }
 
     packet = packet_new(SERVER_CMD_MOVE_PATH, 8, 0);
-    packet_append_uint8(packet, tx);
-    packet_append_uint8(packet, ty);
+    packet_writer_write_uint8(packet, tx);
+    packet_writer_write_uint8(packet, ty);
     socket_send_packet(packet);
 }
 
@@ -2910,12 +2910,12 @@ static void send_target(int x, int y, uint32_t count) {
     packet = packet_new(SERVER_CMD_TARGET, 16, 0);
 
     if (x == -1 && y == -1) {
-        packet_append_uint8(packet, CMD_TARGET_CLEAR);
+        packet_writer_write_uint8(packet, CMD_TARGET_CLEAR);
     } else {
-        packet_append_uint8(packet, CMD_TARGET_MAPXY);
-        packet_append_uint8(packet, x);
-        packet_append_uint8(packet, y);
-        packet_append_uint32(packet, count);
+        packet_writer_write_uint8(packet, CMD_TARGET_MAPXY);
+        packet_writer_write_uint8(packet, x);
+        packet_writer_write_uint8(packet, y);
+        packet_writer_write_uint32(packet, count);
     }
 
     socket_send_packet(packet);

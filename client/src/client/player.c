@@ -107,10 +107,10 @@ void client_send_apply(object *op) {
     packet_struct *packet;
 
     packet = packet_new(SERVER_CMD_ITEM_APPLY, 8, 0);
-    packet_append_uint32(packet, op->tag);
+    packet_writer_write_uint32(packet, op->tag);
 
     if (op->tag == 0) {
-        packet_append_uint8(packet, op->apply_action);
+        packet_writer_write_uint8(packet, op->apply_action);
     }
 
     socket_send_packet(packet);
@@ -125,7 +125,7 @@ void client_send_examine(tag_t tag) {
     packet_struct *packet;
 
     packet = packet_new(SERVER_CMD_ITEM_EXAMINE, 8, 0);
-    packet_append_uint32(packet, tag);
+    packet_writer_write_uint32(packet, tag);
     socket_send_packet(packet);
 }
 
@@ -142,9 +142,9 @@ void client_send_move(tag_t loc, tag_t tag, uint32_t nrof) {
     packet_struct *packet;
 
     packet = packet_new(SERVER_CMD_ITEM_MOVE, 32, 0);
-    packet_append_uint32(packet, loc);
-    packet_append_uint32(packet, tag);
-    packet_append_uint32(packet, nrof);
+    packet_writer_write_uint32(packet, loc);
+    packet_writer_write_uint32(packet, tag);
+    packet_writer_write_uint32(packet, nrof);
     socket_send_packet(packet);
 }
 
@@ -160,7 +160,7 @@ void send_command(const char *command) {
     packet_struct *packet;
 
     packet = packet_new(SERVER_CMD_PLAYER_CMD, 256, 128);
-    packet_append_string_terminated(packet, command);
+    packet_writer_write_cstring(packet, command);
     socket_send_packet(packet);
 }
 

@@ -34,6 +34,7 @@ else ()
 endif ()
 
 include(CTest)
+option(BUILD_FUZZING "Build bounded libFuzzer protocol targets" OFF)
 
 add_library(atrinik-build-options INTERFACE)
 target_compile_features(atrinik-build-options INTERFACE c_std_17)
@@ -144,6 +145,10 @@ else ()
 endif ()
 
 add_subdirectory(common/toolkit)
+
+if (BUILD_FUZZING)
+    add_subdirectory(tests/fuzz)
+endif ()
 
 if (BUILD_E2E_TESTS AND NOT MINGW)
     add_subdirectory(tests/e2e)

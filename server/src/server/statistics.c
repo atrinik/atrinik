@@ -87,12 +87,12 @@ void statistic_update(const char *type, object *op, int64_t i, const char *buf) 
     }
 
     packet = packet_new(0, 256, 256);
-    packet_append_string_terminated(packet, type);
-    packet_append_string_terminated(packet, op->name);
-    packet_append_int64(packet, i);
+    packet_writer_write_cstring(packet, type);
+    packet_writer_write_cstring(packet, op->name);
+    packet_writer_write_int64(packet, i);
 
     if (buf) {
-        packet_append_string_terminated(packet, buf);
+        packet_writer_write_cstring(packet, buf);
     }
 
     sendto(fd,

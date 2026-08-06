@@ -191,8 +191,8 @@ text_anchor_handle(const char *anchor_action, const char *buf, size_t len, void 
         packet_struct *packet;
 
         packet = packet_new(SERVER_CMD_ACCOUNT, 64, 64);
-        packet_append_uint8(packet, CMD_ACCOUNT_LOGIN_CHAR);
-        packet_append_string_terminated(packet, buf);
+        packet_writer_write_uint8(packet, CMD_ACCOUNT_LOGIN_CHAR);
+        packet_writer_write_cstring(packet, buf);
         socket_send_packet(packet);
 
         cpl.state = ST_WAITFORPLAY;
@@ -474,9 +474,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
                 }
 
                 packet = packet_new(SERVER_CMD_ACCOUNT, 64, 64);
-                packet_append_uint8(packet, CMD_ACCOUNT_NEW_CHAR);
-                packet_append_string_terminated(packet, text_inputs[TEXT_INPUT_CHARNAME].str);
-                packet_append_string_terminated(
+                packet_writer_write_uint8(packet, CMD_ACCOUNT_NEW_CHAR);
+                packet_writer_write_cstring(packet, text_inputs[TEXT_INPUT_CHARNAME].str);
+                packet_writer_write_cstring(
                     packet,
                     s_settings->characters[character_race].gender_archetypes[character_gender]);
                 socket_send_packet(packet);
@@ -523,7 +523,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
                     }
 
                     packet = packet_new(SERVER_CMD_ACCOUNT, 64, 64);
-                    packet_append_uint8(packet, CMD_ACCOUNT_PSWD);
+                    packet_writer_write_uint8(packet, CMD_ACCOUNT_PSWD);
 
                     for (i = TEXT_INPUT_PASSWORD; i < TEXT_INPUT_NUM; i++) {
                         if (*text_inputs[i].str == '\0') {
@@ -544,7 +544,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
                             return 1;
                         }
 
-                        packet_append_string_terminated(packet, text_inputs[i].str);
+                        packet_writer_write_cstring(packet, text_inputs[i].str);
                     }
 
                     socket_send_packet(packet);
@@ -789,6 +789,8 @@ static bool characters_packet_valid(const uint8_t *data, size_t len, size_t pos)
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_characters(uint8_t *data, size_t len, size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     char archname[MAX_BUF], name[MAX_BUF], region_name[MAX_BUF], buf[HUGE_BUF],
         race_gender[MAX_BUF];
     uint16_t anim_id;
@@ -814,17 +816,17 @@ void socket_command_characters(uint8_t *data, size_t len, size_t pos) {
 
     list_clear(list_characters);
 
-    packet_to_string(data, len, &pos, cpl.account, sizeof(cpl.account));
-    packet_to_string(data, len, &pos, cpl.connection_id, sizeof(cpl.connection_id));
-    packet_to_string(data, len, &pos, cpl.last_connection_id, sizeof(cpl.last_connection_id));
-    cpl.last_time = datetime_utctolocal(packet_to_uint64(data, len, &pos));
+    packet_reader_read_string(&reader, cpl.account, sizeof(cpl.account));
+    packet_reader_read_string(&reader, cpl.connection_id, sizeof(cpl.connection_id));
+    packet_reader_read_string(&reader, cpl.last_connection_id, sizeof(cpl.last_connection_id));
+    cpl.last_time = datetime_utctolocal(packet_reader_read_uint64(&reader));
 
     while (pos < len) {
-        packet_to_string(data, len, &pos, archname, sizeof(archname));
-        packet_to_string(data, len, &pos, name, sizeof(name));
-        packet_to_string(data, len, &pos, region_name, sizeof(region_name));
-        anim_id = packet_to_uint16(data, len, &pos);
-        level = packet_to_uint8(data, len, &pos);
+        packet_reader_read_string(&reader, archname, sizeof(archname));
+        packet_reader_read_string(&reader, name, sizeof(name));
+        packet_reader_read_string(&reader, region_name, sizeof(region_name));
+        anim_id = packet_reader_read_uint16(&reader);
+        level = packet_reader_read_uint8(&reader);
 
         /* If it's a valid player arch, add race and gender information. */
         if (archname_to_character(archname, &race, &gender)) {

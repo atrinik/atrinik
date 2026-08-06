@@ -80,6 +80,7 @@ typedef struct socket_command {
      * A combination of ::SOCKET_COMMAND_xxx.
      */
     int flags;
+    const char *name;
 } socket_command_t;
 
 /**
@@ -108,30 +109,12 @@ static size_t client_sockets_count;
  * Defines all the possible socket commands.
  */
 static const socket_command_t socket_commands[] = {
-    {socket_command_control, 0},
-    {socket_command_ask_face, 0},
-    {socket_command_setup, 0},
-    {socket_command_version, 0},
-    {socket_command_clear, 0},
-    {socket_command_request_update, 0},
-    {socket_command_keepalive, 0},
-    {socket_command_account, 0},
-    {socket_command_item_examine, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_item_apply, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_item_move, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_ask_resource, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_player_cmd, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_item_lock, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_item_mark, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_fire, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_quickslot, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_quest_list, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_move_path, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_combat, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_talk, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_move, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_target, SOCKET_COMMAND_PLAYER_ONLY},
-    {socket_command_asset, 0},
+#define ATRINIK_SERVER_COMMAND(_id, _name, _handler, _player_only)                  \
+    [SERVER_CMD_##_id] = {.handle_func = (_handler),                                \
+                          .flags = (_player_only) ? SOCKET_COMMAND_PLAYER_ONLY : 0, \
+                          .name = (_name)},
+#include <toolkit/socket_commands.def>
+#undef ATRINIK_SERVER_COMMAND
 };
 CASSERT_ARRAY(socket_commands, SERVER_CMD_NROF);
 
@@ -439,7 +422,9 @@ static bool socket_server_quic_punch_receive(socket_t *server_socket) {
  */
 static bool socket_server_handle_command(socket_struct *cs, player *pl, uint8_t *data, size_t len) {
     size_t pos = 0;
-    uint8_t type = packet_to_uint8(data, len, &pos);
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
+    uint8_t type = packet_reader_read_uint8(&reader);
 
 #ifndef DEBUG
     char *cp;
@@ -450,6 +435,11 @@ static bool socket_server_handle_command(socket_struct *cs, player *pl, uint8_t 
     LOG(DUMPRX, "  Hexadecimal: %s", cp);
     free(cp);
 #endif
+
+    if (packet_reader_error(&reader) != PACKET_ERROR_NONE) {
+        LOG(DEVEL, "Malformed command envelope: %s", packet_error_string(reader.error));
+        return true;
+    }
 
     if (type >= SERVER_CMD_NROF || socket_commands[type].handle_func == NULL) {
         LOG(DEVEL, "Unknown command type: %" PRIu8, type);
@@ -462,7 +452,17 @@ static bool socket_server_handle_command(socket_struct *cs, player *pl, uint8_t 
         return false;
     }
 
+    packet_reader_scope_t scope;
+    packet_reader_scope_begin(&scope);
+    packet_reader_init_at(&reader, data + pos, len - pos, 0);
     socket_commands[type].handle_func(cs, pl, data + pos, len - pos, 0);
+    packet_error_t error = packet_reader_scope_finish(&scope);
+    if (error != PACKET_ERROR_NONE) {
+        LOG(DEVEL,
+            "Rejected malformed %s command: %s",
+            socket_commands[type].name,
+            packet_error_string(error));
+    }
 
     return true;
 }
@@ -680,8 +680,16 @@ static inline void socket_server_csocket_read(socket_struct *cs) {
         if (!socket_server_handle_command(cs, NULL, decrypted_data, decrypted_len)) {
             /* Couldn't handle it immediately, add it to the commands
              * packet. */
-            packet_append_uint16(cs->packet_recv_cmd, decrypted_len);
-            packet_append_data_len(cs->packet_recv_cmd, decrypted_data, decrypted_len);
+            packet_writer_write_uint16(cs->packet_recv_cmd, decrypted_len);
+            packet_writer_write_bytes(cs->packet_recv_cmd, decrypted_data, decrypted_len);
+            if (!packet_writer_finish(cs->packet_recv_cmd)) {
+                LOG(ERROR,
+                    "Connection %s exceeded the buffered command limit: %s",
+                    socket_get_id(cs->sc),
+                    packet_error_string(packet_writer_error(cs->packet_recv_cmd)));
+                cs->state = ST_DEAD;
+                return;
+            }
         }
 
         packet_delete(cs->packet_recv, 0, size);

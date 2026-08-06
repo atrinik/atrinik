@@ -280,14 +280,14 @@ int client_command_check(const char *cmd) {
         }
 
         packet = packet_new(SERVER_CMD_TALK, 64, 64);
-        packet_append_uint8(packet, type_num);
+        packet_writer_write_uint8(packet, type_num);
 
         if (type_num == CMD_TALK_NPC || type_num == CMD_TALK_NPC_NAME) {
             if (type_num == CMD_TALK_NPC_NAME) {
-                packet_append_string_terminated(packet, npc_name);
+                packet_writer_write_cstring(packet, npc_name);
             }
 
-            packet_append_string_terminated(packet, cmd + pos);
+            packet_writer_write_cstring(packet, cmd + pos);
         } else {
             char tag[MAX_BUF];
 
@@ -297,8 +297,8 @@ int client_command_check(const char *cmd) {
                 return 1;
             }
 
-            packet_append_uint32(packet, atoi(tag));
-            packet_append_string_terminated(packet, cmd + pos);
+            packet_writer_write_uint32(packet, atoi(tag));
+            packet_writer_write_cstring(packet, cmd + pos);
         }
 
         socket_send_packet(packet);
