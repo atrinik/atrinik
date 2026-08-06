@@ -88,6 +88,19 @@ if (BUILD_TESTING AND NOT MINGW)
         ${CMAKE_CURRENT_SOURCE_DIR}/src/include)
     target_link_libraries(client-packet-payload-tests PRIVATE atrinik-toolkit)
     add_test(NAME client-packet-payload COMMAND client-packet-payload-tests)
+
+    add_executable(client-surface-primitives-tests
+        src/tests/surface_primitives.c
+        src/gui/toolkit/surface_primitives.c)
+    atrinik_configure_target(client-surface-primitives-tests)
+    target_compile_definitions(client-surface-primitives-tests PRIVATE SDL_DISABLE_OLD_NAMES)
+    target_include_directories(client-surface-primitives-tests BEFORE PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR}/src/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/toolkit/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_link_libraries(client-surface-primitives-tests PRIVATE atrinik-toolkit SDL3::SDL3)
+    add_test(NAME client-surface-primitives COMMAND client-surface-primitives-tests)
 endif ()
 
 # Installer.
