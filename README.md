@@ -43,6 +43,18 @@ build and print either launch command without starting the process.
 
 ## Synchronizing repositories
 
+Inspect the local primary checkouts before changing them:
+
+~~~sh
+./atrinik status
+./atrinik status client server --json
+~~~
+
+Status is deliberately fast and does not contact GitHub. Ahead/behind counts
+compare against each checkout's cached remote default-branch ref; run `sync` to
+fetch and fast-forward when current remote state is required. JSON output is
+stable machine-readable input for scripts and AI tools.
+
 Fast-forward every primary checkout to its configured default branch:
 
 ~~~sh
@@ -82,6 +94,7 @@ List or remove managed worktrees:
 
 ~~~sh
 ./atrinik worktree list
+./atrinik worktree list --json
 ./atrinik worktree remove content maps-pr
 ~~~
 
@@ -103,6 +116,13 @@ primary checkouts, or to combine several coordinated branches.
 ./atrinik build all --profile maps-review --test
 ~~~
 
+Clone an existing profile when starting a related combination instead of
+repeating every selector:
+
+~~~sh
+./atrinik profile create maps-review-2 --from maps-review
+~~~
+
 An existing checkout outside the managed workspace can also be selected:
 
 ~~~sh
@@ -112,6 +132,15 @@ An existing checkout outside the managed workspace can also be selected:
 The repository identity is validated for every selector. Generated build trees
 are keyed by the profile's resolved paths, so profiles and worktree combinations
 do not overwrite one another.
+
+Print an exact selected checkout path for use with `cd`, editors, or other
+tools. Read-only profile, worktree, and state listings also support `--json`.
+
+~~~sh
+cd "$(./atrinik path server --profile maps-review)"
+./atrinik profile show maps-review --json
+./atrinik state list --json
+~~~
 
 Before every server build or launch, the coordinator collects the selected
 content checkout into an isolated runtime tree and stages the selected resource

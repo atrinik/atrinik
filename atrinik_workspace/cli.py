@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 import sys
 
@@ -33,6 +34,12 @@ def parser() -> argparse.ArgumentParser:
         help="also merge/rebase each component's clean feature worktrees",
     )
 
+    status = commands.add_parser(
+        "status", help="summarize primary component checkout state"
+    )
+    status.add_argument("components", nargs="*")
+    status.add_argument("--json", action="store_true")
+
     worktree = commands.add_parser("worktree", help="manage component worktrees")
     worktree_commands = worktree.add_subparsers(dest="worktree_command", required=True)
     worktree_create = worktree_commands.add_parser("create")
@@ -46,11 +53,13 @@ def parser() -> argparse.ArgumentParser:
     worktree_remove.add_argument("label")
     worktree_list = worktree_commands.add_parser("list")
     worktree_list.add_argument("components", nargs="*")
+    worktree_list.add_argument("--json", action="store_true")
 
     profile = commands.add_parser("profile", help="manage mixed-component profiles")
     profile_commands = profile.add_subparsers(dest="profile_command", required=True)
     profile_create = profile_commands.add_parser("create")
     profile_create.add_argument("name")
+    profile_create.add_argument("--from", dest="source", default="default")
     profile_set = profile_commands.add_parser("set")
     profile_set.add_argument("name")
     profile_set.add_argument("component")
@@ -60,6 +69,13 @@ def parser() -> argparse.ArgumentParser:
     selector.add_argument("--path", type=Path)
     profile_show = profile_commands.add_parser("show")
     profile_show.add_argument("name", nargs="?", default="default")
+    profile_show.add_argument("--json", action="store_true")
+
+    path = commands.add_parser(
+        "path", help="print a component checkout path for shell or tool use"
+    )
+    path.add_argument("component")
+    path.add_argument("--profile", default="default")
 
     build = commands.add_parser("build", help="build a component or the playable system")
     build.add_argument("target", help="all or a component name")
@@ -71,7 +87,8 @@ def parser() -> argparse.ArgumentParser:
     state_add = state_commands.add_parser("add")
     state_add.add_argument("name")
     state_add.add_argument("--path", type=Path)
-    state_commands.add_parser("list")
+    state_list = state_commands.add_parser("list")
+    state_list.add_argument("--json", action="store_true")
 
     launch = commands.add_parser("run", help="build and run client or server")
     launch_commands = launch.add_subparsers(dest="target", required=True)
@@ -102,6 +119,25 @@ def main(arguments: list[str] | None = None) -> int:
             workspace.initialize(options.components, options.jobs)
         elif options.command == "sync":
             workspace.sync(options.components, options.worktrees)
+        elif options.command == "status":
+            rows = workspace.repository_status(options.components)
+            if options.json:
+                print(json.dumps(rows, indent=2, sort_keys=True))
+            else:
+                for row in rows:
+                    if not row["initialized"]:
+                        print(f"{row['component']}\tnot-initialized\t{row['path']}")
+                        continue
+                    cleanliness = "dirty" if row["dirty"] else "clean"
+                    comparison = (
+                        "ahead=? behind=?"
+                        if row["ahead"] is None
+                        else f"ahead={row['ahead']} behind={row['behind']}"
+                    )
+                    print(
+                        f"{row['component']}\t{row['branch'] or 'detached'}\t"
+                        f"{row['head']}\t{cleanliness}\t{comparison}\t{row['path']}"
+                    )
         elif options.command == "worktree":
             if options.worktree_command == "create":
                 if options.existing and options.start_point:
@@ -116,12 +152,27 @@ def main(arguments: list[str] | None = None) -> int:
             elif options.worktree_command == "remove":
                 workspace.remove_worktree(options.component, options.label)
             else:
-                for component, record in workspace.list_worktrees(options.components):
-                    branch = record.get("branch", "detached").removeprefix("refs/heads/")
-                    print(f"{component}\t{branch}\t{record['worktree']}")
+                rows = workspace.list_worktrees(options.components)
+                if options.json:
+                    print(
+                        json.dumps(
+                            [
+                                {"component": component, **record}
+                                for component, record in rows
+                            ],
+                            indent=2,
+                            sort_keys=True,
+                        )
+                    )
+                else:
+                    for component, record in rows:
+                        branch = record.get("branch", "detached").removeprefix(
+                            "refs/heads/"
+                        )
+                        print(f"{component}\t{branch}\t{record['worktree']}")
         elif options.command == "profile":
             if options.profile_command == "create":
-                workspace.create_profile(options.name)
+                workspace.create_profile(options.name, options.source)
             elif options.profile_command == "set":
                 if options.primary:
                     workspace.set_profile(options.name, options.component, "primary")
@@ -134,17 +185,47 @@ def main(arguments: list[str] | None = None) -> int:
                         options.name, options.component, "path", str(options.path)
                     )
             else:
-                for component, path, head, dirty in workspace.profile_summary(options.name):
-                    status = "dirty" if dirty else "clean"
-                    print(f"{component}\t{head}\t{status}\t{path}")
+                rows = workspace.profile_summary(options.name)
+                if options.json:
+                    print(
+                        json.dumps(
+                            [
+                                {
+                                    "component": component,
+                                    "path": str(path),
+                                    "head": head,
+                                    "dirty": dirty,
+                                }
+                                for component, path, head, dirty in rows
+                            ],
+                            indent=2,
+                            sort_keys=True,
+                        )
+                    )
+                else:
+                    for component, path, head, dirty in rows:
+                        status = "dirty" if dirty else "clean"
+                        print(f"{component}\t{head}\t{status}\t{path}")
+        elif options.command == "path":
+            print(workspace.component_path(options.component, options.profile))
         elif options.command == "build":
             print(workspace.build(options.target, options.profile, options.test))
         elif options.command == "state":
             if options.state_command == "add":
                 workspace.state_add(options.name, options.path)
             else:
-                for name, path in sorted(workspace.list_states().items()):
-                    print(f"{name}\t{path}")
+                states = workspace.list_states()
+                if options.json:
+                    print(
+                        json.dumps(
+                            {name: str(path) for name, path in sorted(states.items())},
+                            indent=2,
+                            sort_keys=True,
+                        )
+                    )
+                else:
+                    for name, path in sorted(states.items()):
+                        print(f"{name}\t{path}")
         elif options.command == "run":
             forwarded = _forwarded_arguments(options.arguments)
             if options.target == "client":

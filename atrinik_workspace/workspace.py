@@ -83,8 +83,10 @@ def run(
     cwd: Path | None = None,
     capture: bool = False,
     env: dict[str, str] | None = None,
+    trace: bool = True,
 ) -> str:
-    print(f"+ {display_arguments(arguments)}", file=sys.stderr)
+    if trace:
+        print(f"+ {display_arguments(arguments)}", file=sys.stderr)
     try:
         result = subprocess.run(
             arguments,
@@ -105,8 +107,10 @@ def run(
     return result.stdout.strip() if capture else ""
 
 
-def git(path: Path, *arguments: str, capture: bool = False) -> str:
-    return run(["git", "-C", str(path), *arguments], capture=capture)
+def git(
+    path: Path, *arguments: str, capture: bool = False, trace: bool = True
+) -> str:
+    return run(["git", "-C", str(path), *arguments], capture=capture, trace=trace)
 
 
 def _remote_matches(url: str, repository: str) -> bool:
@@ -121,12 +125,23 @@ def _remote_matches(url: str, repository: str) -> bool:
     return normalized == expected
 
 
-def _is_clean(path: Path) -> bool:
-    return not git(path, "status", "--porcelain=v1", "--untracked-files=all", capture=True)
+def _is_clean(path: Path, *, trace: bool = True) -> bool:
+    return not git(
+        path,
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all",
+        capture=True,
+        trace=trace,
+    )
 
 
-def _worktree_records(repository: Path) -> list[dict[str, str]]:
-    output = git(repository, "worktree", "list", "--porcelain", capture=True)
+def _worktree_records(
+    repository: Path, *, trace: bool = True
+) -> list[dict[str, str]]:
+    output = git(
+        repository, "worktree", "list", "--porcelain", capture=True, trace=trace
+    )
     records: list[dict[str, str]] = []
     current: dict[str, str] = {}
     for line in [*output.splitlines(), ""]:
@@ -200,11 +215,19 @@ class Workspace:
         self._validate_checkout(component, destination)
         return destination
 
-    def _canonical_remote(self, component: Component, path: Path) -> str:
+    def _canonical_remote(
+        self, component: Component, path: Path, *, trace: bool = True
+    ) -> str:
         for remote in ("origin", "upstream"):
             try:
                 urls = git(
-                    path, "remote", "get-url", "--all", remote, capture=True
+                    path,
+                    "remote",
+                    "get-url",
+                    "--all",
+                    remote,
+                    capture=True,
+                    trace=trace,
                 ).splitlines()
             except WorkspaceError:
                 continue
@@ -217,19 +240,96 @@ class Workspace:
             f"checkout has no origin/upstream for {component.repository}: {path}"
         )
 
-    def _validate_checkout(self, component: Component, path: Path) -> str:
+    def _validate_checkout(
+        self, component: Component, path: Path, *, trace: bool = True
+    ) -> str:
         if not path.is_dir():
             raise WorkspaceError(f"component checkout is not a directory: {path}")
         try:
-            inside = git(path, "rev-parse", "--is-inside-work-tree", capture=True)
+            inside = git(
+                path,
+                "rev-parse",
+                "--is-inside-work-tree",
+                capture=True,
+                trace=trace,
+            )
         except WorkspaceError as error:
             raise WorkspaceError(f"component is not a Git checkout: {path}") from error
         if inside != "true":
             raise WorkspaceError(f"component is not a Git worktree: {path}")
-        top_level = Path(git(path, "rev-parse", "--show-toplevel", capture=True)).resolve()
+        top_level = Path(
+            git(
+                path,
+                "rev-parse",
+                "--show-toplevel",
+                capture=True,
+                trace=trace,
+            )
+        ).resolve()
         if top_level != path.resolve():
             raise WorkspaceError(f"component path must be the Git worktree root: {path}")
-        return self._canonical_remote(component, path)
+        return self._canonical_remote(component, path, trace=trace)
+
+    def repository_status(self, names: list[str] | None = None) -> list[dict[str, Any]]:
+        """Return quiet, machine-readable primary-checkout status."""
+        self.paths.ensure()
+        rows: list[dict[str, Any]] = []
+        for component in self.manifest.select(names):
+            path = self.paths.repositories / component.name
+            row: dict[str, Any] = {
+                "component": component.name,
+                "repository": component.repository,
+                "default_branch": component.branch,
+                "path": str(path),
+                "initialized": False,
+                "branch": None,
+                "head": None,
+                "dirty": None,
+                "remote": None,
+                "ahead": None,
+                "behind": None,
+            }
+            if not path.exists() and not path.is_symlink():
+                rows.append(row)
+                continue
+            remote = self._validate_checkout(component, path, trace=False)
+            row.update(
+                {
+                    "initialized": True,
+                    "branch": git(
+                        path, "branch", "--show-current", capture=True, trace=False
+                    )
+                    or None,
+                    "head": git(
+                        path,
+                        "rev-parse",
+                        "--short=12",
+                        "HEAD",
+                        capture=True,
+                        trace=False,
+                    ),
+                    "dirty": not _is_clean(path, trace=False),
+                    "remote": remote,
+                }
+            )
+            try:
+                counts = git(
+                    path,
+                    "rev-list",
+                    "--left-right",
+                    "--count",
+                    f"HEAD...{remote}/{component.branch}",
+                    capture=True,
+                    trace=False,
+                ).split()
+                if len(counts) == 2:
+                    row["ahead"], row["behind"] = (int(value) for value in counts)
+            except (ValueError, WorkspaceError):
+                # A newly created or deliberately minimal checkout may not yet
+                # have a cached remote default-branch ref.
+                pass
+            rows.append(row)
+        return rows
 
     def sync(self, names: list[str] | None, worktree_strategy: str) -> None:
         self.paths.ensure()
@@ -354,11 +454,14 @@ class Workspace:
             repository = self.paths.repositories / component.name
             if not repository.is_dir():
                 continue
-            self._validate_checkout(component, repository)
-            result.extend((component.name, record) for record in _worktree_records(repository))
+            self._validate_checkout(component, repository, trace=False)
+            result.extend(
+                (component.name, record)
+                for record in _worktree_records(repository, trace=False)
+            )
         return result
 
-    def create_profile(self, name: str) -> Path:
+    def create_profile(self, name: str, source: str = "default") -> Path:
         self.paths.ensure()
         validate_name(name, "profile name")
         if name == "default":
@@ -366,12 +469,13 @@ class Workspace:
         path = self.paths.profiles / f"{name}.json"
         if path.exists():
             raise WorkspaceError(f"profile already exists: {name}")
+        source_profile = self._load_profile(source, require_file=False)
         value = {
             "schema_version": SCHEMA_VERSION,
             "name": name,
             "components": {
-                component.name: {"kind": "primary", "value": ""}
-                for component in self.manifest.components
+                component_name: dict(selector)
+                for component_name, selector in source_profile["components"].items()
             },
         }
         atomic_json(path, value)
@@ -403,7 +507,11 @@ class Workspace:
         atomic_json(self.paths.profiles / f"{name}.json", profile)
 
     def resolve_profile(
-        self, name: str, component_names: set[str] | None = None
+        self,
+        name: str,
+        component_names: set[str] | None = None,
+        *,
+        trace: bool = True,
     ) -> dict[str, Path]:
         self.paths.ensure()
         profile = self._load_profile(name, require_file=False)
@@ -422,7 +530,7 @@ class Workspace:
             else:
                 path = Path(value)
             path = path.resolve()
-            self._validate_checkout(component, path)
+            self._validate_checkout(component, path, trace=trace)
             result[component.name] = path
         return result
 
@@ -466,13 +574,25 @@ class Workspace:
         return profile
 
     def profile_summary(self, name: str) -> list[tuple[str, Path, str, bool]]:
-        resolved = self.resolve_profile(name)
+        resolved = self.resolve_profile(name, trace=False)
         rows = []
         for component in self.manifest.components:
             path = resolved[component.name]
-            head = git(path, "rev-parse", "--short=12", "HEAD", capture=True)
-            rows.append((component.name, path, head, not _is_clean(path)))
+            head = git(
+                path,
+                "rev-parse",
+                "--short=12",
+                "HEAD",
+                capture=True,
+                trace=False,
+            )
+            rows.append((component.name, path, head, not _is_clean(path, trace=False)))
         return rows
+
+    def component_path(self, component_name: str, profile_name: str) -> Path:
+        return self.resolve_profile(
+            profile_name, {component_name}, trace=False
+        )[component_name]
 
     def _resolve_build_profile(
         self, profile_name: str, required: set[str]

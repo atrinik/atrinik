@@ -12,6 +12,12 @@ branch, and local build contract. Profile and state schemas are intentionally
 strict: duplicate keys, missing fields, unknown fields, invalid names, and
 repository mismatches fail before an operation changes data.
 
+Read-only inspection commands keep structured data on stdout and suppress Git
+traces so callers can safely consume `status --json`, `worktree list --json`,
+`profile show --json`, `state list --json`, and `path`. Status never fetches;
+its ahead/behind fields describe the cached canonical remote ref and are null
+when that ref is unavailable.
+
 ## Managed layout
 
 ~~~text

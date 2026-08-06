@@ -24,6 +24,10 @@ python3 -m compileall -q atrinik atrinik_workspace tests
 git diff --check
 ~~~
 
+When changing the repository-local skill, also run the skill validator
+available in the active Codex installation; its exact path is
+environment-specific.
+
 Exercise the smallest relevant real profile build as well. Changes to source
 view, collection, runtime, or CMake composition should validate both client and
 server with `--test`.

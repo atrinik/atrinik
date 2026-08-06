@@ -28,18 +28,21 @@ description: Coordinate changes, reviews, builds, releases, and Git worktrees ac
    ./atrinik init [COMPONENT...]
    ```
 
-2. Synchronize clean primary checkouts before starting work. Use
+2. Inspect local state with `./atrinik status --json`. This is a quiet,
+   non-networked snapshot suitable for automation; use `sync` before relying on
+   its cached ahead/behind counts as current GitHub state.
+3. Synchronize clean primary checkouts before starting work. Use
    `./atrinik sync [COMPONENT...]`; use `--worktrees merge` or
    `--worktrees rebase` only when updating every clean attached feature
    worktree is intentional.
-3. Create component worktrees through the coordinator:
+4. Create component worktrees through the coordinator:
 
    ```sh
    ./atrinik worktree create COMPONENT LABEL \
      --branch TYPE/TOPIC [--from START_POINT]
    ```
 
-4. Commit and push from inside each component worktree. Use Conventional
+5. Commit and push from inside each component worktree. Use Conventional
    Commits and open the pull request in that component repository. Do not
    create a wrapper commit for component-only changes.
 
@@ -54,6 +57,11 @@ Create a profile when validation needs a non-default combination:
 ./atrinik profile show REVIEW
 ./atrinik build all --profile REVIEW --test
 ```
+
+Create a related profile with `./atrinik profile create NEW --from REVIEW`.
+Resolve a checkout for shell or tool use with
+`./atrinik path COMPONENT --profile REVIEW`; do not reconstruct managed paths
+in scripts. Prefer `--json` for status, worktree, profile, and state listings.
 
 Use primary selectors for unaffected components. The profile build collects the
 selected content, resources, and sound into isolated generated views; do not

@@ -207,6 +207,41 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(command("git", "rev-parse", "HEAD", cwd=checkout), expected)
 
+    def test_repository_status_reports_dirty_and_cached_divergence(self) -> None:
+        client = self.workspace.paths.repositories / "client"
+        self.advance_origin("client", "remote-change")
+        command("git", "fetch", "origin", cwd=client)
+        (client / "untracked").write_text("keep\n", encoding="utf-8")
+
+        rows = {
+            row["component"]: row
+            for row in self.workspace.repository_status(["client", "server"])
+        }
+
+        self.assertTrue(rows["client"]["initialized"])
+        self.assertTrue(rows["client"]["dirty"])
+        self.assertEqual(rows["client"]["remote"], "origin")
+        self.assertEqual(rows["client"]["ahead"], 0)
+        self.assertEqual(rows["client"]["behind"], 1)
+        self.assertFalse(rows["server"]["dirty"])
+
+    def test_repository_status_reports_uninitialized_component(self) -> None:
+        shutil.rmtree(self.workspace.paths.repositories / "client")
+
+        row = self.workspace.repository_status(["client"])[0]
+
+        self.assertFalse(row["initialized"])
+        self.assertIsNone(row["head"])
+        self.assertIsNone(row["dirty"])
+
+    def test_repository_status_rejects_non_directory_component_path(self) -> None:
+        client = self.workspace.paths.repositories / "client"
+        shutil.rmtree(client)
+        client.write_text("not a checkout\n", encoding="utf-8")
+
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace.repository_status(["client"])
+
     def test_worktree_profile_and_safe_removal(self) -> None:
         path = self.workspace.create_worktree(
             "content", "map-review", "feat/map-review", None, False
@@ -220,6 +255,33 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "dirty worktree"):
             self.workspace.remove_worktree("content", "map-review")
         self.assertTrue((path / "untracked").is_file())
+
+    def test_profile_can_clone_an_existing_selection(self) -> None:
+        path = self.workspace.create_worktree(
+            "content", "map-review", "feat/map-review", None, False
+        )
+        self.workspace.create_profile("review")
+        self.workspace.set_profile("review", "content", "worktree", "map-review")
+
+        self.workspace.create_profile("review-copy", "review")
+
+        self.assertEqual(
+            self.workspace.component_path("content", "review-copy"), path.resolve()
+        )
+        self.workspace.set_profile("review-copy", "content", "primary")
+        self.assertEqual(
+            self.workspace.component_path("content", "review"), path.resolve()
+        )
+
+    def test_component_path_only_requires_selected_component(self) -> None:
+        for name, _ in COMPONENTS:
+            if name != "content":
+                shutil.rmtree(self.workspace.paths.repositories / name)
+
+        self.assertEqual(
+            self.workspace.component_path("content", "default"),
+            (self.workspace.paths.repositories / "content").resolve(),
+        )
 
     def test_profile_rejects_checkout_for_another_component(self) -> None:
         self.workspace.create_profile("review")
