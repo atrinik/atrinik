@@ -1,0 +1,60 @@
+name: Integration
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  validate:
+    name: Integration validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Cache release archives
+        uses: actions/cache@v6
+        with:
+          path: build/cache
+          key: integration-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('components.lock.json') }}-release-archives-v1
+
+      - name: Cache native compilation
+        uses: actions/cache@v6
+        with:
+          path: build/ccache
+          key: integration-${{ runner.os }}-${{ runner.arch }}-linux-build-1.0.2-ccache-${{ github.sha }}
+          restore-keys: |
+            integration-${{ runner.os }}-${{ runner.arch }}-linux-build-1.0.2-ccache-
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Pull pinned build environment
+        run: >-
+          docker pull
+          ghcr.io/atrinik/linux-build:1.0.2@sha256:8ecaaa87b62bc7721423d22d14b4d62b20c94eac335591203707662ce1b012b4
+
+      - name: Assemble, build, and test
+        run: |
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --env CCACHE_DIR=/workspace/build/ccache \
+            --volume "${GITHUB_WORKSPACE}:/workspace" \
+            --workdir /workspace \
+            ghcr.io/atrinik/linux-build:1.0.2@sha256:8ecaaa87b62bc7721423d22d14b4d62b20c94eac335591203707662ce1b012b4 \
+            bash -euo pipefail -c '
+              python3 -m unittest discover -s tests -p "test_*.py"
+              python3 scripts/components.py sync
+              scripts/build.sh --skip-sync
+            '

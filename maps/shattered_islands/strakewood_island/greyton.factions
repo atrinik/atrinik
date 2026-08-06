@@ -1,8 +1,0 @@
-faction greyton
-    parent greyton_republic
-
-    faction greyton_citizens
-        faction greyton_guards
-        end
-    end
-end

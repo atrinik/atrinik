@@ -1,85 +1,114 @@
-# Atrinik architecture index
+# Integration architecture
 
-This document identifies the source-of-truth boundaries and important data
-flows that span Atrinik components. Component README files remain the detailed
-operating guides.
+## Ownership boundaries
 
-## Legacy client rendering and platform layer
+The integration repository owns only the release lock, secure synchronization,
+cross-component build orchestration, and system-level documentation. Component
+repositories own their source, component tests, release packaging, and local
+developer instructions. Changes should be made at the narrowest owning
+repository and consumed here only after that repository publishes an immutable
+release.
 
-The legacy client under `client/` targets SDL 3 directly. Its rendering model
-is deliberately CPU-based:
+Issue ownership follows the same boundary. A single-component issue belongs in
+that component repository; only roadmaps, repository topology, integration
+compatibility, and genuinely cross-component coordination remain here.
 
-1. `client/src/client/video.c` owns the `SDL_Window` and obtains its current
-   `SDL_Surface` with `SDL_GetWindowSurface()`.
-2. Client, map, widget, popup, font, lighting, and sprite code compose each
-   frame into that software surface.
-3. `client/src/client/main.c` presents the completed frame with
-   `SDL_UpdateWindowSurface()`.
-4. Window pixel-size and fullscreen changes reacquire the window surface;
-   callers must not retain a window-surface pointer across those changes.
+The shared C library is `atrinik/libatrinik`. The game command contract is
+`atrinik/protocol`; it generates both the C interface used by the client and
+server and the Python package intended for automation. Content source and
+collected server runtime data are two release assets of `atrinik/content`.
+Sound and server resources remain independent asset repositories because their
+licensing and release cadence differ from executable code.
 
-`client/src/client/main.c` owns the process-wide `ScreenWindow` and
-`ScreenSurface` handles. `client/src/events/event.c` translates SDL 3 window,
-keyboard, text-input, text-editing, pointer, and wheel events into the legacy
-client's input model. UTF-8 text is preserved through the text-input and font
-paths; keyboard shortcuts continue to use SDL keycodes and scancodes.
+## Locked assembly
 
-`client/src/gui/toolkit/surface_primitives.c` is the in-tree source of the
-small drawing and rotation API used by the client. It replaces the former
-bundled SDL_gfx/rotozoom implementation rather than exposing a general graphics
-library. New primitives should only be added for demonstrated client callers.
-Window surfaces are commonly XRGB and cannot preserve per-pixel alpha.
-Alpha-bearing textures, text, and sprite effects therefore use
-`surface_to_display_alpha()` to normalize to `SDL_PIXELFORMAT_RGBA32`; only
-known-opaque surfaces use the window-native `surface_to_display()` path. The
-client uses SDL's clipboard and window APIs directly and has no X11-specific
-platform layer.
+```text
+components.lock.json
+        |
+        v
+scripts/components.py -- SHA-256 verification and bounded extraction
+        |
+        +--> build/components/protocol ------+
+        +--> build/components/libatrinik ----+--> client and server builds
+        +--> build/components/client --------+
+        +--> build/components/server --------+
+        +--> build/components/content
+        +--> client/sound runtime data
+        +--> server/content and resource runtime data
+```
 
-Audio is owned by `client/src/client/sound.c` through SDL3_mixer. Sound effects
-and music are required on every supported platform; client configuration fails
-when SDL3_mixer is unavailable. Windows packages bundle the SDL3 family of
-runtime DLLs. The dependency policy and local build commands are documented in
-`INSTALL` and `client/README`; `client/CMakeLists.txt` is the authoritative
-dependency and packaging definition.
+Release tags provide human-readable versions, commits identify the exact source
+revision, and SHA-256 digests authenticate the selected release bytes. All
+three are recorded because none is an adequate substitute for the others.
+Git submodules are deliberately excluded: they do not pin generated release
+artifacts, complicate shallow and archive-based checkouts, and make asset
+licensing boundaries less visible.
 
-## Legacy QUIC gameplay and asset transport
+The synchronizer installs into ignored directories using a staging directory
+and an atomic rename. A marker records the selected repository, tag, commit,
+and digest. Existing directories without that marker are never replaced.
+Archive members are limited by count, individual size, and total expanded size;
+absolute paths, parent traversal, links, devices, duplicate case-folded paths,
+and Windows-style paths are rejected. Installation destinations must also be
+canonical and unique under case folding, so a lock behaves consistently on
+case-sensitive and case-insensitive hosts. Locks accept only release assets
+owned by the Atrinik GitHub organization and cap the number of component
+entries.
 
-`common/toolkit/socket_quic.c` owns the certificate-pinned OpenSSL QUIC
-connection and `common/toolkit/socket.c` owns explicit application-stream
-lifecycle. The `atrinik/2` ALPN disables OpenSSL's default stream. The client
-opens one typed bidirectional game stream; existing `socket_read()` and
-`socket_write()` target only that stream. Explicit asset stream helpers are
-used by `client/src/client/asset.c` and `server/src/socket/assets.c`. Each asset
-stream carries one request and one immutable response, so bulk bytes never
-enter the game stream or `server/src/socket/lowlevel.c`'s packet FIFO.
+The integration verifier also reads the dependency locks embedded in the
+selected client and server releases. Their protocol, library, sound, content,
+and resource pins must exactly match this manifest before a build can pass.
+Each consumer must declare its complete required set. This prevents a top-level
+lock update from silently asserting compatibility that the released consumer
+did not declare.
 
-The client's single transport thread owns the connection and every client
-stream. It drains game output/input before servicing at most three active asset
-streams in bounded round-robin quanta. The server game-loop networking path is
-the corresponding sole owner: it processes and flushes game traffic before
-accepting or advancing asset streams. Server asset states retain only a
-snapshot entry reference and cursor; `server/src/socket/assets.c` owns the
-allowlist, immutable 1 GiB snapshot, 128 MiB object ceiling, request abuse
-limit, and per-connection token bucket. `common/toolkit/socket_asset.c` owns
-the request and fixed response-header encoding. `doc/ADS/ADS-2` is the
-authoritative byte-level contract.
+Parent components are installed before destinations nested inside them. If a
+parent changes, every nested dependency is forcibly reinstalled from its own
+verified archive, even if the parent archive happened to contain a matching
+management marker. This keeps the nested release boundary authoritative.
 
-## Build images
+## Release flow
 
-The Dockerfiles that produce Atrinik's Linux and Windows build images live in
-the separate `atrinik/devcontainer` repository. This repository consumes
-immutable published tags from the VS Code devcontainer, Linux CI, Windows
-Compose, and release workflows. All consumer pins must be upgraded together
-after the matching images are published.
+1. Change and validate a component in its owning repository.
+2. Merge a pull request whose title follows Conventional Commits style.
+3. semantic-release parses the squash commit. A breaking change bumps major,
+   `feat` bumps minor, and every other conventional type bumps at least patch.
+4. The repository publishes its immutable tag and owned artifacts: source and
+   Windows packages for the client; source and Windows packages plus the
+   container image for the server; source and wheel packages for protocol;
+   source and collected runtime packages for content; archives for sound,
+   resources, and the shared library; and both build images for devcontainer.
+5. Verify the release asset checksum and resolve the tag to its full commit.
+6. Update only the relevant lock entry here.
+7. Run component-lock tests and the complete client/server integration build.
+8. Merge the integration pull request after its required checks pass.
 
-## Generated and runtime boundaries
+Integration CI authenticates to GHCR and runs the complete assembly inside the
+immutable `atrinik/linux-build:1.0.2` image digest. That image supplies the
+native dependencies and pinned SDL mixer build; ccache and release downloads
+are persisted separately in the Actions cache. Update the human-readable image
+tag and digest together only after the devcontainer release publishes and its
+non-root build path has been validated.
 
-- `build/` contains generated build and local review output and is not source.
-- `server/lib/` contains collected server resources produced from `arch/` and
-  related authored inputs by `tools/collect.py`.
-- `server/data/` is mutable source-tree runtime state initialized from
-  `server/install_data/`.
-- `server/resources/` and `client/sound/` are separately versioned submodules.
+Client and server product versions are declared by those repositories. The
+integration repository does not invent or infer component versions.
 
-See the root `README.md` and `INSTALL`, `client/README`, and `server/README` for
-component-specific setup and validation procedures.
+## Runtime data flow
+
+The client consumes sound data released by `atrinik/sound`. The server
+consumes collected content released by `atrinik/content` and auxiliary runtime
+resources released by `atrinik/resources`. These archives are installed inside
+their assembled component trees so the component-provided runtime and test
+scripts see the same marker contract used by standalone checkouts.
+
+Authored content remains separate from collected runtime output. Never edit a
+collected archive in the integration tree; change its source in
+`atrinik/content`, rebuild it deterministically, and update the lock.
+
+## Protocol flow
+
+`atrinik/protocol` is the sole source for command IDs and generated language
+bindings. The client, server, shared library, and future Python tooling pin its
+release rather than vendoring a snapshot. A coordinated protocol change must
+update all current producers and consumers, publish the protocol first, then
+publish dependent components and update this integration lock.

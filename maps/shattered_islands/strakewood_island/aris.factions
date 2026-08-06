@@ -1,8 +1,0 @@
-faction aris
-    parent asterian_kingdom
-
-    faction aris_citizens
-        faction aris_guards
-        end
-    end
-end

@@ -1,0 +1,17 @@
+{
+  "branches": ["master"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    ["@semantic-release/commit-analyzer", {"preset": "conventionalcommits", "releaseRules": [{"type": "*", "release": "patch"}]}],
+    ["@semantic-release/release-notes-generator", {"preset": "conventionalcommits"}],
+    ["@semantic-release/exec", {"prepareCmd": "scripts/package-release.sh ${nextRelease.version} build/release"}],
+    ["@semantic-release/github", {
+      "assets": [
+        {"path": "build/release/atrinik-components-*.lock.json", "label": "Pinned component manifest"},
+        {"path": "build/release/SHA256SUMS", "label": "SHA-256 checksums"}
+      ],
+      "successComment": false,
+      "failComment": false
+    }]
+  ]
+}
