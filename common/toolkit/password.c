@@ -75,8 +75,9 @@ static bool password_derive(const char *password,
 }
 
 static bool password_parse(const char *record, password_parameters_t *parameters) {
-    char salt_hex[PASSWORD_SALT_SIZE * 2 + 1];
-    char hash_hex[PASSWORD_HASH_SIZE * 2 + 1];
+    char salt_hex[PASSWORD_SALT_SIZE * 2 + 1] = {0};
+    char hash_hex[PASSWORD_HASH_SIZE * 2 + 1] = {0};
+    char canonical[PASSWORD_RECORD_SIZE];
     unsigned int version, memory_kib, iterations, lanes;
     int consumed = 0;
 
@@ -101,7 +102,18 @@ static bool password_parse(const char *record, password_parameters_t *parameters
     parameters->memory_kib = memory_kib;
     parameters->iterations = iterations;
     parameters->lanes = lanes;
-    return string_fromhex(salt_hex, strlen(salt_hex), parameters->salt, sizeof(parameters->salt)) ==
+    int length = snprintf(canonical,
+                          sizeof(canonical),
+                          "$%s$v=%u$m=%u,t=%u,p=%u$%s$%s",
+                          PASSWORD_ALGORITHM,
+                          PASSWORD_VERSION,
+                          parameters->memory_kib,
+                          parameters->iterations,
+                          parameters->lanes,
+                          salt_hex,
+                          hash_hex);
+    return length > 0 && length < (int)sizeof(canonical) && strcmp(record, canonical) == 0 &&
+           string_fromhex(salt_hex, strlen(salt_hex), parameters->salt, sizeof(parameters->salt)) ==
                sizeof(parameters->salt) &&
            string_fromhex(hash_hex, strlen(hash_hex), parameters->hash, sizeof(parameters->hash)) ==
                sizeof(parameters->hash);
@@ -113,8 +125,8 @@ bool password_record_create(const char *password, char record[PASSWORD_RECORD_SI
         .iterations = PASSWORD_ITERATIONS,
         .lanes = PASSWORD_LANES,
     };
-    char salt_hex[PASSWORD_SALT_SIZE * 2 + 1];
-    char hash_hex[PASSWORD_HASH_SIZE * 2 + 1];
+    char salt_hex[PASSWORD_SALT_SIZE * 2 + 1] = {0};
+    char hash_hex[PASSWORD_HASH_SIZE * 2 + 1] = {0};
 
     if (record != NULL) {
         record[0] = '\0';
@@ -127,6 +139,8 @@ bool password_record_create(const char *password, char record[PASSWORD_RECORD_SI
         string_tohex(parameters.hash, sizeof(parameters.hash), hash_hex, sizeof(hash_hex), false) !=
             sizeof(hash_hex) - 1) {
         OPENSSL_cleanse(&parameters, sizeof(parameters));
+        OPENSSL_cleanse(salt_hex, sizeof(salt_hex));
+        OPENSSL_cleanse(hash_hex, sizeof(hash_hex));
         return false;
     }
 
@@ -140,15 +154,22 @@ bool password_record_create(const char *password, char record[PASSWORD_RECORD_SI
                           parameters.lanes,
                           salt_hex,
                           hash_hex);
+    bool ok = length > 0 && length < PASSWORD_RECORD_SIZE;
     OPENSSL_cleanse(&parameters, sizeof(parameters));
-    return length > 0 && length < PASSWORD_RECORD_SIZE;
+    OPENSSL_cleanse(salt_hex, sizeof(salt_hex));
+    OPENSSL_cleanse(hash_hex, sizeof(hash_hex));
+    if (!ok) {
+        record[0] = '\0';
+    }
+    return ok;
 }
 
 password_verify_result_t password_record_verify(const char *password, const char *record) {
-    password_parameters_t parameters;
+    password_parameters_t parameters = {0};
     unsigned char output[PASSWORD_HASH_SIZE];
 
     if (password == NULL || !password_parse(record, &parameters)) {
+        OPENSSL_cleanse(&parameters, sizeof(parameters));
         return PASSWORD_VERIFY_ERROR;
     }
 
@@ -167,29 +188,55 @@ password_verify_result_t password_record_verify(const char *password, const char
 }
 
 bool password_record_is_valid(const char *record) {
-    password_parameters_t parameters;
+    password_parameters_t parameters = {0};
     bool valid = password_parse(record, &parameters);
     OPENSSL_cleanse(&parameters, sizeof(parameters));
     return valid;
 }
 
+bool password_record_needs_rehash(const char *record) {
+    password_parameters_t parameters = {0};
+    if (!password_parse(record, &parameters)) {
+        OPENSSL_cleanse(&parameters, sizeof(parameters));
+        return false;
+    }
+
+    bool needs_rehash = parameters.memory_kib != PASSWORD_MEMORY_KIB ||
+                        parameters.iterations != PASSWORD_ITERATIONS ||
+                        parameters.lanes != PASSWORD_LANES;
+    OPENSSL_cleanse(&parameters, sizeof(parameters));
+    return needs_rehash;
+}
+
 password_verify_result_t password_legacy_pbkdf2_verify(const char *password,
                                                        const unsigned char salt[32],
                                                        const unsigned char expected[32]) {
+    if (password == NULL || salt == NULL || expected == NULL) {
+        return PASSWORD_VERIFY_ERROR;
+    }
+
     unsigned char output[32];
-    int ok = password != NULL && PKCS5_PBKDF2_HMAC(password,
-                                                   (int)strlen(password),
-                                                   salt,
-                                                   32,
-                                                   4096,
-                                                   EVP_sha256(),
-                                                   sizeof(output),
-                                                   output) == 1;
+    EVP_KDF *kdf = EVP_KDF_fetch(NULL, "PBKDF2", NULL);
+    EVP_KDF_CTX *context = kdf != NULL ? EVP_KDF_CTX_new(kdf) : NULL;
+    uint64_t iterations = 4096;
+    char digest[] = "SHA256";
+    OSSL_PARAM params[] = {
+        OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_PASSWORD,
+                                          (void *)password,
+                                          strlen(password)),
+        OSSL_PARAM_construct_octet_string(OSSL_KDF_PARAM_SALT, (void *)salt, 32),
+        OSSL_PARAM_construct_uint64(OSSL_KDF_PARAM_ITER, &iterations),
+        OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, digest, 0),
+        OSSL_PARAM_construct_end(),
+    };
+    int ok = context != NULL && EVP_KDF_derive(context, output, sizeof(output), params) == 1;
     password_verify_result_t result = PASSWORD_VERIFY_ERROR;
     if (ok) {
         result = CRYPTO_memcmp(output, expected, sizeof(output)) == 0 ? PASSWORD_VERIFY_MATCH
                                                                       : PASSWORD_VERIFY_MISMATCH;
     }
     OPENSSL_cleanse(output, sizeof(output));
+    EVP_KDF_CTX_free(context);
+    EVP_KDF_free(kdf);
     return result;
 }

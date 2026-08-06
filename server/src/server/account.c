@@ -42,11 +42,11 @@
 
 #define ACCOUNT_CHARACTERS_LIMIT 16
 #define ACCOUNT_LEGACY_PASSWORD_SIZE 32
-#define ACCOUNT_AUTH_WORK_LIMIT 128
-#define ACCOUNT_AUTH_WORK_WINDOW 60
+#define ACCOUNT_AUTH_WORK_BURST 8
+#define ACCOUNT_AUTH_WORK_REFILL_SECONDS 2
 
-static time_t account_auth_work_window;
-static unsigned int account_auth_work_count;
+static time_t account_auth_work_refill_time;
+static unsigned int account_auth_work_tokens;
 
 typedef struct account_struct {
     char password_record[PASSWORD_RECORD_SIZE];
@@ -78,26 +78,35 @@ typedef struct account_struct {
 } account_struct;
 
 void account_init(void) {
-    account_auth_work_window = 0;
-    account_auth_work_count = 0;
+    account_auth_work_refill_time = 0;
+    account_auth_work_tokens = ACCOUNT_AUTH_WORK_BURST;
 }
 
 void account_deinit(void) {}
 
-static bool account_auth_work_allowed(void) {
+static bool account_auth_work_allowed(unsigned int cost) {
     time_t now = datetime_getutc();
 
-    if (now < account_auth_work_window ||
-        now - account_auth_work_window >= ACCOUNT_AUTH_WORK_WINDOW) {
-        account_auth_work_window = now;
-        account_auth_work_count = 0;
+    if (account_auth_work_refill_time == 0 || now < account_auth_work_refill_time) {
+        account_auth_work_refill_time = now;
+        account_auth_work_tokens = ACCOUNT_AUTH_WORK_BURST;
+    } else {
+        time_t elapsed = now - account_auth_work_refill_time;
+        time_t refill = elapsed / ACCOUNT_AUTH_WORK_REFILL_SECONDS;
+        if (refill >= ACCOUNT_AUTH_WORK_BURST) {
+            account_auth_work_tokens = ACCOUNT_AUTH_WORK_BURST;
+            account_auth_work_refill_time = now;
+        } else if (refill > 0) {
+            account_auth_work_tokens += (unsigned int)refill;
+            account_auth_work_refill_time += refill * ACCOUNT_AUTH_WORK_REFILL_SECONDS;
+        }
     }
 
-    if (account_auth_work_count >= ACCOUNT_AUTH_WORK_LIMIT) {
+    if (cost > account_auth_work_tokens) {
         return false;
     }
 
-    account_auth_work_count++;
+    account_auth_work_tokens -= cost;
     return true;
 }
 
@@ -123,7 +132,7 @@ static char *account_old_crypt(char *str, const char *salt) {
 #if defined(HAVE_CRYPT) && defined(HAVE_CRYPT_H)
     return crypt(str, salt);
 #else
-    return str;
+    return NULL;
 #endif
 }
 
@@ -385,7 +394,11 @@ void account_login(socket_struct *ns, char *name, char *password) {
         return;
     }
 
-    if (!account_auth_work_allowed()) {
+    unsigned int auth_cost = account.password_old || account.has_legacy_pbkdf2 ||
+                                     password_record_needs_rehash(account.password_record)
+                                 ? 2
+                                 : 1;
+    if (!account_auth_work_allowed(auth_cost)) {
         draw_info_send(CHAT_TYPE_GAME,
                        NULL,
                        COLOR_RED,
@@ -426,7 +439,8 @@ void account_login(socket_struct *ns, char *name, char *password) {
         return;
     }
 
-    if ((account.password_old || account.has_legacy_pbkdf2) &&
+    if ((account.password_old || account.has_legacy_pbkdf2 ||
+         password_record_needs_rehash(account.password_record)) &&
         !account_set_password(&account, password)) {
         draw_info_send(CHAT_TYPE_GAME,
                        NULL,
@@ -514,9 +528,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
         return;
     }
 
-    path_ensure_directories(path);
-
-    if (!account_auth_work_allowed() || !account_set_password(&account, password)) {
+    if (!account_auth_work_allowed(1) || !account_set_password(&account, password)) {
         draw_info_send(CHAT_TYPE_GAME,
                        NULL,
                        COLOR_RED,
@@ -526,6 +538,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
         free(path);
         return;
     }
+    path_ensure_directories(path);
     account.last_connection_id = xstrdup(socket_get_id(ns->sc));
     account.last_time = datetime_getutc();
     account.characters = NULL;
@@ -765,7 +778,7 @@ void account_password_change(socket_struct *ns,
         return;
     }
 
-    if (!account_auth_work_allowed()) {
+    if (!account_auth_work_allowed(2)) {
         draw_info_send(CHAT_TYPE_GAME,
                        NULL,
                        COLOR_RED,

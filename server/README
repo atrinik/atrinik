@@ -281,9 +281,9 @@ New and changed account passwords are stored as versioned Argon2id records.
 The current record explicitly selects Argon2 version 19, 64 MiB of memory,
 three iterations, and one lane. The server refuses records outside its bounded
 8-256 MiB memory, 1-10 iteration, and 1-4 lane verification limits before any
-password work is performed. Authentication work is also capped server-wide at
-128 password operations per minute; a connection is disconnected after three
-failed account passwords.
+password work is performed. Authentication work also uses a server-wide token
+bucket with an eight-operation burst and one new token every two seconds; a
+connection is disconnected after three failed account passwords.
 
 Existing crypt(3) and 4,096-iteration PBKDF2/SHA-256 records follow an explicit
 rehash-on-success policy. They remain unchanged on disk after failed logins and

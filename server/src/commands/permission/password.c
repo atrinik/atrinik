@@ -32,14 +32,19 @@
 #include <global.h>
 #include <toolkit/string.h>
 
+#include <openssl/crypto.h>
+
 /** @copydoc command_func */
 void command_password(object *op, const char *command, char *params) {
     char *cps[2];
+    size_t params_length = strlen(params);
 
     if (string_split(params, cps, arraysize(cps), ' ') != arraysize(cps)) {
         draw_info(COLOR_WHITE, op, "Usage: /password <account> <password>");
+        OPENSSL_cleanse(params, params_length);
         return;
     }
 
     account_password_force(op, cps[0], cps[1]);
+    OPENSSL_cleanse(params, params_length);
 }

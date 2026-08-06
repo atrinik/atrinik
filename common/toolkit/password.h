@@ -20,6 +20,7 @@ TOOLKIT_FUNCS_DECLARE(password);
 bool password_record_create(const char *password, char record[PASSWORD_RECORD_SIZE]);
 password_verify_result_t password_record_verify(const char *password, const char *record);
 bool password_record_is_valid(const char *record);
+bool password_record_needs_rehash(const char *record);
 
 /* Verification-only support for repository account records written before
  * Argon2id. Successful logins are immediately rehashed by the account layer. */
