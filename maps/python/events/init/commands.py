@@ -15,6 +15,7 @@ commands = [
     ("console", 1, COMMAND_PERMISSION | COMMAND_ALLOW_MARKUP),
     ("create", 1, COMMAND_PERMISSION),
     ("patch", 1, COMMAND_PERMISSION),
+    ("quest", 1, COMMAND_PERMISSION),
     ("mapinfo", 1, COMMAND_PERMISSION),
     ("rainbow", 1, COMMAND_PERMISSION),
     ("addexp", 1, COMMAND_PERMISSION),
