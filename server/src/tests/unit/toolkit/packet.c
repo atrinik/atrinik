@@ -761,7 +761,7 @@ END_TEST
 
 START_TEST(test_packet_writer_limit_is_sticky) {
     packet_writer_t *writer = packet_new(0, 0, 0);
-    writer->limit = 2;
+    packet_writer_set_limit(writer, 2);
 
     packet_writer_write_uint16(writer, UINT16_C(0x1234));
     ck_assert(packet_writer_finish(writer));

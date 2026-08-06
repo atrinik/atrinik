@@ -194,6 +194,7 @@ void packet_writer_mark(packet_writer_t *writer, packet_writer_mark_t *mark);
 void packet_writer_rollback(packet_writer_t *writer, const packet_writer_mark_t *mark);
 char *packet_get_debug(packet_struct *packet);
 packet_error_t packet_writer_error(const packet_writer_t *writer);
+void packet_writer_set_limit(packet_writer_t *writer, size_t limit);
 bool packet_writer_finish(packet_writer_t *writer);
 void packet_writer_write_uint8(packet_struct *packet, uint8_t data);
 void packet_writer_write_int8(packet_struct *packet, int8_t data);

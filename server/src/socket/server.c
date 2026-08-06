@@ -682,6 +682,14 @@ static inline void socket_server_csocket_read(socket_struct *cs) {
              * packet. */
             packet_writer_write_uint16(cs->packet_recv_cmd, decrypted_len);
             packet_writer_write_bytes(cs->packet_recv_cmd, decrypted_data, decrypted_len);
+            if (!packet_writer_finish(cs->packet_recv_cmd)) {
+                LOG(ERROR,
+                    "Connection %s exceeded the buffered command limit: %s",
+                    socket_get_id(cs->sc),
+                    packet_error_string(packet_writer_error(cs->packet_recv_cmd)));
+                cs->state = ST_DEAD;
+                return;
+            }
         }
 
         packet_delete(cs->packet_recv, 0, size);

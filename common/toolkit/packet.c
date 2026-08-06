@@ -311,6 +311,15 @@ packet_error_t packet_writer_error(const packet_writer_t *writer) {
     return writer->error;
 }
 
+void packet_writer_set_limit(packet_writer_t *writer, size_t limit) {
+    HARD_ASSERT(writer != NULL);
+    if (writer->len > limit) {
+        writer->error = PACKET_ERROR_LIMIT_EXCEEDED;
+        return;
+    }
+    writer->limit = limit;
+}
+
 bool packet_writer_finish(packet_writer_t *writer) {
     HARD_ASSERT(writer != NULL);
     return writer->error == PACKET_ERROR_NONE;
