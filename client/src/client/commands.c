@@ -32,7 +32,9 @@
 #include <video.h>
 #include <client_socket.h>
 #include <openssl/crypto.h>
+#include <packet_payload.h>
 #include <region_map.h>
+#include <wrapper.h>
 #include <toolkit/map_protocol.h>
 #include <toolkit/packet.h>
 #include <toolkit/path.h>
@@ -151,39 +153,26 @@ void socket_command_anim(uint8_t *data, size_t len, size_t pos) {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_image(uint8_t *data, size_t len, size_t pos) {
-    packet_reader_t reader;
-    packet_reader_init_cursor(&reader, data, len, &pos);
-    uint32_t facenum, filesize;
+    uint32_t facenum;
+    packet_view_t image;
     char buf[HUGE_BUF];
-    FILE *fp;
 
-    if (pos > len || len - pos < 8) {
-        LOG(ERROR, "Ignoring truncated image packet");
+    if (!client_packet_parse_image(data, len, pos, &facenum, &image)) {
         return;
     }
-
-    facenum = packet_reader_read_uint32(&reader);
-    filesize = packet_reader_read_uint32(&reader);
-
-    if (!image_face_valid(facenum) || image_get_face_name(facenum) == NULL ||
-        filesize > len - pos) {
-        LOG(ERROR,
-            "Ignoring invalid image packet (face: %" PRIu32 ", size: %" PRIu32
-            ", remaining: %" PRIu64 ")",
-            facenum,
-            filesize,
-            (uint64_t)(len - pos));
+    if (!image_face_valid(facenum) || image_get_face_name(facenum) == NULL) {
+        LOG(ERROR, "Ignoring image packet with invalid face ID %" PRIu32, facenum);
         return;
     }
 
     /* Save picture to cache and load it to FaceList. */
     snprintf(buf, sizeof(buf), DIRECTORY_CACHE "/%s", image_get_face_name(facenum));
-
-    fp = path_fopen(buf, "wb+");
-
-    if (fp) {
-        fwrite(data + pos, 1, filesize, fp);
-        fclose(fp);
+    char *path = file_path(buf, "wb");
+    bool saved = path_write_atomic(path, image.data, image.len, 0600);
+    free(path);
+    if (!saved) {
+        LOG(ERROR, "Could not atomically write image cache file '%s'.", buf);
+        return;
     }
 
     FaceList[facenum].sprite = sprite_tryload_file(buf, 0, NULL);
