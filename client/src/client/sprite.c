@@ -55,6 +55,49 @@ static int dark_alpha[DARK_LEVELS] = {0, 44, 80, 117, 153, 190, 226};
  */
 static sprite_cache_t *sprites_cache = NULL;
 
+/** Calculate the transparent padding around a sprite's visible pixels. */
+static bool sprite_borders_get(SDL_Surface *surface, sprite_struct *sprite) {
+    int minimum_x = surface->w;
+    int minimum_y = surface->h;
+    int maximum_x = -1;
+    int maximum_y = -1;
+    bool locked = false;
+
+    if (SDL_MUSTLOCK(surface)) {
+        if (!SDL_LockSurface(surface)) {
+            return false;
+        }
+        locked = true;
+    }
+
+    for (int y = 0; y < surface->h; y++) {
+        for (int x = 0; x < surface->w; x++) {
+            if (!surface_pixel_visible(surface, x, y)) {
+                continue;
+            }
+
+            minimum_x = MIN(minimum_x, x);
+            minimum_y = MIN(minimum_y, y);
+            maximum_x = MAX(maximum_x, x);
+            maximum_y = MAX(maximum_y, y);
+        }
+    }
+
+    if (locked) {
+        SDL_UnlockSurface(surface);
+    }
+
+    if (maximum_x < 0) {
+        return false;
+    }
+
+    sprite->border_up = minimum_y;
+    sprite->border_down = surface->h - maximum_y - 1;
+    sprite->border_left = minimum_x;
+    sprite->border_right = surface->w - maximum_x - 1;
+    return true;
+}
+
 /**
  * Initialize the sprite system.
  */
@@ -115,24 +158,21 @@ sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_IOStream *rwo
         return NULL;
     }
 
-    uint32_t ckey = 0;
+    SDL_Palette *palette = SDL_GetSurfacePalette(bitmap);
 
-    if (SDL_GetSurfacePalette(bitmap) != NULL) {
-        SDL_GetSurfaceColorKey(bitmap, &ckey);
-        SDL_SetSurfaceColorKey(bitmap, true, ckey);
-        SDL_SetSurfaceRLE(bitmap, true);
-    } else if (flag & SURFACE_FLAG_COLKEY_16M) {
+    if (palette == NULL && (flag & SURFACE_FLAG_COLKEY_16M)) {
         /* Force a true color png to colorkey. Default ckey is black (0). */
         SDL_SetSurfaceColorKey(bitmap, true, 0);
-        SDL_SetSurfaceRLE(bitmap, true);
     }
 
-    surface_borders_get(bitmap,
-                        &sprite->border_up,
-                        &sprite->border_down,
-                        &sprite->border_left,
-                        &sprite->border_right,
-                        ckey);
+    if (!surface_ensure_blittable(&bitmap)) {
+        SDL_DestroySurface(bitmap);
+        free(sprite);
+        return NULL;
+    }
+
+    sprite_borders_get(bitmap, sprite);
+    SDL_SetSurfaceRLE(bitmap, true);
     sprite->bitmap = bitmap;
 
     if (flag & (SURFACE_FLAG_DISPLAYFORMATALPHA | SURFACE_FLAG_DISPLAYFORMAT)) {
@@ -696,12 +736,11 @@ static SDL_Surface *sprite_effects_create(SDL_Surface *surface, const sprite_eff
             goto done;
         }
 
-        char buf[MAX_BUF];
-        snprintf(VS(buf), "rectangle:500,500,%d", dark_alpha[effects->dark_level]);
-        SDL_BlitSurface(texture_surface(texture_get(TEXTURE_TYPE_SOFTWARE, buf)),
-                        NULL,
-                        surface,
-                        NULL);
+        if (!surface_darken_preserve_alpha(surface, dark_alpha[effects->dark_level])) {
+            SDL_DestroySurface(surface);
+            surface = NULL;
+            goto done;
+        }
         FREE_TMP_SURFACE();
     } else if (BIT_QUERY(effects->flags, SPRITE_FLAG_FOW)) {
         surface = sprite_effect_fow(surface);
