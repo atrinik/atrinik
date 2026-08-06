@@ -1090,8 +1090,8 @@ end
 arch ladder_up
 layer 4
 slaying mine_entrance_a
-hp 8
-sp 1
+hp 14
+sp 13
 x 9
 y 11
 end
