@@ -190,10 +190,6 @@ arch floor_grit3b
 x 3
 y 3
 end
-arch light1
-x 3
-y 3
-end
 arch ladder_up
 hp 1
 sp 1
@@ -522,10 +518,6 @@ arch crystal11
 x 7
 y 8
 end
-arch light1
-x 7
-y 8
-end
 arch floor_grit4b
 no_pass 1
 x 7
@@ -537,10 +529,6 @@ x 7
 y 10
 end
 arch crystal13
-x 7
-y 10
-end
-arch light1
 x 7
 y 10
 end
@@ -728,10 +716,6 @@ arch crystal10
 x 9
 y 10
 end
-arch light1
-x 9
-y 10
-end
 arch floor_grit4a
 no_pass 1
 x 9
@@ -786,10 +770,6 @@ x 10
 y 4
 end
 arch floor_grit3b
-x 10
-y 5
-end
-arch light1
 x 10
 y 5
 end
@@ -911,10 +891,6 @@ arch crystal14
 x 11
 y 8
 end
-arch light1
-x 11
-y 8
-end
 arch floor_grit4b
 no_pass 1
 x 11
@@ -936,10 +912,6 @@ x 11
 y 12
 end
 arch crystal12
-x 11
-y 12
-end
-arch light1
 x 11
 y 12
 end
@@ -1036,9 +1008,6 @@ no_pass 1
 x 13
 end
 arch crystal10
-x 13
-end
-arch light1
 x 13
 end
 arch floor_grit4a
@@ -1340,10 +1309,6 @@ arch crystal10
 x 15
 y 11
 end
-arch light1
-x 15
-y 11
-end
 arch floor_grit4b
 no_pass 1
 x 15
@@ -1443,10 +1408,6 @@ x 16
 y 12
 end
 arch crystal11
-x 16
-y 12
-end
-arch light1
 x 16
 y 12
 end
@@ -1552,10 +1513,6 @@ arch crystal13
 x 17
 y 12
 end
-arch light1
-x 17
-y 12
-end
 arch floor_grit4b
 no_pass 1
 x 17
@@ -1580,10 +1537,6 @@ x 18
 y 1
 end
 arch crystal12
-x 18
-y 1
-end
-arch light1
 x 18
 y 1
 end
@@ -1804,10 +1757,6 @@ arch crystal14
 x 20
 y 2
 end
-arch light1
-x 20
-y 2
-end
 arch floor_grit4a
 no_pass 1
 x 20
@@ -1859,10 +1808,6 @@ x 20
 y 9
 end
 arch crystal14
-x 20
-y 9
-end
-arch light1
 x 20
 y 9
 end
@@ -2020,10 +1965,6 @@ arch crystal11
 x 22
 y 7
 end
-arch light1
-x 22
-y 7
-end
 arch floor_grit4a
 no_pass 1
 x 22
@@ -2060,10 +2001,6 @@ x 22
 y 13
 end
 arch crystal13
-x 22
-y 13
-end
-arch light1
 x 22
 y 13
 end

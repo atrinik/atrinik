@@ -93,7 +93,7 @@ x 2
 y 1
 end
 arch tipper
-glow_radius 3
+glow_radius 4
 direction 7
 x 2
 y 1
@@ -575,4 +575,20 @@ end
 arch wall_cave1b.141
 x 19
 y 2
+end
+arch light1
+x 6
+y 1
+end
+arch light1
+x 10
+y 1
+end
+arch light1
+x 14
+y 1
+end
+arch light1
+x 17
+y 4
 end
