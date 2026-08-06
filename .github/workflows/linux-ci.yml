@@ -5,6 +5,8 @@ on:
     branches:
       - master
   pull_request:
+  schedule:
+    - cron: '17 3 * * 1'
   workflow_call:
     inputs:
       ref:
@@ -74,7 +76,7 @@ jobs:
               arch/*|maps/*|server/*|Dockerfile.server|generate-region-maps.sh|tools/collect.py|tools/utils.py|tools/compilers/*)
                 server=true
                 ;;
-              .devcontainer/*|.github/workflows/linux-ci.yml|.github/workflows/release.yml|CMakeLists.txt|CMakePresets.json|build.config|build.sh|build-windows.sh|cmake/*|common/*|compose.windows.yaml|tests/e2e/*)
+              .devcontainer/*|.github/workflows/linux-ci.yml|.github/workflows/release.yml|CMakeLists.txt|CMakePresets.json|build.config|build.sh|build-windows.sh|cmake/*|common/*|compose.windows.yaml|tests/*)
                 client=true
                 server=true
                 ;;
@@ -99,6 +101,7 @@ jobs:
 
   gcc:
     name: GCC build and CTest
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-26.04
     container:
       image: ghcr.io/atrinik/linux-build:0.0.3
@@ -214,6 +217,14 @@ jobs:
       - name: Run unit and end-to-end tests
         run: ctest --preset clang-asan -L 'unit|e2e'
 
+      - name: Run bounded protocol fuzz campaigns
+        env:
+          FUZZ_RUNS: ${{ github.event_name == 'schedule' && '100000' || '2000' }}
+        run: |
+          cmake -S . -B build/clang-asan \
+            -DATRINIK_FUZZ_RUNS="${FUZZ_RUNS}"
+          cmake --build build/clang-asan --target fuzz-smoke --parallel
+
       - name: Report compiler cache statistics
         if: always()
         run: ccache --show-stats
@@ -221,7 +232,7 @@ jobs:
   windows:
     name: Windows ${{ matrix.component }} (MinGW)
     needs: changes
-    if: inputs.gcc_only != true
+    if: inputs.gcc_only != true && github.event_name != 'schedule'
     runs-on: ubuntu-26.04
     timeout-minutes: 45
     strategy:

@@ -318,7 +318,7 @@ void esrv_update_stats(player *pl) {
     }                                                   \
     (_old) = (_new);                                    \
     packet_debug_data(packet, 0, "Stats command type"); \
-    packet_writer_write_uint8(packet, (_type));               \
+    packet_writer_write_uint8(packet, (_type));         \
     packet_debug_data(packet, 0, "%s", #_new);          \
     packet_writer_write_##_bitsize(packet, (_new));
 #define AddIf(_old, _new, _type, _bitsize) \
@@ -721,7 +721,7 @@ void draw_client_map(object *pl) {
             (!map_info && CONTR(pl)->map_info_name[0] != '\0')) {
             packet_debug_data(packet, 0, "\nMapstats command type");
             packet_writer_write_uint8(packet, CMD_MAPSTATS_NAME);
-            packet_append_map_name(packet, pl, map_info);
+            packet_writer_write_map_name(packet, pl, map_info);
 
             if (map_info) {
                 strncpy(CONTR(pl)->map_info_name,
@@ -738,7 +738,7 @@ void draw_client_map(object *pl) {
             (!map_info && CONTR(pl)->map_info_music[0] != '\0')) {
             packet_debug_data(packet, 0, "\nMapstats command type");
             packet_writer_write_uint8(packet, CMD_MAPSTATS_MUSIC);
-            packet_append_map_music(packet, pl, map_info);
+            packet_writer_write_map_music(packet, pl, map_info);
 
             if (map_info) {
                 strncpy(CONTR(pl)->map_info_music,
@@ -755,7 +755,7 @@ void draw_client_map(object *pl) {
             (!map_info && CONTR(pl)->map_info_weather[0] != '\0')) {
             packet_debug_data(packet, 0, "\nMapstats command type");
             packet_writer_write_uint8(packet, CMD_MAPSTATS_WEATHER);
-            packet_append_map_weather(packet, pl, map_info);
+            packet_writer_write_map_weather(packet, pl, map_info);
 
             if (map_info) {
                 strncpy(CONTR(pl)->map_info_weather,
@@ -822,27 +822,27 @@ static const char *get_living_level_color(const object *pl, const object *op) {
     return COLOR_YELLOW;
 }
 
-void packet_append_map_name(struct packet_struct *packet, object *op, object *map_info) {
+void packet_writer_write_map_name(struct packet_struct *packet, object *op, object *map_info) {
     packet_debug_data(packet, 0, "Map name");
     packet_writer_write_string(packet, "[b][o=#000000]");
     packet_writer_write_string(packet, map_info && map_info->race ? map_info->race : op->map->name);
     packet_writer_write_cstring(packet, "[/o][/b]");
 }
 
-void packet_append_map_music(struct packet_struct *packet, object *op, object *map_info) {
+void packet_writer_write_map_music(struct packet_struct *packet, object *op, object *map_info) {
     packet_debug_data(packet, 0, "Map music");
     packet_writer_write_cstring(packet,
-                                    map_info && map_info->slaying
-                                        ? map_info->slaying
-                                        : (op->map->bg_music ? op->map->bg_music : "no_music"));
+                                map_info && map_info->slaying
+                                    ? map_info->slaying
+                                    : (op->map->bg_music ? op->map->bg_music : "no_music"));
 }
 
-void packet_append_map_weather(struct packet_struct *packet, object *op, object *map_info) {
+void packet_writer_write_map_weather(struct packet_struct *packet, object *op, object *map_info) {
     packet_debug_data(packet, 0, "Map weather");
     packet_writer_write_cstring(packet,
-                                    map_info && map_info->title
-                                        ? map_info->title
-                                        : (op->map->weather ? op->map->weather : "none"));
+                                map_info && map_info->title
+                                    ? map_info->title
+                                    : (op->map->weather ? op->map->weather : "none"));
 }
 
 /**
@@ -1196,16 +1196,17 @@ map_column_has_visible_roof(mapstruct *base,
 }
 
 /** Clear a map cell, but only if it has not been cleared before. */
-#define map_if_clearcell(_hard_)                                                                  \
-    {                                                                                             \
-        MapCell *cached = map_client_cache_cell(&CONTR(pl)->cs->lastmap, depth, ax, ay, false);   \
-        if (cached != NULL && cached->cleared != 1) {                                             \
-            packet_debug_data(packet, 0, "Clearing tile %d,%d, mask", ax, ay);                    \
-            packet_writer_write_uint16(packet,                                                          \
-                                 mask | MAP2_MASK_CLEAR | ((_hard_) ? MAP2_MASK_HARD_CLEAR : 0)); \
-            map_clearcell(cached);                                                                \
-            level_present = true;                                                                 \
-        }                                                                                         \
+#define map_if_clearcell(_hard_)                                                                \
+    {                                                                                           \
+        MapCell *cached = map_client_cache_cell(&CONTR(pl)->cs->lastmap, depth, ax, ay, false); \
+        if (cached != NULL && cached->cleared != 1) {                                           \
+            packet_debug_data(packet, 0, "Clearing tile %d,%d, mask", ax, ay);                  \
+            packet_writer_write_uint16(packet,                                                  \
+                                       mask | MAP2_MASK_CLEAR |                                 \
+                                           ((_hard_) ? MAP2_MASK_HARD_CLEAR : 0));              \
+            map_clearcell(cached);                                                              \
+            level_present = true;                                                               \
+        }                                                                                       \
     }
 
 /** Send changed base geometry without disclosing any drawable object layer. */
@@ -1283,9 +1284,9 @@ void draw_client_map2(object *pl) {
         map_info = msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) ? msp->map_info
                                                                                      : NULL;
 
-        packet_append_map_name(packet, pl, map_info);
-        packet_append_map_music(packet, pl, map_info);
-        packet_append_map_weather(packet, pl, map_info);
+        packet_writer_write_map_name(packet, pl, map_info);
+        packet_writer_write_map_music(packet, pl, map_info);
+        packet_writer_write_map_weather(packet, pl, map_info);
         packet_debug_data(packet, 0, "Map height diff");
         packet_writer_write_uint8(packet, MAP_HEIGHT_DIFF(pl->map) != 0);
 
@@ -1338,8 +1339,7 @@ void draw_client_map2(object *pl) {
             packet_debug_data(packet, 0, "Region name");
             packet_writer_write_cstring(packet, region != NULL ? region->name : "");
             packet_debug_data(packet, 0, "Region long name");
-            packet_writer_write_cstring(packet,
-                                            region != NULL ? region_get_longname(region) : "");
+            packet_writer_write_cstring(packet, region != NULL ? region_get_longname(region) : "");
             packet_debug_data(packet, 0, "Map path");
             packet_writer_write_cstring(packet, pl->map->path);
         }

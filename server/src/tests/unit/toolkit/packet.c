@@ -736,7 +736,7 @@ START_TEST(test_packet_reader_strings_views_and_limits) {
     char dest[5] = "keep";
     packet_reader_init(&reader, data, sizeof(data));
     ck_assert(!packet_reader_read_string_bounded(&reader, VS(dest), 5));
-    ck_assert_str_eq(dest, "");
+    ck_assert_str_eq(dest, "keep");
     ck_assert_int_eq(packet_reader_error(&reader), PACKET_ERROR_LIMIT_EXCEEDED);
 
     packet_reader_init(&reader, data, sizeof(data));
@@ -783,6 +783,53 @@ START_TEST(test_packet_writer_limit_is_sticky) {
 }
 END_TEST
 
+START_TEST(test_packet_writer_strings_fail_atomically) {
+    packet_writer_t *writer = packet_new(0, 0, 0);
+    writer->limit = 4;
+
+    packet_writer_write_string_n(writer, "oversized", 9);
+    ck_assert_int_eq(packet_writer_error(writer), PACKET_ERROR_LIMIT_EXCEEDED);
+    ck_assert_uint_eq(writer->len, 0);
+    packet_free(writer);
+
+    writer = packet_new(0, 0, 0);
+    writer->limit = 4;
+    packet_writer_write_cstring_n(writer, "four", 4);
+    ck_assert_int_eq(packet_writer_error(writer), PACKET_ERROR_LIMIT_EXCEEDED);
+    ck_assert_uint_eq(writer->len, 0);
+    packet_free(writer);
+}
+END_TEST
+
+START_TEST(test_packet_reader_scope_tracks_completion_and_errors) {
+    const uint8_t data[] = {1, 2};
+    packet_reader_scope_t scope;
+    packet_reader_t reader;
+
+    packet_reader_scope_begin(&scope);
+    packet_reader_init(&reader, data, sizeof(data));
+    ck_assert_uint_eq(packet_reader_read_uint8(&reader), 1);
+    ck_assert_int_eq(packet_reader_scope_finish(&scope), PACKET_ERROR_TRAILING_DATA);
+
+    packet_reader_scope_begin(&scope);
+    packet_reader_init(&reader, data, 1);
+    (void)packet_reader_read_uint16(&reader);
+    ck_assert_int_eq(packet_reader_scope_finish(&scope), PACKET_ERROR_TRUNCATED);
+
+    packet_reader_scope_begin(&scope);
+    packet_reader_init(&reader, data, sizeof(data));
+    (void)packet_reader_read_uint16(&reader);
+    ck_assert_int_eq(packet_reader_scope_finish(&scope), PACKET_ERROR_NONE);
+
+    packet_reader_scope_begin(&scope);
+    packet_reader_init(&reader, data, sizeof(data));
+    packet_reader_t nested;
+    packet_reader_init(&nested, data + 1, 1);
+    (void)packet_reader_read_uint16(&reader);
+    ck_assert_int_eq(packet_reader_scope_finish(&scope), PACKET_ERROR_NONE);
+}
+END_TEST
+
 static Suite *suite(void) {
     Suite *s = suite_create("packet");
     TCase *tc_core = tcase_create("Core");
@@ -816,6 +863,8 @@ static Suite *suite(void) {
     tcase_add_test(tc_core, test_packet_reader_strings_views_and_limits);
     tcase_add_test(tc_core, test_packet_reader_finish_and_counts);
     tcase_add_test(tc_core, test_packet_writer_limit_is_sticky);
+    tcase_add_test(tc_core, test_packet_writer_strings_fail_atomically);
+    tcase_add_test(tc_core, test_packet_reader_scope_tracks_completion_and_errors);
     tcase_add_test(tc_core, test_map_protocol_validate_minimal_and_truncation);
     tcase_add_test(tc_core, test_map_protocol_rejects_duplicate_depth);
     tcase_add_test(tc_core, test_map_protocol_enforces_level_framing);

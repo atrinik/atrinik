@@ -79,10 +79,22 @@ void DoClient(void) {
         packet_reader_init_cursor(&reader, data, len, &pos);
         uint8_t type = packet_reader_read_uint8(&reader);
 
-        if (type >= CLIENT_CMD_NROF || commands[type].handle_func == NULL) {
+        if (packet_reader_error(&reader) != PACKET_ERROR_NONE) {
+            LOG(ERROR, "Rejected command envelope: %s", packet_error_string(reader.error));
+        } else if (type >= CLIENT_CMD_NROF || commands[type].handle_func == NULL) {
             LOG(ERROR, "Bad command from server (%d)", type);
         } else {
+            packet_reader_scope_t scope;
+            packet_reader_scope_begin(&scope);
+            packet_reader_init_at(&reader, data, len, pos);
             commands[type].handle_func(data, len, pos);
+            packet_error_t error = packet_reader_scope_finish(&scope);
+            if (error != PACKET_ERROR_NONE) {
+                LOG(ERROR,
+                    "Rejected malformed %s command: %s",
+                    commands[type].name,
+                    packet_error_string(error));
+            }
         }
 
         command_buffer_free(cmd);

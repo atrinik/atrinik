@@ -1213,25 +1213,35 @@ void socket_command_version(uint8_t *data, size_t len, size_t pos) {
 void socket_command_compressed(uint8_t *data, size_t len, size_t pos) {
     packet_reader_t reader;
     packet_reader_init_cursor(&reader, data, len, &pos);
-    unsigned long ucomp_len;
+    uint32_t declared_len;
     uint8_t type, *dest;
     size_t dest_size;
 
     type = packet_reader_read_uint8(&reader);
-    ucomp_len = packet_reader_read_uint32(&reader);
+    declared_len = packet_reader_read_uint32(&reader);
+    packet_view_t compressed = packet_reader_read_view(&reader, packet_reader_remaining(&reader));
+    if (packet_reader_error(&reader) != PACKET_ERROR_NONE ||
+        declared_len > PACKET_PAYLOAD_MAX - 1 || type >= CLIENT_CMD_NROF ||
+        type == CLIENT_CMD_REGION_MAP) {
+        packet_reader_set_error(&reader,
+                                declared_len > PACKET_PAYLOAD_MAX - 1 ? PACKET_ERROR_LIMIT_EXCEEDED
+                                                                      : PACKET_ERROR_UNSUPPORTED);
+        return;
+    }
 
-    dest_size = ucomp_len + 1;
+    dest_size = (size_t)declared_len + 1;
     dest = xmalloc(dest_size);
     dest[0] = type;
 
-    if (uncompress((Bytef *)dest + 1,
-                   (uLongf *)&ucomp_len,
-                   (const Bytef *)data + pos,
-                   (uLong)len - pos) == Z_OK) {
+    uLongf actual_len = declared_len;
+    if (uncompress((Bytef *)dest + 1, &actual_len, compressed.data, compressed.len) == Z_OK &&
+        actual_len == declared_len) {
         command_buffer *buf;
 
-        buf = command_buffer_new(ucomp_len + 1, dest);
+        buf = command_buffer_new((size_t)actual_len + 1, dest);
         add_input_command(buf);
+    } else {
+        packet_reader_set_error(&reader, PACKET_ERROR_INVALID_ENCODING);
     }
 
     free(dest);

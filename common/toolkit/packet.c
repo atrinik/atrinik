@@ -39,8 +39,10 @@
  * The packets memory pool.
  */
 static mempool_struct *pool_packet;
+static _Thread_local packet_reader_scope_t *packet_active_reader_scope;
 
 static void packet_debugger(void *ptr, char *buf, size_t size);
+static void packet_reader_fail(packet_reader_t *reader, packet_error_t error);
 
 TOOLKIT_API(DEPENDS(mempool));
 
@@ -485,6 +487,8 @@ packet_writer_write_bytes_internal(packet_struct *packet, const uint8_t *data, s
 }
 
 void packet_writer_write_bytes(packet_struct *packet, const uint8_t *data, size_t len) {
+    size_t old_len;
+
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
@@ -494,10 +498,11 @@ void packet_writer_write_bytes(packet_struct *packet, const uint8_t *data, size_
         return;
     }
 
+    old_len = packet->len;
     packet_writer_write_bytes_internal(packet, data, len);
 
 #ifndef NDEBUG
-    {
+    if (packet->len != old_len) {
         char *hex;
 
         hex = xmalloc(sizeof(*hex) * (len * 3 + 1));
@@ -518,7 +523,9 @@ void packet_writer_write_string_n(packet_struct *packet, const char *data, size_
         return;
     }
 
-    packet_ensure(packet, len);
+    if (!packet_ensure(packet, len)) {
+        return;
+    }
     memcpy(packet->data + packet->len, data, len);
     packet->len += len;
     packet_debug(packet, 0, "%.*s", (int)len, data);
@@ -539,8 +546,17 @@ void packet_writer_write_cstring_n(packet_struct *packet, const char *data, size
     HARD_ASSERT(packet != NULL);
     SOFT_ASSERT(data != NULL, "Data is NULL.");
 
-    packet_writer_write_string_n(packet, data, len);
-    packet_writer_write_uint8_internal(packet, '\0');
+    if (len == SIZE_MAX) {
+        packet->error = PACKET_ERROR_SIZE_OVERFLOW;
+        return;
+    }
+    if (!packet_ensure(packet, len + 1)) {
+        return;
+    }
+    memcpy(packet->data + packet->len, data, len);
+    packet->len += len;
+    packet->data[packet->len++] = '\0';
+    packet_debug(packet, 0, "%.*s", (int)len, data);
     packet_debug(packet, 0, "\n");
 }
 
@@ -577,14 +593,27 @@ void packet_writer_write_packet(packet_struct *packet, packet_struct *src) {
 void packet_reader_init_at(packet_reader_t *reader, const void *data, size_t len, size_t pos) {
     HARD_ASSERT(reader != NULL);
 
+    packet_reader_scope_t *scope = packet_active_reader_scope;
+    if (scope != NULL && scope->initialized && (scope->data != data || scope->len != len)) {
+        scope = NULL;
+    }
     *reader = (packet_reader_t){
         .data = data,
         .len = len,
         .pos = pos,
+        .scope = scope,
     };
+    if (reader->scope != NULL) {
+        if (!reader->scope->initialized) {
+            reader->scope->data = data;
+            reader->scope->len = len;
+            reader->scope->pos = pos;
+            reader->scope->initialized = true;
+        }
+    }
     if ((data == NULL && len != 0) || pos > len) {
         reader->pos = 0;
-        reader->error = PACKET_ERROR_INVALID_ENCODING;
+        packet_reader_fail(reader, PACKET_ERROR_INVALID_ENCODING);
     }
 }
 
@@ -632,17 +661,44 @@ const char *packet_error_string(packet_error_t error) {
 void packet_reader_set_error(packet_reader_t *reader, packet_error_t error) {
     HARD_ASSERT(reader != NULL);
     HARD_ASSERT(error != PACKET_ERROR_NONE);
+    packet_reader_fail(reader, error);
+}
+
+static void packet_reader_fail(packet_reader_t *reader, packet_error_t error) {
     if (reader->error == PACKET_ERROR_NONE) {
         reader->error = error;
+    }
+    if (reader->scope != NULL && reader->scope->error == PACKET_ERROR_NONE) {
+        reader->scope->error = error;
     }
 }
 
 bool packet_reader_finish(packet_reader_t *reader) {
     HARD_ASSERT(reader != NULL);
     if (reader->error == PACKET_ERROR_NONE && reader->pos != reader->len) {
-        reader->error = PACKET_ERROR_TRAILING_DATA;
+        packet_reader_fail(reader, PACKET_ERROR_TRAILING_DATA);
     }
     return reader->error == PACKET_ERROR_NONE;
+}
+
+void packet_reader_scope_begin(packet_reader_scope_t *scope) {
+    HARD_ASSERT(scope != NULL);
+    *scope = (packet_reader_scope_t){.previous = packet_active_reader_scope};
+    packet_active_reader_scope = scope;
+}
+
+packet_error_t packet_reader_scope_finish(packet_reader_scope_t *scope) {
+    HARD_ASSERT(scope != NULL);
+    HARD_ASSERT(packet_active_reader_scope == scope);
+    if (scope->error == PACKET_ERROR_NONE && scope->pos != scope->len) {
+        scope->error = PACKET_ERROR_TRAILING_DATA;
+    }
+    packet_active_reader_scope = scope->previous;
+    if (scope->previous != NULL && scope->error != PACKET_ERROR_NONE &&
+        scope->previous->error == PACKET_ERROR_NONE) {
+        scope->previous->error = scope->error;
+    }
+    return scope->error;
 }
 
 static const uint8_t *packet_reader_take(packet_reader_t *reader, size_t len) {
@@ -650,7 +706,7 @@ static const uint8_t *packet_reader_take(packet_reader_t *reader, size_t len) {
         return NULL;
     }
     if (len > packet_reader_remaining(reader)) {
-        reader->error = PACKET_ERROR_TRUNCATED;
+        packet_reader_fail(reader, PACKET_ERROR_TRUNCATED);
         return NULL;
     }
     if (len == 0) {
@@ -659,6 +715,9 @@ static const uint8_t *packet_reader_take(packet_reader_t *reader, size_t len) {
 
     const uint8_t *data = reader->data + reader->pos;
     reader->pos += len;
+    if (reader->scope != NULL) {
+        reader->scope->pos = MAX(reader->scope->pos, reader->pos);
+    }
     if (reader->position != NULL) {
         *reader->position = reader->pos;
     }
@@ -687,24 +746,29 @@ packet_view_t packet_reader_read_string_view(packet_reader_t *reader, size_t max
 
     size_t remaining = packet_reader_remaining(reader);
     if (remaining == 0) {
-        reader->error = PACKET_ERROR_TRUNCATED;
+        packet_reader_fail(reader, PACKET_ERROR_TRUNCATED);
         return (packet_view_t){0};
     }
     size_t search_len = MIN(remaining, max_len + (max_len != SIZE_MAX));
     const uint8_t *end = memchr(reader->data + reader->pos, '\0', search_len);
     if (end == NULL) {
-        reader->error = remaining > max_len ? PACKET_ERROR_LIMIT_EXCEEDED : PACKET_ERROR_TRUNCATED;
+        packet_reader_fail(reader,
+                           remaining > max_len ? PACKET_ERROR_LIMIT_EXCEEDED
+                                               : PACKET_ERROR_TRUNCATED);
         return (packet_view_t){0};
     }
 
     size_t len = (size_t)(end - (reader->data + reader->pos));
     if (len > max_len) {
-        reader->error = PACKET_ERROR_LIMIT_EXCEEDED;
+        packet_reader_fail(reader, PACKET_ERROR_LIMIT_EXCEEDED);
         return (packet_view_t){0};
     }
 
     packet_view_t view = {.data = reader->data + reader->pos, .len = len};
     reader->pos += len + 1;
+    if (reader->scope != NULL) {
+        reader->scope->pos = MAX(reader->scope->pos, reader->pos);
+    }
     if (reader->position != NULL) {
         *reader->position = reader->pos;
     }
@@ -720,12 +784,10 @@ bool packet_reader_read_string_bounded(packet_reader_t *reader,
 
     packet_view_t view = packet_reader_read_string_view(reader, max_len);
     if (reader->error != PACKET_ERROR_NONE) {
-        dest[0] = '\0';
         return false;
     }
     if (view.len >= dest_size) {
-        reader->error = PACKET_ERROR_LIMIT_EXCEEDED;
-        dest[0] = '\0';
+        packet_reader_fail(reader, PACKET_ERROR_LIMIT_EXCEEDED);
         return false;
     }
 
@@ -830,7 +892,7 @@ packet_reader_check_count(packet_reader_t *reader, uint32_t value, size_t maximu
         return false;
     }
     if (value > maximum) {
-        reader->error = PACKET_ERROR_LIMIT_EXCEEDED;
+        packet_reader_fail(reader, PACKET_ERROR_LIMIT_EXCEEDED);
         return false;
     }
     *count = value;

@@ -436,6 +436,11 @@ static bool socket_server_handle_command(socket_struct *cs, player *pl, uint8_t 
     free(cp);
 #endif
 
+    if (packet_reader_error(&reader) != PACKET_ERROR_NONE) {
+        LOG(DEVEL, "Malformed command envelope: %s", packet_error_string(reader.error));
+        return true;
+    }
+
     if (type >= SERVER_CMD_NROF || socket_commands[type].handle_func == NULL) {
         LOG(DEVEL, "Unknown command type: %" PRIu8, type);
         return true;
@@ -447,7 +452,17 @@ static bool socket_server_handle_command(socket_struct *cs, player *pl, uint8_t 
         return false;
     }
 
+    packet_reader_scope_t scope;
+    packet_reader_scope_begin(&scope);
+    packet_reader_init_at(&reader, data + pos, len - pos, 0);
     socket_commands[type].handle_func(cs, pl, data + pos, len - pos, 0);
+    packet_error_t error = packet_reader_scope_finish(&scope);
+    if (error != PACKET_ERROR_NONE) {
+        LOG(DEVEL,
+            "Rejected malformed %s command: %s",
+            socket_commands[type].name,
+            packet_error_string(error));
+    }
 
     return true;
 }

@@ -65,7 +65,18 @@ typedef struct packet_reader {
     packet_error_t error;
     /** Optional legacy position mirror used only during whole-tree migration. */
     size_t *position;
+    struct packet_reader_scope *scope;
 } packet_reader_t;
+
+/** One dispatch-level error and completion boundary. */
+typedef struct packet_reader_scope {
+    const uint8_t *data;
+    size_t len;
+    size_t pos;
+    packet_error_t error;
+    bool initialized;
+    struct packet_reader_scope *previous;
+} packet_reader_scope_t;
 
 /**
  * A single data packet.
@@ -214,6 +225,8 @@ packet_error_t packet_reader_error(const packet_reader_t *reader);
 const char *packet_error_string(packet_error_t error);
 void packet_reader_set_error(packet_reader_t *reader, packet_error_t error);
 bool packet_reader_finish(packet_reader_t *reader);
+void packet_reader_scope_begin(packet_reader_scope_t *scope);
+packet_error_t packet_reader_scope_finish(packet_reader_scope_t *scope);
 bool packet_reader_skip(packet_reader_t *reader, size_t len);
 packet_view_t packet_reader_read_view(packet_reader_t *reader, size_t len);
 packet_view_t packet_reader_read_string_view(packet_reader_t *reader, size_t max_len);
