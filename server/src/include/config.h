@@ -176,7 +176,7 @@
 #define AUTOSAVE 5000
 
 /** Socket version. */
-#define SOCKET_VERSION 1071
+#define SOCKET_VERSION 1072
 
 /**
  * If 1, all data packets that are longer than @ref COMPRESS_DATA_PACKETS_SIZE

@@ -170,9 +170,6 @@ typedef struct socket_struct {
     /** Does the client want sound? */
     uint32_t sound : 1;
 
-    /** Is the client a bot? */
-    uint8_t is_bot;
-
     /** Whether the configured server join password was accepted. */
     bool join_authenticated;
 

@@ -163,15 +163,6 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             packet_append_uint8(packet, x);
             packet_debug_data(packet, 0, "Map height");
             packet_append_uint8(packet, y);
-        } else if (type == CMD_SETUP_BOT) {
-            ns->is_bot = packet_to_uint8(data, len, &pos);
-
-            if (ns->is_bot != 0 && ns->is_bot != 1) {
-                ns->is_bot = 0;
-            }
-
-            packet_debug_data(packet, 0, "Bot");
-            packet_append_uint8(packet, ns->is_bot);
         } else if (type == CMD_SETUP_DATA_URL) {
             char url[MAX_BUF];
 

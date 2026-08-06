@@ -233,16 +233,14 @@ typedef enum socket_role {
 #define CMD_SETUP_SOUND 0
 /**  Set the map size. */
 #define CMD_SETUP_MAPSIZE 1
-/** Enable/disable bot flag. */
-#define CMD_SETUP_BOT 2
 /** URL of the data files to use. */
-#define CMD_SETUP_DATA_URL 3
+#define CMD_SETUP_DATA_URL 2
 /** Password used to join a private game server. */
-#define CMD_SETUP_JOIN_PASSWORD 4
+#define CMD_SETUP_JOIN_PASSWORD 3
 /** Whether in-band asset downloads are available on this connection. */
-#define CMD_SETUP_ASSET_TRANSPORT 5
+#define CMD_SETUP_ASSET_TRANSPORT 4
 /** Direct connection mode selected by the client. */
-#define CMD_SETUP_CONNECTION_MODE 6
+#define CMD_SETUP_CONNECTION_MODE 5
 /** First socket protocol version supporting in-band asset downloads. */
 #define ASSET_TRANSPORT_SOCKET_VERSION 1067
 
