@@ -17,6 +17,7 @@
  */
 
 #include <global.h>
+#include <metaserver.h>
 #include <openssl/crypto.h>
 #include <toolkit/curl.h>
 #include "metaserver_private.h"

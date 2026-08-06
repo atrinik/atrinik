@@ -34,6 +34,10 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <monster.h>
+#include <los.h>
 #include <arch.h>
 #include <exp.h>
 #include <object.h>

@@ -64,4 +64,10 @@
 #define CMD_PARTY_REMOVE_MEMBER 7
 /*@}*/
 
+/** Public API implemented in src/gui/widgets/party.c. */
+
+extern void socket_command_party(uint8_t *data, size_t len, size_t pos);
+
+extern void widget_party_init(widgetdata *widget);
+
 #endif

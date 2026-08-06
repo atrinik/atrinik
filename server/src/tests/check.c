@@ -26,9 +26,11 @@
  * test functions. */
 
 #include <global.h>
+#include <server_main.h>
+#include <initialization.h>
 #include <check.h>
 #include <checkstd.h>
-#include <check_proto.h>
+#include <check_utils.h>
 #include <check_suites.h>
 #include <toolkit/string.h>
 #include <player.h>

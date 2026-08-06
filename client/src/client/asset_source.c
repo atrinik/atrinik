@@ -4,6 +4,7 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
 #include <asset_source.h>
 #include <toolkit/path.h>
 #include <toolkit/string.h>

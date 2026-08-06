@@ -76,4 +76,18 @@ typedef struct {
     uint8_t facings;
 } Animations;
 
+/** Public API implemented in src/server/image.c. */
+
+extern New_Face *new_faces;
+
+extern int nroffiles;
+
+extern int nrofpixmaps;
+
+extern int read_bmap_names(void);
+
+extern int find_face(const char *name, int error);
+
+extern void free_all_images(void);
+
 #endif

@@ -30,6 +30,9 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
+#include <sdl_rotozoom.h>
+#include <sdl_gfx.h>
 #include <toolkit/string.h>
 
 /**

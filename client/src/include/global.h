@@ -49,6 +49,18 @@
 #include <toolkit/memory.h>
 #include <toolkit/mempool.h>
 
+/* Shared opaque types used by component API declarations. */
+typedef struct Animations Animations;
+typedef struct Player_Struct Client_Player;
+typedef struct _anim_table _anim_table;
+typedef struct clioption_settings_struct clioption_settings_struct;
+typedef struct client_socket client_socket_t;
+typedef struct command_buffer command_buffer;
+typedef struct server_struct server_struct;
+typedef struct widgetdata widgetdata;
+struct packet_struct;
+struct packet_reader;
+
 #ifdef HAVE_SDL_MIXER
 #include <SDL_mixer.h>
 #endif
@@ -92,15 +104,5 @@
 #include <settings.h>
 #include <keybind.h>
 #include <progress.h>
-
-/* TODO: Remove from here eventually */
-struct packet_struct;
-
-/* TODO: move to appropriate header */
-FILE *client_fopen_wrapper(const char *fname, const char *mode);
-
-#ifndef __CPROTO__
-#include <proto.h>
-#endif
 
 #endif

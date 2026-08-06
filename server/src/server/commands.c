@@ -30,6 +30,9 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <initialization.h>
 #include <toolkit/string.h>
 #include <player.h>
 #include <object.h>

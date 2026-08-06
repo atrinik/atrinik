@@ -33,6 +33,8 @@
 #include <loader.h>
 #include <arch.h>
 #include <artifact.h>
+#include <connection.h>
+#include <initialization.h>
 #include <toolkit/string.h>
 #include <object.h>
 #include <object_methods.h>

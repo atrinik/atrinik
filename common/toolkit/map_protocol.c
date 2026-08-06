@@ -12,87 +12,44 @@
 /** @file Validate the framed CLIENT_CMD_MAP wire format. */
 
 #include "map_protocol.h"
+#include "packet.h"
 #include "socket.h"
 
-#include <string.h>
-
-/** Bounds-checked cursor used to validate a MAP command before applying it. */
-typedef struct map_packet_reader {
-    const uint8_t *data;
-    size_t len;
-    size_t pos;
-} map_packet_reader_t;
+typedef packet_reader_t map_packet_reader_t;
 
 /** Advance a MAP validation cursor without reading beyond its packet. */
 static bool map_packet_skip(map_packet_reader_t *reader, size_t size) {
-    if (reader->pos > reader->len || size > reader->len - reader->pos) {
-        return false;
-    }
-
-    reader->pos += size;
-    return true;
+    return packet_reader_skip(reader, size);
 }
 
 /** Read an unsigned byte from a MAP validation cursor. */
 static bool map_packet_read_uint8(map_packet_reader_t *reader, uint8_t *value) {
-    if (!map_packet_skip(reader, sizeof(*value))) {
-        return false;
-    }
-
-    *value = reader->data[reader->pos - 1];
-    return true;
+    *value = packet_reader_read_uint8(reader);
+    return packet_reader_error(reader) == PACKET_ERROR_NONE;
 }
 
 /** Read a signed byte from a MAP validation cursor. */
 static bool map_packet_read_int8(map_packet_reader_t *reader, int8_t *value) {
-    uint8_t raw;
-
-    if (!map_packet_read_uint8(reader, &raw)) {
-        return false;
-    }
-
-    *value = raw <= INT8_MAX ? (int8_t)raw : (int8_t)((int)raw - (UINT8_MAX + 1));
-    return true;
+    *value = packet_reader_read_int8(reader);
+    return packet_reader_error(reader) == PACKET_ERROR_NONE;
 }
 
 /** Read a network-order uint16 from a MAP validation cursor. */
 static bool map_packet_read_uint16(map_packet_reader_t *reader, uint16_t *value) {
-    if (reader->pos > reader->len || sizeof(*value) > reader->len - reader->pos) {
-        return false;
-    }
-
-    *value = ((uint16_t)reader->data[reader->pos] << 8) | (uint16_t)reader->data[reader->pos + 1];
-    reader->pos += sizeof(*value);
-    return true;
+    *value = packet_reader_read_uint16(reader);
+    return packet_reader_error(reader) == PACKET_ERROR_NONE;
 }
 
 /** Read a network-order uint32 from a MAP validation cursor. */
 static bool map_packet_read_uint32(map_packet_reader_t *reader, uint32_t *value) {
-    if (reader->pos > reader->len || sizeof(*value) > reader->len - reader->pos) {
-        return false;
-    }
-
-    *value = ((uint32_t)reader->data[reader->pos] << 24) |
-             ((uint32_t)reader->data[reader->pos + 1] << 16) |
-             ((uint32_t)reader->data[reader->pos + 2] << 8) |
-             (uint32_t)reader->data[reader->pos + 3];
-    reader->pos += sizeof(*value);
-    return true;
+    *value = packet_reader_read_uint32(reader);
+    return packet_reader_error(reader) == PACKET_ERROR_NONE;
 }
 
 /** Skip one required NUL-terminated string in a MAP command. */
 static bool map_packet_skip_string(map_packet_reader_t *reader) {
-    if (reader->pos > reader->len) {
-        return false;
-    }
-
-    const uint8_t *terminator = memchr(reader->data + reader->pos, '\0', reader->len - reader->pos);
-    if (terminator == NULL) {
-        return false;
-    }
-
-    reader->pos = (size_t)(terminator - reader->data) + 1;
-    return true;
+    (void)packet_reader_read_string_view(reader, PACKET_PAYLOAD_MAX);
+    return packet_reader_error(reader) == PACKET_ERROR_NONE;
 }
 
 /** Validate one framed MAP level without changing client state. */
@@ -286,7 +243,8 @@ bool map_protocol_validate(const uint8_t *data,
         return false;
     }
 
-    map_packet_reader_t reader = {.data = data, .len = len, .pos = pos};
+    map_packet_reader_t reader;
+    packet_reader_init_at(&reader, data, len, pos);
     uint8_t mapstat;
     int new_map_width = 0, new_map_height = 0;
 
@@ -347,7 +305,7 @@ bool map_protocol_validate(const uint8_t *data,
 
         if (!map_packet_read_int8(&reader, &depth) ||
             !map_packet_read_uint32(&reader, &level_size) || depth < -MAP2_MAX_DEPTH ||
-            depth > MAP2_MAX_DEPTH || level_size > reader.len - reader.pos) {
+            depth > MAP2_MAX_DEPTH || level_size > packet_reader_remaining(&reader)) {
             return false;
         }
 
@@ -357,16 +315,14 @@ bool map_protocol_validate(const uint8_t *data,
         }
         level_mask |= level_bit;
 
-        map_packet_reader_t level_reader = {
-            .data = reader.data,
-            .len = reader.pos + level_size,
-            .pos = reader.pos,
-        };
+        packet_view_t level = packet_reader_read_view(&reader, level_size);
+        map_packet_reader_t level_reader;
+        packet_reader_init(&level_reader, level.data, level.len);
         if (!socket_command_map_validate_level(&level_reader, map_width_limit, map_height_limit)) {
             return false;
         }
-        reader.pos = level_reader.pos;
     }
 
-    return reader.pos == reader.len && (level_mask & (UINT16_C(1) << MAP2_DEPTH_INDEX(0))) != 0;
+    return packet_reader_finish(&reader) &&
+           (level_mask & (UINT16_C(1) << MAP2_DEPTH_INDEX(0))) != 0;
 }

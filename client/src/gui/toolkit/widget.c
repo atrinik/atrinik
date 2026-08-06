@@ -42,6 +42,9 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
+#include <sdl_rotozoom.h>
+#include <notification.h>
 #include <toolkit/string.h>
 #include <network_graph.h>
 #include <toolkit/path.h>

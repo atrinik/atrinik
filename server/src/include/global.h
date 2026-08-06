@@ -36,6 +36,7 @@
 #include <toolkit/stringbuffer.h>
 #include <toolkit/socket.h>
 #include <toolkit/mempool.h>
+#include <decls.h>
 
 /**
  * @defgroup BANK_xxx Bank return values
@@ -243,8 +244,6 @@ typedef struct linked_char {
 #include <recipe.h>
 #include <spells.h>
 
-/** Move an object. */
-#define move_object(__op, __dir) move_ob(__op, __dir, __op)
 /** Is the object magical? */
 #define is_magical(__op_) QUERY_FLAG(__op_, FLAG_IS_MAGICAL)
 
@@ -524,17 +523,10 @@ typedef struct cache_struct {
 #define MAX_TICKS (1000000.0 / max_time)
 #define MAX_TICKS_MULTIPLIER (MAX_TICKS * max_time_multiplier)
 
-#ifdef HAVE_WORLD_MAKER
-void world_maker(void);
-#endif
-
 #include "random_map.h"
+#include <animation.h>
 
 /* TODO: Remove from here eventually */
 struct packet_struct;
-
-#ifndef GLOBAL_NO_PROTOTYPES
-#include "proto.h"
-#endif
 
 #endif

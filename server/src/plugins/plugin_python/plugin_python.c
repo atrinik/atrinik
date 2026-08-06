@@ -2982,7 +2982,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value) {
             }
 
             packet->len = 0;
-            hooks->packet_append_data_len(packet, (uint8_t *)str, len);
+            hooks->packet_writer_write_bytes(packet, (uint8_t *)str, len);
             break;
         }
 

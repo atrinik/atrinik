@@ -28,6 +28,13 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
+#include <video.h>
+#include <metaserver.h>
+#include <connection_preferences.h>
+#include <client_socket.h>
+#include <animations.h>
+#include <notification.h>
 #include <toolkit/string.h>
 #include <toolkit/path.h>
 #include <resources.h>

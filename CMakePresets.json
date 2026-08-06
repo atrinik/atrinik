@@ -47,6 +47,7 @@
                 "CMAKE_EXPORT_COMPILE_COMMANDS": true,
                 "BUILD_TESTING": true,
                 "ENABLE_SANITIZERS": true,
+                "BUILD_FUZZING": true,
                 "PACKAGE_TYPE": "none"
             }
         },

@@ -28,6 +28,10 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <monster.h>
 #include <spellist.h>
 #include <toolkit/string.h>
 #include <plugin.h>

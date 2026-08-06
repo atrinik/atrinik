@@ -168,4 +168,78 @@ typedef struct popup_struct {
     const char *(*clipboard_copy_func)(struct popup_struct *popup);
 } popup_struct;
 
+/** Public API implemented in src/gui/misc/game_news.c. */
+
+extern void game_news_open(const char *title);
+
+/** Public API implemented in src/gui/misc/intro.c. */
+
+extern void intro_deinit(void);
+
+extern void intro_show(void);
+
+extern int intro_event(SDL_Event *event);
+
+/** Public API implemented in src/gui/popups/characters.c. */
+
+extern void characters_open(void);
+
+extern void socket_command_characters(uint8_t *data, size_t len, size_t pos);
+
+/** Public API implemented in src/gui/popups/credits.c. */
+
+extern void credits_show(void);
+
+/** Public API implemented in src/gui/popups/help.c. */
+
+extern void hfiles_deinit(void);
+
+extern void hfiles_init(void);
+
+extern hfile_struct *help_find(const char *name);
+
+extern void help_show(const char *name);
+
+extern void help_handle_tabulator(text_input_struct *text_input);
+
+/** Public API implemented in src/gui/popups/join_password.c. */
+
+extern void join_password_open(server_struct *server);
+
+/** Public API implemented in src/gui/popups/login.c. */
+
+extern void login_start(void);
+
+/** Public API implemented in src/gui/popups/painting.c. */
+
+void socket_command_painting(uint8_t *data, size_t len, size_t pos);
+
+/** Public API implemented in src/gui/popups/server_add.c. */
+
+extern void server_add_open(void);
+
+/** Public API implemented in src/gui/popups/connection_preference.c. */
+
+extern void connection_preference_open(server_struct *server);
+
+/** Public API implemented in src/gui/toolkit/popup.c. */
+
+extern popup_struct *popup_create(texture_struct *texture);
+
+extern void popup_destroy(popup_struct *popup);
+
+extern void popup_destroy_all(void);
+
+extern void popup_render(popup_struct *popup);
+
+extern void popup_render_all(void);
+
+extern int popup_handle_event(SDL_Event *event);
+
+extern popup_struct *popup_get_head(void);
+
+extern void popup_button_set_text(popup_button *button, const char *text);
+
+extern int popup_need_redraw(void);
+
 #endif

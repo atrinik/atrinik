@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <video.h>
 #include <toolkit/string.h>
 
 /**

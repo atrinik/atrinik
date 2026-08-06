@@ -30,6 +30,11 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <object_methods.h>
+#include <animation.h>
 #include <toolkit/packet.h>
 #include <arch.h>
 #include <player.h>
@@ -118,48 +123,48 @@ void add_object_to_packet(struct packet_struct *packet,
     packet_debug_data(packet, level, "\nTag");
 
     if (apply_action == CMD_APPLY_ACTION_NORMAL) {
-        packet_append_uint32(packet, op->count);
+        packet_writer_write_uint32(packet, op->count);
     } else {
-        packet_append_uint32(packet, 0);
-        packet_append_uint8(packet, apply_action);
+        packet_writer_write_uint32(packet, 0);
+        packet_writer_write_uint8(packet, apply_action);
     }
 
     if (flags & UPD_LOCATION) {
         packet_debug_data(packet, level, "Location");
-        packet_append_uint32(packet, op->env ? op->env->count : 0);
+        packet_writer_write_uint32(packet, op->env ? op->env->count : 0);
     }
 
     if (flags & UPD_FLAGS) {
         packet_debug_data(packet, level, "Flags");
-        packet_append_uint32(packet, query_flags(op));
+        packet_writer_write_uint32(packet, query_flags(op));
     }
 
     if (flags & UPD_WEIGHT) {
         packet_debug_data(packet, level, "Weight");
-        packet_append_uint32(packet, WEIGHT(op));
+        packet_writer_write_uint32(packet, WEIGHT(op));
     }
 
     if (flags & UPD_FACE) {
         packet_debug_data(packet, level, "Face");
 
         if (op->inv_face && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-            packet_append_uint16(packet, op->inv_face->number);
+            packet_writer_write_uint16(packet, op->inv_face->number);
         } else {
-            packet_append_uint16(packet, op->face->number);
+            packet_writer_write_uint16(packet, op->face->number);
         }
     }
 
     if (flags & UPD_DIRECTION) {
         packet_debug_data(packet, level, "Direction");
-        packet_append_uint8(packet, op->direction);
+        packet_writer_write_uint8(packet, op->direction);
     }
 
     if (flags & UPD_TYPE) {
         packet_debug(packet, level, "Item info");
         packet_debug_data(packet, level + 1, "Type");
-        packet_append_uint8(packet, op->type);
+        packet_writer_write_uint8(packet, op->type);
         packet_debug_data(packet, level + 1, "Sub-type");
-        packet_append_uint8(packet, op->sub_type);
+        packet_writer_write_uint8(packet, op->sub_type);
 
         packet_debug_data(packet, level + 1, "Quality");
 
@@ -175,21 +180,21 @@ void add_object_to_packet(struct packet_struct *packet,
                 item_skill = op->item_skill;
             }
 
-            packet_append_uint8(packet, op->item_quality);
+            packet_writer_write_uint8(packet, op->item_quality);
             packet_debug_data(packet, level + 1, "Condition");
-            packet_append_uint8(packet, op->item_condition);
+            packet_writer_write_uint8(packet, op->item_condition);
             packet_debug_data(packet, level + 1, "Level");
-            packet_append_uint8(packet, item_level);
+            packet_writer_write_uint8(packet, item_level);
 
             packet_debug_data(packet, level + 1, "Skill object ID");
 
             if (item_skill && CONTR(pl)->skill_ptr[item_skill - 1] != NULL) {
-                packet_append_uint32(packet, CONTR(pl)->skill_ptr[item_skill - 1]->count);
+                packet_writer_write_uint32(packet, CONTR(pl)->skill_ptr[item_skill - 1]->count);
             } else {
-                packet_append_uint32(packet, 0);
+                packet_writer_write_uint32(packet, 0);
             }
         } else {
-            packet_append_uint8(packet, 255);
+            packet_writer_write_uint8(packet, 255);
         }
     }
 
@@ -197,12 +202,10 @@ void add_object_to_packet(struct packet_struct *packet,
         packet_debug_data(packet, level, "Name");
 
         if (op->custom_name != NULL) {
-            packet_append_string_terminated(packet, op->custom_name);
+            packet_writer_write_cstring(packet, op->custom_name);
         } else {
             StringBuffer *sb = object_get_base_name(op, pl, NULL);
-            packet_append_string_len_terminated(packet,
-                                                stringbuffer_data(sb),
-                                                stringbuffer_length(sb));
+            packet_writer_write_cstring_n(packet, stringbuffer_data(sb), stringbuffer_length(sb));
             stringbuffer_free(sb);
         }
     }
@@ -211,9 +214,9 @@ void add_object_to_packet(struct packet_struct *packet,
         packet_debug_data(packet, level, "Animation");
 
         if (QUERY_FLAG(op, FLAG_ANIMATE)) {
-            packet_append_uint16(packet, op->animation_id);
+            packet_writer_write_uint16(packet, op->animation_id);
         } else {
-            packet_append_uint16(packet, 0);
+            packet_writer_write_uint16(packet, 0);
         }
     }
 
@@ -239,39 +242,39 @@ void add_object_to_packet(struct packet_struct *packet,
         }
 
         packet_debug_data(packet, level, "Animation speed");
-        packet_append_uint8(packet, anim_speed);
+        packet_writer_write_uint8(packet, anim_speed);
     }
 
     if (flags & UPD_NROF) {
         packet_debug_data(packet, level, "Nrof");
-        packet_append_uint32(packet, op->nrof);
+        packet_writer_write_uint32(packet, op->nrof);
     }
 
     if (flags & UPD_EXTRA) {
         if (op->type == SPELL) {
             packet_debug(packet, level, "Spell info:\n");
             packet_debug_data(packet, level + 1, "Cost");
-            packet_append_uint16(
+            packet_writer_write_uint16(
                 packet,
                 SP_level_spellpoint_cost(pl,
                                          op->stats.sp,
                                          CONTR(pl)->skill_ptr[SK_WIZARDRY_SPELLS]->level));
             packet_debug_data(packet, level + 1, "Path");
-            packet_append_uint32(packet, spells[op->stats.sp].path);
+            packet_writer_write_uint32(packet, spells[op->stats.sp].path);
             packet_debug_data(packet, level + 1, "Flags");
-            packet_append_uint32(packet, spells[op->stats.sp].flags);
+            packet_writer_write_uint32(packet, spells[op->stats.sp].flags);
             packet_debug_data(packet, level + 1, "Message");
-            packet_append_string_terminated(packet, op->msg ? op->msg : "");
+            packet_writer_write_cstring(packet, op->msg ? op->msg : "");
         } else if (op->type == SKILL) {
             packet_debug(packet, level, "Skill info:\n");
             packet_debug_data(packet, level + 1, "Level");
-            packet_append_uint8(packet, op->level);
+            packet_writer_write_uint8(packet, op->level);
             packet_debug_data(packet, level + 1, "Experience");
-            packet_append_int64(packet, op->stats.exp);
+            packet_writer_write_int64(packet, op->stats.exp);
 
             if (CONTR(pl)->cs->socket_version >= 1065) {
                 packet_debug_data(packet, level + 1, "Message");
-                packet_append_string_terminated(packet, op->msg ? op->msg : "");
+                packet_writer_write_cstring(packet, op->msg ? op->msg : "");
             }
         } else if (op->type == FORCE || op->type == POISONING) {
             int32_t sec;
@@ -290,26 +293,26 @@ void add_object_to_packet(struct packet_struct *packet,
             }
 
             packet_debug_data(packet, level + 1, "Seconds");
-            packet_append_int32(packet, sec);
+            packet_writer_write_int32(packet, sec);
             packet_debug_data(packet, level + 1, "Message");
             if (op->arch != NULL && op->arch->name != NULL &&
                 strcmp(op->arch->name, "depletion") == 0) {
                 StringBuffer *sb = depletion_get_tooltip(op, NULL);
-                packet_append_string_len_terminated(packet,
-                                                    stringbuffer_data(sb),
-                                                    stringbuffer_length(sb));
+                packet_writer_write_cstring_n(packet,
+                                              stringbuffer_data(sb),
+                                              stringbuffer_length(sb));
                 stringbuffer_free(sb);
             } else {
-                packet_append_string_terminated(packet, op->msg != NULL ? op->msg : "");
+                packet_writer_write_cstring(packet, op->msg != NULL ? op->msg : "");
             }
         }
     }
 
     if (flags & UPD_GLOW && CONTR(pl)->cs->socket_version >= 1060) {
         packet_debug_data(packet, level, "Glow color");
-        packet_append_string_terminated(packet, op->glow != NULL ? op->glow : "");
+        packet_writer_write_cstring(packet, op->glow != NULL ? op->glow : "");
         packet_debug_data(packet, level, "Glow speed");
-        packet_append_uint8(packet, op->glow_speed);
+        packet_writer_write_uint8(packet, op->glow_speed);
     }
 }
 
@@ -339,27 +342,27 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op, in
                              level + 1);
     } else {
         packet_debug_data(packet, level + 1, "\nTag");
-        packet_append_uint32(packet, 0);
+        packet_writer_write_uint32(packet, 0);
         packet_debug_data(packet, level + 1, "Flags");
-        packet_append_uint32(packet, 0);
+        packet_writer_write_uint32(packet, 0);
         packet_debug_data(packet, level + 1, "Weight");
-        packet_append_int32(packet, -1);
+        packet_writer_write_int32(packet, -1);
         packet_debug_data(packet, level + 1, "Face");
-        packet_append_uint16(packet, arches[ARCH_INV_START]->clone.face->number);
+        packet_writer_write_uint16(packet, arches[ARCH_INV_START]->clone.face->number);
         packet_debug_data(packet, level + 1, "Direction");
-        packet_append_uint8(packet, 0);
+        packet_writer_write_uint8(packet, 0);
         packet_debug_data(packet, level + 1, "Name");
-        packet_append_string_terminated(packet, "in inventory");
+        packet_writer_write_cstring(packet, "in inventory");
         packet_debug_data(packet, level + 1, "Animation");
-        packet_append_uint16(packet, 0);
+        packet_writer_write_uint16(packet, 0);
         packet_debug_data(packet, level + 1, "Animation speed");
-        packet_append_uint8(packet, 0);
+        packet_writer_write_uint8(packet, 0);
         packet_debug_data(packet, level + 1, "Nrof");
-        packet_append_uint32(packet, 0);
+        packet_writer_write_uint32(packet, 0);
         packet_debug_data(packet, level + 1, "Glow color");
-        packet_append_string_terminated(packet, "");
+        packet_writer_write_cstring(packet, "");
         packet_debug_data(packet, level + 1, "Glow speed");
-        packet_append_uint8(packet, 0);
+        packet_writer_write_uint8(packet, 0);
     }
 
     for (object *tmp = op->inv; tmp != NULL; tmp = tmp->below) {
@@ -379,27 +382,27 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op, in
                              level + 1);
     } else {
         packet_debug_data(packet, level + 1, "\nTag");
-        packet_append_uint32(packet, 0);
+        packet_writer_write_uint32(packet, 0);
         packet_debug_data(packet, level + 1, "Flags");
-        packet_append_uint32(packet, 0);
+        packet_writer_write_uint32(packet, 0);
         packet_debug_data(packet, level + 1, "Weight");
-        packet_append_int32(packet, -1);
+        packet_writer_write_int32(packet, -1);
         packet_debug_data(packet, level + 1, "Face");
-        packet_append_uint16(packet, arches[ARCH_INV_END]->clone.face->number);
+        packet_writer_write_uint16(packet, arches[ARCH_INV_END]->clone.face->number);
         packet_debug_data(packet, level + 1, "Direction");
-        packet_append_uint8(packet, 0);
+        packet_writer_write_uint8(packet, 0);
         packet_debug_data(packet, level + 1, "Name");
-        packet_append_string_terminated(packet, "end inventory");
+        packet_writer_write_cstring(packet, "end inventory");
         packet_debug_data(packet, level + 1, "Animation");
-        packet_append_uint16(packet, 0);
+        packet_writer_write_uint16(packet, 0);
         packet_debug_data(packet, level + 1, "Animation speed");
-        packet_append_uint8(packet, 0);
+        packet_writer_write_uint8(packet, 0);
         packet_debug_data(packet, level + 1, "Nrof");
-        packet_append_uint32(packet, 0);
+        packet_writer_write_uint32(packet, 0);
         packet_debug_data(packet, level + 1, "Glow color");
-        packet_append_string_terminated(packet, "");
+        packet_writer_write_cstring(packet, "");
         packet_debug_data(packet, level + 1, "Glow speed");
-        packet_append_uint8(packet, 0);
+        packet_writer_write_uint8(packet, 0);
     }
 }
 
@@ -423,13 +426,13 @@ void esrv_draw_look(object *pl) {
     packet_struct *packet = packet_new(CLIENT_CMD_ITEM, 512, 256);
     packet_enable_ndelay(packet);
     packet_debug_data(packet, 0, "Delete inventory flag");
-    packet_append_uint8(packet, 1);
+    packet_writer_write_uint8(packet, 1);
     packet_debug_data(packet, 0, "Inventory to delete ID");
-    packet_append_uint32(packet, 0);
+    packet_writer_write_uint32(packet, 0);
     packet_debug_data(packet, 0, "Target inventory ID");
-    packet_append_uint32(packet, 0);
+    packet_writer_write_uint32(packet, 0);
     packet_debug_data(packet, 0, "End flag");
-    packet_append_uint8(packet, 1);
+    packet_writer_write_uint8(packet, 1);
 
     packet_debug(packet, 0, "Below inventory:\n");
 
@@ -443,28 +446,29 @@ void esrv_draw_look(object *pl) {
                                  1);
         } else {
             packet_debug_data(packet, 1, "\nTag");
-            packet_append_uint32(packet,
-                                 0x80000000 | (CONTR(pl)->cs->look_position - NUM_LOOK_OBJECTS));
+            packet_writer_write_uint32(packet,
+                                       0x80000000 |
+                                           (CONTR(pl)->cs->look_position - NUM_LOOK_OBJECTS));
             packet_debug_data(packet, 1, "Flags");
-            packet_append_uint32(packet, 0);
+            packet_writer_write_uint32(packet, 0);
             packet_debug_data(packet, 1, "Weight");
-            packet_append_int32(packet, -1);
+            packet_writer_write_int32(packet, -1);
             packet_debug_data(packet, 1, "Face");
-            packet_append_uint16(packet, arches[ARCH_INV_GROUP_PREV]->clone.face->number);
+            packet_writer_write_uint16(packet, arches[ARCH_INV_GROUP_PREV]->clone.face->number);
             packet_debug_data(packet, 1, "Direction");
-            packet_append_uint8(packet, 0);
+            packet_writer_write_uint8(packet, 0);
             packet_debug_data(packet, 1, "Name");
-            packet_append_string_terminated(packet, "Previous group of items");
+            packet_writer_write_cstring(packet, "Previous group of items");
             packet_debug_data(packet, 1, "Animation");
-            packet_append_uint16(packet, 0);
+            packet_writer_write_uint16(packet, 0);
             packet_debug_data(packet, 1, "Animation speed");
-            packet_append_uint8(packet, 0);
+            packet_writer_write_uint8(packet, 0);
             packet_debug_data(packet, 1, "Nrof");
-            packet_append_uint32(packet, 0);
+            packet_writer_write_uint32(packet, 0);
             packet_debug_data(packet, 1, "Glow color");
-            packet_append_string_terminated(packet, "");
+            packet_writer_write_cstring(packet, "");
             packet_debug_data(packet, 1, "Glow speed");
-            packet_append_uint8(packet, 0);
+            packet_writer_write_uint8(packet, 0);
         }
     }
 
@@ -495,29 +499,29 @@ void esrv_draw_look(object *pl) {
                                      1);
             } else {
                 packet_debug_data(packet, 1, "\nTag");
-                packet_append_uint32(packet,
-                                     0x80000000 |
-                                         (CONTR(pl)->cs->look_position + NUM_LOOK_OBJECTS));
+                packet_writer_write_uint32(packet,
+                                           0x80000000 |
+                                               (CONTR(pl)->cs->look_position + NUM_LOOK_OBJECTS));
                 packet_debug_data(packet, 1, "Flags");
-                packet_append_uint32(packet, 0);
+                packet_writer_write_uint32(packet, 0);
                 packet_debug_data(packet, 1, "Weight");
-                packet_append_int32(packet, -1);
+                packet_writer_write_int32(packet, -1);
                 packet_debug_data(packet, 1, "Face");
-                packet_append_uint16(packet, arches[ARCH_INV_GROUP_NEXT]->clone.face->number);
+                packet_writer_write_uint16(packet, arches[ARCH_INV_GROUP_NEXT]->clone.face->number);
                 packet_debug_data(packet, 1, "Direction");
-                packet_append_uint8(packet, 0);
+                packet_writer_write_uint8(packet, 0);
                 packet_debug_data(packet, 1, "Name");
-                packet_append_string_terminated(packet, "Next group of items");
+                packet_writer_write_cstring(packet, "Next group of items");
                 packet_debug_data(packet, 1, "Animation");
-                packet_append_uint16(packet, 0);
+                packet_writer_write_uint16(packet, 0);
                 packet_debug_data(packet, 1, "Animation speed");
-                packet_append_uint8(packet, 0);
+                packet_writer_write_uint8(packet, 0);
                 packet_debug_data(packet, 1, "Nrof");
-                packet_append_uint32(packet, 0);
+                packet_writer_write_uint32(packet, 0);
                 packet_debug_data(packet, 1, "Glow color");
-                packet_append_string_terminated(packet, "");
+                packet_writer_write_cstring(packet, "");
                 packet_debug_data(packet, 1, "Glow speed");
-                packet_append_uint8(packet, 0);
+                packet_writer_write_uint8(packet, 0);
             }
 
             break;
@@ -551,14 +555,14 @@ void esrv_close_container(object *pl, object *op) {
 
     if (CONTR(pl)->cs->socket_version >= 1061) {
         packet_debug_data(packet, 0, "Delete inventory flag");
-        packet_append_uint8(packet, 1);
+        packet_writer_write_uint8(packet, 1);
         packet_debug_data(packet, 0, "Inventory to delete ID");
-        packet_append_uint32(packet, op->count);
+        packet_writer_write_uint32(packet, op->count);
     } else {
         packet_debug_data(packet, 0, "Container mode flag");
-        packet_append_int32(packet, -1);
+        packet_writer_write_int32(packet, -1);
         packet_debug_data(packet, 0, "Target inventory ID");
-        packet_append_int32(packet, -1);
+        packet_writer_write_int32(packet, -1);
     }
 
     socket_send_packet(CONTR(pl)->cs, packet);
@@ -581,25 +585,25 @@ void esrv_send_inventory(object *pl, object *op) {
 
     if (CONTR(pl)->cs->socket_version >= 1061) {
         packet_debug_data(packet, 0, "Delete inventory flag");
-        packet_append_uint8(packet, 1);
+        packet_writer_write_uint8(packet, 1);
         packet_debug_data(packet, 0, "Inventory to delete ID");
-        packet_append_uint32(packet, op->count);
+        packet_writer_write_uint32(packet, op->count);
     } else {
         packet_debug_data(packet, 0, "Container mode flag");
 
         /* In this case we're sending a container inventory */
         if (pl != op) {
             /* Container mode flag */
-            packet_append_int32(packet, -1);
+            packet_writer_write_int32(packet, -1);
         } else {
-            packet_append_int32(packet, op->count);
+            packet_writer_write_int32(packet, op->count);
         }
     }
 
     packet_debug_data(packet, 0, "Target inventory ID");
-    packet_append_uint32(packet, op->count);
+    packet_writer_write_uint32(packet, op->count);
     packet_debug_data(packet, 0, "End flag");
-    packet_append_uint8(packet, 1);
+    packet_writer_write_uint8(packet, 1);
 
     for (tmp = op->inv; tmp; tmp = tmp->below) {
         if (IS_INVISIBLE(tmp, pl)) {
@@ -643,7 +647,7 @@ static void esrv_update_item_send(int flags, object *pl, object *op) {
     packet = packet_new(CLIENT_CMD_ITEM_UPDATE, 64, 128);
     packet_enable_ndelay(packet);
     packet_debug_data(packet, 0, "Flags");
-    packet_append_uint16(packet, flags);
+    packet_writer_write_uint16(packet, flags);
     add_object_to_packet(packet, op, pl, CMD_APPLY_ACTION_NORMAL, flags, 0);
     socket_send_packet(CONTR(pl)->cs, packet);
 }
@@ -696,16 +700,16 @@ static void esrv_send_item_send(object *pl, object *op) {
 
     if (CONTR(pl)->cs->socket_version >= 1061) {
         packet_debug_data(packet, 0, "Delete inventory flag");
-        packet_append_uint8(packet, 0);
+        packet_writer_write_uint8(packet, 0);
     } else {
         packet_debug_data(packet, 0, "Container mode flag");
-        packet_append_int32(packet, -4);
+        packet_writer_write_int32(packet, -4);
     }
 
     packet_debug_data(packet, 0, "Target inventory ID");
-    packet_append_uint32(packet, op->env->count);
+    packet_writer_write_uint32(packet, op->env->count);
     packet_debug_data(packet, 0, "End flag");
-    packet_append_uint8(packet, 0);
+    packet_writer_write_uint8(packet, 0);
     add_object_to_packet(packet,
                          HEAD(op),
                          pl,
@@ -762,7 +766,7 @@ static void esrv_del_item_send(object *pl, object *op) {
     packet = packet_new(CLIENT_CMD_ITEM_DELETE, 16, 0);
     packet_enable_ndelay(packet);
     packet_debug_data(packet, 0, "Object ID");
-    packet_append_uint32(packet, op->count);
+    packet_writer_write_uint32(packet, op->count);
     socket_send_packet(CONTR(pl)->cs, packet);
 }
 
@@ -851,10 +855,12 @@ void socket_command_item_examine(socket_struct *ns,
                                  uint8_t *data,
                                  size_t len,
                                  size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     tag_t tag;
     object *op;
 
-    tag = packet_to_uint32(data, len, &pos);
+    tag = packet_reader_read_uint32(&reader);
 
     if (!tag) {
         return;
@@ -897,9 +903,9 @@ void send_quickslots(player *pl) {
             }
 
             packet_debug_data(packet, 0, "\nQuickslot ID");
-            packet_append_uint8(packet, tmp->quickslot - 1);
+            packet_writer_write_uint8(packet, tmp->quickslot - 1);
             packet_debug_data(packet, 0, "Object ID");
-            packet_append_uint32(packet, tmp->count);
+            packet_writer_write_uint32(packet, tmp->count);
         }
     }
 
@@ -913,7 +919,9 @@ void socket_command_quickslot(socket_struct *ns,
                               uint8_t *data,
                               size_t len,
                               size_t pos) {
-    uint8_t quickslot = packet_to_uint8(data, len, &pos);
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
+    uint8_t quickslot = packet_reader_read_uint8(&reader);
     if (quickslot < 1 || quickslot > MAX_QUICKSLOT) {
         return;
     }
@@ -921,9 +929,9 @@ void socket_command_quickslot(socket_struct *ns,
     // TODO: replace with tag_t once the compatibility code is removed.
     int64_t tag;
     if (ns->socket_version >= 1061) {
-        tag = packet_to_uint32(data, len, &pos);
+        tag = packet_reader_read_uint32(&reader);
     } else {
-        tag = packet_to_int32(data, len, &pos);
+        tag = packet_reader_read_int32(&reader);
     }
 
     bool removed_quickslot = false;
@@ -948,10 +956,12 @@ void socket_command_item_apply(socket_struct *ns,
                                uint8_t *data,
                                size_t len,
                                size_t pos) {
-    tag_t tag = packet_to_uint32(data, len, &pos);
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
+    tag_t tag = packet_reader_read_uint32(&reader);
 
     if (tag == 0) {
-        uint8_t apply_action = packet_to_uint8(data, len, &pos);
+        uint8_t apply_action = packet_reader_read_uint8(&reader);
 
         if (apply_action == CMD_APPLY_ACTION_BELOW_NEXT) {
             ns->look_position += MIN(UINT32_MAX - ns->look_position, NUM_LOOK_OBJECTS);
@@ -991,10 +1001,12 @@ void socket_command_item_lock(socket_struct *ns,
                               uint8_t *data,
                               size_t len,
                               size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     tag_t tag;
     object *op;
 
-    tag = packet_to_uint32(data, len, &pos);
+    tag = packet_reader_read_uint32(&reader);
 
     if (!tag) {
         return;
@@ -1021,10 +1033,12 @@ void socket_command_item_mark(socket_struct *ns,
                               uint8_t *data,
                               size_t len,
                               size_t pos) {
+    packet_reader_t reader;
+    packet_reader_init_cursor(&reader, data, len, &pos);
     tag_t tag;
     object *op;
 
-    tag = packet_to_uint32(data, len, &pos);
+    tag = packet_reader_read_uint32(&reader);
 
     if (!tag) {
         return;

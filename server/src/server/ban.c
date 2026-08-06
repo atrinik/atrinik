@@ -36,9 +36,10 @@
  * @author Zoey Rose
  */
 
-#ifndef __CPROTO__
-
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <initialization.h>
 #include <toolkit/string.h>
 #include <ban.h>
 
@@ -444,5 +445,3 @@ const char *ban_strerror(ban_error_t errnum) {
 
     return "<unreachable>";
 }
-
-#endif

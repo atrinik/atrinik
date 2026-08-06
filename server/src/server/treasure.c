@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <initialization.h>
 #include <loader.h>
 #include <arch.h>
 #include <artifact.h>

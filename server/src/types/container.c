@@ -30,6 +30,10 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <quest.h>
 #include <plugin.h>
 #include <arch.h>
 #include <player.h>

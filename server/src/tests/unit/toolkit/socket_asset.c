@@ -10,9 +10,12 @@
  ************************************************************************/
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <initialization.h>
 #include <check.h>
 #include <checkstd.h>
-#include <check_proto.h>
+#include <check_utils.h>
 #include <toolkit/packet.h>
 #include <toolkit/path.h>
 
@@ -195,8 +198,13 @@ START_TEST(test_socket_asset_request_rejects_malformed) {
     socket_asset_request_append(packet, "data/listing.txt", 0, 0, digest, 0);
 
     socket_asset_request_t request;
-    ck_assert(!socket_asset_request_parse(packet->data, packet->len - 1, 0, &request));
-    packet_append_uint8(packet, 0);
+    memset(&request, 0xa5, sizeof(request));
+    const socket_asset_request_t unchanged_request = request;
+    for (size_t truncated = 0; truncated < packet->len; truncated++) {
+        ck_assert(!socket_asset_request_parse(packet->data, truncated, 0, &request));
+        ck_assert_mem_eq(&request, &unchanged_request, sizeof(request));
+    }
+    packet_writer_write_uint8(packet, 0);
     ck_assert(!socket_asset_request_parse(packet->data, packet->len, 0, &request));
     packet_free(packet);
 
@@ -229,6 +237,13 @@ START_TEST(test_socket_asset_response_round_trip) {
                                     sizeof(chunk));
 
     socket_asset_response_t response;
+    memset(&response, 0xa5, sizeof(response));
+    const socket_asset_response_t unchanged_response = response;
+    size_t fixed_header_size = packet->len - sizeof(chunk);
+    for (size_t truncated = 0; truncated < fixed_header_size; truncated++) {
+        ck_assert(!socket_asset_response_parse(packet->data, truncated, 0, &response));
+        ck_assert_mem_eq(&response, &unchanged_response, sizeof(response));
+    }
     ck_assert(socket_asset_response_parse(packet->data, packet->len, 0, &response));
     ck_assert_uint_eq(response.status, ASSET_STATUS_OK);
     ck_assert_str_eq(response.path, "client-maps/test.def");
@@ -264,7 +279,7 @@ START_TEST(test_socket_asset_response_rejects_malformed) {
 
     packet_struct *packet = packet_new(0, 0, 0);
     socket_asset_response_append_status(packet, ASSET_STATUS_NOT_MODIFIED, "client-maps/test.png");
-    packet_append_uint8(packet, 0);
+    packet_writer_write_uint8(packet, 0);
     ck_assert(!socket_asset_response_parse(packet->data, packet->len, 0, &response));
     packet_free(packet);
 

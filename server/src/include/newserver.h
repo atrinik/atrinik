@@ -37,6 +37,9 @@
 /** Maximum time a connection may remain in the pre-login state. */
 #define SOCKET_PRELOGIN_TIMEOUT 30
 
+/** Maximum buffered player-command bytes retained by one connection. */
+#define SOCKET_COMMAND_QUEUE_MAX (1024U * 1024U)
+
 /** How many items to show in the below window. Used in esrv_draw_look(). */
 #define NUM_LOOK_OBJECTS 15
 

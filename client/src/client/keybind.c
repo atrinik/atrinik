@@ -45,6 +45,8 @@
  */
 
 #include <global.h>
+#include <client_socket.h>
+#include <notification.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <toolkit/path.h>
@@ -670,8 +672,8 @@ int keybind_process_command(const char *cmd) {
             WIDGET_REDRAW_ALL(TARGET_ID);
 
             packet_struct *packet = packet_new(SERVER_CMD_COMBAT, 8, 0);
-            packet_append_uint8(packet, combat);
-            packet_append_uint8(packet, combat_force);
+            packet_writer_write_uint8(packet, combat);
+            packet_writer_write_uint8(packet, combat_force);
             socket_send_packet(packet);
         }
 

@@ -28,6 +28,11 @@
  */
 
 #include <global.h>
+#include <shop.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <links.h>
 #include <toolkit/packet.h>
 #include <player.h>
 #include <object.h>
@@ -98,9 +103,9 @@ void add_party_member(party_struct *party, object *op) {
 
     packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
     packet_debug_data(packet, 0, "Party command type");
-    packet_append_uint8(packet, CMD_PARTY_JOIN);
+    packet_writer_write_uint8(packet, CMD_PARTY_JOIN);
     packet_debug_data(packet, 0, "Party name");
-    packet_append_string_terminated(packet, party->name);
+    packet_writer_write_cstring(packet, party->name);
     socket_send_packet(CONTR(op)->cs, packet);
 
     CONTR(op)->last_party_hp = 0;
@@ -133,9 +138,9 @@ void remove_party_member(party_struct *party, object *op) {
     if (party->members) {
         packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
         packet_debug_data(packet, 0, "Party command type");
-        packet_append_uint8(packet, CMD_PARTY_REMOVE_MEMBER);
+        packet_writer_write_uint8(packet, CMD_PARTY_REMOVE_MEMBER);
         packet_debug_data(packet, 0, "Member name");
-        packet_append_string_terminated(packet, op->name);
+        packet_writer_write_cstring(packet, op->name);
 
         for (ol = party->members; ol; ol = ol->next) {
             socket_send_packet(CONTR(ol->objlink.ob)->cs, packet_dup(packet));
@@ -158,7 +163,7 @@ void remove_party_member(party_struct *party, object *op) {
 
     packet = packet_new(CLIENT_CMD_PARTY, 4, 0);
     packet_debug_data(packet, 0, "Party command type");
-    packet_append_uint8(packet, CMD_PARTY_LEAVE);
+    packet_writer_write_uint8(packet, CMD_PARTY_LEAVE);
     socket_send_packet(CONTR(op)->cs, packet);
 
     CONTR(op)->party = NULL;
@@ -547,13 +552,13 @@ void party_update_who(player *pl) {
 
         packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
         packet_debug_data(packet, 0, "Party command type");
-        packet_append_uint8(packet, CMD_PARTY_UPDATE);
+        packet_writer_write_uint8(packet, CMD_PARTY_UPDATE);
         packet_debug_data(packet, 0, "Member name");
-        packet_append_string_terminated(packet, pl->ob->name);
+        packet_writer_write_cstring(packet, pl->ob->name);
         packet_debug_data(packet, 0, "Health");
-        packet_append_uint8(packet, hp);
+        packet_writer_write_uint8(packet, hp);
         packet_debug_data(packet, 0, "Mana");
-        packet_append_uint8(packet, sp);
+        packet_writer_write_uint8(packet, sp);
 
         for (ol = pl->party->members; ol; ol = ol->next) {
             socket_send_packet(CONTR(ol->objlink.ob)->cs, packet_dup(packet));

@@ -91,4 +91,40 @@ typedef struct _timeofday {
     int periodofday;
 } timeofday_t;
 
+/** Public API implemented in src/server/time.c. */
+
+extern long max_time;
+
+extern int max_time_multiplier;
+
+extern long pticks;
+
+extern struct timeval last_time;
+
+extern const char *season_name[4];
+
+extern const char *weekdays[7];
+
+extern const char *month_name[12];
+
+extern const char *periodsofday[10];
+
+extern const int periodsofday_hours[24];
+
+extern void reset_sleep(void);
+
+extern void sleep_delta(void);
+
+extern void set_max_time(long t);
+
+extern void set_max_time_multiplier(int t);
+
+extern void get_tod(timeofday_t *tod);
+
+extern void print_tod(object *op);
+
+extern void time_info(object *op);
+
+extern long seconds(void);
+
 #endif

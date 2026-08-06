@@ -30,6 +30,7 @@
  */
 
 #include <plugin_python.h>
+#include <server_main.h>
 #include <player.h>
 
 /**

@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <video.h>
+#include <client_socket.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <toolkit/path.h>
@@ -528,9 +530,9 @@ static void setting_apply_runtime(int cat, int setting) {
                         h = setting_get_int(cat, OPT_MAP_HEIGHT);
 
                         packet = packet_new(SERVER_CMD_SETUP, 32, 0);
-                        packet_append_uint8(packet, CMD_SETUP_MAPSIZE);
-                        packet_append_uint8(packet, MAP_LOOK_TO_WIRE_SIZE(w));
-                        packet_append_uint8(packet, MAP_LOOK_TO_WIRE_SIZE(h));
+                        packet_writer_write_uint8(packet, CMD_SETUP_MAPSIZE);
+                        packet_writer_write_uint8(packet, MAP_LOOK_TO_WIRE_SIZE(w));
+                        packet_writer_write_uint8(packet, MAP_LOOK_TO_WIRE_SIZE(h));
                         socket_send_packet(packet);
 
                         map_update_size(MAP_LOOK_TO_WIRE_SIZE(w), MAP_LOOK_TO_WIRE_SIZE(h));

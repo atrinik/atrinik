@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <server_main.h>
 
 /**
  * @defgroup SPIRAL_xxx Random spiral map options

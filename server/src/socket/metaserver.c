@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <initialization.h>
 #include <toolkit/string.h>
 #include <toolkit/curl.h>
 #include <toolkit/datetime.h>

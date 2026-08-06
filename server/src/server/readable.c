@@ -32,6 +32,10 @@
  */
 
 #include <global.h>
+#include <shop.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <initialization.h>
 #include <book.h>
 #include <toolkit/string.h>
 #include <arch.h>

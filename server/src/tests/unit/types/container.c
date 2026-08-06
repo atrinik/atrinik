@@ -3,9 +3,10 @@
  ************************************************************************/
 
 #include <global.h>
+#include <object_methods.h>
 #include <check.h>
 #include <checkstd.h>
-#include <check_proto.h>
+#include <check_utils.h>
 #include <arch.h>
 #include <container.h>
 #include <object.h>

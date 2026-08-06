@@ -29,6 +29,7 @@
  */
 
 #include <global.h>
+#include <video.h>
 
 /** @copydoc event_drag_cb_fnc */
 static event_drag_cb_fnc event_drag_cb = NULL;

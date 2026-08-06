@@ -94,4 +94,12 @@ typedef struct server_settings {
     char *spell_paths[SPELL_PATH_NUM];
 } server_settings;
 
+/** Public API implemented in src/client/server_settings.c. */
+
+extern server_settings *s_settings;
+
+extern void server_settings_init(void);
+
+extern void server_settings_deinit(void);
+
 #endif

@@ -38,4 +38,48 @@
 #define SPLIST_MODE_REMOVE 1
 /*@}*/
 
+/** Public API implemented in src/client/cmd_aliases.c. */
+
+extern void cmd_aliases_init(void);
+
+extern void cmd_aliases_deinit(void);
+
+extern int cmd_aliases_handle(const char *cmd);
+
+/** Public API implemented in src/client/commands.c. */
+
+extern void socket_command_book(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_setup(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_anim(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_image(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_drawinfo(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_target(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_stats(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_player(uint8_t *data, size_t len, size_t pos);
+
+extern void command_item_update(struct packet_reader *reader, uint32_t flags, object *tmp);
+
+extern void socket_command_item(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_item_update(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_item_delete(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_mapstats(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_map(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_version(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_compressed(uint8_t *data, size_t len, size_t pos);
+
+extern void socket_command_control(uint8_t *data, size_t len, size_t pos);
+
 #endif

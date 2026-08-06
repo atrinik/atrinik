@@ -51,4 +51,12 @@ typedef struct progress_dots {
 /** How often to advance the progress dots, in ticks. */
 #define PROGRESS_DOTS_TICKS (275)
 
+/** Public API implemented in src/gui/toolkit/progress.c. */
+
+extern void progress_dots_create(progress_dots *progress);
+
+extern void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y);
+
+extern int progress_dots_width(progress_dots *progress);
+
 #endif

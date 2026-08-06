@@ -12,6 +12,7 @@
 /** @file Per-server direct connection preference popup. */
 
 #include <global.h>
+#include <connection_preferences.h>
 #include <toolkit/string.h>
 
 static list_struct *preference_list;

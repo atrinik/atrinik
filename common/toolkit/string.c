@@ -37,8 +37,6 @@
 
 TOOLKIT_API(IMPORTS(math), IMPORTS(stringbuffer));
 
-#ifndef __CPROTO__
-
 TOOLKIT_INIT_FUNC(string) {}
 TOOLKIT_INIT_FUNC_FINISH
 
@@ -1091,5 +1089,3 @@ bool string_decode_hex_fixed(const char *str,
 
     return true;
 }
-
-#endif

@@ -35,6 +35,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
 #include <stdarg.h>
 #include <toolkit/packet.h>
 #include <player.h>
@@ -57,19 +59,19 @@ void draw_info_send(uint8_t type,
     packet = packet_new(CLIENT_CMD_DRAWINFO, 256, 512);
     packet_enable_ndelay(packet);
     packet_debug_data(packet, 0, "Type");
-    packet_append_uint8(packet, type);
+    packet_writer_write_uint8(packet, type);
     packet_debug_data(packet, 0, "Color");
-    packet_append_string_terminated(packet, color);
+    packet_writer_write_cstring(packet, color);
 
     packet_debug_data(packet, 0, "Message");
 
     if (name) {
-        packet_append_string(packet, "[a=#charname]");
-        packet_append_string(packet, name);
-        packet_append_string(packet, "[/a]: ");
+        packet_writer_write_string(packet, "[a=#charname]");
+        packet_writer_write_string(packet, name);
+        packet_writer_write_string(packet, "[/a]: ");
     }
 
-    packet_append_string_terminated(packet, buf);
+    packet_writer_write_cstring(packet, buf);
     socket_send_packet(ns, packet);
 }
 

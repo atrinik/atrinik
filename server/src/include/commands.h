@@ -123,4 +123,208 @@ typedef struct permission_group_struct {
 #define COMMAND_EXECUTE(__op, __command, __params) \
     command_##__command((__op), #__command, (__params))
 
+/** Public API implemented in src/commands/permission/arrest.c. */
+
+extern void command_arrest(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/ban.c. */
+
+extern void command_ban(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/config.c. */
+
+extern void command_config(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/follow.c. */
+
+extern void command_follow(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/freeze.c. */
+
+extern void command_freeze(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/kick.c. */
+
+extern void command_kick(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/memfree.c. */
+
+extern void command_memfree(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/memleak.c. */
+
+extern void command_memleak(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/mod_chat.c. */
+
+extern void command_mod_chat(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/no_chat.c. */
+
+extern void command_no_chat(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/opsay.c. */
+
+extern void command_opsay(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/password.c. */
+
+extern void command_password(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/resetmap.c. */
+
+extern void command_resetmap(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/resetmaps.c. */
+
+extern void command_resetmaps(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/server_chat.c. */
+
+extern void command_server_chat(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/settime.c. */
+
+extern void command_settime(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/shutdown.c. */
+
+extern void command_shutdown(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/stats.c. */
+
+extern void command_stats(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/tcl.c. */
+
+extern void command_tcl(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/tgm.c. */
+
+extern void command_tgm(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/tli.c. */
+
+extern void command_tli(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/tls.c. */
+
+extern void command_tls(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/tp.c. */
+
+extern void command_tp(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/tphere.c. */
+
+extern void command_tphere(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/permission/tsi.c. */
+
+extern void command_tsi(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/afk.c. */
+
+extern void command_afk(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/apply.c. */
+
+extern void command_apply(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/chat.c. */
+
+extern void command_chat(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/drop.c. */
+
+extern void command_drop(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/gsay.c. */
+
+extern void command_gsay(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/hiscore.c. */
+
+extern void command_hiscore(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/left.c. */
+
+extern void command_left(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/me.c. */
+
+extern void command_me(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/motd.c. */
+
+extern void command_motd(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/my.c. */
+
+extern void command_my(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/party.c. */
+
+extern void command_party(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/push.c. */
+
+extern void command_push(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/rename.c. */
+
+extern void command_rename(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/reply.c. */
+
+extern void command_reply(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/right.c. */
+
+extern void command_right(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/say.c. */
+
+extern void command_say(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/statistics.c. */
+
+extern void command_statistics(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/take.c. */
+
+extern void command_take(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/tell.c. */
+
+extern void command_tell(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/time.c. */
+
+extern void command_time(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/version.c. */
+
+extern void command_version(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/whereami.c. */
+
+extern void command_whereami(object *op, const char *command, char *params);
+
+/** Public API implemented in src/commands/player/who.c. */
+
+extern void command_who(object *op, const char *command, char *params);
+
+/** Public API implemented in src/server/commands.c. */
+
+extern void toolkit_commands_init(void);
+
+extern void toolkit_commands_deinit(void);
+
+extern void commands_add(const char *name, command_func handle_func, double delay, uint64_t flags);
+
+extern int commands_check_permission(player *pl, const char *command);
+
+extern void commands_handle(object *op, char *cmd);
+
 #endif

@@ -30,6 +30,10 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <light.h>
 #include <arch.h>
 #include <object_methods.h>
 

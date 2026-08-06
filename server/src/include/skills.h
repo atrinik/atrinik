@@ -124,4 +124,46 @@ typedef struct skill_struct {
     short time;
 } skill_struct;
 
+/** Public API implemented in src/server/skill_util.c. */
+
+extern float stat_exp_mult[30 + 1];
+
+extern int64_t do_skill(object *op, int dir, const char *params);
+
+extern int64_t calc_skill_exp(object *who, object *op, int level);
+
+extern void init_new_exp_system(void);
+
+extern int check_skill_to_fire(object *op, object *weapon);
+
+extern void link_player_skills(object *pl);
+
+extern int change_skill(object *who, int sk_index);
+
+extern int skill_attack(object *tmp, object *pl, int dir, char *string);
+
+extern int SK_level(object *op);
+
+extern object *SK_skill(object *op);
+
+/** Public API implemented in src/server/skills.c. */
+
+extern skill_struct skills[NROFSKILLS];
+
+extern void find_traps(object *pl);
+
+extern void remove_trap(object *op);
+
+extern bool traps_detect_in_container(object *pl, object *container);
+
+extern tag_t traps_auto_disarm(object *pl, object *container);
+
+/** Public API implemented in src/skills/construction.c. */
+
+extern void construction_do(object *op, int dir);
+
+/** Public API implemented in src/skills/inscription.c. */
+
+extern int skill_inscription(object *op, const char *params);
+
 #endif
