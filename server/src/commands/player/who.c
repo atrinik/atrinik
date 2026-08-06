@@ -58,10 +58,6 @@ void command_who(object *op, const char *command, char *params) {
             snprintfcat(buf, sizeof(buf), " [AFK]");
         }
 
-        if (pl->cs->is_bot) {
-            snprintfcat(buf, sizeof(buf), " &lsqb;BOT&rsqb;");
-        }
-
         if (show_connection) {
             snprintfcat(buf,
                         sizeof(buf),

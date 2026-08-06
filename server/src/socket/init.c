@@ -70,7 +70,6 @@ bool init_connection(socket_struct *ns) {
     ns->mapx_2 = MAP_CLIENT_X / 2;
     ns->mapy_2 = MAP_CLIENT_Y / 2;
     ns->password_fails = 0;
-    ns->is_bot = 0;
     ns->connection_mode = socket_connection_mode_get(ns->sc);
     ns->account = NULL;
     ns->socket_version = 0;

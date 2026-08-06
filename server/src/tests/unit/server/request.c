@@ -23,6 +23,23 @@ static size_t queued_command_count(socket_struct *cs, uint8_t type) {
     return count;
 }
 
+static packet_struct *queued_command_find(socket_struct *cs, uint8_t type) {
+    for (packet_struct *packet = cs->packets; packet != NULL; packet = packet->next) {
+        if (packet->type == type) {
+            return packet;
+        }
+    }
+
+    return NULL;
+}
+
+static void request_version(socket_struct *cs, player *pl, uint32_t version) {
+    packet_struct *request = packet_new(0, 4, 0);
+    packet_append_uint32(request, version);
+    socket_command_version(cs, pl, request->data, request->len, 0);
+    packet_free(request);
+}
+
 START_TEST(test_target_packet_includes_current_level_and_plain_name) {
     mapstruct *map;
     object *pl;
@@ -34,10 +51,7 @@ START_TEST(test_target_packet_includes_current_level_and_plain_name) {
 
     send_target_command(CONTR(pl));
 
-    packet_struct *packet = CONTR(pl)->cs->packets;
-    while (packet != NULL && packet->type != CLIENT_CMD_TARGET) {
-        packet = packet->next;
-    }
+    packet_struct *packet = queued_command_find(CONTR(pl)->cs, CLIENT_CMD_TARGET);
     ck_assert_ptr_nonnull(packet);
 
     size_t pos = 0;
@@ -76,33 +90,91 @@ START_TEST(test_wizardry_level_change_refreshes_spell_cost_once) {
 }
 END_TEST
 
-START_TEST(test_who_escapes_bot_marker_for_client_markup) {
+START_TEST(test_setup_round_trip_uses_current_option_ids) {
+    mapstruct *map;
+    object *pl;
+
+    ck_assert_uint_eq(CMD_SETUP_SOUND, 0);
+    ck_assert_uint_eq(CMD_SETUP_MAPSIZE, 1);
+    ck_assert_uint_eq(CMD_SETUP_DATA_URL, 2);
+    ck_assert_uint_eq(CMD_SETUP_JOIN_PASSWORD, 3);
+    ck_assert_uint_eq(CMD_SETUP_ASSET_TRANSPORT, 4);
+    ck_assert_uint_eq(CMD_SETUP_CONNECTION_MODE, 5);
+
+    check_setup_env_pl(&map, &pl);
+    socket_struct *cs = CONTR(pl)->cs;
+    uint8_t request[] = {CMD_SETUP_SOUND, 1, CMD_SETUP_MAPSIZE, 13, 15};
+    socket_buffer_clear(cs);
+
+    socket_command_setup(cs, CONTR(pl), request, sizeof(request), 0);
+
+    packet_struct *response = queued_command_find(cs, CLIENT_CMD_SETUP);
+    ck_assert_ptr_nonnull(response);
+
+    size_t pos = 0;
+    ck_assert_uint_eq(packet_to_uint8(response->data, response->len, &pos), CMD_SETUP_SOUND);
+    ck_assert_uint_eq(packet_to_uint8(response->data, response->len, &pos), 1);
+    ck_assert_uint_eq(packet_to_uint8(response->data, response->len, &pos), CMD_SETUP_MAPSIZE);
+    ck_assert_uint_eq(packet_to_uint8(response->data, response->len, &pos), 13);
+    ck_assert_uint_eq(packet_to_uint8(response->data, response->len, &pos), 15);
+    ck_assert_uint_eq(pos, response->len);
+    ck_assert_uint_eq(cs->sound, 1);
+    ck_assert_int_eq(cs->mapx, 13);
+    ck_assert_int_eq(cs->mapy, 15);
+}
+END_TEST
+
+START_TEST(test_setup_rejects_unknown_option) {
     mapstruct *map;
     object *pl;
 
     check_setup_env_pl(&map, &pl);
-    CONTR(pl)->cs->is_bot = 1;
-    socket_buffer_clear(CONTR(pl)->cs);
+    socket_struct *cs = CONTR(pl)->cs;
+    uint8_t request[] = {UINT8_MAX};
+    socket_buffer_clear(cs);
 
-    command_who(pl, "who", NULL);
+    socket_command_setup(cs, CONTR(pl), request, sizeof(request), 0);
 
-    bool found_marker = false;
-    for (packet_struct *packet = CONTR(pl)->cs->packets; packet != NULL; packet = packet->next) {
-        if (packet->type != CLIENT_CMD_DRAWINFO) {
-            continue;
-        }
+    ck_assert_int_eq(cs->state, ST_ZOMBIE);
+    ck_assert_ptr_null(queued_command_find(cs, CLIENT_CMD_SETUP));
+}
+END_TEST
 
-        size_t pos = 0;
-        char color[MAX_BUF];
-        char message[MAX_BUF];
-        packet_to_uint8(packet->data, packet->len, &pos);
-        packet_to_string(packet->data, packet->len, &pos, VS(color));
-        packet_to_string(packet->data, packet->len, &pos, VS(message));
-        ck_assert_ptr_null(strstr(message, " [BOT]"));
-        found_marker |= strstr(message, " &lsqb;BOT&rsqb;") != NULL;
-    }
+START_TEST(test_version_requires_exact_match) {
+    mapstruct *map;
+    object *pl;
 
-    ck_assert(found_marker);
+    check_setup_env_pl(&map, &pl);
+    socket_struct *cs = CONTR(pl)->cs;
+
+    socket_buffer_clear(cs);
+    cs->state = ST_LOGIN;
+    cs->socket_version = 0;
+    request_version(cs, CONTR(pl), SOCKET_VERSION - 1);
+    ck_assert_int_eq(cs->state, ST_ZOMBIE);
+    ck_assert_uint_eq(cs->socket_version, 0);
+    ck_assert_ptr_null(queued_command_find(cs, CLIENT_CMD_VERSION));
+
+    socket_buffer_clear(cs);
+    cs->state = ST_LOGIN;
+    cs->socket_version = 0;
+    request_version(cs, CONTR(pl), SOCKET_VERSION + 1);
+    ck_assert_int_eq(cs->state, ST_ZOMBIE);
+    ck_assert_uint_eq(cs->socket_version, 0);
+    ck_assert_ptr_null(queued_command_find(cs, CLIENT_CMD_VERSION));
+
+    socket_buffer_clear(cs);
+    cs->state = ST_LOGIN;
+    cs->socket_version = 0;
+    request_version(cs, CONTR(pl), SOCKET_VERSION);
+    ck_assert_int_eq(cs->state, ST_LOGIN);
+    ck_assert_uint_eq(cs->socket_version, SOCKET_VERSION);
+
+    packet_struct *response = queued_command_find(cs, CLIENT_CMD_VERSION);
+    ck_assert_ptr_nonnull(response);
+    size_t pos = 0;
+    ck_assert_uint_eq(packet_to_uint32(response->data, response->len, &pos), SOCKET_VERSION);
+    ck_assert_uint_eq(pos, response->len);
 }
 END_TEST
 
@@ -115,8 +187,9 @@ static Suite *suite(void) {
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_target_packet_includes_current_level_and_plain_name);
     tcase_add_test(tc_core, test_wizardry_level_change_refreshes_spell_cost_once);
-    tcase_add_test(tc_core, test_who_escapes_bot_marker_for_client_markup);
-
+    tcase_add_test(tc_core, test_setup_round_trip_uses_current_option_ids);
+    tcase_add_test(tc_core, test_setup_rejects_unknown_option);
+    tcase_add_test(tc_core, test_version_requires_exact_match);
     return s;
 }
 

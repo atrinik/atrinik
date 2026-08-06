@@ -1,5 +1,5 @@
 ===============================================================================
-= ADS-2, rev: 0.6: Atrinik Protocol Specification                             =
+= ADS-2, rev: 0.7: Atrinik Protocol Specification                             =
 ===============================================================================
  This document contains design specification for the Atrinik client<->server
  protocol. The following sections exist:
@@ -341,12 +341,6 @@
       Width of the map.
    - height (uint8):
       Height of the map.
- BOT:
-  Whether to enable/disable bot flag.
-
-  The packet is extended with the following data, in the listed order:
-   - value (uint8):
-      Zero to disable bot flag, non-zero to enable it.
  DATA_URL:
   Which URL to use for data files (such as server files). The client CAN
   suggest an URL to the server, and it is up to the server's implementation
