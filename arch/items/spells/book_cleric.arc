@@ -9,6 +9,6 @@ material 1
 item_condition 100
 item_quality 100
 value 150
-weight 950
+weight 500
 nrof 1
 end
