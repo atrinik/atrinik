@@ -765,8 +765,8 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *self, PyObject *args)
         } else if (format[i] == 'x') {
             if (PyBytes_Check(value)) {
                 hooks->packet_writer_write_bytes(packet,
-                                              (uint8_t *)PyBytes_AsString(value),
-                                              PyBytes_Size(value));
+                                                 (uint8_t *)PyBytes_AsString(value),
+                                                 PyBytes_Size(value));
                 continue;
             }
         } else {

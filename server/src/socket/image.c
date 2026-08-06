@@ -260,8 +260,8 @@ void socket_command_ask_face(socket_struct *ns, player *pl, uint8_t *data, size_
     packet_writer_write_uint32(packet, facesets[0].faces[facenum].datalen);
     packet_debug_data(packet, 0, "Face data");
     packet_writer_write_bytes(packet,
-                           facesets[0].faces[facenum].data,
-                           facesets[0].faces[facenum].datalen);
+                              facesets[0].faces[facenum].data,
+                              facesets[0].faces[facenum].datalen);
     socket_send_packet(ns, packet);
 }
 

@@ -200,9 +200,7 @@ void add_object_to_packet(struct packet_struct *packet,
             packet_writer_write_cstring(packet, op->custom_name);
         } else {
             StringBuffer *sb = object_get_base_name(op, pl, NULL);
-            packet_writer_write_cstring_n(packet,
-                                                stringbuffer_data(sb),
-                                                stringbuffer_length(sb));
+            packet_writer_write_cstring_n(packet, stringbuffer_data(sb), stringbuffer_length(sb));
             stringbuffer_free(sb);
         }
     }
@@ -296,8 +294,8 @@ void add_object_to_packet(struct packet_struct *packet,
                 strcmp(op->arch->name, "depletion") == 0) {
                 StringBuffer *sb = depletion_get_tooltip(op, NULL);
                 packet_writer_write_cstring_n(packet,
-                                                    stringbuffer_data(sb),
-                                                    stringbuffer_length(sb));
+                                              stringbuffer_data(sb),
+                                              stringbuffer_length(sb));
                 stringbuffer_free(sb);
             } else {
                 packet_writer_write_cstring(packet, op->msg != NULL ? op->msg : "");
@@ -444,7 +442,8 @@ void esrv_draw_look(object *pl) {
         } else {
             packet_debug_data(packet, 1, "\nTag");
             packet_writer_write_uint32(packet,
-                                 0x80000000 | (CONTR(pl)->cs->look_position - NUM_LOOK_OBJECTS));
+                                       0x80000000 |
+                                           (CONTR(pl)->cs->look_position - NUM_LOOK_OBJECTS));
             packet_debug_data(packet, 1, "Flags");
             packet_writer_write_uint32(packet, 0);
             packet_debug_data(packet, 1, "Weight");
@@ -496,8 +495,8 @@ void esrv_draw_look(object *pl) {
             } else {
                 packet_debug_data(packet, 1, "\nTag");
                 packet_writer_write_uint32(packet,
-                                     0x80000000 |
-                                         (CONTR(pl)->cs->look_position + NUM_LOOK_OBJECTS));
+                                           0x80000000 |
+                                               (CONTR(pl)->cs->look_position + NUM_LOOK_OBJECTS));
                 packet_debug_data(packet, 1, "Flags");
                 packet_writer_write_uint32(packet, 0);
                 packet_debug_data(packet, 1, "Weight");

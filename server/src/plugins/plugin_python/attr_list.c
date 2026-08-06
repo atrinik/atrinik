@@ -480,8 +480,8 @@ static bool attr_list_oper_packets(Atrinik_AttrList *al,
 
     packet_struct *packet = hooks->packet_new(0, PyBytes_Size(*value), 0);
     hooks->packet_writer_write_bytes(packet,
-                                  (uint8_t *)PyBytes_AsString(*value),
-                                  PyBytes_Size(*value));
+                                     (uint8_t *)PyBytes_AsString(*value),
+                                     PyBytes_Size(*value));
 
     if (oper == AL_OPER_SET) {
         DL_PREPEND_ELEM(*head, elem, packet);
