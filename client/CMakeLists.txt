@@ -79,6 +79,17 @@ if (MINGW)
         VERBATIM)
 endif ()
 
+if (BUILD_TESTING AND NOT MINGW)
+    add_executable(client-packet-payload-tests
+        src/tests/packet_payload.c
+        src/client/packet_payload.c)
+    atrinik_configure_target(client-packet-payload-tests)
+    target_include_directories(client-packet-payload-tests PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/include)
+    target_link_libraries(client-packet-payload-tests PRIVATE atrinik-toolkit)
+    add_test(NAME client-packet-payload COMMAND client-packet-payload-tests)
+endif ()
+
 # Installer.
 if (WIN32 AND NOT UNIX)
     set(INSTALL_SUBDIR_BIN ".")

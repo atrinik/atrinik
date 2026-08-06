@@ -15,6 +15,7 @@ set(SOURCES
 	src/client/metaserver.c
 	src/client/metaserver_direct.c
 	src/client/misc.c
+	src/client/packet_payload.c
 	src/client/player.c
 	src/client/region_map.c
 	src/client/resources.c

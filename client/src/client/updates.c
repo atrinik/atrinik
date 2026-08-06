@@ -31,8 +31,13 @@
 
 #include <global.h>
 #include <client_socket.h>
+#include <packet_payload.h>
 #include <toolkit/packet.h>
 #include <toolkit/path.h>
+#include <wrapper.h>
+
+/** Bound server-directed allocations and decompression work. */
+#define FILE_UPDATE_UNCOMPRESSED_MAX (64U * 1024U * 1024U)
 
 /**
  * How many file updates have been requested. This is used to block the
@@ -58,39 +63,63 @@ static void file_updates_request(char *filename) {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_file_update(uint8_t *data, size_t len, size_t pos) {
-    packet_reader_t reader;
-    packet_reader_init_cursor(&reader, data, len, &pos);
     char filename[MAX_BUF];
-    unsigned long ucomp_len;
-    unsigned char *dest;
-    FILE *fp;
+    uint32_t expected_size;
+    packet_view_t compressed;
 
-    if (file_updates_requested != 0) {
-        file_updates_requested--;
+    if (file_updates_requested == 0) {
+        LOG(ERROR, "Ignoring unsolicited file update.");
+        return;
     }
 
-    packet_reader_read_string(&reader, filename, sizeof(filename));
-    ucomp_len = packet_reader_read_uint32(&reader);
-    len -= pos;
+    if (!client_packet_parse_file_update(data,
+                                         len,
+                                         pos,
+                                         VS(filename),
+                                         &expected_size,
+                                         &compressed)) {
+        return;
+    }
+    if (!path_is_safe_relative(filename)) {
+        LOG(ERROR, "Refusing unsafe file update path '%s'.", filename);
+        return;
+    }
+    if (expected_size == 0 || expected_size > FILE_UPDATE_UNCOMPRESSED_MAX) {
+        LOG(ERROR,
+            "Refusing file update '%s' with invalid uncompressed size %" PRIu32 ".",
+            filename,
+            expected_size);
+        return;
+    }
 
     /* Uncompress it. */
-    dest = xmalloc(ucomp_len);
-    uncompress((Bytef *)dest, (uLongf *)&ucomp_len, (const Bytef *)data + pos, (uLong)len);
-    data = dest;
-    len = ucomp_len;
-
-    fp = path_fopen(filename, "wb");
-
-    if (!fp) {
-        LOG(BUG, "Could not open file '%s' for writing.", filename);
+    unsigned char *dest = xmalloc(expected_size);
+    uLongf actual_size = expected_size;
+    uLong consumed_size = compressed.len;
+    int status = uncompress2(dest, &actual_size, compressed.data, &consumed_size);
+    if (status != Z_OK || actual_size != expected_size || consumed_size != compressed.len) {
+        LOG(ERROR,
+            "Could not decompress file update '%s' (zlib status: %d, expected: %" PRIu32
+            ", actual: %lu, compressed: %" PRIu64 ", consumed: %lu).",
+            filename,
+            status,
+            expected_size,
+            (unsigned long)actual_size,
+            (uint64_t)compressed.len,
+            consumed_size);
         free(dest);
         return;
     }
 
-    /* Update the file. */
-    fwrite(data, 1, len, fp);
-    fclose(fp);
+    char *path = file_path(filename, "wb");
+    bool saved = path_write_atomic(path, dest, actual_size, 0600);
+    free(path);
     free(dest);
+    if (!saved) {
+        LOG(ERROR, "Could not atomically write file update '%s'.", filename);
+        return;
+    }
+    file_updates_requested--;
 }
 
 /**
