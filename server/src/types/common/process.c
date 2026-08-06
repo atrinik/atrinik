@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <arch.h>
+#include <container.h>
 
 /**
  * Process a changing object.
@@ -125,9 +126,13 @@ int common_object_process_pre(object *op) {
         return 1;
     }
 
+    if (QUERY_FLAG(op, FLAG_IS_USED_UP)) {
+        container_update_corpse_decay(op);
+    }
+
     if (QUERY_FLAG(op, FLAG_IS_USED_UP) && --op->stats.food <= 0) {
         /* Handle corpses specially. */
-        if (op->type == CONTAINER && op->sub_type == ST1_CONTAINER_CORPSE) {
+        if (container_is_corpse(op)) {
             /* If the corpse is currently open by someone, delay the
              * corpse removal for a bit longer. */
             if (op->attacked_by) {
@@ -136,16 +141,17 @@ int common_object_process_pre(object *op) {
                 return 1;
             }
 
-            /* If the corpse was locked, remove the lock, making it
-             * available available for all players, and reset the decay
-             * counter. */
-            if (op->slaying || op->stats.maxhp) {
+            /* If the corpse was locked, remove the lock, making it available
+             * for all players, and reset the decay counter. */
+            if (op->inv != NULL && (op->slaying || op->stats.maxhp)) {
                 if (op->slaying) {
                     FREE_AND_CLEAR_HASH2(op->slaying);
                 }
 
                 op->stats.maxhp = 0;
                 op->stats.food = op->arch->clone.stats.food;
+                op->last_eat = op->stats.food;
+                container_update_corpse_decay(op);
                 return 1;
             }
         }

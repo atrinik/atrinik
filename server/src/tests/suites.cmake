@@ -21,5 +21,6 @@ set(ATRINIK_SERVER_TEST_SUITES
     "toolkit.socket_asset|check_server_socket_asset|src/tests/unit/toolkit/socket_asset.c"
     "toolkit.string|check_server_string|src/tests/unit/toolkit/string.c"
     "toolkit.stringbuffer|check_server_stringbuffer|src/tests/unit/toolkit/stringbuffer.c"
+    "types.container|check_types_container|src/tests/unit/types/container.c"
     "types.light_apply|check_types_light_apply|src/tests/unit/types/light_apply.c"
     "types.sound_ambient|check_types_sound_ambient|src/tests/unit/types/sound_ambient.c")

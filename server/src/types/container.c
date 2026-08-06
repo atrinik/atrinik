@@ -59,6 +59,48 @@ bool container_check_magical(object *op, object *container) {
 }
 
 /**
+ * Check whether an object is any kind of monster corpse container.
+ *
+ * Corpse ownership is encoded in the high bits of the subtype, so all three
+ * current variants must participate in the same lifecycle handling.
+ *
+ * @param op
+ * Object to inspect.
+ * @return
+ * True if the object is a monster corpse container.
+ */
+bool container_is_corpse(const object *op) {
+    return op != NULL && op->type == CONTAINER &&
+           (op->sub_type == ST1_CONTAINER_CORPSE || op->sub_type == ST1_CONTAINER_CORPSE_player ||
+            op->sub_type == ST1_CONTAINER_CORPSE_party);
+}
+
+/**
+ * Shorten a corpse's remaining decay window according to its state.
+ *
+ * This function only caps an existing timer; it never extends a corpse's
+ * lifetime.
+ *
+ * @param op
+ * Object whose decay timer should be updated.
+ */
+void container_update_corpse_decay(object *op) {
+    if (!container_is_corpse(op) || !QUERY_FLAG(op, FLAG_IS_USED_UP)) {
+        return;
+    }
+
+    int16_t limit = CORPSE_DECAY_FRESH;
+    if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+        limit = op->inv != NULL ? CORPSE_DECAY_SEARCHED : CORPSE_DECAY_EMPTY;
+    }
+
+    op->stats.food = MIN(op->stats.food, limit);
+    if (op->last_eat <= 0 || op->last_eat > limit) {
+        op->last_eat = limit;
+    }
+}
+
+/**
  * Actually open a container, springing traps/monsters, and doing the
  * linked list linking.
  *
@@ -66,19 +108,32 @@ bool container_check_magical(object *op, object *container) {
  * Player that is opening the container.
  * @param op
  * The container.
+ * @return
+ * True if the container was opened, false if opening was canceled.
  */
-static void container_open(object *applier, object *op) {
+static bool container_open(object *applier, object *op) {
     HARD_ASSERT(applier != NULL);
     HARD_ASSERT(op != NULL);
 
     /* Safety. */
     if (applier->type != PLAYER) {
-        return;
+        return false;
     }
 
     /* Safety. */
     if (op->attacked_by && op->attacked_by->type != PLAYER) {
         op->attacked_by = NULL;
+    }
+
+    if (op->attacked_by == NULL && container_is_corpse(op) && !QUERY_FLAG(op, FLAG_IS_TRAPPED) &&
+        traps_detect_in_container(applier, op)) {
+        char *name = object_get_base_name_s(op, applier);
+        draw_info_format(COLOR_WHITE,
+                         applier,
+                         "You stop before opening %s. Apply it again to try to disarm the trap.",
+                         name);
+        free(name);
+        return false;
     }
 
     /* Check for quest containers. */
@@ -151,6 +206,7 @@ static void container_open(object *applier, object *op) {
     pl->container_below = NULL;
     op->attacked_by = applier;
     op->attacked_by_count = applier->count;
+    return true;
 }
 
 /**
@@ -357,8 +413,12 @@ static int apply_func(object *op, object *applier, int aflags) {
             return OBJECT_METHOD_OK;
         }
 
+        if (!container_open(applier, op)) {
+            free(name);
+            return OBJECT_METHOD_OK;
+        }
+
         draw_info_format(COLOR_WHITE, applier, "You open %s.", name);
-        container_open(applier, op);
 
         /* Handle party corpses. */
         if (op->slaying != NULL && op->sub_type == ST1_CONTAINER_CORPSE_party) {
@@ -367,8 +427,12 @@ static int apply_func(object *op, object *applier, int aflags) {
     } else {
         /* If it's readied, open it, otherwise ready it. */
         if (QUERY_FLAG(op, FLAG_APPLIED)) {
+            if (!container_open(applier, op)) {
+                free(name);
+                return OBJECT_METHOD_OK;
+            }
+
             draw_info_format(COLOR_WHITE, applier, "You open %s.", name);
-            container_open(applier, op);
         } else {
             if (OBJECT_IS_AMMO(op)) {
                 object_apply_item(op, applier, aflags);
@@ -395,6 +459,7 @@ static int apply_func(object *op, object *applier, int aflags) {
     /* Only after actually readying/opening the container we know more
      * about it. */
     SET_FLAG(op, FLAG_BEEN_APPLIED);
+    container_update_corpse_decay(op);
 
     return OBJECT_METHOD_OK;
 }

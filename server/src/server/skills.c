@@ -102,6 +102,28 @@ static tag_t remove_traps_from_object(object *pl, object *where) {
 }
 
 /**
+ * Search a container for a trap without disarming it.
+ *
+ * @param pl
+ * Player searching the container.
+ * @param container
+ * Container to search.
+ * @return
+ * True if at least one trap was discovered.
+ */
+bool traps_detect_in_container(object *pl, object *container) {
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(container != NULL);
+
+    if (pl->type != PLAYER || CONTR(pl)->skill_ptr[SK_FIND_TRAPS] == NULL) {
+        return false;
+    }
+
+    return find_traps_in_object(pl, container, trap_skill_rating(pl, SK_FIND_TRAPS)) ==
+           TRAP_SEARCH_FOUND;
+}
+
+/**
  * Automatically search for and disarm traps before a player opens a container.
  *
  * The attempt is made only when the player knows both required skills. Failed
@@ -122,8 +144,11 @@ tag_t traps_auto_disarm(object *pl, object *container) {
         return 0;
     }
 
-    int search_level = trap_skill_rating(pl, SK_FIND_TRAPS);
-    if (find_traps_in_object(pl, container, search_level) == TRAP_SEARCH_FOUND) {
+    if (QUERY_FLAG(container, FLAG_IS_TRAPPED)) {
+        return remove_traps_from_object(pl, container);
+    }
+
+    if (traps_detect_in_container(pl, container)) {
         return remove_traps_from_object(pl, container);
     }
 

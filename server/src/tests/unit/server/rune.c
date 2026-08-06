@@ -260,6 +260,40 @@ START_TEST(test_traps_auto_disarm_container) {
 }
 END_TEST
 
+START_TEST(test_corpse_trap_discovery_cancels_first_open) {
+    mapstruct *map;
+    object *pl, *corpse, *trap;
+
+    check_setup_env_pl(&map, &pl);
+    corpse = arch_get("corpse_default");
+    corpse->x = pl->x + 1;
+    corpse->y = pl->y;
+    corpse = object_insert_map(corpse, map, NULL, 0);
+
+    trap = arch_get("rune_fire");
+    trap->level = 1;
+    trap->stats.Int = 1;
+    trap->stats.dam = 0;
+    object_insert_into(trap, corpse, 0);
+
+    object_apply(corpse, pl, 0);
+
+    ck_assert_ptr_null(CONTR(pl)->container);
+    ck_assert(!QUERY_FLAG(corpse, FLAG_APPLIED));
+    ck_assert(!QUERY_FLAG(corpse, FLAG_BEEN_APPLIED));
+    ck_assert(QUERY_FLAG(corpse, FLAG_IS_TRAPPED));
+    char *name = object_get_base_name_s(corpse, pl);
+    ck_assert_ptr_nonnull(strstr(name, "(trapped)"));
+    free(name);
+
+    object_apply(corpse, pl, 0);
+
+    ck_assert_ptr_eq(CONTR(pl)->container, corpse);
+    ck_assert(QUERY_FLAG(corpse, FLAG_APPLIED));
+    ck_assert(QUERY_FLAG(corpse, FLAG_BEEN_APPLIED));
+}
+END_TEST
+
 START_TEST(test_auto_disarm_trip_does_not_spring_reusable_trap_twice) {
     mapstruct *map;
     object *pl;
@@ -313,6 +347,7 @@ static Suite *suite(void) {
     tcase_add_test(tc_core, test_trap_disarm_always_retains_failure_and_trip_risk);
     tcase_add_test(tc_core, test_trap_successes_award_skill_and_character_experience_once);
     tcase_add_test(tc_core, test_traps_auto_disarm_container);
+    tcase_add_test(tc_core, test_corpse_trap_discovery_cancels_first_open);
     tcase_add_test(tc_core, test_auto_disarm_trip_does_not_spring_reusable_trap_twice);
 
     return s;

@@ -506,6 +506,7 @@ extern object *SK_skill(object *op);
 extern skill_struct skills[NROFSKILLS];
 extern void find_traps(object *pl);
 extern void remove_trap(object *op);
+extern bool traps_detect_in_container(object *pl, object *container);
 extern tag_t traps_auto_disarm(object *pl, object *container);
 /* src/server/spell_effect.c */
 extern void cast_magic_storm(object *op, object *tmp, int lvl);
