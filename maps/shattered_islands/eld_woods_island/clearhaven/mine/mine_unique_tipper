@@ -159,6 +159,11 @@ no_pass 1
 x 3
 y 1
 end
+arch minecart_track
+direction 7
+x 3
+y 1
+end
 arch floor_grit3b
 x 3
 y 2
@@ -210,6 +215,11 @@ no_pass 1
 x 4
 y 1
 end
+arch minecart_track
+direction 7
+x 4
+y 1
+end
 arch floor_grit3c
 x 4
 y 2
@@ -229,6 +239,11 @@ no_pass 1
 x 5
 y 1
 end
+arch minecart_track
+direction 7
+x 5
+y 1
+end
 arch floor_grit3a
 x 5
 y 2
@@ -248,6 +263,11 @@ no_pass 1
 x 6
 y 1
 end
+arch minecart_track
+direction 7
+x 6
+y 1
+end
 arch floor_grit3b
 x 6
 y 2
@@ -267,6 +287,11 @@ no_pass 1
 x 7
 y 1
 end
+arch minecart_track
+direction 7
+x 7
+y 1
+end
 arch floor_grit3c
 x 7
 y 2
@@ -286,6 +311,11 @@ no_pass 1
 x 8
 y 1
 end
+arch minecart_track
+direction 7
+x 8
+y 1
+end
 arch floor_grit3c
 x 8
 y 2
@@ -305,6 +335,11 @@ no_pass 1
 x 9
 y 1
 end
+arch minecart_track
+direction 7
+x 9
+y 1
+end
 arch floor_grit3a
 x 9
 y 2
@@ -324,6 +359,11 @@ no_pass 1
 x 10
 y 1
 end
+arch minecart_track
+direction 7
+x 10
+y 1
+end
 arch floor_grit3b
 x 10
 y 2
@@ -340,6 +380,11 @@ x 11
 end
 arch floor_grit4a
 no_pass 1
+x 11
+y 1
+end
+arch minecart_track
+direction 7
 x 11
 y 1
 end
@@ -362,6 +407,11 @@ no_pass 1
 x 12
 y 1
 end
+arch minecart_track
+direction 7
+x 12
+y 1
+end
 arch floor_grit3b
 x 12
 y 2
@@ -381,6 +431,11 @@ no_pass 1
 x 13
 y 1
 end
+arch minecart_track
+direction 7
+x 13
+y 1
+end
 arch floor_grit3b
 x 13
 y 2
@@ -397,6 +452,11 @@ x 14
 end
 arch floor_grit4a
 no_pass 1
+x 14
+y 1
+end
+arch minecart_track
+direction 7
 x 14
 y 1
 end
@@ -419,6 +479,11 @@ no_pass 1
 x 15
 y 1
 end
+arch minecart_track
+direction 7
+x 15
+y 1
+end
 arch floor_grit3a
 x 15
 y 2
@@ -435,6 +500,11 @@ x 16
 end
 arch floor_grit4a
 no_pass 1
+x 16
+y 1
+end
+arch minecart_track
+direction 7
 x 16
 y 1
 end
@@ -480,11 +550,35 @@ arch floor_grit3a
 x 17
 y 1
 end
+arch tipper
+glow_radius 4
+direction 3
+x 17
+y 1
+end
+arch invis_exit
+msg
+The old mine cart rattles up the rail and deposits you beside the Clearhaven well.
+endmsg
+slaying ../../../world_8_78
+hp 6
+sp 23
+x 17
+y 1
+end
 arch floor_grit3a
 x 17
 y 2
 end
+arch minecart_track
+x 17
+y 2
+end
 arch floor_grit3c
+x 17
+y 3
+end
+arch minecart_track
 x 17
 y 3
 end
