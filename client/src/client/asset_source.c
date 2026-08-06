@@ -160,11 +160,19 @@ asset_source_state_t asset_source_get_state(asset_source_t *source) {
         bool verified = false;
         if (curl_request_get_http_code(source->http) == 200 && body != NULL &&
             size == source->expected_size) {
+            uint64_t verify_started = SDL_GetTicksNS();
             uint8_t digest[ASSET_DIGEST_SIZE];
             unsigned int digest_size = 0;
             verified = EVP_Digest(body, size, digest, &digest_size, EVP_sha256(), NULL) == 1 &&
                        digest_size == ASSET_DIGEST_SIZE &&
                        memcmp(digest, source->expected_digest, ASSET_DIGEST_SIZE) == 0;
+            LOG(DEBUG,
+                "HTTP asset verification for %s (%" PRIu64
+                " bytes) completed in %.3f ms (valid=%s)",
+                source->asset_path,
+                (uint64_t)size,
+                (double)(SDL_GetTicksNS() - verify_started) / 1000000.0,
+                verified ? "yes" : "no");
         }
         if (verified) {
             if (source->cache_path != NULL) {

@@ -317,13 +317,23 @@ static int server_file_process(server_files_struct *tmp) {
     } else {
         unsigned long len_ucomp = tmp->size;
         unsigned char *dest = xmalloc(len_ucomp);
+        uint64_t started = SDL_GetTicksNS();
         int result =
             uncompress((Bytef *)dest, (uLongf *)&len_ucomp, (const Bytef *)body, (uLong)body_size);
+        double elapsed_ms = (double)(SDL_GetTicksNS() - started) / 1000000.0;
         if (result != Z_OK || len_ucomp != tmp->size) {
-            LOG(ERROR, "Invalid compressed server file %s", tmp->name);
+            LOG(ERROR, "Invalid compressed server file %s after %.3f ms", tmp->name, elapsed_ms);
             cpl.state = ST_INIT;
-        } else if (server_file_save(tmp, dest, len_ucomp)) {
-            tmp->loaded = 0;
+        } else {
+            LOG(DEBUG,
+                "Decompressed required server file %s (%" PRIu64 " -> %lu bytes) in %.3f ms",
+                tmp->name,
+                (uint64_t)body_size,
+                len_ucomp,
+                elapsed_ms);
+            if (server_file_save(tmp, dest, len_ucomp)) {
+                tmp->loaded = 0;
+            }
         }
         free(dest);
     }
