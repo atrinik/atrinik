@@ -46,7 +46,8 @@ typedef struct server_wall_utc {
 } server_wall_utc_t;
 
 /**
- * Initialize the production clock.
+ * Initialize the production clock. Startup owns this operation; it must run
+ * before worker threads or clock consumers start.
  *
  * @param tick_period_us
  * Duration of one authoritative simulation tick. Must be non-zero.
@@ -55,7 +56,7 @@ typedef struct server_wall_utc {
  */
 void server_clock_init(uint64_t tick_period_us, server_tick_t initial_tick);
 
-/** Update the configured simulation tick period after an intentional speed change. */
+/** Main-thread-only update after an intentional simulation speed change. */
 void server_clock_set_tick_period(uint64_t tick_period_us);
 
 /** Advance simulation time by one tick. This is owned by the authoritative main loop. */
@@ -75,6 +76,9 @@ bool server_monotonic_before(server_monotonic_t lhs, server_monotonic_t rhs);
 bool server_monotonic_is_set(server_monotonic_t timestamp);
 server_duration_t server_monotonic_elapsed(server_monotonic_t since);
 server_duration_t server_monotonic_difference(server_monotonic_t later, server_monotonic_t earlier);
+bool server_monotonic_elapsed_at_least(server_monotonic_t now,
+                                       server_monotonic_t since,
+                                       server_duration_t duration);
 
 server_wall_utc_t server_wall_utc_now(void);
 

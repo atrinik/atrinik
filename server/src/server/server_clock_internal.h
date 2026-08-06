@@ -9,25 +9,23 @@
  * (at your option) any later version.                                   *
  ************************************************************************/
 
-/**
- * @file
- * Test-only control surface for the server clock.
- *
- * Install and uninstall fakes only while no server worker thread is running.
- */
+/** @file Private clock controls used only by the fake-clock test adapter. */
 
-#ifndef SERVER_CLOCK_FAKE_H
-#define SERVER_CLOCK_FAKE_H
+#ifndef SERVER_CLOCK_INTERNAL_H
+#define SERVER_CLOCK_INTERNAL_H
 
 #include <server_clock.h>
 
-void server_clock_fake_install(uint64_t tick_period_us,
+/* These hooks are deliberately absent from the public include directory.
+ * Tests call them before worker threads exist and restore production mode
+ * during teardown. */
+void server_clock_test_install(uint64_t tick_period_us,
                                server_tick_t tick,
                                server_monotonic_t monotonic,
                                server_wall_utc_t wall);
-void server_clock_fake_advance_ticks(server_tick_duration_t duration);
-void server_clock_fake_advance_monotonic(server_duration_t duration);
-void server_clock_fake_set_wall(server_wall_utc_t wall);
-void server_clock_fake_uninstall(void);
+void server_clock_test_advance_ticks(server_tick_duration_t duration);
+void server_clock_test_advance_monotonic(server_duration_t duration);
+void server_clock_test_set_wall(server_wall_utc_t wall);
+void server_clock_test_uninstall(void);
 
 #endif

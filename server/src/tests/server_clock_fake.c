@@ -9,25 +9,30 @@
  * (at your option) any later version.                                   *
  ************************************************************************/
 
-/**
- * @file
- * Test-only control surface for the server clock.
- *
- * Install and uninstall fakes only while no server worker thread is running.
- */
+/** @file Test-only fake-clock adapter. */
 
-#ifndef SERVER_CLOCK_FAKE_H
-#define SERVER_CLOCK_FAKE_H
-
-#include <server_clock.h>
+#include <server_clock_fake.h>
+#include "server/server_clock_internal.h"
 
 void server_clock_fake_install(uint64_t tick_period_us,
                                server_tick_t tick,
                                server_monotonic_t monotonic,
-                               server_wall_utc_t wall);
-void server_clock_fake_advance_ticks(server_tick_duration_t duration);
-void server_clock_fake_advance_monotonic(server_duration_t duration);
-void server_clock_fake_set_wall(server_wall_utc_t wall);
-void server_clock_fake_uninstall(void);
+                               server_wall_utc_t wall) {
+    server_clock_test_install(tick_period_us, tick, monotonic, wall);
+}
 
-#endif
+void server_clock_fake_advance_ticks(server_tick_duration_t duration) {
+    server_clock_test_advance_ticks(duration);
+}
+
+void server_clock_fake_advance_monotonic(server_duration_t duration) {
+    server_clock_test_advance_monotonic(duration);
+}
+
+void server_clock_fake_set_wall(server_wall_utc_t wall) {
+    server_clock_test_set_wall(wall);
+}
+
+void server_clock_fake_uninstall(void) {
+    server_clock_test_uninstall();
+}

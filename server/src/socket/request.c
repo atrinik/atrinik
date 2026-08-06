@@ -70,8 +70,8 @@ static unsigned int join_failure_global_count;
 static bool join_password_allowed(socket_struct *ns) {
     server_monotonic_t now = server_monotonic_now();
     server_duration_t minute = server_duration_from_seconds(60);
-    if (server_monotonic_difference(now, join_failure_global_window).microseconds >=
-        minute.microseconds) {
+    server_duration_t stale = server_duration_from_seconds(120);
+    if (server_monotonic_elapsed_at_least(now, join_failure_global_window, minute)) {
         join_failure_global_window = now;
         join_failure_global_count = 0;
     }
@@ -85,8 +85,7 @@ static bool join_password_allowed(socket_struct *ns) {
     if (entry == NULL) {
         join_failure_entry_t *old, *next;
         HASH_ITER(hh, join_failures, old, next) {
-            if (server_monotonic_difference(now, old->window_started).microseconds >=
-                server_duration_from_seconds(120).microseconds) {
+            if (server_monotonic_elapsed_at_least(now, old->window_started, stale)) {
                 HASH_DEL(join_failures, old);
                 free(old);
             }
@@ -110,8 +109,7 @@ static bool join_password_allowed(socket_struct *ns) {
         HASH_ADD_STR(join_failures, address, entry);
     }
 
-    if (server_monotonic_difference(now, entry->window_started).microseconds >=
-        minute.microseconds) {
+    if (server_monotonic_elapsed_at_least(now, entry->window_started, minute)) {
         entry->window_started = now;
         entry->failures = 0;
     }

@@ -14,6 +14,7 @@
 #include <global.h>
 #include <server_clock.h>
 #include <toolkit/datetime.h>
+#include "server_clock_internal.h"
 
 typedef struct server_clock_state {
     uint64_t production_tick_period_us;
@@ -118,6 +119,12 @@ server_duration_t server_monotonic_elapsed(server_monotonic_t since) {
     return server_monotonic_difference(server_monotonic_now(), since);
 }
 
+bool server_monotonic_elapsed_at_least(server_monotonic_t now,
+                                       server_monotonic_t since,
+                                       server_duration_t duration) {
+    return server_monotonic_difference(now, since).microseconds >= duration.microseconds;
+}
+
 server_wall_utc_t server_wall_utc_now(void) {
     if (clock_state.fake) {
         return clock_state.fake_wall;
@@ -138,6 +145,8 @@ bool server_wall_utc_remaining(server_wall_utc_t deadline,
         return false;
     }
 
+    /* Unsigned subtraction represents the complete ordered int64_t distance,
+     * including INT64_MIN to INT64_MAX, without signed overflow. */
     uint64_t seconds = (uint64_t)deadline.seconds - (uint64_t)now.seconds;
     *remaining = server_duration_from_seconds(seconds);
     if (remaining->microseconds > maximum.microseconds) {
@@ -185,7 +194,7 @@ bool server_ticks_to_duration(server_tick_duration_t ticks, server_duration_t *d
     return true;
 }
 
-void server_clock_fake_install(uint64_t tick_period_us,
+void server_clock_test_install(uint64_t tick_period_us,
                                server_tick_t tick,
                                server_monotonic_t monotonic,
                                server_wall_utc_t wall) {
@@ -198,22 +207,22 @@ void server_clock_fake_install(uint64_t tick_period_us,
     clock_state.fake = true;
 }
 
-void server_clock_fake_advance_ticks(server_tick_duration_t duration) {
+void server_clock_test_advance_ticks(server_tick_duration_t duration) {
     HARD_ASSERT(clock_state.fake);
     clock_state.fake_tick.value = saturating_add(clock_state.fake_tick.value, duration.value);
 }
 
-void server_clock_fake_advance_monotonic(server_duration_t duration) {
+void server_clock_test_advance_monotonic(server_duration_t duration) {
     HARD_ASSERT(clock_state.fake);
     clock_state.fake_monotonic.microseconds =
         saturating_add(clock_state.fake_monotonic.microseconds, duration.microseconds);
 }
 
-void server_clock_fake_set_wall(server_wall_utc_t wall) {
+void server_clock_test_set_wall(server_wall_utc_t wall) {
     HARD_ASSERT(clock_state.fake);
     clock_state.fake_wall = wall;
 }
 
-void server_clock_fake_uninstall(void) {
+void server_clock_test_uninstall(void) {
     clock_state.fake = false;
 }

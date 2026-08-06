@@ -133,6 +133,11 @@ START_TEST(test_tick_duration_conversions_are_checked) {
     server_tick_duration_t ticks;
     server_duration_t duration;
 
+    ck_assert_uint_eq(server_duration_from_seconds(0).microseconds, 0);
+    ck_assert_uint_eq(server_duration_from_milliseconds(UINT64_MAX).microseconds, UINT64_MAX);
+    ck_assert_uint_eq(server_duration_from_seconds(UINT64_MAX).microseconds, UINT64_MAX);
+    ck_assert(server_duration_to_ticks((server_duration_t){0}, &ticks));
+    ck_assert_uint_eq(ticks.value, 0);
     ck_assert(server_duration_to_ticks(server_duration_from_seconds(1), &ticks));
     ck_assert_uint_eq(ticks.value, 8);
     ck_assert(server_duration_to_ticks((server_duration_t){UINT64_C(125001)}, &ticks));
