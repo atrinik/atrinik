@@ -36,6 +36,7 @@
 
 #ifndef WIN32
 #include <execinfo.h>
+#endif
 
 /**
  * Pointer to open log file, if any.
@@ -427,5 +428,3 @@ static bool logger_term_has_ansi_colors(void) {
 
     return true;
 }
-
-#endif

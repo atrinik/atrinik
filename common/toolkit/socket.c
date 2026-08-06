@@ -46,6 +46,7 @@ union sockaddr_union {
 #ifdef HAVE_IPV6
     struct sockaddr_in6 in6; ///< IPv6.
     struct sockaddr_storage storage; ///< Storage.
+#endif
 };
 
 #ifdef HAVE_IPV6
@@ -1335,5 +1336,3 @@ socket_role_t socket_get_role(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
     return sc->role;
 }
-
-#endif

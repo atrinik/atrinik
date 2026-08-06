@@ -65,6 +65,7 @@ char *_strtok_r(char *s, const char *delim, char **save_ptr) {
 
     return token;
 }
+#endif
 
 #ifndef HAVE_TEMPNAM
 static uint32_t curtmp = 0;
@@ -406,6 +407,4 @@ void _sincos(double x, double *s, double *c) {
         *c = cos(x);
     }
 }
-#endif
-
 #endif
