@@ -34,6 +34,8 @@ Rerunning it is safe and validates existing checkouts without changing them.
 `build all` builds the protocol, shared library, client, server, collected
 content, and metaserver Worker. Repositories without a deterministic local
 build contract remain available for direct development in `workspace/repos/`.
+Partial initialization is supported: for example, `./atrinik init content`
+followed by `./atrinik build content` needs no unrelated checkout.
 
 The client command opens a graphical application. Verify that the devcontainer
 display forwarding socket is live before launching it. Use `--dry-run` to

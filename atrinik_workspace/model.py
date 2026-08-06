@@ -61,7 +61,7 @@ def atomic_json(path: Path, value: Any) -> None:
             stream.flush()
             os.fsync(stream.fileno())
         temporary.replace(path)
-    except Exception:
+    except BaseException:
         temporary.unlink(missing_ok=True)
         raise
 
@@ -122,7 +122,9 @@ class Manifest:
             branch = raw["branch"]
             build = raw["build"]
             if not isinstance(repository, str) or not REPOSITORY_PATTERN.fullmatch(repository):
-                raise WorkspaceError(f"{context}.repository must name an atrinik GitHub repository")
+                raise WorkspaceError(
+                    f"{context}.repository must name an atrinik GitHub repository"
+                )
             if not isinstance(branch, str) or not branch or branch.startswith("-"):
                 raise WorkspaceError(f"{context}.branch is invalid")
             if not isinstance(build, str) or build not in BUILD_KINDS:
@@ -135,7 +137,9 @@ class Manifest:
         required = {"client", "server", "protocol", "libatrinik", "content", "sound", "resources"}
         missing = sorted(required - names)
         if missing:
-            raise WorkspaceError(f"component manifest lacks required components: {', '.join(missing)}")
+            raise WorkspaceError(
+                f"component manifest lacks required components: {', '.join(missing)}"
+            )
         return cls(components)
 
     def select(self, names: list[str] | None) -> list[Component]:
@@ -169,7 +173,9 @@ class Paths:
             raise WorkspaceError("ATRINIK_WORKSPACE_DIR must be an absolute path")
         workspace = workspace.resolve(strict=False)
         if workspace == repository:
-            raise WorkspaceError("workspace data directory must not replace the wrapper repository")
+            raise WorkspaceError(
+                "workspace data directory must not replace the wrapper repository"
+            )
         return cls(
             repository=repository,
             workspace=workspace,
@@ -183,11 +189,17 @@ class Paths:
         )
 
     def ensure(self) -> None:
+        if self.workspace == Path("/") or self.workspace in self.repository.parents:
+            raise WorkspaceError(f"refusing unsafe workspace path: {self.workspace}")
         if self.workspace.exists() and not self.workspace.is_dir():
             raise WorkspaceError(f"workspace path is not a directory: {self.workspace}")
-        if self.workspace.exists() and not self.marker.is_file():
-            entries = list(self.workspace.iterdir())
-            if entries:
+        if self.workspace.exists():
+            if self.marker.is_file() and not self.marker.is_symlink():
+                if load_json(self.marker) != {"schema_version": SCHEMA_VERSION}:
+                    raise WorkspaceError(
+                        f"workspace ownership marker is invalid: {self.marker}"
+                    )
+            elif any(self.workspace.iterdir()):
                 raise WorkspaceError(
                     f"refusing unmanaged non-empty workspace directory: {self.workspace}"
                 )
@@ -211,7 +223,7 @@ def managed_reset(path: Path, workspace_builds: Path, purpose: str) -> None:
         raise WorkspaceError(f"refusing to replace path outside workspace builds: {path}")
     marker = path / MANAGED_MARKER
     if path.exists():
-        if not path.is_dir() or not marker.is_file():
+        if not path.is_dir() or not marker.is_file() or marker.is_symlink():
             raise WorkspaceError(f"refusing to replace unmanaged build path: {path}")
         metadata = load_json(marker)
         if metadata != {"schema_version": SCHEMA_VERSION, "purpose": purpose}:
@@ -228,7 +240,7 @@ def managed_directory(path: Path, workspace_builds: Path, purpose: str) -> None:
         raise WorkspaceError(f"refusing build path outside workspace builds: {path}")
     marker = path / MANAGED_MARKER
     if path.exists():
-        if not path.is_dir() or not marker.is_file():
+        if not path.is_dir() or not marker.is_file() or marker.is_symlink():
             raise WorkspaceError(f"refusing unmanaged build path: {path}")
         metadata = load_json(marker)
         if metadata != {"schema_version": SCHEMA_VERSION, "purpose": purpose}:
@@ -239,5 +251,9 @@ def managed_directory(path: Path, workspace_builds: Path, purpose: str) -> None:
 
 
 def profile_key(paths: dict[str, Path]) -> str:
-    payload = "\n".join(f"{name}={paths[name]}" for name in sorted(paths))
+    payload = json.dumps(
+        {name: str(path) for name, path in paths.items()},
+        sort_keys=True,
+        separators=(",", ":"),
+    )
     return hashlib.sha256(payload.encode()).hexdigest()[:12]

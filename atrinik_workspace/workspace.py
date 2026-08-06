@@ -1,17 +1,16 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
 import fcntl
-import json
 import os
 from pathlib import Path
-import re
 import shlex
 import shutil
 import subprocess
 import sys
 import tempfile
-from typing import Any, Iterable
+from typing import Any, Iterator
 
 from .model import (
     MANAGED_MARKER,
@@ -38,6 +37,27 @@ EXPECTED_SERVER_DATA = {
 }
 SENSITIVE_ARGUMENTS = {"--join_password", "--join-password"}
 SENSITIVE_PREFIXES = ("--join_password=", "--join-password=")
+ALL_BUILD_TARGETS = (
+    "content",
+    "protocol",
+    "libatrinik",
+    "client",
+    "server",
+    "metaserver-worker",
+)
+TARGET_DEPENDENCIES = {
+    "content": {"content"},
+    "protocol": {"protocol"},
+    "libatrinik": {"libatrinik", "protocol"},
+    "client": {"client", "sound", "libatrinik", "protocol"},
+    "server": {"server", "content", "resources", "libatrinik", "protocol"},
+    "metaserver-worker": {"metaserver-worker"},
+    "sound": {"sound"},
+    "resources": {"resources"},
+}
+PREFERRED_BUILD_COMPONENTS = set().union(
+    *(TARGET_DEPENDENCIES[target] for target in ALL_BUILD_TARGETS)
+)
 
 
 def display_arguments(arguments: list[str]) -> str:
@@ -120,6 +140,18 @@ def _worktree_records(repository: Path) -> list[dict[str, str]]:
     return records
 
 
+@contextmanager
+def exclusive_lock(path: Path, description: str, nonblocking: bool = False) -> Iterator[None]:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a+") as lock:
+        operation = fcntl.LOCK_EX | (fcntl.LOCK_NB if nonblocking else 0)
+        try:
+            fcntl.flock(lock, operation)
+        except BlockingIOError as error:
+            raise WorkspaceError(f"{description} is already in use") from error
+        yield
+
+
 class Workspace:
     def __init__(self, repository: Path):
         self.paths = Paths.discover(repository)
@@ -130,7 +162,10 @@ class Workspace:
         components = self.manifest.select(names)
         failures: list[str] = []
         with ThreadPoolExecutor(max_workers=max(1, min(jobs, len(components)))) as executor:
-            futures = {executor.submit(self._ensure_repository, component): component for component in components}
+            futures = {
+                executor.submit(self._ensure_repository, component): component
+                for component in components
+            }
             for future in as_completed(futures):
                 component = futures[future]
                 try:
@@ -139,16 +174,50 @@ class Workspace:
                 except Exception as error:
                     failures.append(f"{component.name}: {error}")
         if failures:
-            raise WorkspaceError("repository initialization failed:\n" + "\n".join(sorted(failures)))
+            raise WorkspaceError(
+                "repository initialization failed:\n" + "\n".join(sorted(failures))
+            )
 
     def _ensure_repository(self, component: Component) -> Path:
         destination = self.paths.repositories / component.name
         if not destination.exists():
-            run(["gh", "repo", "clone", component.repository, str(destination)])
+            temporary = Path(
+                tempfile.mkdtemp(
+                    prefix=f".{component.name}.clone-", dir=self.paths.repositories
+                )
+            )
+            try:
+                run(["gh", "repo", "clone", component.repository, str(temporary)])
+                self._validate_checkout(component, temporary)
+                if destination.exists():
+                    raise WorkspaceError(
+                        f"component destination appeared during clone: {destination}"
+                    )
+                temporary.replace(destination)
+            except BaseException:
+                shutil.rmtree(temporary, ignore_errors=True)
+                raise
         self._validate_checkout(component, destination)
         return destination
 
-    def _validate_checkout(self, component: Component, path: Path) -> None:
+    def _canonical_remote(self, component: Component, path: Path) -> str:
+        for remote in ("origin", "upstream"):
+            try:
+                urls = git(
+                    path, "remote", "get-url", "--all", remote, capture=True
+                ).splitlines()
+            except WorkspaceError:
+                continue
+            # Git fetches the first URL when a remote has multiple fetch URLs.
+            # Do not accept a later canonical-looking URL while fetching a fork
+            # or unrelated repository from the effective first URL.
+            if urls and _remote_matches(urls[0], component.repository):
+                return remote
+        raise WorkspaceError(
+            f"checkout has no origin/upstream for {component.repository}: {path}"
+        )
+
+    def _validate_checkout(self, component: Component, path: Path) -> str:
         if not path.is_dir():
             raise WorkspaceError(f"component checkout is not a directory: {path}")
         try:
@@ -157,23 +226,17 @@ class Workspace:
             raise WorkspaceError(f"component is not a Git checkout: {path}") from error
         if inside != "true":
             raise WorkspaceError(f"component is not a Git worktree: {path}")
-        remotes = git(path, "remote", "get-url", "--all", "origin", capture=True).splitlines()
-        if not any(_remote_matches(url, component.repository) for url in remotes):
-            upstream_urls: list[str] = []
-            try:
-                upstream_urls = git(
-                    path, "remote", "get-url", "--all", "upstream", capture=True
-                ).splitlines()
-            except WorkspaceError:
-                pass
-            if not any(_remote_matches(url, component.repository) for url in upstream_urls):
-                raise WorkspaceError(
-                    f"checkout has no origin/upstream for {component.repository}: {path}"
-                )
+        top_level = Path(git(path, "rev-parse", "--show-toplevel", capture=True)).resolve()
+        if top_level != path.resolve():
+            raise WorkspaceError(f"component path must be the Git worktree root: {path}")
+        return self._canonical_remote(component, path)
 
     def sync(self, names: list[str] | None, worktree_strategy: str) -> None:
         self.paths.ensure()
+        if worktree_strategy not in {"none", "merge", "rebase"}:
+            raise WorkspaceError(f"unknown worktree strategy: {worktree_strategy}")
         components = self.manifest.select(names)
+        prepared: list[tuple[Component, Path, str, list[Path]]] = []
         for component in components:
             repository = self._ensure_repository(component)
             if not _is_clean(repository):
@@ -181,17 +244,26 @@ class Workspace:
             branch = git(repository, "branch", "--show-current", capture=True)
             if branch != component.branch:
                 raise WorkspaceError(
-                    f"primary checkout must be on {component.branch}, found {branch or 'detached'}: {repository}"
+                    f"primary checkout must be on {component.branch}, "
+                    f"found {branch or 'detached'}: {repository}"
                 )
-            git(repository, "fetch", "--prune", "--tags", "origin")
-            git(repository, "merge", "--ff-only", f"origin/{component.branch}")
+            remote = self._canonical_remote(component, repository)
+            candidates = (
+                self._component_worktrees(repository)
+                if worktree_strategy != "none"
+                else []
+            )
+            prepared.append((component, repository, remote, candidates))
+        for component, repository, remote, candidates in prepared:
+            git(repository, "fetch", "--prune", "--tags", remote)
+            git(repository, "merge", "--ff-only", f"{remote}/{component.branch}")
             print(f"{component.name}: primary synchronized")
             if worktree_strategy != "none":
-                self._sync_component_worktrees(component, repository, worktree_strategy)
+                self._sync_component_worktrees(
+                    component, candidates, worktree_strategy
+                )
 
-    def _sync_component_worktrees(
-        self, component: Component, repository: Path, strategy: str
-    ) -> None:
+    def _component_worktrees(self, repository: Path) -> list[Path]:
         primary = repository.resolve()
         candidates: list[Path] = []
         for record in _worktree_records(repository):
@@ -201,13 +273,16 @@ class Workspace:
             if not _is_clean(path):
                 raise WorkspaceError(f"refusing to update dirty worktree: {path}")
             candidates.append(path)
+        return candidates
+
+    def _sync_component_worktrees(
+        self, component: Component, candidates: list[Path], strategy: str
+    ) -> None:
         for path in candidates:
             if strategy == "merge":
                 git(path, "merge", "--no-edit", component.branch)
             elif strategy == "rebase":
                 git(path, "rebase", component.branch)
-            else:
-                raise WorkspaceError(f"unknown worktree strategy: {strategy}")
             print(f"{component.name}: updated {path}")
 
     def create_worktree(
@@ -222,17 +297,37 @@ class Workspace:
         validate_name(label, "worktree label")
         component = self._component(component_name)
         repository = self._ensure_repository(component)
+        remote = self._canonical_remote(component, repository)
         run(["git", "check-ref-format", "--branch", branch], capture=True)
         destination = self.paths.worktrees / component.name / label
         if destination.exists():
             raise WorkspaceError(f"worktree destination already exists: {destination}")
         destination.parent.mkdir(parents=True, exist_ok=True)
         if existing:
-            git(repository, "worktree", "add", str(destination), branch)
+            git(repository, "worktree", "add", "--", str(destination), branch)
         else:
-            point = start_point or f"origin/{component.branch}"
-            git(repository, "fetch", "--prune", "origin")
-            git(repository, "worktree", "add", "-b", branch, str(destination), point)
+            if start_point is not None and start_point.startswith("-"):
+                raise WorkspaceError("worktree start point must not begin with '-'")
+            point = start_point or f"{remote}/{component.branch}"
+            git(repository, "fetch", "--prune", remote)
+            commit = git(
+                repository,
+                "rev-parse",
+                "--verify",
+                "--end-of-options",
+                f"{point}^{{commit}}",
+                capture=True,
+            )
+            git(
+                repository,
+                "worktree",
+                "add",
+                "-b",
+                branch,
+                "--",
+                str(destination),
+                commit,
+            )
         self._validate_checkout(component, destination)
         print(destination)
         return destination
@@ -307,11 +402,16 @@ class Workspace:
         profile["components"][component.name] = {"kind": kind, "value": value}
         atomic_json(self.paths.profiles / f"{name}.json", profile)
 
-    def resolve_profile(self, name: str) -> dict[str, Path]:
+    def resolve_profile(
+        self, name: str, component_names: set[str] | None = None
+    ) -> dict[str, Path]:
         self.paths.ensure()
         profile = self._load_profile(name, require_file=False)
         result: dict[str, Path] = {}
-        for component in self.manifest.components:
+        components = self.manifest.select(
+            sorted(component_names) if component_names is not None else None
+        )
+        for component in components:
             selector = profile["components"][component.name]
             kind = selector["kind"]
             value = selector["value"]
@@ -374,40 +474,68 @@ class Workspace:
             rows.append((component.name, path, head, not _is_clean(path)))
         return rows
 
+    def _resolve_build_profile(
+        self, profile_name: str, required: set[str]
+    ) -> dict[str, Path]:
+        profile = self._load_profile(profile_name, require_file=False)
+        preferred_components = PREFERRED_BUILD_COMPONENTS & set(self.manifest.by_name)
+        preferred_paths: list[Path] = []
+        for component_name in preferred_components:
+            selector = profile["components"][component_name]
+            if selector["kind"] == "primary":
+                path = self.paths.repositories / component_name
+            elif selector["kind"] == "worktree":
+                path = self.paths.worktrees / component_name / selector["value"]
+            else:
+                path = Path(selector["value"])
+            preferred_paths.append(path)
+        component_names = (
+            preferred_components
+            if all(path.is_dir() for path in preferred_paths)
+            else required
+        )
+        return self.resolve_profile(profile_name, component_names)
+
     def build(self, target: str, profile_name: str, tests: bool) -> Path:
-        selected = self.resolve_profile(profile_name)
+        targets = self._expand_build_target(target)
+        required = set().union(*(TARGET_DEPENDENCIES[item] for item in targets))
+        selected = self._resolve_build_profile(profile_name, required)
+        return self._build_resolved(target, profile_name, tests, targets, selected)
+
+    def _build_resolved(
+        self,
+        target: str,
+        profile_name: str,
+        tests: bool,
+        targets: list[str],
+        selected: dict[str, Path],
+    ) -> Path:
         key = profile_key(selected)
         root = self.paths.builds / "profiles" / f"{profile_name}-{key}"
-        managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
-        targets = self._expand_build_target(target)
-        if "content" in targets or "server" in targets:
-            self._collect_content(root, selected)
-        if "server" in targets:
-            self._stage_resources(root, selected)
-        if "protocol" in targets:
-            self._build_protocol(root, selected, tests)
-        if "libatrinik" in targets:
-            self._build_library(root, selected, tests)
-        if "client" in targets:
-            self._build_client(root, selected, tests)
-        if "server" in targets:
-            self._build_server(root, selected, tests)
-        if "metaserver-worker" in targets:
-            self._build_worker(root, selected)
-        if target in {"sound", "resources"}:
-            print(f"{target}: selected {selected[target]}")
+        lock = self.paths.builds / "locks" / f"{profile_name}-{key}.lock"
+        with exclusive_lock(lock, f"profile build {profile_name}"):
+            managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
+            if "content" in targets or "server" in targets:
+                self._collect_content(root, selected)
+            if "server" in targets:
+                self._stage_resources(root, selected)
+            if "protocol" in targets:
+                self._build_protocol(root, selected, tests)
+            if "libatrinik" in targets:
+                self._build_library(root, selected, tests)
+            if "client" in targets:
+                self._build_client(root, selected, tests)
+            if "server" in targets:
+                self._build_server(root, selected, tests)
+            if "metaserver-worker" in targets:
+                self._build_worker(root, selected)
+            if target in {"sound", "resources"}:
+                print(f"{target}: selected {selected[target]}")
         return root
 
     def _expand_build_target(self, target: str) -> list[str]:
         if target == "all":
-            return [
-                "content",
-                "protocol",
-                "libatrinik",
-                "client",
-                "server",
-                "metaserver-worker",
-            ]
+            return list(ALL_BUILD_TARGETS)
         component = self._component(target)
         if component.build == "none":
             raise WorkspaceError(f"component has no wrapper build contract: {target}")
@@ -424,6 +552,7 @@ class Workspace:
     ) -> Path:
         view = root / "sources" / component
         managed_reset(view, self.paths.builds, f"source-view:{component}")
+        exclusions = {*exclusions, MANAGED_MARKER}
         if copy_all:
             shutil.copytree(
                 source,
@@ -450,8 +579,11 @@ class Workspace:
 
     def _collect_content(self, root: Path, selected: dict[str, Path]) -> Path:
         output = root / "runtime" / "content"
-        managed_reset(output, self.paths.builds, "collected-content")
-        shutil.rmtree(output)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        if output.exists():
+            managed_directory(output, self.paths.builds, "collected-content")
+        staging = Path(tempfile.mkdtemp(prefix=".content-", dir=output.parent))
+        staging.rmdir()
         source = selected["content"]
         commit = git(source, "rev-parse", "HEAD", capture=True)
         try:
@@ -462,25 +594,41 @@ class Workspace:
                     "--source",
                     str(source),
                     "--output",
-                    str(output),
+                    str(staging),
                     "--source-commit",
                     commit,
                 ]
             )
             atomic_json(
-                output / MANAGED_MARKER,
+                staging / MANAGED_MARKER,
                 {"schema_version": SCHEMA_VERSION, "purpose": "collected-content"},
             )
             atomic_json(
-                output / ".atrinik-dependency.json",
-                {"schema_version": SCHEMA_VERSION, "workspace_source": str(source), "commit": commit},
+                staging / ".atrinik-dependency.json",
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "workspace_source": str(source),
+                    "commit": commit,
+                },
             )
-        except Exception:
-            if output.exists():
-                shutil.rmtree(output)
+            if not (staging / "lib").is_dir() or not (staging / "maps").is_dir():
+                raise WorkspaceError("content collection did not produce lib and maps")
+        except BaseException:
+            if staging.exists():
+                shutil.rmtree(staging)
             raise
-        if not (output / "lib").is_dir() or not (output / "maps").is_dir():
-            raise WorkspaceError("content collection did not produce lib and maps")
+        if output.exists():
+            backup = Path(tempfile.mkdtemp(prefix=".content-previous-", dir=output.parent))
+            backup.rmdir()
+            output.replace(backup)
+            try:
+                staging.replace(output)
+            except BaseException:
+                backup.replace(output)
+                raise
+            shutil.rmtree(backup)
+        else:
+            staging.replace(output)
         return output
 
     def _stage_resources(self, root: Path, selected: dict[str, Path]) -> Path:
@@ -488,7 +636,7 @@ class Workspace:
         source = selected["resources"]
         managed_reset(output, self.paths.builds, "resource-view")
         for entry in source.iterdir():
-            if entry.name == ".git":
+            if entry.name in {".git", MANAGED_MARKER, ".atrinik-dependency.json"}:
                 continue
             (output / entry.name).symlink_to(entry, target_is_directory=entry.is_dir())
         atomic_json(
@@ -520,8 +668,6 @@ class Workspace:
                 "Ninja",
                 "-DCMAKE_BUILD_TYPE=Debug",
                 f"-DBUILD_TESTING={'ON' if tests else 'OFF'}",
-                "-DENABLE_WARNING_ERRORS=ON",
-                "-DPACKAGE_TYPE=none",
                 *arguments,
             ]
         )
@@ -536,7 +682,10 @@ class Workspace:
         self._cmake(
             selected["libatrinik"],
             root / "build" / "libatrinik",
-            [f"-DATRINIK_PROTOCOL_SOURCE_DIR={selected['protocol']}"],
+            [
+                "-DENABLE_WARNING_ERRORS=ON",
+                f"-DATRINIK_PROTOCOL_SOURCE_DIR={selected['protocol']}",
+            ],
             tests,
         )
 
@@ -549,6 +698,8 @@ class Workspace:
             view,
             root / "build" / "client",
             [
+                "-DENABLE_WARNING_ERRORS=ON",
+                "-DPACKAGE_TYPE=none",
                 f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={selected['protocol']}",
                 f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={selected['libatrinik']}",
             ],
@@ -588,6 +739,8 @@ class Workspace:
             view,
             root / "build" / "server",
             [
+                "-DENABLE_WARNING_ERRORS=ON",
+                "-DPACKAGE_TYPE=none",
                 f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={selected['protocol']}",
                 f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={selected['libatrinik']}",
                 "-DENABLE_PYTHON_PLUGIN=ON",
@@ -650,15 +803,31 @@ class Workspace:
             states[name] = path
         return states
 
-    def state_path(self, name: str, server_source: Path) -> Path:
+    def list_states(self) -> dict[str, str]:
+        self.paths.ensure()
+        states = self._load_states()
+        if "default" not in states:
+            states = {
+                "default": str(self.paths.state / "server" / "default"),
+                **states,
+            }
+        return states
+
+    def _state_location(self, name: str) -> Path:
         validate_name(name, "state name")
         states = self._load_states()
-        if name not in states:
-            if name != "default":
-                raise WorkspaceError(f"state does not exist: {name}")
-            path = (self.paths.state / "server" / "default").resolve(strict=False)
-        else:
-            path = Path(states[name]).resolve(strict=False)
+        if name in states:
+            return Path(states[name]).resolve(strict=False)
+        if name == "default":
+            return (self.paths.state / "server" / "default").resolve(strict=False)
+        raise WorkspaceError(f"state does not exist: {name}")
+
+    def state_path(
+        self, name: str, server_source: Path, resolved_path: Path | None = None
+    ) -> Path:
+        validate_name(name, "state name")
+        path = resolved_path or self._state_location(name)
+        path = path.resolve(strict=False)
         server_source = server_source.resolve()
         if server_source == path or server_source in path.parents:
             raise WorkspaceError(f"server state must be outside its source worktree: {path}")
@@ -671,7 +840,7 @@ class Workspace:
                 if path.exists():
                     raise WorkspaceError(f"state appeared during initialization: {path}")
                 staging.replace(path)
-            except Exception:
+            except BaseException:
                 shutil.rmtree(staging, ignore_errors=True)
                 raise
         self._validate_state(path)
@@ -710,32 +879,39 @@ class Workspace:
         arguments: list[str],
         dry_run: bool,
     ) -> Path:
-        selected = self.resolve_profile(profile_name)
-        root = self.build("server", profile_name, tests=False)
-        state = self.state_path(state_name, selected["server"])
-        runtime = self._prepare_server_runtime(root, selected, state)
-        executable = runtime / "atrinik-server"
-        server_arguments = arguments or ["--port_mapping=off", "--stun_server=off"]
-        command = [str(executable), *server_arguments]
-        print(f"state: {state}")
-        print(f"cwd: {runtime}")
-        print(f"command: {display_arguments(command)}")
-        if dry_run:
+        targets = self._expand_build_target("server")
+        required = set().union(*(TARGET_DEPENDENCIES[item] for item in targets))
+        selected = self._resolve_build_profile(profile_name, required)
+        state_location = self._state_location(state_name)
+        lock_path = Path(f"{state_location}.lock")
+        with exclusive_lock(lock_path, f"server state {state_location}", nonblocking=True):
+            root = self._build_resolved(
+                "server", profile_name, False, targets, selected
+            )
+            state = self.state_path(
+                state_name, selected["server"], resolved_path=state_location
+            )
+            runtime = self._prepare_server_runtime(root, selected, state, state_name)
+            executable = runtime / "atrinik-server"
+            server_arguments = arguments or ["--port_mapping=off", "--stun_server=off"]
+            command = [str(executable), *server_arguments]
+            print(f"state: {state}")
+            print(f"cwd: {runtime}")
+            print(f"command: {display_arguments(command)}")
+            if not dry_run:
+                run(command, cwd=runtime)
             return executable
-        lock_path = Path(f"{state}.lock")
-        with lock_path.open("a+") as lock:
-            try:
-                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except BlockingIOError as error:
-                raise WorkspaceError(f"server state is already in use: {state}") from error
-            run(command, cwd=runtime)
-        return executable
 
     def _prepare_server_runtime(
-        self, root: Path, selected: dict[str, Path], state: Path
+        self,
+        root: Path,
+        selected: dict[str, Path],
+        state: Path,
+        state_name: str,
     ) -> Path:
-        runtime = root / "run" / "server"
-        managed_reset(runtime, self.paths.builds, "server-runtime")
+        state_key = profile_key({"state": state})
+        runtime = root / "run" / "server" / f"{state_name}-{state_key}"
+        managed_reset(runtime, self.paths.builds, f"server-runtime:{state_key}")
         source = selected["server"]
         binary = root / "build" / "server"
         links = {

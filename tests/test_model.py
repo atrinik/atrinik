@@ -7,7 +7,14 @@ import tempfile
 import unittest
 from unittest import mock
 
-from atrinik_workspace.model import Manifest, Paths, WorkspaceError, managed_reset
+from atrinik_workspace.model import (
+    Manifest,
+    Paths,
+    WorkspaceError,
+    atomic_json,
+    managed_reset,
+    profile_key,
+)
 
 
 class ManifestTests(unittest.TestCase):
@@ -42,7 +49,10 @@ class ManifestTests(unittest.TestCase):
     def test_rejects_duplicate_json_keys(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "components.json"
-            path.write_text('{"schema_version":1,"schema_version":1,"components":[]}', encoding="utf-8")
+            path.write_text(
+                '{"schema_version":1,"schema_version":1,"components":[]}',
+                encoding="utf-8",
+            )
             with self.assertRaisesRegex(WorkspaceError, "duplicate JSON key"):
                 Manifest.load(path)
 
@@ -89,6 +99,45 @@ class PathSafetyTests(unittest.TestCase):
             with self.assertRaisesRegex(WorkspaceError, "unmanaged build path"):
                 managed_reset(target, builds, "test")
             self.assertTrue((target / "valuable").is_file())
+
+    def test_refuses_malformed_workspace_marker(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            workspace = root / "external"
+            workspace.mkdir()
+            atomic_json(workspace / ".atrinik-workspace.json", {"schema_version": 99})
+            with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(workspace)}):
+                paths = Paths.discover(root / "wrapper")
+                with self.assertRaisesRegex(WorkspaceError, "marker is invalid"):
+                    paths.ensure()
+
+    def test_refuses_workspace_that_contains_wrapper(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            wrapper = root / "wrapper"
+            wrapper.mkdir()
+            with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(root)}):
+                paths = Paths.discover(wrapper)
+                with self.assertRaisesRegex(WorkspaceError, "unsafe workspace path"):
+                    paths.ensure()
+
+    def test_refuses_symlinked_workspace_marker(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            workspace = root / "workspace"
+            workspace.mkdir()
+            actual = root / "marker.json"
+            atomic_json(actual, {"schema_version": 1})
+            (workspace / ".atrinik-workspace.json").symlink_to(actual)
+            with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(workspace)}):
+                with self.assertRaisesRegex(WorkspaceError, "unmanaged non-empty"):
+                    Paths.discover(root / "wrapper").ensure()
+
+    def test_profile_key_is_unambiguous_for_paths_with_newlines(self) -> None:
+        first = {"a": Path("/x\nb=/y"), "b": Path("/z")}
+        second = {"a": Path("/x"), "b": Path("/y\nb=/z")}
+
+        self.assertNotEqual(profile_key(first), profile_key(second))
 
 
 if __name__ == "__main__":

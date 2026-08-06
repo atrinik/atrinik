@@ -85,7 +85,7 @@ def parser() -> argparse.ArgumentParser:
     return root
 
 
-def _server_arguments(arguments: list[str]) -> list[str]:
+def _forwarded_arguments(arguments: list[str]) -> list[str]:
     return arguments[1:] if arguments and arguments[0] == "--" else arguments
 
 
@@ -131,7 +131,7 @@ def main(arguments: list[str] | None = None) -> int:
                     )
                 else:
                     workspace.set_profile(
-                        options.name, options.component, "path", str(options.path.resolve())
+                        options.name, options.component, "path", str(options.path)
                     )
             else:
                 for component, path, head, dirty in workspace.profile_summary(options.name):
@@ -143,14 +143,10 @@ def main(arguments: list[str] | None = None) -> int:
             if options.state_command == "add":
                 workspace.state_add(options.name, options.path)
             else:
-                workspace.paths.ensure()
-                states = workspace._load_states()
-                if "default" not in states:
-                    states = {"default": str(workspace.paths.state / "server" / "default"), **states}
-                for name, path in sorted(states.items()):
+                for name, path in sorted(workspace.list_states().items()):
                     print(f"{name}\t{path}")
         elif options.command == "run":
-            forwarded = _server_arguments(options.arguments)
+            forwarded = _forwarded_arguments(options.arguments)
             if options.target == "client":
                 workspace.run_client(options.profile, forwarded, options.dry_run)
             else:
@@ -161,6 +157,12 @@ def main(arguments: list[str] | None = None) -> int:
     except WorkspaceError as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
+    except OSError as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 1
+    except KeyboardInterrupt:
+        print("interrupted", file=sys.stderr)
+        return 130
 
 
 if __name__ == "__main__":

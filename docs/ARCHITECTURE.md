@@ -37,10 +37,13 @@ worktree label, or an absolute external checkout. Resolution verifies that each
 path is a Git worktree whose `origin` or `upstream` identifies the expected
 `atrinik/*` repository.
 
-The normalized absolute paths are hashed into the profile build key. This
-separates combinations while preserving incremental compiler output when the
-same worktrees advance. The coordinator creates disposable source views rather
-than writing dependency links or output into source checkouts.
+The normalized absolute paths are hashed into the profile build key. A fully
+initialized workspace uses the common buildable-component selection so
+`build all`, component builds, and launches share incremental output. A partial
+workspace uses only the requested target's dependency closure. This separates
+worktree combinations while preserving compiler output when the same worktrees
+advance. The coordinator creates disposable source views rather than writing
+dependency links or output into source checkouts.
 
 The playable build flow is:
 
@@ -68,9 +71,11 @@ the selected server's `install_data`; an existing directory is validated and
 never overlaid. State inside a server source worktree is rejected.
 
 The coordinator takes an advisory exclusive lock next to the state directory
-for the lifetime of a launched server. Processes started outside the
-coordinator do not participate in this lock, so operators must not point those
-processes at the same state concurrently.
+before build/runtime preparation and holds it for the lifetime of a launched
+server. Profile builds have their own blocking lock, and server launch views are
+keyed by state path. Processes started outside the coordinator do not
+participate in the state lock, so operators must not point those processes at
+the same state concurrently.
 
 ## Trust and command execution
 

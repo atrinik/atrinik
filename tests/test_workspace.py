@@ -3,13 +3,26 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 import unittest
 from unittest import mock
 
-from atrinik_workspace.model import WorkspaceError
-from atrinik_workspace.workspace import Workspace, display_arguments
+from atrinik_workspace.model import (
+    MANAGED_MARKER,
+    WorkspaceError,
+    load_json,
+    managed_directory,
+    managed_reset,
+)
+from atrinik_workspace.workspace import (
+    Workspace,
+    _remote_matches as real_remote_matches,
+    display_arguments,
+    exclusive_lock,
+    run as workspace_run,
+)
 
 
 COMPONENTS = (
@@ -62,8 +75,15 @@ class WorkspaceTests(unittest.TestCase):
         self.origins: dict[str, Path] = {}
         for name, _ in COMPONENTS:
             self.make_component(name)
+        self.remote_matcher = mock.patch(
+            "atrinik_workspace.workspace._remote_matches",
+            side_effect=lambda url, repository: real_remote_matches(url, repository)
+            or url == str(self.origins[repository.split("/", 1)[1]]),
+        )
+        self.remote_matcher.start()
 
     def tearDown(self) -> None:
+        self.remote_matcher.stop()
         self.environment.stop()
         self.temporary.cleanup()
 
@@ -121,6 +141,24 @@ class WorkspaceTests(unittest.TestCase):
         self.workspace.initialize(None, jobs=3)
         self.assertTrue((self.workspace.paths.repositories / "server" / ".git").exists())
 
+    def test_failed_clone_does_not_strand_destination(self) -> None:
+        destination = self.workspace.paths.repositories / "client"
+        shutil.rmtree(destination)
+
+        def fail_clone(arguments: list[str], **kwargs: object) -> str:
+            if arguments[0] == "gh":
+                temporary = Path(arguments[-1])
+                (temporary / "partial").write_text("incomplete\n", encoding="utf-8")
+                raise WorkspaceError("clone failed")
+            return workspace_run(arguments, **kwargs)
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=fail_clone):
+            with self.assertRaisesRegex(WorkspaceError, "clone failed"):
+                self.workspace._ensure_repository(self.workspace._component("client"))
+
+        self.assertFalse(destination.exists())
+        self.assertEqual(list(self.workspace.paths.repositories.glob(".client.clone-*")), [])
+
     def test_sync_fast_forwards_primary_checkout(self) -> None:
         expected = self.advance_origin("client", "new-file")
         self.workspace.sync(["client"], "none")
@@ -135,6 +173,39 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "dirty primary"):
             self.workspace.sync(["client"], "none")
         self.assertTrue((checkout / "dirty").is_file())
+
+    def test_sync_preflights_every_checkout_before_updating(self) -> None:
+        client = self.workspace.paths.repositories / "client"
+        before = command("git", "rev-parse", "HEAD", cwd=client)
+        self.advance_origin("client", "new-file")
+        server = self.workspace.paths.repositories / "server"
+        (server / "dirty").write_text("keep\n", encoding="utf-8")
+
+        with self.assertRaisesRegex(WorkspaceError, "dirty primary"):
+            self.workspace.sync(["client", "server"], "none")
+
+        self.assertEqual(command("git", "rev-parse", "HEAD", cwd=client), before)
+
+    def test_sync_uses_canonical_upstream_when_origin_is_absent(self) -> None:
+        checkout = self.workspace.paths.repositories / "client"
+        command("git", "remote", "remove", "origin", cwd=checkout)
+        command(
+            "git", "remote", "set-url", "upstream", str(self.origins["client"]), cwd=checkout
+        )
+        command(
+            "git",
+            "remote",
+            "set-url",
+            "--add",
+            "upstream",
+            "https://github.com/atrinik/client.git",
+            cwd=checkout,
+        )
+        expected = self.advance_origin("client", "upstream-file")
+
+        self.workspace.sync(["client"], "none")
+
+        self.assertEqual(command("git", "rev-parse", "HEAD", cwd=checkout), expected)
 
     def test_worktree_profile_and_safe_removal(self) -> None:
         path = self.workspace.create_worktree(
@@ -159,6 +230,134 @@ class WorkspaceTests(unittest.TestCase):
                 "path",
                 str(self.workspace.paths.repositories / "client"),
             )
+
+    def test_profile_rejects_nested_checkout_path(self) -> None:
+        checkout = self.workspace.paths.repositories / "content"
+        nested = checkout / "nested"
+        nested.mkdir()
+        self.workspace.create_profile("review")
+        with self.assertRaisesRegex(WorkspaceError, "worktree root"):
+            self.workspace.set_profile("review", "content", "path", str(nested))
+
+    def test_component_build_resolves_only_its_dependencies(self) -> None:
+        for name, _ in COMPONENTS:
+            if name != "content":
+                shutil.rmtree(self.workspace.paths.repositories / name)
+        expected = self.workspace.paths.builds / "result"
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=expected
+        ) as build_resolved:
+            actual = self.workspace.build("content", "default", tests=False)
+
+        self.assertEqual(actual, expected)
+        selected = build_resolved.call_args.args[4]
+        self.assertEqual(set(selected), {"content"})
+
+    def test_start_point_cannot_be_an_option(self) -> None:
+        with self.assertRaisesRegex(WorkspaceError, "must not begin"):
+            self.workspace.create_worktree(
+                "content", "bad-start", "feat/bad-start", "--help", False
+            )
+        self.assertFalse(
+            (self.workspace.paths.worktrees / "content" / "bad-start").exists()
+        )
+
+    def test_source_view_reserves_ownership_marker_and_copies_worker(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        (source / MANAGED_MARKER).write_text("component data\n", encoding="utf-8")
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+
+        linked = self.workspace._profile_source_view(root, "linked", source, set())
+        self.assertEqual(load_json(linked / MANAGED_MARKER)["purpose"], "source-view:linked")
+
+        copied = self.workspace._profile_source_view(
+            root, "copied", source, set(), copy_all=True
+        )
+        (copied / "README").write_text("changed in view\n", encoding="utf-8")
+        self.assertEqual((source / "README").read_text(encoding="utf-8"), "content\n")
+
+    def test_resource_view_reserves_generated_metadata_names(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        (source / MANAGED_MARKER).write_text("component marker\n", encoding="utf-8")
+        (source / ".atrinik-dependency.json").write_text(
+            "component metadata\n", encoding="utf-8"
+        )
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+
+        output = self.workspace._stage_resources(root, {"resources": source})
+
+        self.assertEqual(load_json(output / MANAGED_MARKER)["purpose"], "resource-view")
+        self.assertEqual(
+            load_json(output / ".atrinik-dependency.json")["workspace_source"],
+            str(source),
+        )
+        self.assertEqual(
+            (source / ".atrinik-dependency.json").read_text(encoding="utf-8"),
+            "component metadata\n",
+        )
+
+    def test_content_collection_failure_preserves_previous_output(self) -> None:
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        output = root / "runtime" / "content"
+        managed_reset(output, self.workspace.paths.builds, "collected-content")
+        (output / "sentinel").write_text("last good\n", encoding="utf-8")
+
+        def fail_collector(arguments: list[str], **kwargs: object) -> str:
+            if arguments[0] == os.sys.executable:
+                raise WorkspaceError("collector failed")
+            return workspace_run(arguments, **kwargs)
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=fail_collector):
+            with self.assertRaisesRegex(WorkspaceError, "collector failed"):
+                self.workspace._collect_content(
+                    root,
+                    {"content": self.workspace.paths.repositories / "content"},
+                )
+
+        self.assertEqual((output / "sentinel").read_text(encoding="utf-8"), "last good\n")
+
+    def test_exclusive_lock_rejects_concurrent_nonblocking_user(self) -> None:
+        lock = self.workspace.paths.builds / "locks" / "test.lock"
+        with exclusive_lock(lock, "test resource"):
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(lock, "test resource", nonblocking=True):
+                    self.fail("concurrent lock unexpectedly succeeded")
+
+    def test_server_runtime_paths_are_isolated_by_state(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / name).write_text("test\n", encoding="utf-8")
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        binary = root / "build" / "server"
+        binary.mkdir(parents=True)
+        for name in ("atrinik-server", "libplugin_arena.so", "libplugin_python.so"):
+            (binary / name).write_text("test\n", encoding="utf-8")
+        for path in (
+            root / "runtime" / "content" / "lib",
+            root / "runtime" / "content" / "maps",
+            root / "runtime" / "resources",
+        ):
+            path.mkdir(parents=True, exist_ok=True)
+        state_one = self.root / "state-one"
+        state_two = self.root / "state-two"
+        state_one.mkdir()
+        state_two.mkdir()
+
+        first = self.workspace._prepare_server_runtime(
+            root, {"server": source}, state_one, "one"
+        )
+        second = self.workspace._prepare_server_runtime(
+            root, {"server": source}, state_two, "two"
+        )
+
+        self.assertNotEqual(first, second)
+        self.assertTrue((first / "data").is_symlink())
+        self.assertEqual((second / "data").resolve(), state_two)
 
     def test_state_initializes_once_and_reuses_it(self) -> None:
         server = self.workspace.paths.repositories / "server"
