@@ -294,6 +294,35 @@ class ContentCatalog:
                 current = edges[current][0]
             visited.update(path)
 
+    def check_shared_namespace(self, namespace: str, domains: Iterable[str]) -> None:
+        """Reject IDs that collide in a runtime namespace shared by domains."""
+
+        selected_domains = set(domains)
+        definitions_by_key: Dict[str, List[Definition]] = {}
+        for definition in self._definitions.values():
+            if definition.content_id.domain in selected_domains:
+                definitions_by_key.setdefault(definition.content_id.key, []).append(
+                    definition
+                )
+
+        for key, definitions in sorted(definitions_by_key.items()):
+            if len(definitions) < 2:
+                continue
+            definitions.sort(key=lambda definition: definition.content_id.domain)
+            first = definitions[0]
+            for definition in definitions[1:]:
+                self.add_diagnostic(
+                    "shared-namespace-collision",
+                    "{} key '{}' is defined in both {} and {}".format(
+                        namespace,
+                        key,
+                        first.content_id.domain,
+                        definition.content_id.domain,
+                    ),
+                    definition.location,
+                    related=first.location,
+                )
+
     def counts(self) -> Mapping[str, int]:
         counts: Dict[str, int] = {}
         for definition in self._definitions.values():

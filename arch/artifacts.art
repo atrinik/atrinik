@@ -2594,7 +2594,7 @@ def_arch scroll_generic
 Object
 level 1
 inv_face scroll_fire.101
-sp 0
+spell_id spell_firestorm
 type 111
 is_magical 1
 value 25
@@ -2608,7 +2608,7 @@ affinity cold
 def_arch scroll_generic
 Object
 level 1
-sp 1
+spell_id spell_icestorm
 inv_face scroll_ice.101
 type 111
 is_magical 1
@@ -2623,7 +2623,7 @@ def_arch scroll_generic
 Object
 level 1
 inv_face scroll_heal.101
-sp 2
+spell_id spell_minor_healing
 type 111
 is_magical 1
 value 27
@@ -2637,7 +2637,7 @@ def_arch scroll_generic
 Object
 level 1
 inv_face scroll_str.101
-sp 5
+spell_id spell_strength_self
 type 111
 is_magical 1
 value 23
@@ -2651,7 +2651,7 @@ def_arch scroll_generic
 Object
 level 1
 inv_face scroll_identify.101
-sp 6
+spell_id spell_identify
 type 111
 is_magical 1
 value 28
@@ -2665,7 +2665,7 @@ def_arch scroll_generic
 Object
 level 1
 inv_face scroll_remove.101
-sp 9
+spell_id spell_remove_curse
 type 111
 is_magical 1
 value 27
@@ -2678,7 +2678,7 @@ difficulty 6
 def_arch scroll_generic
 Object
 level 1
-sp 10
+spell_id spell_remove_damnation
 inv_face scroll_remove.101
 type 111
 is_magical 1
@@ -2693,7 +2693,7 @@ def_arch scroll_generic
 Object
 inv_face scroll_wound.101
 level 1
-sp 11
+spell_id spell_cause_light_wounds
 type 111
 is_magical 1
 value 20
@@ -2707,7 +2707,7 @@ def_arch scroll_generic
 Object
 inv_face scroll_recharge.101
 level 1
-sp 20
+spell_id spell_recharge
 type 111
 is_magical 1
 value 36
@@ -2885,7 +2885,7 @@ face potion_golden.101
 level 1
 type 5
 is_magical 1
-sp 15
+spell_id spell_remove_depletion
 value 135
 end
 
@@ -2901,7 +2901,7 @@ level 1
 is_magical 1
 type 5
 value 170
-sp 0
+spell_id spell_firestorm
 end
 
 Allowed potion_generic
@@ -2915,7 +2915,7 @@ face potion_white.101
 level 1
 type 5
 is_magical 1
-sp 1
+spell_id spell_icestorm
 value 170
 end
 
@@ -2931,7 +2931,7 @@ face potion_fizzy.101
 is_magical 1
 level 1
 type 5
-sp 3
+spell_id spell_cure_poison
 value 170
 end
 
@@ -2947,7 +2947,7 @@ stand_still 1
 type 5
 face potion_effervescent.101
 is_magical 1
-sp 4
+spell_id spell_cure_disease
 value 170
 end
 

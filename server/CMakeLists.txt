@@ -234,12 +234,28 @@ if (BUILD_TESTING AND NOT MINGW)
         file(GLOB_RECURSE ATRINIK_SERVER_TEST_RESOURCE_INPUTS
             CONFIGURE_DEPENDS
             LIST_DIRECTORIES false
-            "${CMAKE_SOURCE_DIR}/arch/*"
-            "${CMAKE_SOURCE_DIR}/maps/*"
+            "${CMAKE_SOURCE_DIR}/arch/*.anim"
+            "${CMAKE_SOURCE_DIR}/arch/*.arc"
+            "${CMAKE_SOURCE_DIR}/arch/*.art"
+            "${CMAKE_SOURCE_DIR}/arch/*.png"
+            "${CMAKE_SOURCE_DIR}/arch/*.trs"
+            "${CMAKE_SOURCE_DIR}/maps/*.art"
+            "${CMAKE_SOURCE_DIR}/maps/*.dtd"
+            "${CMAKE_SOURCE_DIR}/maps/*.factions"
+            "${CMAKE_SOURCE_DIR}/maps/*.trs"
+            "${CMAKE_SOURCE_DIR}/maps/*.xml"
             "${CMAKE_SOURCE_DIR}/server/install_data/*"
             "${CMAKE_SOURCE_DIR}/tools/compilers/*.py"
             "${CMAKE_SOURCE_DIR}/tools/content_catalog/*.py")
         list(APPEND ATRINIK_SERVER_TEST_RESOURCE_INPUTS
+            ${CMAKE_SOURCE_DIR}/arch/effects
+            ${CMAKE_SOURCE_DIR}/arch/formulae
+            ${CMAKE_SOURCE_DIR}/arch/hfiles
+            ${CMAKE_SOURCE_DIR}/arch/image_info
+            ${CMAKE_SOURCE_DIR}/arch/materials
+            ${CMAKE_SOURCE_DIR}/arch/messages
+            ${CMAKE_SOURCE_DIR}/arch/server_settings
+            ${CMAKE_SOURCE_DIR}/maps/regions.reg
             ${CMAKE_SOURCE_DIR}/server/ca-bundle.crt
             ${CMAKE_SOURCE_DIR}/server/permissions.cfg
             ${CMAKE_SOURCE_DIR}/server/server.cfg

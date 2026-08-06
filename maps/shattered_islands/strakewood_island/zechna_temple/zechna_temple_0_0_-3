@@ -2520,7 +2520,7 @@ name Zechna's heavy rod
 no_pick 1
 identified 1
 is_magical 1
-sp 50
+spell_id spell_negative_energy_bolt
 level 115
 end
 end

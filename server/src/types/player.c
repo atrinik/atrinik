@@ -2786,10 +2786,12 @@ out:
  *
  * @param pl
  * Player.
- * @param path
- * Path to load the data from.
+ * @param fp
+ * Player data stream.
+ * @return
+ * True on success, false if the object data is invalid.
  */
-static void player_load(player *pl, FILE *fp) {
+static bool player_load(player *pl, FILE *fp) {
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(fp != NULL);
 
@@ -2843,13 +2845,17 @@ static void player_load(player *pl, FILE *fp) {
 
     SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
     void *buffer = create_loader_buffer(fp);
-    load_object_buffer(buffer, pl->ob, 0);
+    int result = load_object_buffer(buffer, pl->ob, 0);
     delete_loader_buffer(buffer);
     CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
+    if (result == LL_ERROR) {
+        return false;
+    }
 
     /* The inventory of players is loaded in reverse order, so we need to
      * reorder it. */
     object_reverse_inventory(pl->ob);
+    return true;
 }
 
 /**
@@ -3108,8 +3114,15 @@ void player_login(socket_struct *ns, const char *name, struct archetype *at) {
     /* If the file is empty, it's a new character. */
     if (statbuf.st_size == 0) {
         player_create(pl, at, name);
-    } else {
-        player_load(pl, fp);
+    } else if (!player_load(pl, fp)) {
+        LOG(ERROR, "Player data file %s contains invalid object data.", path);
+        draw_info_send(CHAT_TYPE_GAME,
+                       NULL,
+                       COLOR_RED,
+                       ns,
+                       "Could not load your player file; contact an administrator.");
+        free_player(pl);
+        goto out;
     }
 
     pl->ob->custom_attrset = pl;

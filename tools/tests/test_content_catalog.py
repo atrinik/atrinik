@@ -38,6 +38,9 @@ end
 Object skill_literacy
 type 43
 end
+Object wand
+type 109
+end
 Object sample_monster_variant
 type 80
 race sample_family
@@ -97,6 +100,9 @@ arch base
 end
 arch special_item
 end
+arch wand
+spell_id spell_minor_healing
+end
 """,
         )
         self.write(
@@ -152,6 +158,13 @@ end
             and reference.key == "base"
         ]
         self.assertEqual(1, len(map_arch_references))
+        self.assertTrue(
+            any(
+                reference.field == "spell_id"
+                and reference.key == "spell_minor_healing"
+                for reference in catalog.references
+            )
+        )
 
     def test_reports_duplicate_missing_wrong_domain_and_cycles(self):
         catalog = ContentCatalog(self.root)
@@ -159,12 +172,16 @@ end
         second = catalog.location(self.root / "two", 2)
         catalog.add_definition("archetype", "shared", first)
         catalog.add_definition("archetype", "shared", second)
+        catalog.add_definition("artifact", "shared", second)
         catalog.add_definition("faction", "world", first)
         catalog.add_definition("faction", "town", second)
         catalog.add_reference("shared", ("region",), second, "region parent")
         catalog.add_reference("absent", ("map",), second, "teleport")
         catalog.check_cycles(
             "faction", {"world": ("town", first), "town": ("world", second)}
+        )
+        catalog.check_shared_namespace(
+            "server archetype", ("archetype", "artifact")
         )
         catalog.resolve_references()
 
@@ -174,6 +191,7 @@ end
                 "duplicate-id",
                 "identity-cycle",
                 "missing-reference",
+                "shared-namespace-collision",
                 "wrong-domain-reference",
             },
             codes,
@@ -195,6 +213,44 @@ end
             "invalid-quest-part-id",
             {diagnostic.code for diagnostic in catalog.diagnostics},
         )
+
+    def test_rejects_map_paths_that_escape_the_authored_root(self):
+        self.create_valid_tree()
+        start = self.root / "maps/start"
+        start.write_text(
+            start.read_text(encoding="utf-8").replace(
+                "tile_path_1 next", "tile_path_1 ../../outside"
+            ),
+            encoding="utf-8",
+        )
+
+        catalog = load_catalog(self.root)
+
+        self.assertIn("invalid-map-path", {item.code for item in catalog.diagnostics})
+
+    def test_reports_unterminated_source_blocks(self):
+        self.create_valid_tree()
+        self.write(
+            "arch/broken.arc",
+            """Object broken
+type 1
+msg
+This block never ends.
+""",
+        )
+        self.write(
+            "arch/broken.trs",
+            """treasure broken_reward
+  arch base
+""",
+        )
+
+        catalog = load_catalog(self.root)
+
+        codes = {item.code for item in catalog.diagnostics}
+        self.assertIn("unterminated-message", codes)
+        self.assertIn("unterminated-object", codes)
+        self.assertIn("unterminated-treasure", codes)
 
     def test_serialized_catalog_is_deterministic(self):
         self.create_valid_tree()

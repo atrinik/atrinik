@@ -191,6 +191,11 @@ static void arch_pass_first(FILE *fp) {
 
                 last_more = at;
                 break;
+
+            case LL_ERROR:
+                LOG(ERROR, "Discarding invalid archetype while loading archetypes.");
+                arch_free(at);
+                break;
         }
 
         at = arch_new();

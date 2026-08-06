@@ -828,6 +828,14 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags) {
 
     int rc;
     while ((rc = load_object_buffer(buffer, op, mapflags)) != LL_EOF) {
+        if (rc == LL_ERROR) {
+            LOG(ERROR, "Discarding invalid object while loading map %s.", m->path);
+            object_destroy(op);
+            op = object_get();
+            op->map = m;
+            continue;
+        }
+
         if (rc == LL_MORE) {
             LOG(ERROR, "Encountered tail object: %s", object_get_str(op));
             continue;

@@ -31,7 +31,7 @@ def find_files(where, ext=None, rec=True, ignore_dirs=True, ignore_files=False,
     """
 
     # Collection output is committed and consumed as an ordered stream by the
-    # legacy loaders, so filesystem enumeration order must never leak into it.
+    # classic loaders, so filesystem enumeration order must never leak into it.
     nodes = sorted(os.listdir(where))
     files = []
 

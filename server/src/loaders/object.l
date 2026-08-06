@@ -50,10 +50,14 @@ lex_load (int     *depth,       \
 #define MAXDEPTH 10
 
 static const char *yval(void);
+static int validate_stable_identity(const object *op,
+                                    bool saw_numeric_sp,
+                                    int numeric_sp,
+                                    bool saw_spell_id,
+                                    bool saw_skill_id);
 
 /* that's needed to track the used buffers for recursive ccalling */
 static void *cur_buffer;
-static int lex_error;
 static char msgbuf[HUGE_BUF * 4];
 static size_t msgbuf_len;
 static artifact_t *art_amask;
@@ -167,7 +171,11 @@ WS  [ \t]*{NL}
 %{
 int ismore = 0;
 object *op = items[*depth];
-lex_error = 0;
+int lex_error = 0;
+bool saw_numeric_sp = false;
+int numeric_sp = SP_NO_SPELL;
+bool saw_spell_id = false;
+bool saw_skill_id = false;
 %}
 
 ^arch{S}             {
@@ -199,7 +207,9 @@ lex_error = 0;
         items[*depth] = tmp;
 
         if (linemode == 0) {
-            lex_load(depth, items, maxdepth, map_flags, linemode);
+            if (lex_load(depth, items, maxdepth, map_flags, linemode) == LL_ERROR) {
+                lex_error = 1;
+            }
 
             if (tmp->arch != NULL) {
                 tmp = object_insert_into(tmp, op, 0);
@@ -360,6 +370,15 @@ lex_error = 0;
 }
 
 ^end{WS}             {
+    if (validate_stable_identity(
+            op, saw_numeric_sp, numeric_sp, saw_spell_id, saw_skill_id) != 0) {
+        lex_error = 1;
+    }
+
+    if (lex_error != 0) {
+        return LL_ERROR;
+    }
+
     if (linemode) {
         /* Linemode is only set for artifact loading. */
         if ((*depth) > 0) {
@@ -411,8 +430,13 @@ lex_error = 0;
 ^pow{S}              op->stats.Pow = IVAL;
 ^hp{S}               op->stats.hp = IVAL;
 ^maxhp{S}            op->stats.maxhp = IVAL;
-^sp{S}               op->stats.sp = IVAL;
+^sp{S}               {
+    numeric_sp = IVAL;
+    saw_numeric_sp = true;
+    op->stats.sp = numeric_sp;
+}
 ^spell_id{S}         {
+    saw_spell_id = true;
     int spell = spell_index_from_id(yval());
     if (spell == SP_NO_SPELL) {
         LOG(ERROR, "Unknown stable spell ID %s for object %s.", yval(), object_get_str(op));
@@ -422,6 +446,7 @@ lex_error = 0;
     }
 }
 ^skill_id{S}         {
+    saw_skill_id = true;
     int skill = skill_index_from_id(yval());
     if (skill < 0) {
         LOG(ERROR, "Unknown stable skill ID %s for object %s.", yval(), object_get_str(op));
@@ -745,10 +770,15 @@ lex_error = 0;
 #.*{NL}              {}
 
 <<EOF>>              {
+    if (validate_stable_identity(
+            op, saw_numeric_sp, numeric_sp, saw_spell_id, saw_skill_id) != 0) {
+        lex_error = 1;
+    }
+
     /* If we got an error, return the error. Otherwise, return that we got
      * EOF. */
     if (lex_error != 0) {
-        return lex_error;
+        return LL_ERROR;
     }
     else {
         return LL_EOF;
@@ -758,6 +788,45 @@ lex_error = 0;
 %%
 
 #pragma GCC diagnostic pop
+
+/**
+ * Validate fields whose meaning depends on the object's final type.
+ *
+ * Object attributes may appear in any order, so this check must run only
+ * after the complete object has been read.
+ */
+static int
+validate_stable_identity (const object *op,
+                          bool saw_numeric_sp,
+                          int numeric_sp,
+                          bool saw_spell_id,
+                          bool saw_skill_id)
+{
+    HARD_ASSERT(op != NULL);
+
+    int invalid = 0;
+    bool uses_spell_index = op->type == SPELL || OBJECT_IS_SPELL_TOOL(op);
+    if (saw_numeric_sp && numeric_sp != SP_NO_SPELL &&
+            (op->type == SKILL || uses_spell_index)) {
+        LOG(ERROR,
+            "Numeric spell/skill ID %d is not stable for object %s.",
+            numeric_sp,
+            object_get_str(op));
+        invalid = 1;
+    }
+
+    if (saw_spell_id && !uses_spell_index) {
+        LOG(ERROR, "spell_id is invalid for object %s.", object_get_str(op));
+        invalid = 1;
+    }
+
+    if (saw_skill_id && op->type != SKILL) {
+        LOG(ERROR, "skill_id is invalid for object %s.", object_get_str(op));
+        invalid = 1;
+    }
+
+    return invalid;
+}
 
 /**
  * Returns the next token for lex.
@@ -919,6 +988,11 @@ load_object (const char *str, object *op, int map_flags)
 
         if (retval == LL_NORMAL) {
             break;
+        } else if (retval == LL_ERROR) {
+            if (cur_buffer != NULL) {
+                yy_switch_to_buffer(cur_buffer);
+            }
+            return LL_ERROR;
         }
     }
 
@@ -963,6 +1037,13 @@ load_object_fp (FILE *fp, object *op, int map_flags)
         YY_BUFFER_STATE yybufstate = yy_scan_string(buf);
         retval = lex_load(&depth, items, MAXDEPTH, map_flags, 1);
         yy_delete_buffer(yybufstate);
+
+        if (retval == LL_ERROR) {
+            if (cur_buffer != NULL) {
+                yy_switch_to_buffer(cur_buffer);
+            }
+            return LL_ERROR;
+        }
 
         if (retval == LL_NORMAL) {
             /* Be sure we work on the right buffer */
@@ -1020,7 +1101,9 @@ load_object_buffer (void *buffer, object *op, int map_flags)
 
     int depth = 0;
     int retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
-    load_object_finish(op, map_flags);
+    if (retval != LL_ERROR) {
+        load_object_finish(op, map_flags);
+    }
     return retval;
 }
 
@@ -1245,6 +1328,14 @@ get_ob_diff (StringBuffer *sb, const object *op, const object *op2)
 
         if (stable_id != NULL) {
             SAVE_STRING(sb, field_name, stable_id);
+        } else if (field_name != NULL && op->stats.sp != SP_NO_SPELL) {
+            LOG(BUG,
+                "Object %s has invalid runtime %s index %d.",
+                object_get_str(op),
+                field_name,
+                op->stats.sp);
+            stringbuffer_append_printf(
+                sb, "%s __invalid_runtime_index_%d\n", field_name, op->stats.sp);
         } else {
             SAVE_INT(sb, "sp", op->stats.sp);
         }

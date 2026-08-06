@@ -115,7 +115,7 @@ have an authoritative authored source. The same is true for disciplines,
 techniques, activities, achievements, and named landmark records. The feature
 that introduces one of those concepts must add its explicit key to its owning
 authored schema and teach the catalog loader about that schema in the same
-change. A monster's mutable `name` or broad legacy `race` value is not a safe
+change. A monster's mutable `name` or broad `race` value is not a safe
 substitute. Alchemical formulae likewise have no current authored entries or
 stable recipe key; the first recipe work must add an explicit recipe key rather
 than deriving one from its result title or ingredient order.

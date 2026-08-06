@@ -416,6 +416,33 @@ START_TEST(test_object_stable_spell_and_skill_ids) {
     ck_assert_ptr_eq(strstr(dump, "\nsp "), NULL);
     free(dump);
     object_destroy(ob);
+
+    ck_assert_ptr_eq(object_load_str("arch wand\nsp 19\nend\n"), NULL);
+    ck_assert_ptr_eq(object_load_str("arch wand\nspell_id unknown\nend\n"), NULL);
+    ck_assert_ptr_eq(object_load_str("arch sack\nspell_id spell_firestorm\nend\n"), NULL);
+    ck_assert_ptr_eq(object_load_str("arch sack\nskill_id skill_literacy\nend\n"), NULL);
+    ck_assert_ptr_eq(object_load_str("arch wand\narch wand\nsp 19\nend\nend\n"), NULL);
+
+    ob = object_load_str("arch sack\nspell_id spell_firestorm\ntype 109\nend\n");
+    ck_assert_ptr_nonnull(ob);
+    ck_assert_int_eq(ob->stats.sp, spell_index_from_id("spell_firestorm"));
+    object_destroy(ob);
+
+    ob = object_load_str("arch sack\nskill_id skill_literacy\ntype 43\nend\n");
+    ck_assert_ptr_nonnull(ob);
+    ck_assert_int_eq(ob->stats.sp, skill_index_from_id("skill_literacy"));
+    object_destroy(ob);
+
+    ob = object_load_str("arch wand\nend\n");
+    ck_assert_ptr_nonnull(ob);
+    ob->stats.sp = 9999;
+    sb = stringbuffer_new();
+    object_dump_rec(ob, sb);
+    dump = stringbuffer_finish(sb);
+    ck_assert_ptr_nonnull(strstr(dump, "spell_id __invalid_runtime_index_9999"));
+    ck_assert_ptr_eq(strstr(dump, "\nsp 9999"), NULL);
+    free(dump);
+    object_destroy(ob);
 }
 END_TEST
 

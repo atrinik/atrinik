@@ -16,10 +16,13 @@ QUEST_PART_ID_RE = re.compile(r"^[a-z0-9][a-z0-9_.-]*$")
 OBJECT_DOMAINS = ("archetype", "artifact")
 
 
-def _iter_source_lines(path: Path) -> Iterator[Tuple[int, str]]:
-    """Yield significant lines while respecting legacy msg/endmsg blocks."""
+def _iter_source_lines(
+    path: Path, catalog: ContentCatalog
+) -> Iterator[Tuple[int, str]]:
+    """Yield significant lines while respecting classic msg/endmsg blocks."""
 
     in_message = False
+    message_line = 0
     with path.open(encoding="utf-8") as source:
         for line_number, raw_line in enumerate(source, 1):
             line = raw_line.strip()
@@ -29,10 +32,17 @@ def _iter_source_lines(path: Path) -> Iterator[Tuple[int, str]]:
                 continue
             if line == "msg":
                 in_message = True
+                message_line = line_number
                 continue
             if not line or line.startswith("#"):
                 continue
             yield line_number, line
+    if in_message:
+        catalog.add_diagnostic(
+            "unterminated-message",
+            "msg block has no endmsg",
+            catalog.location(path, message_line),
+        )
 
 
 def _split(line: str) -> Tuple[str, str]:
@@ -53,7 +63,7 @@ def _load_archetypes(catalog: ContentCatalog, arch_root: Path) -> None:
         multipart_continuation = False
         inside_object = False
 
-        for line_number, line in _iter_source_lines(path):
+        for line_number, line in _iter_source_lines(path, catalog):
             field, value = _split(line)
             if field == "More" and not value:
                 multipart_continuation = True
@@ -102,11 +112,25 @@ def _load_archetypes(catalog: ContentCatalog, arch_root: Path) -> None:
                 inside_object = False
                 current = None
                 current_type = None
+        if inside_object:
+            catalog.add_diagnostic(
+                "unterminated-object",
+                "Object block has no end",
+                current_location or catalog.location(path, 1),
+            )
+        elif multipart_continuation:
+            catalog.add_diagnostic(
+                "dangling-multipart",
+                "More is not followed by an Object block",
+                catalog.location(path, 1),
+            )
 
 
 def _load_runtime_identity_tables(catalog: ContentCatalog, server_root: Path) -> None:
     """Validate explicit stable IDs used by process-local C lookup tables."""
 
+    definitions = tuple(catalog.definitions)
+    definition_ids = {definition.content_id for definition in definitions}
     table_specs = (
         (server_root / "src/include/spellist.h", "spell", "spell table id"),
         (server_root / "src/include/skillist.h", "skill", "skill table id"),
@@ -132,17 +156,14 @@ def _load_runtime_identity_tables(catalog: ContentCatalog, server_root: Path) ->
                         )
                         continue
                     seen[key] = location
-                    # Some legacy skill enum slots do not have an obtainable
+                    # Some reserved skill enum slots do not have an obtainable
                     # skill archetype. Existing authored skills must map to
                     # stable table IDs; unused slots remain process-local.
-                    if domain == "spell" or any(
-                        definition.content_id == ContentId(domain, key)
-                        for definition in catalog.definitions
-                    ):
+                    if domain == "spell" or ContentId(domain, key) in definition_ids:
                         catalog.add_reference(key, (domain,), location, field)
 
         table_ids = set(seen)
-        for definition in catalog.definitions:
+        for definition in definitions:
             if definition.content_id.domain != domain:
                 continue
             if definition.content_id.key not in table_ids:
@@ -161,11 +182,19 @@ def _load_artifacts(catalog: ContentCatalog, roots: Sequence[Path]) -> None:
             continue
         for path in sorted(root.rglob("*.art")):
             current: Optional[ContentId] = None
-            for line_number, line in _iter_source_lines(path):
+            current_location: Optional[SourceLocation] = None
+            for line_number, line in _iter_source_lines(path, catalog):
                 field, value = _split(line)
                 if field == "artifact" and value:
                     location = catalog.location(path, line_number, _column(line, value))
+                    if current is not None:
+                        catalog.add_diagnostic(
+                            "unterminated-artifact",
+                            "artifact block has no end before the next artifact",
+                            current_location or location,
+                        )
                     current = catalog.add_definition("artifact", value, location)
+                    current_location = location
                 elif field == "def_arch" and value:
                     catalog.add_reference(
                         value.split()[0],
@@ -174,8 +203,31 @@ def _load_artifacts(catalog: ContentCatalog, roots: Sequence[Path]) -> None:
                         "def_arch",
                         current,
                     )
+                elif field == "spell_id" and value:
+                    catalog.add_reference(
+                        value,
+                        ("spell",),
+                        catalog.location(path, line_number, _column(line, value)),
+                        "spell_id",
+                        current,
+                    )
+                elif field == "skill_id" and value:
+                    catalog.add_reference(
+                        value,
+                        ("skill",),
+                        catalog.location(path, line_number, _column(line, value)),
+                        "skill_id",
+                        current,
+                    )
                 elif field == "end" and not value:
                     current = None
+                    current_location = None
+            if current is not None:
+                catalog.add_diagnostic(
+                    "unterminated-artifact",
+                    "artifact block has no end",
+                    current_location or catalog.location(path, line_number),
+                )
 
 
 def _load_treasures(catalog: ContentCatalog, roots: Sequence[Path]) -> None:
@@ -184,11 +236,19 @@ def _load_treasures(catalog: ContentCatalog, roots: Sequence[Path]) -> None:
             continue
         for path in sorted(root.rglob("*.trs")):
             current: Optional[ContentId] = None
-            for line_number, line in _iter_source_lines(path):
+            current_location: Optional[SourceLocation] = None
+            for line_number, line in _iter_source_lines(path, catalog):
                 field, value = _split(line)
                 if field in ("treasure", "treasureone") and value:
                     location = catalog.location(path, line_number, _column(line, value))
+                    if current is not None:
+                        catalog.add_diagnostic(
+                            "unterminated-treasure",
+                            "treasure block has no end before the next treasure",
+                            current_location or location,
+                        )
                     current = catalog.add_definition("treasure", value, location)
+                    current_location = location
                 elif field == "arch" and value:
                     catalog.add_reference(
                         value.split()[0],
@@ -205,13 +265,22 @@ def _load_treasures(catalog: ContentCatalog, roots: Sequence[Path]) -> None:
                         "treasure list",
                         current,
                     )
+                elif field == "end" and not value:
+                    current = None
+                    current_location = None
+            if current is not None:
+                catalog.add_diagnostic(
+                    "unterminated-treasure",
+                    "treasure block has no end",
+                    current_location or catalog.location(path, line_number),
+                )
 
 
 def _load_factions(catalog: ContentCatalog, maps_root: Path) -> None:
     parents: Dict[str, Tuple[str, SourceLocation]] = {}
     for path in sorted(maps_root.rglob("*.factions")):
         stack: List[ContentId] = []
-        for line_number, line in _iter_source_lines(path):
+        for line_number, line in _iter_source_lines(path, catalog):
             field, value = _split(line)
             if field == "faction" and value:
                 location = catalog.location(path, line_number, _column(line, value))
@@ -237,6 +306,12 @@ def _load_factions(catalog: ContentCatalog, maps_root: Path) -> None:
                 )
             elif field == "end" and not value and stack:
                 stack.pop()
+        if stack:
+            catalog.add_diagnostic(
+                "unterminated-faction",
+                "faction block has no end",
+                catalog.location(path, line_number),
+            )
     catalog.check_cycles("faction", parents)
 
 
@@ -245,36 +320,76 @@ def _load_regions(catalog: ContentCatalog, maps_root: Path) -> None:
     if not path.is_file():
         return
     current: Optional[ContentId] = None
+    current_location: Optional[SourceLocation] = None
     parents: Dict[str, Tuple[str, SourceLocation]] = {}
-    for line_number, line in _iter_source_lines(path):
+    for line_number, line in _iter_source_lines(path, catalog):
         field, value = _split(line)
         if field == "region" and value:
             location = catalog.location(path, line_number, _column(line, value))
+            if current is not None:
+                catalog.add_diagnostic(
+                    "unterminated-region",
+                    "region block has no end before the next region",
+                    current_location or location,
+                )
             current = catalog.add_definition("region", value, location)
+            current_location = location
         elif field == "parent" and value and current is not None:
             location = catalog.location(path, line_number, _column(line, value))
             catalog.add_reference(value, ("region",), location, "region parent", current)
             parents[current.key] = (value, location)
         elif field in ("map_first", "jail") and value:
             map_key = value.split()[0]
-            catalog.add_reference(
-                _canonical_map_path(map_key),
-                ("map",),
+            _add_map_reference(
+                catalog,
+                map_key,
                 catalog.location(path, line_number, _column(line, map_key)),
                 "region {}".format(field),
                 current,
             )
         elif field == "end" and not value:
             current = None
+            current_location = None
+    if current is not None:
+        catalog.add_diagnostic(
+            "unterminated-region",
+            "region block has no end",
+            current_location or catalog.location(path, line_number),
+        )
     catalog.check_cycles("region", parents)
 
 
 def _canonical_map_path(path: str, base: Optional[str] = None) -> str:
-    if path.startswith("/"):
-        normalized = posixpath.normpath(path)
-    else:
-        normalized = posixpath.normpath(posixpath.join(base or "/", path))
-    return "/" + normalized.lstrip("/")
+    combined = path.lstrip("/") if path.startswith("/") else posixpath.join(
+        (base or "/").lstrip("/"), path
+    )
+    parts: List[str] = []
+    for part in combined.split("/"):
+        if part in ("", "."):
+            continue
+        if part == "..":
+            if not parts:
+                raise ValueError("map path escapes the maps root")
+            parts.pop()
+        else:
+            parts.append(part)
+    return "/" + "/".join(parts)
+
+
+def _add_map_reference(
+    catalog: ContentCatalog,
+    path: str,
+    location: SourceLocation,
+    field: str,
+    source: Optional[ContentId],
+    base: Optional[str] = None,
+) -> None:
+    try:
+        key = _canonical_map_path(path, base)
+    except ValueError as error:
+        catalog.add_diagnostic("invalid-map-path", "{}: {}".format(field, error), location)
+        return
+    catalog.add_reference(key, ("map",), location, field, source)
 
 
 def _is_map_file(path: Path) -> bool:
@@ -322,7 +437,7 @@ def _load_maps(catalog: ContentCatalog, maps_root: Path) -> None:
         # preserves identity validation without turning the catalog artifact
         # into a second, much larger encoding of the map itself.
         seen_archetypes = set()
-        for line_number, line in _iter_source_lines(path):
+        for line_number, line in _iter_source_lines(path, catalog):
             field, value = _split(line)
             if in_header:
                 if field == "region" and value:
@@ -334,13 +449,13 @@ def _load_maps(catalog: ContentCatalog, maps_root: Path) -> None:
                         map_id,
                     )
                 elif field.startswith("tile_path_") and value:
-                    target = _canonical_map_path(value, posixpath.dirname(map_key))
-                    catalog.add_reference(
-                        target,
-                        ("map",),
+                    _add_map_reference(
+                        catalog,
+                        value,
                         catalog.location(path, line_number, _column(line, value)),
                         field,
                         map_id,
+                        posixpath.dirname(map_key),
                     )
                 elif field == "end" and not value:
                     in_header = False
@@ -356,6 +471,28 @@ def _load_maps(catalog: ContentCatalog, maps_root: Path) -> None:
                     "map arch",
                     map_id,
                 )
+            elif field == "spell_id" and value:
+                catalog.add_reference(
+                    value,
+                    ("spell",),
+                    catalog.location(path, line_number, _column(line, value)),
+                    "spell_id",
+                    map_id,
+                )
+            elif field == "skill_id" and value:
+                catalog.add_reference(
+                    value,
+                    ("skill",),
+                    catalog.location(path, line_number, _column(line, value)),
+                    "skill_id",
+                    map_id,
+                )
+        if in_header:
+            catalog.add_diagnostic(
+                "unterminated-map-header",
+                "map header has no end",
+                catalog.location(path, 1),
+            )
 
 
 class _InterfaceLoader:
@@ -424,19 +561,37 @@ class _InterfaceLoader:
         source = self.quest_id
         if name in ("item", "object") and attrs.get("arch"):
             self.catalog.add_reference(
-                attrs["arch"], OBJECT_DOMAINS, self.location(attrs["arch"]), "{} arch".format(name), source
+                attrs["arch"],
+                OBJECT_DOMAINS,
+                self.location(attrs["arch"]),
+                "{} arch".format(name),
+                source,
             )
         if attrs.get("cast"):
             spell_key = "spell_" + re.sub(r"\s+", "_", attrs["cast"].strip().lower())
-            self.catalog.add_reference(spell_key, ("spell",), self.location(attrs["cast"]), "cast", source)
+            self.catalog.add_reference(
+                spell_key,
+                ("spell",),
+                self.location(attrs["cast"]),
+                "cast",
+                source,
+            )
         if attrs.get("teleport"):
             target = attrs["teleport"].split()[0]
-            self.catalog.add_reference(
-                _canonical_map_path(target), ("map",), self.location(target), "teleport", source
+            _add_map_reference(
+                self.catalog,
+                target,
+                self.location(target),
+                "teleport",
+                source,
             )
         if attrs.get("region_map"):
             self.catalog.add_reference(
-                attrs["region_map"], ("region",), self.location(attrs["region_map"]), "region_map", source
+                attrs["region_map"],
+                ("region",),
+                self.location(attrs["region_map"]),
+                "region_map",
+                source,
             )
         for attribute, value in attrs.items():
             if attribute.startswith("faction_"):
@@ -487,5 +642,8 @@ def load_catalog(root: Path) -> ContentCatalog:
     _load_maps(catalog, maps_root)
     _load_regions(catalog, maps_root)
     _load_interfaces(catalog, maps_root)
+    catalog.check_shared_namespace(
+        "server archetype", ("archetype", "artifact")
+    )
     catalog.resolve_references()
     return catalog
