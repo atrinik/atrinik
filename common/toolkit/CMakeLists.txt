@@ -178,11 +178,10 @@ set(TOOLKIT_SOURCES
     memory.c
     mempool.c
     packet.c
+    password.c
     path.c
-    pbkdf2.c
     porting.c
     process.c
-    sha1.c
     shstr.c
     signals.c
     socket.c

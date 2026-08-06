@@ -2522,10 +2522,12 @@ void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t
             string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) ||
             string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD])) {
             LOG(PACKET, "Received invalid data in account login command.");
+            OPENSSL_cleanse(password, sizeof(password));
             return;
         }
 
         account_login(ns, name, password);
+        OPENSSL_cleanse(password, sizeof(password));
     } else if (type == CMD_ACCOUNT_REGISTER) {
         char name[MAX_BUF], password[MAX_BUF], password2[MAX_BUF];
 
@@ -2534,6 +2536,8 @@ void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t
         packet_to_string(data, len, &pos, password2, sizeof(password2));
 
         account_register(ns, name, password, password2);
+        OPENSSL_cleanse(password, sizeof(password));
+        OPENSSL_cleanse(password2, sizeof(password2));
     } else if (type == CMD_ACCOUNT_LOGIN_CHAR) {
         char name[MAX_BUF];
 
@@ -2555,6 +2559,9 @@ void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t
         packet_to_string(data, len, &pos, password_new2, sizeof(password_new2));
 
         account_password_change(ns, password, password_new, password_new2);
+        OPENSSL_cleanse(password, sizeof(password));
+        OPENSSL_cleanse(password_new, sizeof(password_new));
+        OPENSSL_cleanse(password_new2, sizeof(password_new2));
     } else {
         LOG(PACKET, "Invalid type: %d", type);
     }

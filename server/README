@@ -274,6 +274,33 @@
  Firewall, including inbound UDP on port_quic (1730 by default). The server
  package includes the Python runtime required by normal map and NPC scripts.
 
+Account password storage and upgrades
+-------------------------------------
+
+New and changed account passwords are stored as versioned Argon2id records.
+The current record explicitly selects Argon2 version 19, 64 MiB of memory,
+three iterations, and one lane. The server refuses records outside its bounded
+8-256 MiB memory, 1-10 iteration, and 1-4 lane verification limits before any
+password work is performed. Authentication work also uses a server-wide token
+bucket with an eight-operation burst and one new token every two seconds; a
+connection is disconnected after three failed account passwords.
+
+Existing crypt(3) and 4,096-iteration PBKDF2/SHA-256 records follow an explicit
+rehash-on-success policy. They remain unchanged on disk after failed logins and
+are replaced atomically with an Argon2id record only after the old password is
+successfully verified. Atrinik has no offline account migration step, and
+building or testing does not rewrite source-tree account data.
+
+Before first starting this version against mutable data, stop the server and
+back up the complete data/accounts directory. Keep that backup until all active
+accounts have logged in successfully. Rollback to an older server requires
+restoring the backup because older versions cannot read Argon2id records; never
+mix account files from before and after the upgrade. Account files are written
+through a mode-0600 temporary file, flushed to stable storage, and atomically
+replaced. SHA-1-named certificate-chain cache entries are intentionally ignored
+after this upgrade and recreated under SHA-256 names; they are cache data and
+must not be migrated.
+
 =================================================
 = 2.5. Direct QUIC hosting (no port forwarding) =
 =================================================
