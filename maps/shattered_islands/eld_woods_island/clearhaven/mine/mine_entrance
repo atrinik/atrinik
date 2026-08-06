@@ -515,6 +515,7 @@ x 7
 y 8
 end
 arch crystal11
+glow_radius 1
 x 7
 y 8
 end
@@ -529,6 +530,7 @@ x 7
 y 10
 end
 arch crystal13
+glow_radius 1
 x 7
 y 10
 end
@@ -713,6 +715,7 @@ x 9
 y 10
 end
 arch crystal10
+glow_radius 1
 x 9
 y 10
 end
@@ -888,6 +891,7 @@ x 11
 y 8
 end
 arch crystal14
+glow_radius 1
 x 11
 y 8
 end
@@ -912,6 +916,7 @@ x 11
 y 12
 end
 arch crystal12
+glow_radius 1
 x 11
 y 12
 end
@@ -1008,6 +1013,7 @@ no_pass 1
 x 13
 end
 arch crystal10
+glow_radius 1
 x 13
 end
 arch floor_grit4a
@@ -1306,6 +1312,7 @@ x 15
 y 11
 end
 arch crystal10
+glow_radius 1
 x 15
 y 11
 end
@@ -1408,6 +1415,7 @@ x 16
 y 12
 end
 arch crystal11
+glow_radius 1
 x 16
 y 12
 end
@@ -1510,6 +1518,7 @@ x 17
 y 12
 end
 arch crystal13
+glow_radius 1
 x 17
 y 12
 end
@@ -1537,6 +1546,7 @@ x 18
 y 1
 end
 arch crystal12
+glow_radius 1
 x 18
 y 1
 end
@@ -1754,6 +1764,7 @@ x 20
 y 2
 end
 arch crystal14
+glow_radius 1
 x 20
 y 2
 end
@@ -1808,6 +1819,7 @@ x 20
 y 9
 end
 arch crystal14
+glow_radius 1
 x 20
 y 9
 end
@@ -1962,6 +1974,7 @@ x 22
 y 7
 end
 arch crystal11
+glow_radius 1
 x 22
 y 7
 end
@@ -2001,6 +2014,7 @@ x 22
 y 13
 end
 arch crystal13
+glow_radius 1
 x 22
 y 13
 end
