@@ -627,7 +627,6 @@ void text_anchor_execute(text_info_struct *info, void *custom_data) {
     if (pos != NULL && pos[1] != '\0') {
         buf = xstrdup(pos + 1);
         len = strlen(buf);
-        info->anchor_action[pos - info->anchor_action] = '\0';
     } else {
         const char *tag;
 
@@ -644,6 +643,10 @@ void text_anchor_execute(text_info_struct *info, void *custom_data) {
         buf = xmalloc(len + 1);
         memcpy(buf, info->anchor_tag, len);
         buf[len] = '\0';
+    }
+
+    if (pos != NULL) {
+        info->anchor_action[pos - info->anchor_action] = '\0';
     }
 
     buf = text_strip_markup(buf, &len, 1);

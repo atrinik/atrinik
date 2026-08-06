@@ -986,10 +986,11 @@ y 23
 end
 arch well_stone
 msg
-You climb down the well but soon you get wet feet. You have no other option but to climb back up.
+You slowly climb down the well and discover that it leads into a disused mine.
 endmsg
-hp 6
-sp 23
+slaying eld_woods_island/clearhaven/mine/mine_entrance
+hp 1
+sp 1
 x 6
 y 23
 end
