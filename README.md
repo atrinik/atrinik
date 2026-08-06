@@ -52,7 +52,8 @@ bash tools/clang-format.sh --check
 ```
 
 See `INSTALL` for dependencies, CMake presets, tests, release builds, and
-Windows packaging.
+Windows packaging. See `docs/ARCHITECTURE.md` for component ownership,
+cross-component data flows, and generated/runtime boundaries.
 
 ## Licensing
 
