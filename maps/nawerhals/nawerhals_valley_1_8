@@ -11,12 +11,8 @@ darkness -1
 outdoor 1
 tile_path_1 nawerhals_valley_1_7
 tile_path_2 nawerhals_valley_2_8
-tile_path_3 nawerhals_ocean_1_9
-tile_path_4 nawerhals_ocean_0_8
 tile_path_5 nawerhals_valley_2_7
 tile_path_6 nawerhals_valley_2_9
-tile_path_7 nawerhals_ocean_0_9
-tile_path_8 nawerhals_ocean_0_7
 bg_music rainthunder.ogg
 region rubble_mountains
 end

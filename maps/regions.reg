@@ -436,14 +436,6 @@ map_first /nawerhals/firos_woods_2_5
 map_bg #009ffb
 end
 
-region nawerhals_sea
-parent nawerhals
-longname Nawerhals Sea
-msg
-The open sea surrounding Nawerhals.
-endmsg
-end
-
 region mount_winter
 parent nawerhals
 longname Mount Winter

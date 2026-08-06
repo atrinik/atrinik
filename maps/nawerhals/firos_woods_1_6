@@ -12,10 +12,8 @@ outdoor 1
 tile_path_1 firos_woods_1_5
 tile_path_2 nawerhals_valley_2_6
 tile_path_3 nawerhals_valley_1_7
-tile_path_4 nawerhals_ocean_0_6
 tile_path_5 firos_woods_2_5
 tile_path_6 nawerhals_valley_2_7
-tile_path_7 nawerhals_ocean_0_7
 tile_path_8 firos_woods_0_5
 bg_music jungle1.ogg
 region firos_woods
