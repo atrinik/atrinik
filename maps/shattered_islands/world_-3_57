@@ -16,7 +16,7 @@ end
 arch water_lt3
 y 1
 end
-arch water_lt3
+arch bridge_wood_EW.101
 y 2
 end
 arch water_lt2
@@ -100,11 +100,7 @@ arch grassd_m8
 x 1
 y 1
 end
-arch water_lt
-x 1
-y 2
-end
-arch grassd_m8
+arch bridge_wood_EW.101
 x 1
 y 2
 end

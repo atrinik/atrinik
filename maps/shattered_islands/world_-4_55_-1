@@ -1,0 +1,13 @@
+arch map
+name Glacial Hollow
+msg
+Created:  2009-03-01 Daniel Liptrot
+Modified: 2026-08-06 Zoey Rose
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 2
+bg_music frozen.ogg
+region glacial_hollow
+end
