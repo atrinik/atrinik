@@ -8,7 +8,7 @@ material 1
 item_condition 100
 item_quality 100
 value 45
-weight 1200
+weight 450
 level 1
 exp 10
 no_pick 0
@@ -24,7 +24,7 @@ material 1
 item_condition 100
 item_quality 100
 value 45
-weight 1200
+weight 450
 level 1
 exp 10
 no_pick 0
@@ -40,7 +40,7 @@ material 1
 item_condition 100
 item_quality 100
 value 45
-weight 1200
+weight 450
 level 1
 exp 10
 no_pick 0
@@ -56,7 +56,7 @@ material 1
 item_condition 100
 item_quality 100
 value 45
-weight 1200
+weight 450
 level 1
 exp 10
 no_pick 0
@@ -72,7 +72,7 @@ material 1
 item_condition 100
 item_quality 100
 value 45
-weight 1200
+weight 450
 level 1
 exp 10
 no_pick 0
