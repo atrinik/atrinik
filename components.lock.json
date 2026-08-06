@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "components": [
+    {
+      "name": "protocol",
+      "repository": "atrinik/protocol",
+      "tag": "v1.0.1",
+      "commit": "7e10ecaa279489fcdb843ecbe020fc9befeba4fd",
+      "url": "https://github.com/atrinik/protocol/releases/download/v1.0.1/atrinik-protocol-1.0.1.tar.gz",
+      "sha256": "d8e113210a395913d27446e5764f212f6f1de028c9945ae9f0479588474b3137",
+      "destination": "build/components/protocol",
+      "strip_components": 1
+    },
+    {
+      "name": "libatrinik",
+      "repository": "atrinik/libatrinik",
+      "tag": "v1.0.3",
+      "commit": "2996df2866eb220d45a1493408f4e54851f72c8e",
+      "url": "https://github.com/atrinik/libatrinik/releases/download/v1.0.3/libatrinik-1.0.3.tar.gz",
+      "sha256": "6dc6823aca9cf24242bd67f5aed7469da9ca57fe2cdf7ada30e105b908a396d4",
+      "destination": "build/components/libatrinik",
+      "strip_components": 1
+    },
+    {
+      "name": "client",
+      "repository": "atrinik/client",
+      "tag": "v5.1.3",
+      "commit": "3ca821d03cf0e38fee61ca592521484232095704",
+      "url": "https://github.com/atrinik/client/releases/download/v5.1.3/atrinik-client-5.1.3.tar.gz",
+      "sha256": "4e366c9dc1cd65f626986871d11996678233db713489f28dbfcb49c88179be9d",
+      "destination": "build/components/client",
+      "strip_components": 1
+    },
+    {
+      "name": "server",
+      "repository": "atrinik/server",
+      "tag": "v5.1.3",
+      "commit": "a97c51a1691f949a2f9b01159d02d6007b98c949",
+      "url": "https://github.com/atrinik/server/releases/download/v5.1.3/atrinik-server-5.1.3.tar.gz",
+      "sha256": "fd84beae39264dae08ec852e0f57f8f9c2d425af301f5c668ea39ebbe777f95b",
+      "destination": "build/components/server",
+      "strip_components": 1
+    },
+    {
+      "name": "content-source",
+      "repository": "atrinik/content",
+      "tag": "v1.0.1",
+      "commit": "29f5c7048c05b6643e2151e57155dde4354a61c6",
+      "url": "https://github.com/atrinik/content/releases/download/v1.0.1/atrinik-content-1.0.1.tar.gz",
+      "sha256": "cb468734cbae827c9ec7d6c90e1647c7e289c2925e8157e11561a3d3bdf66380",
+      "destination": "build/components/content",
+      "strip_components": 1
+    },
+    {
+      "name": "sound",
+      "repository": "atrinik/sound",
+      "tag": "v1.0.3",
+      "commit": "18234cce19bf641f24d81333d8abcc0f1e34cd08",
+      "url": "https://github.com/atrinik/sound/releases/download/v1.0.3/atrinik-sound-1.0.3.tar.gz",
+      "sha256": "5427d2d2b5b73bad30c279ea5b7f012c380fd402249d45d9363b85ea7674e4bb",
+      "destination": "build/components/client/sound",
+      "strip_components": 1
+    },
+    {
+      "name": "content",
+      "repository": "atrinik/content",
+      "tag": "v1.0.1",
+      "commit": "29f5c7048c05b6643e2151e57155dde4354a61c6",
+      "url": "https://github.com/atrinik/content/releases/download/v1.0.1/atrinik-content-1.0.1-runtime.tar.gz",
+      "sha256": "7a66ccd4487234fa85622b318cadeac3b23b011286d98f097730b8d8291bead0",
+      "destination": "build/components/server/runtime/content",
+      "strip_components": 1
+    },
+    {
+      "name": "resources",
+      "repository": "atrinik/resources",
+      "tag": "v1.0.1",
+      "commit": "a3bd8c8a2b746d15b397a67d9f641af7d97a6078",
+      "url": "https://github.com/atrinik/resources/releases/download/v1.0.1/atrinik-resources-1.0.1.tar.gz",
+      "sha256": "4db9ecdd74aa570bc7e20eccac980844f3aba8d668230502728b22146d3b2c54",
+      "destination": "build/components/server/resources",
+      "strip_components": 1
+    }
+  ]
+}

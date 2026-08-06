@@ -1,264 +1,31 @@
-name: Tagged Release
+name: Semantic Release
 
 on:
   push:
-    tags:
-      - "v*"
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: Existing release tag to build
-        required: true
-        type: string
+    branches: [master]
 
 permissions:
-  contents: read
-  packages: read
+  contents: write
 
 concurrency:
-  group: tagged-release
+  group: semantic-release
   cancel-in-progress: false
 
 jobs:
-  metadata:
-    name: Validate tag
-    runs-on: ubuntu-26.04
-    outputs:
-      commit: ${{ steps.metadata.outputs.commit }}
-      latest: ${{ steps.metadata.outputs.latest }}
-      tag: ${{ steps.metadata.outputs.tag }}
-      version: ${{ steps.metadata.outputs.version }}
+  release:
+    name: Semantic release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - name: Check out tagged source
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.tag || github.ref_name }}
           fetch-depth: 0
-
-      - name: Validate release tag and commit
-        id: metadata
+      - name: Analyze commits and publish
         env:
-          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
-        run: |
-          if [[ ! "${RELEASE_TAG}" =~ ^v[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
-            echo "Invalid release tag: ${RELEASE_TAG}" >&2
-            exit 1
-          fi
-
-          if ! git merge-base --is-ancestor \
-              HEAD refs/remotes/origin/master; then
-            echo "Release tag ${RELEASE_TAG} is not on master." >&2
-            exit 1
-          fi
-
-          echo "commit=$(git rev-parse HEAD)" >> "${GITHUB_OUTPUT}"
-          mapfile -t release_tags < <(git tag --list 'v[0-9]*' --sort=-v:refname)
-          latest_tag=${release_tags[0]:-}
-          if [[ "${RELEASE_TAG}" == "${latest_tag}" ]]; then
-            echo "latest=true" >> "${GITHUB_OUTPUT}"
-          else
-            echo "latest=false" >> "${GITHUB_OUTPUT}"
-          fi
-          echo "tag=${RELEASE_TAG}" >> "${GITHUB_OUTPUT}"
-          echo "version=${RELEASE_TAG#v}" >> "${GITHUB_OUTPUT}"
-
-  linux:
-    name: Linux CI
-    needs: metadata
-    uses: ./.github/workflows/linux-ci.yml
-    with:
-      ref: ${{ needs.metadata.outputs.tag }}
-      package-version: ${{ needs.metadata.outputs.version }}
-      gcc_only: true
-
-  windows-build:
-    name: Build Windows packages
-    needs: metadata
-    runs-on: ubuntu-26.04
-    timeout-minutes: 180
-    permissions:
-      contents: read
-      packages: read
-    steps:
-      - name: Check out tagged source
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.metadata.outputs.tag }}
-          submodules: recursive
-
-      - name: Set image name
-        env:
-          IMAGE_NAME: windows-build
-          IMAGE_VERSION: 0.0.5
-        run: |
-          echo "WINDOWS_BUILD_IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${IMAGE_NAME}:${IMAGE_VERSION}" \
-            >> "${GITHUB_ENV}"
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Calculate Windows build cache key
-        id: windows-cache-key
-        run: |
-          source_hash=$(
-            git ls-files --stage -- \
-              CMakeLists.txt CMakePresets.json build-windows.sh build.config \
-              arch client cmake common maps server tools/compilers \
-              tools/collect.py tools/utils.py \
-              | sha256sum \
-              | cut -d ' ' -f 1
-          )
-          echo "hash=${source_hash}" >> "${GITHUB_OUTPUT}"
-
-      - name: Restore Windows build caches
-        uses: actions/cache@v6
-        with:
-          path: |
-            .ccache-windows-release
-            build/windows-mxe-release
-            build/windows-mxe-server-release
-            build/windows-region-map-generator
-          key: windows-release-0.0.5-${{ steps.windows-cache-key.outputs.hash }}
-          restore-keys: |
-            windows-release-0.0.5-
-
-      - name: Pull Windows build image
-        run: docker pull "${WINDOWS_BUILD_IMAGE}"
-
-      - name: Build Windows client and server packages
-        env:
-          PACKAGE_VERSION: ${{ needs.metadata.outputs.version }}
-        run: |
-          # The image's default /opt/mxe cache belongs to its build user. Keep
-          # generated build trees in the mounted workspace so Actions can
-          # preserve them between release runs.
-          docker run --rm \
-            --user "$(id -u):$(id -g)" \
-            --env HOME=/tmp \
-            --env PATH=/opt/mxe/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-            --env CCACHE_DIR=/workspaces/atrinik/.ccache-windows-release \
-            --env CCACHE_MAXSIZE=500M \
-            --env CCACHE_TEMPDIR=/tmp/atrinik-ccache-tmp \
-            --env ATRINIK_PACKAGE_VERSION="${PACKAGE_VERSION}" \
-            --volume "${GITHUB_WORKSPACE}:/workspaces/atrinik" \
-            --workdir /workspaces/atrinik \
-            "${WINDOWS_BUILD_IMAGE}" \
-            bash ./build-windows.sh
-
-      - name: Upload Windows packages
-        uses: actions/upload-artifact@v7
-        with:
-          name: windows-packages-${{ needs.metadata.outputs.tag }}
-          path: build/packages/*.zip
-          compression-level: 0
-          if-no-files-found: error
-          retention-days: 7
-
-  windows-publish:
-    name: Publish Windows packages
-    needs:
-      - metadata
-      - linux
-      - windows-build
-    runs-on: ubuntu-26.04
-    permissions:
-      contents: write
-    steps:
-      - name: Download Windows packages
-        uses: actions/download-artifact@v8
-        with:
-          name: windows-packages-${{ needs.metadata.outputs.tag }}
-          path: build/packages
-
-      - name: Publish GitHub release
-        env:
-          # This job intentionally has no checkout, so gh cannot infer the
-          # repository from local Git metadata.
-          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ needs.metadata.outputs.tag }}
-        run: |
-          mapfile -t packages < <(find build/packages -maxdepth 1 \
-            -type f -name '*.zip' -print | sort)
-          if [[ "${#packages[@]}" -ne 2 ]]; then
-            echo "Expected two Windows packages, found ${#packages[@]}." >&2
-            exit 1
-          fi
-
-          if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
-            gh release upload "${RELEASE_TAG}" --clobber "${packages[@]}"
-          else
-            gh release create "${RELEASE_TAG}" \
-              --verify-tag \
-              --generate-notes \
-              --title "Atrinik ${RELEASE_TAG}" \
-              "${packages[@]}"
-          fi
-
-  server-image:
-    name: Linux server image
-    needs:
-      - metadata
-      - linux
-    runs-on: ubuntu-26.04
-    timeout-minutes: 180
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Check out tagged source
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.metadata.outputs.tag }}
-          submodules: recursive
-
-      - name: Set image name
-        run: |
-          echo "SERVER_IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/atrinik-server" \
-            >> "${GITHUB_ENV}"
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Build Linux server image
-        uses: docker/build-push-action@v7
-        with:
-          build-args: |
-            ATRINIK_PACKAGE_VERSION=${{ needs.metadata.outputs.version }}
-          cache-from: type=gha,scope=atrinik-server
-          cache-to: type=gha,mode=max,scope=atrinik-server
-          context: .
-          file: Dockerfile.server
-          labels: |
-            org.opencontainers.image.revision=${{ needs.metadata.outputs.commit }}
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.title=Atrinik Server
-            org.opencontainers.image.version=${{ needs.metadata.outputs.version }}
-          load: true
-          tags: ${{ env.SERVER_IMAGE }}:${{ needs.metadata.outputs.version }}
-
-      - name: Publish versioned Linux server image
-        env:
-          RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
-        run: docker push "${SERVER_IMAGE}:${RELEASE_VERSION}"
-
-      - name: Publish latest Linux server image
-        if: needs.metadata.outputs.latest == 'true'
-        env:
-          RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
-        run: |
-          docker tag \
-            "${SERVER_IMAGE}:${RELEASE_VERSION}" \
-            "${SERVER_IMAGE}:latest"
-          docker push "${SERVER_IMAGE}:latest"
+        run: >-
+          npx --yes
+          --package=semantic-release@25.0.9
+          --package=@semantic-release/exec@7.1.0
+          --package=conventional-changelog-conventionalcommits@10.2.1
+          semantic-release

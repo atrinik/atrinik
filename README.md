@@ -1,75 +1,97 @@
-# Atrinik
+# Atrinik integration
 
-[![Linux CI](https://github.com/atrinik/atrinik/actions/workflows/linux-ci.yml/badge.svg)](https://github.com/atrinik/atrinik/actions/workflows/linux-ci.yml)
-[![Tagged Release](https://github.com/atrinik/atrinik/actions/workflows/release.yml/badge.svg)](https://github.com/atrinik/atrinik/actions/workflows/release.yml)
+This repository assembles a tested Atrinik system from independently released
+components. It intentionally contains no client, server, shared-library,
+protocol, content, or media source code and uses no Git submodules.
 
-Atrinik is an open source multi-player RPG with 2.5D isometric graphics,
-with concepts based on Crossfire and Angelion.
+`components.lock.json` is the source of truth for an integration snapshot. Each
+entry identifies an immutable release tag and commit, the exact release asset,
+its SHA-256 digest, and its generated destination under `build/components/`.
 
-> **Maintenance status:** This project is no longer actively maintained.
-> An actively maintained fork is available at [DeusMagi](https://github.com/DeusMagi).
+## Repository map
 
-## Installing and running
+| Repository | Ownership |
+| --- | --- |
+| [`atrinik/client`](https://github.com/atrinik/client) | SDL game client and client packaging |
+| [`atrinik/server`](https://github.com/atrinik/server) | Game server, plugins, runtime assembly, and server packaging |
+| [`atrinik/libatrinik`](https://github.com/atrinik/libatrinik) | Shared C networking and utility library |
+| [`atrinik/protocol`](https://github.com/atrinik/protocol) | Canonical game command schema and generated C/Python bindings |
+| [`atrinik/content`](https://github.com/atrinik/content) | Maps, archetypes, scripts, source assets, and collected runtime content |
+| [`atrinik/sound`](https://github.com/atrinik/sound) | Client music and sound assets |
+| [`atrinik/resources`](https://github.com/atrinik/resources) | Server runtime resources |
+| [`atrinik/tools`](https://github.com/atrinik/tools) | Standalone authoring, inspection, and diagnostic tools |
+| [`atrinik/editor`](https://github.com/atrinik/editor) | Gridarta editor packaging |
+| [`atrinik/metaserver-worker`](https://github.com/atrinik/metaserver-worker) | Metaserver service |
 
-For official release builds, please see the [Atrinik website](https://www.atrinik.org/).
+Future Python automation and bot packages belong in `atrinik/tools` and should
+consume a pinned `atrinik-protocol` wheel instead of copying command IDs or
+packet definitions.
 
-Client packages can be found here:
-https://www.atrinik.org/page/installing_atrinik_client
+## Issues and project coordination
 
-The latest map maker package can be downloaded here:
-https://www.atrinik.org/page/development_join
+File component-owned work in its owning repository: client UI/rendering in
+`atrinik/client`, simulation/runtime work in `atrinik/server`, authored content
+and content tooling in `atrinik/content`, wire contracts in
+`atrinik/protocol`, shared C APIs in `atrinik/libatrinik`, and standalone tools
+in `atrinik/tools`.
 
-To build the current source tree, see `INSTALL`. The recommended path is the
-included Linux devcontainer:
+This integration repository retains project roadmaps, repository-boundary
+work, coordinated changes that genuinely span multiple components, website
+coordination until that repository exists, and compatibility/release-manifest
+issues. It also preserves the original project history and stable links.
+Component-specific issues have been transferred to their owners; GitHub keeps
+redirects and rewrites cross-repository parent/prerequisite references.
+Matching M1–M5 roadmap milestones live in each repository that owns work for
+that phase, while the cross-phase master roadmap remains here as the index.
+
+## Assemble and validate
+
+Python 3.11 or newer is required to synchronize components:
 
 ```sh
-git submodule update --init --recursive
-./build.sh
+python3 scripts/components.py validate
+python3 scripts/components.py sync
+python3 scripts/components.py verify
 ```
 
-After building, follow `client/README` to run the game client or
-`server/README` to prepare and run a local or persistent server. Portable
-Windows client and server packages can be cross-compiled with the shared MXE
-container described in `INSTALL`.
+The synchronizer downloads only the locked GitHub release assets, verifies
+their digests before extraction, rejects links and unsafe archive paths, and
+refuses to overwrite unmanaged destinations. Verification also rejects a
+client or server release whose own protocol, library, sound, content, or
+resource lock differs from the integration snapshot. Generated files remain
+below `build/` and are ignored by Git.
 
-Servers may use direct UDP/QUIC networking with LAN and global IPv6 candidates,
-automatic PCP/NAT-PMP/UPnP router mappings, STUN, and metaserver rendezvous.
-Gameplay never passes through the metaserver, and a manual forwarding rule is
-normally unnecessary. Public servers can be listed by the metaserver, while
-private friend servers can require a join password. Game assets use the same
-QUIC connection by default; a configured HTTP CDN is preferred automatically
-with QUIC fallback. See `server/README` for configuration details.
-
-## Development commands
-
-Build one component or generate region maps from the repository root:
+After installing the client and server build prerequisites documented in their
+repositories, build and test the complete source snapshot with:
 
 ```sh
-./build.sh atrinik
-./build.sh atrinik-server
-./generate-region-maps.sh
-bash tools/clang-format.sh --check
+scripts/build.sh
 ```
 
-See `INSTALL` for dependencies, CMake presets, tests, release builds, and
-Windows packaging. See `docs/ARCHITECTURE.md` for component ownership,
-cross-component data flows, and generated/runtime boundaries.
+The script supplies the locked local protocol and library sources to both
+components through standard CMake `FetchContent` overrides, runs both CTest
+suites, prepares the server runtime from the pinned content/resources, and
+executes the server's non-listening version smoke check. See
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for release and data-flow
+details.
+
+## Releases
+
+Every squash merge in each active Atrinik repository uses its Conventional
+Commits pull-request title as the semantic-release input. Breaking changes bump
+major, `feat` bumps minor, and every other conventional type bumps at least
+patch, so every merged pull request receives an immutable release tag. New
+repositories start at `v1.0.0`; no active release line remains at `0.0.x`.
+
+Release jobs build the artifacts owned by their repository. In particular,
+every client release publishes a Windows x86_64 package, every server release
+publishes a Windows x86_64 package and server container, protocol releases
+publish a Python wheel, content releases publish source and collected runtime
+archives, and both devcontainer build images are published for every
+devcontainer release.
 
 ## Licensing
 
-All the code and content is released under GNU GPL v2. Assets such as graphics
-sound effects and music files come from many artists and various sources, so
-each asset has its own LICENSE file, crediting the original author. Typically
-the licenses for these are either GPLv2 or some version of CC-BY.
-
-## History
-
-Around late 2008 and early 2009, Atrinik started out as a prototype game
-project based on the source and content of a specific version of Daimonin
-(which claimed to be entirely GPLv2 at the time),
-
-Around 2011, the codebase was rebased using Crossfire as the base to start
-off fresh. Since then, the code has been rewritten several times over until
-reaching a final iteration of backend concepts based on Crossfire ideas,
-while taking into consideration the concepts of Angelion - such as 2.5D and
-map-stacking.
+The integration scripts and documentation in this repository are MIT licensed.
+Each synchronized component retains the license and attribution published in
+its own release archive.

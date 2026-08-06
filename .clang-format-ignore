@@ -1,9 +1,0 @@
-# Generated source. Format the owning Flex input instead.
-server/src/loaders/**
-
-# Bundled third-party sources retain their upstream formatting.
-client/src/gui/toolkit/SDL_gfx.c
-client/src/gui/toolkit/SDL_rotozoom.c
-common/toolkit/utarray.h
-common/toolkit/uthash.h
-common/toolkit/utlist.h

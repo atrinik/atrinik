@@ -1,9 +1,0 @@
-.git
-build
-server/data
-server-data
-server/lib
-server/libplugin_*.so
-server-custom.cfg
-server/server-custom.cfg
-*.log

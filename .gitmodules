@@ -1,6 +1,0 @@
-[submodule "server/resources"]
-	path = server/resources
-	url = https://github.com/atrinik/resources.git
-[submodule "client/sound"]
-	path = client/sound
-	url = https://github.com/atrinik/atrinik-sound.git
