@@ -32,6 +32,7 @@ extern void pixel_format_get_rgba(Uint32 pixel,
                                   Uint8 *blue,
                                   Uint8 *alpha);
 extern SDL_Surface *surface_to_display(SDL_Surface *surface);
+extern SDL_Surface *surface_to_display_alpha(SDL_Surface *surface);
 extern Uint32 surface_map_rgb(SDL_Surface *surface, Uint8 red, Uint8 green, Uint8 blue);
 extern Uint32
 surface_map_rgba(SDL_Surface *surface, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);

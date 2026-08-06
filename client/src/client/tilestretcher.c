@@ -376,7 +376,10 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w) {
         return NULL;
     }
 
-    SDL_Surface *destination = SDL_CreateSurface(src->w, src->h + n, ScreenSurface->format);
+    /* The untouched part of a stretched tile must remain transparent. Window
+     * surfaces are commonly XRGB, so using their native format here would turn
+     * that area into an opaque black rectangle. */
+    SDL_Surface *destination = SDL_CreateSurface(src->w, src->h + n, SDL_PIXELFORMAT_RGBA32);
     if (destination == NULL) {
         SDL_UnlockSurface(src);
         return NULL;

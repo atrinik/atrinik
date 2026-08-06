@@ -33,6 +33,7 @@
 #include <metaserver.h>
 #include <connection_preferences.h>
 #include <client_socket.h>
+#include <SDL3/SDL_main.h>
 #include <toolkit/gitversion.h>
 #include <region_map.h>
 #include <toolkit/packet.h>
@@ -396,6 +397,12 @@ void list_vid_modes(void) {
  */
 static void sound_background_hook(void) {
     WIDGET_REDRAW_ALL(MPLAYER_ID);
+}
+
+/** Whether the window is available for normal-rate rendering. */
+static bool window_is_active(void) {
+    SDL_WindowFlags flags = SDL_GetWindowFlags(ScreenWindow);
+    return (flags & (SDL_WINDOW_HIDDEN | SDL_WINDOW_MINIMIZED)) == 0;
 }
 
 void clioption_settings_deinit(void) {
@@ -786,7 +793,7 @@ int main(int argc, char *argv[]) {
                     strerror(s_errno),
                     s_errno);
             }
-        } else if (SDL_GetWindowFlags(ScreenWindow) & SDL_WINDOW_INPUT_FOCUS) {
+        } else if (window_is_active()) {
             if (LastTick - anim_tick > 125) {
                 anim_tick = LastTick;
                 animate_objects();
@@ -799,29 +806,30 @@ int main(int argc, char *argv[]) {
 
         update = 0;
 
-        if (!(SDL_GetWindowFlags(ScreenWindow) & SDL_WINDOW_INPUT_FOCUS)) {
-        } else if (cpl.state == ST_PLAY) {
-            static int old_cursor_x = -1, old_cursor_y = -1;
+        if (window_is_active()) {
+            if (cpl.state == ST_PLAY) {
+                static int old_cursor_x = -1, old_cursor_y = -1;
 
-            if (widgets_need_redraw()) {
-                update = 1;
-            } else if (cursor_x != old_cursor_x || cursor_y != old_cursor_y) {
-                update = 1;
-                old_cursor_x = cursor_x;
-                old_cursor_y = cursor_y;
-            } else if (event_dragging_need_redraw()) {
-                update = 1;
-            } else if (popup_need_redraw()) {
-                update = 1;
-            } else if (tooltip_need_redraw()) {
-                update = 1;
-            } else if (map_redraw_flag || minimap_redraw_due()) {
-                update = 1;
-            } else if (map_anims_need_redraw()) {
+                if (widgets_need_redraw()) {
+                    update = 1;
+                } else if (cursor_x != old_cursor_x || cursor_y != old_cursor_y) {
+                    update = 1;
+                    old_cursor_x = cursor_x;
+                    old_cursor_y = cursor_y;
+                } else if (event_dragging_need_redraw()) {
+                    update = 1;
+                } else if (popup_need_redraw()) {
+                    update = 1;
+                } else if (tooltip_need_redraw()) {
+                    update = 1;
+                } else if (map_redraw_flag || minimap_redraw_due()) {
+                    update = 1;
+                } else if (map_anims_need_redraw()) {
+                    update = 1;
+                }
+            } else {
                 update = 1;
             }
-        } else {
-            update = 1;
         }
 
         if (update) {
@@ -880,7 +888,7 @@ int main(int argc, char *argv[]) {
 
         LastTick = SDL_GetTicks();
 
-        if (SDL_GetWindowFlags(ScreenWindow) & SDL_WINDOW_INPUT_FOCUS) {
+        if (window_is_active()) {
             frames++;
 
             if (LastTick - last_frame_ticks >= 1000) {
@@ -899,8 +907,7 @@ int main(int argc, char *argv[]) {
                 if (elapsed_time < 1000 / fps_limit) {
                     SDL_Delay(MAX(1, 1000 / fps_limit - elapsed_time));
 
-                    if (!(SDL_GetWindowFlags(ScreenWindow) & SDL_WINDOW_INPUT_FOCUS) &&
-                        SDL_GetTicks() - frame_start_time < 1000) {
+                    if (!window_is_active() && SDL_GetTicks() - frame_start_time < 1000) {
                         SDL_PumpEvents();
                         continue;
                     }

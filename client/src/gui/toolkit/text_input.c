@@ -308,6 +308,17 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
         pos = previous;
     }
 
+    if (text_input->focus) {
+        SDL_Rect input_area = {
+            .x = text_input->px + text_input->coords.x,
+            .y = text_input->py + text_input->coords.y,
+            .w = text_input->coords.w,
+            .h = text_input->coords.h,
+        };
+
+        SDL_SetTextInputArea(ScreenWindow, &input_area, TEXT_INPUT_PADDING + box.w);
+    }
+
     sb = stringbuffer_new();
     stringbuffer_append_string_len(sb, text_input->str + pos, text_input->pos - pos);
 

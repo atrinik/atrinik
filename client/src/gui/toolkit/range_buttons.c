@@ -52,7 +52,8 @@ static uint32_t ticks = 0;
  * 1 if one of the buttons was clicked, 0 otherwise.
  */
 int range_buttons_show(int x, int y, int *val, int advance) {
-    int state, mx, my;
+    SDL_MouseButtonFlags state;
+    int mx, my;
     SDL_Surface *texture_off, *texture_left, *texture_right;
 
     /* Get state of the mouse and the x/y. */

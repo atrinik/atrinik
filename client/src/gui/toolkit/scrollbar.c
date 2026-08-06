@@ -381,7 +381,8 @@ static int scrollbar_click_scroll(scrollbar_struct *scrollbar, int test) {
  * 1 if the scrollbar needs redrawing, 0 otherwise.
  */
 int scrollbar_need_redraw(scrollbar_struct *scrollbar) {
-    if (scrollbar_click_scroll(scrollbar, 1) && mouse_get_state(NULL, NULL) == SDL_BUTTON_LEFT) {
+    if (scrollbar_click_scroll(scrollbar, 1) &&
+        mouse_get_state(NULL, NULL) == SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
         return 1;
     }
 
@@ -567,12 +568,12 @@ void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, in
     /* If the scroll direction is set but the left mouse button is no
      * longer being held, clear the scroll direction. */
     if (scrollbar->scroll_direction != SCROLL_DIRECTION_NONE &&
-        mouse_get_state(NULL, NULL) != SDL_BUTTON_LEFT) {
+        mouse_get_state(NULL, NULL) != SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
         scrollbar->scroll_direction = SCROLL_DIRECTION_NONE;
     }
 
     /* Handle click repeating. */
-    if (mouse_get_state(NULL, NULL) == SDL_BUTTON_LEFT &&
+    if (mouse_get_state(NULL, NULL) == SDL_BUTTON_MASK(SDL_BUTTON_LEFT) &&
         SDL_GetTicks() - scrollbar->click_ticks > scrollbar->click_repeat_ticks) {
         if (scrollbar_click_scroll(scrollbar, 0)) {
             scrollbar->click_ticks = SDL_GetTicks();
@@ -655,7 +656,8 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event) {
     if (event->type == SDL_EVENT_MOUSE_MOTION) {
         /* If dragging but the left mouse button is no longer being held,
          * quit dragging the slider. */
-        if (scrollbar->dragging && !(mouse_get_state(NULL, NULL) & SDL_BUTTON_LEFT)) {
+        if (scrollbar->dragging &&
+            !(mouse_get_state(NULL, NULL) & SDL_BUTTON_MASK(SDL_BUTTON_LEFT))) {
             scrollbar->dragging = 0;
         }
 

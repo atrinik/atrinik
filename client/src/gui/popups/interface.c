@@ -85,7 +85,7 @@ static void interface_destroy(interface_struct *data) {
     }
 
     object_remove(data->objects);
-    cpl.interface = NULL;
+    cpl.interface_objects = NULL;
 
     utarray_free(data->links);
     font_free(data->font);
@@ -581,7 +581,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
                 object *obj = object_create(interface_data->objects, tag, 0);
                 command_item_update(&reader, flags, obj);
 
-                if (old_obj != NULL && old_obj->env != cpl.interface) {
+                if (old_obj != NULL && old_obj->env != cpl.interface_objects) {
                     object_remove(obj);
                 }
 
@@ -664,7 +664,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
         interface_destroy(old_interface_data);
     }
 
-    cpl.interface = interface_data->objects;
+    cpl.interface_objects = interface_data->objects;
 }
 
 /**

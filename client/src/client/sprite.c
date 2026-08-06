@@ -136,7 +136,8 @@ sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_IOStream *rwo
     sprite->bitmap = bitmap;
 
     if (flag & (SURFACE_FLAG_DISPLAYFORMATALPHA | SURFACE_FLAG_DISPLAYFORMAT)) {
-        sprite->bitmap = surface_to_display(bitmap);
+        sprite->bitmap = flag & SURFACE_FLAG_DISPLAYFORMATALPHA ? surface_to_display_alpha(bitmap)
+                                                                : surface_to_display(bitmap);
         SDL_DestroySurface(bitmap);
         if (sprite->bitmap == NULL) {
             free(sprite);
@@ -311,7 +312,7 @@ static SDL_Surface *sprite_effect_red(SDL_Surface *surface) {
         }
     }
 
-    SDL_Surface *ret = surface_to_display(tmp);
+    SDL_Surface *ret = surface_to_display_alpha(tmp);
     SDL_DestroySurface(tmp);
     return ret;
 }
@@ -341,7 +342,7 @@ static SDL_Surface *sprite_effect_gray(SDL_Surface *surface) {
         }
     }
 
-    SDL_Surface *ret = surface_to_display(tmp);
+    SDL_Surface *ret = surface_to_display_alpha(tmp);
     SDL_DestroySurface(tmp);
     return ret;
 }
@@ -373,7 +374,7 @@ static SDL_Surface *sprite_effect_fow(SDL_Surface *surface) {
         }
     }
 
-    SDL_Surface *ret = surface_to_display(tmp);
+    SDL_Surface *ret = surface_to_display_alpha(tmp);
     SDL_DestroySurface(tmp);
     return ret;
 }
@@ -648,7 +649,7 @@ sprite_effect_glow(SDL_Surface *surface, const SDL_Color *color, double speed, d
 
     free(grid);
 
-    SDL_Surface *ret = surface_to_display(tmp);
+    SDL_Surface *ret = surface_to_display_alpha(tmp);
     SDL_DestroySurface(tmp);
     return ret;
 
@@ -690,7 +691,7 @@ static SDL_Surface *sprite_effects_create(SDL_Surface *surface, const sprite_eff
     }
 
     if (BIT_QUERY(effects->flags, SPRITE_FLAG_DARK)) {
-        surface = surface_to_display(surface);
+        surface = surface_to_display_alpha(surface);
         if (surface == NULL) {
             goto done;
         }
@@ -789,7 +790,7 @@ static SDL_Surface *sprite_effects_create(SDL_Surface *surface, const sprite_eff
 
     /* Alpha transparency. */
     if (effects->alpha != 0) {
-        surface = surface_to_display(surface);
+        surface = surface_to_display_alpha(surface);
         if (surface == NULL) {
             goto done;
         }

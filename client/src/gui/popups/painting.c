@@ -186,14 +186,18 @@ static int popup_draw_func(popup_struct *popup) {
         }
     }
 
-    if (painting_data->zoomed == NULL && !DBL_EQUAL(painting_data->zoom_x, 1.0) &&
-        !DBL_EQUAL(painting_data->zoom_y, 1.0)) {
+    if (painting_data->zoomed == NULL &&
+        (!DBL_EQUAL(painting_data->zoom_x, 1.0) || !DBL_EQUAL(painting_data->zoom_y, 1.0))) {
         bool smooth = setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH);
         painting_data->zoomed = rotozoomSurfaceXY(painting_data->sprite->bitmap,
                                                   0,
                                                   painting_data->zoom_x,
                                                   painting_data->zoom_y,
                                                   smooth);
+        if (painting_data->zoomed == NULL) {
+            LOG(ERROR, "Could not resize painting: %s", SDL_GetError());
+            painting_data->zoom_x = painting_data->zoom_y = 1.0;
+        }
         surface_pan(popup_painting_data_surface(painting_data), &painting_data->coords);
     }
 

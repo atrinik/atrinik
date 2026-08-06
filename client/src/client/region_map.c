@@ -411,31 +411,30 @@ void region_map_resize(region_map_t *region_map, int adjust) {
     HARD_ASSERT(region_map != NULL);
     HARD_ASSERT(region_map->fow != NULL);
     SOFT_ASSERT(region_map->surface != NULL, "Region map's surface is NULL.");
+    SOFT_ASSERT(region_map->fow->surface != NULL, "Region map fog surface is NULL.");
 
-    region_map->zoom += adjust;
+    int zoom = region_map->zoom + adjust;
+    SDL_Surface *zoomed = NULL;
+    SDL_Surface *fow_zoomed = NULL;
 
-    if (region_map->zoomed != NULL) {
-        SDL_DestroySurface(region_map->zoomed);
-        region_map->zoomed = NULL;
-    }
-
-    if (region_map->fow_zoomed != NULL) {
-        SDL_DestroySurface(region_map->fow_zoomed);
-        region_map->fow_zoomed = NULL;
-    }
-
-    if (region_map->zoom != 100) {
+    if (zoom != 100) {
         /* Zoom the surface. */
-        region_map->zoomed =
-            zoomSurface(region_map->surface, region_map->zoom / 100.0, region_map->zoom / 100.0, 0);
-        region_map->fow_zoomed = zoomSurface(region_map->fow->surface,
-                                             region_map->zoom / 100.0,
-                                             region_map->zoom / 100.0,
-                                             0);
-        SDL_SetSurfaceColorKey(region_map->fow_zoomed,
-                               true,
-                               surface_map_rgb(region_map->fow_zoomed, 255, 255, 255));
+        zoomed = zoomSurface(region_map->surface, zoom / 100.0, zoom / 100.0, 0);
+        fow_zoomed = zoomSurface(region_map->fow->surface, zoom / 100.0, zoom / 100.0, 0);
+        if (zoomed == NULL || fow_zoomed == NULL ||
+            !SDL_SetSurfaceColorKey(fow_zoomed, true, surface_map_rgb(fow_zoomed, 255, 255, 255))) {
+            LOG(ERROR, "Could not resize region map surfaces: %s", SDL_GetError());
+            SDL_DestroySurface(zoomed);
+            SDL_DestroySurface(fow_zoomed);
+            return;
+        }
     }
+
+    SDL_DestroySurface(region_map->zoomed);
+    SDL_DestroySurface(region_map->fow_zoomed);
+    region_map->zoomed = zoomed;
+    region_map->fow_zoomed = fow_zoomed;
+    region_map->zoom = zoom;
 
     if (adjust > 0) {
         delta = (region_map->zoom / 100.0 - 0.1f);
@@ -478,6 +477,10 @@ void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface, in
                              -((map_get_player_direction() - 1) * 45),
                              region_map->zoom / 100.0,
                              1);
+    if (marker == NULL) {
+        LOG(ERROR, "Could not transform region map marker: %s", SDL_GetError());
+        return;
+    }
     /* Calculate the player's marker position. */
     box.x = x +
             (map->xpos + MapData.posx * region_map->def->pixel_size) * (region_map->zoom / 100.0) -
@@ -868,7 +871,6 @@ void region_map_fow_update(region_map_t *region_map) {
     region_map_def_map_t *def_map;
     int rowsize, x, y;
     uint32_t color;
-    SDL_Surface *surface;
 
     HARD_ASSERT(region_map != NULL);
     HARD_ASSERT(region_map->fow != NULL);
@@ -939,9 +941,7 @@ void region_map_fow_update(region_map_t *region_map) {
     region_map_fow_update_regions(region_map, &color);
 
     SDL_SetSurfaceColorKey(region_map->fow->surface, true, color);
-    surface = surface_to_display(region_map->fow->surface);
-    SDL_DestroySurface(region_map->fow->surface);
-    region_map->fow->surface = surface;
+    SDL_SetSurfaceRLE(region_map->fow->surface, true);
 }
 
 bool region_map_fow_set_visited(region_map_t *region_map,

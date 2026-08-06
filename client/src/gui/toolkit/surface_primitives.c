@@ -71,6 +71,12 @@ SDL_Surface *surface_to_display(SDL_Surface *surface) {
     return SDL_ConvertSurface(surface, ScreenSurface->format);
 }
 
+SDL_Surface *surface_to_display_alpha(SDL_Surface *surface) {
+    HARD_ASSERT(surface != NULL);
+
+    return SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
+}
+
 Uint32 surface_map_rgb(SDL_Surface *surface, Uint8 red, Uint8 green, Uint8 blue) {
     return SDL_MapRGB(SDL_GetPixelFormatDetails(surface->format),
                       SDL_GetSurfacePalette(surface),
@@ -267,14 +273,52 @@ void rotozoomSurfaceSizeXY(int width,
                            double zoom_y,
                            int *destination_width,
                            int *destination_height) {
-    double radians = angle * M_PI / 180.0;
-    double scaled_width = width * fabs(zoom_x);
-    double scaled_height = height * fabs(zoom_y);
+    int scaled_width, scaled_height;
 
-    *destination_width =
-        MAX(1, (int)ceil(fabs(scaled_width * cos(radians)) + fabs(scaled_height * sin(radians))));
-    *destination_height =
-        MAX(1, (int)ceil(fabs(scaled_width * sin(radians)) + fabs(scaled_height * cos(radians))));
+    zoomSurfaceSize(width, height, zoom_x, zoom_y, &scaled_width, &scaled_height);
+
+    int quarter_turn = (int)(angle / 90.0);
+    if ((double)quarter_turn == angle / 90.0) {
+        quarter_turn %= 4;
+        if (quarter_turn < 0) {
+            quarter_turn += 4;
+        }
+        if (quarter_turn & 1) {
+            *destination_width = scaled_height;
+            *destination_height = scaled_width;
+        } else {
+            *destination_width = scaled_width;
+            *destination_height = scaled_height;
+        }
+        return;
+    }
+
+    /* Match SDL_RotateSurface's pixel-center bounds so layout and the
+     * allocated result agree exactly. */
+    double radians = angle * M_PI / 180.0;
+    double sine = sin(radians);
+    double cosine = cos(radians);
+    double center_x = scaled_width * 0.5;
+    double center_y = scaled_height * 0.5;
+    double corners_x[4] = {0.5, scaled_width - 0.5, 0.5, scaled_width - 0.5};
+    double corners_y[4] = {0.5, 0.5, scaled_height - 0.5, scaled_height - 0.5};
+    double minimum_x = INFINITY, maximum_x = -INFINITY;
+    double minimum_y = INFINITY, maximum_y = -INFINITY;
+
+    for (size_t i = 0; i < arraysize(corners_x); i++) {
+        double x = corners_x[i] - center_x;
+        double y = corners_y[i] - center_y;
+        double rotated_x = cosine * x - sine * y + center_x;
+        double rotated_y = sine * x + cosine * y + center_y;
+
+        minimum_x = MIN(minimum_x, rotated_x);
+        maximum_x = MAX(maximum_x, rotated_x);
+        minimum_y = MIN(minimum_y, rotated_y);
+        maximum_y = MAX(maximum_y, rotated_y);
+    }
+
+    *destination_width = (int)ceil(maximum_x) - (int)floor(minimum_x);
+    *destination_height = (int)ceil(maximum_y) - (int)floor(minimum_y);
 }
 
 SDL_Surface *zoomSurface(SDL_Surface *surface, double zoom_x, double zoom_y, int smooth) {

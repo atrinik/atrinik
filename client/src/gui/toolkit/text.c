@@ -1519,9 +1519,12 @@ int text_show_character(font_struct **font,
 
                             tmp_icon =
                                 rotozoomSurfaceXY(icon_surface, rotate, zoom_x, zoom_y, smooth);
-
-                            SDL_BlitSurface(tmp_icon, &icon_box, surface, &icon_dst);
-                            SDL_DestroySurface(tmp_icon);
+                            if (tmp_icon == NULL) {
+                                LOG(ERROR, "Could not transform markup icon: %s", SDL_GetError());
+                            } else {
+                                SDL_BlitSurface(tmp_icon, &icon_box, surface, &icon_dst);
+                                SDL_DestroySurface(tmp_icon);
+                            }
                         } else {
                             SDL_BlitSurface(icon_surface, &icon_box, surface, &icon_dst);
                         }
@@ -1811,7 +1814,8 @@ int text_show_character(font_struct **font,
         use_color = color;
 
         if (info->anchor_tag || info->highlight || *info->tooltip_text != '\0') {
-            int state, mx, my, orig_mx, orig_my;
+            SDL_MouseButtonFlags state;
+            int mx, my, orig_mx, orig_my;
 
             if (info->anchor_tag && cp == info->anchor_tag && text_anchor_info_ptr) {
                 text_anchor_execute(info, text_anchor_info_ptr);
@@ -1827,7 +1831,7 @@ int text_show_character(font_struct **font,
                     static uint32_t ticks = 0;
 
                     if (info->anchor_tag) {
-                        if (state == SDL_BUTTON_LEFT &&
+                        if (state == SDL_BUTTON_MASK(SDL_BUTTON_LEFT) &&
                             (!selection_start || !selection_end || *selection_start == -1 ||
                              *selection_end == -1) &&
                             (!ticks || SDL_GetTicks() - ticks > 125)) {
@@ -1913,7 +1917,7 @@ int text_show_character(font_struct **font,
                 /* Set the opacity. */
                 surface_set_alpha(ttf_surface, info->used_alpha);
                 /* Create new surface to blit. */
-                new_ttf_surface = surface_to_display(ttf_surface);
+                new_ttf_surface = surface_to_display_alpha(ttf_surface);
                 /* Free the old one. */
                 SDL_DestroySurface(ttf_surface);
                 ttf_surface = new_ttf_surface;
@@ -2116,7 +2120,7 @@ int glyph_get_height(font_struct *font, char c) {
             color = select_color_orig;                                                            \
             select_color_changed = 0;                                                             \
         }                                                                                         \
-        if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT) {                      \
+        if (selection_start && selection_end && mstate == SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {     \
             if (my >= dest.y && my <= dest.y + FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) && \
                 mx >= old_x &&                                                                    \
                 mx <= old_x + glyph_get_utf8_width(FONT_TRY_INFO(font, info, surface), cp)) {     \
@@ -2167,7 +2171,8 @@ void text_show(SDL_Surface *surface,
     uint16_t *heights = NULL;
     size_t num_heights = 0;
     int x_adjust = 0;
-    int mx, my, mstate = 0, old_x;
+    int mx, my, old_x;
+    SDL_MouseButtonFlags mstate = 0;
     int64_t select_start = 0, select_end = 0;
     uint8_t select_color_changed = 0;
     text_info_struct info;
@@ -2311,9 +2316,10 @@ void text_show(SDL_Surface *surface,
                 }
             }
 
-            if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT && box &&
-                my >= dest.y && my <= dest.y + FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) &&
-                mx >= dest.x && mx <= dest.x + (box->w - (dest.x - info.start_x))) {
+            if (selection_start && selection_end && mstate == SDL_BUTTON_MASK(SDL_BUTTON_LEFT) &&
+                box && my >= dest.y &&
+                my <= dest.y + FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) && mx >= dest.x &&
+                mx <= dest.x + (box->w - (dest.x - info.start_x))) {
                 if (*selection_started) {
                     *selection_end = cp - text;
                 } else {
@@ -2417,7 +2423,7 @@ void text_show(SDL_Surface *surface,
         }
     }
 
-    if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT && box &&
+    if (selection_start && selection_end && mstate == SDL_BUTTON_MASK(SDL_BUTTON_LEFT) && box &&
         my >= dest.y + max_height &&
         my <= dest.y + max_height + (box->h - ((dest.y + max_height) - info.start_y))) {
         if (*selection_started) {

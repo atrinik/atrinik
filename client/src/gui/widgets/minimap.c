@@ -157,6 +157,10 @@ static void widget_draw(widgetdata *widget) {
                                              0,
                                              0,
                                              0);
+        if (widget->surface == NULL) {
+            LOG(ERROR, "Could not create minimap widget surface: %s", SDL_GetError());
+            return;
+        }
         minimap_redraw_flag = 1;
         minimap->dynamic_redraw_ticks = 0;
 
@@ -170,6 +174,15 @@ static void widget_draw(widgetdata *widget) {
                                                (double)widget->w / texture->w + 0.001,
                                                (double)widget->h / texture->h + 0.001,
                                                setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
+            if (minimap->textures[i] == NULL) {
+                LOG(ERROR, "Could not resize minimap texture: %s", SDL_GetError());
+                minimap->textures[i] = surface_to_display_alpha(texture);
+                if (minimap->textures[i] == NULL) {
+                    SDL_DestroySurface(widget->surface);
+                    widget->surface = NULL;
+                    return;
+                }
+            }
         }
     }
 
@@ -254,6 +267,10 @@ static void widget_draw(widgetdata *widget) {
                                                       0,
                                                       0,
                                                       0);
+                if (minimap->surface == NULL) {
+                    LOG(ERROR, "Could not create dynamic minimap surface: %s", SDL_GetError());
+                    return;
+                }
             }
 
             double zoomx = (double)widget->w / minimap->surface->w *
@@ -271,6 +288,10 @@ static void widget_draw(widgetdata *widget) {
                                  zoomx,
                                  zoomy,
                                  setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
+            if (zoomed == NULL) {
+                LOG(ERROR, "Could not resize dynamic minimap: %s", SDL_GetError());
+                return;
+            }
             zoomedbox.x = zoomed->w / 2 - widget->surface->w / 2;
             zoomedbox.y = zoomed->h / 2 - widget->surface->h / 2;
             zoomedbox.w = widget->surface->w;

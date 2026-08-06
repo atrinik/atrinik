@@ -3116,7 +3116,7 @@ bool mouse_to_tile_coords(int mx, int my, int *tx, int *ty) {
  */
 bool map_mouse_fire(void) {
     int x, y;
-    Uint8 state = mouse_get_state(&x, &y);
+    SDL_MouseButtonFlags state = mouse_get_state(&x, &y);
 
     if ((state != (SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) | SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) &&
          state != SDL_BUTTON_MASK(SDL_BUTTON_MIDDLE))) {
@@ -3197,6 +3197,10 @@ static void widget_draw(widgetdata *widget) {
                                              0,
                                              0,
                                              0);
+        if (widget->surface == NULL) {
+            LOG(ERROR, "Could not create map widget surface: %s", SDL_GetError());
+            return;
+        }
     }
 
     /* Make sure the map widget is always the last to handle events for. */
@@ -3223,6 +3227,9 @@ static void widget_draw(widgetdata *widget) {
                                  setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0,
                                  setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0,
                                  setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
+            if (zoomed == NULL) {
+                LOG(ERROR, "Could not resize map surface: %s", SDL_GetError());
+            }
         }
     }
 
@@ -3232,7 +3239,7 @@ static void widget_draw(widgetdata *widget) {
     if (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) == 100) {
         SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
     } else {
-        SDL_BlitSurface(zoomed, NULL, ScreenSurface, &box);
+        SDL_BlitSurface(zoomed != NULL ? zoomed : widget->surface, NULL, ScreenSurface, &box);
     }
 
     if (map_show_mouse && widget_mouse_event.owner == cur_widget[MAP_ID]) {
@@ -3355,7 +3362,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
     } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         if (event->button.button == SDL_BUTTON_RIGHT) {
             right_click_ticks = SDL_GetTicks();
-        } else if (mouse_get_state(NULL, NULL) == SDL_BUTTON_LEFT) {
+        } else if (mouse_get_state(NULL, NULL) == SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
             /* Running */
 
             if (cpl.fire_on || cpl.run_on) {

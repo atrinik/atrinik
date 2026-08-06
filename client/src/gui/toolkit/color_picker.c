@@ -188,7 +188,7 @@ static int color_picker_element_show(SDL_Surface *surface,
             return 0;
         }
     } else if (color_picker->elements[type].dragging &&
-               mouse_get_state(NULL, NULL) != SDL_BUTTON_LEFT) {
+               mouse_get_state(NULL, NULL) != SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
         /* If the element says it's being dragged, but the mouse state says
          * otherwise, stop dragging. */
         color_picker->elements[type].dragging = 0;

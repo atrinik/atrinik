@@ -123,7 +123,8 @@ int button_need_redraw(button_struct *button) {
     ret = 0;
 
     if (button->mouse_over || button->pressed) {
-        int state, mx, my, mover;
+        SDL_MouseButtonFlags state;
+        int mx, my, mover;
 
         state = mouse_get_state(&mx, &my);
         mover = BUTTON_MOUSE_OVER(button, mx, my, texture_surface(button->texture));
@@ -133,7 +134,8 @@ int button_need_redraw(button_struct *button) {
             ret = 1;
         }
 
-        if (button->pressed && !button->pressed_forced && (!mover || state != SDL_BUTTON_LEFT)) {
+        if (button->pressed && !button->pressed_forced &&
+            (!mover || state != SDL_BUTTON_MASK(SDL_BUTTON_LEFT))) {
             button->pressed = 0;
             ret = 1;
         }

@@ -613,7 +613,9 @@ static void sound_start_bg_music_internal(const char *filename,
     sound_background_duration = sound_music_file_get_duration(filename);
     sound_background_update_duration = 1;
 
-    if (!MIX_SetTrackAudio(sound_music_track, tmp->data) || !MIX_PlayTrack(sound_music_track, 0)) {
+    if (!MIX_SetTrackAudio(sound_music_track, tmp->data) ||
+        !MIX_SetTrackGain(sound_music_track, sound_percent_to_gain(volume)) ||
+        !MIX_PlayTrack(sound_music_track, 0)) {
         LOG(BUG, "Could not play '%s'. Reason: %s.", path, SDL_GetError());
         free(sound_background);
         sound_background = NULL;
@@ -652,6 +654,10 @@ void sound_stop_bg_music(void) {
  */
 void sound_pause_music(void) {
 #ifdef HAVE_SDL_MIXER
+    if (!enabled || sound_music_track == NULL) {
+        return;
+    }
+
     MIX_PauseTrack(sound_music_track);
     sound_background_update_duration = 0;
 #endif
@@ -662,6 +668,10 @@ void sound_pause_music(void) {
  */
 void sound_resume_music(void) {
 #ifdef HAVE_SDL_MIXER
+    if (!enabled || sound_music_track == NULL) {
+        return;
+    }
+
     MIX_ResumeTrack(sound_music_track);
 #endif
 }
@@ -944,7 +954,8 @@ static void sound_ambient_set_position(sound_ambient_struct *tmp) {
 
     angle = 0;
     /* Calculate the distance. */
-    distance = MIN(255, (255 * isqrt(POW2(x) + POW2(y))) / (tmp->max_range + (tmp->max_range / 2)));
+    int range = MAX(1, tmp->max_range + (tmp->max_range / 2));
+    distance = MIN(255, (255 * isqrt(POW2(x) + POW2(y))) / range);
 
     /* Calculate the angle. */
     if (setting_get_int(OPT_CAT_SOUND, OPT_3D_SOUNDS) && distance) {
@@ -1066,6 +1077,10 @@ void socket_command_sound_ambient(uint8_t *data, size_t len, size_t pos) {
  */
 int sound_playing_music(void) {
 #ifdef HAVE_SDL_MIXER
+    if (!enabled || sound_music_track == NULL) {
+        return 0;
+    }
+
     return MIX_TrackPlaying(sound_music_track) || MIX_TrackPaused(sound_music_track);
 #else
     return 0;

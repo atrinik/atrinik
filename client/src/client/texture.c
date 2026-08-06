@@ -118,7 +118,7 @@ static int texture_data_new(texture_struct *tmp) {
         }
 
         texture_data_free(tmp);
-        tmp->surface = surface_to_display(surface);
+        tmp->surface = surface_to_display_alpha(surface);
         SDL_DestroySurface(surface);
         if (tmp->surface == NULL) {
             LOG(BUG, "Could not convert software texture %s: %s", tmp->name, SDL_GetError());
@@ -145,7 +145,7 @@ static int texture_data_new(texture_struct *tmp) {
             SDL_SetSurfaceRLE(surface, true);
         }
         texture_data_free(tmp);
-        tmp->surface = surface_to_display(surface);
+        tmp->surface = surface_to_display_alpha(surface);
         SDL_DestroySurface(surface);
         if (tmp->surface == NULL) {
             LOG(BUG, "Could not convert texture %s: %s", path, SDL_GetError());

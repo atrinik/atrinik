@@ -123,7 +123,7 @@ void resize_window(int width, int height) {
  */
 int Event_PollInputDevice(void) {
     SDL_Event event;
-    int x, y, done = 0;
+    int x = 0, y = 0, done = 0;
     static Uint32 Ticks = 0;
 
     /* Execute mouse actions, even if mouse button is being held. */

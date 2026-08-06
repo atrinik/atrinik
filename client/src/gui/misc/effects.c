@@ -762,7 +762,7 @@ SDL_Surface *effect_sprite_overlay(SDL_Surface *surface) {
         }
     }
 
-    SDL_Surface *ret = surface_to_display(tmp);
+    SDL_Surface *ret = surface_to_display_alpha(tmp);
     SDL_DestroySurface(tmp);
     return ret;
 }

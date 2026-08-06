@@ -20,86 +20,58 @@
 
 typedef struct {
 } SDL_Surface;
-typedef struct {
-} SDL_PixelFormat;
 typedef unsigned int Uint32;
+typedef Uint32 SDL_PixelFormat;
+typedef int SDL_ScaleMode;
 
 void *malloc(size_t);
 void *calloc(size_t, size_t);
 void *realloc(void *, size_t);
 void free(void *);
 
-SDL_Surface *SDL_CreateRGBSurface(Uint32 flags,
-                                  int width,
-                                  int height,
-                                  int depth,
-                                  Uint32 Rmask,
-                                  Uint32 Gmask,
-                                  Uint32 Bmask,
-                                  Uint32 Amask) {
+SDL_Surface *SDL_CreateSurface(int width, int height, SDL_PixelFormat format) {
 
     SDL_Surface *ptr;
 
     __coverity_negative_sink__(width);
     __coverity_negative_sink__(height);
-    __coverity_negative_sink__(depth);
-
     ptr = __coverity_alloc__(sizeof(SDL_Surface));
     __coverity_writeall__(ptr);
-    __coverity_mark_as_afm_allocated__(ptr, "SDL_FreeSurface");
+    __coverity_mark_as_afm_allocated__(ptr, "SDL_DestroySurface");
     return ptr;
 }
 
-SDL_Surface *SDL_CreateRGBSurfaceFrom(void *pixels,
-                                      int width,
-                                      int height,
-                                      int depth,
-                                      int pitch,
-                                      Uint32 Rmask,
-                                      Uint32 Gmask,
-                                      Uint32 Bmask,
-                                      Uint32 Amask) {
+SDL_Surface *SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat format) {
+    SDL_Surface *ptr;
+
+    ptr = __coverity_alloc__(sizeof(SDL_Surface));
+    __coverity_writeall__(ptr);
+    __coverity_mark_as_afm_allocated__(ptr, "SDL_DestroySurface");
+    return ptr;
+}
+
+SDL_Surface *SDL_ScaleSurface(SDL_Surface *src, int width, int height, SDL_ScaleMode scaleMode) {
     SDL_Surface *ptr;
 
     __coverity_negative_sink__(width);
     __coverity_negative_sink__(height);
-    __coverity_negative_sink__(depth);
-    __coverity_negative_sink__(pitch);
 
     ptr = __coverity_alloc__(sizeof(SDL_Surface));
     __coverity_writeall__(ptr);
-    __coverity_mark_as_afm_allocated__(ptr, "SDL_FreeSurface");
+    __coverity_mark_as_afm_allocated__(ptr, "SDL_DestroySurface");
     return ptr;
 }
 
-SDL_Surface *SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat *fmt, Uint32 flags) {
+SDL_Surface *SDL_RotateSurface(SDL_Surface *src, float angle) {
     SDL_Surface *ptr;
 
     ptr = __coverity_alloc__(sizeof(SDL_Surface));
     __coverity_writeall__(ptr);
-    __coverity_mark_as_afm_allocated__(ptr, "SDL_FreeSurface");
+    __coverity_mark_as_afm_allocated__(ptr, "SDL_DestroySurface");
     return ptr;
 }
 
-SDL_Surface *SDL_DisplayFormat(SDL_Surface *surface) {
-    SDL_Surface *ptr;
-
-    ptr = __coverity_alloc__(sizeof(SDL_Surface));
-    __coverity_writeall__(ptr);
-    __coverity_mark_as_afm_allocated__(ptr, "SDL_FreeSurface");
-    return ptr;
-}
-
-SDL_Surface *SDL_DisplayFormatAlpha(SDL_Surface *surface) {
-    SDL_Surface *ptr;
-
-    ptr = __coverity_alloc__(sizeof(SDL_Surface));
-    __coverity_writeall__(ptr);
-    __coverity_mark_as_afm_allocated__(ptr, "SDL_FreeSurface");
-    return ptr;
-}
-
-void SDL_FreeSurface(SDL_Surface *surface) {
+void SDL_DestroySurface(SDL_Surface *surface) {
     __coverity_free__(surface);
-    __coverity_mark_as_afm_freed__(surface, "SDL_FreeSurface");
+    __coverity_mark_as_afm_freed__(surface, "SDL_DestroySurface");
 }
