@@ -156,7 +156,8 @@ if (BUILD_TESTING AND NOT MINGW)
         include(src/tests/suites.cmake)
         set(SOURCES_CHECK
             src/tests/main.c
-            src/tests/check.c)
+            src/tests/check.c
+            src/tests/server_clock_fake.c)
         set(ATRINIK_SERVER_UNIT_SUITES)
         set(ATRINIK_SERVER_TEST_SUITE_DECLARATIONS)
         set(ATRINIK_SERVER_TEST_SUITE_ENTRIES)

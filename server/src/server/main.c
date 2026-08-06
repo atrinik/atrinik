@@ -549,6 +549,7 @@ void main_process(void) {
     /* Global round ticker. */
     global_round_tag++;
     pticks++;
+    server_clock_advance_tick();
 
     /* "do" something with objects with speed */
     process_events();

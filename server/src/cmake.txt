@@ -101,6 +101,7 @@ set(SERVER_CORE_SOURCES
 	src/server/region.c
 	src/server/resources.c
 	src/server/rune.c
+	src/server/server_clock.c
 	src/server/shop.c
 	src/server/skill_util.c
 	src/server/skills.c

@@ -30,6 +30,10 @@
   $ ctest --test-dir build/gcc-debug --output-on-failure \
       -R '^server-unit-toolkit.packet$'
 
+ The server's simulation, monotonic, UTC wall, round-generation, and authored
+ world-time domains are documented in ../doc/SERVER_CLOCKS.md. New deadlines
+ must use the typed server clock API described there.
+
  The `check` build target remains available for compatibility and prepares the
  same build-owned runtime automatically.
 

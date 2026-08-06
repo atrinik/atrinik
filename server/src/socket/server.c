@@ -103,7 +103,6 @@ static csocket_entry_t *client_sockets;
 static size_t client_sockets_count;
 
 #define SOCKET_PENDING_CONNECTIONS_MAX 128U
-#define SOCKET_PRELOGIN_TIMEOUT 30
 
 /**
  * Defines all the possible socket commands.
@@ -724,8 +723,7 @@ void socket_server_process(void) {
 
     csocket_entry_t *entry, *entry_tmp;
     DL_FOREACH_SAFE(client_sockets, entry, entry_tmp) {
-        if (entry->cs->accepted_at != 0 &&
-            time(NULL) - entry->cs->accepted_at >= SOCKET_PRELOGIN_TIMEOUT) {
+        if (socket_prelogin_expired(entry->cs)) {
             LOG(SYSTEM,
                 "Connection %s exceeded the pre-login deadline",
                 socket_get_id(entry->cs->sc));

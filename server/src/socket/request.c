@@ -59,17 +59,19 @@
 typedef struct join_failure_entry {
     UT_hash_handle hh;
     char address[MAX_BUF];
-    time_t window_started;
+    server_monotonic_t window_started;
     unsigned int failures;
 } join_failure_entry_t;
 
 static join_failure_entry_t *join_failures;
-static time_t join_failure_global_window;
+static server_monotonic_t join_failure_global_window;
 static unsigned int join_failure_global_count;
 
 static bool join_password_allowed(socket_struct *ns) {
-    time_t now = time(NULL);
-    if (now - join_failure_global_window >= 60) {
+    server_monotonic_t now = server_monotonic_now();
+    server_duration_t minute = server_duration_from_seconds(60);
+    server_duration_t stale = server_duration_from_seconds(120);
+    if (server_monotonic_elapsed_at_least(now, join_failure_global_window, minute)) {
         join_failure_global_window = now;
         join_failure_global_count = 0;
     }
@@ -83,7 +85,7 @@ static bool join_password_allowed(socket_struct *ns) {
     if (entry == NULL) {
         join_failure_entry_t *old, *next;
         HASH_ITER(hh, join_failures, old, next) {
-            if (now - old->window_started >= 120) {
+            if (server_monotonic_elapsed_at_least(now, old->window_started, stale)) {
                 HASH_DEL(join_failures, old);
                 free(old);
             }
@@ -91,7 +93,8 @@ static bool join_password_allowed(socket_struct *ns) {
         if (HASH_COUNT(join_failures) >= JOIN_FAILURE_ENTRY_MAX) {
             join_failure_entry_t *oldest = NULL;
             HASH_ITER(hh, join_failures, old, next) {
-                if (oldest == NULL || old->window_started < oldest->window_started) {
+                if (oldest == NULL ||
+                    server_monotonic_before(old->window_started, oldest->window_started)) {
                     oldest = old;
                 }
             }
@@ -106,7 +109,7 @@ static bool join_password_allowed(socket_struct *ns) {
         HASH_ADD_STR(join_failures, address, entry);
     }
 
-    if (now - entry->window_started >= 60) {
+    if (server_monotonic_elapsed_at_least(now, entry->window_started, minute)) {
         entry->window_started = now;
         entry->failures = 0;
     }

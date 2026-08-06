@@ -148,6 +148,7 @@ void reset_sleep(void) {
     process_min_utime = 999999999;
     process_tot_mtime = 0;
     pticks = 1;
+    server_clock_init((uint64_t)max_time, (server_tick_t){(uint64_t)pticks});
 
     (void)GETTIMEOFDAY(&last_time);
 }
@@ -254,6 +255,7 @@ void set_max_time(long t) {
               "You feel a sudden and inexplicable change in the fabric of "
               "time and space...");
     max_time = t;
+    server_clock_set_tick_period((uint64_t)max_time);
     send_game_time(NULL);
 }
 
