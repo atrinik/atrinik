@@ -92,6 +92,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         return text_input_event(&WIDGET_INPUT(widget)->text_input, event);
     }
 
+    if (widget->show && event->type == SDL_EVENT_KEY_UP) {
+        return 1;
+    }
+
     if (widget->show && event->type == SDL_EVENT_KEY_DOWN) {
         input = WIDGET_INPUT(widget);
 
@@ -119,6 +123,11 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         } else if (text_input_event(text_input, event)) {
             return 1;
         }
+
+        /* SDL3 emits printable text through SDL_EVENT_TEXT_INPUT. Consume the
+         * corresponding physical key event so it cannot also activate a
+         * gameplay key binding while chat has keyboard focus. */
+        return 1;
     }
 
     return 0;

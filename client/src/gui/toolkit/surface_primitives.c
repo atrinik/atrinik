@@ -77,6 +77,81 @@ SDL_Surface *surface_to_display_alpha(SDL_Surface *surface) {
     return SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
 }
 
+/**
+ * Convert packed indexed surfaces to a format supported by SDL's blitters.
+ *
+ * SDL3 can load 1-, 2-, and 4-bit indexed PNGs, but its software blitters and
+ * scaling functions do not support those packed formats. The majority of
+ * Atrinik's game sprites use them, so normalize only those surfaces while
+ * retaining the more compact, supported 8-bit indexed format.
+ */
+bool surface_ensure_blittable(SDL_Surface **surface) {
+    HARD_ASSERT(surface != NULL);
+    HARD_ASSERT(*surface != NULL);
+
+    const SDL_PixelFormatDetails *details = SDL_GetPixelFormatDetails((*surface)->format);
+    if (details == NULL) {
+        return false;
+    }
+
+    if (details->bits_per_pixel >= 8) {
+        return true;
+    }
+
+    SDL_Surface *converted = surface_to_display_alpha(*surface);
+    if (converted == NULL) {
+        return false;
+    }
+
+    SDL_DestroySurface(*surface);
+    *surface = converted;
+    return true;
+}
+
+/**
+ * Darken RGB channels without changing any pixel's alpha.
+ *
+ * Blending a translucent black rectangle onto an RGBA sprite also increases
+ * the alpha of transparent pixels under SDL3. That turns sprite backgrounds
+ * into visible rectangles. Applying the equivalent RGB modulation directly
+ * preserves the sprite silhouette.
+ */
+bool surface_darken_preserve_alpha(SDL_Surface *surface, Uint8 alpha) {
+    HARD_ASSERT(surface != NULL);
+
+    if (alpha == SDL_ALPHA_TRANSPARENT) {
+        return true;
+    }
+
+    if (!SDL_LockSurface(surface)) {
+        return false;
+    }
+
+    const SDL_PixelFormatDetails *details = SDL_GetPixelFormatDetails(surface->format);
+    SDL_Palette *palette = SDL_GetSurfacePalette(surface);
+    if (details == NULL || details->bytes_per_pixel != sizeof(Uint32)) {
+        SDL_UnlockSurface(surface);
+        SDL_SetError("Darkening requires a 32-bit surface");
+        return false;
+    }
+
+    const unsigned int factor = SDL_ALPHA_OPAQUE - alpha;
+    for (int y = 0; y < surface->h; y++) {
+        Uint32 *row = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch);
+        for (int x = 0; x < surface->w; x++) {
+            Uint8 red, green, blue, pixel_alpha;
+            SDL_GetRGBA(row[x], details, palette, &red, &green, &blue, &pixel_alpha);
+            red = (Uint8)((red * factor + 127) / SDL_ALPHA_OPAQUE);
+            green = (Uint8)((green * factor + 127) / SDL_ALPHA_OPAQUE);
+            blue = (Uint8)((blue * factor + 127) / SDL_ALPHA_OPAQUE);
+            row[x] = SDL_MapRGBA(details, palette, red, green, blue, pixel_alpha);
+        }
+    }
+
+    SDL_UnlockSurface(surface);
+    return true;
+}
+
 Uint32 surface_map_rgb(SDL_Surface *surface, Uint8 red, Uint8 green, Uint8 blue) {
     return SDL_MapRGB(SDL_GetPixelFormatDetails(surface->format),
                       SDL_GetSurfacePalette(surface),
