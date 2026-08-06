@@ -1,0 +1,29 @@
+name: Pull Request Policy
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+
+jobs:
+  conventional-title:
+    name: Conventional PR title
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Validate title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^[a-z][a-z0-9-]*(\([a-z0-9][a-z0-9._/-]*\))?(!)?: .+'
+          if [[ ! ${PR_TITLE} =~ ${pattern} ]]; then
+            echo "PR title must use Conventional Commits style:" >&2
+            echo "  type(scope)!: concise description" >&2
+            exit 1
+          fi
