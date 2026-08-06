@@ -1,0 +1,3807 @@
+arch map
+name Glacial Hollow
+msg
+Created: 2005-07-10 Daniel Liptrot
+Modified: 2026-08-06 Zoey Rose
+endmsg
+width 24
+height 24
+difficulty 76
+darkness 2
+tile_path_1 glacial_hollow_1_0_-1
+tile_path_2 glacial_hollow_0_1_-1
+tile_path_5 glacial_hollow_1_1_-1
+bg_music frozen.ogg
+region glacial_hollow
+end
+arch blocked
+y 1
+end
+arch pillar_blue4
+blocksview 1
+y 1
+end
+arch light1
+y 1
+end
+arch blocked
+y 2
+end
+arch light1
+y 2
+end
+arch blocked
+y 3
+end
+arch rock_wall5
+y 3
+end
+arch snow2
+y 4
+end
+arch snow4
+y 5
+end
+arch pillar_blue7
+blocksview 1
+y 5
+end
+arch light1
+y 5
+end
+arch snow1
+y 6
+end
+arch rock_wall1
+y 6
+end
+arch snow2
+y 7
+end
+arch rock_wall1
+y 7
+end
+arch snow2
+y 8
+end
+arch rock_wall1
+y 8
+end
+arch snow2
+y 9
+end
+arch rock_wall1
+y 9
+end
+arch snow2
+y 10
+end
+arch rock_wall1
+y 10
+end
+arch snow1
+y 11
+end
+arch pillar_blue7
+blocksview 1
+y 11
+end
+arch light1
+y 11
+end
+arch snow2
+y 12
+end
+arch rock_wall4
+y 12
+end
+arch blocked
+y 13
+end
+arch snow1
+x 1
+end
+arch pillar_blue7
+blocksview 1
+x 1
+end
+arch light1
+x 1
+end
+arch snow3
+x 1
+y 1
+end
+arch light1
+x 1
+y 1
+end
+arch snow1
+x 1
+y 2
+end
+arch light1
+x 1
+y 2
+end
+arch snow2
+x 1
+y 3
+end
+arch snow4
+x 1
+y 4
+end
+arch icefloor_cave6
+x 1
+y 5
+end
+arch snow_fmask.104
+x 1
+y 5
+end
+arch icefloor_cave4
+x 1
+y 6
+end
+arch snow_fmask.103
+x 1
+y 6
+end
+arch icefloor_cave4
+x 1
+y 7
+end
+arch snow_fmask.102
+x 1
+y 7
+end
+arch snow3
+x 1
+y 8
+end
+arch rock_wall1
+x 1
+y 8
+end
+arch snow1
+x 1
+y 9
+end
+arch crystal_purple
+x 1
+y 9
+end
+arch light1
+x 1
+y 9
+end
+arch snow4
+x 1
+y 10
+end
+arch crystal_purple_s
+x 1
+y 10
+end
+arch light1
+x 1
+y 10
+end
+arch snow2
+x 1
+y 11
+end
+arch snow3
+x 1
+y 12
+end
+arch snow3
+x 1
+y 13
+end
+arch snow2
+x 1
+y 14
+end
+arch pillar_blue4
+blocksview 1
+x 1
+y 14
+end
+arch light1
+x 1
+y 14
+end
+arch blocked
+x 1
+y 15
+end
+arch light1
+x 1
+y 15
+end
+arch icefloor_cave5
+x 2
+end
+arch snow_fmask.103
+x 2
+end
+arch stone5
+x 2
+end
+arch icefloor_cave4
+x 2
+y 1
+end
+arch snow_fmask.102
+x 2
+y 1
+end
+arch stone4
+x 2
+y 1
+end
+arch snow1
+x 2
+y 2
+end
+arch rock_wall1
+x 2
+y 2
+end
+arch icefloor_cave6
+x 2
+y 3
+end
+arch snow_fmask.104
+x 2
+y 3
+end
+arch icefloor_cave2
+x 2
+y 4
+end
+arch snow_fmask.103
+x 2
+y 4
+end
+arch icefloor_cave3
+x 2
+y 5
+end
+arch snow_fmask.114
+x 2
+y 5
+end
+arch icefloor_cave4
+x 2
+y 6
+end
+arch icefloor_cave4
+x 2
+y 7
+end
+arch snow_fmask.112
+x 2
+y 7
+end
+arch icefloor_cave6
+x 2
+y 8
+end
+arch snow_fmask.102
+x 2
+y 8
+end
+arch snow2
+x 2
+y 9
+end
+arch crystal_purple_s
+x 2
+y 9
+end
+arch light1
+x 2
+y 9
+end
+arch icefloor_cave4
+x 2
+y 10
+end
+arch snow_fmask.104
+x 2
+y 10
+end
+arch icefloor_cave2
+x 2
+y 11
+end
+arch snow_fmask.103
+x 2
+y 11
+end
+arch icefloor_cave5
+x 2
+y 12
+end
+arch snow_fmask.103
+x 2
+y 12
+end
+arch icefloor_cave6
+x 2
+y 13
+end
+arch snow_fmask.102
+x 2
+y 13
+end
+arch stone3
+x 2
+y 13
+end
+arch snow1
+x 2
+y 14
+end
+arch light1
+x 2
+y 14
+end
+arch snow3
+x 2
+y 15
+end
+arch light1
+x 2
+y 15
+end
+arch icefloor_cave4
+x 3
+end
+arch icefloor_cave5
+x 3
+y 1
+end
+arch snow_fmask.101
+x 3
+y 1
+end
+arch snow1
+x 3
+y 2
+end
+arch pillar_blue9
+blocksview 1
+glow_radius 1
+x 3
+y 2
+end
+arch light1
+x 3
+y 2
+end
+arch icefloor_cave4
+x 3
+y 3
+end
+arch snow_fmask.105
+x 3
+y 3
+end
+arch icefloor_cave6
+x 3
+y 4
+end
+arch icefloor_cave1
+x 3
+y 5
+end
+arch spawn_point
+x 3
+y 5
+arch skel_mage
+Dex 13
+name skeleton ice mage
+type 83
+level 76
+direction 3
+arch rand_drop
+container 6
+arch quest_container
+name Glacial Hollow Fire Crystal
+arch nawerhals_fire_crystal
+end
+end
+end
+arch ability_icestorm
+end
+end
+end
+arch icefloor_cave4
+x 3
+y 6
+end
+arch icefloor_cave4
+x 3
+y 7
+end
+arch icefloor_cave1
+x 3
+y 8
+end
+arch snow_fmask.112
+x 3
+y 8
+end
+arch icefloor_cave2
+x 3
+y 9
+end
+arch snow_fmask.103
+x 3
+y 9
+end
+arch icefloor_cave3
+x 3
+y 10
+end
+arch snow_fmask.114
+x 3
+y 10
+end
+arch icefloor_cave6
+x 3
+y 11
+end
+arch icefloor_cave4
+x 3
+y 12
+end
+arch spawn_point
+x 3
+y 12
+arch jelly_blue
+Wis 2
+protect_cold 100
+protect_fire -20
+name cold jelly
+type 83
+level 75
+arch rand_drop
+container 7
+arch quest_container
+name Glacial Hollow Fire Crystal
+arch nawerhals_fire_crystal
+end
+end
+end
+end
+end
+arch icefloor_cave3
+x 3
+y 13
+end
+arch snow_fmask.112
+x 3
+y 13
+end
+arch icefloor_cave2
+x 3
+y 14
+end
+arch snow_fmask.102
+x 3
+y 14
+end
+arch snow4
+x 3
+y 15
+end
+arch rock_wall1
+x 3
+y 15
+end
+arch snow1
+x 3
+y 16
+end
+arch rock_wall1
+x 3
+y 16
+end
+arch snow2
+x 3
+y 17
+end
+arch pillar_blue7
+blocksview 1
+x 3
+y 17
+end
+arch snow3
+x 3
+y 18
+end
+arch rock_wall3
+x 3
+y 18
+end
+arch snow3
+x 3
+y 19
+end
+arch snow3
+x 3
+y 20
+end
+arch pillar_blue7
+blocksview 1
+x 3
+y 20
+end
+arch light1
+x 3
+y 20
+end
+arch snow4
+x 3
+y 21
+end
+arch rock_wall1
+x 3
+y 21
+end
+arch icefloor_cave5
+x 4
+end
+arch snow_fmask.118
+x 4
+end
+arch icefloor_cave2
+x 4
+y 1
+end
+arch snow_fmask.108
+x 4
+y 1
+end
+arch snow2
+x 4
+y 2
+end
+arch icefloor_cave5
+x 4
+y 3
+end
+arch snow_fmask.105
+x 4
+y 3
+end
+arch icefloor_cave4
+x 4
+y 4
+end
+arch icefloor_cave2
+x 4
+y 5
+end
+arch icefloor_cave4
+x 4
+y 6
+end
+arch icefloor_cave1
+x 4
+y 7
+end
+arch icefloor_cave5
+x 4
+y 8
+end
+arch stone4
+x 4
+y 8
+end
+arch icefloor_cave2
+x 4
+y 9
+end
+arch snow_fmask.118
+x 4
+y 9
+end
+arch icefloor_cave3
+x 4
+y 10
+end
+arch snow_fmask.107
+x 4
+y 10
+end
+arch icefloor_cave5
+x 4
+y 11
+end
+arch snow_fmask.107
+x 4
+y 11
+end
+arch icefloor_cave1
+x 4
+y 12
+end
+arch snow_fmask.116
+x 4
+y 12
+end
+arch icefloor_cave1
+x 4
+y 13
+end
+arch icefloor_cave5
+x 4
+y 14
+end
+arch snow_fmask.101
+x 4
+y 14
+end
+arch snow3
+x 4
+y 15
+end
+arch rock_wall1
+x 4
+y 15
+end
+arch icefloor_cave6
+x 4
+y 16
+end
+arch snow_fmask.104
+x 4
+y 16
+end
+arch icefloor_cave2
+x 4
+y 17
+end
+arch snow_fmask.102
+x 4
+y 17
+end
+arch snow2
+x 4
+y 18
+end
+arch snow3
+x 4
+y 19
+end
+arch snow4
+x 4
+y 20
+end
+arch crystal_purple
+x 4
+y 20
+end
+arch light1
+x 4
+y 20
+end
+arch snow3
+x 4
+y 21
+end
+arch pillar_blue4
+blocksview 1
+x 4
+y 21
+end
+arch light1
+x 4
+y 21
+end
+arch blocked
+x 4
+y 22
+end
+arch light1
+x 4
+y 22
+end
+arch icefloor_cave6
+x 5
+end
+arch snow_fmask.101
+x 5
+end
+arch snow1
+x 5
+y 1
+end
+arch rock_wall1
+x 5
+y 1
+end
+arch snow1
+x 5
+y 2
+end
+arch pillar_blue9
+blocksview 1
+glow_radius 1
+x 5
+y 2
+end
+arch light1
+x 5
+y 2
+end
+arch icefloor_cave4
+x 5
+y 3
+end
+arch snow_fmask.106
+x 5
+y 3
+end
+arch icefloor_cave5
+x 5
+y 4
+end
+arch snow_fmask.116
+x 5
+y 4
+end
+arch icefloor_cave6
+x 5
+y 5
+end
+arch icefloor_cave2
+x 5
+y 6
+end
+arch icefloor_cave1
+x 5
+y 7
+end
+arch icefloor_cave3
+x 5
+y 8
+end
+arch icefloor_cave2
+x 5
+y 9
+end
+arch snow_fmask.101
+x 5
+y 9
+end
+arch snow1
+x 5
+y 10
+end
+arch pillar_blue5
+blocksview 1
+x 5
+y 10
+end
+arch light1
+x 5
+y 10
+end
+arch snow4
+x 5
+y 11
+end
+arch light1
+x 5
+y 11
+end
+arch icefloor_cave5
+x 5
+y 12
+end
+arch snow_fmask.105
+x 5
+y 12
+end
+arch icefloor_cave4
+x 5
+y 13
+end
+arch icefloor_cave2
+x 5
+y 14
+end
+arch snow_fmask.112
+x 5
+y 14
+end
+arch icefloor_cave2
+x 5
+y 15
+end
+arch snow_fmask.103
+x 5
+y 15
+end
+arch icefloor_cave5
+x 5
+y 16
+end
+arch snow_fmask.114
+x 5
+y 16
+end
+arch icefloor_cave6
+x 5
+y 17
+end
+arch snow_fmask.112
+x 5
+y 17
+end
+arch stone2
+x 5
+y 17
+end
+arch icefloor_cave6
+x 5
+y 18
+end
+arch snow_fmask.102
+x 5
+y 18
+end
+arch snow4
+x 5
+y 19
+end
+arch crystal_purple_s
+x 5
+y 19
+end
+arch light1
+x 5
+y 19
+end
+arch snow3
+x 5
+y 20
+end
+arch crystal_purple_s
+x 5
+y 20
+end
+arch light1
+x 5
+y 20
+end
+arch snow2
+x 5
+y 21
+end
+arch light1
+x 5
+y 21
+end
+arch blocked
+x 5
+y 22
+end
+arch light1
+x 5
+y 22
+end
+arch icefloor_cave4
+x 6
+end
+arch snow_fmask.108
+x 6
+end
+arch snow1
+x 6
+y 1
+end
+arch rock_wall4
+x 6
+y 1
+end
+arch snow1
+x 6
+y 2
+end
+arch snow3
+x 6
+y 3
+end
+arch rock_wall1
+x 6
+y 3
+end
+arch icefloor_cave3
+x 6
+y 4
+end
+arch snow_fmask.106
+x 6
+y 4
+end
+arch icefloor_cave6
+x 6
+y 5
+end
+arch snow_fmask.107
+x 6
+y 5
+end
+arch icefloor_cave4
+x 6
+y 6
+end
+arch snow_fmask.116
+x 6
+y 6
+end
+arch icefloor_cave5
+x 6
+y 7
+end
+arch icefloor_cave4
+x 6
+y 8
+end
+arch icefloor_cave6
+x 6
+y 9
+end
+arch snow_fmask.101
+x 6
+y 9
+end
+arch snow1
+x 6
+y 10
+end
+arch light1
+x 6
+y 10
+end
+arch snow2
+x 6
+y 11
+end
+arch light1
+x 6
+y 11
+end
+arch icefloor_cave2
+x 6
+y 12
+end
+arch snow_fmask.105
+x 6
+y 12
+end
+arch icefloor_cave6
+x 6
+y 13
+end
+arch icefloor_cave6
+x 6
+y 14
+end
+arch icefloor_cave4
+x 6
+y 15
+end
+arch icefloor_cave4
+x 6
+y 16
+end
+arch stone4
+x 6
+y 16
+end
+arch icefloor_cave1
+x 6
+y 17
+end
+arch icefloor_cave3
+x 6
+y 18
+end
+arch snow_fmask.112
+x 6
+y 18
+end
+arch icefloor_cave4
+x 6
+y 19
+end
+arch snow_fmask.102
+x 6
+y 19
+end
+arch snow4
+x 6
+y 20
+end
+arch rock_wall5
+x 6
+y 20
+end
+arch snow3
+x 6
+y 21
+end
+arch snow3
+x 7
+end
+arch pillar_blue7
+blocksview 1
+x 7
+end
+arch light1
+x 7
+end
+arch snow1
+x 7
+y 1
+end
+arch blocked
+x 7
+y 2
+end
+arch snow3
+x 7
+y 3
+end
+arch pillar_blue7
+blocksview 1
+x 7
+y 3
+end
+arch light1
+x 7
+y 3
+end
+arch snow1
+x 7
+y 4
+end
+arch rock_wall5
+x 7
+y 4
+end
+arch snow4
+x 7
+y 5
+end
+arch icefloor_cave1
+x 7
+y 6
+end
+arch snow_fmask.106
+x 7
+y 6
+end
+arch icefloor_cave1
+x 7
+y 7
+end
+arch snow_fmask.116
+x 7
+y 7
+end
+arch icefloor_cave5
+x 7
+y 8
+end
+arch icefloor_cave2
+x 7
+y 9
+end
+arch snow_fmask.112
+x 7
+y 9
+end
+arch icefloor_cave3
+x 7
+y 10
+end
+arch snow_fmask.103
+x 7
+y 10
+end
+arch icefloor_cave6
+x 7
+y 11
+end
+arch snow_fmask.103
+x 7
+y 11
+end
+arch small_stones
+x 7
+y 11
+end
+arch icefloor_cave5
+x 7
+y 12
+end
+arch snow_fmask.114
+x 7
+y 12
+end
+arch icefloor_cave3
+x 7
+y 13
+end
+arch icefloor_cave6
+x 7
+y 14
+end
+arch icefloor_cave4
+x 7
+y 15
+end
+arch icefloor_cave1
+x 7
+y 16
+end
+arch icefloor_cave4
+x 7
+y 17
+end
+arch icefloor_cave1
+x 7
+y 18
+end
+arch icefloor_cave5
+x 7
+y 19
+end
+arch snow_fmask.101
+x 7
+y 19
+end
+arch snow1
+x 7
+y 20
+end
+arch blocked
+x 7
+y 21
+end
+arch blocked
+x 8
+y 2
+end
+arch pillar_blue2
+blocksview 1
+x 8
+y 2
+end
+arch light1
+x 8
+y 2
+end
+arch blocked
+x 8
+y 3
+end
+arch light1
+x 8
+y 3
+end
+arch blocked
+x 8
+y 4
+end
+arch snow2
+x 8
+y 5
+end
+arch snow4
+x 8
+y 6
+end
+arch rock_wall1
+x 8
+y 6
+end
+arch icefloor_cave4
+x 8
+y 7
+end
+arch snow_fmask.105
+x 8
+y 7
+end
+arch icefloor_cave3
+x 8
+y 8
+end
+arch icefloor_cave4
+x 8
+y 9
+end
+arch icefloor_cave2
+x 8
+y 10
+end
+arch icefloor_cave4
+x 8
+y 11
+end
+arch icefloor_cave1
+x 8
+y 12
+end
+arch icefloor_cave4
+x 8
+y 13
+end
+arch icefloor_cave5
+x 8
+y 14
+end
+arch spawn_point
+x 8
+y 14
+arch jelly_blue
+Wis 2
+protect_cold 100
+protect_fire -20
+name cold jelly
+type 83
+level 75
+arch rand_drop
+container 7
+arch quest_container
+name Glacial Hollow Fire Crystal
+arch nawerhals_fire_crystal
+end
+end
+end
+end
+end
+arch icefloor_cave6
+x 8
+y 15
+end
+arch icefloor_cave1
+x 8
+y 16
+end
+arch icefloor_cave1
+x 8
+y 17
+end
+arch icefloor_cave5
+x 8
+y 18
+end
+arch snow_fmask.118
+x 8
+y 18
+end
+arch icefloor_cave2
+x 8
+y 19
+end
+arch snow_fmask.108
+x 8
+y 19
+end
+arch snow3
+x 8
+y 20
+end
+arch pillar_blue7
+blocksview 1
+x 8
+y 20
+end
+arch light1
+x 8
+y 20
+end
+arch blocked
+x 9
+end
+arch rock_wall5
+x 9
+end
+arch snow1
+x 9
+y 1
+end
+arch snow3
+x 9
+y 2
+end
+arch light1
+x 9
+y 2
+end
+arch snow1
+x 9
+y 3
+end
+arch light1
+x 9
+y 3
+end
+arch snow2
+x 9
+y 5
+end
+arch pillar_blue7
+blocksview 1
+x 9
+y 5
+end
+arch light1
+x 9
+y 5
+end
+arch snow4
+x 9
+y 6
+end
+arch crystal_purple
+x 9
+y 6
+end
+arch light1
+x 9
+y 6
+end
+arch icefloor_cave1
+x 9
+y 7
+end
+arch snow_fmask.105
+x 9
+y 7
+end
+arch icefloor_cave5
+x 9
+y 8
+end
+arch snow_fmask.118
+x 9
+y 8
+end
+arch icefloor_cave1
+x 9
+y 9
+end
+arch snow_fmask.107
+x 9
+y 9
+end
+arch icefloor_cave3
+x 9
+y 10
+end
+arch snow_fmask.107
+x 9
+y 10
+end
+arch icefloor_cave1
+x 9
+y 11
+end
+arch snow_fmask.107
+x 9
+y 11
+end
+arch icefloor_cave1
+x 9
+y 12
+end
+arch snow_fmask.107
+x 9
+y 12
+end
+arch icefloor_cave2
+x 9
+y 13
+end
+arch snow_fmask.107
+x 9
+y 13
+end
+arch icefloor_cave6
+x 9
+y 14
+end
+arch snow_fmask.107
+x 9
+y 14
+end
+arch small_stones
+x 9
+y 14
+end
+arch icefloor_cave3
+x 9
+y 15
+end
+arch snow_fmask.107
+x 9
+y 15
+end
+arch icefloor_cave1
+x 9
+y 16
+end
+arch snow_fmask.116
+x 9
+y 16
+end
+arch icefloor_cave6
+x 9
+y 17
+end
+arch snow_fmask.118
+x 9
+y 17
+end
+arch icefloor_cave3
+x 9
+y 18
+end
+arch snow_fmask.108
+x 9
+y 18
+end
+arch snow2
+x 9
+y 19
+end
+arch rock_wall3
+x 9
+y 19
+end
+arch snow1
+x 9
+y 20
+end
+arch blocked
+x 9
+y 21
+end
+arch pillar_blue2
+blocksview 1
+x 9
+y 21
+end
+arch light1
+x 9
+y 21
+end
+arch blocked
+x 9
+y 22
+end
+arch light1
+x 9
+y 22
+end
+arch snow2
+x 10
+end
+arch snow1
+x 10
+y 1
+end
+arch snow1
+x 10
+y 2
+end
+arch crystal_purple_s
+x 10
+y 2
+end
+arch light1
+x 10
+y 2
+end
+arch snow2
+x 10
+y 3
+end
+arch rock_wall4
+x 10
+y 3
+end
+arch blocked
+x 10
+y 4
+end
+arch snow2
+x 10
+y 5
+end
+arch rock_wall5
+x 10
+y 5
+end
+arch snow3
+x 10
+y 6
+end
+arch icefloor_cave5
+x 10
+y 7
+end
+arch snow_fmask.106
+x 10
+y 7
+end
+arch icefloor_cave6
+x 10
+y 8
+end
+arch snow_fmask.108
+x 10
+y 8
+end
+arch snow4
+x 10
+y 9
+end
+arch rock_wall1
+x 10
+y 9
+end
+arch snow3
+x 10
+y 10
+end
+arch rock_wall1
+x 10
+y 10
+end
+arch snow2
+x 10
+y 11
+end
+arch pillar_blue7
+blocksview 1
+x 10
+y 11
+end
+arch light1
+x 10
+y 11
+end
+arch snow3
+x 10
+y 12
+end
+arch rock_wall1
+x 10
+y 12
+end
+arch snow2
+x 10
+y 13
+end
+arch pillar_blue7
+blocksview 1
+x 10
+y 13
+end
+arch light1
+x 10
+y 13
+end
+arch snow4
+x 10
+y 14
+end
+arch rock_wall5
+x 10
+y 14
+end
+arch snow2
+x 10
+y 15
+end
+arch icefloor_cave2
+x 10
+y 16
+end
+arch snow_fmask.105
+x 10
+y 16
+end
+arch icefloor_cave3
+x 10
+y 17
+end
+arch snow_fmask.101
+x 10
+y 17
+end
+arch snow3
+x 10
+y 18
+end
+arch rock_wall1
+x 10
+y 18
+end
+arch snow2
+x 10
+y 19
+end
+arch snow4
+x 10
+y 20
+end
+arch snow1
+x 10
+y 21
+end
+arch light1
+x 10
+y 21
+end
+arch snow3
+x 10
+y 22
+end
+arch light1
+x 10
+y 22
+end
+arch snow2
+x 10
+y 23
+end
+arch pillar_blue7
+blocksview 1
+x 10
+y 23
+end
+arch light1
+x 10
+y 23
+end
+arch snow4
+x 11
+end
+arch pillar_blue7
+blocksview 1
+x 11
+end
+arch light1
+x 11
+end
+arch icefloor_cave4
+x 11
+y 1
+end
+arch snow_fmask.104
+x 11
+y 1
+end
+arch icefloor_cave5
+x 11
+y 2
+end
+arch snow_fmask.102
+x 11
+y 2
+end
+arch snow2
+x 11
+y 3
+end
+arch snow4
+x 11
+y 4
+end
+arch blocked
+x 11
+y 5
+end
+arch snow4
+x 11
+y 6
+end
+arch snow1
+x 11
+y 7
+end
+arch icefloor_cave5
+x 11
+y 8
+end
+arch snow_fmask.104
+x 11
+y 8
+end
+arch icefloor_cave4
+x 11
+y 9
+end
+arch snow_fmask.102
+x 11
+y 9
+end
+arch snow4
+x 11
+y 10
+end
+arch rock_wall4
+x 11
+y 10
+end
+arch blocked
+x 11
+y 11
+end
+arch blocked
+x 11
+y 12
+end
+arch pillar_blue2
+blocksview 1
+x 11
+y 12
+end
+arch light1
+x 11
+y 12
+end
+arch blocked
+x 11
+y 13
+end
+arch light1
+x 11
+y 13
+end
+arch blocked
+x 11
+y 14
+end
+arch snow4
+x 11
+y 15
+end
+arch icefloor_cave1
+x 11
+y 16
+end
+arch snow_fmask.105
+x 11
+y 16
+end
+arch icefloor_cave4
+x 11
+y 17
+end
+arch snow_fmask.112
+x 11
+y 17
+end
+arch icefloor_cave3
+x 11
+y 18
+end
+arch snow_fmask.103
+x 11
+y 18
+end
+arch icefloor_cave1
+x 11
+y 19
+end
+arch snow_fmask.103
+x 11
+y 19
+end
+arch icefloor_cave5
+x 11
+y 20
+end
+arch snow_fmask.102
+x 11
+y 20
+end
+arch snow4
+x 11
+y 21
+end
+arch crystal_purple_s
+x 11
+y 21
+end
+arch light1
+x 11
+y 21
+end
+arch snow3
+x 11
+y 22
+end
+arch crystal_purple
+x 11
+y 22
+end
+arch light1
+x 11
+y 22
+end
+arch snow2
+x 11
+y 23
+end
+arch rock_wall1
+x 11
+y 23
+end
+arch snow2
+x 12
+end
+arch rock_wall1
+x 12
+end
+arch icefloor_cave3
+x 12
+y 1
+end
+arch snow_fmask.105
+x 12
+y 1
+end
+arch icefloor_cave4
+x 12
+y 2
+end
+arch snow_fmask.112
+x 12
+y 2
+end
+arch icefloor_cave3
+x 12
+y 3
+end
+arch snow_fmask.102
+x 12
+y 3
+end
+arch snow3
+x 12
+y 4
+end
+arch pillar_blue7
+blocksview 1
+x 12
+y 4
+end
+arch light1
+x 12
+y 4
+end
+arch blocked
+x 12
+y 5
+end
+arch pillar_blue2
+blocksview 1
+x 12
+y 5
+end
+arch light1
+x 12
+y 5
+end
+arch snow4
+x 12
+y 6
+end
+arch light1
+x 12
+y 6
+end
+arch snow2
+x 12
+y 7
+end
+arch rock_wall1
+x 12
+y 7
+end
+arch icefloor_cave2
+x 12
+y 8
+end
+arch snow_fmask.106
+x 12
+y 8
+end
+arch icefloor_cave5
+x 12
+y 9
+end
+arch snow_fmask.108
+x 12
+y 9
+end
+arch snow2
+x 12
+y 10
+end
+arch snow3
+x 12
+y 11
+end
+arch snow2
+x 12
+y 12
+end
+arch light1
+x 12
+y 12
+end
+arch snow1
+x 12
+y 13
+end
+arch light1
+x 12
+y 13
+end
+arch snow1
+x 12
+y 14
+end
+arch rock_wall3
+x 12
+y 14
+end
+arch snow3
+x 12
+y 15
+end
+arch icefloor_cave3
+x 12
+y 16
+end
+arch snow_fmask.106
+x 12
+y 16
+end
+arch icefloor_cave5
+x 12
+y 17
+end
+arch snow_fmask.116
+x 12
+y 17
+end
+arch icefloor_cave6
+x 12
+y 18
+end
+arch icefloor_cave2
+x 12
+y 19
+end
+arch icefloor_cave6
+x 12
+y 20
+end
+arch snow_fmask.112
+x 12
+y 20
+end
+arch icefloor_cave6
+x 12
+y 21
+end
+arch snow_fmask.102
+x 12
+y 21
+end
+arch snow4
+x 12
+y 22
+end
+arch crystal_purple_s
+x 12
+y 22
+end
+arch light1
+x 12
+y 22
+end
+arch snow3
+x 12
+y 23
+end
+arch rock_wall1
+x 12
+y 23
+end
+arch icefloor_cave4
+x 13
+end
+arch snow_fmask.103
+x 13
+end
+arch icefloor_cave2
+x 13
+y 1
+end
+arch snow_fmask.114
+x 13
+y 1
+end
+arch icefloor_cave1
+x 13
+y 2
+end
+arch snow_fmask.118
+x 13
+y 2
+end
+arch icefloor_cave3
+x 13
+y 3
+end
+arch snow_fmask.108
+x 13
+y 3
+end
+arch snow2
+x 13
+y 4
+end
+arch rock_wall1
+x 13
+y 4
+end
+arch blocked
+x 13
+y 5
+end
+arch light1
+x 13
+y 5
+end
+arch snow1
+x 13
+y 6
+end
+arch light1
+x 13
+y 6
+end
+arch snow1
+x 13
+y 7
+end
+arch crystal_purple
+x 13
+y 7
+end
+arch light1
+x 13
+y 7
+end
+arch snow4
+x 13
+y 8
+end
+arch crystal_purple_s
+x 13
+y 8
+end
+arch light1
+x 13
+y 8
+end
+arch icefloor_cave6
+x 13
+y 9
+end
+arch snow_fmask.104
+x 13
+y 9
+end
+arch icefloor_cave6
+x 13
+y 10
+end
+arch snow_fmask.103
+x 13
+y 10
+end
+arch icefloor_cave3
+x 13
+y 11
+end
+arch snow_fmask.103
+x 13
+y 11
+end
+arch icefloor_cave4
+x 13
+y 12
+end
+arch snow_fmask.103
+x 13
+y 12
+end
+arch icefloor_cave6
+x 13
+y 13
+end
+arch snow_fmask.102
+x 13
+y 13
+end
+arch snow4
+x 13
+y 14
+end
+arch snow1
+x 13
+y 15
+end
+arch snow4
+x 13
+y 16
+end
+arch rock_wall1
+x 13
+y 16
+end
+arch icefloor_cave6
+x 13
+y 17
+end
+arch snow_fmask.106
+x 13
+y 17
+end
+arch icefloor_cave1
+x 13
+y 18
+end
+arch snow_fmask.107
+x 13
+y 18
+end
+arch icefloor_cave6
+x 13
+y 19
+end
+arch snow_fmask.107
+x 13
+y 19
+end
+arch icefloor_cave1
+x 13
+y 20
+end
+arch snow_fmask.107
+x 13
+y 20
+end
+arch icefloor_cave5
+x 13
+y 21
+end
+arch snow_fmask.108
+x 13
+y 21
+end
+arch stone5
+x 13
+y 21
+end
+arch snow3
+x 13
+y 22
+end
+arch rock_wall5
+x 13
+y 22
+end
+arch snow3
+x 13
+y 23
+end
+arch icefloor_cave5
+x 14
+end
+arch spawn_point
+x 14
+arch icegolem
+Wis 2
+name powerful ice golem
+type 83
+level 76
+direction 3
+arch rand_drop
+container 7
+arch quest_container
+name Glacial Hollow Fire Crystal
+arch nawerhals_fire_crystal
+end
+end
+end
+end
+end
+arch icefloor_cave2
+x 14
+y 1
+end
+arch icefloor_cave3
+x 14
+y 2
+end
+arch snow_fmask.101
+x 14
+y 2
+end
+arch snow2
+x 14
+y 3
+end
+arch rock_wall1
+x 14
+y 3
+end
+arch snow2
+x 14
+y 4
+end
+arch rock_wall4
+x 14
+y 4
+end
+arch blocked
+x 14
+y 5
+end
+arch snow4
+x 14
+y 6
+end
+arch pillar_blue7
+blocksview 1
+x 14
+y 6
+end
+arch light1
+x 14
+y 6
+end
+arch snow3
+x 14
+y 7
+end
+arch crystal_purple_s
+x 14
+y 7
+end
+arch light1
+x 14
+y 7
+end
+arch icefloor_cave3
+x 14
+y 8
+end
+arch snow_fmask.104
+x 14
+y 8
+end
+arch spawn_point
+x 14
+y 8
+arch icegolem
+Wis 2
+name powerful ice golem
+type 83
+level 75
+arch rand_drop
+container 7
+arch quest_container
+name Glacial Hollow Fire Crystal
+arch nawerhals_fire_crystal
+end
+end
+end
+end
+end
+arch icefloor_cave1
+x 14
+y 9
+end
+arch snow_fmask.114
+x 14
+y 9
+end
+arch icefloor_cave6
+x 14
+y 10
+end
+arch icefloor_cave4
+x 14
+y 11
+end
+arch icefloor_cave5
+x 14
+y 12
+end
+arch icefloor_cave5
+x 14
+y 13
+end
+arch snow_fmask.112
+x 14
+y 13
+end
+arch icefloor_cave4
+x 14
+y 14
+end
+arch snow_fmask.103
+x 14
+y 14
+end
+arch icefloor_cave2
+x 14
+y 15
+end
+arch snow_fmask.102
+x 14
+y 15
+end
+arch snow4
+x 14
+y 16
+end
+arch pillar_blue7
+blocksview 1
+x 14
+y 16
+end
+arch light1
+x 14
+y 16
+end
+arch snow1
+x 14
+y 17
+end
+arch rock_wall3
+x 14
+y 17
+end
+arch snow2
+x 14
+y 18
+end
+arch snow2
+x 14
+y 19
+end
+arch rock_wall4
+x 14
+y 19
+end
+arch snow3
+x 14
+y 20
+end
+arch snow4
+x 14
+y 21
+end
+arch pillar_blue7
+blocksview 1
+x 14
+y 21
+end
+arch light1
+x 14
+y 21
+end
+arch snow3
+x 14
+y 22
+end
+arch blocked
+x 14
+y 23
+end
+arch icefloor_cave1
+x 15
+end
+arch icefloor_cave3
+x 15
+y 1
+end
+arch icefloor_cave6
+x 15
+y 2
+end
+arch snow_fmask.112
+x 15
+y 2
+end
+arch icefloor_cave1
+x 15
+y 3
+end
+arch snow_fmask.102
+x 15
+y 3
+end
+arch snow1
+x 15
+y 4
+end
+arch snow4
+x 15
+y 5
+end
+arch snow4
+x 15
+y 6
+end
+arch rock_wall1
+x 15
+y 6
+end
+arch snow3
+x 15
+y 7
+end
+arch rock_wall1
+x 15
+y 7
+end
+arch icefloor_cave1
+x 15
+y 8
+end
+arch snow_fmask.105
+x 15
+y 8
+end
+arch icefloor_cave5
+x 15
+y 9
+end
+arch icefloor_cave6
+x 15
+y 10
+end
+arch icefloor_cave2
+x 15
+y 11
+end
+arch snow_fmask.118
+x 15
+y 11
+end
+arch icefloor_cave3
+x 15
+y 12
+end
+arch snow_fmask.107
+x 15
+y 12
+end
+arch icefloor_cave4
+x 15
+y 13
+end
+arch snow_fmask.107
+x 15
+y 13
+end
+arch icefloor_cave6
+x 15
+y 14
+end
+arch snow_fmask.116
+x 15
+y 14
+end
+arch icefloor_cave1
+x 15
+y 15
+end
+arch snow_fmask.112
+x 15
+y 15
+end
+arch icefloor_cave1
+x 15
+y 16
+end
+arch snow_fmask.102
+x 15
+y 16
+end
+arch stone2
+x 15
+y 16
+end
+arch snow3
+x 15
+y 17
+end
+arch snow3
+x 15
+y 18
+end
+arch snow1
+x 15
+y 19
+end
+arch blocked
+x 15
+y 20
+end
+arch icefloor_cave6
+x 16
+end
+arch icefloor_cave6
+x 16
+y 1
+end
+arch icefloor_cave3
+x 16
+y 2
+end
+arch icefloor_cave4
+x 16
+y 3
+end
+arch snow_fmask.112
+x 16
+y 3
+end
+arch icefloor_cave5
+x 16
+y 4
+end
+arch snow_fmask.102
+x 16
+y 4
+end
+arch snow1
+x 16
+y 5
+end
+arch rock_wall1
+x 16
+y 5
+end
+arch icefloor_cave5
+x 16
+y 6
+end
+arch snow_fmask.104
+x 16
+y 6
+end
+arch icefloor_cave3
+x 16
+y 7
+end
+arch snow_fmask.103
+x 16
+y 7
+end
+arch icefloor_cave6
+x 16
+y 8
+end
+arch snow_fmask.114
+x 16
+y 8
+end
+arch icefloor_cave3
+x 16
+y 9
+end
+arch icefloor_cave6
+x 16
+y 10
+end
+arch snow_fmask.118
+x 16
+y 10
+end
+arch icefloor_cave2
+x 16
+y 11
+end
+arch snow_fmask.108
+x 16
+y 11
+end
+arch snow4
+x 16
+y 12
+end
+arch rock_wall3
+x 16
+y 12
+end
+arch snow4
+x 16
+y 13
+end
+arch icefloor_cave6
+x 16
+y 14
+end
+arch snow_fmask.105
+x 16
+y 14
+end
+arch stone2
+x 16
+y 14
+end
+arch icefloor_cave2
+x 16
+y 15
+end
+arch icefloor_cave6
+x 16
+y 16
+end
+arch snow_fmask.112
+x 16
+y 16
+end
+arch stone5
+x 16
+y 16
+end
+arch icefloor_cave4
+x 16
+y 17
+end
+arch snow_fmask.102
+x 16
+y 17
+end
+arch stone5
+x 16
+y 17
+end
+arch snow3
+x 16
+y 18
+end
+arch crystal_purple_s
+x 16
+y 18
+end
+arch light1
+x 16
+y 18
+end
+arch snow1
+x 16
+y 19
+end
+arch rock_wall1
+x 16
+y 19
+end
+arch snow3
+x 16
+y 20
+end
+arch pillar_blue7
+blocksview 1
+x 16
+y 20
+end
+arch light1
+x 16
+y 20
+end
+arch icefloor_cave5
+x 17
+end
+arch icefloor_cave5
+x 17
+y 1
+end
+arch icefloor_cave6
+x 17
+y 2
+end
+arch icefloor_cave5
+x 17
+y 3
+end
+arch icefloor_cave6
+x 17
+y 4
+end
+arch snow_fmask.112
+x 17
+y 4
+end
+arch icefloor_cave2
+x 17
+y 5
+end
+arch snow_fmask.103
+x 17
+y 5
+end
+arch stone5
+x 17
+y 5
+end
+arch icefloor_cave1
+x 17
+y 6
+end
+arch snow_fmask.114
+x 17
+y 6
+end
+arch icefloor_cave6
+x 17
+y 7
+end
+arch icefloor_cave3
+x 17
+y 8
+end
+arch stone6
+x 17
+y 8
+end
+arch icefloor_cave5
+x 17
+y 9
+end
+arch icefloor_cave1
+x 17
+y 10
+end
+arch snow_fmask.101
+x 17
+y 10
+end
+arch snow1
+x 17
+y 11
+end
+arch rock_wall1
+x 17
+y 11
+end
+arch snow2
+x 17
+y 12
+end
+arch snow4
+x 17
+y 13
+end
+arch icefloor_cave3
+x 17
+y 14
+end
+arch snow_fmask.105
+x 17
+y 14
+end
+arch icefloor_cave1
+x 17
+y 15
+end
+arch icefloor_cave2
+x 17
+y 16
+end
+arch icefloor_cave6
+x 17
+y 17
+end
+arch snow_fmask.101
+x 17
+y 17
+end
+arch snow4
+x 17
+y 18
+end
+arch crystal_purple_s
+x 17
+y 18
+end
+arch light1
+x 17
+y 18
+end
+arch snow4
+x 17
+y 19
+end
+arch crystal_purple
+x 17
+y 19
+end
+arch light1
+x 17
+y 19
+end
+arch snow1
+x 17
+y 20
+end
+arch rock_wall5
+x 17
+y 20
+end
+arch blocked
+x 17
+y 21
+end
+arch blocked
+x 17
+y 22
+end
+arch pillar_blue2
+blocksview 1
+x 17
+y 22
+end
+arch light1
+x 17
+y 22
+end
+arch blocked
+x 17
+y 23
+end
+arch light1
+x 17
+y 23
+end
+arch icefloor_cave4
+x 18
+end
+arch icefloor_cave2
+x 18
+y 1
+end
+arch icefloor_cave3
+x 18
+y 2
+end
+arch icefloor_cave5
+x 18
+y 3
+end
+arch icefloor_cave2
+x 18
+y 4
+end
+arch icefloor_cave1
+x 18
+y 5
+end
+arch icefloor_cave6
+x 18
+y 6
+end
+arch snow_fmask.118
+x 18
+y 6
+end
+arch icefloor_cave1
+x 18
+y 7
+end
+arch snow_fmask.107
+x 18
+y 7
+end
+arch icefloor_cave3
+x 18
+y 8
+end
+arch snow_fmask.116
+x 18
+y 8
+end
+arch icefloor_cave1
+x 18
+y 9
+end
+arch icefloor_cave6
+x 18
+y 10
+end
+arch snow_fmask.112
+x 18
+y 10
+end
+arch icefloor_cave5
+x 18
+y 11
+end
+arch snow_fmask.102
+x 18
+y 11
+end
+arch snow3
+x 18
+y 12
+end
+arch rock_wall1
+x 18
+y 12
+end
+arch snow4
+x 18
+y 13
+end
+arch crystal_purple_s
+x 18
+y 13
+end
+arch light1
+x 18
+y 13
+end
+arch icefloor_cave3
+x 18
+y 14
+end
+arch snow_fmask.105
+x 18
+y 14
+end
+arch icefloor_cave3
+x 18
+y 15
+end
+arch icefloor_cave2
+x 18
+y 16
+end
+arch icefloor_cave6
+x 18
+y 17
+end
+arch snow_fmask.112
+x 18
+y 17
+end
+arch icefloor_cave6
+x 18
+y 18
+end
+arch snow_fmask.102
+x 18
+y 18
+end
+arch snow1
+x 18
+y 19
+end
+arch rock_wall1
+x 18
+y 19
+end
+arch snow3
+x 18
+y 20
+end
+arch snow3
+x 18
+y 21
+end
+arch snow2
+x 18
+y 22
+end
+arch light1
+x 18
+y 22
+end
+arch snow3
+x 18
+y 23
+end
+arch light1
+x 18
+y 23
+end
+arch icefloor_cave5
+x 19
+end
+arch icefloor_cave6
+x 19
+y 1
+end
+arch icefloor_cave6
+x 19
+y 2
+end
+arch icefloor_cave4
+x 19
+y 3
+end
+arch icefloor_cave3
+x 19
+y 4
+end
+arch snow_fmask.118
+x 19
+y 4
+end
+arch icefloor_cave1
+x 19
+y 5
+end
+arch snow_fmask.107
+x 19
+y 5
+end
+arch icefloor_cave1
+x 19
+y 6
+end
+arch snow_fmask.108
+x 19
+y 6
+end
+arch snow3
+x 19
+y 7
+end
+arch rock_wall1
+x 19
+y 7
+end
+arch icefloor_cave2
+x 19
+y 8
+end
+arch snow_fmask.106
+x 19
+y 8
+end
+arch icefloor_cave2
+x 19
+y 9
+end
+arch snow_fmask.107
+x 19
+y 9
+end
+arch icefloor_cave5
+x 19
+y 10
+end
+arch snow_fmask.116
+x 19
+y 10
+end
+arch icefloor_cave1
+x 19
+y 11
+end
+arch snow_fmask.112
+x 19
+y 11
+end
+arch icefloor_cave3
+x 19
+y 12
+end
+arch snow_fmask.103
+x 19
+y 12
+end
+arch stone5
+x 19
+y 12
+end
+arch icefloor_cave2
+x 19
+y 13
+end
+arch snow_fmask.103
+x 19
+y 13
+end
+arch icefloor_cave4
+x 19
+y 14
+end
+arch snow_fmask.114
+x 19
+y 14
+end
+arch icefloor_cave3
+x 19
+y 15
+end
+arch icefloor_cave6
+x 19
+y 16
+end
+arch icefloor_cave2
+x 19
+y 17
+end
+arch icefloor_cave1
+x 19
+y 18
+end
+arch snow_fmask.101
+x 19
+y 18
+end
+arch snow1
+x 19
+y 19
+end
+arch snow1
+x 19
+y 20
+end
+arch snow1
+x 19
+y 21
+end
+arch snow1
+x 19
+y 22
+end
+arch snow4
+x 19
+y 23
+end
+arch light6
+x 19
+y 23
+end
+arch invis_exit
+slaying ../nawerhals_valley_3_0
+hp 5
+sp 20
+x 19
+y 23
+end
+arch icefloor_cave6
+x 20
+end
+arch snow_fmask.107
+x 20
+end
+arch icefloor_cave4
+x 20
+y 1
+end
+arch snow_fmask.107
+x 20
+y 1
+end
+arch icefloor_cave2
+x 20
+y 2
+end
+arch snow_fmask.116
+x 20
+y 2
+end
+arch small_stones
+x 20
+y 2
+end
+arch spawn_point
+x 20
+y 2
+arch icegolem
+Wis 2
+name powerful ice golem
+type 83
+level 76
+direction 7
+arch rand_drop
+container 7
+arch quest_container
+name Glacial Hollow Fire Crystal
+arch nawerhals_fire_crystal
+end
+end
+end
+end
+end
+arch icefloor_cave6
+x 20
+y 3
+end
+arch icefloor_cave1
+x 20
+y 4
+end
+arch snow_fmask.101
+x 20
+y 4
+end
+arch snow3
+x 20
+y 5
+end
+arch rock_wall5
+x 20
+y 5
+end
+arch snow2
+x 20
+y 6
+end
+arch snow3
+x 20
+y 7
+end
+arch pillar_blue7
+blocksview 1
+x 20
+y 7
+end
+arch light1
+x 20
+y 7
+end
+arch snow4
+x 20
+y 8
+end
+arch pillar_blue4
+blocksview 1
+x 20
+y 8
+end
+arch light1
+x 20
+y 8
+end
+arch snow1
+x 20
+y 9
+end
+arch light1
+x 20
+y 9
+end
+arch icefloor_cave5
+x 20
+y 10
+end
+arch snow_fmask.106
+x 20
+y 10
+end
+arch stone3
+x 20
+y 10
+end
+arch icefloor_cave3
+x 20
+y 11
+end
+arch snow_fmask.116
+x 20
+y 11
+end
+arch icefloor_cave4
+x 20
+y 12
+end
+arch icefloor_cave5
+x 20
+y 13
+end
+arch icefloor_cave4
+x 20
+y 14
+end
+arch icefloor_cave3
+x 20
+y 15
+end
+arch snow_fmask.118
+x 20
+y 15
+end
+arch icefloor_cave6
+x 20
+y 16
+end
+arch snow_fmask.107
+x 20
+y 16
+end
+arch icefloor_cave3
+x 20
+y 17
+end
+arch snow_fmask.107
+x 20
+y 17
+end
+arch icefloor_cave3
+x 20
+y 18
+end
+arch snow_fmask.108
+x 20
+y 18
+end
+arch snow2
+x 20
+y 19
+end
+arch sign
+msg
+Welcome to the Glacial Hollow (the new name for the unoriginal Ice Cave). It is currently under heavy development atm, but I have included mobs for testing. Scripts have been removed for now as they need to be rewritten.
+Some mobs in this cave will drop fire crystals. When you have a fire crystal, you can go to a switch near a wall and apply it. This will unleash a small blast of fire, which melts the wall in front, providing a path to go through. This will cause the fire crystal to disintergrate however, and the melted ice wall will reform again in time.
+You can only hold one fire crystal at a time, but they drop from any mob in this dungeon randomly, which means it can be possible to get trapped in here, with the only way out being to fight mobs for more fire crystals. With this in mind, it is a good idea to use them wisely.
+- Lippy
+endmsg
+name under construction sign
+x 20
+y 19
+end
+arch snow3
+x 20
+y 20
+end
+arch snow2
+x 20
+y 21
+end
+arch snow4
+x 20
+y 22
+end
+arch snow2
+x 20
+y 23
+end
+arch light6
+x 20
+y 23
+end
+arch invis_exit
+slaying ../nawerhals_valley_3_0
+hp 5
+sp 20
+x 20
+y 23
+end
+arch snow3
+x 21
+end
+arch rock_wall4
+x 21
+end
+arch snow4
+x 21
+y 1
+end
+arch icefloor_cave6
+x 21
+y 2
+end
+arch snow_fmask.106
+x 21
+y 2
+end
+arch icefloor_cave3
+x 21
+y 3
+end
+arch snow_fmask.107
+x 21
+y 3
+end
+arch icefloor_cave4
+x 21
+y 4
+end
+arch snow_fmask.108
+x 21
+y 4
+end
+arch snow3
+x 21
+y 5
+end
+arch blocked
+x 21
+y 6
+end
+arch blocked
+x 21
+y 8
+end
+arch light1
+x 21
+y 8
+end
+arch snow2
+x 21
+y 9
+end
+arch light1
+x 21
+y 9
+end
+arch snow3
+x 21
+y 10
+end
+arch rock_wall1
+x 21
+y 10
+end
+arch icefloor_cave6
+x 21
+y 11
+end
+arch snow_fmask.105
+x 21
+y 11
+end
+arch icefloor_cave3
+x 21
+y 12
+end
+arch icefloor_cave1
+x 21
+y 13
+end
+arch snow_fmask.118
+x 21
+y 13
+end
+arch icefloor_cave5
+x 21
+y 14
+end
+arch snow_fmask.107
+x 21
+y 14
+end
+arch icefloor_cave6
+x 21
+y 15
+end
+arch snow_fmask.108
+x 21
+y 15
+end
+arch snow1
+x 21
+y 16
+end
+arch rock_wall1
+x 21
+y 16
+end
+arch snow3
+x 21
+y 17
+end
+arch rock_wall5
+x 21
+y 17
+end
+arch snow1
+x 21
+y 18
+end
+arch snow3
+x 21
+y 19
+end
+arch snow3
+x 21
+y 20
+end
+arch snow2
+x 21
+y 21
+end
+arch snow1
+x 21
+y 22
+end
+arch snow4
+x 21
+y 23
+end
+arch pillar_blue7
+blocksview 1
+x 21
+y 23
+end
+arch light1
+x 21
+y 23
+end
+arch blocked
+x 22
+end
+arch snow1
+x 22
+y 1
+end
+arch snow4
+x 22
+y 2
+end
+arch rock_wall1
+x 22
+y 2
+end
+arch snow3
+x 22
+y 3
+end
+arch snow_fmask.108
+x 22
+y 3
+end
+arch snow2
+x 22
+y 4
+end
+arch rock_wall5
+x 22
+y 4
+end
+arch snow3
+x 22
+y 5
+end
+arch snow2
+x 22
+y 10
+end
+arch rock_wall1
+x 22
+y 10
+end
+arch icefloor_cave1
+x 22
+y 11
+end
+arch snow_fmask.106
+x 22
+y 11
+end
+arch icefloor_cave2
+x 22
+y 12
+end
+arch snow_fmask.116
+x 22
+y 12
+end
+arch icefloor_cave3
+x 22
+y 13
+end
+arch snow_fmask.101
+x 22
+y 13
+end
+arch snow3
+x 22
+y 14
+end
+arch rock_wall4
+x 22
+y 14
+end
+arch snow1
+x 22
+y 15
+end
+arch snow4
+x 22
+y 16
+end
+arch pillar_blue7
+blocksview 1
+x 22
+y 16
+end
+arch light1
+x 22
+y 16
+end
+arch blocked
+x 22
+y 17
+end
+arch snow4
+x 22
+y 18
+end
+arch snow3
+x 22
+y 19
+end
+arch snow2
+x 22
+y 20
+end
+arch snow1
+x 22
+y 21
+end
+arch snow1
+x 22
+y 22
+end
+arch rock_wall3
+x 22
+y 22
+end
+arch snow3
+x 22
+y 23
+end
+arch snow4
+x 23
+y 2
+end
+arch pillar_blue7
+blocksview 1
+x 23
+y 2
+end
+arch light1
+x 23
+y 2
+end
+arch snow3
+x 23
+y 3
+end
+arch rock_wall1
+x 23
+y 3
+end
+arch snow2
+x 23
+y 4
+end
+arch blocked
+x 23
+y 5
+end
+arch snow4
+x 23
+y 10
+end
+arch pillar_blue7
+blocksview 1
+x 23
+y 10
+end
+arch light1
+x 23
+y 10
+end
+arch snow1
+x 23
+y 11
+end
+arch rock_wall1
+x 23
+y 11
+end
+arch icefloor_cave2
+x 23
+y 12
+end
+arch snow_fmask.105
+x 23
+y 12
+end
+arch icefloor_cave4
+x 23
+y 13
+end
+arch snow_fmask.101
+x 23
+y 13
+end
+arch snow4
+x 23
+y 14
+end
+arch blocked
+x 23
+y 15
+end
+arch snow1
+x 23
+y 18
+end
+arch rock_wall1
+x 23
+y 18
+end
+arch snow1
+x 23
+y 19
+end
+arch rock_wall1
+x 23
+y 19
+end
+arch snow2
+x 23
+y 20
+end
+arch rock_wall1
+x 23
+y 20
+end
+arch snow2
+x 23
+y 21
+end
+arch pillar_blue7
+blocksview 1
+x 23
+y 21
+end
+arch light1
+x 23
+y 21
+end
+arch snow1
+x 23
+y 22
+end
+arch blocked
+x 23
+y 23
+end

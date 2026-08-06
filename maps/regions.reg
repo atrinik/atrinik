@@ -421,3 +421,81 @@ msg
 Somewhere in the middle of the ocean...
 endmsg
 end
+
+#################
+### Nawerhals ###
+#################
+
+region nawerhals
+parent world
+longname Nawerhals
+msg
+A large island surrounded by smaller isles. Legend says the elements of fire and ice once met here and cancelled each other out, creating the island and the mountain range that divides it.
+endmsg
+map_first /nawerhals/firos_woods_0_0
+map_bg #009ffb
+end
+
+region mount_winter
+parent nawerhals
+longname Mount Winter
+msg
+The tallest peak of the Rubble Mountains rises high enough to remain covered in snow and ice throughout the year.
+endmsg
+end
+
+region glacial_hollow
+parent mount_winter
+longname Glacial Hollow
+msg
+The frozen caverns inside Mount Winter are said to contain ice as old as the island itself.
+endmsg
+end
+
+region rubble_mountains
+parent nawerhals
+longname Rubble Mountains
+msg
+A broken mountain range divides the wild regions of Nawerhals.
+endmsg
+end
+
+region neurok_valley
+parent nawerhals
+longname Neurok Valley
+msg
+A broad valley winding between the mountains and southern coast.
+endmsg
+end
+
+region southern_shores
+parent nawerhals
+longname Southern Shores
+msg
+The exposed southern coastline of Nawerhals.
+endmsg
+end
+
+region firos_woods
+parent nawerhals
+longname Firos Woods
+msg
+An old and dangerous forest covering much of Nawerhals.
+endmsg
+end
+
+region muddy_pit
+parent firos_woods
+longname Muddy Pit
+msg
+A foul pit hidden beneath Firos Woods.
+endmsg
+end
+
+region abandoned_city
+parent nawerhals
+longname The Abandoned City
+msg
+Once renowned for its mines, this ruined city was abandoned after its inhabitants were overwhelmed by an invading force.
+endmsg
+end
