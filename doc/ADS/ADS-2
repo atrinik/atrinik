@@ -1,5 +1,5 @@
 ===============================================================================
-= ADS-2, rev: 0.6: Atrinik Protocol Specification                             =
+= ADS-2, rev: 0.7: Atrinik Protocol Specification                             =
 ===============================================================================
  This document contains design specification for the Atrinik client<->server
  protocol. The following sections exist:

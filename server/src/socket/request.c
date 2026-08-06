@@ -196,7 +196,10 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             OPENSSL_cleanse(password, sizeof(password));
             packet_append_uint8(packet, ns->join_authenticated ? 1 : 0);
         } else {
-            LOG(PACKET, "Unknown type: %d", type);
+            LOG(PACKET, "Unknown setup type: %u", type);
+            packet_free(packet);
+            ns->state = ST_ZOMBIE;
+            return;
         }
     }
 
@@ -248,13 +251,12 @@ void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t
 
     ver = packet_to_uint32(data, len, &pos);
 
-    if (ver < SOCKET_VERSION) {
+    if (ver != SOCKET_VERSION) {
         draw_info_send(CHAT_TYPE_GAME,
                        NULL,
                        COLOR_RED,
                        ns,
-                       "Your client uses an incompatible gameplay protocol.\n"
-                       "Please update to the latest Atrinik client.");
+                       "The client and server use incompatible gameplay protocol versions.");
         ns->state = ST_ZOMBIE;
         return;
     }

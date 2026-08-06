@@ -1173,10 +1173,8 @@ void socket_command_version(uint8_t *data, size_t len, size_t pos) {
     }
 
     cpl.server_socket_version = packet_to_uint32(data, len, &pos);
-    if (cpl.server_socket_version < SOCKET_VERSION) {
-        draw_info(COLOR_RED,
-                  "The server uses an incompatible gameplay protocol. Please update the "
-                  "server.");
+    if (cpl.server_socket_version != SOCKET_VERSION) {
+        draw_info(COLOR_RED, "The client and server use incompatible gameplay protocol versions.");
         cpl.state = ST_START;
         return;
     }
