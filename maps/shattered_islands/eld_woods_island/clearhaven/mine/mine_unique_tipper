@@ -1,0 +1,688 @@
+arch map
+name Clearhaven Mine
+msg
+Created:  2010-07-12 Kiana
+Modified: 2010-07-12 Kiana
+endmsg
+width 24
+height 24
+difficulty 5
+darkness 1
+region clearhaven
+end
+arch floor_grit3b
+end
+arch wall_cave1.181
+end
+arch floor_grit3a
+y 1
+end
+arch wall_cave1.171
+y 1
+end
+arch floor_grit3a
+y 2
+end
+arch wall_cave1b.161
+y 2
+end
+arch floor_grit3a
+x 1
+end
+arch wall_cave1.111
+x 1
+end
+arch floor_grit4a
+no_pass 1
+x 1
+y 1
+end
+arch cave_deco_f5.101
+x 1
+y 1
+end
+arch floor_grit3a
+x 1
+y 2
+end
+arch wall_cave1.121
+x 1
+y 2
+end
+arch floor_grit3c
+x 1
+y 3
+end
+arch wall_cave1.171
+x 1
+y 3
+end
+arch floor_grit3c
+x 1
+y 4
+end
+arch wall_cave1.141
+x 1
+y 4
+end
+arch floor_grit3c
+x 1
+y 5
+end
+arch rock5
+blocksview 1
+x 1
+y 5
+end
+arch floor_grit3a
+x 1
+y 6
+end
+arch wall_cave1.151
+x 1
+y 6
+end
+arch floor_grit3b
+x 2
+end
+arch wall_cave1.111
+x 2
+end
+arch floor_grit3a
+x 2
+y 1
+end
+arch tipper
+glow_radius 4
+direction 7
+x 2
+y 1
+end
+arch invis_exit
+msg
+The old mine cart rattles up the rail and deposits you beside the Clearhaven well.
+endmsg
+slaying ../../../world_8_78
+hp 6
+sp 23
+x 2
+y 1
+end
+arch floor_grit3c
+x 2
+y 2
+end
+arch floor_grit3b
+x 2
+y 3
+end
+arch small_stones
+x 2
+y 3
+end
+arch floor_grit3c
+x 2
+y 4
+end
+arch magic_mouth
+msg
+The maintenance passage has collapsed behind you. The old rail cart seems to be the only way out.
+endmsg
+food 1
+x 2
+y 4
+end
+arch floor_grit3b
+x 2
+y 5
+end
+arch rock6
+x 2
+y 5
+end
+arch floor_grit3b
+x 2
+y 6
+end
+arch wall_cave1.151
+x 2
+y 6
+end
+arch floor_grit3a
+x 3
+end
+arch wall_cave1.111
+x 3
+end
+arch floor_grit4b
+no_pass 1
+x 3
+y 1
+end
+arch minecart_track
+direction 7
+x 3
+y 1
+end
+arch floor_grit3b
+x 3
+y 2
+end
+arch wall_cave1.101
+x 3
+y 2
+end
+arch floor_grit3c
+x 3
+y 3
+end
+arch wall_cave1.131
+x 3
+y 3
+end
+arch floor_grit3b
+x 3
+y 4
+end
+arch wall_cave1.131
+x 3
+y 4
+end
+arch floor_grit3b
+x 3
+y 5
+end
+arch wall_cave1.131
+x 3
+y 5
+end
+arch floor_grit3b
+x 3
+y 6
+end
+arch wall_cave1b.141
+x 3
+y 6
+end
+arch floor_grit3a
+x 4
+end
+arch wall_cave1.111
+x 4
+end
+arch floor_grit4b
+no_pass 1
+x 4
+y 1
+end
+arch minecart_track
+direction 7
+x 4
+y 1
+end
+arch floor_grit3c
+x 4
+y 2
+end
+arch wall_cave1.151
+x 4
+y 2
+end
+arch floor_grit3a
+x 5
+end
+arch wall_cave1.111
+x 5
+end
+arch floor_grit4a
+no_pass 1
+x 5
+y 1
+end
+arch minecart_track
+direction 7
+x 5
+y 1
+end
+arch floor_grit3a
+x 5
+y 2
+end
+arch wall_cave1.151
+x 5
+y 2
+end
+arch floor_grit3c
+x 6
+end
+arch wall_cave1.111
+x 6
+end
+arch floor_grit4b
+no_pass 1
+x 6
+y 1
+end
+arch minecart_track
+direction 7
+x 6
+y 1
+end
+arch floor_grit3b
+x 6
+y 2
+end
+arch wall_cave1.151
+x 6
+y 2
+end
+arch floor_grit3b
+x 7
+end
+arch wall_cave1.111
+x 7
+end
+arch floor_grit4b
+no_pass 1
+x 7
+y 1
+end
+arch minecart_track
+direction 7
+x 7
+y 1
+end
+arch floor_grit3c
+x 7
+y 2
+end
+arch wall_cave1.151
+x 7
+y 2
+end
+arch floor_grit3c
+x 8
+end
+arch wall_cave1.111
+x 8
+end
+arch floor_grit4b
+no_pass 1
+x 8
+y 1
+end
+arch minecart_track
+direction 7
+x 8
+y 1
+end
+arch floor_grit3c
+x 8
+y 2
+end
+arch wall_cave1.151
+x 8
+y 2
+end
+arch floor_grit3b
+x 9
+end
+arch wall_cave1.111
+x 9
+end
+arch floor_grit4a
+no_pass 1
+x 9
+y 1
+end
+arch minecart_track
+direction 7
+x 9
+y 1
+end
+arch floor_grit3a
+x 9
+y 2
+end
+arch wall_cave1.151
+x 9
+y 2
+end
+arch floor_grit3b
+x 10
+end
+arch wall_cave1.111
+x 10
+end
+arch floor_grit4a
+no_pass 1
+x 10
+y 1
+end
+arch minecart_track
+direction 7
+x 10
+y 1
+end
+arch floor_grit3b
+x 10
+y 2
+end
+arch wall_cave1.151
+x 10
+y 2
+end
+arch floor_grit3a
+x 11
+end
+arch wall_cave1.111
+x 11
+end
+arch floor_grit4a
+no_pass 1
+x 11
+y 1
+end
+arch minecart_track
+direction 7
+x 11
+y 1
+end
+arch floor_grit3a
+x 11
+y 2
+end
+arch wall_cave1.151
+x 11
+y 2
+end
+arch floor_grit3b
+x 12
+end
+arch wall_cave1.111
+x 12
+end
+arch floor_grit4b
+no_pass 1
+x 12
+y 1
+end
+arch minecart_track
+direction 7
+x 12
+y 1
+end
+arch floor_grit3b
+x 12
+y 2
+end
+arch wall_cave1.151
+x 12
+y 2
+end
+arch floor_grit3a
+x 13
+end
+arch wall_cave1.111
+x 13
+end
+arch floor_grit4b
+no_pass 1
+x 13
+y 1
+end
+arch minecart_track
+direction 7
+x 13
+y 1
+end
+arch floor_grit3b
+x 13
+y 2
+end
+arch wall_cave1.151
+x 13
+y 2
+end
+arch floor_grit3a
+x 14
+end
+arch wall_cave1.111
+x 14
+end
+arch floor_grit4a
+no_pass 1
+x 14
+y 1
+end
+arch minecart_track
+direction 7
+x 14
+y 1
+end
+arch floor_grit3a
+x 14
+y 2
+end
+arch wall_cave1.151
+x 14
+y 2
+end
+arch floor_grit3b
+x 15
+end
+arch wall_cave1.111
+x 15
+end
+arch floor_grit4a
+no_pass 1
+x 15
+y 1
+end
+arch minecart_track
+direction 7
+x 15
+y 1
+end
+arch floor_grit3a
+x 15
+y 2
+end
+arch wall_cave1.151
+x 15
+y 2
+end
+arch floor_grit3b
+x 16
+end
+arch wall_cave1.111
+x 16
+end
+arch floor_grit4a
+no_pass 1
+x 16
+y 1
+end
+arch minecart_track
+direction 7
+x 16
+y 1
+end
+arch floor_grit3c
+x 16
+y 2
+end
+arch wall_cave1.121
+x 16
+y 2
+end
+arch floor_grit3c
+x 16
+y 3
+end
+arch wall_cave1.171
+x 16
+y 3
+end
+arch floor_grit3b
+x 16
+y 4
+end
+arch wall_cave1.171
+x 16
+y 4
+end
+arch floor_grit3a
+x 16
+y 5
+end
+arch wall_cave1b.161
+x 16
+y 5
+end
+arch floor_grit3b
+x 17
+end
+arch wall_cave1.111
+x 17
+end
+arch floor_grit3a
+x 17
+y 1
+end
+arch tipper
+glow_radius 4
+direction 3
+x 17
+y 1
+end
+arch invis_exit
+msg
+The old mine cart rattles up the rail and deposits you beside the Clearhaven well.
+endmsg
+slaying ../../../world_8_78
+hp 6
+sp 23
+x 17
+y 1
+end
+arch floor_grit3a
+x 17
+y 2
+end
+arch minecart_track
+x 17
+y 2
+end
+arch floor_grit3c
+x 17
+y 3
+end
+arch minecart_track
+x 17
+y 3
+end
+arch floor_grit3c
+x 17
+y 4
+end
+arch ladder_up
+slaying mine_entrance_a
+hp 14
+sp 13
+x 17
+y 4
+end
+arch floor_grit3b
+x 17
+y 5
+end
+arch wall_cave1.151
+x 17
+y 5
+end
+arch floor_grit3b
+x 18
+end
+arch wall_cave1.111
+x 18
+end
+arch floor_grit4a
+no_pass 1
+x 18
+y 1
+end
+arch cave_deco_f8.101
+x 18
+y 1
+end
+arch floor_grit3a
+x 18
+y 2
+end
+arch wall_cave1.101
+x 18
+y 2
+end
+arch floor_grit3a
+x 18
+y 3
+end
+arch wall_cave1.131
+x 18
+y 3
+end
+arch floor_grit3b
+x 18
+y 4
+end
+arch wall_cave1.131
+x 18
+y 4
+end
+arch floor_grit3a
+x 18
+y 5
+end
+arch wall_cave1b.141
+x 18
+y 5
+end
+arch floor_grit3b
+x 19
+end
+arch wall_cave1b.121
+x 19
+end
+arch floor_grit3a
+x 19
+y 1
+end
+arch wall_cave1.131
+x 19
+y 1
+end
+arch floor_grit3a
+x 19
+y 2
+end
+arch wall_cave1b.141
+x 19
+y 2
+end
+arch light1
+x 6
+y 1
+end
+arch light1
+x 10
+y 1
+end
+arch light1
+x 14
+y 1
+end
+arch light1
+x 17
+y 4
+end
