@@ -17,36 +17,21 @@
                 <dialog name="hello">
                     <message>Careful! The old entrance collapsed behind you, and half these supports are held together by habit.</message>
                     <message>I'm Pedro. I came looking for emeralds and found a mine that objects strongly to visitors.</message>
-                    <response destination="wayout" message="Is there another way out?"/>
-                    <response destination="mine" message="What happened to this mine?"/>
-                </dialog>
-                <dialog name="mine">
                     <message>Clearhaven closed it more than a decade ago. They hid the entrance beneath the well, which was either clever planning or an unusually elaborate warning sign.</message>
-                    <response destination="wayout" message="So how do we leave?"/>
-                </dialog>
-                <dialog name="wayout">
                     <message>There's a maintenance hatch behind me and an old rail cart beyond it, but a collapse blocks the workings. I can clear it if you bring me ten small bombs from the storage level down that ladder.</message>
                     <message>I'd fetch them myself, but someone ought to remain here and look professionally concerned.</message>
-                    <response destination="accept" message="I'll recover the bombs."/>
-                    <response action="close" message="That sounds alarmingly explosive."/>
-                </dialog>
-                <dialog name="accept">
-                    <message>Excellent. The bomb chests share a key; look for it in the storage room. Try not to test the merchandise.</message>
+                    <message>The old safety latches have rusted through, so the bomb chests should open normally. Try not to test the merchandise.</message>
                     <action start="recover_bombs"/>
                 </dialog>
             </interface>
             <interface npc="Pedro" state="need_finish">
                 <dialog name="hello">
                     <message>The storage level is down the ladder. I need ten small bombs, preferably all still shaped like bombs.</message>
-                    <response action="close" message="I'm working on it."/>
                 </dialog>
             </interface>
             <interface npc="Pedro" state="need_complete">
                 <dialog name="hello">
                     <message>You found the bombs! All ten, and none of them are ticking. You may be the best assistant I've had today.</message>
-                    <response destination="reward" message="Here they are."/>
-                </dialog>
-                <dialog name="reward">
                     <message>Sometimes I wish we could just create bombs out of thin air. Then I remember the walls, my eyebrows, and Clearhaven's insurance forms.</message>
                     <message>I'll handle the blasting. Take this service key and the emerald I found; the hatch behind me leads back to the maintenance tunnels, and the same key opens the gate to the rail cart.</message>
                     <object arch="key_clearhaven_mine_exit"/>

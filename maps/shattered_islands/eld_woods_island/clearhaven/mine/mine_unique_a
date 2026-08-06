@@ -369,7 +369,6 @@ x 2
 y 12
 end
 arch chest7_111
-slaying clearhaven_mine_bombs
 name bomb chest
 direction 7
 x 2
@@ -602,7 +601,6 @@ x 4
 y 3
 end
 arch chest7_111
-slaying clearhaven_mine_bombs
 name bomb chest
 x 4
 y 3
@@ -715,7 +713,6 @@ x 4
 y 17
 end
 arch chest7_111
-slaying clearhaven_mine_bombs
 name bomb chest
 direction 7
 x 4
@@ -1205,7 +1202,6 @@ x 8
 y 3
 end
 arch chest7_111
-slaying clearhaven_mine_bombs
 name bomb chest
 x 8
 y 3
@@ -1257,7 +1253,6 @@ x 8
 y 12
 end
 arch chest7_111
-slaying clearhaven_mine_bombs
 name bomb chest
 x 8
 y 12
@@ -1455,7 +1450,6 @@ x 9
 y 16
 end
 arch chest7_111
-slaying clearhaven_mine_bombs
 name bomb chest
 direction 7
 x 9
@@ -1686,7 +1680,6 @@ x 11
 y 12
 end
 arch chest7_111
-slaying clearhaven_mine_bombs
 name bomb chest
 direction 7
 x 11
@@ -2458,7 +2451,6 @@ x 16
 y 13
 end
 arch chest7_111
-slaying clearhaven_mine_bombs
 name bomb chest
 direction 7
 x 16
@@ -2661,7 +2653,6 @@ x 17
 y 22
 end
 arch chest7_111
-slaying clearhaven_mine_bombs
 name bomb chest
 direction 7
 x 17
@@ -3050,22 +3041,6 @@ layer 4
 x 20
 y 16
 end
-arch chest7_111
-layer 5
-name key chest
-x 20
-y 16
-arch quest_container
-name bomb chest key
-arch key2
-msg
-Key found in the Clearhaven Mine. Used for opening chests with bombs.
-endmsg
-name bomb chest key
-slaying clearhaven_mine_bombs
-end
-end
-end
 arch floor_grit3c
 x 20
 y 17
@@ -3339,7 +3314,6 @@ x 22
 y 5
 end
 arch chest7_111
-slaying clearhaven_mine_bombs
 name bomb chest
 x 22
 y 5
