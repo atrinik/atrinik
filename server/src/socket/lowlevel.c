@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <network_metrics.h>

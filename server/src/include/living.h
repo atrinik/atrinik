@@ -115,4 +115,58 @@ typedef struct liv {
     int8_t Pow;
 } living;
 
+/** Public API implemented in src/server/living.c. */
+
+extern double dam_bonus[30 + 1];
+
+extern int wc_bonus[30 + 1];
+
+extern float speed_bonus[30 + 1];
+
+extern double falling_mitigation[30 + 1];
+
+extern uint32_t weight_limit[30 + 1];
+
+extern int learn_spell[30 + 1];
+
+extern int monster_signal_chance[30 + 1];
+
+extern int savethrow[115 + 1];
+
+extern const char *const restore_msg[5];
+
+extern const char *const lose_msg[5];
+
+extern const char *const statname[5];
+
+extern const char *const short_stat_name[5];
+
+extern StringBuffer *depletion_get_tooltip(const object *depletion, StringBuffer *sb);
+
+extern object *depletion_get_or_create(object *op);
+
+extern void set_attr_value(living *stats, int attr, int8_t value);
+
+extern void change_attr_value(living *stats, int attr, int8_t value);
+
+extern int8_t get_attr_value(const living *stats, int attr);
+
+extern void check_stat_bounds(living *stats);
+
+extern void drain_stat(object *op);
+
+extern void drain_specific_stat(object *op, int deplete_stats);
+
+extern void living_update_player(object *op);
+
+extern void living_update_monster(object *op);
+
+extern int living_update(object *op);
+
+extern object *living_get_base_info(object *op);
+
+extern object *living_find_base_info(object *op);
+
+extern void set_mobile_speed(object *op, int idx);
+
 #endif

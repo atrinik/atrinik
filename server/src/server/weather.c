@@ -29,6 +29,9 @@
  */
 
 #include <global.h>
+#include <weather.h>
+#include <server_main.h>
+#include <initialization.h>
 
 const int season_timechange[SEASONS_PER_YEAR][HOURS_PER_DAY] = {
     {0, 0, 0, 0, -1, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 0},

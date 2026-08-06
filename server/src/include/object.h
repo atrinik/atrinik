@@ -950,4 +950,8 @@ static inline object *OWNER(object *op) {
     return op;
 }
 
+/** Public API implemented in src/types/common/describe.c. */
+
+extern void common_object_describe(object *op, object *observer, char *buf, size_t size);
+
 #endif

@@ -28,6 +28,20 @@
  */
 
 #include <global.h>
+#include <weather.h>
+#include <swap.h>
+#include <statistics.h>
+#include <server_main.h>
+#include <region.h>
+#include <plugin.h>
+#include <los.h>
+#include <links.h>
+#include <initialization.h>
+#include <hiscore.h>
+#include <cache.h>
+#include <book.h>
+#include <animation.h>
+#include <account.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <faction.h>

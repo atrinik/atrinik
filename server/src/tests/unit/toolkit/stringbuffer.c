@@ -23,9 +23,10 @@
  ************************************************************************/
 
 #include <global.h>
+#include <server_main.h>
 #include <check.h>
 #include <checkstd.h>
-#include <check_proto.h>
+#include <check_utils.h>
 #include <toolkit/string.h>
 
 START_TEST(test_stringbuffer_new) {

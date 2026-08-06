@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <client_socket.h>
 #include <toolkit/packet.h>
 
 /**

@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
 #include <toolkit/packet.h>
 #include <plugin.h>
 #include <player.h>

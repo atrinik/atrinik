@@ -35,4 +35,32 @@
 /** Maximum quickslot groups. */
 #define MAX_QUICKSLOT_GROUPS 4
 
+/** Public API implemented in src/client/menu.c. */
+
+extern int client_command_check(const char *cmd);
+
+extern int send_command_check(const char *cmd);
+
+/** Public API implemented in src/gui/widgets/menu.c. */
+
+extern void widget_highlight_menu(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/menu_buttons.c. */
+
+extern void widget_menu_buttons_init(widgetdata *widget);
+
+/** Public API implemented in src/gui/widgets/quickslots.c. */
+
+extern void quickslots_init(void);
+
+extern void quickslots_scroll(widgetdata *widget, int up, int scroll);
+
+extern void quickslots_cycle(widgetdata *widget);
+
+extern void quickslots_handle_key(int slot);
+
+extern void widget_quickslots_init(widgetdata *widget);
+
+extern void socket_command_quickslots(uint8_t *data, size_t len, size_t pos);
+
 #endif

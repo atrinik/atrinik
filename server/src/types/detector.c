@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <connection.h>
 #include <object.h>
 #include <object_methods.h>
 #include <pedestal.h>

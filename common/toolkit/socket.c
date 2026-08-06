@@ -29,8 +29,6 @@
  * @author Zoey Rose
  */
 
-#ifndef __CPROTO__
-
 #include <sys/types.h>
 
 #include "socket.h"
@@ -1338,5 +1336,3 @@ socket_role_t socket_get_role(socket_t *sc) {
     HARD_ASSERT(sc != NULL);
     return sc->role;
 }
-
-#endif

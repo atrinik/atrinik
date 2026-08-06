@@ -28,13 +28,16 @@
  */
 
 #include <global.h>
+#include <weather.h>
+#include <swap.h>
+#include <initialization.h>
+#include <animation.h>
 #include <toolkit/gitversion.h>
 #include <toolkit/string.h>
 #include <plugin.h>
 #include <arch.h>
 #include <player.h>
 #include <object.h>
-#include <player.h>
 #include <object_methods.h>
 #include <waypoint.h>
 #include <server.h>
@@ -42,6 +45,7 @@
 #include <network_metrics.h>
 #include <toolkit/datetime.h>
 #include <cmake.h>
+#include <world_maker.h>
 
 #include <toolkit/process.h>
 #include <toolkit/console.h>

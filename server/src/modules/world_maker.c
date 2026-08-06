@@ -28,6 +28,11 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <region.h>
+#include <initialization.h>
+#include <world_maker.h>
 #include <loader.h>
 #include <gd.h>
 #include <toolkit/string.h>

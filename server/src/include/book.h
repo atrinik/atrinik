@@ -43,4 +43,16 @@
 #define MSGTYPE_SPELLPATH 3
 #define MSGTYPE_NUM 3
 
+/** Public API implemented in src/server/readable.c. */
+
+extern int book_overflow(const char *buf1, const char *buf2, size_t booksize);
+
+extern void init_readable(void);
+
+extern object *get_random_mon(void);
+
+extern void tailor_readable_ob(object *book, int msg_type);
+
+extern void free_all_readable(void);
+
 #endif

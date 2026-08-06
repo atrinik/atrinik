@@ -36,6 +36,10 @@
  */
 
 #include <global.h>
+#include <shop.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
 #include <plugin.h>
 #include <object.h>
 #include <object_methods.h>

@@ -157,4 +157,33 @@ typedef struct path_visualization {
 
 TOOLKIT_FUNCS_DECLARE(pathfinder);
 
+/** Public API implemented in src/server/pathfinder.c. */
+
+extern void path_request(object *waypoint);
+
+extern object *path_get_next_request(void);
+
+extern shstr *path_encode(path_node_t *path);
+
+extern int path_get_next(shstr *buf,
+                         int16_t *off,
+                         shstr **mappath,
+                         mapstruct **map,
+                         int *x,
+                         int *y,
+                         uint32_t *flags);
+
+extern path_node_t *path_compress(path_node_t *path);
+
+extern void path_visualize(path_visualization_t **visualization, path_visualizer_t **visualizer);
+
+extern path_node_t *path_find(object *op,
+                              mapstruct *map1,
+                              int x,
+                              int y,
+                              mapstruct *map2,
+                              int x2,
+                              int y2,
+                              path_visualizer_t **visualizer);
+
 #endif

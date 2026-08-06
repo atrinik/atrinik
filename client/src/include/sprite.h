@@ -119,4 +119,104 @@ bool surface_pixel_visible(SDL_Surface *surface, int x, int y);
 #define BORDER_CREATE_RIGHT(_surface, _x, _y, _w, _h, _color, _thickness) \
     border_create_line((_surface), (_x) + (_w) - (_thickness), (_y), (_thickness), (_h), (_color))
 
+/** Public API implemented in src/client/sprite.c. */
+
+extern SDL_Surface *FormatHolder;
+
+extern void sprite_init_system(void);
+
+extern sprite_struct *sprite_load_file(char *fname, uint32_t flags);
+
+extern sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop);
+
+extern void sprite_free_sprite(sprite_struct *sprite);
+
+extern void sprite_cache_free_all(void);
+
+extern void sprite_cache_gc(void);
+
+extern void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src);
+
+extern void surface_show_fill(SDL_Surface *surface,
+                              int x,
+                              int y,
+                              SDL_Rect *srcsize,
+                              SDL_Surface *src,
+                              SDL_Rect *box);
+
+extern void surface_show_effects(SDL_Surface *surface,
+                                 int x,
+                                 int y,
+                                 SDL_Rect *srcrect,
+                                 SDL_Surface *src,
+                                 const sprite_effects_t *effects);
+
+extern Uint32 getpixel(SDL_Surface *surface, int x, int y);
+
+extern void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
+
+extern int surface_borders_get(SDL_Surface *surface,
+                               int *top,
+                               int *bottom,
+                               int *left,
+                               int *right,
+                               uint32_t color);
+
+extern int
+sprite_collision(int x, int y, int x2, int y2, sprite_struct *sprite1, sprite_struct *sprite2);
+
+extern void surface_pan(SDL_Surface *surface, SDL_Rect *box);
+
+extern void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
+
+extern void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, int size);
+
+extern void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32_t color);
+
+extern void
+border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Color *color);
+
+extern void border_create_color(SDL_Surface *surface,
+                                SDL_Rect *coords,
+                                int thickness,
+                                const char *color_notation);
+
+extern void
+border_create_texture(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Surface *texture);
+
+extern void
+rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation);
+
+extern void surface_set_alpha(SDL_Surface *surface, uint8_t alpha);
+
+extern int
+polygon_check_coords(double x, double y, double corners_x[], double corners_y[], int corners_num);
+
+/** Public API implemented in src/client/tilestretcher.c. */
+
+extern int tilestretcher_coords_in_tile(uint32_t stretch, int x, int y);
+
+extern int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
+
+extern void copy_pixel_to_pixel(SDL_Surface *src,
+                                SDL_Surface *dest,
+                                int x,
+                                int y,
+                                int x2,
+                                int y2,
+                                double brightness);
+
+extern void copy_vertical_line(SDL_Surface *src,
+                               SDL_Surface *dest,
+                               int src_x,
+                               int src_sy,
+                               int src_ey,
+                               int dest_x,
+                               int dest_sy,
+                               int dest_ey,
+                               double brightness,
+                               _Bool extra);
+
+extern SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
+
 #endif

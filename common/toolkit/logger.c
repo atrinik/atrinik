@@ -29,8 +29,6 @@
  * @author Zoey Rose
  */
 
-#ifndef __CPROTO__
-
 #include <stdarg.h>
 
 #include "logger.h"
@@ -430,5 +428,3 @@ static bool logger_term_has_ansi_colors(void) {
 
     return true;
 }
-
-#endif

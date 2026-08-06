@@ -15,6 +15,8 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
+#include <connection_preferences.h>
 #include <toolkit/memory.h>
 #include <toolkit/path.h>
 #include <toolkit/string.h>

@@ -263,4 +263,46 @@ enum {
     KEYBIND_STEP_DONE
 };
 
+/** Public API implemented in src/client/settings.c. */
+
+extern setting_category **setting_categories;
+
+extern size_t setting_categories_num;
+
+extern void settings_init(void);
+
+extern void settings_load(void);
+
+extern void settings_save(void);
+
+extern void settings_deinit(void);
+
+extern void *setting_get(setting_struct *setting);
+
+extern const char *setting_get_str(int cat, int setting);
+
+extern int64_t setting_get_int(int cat, int setting);
+
+extern void settings_apply(void);
+
+extern void settings_apply_change(void);
+
+extern void setting_set_int(int cat, int setting, int64_t val);
+
+extern void setting_set_str(int cat, int setting, const char *val);
+
+extern int setting_is_text(setting_struct *setting);
+
+extern int64_t category_from_name(const char *name);
+
+extern int64_t setting_from_name(const char *name);
+
+/** Public API implemented in src/gui/popups/settings.c. */
+
+extern void settings_open(void);
+
+/** Public API implemented in src/gui/popups/settings_client.c. */
+
+extern void settings_client_open(void);
+
 #endif

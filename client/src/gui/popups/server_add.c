@@ -29,6 +29,7 @@
  */
 
 #include <global.h>
+#include <metaserver.h>
 #include <toolkit/string.h>
 
 /** Text input buffers. */

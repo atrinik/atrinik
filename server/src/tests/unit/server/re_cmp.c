@@ -23,9 +23,11 @@
  ************************************************************************/
 
 #include <global.h>
+#include <server_main.h>
+#include <re_cmp.h>
 #include <check.h>
 #include <checkstd.h>
-#include <check_proto.h>
+#include <check_utils.h>
 
 static void check_re_cmp(const char *str, const char *regex) {
     ck_assert_msg(re_cmp(str, regex) != NULL, "Failed to match '%s' with regex '%s'.", str, regex);

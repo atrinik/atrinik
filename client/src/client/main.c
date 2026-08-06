@@ -28,6 +28,11 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
+#include <video.h>
+#include <metaserver.h>
+#include <connection_preferences.h>
+#include <client_socket.h>
 #include <toolkit/gitversion.h>
 #include <region_map.h>
 #include <toolkit/packet.h>

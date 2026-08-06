@@ -23,6 +23,7 @@
  ************************************************************************/
 
 #include <global.h>
+#include <server_main.h>
 
 static void expand_misc(char **newlayout, int i, int j, char **layout);
 static void expand_wall(char **newlayout, int i, int j, char **layout, int xsize, int ysize);

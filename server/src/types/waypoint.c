@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <movement.h>
+#include <server_main.h>
 #include <plugin.h>
 #include <monster_guard.h>
 #include <object.h>

@@ -28,6 +28,9 @@
  */
 
 #include <global.h>
+#include <swap.h>
+#include <server_main.h>
+#include <initialization.h>
 #include <toolkit/string.h>
 #include <plugin.h>
 

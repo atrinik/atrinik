@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <video.h>
+#include <client_socket.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <toolkit/path.h>

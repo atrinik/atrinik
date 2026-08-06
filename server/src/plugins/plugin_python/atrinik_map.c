@@ -31,6 +31,8 @@
  */
 
 #include <plugin_python.h>
+#include <server_main.h>
+#include <server.h>
 #include <player.h>
 
 /**

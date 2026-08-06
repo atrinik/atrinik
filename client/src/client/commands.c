@@ -29,6 +29,8 @@
  */
 
 #include <global.h>
+#include <video.h>
+#include <client_socket.h>
 #include <openssl/crypto.h>
 #include <region_map.h>
 #include <toolkit/map_protocol.h>

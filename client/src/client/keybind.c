@@ -45,6 +45,8 @@
  */
 
 #include <global.h>
+#include <client_socket.h>
+#include <notification.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <toolkit/path.h>

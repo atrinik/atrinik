@@ -109,4 +109,8 @@ void attack_peform_paralyze(object *op, double dam);
 void attack_perform_fall(object *op, int fall_floors);
 bool attack_is_melee_range(object *hitter, object *enemy);
 
+/** Public API implemented in src/server/attack.c. */
+
+extern int attack_roll_adjust(object *op, object *hitter, StringBuffer *modifiers);
+
 #endif

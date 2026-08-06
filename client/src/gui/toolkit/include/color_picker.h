@@ -106,4 +106,26 @@ typedef struct color_picker_struct {
     void (*callback_func)(struct color_picker_struct *color_picker);
 } color_picker_struct;
 
+/** Public API implemented in src/gui/popups/color_chooser.c. */
+
+extern color_picker_struct *color_chooser_open(void);
+
+/** Public API implemented in src/gui/toolkit/color_picker.c. */
+
+extern void color_picker_create(color_picker_struct *color_picker, int size);
+
+extern void color_picker_set_parent(color_picker_struct *color_picker, int px, int py);
+
+extern void color_picker_set_notation(color_picker_struct *color_picker,
+                                      const char *color_notation);
+
+extern void
+color_picker_get_rgb(color_picker_struct *color_picker, uint8_t *r, uint8_t *g, uint8_t *b);
+
+extern void color_picker_show(SDL_Surface *surface, color_picker_struct *color_picker);
+
+extern int color_picker_event(color_picker_struct *color_picker, SDL_Event *event);
+
+extern int color_picker_mouse_over(color_picker_struct *color_picker, int mx, int my);
+
 #endif

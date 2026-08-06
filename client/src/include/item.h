@@ -250,4 +250,43 @@ typedef struct obj {
 /** Delete item by tag. */
 #define delete_object(tag) object_remove(object_find(tag))
 
+/** Public API implemented in src/client/item.c. */
+
+extern void object_init(void);
+
+extern void object_deinit(void);
+
+extern void objects_free(object *op);
+
+extern object *object_find_object_inv(object *op, tag_t tag);
+
+extern object *object_find_object(object *op, tag_t tag);
+
+extern object *object_find(tag_t tag);
+
+extern void object_remove(object *op);
+
+extern void object_remove_inventory(object *op);
+
+extern void object_transfer_inventory(object *op, object *to);
+
+extern object *object_create(object *env, tag_t tag, int bflag);
+
+extern void toggle_locked(object *op);
+
+extern void object_send_mark(object *op);
+
+extern void object_redraw(object *op);
+
+extern void objects_deinit(void);
+
+extern void objects_init(void);
+
+extern int object_animate(object *ob);
+
+extern void animate_objects(void);
+
+extern void
+object_show_centered(SDL_Surface *surface, object *tmp, int x, int y, int w, int h, bool fit);
+
 #endif

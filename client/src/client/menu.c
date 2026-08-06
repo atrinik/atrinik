@@ -28,6 +28,9 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
+#include <client_socket.h>
+#include <region_map.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 

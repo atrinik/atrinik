@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <server_main.h>
 
 /**
  * Generate a snake-like layout.

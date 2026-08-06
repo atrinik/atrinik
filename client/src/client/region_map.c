@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
+#include <video.h>
+#include <sdl_rotozoom.h>
 #include <region_map.h>
 #include <toolkit/string.h>
 #include <toolkit/path.h>
-
-#ifndef __CPROTO__
 
 static UT_icd icd = {sizeof(region_map_fow_tile_t), NULL, NULL, NULL};
 
@@ -1048,5 +1049,3 @@ SDL_Surface *region_map_fow_surface(region_map_t *region_map) {
 
     return region_map->fow->surface;
 }
-
-#endif

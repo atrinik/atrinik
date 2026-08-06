@@ -119,4 +119,55 @@ typedef struct inventory_struct {
     uint32_t last_clicked;
 } inventory_struct;
 
+/** Public API implemented in src/gui/widgets/inventory.c. */
+
+extern uint64_t inventory_filter;
+
+extern const char *inventory_filter_names[7];
+
+extern void inventory_filter_set(uint64_t filter);
+
+extern void inventory_filter_toggle(uint64_t filter);
+
+extern void inventory_filter_set_names(const char *filter);
+
+extern void widget_inventory_init(widgetdata *widget);
+
+extern uint32_t widget_inventory_num_items(widgetdata *widget);
+
+extern object *widget_inventory_get_selected(widgetdata *widget);
+
+extern void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key);
+
+extern void object_show_inventory(SDL_Surface *surface, object *tmp, int x, int y);
+
+extern void menu_inventory_drop(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_inventory_dropall(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_inventory_get(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_inventory_getall(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_inventory_examine(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void
+menu_inventory_loadtoconsole(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_inventory_patch(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_inventory_mark(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_inventory_lock(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_inventory_drag(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void widget_inventory_handle_apply(widgetdata *widget);
+
+extern void menu_inv_filter(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
+extern void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+
 #endif

@@ -58,4 +58,16 @@ int load_object_buffer(void *buffer, object *op, int map_flags);
 int set_variable(object *op, const char *buf);
 void get_ob_diff(StringBuffer *sb, const object *op, const object *op2);
 
+/** Public API implemented in src/loaders/map_header.c. */
+
+extern int map_lex_load(mapstruct *m);
+
+extern int map_set_variable(mapstruct *m, char *buf);
+
+extern void free_map_header_loader(void);
+
+extern int load_map_header(mapstruct *m, FILE *fp);
+
+extern void save_map_header(mapstruct *m, FILE *fp, int flag);
+
 #endif

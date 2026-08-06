@@ -27,9 +27,9 @@
  * Arch related functions.
  */
 
-#ifndef __CPROTO__
-
 #include <global.h>
+#include <server_main.h>
+#include <initialization.h>
 #include <arch.h>
 #include <artifact.h>
 #include <loader.h>
@@ -473,5 +473,3 @@ archetype_t *arch_clone(archetype_t *at) {
     new->clone.arch = new;
     return new;
 }
-
-#endif

@@ -30,6 +30,10 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <initialization.h>
+#include <hiscore.h>
 #include <toolkit/string.h>
 
 /** @copydoc command_func */

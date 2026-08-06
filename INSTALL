@@ -84,7 +84,7 @@ sudo apt-get install build-essential clang-format cmake flex git libcurl4-openss
   libssl-dev zlib1g-dev python3-dev libgd-dev libreadline-dev \
   libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev \
   libsdl-ttf2.0-dev timidity libx11-dev libxml2-dev libxmu-dev \
-  cproto pkgconf check libsubunit-dev libminiupnpc-dev
+  pkgconf check libsubunit-dev libminiupnpc-dev
 ```
 
 Ubuntu does not currently package libpcpnatpmp. Server configurations acquire
@@ -156,8 +156,8 @@ target remains named `check` because modern CMake reserves `test`:
 Run all registered tests directly with `ctest --preset gcc-debug`. Use
 `ctest --test-dir build/gcc-debug -N` to list them, or `-R <regex>` to select a
 single suite. The production server executable is used only for plugin runtime
-tests; C unit tests no longer share its `main()` or depend on cproto-generated
-prototypes.
+tests; C unit tests no longer share its `main()` or depend on generated
+prototype registries.
 
 The direct-network end-to-end suite is independent of the server runtime. It
 uses temporary identities, fake STUN and port-mapping backends, and isolated

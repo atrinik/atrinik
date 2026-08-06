@@ -64,4 +64,40 @@ typedef struct key_struct {
      (_event)->type == SDL_MOUSEMOTION)
 #define EVENT_IS_KEY(_event) ((_event)->type == SDL_KEYDOWN || (_event)->type == SDL_KEYUP)
 
+/** Public API implemented in src/events/event.c. */
+
+extern int event_dragging_check(void);
+
+extern int event_dragging_need_redraw(void);
+
+extern void event_dragging_start(tag_t tag, int mx, int my);
+
+extern void event_dragging_set_callback(event_drag_cb_fnc fnc);
+
+extern void event_dragging_stop(void);
+
+extern void resize_window(int width, int height);
+
+extern int Event_PollInputDevice(void);
+
+extern void event_push_key(SDL_EventType type, SDLKey key, SDLMod mod);
+
+extern void event_push_key_once(SDLKey key, SDLMod mod);
+
+/** Public API implemented in src/events/keys.c. */
+
+extern key_struct keys[SDLK_LAST];
+
+extern void init_keys(void);
+
+extern void key_handle_event(SDL_KeyboardEvent *event);
+
+/** Public API implemented in src/events/move.c. */
+
+extern void client_send_fire(int num, tag_t tag);
+
+extern void move_keys(int num);
+
+extern int dir_from_tile_coords(int tx, int ty);
+
 #endif

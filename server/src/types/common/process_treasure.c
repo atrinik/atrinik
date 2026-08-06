@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <server_main.h>
 #include <object.h>
 
 #include "process_treasure.h"

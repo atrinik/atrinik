@@ -28,6 +28,12 @@
  */
 
 #include <global.h>
+#include <shop.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <monster.h>
+#include <gods.h>
 #include <arch.h>
 #include <player.h>
 #include <object.h>

@@ -298,4 +298,109 @@ enum spellnrs {
 /** Maximum number for rolls in spell_attack_missed(). */
 #define SPELL_MISS_ROLL_MAX 35
 
+/** Public API implemented in src/server/spell_effect.c. */
+
+extern void cast_magic_storm(object *op, object *tmp, int lvl);
+
+extern int recharge(object *op);
+
+extern int cast_create_food(object *op, object *caster, int dir, const char *stringarg);
+
+extern int cast_wor(object *op, object *caster);
+
+extern void cast_destruction(object *op, object *caster, int dam);
+
+extern int cast_heal_around(object *op, int level, int type);
+
+extern int cast_heal(object *op, object *caster, int level, object *target, int spell_type);
+
+extern int cast_change_attr(object *op, object *caster, object *target, int spell_type);
+
+extern int cast_remove_depletion(object *op, object *target);
+
+extern int remove_curse(object *op, object *target, int type, int src);
+
+extern int do_cast_identify(object *tmp, object *op, int mode, int *done, int level);
+
+extern int cast_identify(object *op, int level, object *single_ob, int mode);
+
+extern int cast_consecrate(object *op);
+
+extern int finger_of_death(object *op, object *target);
+
+extern int
+cast_cause_disease(object *op, object *caster, int dir, struct archetype *disease_arch, int type);
+
+extern int cast_transform_wealth(object *op);
+
+/** Public API implemented in src/server/spell_util.c. */
+
+extern spell_struct spells[52];
+
+extern const char *const spellpathnames[20];
+
+extern struct archetype *spellarch[52];
+
+extern void init_spells(void);
+
+extern int insert_spell_effect(const char *archname, mapstruct *m, int x, int y);
+
+extern spell_struct *find_spell(int spelltype);
+
+extern int cast_spell(object *op,
+                      object *caster,
+                      int dir,
+                      int type,
+                      int ability,
+                      int item,
+                      const char *stringarg);
+
+extern int cast_create_obj(object *op, object *new_op, int dir);
+
+extern int fire_bolt(object *op, object *caster, int dir, int type);
+
+extern int fire_arch_from_position(object *op,
+                                   object *caster,
+                                   int16_t x,
+                                   int16_t y,
+                                   int dir,
+                                   struct archetype *at,
+                                   int type,
+                                   object *target);
+
+extern int cast_cone(object *op,
+                     object *caster,
+                     int dir,
+                     int strength,
+                     int spell_type,
+                     struct archetype *spell_arch);
+
+extern void cone_drop(object *op);
+
+extern void explode_object(object *op);
+
+extern void check_fired_arch(object *op);
+
+extern int find_target_for_spell(object *op, object **target, uint32_t flags);
+
+extern int SP_level_dam_adjust(object *caster, int spell_type, bool exact);
+
+extern int SP_level_strength_adjust(object *caster, int spell_type);
+
+extern int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
+
+extern void fire_swarm(object *op,
+                       object *caster,
+                       int dir,
+                       struct archetype *swarm_type,
+                       int spell_type,
+                       int n,
+                       int magic);
+
+extern void spell_failure_raw_mana(object *caster, int level);
+
+extern void spell_failure(object *caster, int level);
+
+extern int spell_get_random(int level, int flags);
+
 #endif
