@@ -92,29 +92,33 @@ static int sound_background_volume_adjustment;
  * Loaded sounds.
  */
 static sound_data_struct *sound_data;
+static MIX_Mixer *sound_mixer;
+static MIX_Track *sound_music_track;
+#define SOUND_EFFECT_TRACKS 32
+static MIX_Track *sound_effect_tracks[SOUND_EFFECT_TRACKS];
 /**
  * Hook function calle whenever ::sound_background changes its value.
  */
 static void (*sound_background_hook)(void);
 
-static int sound_percent_to_mixer(int64_t percent) {
+static float sound_percent_to_gain(int64_t percent) {
     percent = MAX(INT64_C(0), MIN(INT64_C(100), percent));
-    return (int)((percent * MIX_MAX_VOLUME + 50) / 100);
+    return (float)percent / 100.0f;
 }
 
 static void sound_apply_music_volume(int64_t percent) {
     sound_background_volume = (int)MAX(INT64_C(0), MIN(INT64_C(100), percent));
-    Mix_VolumeMusic(sound_percent_to_mixer(sound_background_volume));
+    MIX_SetTrackGain(sound_music_track, sound_percent_to_gain(sound_background_volume));
 
     if (sound_background == NULL) {
         return;
     }
 
     if (sound_background_volume == 0) {
-        if (!Mix_PausedMusic()) {
+        if (!MIX_TrackPaused(sound_music_track)) {
             sound_pause_music();
         }
-    } else if (Mix_PausedMusic()) {
+    } else if (MIX_TrackPaused(sound_music_track)) {
         sound_resume_music();
     }
 }
@@ -135,8 +139,6 @@ static void sound_background_hook_execute(void) {
 
 /**
  * Add a sound entry to the ::sound_data array.
- * @param type
- * Type of the sound, one of @ref SOUND_TYPE_xxx.
  * @param filename
  * Sound's file name.
  * @param data
@@ -144,11 +146,10 @@ static void sound_background_hook_execute(void) {
  * @return
  * Pointer to the entry in ::sound_data.
  */
-static sound_data_struct *sound_new(int type, const char *filename, void *data) {
+static sound_data_struct *sound_new(const char *filename, MIX_Audio *data) {
     sound_data_struct *tmp;
 
     tmp = xmalloc(sizeof(sound_data_struct));
-    tmp->type = type;
     tmp->filename = xstrdup(filename);
     tmp->data = data;
     HASH_ADD_KEYPTR(hh, sound_data, tmp->filename, strlen(tmp->filename), tmp);
@@ -162,20 +163,7 @@ static sound_data_struct *sound_new(int type, const char *filename, void *data) 
  * What to free.
  */
 static void sound_free(sound_data_struct *tmp) {
-    switch (tmp->type) {
-        case SOUND_TYPE_CHUNK:
-            Mix_FreeChunk(tmp->data);
-            break;
-
-        case SOUND_TYPE_MUSIC:
-            Mix_FreeMusic(tmp->data);
-            break;
-
-        default:
-            LOG(BUG, "Trying to free sound with unknown type: %d.", tmp->type);
-            break;
-    }
-
+    MIX_DestroyAudio(tmp->data);
     free(tmp->filename);
     free(tmp);
 }
@@ -233,11 +221,14 @@ static void sound_music_file_set_duration(const char *filename, uint32_t duratio
  * SDL_mixer callback. This can run on the audio thread, so only enqueue an
  * event; the main thread owns all music state and cached resources.
  */
-static void sound_music_finished(void) {
+static void SDLCALL sound_music_finished(void *userdata, MIX_Track *track) {
     SDL_Event event;
 
+    (void)userdata;
+    (void)track;
+
     memset(&event, 0, sizeof(event));
-    event.type = SDL_USEREVENT;
+    event.type = SDL_EVENT_USER;
     event.user.code = EVENT_SOUND_MUSIC_FINISHED;
     SDL_PushEvent(&event);
 }
@@ -287,7 +278,7 @@ static void sound_music_finished_process(void) {
  */
 void sound_music_finished_handle(void) {
 #ifdef HAVE_SDL_MIXER
-    if (enabled && !Mix_PlayingMusic()) {
+    if (enabled && !MIX_TrackPlaying(sound_music_track) && !MIX_TrackPaused(sound_music_track)) {
         sound_music_finished_process();
     }
 #endif
@@ -313,18 +304,41 @@ void sound_init(void) {
 #ifdef HAVE_SDL_MIXER
     sound_background_hook = NULL;
     sound_data = NULL;
-    enabled = 1;
+    sound_mixer = NULL;
+    sound_music_track = NULL;
+    memset(sound_effect_tracks, 0, sizeof(sound_effect_tracks));
+    enabled = 0;
 
-    if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16, MIX_DEFAULT_CHANNELS, 1024) < 0) {
+    if (!MIX_Init()) {
+        draw_info_format(COLOR_RED,
+                         "Could not initialize SDL3_mixer; sound will not be heard. Reason: %s",
+                         SDL_GetError());
+        return;
+    }
+
+    sound_mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+    if (sound_mixer == NULL) {
         draw_info_format(COLOR_RED,
                          "Could not initialize audio device; sound will not be heard. Reason: %s",
-                         Mix_GetError());
-        enabled = 0;
+                         SDL_GetError());
+        MIX_Quit();
+        return;
     }
 
-    if (enabled) {
-        Mix_HookMusicFinished(sound_music_finished);
+    sound_music_track = MIX_CreateTrack(sound_mixer);
+    if (sound_music_track == NULL ||
+        !MIX_SetTrackStoppedCallback(sound_music_track, sound_music_finished, NULL)) {
+        draw_info_format(COLOR_RED,
+                         "Could not create music track; sound will not be heard. Reason: %s",
+                         SDL_GetError());
+        MIX_DestroyMixer(sound_mixer);
+        sound_mixer = NULL;
+        sound_music_track = NULL;
+        MIX_Quit();
+        return;
     }
+
+    enabled = 1;
 #else
     enabled = 0;
 #endif
@@ -336,6 +350,15 @@ void sound_init(void) {
 static void sound_cache_free(void) {
 #ifdef HAVE_SDL_MIXER
     sound_data_struct *curr, *tmp;
+
+    if (sound_music_track != NULL) {
+        MIX_SetTrackAudio(sound_music_track, NULL);
+    }
+    for (size_t i = 0; i < arraysize(sound_effect_tracks); i++) {
+        if (sound_effect_tracks[i] != NULL) {
+            MIX_SetTrackAudio(sound_effect_tracks[i], NULL);
+        }
+    }
 
     HASH_ITER(hh, sound_data, curr, tmp) {
         HASH_DEL(sound_data, curr);
@@ -350,9 +373,9 @@ static void sound_cache_free(void) {
 void sound_deinit(void) {
     enabled = 0;
 #ifdef HAVE_SDL_MIXER
-    Mix_HookMusicFinished(NULL);
-    Mix_HaltMusic();
-    Mix_HaltChannel(-1);
+    if (sound_mixer != NULL) {
+        MIX_StopAllTracks(sound_mixer, 0);
+    }
 #endif
 
     sound_ambient_clear();
@@ -360,8 +383,14 @@ void sound_deinit(void) {
     sound_background = NULL;
 
 #ifdef HAVE_SDL_MIXER
+    if (sound_mixer != NULL) {
+        MIX_DestroyMixer(sound_mixer);
+        sound_mixer = NULL;
+        sound_music_track = NULL;
+        memset(sound_effect_tracks, 0, sizeof(sound_effect_tracks));
+    }
     sound_cache_free();
-    Mix_CloseAudio();
+    MIX_Quit();
 #endif
 }
 
@@ -373,7 +402,7 @@ void sound_clear_cache(void) {
     if (enabled) {
         sound_stop_bg_music();
         sound_ambient_clear();
-        Mix_HaltChannel(-1);
+        MIX_StopAllTracks(sound_mixer, 0);
     }
 #else
     sound_ambient_clear();
@@ -395,7 +424,6 @@ void sound_clear_cache(void) {
  */
 static int sound_add_effect(const char *filename, int volume, int loop) {
 #ifdef HAVE_SDL_MIXER
-    int channel;
     sound_data_struct *tmp;
 
     if (!enabled) {
@@ -406,26 +434,55 @@ static int sound_add_effect(const char *filename, int volume, int loop) {
     HASH_FIND_STR(sound_data, filename, tmp);
 
     if (!tmp) {
-        Mix_Chunk *chunk = Mix_LoadWAV(filename);
+        MIX_Audio *audio = MIX_LoadAudio(sound_mixer, filename, true);
 
-        if (!chunk) {
-            LOG(BUG, "Could not load '%s'. Reason: %s.", filename, Mix_GetError());
+        if (audio == NULL) {
+            LOG(BUG, "Could not load '%s'. Reason: %s.", filename, SDL_GetError());
             return -1;
         }
 
         /* We loaded it now, so add it to the array of loaded sounds. */
-        tmp = sound_new(SOUND_TYPE_CHUNK, filename, chunk);
+        tmp = sound_new(filename, audio);
     }
 
-    channel = Mix_PlayChannel(-1, (Mix_Chunk *)tmp->data, loop);
-
-    if (channel == -1) {
+    int channel;
+    for (channel = 0; channel < SOUND_EFFECT_TRACKS; channel++) {
+        if (sound_effect_tracks[channel] == NULL) {
+            sound_effect_tracks[channel] = MIX_CreateTrack(sound_mixer);
+        }
+        if (sound_effect_tracks[channel] != NULL &&
+            !MIX_TrackPlaying(sound_effect_tracks[channel]) &&
+            !MIX_TrackPaused(sound_effect_tracks[channel])) {
+            break;
+        }
+    }
+    if (channel == SOUND_EFFECT_TRACKS) {
         return -1;
     }
 
     int64_t effective_percent =
         setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_SOUND) * MAX(0, volume) / 100;
-    Mix_Volume(channel, sound_percent_to_mixer(effective_percent));
+    MIX_Track *track = sound_effect_tracks[channel];
+    MIX_StereoGains stereo = {.left = 1.0f, .right = 1.0f};
+    SDL_PropertiesID options = 0;
+    if (loop != 0) {
+        options = SDL_CreateProperties();
+        if (options == 0 || !SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, loop)) {
+            LOG(BUG, "Could not configure loops for '%s'. Reason: %s.", filename, SDL_GetError());
+            SDL_DestroyProperties(options);
+            return -1;
+        }
+    }
+
+    if (!MIX_SetTrackAudio(track, tmp->data) ||
+        !MIX_SetTrackGain(track, sound_percent_to_gain(effective_percent)) ||
+        !MIX_SetTrackStereo(track, &stereo) || !MIX_PlayTrack(track, options)) {
+        LOG(BUG, "Could not play '%s'. Reason: %s.", filename, SDL_GetError());
+        MIX_StopTrack(track, 0);
+        SDL_DestroyProperties(options);
+        return -1;
+    }
+    SDL_DestroyProperties(options);
 
     return channel;
 #else
@@ -515,19 +572,19 @@ static void sound_start_bg_music_internal(const char *filename,
 
     if (!tmp) {
         char *cp;
-        Mix_Music *music;
+        MIX_Audio *music;
 
         cp = file_path(path, "r");
-        music = Mix_LoadMUS(cp);
+        music = MIX_LoadAudio(sound_mixer, cp, false);
         free(cp);
 
         if (music == NULL) {
-            LOG(BUG, "Could not load '%s'. Reason: %s.", path, Mix_GetError());
+            LOG(BUG, "Could not load '%s'. Reason: %s.", path, SDL_GetError());
             return;
         }
 
         /* Add the loaded music to the array. */
-        tmp = sound_new(SOUND_TYPE_MUSIC, path, music);
+        tmp = sound_new(path, music);
     }
 
     sound_stop_bg_music();
@@ -539,7 +596,13 @@ static void sound_start_bg_music_internal(const char *filename,
     sound_background_duration = sound_music_file_get_duration(filename);
     sound_background_update_duration = 1;
 
-    Mix_PlayMusic(tmp->data, 0);
+    if (!MIX_SetTrackAudio(sound_music_track, tmp->data) || !MIX_PlayTrack(sound_music_track, 0)) {
+        LOG(BUG, "Could not play '%s'. Reason: %s.", path, SDL_GetError());
+        free(sound_background);
+        sound_background = NULL;
+        sound_background_hook_execute();
+        return;
+    }
     sound_apply_music_volume(volume);
 
     sound_background_started = SDL_GetTicks();
@@ -568,7 +631,7 @@ void sound_stop_bg_music(void) {
         sound_background = NULL;
 #ifdef HAVE_SDL_MIXER
         sound_background_hook_execute();
-        Mix_HaltMusic();
+        MIX_StopTrack(sound_music_track, 0);
 #endif
     }
 }
@@ -578,7 +641,7 @@ void sound_stop_bg_music(void) {
  */
 void sound_pause_music(void) {
 #ifdef HAVE_SDL_MIXER
-    Mix_PauseMusic();
+    MIX_PauseTrack(sound_music_track);
     sound_background_update_duration = 0;
 #endif
 }
@@ -588,7 +651,7 @@ void sound_pause_music(void) {
  */
 void sound_resume_music(void) {
 #ifdef HAVE_SDL_MIXER
-    Mix_ResumeMusic();
+    MIX_ResumeTrack(sound_music_track);
 #endif
 }
 
@@ -707,15 +770,7 @@ int sound_music_can_seek(void) {
     }
 
 #ifdef HAVE_SDL_MIXER
-    switch (Mix_GetMusicType(NULL)) {
-        case MUS_OGG:
-        case MUS_MP3:
-        case MUS_MP3_MAD:
-            return 1;
-
-        default:
-            break;
-    }
+    return true;
 #endif
 
     return 0;
@@ -733,10 +788,9 @@ void sound_music_seek(uint32_t offset) {
     }
 
 #ifdef HAVE_SDL_MIXER
-    Mix_RewindMusic();
-
-    if (Mix_SetMusicPosition(offset) == -1) {
-        LOG(BUG, "Mix_SetMusicPosition: %s", Mix_GetError());
+    Sint64 frames = MIX_TrackMSToFrames(sound_music_track, (Sint64)offset * 1000);
+    if (frames < 0 || !MIX_SetTrackPlaybackPosition(sound_music_track, frames)) {
+        LOG(BUG, "Could not seek music: %s", SDL_GetError());
     }
 
     sound_background_started = SDL_GetTicks() - offset * 1000;
@@ -753,6 +807,36 @@ uint32_t sound_music_get_duration() {
     return sound_background_duration;
 #else
     return 0;
+#endif
+}
+
+void sound_stop_effect(int channel) {
+#ifdef HAVE_SDL_MIXER
+    if (channel >= 0 && channel < SOUND_EFFECT_TRACKS && sound_effect_tracks[channel] != NULL) {
+        MIX_StopTrack(sound_effect_tracks[channel], 0);
+    }
+#else
+    (void)channel;
+#endif
+}
+
+static void sound_set_effect_position(int channel, int angle, int distance) {
+#ifdef HAVE_SDL_MIXER
+    if (channel < 0 || channel >= SOUND_EFFECT_TRACKS || sound_effect_tracks[channel] == NULL) {
+        return;
+    }
+
+    float pan = sinf((float)angle * (float)M_PI / 180.0f);
+    float attenuation = 1.0f - MIN(255, MAX(0, distance)) / 255.0f;
+    MIX_StereoGains gains = {
+        .left = attenuation * (pan > 0.0f ? 1.0f - pan : 1.0f),
+        .right = attenuation * (pan < 0.0f ? 1.0f + pan : 1.0f),
+    };
+    MIX_SetTrackStereo(sound_effect_tracks[channel], &gains);
+#else
+    (void)channel;
+    (void)angle;
+    (void)distance;
 #endif
 }
 
@@ -800,9 +884,7 @@ void socket_command_sound(uint8_t *data, size_t len, size_t pos) {
                 angle = 90 - angle;
             }
 
-#ifdef HAVE_SDL_MIXER
-            Mix_SetPosition(channel, angle, distance);
-#endif
+            sound_set_effect_position(channel, angle, distance);
         }
     } else if (type == CMD_SOUND_BACKGROUND) {
         if (!sound_map_background_disabled) {
@@ -828,9 +910,7 @@ void socket_command_sound(uint8_t *data, size_t len, size_t pos) {
  */
 static void sound_ambient_free(sound_ambient_struct *tmp) {
     DL_DELETE(sound_ambient_head, tmp);
-#ifdef HAVE_SDL_MIXER
-    Mix_HaltChannel(tmp->channel);
-#endif
+    sound_stop_effect(tmp->channel);
     free(tmp);
 }
 
@@ -862,7 +942,7 @@ static void sound_ambient_set_position(sound_ambient_struct *tmp) {
         angle = 90 - angle;
     }
 
-    Mix_SetPosition(tmp->channel, angle, distance);
+    sound_set_effect_position(tmp->channel, angle, distance);
 #else
     (void)tmp;
 #endif
@@ -976,7 +1056,7 @@ void socket_command_sound_ambient(uint8_t *data, size_t len, size_t pos) {
  */
 int sound_playing_music(void) {
 #ifdef HAVE_SDL_MIXER
-    return Mix_PlayingMusic();
+    return MIX_TrackPlaying(sound_music_track) || MIX_TrackPaused(sound_music_track);
 #else
     return 0;
 #endif

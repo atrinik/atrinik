@@ -52,17 +52,19 @@ typedef struct key_struct {
     /** If 1, the key is pressed. */
     uint8_t pressed;
 
-    /** Last repeat time. */
-    uint32_t time;
-
     /** Whether the key is being repeated. */
     uint8_t repeated;
 } key_struct;
 
 #define EVENT_IS_MOUSE(_event)                                                       \
-    ((_event)->type == SDL_MOUSEBUTTONDOWN || (_event)->type == SDL_MOUSEBUTTONUP || \
-     (_event)->type == SDL_MOUSEMOTION)
-#define EVENT_IS_KEY(_event) ((_event)->type == SDL_KEYDOWN || (_event)->type == SDL_KEYUP)
+    ((_event)->type == SDL_EVENT_MOUSE_BUTTON_DOWN || (_event)->type == SDL_EVENT_MOUSE_BUTTON_UP || \
+     (_event)->type == SDL_EVENT_MOUSE_MOTION || (_event)->type == SDL_EVENT_MOUSE_WHEEL)
+#define EVENT_IS_KEY(_event) ((_event)->type == SDL_EVENT_KEY_DOWN || (_event)->type == SDL_EVENT_KEY_UP)
+
+static inline float event_wheel_y(const SDL_Event *event) {
+    float y = event->wheel.y;
+    return event->wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -y : y;
+}
 
 /** Public API implemented in src/events/event.c. */
 
@@ -80,13 +82,13 @@ extern void resize_window(int width, int height);
 
 extern int Event_PollInputDevice(void);
 
-extern void event_push_key(SDL_EventType type, SDLKey key, SDLMod mod);
+extern void event_push_key(SDL_EventType type, SDL_Keycode key, SDL_Keymod mod);
 
-extern void event_push_key_once(SDLKey key, SDLMod mod);
+extern void event_push_key_once(SDL_Keycode key, SDL_Keymod mod);
 
 /** Public API implemented in src/events/keys.c. */
 
-extern key_struct keys[SDLK_LAST];
+extern key_struct keys[SDL_SCANCODE_COUNT];
 
 extern void init_keys(void);
 

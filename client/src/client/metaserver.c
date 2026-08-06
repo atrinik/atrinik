@@ -25,13 +25,13 @@
 /** Are we connecting to the metaserver? */
 static int metaserver_connecting = 1;
 /** Mutex to protect ::metaserver_connecting. */
-static SDL_mutex *metaserver_connecting_mutex;
+static SDL_Mutex *metaserver_connecting_mutex;
 /** The list of the servers. */
 static server_struct *server_head;
 /** Number of the servers. */
 static size_t server_count;
 /** Mutex to protect ::server_head and ::server_count. */
-static SDL_mutex *server_head_mutex;
+static SDL_Mutex *server_head_mutex;
 /** Is metaserver enabled? */
 static uint8_t enabled = 1;
 
@@ -181,7 +181,7 @@ void metaserver_get_servers(void) {
     metaserver_connecting = 1;
     SDL_UnlockMutex(metaserver_connecting_mutex);
 
-    SDL_Thread *thread = SDL_CreateThread(metaserver_thread, NULL);
+    SDL_Thread *thread = SDL_CreateThread(metaserver_thread, "metaserver", NULL);
     if (thread == NULL) {
         LOG(ERROR, "Thread creation failed.");
         exit(1);

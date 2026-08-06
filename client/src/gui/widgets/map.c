@@ -31,7 +31,7 @@
 
 #include <global.h>
 #include <video.h>
-#include <sdl_rotozoom.h>
+#include <surface_primitives.h>
 #include <client_socket.h>
 #include <animations.h>
 #include <region_map.h>
@@ -2488,13 +2488,13 @@ static bool map_render_command_covers_door(const map_render_command_t *door,
     bool door_locked = false;
     bool occluder_locked = false;
     if (SDL_MUSTLOCK(door->source)) {
-        if (SDL_LockSurface(door->source) != 0) {
+        if (!SDL_LockSurface(door->source)) {
             return false;
         }
         door_locked = true;
     }
     if (occluder->source != door->source && SDL_MUSTLOCK(occluder->source)) {
-        if (SDL_LockSurface(occluder->source) != 0) {
+        if (!SDL_LockSurface(occluder->source)) {
             if (door_locked) {
                 SDL_UnlockSurface(door->source);
             }
@@ -2778,24 +2778,18 @@ void map_draw_map(SDL_Surface *surface) {
     if (*level_surface == NULL || (*level_surface)->w != surface->w ||
         (*level_surface)->h != surface->h) {
         if (*level_surface != NULL) {
-            SDL_FreeSurface(*level_surface);
+            SDL_DestroySurface(*level_surface);
         }
 
-        *level_surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-                                              surface->w,
-                                              surface->h,
-                                              surface->format->BitsPerPixel,
-                                              surface->format->Rmask,
-                                              surface->format->Gmask,
-                                              surface->format->Bmask,
-                                              surface->format->Amask);
+        *level_surface = SDL_CreateSurface(surface->w, surface->h, surface->format);
         if (*level_surface == NULL) {
             LOG(ERROR, "Could not create map level surface: %s", SDL_GetError());
             render_profiler_end(RENDER_PROFILE_MAP, profile_map_started);
             return;
         }
-        Uint32 black = SDL_MapRGB((*level_surface)->format, 0, 0, 0);
-        SDL_SetColorKey(*level_surface, SDL_SRCCOLORKEY, black);
+        Uint32 black = pixel_format_map_rgb((*level_surface)->format, 0, 0, 0);
+        SDL_SetSurfaceColorKey(*level_surface, true, black);
+        SDL_SetSurfaceRLE(*level_surface, true);
     }
 
     for (int depth = -MAP2_MAX_DEPTH; depth <= MAP2_MAX_DEPTH; depth++) {
@@ -2806,7 +2800,9 @@ void map_draw_map(SDL_Surface *surface) {
         }
 
         if (depth == 0) {
-            SDL_FillRect(*level_surface, NULL, SDL_MapRGB((*level_surface)->format, 0, 0, 0));
+            SDL_FillSurfaceRect(*level_surface,
+                                NULL,
+                                pixel_format_map_rgb((*level_surface)->format, 0, 0, 0));
         }
         map_draw_level(surface,
                        *level_surface,
@@ -3120,10 +3116,10 @@ bool mouse_to_tile_coords(int mx, int my, int *tx, int *ty) {
  */
 bool map_mouse_fire(void) {
     int x, y;
-    Uint8 state = SDL_GetMouseState(&x, &y);
+    Uint8 state = mouse_get_state(&x, &y);
 
-    if ((state != (SDL_BUTTON(SDL_BUTTON_RIGHT) | SDL_BUTTON(SDL_BUTTON_LEFT)) &&
-         state != SDL_BUTTON(SDL_BUTTON_MIDDLE))) {
+    if ((state != (SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) | SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) &&
+         state != SDL_BUTTON_MASK(SDL_BUTTON_MIDDLE))) {
         return false;
     }
 
@@ -3189,18 +3185,18 @@ static void widget_draw(widgetdata *widget) {
     if (widget->surface == NULL || widget->surface->w != widget->w ||
         widget->surface->h != widget->h) {
         if (widget->surface != NULL) {
-            SDL_FreeSurface(widget->surface);
+            SDL_DestroySurface(widget->surface);
             map_redraw_flag = 1;
         }
 
-        widget->surface = SDL_CreateRGBSurface(get_video_flags(),
-                                               widget->w,
-                                               widget->h,
-                                               video_get_bpp(),
-                                               0,
-                                               0,
-                                               0,
-                                               0);
+        widget->surface = surface_create_rgb(get_video_flags(),
+                                             widget->w,
+                                             widget->h,
+                                             video_get_bpp(),
+                                             0,
+                                             0,
+                                             0,
+                                             0);
     }
 
     /* Make sure the map widget is always the last to handle events for. */
@@ -3213,14 +3209,14 @@ static void widget_draw(widgetdata *widget) {
 
     /* We re-create the map only when there is a change. */
     if (map_redraw_flag) {
-        SDL_FillRect(widget->surface, NULL, 0);
+        SDL_FillSurfaceRect(widget->surface, NULL, 0);
         map_draw_map(widget->surface);
         map_redraw_flag = 0;
         effect_sprites_play();
 
         if (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) != 100) {
             if (zoomed) {
-                SDL_FreeSurface(zoomed);
+                SDL_DestroySurface(zoomed);
             }
 
             zoomed = zoomSurface(widget->surface,
@@ -3319,7 +3315,7 @@ static void widget_draw(widgetdata *widget) {
     }
 
     /* Holding the right mouse button for some time, create a menu. */
-    if (SDL_GetMouseState(&mx, &my) == SDL_BUTTON(SDL_BUTTON_RIGHT) && right_click_ticks != -1 &&
+    if (mouse_get_state(&mx, &my) == SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) && right_click_ticks != -1 &&
         SDL_GetTicks() - right_click_ticks > 500) {
         widgetdata *menu;
 
@@ -3347,7 +3343,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
     int rx = tx - map_width * (MAP_FOW_SIZE / 2);
     int ry = ty - map_height * (MAP_FOW_SIZE / 2);
 
-    if (event->type == SDL_MOUSEBUTTONUP) {
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
         /* Send target command if we released the right button in time;
          * otherwise the widget menu will be created. */
         if (event->button.button == SDL_BUTTON_RIGHT && SDL_GetTicks() - right_click_ticks < 500) {
@@ -3356,10 +3352,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
 
         right_click_ticks = -1;
         return 1;
-    } else if (event->type == SDL_MOUSEBUTTONDOWN) {
+    } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         if (event->button.button == SDL_BUTTON_RIGHT) {
             right_click_ticks = SDL_GetTicks();
-        } else if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT) {
+        } else if (mouse_get_state(NULL, NULL) == SDL_BUTTON_LEFT) {
             /* Running */
 
             if (cpl.fire_on || cpl.run_on) {
@@ -3370,7 +3366,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         }
 
         return 1;
-    } else if (event->type == SDL_MOUSEMOTION) {
+    } else if (event->type == SDL_EVENT_MOUSE_MOTION) {
         if (tx != old_map_mouse_x || ty != old_map_mouse_y) {
             old_map_mouse_x = tx;
             old_map_mouse_y = ty;
@@ -3396,7 +3392,7 @@ static void widget_deinit(widgetdata *widget) {
 
     for (size_t i = 0; i < arraysize(map_level_surfaces); i++) {
         if (map_level_surfaces[i] != NULL) {
-            SDL_FreeSurface(map_level_surfaces[i]);
+            SDL_DestroySurface(map_level_surfaces[i]);
             map_level_surfaces[i] = NULL;
         }
     }

@@ -107,8 +107,8 @@ static void keybinding_apply(void) {
  * @return
  * 1 if the key was handled, 0 otherwise.
  */
-static int keybinding_action(SDLKey key) {
-    if (key == SDLK_n) {
+static int keybinding_action(SDL_Keycode key) {
+    if (key == SDLK_N) {
         /* Create a new keybinding. */
         keybinding_state = KEYBINDING_STATE_ADD;
         text_input_command.focus = 1;
@@ -121,7 +121,7 @@ static int keybinding_action(SDLKey key) {
         keybind_remove(list_keybindings->row_selected - 1);
         keybinding_list_reload();
         return 1;
-    } else if (key == SDLK_r) {
+    } else if (key == SDLK_R) {
         /* Toggle repeat on/off. */
         keybind_repeat_toggle(list_keybindings->row_selected - 1);
         keybinding_list_reload();
@@ -136,7 +136,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event) {
     if (list->row_selected) {
         char buf[MAX_BUF];
 
-        keybinding_action(SDLK_n);
+        keybinding_action(SDLK_N);
 
         keybinding_state = KEYBINDING_STATE_EDIT;
         keybinding_id = list->row_selected - 1;
@@ -265,8 +265,11 @@ static int popup_draw(popup_struct *popup) {
 /** @copydoc popup_struct::event_func */
 static int popup_event(popup_struct *popup, SDL_Event *event) {
     if (keybinding_state == KEYBINDING_STATE_ADD || keybinding_state == KEYBINDING_STATE_EDIT) {
-        if (event->type == SDL_KEYDOWN) {
-            if (event->key.keysym.sym == SDLK_ESCAPE) {
+        if ((event->type == SDL_EVENT_TEXT_INPUT || event->type == SDL_EVENT_TEXT_EDITING) &&
+            text_input_command.focus) {
+            return text_input_event(&text_input_command, event);
+        } else if (event->type == SDL_EVENT_KEY_DOWN) {
+            if (event->key.key == SDLK_ESCAPE) {
                 keybinding_state = KEYBINDING_STATE_LIST;
                 return 1;
             }
@@ -276,9 +279,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
             }
 
             return 1;
-        } else if (event->type == SDL_KEYUP) {
+        } else if (event->type == SDL_EVENT_KEY_UP) {
             if (text_input_command.focus) {
-                if (IS_NEXT(event->key.keysym.sym)) {
+                if (IS_NEXT(event->key.key)) {
                     text_input_command.focus = 0;
                     text_input_key.focus = 1;
 
@@ -292,32 +295,28 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
                 if (strcmp(text_input_key.str, "0 0") == 0) {
                     char buf[MAX_BUF];
 
-                    snprintf(buf,
-                             sizeof(buf),
-                             "%d %d",
-                             event->key.keysym.sym,
-                             event->key.keysym.mod);
+                    snprintf(buf, sizeof(buf), "%d %d", event->key.key, event->key.mod);
                     text_input_set(&text_input_key, buf);
                     return 1;
-                } else if (IS_ENTER(event->key.keysym.sym)) {
+                } else if (IS_ENTER(event->key.key)) {
                     keybinding_apply();
                     return 1;
                 }
-            } else if (IS_ENTER(event->key.keysym.sym)) {
+            } else if (IS_ENTER(event->key.key)) {
                 text_input_command.focus = 1;
                 return 1;
             }
         }
     }
 
-    if (event->type == SDL_KEYDOWN) {
-        if (event->key.keysym.sym == SDLK_ESCAPE) {
+    if (event->type == SDL_EVENT_KEY_DOWN) {
+        if (event->key.key == SDLK_ESCAPE) {
             popup_destroy(popup);
             return 1;
-        } else if (keybinding_action(event->key.keysym.sym)) {
+        } else if (keybinding_action(event->key.key)) {
             return 1;
         }
-    } else if (event->type == SDL_MOUSEBUTTONDOWN) {
+    } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         if (event->button.button == SDL_BUTTON_LEFT) {
             uint32_t row, col;
 
@@ -359,7 +358,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
     }
 
     if (button_event(&button_new, event)) {
-        keybinding_action(SDLK_n);
+        keybinding_action(SDLK_N);
         return 1;
     } else if (button_event(&button_remove, event)) {
         keybinding_action(SDLK_DELETE);

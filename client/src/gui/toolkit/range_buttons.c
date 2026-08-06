@@ -56,7 +56,7 @@ int range_buttons_show(int x, int y, int *val, int advance) {
     SDL_Surface *texture_off, *texture_left, *texture_right;
 
     /* Get state of the mouse and the x/y. */
-    state = SDL_GetMouseState(&mx, &my);
+    state = mouse_get_state(&mx, &my);
 
     texture_off = texture_surface(texture_get(TEXTURE_TYPE_CLIENT, "texture_off"));
     texture_left = texture_surface(texture_get(TEXTURE_TYPE_CLIENT, "texture_left"));
@@ -66,7 +66,7 @@ int range_buttons_show(int x, int y, int *val, int advance) {
     surface_show(ScreenSurface, x, y, NULL, texture_off);
 
     /* Check the Y position. */
-    if (my > y && my < y + texture_off->h && state == SDL_BUTTON(SDL_BUTTON_LEFT) &&
+    if (my > y && my < y + texture_off->h && state == SDL_BUTTON_MASK(SDL_BUTTON_LEFT) &&
         (!ticks || SDL_GetTicks() - ticks > 125)) {
         /* If the left range button was clicked, decrease the value. */
         if (mx > x && mx < x + texture_left->w) {

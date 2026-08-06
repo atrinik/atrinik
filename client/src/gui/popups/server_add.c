@@ -111,7 +111,7 @@ static int popup_draw(popup_struct *popup) {
 /** @copydoc popup_struct::event_func */
 static int popup_event(popup_struct *popup, SDL_Event *event) {
     if (button_event(&button_add, event) ||
-        (event->type == SDL_KEYDOWN && IS_ENTER(event->key.keysym.sym))) {
+        (event->type == SDL_EVENT_KEY_DOWN && IS_ENTER(event->key.key))) {
         uint64_t port;
         if (*text_input_server_host.str == '\0' ||
             !string_parse_uint64(text_input_server_port.str, 10, 1, UINT16_MAX, &port) ||
@@ -147,7 +147,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
         return 1;
     }
 
-    if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT) {
         if (text_input_mouse_over(&text_input_server_host, event->button.x, event->button.y)) {
             text_input_server_port.focus = 0;
             text_input_server_fingerprint.focus = 0;
@@ -165,8 +165,8 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
             text_input_server_port.focus = 0;
             text_input_server_fingerprint.focus = 1;
         }
-    } else if (event->type == SDL_KEYDOWN) {
-        if (event->key.keysym.sym == SDLK_TAB) {
+    } else if (event->type == SDL_EVENT_KEY_DOWN) {
+        if (event->key.key == SDLK_TAB) {
             if (text_input_server_host.focus) {
                 text_input_server_host.focus = 0;
                 text_input_server_port.focus = 1;

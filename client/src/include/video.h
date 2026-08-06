@@ -32,10 +32,6 @@
 
 /** Public API implemented in src/client/video.c. */
 
-extern x11_display_type SDL_display;
-
-extern x11_window_type SDL_window;
-
 extern void video_init(void);
 
 extern int video_get_bpp(void);

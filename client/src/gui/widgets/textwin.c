@@ -31,9 +31,8 @@
 
 #include <global.h>
 #include <video.h>
-#include <sdl_gfx.h>
+#include <surface_primitives.h>
 #include <toolkit/string.h>
-#include <toolkit/x11.h>
 
 /**
  * Names of the text window tabs.
@@ -522,7 +521,7 @@ void textwin_handle_copy(widgetdata *widget) {
     cp[i] = '\0';
     cp = text_strip_markup(cp, NULL, 1);
 
-    x11_clipboard_set(SDL_display, SDL_window, cp);
+    SDL_SetClipboardText(cp);
     free(str);
     free(cp);
 }
@@ -571,7 +570,7 @@ void textwin_show(SDL_Surface *surface, int x, int y, int w, int h) {
                 box.y = y;
                 box.w = w;
                 box.h = h;
-                SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0, 0, 0));
+                SDL_FillSurfaceRect(surface, &box, pixel_format_map_rgb(surface->format, 0, 0, 0));
                 draw_frame(surface, x, y, box.w, box.h);
 
                 box.w = w - 3;
@@ -648,18 +647,19 @@ static void widget_draw(widgetdata *widget) {
     /* If we don't have a backbuffer, create it */
     if (!widget->surface || widget->w != widget->surface->w || widget->h != widget->surface->h) {
         if (widget->surface) {
-            SDL_FreeSurface(widget->surface);
+            SDL_DestroySurface(widget->surface);
         }
 
-        widget->surface = SDL_CreateRGBSurface(get_video_flags(),
-                                               widget->w,
-                                               widget->h,
-                                               video_get_bpp(),
-                                               0,
-                                               0,
-                                               0,
-                                               0);
-        SDL_SetColorKey(widget->surface, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
+        widget->surface = surface_create_rgb(get_video_flags(),
+                                             widget->w,
+                                             widget->h,
+                                             video_get_bpp(),
+                                             0,
+                                             0,
+                                             0,
+                                             0);
+        SDL_SetSurfaceColorKey(widget->surface, true, 0);
+        SDL_SetSurfaceRLE(widget->surface, true);
         textwin_readjust(widget);
     }
 
@@ -682,7 +682,7 @@ static void widget_draw(widgetdata *widget) {
 
     /* Let's draw the widgets in the backbuffer */
     if (widget->redraw) {
-        SDL_FillRect(widget->surface, NULL, 0);
+        SDL_FillSurfaceRect(widget->surface, NULL, 0);
 
         if (textwin->tabs) {
             int yadjust;
@@ -819,7 +819,7 @@ static void widget_background(widgetdata *widget, int draw) {
 static int widget_event(widgetdata *widget, SDL_Event *event) {
     textwin_struct *textwin = TEXTWIN(widget);
 
-    if (event->type == SDL_MOUSEBUTTONDOWN) {
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         widgetdata *tmp;
         text_input_struct *text_input;
 
@@ -845,7 +845,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
     }
 
     if (textwin->tabs_num > 1 &&
-        (event->type == SDL_MOUSEMOTION || event->type == SDL_MOUSEBUTTONDOWN)) {
+        (event->type == SDL_EVENT_MOUSE_MOTION || event->type == SDL_EVENT_MOUSE_BUTTON_DOWN)) {
         size_t i;
 
         for (i = 0; i < textwin->tabs_num; i++) {
@@ -857,10 +857,20 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         }
     }
 
-    if (textwin->tabs != NULL && event->type == SDL_KEYDOWN &&
+    if (textwin->tabs != NULL &&
+        (event->type == SDL_EVENT_TEXT_INPUT || event->type == SDL_EVENT_TEXT_EDITING) &&
         textwin->tabs[textwin->tab_selected].text_input.focus == 1 &&
         widget == widget_find(NULL, CHATWIN_ID, NULL, NULL)) {
-        if (IS_ENTER(event->key.keysym.sym) &&
+        if (text_input_event(&textwin->tabs[textwin->tab_selected].text_input, event)) {
+            WIDGET_REDRAW(widget);
+            return 1;
+        }
+    }
+
+    if (textwin->tabs != NULL && event->type == SDL_EVENT_KEY_DOWN &&
+        textwin->tabs[textwin->tab_selected].text_input.focus == 1 &&
+        widget == widget_find(NULL, CHATWIN_ID, NULL, NULL)) {
+        if (IS_ENTER(event->key.key) &&
             *(textwin->tabs[textwin->tab_selected].text_input.str) != '\0') {
             StringBuffer *sb;
             char *cp, *str;
@@ -889,17 +899,17 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
             free(cp);
         }
 
-        if (event->key.keysym.sym == SDLK_ESCAPE) {
+        if (event->key.key == SDLK_ESCAPE) {
             textwin->tabs[textwin->tab_selected].text_input.focus = 0;
             text_input_reset(&textwin->tabs[textwin->tab_selected].text_input);
             WIDGET_REDRAW(widget);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_TAB) {
+        } else if (event->key.key == SDLK_TAB) {
             help_handle_tabulator(&textwin->tabs[textwin->tab_selected].text_input);
             WIDGET_REDRAW(widget);
             return 1;
         } else if (text_input_event(&textwin->tabs[textwin->tab_selected].text_input, event)) {
-            if (IS_ENTER(event->key.keysym.sym)) {
+            if (IS_ENTER(event->key.key)) {
                 text_input_reset(&textwin->tabs[textwin->tab_selected].text_input);
                 textwin->tabs[textwin->tab_selected].text_input.focus = 0;
             }
@@ -914,40 +924,40 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         return 1;
     }
 
-    if (event->type == SDL_MOUSEMOTION) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
         WIDGET_REDRAW(widget);
     }
 
     if (event->button.button == SDL_BUTTON_LEFT) {
-        if (event->type == SDL_MOUSEBUTTONUP) {
+        if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
             return 1;
-        } else if (event->type == SDL_MOUSEBUTTONDOWN) {
+        } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
             textwin->selection_started = 0;
             textwin->selection_start = -1;
             textwin->selection_end = -1;
             WIDGET_REDRAW(widget);
             return 1;
-        } else if (event->type == SDL_MOUSEMOTION) {
+        } else if (event->type == SDL_EVENT_MOUSE_MOTION) {
             textwin->selection_started = 1;
             return 1;
         }
     }
 
-    if (event->type == SDL_MOUSEBUTTONDOWN) {
-        if (event->button.button == SDL_BUTTON_WHEELUP) {
+    if (event->type == SDL_EVENT_MOUSE_WHEEL) {
+        if (event_wheel_y(event) > 0.0f) {
             scrollbar_scroll_adjust(&textwin->scrollbar, -1);
             return 1;
-        } else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+        } else if (event_wheel_y(event) < 0.0f) {
             scrollbar_scroll_adjust(&textwin->scrollbar, 1);
             return 1;
         }
     }
 
-    if (event->type == SDL_KEYDOWN) {
-        if (event->key.keysym.sym == SDLK_PAGEUP) {
+    if (event->type == SDL_EVENT_KEY_DOWN) {
+        if (event->key.key == SDLK_PAGEUP) {
             scrollbar_scroll_adjust(&textwin->scrollbar, -TEXTWIN_ROWS_VISIBLE(widget));
             return 1;
-        } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
+        } else if (event->key.key == SDLK_PAGEDOWN) {
             scrollbar_scroll_adjust(&textwin->scrollbar, TEXTWIN_ROWS_VISIBLE(widget));
             return 1;
         }

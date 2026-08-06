@@ -497,17 +497,17 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         return 1;
     }
 
-    if (event->type == SDL_MOUSEBUTTONDOWN) {
-        if (event->button.button == SDL_BUTTON_WHEELUP) {
+    if (event->type == SDL_EVENT_MOUSE_WHEEL) {
+        if (event_wheel_y(event) > 0.0f) {
             widget_inventory_handle_arrow_key(widget, SDLK_UP);
             return 1;
-        } else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+        } else if (event_wheel_y(event) < 0.0f) {
             widget_inventory_handle_arrow_key(widget, SDLK_DOWN);
             return 1;
         }
     }
 
-    if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) &&
+    if ((event->type == SDL_EVENT_MOUSE_BUTTON_DOWN || event->type == SDL_EVENT_MOUSE_BUTTON_UP) &&
         (event->button.button == SDL_BUTTON_LEFT || event->button.button == SDL_BUTTON_RIGHT)) {
         uint32_t i, r;
         object *tmp, *tmp2, *found;
@@ -592,7 +592,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         }
 
         if (found != NULL) {
-            if (event->type == SDL_MOUSEBUTTONDOWN) {
+            if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                 if (event->button.button == SDL_BUTTON_LEFT) {
                     event_dragging_start(found->tag, event->motion.x, event->motion.y);
                     event_dragging_set_callback(event_drag_cb);
@@ -759,7 +759,7 @@ object *widget_inventory_get_selected(widgetdata *widget) {
  * @param key
  * The key.
  */
-void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key) {
+void widget_inventory_handle_arrow_key(widgetdata *widget, SDL_Keycode key) {
     inventory_struct *inventory = INVENTORY(widget);
 
     if (INVENTORY_COLS(inventory) == 0) {

@@ -32,7 +32,6 @@
 #include <global.h>
 #include <video.h>
 #include <toolkit/string.h>
-#include <toolkit/x11.h>
 
 /**
  * Doubly-linked list of the visible popups.
@@ -54,11 +53,10 @@ popup_struct *popup_create(texture_struct *texture) {
     popup->texture = texture;
     /* Create the surface used by the popup. */
     popup->surface = SDL_ConvertSurface(texture_surface(popup->texture),
-                                        texture_surface(popup->texture)->format,
-                                        texture_surface(popup->texture)->flags);
+                                        texture_surface(popup->texture)->format);
     DL_PREPEND(popup_head, popup);
 
-    SDL_GetMouseState(&mx, &my);
+    mouse_get_state(&mx, &my);
     /* Make sure the mouse is no longer moving any widget. */
     widget_event_move_stop(mx, my);
 
@@ -107,7 +105,7 @@ void popup_destroy(popup_struct *popup) {
     }
 
     DL_DELETE(popup_head, popup);
-    SDL_FreeSurface(popup->surface);
+    SDL_DestroySurface(popup->surface);
 
     free(popup->buf);
 
@@ -236,7 +234,7 @@ static int popup_button_handle_event(popup_button *button, SDL_Event *event) {
 int popup_handle_event(SDL_Event *event) {
     int ret;
 
-    if (popup_head && !popup_head->modal && event->type == SDL_MOUSEBUTTONDOWN &&
+    if (popup_head && !popup_head->modal && event->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
         !(event->motion.x >= popup_head->x &&
           event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w &&
           event->motion.y >= popup_head->y &&
@@ -253,7 +251,8 @@ int popup_handle_event(SDL_Event *event) {
     }
 
     if (popup_head->clipboard_copy_func) {
-        if (event->type == SDL_KEYDOWN && keybind_command_matches_event("?COPY", &event->key)) {
+        if (event->type == SDL_EVENT_KEY_DOWN &&
+            keybind_command_matches_event("?COPY", &event->key)) {
             const char *contents;
             int64_t start, end;
             char *str;
@@ -281,26 +280,27 @@ int popup_handle_event(SDL_Event *event) {
             str = xmalloc(sizeof(char) * (end - start + 1 + 1));
             memcpy(str, contents + start, end - start + 1);
             str[end - start + 1] = '\0';
-            x11_clipboard_set(SDL_display, SDL_window, str);
+            SDL_SetClipboardText(str);
             free(str);
 
             return 1;
-        } else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP ||
-                    event->type == SDL_MOUSEMOTION) &&
+        } else if ((event->type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
+                    event->type == SDL_EVENT_MOUSE_BUTTON_UP ||
+                    event->type == SDL_EVENT_MOUSE_MOTION) &&
                    event->motion.x >= popup_head->x &&
                    event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w &&
                    event->motion.y >= popup_head->y &&
                    event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h) {
-            if (event->type == SDL_MOUSEMOTION) {
+            if (event->type == SDL_EVENT_MOUSE_MOTION) {
                 popup_head->redraw = 1;
 
                 if (event->button.button == SDL_BUTTON_LEFT) {
                     popup_head->selection_started = 1;
                 }
             } else if (event->button.button == SDL_BUTTON_LEFT) {
-                if (event->type == SDL_MOUSEBUTTONUP) {
+                if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
                     popup_head->selection_started = 0;
-                } else if (event->type == SDL_MOUSEBUTTONDOWN) {
+                } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                     popup_head->selection_started = 0;
                     popup_head->selection_start = -1;
                     popup_head->selection_end = -1;
@@ -320,9 +320,9 @@ int popup_handle_event(SDL_Event *event) {
     }
 
     /* Key is down. */
-    if (event->type == SDL_KEYDOWN) {
+    if (event->type == SDL_EVENT_KEY_DOWN) {
         /* Escape, destroy the popup. */
-        if (event->key.keysym.sym == SDLK_ESCAPE) {
+        if (event->key.key == SDLK_ESCAPE) {
             popup_destroy(popup_head);
         }
     } else if ((ret = popup_button_handle_event(&popup_head->button_left, event))) {

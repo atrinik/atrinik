@@ -453,8 +453,8 @@ extern void text_get_width_height(font_struct *font,
                                   const char *text,
                                   uint64_t flags,
                                   SDL_Rect *box,
-                                  uint16_t *w,
-                                  uint16_t *h);
+                                  int *w,
+                                  int *h);
 
 extern void text_truncate_overflow(font_struct *font, char *text, int max_width);
 

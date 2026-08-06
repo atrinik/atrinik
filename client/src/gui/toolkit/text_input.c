@@ -32,7 +32,63 @@
 #include <global.h>
 #include <video.h>
 #include <toolkit/string.h>
-#include <toolkit/x11.h>
+
+static size_t utf8_previous(const char *str, size_t pos) {
+    if (pos == 0) {
+        return 0;
+    }
+
+    pos--;
+    while (pos > 0 && ((unsigned char)str[pos] & 0xc0) == 0x80) {
+        pos--;
+    }
+
+    return pos;
+}
+
+static size_t utf8_next(const char *str, size_t len, size_t pos) {
+    if (pos >= len) {
+        return len;
+    }
+
+    pos++;
+    while (pos < len && ((unsigned char)str[pos] & 0xc0) == 0x80) {
+        pos++;
+    }
+
+    return pos;
+}
+
+static bool text_input_add_text(text_input_struct *text_input, const char *text) {
+    size_t capacity = MIN(text_input->max, sizeof(text_input->str)) - 1;
+    size_t available = capacity - MIN(text_input->num, capacity);
+    size_t len = MIN(strlen(text), available);
+
+    while (len > 0 && text[len] != '\0' && ((unsigned char)text[len] & 0xc0) == 0x80) {
+        len--;
+    }
+    if (len == 0) {
+        return false;
+    }
+
+    if (text_input->character_check_func != NULL) {
+        for (size_t i = 0; i < len; i++) {
+            unsigned char character = (unsigned char)text[i];
+            if (character >= 0x80 ||
+                !text_input->character_check_func(text_input, (char)character)) {
+                return false;
+            }
+        }
+    }
+
+    memmove(text_input->str + text_input->pos + len,
+            text_input->str + text_input->pos,
+            text_input->num - text_input->pos + 1);
+    memcpy(text_input->str + text_input->pos, text, len);
+    text_input->pos += len;
+    text_input->num += len;
+    return true;
+}
 
 text_input_history_struct *text_input_history_create(void) {
     text_input_history_struct *tmp;
@@ -151,7 +207,8 @@ void text_input_show_edit_password(text_input_struct *text_input) {
 }
 
 int text_input_number_character_check(text_input_struct *text_input, char c) {
-    return isdigit(c);
+    (void)text_input;
+    return isdigit((unsigned char)c);
 }
 
 void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x, int y) {
@@ -185,9 +242,12 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
     underscore_width = glyph_get_width(text_input->font, '_');
 
     /* Figure out the width by going backwards. */
-    for (pos = text_input->pos; pos; pos--) {
+    for (pos = text_input->pos; pos != 0;) {
+        size_t previous = utf8_previous(text_input->str, pos);
+
         /* Reached the maximum yet? */
-        if (box.w + glyph_get_width(text_input->font, *(text_input->str + pos)) + underscore_width >
+        if (box.w + glyph_get_width(text_input->font, *(text_input->str + previous)) +
+                underscore_width >
             text_input->coords.w - TEXT_INPUT_PADDING * 2) {
             break;
         }
@@ -196,13 +256,14 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
                             text_input->font,
                             NULL,
                             &box,
-                            text_input->str + pos,
+                            text_input->str + previous,
                             NULL,
                             NULL,
                             0,
                             NULL,
                             NULL,
                             &info);
+        pos = previous;
     }
 
     sb = stringbuffer_new();
@@ -237,26 +298,8 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
 }
 
 void text_input_add_char(text_input_struct *text_input, char c) {
-    size_t i;
-
-    if (text_input->num >= text_input->max) {
-        return;
-    }
-
-    i = text_input->num;
-
-    for (i = text_input->num; i >= text_input->pos; i--) {
-        text_input->str[i + 1] = text_input->str[i];
-
-        if (i == 0) {
-            break;
-        }
-    }
-
-    text_input->str[text_input->pos] = c;
-    text_input->pos++;
-    text_input->num++;
-    text_input->str[text_input->num] = '\0';
+    char text[] = {c, '\0'};
+    text_input_add_text(text_input, text);
 }
 
 int text_input_event(text_input_struct *text_input, SDL_Event *event) {
@@ -264,38 +307,40 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
         return 0;
     }
 
-    if (event->type == SDL_KEYDOWN) {
-        if (keybind_command_matches_event("?PASTE", &event->key)) {
-            char *clipboard_contents;
+    if (event->type == SDL_EVENT_TEXT_INPUT) {
+        return text_input_add_text(text_input, event->text.text);
+    }
+    if (event->type == SDL_EVENT_TEXT_EDITING) {
+        return 1;
+    }
 
-            clipboard_contents = x11_clipboard_get(SDL_display, SDL_window);
+    if (event->type == SDL_EVENT_KEY_DOWN) {
+        if (keybind_command_matches_event("?PASTE", &event->key)) {
+            char *clipboard_contents = SDL_GetClipboardText();
 
             if (clipboard_contents) {
-                strncat(text_input->str, clipboard_contents, text_input->max - text_input->num - 1);
-                text_input->str[text_input->max - 1] = '\0';
-                text_input->pos = text_input->num = strlen(text_input->str);
-                string_replace_unprintable_chars(text_input->str);
-
-                free(clipboard_contents);
+                string_replace_unprintable_chars(clipboard_contents);
+                text_input_add_text(text_input, clipboard_contents);
+                SDL_free(clipboard_contents);
             }
 
             return 1;
-        } else if (IS_ENTER(event->key.keysym.sym)) {
+        } else if (IS_ENTER(event->key.key)) {
             if (*text_input->str != '\0') {
                 text_input_history_add(text_input->history, text_input->str);
             }
 
             return 1;
-        } else if (event->key.keysym.sym == SDLK_BACKSPACE) {
+        } else if (event->key.key == SDLK_BACKSPACE) {
             if (text_input->num && text_input->pos) {
                 size_t i, j;
 
                 i = j = text_input->pos;
 
-                if (event->key.keysym.mod & KMOD_CTRL) {
+                if (event->key.mod & SDL_KMOD_CTRL) {
                     string_skip_word(text_input->str, &i, -1);
                 } else {
-                    i--;
+                    i = utf8_previous(text_input->str, i);
                 }
 
                 while (j <= text_input->num) {
@@ -307,16 +352,16 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
             }
 
             return 1;
-        } else if (event->key.keysym.sym == SDLK_DELETE) {
+        } else if (event->key.key == SDLK_DELETE) {
             if (text_input->pos != text_input->num) {
                 size_t i, j;
 
                 i = j = text_input->pos;
 
-                if (event->key.keysym.mod & KMOD_CTRL) {
+                if (event->key.mod & SDL_KMOD_CTRL) {
                     string_skip_word(text_input->str, &i, 1);
                 } else {
-                    i++;
+                    i = utf8_next(text_input->str, text_input->num, i);
                 }
 
                 while (i <= text_input->num) {
@@ -327,31 +372,31 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
             }
 
             return 1;
-        } else if (event->key.keysym.sym == SDLK_LEFT) {
-            if (event->key.keysym.mod & KMOD_CTRL) {
+        } else if (event->key.key == SDLK_LEFT) {
+            if (event->key.mod & SDL_KMOD_CTRL) {
                 size_t i;
 
                 i = text_input->pos;
                 string_skip_word(text_input->str, &i, -1);
                 text_input->pos = i;
             } else if (text_input->pos != 0) {
-                text_input->pos--;
+                text_input->pos = utf8_previous(text_input->str, text_input->pos);
             }
 
             return 1;
-        } else if (event->key.keysym.sym == SDLK_RIGHT) {
-            if (event->key.keysym.mod & KMOD_CTRL) {
+        } else if (event->key.key == SDLK_RIGHT) {
+            if (event->key.mod & SDL_KMOD_CTRL) {
                 size_t i;
 
                 i = text_input->pos;
                 string_skip_word(text_input->str, &i, 1);
                 text_input->pos = i;
             } else if (text_input->pos < text_input->num) {
-                text_input->pos++;
+                text_input->pos = utf8_next(text_input->str, text_input->num, text_input->pos);
             }
 
             return 1;
-        } else if (event->key.keysym.sym == SDLK_UP) {
+        } else if (event->key.key == SDLK_UP) {
             if (text_input->history) {
                 char **p;
 
@@ -373,7 +418,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
             }
 
             return 1;
-        } else if (event->key.keysym.sym == SDLK_DOWN) {
+        } else if (event->key.key == SDLK_DOWN) {
             if (text_input->history) {
                 if (text_input->history->pos > 0) {
                     text_input->history->pos--;
@@ -399,28 +444,14 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event) {
             }
 
             return 1;
-        } else if (event->key.keysym.sym == SDLK_HOME) {
+        } else if (event->key.key == SDLK_HOME) {
             text_input->pos = 0;
             return 1;
-        } else if (event->key.keysym.sym == SDLK_END) {
+        } else if (event->key.key == SDLK_END) {
             text_input->pos = text_input->num;
             return 1;
-        } else if (event->key.keysym.sym == SDLK_RSHIFT || event->key.keysym.sym == SDLK_LSHIFT) {
+        } else if (event->key.key == SDLK_RSHIFT || event->key.key == SDLK_LSHIFT) {
             return 1;
-        } else {
-            char c;
-
-            c = event->key.keysym.unicode & 0xff;
-
-            if (isprint(c) && (!text_input->character_check_func ||
-                               text_input->character_check_func(text_input, c))) {
-                if (event->key.keysym.mod & KMOD_SHIFT) {
-                    c = toupper(c);
-                }
-
-                text_input_add_char(text_input, c);
-                return 1;
-            }
         }
     }
 

@@ -301,7 +301,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
     }
 
     /* Start dragging the map. */
-    if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT &&
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT &&
         RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
         region_map_dragging = 1;
     }
@@ -309,7 +309,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
     /* Dragging the map? */
     if (region_map_dragging) {
         /* Stop dragging the map if the left mouse button has been released. */
-        if (event->type == SDL_MOUSEBUTTONUP && event->button.button == SDL_BUTTON_LEFT) {
+        if (event->type == SDL_EVENT_MOUSE_BUTTON_UP && event->button.button == SDL_BUTTON_LEFT) {
             region_map_dragging = 0;
             return 1;
         }
@@ -332,14 +332,14 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
         return 1;
     }
 
-    if (event->type == SDL_MOUSEBUTTONDOWN) {
-        if (event->button.button == SDL_BUTTON_WHEELUP) {
+    if (event->type == SDL_EVENT_MOUSE_WHEEL) {
+        if (event_wheel_y(event) > 0.0f) {
             /* Zoom in. */
             if (region_map->zoom < RM_ZOOM_MAX) {
                 region_map_resize(region_map, RM_ZOOM_PROGRESS);
                 return 1;
             }
-        } else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+        } else if (event_wheel_y(event) < 0.0f) {
             /* Zoom out. */
             if (region_map->zoom > RM_ZOOM_MIN) {
                 region_map_resize(region_map, -RM_ZOOM_PROGRESS);
@@ -384,7 +384,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
                 return 1;
             }
         }
-    } else if (event->type == SDL_MOUSEMOTION) {
+    } else if (event->type == SDL_EVENT_MOUSE_MOTION) {
         if (RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
             int xpos, ypos, tooltip_x, tooltip_y, tooltip_w, tooltip_h;
             size_t i;
@@ -420,35 +420,35 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
                 break;
             }
         }
-    } else if (event->type == SDL_KEYDOWN) {
+    } else if (event->type == SDL_EVENT_KEY_DOWN) {
         int pos = RM_SCROLL;
 
-        if (event->key.keysym.mod & KMOD_SHIFT) {
+        if (event->key.mod & SDL_KMOD_SHIFT) {
             pos = RM_SCROLL_SHIFT;
         }
 
-        if (event->key.keysym.sym == SDLK_UP) {
+        if (event->key.key == SDLK_UP) {
             region_map->pos.y -= pos;
             surface_pan(region_map_surface(region_map), &region_map->pos);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_DOWN) {
+        } else if (event->key.key == SDLK_DOWN) {
             region_map->pos.y += pos;
             surface_pan(region_map_surface(region_map), &region_map->pos);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_LEFT) {
+        } else if (event->key.key == SDLK_LEFT) {
             region_map->pos.x -= pos;
             surface_pan(region_map_surface(region_map), &region_map->pos);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_RIGHT) {
+        } else if (event->key.key == SDLK_RIGHT) {
             region_map->pos.x += pos;
             surface_pan(region_map_surface(region_map), &region_map->pos);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_PAGEUP) {
+        } else if (event->key.key == SDLK_PAGEUP) {
             if (region_map->zoom < RM_ZOOM_MAX) {
                 region_map_resize(region_map, RM_ZOOM_PROGRESS);
                 return 1;
             }
-        } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
+        } else if (event->key.key == SDLK_PAGEDOWN) {
             if (region_map->zoom > RM_ZOOM_MIN) {
                 region_map_resize(region_map, -RM_ZOOM_PROGRESS);
                 return 1;

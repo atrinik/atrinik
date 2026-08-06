@@ -330,12 +330,12 @@ static void load_picture_from_pack(int num) {
 
     fclose(fp);
 
-    SDL_RWops *rwop = SDL_RWFromMem(buf, image_bmaps[num].len);
+    SDL_IOStream *rwop = SDL_IOFromMem(buf, image_bmaps[num].len);
     if (rwop == NULL) {
-        LOG(ERROR, "Failed to load image from pack using SDL_RWFromMem(): %s", SDL_GetError());
+        LOG(ERROR, "Failed to load image from pack using SDL_IOFromMem(): %s", SDL_GetError());
     } else {
         FaceList[num].sprite = sprite_tryload_file(NULL, 0, rwop);
-        SDL_FreeRW(rwop);
+        SDL_CloseIO(rwop);
     }
 
     free(buf);

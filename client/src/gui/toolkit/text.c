@@ -31,8 +31,7 @@
 
 #include <global.h>
 #include <wrapper.h>
-#include <sdl_rotozoom.h>
-#include <sdl_gfx.h>
+#include <surface_primitives.h>
 #include <toolkit/string.h>
 
 /**
@@ -126,7 +125,7 @@ static TTF_Font *font_open(const char *name, uint8_t size) {
     }
 
     if (ttf_font == NULL) {
-        LOG(ERROR, "Unable to load font (%s, %d): %s", name, size, TTF_GetError());
+        LOG(ERROR, "Unable to load font (%s, %d): %s", name, size, SDL_GetError());
     }
 
     return ttf_font;
@@ -158,7 +157,7 @@ static font_struct *font_new(const char *name, uint8_t size) {
     font->size = size;
     font->last_used = time(NULL);
     font->font = ttf_font;
-    font->height = TTF_FontLineSkip(ttf_font);
+    font->height = TTF_GetFontLineSkip(ttf_font);
     font->ref = 1; /* One because we're inserting it into a hash table. */
 
     HASH_ADD_KEYPTR(hh, fonts, font->key, strlen(font->key), font);
@@ -328,7 +327,10 @@ void font_gc(void) {
  * Initialize the text API. Should only be done once.
  */
 void text_init(void) {
-    TTF_Init();
+    if (!TTF_Init()) {
+        LOG(ERROR, "Could not initialize SDL_ttf: %s", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
     fonts = NULL;
 
     text_link_color = text_link_color_default;
@@ -743,7 +745,8 @@ int text_show_character(font_struct **font,
                         SDL_Rect *box,
                         int *x_adjust,
                         text_info_struct *info) {
-    int width, minx, ret = 1, new_style;
+    int width, minx, ret = 1;
+    TTF_FontStyleFlags new_style;
     font_struct *restore_font = NULL;
     char c = *cp;
     uint8_t remove_bold = 0;
@@ -1158,18 +1161,28 @@ int text_show_character(font_struct **font,
                 rect.w = 1;
                 rect.h = 3;
                 rect.x = dest->x;
-                SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 96, 96, 96));
+                SDL_FillSurfaceRect(surface,
+                                    &rect,
+                                    pixel_format_map_rgb(surface->format, 96, 96, 96));
                 rect.x += box->w;
-                SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 96, 96, 96));
+                SDL_FillSurfaceRect(surface,
+                                    &rect,
+                                    pixel_format_map_rgb(surface->format, 96, 96, 96));
 
                 rect.x = dest->x + 1;
                 rect.w = box->w - 1;
                 rect.h = 1;
-                SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 96, 96, 96));
+                SDL_FillSurfaceRect(surface,
+                                    &rect,
+                                    pixel_format_map_rgb(surface->format, 96, 96, 96));
                 rect.y++;
-                SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 110, 110, 110));
+                SDL_FillSurfaceRect(surface,
+                                    &rect,
+                                    pixel_format_map_rgb(surface->format, 110, 110, 110));
                 rect.y++;
-                SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 96, 96, 96));
+                SDL_FillSurfaceRect(surface,
+                                    &rect,
+                                    pixel_format_map_rgb(surface->format, 96, 96, 96));
             }
         } else if (tag_len == 5 && strncmp(tag, "title", tag_len) == 0) {
             if (!(flags & TEXT_NO_FONT_CHANGE)) {
@@ -1223,10 +1236,12 @@ int text_show_character(font_struct **font,
                     bar_dst.h = box && bar_h == -1 ? box->h : bar_h;
 
                     if (*texture == '#' && text_color_parse(texture, &bar_color)) {
-                        SDL_FillRect(
-                            surface,
-                            &bar_dst,
-                            SDL_MapRGB(surface->format, bar_color.r, bar_color.g, bar_color.b));
+                        SDL_FillSurfaceRect(surface,
+                                            &bar_dst,
+                                            pixel_format_map_rgb(surface->format,
+                                                                 bar_color.r,
+                                                                 bar_color.g,
+                                                                 bar_color.b));
                     } else {
                         surface_show_fill(surface,
                                           bar_dst.x,
@@ -1260,10 +1275,10 @@ int text_show_character(font_struct **font,
                                       border_dst.y,
                                       border_dst.w,
                                       border_dst.h,
-                                      SDL_MapRGB(surface->format,
-                                                 border_color.r,
-                                                 border_color.g,
-                                                 border_color.b),
+                                      pixel_format_map_rgb(surface->format,
+                                                           border_color.r,
+                                                           border_color.g,
+                                                           border_color.b),
                                       thickness);
                     } else {
                         border_create_texture(surface,
@@ -1364,12 +1379,16 @@ int text_show_character(font_struct **font,
                             border_left = icon_sprite->border_left;
                             border_right = icon_sprite->border_right;
                         } else {
+                            Uint32 color_key;
+                            if (!SDL_GetSurfaceColorKey(icon_surface, &color_key)) {
+                                color_key = getpixel(icon_surface, 0, 0);
+                            }
                             surface_borders_get(icon_surface,
                                                 &border_up,
                                                 &border_down,
                                                 &border_left,
                                                 &border_right,
-                                                icon_surface->format->colorkey);
+                                                color_key);
                         }
 
                         icon_w = icon_orig_w = icon_surface->w - border_left - border_right;
@@ -1479,7 +1498,7 @@ int text_show_character(font_struct **font,
                                 rotozoomSurfaceXY(icon_surface, rotate, zoom_x, zoom_y, smooth);
 
                             SDL_BlitSurface(tmp_icon, &icon_box, surface, &icon_dst);
-                            SDL_FreeSurface(tmp_icon);
+                            SDL_DestroySurface(tmp_icon);
                         } else {
                             SDL_BlitSurface(icon_surface, &icon_box, surface, &icon_dst);
                         }
@@ -1508,7 +1527,7 @@ int text_show_character(font_struct **font,
                 char tooltip_width[MAX_BUF], tooltip_height[MAX_BUF], tooltip_text[HUGE_BUF];
                 int tooltip_max_width;
 
-                SDL_GetMouseState(&mx, &my);
+                mouse_get_state(&mx, &my);
 
                 if (text_adjust_coords(surface, &mx, &my) && mx >= dest->x && my >= dest->y &&
                     sscanf(tag + 9,
@@ -1546,7 +1565,7 @@ int text_show_character(font_struct **font,
                     }
 
                     if (mx < dest->x + wd && my < dest->y + ht) {
-                        SDL_GetMouseState(&mx, &my);
+                        mouse_get_state(&mx, &my);
                         tooltip_create(mx, my, *font, tooltip_text);
 
                         if (tooltip_max_width >= 0) {
@@ -1714,8 +1733,13 @@ int text_show_character(font_struct **font,
     }
 
     /* Get the glyph's metrics. */
-    if (TTF_GlyphMetrics((*font)->font, c == '\t' ? ' ' : c, &minx, NULL, NULL, NULL, &width) ==
-        -1) {
+    if (!TTF_GetGlyphMetrics((*font)->font,
+                             c == '\t' ? ' ' : (unsigned char)c,
+                             &minx,
+                             NULL,
+                             NULL,
+                             NULL,
+                             &width)) {
         return ret;
     }
 
@@ -1764,7 +1788,7 @@ int text_show_character(font_struct **font,
                 text_anchor_execute(info, text_anchor_info_ptr);
             }
 
-            state = SDL_GetMouseState(&mx, &my);
+            state = mouse_get_state(&mx, &my);
             orig_mx = mx;
             orig_my = my;
 
@@ -1818,10 +1842,11 @@ int text_show_character(font_struct **font,
                         dest->y + outline_y + MAX(info->start_y - dest->y + outline_y, 0);
 
                     if (flags & TEXT_SOLID) {
-                        ttf_surface = TTF_RenderText_Solid((*font)->font, buf, info->outline_color);
+                        ttf_surface =
+                            TTF_RenderText_Solid((*font)->font, buf, 0, info->outline_color);
                     } else {
                         ttf_surface =
-                            TTF_RenderText_Blended((*font)->font, buf, info->outline_color);
+                            TTF_RenderText_Blended((*font)->font, buf, 0, info->outline_color);
                     }
 
                     if (info->used_alpha != 255) {
@@ -1837,31 +1862,32 @@ int text_show_character(font_struct **font,
                             : ttf_surface->h;
 
                     SDL_BlitSurface(ttf_surface, &srcrect, surface, &outline_box);
-                    SDL_FreeSurface(ttf_surface);
+                    SDL_DestroySurface(ttf_surface);
                 }
             }
         }
 
         /* Render the character. */
         if (flags & TEXT_SOLID) {
-            ttf_surface = TTF_RenderText_Solid((*font)->font, buf, *use_color);
+            ttf_surface = TTF_RenderText_Solid((*font)->font, buf, 0, *use_color);
 
             /* Opacity. */
             if (info->used_alpha != 255) {
                 SDL_Surface *new_ttf_surface;
 
                 /* Remove black border. */
-                SDL_SetColorKey(ttf_surface, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
+                SDL_SetSurfaceColorKey(ttf_surface, true, 0);
+                SDL_SetSurfaceRLE(ttf_surface, true);
                 /* Set the opacity. */
-                SDL_SetAlpha(ttf_surface, SDL_SRCALPHA | SDL_RLEACCEL, info->used_alpha);
+                surface_set_alpha(ttf_surface, info->used_alpha);
                 /* Create new surface to blit. */
-                new_ttf_surface = SDL_DisplayFormatAlpha(ttf_surface);
+                new_ttf_surface = surface_to_display(ttf_surface);
                 /* Free the old one. */
-                SDL_FreeSurface(ttf_surface);
+                SDL_DestroySurface(ttf_surface);
                 ttf_surface = new_ttf_surface;
             }
         } else {
-            ttf_surface = TTF_RenderText_Blended((*font)->font, buf, *use_color);
+            ttf_surface = TTF_RenderText_Blended((*font)->font, buf, 0, *use_color);
 
             if (info->used_alpha != 255) {
                 surface_set_alpha(ttf_surface, info->used_alpha);
@@ -1871,7 +1897,7 @@ int text_show_character(font_struct **font,
         if (info->in_strikethrough) {
             int font_height;
 
-            font_height = TTF_FontHeight((*font)->font);
+            font_height = TTF_GetFontHeight((*font)->font);
             lineRGBA(ttf_surface,
                      0,
                      font_height / 2,
@@ -1891,7 +1917,7 @@ int text_show_character(font_struct **font,
                                       info->flip & TEXT_FLIP_HORIZONTAL ? -1.0 : 1.0,
                                       info->flip & TEXT_FLIP_VERTICAL ? -1.0 : 1.0,
                                       0);
-            SDL_FreeSurface(ttf_surface_orig);
+            SDL_DestroySurface(ttf_surface_orig);
         }
 
         /* Output the rendered character to the screen and free the
@@ -1906,7 +1932,7 @@ int text_show_character(font_struct **font,
                         : ttf_surface->h;
 
         SDL_BlitSurface(ttf_surface, &srcrect, surface, &dstrect);
-        SDL_FreeSurface(ttf_surface);
+        SDL_DestroySurface(ttf_surface);
     }
 
     /* Update the x/w of the destination with the character's width. */
@@ -1931,7 +1957,13 @@ int text_show_character(font_struct **font,
 int glyph_get_width(font_struct *font, char c) {
     int minx, width;
 
-    if (TTF_GlyphMetrics(font->font, c == '\t' ? ' ' : c, &minx, NULL, NULL, NULL, &width) != -1) {
+    if (TTF_GetGlyphMetrics(font->font,
+                            c == '\t' ? ' ' : (unsigned char)c,
+                            &minx,
+                            NULL,
+                            NULL,
+                            NULL,
+                            &width)) {
         if (minx < 0) {
             width -= minx;
         }
@@ -1958,7 +1990,7 @@ int glyph_get_width(font_struct *font, char c) {
 int glyph_get_height(font_struct *font, char c) {
     int miny, maxy;
 
-    if (TTF_GlyphMetrics(font->font, c, NULL, NULL, &miny, &maxy, NULL) != -1) {
+    if (TTF_GetGlyphMetrics(font->font, (unsigned char)c, NULL, NULL, &miny, &maxy, NULL)) {
         if (miny) {
             maxy -= miny;
         }
@@ -2003,7 +2035,7 @@ int glyph_get_height(font_struct *font, char c) {
                                         box,                                         \
                                         &x_adjust,                                   \
                                         &info) == 1) {                               \
-                    SDL_FillRect(surface, &selection_box, -1);                       \
+                    SDL_FillSurfaceRect(surface, &selection_box, -1);                \
                                                                                      \
                     select_color_orig = color;                                       \
                     color.r = color.g = color.b = 0;                                 \
@@ -2096,7 +2128,7 @@ void text_show(SDL_Surface *surface,
 
     /* Align to the center. */
     if (box && flags & (TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER)) {
-        uint16_t w, h;
+        int w, h;
 
         text_get_width_height(font,
                               text,
@@ -2115,7 +2147,7 @@ void text_show(SDL_Surface *surface,
     }
 
     if (selection_start && selection_end) {
-        mstate = SDL_GetMouseState(&mx, &my);
+        mstate = mouse_get_state(&mx, &my);
 
         if (!text_adjust_coords(surface, &mx, &my)) {
             mstate = 0;
@@ -2573,8 +2605,8 @@ void text_get_width_height(font_struct *font,
                            const char *text,
                            uint64_t flags,
                            SDL_Rect *box,
-                           uint16_t *w,
-                           uint16_t *h) {
+                           int *w,
+                           int *h) {
     SDL_Rect box2;
 
     box2.w = box ? box->w : 0;

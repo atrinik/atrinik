@@ -37,7 +37,7 @@
 
 #include <global.h>
 #include <video.h>
-#include <sdl_gfx.h>
+#include <surface_primitives.h>
 #include <notification.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
@@ -215,19 +215,21 @@ void socket_command_notification(uint8_t *data, size_t len, size_t pos) {
     resize_widget(cur_widget[NOTIFICATION_ID], RESIZE_BOTTOM, box.h);
 
     if (cur_widget[NOTIFICATION_ID]->surface) {
-        SDL_FreeSurface(cur_widget[NOTIFICATION_ID]->surface);
+        SDL_DestroySurface(cur_widget[NOTIFICATION_ID]->surface);
     }
 
     /* Create a new surface. */
     cur_widget[NOTIFICATION_ID]->surface =
-        SDL_CreateRGBSurface(get_video_flags(), box.w, box.h, video_get_bpp(), 0, 0, 0, 0);
+        surface_create_rgb(get_video_flags(), box.w, box.h, video_get_bpp(), 0, 0, 0, 0);
 
     /* Fill the surface with the background color. */
     if (text_color_parse("e6e796", &color)) {
-        SDL_FillRect(
-            cur_widget[NOTIFICATION_ID]->surface,
-            &box,
-            SDL_MapRGB(cur_widget[NOTIFICATION_ID]->surface->format, color.r, color.g, color.b));
+        SDL_FillSurfaceRect(cur_widget[NOTIFICATION_ID]->surface,
+                            &box,
+                            pixel_format_map_rgb(cur_widget[NOTIFICATION_ID]->surface->format,
+                                                 color.r,
+                                                 color.g,
+                                                 color.b));
     }
 
     /* Create a border. */
@@ -283,7 +285,7 @@ static void widget_draw(widgetdata *widget) {
 
     dst.x = widget->x;
     dst.y = widget->y;
-    SDL_SetAlpha(widget->surface, SDL_SRCALPHA, notification->alpha);
+    surface_set_alpha(widget->surface, notification->alpha);
     SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &dst);
 
     /* Do highlight. */
@@ -299,7 +301,7 @@ static void widget_draw(widgetdata *widget) {
 
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event) {
-    if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT) {
         notification_action_do();
         return 1;
     }

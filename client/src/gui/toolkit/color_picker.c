@@ -168,7 +168,7 @@ static int color_picker_element_show(SDL_Surface *surface,
 
         /* If the element is being dragged, clamp the mouse x/y positions
          * to the element's dimensions. */
-        if (color_picker->elements[type].dragging && event->type == SDL_MOUSEMOTION) {
+        if (color_picker->elements[type].dragging && event->type == SDL_EVENT_MOUSE_MOTION) {
             if (mx < box.x) {
                 mx = box.x;
             }
@@ -184,11 +184,11 @@ static int color_picker_element_show(SDL_Surface *surface,
             if (my >= box.y + box.h) {
                 my = box.y + box.h - 1;
             }
-        } else if (event->type == SDL_MOUSEMOTION) {
+        } else if (event->type == SDL_EVENT_MOUSE_MOTION) {
             return 0;
         }
     } else if (color_picker->elements[type].dragging &&
-               SDL_GetMouseState(NULL, NULL) != SDL_BUTTON_LEFT) {
+               mouse_get_state(NULL, NULL) != SDL_BUTTON_LEFT) {
         /* If the element says it's being dragged, but the mouse state says
          * otherwise, stop dragging. */
         color_picker->elements[type].dragging = 0;
@@ -243,7 +243,7 @@ static int color_picker_element_show(SDL_Surface *surface,
                 putpixel(surface,
                          dest.x,
                          dest.y,
-                         SDL_MapRGB(surface->format, 255 * rgb[0], 255 * rgb[1], 255 * rgb[2]));
+                         pixel_format_map_rgb(surface->format, 255 * rgb[0], 255 * rgb[1], 255 * rgb[2]));
             }
         }
 
@@ -251,20 +251,20 @@ static int color_picker_element_show(SDL_Surface *surface,
         if (surface) {
             for (x = 0; x < box.w; x++) {
                 pixel = getpixel(surface, box.x + x, box.y + sely);
-                SDL_GetRGB(pixel, surface->format, &r, &g, &b);
+                pixel_format_get_rgb(pixel, surface->format, &r, &g, &b);
                 putpixel(surface,
                          box.x + x,
                          box.y + sely,
-                         SDL_MapRGB(surface->format, 255 - r, 255 - g, 255 - b));
+                         pixel_format_map_rgb(surface->format, 255 - r, 255 - g, 255 - b));
             }
 
             for (y = 0; y < box.h; y++) {
                 pixel = getpixel(surface, box.x + selx, box.y + y);
-                SDL_GetRGB(pixel, surface->format, &r, &g, &b);
+                pixel_format_get_rgb(pixel, surface->format, &r, &g, &b);
                 putpixel(surface,
                          box.x + selx,
                          box.y + y,
-                         SDL_MapRGB(surface->format, 255 - r, 255 - g, 255 - b));
+                         pixel_format_map_rgb(surface->format, 255 - r, 255 - g, 255 - b));
             }
         }
     } else if (type == COLOR_PICKER_ELEM_HUE) {
@@ -300,7 +300,7 @@ static int color_picker_element_show(SDL_Surface *surface,
                 b = 255 - b;
             }
 
-            SDL_FillRect(surface, &dest, SDL_MapRGB(surface->format, r, g, b));
+            SDL_FillSurfaceRect(surface, &dest, pixel_format_map_rgb(surface->format, r, g, b));
         }
     }
 
@@ -332,7 +332,7 @@ void color_picker_show(SDL_Surface *surface, color_picker_struct *color_picker) 
  * 1 if the event was handled, 0 otherwise.
  */
 int color_picker_event(color_picker_struct *color_picker, SDL_Event *event) {
-    if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEMOTION) &&
+    if ((event->type == SDL_EVENT_MOUSE_BUTTON_DOWN || event->type == SDL_EVENT_MOUSE_MOTION) &&
         event->button.button == SDL_BUTTON_LEFT) {
         size_t i;
 

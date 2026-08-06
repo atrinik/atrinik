@@ -43,7 +43,7 @@ int event_dragging_check(void) {
         return 0;
     }
 
-    SDL_GetMouseState(&mx, &my);
+    mouse_get_state(&mx, &my);
 
     if (abs(cpl.dragging_startx - mx) < 3 && abs(cpl.dragging_starty - my) < 3) {
         return 0;
@@ -59,7 +59,7 @@ int event_dragging_need_redraw(void) {
         return 0;
     }
 
-    SDL_GetMouseState(&mx, &my);
+    mouse_get_state(&mx, &my);
 
     if (mx != dragging_old_mx || my != dragging_old_my) {
         dragging_old_mx = mx;
@@ -125,7 +125,6 @@ int Event_PollInputDevice(void) {
     SDL_Event event;
     int x, y, done = 0;
     static Uint32 Ticks = 0;
-    SDLKey key;
 
     /* Execute mouse actions, even if mouse button is being held. */
     if ((SDL_GetTicks() - Ticks > 125) || !Ticks) {
@@ -141,33 +140,34 @@ int Event_PollInputDevice(void) {
     }
 
     while (SDL_PollEvent(&event)) {
-        x = event.motion.x;
-        y = event.motion.y;
+        if (event.type == SDL_EVENT_MOUSE_WHEEL) {
+            x = (int)event.wheel.mouse_x;
+            y = (int)event.wheel.mouse_y;
+        } else if (event.type == SDL_EVENT_MOUSE_MOTION ||
+                   event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
+                   event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+            x = (int)event.motion.x;
+            y = (int)event.motion.y;
+        }
 
-        if (event.type == SDL_KEYDOWN) {
-            if (!keys[event.key.keysym.sym].pressed) {
-                keys[event.key.keysym.sym].repeated = 0;
-                keys[event.key.keysym.sym].pressed = 1;
-                keys[event.key.keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
-            }
-        } else if (event.type == SDL_KEYUP) {
-            keys[event.key.keysym.sym].pressed = 0;
-        } else if (event.type == SDL_MOUSEMOTION) {
+        if (event.type == SDL_EVENT_KEY_DOWN) {
+            keys[event.key.scancode].repeated = event.key.repeat;
+            keys[event.key.scancode].pressed = 1;
+        } else if (event.type == SDL_EVENT_KEY_UP) {
+            keys[event.key.scancode].pressed = 0;
+        } else if (event.type == SDL_EVENT_MOUSE_MOTION) {
             tooltip_dismiss();
         }
 
-        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PRINT) {
+        if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_PRINTSCREEN) {
             screenshot_create(ScreenSurface);
             continue;
         }
 
         switch (event.type) {
                 /* Screen has been resized, update screen size. */
-            case SDL_VIDEORESIZE:
-                ScreenSurface = SDL_SetVideoMode(event.resize.w,
-                                                 event.resize.h,
-                                                 video_get_bpp(),
-                                                 get_video_flags());
+            case SDL_EVENT_WINDOW_RESIZED:
+                ScreenSurface = SDL_GetWindowSurface(ScreenWindow);
 
                 if (!ScreenSurface) {
                     LOG(ERROR, "Unable to grab surface after resize event: %s", SDL_GetError());
@@ -176,16 +176,19 @@ int Event_PollInputDevice(void) {
 
                 /* Set resolution to custom. */
                 setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
-                resize_window(event.resize.w, event.resize.h);
+                resize_window(event.window.data1, event.window.data2);
                 break;
 
-            case SDL_MOUSEBUTTONDOWN:
-            case SDL_MOUSEBUTTONUP:
-            case SDL_MOUSEMOTION:
-            case SDL_KEYUP:
-            case SDL_KEYDOWN:
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+            case SDL_EVENT_MOUSE_BUTTON_UP:
+            case SDL_EVENT_MOUSE_MOTION:
+            case SDL_EVENT_MOUSE_WHEEL:
+            case SDL_EVENT_KEY_UP:
+            case SDL_EVENT_KEY_DOWN:
+            case SDL_EVENT_TEXT_INPUT:
+            case SDL_EVENT_TEXT_EDITING:
 
-                if (event.type == SDL_MOUSEMOTION) {
+                if (event.type == SDL_EVENT_MOUSE_MOTION || event.type == SDL_EVENT_MOUSE_WHEEL) {
                     cursor_x = x;
                     cursor_y = y;
                     cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
@@ -195,7 +198,7 @@ int Event_PollInputDevice(void) {
                     break;
                 }
 
-                if (event_dragging_check() && event.type != SDL_MOUSEBUTTONUP) {
+                if (event_dragging_check() && event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
                     break;
                 }
 
@@ -206,18 +209,18 @@ int Event_PollInputDevice(void) {
                 }
 
                 if (cpl.state == ST_PLAY &&
-                    (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)) {
+                    (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP)) {
                     key_handle_event(&event.key);
                     break;
                 }
 
                 break;
 
-            case SDL_QUIT:
+            case SDL_EVENT_QUIT:
                 done = 1;
                 break;
 
-            case SDL_USEREVENT:
+            case SDL_EVENT_USER:
                 if (event.user.code == EVENT_SOUND_MUSIC_FINISHED) {
                     sound_music_finished_handle();
                 }
@@ -227,40 +230,28 @@ int Event_PollInputDevice(void) {
                 break;
         }
 
-        if (event.type == SDL_MOUSEBUTTONUP) {
+        if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
             event_dragging_stop_internal();
-        }
-    }
-
-    for (key = 0; key < SDLK_LAST; key++) {
-        /* Ignore modifier keys. */
-        if (KEY_IS_MODIFIER(key)) {
-            continue;
-        }
-
-        if (keys[key].pressed && keys[key].time + KEY_REPEAT_TIME - 5 < LastTick) {
-            keys[key].time = LastTick + KEY_REPEAT_TIME - 5;
-            keys[key].repeated = 1;
-            event_push_key(SDL_KEYDOWN, key, SDL_GetModState());
         }
     }
 
     return done;
 }
 
-void event_push_key(SDL_EventType type, SDLKey key, SDLMod mod) {
+void event_push_key(SDL_EventType type, SDL_Keycode key, SDL_Keymod mod) {
     SDL_Event event;
 
+    memset(&event, 0, sizeof(event));
     event.type = type;
     event.key.which = 0;
-    event.key.state = type == SDL_KEYDOWN ? SDL_PRESSED : SDL_RELEASED;
-    event.key.keysym.unicode = key;
-    event.key.keysym.sym = key;
-    event.key.keysym.mod = mod;
+    event.key.down = type == SDL_EVENT_KEY_DOWN;
+    event.key.scancode = SDL_GetScancodeFromKey(key, NULL);
+    event.key.key = key;
+    event.key.mod = mod;
     SDL_PushEvent(&event);
 }
 
-void event_push_key_once(SDLKey key, SDLMod mod) {
-    event_push_key(SDL_KEYDOWN, key, mod);
-    event_push_key(SDL_KEYUP, key, mod);
+void event_push_key_once(SDL_Keycode key, SDL_Keymod mod) {
+    event_push_key(SDL_EVENT_KEY_DOWN, key, mod);
+    event_push_key(SDL_EVENT_KEY_UP, key, mod);
 }

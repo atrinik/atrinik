@@ -155,29 +155,29 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
     }
 
     /* Mouse event and the mouse is inside the book. */
-    if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x >= popup->x &&
-        event->motion.x < popup->x + popup->surface->w && event->motion.y >= popup->y &&
-        event->motion.y < popup->y + popup->surface->h) {
+    if (event->type == SDL_EVENT_MOUSE_WHEEL && event->wheel.mouse_x >= popup->x &&
+        event->wheel.mouse_x < popup->x + popup->surface->w && event->wheel.mouse_y >= popup->y &&
+        event->wheel.mouse_y < popup->y + popup->surface->h) {
         /* Scroll the book. */
-        if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+        if (event_wheel_y(event) < 0.0f) {
             scrollbar_scroll_adjust(&scrollbar, 1);
             return 1;
-        } else if (event->button.button == SDL_BUTTON_WHEELUP) {
+        } else if (event_wheel_y(event) > 0.0f) {
             scrollbar_scroll_adjust(&scrollbar, -1);
             return 1;
         }
-    } else if (event->type == SDL_KEYDOWN) {
+    } else if (event->type == SDL_EVENT_KEY_DOWN) {
         /* Scrolling. */
-        if (event->key.keysym.sym == SDLK_DOWN) {
+        if (event->key.key == SDLK_DOWN) {
             scrollbar_scroll_adjust(&scrollbar, 1);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_UP) {
+        } else if (event->key.key == SDLK_UP) {
             scrollbar_scroll_adjust(&scrollbar, -1);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
+        } else if (event->key.key == SDLK_PAGEDOWN) {
             scrollbar_scroll_adjust(&scrollbar, book_scroll_lines);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_PAGEUP) {
+        } else if (event->key.key == SDLK_PAGEUP) {
             scrollbar_scroll_adjust(&scrollbar, -book_scroll_lines);
             return 1;
         }

@@ -87,7 +87,12 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
     widget_input_struct *input;
     text_input_struct *text_input;
 
-    if (widget->show && event->type == SDL_KEYDOWN) {
+    if (widget->show &&
+        (event->type == SDL_EVENT_TEXT_INPUT || event->type == SDL_EVENT_TEXT_EDITING)) {
+        return text_input_event(&WIDGET_INPUT(widget)->text_input, event);
+    }
+
+    if (widget->show && event->type == SDL_EVENT_KEY_DOWN) {
         input = WIDGET_INPUT(widget);
 
         if (SDL_GetTicks() - widget->showed_ticks > 125 &&
@@ -96,20 +101,19 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
              (string_startswith(input->prepend_text, "/droptag ") &&
               keybind_command_matches_event("?DROP", &event->key)))) {
             widget_input_handle_enter(widget);
-            keys[event->key.keysym.sym].time = SDL_GetTicks() + 125;
             return 1;
         }
 
         text_input = &input->text_input;
 
-        if (IS_ENTER(event->key.keysym.sym)) {
+        if (IS_ENTER(event->key.key)) {
             widget_input_handle_enter(widget);
         }
 
-        if (event->key.keysym.sym == SDLK_ESCAPE) {
+        if (event->key.key == SDLK_ESCAPE) {
             widget->show = 0;
             return 1;
-        } else if (event->key.keysym.sym == SDLK_TAB) {
+        } else if (event->key.key == SDLK_TAB) {
             help_handle_tabulator(text_input);
             return 1;
         } else if (text_input_event(text_input, event)) {

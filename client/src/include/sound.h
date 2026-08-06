@@ -31,24 +31,15 @@
 #define SOUND_H
 
 /**
- * @defgroup SOUND_TYPE_xxx Sound mixer type
- * Sound mixer types.
- *@{*/
-/** Sound chunk, OGG/WAV, no MIDI. */
-#define SOUND_TYPE_CHUNK 1
-/** Music, OGG/MIDI/etc. */
-#define SOUND_TYPE_MUSIC 2
-/*@}*/
-
-/**
  * One 'cached' sound.
  */
 typedef struct sound_data_struct {
     /** The sound's data. */
+#ifdef HAVE_SDL_MIXER
+    MIX_Audio *data;
+#else
     void *data;
-
-    /** Sound's type, one of @ref SOUND_TYPE_xxx. */
-    int type;
+#endif
 
     /** Filename that was used to load sound_data_struct::data from. */
     char *filename;
@@ -103,6 +94,8 @@ extern void sound_clear_cache(void);
 extern void sound_play_effect(const char *filename, int volume);
 
 extern int sound_play_effect_loop(const char *filename, int volume, int loop);
+
+extern void sound_stop_effect(int channel);
 
 extern void sound_start_bg_music(const char *filename, int volume, int loop);
 

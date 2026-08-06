@@ -161,7 +161,7 @@ static void widget_draw(widgetdata *widget) {
         box.y = WIDGET_BORDER_SIZE;
         box.w = widget->w - WIDGET_BORDER_SIZE * 2;
         box.h = widget->h - WIDGET_BORDER_SIZE * 2;
-        SDL_FillRect(widget->surface, &box, SDL_MapRGB(widget->surface->format, 0, 0, 0));
+        SDL_FillSurfaceRect(widget->surface, &box, pixel_format_map_rgb(widget->surface->format, 0, 0, 0));
         border_create_texture(widget->surface, &box, thickness, TEXTURE_CLIENT("stat_border"));
 
         box.x += thickness;
@@ -185,7 +185,7 @@ static void widget_draw(widgetdata *widget) {
 
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event) {
-    if (event->type == SDL_MOUSEMOTION && event->motion.x - widget->x > WIDGET_BORDER_SIZE &&
+    if (event->type == SDL_EVENT_MOUSE_MOTION && event->motion.x - widget->x > WIDGET_BORDER_SIZE &&
         event->motion.x - widget->x < widget->w - WIDGET_BORDER_SIZE &&
         event->motion.y - widget->y > WIDGET_BORDER_SIZE &&
         event->motion.y - widget->y < widget->h - WIDGET_BORDER_SIZE) {

@@ -35,11 +35,25 @@
 #endif
 
 /* Include standard headers. */
-#include <SDL.h>
-#include <SDL_main.h>
-#include <SDL_syswm.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
+
+static inline SDL_MouseButtonFlags mouse_get_state(int *x, int *y) {
+    float mouse_x, mouse_y;
+    SDL_MouseButtonFlags state = SDL_GetMouseState(x != NULL ? &mouse_x : NULL,
+                                                   y != NULL ? &mouse_y : NULL);
+
+    if (x != NULL) {
+        *x = (int)mouse_x;
+    }
+    if (y != NULL) {
+        *y = (int)mouse_y;
+    }
+
+    return state;
+}
 #include <zlib.h>
 #include <pthread.h>
 #include <config.h>
@@ -62,7 +76,7 @@ struct packet_struct;
 struct packet_reader;
 
 #ifdef HAVE_SDL_MIXER
-#include <SDL_mixer.h>
+#include <SDL3_mixer/SDL_mixer.h>
 #endif
 
 #include <version.h>
@@ -79,6 +93,7 @@ struct packet_reader;
 #include <client.h>
 #include <effects.h>
 #include <sprite.h>
+#include <surface_primitives.h>
 #include <widget.h>
 #include <textwin.h>
 #include <player.h>

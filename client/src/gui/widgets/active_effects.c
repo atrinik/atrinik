@@ -105,18 +105,19 @@ static void widget_draw(widgetdata *widget) {
 
     if (!widget->surface || widget->w != widget->surface->w || widget->h != widget->surface->h) {
         if (widget->surface) {
-            SDL_FreeSurface(widget->surface);
+            SDL_DestroySurface(widget->surface);
         }
 
-        widget->surface = SDL_CreateRGBSurface(get_video_flags(),
-                                               widget->w,
-                                               widget->h,
-                                               video_get_bpp(),
-                                               0,
-                                               0,
-                                               0,
-                                               0);
-        SDL_SetColorKey(widget->surface, SDL_SRCCOLORKEY | SDL_ANYFORMAT, 0);
+        widget->surface = surface_create_rgb(get_video_flags(),
+                                             widget->w,
+                                             widget->h,
+                                             video_get_bpp(),
+                                             0,
+                                             0,
+                                             0,
+                                             0);
+        SDL_SetSurfaceColorKey(widget->surface, true, 0);
+        SDL_SetSurfaceRLE(widget->surface, true);
     }
 
     if (widget->redraw) {
@@ -125,7 +126,7 @@ static void widget_draw(widgetdata *widget) {
 
         x = y = 0;
 
-        SDL_FillRect(widget->surface, NULL, 0);
+        SDL_FillSurfaceRect(widget->surface, NULL, 0);
 
         DL_FOREACH(tmp->active_effects, effect) {
             sprite = image_get_sprite(effect->op->face);
@@ -189,7 +190,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
 
     tmp = widget->subwidget;
 
-    if (event->type == SDL_MOUSEMOTION) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
         active_effect_struct *effect;
         int x, y;
         sprite_struct *sprite;

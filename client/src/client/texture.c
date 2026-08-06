@@ -32,7 +32,7 @@
 #include <global.h>
 #include <wrapper.h>
 #include <video.h>
-#include <sdl_gfx.h>
+#include <surface_primitives.h>
 #include <toolkit/string.h>
 
 /**
@@ -47,7 +47,7 @@ static texture_struct *textures[TEXTURE_TYPE_NUM];
  */
 static void texture_data_free(texture_struct *tmp) {
     if (tmp->surface) {
-        SDL_FreeSurface(tmp->surface);
+        SDL_DestroySurface(tmp->surface);
         tmp->surface = NULL;
     }
 }
@@ -66,7 +66,7 @@ static int texture_data_new(texture_struct *tmp) {
         if (strcmp(tmp->name, TEXTURE_FALLBACK_NAME) == 0) {
             SDL_Rect box;
 
-            surface = SDL_CreateRGBSurface(get_video_flags(), 20, 20, video_get_bpp(), 0, 0, 0, 0);
+            surface = surface_create_rgb(get_video_flags(), 20, 20, video_get_bpp(), 0, 0, 0, 0);
             lineRGBA(surface, 0, 0, surface->w, surface->h, 255, 0, 0, 255);
             lineRGBA(surface, surface->w, 0, 0, surface->h, 255, 0, 0, 255);
             box.x = 0;
@@ -82,11 +82,10 @@ static int texture_data_new(texture_struct *tmp) {
             if (sscanf(tmp->name + 10, "%d,%d,%d", &w, &h, &alpha) >= 2) {
                 char *cp;
 
-                surface =
-                    SDL_CreateRGBSurface(get_video_flags(), w, h, video_get_bpp(), 0, 0, 0, 0);
+                surface = surface_create_rgb(get_video_flags(), w, h, video_get_bpp(), 0, 0, 0, 0);
 
                 if (alpha != 255) {
-                    SDL_SetAlpha(surface, SDL_SRCALPHA, alpha);
+                    surface_set_alpha(surface, alpha);
                 }
 
                 cp = strchr(tmp->name + 10, ';');
@@ -108,8 +107,8 @@ static int texture_data_new(texture_struct *tmp) {
         }
 
         texture_data_free(tmp);
-        tmp->surface = SDL_DisplayFormatAlpha(surface);
-        SDL_FreeSurface(surface);
+        tmp->surface = surface_to_display(surface);
+        SDL_DestroySurface(surface);
     } else if (tmp->type == TEXTURE_TYPE_CLIENT) {
         char path[HUGE_BUF];
         SDL_Surface *surface;
@@ -118,14 +117,18 @@ static int texture_data_new(texture_struct *tmp) {
         surface = IMG_Load_wrapper(path);
 
         if (!surface) {
-            LOG(BUG, "Could not load texture %s: %s", path, IMG_GetError());
+            LOG(BUG, "Could not load texture %s: %s", path, SDL_GetError());
             return 0;
         }
 
-        SDL_SetColorKey(surface, SDL_SRCCOLORKEY, surface->format->colorkey);
+        Uint32 color_key;
+        if (SDL_GetSurfaceColorKey(surface, &color_key)) {
+            SDL_SetSurfaceColorKey(surface, true, color_key);
+            SDL_SetSurfaceRLE(surface, true);
+        }
         texture_data_free(tmp);
-        tmp->surface = SDL_DisplayFormatAlpha(surface);
-        SDL_FreeSurface(surface);
+        tmp->surface = surface_to_display(surface);
+        SDL_DestroySurface(surface);
     }
 
     return 1;

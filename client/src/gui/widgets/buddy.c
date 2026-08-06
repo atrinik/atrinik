@@ -406,12 +406,12 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         }
     }
 
-    if (event->type == SDL_KEYDOWN && tmp->text_input.focus) {
-        if (event->key.keysym.sym == SDLK_ESCAPE) {
+    if (event->type == SDL_EVENT_KEY_DOWN && tmp->text_input.focus) {
+        if (event->key.key == SDLK_ESCAPE) {
             tmp->text_input.focus = 0;
             widget->redraw = 1;
             return 1;
-        } else if (IS_ENTER(event->key.keysym.sym)) {
+        } else if (IS_ENTER(event->key.key)) {
             widget_event_buddy_add(widget);
             widget->redraw = 1;
             return 1;
@@ -423,7 +423,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         return 1;
     }
 
-    if (event->type == SDL_MOUSEBUTTONDOWN) {
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         if (event->button.button == SDL_BUTTON_LEFT &&
             text_input_mouse_over(&tmp->text_input, event->motion.x, event->motion.y)) {
             tmp->text_input.focus = 1;

@@ -45,7 +45,7 @@ static void widget_background(widgetdata *widget, int draw) {
 }
 
 static int widget_event(widgetdata *widget, SDL_Event *event) {
-    if (event->type == SDL_MOUSEMOTION) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
         char gained[64];
         snprintf(VS(gained), "%s", string_format_number_comma(telemetry_exp_gained()));
         uint64_t elapsed = telemetry_exp_elapsed_seconds();

@@ -51,7 +51,7 @@ static void widget_background(widgetdata *widget, int draw) {
 }
 
 static int widget_event(widgetdata *widget, SDL_Event *event) {
-    if (event->type == SDL_MOUSEMOTION) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
         uint64_t game_minutes;
         uint32_t millis_per_game_minute;
         if (telemetry_game_time_get(&game_minutes, &millis_per_game_minute)) {

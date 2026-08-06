@@ -243,7 +243,7 @@ static void widget_draw(widgetdata *widget) {
 
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event) {
-    if (event->type == SDL_MOUSEMOTION) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
         char buf[HUGE_BUF];
         object *obj;
         int i, xpos, ypos, xoff, yoff;

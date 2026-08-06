@@ -426,8 +426,8 @@ static int popup_draw(popup_struct *popup) {
 static int popup_event(popup_struct *popup, SDL_Event *event) {
     size_t i;
 
-    if (event->type == SDL_KEYDOWN) {
-        if (event->key.keysym.sym == SDLK_ESCAPE) {
+    if (event->type == SDL_EVENT_KEY_DOWN) {
+        if (event->key.key == SDLK_ESCAPE) {
             popup_destroy(popup);
             return 1;
         }
@@ -454,8 +454,8 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
             return 1;
         }
     } else if (button_tab_new.pressed_forced) {
-        if (event->type == SDL_KEYDOWN) {
-            if (IS_ENTER(event->key.keysym.sym)) {
+        if (event->type == SDL_EVENT_KEY_DOWN) {
+            if (IS_ENTER(event->key.key)) {
                 uint32_t lower, upper;
                 packet_struct *packet;
 
@@ -511,9 +511,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
             }
         }
     } else if (button_tab_password.pressed_forced) {
-        if (event->type == SDL_KEYDOWN) {
-            if (IS_NEXT(event->key.keysym.sym)) {
-                if (IS_ENTER(event->key.keysym.sym) &&
+        if (event->type == SDL_EVENT_KEY_DOWN) {
+            if (IS_NEXT(event->key.key)) {
+                if (IS_ENTER(event->key.key) &&
                     text_input_current == TEXT_INPUT_PASSWORD_NEW2) {
                     packet_struct *packet;
                     uint32_t lower, upper;
@@ -573,7 +573,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
 
                 return 1;
             }
-        } else if (event->type == SDL_MOUSEBUTTONDOWN) {
+        } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
             if (event->button.button == SDL_BUTTON_LEFT) {
                 for (i = TEXT_INPUT_PASSWORD; i < TEXT_INPUT_NUM; i++) {
                     if (text_input_mouse_over(&text_inputs[i], event->motion.x, event->motion.y)) {

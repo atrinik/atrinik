@@ -135,12 +135,12 @@ static int popup_draw(popup_struct *popup) {
 
 /** @copydoc popup_struct::event_func */
 static int popup_event(popup_struct *popup, SDL_Event *event) {
-    if (event->type == SDL_KEYDOWN) {
+    if (event->type == SDL_EVENT_KEY_DOWN) {
         /* Move the selected button up and down. */
-        if (event->key.keysym.sym == SDLK_UP || event->key.keysym.sym == SDLK_DOWN) {
+        if (event->key.key == SDLK_UP || event->key.key == SDLK_DOWN) {
             int selected, num_buttons;
 
-            selected = button_selected + (event->key.keysym.sym == SDLK_DOWN ? 1 : -1);
+            selected = button_selected + (event->key.key == SDLK_DOWN ? 1 : -1);
             num_buttons = (cpl.state == ST_PLAY ? BUTTON_NUM : BUTTON_LOGOUT) - 1;
 
             if (selected < 0) {
@@ -151,11 +151,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
 
             button_selected = selected;
             return 1;
-        } else if (IS_ENTER(event->key.keysym.sym)) {
+        } else if (IS_ENTER(event->key.key)) {
             settings_button_handle(popup, button_selected);
             return 1;
         }
-    } else if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEMOTION) {
+    } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN || event->type == SDL_EVENT_MOUSE_MOTION) {
         size_t i;
         int x, y, width;
 
@@ -171,9 +171,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
                 x = popup->x + popup->surface->w / 2 - width / 2;
 
                 if (event->motion.x >= x && event->motion.x < x + width) {
-                    if (event->type == SDL_MOUSEMOTION) {
+                    if (event->type == SDL_EVENT_MOUSE_MOTION) {
                         button_selected = i;
-                    } else if (event->type == SDL_MOUSEBUTTONDOWN &&
+                    } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
                                event->button.button == SDL_BUTTON_LEFT) {
                         settings_button_handle(popup, i);
                         return 1;

@@ -30,7 +30,7 @@
  */
 
 #include <global.h>
-#include <sdl_gfx.h>
+#include <surface_primitives.h>
 #include <network_graph.h>
 #include <toolkit/string.h>
 
@@ -94,7 +94,7 @@ static const char *const network_graph_colors[NETWORK_GRAPH_TYPE_MAX] = {"#ff000
 /**
  * Mutex used to provide reentrant API for network graph updates.
  */
-static SDL_mutex *network_graph_mutex = NULL;
+static SDL_Mutex *network_graph_mutex = NULL;
 
 /**
  * The work queue.
@@ -113,7 +113,7 @@ static void widget_draw(widgetdata *widget) {
     network_graph_widget_t *network_graph = widget->subwidget;
     network_graph_data_t *data = &network_graph->data[network_graph->type];
 
-    SDL_FillRect(widget->surface, NULL, 0);
+    SDL_FillSurfaceRect(widget->surface, NULL, 0);
 
     if (data->data == NULL) {
         return;
@@ -194,7 +194,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
     network_graph_widget_t *network_graph = widget->subwidget;
     network_graph_data_t *data = &network_graph->data[network_graph->type];
 
-    if (event->type == SDL_MOUSEMOTION) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
         int x = event->motion.x - widget->x;
         if (x < 0 || x >= widget->w) {
             return 0;

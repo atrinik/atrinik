@@ -316,9 +316,7 @@ void effect_sprites_free(effect_struct *effect) {
     effect->sprites = effect->sprites_end = NULL;
 
     if (effect->sound_channel != -1) {
-#ifdef HAVE_SDL_MIXER
-        Mix_HaltChannel(effect->sound_channel);
-#endif
+        sound_stop_effect(effect->sound_channel);
         effect->sound_channel = -1;
     }
 }
@@ -739,7 +737,7 @@ const char *effect_overlay_identifier(void) {
  * New surface, NULL in case of failure.
  */
 SDL_Surface *effect_sprite_overlay(SDL_Surface *surface) {
-    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format, FormatHolder->flags);
+    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format);
     if (tmp == NULL) {
         return NULL;
     }
@@ -747,7 +745,12 @@ SDL_Surface *effect_sprite_overlay(SDL_Surface *surface) {
     for (int y = 0; y < tmp->h; y++) {
         for (int x = 0; x < tmp->w; x++) {
             Uint8 vals[4];
-            SDL_GetRGBA(getpixel(tmp, x, y), tmp->format, &vals[0], &vals[1], &vals[2], &vals[3]);
+            pixel_format_get_rgba(getpixel(tmp, x, y),
+                                  tmp->format,
+                                  &vals[0],
+                                  &vals[1],
+                                  &vals[2],
+                                  &vals[3]);
 
             int idx = 0, r, g, b, a;
             EFFECT_SCALE_ADJUST(r, current_effect->overlay);
@@ -755,11 +758,11 @@ SDL_Surface *effect_sprite_overlay(SDL_Surface *surface) {
             EFFECT_SCALE_ADJUST(b, current_effect->overlay);
             EFFECT_SCALE_ADJUST(a, current_effect->overlay);
 
-            putpixel(tmp, x, y, SDL_MapRGBA(tmp->format, r, g, b, a));
+            putpixel(tmp, x, y, pixel_format_map_rgba(tmp->format, r, g, b, a));
         }
     }
 
-    SDL_Surface *ret = SDL_DisplayFormatAlpha(tmp);
-    SDL_FreeSurface(tmp);
+    SDL_Surface *ret = surface_to_display(tmp);
+    SDL_DestroySurface(tmp);
     return ret;
 }

@@ -127,7 +127,7 @@ extern void sprite_init_system(void);
 
 extern sprite_struct *sprite_load_file(char *fname, uint32_t flags);
 
-extern sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop);
+extern sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_IOStream *rwop);
 
 extern void sprite_free_sprite(sprite_struct *sprite);
 
@@ -195,8 +195,6 @@ polygon_check_coords(double x, double y, double corners_x[], double corners_y[],
 /** Public API implemented in src/client/tilestretcher.c. */
 
 extern int tilestretcher_coords_in_tile(uint32_t stretch, int x, int y);
-
-extern int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
 
 extern void copy_pixel_to_pixel(SDL_Surface *src,
                                 SDL_Surface *dest,

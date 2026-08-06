@@ -307,6 +307,8 @@ enum {
 
 extern SDL_Surface *ScreenSurface;
 
+extern SDL_Window *ScreenWindow;
+
 extern struct sockaddr_in insock;
 
 extern client_socket_t csocket;

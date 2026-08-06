@@ -3,35 +3,18 @@
 set(EXECUTABLE atrinik)
 set(PACKAGE_NAME "Atrinik Client")
 
-# SDL is required to run the client.
-find_package(SDL REQUIRED)
-if (NOT SDL_INCLUDE_DIR AND SDL_INCLUDE_DIRS)
-    set(SDL_INCLUDE_DIR ${SDL_INCLUDE_DIRS})
-endif ()
-if (NOT SDL_LIBRARY AND SDL_LIBRARIES)
-    set(SDL_LIBRARY ${SDL_LIBRARIES})
-endif ()
+# SDL3 is required to run the client. Use its exported CMake targets so Linux
+# and MinGW builds share the same dependency contract.
+find_package(SDL3 CONFIG REQUIRED)
 set(HAVE_SDL true)
 
 # SDL_image is also required, otherwise no bitmaps or map images could be
 # displayed.
-find_package(SDL_image REQUIRED)
-if (NOT SDLIMAGE_INCLUDE_DIR AND SDL_IMAGE_INCLUDE_DIRS)
-    set(SDLIMAGE_INCLUDE_DIR ${SDL_IMAGE_INCLUDE_DIRS})
-endif ()
-if (NOT SDLIMAGE_LIBRARY AND SDL_IMAGE_LIBRARIES)
-    set(SDLIMAGE_LIBRARY ${SDL_IMAGE_LIBRARIES})
-endif ()
+find_package(SDL3_image CONFIG REQUIRED)
 set(HAVE_SDL_IMAGE true)
 
 # SDL_ttf is used for all text drawing, so it's required.
-find_package(SDL_ttf REQUIRED)
-if (NOT SDLTTF_INCLUDE_DIR AND SDL_TTF_INCLUDE_DIRS)
-    set(SDLTTF_INCLUDE_DIR ${SDL_TTF_INCLUDE_DIRS})
-endif ()
-if (NOT SDLTTF_LIBRARY AND SDL_TTF_LIBRARIES)
-    set(SDLTTF_LIBRARY ${SDL_TTF_LIBRARIES})
-endif ()
+find_package(SDL3_ttf CONFIG REQUIRED)
 set(HAVE_SDL_TTF true)
 
 # LibXML2 is required.
@@ -40,25 +23,15 @@ find_package(LibXml2 REQUIRED)
 # SDL_mixer is optional on other platforms, but a Windows client without it
 # silently produces an executable that cannot play any of the bundled audio.
 if (MINGW)
-    find_package(SDL_mixer REQUIRED)
+    find_package(SDL3_mixer CONFIG REQUIRED)
 else ()
-    find_package(SDL_mixer)
+    find_package(SDL3_mixer CONFIG)
 endif ()
 
-if (NOT SDLMIXER_FOUND AND SDL_mixer_FOUND)
-    set(SDLMIXER_FOUND ${SDL_mixer_FOUND})
-endif ()
-if (NOT SDLMIXER_INCLUDE_DIR AND SDL_MIXER_INCLUDE_DIRS)
-    set(SDLMIXER_INCLUDE_DIR ${SDL_MIXER_INCLUDE_DIRS})
-endif ()
-if (NOT SDLMIXER_LIBRARY AND SDL_MIXER_LIBRARIES)
-    set(SDLMIXER_LIBRARY ${SDL_MIXER_LIBRARIES})
-endif ()
-
-if (SDLMIXER_FOUND)
+if (SDL3_mixer_FOUND)
     set(HAVE_SDL_MIXER true)
 else ()
-    message(STATUS "Warning: SDL_mixer not found - sound support will be disabled")
+    message(STATUS "Warning: SDL3_mixer not found - sound support will be disabled")
 endif ()
 
 # Add sources.
@@ -76,26 +49,21 @@ endif ()
 # Compile the sources into an executable.
 add_executable(${EXECUTABLE} WIN32 ${SOURCES})
 atrinik_configure_target(${EXECUTABLE})
+target_compile_definitions(${EXECUTABLE} PRIVATE SDL_DISABLE_OLD_NAMES)
 target_include_directories(${EXECUTABLE} BEFORE PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/src/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/toolkit/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${SDL_INCLUDE_DIR}
-    ${SDLIMAGE_INCLUDE_DIR}
-    ${SDLTTF_INCLUDE_DIR}
     ${LIBXML2_INCLUDE_DIR})
-if (SDLMIXER_FOUND)
-    target_include_directories(${EXECUTABLE} PRIVATE ${SDLMIXER_INCLUDE_DIR})
-endif ()
 
 target_link_libraries(${EXECUTABLE} PRIVATE atrinik-toolkit)
 
 # Link all the available libraries.
 target_link_libraries(${EXECUTABLE} PRIVATE
-    ${SDL_LIBRARY}
-    ${SDLIMAGE_LIBRARY}
-    ${SDLTTF_LIBRARY})
+    SDL3::SDL3
+    SDL3_image::SDL3_image
+    SDL3_ttf::SDL3_ttf)
 if (TARGET LibXml2::LibXml2)
     target_link_libraries(${EXECUTABLE} PRIVATE LibXml2::LibXml2)
 else ()
@@ -105,7 +73,7 @@ endif ()
 # Link SDL_mixer if available.
 if (HAVE_SDL_MIXER)
     target_compile_definitions(${EXECUTABLE} PRIVATE HAVE_SDL_MIXER)
-    target_link_libraries(${EXECUTABLE} PRIVATE ${SDLMIXER_LIBRARY})
+    target_link_libraries(${EXECUTABLE} PRIVATE SDL3_mixer::SDL3_mixer)
 
     if (MINGW)
         if (NOT CMAKE_OBJDUMP)

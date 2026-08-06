@@ -552,7 +552,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         }
     }
 
-    if (list_spells != NULL && event->type == SDL_MOUSEBUTTONDOWN &&
+    if (list_spells != NULL && event->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
         event->button.button == SDL_BUTTON_LEFT) {
         spell_entry_struct *spell;
         sprite_struct *icon;

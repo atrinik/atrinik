@@ -204,36 +204,6 @@ int tilestretcher_coords_in_tile(uint32_t stretch, int x, int y) {
 }
 
 /**
- * Adds a color to the palette in a bitmap ("surface").
- */
-int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue) {
-    HARD_ASSERT(dest != NULL);
-
-    SDL_Color colors[256];
-    if (dest->format->palette == NULL || dest->format->palette->ncolors >= (int)arraysize(colors)) {
-        return -1;
-    }
-
-    int ncol = dest->format->palette->ncolors;
-
-    for (int i = 0; i < ncol; i++) {
-        colors[i].r = dest->format->palette->colors[i].r;
-        colors[i].g = dest->format->palette->colors[i].g;
-        colors[i].b = dest->format->palette->colors[i].b;
-    }
-
-    colors[ncol].r = red;
-    colors[ncol].g = green;
-    colors[ncol].b = blue;
-    ncol++;
-
-    SDL_SetColors(dest, colors, 0, ncol);
-    dest->format->palette->ncolors = ncol;
-
-    return 0;
-}
-
-/**
  * Copy a pixel from a source pixel map's co-ordinates to a target pixel
  * map's co-ordinates, adjusting the pixel's brightness.
  *
@@ -265,12 +235,13 @@ void copy_pixel_to_pixel(SDL_Surface *src,
     Uint32 color = getpixel(src, x, y);
 
     /* No need to copy transparent pixels */
-    if (src->format->BitsPerPixel == 8 && (color == src->format->colorkey)) {
+    Uint32 color_key;
+    if (SDL_GetSurfaceColorKey(src, &color_key) && color == color_key) {
         return;
     }
 
     Uint8 red, green, blue, alpha;
-    SDL_GetRGBA(color, src->format, &red, &green, &blue, &alpha);
+    surface_get_rgba(src, color, &red, &green, &blue, &alpha);
     if (alpha == 0) {
         return;
     }
@@ -285,22 +256,7 @@ void copy_pixel_to_pixel(SDL_Surface *src,
     n = blue * brightness;
     blue = MIN(255, n);
 
-    color = SDL_MapRGBA(dest->format, red, green, blue, alpha);
-
-    if (color == dest->format->colorkey) {
-        blue += 256 >> (8 - dest->format->Bloss);
-        color = SDL_MapRGBA(dest->format, red, green, blue, alpha);
-    }
-
-    if (dest->format->BitsPerPixel == 8) {
-        Uint8 red_2, green_2, blue_2, alpha_2;
-        SDL_GetRGBA(color, dest->format, &red_2, &green_2, &blue_2, &alpha_2);
-
-        if (red != red_2 || green != green_2 || blue != blue_2 || alpha != alpha_2) {
-            add_color_to_surface(dest, red, green, blue);
-            color = SDL_MapRGBA(dest->format, red, green, blue, alpha);
-        }
-    }
+    color = surface_map_rgba(dest, red, green, blue, alpha);
 
     putpixel(dest, x2, y2, color);
 }
@@ -340,8 +296,15 @@ void copy_vertical_line(SDL_Surface *src,
     HARD_ASSERT(src != NULL);
     HARD_ASSERT(dest != NULL);
 
-    SDL_LockSurface(src);
-    SDL_LockSurface(dest);
+    if (!SDL_LockSurface(src)) {
+        LOG(ERROR, "Could not lock tile source surface: %s", SDL_GetError());
+        return;
+    }
+    if (!SDL_LockSurface(dest)) {
+        LOG(ERROR, "Could not lock tile destination surface: %s", SDL_GetError());
+        SDL_UnlockSurface(src);
+        return;
+    }
 
     int min_src_y = MIN(src_sy, src_ey);
     int max_src_y = MAX(src_sy, src_ey);
@@ -408,45 +371,31 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w) {
     HARD_ASSERT(src != NULL);
 
     /* Initialization and housekeeping */
-    SDL_LockSurface(src);
-
-    SDL_Surface *tmp = SDL_CreateRGBSurface(src->flags,
-                                            src->w,
-                                            src->h + n,
-                                            src->format->BitsPerPixel,
-                                            src->format->Rmask,
-                                            src->format->Gmask,
-                                            src->format->Bmask,
-                                            src->format->Amask);
-    if (tmp == NULL) {
-        SDL_UnlockSurface(src);
+    if (!SDL_LockSurface(src)) {
+        LOG(ERROR, "Could not lock tile source surface: %s", SDL_GetError());
         return NULL;
     }
 
-    SDL_Surface *destination = SDL_DisplayFormatAlpha(tmp);
-    SDL_FreeSurface(tmp);
+    SDL_Surface *destination = SDL_CreateSurface(src->w, src->h + n, ScreenSurface->format);
     if (destination == NULL) {
         SDL_UnlockSurface(src);
         return NULL;
     }
-    SDL_LockSurface(destination);
+    if (!SDL_LockSurface(destination)) {
+        LOG(ERROR, "Could not lock tile destination surface: %s", SDL_GetError());
+        SDL_DestroySurface(destination);
+        SDL_UnlockSurface(src);
+        return NULL;
+    }
 
     Uint32 color = getpixel(src, 0, 0);
 
     Uint8 red, green, blue, alpha;
-    SDL_GetRGBA(color, src->format, &red, &green, &blue, &alpha);
-
-    if (destination->format->palette != NULL) {
-        add_color_to_surface(destination, red, green, blue);
-    }
+    surface_get_rgba(src, color, &red, &green, &blue, &alpha);
 
     /* We fill with black and full transparency */
-    color = SDL_MapRGBA(destination->format, 0, 0, 0, 0);
-    SDL_FillRect(destination, NULL, color);
-
-    if (destination->format->palette != NULL) {
-        SDL_SetColorKey(destination, SDL_SRCCOLORKEY, color);
-    }
+    color = surface_map_rgba(destination, 0, 0, 0, 0);
+    SDL_FillSurfaceRect(destination, NULL, color);
 
     /* If the target is the same size we don't want copy_vertical_line()
      * to try to extent the line by 1 pixel */

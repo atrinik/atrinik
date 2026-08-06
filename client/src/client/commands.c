@@ -37,7 +37,6 @@
 #include <toolkit/packet.h>
 #include <toolkit/path.h>
 #include <toolkit/string.h>
-#include <toolkit/x11.h>
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_book(uint8_t *data, size_t len, size_t pos) {
@@ -1261,6 +1260,6 @@ void socket_command_control(uint8_t *data, size_t len, size_t pos) {
     sub_type = packet_reader_read_uint8(&reader);
 
     if (type == CMD_CONTROL_PLAYER && sub_type == CMD_CONTROL_PLAYER_TELEPORT) {
-        x11_window_activate(SDL_display, x11_window_get_parent(SDL_display, SDL_window), 1);
+        SDL_RaiseWindow(ScreenWindow);
     }
 }

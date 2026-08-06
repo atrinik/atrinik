@@ -30,7 +30,7 @@
  */
 
 #include <global.h>
-#include <sdl_gfx.h>
+#include <surface_primitives.h>
 
 /** Scrollbar background color. */
 static SDL_Color scrollbar_color_bg;
@@ -77,9 +77,9 @@ static void scrollbar_element_render_background(SDL_Surface *surface,
                                                 uint8_t horizontal) {
     (void)elem;
     (void)horizontal;
-    SDL_FillRect(surface,
+    SDL_FillSurfaceRect(surface,
                  box,
-                 SDL_MapRGB(surface->format,
+                 pixel_format_map_rgb(surface->format,
                             scrollbar_color_bg.r,
                             scrollbar_color_bg.g,
                             scrollbar_color_bg.b));
@@ -241,9 +241,9 @@ static void scrollbar_element_render_slider(SDL_Surface *surface,
                                             uint8_t horizontal) {
     (void)horizontal;
 
-    SDL_FillRect(surface,
+    SDL_FillSurfaceRect(surface,
                  box,
-                 SDL_MapRGB(surface->format,
+                 pixel_format_map_rgb(surface->format,
                             scrollbar_color_fg.r,
                             scrollbar_color_fg.g,
                             scrollbar_color_fg.b));
@@ -311,7 +311,7 @@ static void scrollbar_element_render(scrollbar_struct *scrollbar,
     if (elem->highlight) {
         int mx, my;
 
-        SDL_GetMouseState(&mx, &my);
+        mouse_get_state(&mx, &my);
 
         mx -= scrollbar->px;
         my -= scrollbar->py;
@@ -381,7 +381,7 @@ static int scrollbar_click_scroll(scrollbar_struct *scrollbar, int test) {
  * 1 if the scrollbar needs redrawing, 0 otherwise.
  */
 int scrollbar_need_redraw(scrollbar_struct *scrollbar) {
-    if (scrollbar_click_scroll(scrollbar, 1) && SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT) {
+    if (scrollbar_click_scroll(scrollbar, 1) && mouse_get_state(NULL, NULL) == SDL_BUTTON_LEFT) {
         return 1;
     }
 
@@ -567,12 +567,12 @@ void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, in
     /* If the scroll direction is set but the left mouse button is no
      * longer being held, clear the scroll direction. */
     if (scrollbar->scroll_direction != SCROLL_DIRECTION_NONE &&
-        SDL_GetMouseState(NULL, NULL) != SDL_BUTTON_LEFT) {
+        mouse_get_state(NULL, NULL) != SDL_BUTTON_LEFT) {
         scrollbar->scroll_direction = SCROLL_DIRECTION_NONE;
     }
 
     /* Handle click repeating. */
-    if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT &&
+    if (mouse_get_state(NULL, NULL) == SDL_BUTTON_LEFT &&
         SDL_GetTicks() - scrollbar->click_ticks > scrollbar->click_repeat_ticks) {
         if (scrollbar_click_scroll(scrollbar, 0)) {
             scrollbar->click_ticks = SDL_GetTicks();
@@ -652,10 +652,10 @@ void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, in
  * 1 if the event was handled, 0 otherwise.
  */
 int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event) {
-    if (event->type == SDL_MOUSEMOTION) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
         /* If dragging but the left mouse button is no longer being held,
          * quit dragging the slider. */
-        if (scrollbar->dragging && !(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_LEFT)) {
+        if (scrollbar->dragging && !(mouse_get_state(NULL, NULL) & SDL_BUTTON_LEFT)) {
             scrollbar->dragging = 0;
         }
 
@@ -721,7 +721,7 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event) {
                                                      event->motion.y - scrollbar->py)) {
             return 1;
         }
-    } else if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
+    } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT) {
         /* Start dragging the slider. */
         if (scrollbar->slider.highlight) {
             if (scrollbar->background.w > scrollbar->background.h) {

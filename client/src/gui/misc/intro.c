@@ -453,7 +453,7 @@ int intro_event(SDL_Event *event) {
         return 0;
     }
 
-    if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT) {
         if (LIST_MOUSE_OVER(list_news, event->motion.x, event->motion.y)) {
             list_news->focus = 1;
             list_servers->focus = 0;
@@ -493,7 +493,7 @@ int intro_event(SDL_Event *event) {
     } else if (button_event(&button_quit, event)) {
         exit(0);
         return 1;
-    } else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_TAB && list_news) {
+    } else if (event->type == SDL_EVENT_KEY_DOWN && event->key.key == SDLK_TAB && list_news) {
         int news_focus = 0;
 
         if (list_servers->focus) {

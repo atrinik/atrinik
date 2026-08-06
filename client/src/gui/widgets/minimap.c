@@ -31,7 +31,7 @@
 
 #include <global.h>
 #include <video.h>
-#include <sdl_rotozoom.h>
+#include <surface_primitives.h>
 #include <region_map.h>
 
 /**
@@ -146,23 +146,23 @@ static void widget_draw(widgetdata *widget) {
         SDL_Surface *texture;
 
         if (widget->surface != NULL) {
-            SDL_FreeSurface(widget->surface);
+            SDL_DestroySurface(widget->surface);
         }
 
-        widget->surface = SDL_CreateRGBSurface(get_video_flags(),
-                                               widget->w,
-                                               widget->h,
-                                               video_get_bpp(),
-                                               0,
-                                               0,
-                                               0,
-                                               0);
+        widget->surface = surface_create_rgb(get_video_flags(),
+                                             widget->w,
+                                             widget->h,
+                                             video_get_bpp(),
+                                             0,
+                                             0,
+                                             0,
+                                             0);
         minimap_redraw_flag = 1;
         minimap->dynamic_redraw_ticks = 0;
 
         for (i = 0; i < MINIMAP_TEXTURE_NUM; i++) {
             if (minimap->textures[i] != NULL) {
-                SDL_FreeSurface(minimap->textures[i]);
+                SDL_DestroySurface(minimap->textures[i]);
             }
 
             texture = TEXTURE_CLIENT(minimap_texture_names[i]);
@@ -175,7 +175,7 @@ static void widget_draw(widgetdata *widget) {
 
     if (minimap_redraw_due()) {
         minimap_redraw_flag = 0;
-        SDL_FillRect(widget->surface, NULL, 0);
+        SDL_FillSurfaceRect(widget->surface, NULL, 0);
         SDL_BlitSurface(minimap->textures[MINIMAP_TEXTURE_BG], NULL, widget->surface, NULL);
 
         /* Determine which version of the minimap to show based on the user's
@@ -184,7 +184,7 @@ static void widget_draw(widgetdata *widget) {
             (minimap->type == MINIMAP_TYPE_PREFER_REGION_MAP && MapData.region_has_map)) {
             /* Free dynamic map surface. */
             if (minimap->surface != NULL) {
-                SDL_FreeSurface(minimap->surface);
+                SDL_DestroySurface(minimap->surface);
                 minimap->surface = NULL;
             }
 
@@ -246,14 +246,14 @@ static void widget_draw(widgetdata *widget) {
             SDL_Rect zoomedbox;
 
             if (minimap->surface == NULL) {
-                minimap->surface = SDL_CreateRGBSurface(get_video_flags(),
-                                                        850 * (MAP_FOW_SIZE / 2),
-                                                        600 * (MAP_FOW_SIZE / 2),
-                                                        video_get_bpp(),
-                                                        0,
-                                                        0,
-                                                        0,
-                                                        0);
+                minimap->surface = surface_create_rgb(get_video_flags(),
+                                                      850 * (MAP_FOW_SIZE / 2),
+                                                      600 * (MAP_FOW_SIZE / 2),
+                                                      video_get_bpp(),
+                                                      0,
+                                                      0,
+                                                      0,
+                                                      0);
             }
 
             double zoomx = (double)widget->w / minimap->surface->w *
@@ -261,7 +261,7 @@ static void widget_draw(widgetdata *widget) {
             double zoomy = (double)widget->h / minimap->surface->h *
                            (minimap->surface->h / (MAP_FOW_SIZE + 1.0));
 
-            SDL_FillRect(minimap->surface, NULL, 0);
+            SDL_FillSurfaceRect(minimap->surface, NULL, 0);
             map_draw_map(minimap->surface);
             minimap->dynamic_redraw_ticks = SDL_GetTicks();
 
@@ -276,13 +276,14 @@ static void widget_draw(widgetdata *widget) {
             zoomedbox.w = widget->surface->w;
             zoomedbox.h = widget->surface->h;
             SDL_BlitSurface(zoomed, &zoomedbox, widget->surface, NULL);
-            SDL_FreeSurface(zoomed);
+            SDL_DestroySurface(zoomed);
 
             SDL_BlitSurface(minimap->textures[MINIMAP_TEXTURE_MASK], NULL, widget->surface, NULL);
             SDL_BlitSurface(minimap->textures[MINIMAP_TEXTURE_BORDER], NULL, widget->surface, NULL);
         }
 
-        SDL_SetColorKey(widget->surface, SDL_SRCCOLORKEY, getpixel(widget->surface, 0, 0));
+        SDL_SetSurfaceColorKey(widget->surface, true, getpixel(widget->surface, 0, 0));
+        SDL_SetSurfaceRLE(widget->surface, true);
     }
 
     box.x = widget->x;
@@ -292,15 +293,15 @@ static void widget_draw(widgetdata *widget) {
 
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event) {
-    if (event->type == SDL_MOUSEBUTTONDOWN) {
-        if (event->button.button == SDL_BUTTON_WHEELUP) {
+    if (event->type == SDL_EVENT_MOUSE_WHEEL) {
+        if (event_wheel_y(event) > 0.0f) {
             /* Zoom in. */
             if (MapData.region_map->zoom < 100) {
                 MapData.region_map->zoom += 5;
                 minimap_redraw_flag = 1;
                 return 1;
             }
-        } else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+        } else if (event_wheel_y(event) < 0.0f) {
             /* Zoom out. */
             if (MapData.region_map->zoom > 10) {
                 MapData.region_map->zoom -= 5;
@@ -319,10 +320,10 @@ static void widget_deinit(widgetdata *widget) {
     size_t i;
 
     minimap = widget->subwidget;
-    SDL_FreeSurface(minimap->surface);
+    SDL_DestroySurface(minimap->surface);
 
     for (i = 0; i < MINIMAP_TEXTURE_NUM; i++) {
-        SDL_FreeSurface(minimap->textures[i]);
+        SDL_DestroySurface(minimap->textures[i]);
     }
 }
 

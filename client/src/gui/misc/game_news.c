@@ -196,32 +196,32 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
         return 1;
     }
 
-    if (event->type == SDL_KEYDOWN) {
+    if (event->type == SDL_EVENT_KEY_DOWN) {
         /* Scroll the text. */
-        if (event->key.keysym.sym == SDLK_DOWN) {
+        if (event->key.key == SDLK_DOWN) {
             scrollbar_scroll_adjust(&game_news->scrollbar, 1);
             popup->redraw = 1;
             return 1;
-        } else if (event->key.keysym.sym == SDLK_UP) {
+        } else if (event->key.key == SDLK_UP) {
             scrollbar_scroll_adjust(&game_news->scrollbar, -1);
             popup->redraw = 1;
             return 1;
-        } else if (event->key.keysym.sym == SDLK_PAGEUP) {
+        } else if (event->key.key == SDLK_PAGEUP) {
             scrollbar_scroll_adjust(&game_news->scrollbar, -game_news->scrollbar.max_lines);
             popup->redraw = 1;
             return 1;
-        } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
+        } else if (event->key.key == SDLK_PAGEDOWN) {
             scrollbar_scroll_adjust(&game_news->scrollbar, game_news->scrollbar.max_lines);
             popup->redraw = 1;
             return 1;
         }
     } /* Mouse wheel? */
-    else if (event->type == SDL_MOUSEBUTTONDOWN) {
-        if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+    else if (event->type == SDL_EVENT_MOUSE_WHEEL) {
+        if (event_wheel_y(event) < 0.0f) {
             scrollbar_scroll_adjust(&game_news->scrollbar, 1);
             popup->redraw = 1;
             return 1;
-        } else if (event->button.button == SDL_BUTTON_WHEELUP) {
+        } else if (event_wheel_y(event) > 0.0f) {
             scrollbar_scroll_adjust(&game_news->scrollbar, -1);
             popup->redraw = 1;
             return 1;

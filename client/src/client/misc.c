@@ -167,7 +167,7 @@ void screenshot_create(SDL_Surface *surface) {
              timebuf);
     mkdir_ensure(path);
 
-    if (SDL_SaveBMP(surface, path) == 0) {
+    if (SDL_SaveBMP(surface, path)) {
         draw_info_format(COLOR_GREEN, "Saved screenshot as %s successfully.", path);
 
         if (bmp2png(path)) {

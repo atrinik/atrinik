@@ -29,7 +29,7 @@
 
 #include <global.h>
 #include <wrapper.h>
-#include <sdl_rotozoom.h>
+#include <surface_primitives.h>
 #include <toolkit/string.h>
 #include <toolkit/colorspace.h>
 
@@ -59,15 +59,9 @@ static sprite_cache_t *sprites_cache = NULL;
  * Initialize the sprite system.
  */
 void sprite_init_system(void) {
-    FormatHolder = SDL_CreateRGBSurface(SDL_SRCALPHA,
-                                        1,
-                                        1,
-                                        32,
-                                        0xFF000000,
-                                        0x00FF0000,
-                                        0x0000FF00,
-                                        0x000000FF);
-    SDL_SetAlpha(FormatHolder, SDL_SRCALPHA, 255);
+    FormatHolder = surface_create_rgb(0, 1, 1, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+    HARD_ASSERT(FormatHolder != NULL);
+    surface_set_alpha(FormatHolder, SDL_ALPHA_OPAQUE);
 }
 
 /**
@@ -102,7 +96,7 @@ sprite_struct *sprite_load_file(char *fname, uint32_t flags) {
  * @return
  * The sprite if success, NULL otherwise
  */
-sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop) {
+sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_IOStream *rwop) {
     SDL_Surface *bitmap;
     if (fname != NULL) {
         bitmap = IMG_Load_wrapper(fname);
@@ -110,7 +104,7 @@ sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop) 
             return NULL;
         }
     } else {
-        bitmap = IMG_LoadPNG_RW(rwop);
+        bitmap = IMG_LoadPNG_IO(rwop);
     }
 
     sprite_struct *sprite = xcalloc(1, sizeof(*sprite));
@@ -118,15 +112,16 @@ sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop) 
         return NULL;
     }
 
-    uint32_t ckflags = SDL_SRCCOLORKEY | SDL_ANYFORMAT | SDL_RLEACCEL;
     uint32_t ckey = 0;
 
-    if (bitmap->format->palette) {
-        ckey = bitmap->format->colorkey;
-        SDL_SetColorKey(bitmap, ckflags, ckey);
+    if (SDL_GetSurfacePalette(bitmap) != NULL) {
+        SDL_GetSurfaceColorKey(bitmap, &ckey);
+        SDL_SetSurfaceColorKey(bitmap, true, ckey);
+        SDL_SetSurfaceRLE(bitmap, true);
     } else if (flag & SURFACE_FLAG_COLKEY_16M) {
         /* Force a true color png to colorkey. Default ckey is black (0). */
-        SDL_SetColorKey(bitmap, ckflags, 0);
+        SDL_SetSurfaceColorKey(bitmap, true, 0);
+        SDL_SetSurfaceRLE(bitmap, true);
     }
 
     surface_borders_get(bitmap,
@@ -138,11 +133,11 @@ sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop) 
     sprite->bitmap = bitmap;
 
     if (flag & SURFACE_FLAG_DISPLAYFORMATALPHA) {
-        sprite->bitmap = SDL_DisplayFormatAlpha(bitmap);
-        SDL_FreeSurface(bitmap);
+        sprite->bitmap = surface_to_display(bitmap);
+        SDL_DestroySurface(bitmap);
     } else if (flag & SURFACE_FLAG_DISPLAYFORMAT) {
-        sprite->bitmap = SDL_DisplayFormat(bitmap);
-        SDL_FreeSurface(bitmap);
+        sprite->bitmap = surface_to_display(bitmap);
+        SDL_DestroySurface(bitmap);
     }
 
     return sprite;
@@ -160,7 +155,7 @@ void sprite_free_sprite(sprite_struct *sprite) {
     }
 
     if (sprite->bitmap != NULL) {
-        SDL_FreeSurface(sprite->bitmap);
+        SDL_DestroySurface(sprite->bitmap);
     }
 
     free(sprite);
@@ -234,7 +229,7 @@ static void sprite_cache_free(sprite_cache_t *cache) {
     HARD_ASSERT(cache != NULL);
 
     free(cache->name);
-    SDL_FreeSurface(cache->surface);
+    SDL_DestroySurface(cache->surface);
     free(cache);
 }
 
@@ -297,7 +292,7 @@ void sprite_cache_gc(void) {
  * New surface.
  */
 static SDL_Surface *sprite_effect_red(SDL_Surface *surface) {
-    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format, FormatHolder->flags);
+    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format);
     if (tmp == NULL) {
         return NULL;
     }
@@ -305,15 +300,15 @@ static SDL_Surface *sprite_effect_red(SDL_Surface *surface) {
     for (int y = 0; y < tmp->h; y++) {
         for (int x = 0; x < tmp->w; x++) {
             Uint8 r, g, b, a;
-            SDL_GetRGBA(getpixel(tmp, x, y), tmp->format, &r, &g, &b, &a);
+            pixel_format_get_rgba(getpixel(tmp, x, y), tmp->format, &r, &g, &b, &a);
             r = (Uint8)(0.212671 * r + 0.715160 * g + 0.072169 * b);
             g = b = 0;
-            putpixel(tmp, x, y, SDL_MapRGBA(tmp->format, r, g, b, a));
+            putpixel(tmp, x, y, pixel_format_map_rgba(tmp->format, r, g, b, a));
         }
     }
 
-    SDL_Surface *ret = SDL_DisplayFormatAlpha(tmp);
-    SDL_FreeSurface(tmp);
+    SDL_Surface *ret = surface_to_display(tmp);
+    SDL_DestroySurface(tmp);
     return ret;
 }
 
@@ -328,7 +323,7 @@ static SDL_Surface *sprite_effect_red(SDL_Surface *surface) {
  * New surface.
  */
 static SDL_Surface *sprite_effect_gray(SDL_Surface *surface) {
-    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format, FormatHolder->flags);
+    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format);
     if (tmp == NULL) {
         return NULL;
     }
@@ -336,14 +331,14 @@ static SDL_Surface *sprite_effect_gray(SDL_Surface *surface) {
     for (int y = 0; y < tmp->h; y++) {
         for (int x = 0; x < tmp->w; x++) {
             Uint8 r, g, b, a;
-            SDL_GetRGBA(getpixel(tmp, x, y), tmp->format, &r, &g, &b, &a);
+            pixel_format_get_rgba(getpixel(tmp, x, y), tmp->format, &r, &g, &b, &a);
             r = g = b = (Uint8)(0.212671 * r + 0.715160 * g + 0.072169 * b);
-            putpixel(tmp, x, y, SDL_MapRGBA(tmp->format, r, g, b, a));
+            putpixel(tmp, x, y, pixel_format_map_rgba(tmp->format, r, g, b, a));
         }
     }
 
-    SDL_Surface *ret = SDL_DisplayFormatAlpha(tmp);
-    SDL_FreeSurface(tmp);
+    SDL_Surface *ret = surface_to_display(tmp);
+    SDL_DestroySurface(tmp);
     return ret;
 }
 
@@ -358,7 +353,7 @@ static SDL_Surface *sprite_effect_gray(SDL_Surface *surface) {
  * New surface.
  */
 static SDL_Surface *sprite_effect_fow(SDL_Surface *surface) {
-    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format, FormatHolder->flags);
+    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format);
     if (tmp == NULL) {
         return NULL;
     }
@@ -366,16 +361,16 @@ static SDL_Surface *sprite_effect_fow(SDL_Surface *surface) {
     for (int y = 0; y < tmp->h; y++) {
         for (int x = 0; x < tmp->w; x++) {
             Uint8 r, g, b, a;
-            SDL_GetRGBA(getpixel(tmp, x, y), tmp->format, &r, &g, &b, &a);
+            pixel_format_get_rgba(getpixel(tmp, x, y), tmp->format, &r, &g, &b, &a);
             r = (Uint8)((0.212671 * r + 0.715160 * g + 0.072169 * b) * 0.34);
             g = b = r;
             b += 16;
-            putpixel(tmp, x, y, SDL_MapRGBA(tmp->format, r, g, b, a));
+            putpixel(tmp, x, y, pixel_format_map_rgba(tmp->format, r, g, b, a));
         }
     }
 
-    SDL_Surface *ret = SDL_DisplayFormatAlpha(tmp);
-    SDL_FreeSurface(tmp);
+    SDL_Surface *ret = surface_to_display(tmp);
+    SDL_DestroySurface(tmp);
     return ret;
 }
 
@@ -386,13 +381,15 @@ bool surface_pixel_visible(SDL_Surface *surface, int x, int y) {
     }
 
     Uint32 pixel = getpixel(surface, x, y);
-    if ((surface->flags & SDL_SRCCOLORKEY) && pixel == surface->format->colorkey) {
+    Uint32 color_key;
+    if (SDL_GetSurfaceColorKey(surface, &color_key) && pixel == color_key) {
         return false;
     }
 
-    if (surface->format->Amask != 0) {
+    const SDL_PixelFormatDetails *details = SDL_GetPixelFormatDetails(surface->format);
+    if (details != NULL && details->Amask != 0) {
         Uint8 red, green, blue, alpha;
-        SDL_GetRGBA(pixel, surface->format, &red, &green, &blue, &alpha);
+        surface_get_rgba(surface, pixel, &red, &green, &blue, &alpha);
         return alpha >= 64;
     }
 
@@ -401,43 +398,38 @@ bool surface_pixel_visible(SDL_Surface *surface, int x, int y) {
 
 /** Create an outline-only version of a sprite without exposing pixels behind it. */
 static SDL_Surface *sprite_effect_outline(SDL_Surface *surface, const SDL_Color *color) {
-    SDL_Surface *outline = SDL_CreateRGBSurface(SDL_SWSURFACE,
-                                                surface->w + SPRITE_GLOW_SIZE * 2,
-                                                surface->h + SPRITE_GLOW_SIZE * 2,
-                                                FormatHolder->format->BitsPerPixel,
-                                                FormatHolder->format->Rmask,
-                                                FormatHolder->format->Gmask,
-                                                FormatHolder->format->Bmask,
-                                                FormatHolder->format->Amask);
+    SDL_Surface *outline = SDL_CreateSurface(surface->w + SPRITE_GLOW_SIZE * 2,
+                                             surface->h + SPRITE_GLOW_SIZE * 2,
+                                             FormatHolder->format);
     if (outline == NULL) {
         return NULL;
     }
 
-    Uint32 transparent = SDL_MapRGBA(outline->format, 0, 0, 0, 0);
-    SDL_FillRect(outline, NULL, transparent);
+    Uint32 transparent = pixel_format_map_rgba(outline->format, 0, 0, 0, 0);
+    SDL_FillSurfaceRect(outline, NULL, transparent);
 
     bool source_locked = false;
     bool outline_locked = false;
     if (SDL_MUSTLOCK(surface)) {
-        if (SDL_LockSurface(surface) != 0) {
-            SDL_FreeSurface(outline);
+        if (!SDL_LockSurface(surface)) {
+            SDL_DestroySurface(outline);
             return NULL;
         }
         source_locked = true;
     }
     if (SDL_MUSTLOCK(outline)) {
-        if (SDL_LockSurface(outline) != 0) {
+        if (!SDL_LockSurface(outline)) {
             if (source_locked) {
                 SDL_UnlockSurface(surface);
             }
-            SDL_FreeSurface(outline);
+            SDL_DestroySurface(outline);
             return NULL;
         }
         outline_locked = true;
     }
 
-    Uint32 edge = SDL_MapRGBA(outline->format, color->r, color->g, color->b, 235);
-    Uint32 halo = SDL_MapRGBA(outline->format, color->r, color->g, color->b, 90);
+    Uint32 edge = pixel_format_map_rgba(outline->format, color->r, color->g, color->b, 235);
+    Uint32 halo = pixel_format_map_rgba(outline->format, color->r, color->g, color->b, 90);
     for (int y = 0; y < outline->h; y++) {
         for (int x = 0; x < outline->w; x++) {
             int source_x = x - SPRITE_GLOW_SIZE;
@@ -476,7 +468,7 @@ static SDL_Surface *sprite_effect_outline(SDL_Surface *surface, const SDL_Color 
     if (source_locked) {
         SDL_UnlockSurface(surface);
     }
-    SDL_SetAlpha(outline, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
+    surface_set_alpha(outline, SDL_ALPHA_OPAQUE);
     return outline;
 }
 
@@ -496,14 +488,9 @@ static SDL_Surface *sprite_effect_outline(SDL_Surface *surface, const SDL_Color 
  */
 static SDL_Surface *
 sprite_effect_glow(SDL_Surface *surface, const SDL_Color *color, double speed, double state) {
-    SDL_Surface *tmp = SDL_CreateRGBSurface(surface->flags,
-                                            surface->w + SPRITE_GLOW_SIZE * 2,
-                                            surface->h + SPRITE_GLOW_SIZE * 2,
-                                            surface->format->BitsPerPixel,
-                                            surface->format->Rmask,
-                                            surface->format->Gmask,
-                                            surface->format->Bmask,
-                                            surface->format->Amask);
+    SDL_Surface *tmp = SDL_CreateSurface(surface->w + SPRITE_GLOW_SIZE * 2,
+                                         surface->h + SPRITE_GLOW_SIZE * 2,
+                                         surface->format);
     if (tmp == NULL) {
         return NULL;
     }
@@ -521,7 +508,8 @@ sprite_effect_glow(SDL_Surface *surface, const SDL_Color *color, double speed, d
     for (int x = 0; x < surface->w; x++) {
         for (int y = 0; y < surface->h; y++) {
             Uint32 pixel = getpixel(surface, x, y);
-            if (pixel == surface->format->colorkey) {
+            Uint32 color_key;
+            if (SDL_GetSurfaceColorKey(surface, &color_key) && pixel == color_key) {
                 /* Transparent pixel. */
                 continue;
             }
@@ -529,7 +517,7 @@ sprite_effect_glow(SDL_Surface *surface, const SDL_Color *color, double speed, d
             putpixel(tmp, x + SPRITE_GLOW_SIZE, y + SPRITE_GLOW_SIZE, pixel);
 
             Uint8 r, g, b, a;
-            SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
+            pixel_format_get_rgba(pixel, surface->format, &r, &g, &b, &a);
             if (a < 127) {
                 /* Avoid outlining pixels with low alpha values, such as
                  * shadows or already existing glow effects. */
@@ -566,8 +554,11 @@ sprite_effect_glow(SDL_Surface *surface, const SDL_Color *color, double speed, d
         hsv2[2] = MIN(1.0, MAX(0.0, hsv2[2]));
         colorspace_hsv2rgb(hsv2, rgb2);
 
-        pixels[i] =
-            SDL_MapRGBA(tmp->format, rgb2[0] * 255.0, rgb2[1] * 255.0, rgb2[2] * 255.0, alpha);
+        pixels[i] = pixel_format_map_rgba(tmp->format,
+                                          rgb2[0] * 255.0,
+                                          rgb2[1] * 255.0,
+                                          rgb2[2] * 255.0,
+                                          alpha);
     }
 
     hsv[1] += 0.10;
@@ -577,11 +568,11 @@ sprite_effect_glow(SDL_Surface *surface, const SDL_Color *color, double speed, d
     colorspace_hsv2rgb(hsv, rgb);
 
     /* Acquire the color to use for the glow's outline. */
-    Uint32 edge_color = SDL_MapRGBA(tmp->format,
-                                    rgb[0] * 255.0,
-                                    rgb[1] * 255.0,
-                                    rgb[2] * 255.0,
-                                    MAX(0, alpha - 25));
+    Uint32 edge_color = pixel_format_map_rgba(tmp->format,
+                                              rgb[0] * 255.0,
+                                              rgb[1] * 255.0,
+                                              rgb[2] * 255.0,
+                                              MAX(0, alpha - 25));
 
     /* Iterate the pixels in the sprite's surface. */
     for (int x = 0; x < tmp->w; x++) {
@@ -653,8 +644,8 @@ sprite_effect_glow(SDL_Surface *surface, const SDL_Color *color, double speed, d
 
     free(grid);
 
-    SDL_Surface *ret = SDL_DisplayFormatAlpha(tmp);
-    SDL_FreeSurface(tmp);
+    SDL_Surface *ret = surface_to_display(tmp);
+    SDL_DestroySurface(tmp);
     return ret;
 
 #undef GLOW_GRID_PIXEL_NONE
@@ -675,12 +666,12 @@ sprite_effect_glow(SDL_Surface *surface, const SDL_Color *color, double speed, d
  * New surface, NULL on failure.
  */
 static SDL_Surface *sprite_effects_create(SDL_Surface *surface, const sprite_effects_t *effects) {
-#define FREE_TMP_SURFACE()        \
-    do {                          \
-        if (tmp != NULL) {        \
-            SDL_FreeSurface(tmp); \
-        }                         \
-        tmp = surface;            \
+#define FREE_TMP_SURFACE()           \
+    do {                             \
+        if (tmp != NULL) {           \
+            SDL_DestroySurface(tmp); \
+        }                            \
+        tmp = surface;               \
     } while (0)
 
     SDL_Surface *tmp = NULL;
@@ -695,7 +686,7 @@ static SDL_Surface *sprite_effects_create(SDL_Surface *surface, const sprite_eff
     }
 
     if (BIT_QUERY(effects->flags, SPRITE_FLAG_DARK)) {
-        surface = SDL_DisplayFormatAlpha(surface);
+        surface = surface_to_display(surface);
         if (surface == NULL) {
             goto done;
         }
@@ -794,7 +785,7 @@ static SDL_Surface *sprite_effects_create(SDL_Surface *surface, const sprite_eff
 
     /* Alpha transparency. */
     if (effects->alpha != 0) {
-        surface = SDL_DisplayFormatAlpha(surface);
+        surface = surface_to_display(surface);
         if (surface == NULL) {
             goto done;
         }
@@ -981,7 +972,9 @@ void surface_show_effects(SDL_Surface *surface,
  * The pixel.
  */
 Uint32 getpixel(SDL_Surface *surface, int x, int y) {
-    int bpp = surface->format->BytesPerPixel;
+    const SDL_PixelFormatDetails *details = SDL_GetPixelFormatDetails(surface->format);
+    HARD_ASSERT(details != NULL);
+    int bpp = details->bytes_per_pixel;
     /* The address to the pixel we want to retrieve. */
     Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
 
@@ -1019,7 +1012,9 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y) {
  * Pixel to put.
  */
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel) {
-    int bpp = surface->format->BytesPerPixel;
+    const SDL_PixelFormatDetails *details = SDL_GetPixelFormatDetails(surface->format);
+    HARD_ASSERT(details != NULL);
+    int bpp = details->bytes_per_pixel;
     /* The address to the pixel we want to set. */
     Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
 
@@ -1246,18 +1241,18 @@ void draw_frame(SDL_Surface *surface, int x, int y, int w, int h) {
     box.y = y;
     box.h = h;
     box.w = 1;
-    SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x60, 0x60, 0x60));
+    SDL_FillSurfaceRect(surface, &box, pixel_format_map_rgb(surface->format, 0x60, 0x60, 0x60));
     box.x = x + w;
     box.h++;
-    SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x55, 0x55, 0x55));
+    SDL_FillSurfaceRect(surface, &box, pixel_format_map_rgb(surface->format, 0x55, 0x55, 0x55));
     box.x = x;
     box.y += h;
     box.w = w;
     box.h = 1;
-    SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x60, 0x60, 0x60));
+    SDL_FillSurfaceRect(surface, &box, pixel_format_map_rgb(surface->format, 0x60, 0x60, 0x60));
     box.x++;
     box.y = y;
-    SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x55, 0x55, 0x55));
+    SDL_FillSurfaceRect(surface, &box, pixel_format_map_rgb(surface->format, 0x55, 0x55, 0x55));
 }
 
 /**
@@ -1286,22 +1281,22 @@ void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, 
     box.y = y;
     box.h = h;
     box.w = size;
-    SDL_FillRect(surface, &box, color);
+    SDL_FillSurfaceRect(surface, &box, color);
 
     /* Right border. */
     box.x = x + w - size;
-    SDL_FillRect(surface, &box, color);
+    SDL_FillSurfaceRect(surface, &box, color);
 
     /* Top border. */
     box.x = x + size;
     box.y = y;
     box.w = w - size * 2;
     box.h = size;
-    SDL_FillRect(surface, &box, color);
+    SDL_FillSurfaceRect(surface, &box, color);
 
     /* Bottom border. */
     box.y = y + h - size;
-    SDL_FillRect(surface, &box, color);
+    SDL_FillSurfaceRect(surface, &box, color);
 }
 
 /**
@@ -1328,7 +1323,7 @@ void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32
     dst.y = y;
     dst.w = w;
     dst.h = h;
-    SDL_FillRect(surface, &dst, color);
+    SDL_FillSurfaceRect(surface, &dst, color);
 }
 
 /**
@@ -1347,7 +1342,7 @@ void border_create_sdl_color(SDL_Surface *surface,
                              SDL_Rect *coords,
                              int thickness,
                              SDL_Color *color) {
-    uint32_t color_mapped = SDL_MapRGB(surface->format, color->r, color->g, color->b);
+    uint32_t color_mapped = pixel_format_map_rgb(surface->format, color->r, color->g, color->b);
 
     BORDER_CREATE_TOP(surface, coords->x, coords->y, coords->w, coords->h, color_mapped, thickness);
     BORDER_CREATE_BOTTOM(surface,
@@ -1457,7 +1452,12 @@ void rectangle_create(SDL_Surface *surface,
         return;
     }
 
-    border_create_line(surface, x, y, w, h, SDL_MapRGB(surface->format, color.r, color.g, color.b));
+    border_create_line(surface,
+                       x,
+                       y,
+                       w,
+                       h,
+                       pixel_format_map_rgb(surface->format, color.r, color.g, color.b));
 }
 
 /**
@@ -1472,27 +1472,11 @@ void rectangle_create(SDL_Surface *surface,
  * Alpha value to set.
  */
 void surface_set_alpha(SDL_Surface *surface, uint8_t alpha) {
-    SDL_PixelFormat *fmt = surface->format;
+    HARD_ASSERT(surface != NULL);
 
-    if (fmt->Amask == 0) {
-        SDL_SetAlpha(surface, SDL_SRCALPHA, alpha);
-    } else {
-        Uint8 bpp = fmt->BytesPerPixel;
-        double scale = alpha / 255.0f;
-
-        SDL_LockSurface(surface);
-
-        for (int y = 0; y < surface->h; y++) {
-            for (int x = 0; x < surface->w; x++) {
-                Uint8 r, g, b, a;
-                Uint32 *pixel_ptr =
-                    (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * bpp);
-                SDL_GetRGBA(*pixel_ptr, fmt, &r, &g, &b, &a);
-                *pixel_ptr = SDL_MapRGBA(fmt, r, g, b, scale * a);
-            }
-        }
-
-        SDL_UnlockSurface(surface);
+    if (!SDL_SetSurfaceAlphaMod(surface, alpha) ||
+        !SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND)) {
+        LOG(ERROR, "Could not set surface alpha: %s", SDL_GetError());
     }
 }
 

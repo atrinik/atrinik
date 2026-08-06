@@ -49,7 +49,7 @@ void system_start(void) {
         video_set_icon(icon);
     }
 
-    SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
+    SDL_SetWindowTitle(ScreenWindow, PACKAGE_NAME);
 }
 
 /**
@@ -85,6 +85,9 @@ void system_end(void) {
     server_files_deinit();
     image_deinit();
     toolkit_deinit();
+    SDL_DestroyWindow(ScreenWindow);
+    ScreenWindow = NULL;
+    ScreenSurface = NULL;
     SDL_Quit();
 }
 
