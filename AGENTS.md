@@ -2,6 +2,9 @@
 
 - This repository owns multi-repository development orchestration, not
   component source. Never copy component implementation into it.
+- For work that spans component repositories, read and follow
+  `.agents/skills/atrinik-multi-repo-workspace/SKILL.md` before changing a
+  checkout, worktree, profile, release configuration, or GitHub repository.
 - Component checkouts, worktrees, builds, profiles, and mutable state belong
   below the ignored workspace directory or an explicit external path.
 - Never replace a dirty checkout, remove a dirty worktree, or overwrite an
@@ -15,3 +18,7 @@
   actionlint for workflow changes, and `git diff --check` before finishing.
 - Deep-review reports are ignored local artifacts under `build/`; do not commit
   them.
+- Keep this guide, the multi-repository skill, `README.md`, and
+  `docs/ARCHITECTURE.md` synchronized with changes to the `atrinik` command,
+  `components.json`, managed layout, ownership boundaries, or cross-repository
+  development and release procedures.
