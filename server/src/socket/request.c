@@ -332,6 +332,32 @@ void esrv_update_stats(player *pl) {
 
     packet_struct *packet = NULL;
 
+    int spell_cost_level = 0;
+    if (pl->skill_ptr[SK_WIZARDRY_SPELLS] != NULL) {
+        spell_cost_level = pl->skill_ptr[SK_WIZARDRY_SPELLS]->level;
+    }
+
+    if (pl->last_spell_cost_level != spell_cost_level) {
+        pl->last_spell_cost_level = spell_cost_level;
+
+        FOR_INV_PREPARE(pl->ob, tmp) {
+            if (tmp->type == SPELL) {
+                esrv_update_item(UPD_EXTRA, tmp);
+            }
+        }
+        FOR_INV_FINISH();
+    }
+
+    int target_level = pl->ob->level;
+    if (pl->target_object != NULL &&
+        (pl->target_object == pl->ob || OBJECT_VALID(pl->target_object, pl->target_object_count))) {
+        target_level = pl->target_object->level;
+    }
+
+    if (pl->last_target_level != target_level || pl->last_target_viewer_level != pl->ob->level) {
+        send_target_command(pl);
+    }
+
     if (pl->target_object && pl->target_object != pl->ob) {
         uint8_t hp =
             MAX(1,
@@ -2445,6 +2471,8 @@ void send_target_command(player *pl) {
         packet_append_string_terminated(packet, COLOR_YELLOW);
         packet_debug_data(packet, 0, "Target name");
         packet_append_string_terminated(packet, pl->ob->name);
+        packet_debug_data(packet, 0, "Target level");
+        packet_append_uint8(packet, pl->ob->level);
 
         pl->target_object = pl->ob;
         pl->target_object_count = 0;
@@ -2470,24 +2498,18 @@ void send_target_command(player *pl) {
 
         packet_debug_data(packet, 0, "Target name");
 
-        if (pl->tgm) {
-            char buf[MAX_BUF];
-
-            snprintf(buf,
-                     sizeof(buf),
-                     "%s (lvl %d)",
-                     pl->target_object->name,
-                     pl->target_object->level);
-            packet_append_string_terminated(packet, buf);
-        } else {
-            packet_append_string_terminated(packet, pl->target_object->name);
-        }
+        packet_append_string_terminated(packet, pl->target_object->name);
+        packet_debug_data(packet, 0, "Target level");
+        packet_append_uint8(packet, pl->target_object->level);
     }
 
     packet_debug_data(packet, 0, "Combat mode");
     packet_append_uint8(packet, pl->combat);
     packet_debug_data(packet, 0, "Combat force mode");
     packet_append_uint8(packet, pl->combat_force);
+
+    pl->last_target_level = pl->target_object->level;
+    pl->last_target_viewer_level = pl->ob->level;
 
     socket_send_packet(pl->cs, packet);
 }
