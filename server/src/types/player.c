@@ -2656,7 +2656,8 @@ char *player_make_path(const char *name, const char *ext) {
     name_lower = xstrdup(name);
     string_tolower(name_lower);
 
-    for (i = 0; i < settings.limits[ALLOWED_CHARS_CHARNAME][0] - 1; i++) {
+    for (i = 0; name_lower[i] != '\0' && i + 1 < (size_t)settings.limits[ALLOWED_CHARS_CHARNAME][0];
+         i++) {
         stringbuffer_append_string_len(sb, name_lower, i + 1);
         stringbuffer_append_string(sb, "/");
     }
