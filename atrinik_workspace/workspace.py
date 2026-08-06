@@ -195,16 +195,17 @@ class Workspace:
 
     def _ensure_repository(self, component: Component) -> Path:
         destination = self.paths.repositories / component.name
-        if not destination.exists():
+        if not destination.exists() and not destination.is_symlink():
             temporary = Path(
                 tempfile.mkdtemp(
-                    prefix=f".{component.name}.clone-", dir=self.paths.repositories
+                    prefix=f".atrinik-clone-{component.name}-",
+                    dir=self.paths.repositories,
                 )
             )
             try:
                 run(["gh", "repo", "clone", component.repository, str(temporary)])
                 self._validate_checkout(component, temporary)
-                if destination.exists():
+                if destination.exists() or destination.is_symlink():
                     raise WorkspaceError(
                         f"component destination appeared during clone: {destination}"
                     )

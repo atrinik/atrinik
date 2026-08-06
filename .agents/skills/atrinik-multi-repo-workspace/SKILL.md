@@ -16,6 +16,10 @@ description: Coordinate changes, reviews, builds, releases, and Git worktrees ac
 - Put implementation, tests, packages, and component release configuration in
   the owning component repository. Put only orchestration, composition,
   manifest, and workspace documentation in the wrapper.
+- Expect primary component repositories directly below the wrapper root, such
+  as `./client` and `./server`. Generated worktrees, profiles, builds, and
+  default state remain under `./workspace`; `ATRINIK_WORKSPACE_DIR` relocates
+  only that generated and mutable data.
 - Preserve dirty checkouts and worktrees. Never move component source into the
   wrapper or replace persistent state.
 

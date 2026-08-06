@@ -94,8 +94,32 @@ class ReleaseConfigurationTests(unittest.TestCase):
             ],
         )
 
+    def test_every_component_checkout_is_ignored_at_wrapper_root(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        manifest = Manifest.load(root / "components.json")
+        ignored = set((root / ".gitignore").read_text(encoding="utf-8").splitlines())
+
+        self.assertTrue(
+            {f"/{component.name}/" for component in manifest.components} <= ignored
+        )
+
 
 class PathSafetyTests(unittest.TestCase):
+    def test_component_repositories_stay_beside_wrapper(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            wrapper = root / "wrapper"
+            workspace = root / "external"
+            wrapper.mkdir()
+            with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(workspace)}):
+                paths = Paths.discover(wrapper)
+                paths.ensure()
+
+            self.assertEqual(paths.repositories, wrapper.resolve())
+            self.assertEqual(paths.workspace, workspace.resolve())
+            self.assertFalse((workspace / "repos").exists())
+            self.assertTrue((workspace / "worktrees").is_dir())
+
     def test_refuses_nonempty_unmanaged_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

@@ -157,7 +157,19 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace._ensure_repository(self.workspace._component("client"))
 
         self.assertFalse(destination.exists())
-        self.assertEqual(list(self.workspace.paths.repositories.glob(".client.clone-*")), [])
+        self.assertEqual(
+            list(self.workspace.paths.repositories.glob(".atrinik-clone-client-*")), []
+        )
+
+    def test_initialize_preserves_broken_symlink_at_component_path(self) -> None:
+        destination = self.workspace.paths.repositories / "client"
+        shutil.rmtree(destination)
+        destination.symlink_to(self.root / "missing-checkout", target_is_directory=True)
+
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace._ensure_repository(self.workspace._component("client"))
+
+        self.assertTrue(destination.is_symlink())
 
     def test_sync_fast_forwards_primary_checkout(self) -> None:
         expected = self.advance_origin("client", "new-file")
