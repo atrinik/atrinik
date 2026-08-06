@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <packet_payload.h>
 #include <wrapper.h>
 #include <resources.h>
 #include <toolkit/string.h>
@@ -85,10 +86,16 @@ resource_t *resources_find(const char *name) {
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_resource(uint8_t *data, size_t len, size_t pos) {
-    packet_reader_t reader;
-    packet_reader_init_cursor(&reader, data, len, &pos);
     char resource_name[HUGE_BUF];
-    packet_reader_read_string(&reader, VS(resource_name));
+    packet_view_t md;
+    if (!client_packet_parse_resource(data,
+                                      len,
+                                      pos,
+                                      VS(resource_name),
+                                      sizeof(((resource_t *)NULL)->md),
+                                      &md)) {
+        return;
+    }
     if (string_isempty(resource_name)) {
         LOG(PACKET, "Received empty resource name");
         return;
@@ -98,20 +105,14 @@ void socket_command_resource(uint8_t *data, size_t len, size_t pos) {
         return;
     }
 
-    const unsigned char *md = data + pos;
-    if (len - pos != sizeof(((resource_t *)NULL)->md)) {
-        LOG(PACKET, "Invalid remaining packet size");
-        return;
-    }
-
     char digest[sizeof(((resource_t *)NULL)->digest)];
-    SOFT_ASSERT(string_tohex(md, len - pos, VS(digest), false) == sizeof(digest) - 1,
+    SOFT_ASSERT(string_tohex(md.data, md.len, VS(digest), false) == sizeof(digest) - 1,
                 "string_tohex failed");
     string_tolower(digest);
 
     resource_t *resource = xcalloc(1, sizeof(*resource));
     resource->name = xstrdup(resource_name);
-    memcpy(resource->md, md, sizeof(resource->md));
+    memcpy(resource->md, md.data, sizeof(resource->md));
     memcpy(resource->digest, digest, sizeof(resource->digest));
     HASH_ADD_KEYPTR(hh, resources, resource->name, strlen(resource->name), resource);
 
