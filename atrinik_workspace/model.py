@@ -179,7 +179,7 @@ class Paths:
         return cls(
             repository=repository,
             workspace=workspace,
-            repositories=workspace / "repos",
+            repositories=repository,
             worktrees=workspace / "worktrees",
             profiles=workspace / "profiles",
             builds=workspace / "build",
@@ -205,7 +205,6 @@ class Paths:
                 )
         self.workspace.mkdir(parents=True, exist_ok=True)
         for directory in (
-            self.repositories,
             self.worktrees,
             self.profiles,
             self.builds,
