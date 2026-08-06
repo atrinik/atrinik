@@ -7,7 +7,7 @@ type 8
 material 1
 material_real 1
 value 50
-weight 1250
+weight 750
 level 1
 exp 10
 no_pick 0
@@ -23,7 +23,7 @@ material 1
 item_condition 100
 item_quality 100
 value 50
-weight 1250
+weight 750
 level 1
 exp 10
 no_pick 0
@@ -39,7 +39,7 @@ material 1
 item_condition 100
 item_quality 100
 value 50
-weight 1250
+weight 750
 level 1
 exp 10
 no_pick 0
@@ -55,7 +55,7 @@ material 1
 item_condition 100
 item_quality 100
 value 50
-weight 1250
+weight 750
 level 1
 exp 10
 no_pick 0
@@ -71,7 +71,7 @@ material 1
 item_condition 100
 item_quality 100
 value 50
-weight 1250
+weight 750
 level 1
 exp 10
 no_pick 0
