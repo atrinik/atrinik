@@ -73,7 +73,9 @@ components through standard CMake `FetchContent` overrides, runs both CTest
 suites, prepares the server runtime from the pinned content/resources, and
 executes the server's non-listening version smoke check. See
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for release and data-flow
-details.
+details. [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) covers editable component
+worktrees, devcontainer launch commands, and safely sharing one mutable server
+data directory across server worktrees.
 
 ## Releases
 
