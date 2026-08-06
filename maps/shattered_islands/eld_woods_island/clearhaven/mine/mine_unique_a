@@ -378,6 +378,11 @@ name clearhaven_mine
 arch quest_container
 name recover_bombs
 sub_type 2
+arch event_obj
+sub_type 10
+race /shattered_islands/eld_woods_island/clearhaven/mine/scripts/bomb_chest.py
+slaying 01
+end
 arch bomb_still
 end
 end
@@ -616,6 +621,11 @@ name clearhaven_mine
 arch quest_container
 name recover_bombs
 sub_type 2
+arch event_obj
+sub_type 10
+race /shattered_islands/eld_woods_island/clearhaven/mine/scripts/bomb_chest.py
+slaying 02
+end
 arch bomb_still
 end
 end
@@ -736,6 +746,11 @@ name clearhaven_mine
 arch quest_container
 name recover_bombs
 sub_type 2
+arch event_obj
+sub_type 10
+race /shattered_islands/eld_woods_island/clearhaven/mine/scripts/bomb_chest.py
+slaying 03
+end
 arch bomb_still
 end
 end
@@ -1231,6 +1246,11 @@ name clearhaven_mine
 arch quest_container
 name recover_bombs
 sub_type 2
+arch event_obj
+sub_type 10
+race /shattered_islands/eld_woods_island/clearhaven/mine/scripts/bomb_chest.py
+slaying 04
+end
 arch bomb_still
 end
 end
@@ -1289,6 +1309,11 @@ name clearhaven_mine
 arch quest_container
 name recover_bombs
 sub_type 2
+arch event_obj
+sub_type 10
+race /shattered_islands/eld_woods_island/clearhaven/mine/scripts/bomb_chest.py
+slaying 05
+end
 arch bomb_still
 end
 end
@@ -1494,6 +1519,11 @@ name clearhaven_mine
 arch quest_container
 name recover_bombs
 sub_type 2
+arch event_obj
+sub_type 10
+race /shattered_islands/eld_woods_island/clearhaven/mine/scripts/bomb_chest.py
+slaying 06
+end
 arch bomb_still
 end
 end
@@ -1731,6 +1761,11 @@ name clearhaven_mine
 arch quest_container
 name recover_bombs
 sub_type 2
+arch event_obj
+sub_type 10
+race /shattered_islands/eld_woods_island/clearhaven/mine/scripts/bomb_chest.py
+slaying 07
+end
 arch bomb_still
 end
 end
@@ -2509,6 +2544,11 @@ name clearhaven_mine
 arch quest_container
 name recover_bombs
 sub_type 2
+arch event_obj
+sub_type 10
+race /shattered_islands/eld_woods_island/clearhaven/mine/scripts/bomb_chest.py
+slaying 08
+end
 arch bomb_still
 end
 end
@@ -2718,6 +2758,11 @@ name clearhaven_mine
 arch quest_container
 name recover_bombs
 sub_type 2
+arch event_obj
+sub_type 10
+race /shattered_islands/eld_woods_island/clearhaven/mine/scripts/bomb_chest.py
+slaying 09
+end
 arch bomb_still
 end
 end
@@ -3385,6 +3430,11 @@ name clearhaven_mine
 arch quest_container
 name recover_bombs
 sub_type 2
+arch event_obj
+sub_type 10
+race /shattered_islands/eld_woods_island/clearhaven/mine/scripts/bomb_chest.py
+slaying 10
+end
 arch bomb_still
 end
 end
