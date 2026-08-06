@@ -28,6 +28,12 @@ paths; keyboard shortcuts continue to use SDL keycodes and scancodes.
 small drawing and rotation API used by the client. It replaces the former
 bundled SDL_gfx/rotozoom implementation rather than exposing a general graphics
 library. New primitives should only be added for demonstrated client callers.
+Window surfaces are commonly XRGB and cannot preserve per-pixel alpha.
+Alpha-bearing textures, text, and sprite effects therefore use
+`surface_to_display_alpha()` to normalize to `SDL_PIXELFORMAT_RGBA32`; only
+known-opaque surfaces use the window-native `surface_to_display()` path. The
+client uses SDL's clipboard and window APIs directly and has no X11-specific
+platform layer.
 
 Audio is optional on Linux and is owned by `client/src/client/sound.c` through
 SDL3_mixer. Windows packages require SDL3_mixer and bundle the SDL3 family of

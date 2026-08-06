@@ -175,7 +175,7 @@ if (MINGW)
 endif ()
 
 set(CPACK_DEBIAN_PACKAGE_NAME "atrinik")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1, libsdl3-0, libsdl3-image0, libsdl3-ttf0, libcurl4, timidity, zlib1g, libx11-6, libxmu6")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1, libsdl3-0, libsdl3-image0, libsdl3-ttf0, libcurl4, timidity, zlib1g")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Fantasy multiplayer online role-playing game with 2.5D graphics\n .\n Homepage: http://www.atrinik.org/")
 set(CPACK_DEBIAN_PACKAGE_SECTION "games")
 

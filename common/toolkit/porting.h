@@ -121,14 +121,6 @@
 #endif
 #endif
 
-#ifdef HAVE_X11
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
-#ifdef HAVE_X11_XMU
-#include <X11/Xmu/Atoms.h>
-#endif
-#endif
-
 #include <pthread.h>
 
 #ifdef WIN32
@@ -221,17 +213,6 @@ typedef uint32_t tag_t;
 /* Only C99 has lrint. */
 #if !defined(_ISOC99_SOURCE) && (!defined(_POSIX_C_SOURCE) || _POSIX_C_SOURCE < 200112L)
 #define lrint(x) (floor((x) + ((x) > 0) ? 0.5 : -0.5))
-#endif
-
-#if defined(HAVE_X11)
-typedef Display *x11_display_type;
-typedef Window x11_window_type;
-#elif defined(WIN32)
-typedef HWND x11_display_type;
-typedef HWND x11_window_type;
-#else
-typedef void *x11_display_type;
-typedef void *x11_window_type;
 #endif
 
 #ifndef HAVE_STRTOK_R

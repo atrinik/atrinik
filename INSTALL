@@ -84,7 +84,7 @@ sudo apt-get update
 sudo apt-get install build-essential clang-format cmake flex git libcurl4-openssl-dev \
   libssl-dev zlib1g-dev python3-dev libgd-dev libreadline-dev \
   libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev \
-  timidity libx11-dev libxml2-dev libxmu-dev \
+  timidity libxml2-dev \
   cproto pkgconf check libsubunit-dev libminiupnpc-dev
 ```
 
