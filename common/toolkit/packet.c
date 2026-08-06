@@ -484,7 +484,9 @@ packet_writer_write_bytes_internal(packet_struct *packet, const uint8_t *data, s
 }
 
 void packet_writer_write_bytes(packet_struct *packet, const uint8_t *data, size_t len) {
+#ifndef NDEBUG
     size_t old_len;
+#endif
 
     TOOLKIT_PROTECT();
 
@@ -495,7 +497,9 @@ void packet_writer_write_bytes(packet_struct *packet, const uint8_t *data, size_
         return;
     }
 
+#ifndef NDEBUG
     old_len = packet->len;
+#endif
     packet_writer_write_bytes_internal(packet, data, len);
 
 #ifndef NDEBUG
