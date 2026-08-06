@@ -8,6 +8,7 @@
  */
 
 #include <global.h>
+#include <sdl_rotozoom.h>
 
 /* ---- Internally used structures */
 
@@ -48,7 +49,7 @@ typedef struct tColorY {
 /*!
  *    \brief Returns colorkey info for a surface
  */
-Uint32 _colorkey(SDL_Surface *src)
+static Uint32 _colorkey(SDL_Surface *src)
 {
     Uint32 key = 0;
 #if (SDL_MINOR_VERSION == 3)
@@ -78,7 +79,7 @@ Uint32 _colorkey(SDL_Surface *src)
  *
  *    \return 0 for success or -1 for error.
  */
-int _shrinkSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int factorx, int factory)
+static int _shrinkSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int factorx, int factory)
 {
     int x, y, dx, dy, dgap, ra, ga, ba, aa;
     int n_average;
@@ -172,7 +173,7 @@ int _shrinkSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int factorx, int fa
  *
  *    \return 0 for success or -1 for error.
  */
-int _shrinkSurfaceY(SDL_Surface * src, SDL_Surface * dst, int factorx, int factory)
+static int _shrinkSurfaceY(SDL_Surface * src, SDL_Surface * dst, int factorx, int factory)
 {
     int x, y, dx, dy, dgap, a;
     int n_average;
@@ -256,7 +257,7 @@ int _shrinkSurfaceY(SDL_Surface * src, SDL_Surface * dst, int factorx, int facto
  *
  *    \return 0 for success or -1 for error.
  */
-int _zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy, int smooth)
+static int _zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy, int smooth)
 {
     int x, y, sx, sy, *sax, *say, *csax, *csay, csx, csy, ex, ey, t1, t2, sstep, lx, ly;
     tColorRGBA *c00, *c01, *c10, *c11, *cswap;
@@ -515,7 +516,7 @@ int _zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy,
  *
  *    \return 0 for success or -1 for error.
  */
-int _zoomSurfaceY(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy)
+static int _zoomSurfaceY(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy)
 {
     int x, y;
     Uint32 *sax, *say, *csax, *csay;
@@ -640,7 +641,7 @@ int _zoomSurfaceY(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy)
  *    \param flipy Flag indicating vertical mirroring should be applied.
  *    \param smooth Flag indicating anti-aliasing should be used.
  */
-void _transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int isin, int icos, int flipx, int flipy, int smooth)
+static void _transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int isin, int icos, int flipx, int flipy, int smooth)
 {
     int x, y, t1, t2, dx, dy, xd, yd, sdx, sdy, ax, ay, ex, ey, sw, sh;
     tColorRGBA c00, c01, c10, c11, cswap;
@@ -784,7 +785,7 @@ void _transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy,
  *    \param flipx Flag indicating horizontal mirroring should be applied.
  *    \param flipy Flag indicating vertical mirroring should be applied.
  */
-void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int isin, int icos, int flipx, int flipy)
+static void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int isin, int icos, int flipx, int flipy)
 {
     int x, y, dx, dy, xd, yd, sdx, sdy, ax, ay;
     tColorY *pc, *sp;
@@ -851,7 +852,7 @@ void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int
  *    \returns The new, rotated surface; or NULL for surfaces with incorrect
  * input format.
  */
-SDL_Surface* rotateSurface90Degrees(SDL_Surface* src, int numClockwiseTurns)
+static __attribute__((unused)) SDL_Surface* rotateSurface90Degrees(SDL_Surface* src, int numClockwiseTurns)
 {
     int row, col, newWidth, newHeight;
     int bpp, src_ipr, dst_ipr;
@@ -993,7 +994,7 @@ SDL_Surface* rotateSurface90Degrees(SDL_Surface* src, int numClockwiseTurns)
  *    \param sanglezoom The cosine of the angle adjusted by the zoom factor.
  *
  */
-void _rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoomx, double zoomy,
+static void _rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoomx, double zoomy,
         int *dstwidth, int *dstheight,
         double *canglezoom, double *sanglezoom)
 {
@@ -1058,7 +1059,7 @@ void rotozoomSurfaceSizeXY(int width, int height, double angle, double zoomx, do
  *    \param dstheight The calculated height of the rotozoomed destination
  * surface.
  */
-void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *dstwidth, int *dstheight)
+static __attribute__((unused)) void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *dstwidth, int *dstheight)
 {
     double dummy_sanglezoom, dummy_canglezoom;
 
@@ -1647,7 +1648,7 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
  *
  *    \return The new, shrunken surface.
  */
-SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory)
+static __attribute__((unused)) SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory)
 {
     SDL_Surface *rz_src;
     SDL_Surface *rz_dst;

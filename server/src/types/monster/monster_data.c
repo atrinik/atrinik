@@ -30,13 +30,13 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
 #include <monster_data.h>
 #include <toolkit/packet.h>
 #include <monster_guard.h>
 #include <player.h>
 #include <object.h>
-
-#ifndef __CPROTO__
 
 static void monster_data_dialogs_free(monster_data_dialog_t *dialog);
 
@@ -375,5 +375,3 @@ void monster_data_dialogs_purge(object *op) {
         monster_data_dialogs_free(dialog);
     }
 }
-
-#endif

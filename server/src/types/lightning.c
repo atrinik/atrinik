@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <server_main.h>
 #include <object.h>
 #include <object_methods.h>
 

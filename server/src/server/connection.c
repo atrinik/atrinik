@@ -28,6 +28,9 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <links.h>
+#include <connection.h>
 #include <plugin.h>
 #include <object.h>
 #include <object_methods.h>

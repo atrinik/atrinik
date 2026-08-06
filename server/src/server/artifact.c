@@ -27,9 +27,9 @@
  * Everything concerning artifacts.
  */
 
-#ifndef __CPROTO__
-
 #include <global.h>
+#include <server_main.h>
+#include <initialization.h>
 #include <loader.h>
 #include <toolkit/string.h>
 #include <arch.h>
@@ -567,5 +567,3 @@ bool artifact_generate(object *op, int difficulty, treasure_affinity_t *affinity
 
     return false;
 }
-
-#endif

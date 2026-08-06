@@ -39,7 +39,6 @@
 #include <Python.h>
 #pragma GCC diagnostic pop
 
-#define GLOBAL_NO_PROTOTYPES
 #include <global.h>
 #include <arch.h>
 #include <plugin.h>

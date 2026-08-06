@@ -42,6 +42,8 @@
  */
 
 #include <global.h>
+#include <client_socket.h>
+#include <notification.h>
 #include <resources.h>
 #include <toolkit/datetime.h>
 #include <toolkit/packet.h>

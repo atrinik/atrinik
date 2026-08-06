@@ -35,6 +35,8 @@
  */
 
 #include <global.h>
+#include <statistics.h>
+#include <server_main.h>
 #include <toolkit/packet.h>
 #include <player.h>
 #include <object.h>

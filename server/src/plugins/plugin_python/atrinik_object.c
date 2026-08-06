@@ -31,6 +31,14 @@
  */
 
 #include <plugin_python.h>
+#include <shop.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <object_methods.h>
+#include <movement.h>
+#include <monster.h>
+#include <connection.h>
 #include <toolkit/bresenham.h>
 #include <artifact.h>
 #include <toolkit/packet.h>

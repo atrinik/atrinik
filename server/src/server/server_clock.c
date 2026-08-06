@@ -12,6 +12,7 @@
 /** @file Typed server clock implementation. */
 
 #include <global.h>
+#include <server_main.h>
 #include <server_clock.h>
 #include <toolkit/datetime.h>
 #include "server_clock_internal.h"

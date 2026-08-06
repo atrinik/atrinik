@@ -39,6 +39,8 @@
  */
 
 #include <stdio.h>
+#include <server_main.h>
+#include <re_cmp.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>

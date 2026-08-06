@@ -118,4 +118,37 @@ typedef struct text_input_struct {
 #define TEXT_INPUT_PADDING 2
 #define TEXT_INPUT_BORDER 1
 
+/** Public API implemented in src/gui/toolkit/text_input.c. */
+
+extern text_input_history_struct *text_input_history_create(void);
+
+extern void text_input_history_free(text_input_history_struct *history);
+
+extern void text_input_create(text_input_struct *text_input);
+
+extern void text_input_destroy(text_input_struct *text_input);
+
+extern void text_input_set_font(text_input_struct *text_input, font_struct *font);
+
+extern void text_input_reset(text_input_struct *text_input);
+
+extern void text_input_set_history(text_input_struct *text_input,
+                                   text_input_history_struct *history);
+
+extern void text_input_set(text_input_struct *text_input, const char *str);
+
+extern void text_input_set_parent(text_input_struct *text_input, int px, int py);
+
+extern int text_input_mouse_over(text_input_struct *text_input, int mx, int my);
+
+extern void text_input_show_edit_password(text_input_struct *text_input);
+
+extern int text_input_number_character_check(text_input_struct *text_input, char c);
+
+extern void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x, int y);
+
+extern void text_input_add_char(text_input_struct *text_input, char c);
+
+extern int text_input_event(text_input_struct *text_input, SDL_Event *event);
+
 #endif

@@ -28,6 +28,9 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <initialization.h>
 
 long max_time = MAX_TIME;
 int max_time_multiplier = MAX_TIME_MULTIPLIER;

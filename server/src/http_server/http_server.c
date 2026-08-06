@@ -31,6 +31,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <initialization.h>
 #include <http_server.h>
 #include <toolkit/process.h>
 #include <toolkit/curl.h>

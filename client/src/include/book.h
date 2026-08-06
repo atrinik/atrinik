@@ -72,4 +72,16 @@
 #define BOOK_SCROLLBAR_HEIGHT 369
 /*@}*/
 
+/** Public API implemented in src/gui/popups/book.c. */
+
+extern UT_array *book_help_history;
+
+extern void book_name_change(const char *name, size_t len);
+
+extern void book_load(const char *data, int len);
+
+extern void book_redraw(void);
+
+extern void book_add_help_history(const char *name);
+
 #endif

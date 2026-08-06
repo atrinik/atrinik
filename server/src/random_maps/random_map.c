@@ -29,6 +29,7 @@
  */
 
 #include <global.h>
+#include <server_main.h>
 #include <toolkit/string.h>
 
 /**

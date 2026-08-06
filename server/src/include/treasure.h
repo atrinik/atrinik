@@ -199,4 +199,24 @@ typedef struct treasure_list {
     struct treasure *items;
 } treasure_list_t;
 
+/** Public API implemented in src/server/treasure.c. */
+
+extern const char *const coins[6 + 1];
+
+extern struct archetype *coins_arch[6];
+
+extern void treasure_init(void);
+
+extern treasure_list_t *treasure_list_find(const char *name);
+
+extern object *
+treasure_generate_single(treasure_list_t *treasure_list, int difficulty, int artifact_chance);
+
+extern void
+treasure_generate(treasure_list_t *treasure_list, object *op, int difficulty, int flags);
+
+extern void free_all_treasures(void);
+
+extern int get_environment_level(object *op);
+
 #endif

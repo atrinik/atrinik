@@ -28,6 +28,9 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <los.h>
+#include <initialization.h>
 #include <toolkit/bresenham.h>
 #include <player.h>
 #include <object.h>

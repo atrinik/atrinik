@@ -30,6 +30,9 @@
  */
 
 #include <plugin_python.h>
+#include <shop.h>
+#include <server_main.h>
+#include <server.h>
 #include <toolkit/packet.h>
 #include <faction.h>
 #include <player.h>

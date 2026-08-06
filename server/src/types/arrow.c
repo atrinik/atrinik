@@ -28,6 +28,10 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <initialization.h>
 #include <player.h>
 #include <object.h>
 #include <object_methods.h>

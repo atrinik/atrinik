@@ -30,6 +30,11 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <region.h>
+#include <initialization.h>
+#include <account.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <arch.h>

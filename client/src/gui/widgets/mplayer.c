@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <wrapper.h>
 #include <toolkit/path.h>
 
 /**

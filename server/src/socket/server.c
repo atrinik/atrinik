@@ -31,6 +31,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <initialization.h>
 #include <toolkit/path.h>
 #include <toolkit/string.h>
 #include <toolkit/packet.h>

@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <server_main.h>
 #include <toolkit/string.h>
 #include <object.h>
 #include <object_methods.h>

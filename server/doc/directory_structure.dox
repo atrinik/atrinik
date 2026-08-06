@@ -57,8 +57,8 @@ This page documents the directory structure used by Atrinik server.
     source files in this directory are on compilation compiled to a
     static library, so the functions can be used, for example, by both
     server code and plugins.
-  - <b>include</b>: Contains header files for the actual code,
-    including function prototypes in files like sproto.h.
+  - <b>include</b>: Contains shared types and module-owned public API
+    declarations for the server code.
   - <b>plugins</b>: Plugins code. In this directory, other directions
     are located, with actual plugins code.
     - <b>common</b>: Common functions for other plugins. Compiled into

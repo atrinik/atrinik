@@ -46,12 +46,43 @@
 #ifndef PLUGIN_HOOK_NONE
 
 #if defined(PLUGIN_HOOK_DEFINITIONS)
+#include <arch.h>
+#include <artifact.h>
+#include <cache.h>
+#include <commands.h>
+#include <connection.h>
+#include <face.h>
+#include <faction.h>
+#include <gods.h>
+#include <initialization.h>
+#include <living.h>
+#include <loader.h>
+#include <monster.h>
+#include <movement.h>
+#include <object_methods.h>
+#include <party.h>
 #include <player.h>
 #include <object.h>
+#include <plugin.h>
+#include <re_cmp.h>
+#include <region.h>
+#include <server.h>
+#include <server_item.h>
+#include <server_main.h>
+#include <shop.h>
+#include <skills.h>
+#include <spells.h>
+#include <tod.h>
+#include <treasure.h>
 #include <exp.h>
 #include <rune.h>
 #include <beacon.h>
+#include <toolkit/packet.h>
 #include <toolkit/path.h>
+#include <toolkit/shstr.h>
+#include <toolkit/socket.h>
+#include <toolkit/string.h>
+#include <toolkit/stringbuffer.h>
 
 /** The actual hooklist. */
 static struct plugin_hooklist hooklist =

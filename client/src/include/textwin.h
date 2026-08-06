@@ -126,4 +126,45 @@ typedef struct textwin_struct {
 /** Get the base flags depending on the text window. */
 #define TEXTWIN_TEXT_FLAGS(widget) (TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_NO_FONT_CHANGE)
 
+/** Public API implemented in src/gui/widgets/textwin.c. */
+
+extern const char *const textwin_tab_names[];
+
+extern const char *const textwin_tab_commands[];
+
+extern void textwin_readjust(widgetdata *widget);
+
+extern size_t textwin_tab_name_to_id(const char *name);
+
+extern void textwin_tab_free(textwin_tab_struct *tab);
+
+extern void textwin_tab_remove(widgetdata *widget, const char *name);
+
+extern void textwin_tab_add(widgetdata *widget, const char *name);
+
+extern int textwin_tab_find(widgetdata *widget, uint8_t type, const char *name, size_t *id);
+
+extern void textwin_tab_open(widgetdata *widget, const char *name);
+
+extern void draw_info_tab(size_t type, const char *color, const char *str);
+
+extern void draw_info_format(const char *color, const char *format, ...)
+    __attribute__((format(printf, 2, 3)));
+
+extern void draw_info(const char *color, const char *str);
+
+extern void textwin_handle_copy(widgetdata *widget);
+
+extern void textwin_show(SDL_Surface *surface, int x, int y, int w, int h);
+
+extern int textwin_tabs_height(widgetdata *widget);
+
+extern void textwin_create_scrollbar(widgetdata *widget);
+
+extern void widget_textwin_init(widgetdata *widget);
+
+extern void widget_xp_tracker_init(widgetdata *widget);
+
+extern void widget_textwin_handle_console(const char *text);
+
 #endif

@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <server_main.h>
 
 /**
  * This starts from within a centered onion layer (or between two layers),

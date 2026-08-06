@@ -48,6 +48,7 @@
  */
 
 #include <plugin_python.h>
+#include <server_main.h>
 #include <plugin.h>
 #include <toolkit/packet.h>
 #include <player.h>

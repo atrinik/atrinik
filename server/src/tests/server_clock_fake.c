@@ -12,6 +12,7 @@
 /** @file Test-only fake-clock adapter. */
 
 #include <server_clock_fake.h>
+#include <server_main.h>
 #include "server/server_clock_internal.h"
 
 void server_clock_fake_install(uint64_t tick_period_us,

@@ -171,4 +171,12 @@ typedef struct interface_struct {
  */
 #define INTERFACE_PROGRESSED_TICKS 125
 
+/** Public API implemented in src/gui/popups/interface.c. */
+
+extern void socket_command_interface(uint8_t *data, size_t len, size_t pos);
+
+extern void interface_redraw(void);
+
+extern void interface_deinit(void);
+
 #endif

@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <video.h>
+#include <sdl_rotozoom.h>
 #include <region_map.h>
 
 /**

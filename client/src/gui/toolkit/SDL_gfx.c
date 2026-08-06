@@ -7,6 +7,73 @@ LGPL (c) A. Schiffler
  */
 
 #include <global.h>
+#include <sdl_gfx.h>
+
+static int boxColor(SDL_Surface *dst,
+                    Sint16 xx,
+                    Sint16 yy,
+                    Sint16 x2,
+                    Sint16 y2,
+                    Uint32 color);
+static int arcColor(SDL_Surface *dst,
+                    Sint16 x,
+                    Sint16 y,
+                    Sint16 rad,
+                    Sint16 start,
+                    Sint16 end,
+                    Uint32 color);
+static int aaellipseColor(SDL_Surface *dst,
+                          Sint16 x,
+                          Sint16 y,
+                          Sint16 rx,
+                          Sint16 ry,
+                          Uint32 color);
+static int filledPieColor(SDL_Surface *dst,
+                          Sint16 x,
+                          Sint16 y,
+                          Sint16 rad,
+                          Sint16 start,
+                          Sint16 end,
+                          Uint32 color);
+static int polygonColor(SDL_Surface *dst,
+                        const Sint16 *vx,
+                        const Sint16 *vy,
+                        int n,
+                        Uint32 color);
+static int polygonRGBA(SDL_Surface *dst,
+                       const Sint16 *vx,
+                       const Sint16 *vy,
+                       int n,
+                       Uint8 r,
+                       Uint8 g,
+                       Uint8 b,
+                       Uint8 a);
+static int aapolygonColor(SDL_Surface *dst,
+                          const Sint16 *vx,
+                          const Sint16 *vy,
+                          int n,
+                          Uint32 color);
+static int aapolygonRGBA(SDL_Surface *dst,
+                         const Sint16 *vx,
+                         const Sint16 *vy,
+                         int n,
+                         Uint8 r,
+                         Uint8 g,
+                         Uint8 b,
+                         Uint8 a);
+static int filledPolygonColor(SDL_Surface *dst,
+                              const Sint16 *vx,
+                              const Sint16 *vy,
+                              int n,
+                              Uint32 color);
+static int filledPolygonRGBA(SDL_Surface *dst,
+                             const Sint16 *vx,
+                             const Sint16 *vy,
+                             int n,
+                             Uint8 r,
+                             Uint8 g,
+                             Uint8 b,
+                             Uint8 a);
 
 /* -===================- */
 
@@ -177,7 +244,7 @@ static int _bresenhamIterate(SDL_gfxBresenhamIterator *b)
 
 \returns Returns 0 on success, -1 on failure.
  */
-int fastPixelColorNolock(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
+static int fastPixelColorNolock(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
 {
     int bpp;
     Uint8 *p;
@@ -234,7 +301,7 @@ Code needs to make sure we stay in surface bounds before calling.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int fastPixelColorNolockNoclip(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
+static __attribute__((unused)) int fastPixelColorNolockNoclip(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
 {
     int bpp;
     Uint8 *p;
@@ -280,7 +347,7 @@ int fastPixelColorNolockNoclip(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 col
 
 \returns Returns 0 on success, -1 on failure.
  */
-int fastPixelColor(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
+static int fastPixelColor(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
 {
     int result;
 
@@ -318,7 +385,7 @@ int fastPixelColor(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
 
 \returns Returns 0 on success, -1 on failure.
  */
-int fastPixelRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int fastPixelRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     Uint32 color;
 
@@ -346,7 +413,7 @@ int fastPixelRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8
 
 \returns Returns 0 on success, -1 on failure.
  */
-int fastPixelRGBANolock(SDL_Surface * dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int fastPixelRGBANolock(SDL_Surface * dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     Uint32 color;
 
@@ -376,7 +443,7 @@ Only the bits up to the surface depth are significant in the color value.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int _putPixelAlpha(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint8 alpha)
+static int _putPixelAlpha(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint8 alpha)
 {
     SDL_PixelFormat *format;
     Uint32 Rmask, Gmask, Bmask, Amask;
@@ -586,7 +653,7 @@ int _putPixelAlpha(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint8 alp
 
 \returns Returns 0 on success, -1 on failure.
  */
-int pixelColor(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
+static int pixelColor(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
 {
     Uint8 alpha;
     Uint32 mcolor;
@@ -634,7 +701,7 @@ int pixelColor(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
 
 \returns Returns 0 on success, -1 on failure.
  */
-int pixelColorNolock(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
+static int pixelColorNolock(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color)
 {
     Uint8 alpha;
     Uint32 mcolor;
@@ -671,7 +738,7 @@ Assumes color is in destination format.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int _filledRectAlpha(SDL_Surface * dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 y2, Uint32 color, Uint8 alpha)
+static int _filledRectAlpha(SDL_Surface * dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 y2, Uint32 color, Uint8 alpha)
 {
     SDL_PixelFormat *format;
     Uint32 Rmask, Bmask, Gmask, Amask;
@@ -978,7 +1045,7 @@ int filledRectAlpha(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2,
 
 \returns Returns 0 on success, -1 on failure.
  */
-int _HLineAlpha(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color)
+static int _HLineAlpha(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color)
 {
     return (filledRectAlpha(dst, x1, y, x2, y, color));
 }
@@ -994,7 +1061,7 @@ int _HLineAlpha(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color)
 
 \returns Returns 0 on success, -1 on failure.
  */
-int _VLineAlpha(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 y2, Uint32 color)
+static int _VLineAlpha(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 y2, Uint32 color)
 {
     return (filledRectAlpha(dst, x, y, x, y2, color));
 }
@@ -1010,7 +1077,7 @@ int _VLineAlpha(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 y2, Uint32 color)
 
 \returns Returns 0 on success, -1 on failure.
  */
-int pixelColorWeight(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color, Uint32 weight)
+static __attribute__((unused)) int pixelColorWeight(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color, Uint32 weight)
 {
     Uint32 a;
 
@@ -1038,7 +1105,7 @@ int pixelColorWeight(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color, Uint32
 
 \returns Returns 0 on success, -1 on failure.
  */
-int pixelColorWeightNolock(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color, Uint32 weight)
+static int pixelColorWeightNolock(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color, Uint32 weight)
 {
     Uint32 a;
 
@@ -1068,7 +1135,7 @@ int pixelColorWeightNolock(SDL_Surface * dst, Sint16 x, Sint16 y, Uint32 color, 
 
 \returns Returns 0 on success, -1 on failure.
  */
-int pixelRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int pixelRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     Uint32 color;
 
@@ -1113,7 +1180,7 @@ from the input color value.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int hlineColorStore(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color)
+static int hlineColorStore(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color)
 {
     Sint16 left, right, top, bottom;
     Uint8 *pixel, *pixellast;
@@ -1257,7 +1324,7 @@ Function should only be used for 32 bit target surfaces.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int hlineRGBAStore(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int hlineRGBAStore(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -1276,7 +1343,7 @@ int hlineRGBAStore(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, U
 
 \returns Returns 0 on success, -1 on failure.
  */
-int hlineColor(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color)
+static int hlineColor(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color)
 {
     Sint16 left, right, top, bottom;
     Uint8 *pixel, *pixellast;
@@ -1445,7 +1512,7 @@ int hlineColor(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 color)
 
 \returns Returns 0 on success, -1 on failure.
  */
-int hlineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int hlineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -1464,7 +1531,7 @@ int hlineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, Uint8 
 
 \returns Returns 0 on success, -1 on failure.
  */
-int vlineColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 y2, Uint32 color)
+static int vlineColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 y2, Uint32 color)
 {
     Sint16 left, right, top, bottom;
     Uint8 *pixel, *pixellast;
@@ -1632,7 +1699,7 @@ int vlineColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 y2, Uint32 color)
 
 \returns Returns 0 on success, -1 on failure.
  */
-int vlineRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int vlineRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -1652,7 +1719,7 @@ int vlineRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 y2, Uint8 r, Uint8 g
 
 \returns Returns 0 on success, -1 on failure.
  */
-int rectangleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint32 color)
+static int rectangleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint32 color)
 {
     int result;
     Sint16 tmp;
@@ -1734,7 +1801,7 @@ int rectangleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, 
 
 \returns Returns 0 on success, -1 on failure.
  */
-int rectangleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int rectangleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -1756,7 +1823,7 @@ int rectangleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, U
 
 \returns Returns 0 on success, -1 on failure.
  */
-int roundedRectangleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 rad, Uint32 color)
+static int roundedRectangleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 rad, Uint32 color)
 {
     int result;
     Sint16 w, h, tmp;
@@ -1883,7 +1950,7 @@ int roundedRectangleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint
 
 \returns Returns 0 on success, -1 on failure.
  */
-int roundedRectangleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int roundedRectangleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -1905,7 +1972,7 @@ int roundedRectangleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint1
 
 \returns Returns 0 on success, -1 on failure.
  */
-int roundedBoxColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 rad, Uint32 color)
+static int roundedBoxColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 rad, Uint32 color)
 {
     int result;
     Sint16 w, h, tmp;
@@ -2035,7 +2102,7 @@ int roundedBoxColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2,
 
 \returns Returns 0 on success, -1 on failure.
  */
-int roundedBoxRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2,
+static __attribute__((unused)) int roundedBoxRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2,
         Sint16 y2, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
@@ -2170,7 +2237,7 @@ static int _clipLine(SDL_Surface * dst, Sint16 * x, Sint16 * y, Sint16 * x2, Sin
 
 \returns Returns 0 on success, -1 on failure.
  */
-int boxColor(SDL_Surface * dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 y2, Uint32 color)
+static int boxColor(SDL_Surface * dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 y2, Uint32 color)
 {
     Sint16 left, right, top, bottom;
     Uint8 *pixel, *pixellast;
@@ -2408,7 +2475,7 @@ int boxRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 r
 
 \returns Returns 0 on success, -1 on failure.
  */
-int lineColor(SDL_Surface * dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 y2, Uint32 color)
+static int lineColor(SDL_Surface * dst, Sint16 xx, Sint16 yy, Sint16 x2, Sint16 y2, Uint32 color)
 {
     int pixx, pixy;
     int x, y;
@@ -2650,7 +2717,7 @@ with alpha<255.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int _aalineColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint32 color, int draw_endpoint)
+static int _aalineColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint32 color, int draw_endpoint)
 {
     Sint32 xx0, yy0, xx1, yy1;
     int result;
@@ -2882,7 +2949,7 @@ int _aalineColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Ui
 
 \returns Returns 0 on success, -1 on failure.
  */
-int aalineColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint32 color)
+static __attribute__((unused)) int aalineColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint32 color)
 {
     return (_aalineColor(dst, x, y, x2, y2, color, 1));
 }
@@ -2902,7 +2969,7 @@ int aalineColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uin
 
 \returns Returns 0 on success, -1 on failure.
  */
-int aalineRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int aalineRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     return (_aalineColor
             (dst, x, y, x2, y2, ((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a, 1));
@@ -2926,7 +2993,7 @@ minor speedup changes.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int circleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color)
+static int circleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color)
 {
     Sint16 left, right, top, bottom;
     int result;
@@ -3144,7 +3211,7 @@ int circleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color)
 
 \returns Returns 0 on success, -1 on failure.
  */
-int circleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int circleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -3171,7 +3238,7 @@ renders pixels accordingly.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int arcColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color)
+static int arcColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color)
 {
     Sint16 left, right, top, bottom;
     int result;
@@ -3602,7 +3669,7 @@ int arcColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Si
 
 \returns Returns 0 on success, -1 on failure.
  */
-int arcRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int arcRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -3625,7 +3692,7 @@ Note: The AA-circle routine is based on AA-ellipse with identical radii.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int aacircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color)
+static __attribute__((unused)) int aacircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color)
 {
     return (aaellipseColor(dst, x, y, rad, rad, color));
 }
@@ -3644,7 +3711,7 @@ int aacircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 colo
 
 \returns Returns 0 on success, -1 on failure.
  */
-int aacircleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int aacircleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -3669,7 +3736,7 @@ multiple-hline draw removal and other minor speedup changes.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int filledCircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color)
+static int filledCircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color)
 {
     Sint16 left, right, top, bottom;
     int result;
@@ -3796,7 +3863,7 @@ int filledCircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 
 
 \returns Returns 0 on success, -1 on failure.
  */
-int filledCircleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int filledCircleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -3822,7 +3889,7 @@ multiple-pixel draw removal and other minor speedup changes.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int ellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color)
+static int ellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color)
 {
     Sint16 left, right, top, bottom;
     int result;
@@ -4136,7 +4203,7 @@ int ellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Ui
 
 \returns Returns 0 on success, -1 on failure.
  */
-int ellipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int ellipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -4161,7 +4228,7 @@ which is based on code from TwinLib.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color)
+static int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color)
 {
     Sint16 left, right, top, bottom;
     Sint16 xx1, yy1, x2, y2;
@@ -4401,7 +4468,7 @@ int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, 
 
 \returns Returns 0 on success, -1 on failure.
  */
-int aaellipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int aaellipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -4431,7 +4498,7 @@ and other speedup changes.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int filledEllipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color)
+static int filledEllipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color)
 {
     Sint16 left, right, top, bottom;
     int result;
@@ -4599,7 +4666,7 @@ int filledEllipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 
 
 \returns Returns 0 on success, -1 on failure.
  */
-int filledEllipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int filledEllipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -4626,7 +4693,7 @@ Note: Determines vertex array and uses polygon or filledPolygon drawing routines
 
 \returns Returns 0 on success, -1 on failure.
  */
-int _pieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color, Uint8 filled)
+static int _pieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color, Uint8 filled)
 {
     Sint16 left, right, top, bottom;
     Sint16 xx, yy, x2, y2;
@@ -4772,7 +4839,7 @@ int _pieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, S
 
 \returns Returns 0 on success, -1 on failure.
  */
-int pieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
+static __attribute__((unused)) int pieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
         Sint16 start, Sint16 end, Uint32 color)
 {
     return (_pieColor(dst, x, y, rad, start, end, color, 0));
@@ -4795,7 +4862,7 @@ int pieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
 
 \returns Returns 0 on success, -1 on failure.
  */
-int pieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
+static __attribute__((unused)) int pieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
         Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     return (_pieColor(dst, x, y, rad, start, end,
@@ -4816,7 +4883,7 @@ int pieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
 
 \returns Returns 0 on success, -1 on failure.
  */
-int filledPieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color)
+static int filledPieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, Uint32 color)
 {
     return (_pieColor(dst, x, y, rad, start, end, color, 1));
 }
@@ -4837,7 +4904,7 @@ int filledPieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 sta
 
 \returns Returns 0 on success, -1 on failure.
  */
-int filledPieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
+static __attribute__((unused)) int filledPieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
         Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     return (_pieColor(dst, x, y, rad, start, end,
@@ -4862,7 +4929,7 @@ Note: Creates vertex array and uses polygon routine to render.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int trigonColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color)
+static __attribute__((unused)) int trigonColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color)
 {
     Sint16 vx[3];
     Sint16 vy[3];
@@ -4894,7 +4961,7 @@ int trigonColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sin
 
 \returns Returns 0 on success, -1 on failure.
  */
-int trigonRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
+static __attribute__((unused)) int trigonRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
         Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     Sint16 vx[3];
@@ -4928,7 +4995,7 @@ Note: Creates vertex array and uses aapolygon routine to render.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int aatrigonColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color)
+static __attribute__((unused)) int aatrigonColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color)
 {
     Sint16 vx[3];
     Sint16 vy[3];
@@ -4960,7 +5027,7 @@ int aatrigonColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, S
 
 \returns Returns 0 on success, -1 on failure.
  */
-int aatrigonRGBA(SDL_Surface * dst,  Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
+static __attribute__((unused)) int aatrigonRGBA(SDL_Surface * dst,  Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
         Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     Sint16 vx[3];
@@ -4994,7 +5061,7 @@ Note: Creates vertex array and uses aapolygon routine to render.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int filledTrigonColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color)
+static __attribute__((unused)) int filledTrigonColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color)
 {
     Sint16 vx[3];
     Sint16 vy[3];
@@ -5028,7 +5095,7 @@ Note: Creates vertex array and uses aapolygon routine to render.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int filledTrigonRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
+static __attribute__((unused)) int filledTrigonRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
         Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     Sint16 vx[3];
@@ -5057,7 +5124,7 @@ int filledTrigonRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2
 
 \returns Returns 0 on success, -1 on failure.
  */
-int polygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color)
+static int polygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color)
 {
     int result;
     int i;
@@ -5125,7 +5192,7 @@ int polygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n,
 
 \returns Returns 0 on success, -1 on failure.
  */
-int polygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static int polygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -5146,7 +5213,7 @@ int polygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, 
 
 \returns Returns 0 on success, -1 on failure.
  */
-int aapolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color)
+static int aapolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color)
 {
     int result;
     int i;
@@ -5214,7 +5281,7 @@ int aapolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int 
 
 \returns Returns 0 on success, -1 on failure.
  */
-int aapolygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static int aapolygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -5232,7 +5299,7 @@ int aapolygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n
 
 \returns Returns 0 if a==b, a negative number if a<b or a positive number if a>b.
  */
-int _gfxPrimitivesCompareInt(const void *a, const void *b)
+static int _gfxPrimitivesCompareInt(const void *a, const void *b)
 {
     return (*(const int *) a) - (*(const int *) b);
 }
@@ -5266,7 +5333,7 @@ Note: The last two parameters are optional; but are required for multithreaded o
 
 \returns Returns 0 on success, -1 on failure.
  */
-int filledPolygonColorMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color, int **polyInts, int *polyAllocated)
+static int filledPolygonColorMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color, int **polyInts, int *polyAllocated)
 {
     int result;
     int i;
@@ -5431,7 +5498,7 @@ Note: The last two parameters are optional; but are required for multithreaded o
 
 \returns Returns 0 on success, -1 on failure.
  */
-int filledPolygonRGBAMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a, int **polyInts, int *polyAllocated)
+static __attribute__((unused)) int filledPolygonRGBAMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a, int **polyInts, int *polyAllocated)
 {
     /*
      * Draw
@@ -5453,7 +5520,7 @@ to use the global vertex cache.
 
 \returns Returns 0 on success, -1 on failure.
  */
-int filledPolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color)
+static int filledPolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color)
 {
     /*
      * Draw
@@ -5475,7 +5542,7 @@ int filledPolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, 
 
 \returns Returns 0 on success, -1 on failure.
  */
-int filledPolygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static int filledPolygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -5496,7 +5563,7 @@ int filledPolygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, i
 
 \returns Returns 0 on success, -1 on failure.
  */
-int _HLineTextured(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, SDL_Surface *texture, int texture_dx, int texture_dy)
+static int _HLineTextured(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, SDL_Surface *texture, int texture_dx, int texture_dy)
 {
     Sint16 left, right, top, bottom;
     Sint16 w;
@@ -5626,7 +5693,7 @@ to the left and want the texture to apear the same you need to increase the text
 
 \returns Returns 0 on success, -1 on failure.
  */
-int texturedPolygonMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n,
+static int texturedPolygonMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n,
         SDL_Surface * texture, int texture_dx, int texture_dy, int **polyInts, int *polyAllocated)
 {
     int result;
@@ -5793,7 +5860,7 @@ to the left and want the texture to apear the same you need to increase the text
 
 \returns Returns 0 on success, -1 on failure.
  */
-int texturedPolygon(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, SDL_Surface *texture, int texture_dx, int texture_dy)
+static __attribute__((unused)) int texturedPolygon(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, SDL_Surface *texture, int texture_dx, int texture_dy)
 {
     /*
      * Draw
@@ -5810,7 +5877,7 @@ int texturedPolygon(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int
 
 \returns Interpolated value at position t, value[0] when t<0, value[n-1] when t>n.
  */
-double _evaluateBezier (double *data, int ndata, double t)
+static double _evaluateBezier (double *data, int ndata, double t)
 {
     double mu, result;
     int n, k, kn, nn, nkn;
@@ -5869,7 +5936,7 @@ double _evaluateBezier (double *data, int ndata, double t)
 
 \returns Returns 0 on success, -1 on failure.
  */
-int bezierColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, int s, Uint32 color)
+static int bezierColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, int s, Uint32 color)
 {
     int result;
     int i;
@@ -5944,7 +6011,7 @@ int bezierColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, 
 
 \returns Returns 0 on success, -1 on failure.
  */
-int bezierRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, int s, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int bezierRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, int s, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /*
      * Draw
@@ -6331,7 +6398,7 @@ static void _murphyWideline(SDL_gfxMurphyIterator *m, Sint16 x, Sint16 y, Sint16
 
 \returns Returns 0 on success, -1 on failure.
  */
-int thickLineColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 width, Uint32 color)
+static int thickLineColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 width, Uint32 color)
 {
     SDL_gfxMurphyIterator m;
 
@@ -6367,7 +6434,7 @@ int thickLineColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, 
 
 \returns Returns 0 on success, -1 on failure.
  */
-int thickLineRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 width, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static __attribute__((unused)) int thickLineRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 x2, Sint16 y2, Uint8 width, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     return (thickLineColor(dst, x, y, x2, y2, width,
             ((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a));

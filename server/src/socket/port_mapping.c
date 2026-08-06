@@ -5,6 +5,7 @@
  */
 
 #include <global.h>
+#include <initialization.h>
 #include <port_mapping.h>
 #include <server.h>
 #include <network_metrics.h>

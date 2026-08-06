@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <sdl_gfx.h>
 
 /** Scrollbar background color. */
 static SDL_Color scrollbar_color_bg;

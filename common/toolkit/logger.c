@@ -29,8 +29,6 @@
  * @author Zoey Rose
  */
 
-#ifndef __CPROTO__
-
 #include <stdarg.h>
 
 #include "logger.h"
@@ -38,7 +36,6 @@
 
 #ifndef WIN32
 #include <execinfo.h>
-#endif
 
 /**
  * Pointer to open log file, if any.

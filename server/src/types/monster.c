@@ -30,6 +30,14 @@
  */
 
 #include <global.h>
+#include <movement.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <re_cmp.h>
+#include <monster.h>
+#include <los.h>
+#include <initialization.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <monster_data.h>
@@ -39,7 +47,6 @@
 #include <arch.h>
 #include <player.h>
 #include <object.h>
-#include <player.h>
 #include <object_methods.h>
 #include <waypoint.h>
 

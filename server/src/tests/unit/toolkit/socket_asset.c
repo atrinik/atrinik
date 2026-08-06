@@ -10,9 +10,12 @@
  ************************************************************************/
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <initialization.h>
 #include <check.h>
 #include <checkstd.h>
-#include <check_proto.h>
+#include <check_utils.h>
 #include <toolkit/packet.h>
 #include <toolkit/path.h>
 

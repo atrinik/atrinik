@@ -28,6 +28,11 @@
  */
 
 #include <global.h>
+#include <statistics.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <monster.h>
 #include <monster_data.h>
 #include <faction.h>
 #include <plugin.h>

@@ -141,4 +141,12 @@ typedef struct clioption_settings_struct {
     uint8_t reconnect;
 } clioption_settings_struct;
 
+/** Public API implemented in src/client/client.c. */
+
+extern Client_Player cpl;
+
+extern void DoClient(void);
+
+extern bool check_animation_status(int anum);
+
 #endif

@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <sdl_rotozoom.h>
 #include <toolkit/string.h>
 #include <resources.h>
 #include <toolkit/curl.h>

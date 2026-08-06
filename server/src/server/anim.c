@@ -28,6 +28,9 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <initialization.h>
+#include <animation.h>
 #include <object.h>
 
 Animations *animations = NULL;

@@ -30,6 +30,10 @@
  */
 
 #include <global.h>
+#include <video.h>
+#include <sdl_rotozoom.h>
+#include <client_socket.h>
+#include <animations.h>
 #include <region_map.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>

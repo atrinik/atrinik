@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <client_socket.h>
 #include <toolkit/packet.h>
 #include <toolkit/path.h>
 

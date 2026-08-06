@@ -29,8 +29,6 @@
 
 #include "porting.h"
 
-#ifndef __CPROTO__
-
 #ifndef HAVE_STRTOK_R
 
 /**
@@ -67,7 +65,6 @@ char *_strtok_r(char *s, const char *delim, char **save_ptr) {
 
     return token;
 }
-#endif
 
 #ifndef HAVE_TEMPNAM
 static uint32_t curtmp = 0;

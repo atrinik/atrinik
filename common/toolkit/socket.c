@@ -29,8 +29,6 @@
  * @author Zoey Rose
  */
 
-#ifndef __CPROTO__
-
 #include <sys/types.h>
 
 #include "socket.h"
@@ -48,7 +46,6 @@ union sockaddr_union {
 #ifdef HAVE_IPV6
     struct sockaddr_in6 in6; ///< IPv6.
     struct sockaddr_storage storage; ///< Storage.
-#endif
 };
 
 #ifdef HAVE_IPV6

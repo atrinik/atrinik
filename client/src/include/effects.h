@@ -302,4 +302,47 @@ typedef struct effect_overlay {
     (i) = MAX(0, MIN(255, (i)));                                                 \
     idx++;
 
+/** Public API implemented in src/gui/misc/effects.c. */
+
+extern void effects_init(void);
+
+extern void effects_deinit(void);
+
+extern void effects_reinit(void);
+
+extern void effect_sprites_free(effect_struct *effect);
+
+extern void effect_free(effect_struct *effect);
+
+extern void effect_sprite_def_free(effect_sprite_def *sprite_def);
+
+extern void effect_sprite_free(effect_sprite *sprite);
+
+extern void effect_sprite_remove(effect_sprite *sprite);
+
+extern void effect_sprites_play(void);
+
+extern void effect_frames(int frames);
+
+extern int effect_start(const char *name);
+
+extern void effect_debug(const char *type);
+
+extern void effect_stop(void);
+
+extern uint8_t effect_has_overlay(void);
+
+extern const char *effect_overlay_identifier(void);
+
+extern SDL_Surface *effect_sprite_overlay(SDL_Surface *surface);
+
+/** Public API implemented in src/gui/widgets/active_effects.c. */
+
+extern void
+widget_active_effects_update(widgetdata *widget, object *op, int32_t sec, const char *msg);
+
+extern void widget_active_effects_remove(widgetdata *widget, object *op);
+
+extern void widget_active_effects_init(widgetdata *widget);
+
 #endif

@@ -23,9 +23,10 @@
  ************************************************************************/
 
 #include <global.h>
+#include <server_main.h>
 #include <check.h>
 #include <checkstd.h>
-#include <check_proto.h>
+#include <check_utils.h>
 #include <stdarg.h>
 #include <arch.h>
 #include <object.h>

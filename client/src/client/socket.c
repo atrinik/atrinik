@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <metaserver.h>
+#include <client_socket.h>
 #include <toolkit/packet.h>
 #include <network_graph.h>
 

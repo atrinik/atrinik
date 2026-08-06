@@ -29,6 +29,13 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <monster.h>
+#include <los.h>
+#include <light.h>
+#include <initialization.h>
 #include <monster_data.h>
 #include <arch.h>
 #include <plugin.h>

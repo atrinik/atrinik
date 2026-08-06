@@ -151,4 +151,35 @@ typedef struct party_struct {
 #define CMD_PARTY_REMOVE_MEMBER 7
 /*@}*/
 
+/** Public API implemented in src/server/party.c. */
+
+extern const char *const party_loot_modes[PARTY_LOOT_MAX];
+
+extern const char *const party_loot_modes_help[PARTY_LOOT_MAX];
+
+extern party_struct *first_party;
+
+extern void party_init(void);
+
+extern void party_deinit(void);
+
+extern void add_party_member(party_struct *party, object *op);
+
+extern void remove_party_member(party_struct *party, object *op);
+
+extern void form_party(object *op, const char *name);
+
+extern party_struct *find_party(const char *name);
+
+extern int party_can_open_corpse(object *pl, object *corpse);
+
+extern void party_handle_corpse(object *pl, object *corpse);
+
+extern void
+send_party_message(party_struct *party, const char *msg, int flag, object *op, object *except);
+
+extern void remove_party(party_struct *party);
+
+extern void party_update_who(player *pl);
+
 #endif

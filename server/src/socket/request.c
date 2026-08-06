@@ -34,6 +34,17 @@
  */
 
 #include <global.h>
+#include <movement.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <server.h>
+#include <region.h>
+#include <monster.h>
+#include <los.h>
+#include <light.h>
+#include <initialization.h>
+#include <animation.h>
+#include <account.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <monster_data.h>

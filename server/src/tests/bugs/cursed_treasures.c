@@ -29,9 +29,11 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server_item.h>
 #include <check.h>
 #include <checkstd.h>
-#include <check_proto.h>
+#include <check_utils.h>
 #include <arch.h>
 #include <object.h>
 

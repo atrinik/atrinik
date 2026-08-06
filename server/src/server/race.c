@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <links.h>
 #include <arch.h>
 
 /**

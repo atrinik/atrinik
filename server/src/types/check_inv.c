@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <connection.h>
 #include <arch.h>
 #include <object_methods.h>
 #include <check_inv.h>

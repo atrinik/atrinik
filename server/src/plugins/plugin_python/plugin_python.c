@@ -32,6 +32,13 @@
 
 #ifdef WIN32
 #include <fcntl.h>
+#include <shop.h>
+#include <server_main.h>
+#include <region.h>
+#include <initialization.h>
+#include <connection.h>
+#include <cache.h>
+#include <animation.h>
 #endif
 
 #include <plugin_python.h>

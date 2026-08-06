@@ -36,6 +36,8 @@
  */
 
 #include <global.h>
+#include <video.h>
+#include <sdl_gfx.h>
 #include <notification.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>

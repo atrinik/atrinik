@@ -32,6 +32,7 @@
  */
 
 #include <global.h>
+#include <server_main.h>
 
 /** Contains free walls in the map. */
 typedef struct free_walls_struct {

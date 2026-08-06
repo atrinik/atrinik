@@ -29,9 +29,10 @@
  * @author Zoey Rose
  */
 
-#ifndef __CPROTO__
-
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
+#include <monster.h>
 #include <monster_guard.h>
 #include <faction.h>
 #include <plugin.h>
@@ -247,5 +248,3 @@ void monster_guard_check_close(object *op, object *target) {
     set_npc_enemy(op, target, NULL);
     draw_info_format(COLOR_NAVY, target, "%s says:\nThen pay with your blood!", op->name);
 }
-
-#endif

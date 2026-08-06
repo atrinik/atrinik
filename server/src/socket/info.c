@@ -35,6 +35,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
 #include <stdarg.h>
 #include <toolkit/packet.h>
 #include <player.h>

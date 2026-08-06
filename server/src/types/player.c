@@ -28,6 +28,16 @@
  */
 
 #include <global.h>
+#include <movement.h>
+#include <statistics.h>
+#include <shop.h>
+#include <server_main.h>
+#include <server_item.h>
+#include <monster.h>
+#include <los.h>
+#include <initialization.h>
+#include <hiscore.h>
+#include <account.h>
 #include <loader.h>
 #include <toolkit/string.h>
 #include <plugin.h>

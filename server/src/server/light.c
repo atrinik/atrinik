@@ -28,6 +28,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <light.h>
 #include <object.h>
 
 #define MAX_MASK_SIZE 81

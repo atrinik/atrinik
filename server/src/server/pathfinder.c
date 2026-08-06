@@ -38,6 +38,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <initialization.h>
 #include <toolkit/string.h>
 #include <arch.h>
 #include <player.h>

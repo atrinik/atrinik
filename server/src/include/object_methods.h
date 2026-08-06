@@ -342,4 +342,45 @@ int object_process_treasure(object *op,
                             treasure_affinity_t *affinity,
                             int flags);
 
+/** Public API implemented in src/server/apply.c. */
+
+extern int manual_apply(object *op, object *tmp, int aflag);
+
+extern int player_apply(object *pl, object *op, int aflag, int quiet);
+
+extern void player_apply_below(object *pl);
+
+/** Public API implemented in src/types/common/apply.c. */
+
+extern int common_object_apply(object *op, object *applier, int aflags);
+
+extern int object_apply_item(object *op, object *applier, int aflags);
+
+/** Public API implemented in src/types/common/move_on.c. */
+
+extern int common_object_move_on(object *op, object *victim, object *originator, int state);
+
+/** Public API implemented in src/types/common/process.c. */
+
+extern int common_object_process_pre(object *op);
+
+extern void common_object_process(object *op);
+
+/** Public API implemented in src/types/common/projectile.c. */
+
+extern void common_object_projectile_process(object *op);
+
+extern object *common_object_projectile_move(object *op);
+
+extern object *common_object_projectile_stop_missile(object *op, int reason);
+
+extern object *common_object_projectile_stop_spell(object *op, int reason);
+
+extern object *common_object_projectile_fire_missile(object *op, object *shooter, int dir);
+
+extern int common_object_projectile_hit(object *op, object *victim);
+
+extern int
+common_object_projectile_move_on(object *op, object *victim, object *originator, int state);
+
 #endif

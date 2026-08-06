@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <client_socket.h>
+#include <animations.h>
 #include <toolkit/packet.h>
 #include <toolkit/string.h>
 #include <toolkit/datetime.h>

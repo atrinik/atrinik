@@ -30,6 +30,8 @@
  */
 
 #include <global.h>
+#include <server_main.h>
+#include <server.h>
 
 /** @copydoc command_func */
 void command_memleak(object *op, const char *command, char *params) {

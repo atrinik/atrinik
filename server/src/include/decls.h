@@ -31,9 +31,11 @@
 #define DECLS_H
 
 typedef struct archetype archetype_t;
+typedef struct mapdef mapstruct;
 typedef struct obj object;
 typedef struct oblnk objectlink;
 typedef struct player_faction player_faction_t;
 typedef struct pl_player player;
+typedef struct treasure_list treasure_list_t;
 
 #endif
