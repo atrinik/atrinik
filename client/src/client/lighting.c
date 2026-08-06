@@ -70,7 +70,7 @@ static void lighting_sprite_cache_clear(lighting_context *context);
 /** Release an optional compositing surface while retaining sampled light. */
 static void lighting_context_free_surface(lighting_context *context) {
     if (context->lightmap != NULL) {
-        SDL_FreeSurface(context->lightmap);
+        SDL_DestroySurface(context->lightmap);
         context->lightmap = NULL;
         context->surface_valid = false;
     }
@@ -110,7 +110,7 @@ static void lighting_sprite_cache_clear(lighting_context *context) {
     lighting_sprite_cache_entry *entry, *next;
     HASH_ITER(hh, context->sprite_cache, entry, next) {
         HASH_DEL(context->sprite_cache, entry);
-        SDL_FreeSurface(entry->surface);
+        SDL_DestroySurface(entry->surface);
         free(entry);
     }
 
@@ -164,7 +164,7 @@ static void lighting_sprite_cache_reserve(lighting_context *context, size_t byte
         }
         HASH_DEL(context->sprite_cache, oldest);
         context->sprite_cache_bytes -= oldest->bytes;
-        SDL_FreeSurface(oldest->surface);
+        SDL_DestroySurface(oldest->surface);
         free(oldest);
     }
 }
@@ -238,14 +238,15 @@ static SDL_Surface *lighting_rgba_surface_create(int width, int height) {
     const Uint32 amask = 0xff000000;
 #endif
 
-    return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, rmask, gmask, bmask, amask);
+    SDL_PixelFormat format = SDL_GetPixelFormatForMasks(32, rmask, gmask, bmask, amask);
+    return SDL_CreateSurface(width, height, format);
 }
 
 static bool lighting_surface_create(int width, int height) {
     bool size_changed = lighting_width != width || lighting_height != height;
     if (size_changed) {
         if (lightmap != NULL) {
-            SDL_FreeSurface(lightmap);
+            SDL_DestroySurface(lightmap);
             lightmap = NULL;
         }
 
@@ -267,7 +268,7 @@ static bool lighting_surface_create(int width, int height) {
     bool needs_lightmap = lighting_context_current == &lighting_contexts[MAP2_DEPTH_INDEX(0)];
     if (!needs_lightmap) {
         if (lightmap != NULL) {
-            SDL_FreeSurface(lightmap);
+            SDL_DestroySurface(lightmap);
             lightmap = NULL;
             lighting_context_current->surface_valid = false;
         }
@@ -282,10 +283,15 @@ static bool lighting_surface_create(int width, int height) {
         }
 
         for (int alpha = 0; alpha <= UINT8_MAX; alpha++) {
-            alpha_pixels[alpha] = SDL_MapRGBA(lightmap->format, 0, 0, 0, alpha);
+            alpha_pixels[alpha] = SDL_MapRGBA(SDL_GetPixelFormatDetails(lightmap->format),
+                                              SDL_GetSurfacePalette(lightmap),
+                                              0,
+                                              0,
+                                              0,
+                                              alpha);
         }
 
-        SDL_SetAlpha(lightmap, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
+        surface_set_alpha(lightmap, SDL_ALPHA_OPAQUE);
         lighting_context_current->surface_valid = false;
     }
     return true;
@@ -582,7 +588,7 @@ void lighting_render(SDL_Surface *destination) {
         return;
     }
 
-    if (SDL_LockSurface(lightmap) != 0) {
+    if (!SDL_LockSurface(lightmap)) {
         LOG(ERROR, "Could not lock map lightmap: %s", SDL_GetError());
         lighting_cache_valid = false;
         return;
@@ -610,7 +616,7 @@ static bool lighting_lit_surface_create(int width, int height) {
     }
 
     if (lighting_lit_surface != NULL) {
-        SDL_FreeSurface(lighting_lit_surface);
+        SDL_DestroySurface(lighting_lit_surface);
         lighting_lit_surface = NULL;
     }
 
@@ -625,46 +631,46 @@ static bool lighting_lit_surface_create(int width, int height) {
     structure_column_illumination = xreallocarray(structure_column_illumination,
                                                   (size_t)width,
                                                   sizeof(*structure_column_illumination));
-    SDL_SetAlpha(lighting_lit_surface, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
+    surface_set_alpha(lighting_lit_surface, SDL_ALPHA_OPAQUE);
     return true;
 }
 
 /** Get a source pixel's intrinsic alpha, excluding whole-surface opacity. */
-static uint8_t lighting_source_alpha(SDL_Surface *source, Uint32 pixel, bool has_colorkey) {
-    if (has_colorkey && pixel == source->format->colorkey) {
+static uint8_t
+lighting_source_alpha(SDL_Surface *source, Uint32 pixel, bool has_colorkey, Uint32 colorkey) {
+    if (has_colorkey && pixel == colorkey) {
         return SDL_ALPHA_TRANSPARENT;
     }
 
     uint8_t red, green, blue, alpha;
-    SDL_GetRGBA(pixel, source->format, &red, &green, &blue, &alpha);
+    SDL_GetRGBA(pixel,
+                SDL_GetPixelFormatDetails(source->format),
+                SDL_GetSurfacePalette(source),
+                &red,
+                &green,
+                &blue,
+                &alpha);
     return alpha;
 }
 
 /** Copy the active portion of the reusable lit-sprite surface. */
 static SDL_Surface *lighting_lit_surface_copy(int width, int height) {
-    SDL_Surface *copy = SDL_CreateRGBSurface(SDL_SWSURFACE,
-                                             width,
-                                             height,
-                                             lighting_lit_surface->format->BitsPerPixel,
-                                             lighting_lit_surface->format->Rmask,
-                                             lighting_lit_surface->format->Gmask,
-                                             lighting_lit_surface->format->Bmask,
-                                             lighting_lit_surface->format->Amask);
+    SDL_Surface *copy = SDL_CreateSurface(width, height, lighting_lit_surface->format);
     if (copy == NULL) {
         return NULL;
     }
 
-    if (SDL_LockSurface(lighting_lit_surface) != 0) {
-        SDL_FreeSurface(copy);
+    if (!SDL_LockSurface(lighting_lit_surface)) {
+        SDL_DestroySurface(copy);
         return NULL;
     }
-    if (SDL_LockSurface(copy) != 0) {
+    if (!SDL_LockSurface(copy)) {
         SDL_UnlockSurface(lighting_lit_surface);
-        SDL_FreeSurface(copy);
+        SDL_DestroySurface(copy);
         return NULL;
     }
 
-    size_t row_bytes = (size_t)width * (size_t)copy->format->BytesPerPixel;
+    size_t row_bytes = (size_t)width * SDL_GetPixelFormatDetails(copy->format)->bytes_per_pixel;
     for (int row = 0; row < height; row++) {
         memcpy((Uint8 *)copy->pixels + row * copy->pitch,
                (Uint8 *)lighting_lit_surface->pixels + row * lighting_lit_surface->pitch,
@@ -673,7 +679,7 @@ static SDL_Surface *lighting_lit_surface_copy(int width, int height) {
 
     SDL_UnlockSurface(copy);
     SDL_UnlockSurface(lighting_lit_surface);
-    SDL_SetAlpha(copy, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
+    surface_set_alpha(copy, SDL_ALPHA_OPAQUE);
     return copy;
 }
 
@@ -710,8 +716,11 @@ void lighting_show_surface(SDL_Surface *destination,
         return;
     }
 
-    bool has_colorkey = (source->flags & SDL_SRCCOLORKEY) != 0;
-    bool has_surface_alpha = (source->flags & SDL_SRCALPHA) != 0;
+    Uint32 colorkey = 0;
+    bool has_colorkey = SDL_GetSurfaceColorKey(source, &colorkey);
+    Uint8 surface_alpha = SDL_ALPHA_OPAQUE;
+    SDL_GetSurfaceAlphaMod(source, &surface_alpha);
+    bool has_surface_alpha = surface_alpha != SDL_ALPHA_OPAQUE;
     if (!lighting_lit_surface_create(source_rect.w, source_rect.h)) {
         surface_show(destination, x, y, srcrect, source);
         return;
@@ -721,7 +730,7 @@ void lighting_show_surface(SDL_Surface *destination,
     uint64_t illumination_signature = UINT64_C(14695981039346656037);
 
     if (mode == LIGHTING_SURFACE_STRUCTURE) {
-        if (SDL_LockSurface(source) != 0) {
+        if (!SDL_LockSurface(source)) {
             LOG(ERROR, "Could not lock smoothly lit sprite: %s", SDL_GetError());
             surface_show(destination, x, y, srcrect, source);
             return;
@@ -738,7 +747,7 @@ void lighting_show_surface(SDL_Surface *destination,
             for (int source_y = source_rect.h - 1; source_y >= 0; source_y--) {
                 Uint32 source_pixel =
                     getpixel(source, source_rect.x + source_x, source_rect.y + source_y);
-                if (lighting_source_alpha(source, source_pixel, has_colorkey) !=
+                if (lighting_source_alpha(source, source_pixel, has_colorkey, colorkey) !=
                     SDL_ALPHA_TRANSPARENT) {
                     bottom = source_y;
                     break;
@@ -792,7 +801,7 @@ void lighting_show_surface(SDL_Surface *destination,
     cache_key.source_h = source_rect.h;
     cache_key.illumination_signature = illumination_signature;
     cache_key.mode = mode;
-    cache_key.surface_alpha = has_surface_alpha ? source->format->alpha : SDL_ALPHA_OPAQUE;
+    cache_key.surface_alpha = surface_alpha;
     lighting_sprite_cache_entry *cached;
     HASH_FIND(hh, lighting_context_current->sprite_cache, &cache_key, sizeof(cache_key), cached);
     if (cached != NULL) {
@@ -805,13 +814,13 @@ void lighting_show_surface(SDL_Surface *destination,
     }
 
     if (!source_locked) {
-        if (SDL_LockSurface(source) != 0) {
+        if (!SDL_LockSurface(source)) {
             LOG(ERROR, "Could not lock smoothly lit sprite: %s", SDL_GetError());
             surface_show(destination, x, y, srcrect, source);
             return;
         }
     }
-    if (SDL_LockSurface(lighting_lit_surface) != 0) {
+    if (!SDL_LockSurface(lighting_lit_surface)) {
         LOG(ERROR, "Could not lock smoothly lit sprite surface: %s", SDL_GetError());
         SDL_UnlockSurface(source);
         surface_show(destination, x, y, srcrect, source);
@@ -829,14 +838,20 @@ void lighting_show_surface(SDL_Surface *destination,
             uint8_t green = 0;
             uint8_t blue = 0;
             uint8_t source_alpha = SDL_ALPHA_OPAQUE;
-            if (has_colorkey && source_pixel == source->format->colorkey) {
+            if (has_colorkey && source_pixel == colorkey) {
                 source_alpha = SDL_ALPHA_TRANSPARENT;
             } else {
-                SDL_GetRGBA(source_pixel, source->format, &red, &green, &blue, &source_alpha);
+                SDL_GetRGBA(source_pixel,
+                            SDL_GetPixelFormatDetails(source->format),
+                            SDL_GetSurfacePalette(source),
+                            &red,
+                            &green,
+                            &blue,
+                            &source_alpha);
             }
             if (has_surface_alpha) {
-                source_alpha = (uint8_t)((unsigned int)source_alpha * source->format->alpha /
-                                         SDL_ALPHA_OPAQUE);
+                source_alpha =
+                    (uint8_t)((unsigned int)source_alpha * surface_alpha / SDL_ALPHA_OPAQUE);
             }
 
             uint8_t illumination;
@@ -854,7 +869,12 @@ void lighting_show_surface(SDL_Surface *destination,
             green = (uint8_t)((unsigned int)green * illumination / UINT8_MAX);
             blue = (uint8_t)((unsigned int)blue * illumination / UINT8_MAX);
             destination_pixels[source_x] =
-                SDL_MapRGBA(lighting_lit_surface->format, red, green, blue, source_alpha);
+                SDL_MapRGBA(SDL_GetPixelFormatDetails(lighting_lit_surface->format),
+                            SDL_GetSurfacePalette(lighting_lit_surface),
+                            red,
+                            green,
+                            blue,
+                            source_alpha);
         }
     }
 
@@ -863,7 +883,7 @@ void lighting_show_surface(SDL_Surface *destination,
 
     SDL_Rect lit_rect = {.x = 0, .y = 0, .w = source_rect.w, .h = source_rect.h};
     size_t cache_bytes = (size_t)source_rect.w * (size_t)source_rect.h *
-                         (size_t)lighting_lit_surface->format->BytesPerPixel;
+                         SDL_GetPixelFormatDetails(lighting_lit_surface->format)->bytes_per_pixel;
     if (cache_bytes <= LIGHTING_SPRITE_CACHE_MAX_BYTES) {
         lighting_sprite_cache_reserve(lighting_context_current, cache_bytes);
         SDL_Surface *copy = lighting_lit_surface_copy(source_rect.w, source_rect.h);
@@ -905,7 +925,7 @@ void lighting_deinit(void) {
     lighting_context_current = &lighting_contexts[MAP2_DEPTH_INDEX(0)];
 
     if (lighting_lit_surface != NULL) {
-        SDL_FreeSurface(lighting_lit_surface);
+        SDL_DestroySurface(lighting_lit_surface);
         lighting_lit_surface = NULL;
     }
 

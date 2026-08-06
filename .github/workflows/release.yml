@@ -89,7 +89,7 @@ jobs:
       - name: Set image name
         env:
           IMAGE_NAME: windows-build
-          IMAGE_VERSION: 0.0.3
+          IMAGE_VERSION: 0.0.5
         run: |
           echo "WINDOWS_BUILD_IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${IMAGE_NAME}:${IMAGE_VERSION}" \
             >> "${GITHUB_ENV}"
@@ -122,9 +122,9 @@ jobs:
             build/windows-mxe-release
             build/windows-mxe-server-release
             build/windows-region-map-generator
-          key: windows-release-0.0.3-${{ steps.windows-cache-key.outputs.hash }}
+          key: windows-release-0.0.5-${{ steps.windows-cache-key.outputs.hash }}
           restore-keys: |
-            windows-release-0.0.3-
+            windows-release-0.0.5-
 
       - name: Pull Windows build image
         run: docker pull "${WINDOWS_BUILD_IMAGE}"

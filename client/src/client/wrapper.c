@@ -49,7 +49,7 @@ void system_start(void) {
         video_set_icon(icon);
     }
 
-    SDL_WM_SetCaption(PACKAGE_NAME, PACKAGE_NAME);
+    SDL_SetWindowTitle(ScreenWindow, PACKAGE_NAME);
 }
 
 /**
@@ -63,7 +63,7 @@ void system_end(void) {
     resources_deinit();
     toolkit_widget_deinit();
     client_socket_deinitialize();
-    metaserver_clear_data();
+    metaserver_deinit();
     effects_deinit();
     sound_ambient_clear();
     interface_deinit();
@@ -85,6 +85,9 @@ void system_end(void) {
     server_files_deinit();
     image_deinit();
     toolkit_deinit();
+    SDL_DestroyWindow(ScreenWindow);
+    ScreenWindow = NULL;
+    ScreenSurface = NULL;
     SDL_Quit();
 }
 

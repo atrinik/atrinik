@@ -41,21 +41,14 @@ typedef struct keybind_struct {
     char *command;
 
     /** Key bound. */
-    SDLKey key;
+    SDL_Keycode key;
 
     /** Ctrl/shift/etc modifiers. */
-    SDLMod mod;
+    SDL_Keymod mod;
 
     /** Whether to trigger repeat. */
     uint8_t repeat;
 } keybind_struct;
-
-/** How quickly the key repeats. */
-#define KEY_REPEAT_TIME (35)
-/** Ticks that must pass before the key begins repeating. */
-#define KEY_REPEAT_TIME_INIT (175)
-/** Check whether the specified key is a modifier key. */
-#define KEY_IS_MODIFIER(_key) ((_key) >= SDLK_NUMLOCK && (_key) <= SDLK_COMPOSE)
 
 /** Public API implemented in src/client/keybind.c. */
 
@@ -71,15 +64,15 @@ extern void keybind_free(keybind_struct *keybind);
 
 extern void keybind_deinit(void);
 
-extern keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command);
+extern keybind_struct *keybind_add(SDL_Keycode key, SDL_Keymod mod, const char *command);
 
-extern void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command);
+extern void keybind_edit(size_t i, SDL_Keycode key, SDL_Keymod mod, const char *command);
 
 extern void keybind_remove(size_t i);
 
 extern void keybind_repeat_toggle(size_t i);
 
-extern char *keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len);
+extern char *keybind_get_key_shortcut(SDL_Keycode key, SDL_Keymod mod, char *buf, size_t len);
 
 extern keybind_struct *keybind_find_by_command(const char *cmd);
 
@@ -89,7 +82,7 @@ extern int keybind_command_matches_state(const char *cmd);
 
 extern int keybind_process_event(SDL_KeyboardEvent *event);
 
-extern void keybind_process(keybind_struct *keybind, uint8_t type);
+extern void keybind_process(keybind_struct *keybind, SDL_EventType type, bool repeated);
 
 extern int keybind_process_command_up(const char *cmd);
 

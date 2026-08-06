@@ -322,7 +322,7 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col) {
                             "%s:",
                             setting->name);
 
-    SDL_GetMouseState(&mx, &my);
+    mouse_get_state(&mx, &my);
 
     if (setting->type == OPT_TYPE_BOOL) {
         button_struct *button_checkbox;
@@ -365,7 +365,9 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col) {
         dst.w = 150;
         dst.h = LIST_ROW_HEIGHT(list) - 2;
 
-        SDL_FillRect(list->surface, &dst, SDL_MapRGB(list->surface->format, 0, 0, 0));
+        SDL_FillSurfaceRect(list->surface,
+                            &dst,
+                            pixel_format_map_rgb(list->surface->format, 0, 0, 0));
 
         if (setting->type == OPT_TYPE_SELECT) {
             text_show(list->surface,
@@ -492,7 +494,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event) {
 
 /** @copydoc list_struct::handle_mouse_row_func */
 static void list_handle_mouse_row(list_struct *list, uint32_t row, SDL_Event *event) {
-    if (event->type == SDL_MOUSEMOTION) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
         list->row_selected = row + 1;
     }
 }
@@ -625,14 +627,19 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
     uint32_t row;
     setting_struct *setting;
 
-    if (event->type == SDL_KEYDOWN) {
+    if ((event->type == SDL_EVENT_TEXT_INPUT || event->type == SDL_EVENT_TEXT_EDITING) &&
+        text_input_focused != NULL) {
+        return text_input_event(text_input_focused, event);
+    }
+
+    if (event->type == SDL_EVENT_KEY_DOWN) {
         if (text_input_focused) {
             text_input_focused->focus = 1;
 
-            if (event->key.keysym.sym == SDLK_ESCAPE) {
+            if (event->key.key == SDLK_ESCAPE) {
                 text_input_focused = NULL;
                 return 1;
-            } else if (IS_ENTER(event->key.keysym.sym)) {
+            } else if (IS_ENTER(event->key.key)) {
                 int i;
                 text_input_struct *text_input;
 
@@ -659,19 +666,19 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
             }
         }
 
-        if (event->key.keysym.sym == SDLK_ESCAPE) {
+        if (event->key.key == SDLK_ESCAPE) {
             popup_destroy(popup);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_RIGHT) {
-            if (event->key.keysym.mod & KMOD_SHIFT) {
+        } else if (event->key.key == SDLK_RIGHT) {
+            if (event->key.mod & SDL_KMOD_SHIFT) {
                 button_repeat(&button_category_right);
             } else {
                 setting_change_value(setting_category_selected, list_settings->row_selected - 1, 1);
             }
 
             return 1;
-        } else if (event->key.keysym.sym == SDLK_LEFT) {
-            if (event->key.keysym.mod & KMOD_SHIFT) {
+        } else if (event->key.key == SDLK_LEFT) {
+            if (event->key.mod & SDL_KMOD_SHIFT) {
                 button_repeat(&button_category_left);
             } else {
                 setting_change_value(setting_category_selected,
@@ -683,7 +690,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
         }
     }
 
-    if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT) {
         text_input_focused = NULL;
     }
 
@@ -740,8 +747,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
                 }
             }
 
-            if ((event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT &&
-                 text_input_mouse_over(text_input, event->motion.x, event->motion.y))) {
+            if ((event->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
+                 event->button.button == SDL_BUTTON_LEFT &&
+                 text_input_mouse_over(text_input, event_mouse_x(event), event_mouse_y(event)))) {
                 text_input_focused = text_input;
                 return 1;
             }

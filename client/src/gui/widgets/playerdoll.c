@@ -243,7 +243,7 @@ static void widget_draw(widgetdata *widget) {
 
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event) {
-    if (event->type == SDL_MOUSEMOTION) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
         char buf[HUGE_BUF];
         object *obj;
         int i, xpos, ypos, xoff, yoff;
@@ -262,10 +262,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
             xpos += xoff;
             ypos += yoff;
 
-            if (event->motion.x - widget->x > xpos &&
-                event->motion.x - widget->x <= xpos + INVENTORY_ICON_SIZE &&
-                event->motion.y - widget->y > ypos &&
-                event->motion.y - widget->y <= ypos + INVENTORY_ICON_SIZE) {
+            if (event_mouse_x(event) - widget->x > xpos &&
+                event_mouse_x(event) - widget->x <= xpos + INVENTORY_ICON_SIZE &&
+                event_mouse_y(event) - widget->y > ypos &&
+                event_mouse_y(event) - widget->y <= ypos + INVENTORY_ICON_SIZE) {
                 if (buf[0] != '\0') {
                     strncat(buf, "\n", sizeof(buf) - strlen(buf) - 1);
                 }
@@ -279,7 +279,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
         }
 
         if (buf[0] != '\0') {
-            tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
+            tooltip_create(event_mouse_x(event), event_mouse_y(event), FONT_ARIAL11, buf);
             tooltip_enable_delay(300);
             tooltip_multiline(200);
             return 1;

@@ -104,7 +104,7 @@ static void widget_background(widgetdata *widget, int draw) {
 
 /** @copydoc widgetdata::event_func */
 static int widget_event(struct widgetdata *widget, SDL_Event *event) {
-    if (event->type == SDL_MOUSEMOTION) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
         WIDGET_REDRAW(widget);
         return 1;
     }

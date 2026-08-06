@@ -141,8 +141,8 @@ object *object_find_object(object *op, tag_t tag) {
  */
 object *object_find(tag_t tag) {
     /* In interface GUI. */
-    if (cpl.interface != NULL) {
-        object *op = object_find_object(cpl.interface->inv, tag);
+    if (cpl.interface_objects != NULL) {
+        object *op = object_find_object(cpl.interface_objects->inv, tag);
         if (op != NULL) {
             return op;
         }
@@ -394,7 +394,7 @@ void object_redraw(object *op) {
         env = cpl.sack->env;
     }
 
-    if (env == cpl.interface) {
+    if (env == cpl.interface_objects) {
         interface_redraw();
     } else if (env == cpl.below) {
         widget_redraw_type_id(INVENTORY_ID, "below");
@@ -522,8 +522,8 @@ void animate_objects(void) {
         animate_inventory(cpl.sack);
     }
 
-    if (cpl.interface != NULL) {
-        animate_inventory(cpl.interface);
+    if (cpl.interface_objects != NULL) {
+        animate_inventory(cpl.interface_objects);
     }
 }
 

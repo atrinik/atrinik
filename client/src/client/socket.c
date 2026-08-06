@@ -34,13 +34,13 @@
 #include <network_graph.h>
 
 static SDL_Thread *io_thread;
-static SDL_mutex *input_buffer_mutex;
-static SDL_mutex *output_buffer_mutex;
+static SDL_Mutex *input_buffer_mutex;
+static SDL_Mutex *output_buffer_mutex;
 
 /**
  * Mutex to protect socket deinitialization.
  */
-static SDL_mutex *socket_mutex;
+static SDL_Mutex *socket_mutex;
 
 /**
  * All socket threads will exit if they see this flag set.
@@ -340,7 +340,7 @@ void socket_thread_start(void) {
     }
 
     abort_thread = 0;
-    io_thread = SDL_CreateThread(socket_io_thread_loop, NULL);
+    io_thread = SDL_CreateThread(socket_io_thread_loop, "socket-io", NULL);
     if (io_thread == NULL) {
         LOG(ERROR, "Unable to start socket thread: %s", SDL_GetError());
         exit(1);

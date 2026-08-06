@@ -17,22 +17,6 @@ if (UNIX)
         message(FATAL_ERROR "Could not find math library.")
     endif ()
 
-    find_package(X11)
-
-    if (X11_FOUND)
-        set(HAVE_X11 true)
-
-        # Try to find X11 XMU.
-        find_library(X11_XMU_LIBRARY Xmu /usr/openwin/lib)
-
-        if (X11_XMU_LIBRARY)
-            set(HAVE_X11_XMU true)
-        else ()
-            message(STATUS "Warning: X11 XMU not found, some features may be disabled")
-        endif ()
-    else ()
-        message(STATUS "Warning: X11 not found, some features may be disabled")
-    endif ()
 endif ()
 
 find_library(CRYPT_LIBRARY crypt)
@@ -191,7 +175,6 @@ set(TOOLKIT_SOURCES
     stringbuffer.c
     string.c
     toolkit.c
-    x11.c
     )
 
 add_library(${ATRINIK_TOOLKIT} STATIC ${TOOLKIT_SOURCES})
@@ -213,9 +196,6 @@ if (ZLIB_INCLUDE_DIRS)
 endif ()
 if (OPENSSL_INCLUDE_DIR)
     target_include_directories(${ATRINIK_TOOLKIT} PRIVATE ${OPENSSL_INCLUDE_DIR})
-endif ()
-if (X11_FOUND)
-    target_include_directories(${ATRINIK_TOOLKIT} PRIVATE ${X11_INCLUDE_DIR})
 endif ()
 
 if (TARGET CURL::libcurl)
@@ -249,16 +229,6 @@ endif ()
 # Link readline if available.
 if (HAVE_READLINE)
     target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE ${READLINE_LIBRARY})
-endif ()
-
-# Link X11 if available.
-if (HAVE_X11)
-    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE ${X11_LIBRARIES})
-endif ()
-
-# Link X11 XMU if available.
-if (HAVE_X11_XMU)
-    target_link_libraries(${ATRINIK_TOOLKIT} PRIVATE ${X11_XMU_LIBRARY})
 endif ()
 
 if (TARGET OpenSSL::SSL AND TARGET OpenSSL::Crypto)

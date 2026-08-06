@@ -85,7 +85,7 @@ static void interface_destroy(interface_struct *data) {
     }
 
     object_remove(data->objects);
-    cpl.interface = NULL;
+    cpl.interface_objects = NULL;
 
     utarray_free(data->links);
     font_free(data->font);
@@ -274,13 +274,29 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
     } else if (button_event(&button_close, event)) {
         popup_destroy(popup);
         return 1;
-    } else if (event->type == SDL_KEYDOWN) {
+    } else if (event->type == SDL_EVENT_TEXT_INPUT || event->type == SDL_EVENT_TEXT_EDITING) {
         if (interface_data->text_input) {
-            if (event->key.keysym.sym == SDLK_ESCAPE) {
+            return text_input_event(&text_input, event);
+        }
+
+        if (event->type == SDL_EVENT_TEXT_INPUT && event->text.text[0] != '\0' &&
+            event->text.text[1] == '\0') {
+            const char *shortcut = strchr(character_shortcuts, event->text.text[0]);
+            if (shortcut != NULL) {
+                size_t index = (size_t)(shortcut - character_shortcuts);
+                if (index < utarray_len(interface_data->links)) {
+                    interface_execute_link(index);
+                    return 1;
+                }
+            }
+        }
+    } else if (event->type == SDL_EVENT_KEY_DOWN) {
+        if (interface_data->text_input) {
+            if (event->key.key == SDLK_ESCAPE) {
                 interface_data->text_input = 0;
                 return 1;
-            } else if (IS_ENTER(event->key.keysym.sym) ||
-                       (event->key.keysym.sym == SDLK_TAB && interface_data->text_autocomplete &&
+            } else if (IS_ENTER(event->key.key) ||
+                       (event->key.key == SDLK_TAB && interface_data->text_autocomplete &&
                         !string_iswhite(text_input.str) && text_input.pos == text_input.num)) {
                 char *input_string;
 
@@ -306,7 +322,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
                         stringbuffer_append_string(sb, interface_data->text_input_prepend);
                     }
 
-                    if (event->key.keysym.sym == SDLK_TAB) {
+                    if (event->key.key == SDLK_TAB) {
                         stringbuffer_append_string(sb, interface_data->text_autocomplete);
                     }
 
@@ -319,10 +335,10 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
 
                 free(input_string);
 
-                if (event->key.keysym.sym != SDLK_TAB) {
+                if (event->key.key != SDLK_TAB) {
                     interface_data->text_input = 0;
                 }
-            } else if (event->key.keysym.sym == SDLK_TAB && interface_data->allow_tab) {
+            } else if (event->key.key == SDLK_TAB && interface_data->allow_tab) {
                 text_input_add_char(&text_input, '\t');
             }
 
@@ -331,7 +347,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
             }
         }
 
-        switch (event->key.keysym.sym) {
+        switch (event->key.key) {
             case SDLK_DOWN:
                 scrollbar_scroll_adjust(&interface_data->scrollbar, 1);
                 return 1;
@@ -357,43 +373,21 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
                 return 1;
 
             default:
-
-                if (!keys[event->key.keysym.sym].repeated) {
-                    char c;
-                    size_t i, len, links_len;
-
-                    if (event->key.keysym.sym >= SDLK_KP0 && event->key.keysym.sym <= SDLK_KP9) {
-                        c = '0' + event->key.keysym.sym - SDLK_KP0;
-                    } else {
-                        c = event->key.keysym.unicode & 0xff;
-                    }
-
-                    len = strlen(character_shortcuts);
-                    links_len = utarray_len(interface_data->links);
-
-                    for (i = 0; i < len && i < links_len; i++) {
-                        if (c == character_shortcuts[i]) {
-                            interface_execute_link(i);
-                            return 1;
-                        }
-                    }
-                }
-
                 break;
         }
 
-        if (keybind_command_matches_event("?HELLO", &event->key) &&
-            !keys[event->key.keysym.sym].repeated) {
+        if (keybind_command_matches_event("?HELLO", &event->key) && !event->key.repeat) {
             button_hello_event();
             return 1;
         }
-    } else if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x >= popup->x &&
-               event->motion.x < popup->x + popup->surface->w && event->motion.y >= popup->y &&
-               event->motion.y < popup->y + popup->surface->h) {
-        if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+    } else if (event->type == SDL_EVENT_MOUSE_WHEEL && event->wheel.mouse_x >= popup->x &&
+               event->wheel.mouse_x < popup->x + popup->surface->w &&
+               event->wheel.mouse_y >= popup->y &&
+               event->wheel.mouse_y < popup->y + popup->surface->h) {
+        if (event_wheel_y(event) < 0.0f) {
             scrollbar_scroll_adjust(&interface_data->scrollbar, 1);
             return 1;
-        } else if (event->button.button == SDL_BUTTON_WHEELUP) {
+        } else if (event_wheel_y(event) > 0.0f) {
             scrollbar_scroll_adjust(&interface_data->scrollbar, -1);
             return 1;
         }
@@ -587,7 +581,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
                 object *obj = object_create(interface_data->objects, tag, 0);
                 command_item_update(&reader, flags, obj);
 
-                if (old_obj != NULL && old_obj->env != cpl.interface) {
+                if (old_obj != NULL && old_obj->env != cpl.interface_objects) {
                     object_remove(obj);
                 }
 
@@ -670,7 +664,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos) {
         interface_destroy(old_interface_data);
     }
 
-    cpl.interface = interface_data->objects;
+    cpl.interface_objects = interface_data->objects;
 }
 
 /**

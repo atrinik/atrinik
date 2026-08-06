@@ -959,21 +959,43 @@ static int curl_ssl_verify(int preverify_ok, X509_STORE_CTX *ctx) {
 
     X509 *cert = X509_STORE_CTX_get_current_cert(ctx);
     SOFT_ASSERT_RC(cert != NULL, 0, "Failed to get X509 pointer");
-    EVP_PKEY *pubkey = X509_get_pubkey(cert);
-    ;
-    SOFT_ASSERT_RC(pubkey != NULL, 0, "Failed to get EVP_PKEY pointer");
 
-    /* Acquire the certificate's common name and store it. */
-    X509_NAME *subject_name = X509_get_subject_name(cert);
+    /* Acquire the certificate's common name and store it. Avoid the legacy
+     * text helper: it is deprecated in OpenSSL 4 and could silently leave the
+     * destination buffer uninitialized when the name was absent. */
+    const X509_NAME *subject_name = X509_get_subject_name(cert);
     SOFT_ASSERT_RC(subject_name != NULL, 0, "Failed to get X509_NAME pointer");
-    char cn[256];
-    X509_NAME_get_text_by_NID(subject_name, NID_commonName, VS(cn));
+    int common_name_index = X509_NAME_get_index_by_NID(subject_name, NID_commonName, -1);
+    SOFT_ASSERT_RC(common_name_index >= 0, 0, "Certificate has no common name");
+    const X509_NAME_ENTRY *common_name_entry = X509_NAME_get_entry(subject_name, common_name_index);
+    SOFT_ASSERT_RC(common_name_entry != NULL, 0, "Failed to get certificate common name");
+    const ASN1_STRING *common_name_data = X509_NAME_ENTRY_get_data(common_name_entry);
+    SOFT_ASSERT_RC(common_name_data != NULL, 0, "Failed to get certificate common-name data");
+    unsigned char *common_name_utf8 = NULL;
+    int common_name_length = ASN1_STRING_to_UTF8(&common_name_utf8, common_name_data);
+    if (common_name_length <= 0 || common_name_utf8 == NULL ||
+        memchr(common_name_utf8, '\0', (size_t)common_name_length) != NULL) {
+        OPENSSL_free(common_name_utf8);
+        LOG(ERROR, "Certificate has an invalid common name");
+        return 0;
+    }
+    char *common_name = xmalloc((size_t)common_name_length + 1);
+    memcpy(common_name, common_name_utf8, (size_t)common_name_length);
+    common_name[common_name_length] = '\0';
+    OPENSSL_free(common_name_utf8);
+
+    EVP_PKEY *pubkey = X509_get_pubkey(cert);
+    if (pubkey == NULL) {
+        LOG(ERROR, "Failed to get certificate public key");
+        free(common_name);
+        return 0;
+    }
 
     pthread_mutex_lock(&request->mutex);
 
     free(request->cert_cn);
 
-    request->cert_cn = xstrdup(cn);
+    request->cert_cn = common_name;
 
     if (request->cert_id == sizeof(request->cert_chain) * CHAR_BIT) {
         LOG(ERROR, "Certificate chain too long for URL: %s", request->url);

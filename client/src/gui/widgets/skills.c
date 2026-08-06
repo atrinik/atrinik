@@ -181,7 +181,9 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col) {
 
 /** @copydoc list_struct::row_color_func */
 static void list_row_color(list_struct *list, int row, SDL_Rect box) {
-    SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 25, 25, 25));
+    SDL_FillSurfaceRect(list->surface,
+                        &box,
+                        pixel_format_map_rgb(list->surface->format, 25, 25, 25));
 }
 
 /**
@@ -381,23 +383,23 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
     uint32_t row, col;
     size_t i;
 
-    if (EVENT_IS_MOUSE(event) && event->button.button == SDL_BUTTON_LEFT &&
-        list_mouse_get_pos(list_skills, event->motion.x, event->motion.y, &row, &col)) {
+    if (EVENT_IS_MOUSE(event) && event_mouse_button_matches(event, SDL_BUTTON_LEFT) &&
+        list_mouse_get_pos(list_skills, event_mouse_x(event), event_mouse_y(event), &row, &col)) {
         size_t skill_id;
 
         skill_id = row * list_skills->cols + col;
 
         if (skill_id < skill_list_num) {
-            if (event->type == SDL_MOUSEBUTTONUP) {
+            if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
                 if (selected_skill != skill_id) {
                     selected_skill = skill_id;
                     widget->redraw = 1;
                     return 1;
                 }
-            } else if (event->type == SDL_MOUSEBUTTONDOWN) {
+            } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                 event_dragging_start(skill_list[skill_id]->skill->tag,
-                                     event->motion.x,
-                                     event->motion.y);
+                                     event_mouse_x(event),
+                                     event_mouse_y(event));
                 return 1;
             }
         }

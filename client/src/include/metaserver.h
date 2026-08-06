@@ -46,6 +46,8 @@ extern int ms_connecting(int val);
 
 extern void metaserver_clear_data(void);
 
+extern void metaserver_deinit(void);
+
 extern server_struct *metaserver_add(const char *hostname,
                                      int port,
                                      const char *name,

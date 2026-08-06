@@ -30,7 +30,7 @@
  */
 
 #include <global.h>
-#include <sdl_rotozoom.h>
+#include <surface_primitives.h>
 #include <toolkit/string.h>
 #include <resources.h>
 #include <toolkit/curl.h>
@@ -89,7 +89,7 @@ static void popup_painting_data_free(popup_painting_t *data) {
     }
 
     if (data->zoomed != NULL) {
-        SDL_FreeSurface(data->zoomed);
+        SDL_DestroySurface(data->zoomed);
     }
 
     free(data->resource_name);
@@ -186,14 +186,18 @@ static int popup_draw_func(popup_struct *popup) {
         }
     }
 
-    if (painting_data->zoomed == NULL && !DBL_EQUAL(painting_data->zoom_x, 1.0) &&
-        !DBL_EQUAL(painting_data->zoom_y, 1.0)) {
+    if (painting_data->zoomed == NULL &&
+        (!DBL_EQUAL(painting_data->zoom_x, 1.0) || !DBL_EQUAL(painting_data->zoom_y, 1.0))) {
         bool smooth = setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH);
         painting_data->zoomed = rotozoomSurfaceXY(painting_data->sprite->bitmap,
                                                   0,
                                                   painting_data->zoom_x,
                                                   painting_data->zoom_y,
                                                   smooth);
+        if (painting_data->zoomed == NULL) {
+            LOG(ERROR, "Could not resize painting: %s", SDL_GetError());
+            painting_data->zoom_x = painting_data->zoom_y = 1.0;
+        }
         surface_pan(popup_painting_data_surface(painting_data), &painting_data->coords);
     }
 
@@ -231,38 +235,37 @@ static int popup_draw_post_func(popup_struct *popup) {
 static int popup_event_func(popup_struct *popup, SDL_Event *event) {
     popup_painting_t *painting_data = popup->custom_data;
 
-    if (event->type == SDL_MOUSEBUTTONDOWN) {
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         if (event->button.button == SDL_BUTTON_LEFT) {
-            painting_data->mx = event->motion.x;
-            painting_data->my = event->motion.y;
-        } else if (event->button.button == SDL_BUTTON_WHEELUP ||
-                   event->button.button == SDL_BUTTON_WHEELDOWN) {
-            if (painting_data->zoomed != NULL) {
-                SDL_FreeSurface(painting_data->zoomed);
-                painting_data->zoomed = NULL;
-            }
-
-            double zoom = 0.1;
-            if (event->button.button == SDL_BUTTON_WHEELDOWN) {
-                zoom = -zoom;
-            }
-
-            painting_data->zoom_x += zoom;
-            painting_data->zoom_x = MIN(5.0, MAX(0.1, painting_data->zoom_x));
-            painting_data->zoom_y += zoom;
-            painting_data->zoom_y = MIN(5.0, MAX(0.1, painting_data->zoom_y));
-            popup->redraw = 1;
+            painting_data->mx = event_mouse_x(event);
+            painting_data->my = event_mouse_y(event);
         }
-    } else if (event->type == SDL_MOUSEBUTTONUP) {
+    } else if (event->type == SDL_EVENT_MOUSE_WHEEL) {
+        if (painting_data->zoomed != NULL) {
+            SDL_DestroySurface(painting_data->zoomed);
+            painting_data->zoomed = NULL;
+        }
+
+        double zoom = 0.1;
+        if (event_wheel_y(event) < 0.0f) {
+            zoom = -zoom;
+        }
+
+        painting_data->zoom_x += zoom;
+        painting_data->zoom_x = MIN(5.0, MAX(0.1, painting_data->zoom_x));
+        painting_data->zoom_y += zoom;
+        painting_data->zoom_y = MIN(5.0, MAX(0.1, painting_data->zoom_y));
+        popup->redraw = 1;
+    } else if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
         if (event->button.button == SDL_BUTTON_LEFT) {
             painting_data->mx = painting_data->my = -1;
         }
-    } else if (event->type == SDL_MOUSEMOTION && painting_data->mx != -1 &&
+    } else if (event->type == SDL_EVENT_MOUSE_MOTION && painting_data->mx != -1 &&
                painting_data->my != -1) {
-        painting_data->coords.x += painting_data->mx - event->motion.x;
-        painting_data->coords.y += painting_data->my - event->motion.y;
-        painting_data->mx = event->motion.x;
-        painting_data->my = event->motion.y;
+        painting_data->coords.x += painting_data->mx - event_mouse_x(event);
+        painting_data->coords.y += painting_data->my - event_mouse_y(event);
+        painting_data->mx = event_mouse_x(event);
+        painting_data->my = event_mouse_y(event);
         surface_pan(popup_painting_data_surface(painting_data), &painting_data->coords);
         popup->redraw = 1;
     }

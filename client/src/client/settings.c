@@ -424,7 +424,11 @@ static int setting_apply_always(int cat, int setting) {
                     return 1;
 
                 case OPT_SYSTEM_CURSOR:
-                    SDL_ShowCursor(setting_get_int(cat, setting));
+                    if (setting_get_int(cat, setting)) {
+                        SDL_ShowCursor();
+                    } else {
+                        SDL_HideCursor();
+                    }
                     return 1;
             }
 
@@ -499,8 +503,9 @@ static void setting_apply_runtime(int cat, int setting) {
                 case OPT_FULLSCREEN:
 
                     if ((setting_get_int(cat, setting) &&
-                         !(ScreenSurface->flags & SDL_FULLSCREEN)) ||
-                        (!setting_get_int(cat, setting) && ScreenSurface->flags & SDL_FULLSCREEN)) {
+                         !(SDL_GetWindowFlags(ScreenWindow) & SDL_WINDOW_FULLSCREEN)) ||
+                        (!setting_get_int(cat, setting) &&
+                         SDL_GetWindowFlags(ScreenWindow) & SDL_WINDOW_FULLSCREEN)) {
                         video_fullscreen_toggle(&ScreenSurface, NULL);
                     }
 

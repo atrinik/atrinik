@@ -1,6 +1,6 @@
 {
   "name": "Atrinik 2026 Linux Build",
-  "image": "ghcr.io/atrinik/linux-build:0.0.3",
+  "image": "ghcr.io/atrinik/linux-build:0.0.5",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:4": {
       "moby": false

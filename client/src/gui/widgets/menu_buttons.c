@@ -179,7 +179,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
             }
 
             if (BUTTON_CHECK_TOOLTIP(&buttons[i])) {
-                tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, button_tooltips[i]);
+                tooltip_create(event_mouse_x(event),
+                               event_mouse_y(event),
+                               FONT_ARIAL11,
+                               button_tooltips[i]);
                 tooltip_enable_delay(300);
             }
 

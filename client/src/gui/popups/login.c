@@ -213,9 +213,9 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
         return -1;
     }
 
-    if (event->type == SDL_KEYDOWN) {
-        if (IS_NEXT(event->key.keysym.sym)) {
-            if (text_input_current == LOGIN_TEXT_INPUT_MAX - 1 && IS_ENTER(event->key.keysym.sym)) {
+    if (event->type == SDL_EVENT_KEY_DOWN) {
+        if (IS_NEXT(event->key.key)) {
+            if (text_input_current == LOGIN_TEXT_INPUT_MAX - 1 && IS_ENTER(event->key.key)) {
                 packet_struct *packet;
                 uint32_t lower, upper;
 
@@ -289,10 +289,12 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
 
             return 1;
         }
-    } else if (event->type == SDL_MOUSEBUTTONDOWN) {
+    } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         if (event->button.button == SDL_BUTTON_LEFT) {
             for (i = 0; i < LOGIN_TEXT_INPUT_MAX; i++) {
-                if (text_input_mouse_over(&text_inputs[i], event->motion.x, event->motion.y)) {
+                if (text_input_mouse_over(&text_inputs[i],
+                                          event_mouse_x(event),
+                                          event_mouse_y(event))) {
                     text_inputs[text_input_current].focus = 0;
                     text_input_current = i;
                     text_inputs[text_input_current].focus = 1;

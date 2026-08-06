@@ -25,13 +25,15 @@
 /** Are we connecting to the metaserver? */
 static int metaserver_connecting = 1;
 /** Mutex to protect ::metaserver_connecting. */
-static SDL_mutex *metaserver_connecting_mutex;
+static SDL_Mutex *metaserver_connecting_mutex;
 /** The list of the servers. */
 static server_struct *server_head;
 /** Number of the servers. */
 static size_t server_count;
 /** Mutex to protect ::server_head and ::server_count. */
-static SDL_mutex *server_head_mutex;
+static SDL_Mutex *server_head_mutex;
+/** Joinable directory worker, retained until completion is observed. */
+static SDL_Thread *metaserver_worker;
 /** Is metaserver enabled? */
 static uint8_t enabled = 1;
 
@@ -40,11 +42,18 @@ void metaserver_init(void) {
     server_count = 0;
     metaserver_connecting_mutex = SDL_CreateMutex();
     server_head_mutex = SDL_CreateMutex();
+    metaserver_worker = NULL;
+    if (metaserver_connecting_mutex == NULL || server_head_mutex == NULL) {
+        LOG(ERROR, "Could not create metaserver mutexes: %s", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
 }
 
 void metaserver_disable(void) {
     enabled = 0;
+    SDL_LockMutex(metaserver_connecting_mutex);
     metaserver_connecting = 0;
+    SDL_UnlockMutex(metaserver_connecting_mutex);
 }
 
 void metaserver_server_free(server_struct *server) {
@@ -126,6 +135,19 @@ void metaserver_clear_data(void) {
     SDL_UnlockMutex(server_head_mutex);
 }
 
+void metaserver_deinit(void) {
+    if (metaserver_worker != NULL) {
+        SDL_WaitThread(metaserver_worker, NULL);
+        metaserver_worker = NULL;
+    }
+
+    metaserver_clear_data();
+    SDL_DestroyMutex(server_head_mutex);
+    SDL_DestroyMutex(metaserver_connecting_mutex);
+    server_head_mutex = NULL;
+    metaserver_connecting_mutex = NULL;
+}
+
 server_struct *metaserver_add(const char *hostname,
                               int port,
                               const char *name,
@@ -177,13 +199,18 @@ void metaserver_get_servers(void) {
         return;
     }
 
+    if (metaserver_worker != NULL) {
+        SDL_WaitThread(metaserver_worker, NULL);
+        metaserver_worker = NULL;
+    }
+
     SDL_LockMutex(metaserver_connecting_mutex);
     metaserver_connecting = 1;
     SDL_UnlockMutex(metaserver_connecting_mutex);
 
-    SDL_Thread *thread = SDL_CreateThread(metaserver_thread, NULL);
-    if (thread == NULL) {
-        LOG(ERROR, "Thread creation failed.");
+    metaserver_worker = SDL_CreateThread(metaserver_thread, "metaserver", NULL);
+    if (metaserver_worker == NULL) {
+        LOG(ERROR, "Metaserver thread creation failed: %s", SDL_GetError());
         exit(1);
     }
 }

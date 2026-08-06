@@ -30,7 +30,7 @@
  */
 
 #include <global.h>
-#include <sdl_gfx.h>
+#include <surface_primitives.h>
 #include <network_graph.h>
 #include <toolkit/string.h>
 
@@ -94,7 +94,7 @@ static const char *const network_graph_colors[NETWORK_GRAPH_TYPE_MAX] = {"#ff000
 /**
  * Mutex used to provide reentrant API for network graph updates.
  */
-static SDL_mutex *network_graph_mutex = NULL;
+static SDL_Mutex *network_graph_mutex = NULL;
 
 /**
  * The work queue.
@@ -113,7 +113,7 @@ static void widget_draw(widgetdata *widget) {
     network_graph_widget_t *network_graph = widget->subwidget;
     network_graph_data_t *data = &network_graph->data[network_graph->type];
 
-    SDL_FillRect(widget->surface, NULL, 0);
+    SDL_FillSurfaceRect(widget->surface, NULL, 0);
 
     if (data->data == NULL) {
         return;
@@ -194,8 +194,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
     network_graph_widget_t *network_graph = widget->subwidget;
     network_graph_data_t *data = &network_graph->data[network_graph->type];
 
-    if (event->type == SDL_MOUSEMOTION) {
-        int x = event->motion.x - widget->x;
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
+        int x = event_mouse_x(event) - widget->x;
         if (x < 0 || x >= widget->w) {
             return 0;
         }
@@ -215,7 +215,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
                         (uint64_t)bytes / 1000);
         }
 
-        tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
+        tooltip_create(event_mouse_x(event), event_mouse_y(event), FONT_ARIAL11, buf);
         tooltip_multiline(200);
         tooltip_enable_delay(100);
     }
@@ -315,7 +315,7 @@ static void menu_network_graph_filters(widgetdata *widget, widgetdata *menuitem,
 
 /** @copydoc widgetdata::menu_handle_func */
 static int widget_menu_handle(widgetdata *widget, SDL_Event *event) {
-    widgetdata *menu = create_menu(event->motion.x, event->motion.y, widget);
+    widgetdata *menu = create_menu(event_mouse_x(event), event_mouse_y(event), widget);
     widget_menu_standard_items(widget, menu);
     add_menuitem(menu, "Display  >", &menu_network_graph_display, MENU_SUBMENU, 0);
     add_menuitem(menu, "Filters  >", &menu_network_graph_filters, MENU_SUBMENU, 0);

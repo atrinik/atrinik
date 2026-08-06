@@ -29,7 +29,7 @@
 
 #include <global.h>
 
-key_struct keys[SDLK_LAST];
+key_struct keys[SDL_SCANCODE_COUNT];
 
 /**
  * Initialize keys.
@@ -44,8 +44,8 @@ void init_keys(void) {
  * The event to handle.
  */
 void key_handle_event(SDL_KeyboardEvent *event) {
-    if (event->type == SDL_KEYDOWN) {
-        if (cpl.state == ST_PLAY && event->keysym.sym == SDLK_ESCAPE) {
+    if (event->type == SDL_EVENT_KEY_DOWN) {
+        if (cpl.state == ST_PLAY && event->key == SDLK_ESCAPE) {
             settings_open();
             return;
         }

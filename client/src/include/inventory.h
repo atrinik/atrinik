@@ -137,7 +137,7 @@ extern uint32_t widget_inventory_num_items(widgetdata *widget);
 
 extern object *widget_inventory_get_selected(widgetdata *widget);
 
-extern void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key);
+extern void widget_inventory_handle_arrow_key(widgetdata *widget, SDL_Keycode key);
 
 extern void object_show_inventory(SDL_Surface *surface, object *tmp, int x, int y);
 

@@ -179,7 +179,7 @@ void keybind_deinit(void) {
 }
 
 /**
- * Adjust SDLMod state value. This is done because the state may have
+ * Adjust SDL_Keymod state value. This is done because the state may have
  * other flags we do not care about, and we do not want to save those
  * to file. It also simplifies keyboard modifier state checks.
  * @param mod
@@ -187,29 +187,29 @@ void keybind_deinit(void) {
  * @return
  * Adjusted state.
  */
-static SDLMod keybind_adjust_kmod(SDLMod mod) {
+static SDL_Keymod keybind_adjust_kmod(SDL_Keymod mod) {
     /* We only care about left/right shift, ctrl, alt, and super
      * modifiers, so remove any others. */
-    mod &= KMOD_SHIFT | KMOD_CTRL | KMOD_ALT | KMOD_META;
+    mod &= SDL_KMOD_SHIFT | SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI;
 
     /* The following code deals with making sure that if the modifier
      * contains only for example left shift modifier, right shift is also
      * added to the modifier, in order to simplify saving and state
      * checks. */
-    if (mod & KMOD_SHIFT) {
-        mod |= KMOD_SHIFT;
+    if (mod & SDL_KMOD_SHIFT) {
+        mod |= SDL_KMOD_SHIFT;
     }
 
-    if (mod & KMOD_CTRL) {
-        mod |= KMOD_CTRL;
+    if (mod & SDL_KMOD_CTRL) {
+        mod |= SDL_KMOD_CTRL;
     }
 
-    if (mod & KMOD_ALT) {
-        mod |= KMOD_ALT;
+    if (mod & SDL_KMOD_ALT) {
+        mod |= SDL_KMOD_ALT;
     }
 
-    if (mod & KMOD_META) {
-        mod |= KMOD_META;
+    if (mod & SDL_KMOD_GUI) {
+        mod |= SDL_KMOD_GUI;
     }
 
     return mod;
@@ -227,7 +227,7 @@ static SDLMod keybind_adjust_kmod(SDLMod mod) {
  * @return
  * The added keybinding.
  */
-keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command) {
+keybind_struct *keybind_add(SDL_Keycode key, SDL_Keymod mod, const char *command) {
     keybind_struct *keybind;
 
     /* Allocate a new keybinding, and store the values. */
@@ -255,7 +255,7 @@ keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command) {
  * @param command
  * Command to change.
  */
-void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command) {
+void keybind_edit(size_t i, SDL_Keycode key, SDL_Keymod mod, const char *command) {
     /* Sanity check. */
     if (i >= keybindings_num) {
         return;
@@ -322,23 +322,23 @@ void keybind_repeat_toggle(size_t i) {
  * @return
  * 'buf'.
  */
-char *keybind_get_key_shortcut(SDLKey key, SDLMod mod, char *buf, size_t len) {
+char *keybind_get_key_shortcut(SDL_Keycode key, SDL_Keymod mod, char *buf, size_t len) {
     buf[0] = '\0';
 
     /* Prefix with the keyboard modifier. */
-    if (mod & KMOD_SHIFT) {
+    if (mod & SDL_KMOD_SHIFT) {
         strncat(buf, "shift + ", len - strlen(buf) - 1);
     }
 
-    if (mod & KMOD_CTRL) {
+    if (mod & SDL_KMOD_CTRL) {
         strncat(buf, "ctrl + ", len - strlen(buf) - 1);
     }
 
-    if (mod & KMOD_ALT) {
+    if (mod & SDL_KMOD_ALT) {
         strncat(buf, "alt + ", len - strlen(buf) - 1);
     }
 
-    if (mod & KMOD_META) {
+    if (mod & SDL_KMOD_GUI) {
         strncat(buf, "super + ", len - strlen(buf) - 1);
     }
 
@@ -382,8 +382,8 @@ int keybind_command_matches_event(const char *cmd, SDL_KeyboardEvent *event) {
         return 0;
     }
 
-    if (event->keysym.sym == keybind->key &&
-        (!keybind->mod || keybind->mod == keybind_adjust_kmod(event->keysym.mod))) {
+    if (event->key == keybind->key &&
+        (!keybind->mod || keybind->mod == keybind_adjust_kmod(event->mod))) {
         return 1;
     }
 
@@ -403,7 +403,8 @@ int keybind_command_matches_state(const char *cmd) {
 
     for (i = 0; i < keybindings_num; i++) {
         if (!strcmp(cmd, keybindings[i]->command)) {
-            if (keys[keybindings[i]->key].pressed &&
+            SDL_Scancode scancode = SDL_GetScancodeFromKey(keybindings[i]->key, NULL);
+            if (scancode != SDL_SCANCODE_UNKNOWN && keys[scancode].pressed &&
                 (!keybindings[i]->mod ||
                  keybindings[i]->mod == keybind_adjust_kmod(SDL_GetModState()))) {
                 return 1;
@@ -426,9 +427,9 @@ int keybind_process_event(SDL_KeyboardEvent *event) {
 
     /* Try to handle keybindings with modifier keys first. */
     for (i = 0; i < keybindings_num; i++) {
-        if (event->keysym.sym == keybindings[i]->key &&
-            keybindings[i]->mod == keybind_adjust_kmod(event->keysym.mod)) {
-            keybind_process(keybindings[i], event->type);
+        if (event->key == keybindings[i]->key &&
+            keybindings[i]->mod == keybind_adjust_kmod(event->mod)) {
+            keybind_process(keybindings[i], event->type, event->repeat);
             return 1;
         }
     }
@@ -436,8 +437,8 @@ int keybind_process_event(SDL_KeyboardEvent *event) {
     /* Now handle keys with no modifier keys, regardless of what the
      * current keyboard modifier combination is. */
     for (i = 0; i < keybindings_num; i++) {
-        if (event->keysym.sym == keybindings[i]->key && !keybindings[i]->mod) {
-            keybind_process(keybindings[i], event->type);
+        if (event->key == keybindings[i]->key && !keybindings[i]->mod) {
+            keybind_process(keybindings[i], event->type, event->repeat);
             return 1;
         }
     }
@@ -450,13 +451,13 @@ int keybind_process_event(SDL_KeyboardEvent *event) {
  * @param keybind
  * The keybinding to process.
  * @param type
- * Either SDL_KEYDOWN or SDL_KEYUP.
+ * Either SDL_EVENT_KEY_DOWN or SDL_EVENT_KEY_UP.
  */
-void keybind_process(keybind_struct *keybind, uint8_t type) {
+void keybind_process(keybind_struct *keybind, SDL_EventType type, bool repeated) {
     char command[MAX_BUF], *cp;
 
     /* Do not repeat keys that should not be repeated. */
-    if (!keybind->repeat && keys[keybind->key].repeated) {
+    if (!keybind->repeat && repeated) {
         return;
     }
 
@@ -470,7 +471,7 @@ void keybind_process(keybind_struct *keybind, uint8_t type) {
             cp++;
         }
 
-        if (type == SDL_KEYDOWN) {
+        if (type == SDL_EVENT_KEY_DOWN) {
             keybind_process_command(cp);
         } else {
             keybind_process_command_up(cp);
@@ -504,8 +505,11 @@ int keybind_process_command_up(const char *cmd) {
             cmd += 5;
 
             if (strcmp(cmd, "STAY") != 0 && !cpl.fire_on &&
-                (keybind = keybind_find_by_command(cmd_orig)) && keys[keybind->key].repeated) {
-                move_keys(5);
+                (keybind = keybind_find_by_command(cmd_orig))) {
+                SDL_Scancode scancode = SDL_GetScancodeFromKey(keybind->key, NULL);
+                if (scancode != SDL_SCANCODE_UNKNOWN && keys[scancode].repeated) {
+                    move_keys(5);
+                }
             }
         }
 

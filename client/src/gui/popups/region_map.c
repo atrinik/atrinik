@@ -301,15 +301,17 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
     }
 
     /* Start dragging the map. */
-    if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT &&
-        RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT &&
+        RM_IN_MAP(popup, event_mouse_x(event), event_mouse_y(event))) {
         region_map_dragging = 1;
     }
 
     /* Dragging the map? */
     if (region_map_dragging) {
+        SDL_Event scrollbar_event_data;
+
         /* Stop dragging the map if the left mouse button has been released. */
-        if (event->type == SDL_MOUSEBUTTONUP && event->button.button == SDL_BUTTON_LEFT) {
+        if (event->type == SDL_EVENT_MOUSE_BUTTON_UP && event->button.button == SDL_BUTTON_LEFT) {
             region_map_dragging = 0;
             return 1;
         }
@@ -318,10 +320,22 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
         scrollbar.slider.highlight = 1;
         scrollbar_horizontal.slider.highlight = 1;
         /* Reverse the x/y, so "dragging the map" makes more sense. */
-        event->motion.x = -event->motion.x;
-        event->motion.y = -event->motion.y;
-        scrollbar_event(&scrollbar, event);
-        scrollbar_event(&scrollbar_horizontal, event);
+        scrollbar_event_data = *event;
+        if (event->type == SDL_EVENT_MOUSE_MOTION) {
+            scrollbar_event_data.motion.x = -event->motion.x;
+            scrollbar_event_data.motion.y = -event->motion.y;
+        } else if (event->type == SDL_EVENT_MOUSE_WHEEL) {
+            scrollbar_event_data.wheel.mouse_x = -event->wheel.mouse_x;
+            scrollbar_event_data.wheel.mouse_y = -event->wheel.mouse_y;
+        } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
+                   event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
+            scrollbar_event_data.button.x = -event->button.x;
+            scrollbar_event_data.button.y = -event->button.y;
+        } else {
+            return 1;
+        }
+        scrollbar_event(&scrollbar, &scrollbar_event_data);
+        scrollbar_event(&scrollbar_horizontal, &scrollbar_event_data);
         return 1;
     }
 
@@ -332,66 +346,62 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
         return 1;
     }
 
-    if (event->type == SDL_MOUSEBUTTONDOWN) {
-        if (event->button.button == SDL_BUTTON_WHEELUP) {
+    if (event->type == SDL_EVENT_MOUSE_WHEEL) {
+        if (event_wheel_y(event) > 0.0f) {
             /* Zoom in. */
             if (region_map->zoom < RM_ZOOM_MAX) {
                 region_map_resize(region_map, RM_ZOOM_PROGRESS);
                 return 1;
             }
-        } else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+        } else if (event_wheel_y(event) < 0.0f) {
             /* Zoom out. */
             if (region_map->zoom > RM_ZOOM_MIN) {
                 region_map_resize(region_map, -RM_ZOOM_PROGRESS);
                 return 1;
             }
-        } else if (event->button.button == SDL_BUTTON_MIDDLE &&
-                   setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) &&
-                   RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
-            int xpos, ypos, map_x, map_y, map_w, map_h;
-            double zoomfactor;
-            size_t i;
-            char buf[HUGE_BUF];
-
-            /* Quickport. */
-            xpos = region_map->pos.x + event->motion.x - popup->x - RM_MAP_STARTX;
-            ypos = region_map->pos.y + event->motion.y - popup->y - RM_MAP_STARTY;
-            zoomfactor = region_map->zoom / 100.0;
-            map_w = region_map->def->map_size_x * region_map->def->pixel_size * zoomfactor;
-            map_h = region_map->def->map_size_y * region_map->def->pixel_size * zoomfactor;
-
-            for (i = 0; i < region_map->def->num_maps; i++) {
-                map_x = region_map->def->maps[i].xpos * zoomfactor;
-                map_y = region_map->def->maps[i].ypos * zoomfactor;
-
-                if (xpos < map_x || xpos > map_x + map_w || ypos < map_y || ypos > map_y + map_h) {
-                    continue;
-                }
-
-                xpos = (xpos - region_map->def->maps[i].xpos * zoomfactor) /
-                       (region_map->def->pixel_size * zoomfactor);
-                ypos = (ypos - region_map->def->maps[i].ypos * zoomfactor) /
-                       (region_map->def->pixel_size * zoomfactor);
-                snprintf(buf,
-                         sizeof(buf),
-                         "/tpto %s %d %d",
-                         region_map->def->maps[i].path,
-                         xpos,
-                         ypos);
-                send_command(buf);
-
-                popup_destroy(popup);
-                return 1;
-            }
         }
-    } else if (event->type == SDL_MOUSEMOTION) {
-        if (RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
+    } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
+               event->button.button == SDL_BUTTON_MIDDLE &&
+               setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) &&
+               RM_IN_MAP(popup, event_mouse_x(event), event_mouse_y(event))) {
+        int xpos, ypos, map_x, map_y, map_w, map_h;
+        double zoomfactor;
+        size_t i;
+        char buf[HUGE_BUF];
+
+        /* Quickport. */
+        xpos = region_map->pos.x + event_mouse_x(event) - popup->x - RM_MAP_STARTX;
+        ypos = region_map->pos.y + event_mouse_y(event) - popup->y - RM_MAP_STARTY;
+        zoomfactor = region_map->zoom / 100.0;
+        map_w = region_map->def->map_size_x * region_map->def->pixel_size * zoomfactor;
+        map_h = region_map->def->map_size_y * region_map->def->pixel_size * zoomfactor;
+
+        for (i = 0; i < region_map->def->num_maps; i++) {
+            map_x = region_map->def->maps[i].xpos * zoomfactor;
+            map_y = region_map->def->maps[i].ypos * zoomfactor;
+
+            if (xpos < map_x || xpos > map_x + map_w || ypos < map_y || ypos > map_y + map_h) {
+                continue;
+            }
+
+            xpos = (xpos - region_map->def->maps[i].xpos * zoomfactor) /
+                   (region_map->def->pixel_size * zoomfactor);
+            ypos = (ypos - region_map->def->maps[i].ypos * zoomfactor) /
+                   (region_map->def->pixel_size * zoomfactor);
+            snprintf(buf, sizeof(buf), "/tpto %s %d %d", region_map->def->maps[i].path, xpos, ypos);
+            send_command(buf);
+
+            popup_destroy(popup);
+            return 1;
+        }
+    } else if (event->type == SDL_EVENT_MOUSE_MOTION) {
+        if (RM_IN_MAP(popup, event_mouse_x(event), event_mouse_y(event))) {
             int xpos, ypos, tooltip_x, tooltip_y, tooltip_w, tooltip_h;
             size_t i;
             double zoomfactor;
 
-            xpos = region_map->pos.x + event->motion.x - popup->x - RM_MAP_STARTX;
-            ypos = region_map->pos.y + event->motion.y - popup->y - RM_MAP_STARTY;
+            xpos = region_map->pos.x + event_mouse_x(event) - popup->x - RM_MAP_STARTX;
+            ypos = region_map->pos.y + event_mouse_y(event) - popup->y - RM_MAP_STARTY;
             zoomfactor = region_map->zoom / 100.0;
 
             for (i = 0; i < region_map->def->num_tooltips; i++) {
@@ -409,8 +419,8 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
                         MapData.region_map,
                         xpos / (double)region_map->def->pixel_size / zoomfactor,
                         ypos / (double)region_map->def->pixel_size / zoomfactor)) {
-                    tooltip_create(event->motion.x,
-                                   event->motion.y,
+                    tooltip_create(event_mouse_x(event),
+                                   event_mouse_y(event),
                                    FONT_ARIAL11,
                                    region_map->def->tooltips[i].text);
                     tooltip_multiline(200);
@@ -420,35 +430,35 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event) {
                 break;
             }
         }
-    } else if (event->type == SDL_KEYDOWN) {
+    } else if (event->type == SDL_EVENT_KEY_DOWN) {
         int pos = RM_SCROLL;
 
-        if (event->key.keysym.mod & KMOD_SHIFT) {
+        if (event->key.mod & SDL_KMOD_SHIFT) {
             pos = RM_SCROLL_SHIFT;
         }
 
-        if (event->key.keysym.sym == SDLK_UP) {
+        if (event->key.key == SDLK_UP) {
             region_map->pos.y -= pos;
             surface_pan(region_map_surface(region_map), &region_map->pos);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_DOWN) {
+        } else if (event->key.key == SDLK_DOWN) {
             region_map->pos.y += pos;
             surface_pan(region_map_surface(region_map), &region_map->pos);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_LEFT) {
+        } else if (event->key.key == SDLK_LEFT) {
             region_map->pos.x -= pos;
             surface_pan(region_map_surface(region_map), &region_map->pos);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_RIGHT) {
+        } else if (event->key.key == SDLK_RIGHT) {
             region_map->pos.x += pos;
             surface_pan(region_map_surface(region_map), &region_map->pos);
             return 1;
-        } else if (event->key.keysym.sym == SDLK_PAGEUP) {
+        } else if (event->key.key == SDLK_PAGEUP) {
             if (region_map->zoom < RM_ZOOM_MAX) {
                 region_map_resize(region_map, RM_ZOOM_PROGRESS);
                 return 1;
             }
-        } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
+        } else if (event->key.key == SDLK_PAGEDOWN) {
             if (region_map->zoom > RM_ZOOM_MIN) {
                 region_map_resize(region_map, -RM_ZOOM_PROGRESS);
                 return 1;

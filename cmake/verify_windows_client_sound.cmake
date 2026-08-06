@@ -20,9 +20,9 @@ if (NOT "${objdump_result}" STREQUAL "0")
 endif ()
 
 if (NOT objdump_output MATCHES
-        "DLL Name:[ \t]+[Ss][Dd][Ll]_[Mm][Ii][Xx][Ee][Rr]\\.[Dd][Ll][Ll]")
+        "DLL Name:[ \t]+[Ss][Dd][Ll]3_[Mm][Ii][Xx][Ee][Rr]\\.[Dd][Ll][Ll]")
     message(FATAL_ERROR
-        "Windows client was built without an SDL_mixer runtime import")
+        "Windows client was built without an SDL3_mixer runtime import")
 endif ()
 
 message(STATUS "Windows client sound import verified")

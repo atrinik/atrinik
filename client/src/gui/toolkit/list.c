@@ -56,9 +56,13 @@ static void list_draw_frame(list_struct *list) {
  */
 static void list_row_color(list_struct *list, int row, SDL_Rect box) {
     if (row & 1) {
-        SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x55, 0x55, 0x55));
+        SDL_FillSurfaceRect(list->surface,
+                            &box,
+                            pixel_format_map_rgb(list->surface->format, 0x55, 0x55, 0x55));
     } else {
-        SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x45, 0x45, 0x45));
+        SDL_FillSurfaceRect(list->surface,
+                            &box,
+                            pixel_format_map_rgb(list->surface->format, 0x45, 0x45, 0x45));
     }
 }
 
@@ -70,7 +74,9 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box) {
  * Contains base x/y/width/height information to use.
  */
 static void list_row_highlight(list_struct *list, SDL_Rect box) {
-    SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x80, 0x00));
+    SDL_FillSurfaceRect(list->surface,
+                        &box,
+                        pixel_format_map_rgb(list->surface->format, 0x00, 0x80, 0x00));
 }
 
 /**
@@ -81,7 +87,9 @@ static void list_row_highlight(list_struct *list, SDL_Rect box) {
  * Contains base x/y/width/height information to use.
  */
 static void list_row_selected(list_struct *list, SDL_Rect box) {
-    SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x00, 0x00, 0xef));
+    SDL_FillSurfaceRect(list->surface,
+                        &box,
+                        pixel_format_map_rgb(list->surface->format, 0x00, 0x00, 0xef));
 }
 
 /**
@@ -642,19 +650,19 @@ int list_handle_keyboard(list_struct *list, SDL_Event *event) {
         return 0;
     }
 
-    if (event->type != SDL_KEYDOWN) {
+    if (event->type != SDL_EVENT_KEY_DOWN) {
         return 0;
     }
 
     if (list->key_event_func) {
-        int ret = list->key_event_func(list, event->key.keysym.sym);
+        int ret = list->key_event_func(list, event->key.key);
 
         if (ret != -1) {
             return ret;
         }
     }
 
-    switch (event->key.keysym.sym) {
+    switch (event->key.key) {
             /* Up arrow. */
         case SDLK_UP:
             list_scroll(list, 1, 1);
@@ -720,13 +728,13 @@ int list_handle_mouse(list_struct *list, SDL_Event *event) {
         return 0;
     }
 
-    if (event->type != SDL_MOUSEBUTTONDOWN && event->type != SDL_MOUSEBUTTONUP &&
-        event->type != SDL_MOUSEMOTION) {
+    if (event->type != SDL_EVENT_MOUSE_BUTTON_DOWN && event->type != SDL_EVENT_MOUSE_BUTTON_UP &&
+        event->type != SDL_EVENT_MOUSE_MOTION) {
         return 0;
     }
 
-    mx = event->motion.x - list->px;
-    my = event->motion.y - list->py;
+    mx = event_mouse_x(event) - list->px;
+    my = event_mouse_y(event) - list->py;
 
     if (list->scrollbar_enabled) {
         list->scrollbar.px = list->px;
@@ -748,13 +756,13 @@ int list_handle_mouse(list_struct *list, SDL_Event *event) {
      * below. */
     list->row_highlighted = 0;
 
-    if (list_mouse_get_pos(list, event->motion.x, event->motion.y, &row, &col)) {
+    if (list_mouse_get_pos(list, event_mouse_x(event), event_mouse_y(event), &row, &col)) {
         if (list->handle_mouse_row_func) {
             list->handle_mouse_row_func(list, row, event);
         }
 
         /* Mouse click? */
-        if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
+        if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT) {
             /* See if we clicked on this row earlier, and whether this
              * should be considered a double click. */
             if (SDL_GetTicks() - list->click_tick < DOUBLE_CLICK_DELAY) {
@@ -781,9 +789,8 @@ int list_handle_mouse(list_struct *list, SDL_Event *event) {
     }
 
     /* Handle mouse wheel for scrolling. */
-    if (event->type == SDL_MOUSEBUTTONDOWN && (event->button.button == SDL_BUTTON_WHEELUP ||
-                                               event->button.button == SDL_BUTTON_WHEELDOWN)) {
-        list_scroll(list, event->button.button == SDL_BUTTON_WHEELUP, 1);
+    if (event->type == SDL_EVENT_MOUSE_WHEEL && event_wheel_y(event) != 0.0f) {
+        list_scroll(list, event_wheel_y(event) > 0.0f, 1);
         return 1;
     }
 

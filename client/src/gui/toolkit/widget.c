@@ -43,7 +43,7 @@
 
 #include <global.h>
 #include <wrapper.h>
-#include <sdl_rotozoom.h>
+#include <surface_primitives.h>
 #include <notification.h>
 #include <toolkit/string.h>
 #include <network_graph.h>
@@ -320,7 +320,7 @@ void toolkit_widget_init(void) {
 
 /** @copydoc widgetdata::menu_handle_func */
 static int widget_menu_handle(widgetdata *widget, SDL_Event *event) {
-    widgetdata *menu = create_menu(event->motion.x, event->motion.y, widget);
+    widgetdata *menu = create_menu(event_mouse_x(event), event_mouse_y(event), widget);
     widget_menu_standard_items(widget, menu);
     menu_finalize(menu);
     return 1;
@@ -365,7 +365,7 @@ void menu_container_background_change(widgetdata *widget, widgetdata *menuitem, 
                 label->text,
                 container->texture ? container->texture->name : "NONE");
 
-            SDL_FreeSurface(container->surface);
+            SDL_DestroySurface(container->surface);
             container->surface = NULL;
 
             container->texture_type = WIDGET_TEXTURE_TYPE_NORMAL;
@@ -991,7 +991,7 @@ void remove_widget(widgetdata *widget) {
 
     /* free the surface */
     if (widget->surface) {
-        SDL_FreeSurface(widget->surface);
+        SDL_DestroySurface(widget->surface);
         widget->surface = NULL;
     }
 
@@ -1217,11 +1217,11 @@ int widgets_event(SDL_Event *event) {
     if (widget_event_move.active) {
         widget = widget_event_move.owner;
 
-        if (event->type == SDL_MOUSEMOTION) {
+        if (event->type == SDL_EVENT_MOUSE_MOTION) {
             int x, y, nx, ny;
 
-            x = event->motion.x - widget_event_move.xOffset;
-            y = event->motion.y - widget_event_move.yOffset;
+            x = event_mouse_x(event) - widget_event_move.xOffset;
+            y = event_mouse_y(event) - widget_event_move.yOffset;
             nx = x;
             ny = y;
 
@@ -1314,8 +1314,8 @@ int widgets_event(SDL_Event *event) {
 
             move_widget_rec(widget, nx - widget->x, ny - widget->y);
             widget_ensure_onscreen(widget);
-        } else if (event->type == SDL_MOUSEBUTTONDOWN) {
-            return widget_event_move_stop(event->motion.x, event->motion.y);
+        } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+            return widget_event_move_stop(event_mouse_x(event), event_mouse_y(event));
         }
 
         return 1;
@@ -1324,15 +1324,15 @@ int widgets_event(SDL_Event *event) {
 
         widget = widget_event_resize.owner;
 
-        if (event->type == SDL_MOUSEBUTTONUP) {
+        if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
             widget_event_resize.active = 0;
             widget_event_resize.owner = NULL;
-        } else if (event->type == SDL_MOUSEMOTION) {
+        } else if (event->type == SDL_EVENT_MOUSE_MOTION) {
             if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
                 resize_widget(widget,
                               widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT),
                               MAX(MAX(5, widget->min_w),
-                                  widget->w + (event->motion.x - widget_event_resize.xoff) *
+                                  widget->w + (event_mouse_x(event) - widget_event_resize.xoff) *
                                                   (widget->resize_flags & RESIZE_LEFT ? -1 : 1)));
             }
 
@@ -1340,29 +1340,29 @@ int widgets_event(SDL_Event *event) {
                 resize_widget(widget,
                               widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM),
                               MAX(MAX(5, widget->min_h),
-                                  widget->h + (event->motion.y - widget_event_resize.yoff) *
+                                  widget->h + (event_mouse_y(event) - widget_event_resize.yoff) *
                                                   (widget->resize_flags & RESIZE_TOP ? -1 : 1)));
             }
 
-            widget_event_resize.xoff = event->motion.x;
-            widget_event_resize.yoff = event->motion.y;
+            widget_event_resize.xoff = event_mouse_x(event);
+            widget_event_resize.yoff = event_mouse_y(event);
         }
 
         return 1;
     }
 
     if (EVENT_IS_MOUSE(event)) {
-        if (!widget_event_respond(event->motion.x, event->motion.y)) {
+        if (!widget_event_respond(event_mouse_x(event), event_mouse_y(event))) {
             return 0;
         }
 
         widget = widget_mouse_event.owner;
 
-        if (event->type == SDL_MOUSEMOTION) {
+        if (event->type == SDL_EVENT_MOUSE_MOTION) {
             if (widget->resizeable) {
                 widget->resize_flags = 0;
             }
-        } else if (event->type == SDL_MOUSEBUTTONDOWN) {
+        } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
             /* Set the priority to this widget. */
             SetPriorityWidget(widget);
 
@@ -1374,8 +1374,8 @@ int widgets_event(SDL_Event *event) {
                 /* Start resizing. */
                 widget_event_resize.active = 1;
                 widget_event_resize.owner = widget;
-                widget_event_resize.xoff = event->motion.x;
-                widget_event_resize.yoff = event->motion.y;
+                widget_event_resize.xoff = event_mouse_x(event);
+                widget_event_resize.yoff = event_mouse_y(event);
                 return 1;
             }
 
@@ -1391,7 +1391,7 @@ int widgets_event(SDL_Event *event) {
             ret = widget->event_func(widget, event);
         }
 
-        if (ret == 0 && event->type == SDL_MOUSEMOTION && widget->resizeable) {
+        if (ret == 0 && event->type == SDL_EVENT_MOUSE_MOTION && widget->resizeable) {
 #define WIDGET_RESIZE_CHECK(coord, upper_adj, lower_adj)            \
     (event->motion.coord >= widget_##coord(widget) + (upper_adj) && \
      event->motion.coord <= widget_##coord(widget) + (lower_adj))
@@ -1400,8 +1400,8 @@ int widgets_event(SDL_Event *event) {
                 if (widget->padding_func != NULL) {
                     widget->padding_func(widget, &xpad, &ypad);
                 }
-                int x = event->motion.x - widget_x(widget) - xpad;
-                int y = event->motion.y - widget_y(widget) - ypad;
+                int x = event_mouse_x(event) - widget_x(widget) - xpad;
+                int y = event_mouse_y(event) - widget_y(widget) - ypad;
                 int deg;
                 if (math_point_edge_ellipse(x,
                                             y,
@@ -1459,7 +1459,7 @@ int widgets_event(SDL_Event *event) {
             }
         }
 
-        if (event->type == SDL_MOUSEBUTTONDOWN) {
+        if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
             widgetdata *tmp, *next;
 
             for (tmp = cur_widget[MENU_ID]; tmp; tmp = next) {
@@ -1490,11 +1490,11 @@ int widget_event_start_move(widgetdata *widget) {
         return 0;
     }
 
-    SDL_GetMouseState(&x, &y);
+    mouse_get_state(&x, &y);
     if (!widget_mouse_over(widget, x, y)) {
         x = widget_x(widget) + widget_w(widget) / 2;
         y = widget_y(widget) + widget_h(widget) / 2;
-        SDL_WarpMouse(x, y);
+        SDL_WarpMouseInWindow(ScreenWindow, (float)x, (float)y);
     }
 
     /* we know this widget owns the mouse.. */
@@ -1701,11 +1701,11 @@ static void process_widgets_rec(int draw, widgetdata *widget) {
 
                     if (widget->surface) {
                         widget_texture_create(widget);
-                        SDL_FreeSurface(widget->surface);
+                        SDL_DestroySurface(widget->surface);
                     }
 
                     texture = texture_surface(widget->texture);
-                    widget->surface = SDL_ConvertSurface(texture, texture->format, texture->flags);
+                    widget->surface = SDL_ConvertSurface(texture, texture->format);
                 }
 
                 if (widget->redraw) {

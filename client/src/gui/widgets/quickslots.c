@@ -273,14 +273,14 @@ static void list_post_column(list_struct *list, uint32_t row, uint32_t col) {
 
 /** @copydoc list_struct::row_color_func */
 static void list_row_color(list_struct *list, int row, SDL_Rect box) {
-    Uint32 color = SDL_MapRGB(list->surface->format, 25, 25, 25);
-    SDL_FillRect(list->surface, &box, color);
+    Uint32 color = pixel_format_map_rgb(list->surface->format, 25, 25, 25);
+    SDL_FillSurfaceRect(list->surface, &box, color);
     box.w = 1;
 
-    color = SDL_MapRGB(list->surface->format, 130, 130, 130);
+    color = pixel_format_map_rgb(list->surface->format, 130, 130, 130);
     for (int i = 0; i < MAX_QUICK_SLOTS; i++) {
         box.x = (INVENTORY_ICON_SIZE + 1) * i + 1;
-        SDL_FillRect(list->surface, &box, color);
+        SDL_FillSurfaceRect(list->surface, &box, color);
     }
 }
 
@@ -305,9 +305,9 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
     widget_quickslots_t *tmp = widget->subwidget;
 
     uint32_t row, col;
-    if (list_mouse_get_pos(tmp->list, event->motion.x, event->motion.y, &row, &col)) {
-        if (event->button.button == SDL_BUTTON_LEFT) {
-            if (event->type == SDL_MOUSEBUTTONUP) {
+    if (list_mouse_get_pos(tmp->list, event_mouse_x(event), event_mouse_y(event), &row, &col)) {
+        if (event_mouse_button_matches(event, SDL_BUTTON_LEFT)) {
+            if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
                 if (event_dragging_check()) {
                     if (!object_find_object_inv(cpl.ob, cpl.dragging_tag)) {
                         draw_info(COLOR_RED,
@@ -325,19 +325,23 @@ static int widget_event(widgetdata *widget, SDL_Event *event) {
                 }
 
                 return 1;
-            } else if (event->type == SDL_MOUSEBUTTONDOWN && tmp->list->text[row][col] != NULL) {
+            } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
+                       tmp->list->text[row][col] != NULL) {
                 event_dragging_start(strtoul(tmp->list->text[row][col], NULL, 10),
-                                     event->motion.x,
-                                     event->motion.y);
+                                     event_mouse_x(event),
+                                     event_mouse_y(event));
                 return 1;
             }
-        } else if (event->type == SDL_MOUSEMOTION) {
+        } else if (event->type == SDL_EVENT_MOUSE_MOTION) {
             if (tmp->list->text[row][col] != NULL) {
                 object *ob =
                     object_find_object(cpl.ob, strtoul(tmp->list->text[row][col], NULL, 10));
 
                 if (ob != NULL) {
-                    tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, ob->s_name);
+                    tooltip_create(event_mouse_x(event),
+                                   event_mouse_y(event),
+                                   FONT_ARIAL11,
+                                   ob->s_name);
                 }
             }
         }

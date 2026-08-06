@@ -53,8 +53,7 @@ set(SOURCES
 	src/gui/popups/settings.c
 	src/gui/popups/settings_client.c
 	src/gui/popups/settings_keybinding.c
-	src/gui/toolkit/SDL_gfx.c
-	src/gui/toolkit/SDL_rotozoom.c
+	src/gui/toolkit/surface_primitives.c
 	src/gui/toolkit/button.c
 	src/gui/toolkit/color_picker.c
 	src/gui/toolkit/list.c

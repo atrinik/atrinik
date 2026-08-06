@@ -211,7 +211,7 @@ typedef struct list_struct {
      * @retval 0 Did not handle the event.
      * @retval 1 Handled the event.
      */
-    int (*key_event_func)(struct list_struct *list, SDLKey key);
+    int (*key_event_func)(struct list_struct *list, SDL_Keycode key);
 
     /**
      * Hook to use for setting text color based on row/column.

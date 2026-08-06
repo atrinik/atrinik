@@ -104,7 +104,9 @@ static int popup_draw(popup_struct *popup) {
                      popup->surface->w - PREFERENCE_CONTENT_X * 2 - PREFERENCE_LIST_WIDTH -
                          PREFERENCE_CONTENT_GAP,
                      LIST_ROWS_HEIGHT(preference_list)};
-    SDL_FillRect(popup->surface, &help, SDL_MapRGB(popup->surface->format, 0x45, 0x45, 0x45));
+    SDL_FillSurfaceRect(popup->surface,
+                        &help,
+                        pixel_format_map_rgb(popup->surface->format, 0x45, 0x45, 0x45));
     draw_frame(popup->surface, help.x, help.y, help.w, help.h);
 
     box.x = help.x + 12;
@@ -142,7 +144,7 @@ static int popup_draw(popup_struct *popup) {
 static int popup_event(popup_struct *popup, SDL_Event *event) {
     (void)popup;
     if (button_event(&button_use, event) ||
-        (event->type == SDL_KEYDOWN && IS_ENTER(event->key.keysym.sym))) {
+        (event->type == SDL_EVENT_KEY_DOWN && IS_ENTER(event->key.key))) {
         preference_apply();
         return 1;
     }

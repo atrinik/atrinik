@@ -66,7 +66,7 @@ static int popup_draw(popup_struct *popup) {
 
 static int popup_event(popup_struct *popup, SDL_Event *event) {
     if (button_event(&button_connect, event) ||
-        (event->type == SDL_KEYDOWN && IS_ENTER(event->key.keysym.sym))) {
+        (event->type == SDL_EVENT_KEY_DOWN && IS_ENTER(event->key.key))) {
         if (join_password_server == NULL || password_input.str[0] == '\0') {
             return -1;
         }
@@ -85,7 +85,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event) {
     if (text_input_event(&password_input, event)) {
         return 1;
     }
-    if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT &&
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT &&
         text_input_mouse_over(&password_input, event->button.x, event->button.y)) {
         password_input.focus = 1;
         return 1;

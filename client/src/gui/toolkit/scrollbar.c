@@ -30,7 +30,7 @@
  */
 
 #include <global.h>
-#include <sdl_gfx.h>
+#include <surface_primitives.h>
 
 /** Scrollbar background color. */
 static SDL_Color scrollbar_color_bg;
@@ -77,12 +77,12 @@ static void scrollbar_element_render_background(SDL_Surface *surface,
                                                 uint8_t horizontal) {
     (void)elem;
     (void)horizontal;
-    SDL_FillRect(surface,
-                 box,
-                 SDL_MapRGB(surface->format,
-                            scrollbar_color_bg.r,
-                            scrollbar_color_bg.g,
-                            scrollbar_color_bg.b));
+    SDL_FillSurfaceRect(surface,
+                        box,
+                        pixel_format_map_rgb(surface->format,
+                                             scrollbar_color_bg.r,
+                                             scrollbar_color_bg.g,
+                                             scrollbar_color_bg.b));
     border_create_sdl_color(surface, box, 1, &scrollbar_color_fg);
 }
 
@@ -241,12 +241,12 @@ static void scrollbar_element_render_slider(SDL_Surface *surface,
                                             uint8_t horizontal) {
     (void)horizontal;
 
-    SDL_FillRect(surface,
-                 box,
-                 SDL_MapRGB(surface->format,
-                            scrollbar_color_fg.r,
-                            scrollbar_color_fg.g,
-                            scrollbar_color_fg.b));
+    SDL_FillSurfaceRect(surface,
+                        box,
+                        pixel_format_map_rgb(surface->format,
+                                             scrollbar_color_fg.r,
+                                             scrollbar_color_fg.g,
+                                             scrollbar_color_fg.b));
 
     /* If highlighted, create highlighted border around the edges of the
      * slider. */
@@ -311,7 +311,7 @@ static void scrollbar_element_render(scrollbar_struct *scrollbar,
     if (elem->highlight) {
         int mx, my;
 
-        SDL_GetMouseState(&mx, &my);
+        mouse_get_state(&mx, &my);
 
         mx -= scrollbar->px;
         my -= scrollbar->py;
@@ -381,7 +381,8 @@ static int scrollbar_click_scroll(scrollbar_struct *scrollbar, int test) {
  * 1 if the scrollbar needs redrawing, 0 otherwise.
  */
 int scrollbar_need_redraw(scrollbar_struct *scrollbar) {
-    if (scrollbar_click_scroll(scrollbar, 1) && SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT) {
+    if (scrollbar_click_scroll(scrollbar, 1) &&
+        mouse_get_state(NULL, NULL) == SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
         return 1;
     }
 
@@ -567,12 +568,12 @@ void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, in
     /* If the scroll direction is set but the left mouse button is no
      * longer being held, clear the scroll direction. */
     if (scrollbar->scroll_direction != SCROLL_DIRECTION_NONE &&
-        SDL_GetMouseState(NULL, NULL) != SDL_BUTTON_LEFT) {
+        mouse_get_state(NULL, NULL) != SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
         scrollbar->scroll_direction = SCROLL_DIRECTION_NONE;
     }
 
     /* Handle click repeating. */
-    if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT &&
+    if (mouse_get_state(NULL, NULL) == SDL_BUTTON_MASK(SDL_BUTTON_LEFT) &&
         SDL_GetTicks() - scrollbar->click_ticks > scrollbar->click_repeat_ticks) {
         if (scrollbar_click_scroll(scrollbar, 0)) {
             scrollbar->click_ticks = SDL_GetTicks();
@@ -652,10 +653,11 @@ void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, in
  * 1 if the event was handled, 0 otherwise.
  */
 int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event) {
-    if (event->type == SDL_MOUSEMOTION) {
+    if (event->type == SDL_EVENT_MOUSE_MOTION) {
         /* If dragging but the left mouse button is no longer being held,
          * quit dragging the slider. */
-        if (scrollbar->dragging && !(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_LEFT)) {
+        if (scrollbar->dragging &&
+            !(mouse_get_state(NULL, NULL) & SDL_BUTTON_MASK(SDL_BUTTON_LEFT))) {
             scrollbar->dragging = 0;
         }
 
@@ -665,7 +667,7 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event) {
             uint32_t scroll_offset;
 
             if (scrollbar->background.w > scrollbar->background.h) {
-                slider_pos = event->motion.x - scrollbar->px - scrollbar->old_slider_pos;
+                slider_pos = event_mouse_x(event) - scrollbar->px - scrollbar->old_slider_pos;
 
                 if (slider_pos > scrollbar_slider_width(scrollbar) - scrollbar->slider.w) {
                     slider_pos = scrollbar_slider_width(scrollbar) - scrollbar->slider.w;
@@ -677,7 +679,7 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event) {
                                     MAX(0, slider_pos) * *scrollbar->num_lines /
                                         scrollbar_slider_width(scrollbar));
             } else {
-                slider_pos = event->motion.y - scrollbar->py - scrollbar->old_slider_pos;
+                slider_pos = event_mouse_y(event) - scrollbar->py - scrollbar->old_slider_pos;
 
                 if (slider_pos > scrollbar_slider_height(scrollbar) - scrollbar->slider.h) {
                     slider_pos = scrollbar_slider_height(scrollbar) - scrollbar->slider.h;
@@ -702,33 +704,36 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event) {
             return 1;
         } else if (scrollbar_element_highlight_check(scrollbar,
                                                      &scrollbar->arrow_up,
-                                                     event->motion.x - scrollbar->px,
-                                                     event->motion.y - scrollbar->py)) {
+                                                     event_mouse_x(event) - scrollbar->px,
+                                                     event_mouse_y(event) - scrollbar->py)) {
             return 1;
         } else if (scrollbar_element_highlight_check(scrollbar,
                                                      &scrollbar->arrow_down,
-                                                     event->motion.x - scrollbar->px,
-                                                     event->motion.y - scrollbar->py)) {
+                                                     event_mouse_x(event) - scrollbar->px,
+                                                     event_mouse_y(event) - scrollbar->py)) {
             return 1;
         } else if (scrollbar_element_highlight_check(scrollbar,
                                                      &scrollbar->slider,
-                                                     event->motion.x - scrollbar->px,
-                                                     event->motion.y - scrollbar->py)) {
+                                                     event_mouse_x(event) - scrollbar->px,
+                                                     event_mouse_y(event) - scrollbar->py)) {
             return 1;
         } else if (scrollbar_element_highlight_check(scrollbar,
                                                      &scrollbar->background,
-                                                     event->motion.x - scrollbar->px,
-                                                     event->motion.y - scrollbar->py)) {
+                                                     event_mouse_x(event) - scrollbar->px,
+                                                     event_mouse_y(event) - scrollbar->py)) {
             return 1;
         }
-    } else if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
+    } else if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
+               event->button.button == SDL_BUTTON_LEFT) {
         /* Start dragging the slider. */
         if (scrollbar->slider.highlight) {
             if (scrollbar->background.w > scrollbar->background.h) {
-                scrollbar->old_slider_pos = event->motion.x - scrollbar->px - scrollbar->slider.x +
+                scrollbar->old_slider_pos = event_mouse_x(event) - scrollbar->px -
+                                            scrollbar->slider.x +
                                             scrollbar_slider_startx(scrollbar);
             } else {
-                scrollbar->old_slider_pos = event->motion.y - scrollbar->py - scrollbar->slider.y +
+                scrollbar->old_slider_pos = event_mouse_y(event) - scrollbar->py -
+                                            scrollbar->slider.y +
                                             scrollbar_slider_starty(scrollbar);
             }
 
@@ -738,16 +743,16 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event) {
             /* Set scroll direction if clicked on the background. */
 
             if (scrollbar->background.w > scrollbar->background.h) {
-                if (event->motion.x - scrollbar->px < scrollbar->x + scrollbar->slider.x) {
+                if (event_mouse_x(event) - scrollbar->px < scrollbar->x + scrollbar->slider.x) {
                     scrollbar->scroll_direction = SCROLL_DIRECTION_UP;
-                } else if (event->motion.x - scrollbar->px >
+                } else if (event_mouse_x(event) - scrollbar->px >
                            scrollbar->x + scrollbar->slider.x + scrollbar->slider.w) {
                     scrollbar->scroll_direction = SCROLL_DIRECTION_DOWN;
                 }
             } else {
-                if (event->motion.y - scrollbar->py < scrollbar->y + scrollbar->slider.y) {
+                if (event_mouse_y(event) - scrollbar->py < scrollbar->y + scrollbar->slider.y) {
                     scrollbar->scroll_direction = SCROLL_DIRECTION_UP;
-                } else if (event->motion.y - scrollbar->py >
+                } else if (event_mouse_y(event) - scrollbar->py >
                            scrollbar->y + scrollbar->slider.y + scrollbar->slider.h) {
                     scrollbar->scroll_direction = SCROLL_DIRECTION_DOWN;
                 }

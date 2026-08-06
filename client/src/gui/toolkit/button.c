@@ -123,9 +123,10 @@ int button_need_redraw(button_struct *button) {
     ret = 0;
 
     if (button->mouse_over || button->pressed) {
-        int state, mx, my, mover;
+        SDL_MouseButtonFlags state;
+        int mx, my, mover;
 
-        state = SDL_GetMouseState(&mx, &my);
+        state = mouse_get_state(&mx, &my);
         mover = BUTTON_MOUSE_OVER(button, mx, my, texture_surface(button->texture));
 
         if (button->mouse_over && !mover) {
@@ -133,7 +134,8 @@ int button_need_redraw(button_struct *button) {
             ret = 1;
         }
 
-        if (button->pressed && !button->pressed_forced && (!mover || state != SDL_BUTTON_LEFT)) {
+        if (button->pressed && !button->pressed_forced &&
+            (!mover || state != SDL_BUTTON_MASK(SDL_BUTTON_LEFT))) {
             button->pressed = 0;
             ret = 1;
         }
@@ -222,13 +224,13 @@ int button_event(button_struct *button, SDL_Event *event) {
     SDL_Surface *texture;
     int old_mouse_over;
 
-    if (event->type != SDL_MOUSEBUTTONUP && event->type != SDL_MOUSEBUTTONDOWN &&
-        event->type != SDL_MOUSEMOTION) {
+    if (event->type != SDL_EVENT_MOUSE_BUTTON_UP && event->type != SDL_EVENT_MOUSE_BUTTON_DOWN &&
+        event->type != SDL_EVENT_MOUSE_MOTION) {
         return 0;
     }
 
     /* Mouse button is released, the button is no longer being pressed. */
-    if (event->type == SDL_MOUSEBUTTONUP) {
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_UP) {
         button->pressed = 0;
         button->redraw = 1;
         return 0;
@@ -245,13 +247,13 @@ int button_event(button_struct *button, SDL_Event *event) {
 
     texture = texture_surface(button_determine_texture(button));
 
-    if (BUTTON_MOUSE_OVER(button, event->motion.x, event->motion.y, texture)) {
-        if (event->type == SDL_MOUSEMOTION) {
+    if (BUTTON_MOUSE_OVER(button, event_mouse_x(event), event_mouse_y(event), texture)) {
+        if (event->type == SDL_EVENT_MOUSE_MOTION) {
             cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_pointer");
         }
 
         /* Left mouse click, the button has been pressed. */
-        if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
+        if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT) {
             button->pressed = 1;
             button->pressed_ticks = SDL_GetTicks();
             button->pressed_repeat_ticks = 750;

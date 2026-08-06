@@ -59,18 +59,22 @@ typedef struct text_input_struct {
      */
     char str_editing[HUGE_BUF];
 
+    /** Active IME composition, rendered at the cursor until committed. */
+    char composition[HUGE_BUF];
+
     /**
      * Position of the cursor in the input string.
      */
     size_t pos;
 
     /**
-     * Number of charactes in the input string.
+     * Number of bytes in the UTF-8 input string.
      */
     size_t num;
 
     /**
-     * Maximum number of allowed characters in the input string.
+     * Maximum number of allowed content bytes, excluding the terminating null
+     * byte.
      */
     size_t max;
 
