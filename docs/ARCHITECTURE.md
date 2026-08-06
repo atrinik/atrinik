@@ -103,4 +103,7 @@ parser: `fix` and other recognized work produce a patch, `feat` produces a
 minor, and a breaking change produces a major. The catch-all patch rule ensures
 every accepted squash commit produces a release. Releases attach the exact
 component manifest and its SHA-256 checksum; component artifacts remain owned
-by their respective repositories.
+by their respective repositories. The same workflow has a no-input manual
+dispatch trigger for recovering a missed or interrupted Actions run; semantic-
+release remains responsible for selecting the unreleased commit range and next
+version.

@@ -92,6 +92,9 @@ directory outside the coordinator's locking model.
   changes are major, `feat` is minor, and other accepted squash commits are
   patch releases. Keep the catch-all patch rule below explicit major and minor
   rules so every squash commit releases without downgrading them.
+- Keep release workflows manually dispatchable without alternate version
+  inputs. After an Actions outage, rerun a failed release run or dispatch the
+  standard semantic-release workflow; do not create tags by hand.
 - Apply repository-policy, workflow, required-check, permission, or release
   changes using the Atrinik GitHub-governance instructions. Update
   `atrinik/github-settings` whenever desired organization state changes.
