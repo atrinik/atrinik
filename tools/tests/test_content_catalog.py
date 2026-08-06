@@ -38,6 +38,10 @@ end
 Object skill_literacy
 type 43
 end
+Object sample_monster_variant
+type 80
+race sample_family
+end
 Object multipart_head
 type 1
 end
@@ -133,6 +137,7 @@ end
         self.assertIn(ContentId("artifact", "special_item"), ids)
         self.assertIn(ContentId("spell", "spell_minor_healing"), ids)
         self.assertIn(ContentId("skill", "skill_literacy"), ids)
+        self.assertIn(ContentId("archetype", "sample_monster_variant"), ids)
         self.assertIn(ContentId("quest", "sample_quest"), ids)
         self.assertIn(
             ContentId("quest-part", "sample_quest::first_part::nested_part"), ids
@@ -217,6 +222,34 @@ end
         }
 
         self.assertEqual(first_ids, second_ids)
+
+    def test_runtime_table_display_names_do_not_own_spell_or_skill_ids(self):
+        self.create_valid_tree()
+        self.write(
+            "server/src/include/spellist.h",
+            '    {"spell_minor_healing",\n     "Translated Spell Name",\n',
+        )
+        self.write(
+            "server/src/include/skillist.h",
+            '    {"skill_literacy", "Translated Skill Name", NULL, 0},\n',
+        )
+
+        catalog = load_catalog(self.root)
+
+        self.assertFalse(catalog.has_errors, [item.format() for item in catalog.diagnostics])
+        runtime_fields = {reference.field for reference in catalog.references}
+        self.assertIn("spell table id", runtime_fields)
+        self.assertIn("skill table id", runtime_fields)
+
+        spell_table = self.root / "server/src/include/spellist.h"
+        spell_table.write_text(
+            '    {"spell_missing",\n     "Translated Spell Name",\n',
+            encoding="utf-8",
+        )
+        catalog = load_catalog(self.root)
+        self.assertIn(
+            "missing-reference", {item.code for item in catalog.diagnostics}
+        )
 
 
 if __name__ == "__main__":

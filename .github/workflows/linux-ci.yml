@@ -73,7 +73,7 @@ jobs:
               client/*)
                 client=true
                 ;;
-              arch/*|maps/*|server/*|Dockerfile.server|generate-region-maps.sh|tools/collect.py|tools/utils.py|tools/compilers/*)
+              arch/*|maps/*|server/*|Dockerfile.server|generate-region-maps.sh|tools/collect.py|tools/utils.py|tools/compilers/*|tools/content_catalog/*|tools/map-checker-qt/*|tools/tests/test_content_catalog.py)
                 server=true
                 ;;
               .devcontainer/*|.github/workflows/linux-ci.yml|.github/workflows/release.yml|CMakeLists.txt|CMakePresets.json|build.config|build.sh|build-windows.sh|cmake/*|common/*|compose.windows.yaml|tests/*)

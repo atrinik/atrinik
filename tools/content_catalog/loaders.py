@@ -104,6 +104,57 @@ def _load_archetypes(catalog: ContentCatalog, arch_root: Path) -> None:
                 current_type = None
 
 
+def _load_runtime_identity_tables(catalog: ContentCatalog, server_root: Path) -> None:
+    """Validate explicit stable IDs used by process-local C lookup tables."""
+
+    table_specs = (
+        (server_root / "src/include/spellist.h", "spell", "spell table id"),
+        (server_root / "src/include/skillist.h", "skill", "skill table id"),
+    )
+    for path, domain, field in table_specs:
+        if not path.is_file():
+            continue
+        seen: Dict[str, SourceLocation] = {}
+        with path.open(encoding="utf-8") as source:
+            for line_number, line in enumerate(source, 1):
+                for match in re.finditer(r'\{"((?:spell|skill)_[a-z0-9_]+)"\s*,', line):
+                    key = match.group(1)
+                    location = catalog.location(path, line_number, match.start(1) + 1)
+                    previous = seen.get(key)
+                    if previous is not None:
+                        catalog.add_diagnostic(
+                            "duplicate-runtime-id",
+                            "duplicate {} {}; first declared at {}".format(
+                                domain, key, previous.display()
+                            ),
+                            location,
+                            related=previous,
+                        )
+                        continue
+                    seen[key] = location
+                    # Some legacy skill enum slots do not have an obtainable
+                    # skill archetype. Existing authored skills must map to
+                    # stable table IDs; unused slots remain process-local.
+                    if domain == "spell" or any(
+                        definition.content_id == ContentId(domain, key)
+                        for definition in catalog.definitions
+                    ):
+                        catalog.add_reference(key, (domain,), location, field)
+
+        table_ids = set(seen)
+        for definition in catalog.definitions:
+            if definition.content_id.domain != domain:
+                continue
+            if definition.content_id.key not in table_ids:
+                catalog.add_diagnostic(
+                    "missing-runtime-id",
+                    "{} {} has no stable entry in {}".format(
+                        domain, definition.content_id.key, path.name
+                    ),
+                    definition.location,
+                )
+
+
 def _load_artifacts(catalog: ContentCatalog, roots: Sequence[Path]) -> None:
     for root in roots:
         if not root.is_dir():
@@ -429,6 +480,7 @@ def load_catalog(root: Path) -> ContentCatalog:
     arch_root = root / "arch"
     maps_root = root / "maps"
     _load_archetypes(catalog, arch_root)
+    _load_runtime_identity_tables(catalog, root / "server")
     _load_artifacts(catalog, (arch_root, maps_root))
     _load_treasures(catalog, (arch_root, maps_root))
     _load_factions(catalog, maps_root)

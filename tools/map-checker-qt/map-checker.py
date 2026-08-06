@@ -11,6 +11,13 @@ import sys
 from threading import Thread
 import logging
 import logging.handlers
+from pathlib import Path
+
+TOOLS_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+if TOOLS_PATH not in sys.path:
+    sys.path.insert(0, TOOLS_PATH)
+
+from content_catalog import load_catalog
 
 from system.checker import CheckerMap, CheckerObject, CheckerArchetype, \
     AbstractChecker
@@ -88,6 +95,7 @@ class MapChecker:
         self.checker_map.set_map_checker(self)
 
         self.info_add_fnc = None
+        self.last_scan_valid = True
         self._thread = None
 
         self.queue = queue.Queue()
@@ -95,6 +103,30 @@ class MapChecker:
         self._thread_running = False
         self._scan_status = ""
         self._scan_progress = 0
+
+    def validate_content_catalog(self):
+        """Run the repository-wide identity validator used by collection."""
+        source_root = Path(self.get_maps_path()).resolve().parent
+        catalog = load_catalog(source_root)
+        for diagnostic in catalog.diagnostics:
+            self.queue.put({
+                "file": {
+                    "name": diagnostic.location.path,
+                    "path": diagnostic.location.path,
+                    "is_map": diagnostic.location.path.startswith("maps/"),
+                },
+                "severity": ("critical" if diagnostic.severity == "error"
+                             else "warning"),
+                "description": "{}: {}".format(diagnostic.code,
+                                                  diagnostic.message),
+                "explanation": (
+                    "Content identity validation failed at line {}, column "
+                    "{}.".format(diagnostic.location.line,
+                                  diagnostic.location.column)
+                ),
+                "loc": None,
+            })
+        return not catalog.has_errors
 
     @property
     def collections(self):
@@ -165,6 +197,10 @@ class MapChecker:
             path = self.get_maps_path()
 
         self._scan_progress = 0
+        self._scan_status = "Validating content identities..."
+        self.last_scan_valid = self.validate_content_catalog()
+        if not self.last_scan_valid:
+            return
 
         if not files:
             # First scan for possible map files.
@@ -403,7 +439,7 @@ def main():
     else:
         map_checker.scan(path=path, files=files, fix=fix,
                          threading=False, real_map_path=real_map_path)
-        ret = 0
+        ret = 0 if map_checker.last_scan_valid else 1
 
         while map_checker.queue.qsize():
             try:
