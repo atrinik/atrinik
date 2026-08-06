@@ -132,7 +132,7 @@ static bool socket_quic_generate_identity(SSL_CTX *ctx, const char *identity_pat
         return false;
     }
 
-    X509_NAME *name = X509_get_subject_name(cert);
+    X509_NAME *name = X509_NAME_new();
     bool ok = name != NULL &&
               X509_NAME_add_entry_by_txt(name,
                                          "CN",
@@ -141,10 +141,11 @@ static bool socket_quic_generate_identity(SSL_CTX *ctx, const char *identity_pat
                                          -1,
                                          -1,
                                          0) == 1 &&
-              X509_set_issuer_name(cert, name) == 1 && X509_sign(cert, key, EVP_sha256()) > 0 &&
-              socket_quic_use_identity(ctx, cert, key) &&
+              X509_set_subject_name(cert, name) == 1 && X509_set_issuer_name(cert, name) == 1 &&
+              X509_sign(cert, key, EVP_sha256()) > 0 && socket_quic_use_identity(ctx, cert, key) &&
               socket_quic_save_identity(identity_path, cert, key);
 
+    X509_NAME_free(name);
     EVP_PKEY_free(key);
     X509_free(cert);
     return ok;
