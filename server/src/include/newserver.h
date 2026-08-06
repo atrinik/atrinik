@@ -32,6 +32,10 @@
 #define NEWSERVER_H
 
 #include "map.h"
+#include "server_clock.h"
+
+/** Maximum time a connection may remain in the pre-login state. */
+#define SOCKET_PRELOGIN_TIMEOUT 30
 
 /** How many items to show in the below window. Used in esrv_draw_look(). */
 #define NUM_LOOK_OBJECTS 15
@@ -139,8 +143,8 @@ typedef struct socket_struct {
      */
     int login_count;
 
-    /** Wall-clock admission time used by the pre-login deadline. */
-    time_t accepted_at;
+    /** Monotonic pre-login deadline. Never persisted or sent to clients. */
+    server_monotonic_t prelogin_deadline;
 
     /** X size of the map the client wants. */
     int mapx;

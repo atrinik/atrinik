@@ -13,6 +13,7 @@ set(ATRINIK_SERVER_TEST_SUITES
     "server.re_cmp|check_server_re_cmp|src/tests/unit/server/re_cmp.c"
     "server.request|check_server_request|src/tests/unit/server/request.c"
     "server.rune|check_server_rune|src/tests/unit/server/rune.c"
+    "server.server_clock|check_server_server_clock|src/tests/unit/server/server_clock.c"
     "server.shop|check_server_shop|src/tests/unit/server/shop.c"
     "toolkit.math|check_server_math|src/tests/unit/toolkit/math.c"
     "toolkit.memory|check_server_memory|src/tests/unit/toolkit/memory.c"

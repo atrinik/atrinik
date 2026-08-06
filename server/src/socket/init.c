@@ -58,7 +58,8 @@ bool init_connection(socket_struct *ns) {
     }
 
     ns->login_count = 0;
-    ns->accepted_at = time(NULL);
+    ns->prelogin_deadline =
+        server_monotonic_deadline_after(server_duration_from_seconds(SOCKET_PRELOGIN_TIMEOUT));
     ns->keepalive = 0;
     ns->addme = 0;
     ns->faceset = 0;
@@ -81,6 +82,12 @@ bool init_connection(socket_struct *ns) {
     ns->packets = NULL;
 
     return true;
+}
+
+bool socket_prelogin_expired(const socket_struct *ns) {
+    HARD_ASSERT(ns != NULL);
+    return server_monotonic_is_set(ns->prelogin_deadline) &&
+           server_monotonic_expired(ns->prelogin_deadline);
 }
 
 /**
