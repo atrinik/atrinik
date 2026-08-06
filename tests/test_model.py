@@ -12,6 +12,7 @@ from atrinik_workspace.model import (
     Paths,
     WorkspaceError,
     atomic_json,
+    managed_directory,
     managed_reset,
     profile_key,
 )
@@ -25,7 +26,7 @@ class ManifestTests(unittest.TestCase):
 
     def valid_components(self) -> list[dict[str, str]]:
         return [
-            {"name": name, "repository": f"atrinik/{name}", "branch": "master", "build": build}
+            {"name": name, "repository": f"atrinik/{name}", "branch": "main", "build": build}
             for name, build in (
                 ("client", "client"),
                 ("server", "server"),
@@ -141,6 +142,21 @@ class PathSafetyTests(unittest.TestCase):
             with self.assertRaisesRegex(WorkspaceError, "unmanaged build path"):
                 managed_reset(target, builds, "test")
             self.assertTrue((target / "valuable").is_file())
+
+    def test_managed_reset_refuses_symlinked_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            builds = Path(temporary) / "build"
+            real = builds / "real"
+            target = builds / "profile"
+            managed_directory(real, builds, "test")
+            target.symlink_to(real, target_is_directory=True)
+
+            with self.assertRaisesRegex(
+                WorkspaceError, "symlinked managed build path"
+            ):
+                managed_reset(target, builds, "test")
+
+            self.assertTrue(real.is_dir())
 
     def test_refuses_malformed_workspace_marker(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

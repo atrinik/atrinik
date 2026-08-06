@@ -82,6 +82,46 @@ def parser() -> argparse.ArgumentParser:
     build.add_argument("--profile", default="default")
     build.add_argument("--test", action="store_true")
 
+    topology = commands.add_parser(
+        "topology", help="inspect a resolved multi-component topology"
+    )
+    topology_commands = topology.add_subparsers(
+        dest="topology_command", required=True
+    )
+    topology_show = topology_commands.add_parser("show")
+    topology_show.add_argument("profile", nargs="?", default="default")
+    topology_show.add_argument("--state", default="default")
+    topology_show.add_argument(
+        "--service", choices=["server", "client"], action="append"
+    )
+    topology_show.add_argument("--json", action="store_true")
+
+    up = commands.add_parser("up", help="build and start a supervised topology")
+    up.add_argument("--name")
+    up.add_argument("--profile", default="default")
+    up.add_argument("--state", default="default")
+    up.add_argument(
+        "--port",
+        type=int,
+        help="server UDP port (default: choose an available port)",
+    )
+    up.add_argument("--service", choices=["server", "client"], action="append")
+    up.add_argument("--json", action="store_true")
+
+    ps = commands.add_parser("ps", help="show supervised topology processes")
+    ps.add_argument("name", nargs="?")
+    ps.add_argument("--json", action="store_true")
+
+    logs = commands.add_parser("logs", help="show supervised topology logs")
+    logs.add_argument("name", nargs="?", default="default")
+    logs.add_argument("service", nargs="?", choices=["server", "client"])
+    logs.add_argument("--tail", type=int, default=100)
+    logs.add_argument("--follow", "-f", action="store_true")
+
+    down = commands.add_parser("down", help="stop a supervised topology")
+    down.add_argument("name", nargs="?", default="default")
+    down.add_argument("--json", action="store_true")
+
     state = commands.add_parser("state", help="register persistent server state")
     state_commands = state.add_subparsers(dest="state_command", required=True)
     state_add = state_commands.add_parser("add")
@@ -210,6 +250,83 @@ def main(arguments: list[str] | None = None) -> int:
             print(workspace.component_path(options.component, options.profile))
         elif options.command == "build":
             print(workspace.build(options.target, options.profile, options.test))
+        elif options.command == "topology":
+            summary = workspace.topology_summary(
+                options.profile, options.state, options.service
+            )
+            if options.json:
+                print(json.dumps(summary, indent=2, sort_keys=True))
+            else:
+                print(f"profile\t{summary['profile']}")
+                print(f"services\t{','.join(summary['services'])}")
+                print(f"dependencies\t{','.join(summary['dependencies'])}")
+                print(f"state\t{summary['state'] or '-'}")
+                print(f"build\t{summary['build_root']}")
+                for component, row in summary["components"].items():
+                    cleanliness = "dirty" if row["dirty"] else "clean"
+                    print(
+                        f"{component}\t{row['head'][:12]}\t{cleanliness}\t"
+                        f"{row['path']}"
+                    )
+        elif options.command == "up":
+            name = options.name or options.profile
+            status = workspace.topology_up(
+                name, options.profile, options.state, options.service, options.port
+            )
+            if options.json:
+                print(json.dumps(status, indent=2, sort_keys=True))
+            else:
+                endpoint = status.get("endpoint")
+                suffix = (
+                    f" at {endpoint['host']}:{endpoint['port']}"
+                    if endpoint
+                    else ""
+                )
+                print(f"topology {name}: started{suffix}")
+        elif options.command == "ps":
+            statuses = (
+                [workspace.topology_status(options.name)]
+                if options.name
+                else workspace.topology_statuses()
+            )
+            if options.json:
+                value = statuses[0] if options.name else statuses
+                print(json.dumps(value, indent=2, sort_keys=True))
+            else:
+                for index, status in enumerate(statuses):
+                    if len(statuses) > 1:
+                        if index:
+                            print()
+                        print(f"==> {status['name']} <==")
+                    supervisor = status["supervisor"]
+                    supervisor_state = (
+                        "running" if supervisor["running"] else "stopped"
+                    )
+                    print(
+                        f"supervisor\t{supervisor_state}\t{supervisor['pid']}\t"
+                        f"{status['profile']}"
+                    )
+                    if status["endpoint"]:
+                        endpoint = status["endpoint"]
+                        print(
+                            f"endpoint\t{endpoint['host']}:{endpoint['port']}\t"
+                            f"{endpoint['fingerprint']}"
+                        )
+                    for service, row in status["services"].items():
+                        print(
+                            f"{service}\t{row['status']}\t{row['pid']}\t"
+                            f"{row['log']}"
+                        )
+        elif options.command == "logs":
+            workspace.topology_logs(
+                options.name, options.service, options.tail, options.follow
+            )
+        elif options.command == "down":
+            status = workspace.topology_down(options.name)
+            if options.json:
+                print(json.dumps(status, indent=2, sort_keys=True))
+            else:
+                print(f"topology {options.name}: stopped")
         elif options.command == "state":
             if options.state_command == "add":
                 workspace.state_add(options.name, options.path)

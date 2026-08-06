@@ -73,6 +73,12 @@ manually copy dependencies between repositories. Build a single dependency
 closure with `./atrinik build COMPONENT --profile REVIEW --test` when a full
 system build is unnecessary.
 
+The resources repository owns its runtime distribution boundary in
+`runtime-paths.txt`. Add a new tracked asset collection to that allowlist in
+the same resources change; do not stage repository-wide files or alter the
+wrapper to special-case individual metadata filenames. The coordinator serves
+only tracked regular files selected by the manifest.
+
 For runtime testing, register persistent server state once and reuse it across
 profiles:
 
@@ -86,6 +92,26 @@ profiles:
 Remove `--dry-run` only when an actual launch is intended. Verify display
 forwarding before opening the client. Do not run two servers against one state
 directory outside the coordinator's locking model.
+
+For a persistent client/server review session, treat the profile as a source
+topology and use the supervised lifecycle:
+
+```sh
+./atrinik topology show REVIEW --json
+./atrinik up --name RUNTIME --profile REVIEW --state NAME [--port UDP_PORT]
+./atrinik ps [RUNTIME] --json
+./atrinik logs RUNTIME server --follow
+./atrinik down RUNTIME
+```
+
+Select one service with `up --service server` or `--service client`. Use a
+distinct `--name` and state for every concurrent server topology; omit `--port`
+for automatic allocation or choose a distinct explicit port. The supervisor
+waits for completed server initialization and its fingerprint, pins the paired
+client to it, and isolates each runtime's client configuration. Do not signal
+recorded PIDs directly or tail internal files by reconstructed paths: the
+coordinator verifies process start identity, rotates logs, performs graceful
+shutdown, and holds the server-state lock through its supervisor.
 
 ## Coordinate releases and GitHub changes
 

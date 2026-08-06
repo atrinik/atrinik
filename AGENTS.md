@@ -11,6 +11,13 @@
   external path.
 - Never replace a dirty checkout, remove a dirty worktree, or overwrite an
   existing mutable server-data directory.
+- Use profiles to declare mixed component sources. Use `topology show` to audit
+  their exact resolution and `up`/`ps`/`logs`/`down` for persistent supervised
+  client/server testing; do not reconstruct internal build, runtime, PID, log,
+  or state-lock paths in ad hoc scripts.
+- Give concurrent topologies distinct names and server states. Let `up` choose
+  ports or assign distinct `--port` values; do not manually assemble a client
+  endpoint or share client configuration directories between topology names.
 - Use precise component and protocol names; do not use vague age-based labels.
 - Do not mention confidential or unreleased Atrinik work in committed files or
   public project surfaces.

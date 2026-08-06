@@ -15,10 +15,10 @@ class ParserTests(unittest.TestCase):
             {
                 "component": "client",
                 "repository": "atrinik/client",
-                "default_branch": "master",
+                "default_branch": "main",
                 "path": "/workspace/repos/client",
                 "initialized": True,
-                "branch": "master",
+                "branch": "main",
                 "head": "0123456789ab",
                 "dirty": False,
                 "remote": "origin",
@@ -78,6 +78,71 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(options.state, "shared")
         self.assertTrue(options.dry_run)
         self.assertEqual(options.arguments, ["--", "--version"])
+
+    def test_up_defaults_runtime_name_to_profile(self) -> None:
+        status = {
+            "supervisor": {"running": True},
+            "endpoint": {
+                "host": "127.0.0.1",
+                "port": 17300,
+                "fingerprint": "a" * 64,
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.topology_up.return_value = status
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "up",
+                        "--profile",
+                        "review",
+                        "--state",
+                        "shared",
+                        "--service",
+                        "server",
+                        "--port",
+                        "17300",
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.topology_up.assert_called_once_with(
+            "review", "review", "shared", ["server"], 17300
+        )
+        output.assert_called_once_with("topology review: started at 127.0.0.1:17300")
+
+    def test_topology_show_supports_json(self) -> None:
+        summary = {
+            "profile": "review",
+            "services": ["server"],
+            "dependencies": ["server"],
+            "state": "/state",
+            "build_root": "/build",
+            "components": {},
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.topology_summary.return_value = summary
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    ["topology", "show", "review", "--service", "server", "--json"]
+                )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.topology_summary.assert_called_once_with(
+            "review", "default", ["server"]
+        )
+        self.assertEqual(json.loads(output.call_args.args[0]), summary)
+
+    def test_ps_without_name_lists_all_topologies_as_json(self) -> None:
+        statuses = [{"name": "baseline"}, {"name": "candidate"}]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.topology_statuses.return_value = statuses
+            with mock.patch("builtins.print") as output:
+                result = main(["ps", "--json"])
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.topology_statuses.assert_called_once_with()
+        self.assertEqual(json.loads(output.call_args.args[0]), statuses)
 
     def test_relative_external_profile_path_is_not_silently_absolutized(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:

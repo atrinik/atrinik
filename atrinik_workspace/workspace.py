@@ -1,16 +1,22 @@
 from __future__ import annotations
 
+from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 import fcntl
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import re
 import shlex
 import shutil
+import signal
+import socket
+import stat
 import subprocess
 import sys
 import tempfile
-from typing import Any, Iterator
+import time
+from typing import Any, Iterator, TextIO
 
 from .model import (
     MANAGED_MARKER,
@@ -27,6 +33,7 @@ from .model import (
     require_keys,
     validate_name,
 )
+from .supervisor import process_matches
 
 
 PROFILE_KEYS = {"schema_version", "name", "components"}
@@ -58,6 +65,8 @@ TARGET_DEPENDENCIES = {
 PREFERRED_BUILD_COMPONENTS = set().union(
     *(TARGET_DEPENDENCIES[target] for target in ALL_BUILD_TARGETS)
 )
+TOPOLOGY_SERVICES = ("server", "client")
+RESOURCE_PATHS_MANIFEST = "runtime-paths.txt"
 
 
 def display_arguments(arguments: list[str]) -> str:
@@ -84,6 +93,7 @@ def run(
     capture: bool = False,
     env: dict[str, str] | None = None,
     trace: bool = True,
+    diagnostics_to_stderr: bool = True,
 ) -> str:
     if trace:
         print(f"+ {display_arguments(arguments)}", file=sys.stderr)
@@ -95,6 +105,7 @@ def run(
             text=True,
             capture_output=capture,
             env=env,
+            stdout=sys.stderr if diagnostics_to_stderr and not capture else None,
         )
     except FileNotFoundError as error:
         raise WorkspaceError(f"required command not found: {arguments[0]}") from error
@@ -111,6 +122,21 @@ def git(
     path: Path, *arguments: str, capture: bool = False, trace: bool = True
 ) -> str:
     return run(["git", "-C", str(path), *arguments], capture=capture, trace=trace)
+
+
+def replace_directory(output: Path, staging: Path, backup_prefix: str) -> None:
+    if output.exists():
+        backup = Path(tempfile.mkdtemp(prefix=backup_prefix, dir=output.parent))
+        backup.rmdir()
+        output.replace(backup)
+        try:
+            staging.replace(output)
+        except BaseException:
+            backup.replace(output)
+            raise
+        shutil.rmtree(backup)
+    else:
+        staging.replace(output)
 
 
 def _remote_matches(url: str, repository: str) -> bool:
@@ -155,16 +181,37 @@ def _worktree_records(
     return records
 
 
+def open_regular_file(
+    path: Path, flags: int, description: str, mode: int = 0o600
+) -> int:
+    flags |= os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        descriptor = os.open(path, flags, mode)
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            os.close(descriptor)
+            raise WorkspaceError(f"{description} is not a regular file: {path}")
+        return descriptor
+    except OSError as error:
+        raise WorkspaceError(f"cannot open {description} {path}: {error}") from error
+
+
 @contextmanager
-def exclusive_lock(path: Path, description: str, nonblocking: bool = False) -> Iterator[None]:
+def exclusive_lock(
+    path: Path, description: str, nonblocking: bool = False
+) -> Iterator[TextIO]:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a+") as lock:
+    descriptor = open_regular_file(
+        path, os.O_RDWR | os.O_CREAT, f"{description} lock"
+    )
+    with os.fdopen(descriptor, "a+") as lock:
         operation = fcntl.LOCK_EX | (fcntl.LOCK_NB if nonblocking else 0)
         try:
             fcntl.flock(lock, operation)
         except BlockingIOError as error:
             raise WorkspaceError(f"{description} is already in use") from error
-        yield
+        yield lock
 
 
 class Workspace:
@@ -738,36 +785,114 @@ class Workspace:
             if staging.exists():
                 shutil.rmtree(staging)
             raise
-        if output.exists():
-            backup = Path(tempfile.mkdtemp(prefix=".content-previous-", dir=output.parent))
-            backup.rmdir()
-            output.replace(backup)
-            try:
-                staging.replace(output)
-            except BaseException:
-                backup.replace(output)
-                raise
-            shutil.rmtree(backup)
-        else:
-            staging.replace(output)
+        replace_directory(output, staging, ".content-previous-")
         return output
 
     def _stage_resources(self, root: Path, selected: dict[str, Path]) -> Path:
         output = root / "runtime" / "resources"
         source = selected["resources"]
-        managed_reset(output, self.paths.builds, "resource-view")
-        for entry in source.iterdir():
-            if entry.name in {".git", MANAGED_MARKER, ".atrinik-dependency.json"}:
-                continue
-            (output / entry.name).symlink_to(entry, target_is_directory=entry.is_dir())
-        atomic_json(
-            output / ".atrinik-dependency.json",
-            {
-                "schema_version": SCHEMA_VERSION,
-                "workspace_source": str(source),
-                "commit": git(source, "rev-parse", "HEAD", capture=True),
-            },
-        )
+        output.parent.mkdir(parents=True, exist_ok=True)
+        if output.exists() or output.is_symlink():
+            managed_directory(output, self.paths.builds, "resource-view")
+        manifest = source / RESOURCE_PATHS_MANIFEST
+        try:
+            lines = manifest.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeError) as error:
+            raise WorkspaceError(
+                f"cannot read resource runtime manifest: {manifest}: {error}"
+            ) from error
+        if not lines:
+            raise WorkspaceError(f"resource runtime manifest is empty: {manifest}")
+        runtime_paths: list[str] = []
+        for line in lines:
+            path = PurePosixPath(line)
+            if (
+                not line
+                or path.is_absolute()
+                or line != path.as_posix()
+                or any(part in {"", ".", ".."} for part in path.parts)
+                or line in runtime_paths
+            ):
+                raise WorkspaceError(
+                    f"invalid resource runtime path in {manifest}: {line!r}"
+                )
+            runtime_paths.append(line)
+
+        try:
+            result = subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(source),
+                    "ls-files",
+                    "-z",
+                    "--cached",
+                    "--",
+                    *runtime_paths,
+                ],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+        except FileNotFoundError as error:
+            raise WorkspaceError("required command not found: git") from error
+        except subprocess.CalledProcessError as error:
+            detail = error.stderr.decode("utf-8", errors="replace").strip()
+            suffix = f": {detail}" if detail else ""
+            raise WorkspaceError(f"cannot list tracked runtime resources{suffix}") from error
+
+        try:
+            tracked = [
+                item.decode("utf-8")
+                for item in result.stdout.split(b"\0")
+                if item
+            ]
+        except UnicodeDecodeError as error:
+            raise WorkspaceError("runtime resource paths must use UTF-8 names") from error
+        if not tracked:
+            raise WorkspaceError(
+                f"resource runtime manifest selects no tracked files: {manifest}"
+            )
+        staging = Path(tempfile.mkdtemp(prefix=".resources-", dir=output.parent))
+        selected_roots = tuple(PurePosixPath(path) for path in runtime_paths)
+        try:
+            atomic_json(
+                staging / MANAGED_MARKER,
+                {"schema_version": SCHEMA_VERSION, "purpose": "resource-view"},
+            )
+            for relative in tracked:
+                path = PurePosixPath(relative)
+                if not any(
+                    path == root_path or root_path in path.parents
+                    for root_path in selected_roots
+                ):
+                    raise WorkspaceError(
+                        f"Git returned an unexpected resource path: {relative}"
+                    )
+                source_path = source.joinpath(*path.parts)
+                try:
+                    mode = source_path.lstat().st_mode
+                except FileNotFoundError:
+                    continue
+                if not stat.S_ISREG(mode):
+                    raise WorkspaceError(
+                        f"tracked runtime resource is not a regular file: {source_path}"
+                    )
+                destination = staging.joinpath(*path.parts)
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source_path, destination, follow_symlinks=False)
+            atomic_json(
+                staging / ".atrinik-dependency.json",
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "workspace_source": str(source),
+                    "commit": git(source, "rev-parse", "HEAD", capture=True),
+                },
+            )
+        except BaseException:
+            shutil.rmtree(staging)
+            raise
+        replace_directory(output, staging, ".resources-previous-")
         return output
 
     def _cmake(
@@ -978,6 +1103,712 @@ class Workspace:
             if not (path / name).is_dir():
                 raise WorkspaceError(f"server state lacks required directory {name}: {path}")
 
+    def _topology_services(self, services: list[str] | None) -> list[str]:
+        requested = set(services or TOPOLOGY_SERVICES)
+        unknown = sorted(requested - set(TOPOLOGY_SERVICES))
+        if unknown:
+            raise WorkspaceError(f"unknown topology services: {', '.join(unknown)}")
+        if not requested:
+            raise WorkspaceError("a topology must contain at least one service")
+        return [service for service in TOPOLOGY_SERVICES if service in requested]
+
+    def topology_summary(
+        self,
+        profile_name: str,
+        state_name: str,
+        services: list[str] | None = None,
+    ) -> dict[str, Any]:
+        selected_services = self._topology_services(services)
+        required = set().union(
+            *(TARGET_DEPENDENCIES[service] for service in selected_services)
+        )
+        resolved = self._resolve_build_profile(profile_name, required)
+        key = profile_key(resolved)
+        state = (
+            str(self._state_location(state_name))
+            if "server" in selected_services
+            else None
+        )
+        return {
+            "profile": profile_name,
+            "services": selected_services,
+            "dependencies": sorted(required),
+            "state": state,
+            "build_root": str(
+                self.paths.builds / "profiles" / f"{profile_name}-{key}"
+            ),
+            "components": {
+                name: {
+                    "path": str(path),
+                    "head": git(
+                        path,
+                        "rev-parse",
+                        "HEAD",
+                        capture=True,
+                        trace=False,
+                    ),
+                    "dirty": not _is_clean(path, trace=False),
+                }
+                for name, path in sorted(resolved.items())
+            },
+        }
+
+    def _topology_directory(self, name: str, create: bool = False) -> Path:
+        validate_name(name, "topology name")
+        self.paths.ensure()
+        path = self.paths.topologies / name
+        marker = path / MANAGED_MARKER
+        metadata = {"schema_version": SCHEMA_VERSION, "purpose": f"topology:{name}"}
+        if path.exists() or path.is_symlink():
+            if not path.is_dir() or path.is_symlink():
+                raise WorkspaceError(f"topology path is not a managed directory: {path}")
+            if not marker.is_file() or marker.is_symlink() or load_json(marker) != metadata:
+                raise WorkspaceError(f"topology ownership marker is invalid: {path}")
+        elif create:
+            path.mkdir()
+            atomic_json(marker, metadata)
+        else:
+            raise WorkspaceError(f"topology does not exist: {name}")
+        return path
+
+    def _reset_topology_subdirectory(
+        self, topology_root: Path, name: str, purpose: str
+    ) -> Path:
+        path = topology_root / name
+        metadata = {"schema_version": SCHEMA_VERSION, "purpose": purpose}
+        if path.exists() or path.is_symlink():
+            marker = path / MANAGED_MARKER
+            if (
+                not path.is_dir()
+                or path.is_symlink()
+                or not marker.is_file()
+                or marker.is_symlink()
+                or load_json(marker) != metadata
+            ):
+                raise WorkspaceError(
+                    f"topology runtime path is not managed for {purpose}: {path}"
+                )
+            shutil.rmtree(path)
+        path.mkdir()
+        atomic_json(path / MANAGED_MARKER, metadata)
+        return path
+
+    def _take_topology_runtime_input(
+        self,
+        topology_root: Path,
+        source: Path,
+        name: str,
+        purpose: str,
+    ) -> Path:
+        expected = {"schema_version": SCHEMA_VERSION, "purpose": purpose}
+        marker = source / MANAGED_MARKER
+        if (
+            not source.is_dir()
+            or source.is_symlink()
+            or not marker.is_file()
+            or marker.is_symlink()
+            or load_json(marker) != expected
+        ):
+            raise WorkspaceError(
+                f"topology runtime input is not managed for {purpose}: {source}"
+            )
+        container = topology_root / "runtime"
+        if container.exists() or container.is_symlink():
+            if not container.is_dir() or container.is_symlink():
+                raise WorkspaceError(
+                    f"topology runtime container is invalid: {container}"
+                )
+        else:
+            container.mkdir()
+        destination = container / name
+        if destination.exists() or destination.is_symlink():
+            destination_marker = destination / MANAGED_MARKER
+            if (
+                not destination.is_dir()
+                or destination.is_symlink()
+                or not destination_marker.is_file()
+                or destination_marker.is_symlink()
+                or load_json(destination_marker) != expected
+            ):
+                raise WorkspaceError(
+                    f"topology runtime destination is not managed: {destination}"
+                )
+            shutil.rmtree(destination)
+        source.replace(destination)
+        return destination
+
+    def _prepare_topology_client_runtime(
+        self, topology_root: Path, selected: dict[str, Path]
+    ) -> Path:
+        runtime = self._reset_topology_subdirectory(
+            topology_root, "client-runtime", "topology-client-runtime"
+        )
+        source = selected["client"]
+        for entry in source.iterdir():
+            if entry.name in {".git", "build", "sound", MANAGED_MARKER}:
+                continue
+            (runtime / entry.name).symlink_to(
+                entry, target_is_directory=entry.is_dir()
+            )
+        (runtime / "sound").symlink_to(
+            selected["sound"], target_is_directory=True
+        )
+        return runtime
+
+    @staticmethod
+    def _recorded_process_running(record: Any) -> bool:
+        if not isinstance(record, dict):
+            return False
+        pid = record.get("pid")
+        start_time = record.get("start_time")
+        return (
+            isinstance(pid, int)
+            and not isinstance(pid, bool)
+            and isinstance(start_time, str)
+            and process_matches(pid, start_time)
+        )
+
+    def topology_status(self, name: str) -> dict[str, Any]:
+        root = self._topology_directory(name)
+        status_path = root / "status.json"
+        if not status_path.is_file() or status_path.is_symlink():
+            raise WorkspaceError(f"topology has not been started: {name}")
+        status = load_json(status_path)
+        required = {
+            "schema_version",
+            "name",
+            "profile",
+            "dependencies",
+            "state",
+            "build_root",
+            "resolved",
+            "endpoint",
+            "ready",
+            "started_at",
+            "stopped_at",
+            "supervisor",
+            "services",
+        }
+        if (
+            not isinstance(status, dict)
+            or status.get("schema_version") != SCHEMA_VERSION
+            or status.get("name") != name
+            or not required <= set(status) <= required | {"error"}
+            or not isinstance(status.get("dependencies"), list)
+            or not isinstance(status.get("resolved"), dict)
+            or not isinstance(status.get("ready"), bool)
+            or not isinstance(status.get("profile"), str)
+            or not status["profile"]
+            or not all(
+                isinstance(dependency, str)
+                and dependency in PREFERRED_BUILD_COMPONENTS
+                for dependency in status["dependencies"]
+            )
+            or len(status["dependencies"]) != len(set(status["dependencies"]))
+            or status.get("state") is not None
+            and (
+                not isinstance(status.get("state"), str)
+                or not Path(status["state"]).is_absolute()
+            )
+            or not isinstance(status.get("build_root"), str)
+            or not Path(status["build_root"]).is_absolute()
+            or not isinstance(status.get("started_at"), str)
+            or not status["started_at"]
+            or status.get("stopped_at") is not None
+            and not isinstance(status.get("stopped_at"), str)
+            or "error" in status
+            and not isinstance(status.get("error"), str)
+        ):
+            raise WorkspaceError(f"topology status is invalid: {name}")
+        for component, resolved in status["resolved"].items():
+            if (
+                component not in self.manifest.by_name
+                or not isinstance(resolved, dict)
+                or set(resolved) != {"path", "head", "dirty"}
+                or not isinstance(resolved.get("path"), str)
+                or not Path(resolved["path"]).is_absolute()
+                or not isinstance(resolved.get("head"), str)
+                or not re.fullmatch(r"[0-9a-f]{40,64}", resolved["head"])
+                or not isinstance(resolved.get("dirty"), bool)
+            ):
+                raise WorkspaceError(f"topology resolution status is invalid: {name}")
+        supervisor = status.get("supervisor")
+        if (
+            not isinstance(supervisor, dict)
+            or set(supervisor) != {"pid", "start_time"}
+            or not isinstance(supervisor.get("pid"), int)
+            or isinstance(supervisor.get("pid"), bool)
+            or supervisor["pid"] <= 0
+            or not isinstance(supervisor.get("start_time"), str)
+            or not supervisor["start_time"].isdigit()
+        ):
+            raise WorkspaceError(f"topology supervisor status is invalid: {name}")
+        supervisor_running = self._recorded_process_running(supervisor)
+        supervisor["running"] = supervisor_running
+        endpoint = status.get("endpoint")
+        if endpoint is not None:
+            fingerprint = endpoint.get("fingerprint") if isinstance(endpoint, dict) else None
+            if (
+                not isinstance(endpoint, dict)
+                or set(endpoint) != {"host", "port", "fingerprint"}
+                or endpoint.get("host") != "127.0.0.1"
+                or not isinstance(endpoint.get("port"), int)
+                or isinstance(endpoint.get("port"), bool)
+                or not 1 <= endpoint["port"] <= 65535
+                or (
+                    fingerprint is not None
+                    and (
+                        not isinstance(fingerprint, str)
+                        or len(fingerprint) != 64
+                        or any(character not in "0123456789abcdef" for character in fingerprint)
+                    )
+                )
+            ):
+                raise WorkspaceError(f"topology endpoint status is invalid: {name}")
+        services = status.get("services")
+        if (
+            not isinstance(services, dict)
+            or (not services and not status.get("error"))
+            or not set(services) <= set(TOPOLOGY_SERVICES)
+        ):
+            raise WorkspaceError(f"topology service status is invalid: {name}")
+        for service in services.values():
+            if (
+                not isinstance(service, dict)
+                or set(service)
+                != {"pid", "start_time", "status", "exit_code", "log", "cwd"}
+                or not isinstance(service.get("pid"), int)
+                or isinstance(service.get("pid"), bool)
+                or service["pid"] <= 0
+                or not isinstance(service.get("start_time"), str)
+                or not service["start_time"].isdigit()
+                or service.get("status") not in {"starting", "running", "exited"}
+                or (
+                    service.get("exit_code") is not None
+                    and (
+                        not isinstance(service.get("exit_code"), int)
+                        or isinstance(service.get("exit_code"), bool)
+                    )
+                )
+                or not isinstance(service.get("log"), str)
+                or not Path(service["log"]).is_absolute()
+                or not isinstance(service.get("cwd"), str)
+                or not Path(service["cwd"]).is_absolute()
+            ):
+                raise WorkspaceError(f"topology service status is invalid: {name}")
+            service["running"] = self._recorded_process_running(service)
+            if (
+                service.get("status") in {"starting", "running"}
+                and not service["running"]
+            ):
+                service["status"] = "stale"
+        if (
+            ("server" in services) != (endpoint is not None)
+            or (
+                status["ready"]
+                and endpoint is not None
+                and endpoint["fingerprint"] is None
+            )
+        ):
+            raise WorkspaceError(f"topology endpoint status is invalid: {name}")
+        if not supervisor_running:
+            status["ready"] = False
+        return status
+
+    def topology_statuses(self) -> list[dict[str, Any]]:
+        self.paths.ensure()
+        statuses: list[dict[str, Any]] = []
+        for path in sorted(self.paths.topologies.iterdir()):
+            if path.is_dir() and not path.is_symlink() and (path / "status.json").is_file():
+                statuses.append(self.topology_status(path.name))
+        return statuses
+
+    @staticmethod
+    def _select_topology_port(requested: int | None) -> int:
+        if requested is not None and (
+            not isinstance(requested, int)
+            or isinstance(requested, bool)
+            or not 0 <= requested <= 65535
+        ):
+            raise WorkspaceError("topology port must be between 0 and 65535")
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as candidate:
+                candidate.bind(("0.0.0.0", requested or 0))
+                return int(candidate.getsockname()[1])
+        except OSError as error:
+            if requested:
+                raise WorkspaceError(
+                    f"topology UDP port {requested} is unavailable: {error}"
+                ) from error
+            raise WorkspaceError(f"cannot allocate a topology UDP port: {error}") from error
+
+    @staticmethod
+    def _require_client_display() -> None:
+        wayland = os.environ.get("WAYLAND_DISPLAY")
+        runtime = os.environ.get("XDG_RUNTIME_DIR")
+        if wayland and runtime and (Path(runtime) / wayland).is_socket():
+            return
+        display = os.environ.get("DISPLAY", "")
+        if display.startswith(":"):
+            display_number = display[1:].split(".", 1)[0]
+            if display_number.isdigit() and Path(
+                f"/tmp/.X11-unix/X{display_number}"
+            ).is_socket():
+                return
+        raise WorkspaceError(
+            "client display forwarding is unavailable; reload or reopen the "
+            "devcontainer before starting the client"
+        )
+
+    def topology_up(
+        self,
+        name: str,
+        profile_name: str,
+        state_name: str,
+        services: list[str] | None = None,
+        port: int | None = None,
+    ) -> dict[str, Any]:
+        selected_services = self._topology_services(services)
+        if "server" not in selected_services and port is not None:
+            raise WorkspaceError("--port requires the server service")
+        topology_root = self._topology_directory(name, create=True)
+        operation_lock = topology_root / "operation.lock"
+        with exclusive_lock(
+            operation_lock, f"topology {name} operation", nonblocking=True
+        ):
+            status_path = topology_root / "status.json"
+            startup_error_path = topology_root / "startup-error.json"
+            if status_path.is_file():
+                if status_path.is_symlink():
+                    raise WorkspaceError(f"topology status is invalid: {name}")
+                previous = self.topology_status(name)
+                if previous["supervisor"]["running"] or any(
+                    service["running"] for service in previous["services"].values()
+                ):
+                    raise WorkspaceError(f"topology is already running: {name}")
+
+            if "client" in selected_services:
+                self._require_client_display()
+
+            required = set().union(
+                *(TARGET_DEPENDENCIES[service] for service in selected_services)
+            )
+            selected = self._resolve_build_profile(profile_name, required)
+            targets = [service for service in ("client", "server") if service in selected_services]
+
+            with ExitStack() as stack:
+                state_location: Path | None = None
+                state_lock: TextIO | None = None
+                if "server" in selected_services:
+                    state_location = self._state_location(state_name)
+                    state_lock = stack.enter_context(
+                        exclusive_lock(
+                            Path(f"{state_location}.lock"),
+                            f"server state {state_location}",
+                            nonblocking=True,
+                        )
+                    )
+
+                root = self._build_resolved(
+                    "topology", profile_name, False, targets, selected
+                )
+                endpoint: dict[str, Any] | None = None
+                if "server" in selected_services:
+                    stack.enter_context(
+                        exclusive_lock(
+                            self.paths.topologies / "ports.lock",
+                            "topology port allocation",
+                        )
+                    )
+                    endpoint = {
+                        "host": "127.0.0.1",
+                        "port": self._select_topology_port(port),
+                    }
+                service_specs: dict[str, dict[str, Any]] = {}
+                if "server" in selected_services:
+                    assert state_location is not None
+                    state = self.state_path(
+                        state_name,
+                        selected["server"],
+                        resolved_path=state_location,
+                    )
+                    content = self._take_topology_runtime_input(
+                        topology_root,
+                        root / "runtime" / "content",
+                        "content",
+                        "collected-content",
+                    )
+                    resources = self._take_topology_runtime_input(
+                        topology_root,
+                        root / "runtime" / "resources",
+                        "resources",
+                        "resource-view",
+                    )
+                    runtime = self._prepare_server_runtime(
+                        root,
+                        selected,
+                        state,
+                        state_name,
+                        content,
+                        resources,
+                    )
+                    executable = runtime / "atrinik-server"
+                    service_specs["server"] = {
+                        "command": [
+                            str(executable),
+                            f"--port_quic={endpoint['port']}",
+                            "--port_mapping=off",
+                            "--stun_server=off",
+                            "--no_console",
+                        ],
+                        "cwd": str(runtime),
+                        "log": str(topology_root / "server.log"),
+                    }
+                if "client" in selected_services:
+                    executable = root / "build" / "client" / "atrinik"
+                    working = self._prepare_topology_client_runtime(
+                        topology_root, selected
+                    )
+                    if not executable.is_file():
+                        raise WorkspaceError(f"client executable is missing: {executable}")
+                    client_config = topology_root / "client-config"
+                    if client_config.exists() or client_config.is_symlink():
+                        if not client_config.is_dir() or client_config.is_symlink():
+                            raise WorkspaceError(
+                                f"client configuration path is invalid: {client_config}"
+                            )
+                    else:
+                        client_config.mkdir()
+                    service_specs["client"] = {
+                        "command": [str(executable)],
+                        "cwd": str(working),
+                        "log": str(topology_root / "client.log"),
+                        "environment": {
+                            "ATRINIK_CONFIG_DIR": str(client_config.resolve())
+                        },
+                    }
+
+                resolved_status = {
+                    component: {
+                        "path": str(path),
+                        "head": git(
+                            path,
+                            "rev-parse",
+                            "HEAD",
+                            capture=True,
+                            trace=False,
+                        ),
+                        "dirty": not _is_clean(path, trace=False),
+                    }
+                    for component, path in sorted(selected.items())
+                }
+                spec = {
+                    "schema_version": SCHEMA_VERSION,
+                    "name": name,
+                    "profile": profile_name,
+                    "dependencies": sorted(required),
+                    "state": str(state_location) if state_location else None,
+                    "build_root": str(root),
+                    "resolved": resolved_status,
+                    "endpoint": endpoint,
+                    "services": service_specs,
+                }
+                spec_path = topology_root / "spec.json"
+                atomic_json(spec_path, spec)
+                status_path.unlink(missing_ok=True)
+                startup_error_path.unlink(missing_ok=True)
+
+                supervisor_log_path = topology_root / "supervisor.log"
+                supervisor_log = os.fdopen(
+                    open_regular_file(
+                        supervisor_log_path,
+                        os.O_WRONLY | os.O_CREAT | os.O_APPEND,
+                        "topology supervisor log",
+                    ),
+                    "ab",
+                    buffering=0,
+                )
+                try:
+                    command = [
+                        sys.executable,
+                        "-m",
+                        "atrinik_workspace.supervisor",
+                        "--daemonize",
+                        "--spec",
+                        str(spec_path),
+                    ]
+                    pass_fds: tuple[int, ...] = ()
+                    if state_lock is not None:
+                        command.extend(["--lock-fd", str(state_lock.fileno())])
+                        pass_fds = (state_lock.fileno(),)
+                    environment = os.environ.copy()
+                    source_root = str(Path(__file__).resolve().parents[1])
+                    python_path = environment.get("PYTHONPATH")
+                    environment["PYTHONPATH"] = (
+                        source_root
+                        if not python_path
+                        else source_root + os.pathsep + python_path
+                    )
+                    process = subprocess.Popen(
+                        command,
+                        cwd=self.paths.repository,
+                        env=environment,
+                        stdin=subprocess.DEVNULL,
+                        stdout=supervisor_log,
+                        stderr=subprocess.STDOUT,
+                        start_new_session=True,
+                        pass_fds=pass_fds,
+                    )
+                except OSError as error:
+                    raise WorkspaceError(f"cannot start topology supervisor: {error}") from error
+                finally:
+                    supervisor_log.close()
+
+                deadline = time.monotonic() + 45
+                while time.monotonic() < deadline:
+                    if startup_error_path.is_file():
+                        if startup_error_path.is_symlink():
+                            raise WorkspaceError(
+                                f"topology startup error is invalid: {name}"
+                            )
+                        failure = load_json(startup_error_path)
+                        if (
+                            not isinstance(failure, dict)
+                            or set(failure) != {"error"}
+                            or not isinstance(failure.get("error"), str)
+                        ):
+                            raise WorkspaceError(
+                                f"topology startup error is invalid: {name}"
+                            )
+                        raise WorkspaceError(
+                            f"topology supervisor failed: {failure['error']}"
+                        )
+                    if status_path.is_file():
+                        status = self.topology_status(name)
+                        if status.get("error"):
+                            raise WorkspaceError(
+                                f"topology supervisor failed: {status['error']}"
+                            )
+                        if status["supervisor"]["running"] and status["ready"]:
+                            process.wait(timeout=2)
+                            return status
+                    if process.poll() not in (None, 0):
+                        break
+                    time.sleep(0.1)
+                raise WorkspaceError(
+                    f"topology supervisor failed to start; inspect "
+                    f"{topology_root / 'supervisor.log'}"
+                )
+
+    def topology_down(self, name: str, timeout: float = 15) -> dict[str, Any]:
+        root = self._topology_directory(name)
+        with exclusive_lock(
+            root / "operation.lock", f"topology {name} operation", nonblocking=True
+        ):
+            status = self.topology_status(name)
+            supervisor = status["supervisor"]
+            orphaned = [
+                service
+                for service in status["services"].values()
+                if service["running"]
+            ]
+            targets = [supervisor] if supervisor["running"] else orphaned
+            if not targets:
+                return status
+            for record in targets:
+                pid = record["pid"]
+                start_time = record["start_time"]
+                try:
+                    pidfd = os.pidfd_open(pid)
+                except ProcessLookupError:
+                    continue
+                try:
+                    if process_matches(pid, start_time):
+                        signal.pidfd_send_signal(pidfd, signal.SIGTERM)
+                finally:
+                    os.close(pidfd)
+            deadline = time.monotonic() + timeout
+            while time.monotonic() < deadline:
+                if not any(self._recorded_process_running(record) for record in targets):
+                    status = self.topology_status(name)
+                    return status
+                time.sleep(0.1)
+            raise WorkspaceError(
+                f"topology did not stop within {timeout:g} seconds: {name}"
+            )
+
+    def topology_logs(
+        self,
+        name: str,
+        service: str | None,
+        tail: int,
+        follow: bool,
+    ) -> None:
+        if tail < 0:
+            raise WorkspaceError("log tail must not be negative")
+        root = self._topology_directory(name)
+        services = [service] if service else list(TOPOLOGY_SERVICES)
+        unknown = sorted(set(services) - set(TOPOLOGY_SERVICES))
+        if unknown:
+            raise WorkspaceError(f"unknown topology services: {', '.join(unknown)}")
+        paths = [(item, root / f"{item}.log") for item in services]
+        paths = [(item, path) for item, path in paths if path.is_file()]
+        if not paths:
+            raise WorkspaceError(f"topology has no matching logs: {name}")
+        positions: dict[Path, tuple[int, int, int]] = {}
+        for item, path in paths:
+            with os.fdopen(
+                open_regular_file(path, os.O_RDONLY, "topology log"),
+                encoding="utf-8",
+                errors="replace",
+            ) as stream:
+                lines = deque(stream, maxlen=tail) if tail else ()
+                if len(paths) > 1:
+                    print(f"==> {item} <==")
+                for line in lines:
+                    print(line, end="")
+                metadata = os.fstat(stream.fileno())
+                positions[path] = (metadata.st_dev, metadata.st_ino, stream.tell())
+        while follow:
+            changed = False
+            for item, path in paths:
+                try:
+                    descriptor = open_regular_file(
+                        path, os.O_RDONLY, "topology log"
+                    )
+                except WorkspaceError:
+                    continue
+                with os.fdopen(
+                    descriptor, encoding="utf-8", errors="replace"
+                ) as stream:
+                    metadata = os.fstat(stream.fileno())
+                    device, inode, offset = positions[path]
+                    if (
+                        (metadata.st_dev, metadata.st_ino) != (device, inode)
+                        or metadata.st_size < offset
+                    ):
+                        offset = 0
+                    stream.seek(offset)
+                    content = stream.read()
+                    positions[path] = (
+                        metadata.st_dev,
+                        metadata.st_ino,
+                        stream.tell(),
+                    )
+                if content:
+                    if len(paths) > 1:
+                        print(f"==> {item} <==")
+                    print(content, end="", flush=True)
+                    changed = True
+            try:
+                status = self.topology_status(name)
+                running = status["supervisor"]["running"]
+            except WorkspaceError:
+                running = False
+            if not running and not changed:
+                break
+            time.sleep(0.25)
+
     def run_client(
         self, profile_name: str, arguments: list[str], dry_run: bool
     ) -> Path:
@@ -990,7 +1821,8 @@ class Workspace:
         print(f"cwd: {working}")
         print(f"command: {display_arguments(command)}")
         if not dry_run:
-            run(command, cwd=working)
+            self._require_client_display()
+            run(command, cwd=working, diagnostics_to_stderr=False)
         return executable
 
     def run_server(
@@ -1020,7 +1852,7 @@ class Workspace:
             print(f"cwd: {runtime}")
             print(f"command: {display_arguments(command)}")
             if not dry_run:
-                run(command, cwd=runtime)
+                run(command, cwd=runtime, diagnostics_to_stderr=False)
             return executable
 
     def _prepare_server_runtime(
@@ -1029,19 +1861,23 @@ class Workspace:
         selected: dict[str, Path],
         state: Path,
         state_name: str,
+        content: Path | None = None,
+        resources: Path | None = None,
     ) -> Path:
         state_key = profile_key({"state": state})
         runtime = root / "run" / "server" / f"{state_name}-{state_key}"
         managed_reset(runtime, self.paths.builds, f"server-runtime:{state_key}")
         source = selected["server"]
         binary = root / "build" / "server"
+        content = content or root / "runtime" / "content"
+        resources = resources or root / "runtime" / "resources"
         links = {
             "atrinik-server": binary / "atrinik-server",
             "libplugin_arena.so": binary / "libplugin_arena.so",
             "libplugin_python.so": binary / "libplugin_python.so",
-            "lib": root / "runtime" / "content" / "lib",
-            "maps": root / "runtime" / "content" / "maps",
-            "resources": root / "runtime" / "resources",
+            "lib": content / "lib",
+            "maps": content / "maps",
+            "resources": resources,
             "data": state,
             "tools": source / "tools",
         }

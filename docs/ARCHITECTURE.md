@@ -28,6 +28,7 @@ workspace/
   profiles/<name>.json               checkout selectors
   build/profiles/<name>-<key>/       isolated sources, builds, and runtime
   build/npm-cache/                   shared package download cache
+  topologies/<name>/                 supervised process state and rotated logs
   state/server/<name>/               persistent mutable server data
   states.json                        named external-state registry
 ~~~
@@ -60,7 +61,7 @@ The playable build flow is:
 
 ~~~text
 selected content -> build_runtime.py -> isolated content/lib + content/maps
-selected resources -----------------> isolated resource view
+selected tracked resource allowlist -> isolated resource view
 selected protocol + library + sound -> client source view -> CMake/Ninja
 selected protocol + library --------> server source view -> CMake/Ninja
 selected Worker --------------------> npm source view -> npm run check
@@ -72,6 +73,10 @@ links to their selected worktrees. The Worker view is copied because Node's
 module resolver follows configuration-file links and would otherwise search the
 component checkout instead of the isolated dependency directory. Collected
 content and resource dependency metadata identify the selected path and commit.
+The resources repository's `runtime-paths.txt` is the distribution boundary:
+only tracked regular files below those paths enter the runtime view. This keeps
+repository metadata, local untracked files, and symlinks out of the asset
+protocol.
 
 ## Runtime and state
 
@@ -87,6 +92,30 @@ server. Profile builds have their own blocking lock, and server launch views are
 keyed by state path. Processes started outside the coordinator do not
 participate in the state lock, so operators must not point those processes at
 the same state concurrently.
+
+Profiles are source-topology definitions for supervised runtime as well as
+builds. `up` resolves the requested service dependency closure once, records
+the exact paths/commits and build root, prepares the same isolated views used by
+foreground launches, and hands the state-lock file descriptor through a short
+forking bootstrap to a detached native supervisor and its server child. The
+lock remains held for the server lifetime without a long-lived invoking CLI
+process.
+
+The supervisor owns child lifetimes and size-bounded rotating logs. Status
+records include Linux process start ticks in addition to PIDs; `ps` and `down`
+require both to match, preventing an old status file from targeting an
+unrelated reused PID. Shutdown signals the supervisor, which gracefully stops
+children before releasing state. For a paired topology it starts the server
+first, waits for its fingerprint and final ready signal, and then pins the
+client to that authenticated loopback endpoint. Available UDP ports are
+allocated under a workspace-wide lock, or callers may request an explicit
+port. Each runtime name owns an isolated persistent client configuration base.
+A server topology takes ownership of its collected content and staged resource
+directories after the shared incremental build, so later builds cannot mutate
+the filesystem seen by a running process.
+A topology may select one service, and distinct runtime names permit concurrent
+combinations as long as their server ports and mutable state directories do not
+conflict.
 
 ## Trust and command execution
 
