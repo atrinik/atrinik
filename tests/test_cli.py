@@ -10,6 +10,82 @@ from atrinik_workspace.model import WorkspaceError
 
 
 class ParserTests(unittest.TestCase):
+    def test_supply_chain_commands_dispatch_validated_inventory(self) -> None:
+        inventory = mock.Mock()
+        inventory.dependencies = [object(), object()]
+        inventory.audit.return_value = ["client: audited"]
+        inventory.report.return_value = "report\n"
+        roots = {"atrinik": Path("/workspace/atrinik")}
+        with (
+            mock.patch("atrinik_workspace.cli.Workspace"),
+            mock.patch(
+                "atrinik_workspace.cli.Inventory.load", return_value=inventory
+            ) as load,
+            mock.patch(
+                "atrinik_workspace.cli.repository_roots", return_value=roots
+            ) as resolve_roots,
+            mock.patch(
+                "atrinik_workspace.cli.version_report", return_value="versions\n"
+            ) as versions,
+            mock.patch("atrinik_workspace.cli.write_generated") as write,
+            mock.patch("builtins.print") as output,
+        ):
+            self.assertEqual(main(["supply-chain", "validate"]), 0)
+            self.assertEqual(
+                main(
+                    [
+                        "supply-chain",
+                        "audit",
+                        "--profile",
+                        "review",
+                        "--repository",
+                        "client=/tmp/client",
+                    ]
+                ),
+                0,
+            )
+            self.assertEqual(
+                main(
+                    [
+                        "supply-chain",
+                        "report",
+                        "--format",
+                        "spdx",
+                        "--output",
+                        "build/report.json",
+                    ]
+                ),
+                0,
+            )
+            self.assertEqual(
+                main(
+                    [
+                        "supply-chain",
+                        "versions",
+                        "--output",
+                        "build/versions.json",
+                    ]
+                ),
+                0,
+            )
+            self.assertEqual(main(["init"]), 0)
+
+        self.assertEqual(load.call_count, 4)
+        self.assertEqual(inventory.validate_schema.call_count, 4)
+        resolve_roots.assert_called_once()
+        self.assertEqual(resolve_roots.call_args.args[2], "review")
+        self.assertEqual(resolve_roots.call_args.args[3], ["client=/tmp/client"])
+        inventory.audit.assert_called_once_with(roots)
+        inventory.report.assert_called_once_with("spdx")
+        versions.assert_called_once_with(inventory)
+        self.assertEqual(write.call_count, 2)
+        self.assertTrue(
+            any("valid (2 dependencies)" in str(call.args[0]) for call in output.call_args_list)
+        )
+        self.assertTrue(
+            any("client: audited" in str(call.args[0]) for call in output.call_args_list)
+        )
+
     def test_status_supports_machine_readable_output(self) -> None:
         rows = [
             {

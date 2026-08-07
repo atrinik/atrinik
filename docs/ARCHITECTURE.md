@@ -19,6 +19,26 @@ branch, and local build contract. Profile and state schemas are intentionally
 strict: duplicate keys, missing fields, unknown fields, invalid names, and
 repository mismatches fail before an operation changes data.
 
+Supply-chain ownership is a wrapper-level cross-repository contract.
+`supply-chain/inventory.json` names every active or archived organization
+repository and records each supported dependency's owner, consumers, version
+source, license, acquisition path, update cadence, EOL response, validation,
+and retain/isolate/replace/remove disposition. Component lockfiles remain the
+integrity boundary for independently released source and runtime archives; the
+aggregate catalog describes and audits those boundaries instead of copying
+their fetching implementations into the wrapper.
+
+The `supply-chain` command resolves component inputs through the same profile
+selectors as builds, then reads Git-indexed files without mutating a checkout.
+The audit requires immutable remote Actions and container images, updater
+hints, an owned catalog entry for every dependency input, weekly GitHub Actions
+update configuration, and no submodules. Explicit worktree overrides are
+absolute and must match the expected `atrinik/NAME` origin. Deterministic
+license, CycloneDX, SPDX, and local version reports are generated only below
+the ignored build directory. The scheduled audit composes all current default
+branches; pull-request CI validates the catalog and its implementation without
+silently accepting a partial organization snapshot.
+
 Read-only inspection commands keep structured data on stdout and suppress Git
 traces so callers can safely consume `status --json`, `worktree list --json`,
 `profile show --json`, `state list --json`, and `path`. Status never fetches;

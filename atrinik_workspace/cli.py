@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 
 from .model import Manifest, WorkspaceError
+from .supply_chain import Inventory, repository_roots, version_report, write_generated
 from .workspace import Workspace
 
 
@@ -152,6 +153,30 @@ def parser() -> argparse.ArgumentParser:
     scenario_reset.add_argument("name")
     scenario_reset.add_argument("--json", action="store_true")
 
+    supply_chain = commands.add_parser(
+        "supply-chain", help="validate and report dependency ownership"
+    )
+    supply_chain_commands = supply_chain.add_subparsers(
+        dest="supply_chain_command", required=True
+    )
+    supply_chain_commands.add_parser("validate")
+    supply_chain_audit = supply_chain_commands.add_parser("audit")
+    supply_chain_audit.add_argument("--profile", default="default")
+    supply_chain_audit.add_argument(
+        "--repository",
+        action="append",
+        default=[],
+        metavar="NAME=PATH",
+        help="override one component checkout for a read-only audit",
+    )
+    supply_chain_report = supply_chain_commands.add_parser("report")
+    supply_chain_report.add_argument(
+        "--format", choices=["cyclonedx", "licenses", "spdx"], required=True
+    )
+    supply_chain_report.add_argument("--output", type=Path)
+    supply_chain_versions = supply_chain_commands.add_parser("versions")
+    supply_chain_versions.add_argument("--output", type=Path)
+
     launch = commands.add_parser("run", help="build and run client or server")
     launch_commands = launch.add_subparsers(dest="target", required=True)
     for target in ("client", "server"):
@@ -205,7 +230,30 @@ def main(arguments: list[str] | None = None) -> int:
             return 0
 
         workspace = Workspace(ROOT)
-        if options.command == "init":
+        if options.command == "supply-chain":
+            inventory = Inventory.load(
+                ROOT / "supply-chain" / "inventory.json", ROOT / "components.json"
+            )
+            inventory.validate_schema(ROOT / "supply-chain" / "schema.json")
+            if options.supply_chain_command == "validate":
+                print(
+                    "supply-chain/inventory.json: valid "
+                    f"({len(inventory.dependencies)} dependencies)"
+                )
+            elif options.supply_chain_command == "audit":
+                for message in inventory.audit(
+                    repository_roots(
+                        ROOT, workspace, options.profile, options.repository
+                    )
+                ):
+                    print(message)
+            elif options.supply_chain_command == "report":
+                write_generated(
+                    ROOT, options.output, inventory.report(options.format)
+                )
+            else:
+                write_generated(ROOT, options.output, version_report(inventory))
+        elif options.command == "init":
             workspace.initialize(options.components, options.jobs)
         elif options.command == "sync":
             workspace.sync(options.components, options.worktrees)

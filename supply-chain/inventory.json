@@ -1,0 +1,2524 @@
+{
+  "schema_version": 1,
+  "organization": "atrinik",
+  "created": "2026-08-07T00:00:00Z",
+  "repositories": [
+    {
+      "name": "atrinik",
+      "repository": "atrinik/atrinik",
+      "supported": true,
+      "role": "Workspace orchestration and aggregate supply-chain ownership"
+    },
+    {
+      "name": "client",
+      "repository": "atrinik/client",
+      "supported": true,
+      "role": "SDL3 game client"
+    },
+    {
+      "name": "content",
+      "repository": "atrinik/content",
+      "supported": true,
+      "role": "Authored world content and content tooling"
+    },
+    {
+      "name": "devcontainer",
+      "repository": "atrinik/devcontainer",
+      "supported": true,
+      "role": "Linux and Windows build images"
+    },
+    {
+      "name": "editor",
+      "repository": "atrinik/editor",
+      "supported": true,
+      "role": "Gridarta packaging utility"
+    },
+    {
+      "name": "github-settings",
+      "repository": "atrinik/github-settings",
+      "supported": true,
+      "role": "Organization governance desired state"
+    },
+    {
+      "name": "libatrinik",
+      "repository": "atrinik/libatrinik",
+      "supported": true,
+      "role": "Reusable native libraries"
+    },
+    {
+      "name": "metaserver-worker",
+      "repository": "atrinik/metaserver-worker",
+      "supported": true,
+      "role": "Cloudflare metaserver and rendezvous Worker"
+    },
+    {
+      "name": "nawerhals",
+      "repository": "atrinik/nawerhals",
+      "supported": false,
+      "role": "Archived historical source; no supported build or update surface"
+    },
+    {
+      "name": "protocol",
+      "repository": "atrinik/protocol",
+      "supported": true,
+      "role": "Canonical protocol schema and generated bindings"
+    },
+    {
+      "name": "resources",
+      "repository": "atrinik/resources",
+      "supported": true,
+      "role": "Server runtime media"
+    },
+    {
+      "name": "server",
+      "repository": "atrinik/server",
+      "supported": true,
+      "role": "Authoritative game server"
+    },
+    {
+      "name": "sound",
+      "repository": "atrinik/sound",
+      "supported": true,
+      "role": "Client music and sound effects"
+    },
+    {
+      "name": "tools",
+      "repository": "atrinik/tools",
+      "supported": true,
+      "role": "Standalone operator and content-inspection tools"
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "action/actions-cache",
+      "name": "actions/cache",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "client"
+      ],
+      "required": true,
+      "version": "v6",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/cache",
+      "locator": "actions/cache",
+      "commit": "55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade all cache consumers together or remove the cache step",
+      "validation": "Actionlint plus client CI cache restore/save coverage",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": ".github/workflows/check.yml",
+          "contains": "actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6"
+        }
+      ]
+    },
+    {
+      "id": "action/actions-checkout",
+      "name": "actions/checkout",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "atrinik",
+        "client",
+        "content",
+        "devcontainer",
+        "editor",
+        "github-settings",
+        "libatrinik",
+        "metaserver-worker",
+        "protocol",
+        "resources",
+        "server",
+        "sound",
+        "tools"
+      ],
+      "required": true,
+      "version": "v6",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/checkout",
+      "locator": "actions/checkout",
+      "commit": "d23441a48e516b6c34aea4fa41551a30e30af803",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade every repository in one coordinated policy change",
+      "validation": "Organization-wide immutable-reference audit and actionlint",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/integration.yml",
+          "contains": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6"
+        }
+      ]
+    },
+    {
+      "id": "action/actions-download-artifact",
+      "name": "actions/download-artifact",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "client",
+        "server"
+      ],
+      "required": true,
+      "version": "v8",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/download-artifact",
+      "locator": "actions/download-artifact",
+      "commit": "3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade package aggregation workflows before the major is retired",
+      "validation": "Actionlint and package-release artifact aggregation",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": ".github/workflows/package-release.yml",
+          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+        }
+      ]
+    },
+    {
+      "id": "action/actions-setup-node",
+      "name": "actions/setup-node",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "atrinik",
+        "metaserver-worker"
+      ],
+      "required": true,
+      "version": "v6",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/setup-node",
+      "locator": "actions/setup-node",
+      "commit": "249970729cb0ef3589644e2896645e5dc5ba9c38",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Move CI and semantic-release to the next supported Node line",
+      "validation": "Actionlint plus Worker and semantic-release jobs",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6"
+        }
+      ]
+    },
+    {
+      "id": "action/actions-setup-python",
+      "name": "actions/setup-python",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "atrinik",
+        "content",
+        "protocol"
+      ],
+      "required": true,
+      "version": "v6",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/setup-python",
+      "locator": "actions/setup-python",
+      "commit": "ece7cb06caefa5fff74198d8649806c4678c61a1",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade the action and supported Python matrix together",
+      "validation": "Actionlint plus Python generation, content, and workspace tests",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/integration.yml",
+          "contains": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6"
+        }
+      ]
+    },
+    {
+      "id": "action/actions-upload-artifact",
+      "name": "actions/upload-artifact",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "atrinik",
+        "client",
+        "server"
+      ],
+      "required": true,
+      "version": "v7",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/upload-artifact",
+      "locator": "actions/upload-artifact",
+      "commit": "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade package producer workflows before the major is retired",
+      "validation": "Actionlint and package-release artifact round trips",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "server",
+          "path": ".github/workflows/package-release.yml",
+          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+        }
+      ]
+    },
+    {
+      "id": "action/codecov",
+      "name": "Codecov Action",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "atrinik",
+        "client",
+        "libatrinik",
+        "server"
+      ],
+      "required": false,
+      "version": "v6",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/codecov/codecov-action",
+      "locator": "codecov/codecov-action",
+      "commit": "fb8b3582c8e4def4969c97caa2f19720cb33a72f",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit and authenticates with OIDC",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Retain local coverage reports while replacing or upgrading the uploader",
+      "validation": "Actionlint, selected-action policy, and non-blocking OIDC upload",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/integration.yml",
+          "contains": "codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6"
+        }
+      ]
+    },
+    {
+      "id": "action/docker-build-push",
+      "name": "Docker Build Push Action",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "devcontainer",
+        "server"
+      ],
+      "required": true,
+      "version": "v7",
+      "version_source": "Reviewed upstream major release",
+      "license": "Apache-2.0",
+      "source_url": "https://github.com/docker/build-push-action",
+      "locator": "docker/build-push-action",
+      "commit": "53b7df96c91f9c12dcc8a07bcb9ccacbed38856a",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade image build workflows and verify both image families",
+      "validation": "Actionlint, Docker build checks, and image smoke tests",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": ".github/workflows/validate.yml",
+          "contains": "docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7"
+        }
+      ]
+    },
+    {
+      "id": "action/docker-login",
+      "name": "Docker Login Action",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "client",
+        "devcontainer",
+        "server"
+      ],
+      "required": true,
+      "version": "v4",
+      "version_source": "Reviewed upstream major release",
+      "license": "Apache-2.0",
+      "source_url": "https://github.com/docker/login-action",
+      "locator": "docker/login-action",
+      "commit": "dbcb813823bdd20940b903addbd779551569679f",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade all GHCR publisher jobs before the major is retired",
+      "validation": "Actionlint and least-privilege package publisher review",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": ".github/workflows/publish-linux.yml",
+          "contains": "docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4"
+        }
+      ]
+    },
+    {
+      "id": "action/docker-setup-buildx",
+      "name": "Docker Setup Buildx Action",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "devcontainer",
+        "server"
+      ],
+      "required": true,
+      "version": "v4",
+      "version_source": "Reviewed upstream major release",
+      "license": "Apache-2.0",
+      "source_url": "https://github.com/docker/setup-buildx-action",
+      "locator": "docker/setup-buildx-action",
+      "commit": "bb05f3f5519dd87d3ba754cc423b652a5edd6d2c",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade alongside build-push-action and rebuild images",
+      "validation": "Actionlint and BuildKit image validation",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": ".github/workflows/validate.yml",
+          "contains": "docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4"
+        }
+      ]
+    },
+    {
+      "id": "container/devcontainer-docker-feature",
+      "name": "Dev Container Docker-in-Docker feature",
+      "kind": "container-feature",
+      "owner": "atrinik",
+      "scope": [
+        "atrinik"
+      ],
+      "required": true,
+      "version": "4.0.0",
+      "version_source": ".devcontainer/devcontainer-lock.json",
+      "license": "MIT",
+      "source_url": "https://github.com/devcontainers/features",
+      "locator": "ghcr.io/devcontainers/features/docker-in-docker",
+      "commit": null,
+      "checksum": "sha256:4fa87399214366e320d489991769c4f3f461e1ffe461f54eea78a41b34945bb5",
+      "acquisition": "Dev Containers resolves the checksum-locked OCI feature",
+      "update_cadence_days": 30,
+      "update_mechanism": "devcontainer lock refresh followed by Docker smoke validation",
+      "eol_response": "Upgrade the feature or remove nested Docker support",
+      "validation": "Lock digest audit and devcontainer configuration tests",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".devcontainer/devcontainer-lock.json",
+          "contains": "ghcr.io/devcontainers/features/docker-in-docker@sha256:4fa87399214366e320d489991769c4f3f461e1ffe461f54eea78a41b34945bb5"
+        },
+        {
+          "repository": "atrinik",
+          "path": ".devcontainer/devcontainer.json",
+          "contains": "ghcr.io/devcontainers/features/docker-in-docker:4"
+        }
+      ]
+    },
+    {
+      "id": "container/dockerfile-frontend",
+      "name": "Dockerfile frontend",
+      "kind": "container-image",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer",
+        "server"
+      ],
+      "required": true,
+      "version": "1",
+      "version_source": "Docker Hub manifest",
+      "license": "Apache-2.0",
+      "source_url": "https://github.com/moby/buildkit",
+      "locator": "docker.io/docker/dockerfile",
+      "commit": null,
+      "checksum": "sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89",
+      "acquisition": "BuildKit pulls the Dockerfile syntax frontend by immutable manifest digest",
+      "update_cadence_days": 30,
+      "update_mechanism": "Dependabot Docker update with both image validations",
+      "eol_response": "Advance to a supported stable Dockerfile frontend before removing old syntax support",
+      "validation": "Docker build checks plus Linux and Windows image builds",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "linux/Dockerfile",
+          "contains": "docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89"
+        },
+        {
+          "repository": "devcontainer",
+          "path": "windows/Dockerfile",
+          "contains": "docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89"
+        },
+        {
+          "repository": "server",
+          "path": "Dockerfile",
+          "contains": "docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89"
+        }
+      ]
+    },
+    {
+      "id": "container/linux-build",
+      "name": "Atrinik Linux build image",
+      "kind": "container-image",
+      "owner": "devcontainer",
+      "scope": [
+        "atrinik"
+      ],
+      "required": true,
+      "version": "1.0.5",
+      "version_source": "Immutable semantic-release image tag",
+      "license": "LicenseRef-Atrinik-Image-Contents",
+      "source_url": "https://github.com/atrinik/devcontainer/pkgs/container/linux-build",
+      "locator": "ghcr.io/atrinik/linux-build",
+      "commit": null,
+      "checksum": "sha256:be3427cfc7dabcf837450c7306d55883c32e20ba1ab7cc96b4da4b966b8066de",
+      "acquisition": "Dev Containers pulls the release tag and immutable manifest digest",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly audit plus reviewed devcontainer release update",
+      "eol_response": "Publish a supported replacement image and update the wrapper atomically",
+      "validation": "Devcontainer configuration tests and complete native build",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".devcontainer/devcontainer.json",
+          "contains": "ghcr.io/atrinik/linux-build:1.0.5@sha256:be3427cfc7dabcf837450c7306d55883c32e20ba1ab7cc96b4da4b966b8066de"
+        }
+      ]
+    },
+    {
+      "id": "container/microsoft-devcontainer-base",
+      "name": "Microsoft Dev Containers Debian base",
+      "kind": "container-image",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "bookworm",
+      "version_source": "Microsoft Container Registry manifest",
+      "license": "LicenseRef-Microsoft-Dev-Container",
+      "source_url": "https://github.com/devcontainers/images",
+      "locator": "mcr.microsoft.com/devcontainers/base",
+      "commit": null,
+      "checksum": "sha256:73d85a96694a2cadca1ba3fcb5721f2312a64f1d571dd86f6c77e10a708931dc",
+      "acquisition": "BuildKit pulls the named base and immutable manifest digest",
+      "update_cadence_days": 30,
+      "update_mechanism": "Dependabot Docker update with cold MXE build review",
+      "eol_response": "Move the Windows toolchain image to the next supported Debian base",
+      "validation": "Docker build check and Windows image smoke build",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "windows/Dockerfile",
+          "contains": "mcr.microsoft.com/devcontainers/base:bookworm@sha256:73d85a96694a2cadca1ba3fcb5721f2312a64f1d571dd86f6c77e10a708931dc"
+        }
+      ]
+    },
+    {
+      "id": "container/ubuntu-26.04",
+      "name": "Ubuntu 26.04 base image",
+      "kind": "container-image",
+      "owner": "devcontainer",
+      "scope": [
+        "client",
+        "devcontainer",
+        "server"
+      ],
+      "required": true,
+      "version": "26.04",
+      "version_source": "Docker Official Images manifest",
+      "license": "LicenseRef-Ubuntu-Archive",
+      "source_url": "https://hub.docker.com/_/ubuntu",
+      "locator": "docker.io/library/ubuntu",
+      "commit": null,
+      "checksum": "sha256:678c6550cc43645e08669028bc177f50be4e7c5b8cca677067b1914d4afc7a03",
+      "acquisition": "BuildKit pulls the LTS tag and immutable multi-platform manifest digest",
+      "update_cadence_days": 30,
+      "update_mechanism": "Dependabot Docker update followed by Linux and server image builds",
+      "eol_response": "Move all consumers to the next supported Ubuntu LTS before standard support ends",
+      "validation": "Docker build checks, native tests, and server startup smoke test",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": ".github/workflows/check.yml",
+          "contains": "ubuntu@sha256:678c6550cc43645e08669028bc177f50be4e7c5b8cca677067b1914d4afc7a03"
+        },
+        {
+          "repository": "devcontainer",
+          "path": "linux/Dockerfile",
+          "contains": "ubuntu:26.04@sha256:678c6550cc43645e08669028bc177f50be4e7c5b8cca677067b1914d4afc7a03"
+        },
+        {
+          "repository": "server",
+          "path": ".github/workflows/check.yml",
+          "contains": "ubuntu@sha256:678c6550cc43645e08669028bc177f50be4e7c5b8cca677067b1914d4afc7a03"
+        },
+        {
+          "repository": "server",
+          "path": "Dockerfile",
+          "contains": "ubuntu@sha256:678c6550cc43645e08669028bc177f50be4e7c5b8cca677067b1914d4afc7a03"
+        }
+      ]
+    },
+    {
+      "id": "container/windows-build",
+      "name": "Atrinik Windows build image",
+      "kind": "container-image",
+      "owner": "devcontainer",
+      "scope": [
+        "atrinik",
+        "client",
+        "server"
+      ],
+      "required": true,
+      "version": "1.0.5",
+      "version_source": "Immutable semantic-release image tag",
+      "license": "LicenseRef-Atrinik-Image-Contents",
+      "source_url": "https://github.com/atrinik/devcontainer/pkgs/container/windows-build",
+      "locator": "ghcr.io/atrinik/windows-build",
+      "commit": null,
+      "checksum": "sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7",
+      "acquisition": "Dev Containers pulls the release tag and immutable manifest digest",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly audit plus reviewed devcontainer release update",
+      "eol_response": "Publish a supported replacement image and update the wrapper atomically",
+      "validation": "Devcontainer configuration tests and portable MinGW builds",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".devcontainer/windows-cross/devcontainer.json",
+          "contains": "ghcr.io/atrinik/windows-build:1.0.5@sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7"
+        },
+        {
+          "repository": "client",
+          "path": ".github/workflows/package-release.yml",
+          "contains": "ghcr.io/atrinik/windows-build:1.0.5@sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7"
+        },
+        {
+          "repository": "server",
+          "path": ".github/workflows/package-release.yml",
+          "contains": "ghcr.io/atrinik/windows-build:1.0.5@sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7"
+        }
+      ]
+    },
+    {
+      "id": "external/content-assets",
+      "name": "Authored content asset licenses",
+      "kind": "external-tool",
+      "owner": "content",
+      "scope": [
+        "content"
+      ],
+      "required": true,
+      "version": "per-file",
+      "version_source": "Nearest tracked LICENSE/COPYING file",
+      "license": "LicenseRef-Atrinik-Asset-Per-File",
+      "source_url": "https://github.com/atrinik/content",
+      "locator": "atrinik-content-assets",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Reviewed authored/imported assets retain source-local attribution",
+      "update_cadence_days": 90,
+      "update_mechanism": "Content license validator and review of every imported asset",
+      "eol_response": "Remove assets whose provenance or redistribution grant cannot be maintained",
+      "validation": "arch/license_check.py and deterministic content packaging",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "content",
+          "path": "arch/license_check.py",
+          "contains": "LICENSE"
+        }
+      ]
+    },
+    {
+      "id": "external/gridarta",
+      "name": "Gridarta source checkout",
+      "kind": "external-tool",
+      "owner": "editor",
+      "scope": [
+        "editor"
+      ],
+      "required": false,
+      "version": "operator-supplied-reviewed-checkout",
+      "version_source": "Explicit build.sh positional checkout",
+      "license": "GPL-2.0-only",
+      "source_url": "https://github.com/gridarta/gridarta",
+      "locator": "gridarta",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Operator supplies a separate checkout; Atrinik never downloads or mutates it",
+      "update_cadence_days": 180,
+      "update_mechanism": "Manual compatibility review until the editor is retired",
+      "eol_response": "Retire this packaging path through atrinik/content#5 rather than vendoring Gridarta",
+      "validation": "Disposable Gradle fixture and expected AtrinikEditor.jar contract",
+      "disposition": "remove",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "editor",
+          "path": "build.sh",
+          "contains": "./gradlew clean :src:atrinik:preparePublish"
+        }
+      ]
+    },
+    {
+      "id": "external/php",
+      "name": "PHP runtime for legacy worldviewer",
+      "kind": "external-tool",
+      "owner": "tools",
+      "scope": [
+        "tools"
+      ],
+      "required": false,
+      "version": "operator-supplied",
+      "version_source": "Legacy worldviewer deployment environment",
+      "license": "PHP-3.01",
+      "source_url": "https://www.php.net/",
+      "locator": "php",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Optional system runtime outside supported CI",
+      "update_cadence_days": 180,
+      "update_mechanism": "Manual compatibility audit while the legacy viewer remains",
+      "eol_response": "Remove the viewer if it cannot run safely on a supported PHP release",
+      "validation": "PHP syntax check in a deliberately provisioned legacy environment",
+      "disposition": "remove",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "tools",
+          "path": "worldviewer/world.php",
+          "contains": "php_sapi_name()"
+        }
+      ]
+    },
+    {
+      "id": "external/pyqt5",
+      "name": "PyQt5",
+      "kind": "external-tool",
+      "owner": "tools",
+      "scope": [
+        "tools"
+      ],
+      "required": false,
+      "version": "5.x operator-supplied",
+      "version_source": "Legacy Qt map-checker runtime",
+      "license": "GPL-3.0-only",
+      "source_url": "https://www.riverbankcomputing.com/software/pyqt/",
+      "locator": "pkg:pypi/PyQt5",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Optional operator-managed Python environment",
+      "update_cadence_days": 90,
+      "update_mechanism": "Manual GUI compatibility review pending native editor replacement",
+      "eol_response": "Port or retire the GUI rather than pinning an unsupported Python/Qt stack",
+      "validation": "Headless map-checker tests plus explicit GUI smoke test",
+      "disposition": "replace",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "tools",
+          "path": "map-checker-qt/ui/window_main.py",
+          "contains": "from PyQt5"
+        }
+      ]
+    },
+    {
+      "id": "external/resource-assets",
+      "name": "Server resource asset licenses",
+      "kind": "external-tool",
+      "owner": "resources",
+      "scope": [
+        "resources"
+      ],
+      "required": true,
+      "version": "per-file",
+      "version_source": "Nearest tracked LICENSE file",
+      "license": "LicenseRef-Atrinik-Asset-Per-File",
+      "source_url": "https://github.com/atrinik/resources",
+      "locator": "atrinik-resource-assets",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Reviewed assets retain source-local attribution",
+      "update_cadence_days": 90,
+      "update_mechanism": "Release allowlist and license review",
+      "eol_response": "Remove assets whose provenance or redistribution grant cannot be maintained",
+      "validation": "Deterministic resource archive and required license checks",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "resources",
+          "path": "runtime-paths.txt",
+          "contains": "paintings"
+        }
+      ]
+    },
+    {
+      "id": "external/sound-assets",
+      "name": "Music and sound-effect licenses",
+      "kind": "external-tool",
+      "owner": "sound",
+      "scope": [
+        "sound"
+      ],
+      "required": true,
+      "version": "per-file",
+      "version_source": "Nearest tracked LICENSE file",
+      "license": "LicenseRef-Atrinik-Asset-Per-File",
+      "source_url": "https://github.com/atrinik/sound",
+      "locator": "atrinik-sound-assets",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Reviewed audio retains source-local attribution",
+      "update_cadence_days": 90,
+      "update_mechanism": "Release package and license review",
+      "eol_response": "Remove audio whose provenance or redistribution grant cannot be maintained",
+      "validation": "Deterministic sound archive and required license checks",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "sound",
+          "path": "effects/LICENSE",
+          "contains": "GNU GPL 2.0"
+        }
+      ]
+    },
+    {
+      "id": "language/metaserver-npm",
+      "name": "Metaserver Worker npm dependency graph",
+      "kind": "language-package-set",
+      "owner": "metaserver-worker",
+      "scope": [
+        "metaserver-worker"
+      ],
+      "required": true,
+      "version": "lockfileVersion-3",
+      "version_source": "package-lock.json",
+      "license": "NOASSERTION",
+      "source_url": "https://www.npmjs.com/",
+      "locator": "pkg:npm/atrinik-metaserver@1.0.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "npm ci installs the exact package-lock graph",
+      "update_cadence_days": 7,
+      "update_mechanism": "Grouped Dependabot npm development updates",
+      "eol_response": "Upgrade incompatible packages on the supported Node line or replace them",
+      "validation": "npm ci, type checks, Vitest, admin tests, and Wrangler dry run",
+      "disposition": "retain",
+      "packages": [
+        "@cloudflare/vitest-pool-workers",
+        "@types/node",
+        "tsx",
+        "typescript",
+        "vitest",
+        "wrangler"
+      ],
+      "evidence": [
+        {
+          "repository": "metaserver-worker",
+          "path": "package-lock.json",
+          "contains": "\"lockfileVersion\": 3"
+        },
+        {
+          "repository": "metaserver-worker",
+          "path": "package.json",
+          "contains": "\"wrangler\": \"^4.118.0\""
+        }
+      ]
+    },
+    {
+      "id": "language/protocol-python-build",
+      "name": "Protocol Python build toolchain",
+      "kind": "language-package-set",
+      "owner": "protocol",
+      "scope": [
+        "protocol"
+      ],
+      "required": true,
+      "version": "setuptools>=77; setuptools-scm>=8,<10; build=1.3.0",
+      "version_source": "pyproject.toml and workflows",
+      "license": "MIT",
+      "source_url": "https://pypi.org/project/build/",
+      "locator": "pkg:pypi/build@1.3.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "pip build isolation plus an exact wheel frontend version",
+      "update_cadence_days": 30,
+      "update_mechanism": "Dependabot pip updates with wheel reproducibility tests",
+      "eol_response": "Move to supported PyPA build backends before current versions expire",
+      "validation": "Generated-binding check, unit tests, and wheel build",
+      "disposition": "retain",
+      "packages": [
+        "build",
+        "setuptools",
+        "setuptools-scm"
+      ],
+      "evidence": [
+        {
+          "repository": "protocol",
+          "path": "pyproject.toml",
+          "contains": "setuptools-scm>=8,<10"
+        }
+      ]
+    },
+    {
+      "id": "language/wrapper-python-development",
+      "name": "Workspace Python development dependencies",
+      "kind": "language-package-set",
+      "owner": "atrinik",
+      "scope": [
+        "atrinik"
+      ],
+      "required": false,
+      "version": "coverage=7.15.2",
+      "version_source": "requirements-dev.txt",
+      "license": "Apache-2.0",
+      "source_url": "https://pypi.org/project/coverage/",
+      "locator": "pkg:pypi/coverage@7.15.2",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "pip installs the exact development requirement",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot pip updates",
+      "eol_response": "Upgrade with the supported Python line or retain stdlib test execution without coverage",
+      "validation": "Complete unittest suite and coverage report",
+      "disposition": "retain",
+      "packages": [
+        "coverage"
+      ],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": "requirements-dev.txt",
+          "contains": "coverage==7.15.2"
+        }
+      ]
+    },
+    {
+      "id": "source/atrinik-content-runtime",
+      "name": "Atrinik content runtime archive",
+      "kind": "source-archive",
+      "owner": "content",
+      "scope": [
+        "server"
+      ],
+      "required": true,
+      "version": "v1.2.0",
+      "version_source": "server/dependencies.lock.json",
+      "license": "LicenseRef-Atrinik-Asset-Per-File",
+      "source_url": "https://github.com/atrinik/content/releases/tag/v1.2.0",
+      "locator": "pkg:github/atrinik/content@v1.2.0",
+      "commit": "766cb6e67aa03dd86b1c333c607885df31c3aca5",
+      "checksum": "sha256:06dd946dbd121429d4a2b8b5ac1de02e7561b723916f6400b3e87134364ac4c2",
+      "acquisition": "Server dependency tool downloads and safely extracts the release archive",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly lock drift audit and reviewed release consumption",
+      "eol_response": "Update the lock to a supported content release or stop packaging the server",
+      "validation": "Lock validation, checksum, safe extraction, collection, and server runtime tests",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "server",
+          "path": "dependencies.lock.json",
+          "contains": "atrinik-content-1.2.0-runtime.tar.gz"
+        }
+      ]
+    },
+    {
+      "id": "source/atrinik-libatrinik",
+      "name": "libatrinik release source",
+      "kind": "source-archive",
+      "owner": "libatrinik",
+      "scope": [
+        "client",
+        "libatrinik",
+        "server"
+      ],
+      "required": true,
+      "version": "v1.0.3",
+      "version_source": "client/server CMake dependency locks",
+      "license": "GPL-2.0-or-later",
+      "source_url": "https://github.com/atrinik/libatrinik/releases/tag/v1.0.3",
+      "locator": "pkg:github/atrinik/libatrinik@v1.0.3",
+      "commit": "2996df2866eb220d45a1493408f4e54851f72c8e",
+      "checksum": "sha256:6dc6823aca9cf24242bd67f5aed7469da9ca57fe2cdf7ada30e105b908a396d4",
+      "acquisition": "CMake FetchContent downloads the checksum-pinned release archive",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly lock drift audit and coordinated downstream update",
+      "eol_response": "Release and consume a supported library version before removing the old release",
+      "validation": "CMake lock validation, downstream native tests, and install consumer",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": "cmake/dependencies.lock.json",
+          "contains": "libatrinik-1.0.3.tar.gz"
+        },
+        {
+          "repository": "libatrinik",
+          "path": "tests/consumer/CMakeLists.txt",
+          "contains": "find_package(LibAtrinik 1 CONFIG REQUIRED)"
+        },
+        {
+          "repository": "server",
+          "path": "cmake/dependencies.lock.json",
+          "contains": "libatrinik-1.0.3.tar.gz"
+        }
+      ]
+    },
+    {
+      "id": "source/atrinik-protocol-client-server",
+      "name": "Atrinik protocol release source for client/server",
+      "kind": "source-archive",
+      "owner": "protocol",
+      "scope": [
+        "client",
+        "server"
+      ],
+      "required": true,
+      "version": "v1.0.1",
+      "version_source": "client/server CMake dependency locks",
+      "license": "MIT",
+      "source_url": "https://github.com/atrinik/protocol/releases/tag/v1.0.1",
+      "locator": "pkg:github/atrinik/protocol@v1.0.1",
+      "commit": "7e10ecaa279489fcdb843ecbe020fc9befeba4fd",
+      "checksum": "sha256:d8e113210a395913d27446e5764f212f6f1de028c9945ae9f0479588474b3137",
+      "acquisition": "CMake FetchContent downloads the checksum-pinned release archive",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly lock drift audit and coordinated endpoint update",
+      "eol_response": "Release and consume a supported protocol version across both endpoints",
+      "validation": "Lock validation, generated bindings, native endpoint tests, and MinGW builds",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": "cmake/dependencies.lock.json",
+          "contains": "atrinik-protocol-1.0.1.tar.gz"
+        },
+        {
+          "repository": "server",
+          "path": "cmake/dependencies.lock.json",
+          "contains": "atrinik-protocol-1.0.1.tar.gz"
+        }
+      ]
+    },
+    {
+      "id": "source/atrinik-protocol-libatrinik",
+      "name": "Atrinik protocol release source for libatrinik",
+      "kind": "source-archive",
+      "owner": "protocol",
+      "scope": [
+        "libatrinik"
+      ],
+      "required": true,
+      "version": "v1.0.0",
+      "version_source": "libatrinik/dependencies.lock.json",
+      "license": "MIT",
+      "source_url": "https://github.com/atrinik/protocol/releases/tag/v1.0.0",
+      "locator": "pkg:github/atrinik/protocol@v1.0.0",
+      "commit": "8be5e46bbf471b108e9ce70d3f929f74a0fb1f8d",
+      "checksum": "sha256:1e37b970bfa47b119b5156fb90178915ee933c1a42ba061766ecd99f1d6640e8",
+      "acquisition": "CMake FetchContent downloads the checksum-pinned release archive",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly lock drift audit and library compatibility review",
+      "eol_response": "Update the library release input before the protocol line is unsupported",
+      "validation": "Lock validation, library tests, and installed consumer",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "libatrinik",
+          "path": "dependencies.lock.json",
+          "contains": "atrinik-protocol-1.0.0.tar.gz"
+        }
+      ]
+    },
+    {
+      "id": "source/atrinik-resources-runtime",
+      "name": "Atrinik server resource archive",
+      "kind": "source-archive",
+      "owner": "resources",
+      "scope": [
+        "server"
+      ],
+      "required": true,
+      "version": "v1.0.1",
+      "version_source": "server/dependencies.lock.json",
+      "license": "LicenseRef-Atrinik-Asset-Per-File",
+      "source_url": "https://github.com/atrinik/resources/releases/tag/v1.0.1",
+      "locator": "pkg:github/atrinik/resources@v1.0.1",
+      "commit": "a3bd8c8a2b746d15b397a67d9f641af7d97a6078",
+      "checksum": "sha256:4db9ecdd74aa570bc7e20eccac980844f3aba8d668230502728b22146d3b2c54",
+      "acquisition": "Server dependency tool downloads and safely extracts the release archive",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly lock drift audit and reviewed release consumption",
+      "eol_response": "Update the lock to a supported resource release or stop packaging the server",
+      "validation": "Lock validation, checksum, safe extraction, and runtime allowlist",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "server",
+          "path": "dependencies.lock.json",
+          "contains": "atrinik-resources-1.0.1.tar.gz"
+        }
+      ]
+    },
+    {
+      "id": "source/atrinik-sound-runtime",
+      "name": "Atrinik sound archive",
+      "kind": "source-archive",
+      "owner": "sound",
+      "scope": [
+        "client"
+      ],
+      "required": true,
+      "version": "v1.0.3",
+      "version_source": "client/dependencies.lock.json",
+      "license": "LicenseRef-Atrinik-Asset-Per-File",
+      "source_url": "https://github.com/atrinik/sound/releases/tag/v1.0.3",
+      "locator": "pkg:github/atrinik/sound@v1.0.3",
+      "commit": "18234cce19bf641f24d81333d8abcc0f1e34cd08",
+      "checksum": "sha256:5427d2d2b5b73bad30c279ea5b7f012c380fd402249d45d9363b85ea7674e4bb",
+      "acquisition": "Client dependency tool downloads and safely extracts the release archive",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly lock drift audit and reviewed release consumption",
+      "eol_response": "Update the lock to a supported sound release or disable packaging",
+      "validation": "Lock validation, checksum, safe extraction, and client package test",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": "dependencies.lock.json",
+          "contains": "atrinik-sound-1.0.3.tar.gz"
+        }
+      ]
+    },
+    {
+      "id": "source/content-catalog",
+      "name": "Content catalog package",
+      "kind": "source-archive",
+      "owner": "content",
+      "scope": [
+        "tools"
+      ],
+      "required": true,
+      "version": "v1.2.0",
+      "version_source": "tools/map-checker-qt/catalog.lock.json",
+      "license": "MIT",
+      "source_url": "https://github.com/atrinik/content/releases/tag/v1.2.0",
+      "locator": "pkg:github/atrinik/content@v1.2.0#tools/content_catalog",
+      "commit": "766cb6e67aa03dd86b1c333c607885df31c3aca5",
+      "checksum": "sha256:c9ad1cfa555e2c9f23e7e814599ce67ea79a2779879787b6ad91f4a0c9e713f1",
+      "acquisition": "Map checker dependency tool safely extracts the catalog subtree",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly lock drift audit and catalog parity tests",
+      "eol_response": "Consume a supported content catalog release before removing the old package",
+      "validation": "Checksum, archive-prefix, path, import-origin, and catalog tests",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "tools",
+          "path": "map-checker-qt/catalog.lock.json",
+          "contains": "atrinik-content-1.2.0/tools/content_catalog"
+        }
+      ]
+    },
+    {
+      "id": "source/libpcpnatpmp",
+      "name": "libpcpnatpmp",
+      "kind": "source-archive",
+      "owner": "server",
+      "scope": [
+        "server"
+      ],
+      "required": true,
+      "version": "866d283da99f5e98eecff702a8df63e2ae57ffca",
+      "version_source": "server/cmake/pcpnatpmp.cmake",
+      "license": "BSD-3-Clause",
+      "source_url": "https://github.com/libpcpnatpmp/libpcpnatpmp",
+      "locator": "pkg:github/libpcpnatpmp/libpcpnatpmp@866d283da99f5e98eecff702a8df63e2ae57ffca",
+      "commit": "866d283da99f5e98eecff702a8df63e2ae57ffca",
+      "checksum": "sha256:65ab99547ecc8277434527607d24f8a1b02a2344ed4cea475bed751606e60202",
+      "acquisition": "CMake FetchContent downloads the commit archive and applies a reviewed MinGW patch",
+      "update_cadence_days": 90,
+      "update_mechanism": "Scheduled source-pin audit and sanitizer/network smoke review",
+      "eol_response": "Update the isolated source or replace NAT-PMP support without a fallback copy",
+      "validation": "Checksum, idempotent patch, native tests, and Linux/MinGW builds",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "server",
+          "path": "cmake/pcpnatpmp.cmake",
+          "contains": "866d283da99f5e98eecff702a8df63e2ae57ffca.tar.gz"
+        }
+      ]
+    },
+    {
+      "id": "source/miniupnpc",
+      "name": "MiniUPnPc source for MinGW",
+      "kind": "source-archive",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "bf4215a7574f88aa55859db9db00e3ae58cf42d6",
+      "version_source": "windows/Dockerfile MINIUPNPC_COMMIT",
+      "license": "BSD-3-Clause",
+      "source_url": "https://github.com/miniupnp/miniupnp",
+      "locator": "pkg:github/miniupnp/miniupnp@bf4215a7574f88aa55859db9db00e3ae58cf42d6",
+      "commit": "bf4215a7574f88aa55859db9db00e3ae58cf42d6",
+      "checksum": null,
+      "acquisition": "The Windows image shallow-clones and checks out the immutable commit",
+      "update_cadence_days": 90,
+      "update_mechanism": "Scheduled commit drift review and full Windows image build",
+      "eol_response": "Update or remove UPnP support if the source line becomes unsupported",
+      "validation": "Exact checkout plus MinGW configure/build/install",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "windows/Dockerfile",
+          "contains": "MINIUPNPC_COMMIT=bf4215a7574f88aa55859db9db00e3ae58cf42d6"
+        }
+      ]
+    },
+    {
+      "id": "source/mxe",
+      "name": "MXE cross-toolchain source",
+      "kind": "toolchain",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "8784776b145a8ddd350ce32aa0908ac10977060c",
+      "version_source": "windows/Dockerfile MXE_REF",
+      "license": "MIT",
+      "source_url": "https://github.com/mxe/mxe",
+      "locator": "pkg:github/mxe/mxe@8784776b145a8ddd350ce32aa0908ac10977060c",
+      "commit": "8784776b145a8ddd350ce32aa0908ac10977060c",
+      "checksum": null,
+      "acquisition": "The Windows image shallow-clones and checks out the immutable commit",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled commit review with cold Windows image and client/server builds",
+      "eol_response": "Advance MXE and its compiler before existing targets leave support",
+      "validation": "Patched MXE package builds and portable MinGW client/server tests",
+      "disposition": "isolate",
+      "packages": [
+        "cmake",
+        "curl",
+        "libxml2",
+        "openssl",
+        "sdl3",
+        "sdl3_image",
+        "sdl3_ttf",
+        "zlib"
+      ],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "windows/Dockerfile",
+          "contains": "MXE_REF=8784776b145a8ddd350ce32aa0908ac10977060c"
+        }
+      ]
+    },
+    {
+      "id": "source/sdl3-mixer-mingw",
+      "name": "SDL3_mixer MinGW SDK",
+      "kind": "source-archive",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "3.2.4",
+      "version_source": "windows/Dockerfile",
+      "license": "Zlib",
+      "source_url": "https://github.com/libsdl-org/SDL_mixer/releases/tag/release-3.2.4",
+      "locator": "pkg:github/libsdl-org/SDL_mixer@release-3.2.4#mingw",
+      "commit": null,
+      "checksum": "sha256:2ff5f59be4683e0afb4339c4fa73c6228651e52d37b040ecf80da08edb3cecd6",
+      "acquisition": "Windows image downloads the official checksum-pinned SDK",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled release drift review with Windows sound import verification",
+      "eol_response": "Upgrade with SDL3 and rebuild the complete portable client",
+      "validation": "Checksum, pkg-config version, DLL presence, and client import check",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "windows/Dockerfile",
+          "contains": "SDL3_MIXER_MINGW_SHA256=2ff5f59be4683e0afb4339c4fa73c6228651e52d37b040ecf80da08edb3cecd6"
+        }
+      ]
+    },
+    {
+      "id": "source/sdl3-mixer-source",
+      "name": "SDL3_mixer source archive",
+      "kind": "source-archive",
+      "owner": "devcontainer",
+      "scope": [
+        "client",
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "3.2.4",
+      "version_source": "Linux image and client CI installer",
+      "license": "Zlib",
+      "source_url": "https://github.com/libsdl-org/SDL_mixer/releases/tag/release-3.2.4",
+      "locator": "pkg:github/libsdl-org/SDL_mixer@release-3.2.4",
+      "commit": null,
+      "checksum": "sha256:182a07c745375e113dc740d43964ff21b0be29f29f59876c4dbc4db3d32f6901",
+      "acquisition": "Checksum-pinned official release source is built with a bounded codec set",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled release drift review and client audio tests",
+      "eol_response": "Upgrade with SDL3 or temporarily disable unsupported codecs explicitly",
+      "validation": "Checksum, pkg-config version, native client build, and sound tests",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": "tools/install-linux-ci-dependencies.sh",
+          "contains": "182a07c745375e113dc740d43964ff21b0be29f29f59876c4dbc4db3d32f6901"
+        },
+        {
+          "repository": "devcontainer",
+          "path": "linux/Dockerfile",
+          "contains": "SDL3_MIXER_SHA256=182a07c745375e113dc740d43964ff21b0be29f29f59876c4dbc4db3d32f6901"
+        }
+      ]
+    },
+    {
+      "id": "system/check",
+      "name": "Check unit-testing framework",
+      "kind": "system-library",
+      "owner": "server",
+      "scope": [
+        "server"
+      ],
+      "required": false,
+      "version": "distribution-provided",
+      "version_source": "Ubuntu 26.04 package set",
+      "license": "LGPL-2.1-or-later",
+      "source_url": "https://libcheck.github.io/check/",
+      "locator": "pkg:generic/check",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "pkg-config resolves the build-image package",
+      "update_cadence_days": 30,
+      "update_mechanism": "Pinned image rebuild and package-version report",
+      "eol_response": "Upgrade the image or migrate focused tests without suppressing them",
+      "validation": "Optional CHECK_PKG discovery and server unit suite",
+      "disposition": "retain",
+      "packages": [
+        "check",
+        "libsubunit-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "server",
+          "path": "CMakeLists.txt",
+          "contains": "pkg_check_modules(CHECK_PKG QUIET IMPORTED_TARGET check)"
+        }
+      ]
+    },
+    {
+      "id": "system/client-ci-packages",
+      "name": "Client Linux CI package set",
+      "kind": "system-package-set",
+      "owner": "client",
+      "scope": [
+        "client"
+      ],
+      "required": true,
+      "version": "ubuntu-24.04-runner",
+      "version_source": "GitHub-hosted runner package repositories",
+      "license": "NOASSERTION",
+      "source_url": "https://github.com/actions/runner-images",
+      "locator": "ubuntu-client-ci-packages",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "apt installs the declared packages in the ephemeral CI runner",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly dependency audit and exact CI version report",
+      "eol_response": "Move the job to a supported runner/image and update package names together",
+      "validation": "Dependency installer, native build, CTest, and coverage",
+      "disposition": "isolate",
+      "packages": [
+        "build-essential",
+        "ca-certificates",
+        "cmake",
+        "curl",
+        "gcovr",
+        "libcurl4-openssl-dev",
+        "libsdl3-dev",
+        "libsdl3-image-dev",
+        "libsdl3-ttf-dev",
+        "libssl-dev",
+        "libxml2-dev",
+        "ninja-build",
+        "pkgconf",
+        "python3",
+        "zlib1g-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": "tools/install-linux-ci-dependencies.sh",
+          "contains": "apt-get install -y -qq --no-install-recommends"
+        }
+      ]
+    },
+    {
+      "id": "system/curl",
+      "name": "libcurl",
+      "kind": "system-library",
+      "owner": "libatrinik",
+      "scope": [
+        "client",
+        "devcontainer",
+        "libatrinik",
+        "server"
+      ],
+      "required": true,
+      "version": "distribution/MXE-provided",
+      "version_source": "Pinned build images and MXE commit",
+      "license": "LicenseRef-curl",
+      "source_url": "https://curl.se/libcurl/",
+      "locator": "pkg:generic/libcurl",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake imported target from the pinned native or MXE package set",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image rebuild, MXE review, and exact version report",
+      "eol_response": "Upgrade immediately for unsupported or security-affected TLS/HTTP lines",
+      "validation": "CMake discovery, TLS backend check, and client/server network tests",
+      "disposition": "retain",
+      "packages": [
+        "libcurl4-openssl-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "libatrinik",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(CURL REQUIRED)"
+        }
+      ]
+    },
+    {
+      "id": "system/flex",
+      "name": "Flex",
+      "kind": "toolchain",
+      "owner": "server",
+      "scope": [
+        "devcontainer",
+        "server"
+      ],
+      "required": true,
+      "version": "distribution-provided",
+      "version_source": "Pinned build images",
+      "license": "BSD-2-Clause",
+      "source_url": "https://github.com/westes/flex",
+      "locator": "pkg:generic/flex",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake finds the lexer generator from the build image",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image update and generated-loader parity tests",
+      "eol_response": "Upgrade the image or replace generated loader inputs deliberately",
+      "validation": "CMake FLEX discovery and loader/runtime tests",
+      "disposition": "retain",
+      "packages": [
+        "flex"
+      ],
+      "evidence": [
+        {
+          "repository": "server",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(FLEX REQUIRED)"
+        }
+      ]
+    },
+    {
+      "id": "system/gd",
+      "name": "libgd",
+      "kind": "system-library",
+      "owner": "server",
+      "scope": [
+        "devcontainer",
+        "server"
+      ],
+      "required": false,
+      "version": "distribution-provided",
+      "version_source": "Pinned build images",
+      "license": "NOASSERTION",
+      "source_url": "https://github.com/libgd/libgd",
+      "locator": "pkg:generic/libgd",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake finds the optional world-maker library from the image",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image update and world-maker generation test",
+      "eol_response": "Replace the world-maker dependency through client-rendered imagery before removal",
+      "validation": "CMake GD_LIBRARY discovery and isolated world-maker generation",
+      "disposition": "replace",
+      "packages": [
+        "libgd-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "server",
+          "path": "CMakeLists.txt",
+          "contains": "find_library(GD_LIBRARY gd)"
+        }
+      ]
+    },
+    {
+      "id": "system/libxml2",
+      "name": "libxml2",
+      "kind": "system-library",
+      "owner": "client",
+      "scope": [
+        "client",
+        "devcontainer",
+        "server"
+      ],
+      "required": true,
+      "version": "distribution/MXE-provided",
+      "version_source": "Pinned build images and MXE commit",
+      "license": "MIT",
+      "source_url": "https://gitlab.gnome.org/GNOME/libxml2",
+      "locator": "pkg:generic/libxml2",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake imported target from the native or MXE package set",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image rebuild, MXE review, and parser tests",
+      "eol_response": "Upgrade promptly for unsupported or security-affected parser lines",
+      "validation": "CMake discovery and malformed XML fixtures",
+      "disposition": "retain",
+      "packages": [
+        "libxml2-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(LibXml2 REQUIRED)"
+        }
+      ]
+    },
+    {
+      "id": "system/miniupnpc",
+      "name": "MiniUPnPc",
+      "kind": "system-library",
+      "owner": "server",
+      "scope": [
+        "devcontainer",
+        "server"
+      ],
+      "required": true,
+      "version": "distribution/MXE-pinned",
+      "version_source": "Ubuntu image packages and MinGW source commit",
+      "license": "BSD-3-Clause",
+      "source_url": "https://github.com/miniupnp/miniupnp",
+      "locator": "pkg:generic/miniupnpc",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "pkg-config on Linux and isolated static MinGW build",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image/package update plus MinGW source review",
+      "eol_response": "Update or remove automatic port mapping without weakening network defaults",
+      "validation": "Pkg-config discovery, MinGW static library, and network-disabled runtime tests",
+      "disposition": "isolate",
+      "packages": [
+        "libminiupnpc-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "server",
+          "path": "CMakeLists.txt",
+          "contains": "pkg_check_modules(MINIUPNPC REQUIRED IMPORTED_TARGET miniupnpc)"
+        }
+      ]
+    },
+    {
+      "id": "system/openssl",
+      "name": "OpenSSL",
+      "kind": "system-library",
+      "owner": "libatrinik",
+      "scope": [
+        "client",
+        "devcontainer",
+        "libatrinik",
+        "server"
+      ],
+      "required": true,
+      "version": "distribution/MXE-provided",
+      "version_source": "Pinned build images and MXE commit",
+      "license": "Apache-2.0",
+      "source_url": "https://www.openssl.org/",
+      "locator": "pkg:generic/openssl",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake imported target from the native or MXE package set",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image/MXE update, security advisory review, and exact version report",
+      "eol_response": "Upgrade before the supported OpenSSL line reaches EOL; security fixes are urgent",
+      "validation": "CMake discovery, crypto known-answer tests, and TLS runtime tests",
+      "disposition": "retain",
+      "packages": [
+        "libssl-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "libatrinik",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(OpenSSL REQUIRED)"
+        }
+      ]
+    },
+    {
+      "id": "system/pkg-config",
+      "name": "pkg-config/pkgconf",
+      "kind": "toolchain",
+      "owner": "server",
+      "scope": [
+        "client",
+        "devcontainer",
+        "server"
+      ],
+      "required": true,
+      "version": "distribution-provided",
+      "version_source": "Pinned build images",
+      "license": "LicenseRef-System-Distribution",
+      "source_url": "https://github.com/pkgconf/pkgconf",
+      "locator": "pkg:generic/pkgconf",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake resolves native package metadata from the build image",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image update and exact version report",
+      "eol_response": "Upgrade the image or migrate affected discovery to supported imported targets",
+      "validation": "CMake PkgConfig discovery across Linux and MinGW",
+      "disposition": "retain",
+      "packages": [
+        "pkgconf"
+      ],
+      "evidence": [
+        {
+          "repository": "server",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(PkgConfig REQUIRED)"
+        }
+      ]
+    },
+    {
+      "id": "system/sdl3",
+      "name": "SDL3",
+      "kind": "system-library",
+      "owner": "client",
+      "scope": [
+        "client",
+        "devcontainer"
+      ],
+      "required": true,
+      "version": ">=3.4",
+      "version_source": "Client CMake constraint and pinned build images",
+      "license": "Zlib",
+      "source_url": "https://github.com/libsdl-org/SDL",
+      "locator": "pkg:generic/SDL3",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake imported target from Ubuntu or MXE",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image/MXE update and SDL3 client test matrix",
+      "eol_response": "Upgrade to a supported SDL3 release without reintroducing SDL2 compatibility",
+      "validation": "CMake version constraint, native tests, and live client smoke test",
+      "disposition": "retain",
+      "packages": [
+        "libsdl3-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(SDL3 3.4 CONFIG REQUIRED)"
+        }
+      ]
+    },
+    {
+      "id": "system/sdl3-image",
+      "name": "SDL3_image",
+      "kind": "system-library",
+      "owner": "client",
+      "scope": [
+        "client",
+        "devcontainer"
+      ],
+      "required": true,
+      "version": ">=3.2",
+      "version_source": "Client CMake constraint and pinned build images",
+      "license": "Zlib",
+      "source_url": "https://github.com/libsdl-org/SDL_image",
+      "locator": "pkg:generic/SDL3_image",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake imported target from Ubuntu or patched MXE",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image/MXE update and image-decoder tests",
+      "eol_response": "Upgrade with SDL3 and preserve supported image formats explicitly",
+      "validation": "CMake version constraint, image fixtures, and portable client build",
+      "disposition": "retain",
+      "packages": [
+        "libsdl3-image-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(SDL3_image 3.2 CONFIG REQUIRED)"
+        }
+      ]
+    },
+    {
+      "id": "system/sdl3-mixer",
+      "name": "SDL3_mixer",
+      "kind": "system-library",
+      "owner": "client",
+      "scope": [
+        "client",
+        "devcontainer"
+      ],
+      "required": true,
+      "version": ">=3.2.4",
+      "version_source": "Client CMake constraint and checksum-pinned source/SDK",
+      "license": "Zlib",
+      "source_url": "https://github.com/libsdl-org/SDL_mixer",
+      "locator": "pkg:generic/SDL3_mixer",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake imported target built from the reviewed source or SDK",
+      "update_cadence_days": 30,
+      "update_mechanism": "Source/SDK update with codec and import verification",
+      "eol_response": "Upgrade with SDL3 and retain only deliberately supported codecs",
+      "validation": "CMake version constraint, pkg-config version, and audio smoke tests",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(SDL3_mixer 3.2.4 CONFIG REQUIRED)"
+        }
+      ]
+    },
+    {
+      "id": "system/sdl3-ttf",
+      "name": "SDL3_ttf",
+      "kind": "system-library",
+      "owner": "client",
+      "scope": [
+        "client",
+        "devcontainer"
+      ],
+      "required": true,
+      "version": ">=3.2",
+      "version_source": "Client CMake constraint and pinned build images",
+      "license": "Zlib",
+      "source_url": "https://github.com/libsdl-org/SDL_ttf",
+      "locator": "pkg:generic/SDL3_ttf",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake imported target from Ubuntu or MXE",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image/MXE update and text-rendering tests",
+      "eol_response": "Upgrade with SDL3 and preserve font behavior through fixtures",
+      "validation": "CMake version constraint, text tests, and portable client build",
+      "disposition": "retain",
+      "packages": [
+        "libsdl3-ttf-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(SDL3_ttf 3.2 CONFIG REQUIRED)"
+        }
+      ]
+    },
+    {
+      "id": "system/server-image-packages",
+      "name": "Server container package sets",
+      "kind": "system-package-set",
+      "owner": "server",
+      "scope": [
+        "server"
+      ],
+      "required": true,
+      "version": "ubuntu-26.04-digest-locked",
+      "version_source": "Server Dockerfile stages",
+      "license": "NOASSERTION",
+      "source_url": "https://packages.ubuntu.com/",
+      "locator": "ubuntu-server-image-packages",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "apt installs declared build/runtime packages from the digest-pinned image",
+      "update_cadence_days": 30,
+      "update_mechanism": "Dependabot base-image update plus exact installed-version report",
+      "eol_response": "Update package names and base image together; never retain an EOL runtime layer",
+      "validation": "Reproducible image build, world-maker run, and startup healthcheck",
+      "disposition": "isolate",
+      "packages": [
+        "build-essential",
+        "ca-certificates",
+        "cmake",
+        "flex",
+        "git",
+        "libcrypt1",
+        "libcurl4-openssl-dev",
+        "libcurl4t64",
+        "libgd-dev",
+        "libgd3",
+        "libminiupnpc-dev",
+        "libminiupnpc21",
+        "libpython3.14",
+        "libreadline-dev",
+        "libreadline8t64",
+        "libssl-dev",
+        "libssl3t64",
+        "ninja-build",
+        "pkgconf",
+        "python3",
+        "python3-dev",
+        "zlib1g",
+        "zlib1g-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "server",
+          "path": "Dockerfile",
+          "contains": "libpython3.14 libreadline8t64 libssl3t64 python3 zlib1g"
+        }
+      ]
+    },
+    {
+      "id": "system/threads",
+      "name": "CMake Threads",
+      "kind": "system-library",
+      "owner": "libatrinik",
+      "scope": [
+        "libatrinik"
+      ],
+      "required": true,
+      "version": "platform-provided",
+      "version_source": "CMake platform thread discovery",
+      "license": "NOASSERTION",
+      "source_url": "https://cmake.org/cmake/help/latest/module/FindThreads.html",
+      "locator": "pkg:generic/platform-threads",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake maps the portable Threads target to the platform runtime",
+      "update_cadence_days": 90,
+      "update_mechanism": "Compiler/platform image update",
+      "eol_response": "Move supported platforms together rather than carrying obsolete thread shims",
+      "validation": "CMake discovery and native lifecycle tests",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "libatrinik",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(Threads REQUIRED)"
+        }
+      ]
+    },
+    {
+      "id": "system/ubuntu-linux-image-packages",
+      "name": "Linux build-image apt package set",
+      "kind": "system-package-set",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "ubuntu-26.04-digest-locked",
+      "version_source": "linux/Dockerfile",
+      "license": "NOASSERTION",
+      "source_url": "https://packages.ubuntu.com/",
+      "locator": "ubuntu-linux-build-packages",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "apt installs the declared packages from the digest-pinned image",
+      "update_cadence_days": 30,
+      "update_mechanism": "Dependabot base-image update and exact installed-version report",
+      "eol_response": "Update package names and base image together before Ubuntu support ends",
+      "validation": "Docker build, tool version probes, and complete native workspace build",
+      "disposition": "isolate",
+      "packages": [
+        "alsa-utils",
+        "build-essential",
+        "ca-certificates",
+        "ccache",
+        "check",
+        "clang",
+        "clang-format",
+        "clang-tidy",
+        "clangd",
+        "cmake",
+        "cppcheck",
+        "cproto",
+        "curl",
+        "fd-find",
+        "file",
+        "flex",
+        "fzf",
+        "gdb",
+        "gh",
+        "git",
+        "iproute2",
+        "jq",
+        "libasound2-plugins",
+        "libclang-rt-dev",
+        "libcurl4-openssl-dev",
+        "libgd-dev",
+        "libminiupnpc-dev",
+        "libreadline-dev",
+        "libsdl3-dev",
+        "libsdl3-image-dev",
+        "libsdl3-ttf-dev",
+        "libssl-dev",
+        "libsubunit-dev",
+        "libxml2-dev",
+        "libxml2-utils",
+        "llvm",
+        "ninja-build",
+        "nodejs",
+        "npm",
+        "openssh-client",
+        "patch",
+        "pkgconf",
+        "pulseaudio-utils",
+        "python3-dev",
+        "python3-pip",
+        "python3-venv",
+        "ripgrep",
+        "shellcheck",
+        "shfmt",
+        "sudo",
+        "timidity",
+        "tree",
+        "unzip",
+        "valgrind",
+        "zlib1g-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "linux/Dockerfile",
+          "contains": "apt-get install -y --no-install-recommends"
+        }
+      ]
+    },
+    {
+      "id": "system/ubuntu-windows-image-packages",
+      "name": "Windows build-image host package set",
+      "kind": "system-package-set",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "debian-bookworm-digest-locked",
+      "version_source": "windows/Dockerfile",
+      "license": "NOASSERTION",
+      "source_url": "https://packages.debian.org/bookworm/",
+      "locator": "debian-windows-build-packages",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "apt installs declared host and native-build packages from the digest-pinned image",
+      "update_cadence_days": 30,
+      "update_mechanism": "Dependabot base-image update and exact installed-version report",
+      "eol_response": "Update package names and base image together before Debian support ends",
+      "validation": "Cold MXE image build and portable client/server builds",
+      "disposition": "isolate",
+      "packages": [
+        "autoconf",
+        "automake",
+        "autopoint",
+        "bison",
+        "bzip2",
+        "ca-certificates",
+        "cmake",
+        "flex",
+        "g++",
+        "g++-multilib",
+        "gettext",
+        "git",
+        "gperf",
+        "intltool",
+        "libc6-dev-i386",
+        "libclang-dev",
+        "libcurl4-openssl-dev",
+        "libgd-dev",
+        "libgdk-pixbuf-2.0-dev",
+        "libgl-dev",
+        "libltdl-dev",
+        "libminiupnpc-dev",
+        "libpcre2-dev",
+        "libssl-dev",
+        "libtool-bin",
+        "libxml-parser-perl",
+        "lzip",
+        "make",
+        "mingw-w64-tools",
+        "ninja-build",
+        "openssh-client",
+        "openssl",
+        "p7zip-full",
+        "patch",
+        "perl",
+        "python-is-python3",
+        "python3",
+        "python3-dev",
+        "python3-mako",
+        "python3-packaging",
+        "python3-pkg-resources",
+        "python3-setuptools",
+        "ruby",
+        "sqlite3",
+        "unzip",
+        "wget",
+        "xz-utils",
+        "zip",
+        "zlib1g-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "windows/Dockerfile",
+          "contains": "mingw-w64-tools"
+        }
+      ]
+    },
+    {
+      "id": "system/zlib",
+      "name": "zlib",
+      "kind": "system-library",
+      "owner": "libatrinik",
+      "scope": [
+        "client",
+        "devcontainer",
+        "libatrinik",
+        "server"
+      ],
+      "required": true,
+      "version": "distribution/MXE-provided",
+      "version_source": "Pinned build images and MXE commit",
+      "license": "Zlib",
+      "source_url": "https://zlib.net/",
+      "locator": "pkg:generic/zlib",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake imported target from the native or MXE package set",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image/MXE update and exact version report",
+      "eol_response": "Upgrade promptly for unsupported or security-affected compression lines",
+      "validation": "CMake discovery and compression/packet tests",
+      "disposition": "retain",
+      "packages": [
+        "zlib1g-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "libatrinik",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(ZLIB REQUIRED)"
+        }
+      ]
+    },
+    {
+      "id": "toolchain/actionlint",
+      "name": "actionlint",
+      "kind": "toolchain",
+      "owner": "devcontainer",
+      "scope": [
+        "atrinik",
+        "devcontainer",
+        "github-settings"
+      ],
+      "required": true,
+      "version": "1.7.12",
+      "version_source": "linux/Dockerfile",
+      "license": "MIT",
+      "source_url": "https://github.com/rhysd/actionlint/releases/tag/v1.7.12",
+      "locator": "pkg:github/rhysd/actionlint@v1.7.12",
+      "commit": null,
+      "checksum": "sha256:8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8",
+      "acquisition": "Linux image downloads the checksum-pinned official binary",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled release drift review and workflow validation",
+      "eol_response": "Upgrade before new workflow syntax outgrows the validator",
+      "validation": "Checksum, exact version assertion, and all workflow files",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "linux/Dockerfile",
+          "contains": "ACTIONLINT_SHA256=8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
+        }
+      ]
+    },
+    {
+      "id": "toolchain/cmake",
+      "name": "CMake",
+      "kind": "toolchain",
+      "owner": "devcontainer",
+      "scope": [
+        "client",
+        "devcontainer",
+        "libatrinik",
+        "protocol",
+        "server"
+      ],
+      "required": true,
+      "version": ">=3.21",
+      "version_source": "Native repository minimums and pinned build images",
+      "license": "BSD-3-Clause",
+      "source_url": "https://cmake.org/",
+      "locator": "pkg:generic/cmake",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Pinned Linux image packages and MXE toolchain package",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image/MXE update and exact version report",
+      "eol_response": "Raise the project minimum only after every supported image supplies it",
+      "validation": "All native configure/build/test presets",
+      "disposition": "retain",
+      "packages": [
+        "cmake"
+      ],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": "CMakeLists.txt",
+          "contains": "cmake_minimum_required(VERSION 3.21)"
+        },
+        {
+          "repository": "libatrinik",
+          "path": "CMakeLists.txt",
+          "contains": "cmake_minimum_required(VERSION 3.21)"
+        },
+        {
+          "repository": "protocol",
+          "path": "CMakeLists.txt",
+          "contains": "cmake_minimum_required(VERSION 3.21)"
+        },
+        {
+          "repository": "server",
+          "path": "CMakeLists.txt",
+          "contains": "cmake_minimum_required(VERSION 3.21)"
+        }
+      ]
+    },
+    {
+      "id": "toolchain/devcontainer-cli",
+      "name": "Dev Container CLI",
+      "kind": "toolchain",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "0.88.0",
+      "version_source": "linux/Dockerfile",
+      "license": "MIT",
+      "source_url": "https://github.com/devcontainers/cli",
+      "locator": "pkg:npm/@devcontainers/cli@0.88.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "npm installs the exact global package in the Linux image",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled npm release review and devcontainer configuration tests",
+      "eol_response": "Upgrade before supported Dev Container metadata requires a newer CLI",
+      "validation": "Exact version assertion and devcontainer configuration tests",
+      "disposition": "isolate",
+      "packages": [
+        "@devcontainers/cli"
+      ],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "linux/Dockerfile",
+          "contains": "DEVCONTAINER_CLI_VERSION=0.88.0"
+        }
+      ]
+    },
+    {
+      "id": "toolchain/github-hosted-ubuntu-24.04",
+      "name": "GitHub-hosted Ubuntu 24.04 runner",
+      "kind": "toolchain",
+      "owner": "github-settings",
+      "scope": [
+        "atrinik",
+        "client",
+        "content",
+        "devcontainer",
+        "editor",
+        "github-settings",
+        "libatrinik",
+        "metaserver-worker",
+        "protocol",
+        "resources",
+        "server",
+        "sound",
+        "tools"
+      ],
+      "required": true,
+      "version": "ubuntu-24.04",
+      "version_source": "Explicit GitHub Actions runner label and generated version report",
+      "license": "LicenseRef-GitHub-Hosted-Runner",
+      "source_url": "https://github.com/actions/runner-images",
+      "locator": "github-hosted-runner/ubuntu-24.04",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "GitHub Actions provisions the named runner image for each job",
+      "update_cadence_days": 30,
+      "update_mechanism": "Monthly runner-image review with exact in-job tool version report",
+      "eol_response": "Move every consumer to a supported explicit runner label before removal",
+      "validation": "Actionlint plus required repository checks",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/integration.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "client",
+          "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "content",
+          "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "devcontainer",
+          "path": ".github/workflows/pr-title.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "editor",
+          "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "github-settings",
+          "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "libatrinik",
+          "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "metaserver-worker",
+          "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "protocol",
+          "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "resources",
+          "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "server",
+          "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "sound",
+          "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "tools",
+          "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        }
+      ]
+    },
+    {
+      "id": "toolchain/github-hosted-ubuntu-26.04",
+      "name": "GitHub-hosted Ubuntu 26.04 runner",
+      "kind": "toolchain",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "ubuntu-26.04",
+      "version_source": "Explicit GitHub Actions runner label and generated version report",
+      "license": "LicenseRef-GitHub-Hosted-Runner",
+      "source_url": "https://github.com/actions/runner-images",
+      "locator": "github-hosted-runner/ubuntu-26.04",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "GitHub Actions provisions the named runner image for image validation",
+      "update_cadence_days": 30,
+      "update_mechanism": "Monthly runner-image review and devcontainer cold-build validation",
+      "eol_response": "Move image validation to a supported explicit runner label before removal",
+      "validation": "Actionlint plus Linux and Windows image builds",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": ".github/workflows/validate.yml",
+          "contains": "runs-on: ubuntu-26.04"
+        }
+      ]
+    },
+    {
+      "id": "toolchain/node",
+      "name": "Node.js",
+      "kind": "toolchain",
+      "owner": "metaserver-worker",
+      "scope": [
+        "atrinik",
+        "metaserver-worker"
+      ],
+      "required": true,
+      "version": ">=20",
+      "version_source": "Worker package engines and semantic-release",
+      "license": "MIT",
+      "source_url": "https://nodejs.org/",
+      "locator": "pkg:generic/node",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "GitHub setup-node or the digest-pinned Linux image",
+      "update_cadence_days": 30,
+      "update_mechanism": "setup-node Dependabot updates and supported-LTS review",
+      "eol_response": "Advance to a supported Node LTS before the current line reaches EOL",
+      "validation": "Exact version report, npm ci, Worker tests, and semantic-release",
+      "disposition": "retain",
+      "packages": [
+        "nodejs",
+        "npm"
+      ],
+      "evidence": [
+        {
+          "repository": "metaserver-worker",
+          "path": "package.json",
+          "contains": "\"node\": \">=20\""
+        }
+      ]
+    },
+    {
+      "id": "toolchain/python",
+      "name": "Python",
+      "kind": "toolchain",
+      "owner": "atrinik",
+      "scope": [
+        "atrinik",
+        "client",
+        "content",
+        "devcontainer",
+        "protocol",
+        "server",
+        "tools"
+      ],
+      "required": true,
+      "version": ">=3.11; Windows runtime 3.14.6",
+      "version_source": "Wrapper requirement, protocol metadata, and Windows image arguments",
+      "license": "PSF-2.0",
+      "source_url": "https://www.python.org/",
+      "locator": "pkg:generic/python",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Pinned build images, setup-python, and checksum-pinned Windows runtime/source archives",
+      "update_cadence_days": 30,
+      "update_mechanism": "Supported-version matrix review and image rebuild",
+      "eol_response": "Advance every maintained tool and embedded runtime before Python EOL",
+      "validation": "Exact version report, compileall, Python tests, plugin tests, and MinGW package smoke test",
+      "disposition": "retain",
+      "packages": [
+        "python3",
+        "python3-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": "README.md",
+          "contains": "Python 3.11 or newer"
+        },
+        {
+          "repository": "devcontainer",
+          "path": "windows/Dockerfile",
+          "contains": "PYTHON_VERSION=3.14.6"
+        },
+        {
+          "repository": "protocol",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(Python3 REQUIRED COMPONENTS Interpreter)"
+        },
+        {
+          "repository": "server",
+          "path": "CMakeLists.txt",
+          "contains": "find_package(Python3 REQUIRED COMPONENTS Interpreter)"
+        }
+      ]
+    },
+    {
+      "id": "vendored/sdl-gfx-rotozoom",
+      "name": "SDL_gfx rotozoom implementation",
+      "kind": "vendored-source",
+      "owner": "client",
+      "scope": [
+        "client"
+      ],
+      "required": false,
+      "version": "retired",
+      "version_source": "Client source audit",
+      "license": "LGPL-2.1-or-later",
+      "source_url": "https://www.ferzkopp.net/Software/SDL_gfx-2.0/",
+      "locator": "sdl-gfx-rotozoom",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "No external acquisition remains; owned SDL3 surface primitives replaced the vendored implementation",
+      "update_cadence_days": 180,
+      "update_mechanism": "Repository search prevents reintroduction",
+      "eol_response": "Keep the retired source absent and maintain the focused owned API",
+      "validation": "Surface primitive unit tests and repository search for SDL_gfx source",
+      "disposition": "replace",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "client",
+          "path": "src/gui/toolkit/surface_primitives.c",
+          "contains": "rotozoomSurfaceXY"
+        }
+      ]
+    },
+    {
+      "id": "vendored/uthash-family",
+      "name": "uthash, utarray, and utlist",
+      "kind": "vendored-source",
+      "owner": "libatrinik",
+      "scope": [
+        "libatrinik"
+      ],
+      "required": true,
+      "version": "1.9.4",
+      "version_source": "Embedded version macros",
+      "license": "BSD-1-Clause",
+      "source_url": "https://github.com/troydhanson/uthash",
+      "locator": "pkg:github/troydhanson/uthash@v1.9.4",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Historical vendored headers retained behind the shared library boundary",
+      "update_cadence_days": 90,
+      "update_mechanism": "Scheduled upstream/security review before any isolated upgrade or replacement",
+      "eol_response": "Replace with owned typed containers or update all three headers together after sanitizer/performance tests",
+      "validation": "Version macro audit, native tests, sanitizers, and downstream builds",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "libatrinik",
+          "path": "utarray.h",
+          "contains": "UTARRAY_VERSION 1.9 .4"
+        },
+        {
+          "repository": "libatrinik",
+          "path": "uthash.h",
+          "contains": "UTHASH_VERSION 1.9 .4"
+        },
+        {
+          "repository": "libatrinik",
+          "path": "utlist.h",
+          "contains": "UTLIST_VERSION 1.9 .4"
+        }
+      ]
+    }
+  ]
+}
