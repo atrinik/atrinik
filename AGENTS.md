@@ -30,15 +30,9 @@
 - Use precise component and protocol names; do not use vague age-based labels.
 - Do not mention confidential or unreleased Atrinik work in committed files or
   public project surfaces.
-- Zoey Rose grants permission to copy, migrate, translate, or relicense under
-  MIT any of her original past Atrinik contributions, but only when a complete
-  Git-history audit proves that she solely authored the selected material and
-  a content review finds no embedded third-party or conflicting-licensed
-  material. Current blame alone and mixed, incomplete, or uncertain history
-  are not sufficient. Record the exact source repository, path, and revision;
-  the destination repository and path; the complete history and author-identity
-  evidence; the performed transformation and third-party review; and this
-  grant in the destination pull request or a committed provenance manifest.
+- Apply a historical MIT provenance grant only for a person listed in the
+  approved grantors table below and only within that row's stated scope. Every
+  use must satisfy the shared proof and recording requirements below the table.
 - Pull-request titles and commits use Conventional Commits style. Every squash
   merge is released by semantic-release.
 - Run the complete Python test suite, compileall, ShellCheck for shell changes,
@@ -73,3 +67,27 @@
 - When major rework changes ownership, layout, commands, safety boundaries, or
   validation contracts, update every affected `AGENTS.md` and skill in the same
   change. Treat stale agent guidance as an implementation defect.
+
+## Approved historical MIT provenance grantors
+
+This table is exhaustive. Each person explicitly grants permission for the
+listed treatment of the listed original past Atrinik contributions.
+
+| Grantor | Covered material | Permitted operations | Destination license |
+| --- | --- | --- | --- |
+| Zoey Rose | All original past Atrinik contributions solely authored by Zoey Rose | Copy, migrate, translate, or relicense | MIT |
+| Daniel Liptrot | All original past Atrinik contributions solely authored by Daniel Liptrot | Copy, migrate, translate, or relicense | MIT |
+
+Apply a grant only when a complete, non-shallow Git-history audit, including
+renames and moves, proves that the selected material is the named grantor's
+original work and that the grantor solely authored it. Verify historical author
+identities and review the material for embedded third-party or
+conflicting-licensed work. Current blame alone and mixed, incomplete, or
+uncertain history are not sufficient; fail closed until every doubt is
+independently resolved. Reuse only independently separable material covered by
+the proof. Record the exact source repository, path, and revision; destination
+repository and path; complete history and author-identity evidence;
+transformation and third-party review; and the applicable grantor and grant in
+the destination pull request or a committed provenance manifest. Cite the exact
+wrapper repository revision containing the applicable registry entry as the
+grant evidence.
