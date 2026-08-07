@@ -30,6 +30,15 @@
 - Use precise component and protocol names; do not use vague age-based labels.
 - Do not mention confidential or unreleased Atrinik work in committed files or
   public project surfaces.
+- Zoey Rose grants permission to copy, migrate, translate, or relicense under
+  MIT any of her original past Atrinik contributions, but only when a complete
+  Git-history audit proves that she solely authored the selected material and
+  a content review finds no embedded third-party or conflicting-licensed
+  material. Current blame alone and mixed, incomplete, or uncertain history
+  are not sufficient. Record the exact source repository, path, and revision;
+  the destination repository and path; the complete history and author-identity
+  evidence; the performed transformation and third-party review; and this
+  grant in the destination pull request or a committed provenance manifest.
 - Pull-request titles and commits use Conventional Commits style. Every squash
   merge is released by semantic-release.
 - Run the complete Python test suite, compileall, ShellCheck for shell changes,
