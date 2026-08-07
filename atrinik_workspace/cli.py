@@ -130,6 +130,28 @@ def parser() -> argparse.ArgumentParser:
     state_list = state_commands.add_parser("list")
     state_list.add_argument("--json", action="store_true")
 
+    scenario = commands.add_parser(
+        "scenario", help="manage deterministic local test scenarios"
+    )
+    scenario_commands = scenario.add_subparsers(
+        dest="scenario_command", required=True
+    )
+    scenario_create = scenario_commands.add_parser("create")
+    scenario_create.add_argument("name")
+    scenario_create.add_argument("--profile", default="default")
+    scenario_create.add_argument("--preset", default="basic-player")
+    scenario_create.add_argument("--json", action="store_true")
+    scenario_list = scenario_commands.add_parser("list")
+    scenario_list.add_argument("--json", action="store_true")
+    scenario_show = scenario_commands.add_parser("show")
+    scenario_show.add_argument("name")
+    scenario_show.add_argument("--json", action="store_true")
+    scenario_credentials = scenario_commands.add_parser("credentials")
+    scenario_credentials.add_argument("name")
+    scenario_reset = scenario_commands.add_parser("reset")
+    scenario_reset.add_argument("name")
+    scenario_reset.add_argument("--json", action="store_true")
+
     launch = commands.add_parser("run", help="build and run client or server")
     launch_commands = launch.add_subparsers(dest="target", required=True)
     for target in ("client", "server"):
@@ -146,6 +168,32 @@ def parser() -> argparse.ArgumentParser:
 
 def _forwarded_arguments(arguments: list[str]) -> list[str]:
     return arguments[1:] if arguments and arguments[0] == "--" else arguments
+
+
+def _print_scenario(summary: dict[str, object]) -> None:
+    print(f"scenario\t{summary['name']}")
+    print(f"profile\t{summary['profile']}")
+    print(f"preset\t{summary['preset']}")
+    print(f"state\t{summary['state']}")
+    print(f"account\t{summary['account']}")
+    print(f"character\t{summary['character']}")
+    print(f"path\t{summary['path']}")
+
+
+def _print_scenario_handoff(summary: dict[str, object]) -> None:
+    name = summary["name"]
+    profile = summary["profile"]
+    state = summary["state"]
+    print("manual verification:")
+    print(f"  ./atrinik profile show {profile}")
+    print(f"  ./atrinik build all --profile {profile} --test")
+    print(f"  ./atrinik scenario credentials {name}")
+    print(f"  ./atrinik topology show {profile} --state {state} --json")
+    print(f"  ./atrinik up --name {name} --profile {profile} --state {state}")
+    print(f"  ./atrinik ps {name} --json")
+    print(f"  ./atrinik logs {name} server --follow")
+    print(f"  ./atrinik logs {name} client --follow")
+    print(f"  ./atrinik down {name}")
 
 
 def main(arguments: list[str] | None = None) -> int:
@@ -345,6 +393,45 @@ def main(arguments: list[str] | None = None) -> int:
                 else:
                     for name, path in sorted(states.items()):
                         print(f"{name}\t{path}")
+        elif options.command == "scenario":
+            if options.scenario_command == "create":
+                summary = workspace.scenario_create(
+                    options.name, options.profile, options.preset
+                )
+                if options.json:
+                    print(json.dumps(summary, indent=2, sort_keys=True))
+                else:
+                    _print_scenario(summary)
+                    _print_scenario_handoff(summary)
+            elif options.scenario_command == "list":
+                summaries = workspace.scenario_list()
+                if options.json:
+                    print(json.dumps(summaries, indent=2, sort_keys=True))
+                else:
+                    for summary in summaries:
+                        print(
+                            f"{summary['name']}\t{summary['profile']}\t"
+                            f"{summary['preset']}\t{summary['state']}"
+                        )
+            elif options.scenario_command == "show":
+                summary = workspace.scenario_show(options.name)
+                if options.json:
+                    print(json.dumps(summary, indent=2, sort_keys=True))
+                else:
+                    _print_scenario(summary)
+                    _print_scenario_handoff(summary)
+            elif options.scenario_command == "credentials":
+                credentials = workspace.scenario_credentials(options.name)
+                for key in ("account", "character", "password"):
+                    print(f"{key}\t{credentials[key]}")
+            else:
+                summary = workspace.scenario_reset(options.name)
+                if options.json:
+                    print(json.dumps(summary, indent=2, sort_keys=True))
+                else:
+                    print(f"scenario {options.name}: reset")
+                    _print_scenario(summary)
+                    _print_scenario_handoff(summary)
         elif options.command == "run":
             forwarded = _forwarded_arguments(options.arguments)
             if options.target == "client":

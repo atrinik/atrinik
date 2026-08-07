@@ -4,11 +4,13 @@ import binascii
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import ExitStack, contextmanager
+from datetime import datetime, timezone
 import fcntl
 import hashlib
 import os
 from pathlib import Path, PurePosixPath
 import re
+import secrets
 import shlex
 import shutil
 import signal
@@ -71,6 +73,20 @@ PREFERRED_BUILD_COMPONENTS = set().union(
 TOPOLOGY_SERVICES = ("server", "client")
 RESOURCE_PATHS_MANIFEST = "runtime-paths.txt"
 SERVER_IDENTITY_MAX_SIZE = 64 * 1024
+SCENARIO_KEYS = {
+    "schema_version",
+    "name",
+    "profile",
+    "preset",
+    "state",
+    "account",
+    "character",
+    "archetype",
+    "server",
+    "provisioned_at",
+}
+SCENARIO_PRESETS = {"basic-player": {"archetype": "human_male"}}
+SCENARIO_PASSWORD_MAX_SIZE = 128
 
 
 def display_arguments(arguments: list[str]) -> str:
@@ -1055,9 +1071,6 @@ class Workspace:
     def state_add(self, name: str, path: Path | None) -> Path:
         self.paths.ensure()
         validate_name(name, "state name")
-        states = self._load_states()
-        if name in states:
-            raise WorkspaceError(f"state already exists: {name}")
         if path is None:
             resolved = (self.paths.state / "server" / name).resolve(strict=False)
         else:
@@ -1070,10 +1083,269 @@ class Workspace:
             raise WorkspaceError(f"state path is not a directory: {resolved}")
         if resolved.exists():
             self._validate_state(resolved)
-        states[name] = str(resolved)
-        atomic_json(self.paths.states_file, {"schema_version": SCHEMA_VERSION, "states": states})
+        with exclusive_lock(self.paths.workspace / "states.lock", "states registry"):
+            states = self._load_states()
+            if name in states:
+                raise WorkspaceError(f"state already exists: {name}")
+            states[name] = str(resolved)
+            atomic_json(
+                self.paths.states_file,
+                {"schema_version": SCHEMA_VERSION, "states": states},
+            )
         print(resolved)
         return resolved
+
+    def _scenario_directory(self, name: str) -> Path:
+        validate_name(name, "scenario name")
+        directory = (self.paths.scenarios / name).resolve(strict=False)
+        if directory.parent != self.paths.scenarios.resolve():
+            raise WorkspaceError(f"invalid scenario path: {directory}")
+        return directory
+
+    @staticmethod
+    def _write_scenario_password(path: Path, password: str) -> None:
+        descriptor = open_regular_file(
+            path,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+            "scenario password",
+            0o600,
+        )
+        try:
+            with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+                stream.write(password)
+                stream.flush()
+                os.fsync(stream.fileno())
+        except BaseException:
+            path.unlink(missing_ok=True)
+            raise
+
+    @staticmethod
+    def _open_scenario_password(path: Path) -> int:
+        descriptor = open_regular_file(path, os.O_RDONLY, "scenario password")
+        metadata = os.fstat(descriptor)
+        mode = stat.S_IMODE(metadata.st_mode)
+        if mode != 0o600:
+            os.close(descriptor)
+            raise WorkspaceError(
+                f"scenario password must have mode 0600, not {mode:04o}: {path}"
+            )
+        if not 0 < metadata.st_size <= SCENARIO_PASSWORD_MAX_SIZE:
+            os.close(descriptor)
+            raise WorkspaceError(f"scenario password file is invalid: {path}")
+        return descriptor
+
+    @classmethod
+    def _read_scenario_password(cls, path: Path) -> str:
+        descriptor = cls._open_scenario_password(path)
+        try:
+            with os.fdopen(descriptor, encoding="utf-8") as stream:
+                password = stream.read(SCENARIO_PASSWORD_MAX_SIZE + 1)
+                descriptor = -1
+        except UnicodeError as error:
+            raise WorkspaceError(
+                f"scenario password file is not UTF-8: {path}"
+            ) from error
+        finally:
+            if descriptor >= 0:
+                os.close(descriptor)
+        if not password or len(password) > SCENARIO_PASSWORD_MAX_SIZE or "\n" in password:
+            raise WorkspaceError(f"scenario password file is invalid: {path}")
+        return password
+
+    def _load_scenario(self, name: str) -> dict[str, Any]:
+        self.paths.ensure()
+        root = self._scenario_directory(name)
+        if not root.is_dir() or root.is_symlink():
+            raise WorkspaceError(f"scenario does not exist: {name}")
+        marker = root / MANAGED_MARKER
+        if marker.is_symlink() or load_json(marker) != {
+            "schema_version": SCHEMA_VERSION,
+            "purpose": "test-scenario",
+        }:
+            raise WorkspaceError(f"scenario ownership marker is invalid: {name}")
+        metadata_path = root / "scenario.json"
+        if metadata_path.is_symlink():
+            raise WorkspaceError(f"scenario metadata is invalid: {name}")
+        metadata = load_json(metadata_path)
+        if not isinstance(metadata, dict):
+            raise WorkspaceError(f"scenario metadata must be an object: {name}")
+        require_keys(metadata, SCENARIO_KEYS, f"scenario {name}")
+        server = metadata.get("server")
+        if (
+            metadata.get("schema_version") != SCHEMA_VERSION
+            or metadata.get("name") != name
+            or not isinstance(metadata.get("profile"), str)
+            or metadata.get("preset") not in SCENARIO_PRESETS
+            or metadata.get("state") != f"scenario-{name}"
+            or not isinstance(metadata.get("account"), str)
+            or not isinstance(metadata.get("character"), str)
+            or not isinstance(metadata.get("archetype"), str)
+            or not isinstance(metadata.get("provisioned_at"), str)
+            or not metadata["provisioned_at"]
+            or not isinstance(server, dict)
+            or set(server) != {"path", "head"}
+            or not isinstance(server.get("path"), str)
+            or not Path(server["path"]).is_absolute()
+            or not isinstance(server.get("head"), str)
+            or not re.fullmatch(r"[0-9a-f]{40,64}", server["head"])
+        ):
+            raise WorkspaceError(f"scenario metadata is invalid: {name}")
+        state = root / "state"
+        if state.is_symlink():
+            raise WorkspaceError(f"scenario state is invalid: {name}")
+        self._validate_state(state)
+        registered = self._load_states().get(metadata["state"])
+        if registered is None or Path(registered).resolve(strict=False) != state.resolve():
+            raise WorkspaceError(f"scenario state registration is invalid: {name}")
+        os.close(self._open_scenario_password(root / "password"))
+        return metadata
+
+    def _scenario_provision_state(
+        self,
+        metadata: dict[str, Any],
+        state: Path,
+        password_file: Path,
+    ) -> dict[str, str]:
+        required = TARGET_DEPENDENCIES["server"]
+        selected = self._resolve_build_profile(metadata["profile"], required)
+        root = self._build_resolved(
+            "server", metadata["profile"], False, ["server"], selected
+        )
+        runtime = self._prepare_server_runtime(
+            root, selected, state, metadata["state"]
+        )
+        executable = runtime / "atrinik-server"
+        run(
+            [
+                str(executable),
+                "--provision_scenario",
+                f"--provision_account={metadata['account']}",
+                f"--provision_character={metadata['character']}",
+                f"--provision_archetype={metadata['archetype']}",
+                f"--provision_password_file={password_file}",
+            ],
+            cwd=runtime,
+        )
+        server = selected["server"]
+        return {
+            "path": str(server),
+            "head": git(server, "rev-parse", "HEAD", capture=True, trace=False),
+        }
+
+    def scenario_create(
+        self, name: str, profile: str, preset: str = "basic-player"
+    ) -> dict[str, Any]:
+        self.paths.ensure()
+        validate_name(name, "scenario name")
+        if preset not in SCENARIO_PRESETS:
+            raise WorkspaceError(f"unknown scenario preset: {preset}")
+        root = self._scenario_directory(name)
+        state_name = f"scenario-{name}"
+        digest = hashlib.sha256(name.encode()).hexdigest()[:8]
+        metadata: dict[str, Any] = {
+            "schema_version": SCHEMA_VERSION,
+            "name": name,
+            "profile": profile,
+            "preset": preset,
+            "state": state_name,
+            "account": f"scenario{digest}",
+            "character": f"Scenario {digest}",
+            "archetype": SCENARIO_PRESETS[preset]["archetype"],
+            "server": {"path": "/", "head": "0" * 40},
+            "provisioned_at": "pending",
+        }
+        operation_lock = self.paths.scenarios / "operation.lock"
+        with exclusive_lock(operation_lock, "scenario operation"):
+            if root.exists() or root.is_symlink():
+                raise WorkspaceError(f"scenario already exists: {name}")
+            if state_name in self._load_states():
+                raise WorkspaceError(f"state already exists: {state_name}")
+            staging = Path(
+                tempfile.mkdtemp(prefix=f".{name}-", dir=self.paths.scenarios)
+            )
+            try:
+                atomic_json(
+                    staging / MANAGED_MARKER,
+                    {"schema_version": SCHEMA_VERSION, "purpose": "test-scenario"},
+                )
+                password = secrets.token_urlsafe(12)
+                password_file = staging / "password"
+                self._write_scenario_password(password_file, password)
+                server_source = self.component_path("server", profile)
+                state = self.state_path(
+                    state_name, server_source, resolved_path=staging / "state"
+                )
+                metadata["server"] = self._scenario_provision_state(
+                    metadata, state, password_file
+                )
+                metadata["provisioned_at"] = datetime.now(timezone.utc).isoformat()
+                atomic_json(staging / "scenario.json", metadata)
+                staging.replace(root)
+                try:
+                    self.state_add(state_name, (root / "state").resolve())
+                except BaseException:
+                    shutil.rmtree(root)
+                    raise
+            except BaseException:
+                if staging.exists():
+                    shutil.rmtree(staging)
+                raise
+        return self.scenario_show(name)
+
+    def scenario_show(self, name: str) -> dict[str, Any]:
+        metadata = self._load_scenario(name)
+        return {**metadata, "path": str(self._scenario_directory(name))}
+
+    def scenario_list(self) -> list[dict[str, Any]]:
+        self.paths.ensure()
+        scenarios: list[dict[str, Any]] = []
+        for path in sorted(self.paths.scenarios.iterdir()):
+            if path.is_dir() and not path.name.startswith("."):
+                scenarios.append(self.scenario_show(path.name))
+        return scenarios
+
+    def scenario_credentials(self, name: str) -> dict[str, str]:
+        metadata = self._load_scenario(name)
+        return {
+            "account": metadata["account"],
+            "character": metadata["character"],
+            "password": self._read_scenario_password(
+                self._scenario_directory(name) / "password"
+            ),
+        }
+
+    def scenario_reset(self, name: str) -> dict[str, Any]:
+        self.paths.ensure()
+        root = self._scenario_directory(name)
+        operation_lock = self.paths.scenarios / "operation.lock"
+        with exclusive_lock(operation_lock, "scenario operation"):
+            metadata = self._load_scenario(name)
+            state = root / "state"
+            with exclusive_lock(
+                Path(f"{state}.lock"),
+                f"server state {state}",
+                nonblocking=True,
+            ):
+                staging_root = Path(
+                    tempfile.mkdtemp(prefix=f".{name}-reset-", dir=self.paths.scenarios)
+                )
+                try:
+                    server_source = self.component_path("server", metadata["profile"])
+                    staging_state = self.state_path(
+                        metadata["state"],
+                        server_source,
+                        resolved_path=staging_root / "state",
+                    )
+                    metadata["server"] = self._scenario_provision_state(
+                        metadata, staging_state, root / "password"
+                    )
+                    metadata["provisioned_at"] = datetime.now(timezone.utc).isoformat()
+                    replace_directory(state, staging_state, f".{name}-state-previous-")
+                    atomic_json(root / "scenario.json", metadata)
+                finally:
+                    if staging_root.exists():
+                        shutil.rmtree(staging_root)
+        return self.scenario_show(name)
 
     def _load_states(self) -> dict[str, str]:
         if not self.paths.states_file.exists():
