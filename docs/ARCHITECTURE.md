@@ -7,6 +7,13 @@ Implementation, release packaging, and component-specific tests belong to the
 standalone repositories listed in `components.json`. The workspace coordinator
 does not vendor, pin, or commit component source.
 
+The wrapper also owns the VS Code launch configurations that compose this
+multi-repository workspace. The default configuration delegates repository
+setup to `./atrinik init`, preserving existing checkouts while cloning missing
+ones; the specialized Windows cross-build configuration validates the same
+manifest after initialization. The standalone `devcontainer` repository owns
+the versioned toolchain images, not the wrapper-specific launch configuration.
+
 `components.json` is the source of truth for repository identity, default
 branch, and local build contract. Profile and state schemas are intentionally
 strict: duplicate keys, missing fields, unknown fields, invalid names, and

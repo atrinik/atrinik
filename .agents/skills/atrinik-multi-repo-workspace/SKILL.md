@@ -20,6 +20,9 @@ description: Coordinate changes, reviews, builds, releases, and Git worktrees ac
   as `./client` and `./server`. Generated worktrees, profiles, builds, and
   default state remain under `./workspace`; `ATRINIK_WORKSPACE_DIR` relocates
   only that generated and mutable data.
+- Keep workspace-specific VS Code launch configurations in the wrapper's
+  `.devcontainer/` directory. The standalone `devcontainer` component owns the
+  reusable images; use `./atrinik init` for post-create repository setup.
 - Preserve dirty checkouts and worktrees. Never move component source into the
   wrapper or replace persistent state.
 

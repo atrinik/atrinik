@@ -9,6 +9,9 @@
   below the wrapper root. Component worktrees, builds, profiles, and default
   mutable state belong below the ignored workspace directory or an explicit
   external path.
+- Keep wrapper-specific VS Code launch configuration under `.devcontainer/`.
+  The standalone `devcontainer` component owns reusable toolchain images, not
+  workspace composition; initialize checkouts through `./atrinik init`.
 - Never replace a dirty checkout, remove a dirty worktree, or overwrite an
   existing mutable server-data directory.
 - Use profiles to declare mixed component sources. Use `topology show` to audit
