@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import shutil
 import signal
+import stat
 import subprocess
 import tempfile
 import time
@@ -137,6 +138,17 @@ class WorkspaceTests(unittest.TestCase):
         command("git", "config", "user.email", "tests@example.invalid", cwd=checkout)
         self.seeds[name] = seed
         self.origins[name] = origin
+
+    def scenario_resolved_fixture(self) -> dict[str, dict[str, object]]:
+        resolved: dict[str, dict[str, object]] = {}
+        for component in ("server", "content", "resources", "libatrinik", "protocol"):
+            path = self.workspace.paths.repositories / component
+            resolved[component] = {
+                "path": str(path),
+                "head": command("git", "rev-parse", "HEAD", cwd=path),
+                "dirty": False,
+            }
+        return resolved
 
     def advance_origin(self, name: str, filename: str) -> str:
         seed = self.seeds[name]
@@ -850,6 +862,116 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "lacks required file"):
             self.workspace.state_add("bad", malformed)
         self.assertEqual((malformed / "unrelated").read_text(), "keep\n")
+
+    def test_scenario_lifecycle_owns_isolated_state_and_credentials(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ) as provision:
+            with mock.patch("builtins.print") as output:
+                created = self.workspace.scenario_create(
+                    "issue-42", "default", "basic-player"
+                )
+            output.assert_not_called()
+
+            self.assertEqual(created["state"], "scenario-issue-42")
+            self.assertEqual(created["account"], "scenario1dd9ee81")
+            self.assertEqual(created["character"], "Scenario 1dd9ee81")
+            scenario_root = self.workspace.paths.scenarios / "issue-42"
+            state = scenario_root / "state"
+            self.assertEqual(
+                Path(self.workspace.list_states()["scenario-issue-42"]), state
+            )
+            self.assertEqual(
+                stat.S_IMODE((scenario_root / "password").stat().st_mode), 0o600
+            )
+            credentials = self.workspace.scenario_credentials("issue-42")
+            self.assertEqual(credentials["account"], created["account"])
+            self.assertEqual(credentials["character"], created["character"])
+            self.assertTrue(credentials["password"])
+
+            (state / "accounts").mkdir()
+            reset = self.workspace.scenario_reset("issue-42")
+            self.assertFalse((state / "accounts").exists())
+            self.assertGreater(reset["provisioned_at"], created["provisioned_at"])
+
+        self.assertEqual(provision.call_count, 2)
+
+    def test_scenario_create_rolls_back_failed_provisioning(self) -> None:
+        with mock.patch.object(
+            self.workspace,
+            "_scenario_provision_state",
+            side_effect=WorkspaceError("provision failed"),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "provision failed"):
+                self.workspace.scenario_create("failed", "default")
+
+        self.assertFalse((self.workspace.paths.scenarios / "failed").exists())
+        self.assertNotIn("scenario-failed", self.workspace.list_states())
+
+    def test_scenario_audit_records_only_server_dependency_closure(self) -> None:
+        required = {"server", "content", "resources", "libatrinik", "protocol"}
+        selected = {
+            component: self.workspace.paths.repositories / component
+            for component in (*sorted(required), "client")
+        }
+        metadata = {
+            "profile": "default",
+            "state": "scenario-audit",
+            "account": "scenarioaudit",
+            "character": "Scenario Audit",
+            "archetype": "human_male",
+        }
+        runtime = self.root / "scenario-runtime"
+        runtime.mkdir()
+        with (
+            mock.patch.object(
+                self.workspace, "_resolve_build_profile", return_value=selected
+            ),
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=self.root / "build"
+            ),
+            mock.patch.object(
+                self.workspace, "_prepare_server_runtime", return_value=runtime
+            ),
+            mock.patch("atrinik_workspace.workspace.run"),
+            mock.patch(
+                "atrinik_workspace.workspace.git", return_value="a" * 40
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace._is_clean", return_value=True
+            ),
+        ):
+            resolved = self.workspace._scenario_provision_state(
+                metadata, self.root / "state", self.root / "password"
+            )
+
+        self.assertEqual(set(resolved), required)
+        self.assertNotIn("client", resolved)
+
+    def test_scenario_rejects_insecure_password_permissions(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("permissions", "default")
+
+        password = self.workspace.paths.scenarios / "permissions" / "password"
+        password.chmod(0o644)
+        with self.assertRaisesRegex(WorkspaceError, "mode 0600"):
+            self.workspace.scenario_show("permissions")
+
+    def test_scenario_reset_refuses_locked_state(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("locked", "default")
+
+        state = self.workspace.paths.scenarios / "locked" / "state"
+        with exclusive_lock(Path(f"{state}.lock"), "test state"):
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                self.workspace.scenario_reset("locked")
 
     def test_foreground_client_pins_matching_server_state(self) -> None:
         server = self.workspace.paths.repositories / "server"

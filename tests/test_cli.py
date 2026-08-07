@@ -183,6 +183,93 @@ class ParserTests(unittest.TestCase):
             "review", "content", "path", "relative"
         )
 
+    def test_scenario_create_prints_complete_manual_handoff(self) -> None:
+        summary = {
+            "name": "issue-42",
+            "profile": "issue-42",
+            "preset": "basic-player",
+            "state": "scenario-issue-42",
+            "account": "scenario12345678",
+            "character": "Scenario 12345678",
+            "path": "/workspace/scenarios/issue-42",
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_create.return_value = summary
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "scenario",
+                        "create",
+                        "issue-42",
+                        "--profile",
+                        "issue-42",
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.scenario_create.assert_called_once_with(
+            "issue-42", "issue-42", "basic-player"
+        )
+        rendered = "\n".join(str(call.args[0]) for call in output.call_args_list)
+        self.assertIn("./atrinik profile show issue-42", rendered)
+        self.assertIn("./atrinik build server --profile issue-42 --test", rendered)
+        self.assertIn("./atrinik scenario credentials issue-42", rendered)
+        self.assertIn(
+            "./atrinik up --name issue-42 --profile issue-42 "
+            "--state scenario-issue-42",
+            rendered,
+        )
+        self.assertIn("./atrinik ps issue-42 --json", rendered)
+        self.assertIn("./atrinik logs issue-42 client --follow", rendered)
+        self.assertIn("./atrinik down issue-42", rendered)
+
+    def test_scenario_credentials_are_explicitly_requested(self) -> None:
+        credentials = {
+            "account": "scenario12345678",
+            "character": "Scenario 12345678",
+            "password": "secret-value",
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_credentials.return_value = credentials
+            with mock.patch("builtins.print") as output:
+                result = main(["scenario", "credentials", "issue-42"])
+
+        self.assertEqual(result, 0)
+        rendered = "\n".join(str(call.args[0]) for call in output.call_args_list)
+        self.assertEqual(
+            rendered,
+            "account\tscenario12345678\n"
+            "character\tScenario 12345678\n"
+            "password\tsecret-value",
+        )
+
+    def test_scenario_create_json_is_machine_readable(self) -> None:
+        summary = {
+            "name": "issue-42",
+            "profile": "issue-42",
+            "preset": "basic-player",
+            "state": "scenario-issue-42",
+            "account": "scenario12345678",
+            "character": "Scenario 12345678",
+            "path": "/workspace/scenarios/issue-42",
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_create.return_value = summary
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "scenario",
+                        "create",
+                        "issue-42",
+                        "--profile",
+                        "issue-42",
+                        "--json",
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.call_args.args[0]), summary)
+
 
 if __name__ == "__main__":
     unittest.main()

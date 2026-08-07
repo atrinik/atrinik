@@ -124,6 +124,37 @@ recorded PIDs directly or tail internal files by reconstructed paths: the
 coordinator verifies process start identity, rotates logs, performs graceful
 shutdown, and holds the server-state lock through its supervisor.
 
+## Provide manual verification handoffs
+
+End every implementation or change handoff with copy-pasteable manual
+verification commands using `./atrinik` wherever the coordinator supports the
+workflow. Use the concrete names created for the task rather than placeholders.
+Include the narrow automated build/test command and, when runtime behavior is
+relevant, the complete supervised lifecycle:
+
+```sh
+./atrinik profile show PROFILE
+./atrinik build COMPONENT --profile PROFILE --test
+./atrinik topology show PROFILE --json
+./atrinik up --name TOPOLOGY --profile PROFILE --state STATE
+./atrinik ps TOPOLOGY --json
+./atrinik logs TOPOLOGY [server|client] --follow
+./atrinik down TOPOLOGY
+```
+
+State display forwarding or other prerequisites, describe the exact manual
+actions and expected results between `up` and `down`, and always include the
+cleanup command. Do not substitute reconstructed internal build/runtime paths
+or direct executable invocations for a supported wrapper command. If runtime
+verification is not applicable, say so and provide the wrapper build/test and
+inspection commands that are applicable.
+
+When the reviewer needs a ready login, also use the
+`atrinik-test-scenario` skill. Provision with `./atrinik scenario create`,
+retrieve the secret only through `scenario credentials`, and use the scenario's
+dedicated state in the lifecycle above. Never construct account or player save
+files directly.
+
 ## Coordinate releases and GitHub changes
 
 - Keep each repository independently releasable. A component squash commit

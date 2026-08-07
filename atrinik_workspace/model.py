@@ -161,6 +161,7 @@ class Paths:
     profiles: Path
     builds: Path
     topologies: Path
+    scenarios: Path
     state: Path
     marker: Path
     states_file: Path
@@ -185,6 +186,7 @@ class Paths:
             profiles=workspace / "profiles",
             builds=workspace / "build",
             topologies=workspace / "topologies",
+            scenarios=workspace / "scenarios",
             state=workspace / "state",
             marker=workspace / ".atrinik-workspace.json",
             states_file=workspace / "states.json",
@@ -211,6 +213,7 @@ class Paths:
             self.profiles,
             self.builds,
             self.topologies,
+            self.scenarios,
             self.state,
         ):
             directory.mkdir(parents=True, exist_ok=True)

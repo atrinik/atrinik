@@ -28,6 +28,17 @@
   merge is released by semantic-release.
 - Run the complete Python test suite, compileall, ShellCheck for shell changes,
   actionlint for workflow changes, and `git diff --check` before finishing.
+- Every implementation or change handoff must include copy-pasteable manual
+  verification commands that use the thin `./atrinik` wrapper whenever it
+  supports the workflow. Use exact profile, worktree, topology, service, and
+  state names; include the automated build/test command, the complete
+  `topology show`/`up`/`ps`/`logs`/`down` lifecycle when runtime verification
+  is relevant, feature-specific actions and expected results, display or other
+  prerequisites, and the cleanup command. Do not replace supported wrapper
+  commands with reconstructed build paths or direct executable invocations.
+- Use `.agents/skills/atrinik-test-scenario/SKILL.md` when manual verification
+  benefits from a ready local account and character. Keep scenario credentials
+  and state ignored and isolated; never handcraft account or player files.
 - Deep-review reports are ignored local artifacts under `build/`; do not commit
   them.
 - Keep this guide, the multi-repository skill, `README.md`, and

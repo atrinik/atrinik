@@ -129,6 +129,36 @@ A topology may select one service, and distinct runtime names permit concurrent
 combinations as long as their server ports and mutable state directories do not
 conflict.
 
+Test scenarios are owned directories below `workspace/scenarios/`, each with a
+strict metadata record, ownership marker, mode-0600 password file, and dedicated
+registered server state. Creation resolves and builds the scenario profile,
+initializes state from the selected server's `install_data`, and invokes that
+server in offline provisioning mode. The server uses its normal validation,
+Argon2id password, atomic account-save, and exclusive player-reservation paths;
+the empty player record causes first login to follow normal character creation.
+No scenario secret is stored in metadata or passed as a process argument.
+The metadata records path, commit, and dirty status for the selected server,
+content, resources, protocol, and library inputs so an audit does not imply
+that a scenario provisioned from local edits came from a clean commit.
+
+Creation and reset serialize on a scenario-operation lock. State registry
+writes also serialize independently, preventing concurrent state additions
+from losing entries. Reset validates that the scenario marker, metadata,
+credentials, registered path, and server-state shape still match, then takes
+the same nonblocking state lock used by server launches. It provisions a fresh
+staging state before atomically replacing only the scenario-owned state, so a
+running topology, external state, symlink, malformed directory, or failed
+provision cannot be overwritten.
+
+Verification handoffs are wrapper-native operating procedures. They identify
+the exact profile, topology, and state selected for a change; use `build
+--test` for automated validation; use `topology show`, `up`, `ps`, and `logs`
+for runtime inspection; describe the feature-specific actions and expected
+results; and finish with `down`. When a ready player is useful, the handoff
+adds `scenario credentials` without copying its password. This keeps manual
+review on the same resolved source topology, isolated client configuration,
+supervised processes, logs, and state locks as automated workspace validation.
+
 The two-terminal foreground launch path uses the same named state and explicit
 UDP port for both commands. Its client reads only the certificate block from
 the state's persistent QUIC identity and hashes the DER certificate to produce

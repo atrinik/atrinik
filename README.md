@@ -66,6 +66,29 @@ The client command opens a graphical application. Verify that the devcontainer
 display forwarding socket is live before launching it. Use `--dry-run` to
 build and print either launch command without starting the process.
 
+### Manual verification handoffs
+
+Change handoffs should end with a copy-pasteable verification recipe that uses
+the thin wrapper instead of internal build paths or direct component binaries.
+Use the actual profile, topology, and state names for the change. A runtime
+client/server review normally follows this shape:
+
+~~~sh
+./atrinik profile show PROFILE
+./atrinik build COMPONENT --profile PROFILE --test
+./atrinik topology show PROFILE --json
+./atrinik up --name TOPOLOGY --profile PROFILE --state STATE
+./atrinik ps TOPOLOGY --json
+./atrinik logs TOPOLOGY client --follow
+# Perform the feature-specific checks described in the handoff.
+./atrinik down TOPOLOGY
+~~~
+
+The handoff should name any display or runtime prerequisite, list the exact
+manual actions and expected results, and include `down` for cleanup. When no
+runtime check applies, it should say so and still provide the relevant wrapper
+build/test and topology-inspection commands.
+
 ## Synchronizing repositories
 
 Inspect the local primary checkouts before changing them:
@@ -174,6 +197,49 @@ repository. Only tracked files below the resource repository's
 files cannot become server assets. Client builds similarly expose the selected
 sound checkout. These operations never write generated files into a component
 checkout.
+
+## Deterministic test scenarios
+
+A scenario is a local, ready-to-login account and character plus its own
+registered server state. It is useful for handing off an issue reproduction
+without asking every reviewer to register another account and character.
+
+~~~sh
+./atrinik scenario create issue-42 --profile maps-review --preset basic-player
+./atrinik scenario show issue-42 --json
+./atrinik scenario credentials issue-42
+~~~
+
+`basic-player` provisions a normal `human_male` first-login character through
+the selected server's own account API. On first login the server supplies its
+configured starting map, standard skills, and initial items. The wrapper builds
+the selected server, creates the dedicated `scenario-issue-42` state, stores a
+generated password in a mode-0600 ignored file, and prints exact
+`topology show`/`up`/`ps`/`logs`/`down` commands. `show` and `list` never reveal
+the password; request it explicitly with `credentials` immediately before
+login.
+
+Scenarios live below ignored `workspace/scenarios/`. Their metadata records the
+profile plus every resolved provisioning dependency's path, commit, and dirty
+status. Account files contain the normal
+Argon2id password record, and the reserved empty player file deliberately
+causes the first client login to use normal character initialization. The
+offline provisioner starts no listener, plugin, metaserver, or console and
+refuses existing account or character identities.
+
+After stopping the topology, reset only the scenario-owned mutable state while
+keeping its login and source profile stable:
+
+~~~sh
+./atrinik down issue-42
+./atrinik scenario reset issue-42
+~~~
+
+Reset refuses a running or otherwise locked state and validates the ownership
+marker, state registration, state shape, and credential permissions before it
+replaces anything. External and shared states are never scenario reset targets.
+Do not create static account or player fixtures; add a tested server-owned
+preset if a future reproduction needs more than `basic-player`.
 
 ## Supervised topologies and practical workflows
 
