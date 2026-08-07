@@ -1,0 +1,4 @@
+interface:
+  display_name: "Atrinik Content Change"
+  short_description: "Change and validate Atrinik world content"
+  default_prompt: "Use $atrinik-content-change to update this authored Atrinik content and validate its identities, references, runtime collection, and behavior."
