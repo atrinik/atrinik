@@ -1,5 +1,7 @@
 # Atrinik development workspace
 
+[![Coverage](https://codecov.io/gh/atrinik/atrinik/graph/badge.svg?branch=main)](https://codecov.io/gh/atrinik/atrinik)
+
 This repository is a small, MIT-licensed coordinator for Atrinik's standalone
 component repositories. Each component remains a normal Git checkout with its
 own branches, remotes, commits, and worktrees. The coordinator supplies one
@@ -534,7 +536,9 @@ separately. See
 ## Validation
 
 ~~~sh
-python3 -m unittest discover -v
+python3 -m pip install --requirement requirements-dev.txt
+python3 -m coverage run -m unittest discover -v
+python3 -m coverage report --show-missing
 python3 -m compileall -q atrinik atrinik_workspace tests
 ./atrinik manifest validate
 ~~~

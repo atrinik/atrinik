@@ -1,0 +1,10 @@
+[run]
+branch = True
+source = atrinik_workspace
+
+[report]
+show_missing = True
+skip_empty = True
+
+[xml]
+output = coverage.xml
