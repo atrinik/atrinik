@@ -73,6 +73,15 @@ workspace directory, use repeated absolute `--repository NAME=PATH` overrides;
 the command verifies each override's GitHub repository identity before reading
 it.
 
+Historical contributions by Zoey Rose may be copied, migrated, translated, or
+relicensed under MIT under her explicit grant only after a complete Git-history
+audit proves sole authorship of the selected material and a content review
+excludes embedded third-party or conflicting-licensed work. Current blame is
+not sufficient proof. The destination pull request or committed provenance
+manifest records the exact source, revision, destination, history and identity
+evidence, transformation, third-party review, and grant. Mixed or uncertain
+material remains under its existing license until its provenance is resolved.
+
 ## Quick start
 
 ~~~sh

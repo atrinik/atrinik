@@ -182,6 +182,35 @@ files directly.
   publishing. Report repository-specific commits, checks, releases, and any
   incomplete external operation separately.
 
+## Reuse Zoey Rose contributions under MIT
+
+Zoey Rose grants permission to copy, migrate, translate, or relicense under
+MIT any of her original past Atrinik contributions. Apply that grant only to
+selected material for which a complete Git-history audit proves sole Zoey Rose
+authorship and a content review finds no embedded third-party or
+conflicting-licensed material. This grant is not an automatic license change
+for a repository, file, or current-blame region.
+
+Before applying the grant:
+
+1. Identify the exact source repository, path, and revision or revision range,
+   following renames and moves through the complete, non-shallow history.
+2. Inspect the creation and every subsequent change to the selected material,
+   including relevant commit diffs. Map historical author identities to Zoey
+   Rose with recorded evidence; do not treat current blame alone as proof.
+3. Review the material for copied, generated, vendored, or otherwise embedded
+   third-party work and for notices or licenses that conflict with MIT reuse.
+   A history gap, unresolved identity, mixed authorship, or uncertain origin
+   makes the material ineligible until independently resolved.
+4. Limit reuse to independently separable material covered by the proof. Do
+   not copy a whole mixed-authorship file merely because some surviving lines
+   qualify.
+5. Record the exact source and destination repositories and paths, source
+   revision, complete history and identity evidence, transformation performed,
+   third-party review, and Zoey Rose's grant in the destination pull request or
+   a committed provenance manifest. Retain any notices required by material
+   that is deliberately included under another compatible license.
+
 ## Maintain this guidance
 
 After changing the wrapper CLI, manifest schema or entries, managed directory
