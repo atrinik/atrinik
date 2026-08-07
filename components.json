@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "components": [
-    {"name": "client", "repository": "atrinik/client", "branch": "master", "build": "client"},
-    {"name": "server", "repository": "atrinik/server", "branch": "master", "build": "server"},
-    {"name": "protocol", "repository": "atrinik/protocol", "branch": "master", "build": "protocol"},
-    {"name": "libatrinik", "repository": "atrinik/libatrinik", "branch": "master", "build": "library"},
-    {"name": "content", "repository": "atrinik/content", "branch": "master", "build": "content"},
-    {"name": "sound", "repository": "atrinik/sound", "branch": "master", "build": "assets"},
-    {"name": "resources", "repository": "atrinik/resources", "branch": "master", "build": "assets"},
-    {"name": "tools", "repository": "atrinik/tools", "branch": "master", "build": "none"},
-    {"name": "editor", "repository": "atrinik/editor", "branch": "master", "build": "none"},
-    {"name": "metaserver-worker", "repository": "atrinik/metaserver-worker", "branch": "master", "build": "worker"},
+    {"name": "client", "repository": "atrinik/client", "branch": "main", "build": "client"},
+    {"name": "server", "repository": "atrinik/server", "branch": "main", "build": "server"},
+    {"name": "protocol", "repository": "atrinik/protocol", "branch": "main", "build": "protocol"},
+    {"name": "libatrinik", "repository": "atrinik/libatrinik", "branch": "main", "build": "library"},
+    {"name": "content", "repository": "atrinik/content", "branch": "main", "build": "content"},
+    {"name": "sound", "repository": "atrinik/sound", "branch": "main", "build": "assets"},
+    {"name": "resources", "repository": "atrinik/resources", "branch": "main", "build": "assets"},
+    {"name": "tools", "repository": "atrinik/tools", "branch": "main", "build": "none"},
+    {"name": "editor", "repository": "atrinik/editor", "branch": "main", "build": "none"},
+    {"name": "metaserver-worker", "repository": "atrinik/metaserver-worker", "branch": "main", "build": "worker"},
     {"name": "devcontainer", "repository": "atrinik/devcontainer", "branch": "main", "build": "none"},
     {"name": "github-settings", "repository": "atrinik/github-settings", "branch": "main", "build": "none"}
   ]
