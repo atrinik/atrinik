@@ -67,6 +67,8 @@ class ParserTests(unittest.TestCase):
                 "mixed-review",
                 "--state",
                 "shared",
+                "--port",
+                "1731",
                 "--dry-run",
                 "--",
                 "--version",
@@ -76,8 +78,30 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(options.target, "server")
         self.assertEqual(options.profile, "mixed-review")
         self.assertEqual(options.state, "shared")
+        self.assertEqual(options.port, 1731)
         self.assertTrue(options.dry_run)
         self.assertEqual(options.arguments, ["--", "--version"])
+
+    def test_run_client_dispatches_matching_state_and_port(self) -> None:
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            result = main(
+                [
+                    "run",
+                    "client",
+                    "--profile",
+                    "review",
+                    "--state",
+                    "shared",
+                    "--port",
+                    "1731",
+                    "--dry-run",
+                ]
+            )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.run_client.assert_called_once_with(
+            "review", "shared", 1731, [], True
+        )
 
     def test_up_defaults_runtime_name_to_profile(self) -> None:
         status = {

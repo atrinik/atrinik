@@ -156,7 +156,7 @@ class WorkspaceTests(unittest.TestCase):
         shutil.rmtree(destination)
 
         def fail_clone(arguments: list[str], **kwargs: object) -> str:
-            if arguments[0] == "gh":
+            if arguments[:2] == ["git", "clone"]:
                 temporary = Path(arguments[-1])
                 (temporary / "partial").write_text("incomplete\n", encoding="utf-8")
                 raise WorkspaceError("clone failed")
@@ -170,6 +170,26 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(
             list(self.workspace.paths.repositories.glob(".atrinik-clone-client-*")), []
         )
+
+    def test_clone_transport_follows_wrapper_remote(self) -> None:
+        command("git", "init", cwd=self.wrapper)
+        command(
+            "git",
+            "remote",
+            "add",
+            "origin",
+            "git@github.com:atrinik/atrinik.git",
+            cwd=self.wrapper,
+        )
+
+        url = self.workspace._component_clone_url(self.workspace._component("client"))
+
+        self.assertEqual(url, "git@github.com:atrinik/client.git")
+
+    def test_clone_transport_defaults_to_public_https(self) -> None:
+        url = self.workspace._component_clone_url(self.workspace._component("client"))
+
+        self.assertEqual(url, "https://github.com/atrinik/client.git")
 
     def test_initialize_preserves_broken_symlink_at_component_path(self) -> None:
         destination = self.workspace.paths.repositories / "client"
@@ -698,6 +718,8 @@ class WorkspaceTests(unittest.TestCase):
         ):
             time.sleep(0.05)
         self.assertIn("'--port_quic=17300'", server_log.read_text())
+        self.assertIn("'--port_mapping=off'", server_log.read_text())
+        self.assertIn("'--stun_server=off'", server_log.read_text())
         self.assertIn(
             f"'--server=127.0.0.1 17300 {'a' * 64}'", client_log.read_text()
         )
@@ -828,6 +850,89 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "lacks required file"):
             self.workspace.state_add("bad", malformed)
         self.assertEqual((malformed / "unrelated").read_text(), "keep\n")
+
+    def test_foreground_client_pins_matching_server_state(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        state = self.workspace.state_path("default", server)
+        certificate = (
+            "-----BEGIN PRIVATE KEY-----\nignored\n-----END PRIVATE KEY-----\n"
+            "-----BEGIN CERTIFICATE-----\nAQID\n-----END CERTIFICATE-----\n"
+        )
+        (state / "quic-identity.pem").write_text(certificate, encoding="ascii")
+
+        build_root = self.root / "client-build"
+        executable = build_root / "build" / "client" / "atrinik"
+        executable.parent.mkdir(parents=True)
+        executable.write_text("client\n", encoding="utf-8")
+        (build_root / "sources" / "client").mkdir(parents=True)
+        expected = "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
+        with (
+            mock.patch.object(self.workspace, "build", return_value=build_root),
+            mock.patch("builtins.print") as output,
+        ):
+            result = self.workspace.run_client(
+                "default", "default", 1731, ["--fullscreen"], True
+            )
+
+        self.assertEqual(result, executable)
+        rendered = "\n".join(str(call.args[0]) for call in output.call_args_list)
+        self.assertIn(f"--server=127.0.0.1 1731 {expected}", rendered)
+        self.assertIn("--stun_server=off", rendered)
+        self.assertIn("--nometa", rendered)
+        self.assertIn("--fullscreen", rendered)
+
+    def test_foreground_client_requires_initialized_server_identity(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        self.workspace.state_path("default", server)
+        with self.assertRaisesRegex(WorkspaceError, "start the matching server"):
+            self.workspace.run_client("default", "default", 1730, [], True)
+
+    def test_foreground_client_rejects_symlinked_server_identity(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        state = self.workspace.state_path("default", server)
+        target = self.root / "identity.pem"
+        target.write_text(
+            "-----BEGIN CERTIFICATE-----\nAQID\n-----END CERTIFICATE-----\n",
+            encoding="ascii",
+        )
+        (state / "quic-identity.pem").symlink_to(target)
+        with self.assertRaisesRegex(WorkspaceError, "cannot open server QUIC identity"):
+            self.workspace.run_client("default", "default", 1730, [], True)
+
+    def test_foreground_server_keeps_local_defaults_with_extra_arguments(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        build_root = self.root / "server-build"
+        runtime = self.root / "server-runtime"
+        runtime.mkdir()
+        executable = runtime / "atrinik-server"
+        executable.write_text("server\n", encoding="utf-8")
+        selected = {"server": server}
+        with (
+            mock.patch.object(
+                self.workspace, "_resolve_build_profile", return_value=selected
+            ),
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            mock.patch.object(
+                self.workspace, "_prepare_server_runtime", return_value=runtime
+            ),
+            mock.patch("builtins.print") as output,
+        ):
+            result = self.workspace.run_server(
+                "default", "default", 1731, ["--no_console"], True
+            )
+
+        self.assertEqual(result, executable)
+        rendered = "\n".join(str(call.args[0]) for call in output.call_args_list)
+        self.assertIn("--port_quic=1731", rendered)
+        self.assertIn("--port_mapping=off", rendered)
+        self.assertIn("--stun_server=off", rendered)
+        self.assertIn("--no_console", rendered)
+
+    def test_foreground_launch_rejects_invalid_port(self) -> None:
+        with self.assertRaisesRegex(WorkspaceError, "between 1 and 65535"):
+            self.workspace.run_client("default", "default", True, [], True)
 
     def test_redacts_join_passwords(self) -> None:
         displayed = display_arguments(

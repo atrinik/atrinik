@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import binascii
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import ExitStack, contextmanager
 import fcntl
+import hashlib
 import os
 from pathlib import Path, PurePosixPath
 import re
@@ -11,6 +13,7 @@ import shlex
 import shutil
 import signal
 import socket
+import ssl
 import stat
 import subprocess
 import sys
@@ -67,6 +70,7 @@ PREFERRED_BUILD_COMPONENTS = set().union(
 )
 TOPOLOGY_SERVICES = ("server", "client")
 RESOURCE_PATHS_MANIFEST = "runtime-paths.txt"
+SERVER_IDENTITY_MAX_SIZE = 64 * 1024
 
 
 def display_arguments(arguments: list[str]) -> str:
@@ -149,6 +153,17 @@ def _remote_matches(url: str, repository: str) -> bool:
     elif normalized.startswith("https://"):
         normalized = normalized.removeprefix("https://")
     return normalized == expected
+
+
+def _github_clone_url(template: str, repository: str) -> str | None:
+    template = template.strip()
+    if template.startswith("git@github.com:"):
+        return f"git@github.com:{repository}.git"
+    if template.startswith("ssh://git@github.com/"):
+        return f"ssh://git@github.com/{repository}.git"
+    if template.startswith("https://github.com/"):
+        return f"https://github.com/{repository}.git"
+    return None
 
 
 def _is_clean(path: Path, *, trace: bool = True) -> bool:
@@ -250,7 +265,15 @@ class Workspace:
                 )
             )
             try:
-                run(["gh", "repo", "clone", component.repository, str(temporary)])
+                run(
+                    [
+                        "git",
+                        "clone",
+                        "--",
+                        self._component_clone_url(component),
+                        str(temporary),
+                    ]
+                )
                 self._validate_checkout(component, temporary)
                 if destination.exists() or destination.is_symlink():
                     raise WorkspaceError(
@@ -262,6 +285,26 @@ class Workspace:
                 raise
         self._validate_checkout(component, destination)
         return destination
+
+    def _component_clone_url(self, component: Component) -> str:
+        for remote in ("origin", "upstream"):
+            try:
+                urls = git(
+                    self.paths.repository,
+                    "remote",
+                    "get-url",
+                    "--all",
+                    remote,
+                    capture=True,
+                    trace=False,
+                ).splitlines()
+            except WorkspaceError:
+                continue
+            for url in urls:
+                clone_url = _github_clone_url(url, component.repository)
+                if clone_url is not None:
+                    return clone_url
+        return f"https://github.com/{component.repository}.git"
 
     def _canonical_remote(
         self, component: Component, path: Path, *, trace: bool = True
@@ -1810,14 +1853,30 @@ class Workspace:
             time.sleep(0.25)
 
     def run_client(
-        self, profile_name: str, arguments: list[str], dry_run: bool
+        self,
+        profile_name: str,
+        state_name: str,
+        port: int,
+        arguments: list[str],
+        dry_run: bool,
     ) -> Path:
+        self._validate_run_port(port)
+        state = self._state_location(state_name)
+        self._validate_state(state)
+        fingerprint = self._server_identity_fingerprint(state)
         root = self.build("client", profile_name, tests=False)
         executable = root / "build" / "client" / "atrinik"
         working = root / "sources" / "client"
         if not executable.is_file():
             raise WorkspaceError(f"client executable is missing: {executable}")
-        command = [str(executable), *arguments]
+        command = [
+            str(executable),
+            f"--server=127.0.0.1 {port} {fingerprint}",
+            "--stun_server=off",
+            "--nometa",
+            *arguments,
+        ]
+        print(f"state: {state}")
         print(f"cwd: {working}")
         print(f"command: {display_arguments(command)}")
         if not dry_run:
@@ -1829,9 +1888,11 @@ class Workspace:
         self,
         profile_name: str,
         state_name: str,
+        port: int,
         arguments: list[str],
         dry_run: bool,
     ) -> Path:
+        self._validate_run_port(port)
         targets = self._expand_build_target("server")
         required = set().union(*(TARGET_DEPENDENCIES[item] for item in targets))
         selected = self._resolve_build_profile(profile_name, required)
@@ -1846,14 +1907,64 @@ class Workspace:
             )
             runtime = self._prepare_server_runtime(root, selected, state, state_name)
             executable = runtime / "atrinik-server"
-            server_arguments = arguments or ["--port_mapping=off", "--stun_server=off"]
-            command = [str(executable), *server_arguments]
+            command = [
+                str(executable),
+                f"--port_quic={port}",
+                "--port_mapping=off",
+                "--stun_server=off",
+                *arguments,
+            ]
             print(f"state: {state}")
             print(f"cwd: {runtime}")
             print(f"command: {display_arguments(command)}")
             if not dry_run:
                 run(command, cwd=runtime, diagnostics_to_stderr=False)
             return executable
+
+    @staticmethod
+    def _validate_run_port(port: int) -> None:
+        if (
+            not isinstance(port, int)
+            or isinstance(port, bool)
+            or not 1 <= port <= 65535
+        ):
+            raise WorkspaceError("server UDP port must be between 1 and 65535")
+
+    @staticmethod
+    def _server_identity_fingerprint(state: Path) -> str:
+        identity = state / "quic-identity.pem"
+        if not identity.exists():
+            raise WorkspaceError(
+                f"server QUIC identity does not exist: {identity}; start the "
+                "matching server before launching the foreground client"
+            )
+        try:
+            descriptor = open_regular_file(
+                identity, os.O_RDONLY, "server QUIC identity"
+            )
+            with os.fdopen(descriptor, encoding="ascii") as stream:
+                contents = stream.read(SERVER_IDENTITY_MAX_SIZE + 1)
+        except UnicodeError as error:
+            raise WorkspaceError(
+                f"server QUIC identity is not ASCII PEM: {identity}"
+            ) from error
+        if len(contents) > SERVER_IDENTITY_MAX_SIZE:
+            raise WorkspaceError(f"server QUIC identity is too large: {identity}")
+
+        begin = "-----BEGIN CERTIFICATE-----"
+        end = "-----END CERTIFICATE-----"
+        start = contents.find(begin)
+        finish = contents.find(end, start + len(begin)) if start >= 0 else -1
+        if start < 0 or finish < 0:
+            raise WorkspaceError(f"server QUIC identity lacks a certificate: {identity}")
+        certificate = contents[start : finish + len(end)]
+        try:
+            encoded = ssl.PEM_cert_to_DER_cert(certificate)
+        except (binascii.Error, ValueError) as error:
+            raise WorkspaceError(
+                f"server QUIC identity contains an invalid certificate: {identity}"
+            ) from error
+        return hashlib.sha256(encoded).hexdigest()
 
     def _prepare_server_runtime(
         self,

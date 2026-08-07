@@ -42,12 +42,19 @@ published Linux and Windows toolchain images they reference.
 ~~~sh
 ./atrinik init
 ./atrinik build all --test
-./atrinik run server
-./atrinik run client
+./atrinik up
+./atrinik ps
+./atrinik logs default --follow
+# In another terminal:
+./atrinik down
 ~~~
 
 `init` clones the repositories in `components.json` directly into the wrapper
 root, such as `./client` and `./server`.
+It follows the GitHub transport of the wrapper's `origin` (then `upstream`): an
+SSH wrapper clone produces SSH component clones, while an HTTPS wrapper clone
+produces HTTPS component clones. If neither remote supplies a recognized
+GitHub URL, initialization falls back to public HTTPS.
 Rerunning it is safe and validates existing checkouts without changing them.
 `build all` builds the protocol, shared library, client, server, collected
 content, and metaserver Worker. Repositories without a deterministic local
@@ -187,8 +194,9 @@ stages resources/sound, prepares an isolated runtime, and starts both game
 processes under one supervisor. A server gets an available UDP port by default;
 use `--port` when a stable port is useful. The supervisor waits for both the
 QUIC certificate fingerprint and completed server initialization, then gives
-the paired client an authenticated loopback endpoint before declaring the
-topology ready. Use `--service server` or
+the paired client an authenticated loopback endpoint, disables metaserver and
+STUN discovery in that client, and disables STUN discovery and automatic port
+mapping in the server before declaring the topology ready. Use `--service server` or
 `--service client` for a single service. Client startup requires a live
 forwarded display socket.
 
@@ -414,7 +422,9 @@ useful:
 ./atrinik state add review
 ./atrinik state add existing --path /absolute/path/to/server-data
 ./atrinik state list
-./atrinik run server --profile maps-review --state review
+./atrinik run server --profile maps-review --state review --port 1730
+# In another terminal, after the server reports that it is ready:
+./atrinik run client --profile maps-review --state review --port 1730
 ~~~
 
 State contains player, key, unique-item, and other mutable runtime data. It is
@@ -425,12 +435,18 @@ Arguments after `--` are forwarded to the selected executable:
 
 ~~~sh
 ./atrinik run server --profile maps-review --state review -- --version
-./atrinik run client --profile maps-review -- --help
+./atrinik run client --profile maps-review --state review -- --help
 ~~~
 
-Join-password arguments are redacted from command logging. With no explicit
-arguments, the server disables automatic port mapping and STUN discovery for a
-local development launch.
+The foreground commands are a paired local-development path: use the same
+`--state` and `--port` in both terminals. The server always starts with
+automatic port mapping and STUN discovery disabled. The client reads the
+state's generated QUIC certificate, adds its authenticated loopback endpoint,
+and starts with metaserver and STUN discovery disabled. Start the server first
+so that its persistent `quic-identity.pem` exists. Additional arguments are
+appended after these defaults, and join-password arguments are redacted from
+command logging. Prefer `up` for routine use because it allocates a port,
+captures the fingerprint, and sequences both processes automatically.
 
 ## Workspace location and recovery
 
