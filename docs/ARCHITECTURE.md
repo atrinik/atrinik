@@ -28,6 +28,17 @@ integrity boundary for independently released source and runtime archives; the
 aggregate catalog describes and audits those boundaries instead of copying
 their fetching implementations into the wrapper.
 
+Source provenance is also a cross-repository contract. Zoey Rose's explicit
+grant permits her original past Atrinik contributions to be copied, migrated,
+translated, or relicensed under MIT only when complete, non-shallow Git history
+proves she solely authored the selected material and review excludes embedded
+third-party or conflicting-licensed work. A migration records the exact source
+repository, path, and revision; destination repository and path; author
+identity and complete-history evidence; transformation; third-party review;
+and grant in its pull request or a committed provenance manifest. Current
+blame, incomplete history, or authorship of only part of a mixed file does not
+establish eligibility for the whole material.
+
 The `supply-chain` command resolves component inputs through the same profile
 selectors as builds, then reads Git-indexed files without mutating a checkout.
 The audit requires immutable remote Actions and container images, updater
