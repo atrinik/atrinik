@@ -68,6 +68,7 @@ class ParserTests(unittest.TestCase):
                 ),
                 0,
             )
+            self.assertEqual(main(["init"]), 0)
 
         self.assertEqual(load.call_count, 4)
         self.assertEqual(inventory.validate_schema.call_count, 4)
