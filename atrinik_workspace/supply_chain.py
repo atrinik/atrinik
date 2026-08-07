@@ -14,11 +14,15 @@ from .model import Manifest, WorkspaceError, load_json, require_keys
 SCHEMA_VERSION = 1
 ACTION_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 CHECKSUM_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
-DEPENDENCY_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._/-]*$")
 SPDX_PATTERN = re.compile(r"^(?:[A-Za-z0-9-.+]+|NOASSERTION|LicenseRef-[A-Za-z0-9-.]+)$")
 ACTION_REFERENCE_PATTERN = re.compile(
-    r"uses:\s*([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*)"
-    r"@([^\s#]+)(?:\s*#\s*([^\s]+))?"
+    r"^\s*(?:-\s*)?uses:\s*"
+    r"([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*)"
+    r"@([^\s#]+)(?:\s*#\s*([^\s]+))?\s*$",
+    re.MULTILINE,
+)
+USES_DECLARATION_PATTERN = re.compile(
+    r"^\s*(?:-\s*)?uses:\s*(.*?)\s*$", re.MULTILINE
 )
 FROM_PATTERN = re.compile(
     r"^\s*FROM(?:\s+--platform=[^\s]+)?\s+([^\s]+)(?:\s+AS\s+([^\s]+))?",
@@ -26,7 +30,7 @@ FROM_PATTERN = re.compile(
 )
 SYNTAX_PATTERN = re.compile(r"^\s*#\s*syntax=([^\s]+)", re.IGNORECASE | re.MULTILINE)
 DOCKER_PULL_PATTERN = re.compile(r"\bdocker\s+pull\s+([^\s'\"\\]+)")
-RUNNER_PATTERN = re.compile(r"^\s*runs-on:\s*([A-Za-z0-9_.-]+)", re.MULTILINE)
+RUNNER_PATTERN = re.compile(r"^\s*runs-on:\s*(.*?)\s*$", re.MULTILINE)
 DEPENDENCY_FILE_NAMES = {
     "catalog.lock.json",
     "dependencies.lock.json",
@@ -267,6 +271,32 @@ class Inventory:
                 path for path in tracked if path.startswith(".github/workflows/") and path.endswith((".yml", ".yaml"))
             ):
                 text = _read_metadata(root / relative)
+                for match in USES_DECLARATION_PATTERN.finditer(text):
+                    reference = match.group(1).partition("#")[0].strip()
+                    if reference.startswith("./"):
+                        if ".." in PurePosixPath(reference).parts:
+                            raise WorkspaceError(
+                                f"{repository_name}/{relative}: local Action escapes "
+                                f"its repository: {reference}"
+                            )
+                        continue
+                    if reference.startswith("docker://"):
+                        _validate_container_reference(
+                            self.dependencies,
+                            repository_name,
+                            relative,
+                            reference.removeprefix("docker://"),
+                        )
+                        continue
+                    if not re.fullmatch(
+                        r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+"
+                        r"(?:/[A-Za-z0-9_.-]+)*@[^\s#]+",
+                        reference,
+                    ):
+                        raise WorkspaceError(
+                            f"{repository_name}/{relative}: unsupported external "
+                            f"Action reference {reference or '<empty>'}"
+                        )
                 for match in ACTION_REFERENCE_PATTERN.finditer(text):
                     locator, commit, comment = match.groups()
                     dependency = action_dependencies.get(locator)
@@ -298,7 +328,12 @@ class Inventory:
                         self.dependencies, repository_name, relative, image
                     )
                 for match in RUNNER_PATTERN.finditer(text):
-                    runner = match.group(1)
+                    runner = match.group(1).partition("#")[0].strip()
+                    if not re.fullmatch(r"[A-Za-z0-9_.-]+", runner):
+                        raise WorkspaceError(
+                            f"{repository_name}/{relative}: workflow runner must be "
+                            f"an explicit literal: {runner or '<empty>'}"
+                        )
                     locator = f"github-hosted-runner/{runner}"
                     dependency = runner_dependencies.get(locator)
                     if dependency is None:
@@ -325,13 +360,6 @@ class Inventory:
                             self.dependencies, repository_name, relative, image
                         )
 
-            for name in VENDORED_FILE_NAMES & {PurePosixPath(path).name for path in tracked}:
-                candidates = [path for path in tracked if PurePosixPath(path).name == name]
-                for relative in candidates:
-                    if (repository_name, relative) not in evidence_paths:
-                        raise WorkspaceError(
-                            f"{repository_name}/{relative}: vendored source is absent from the inventory"
-                        )
             messages.append(
                 f"{repository_name}: audited {len(tracked)} version-controlled inputs and {action_count} action references"
             )
@@ -524,8 +552,6 @@ def _load_dependency(
     }
     require_keys(value, keys, context)
     identifier = _identifier(value["id"], f"{context}.id")
-    if not DEPENDENCY_ID_PATTERN.fullmatch(identifier):
-        raise WorkspaceError(f"{context}.id has invalid characters")
     if identifier in identifiers:
         raise WorkspaceError(f"duplicate dependency id: {identifier}")
     identifiers.add(identifier)
@@ -973,9 +999,15 @@ def write_generated(root: Path, output: Path | None, value: str) -> None:
     if output is None:
         print(value, end="")
         return
+    root = root.resolve(strict=True)
+    build_entry = root / "build"
+    if build_entry.is_symlink():
+        raise WorkspaceError(
+            f"generated output directory must not be a symlink: {build_entry}"
+        )
     target = output if output.is_absolute() else root / output
     target = target.resolve(strict=False)
-    build = (root / "build").resolve(strict=False)
+    build = build_entry.resolve(strict=False)
     try:
         target.relative_to(build)
     except ValueError as error:
