@@ -1,0 +1,4 @@
+interface:
+  display_name: "Atrinik Protocol Change"
+  short_description: "Change Atrinik wire contracts coherently"
+  default_prompt: "Use $atrinik-protocol-change to trace and update this Atrinik wire contract across its authoritative source, producers, consumers, and tests."

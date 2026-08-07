@@ -1,0 +1,4 @@
+interface:
+  display_name: "Atrinik C Change"
+  short_description: "Implement and validate Atrinik native code"
+  default_prompt: "Use $atrinik-c-change to implement this native Atrinik change in the owning component and validate every affected consumer."

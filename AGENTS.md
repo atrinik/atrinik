@@ -5,6 +5,12 @@
 - For work that spans component repositories, read and follow
   `.agents/skills/atrinik-multi-repo-workspace/SKILL.md` before changing a
   checkout, worktree, profile, release configuration, or GitHub repository.
+- Use the narrowest specialist skill that owns the change: `atrinik-c-change`
+  for native code, `atrinik-protocol-change` for wire contracts,
+  `atrinik-content-change` for authored world data, `atrinik-server-runtime`
+  for classic server execution, and `atrinik-github-governance` for repository
+  policy or Actions. Combine one with the multi-repository skill when ownership
+  crosses component boundaries.
 - Primary component checkouts are independent ignored Git repositories directly
   below the wrapper root. Component worktrees, builds, profiles, and default
   mutable state belong below the ignored workspace directory or an explicit
@@ -28,6 +34,8 @@
   merge is released by semantic-release.
 - Run the complete Python test suite, compileall, ShellCheck for shell changes,
   actionlint for workflow changes, and `git diff --check` before finishing.
+  Coordinator logic changes must also preserve the `.coveragerc` source and
+  omission boundaries and the OIDC-authenticated Codecov report.
 - Every implementation or change handoff must include copy-pasteable manual
   verification commands that use the thin `./atrinik` wrapper whenever it
   supports the workflow. Use exact profile, worktree, topology, service, and
@@ -39,9 +47,15 @@
 - Use `.agents/skills/atrinik-test-scenario/SKILL.md` when manual verification
   benefits from a ready local account and character. Keep scenario credentials
   and state ignored and isolated; never handcraft account or player files.
+- Keep component-specific instructions in the owning component repository.
+  Wrapper skills may coordinate those contracts, but must not duplicate their
+  implementation or become a second source of truth for component commands.
 - Deep-review reports are ignored local artifacts under `build/`; do not commit
   them.
 - Keep this guide, the multi-repository skill, `README.md`, and
   `docs/ARCHITECTURE.md` synchronized with changes to the `atrinik` command,
   `components.json`, managed layout, ownership boundaries, or cross-repository
   development and release procedures.
+- When major rework changes ownership, layout, commands, safety boundaries, or
+  validation contracts, update every affected `AGENTS.md` and skill in the same
+  change. Treat stale agent guidance as an implementation defect.

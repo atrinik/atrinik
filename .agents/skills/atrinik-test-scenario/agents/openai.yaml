@@ -1,4 +1,4 @@
 interface:
   display_name: "Atrinik Test Scenario"
   short_description: "Provision deterministic local Atrinik test players"
-  default_prompt: "Set up the smallest deterministic local Atrinik account and character scenario for this manual reproduction, then provide exact ./atrinik verification and cleanup commands."
+  default_prompt: "Use $atrinik-test-scenario to set up the smallest deterministic local Atrinik account and character scenario for this reproduction, then provide exact ./atrinik verification and cleanup commands."
