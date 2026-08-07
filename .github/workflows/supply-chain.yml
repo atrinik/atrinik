@@ -1,0 +1,86 @@
+name: Supply chain
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 5 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Organization dependency audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: atrinik/client
+          path: client
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: atrinik/server
+          path: server
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: atrinik/protocol
+          path: protocol
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: atrinik/libatrinik
+          path: libatrinik
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: atrinik/content
+          path: content
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: atrinik/sound
+          path: sound
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: atrinik/resources
+          path: resources
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: atrinik/tools
+          path: tools
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: atrinik/editor
+          path: editor
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: atrinik/metaserver-worker
+          path: metaserver-worker
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: atrinik/devcontainer
+          path: devcontainer
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: atrinik/github-settings
+          path: github-settings
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.13"
+      - name: Audit dependency ownership
+        run: |
+          ./atrinik supply-chain validate
+          ./atrinik supply-chain audit
+          ./atrinik supply-chain versions \
+            --output build/supply-chain/versions.json
+          ./atrinik supply-chain report --format licenses \
+            --output build/supply-chain/licenses.md
+          ./atrinik supply-chain report --format cyclonedx \
+            --output build/supply-chain/cyclonedx.json
+          ./atrinik supply-chain report --format spdx \
+            --output build/supply-chain/spdx.json
+      - name: Upload supply-chain reports
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: atrinik-supply-chain
+          path: build/supply-chain
+          if-no-files-found: error

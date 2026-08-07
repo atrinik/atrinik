@@ -36,6 +36,11 @@
   actionlint for workflow changes, and `git diff --check` before finishing.
   Coordinator logic changes must also preserve the `.coveragerc` source and
   omission boundaries and the OIDC-authenticated Codecov report.
+- `supply-chain/inventory.json` is the organization-wide dependency ownership
+  source. Update it with every supported toolchain, package source, action,
+  image, vendored input, license, owner, cadence, EOL response, and validation
+  path. Keep Actions and images immutable, retain updater hints, do not add Git
+  submodules, and run the profile-aware `./atrinik supply-chain audit`.
 - Every implementation or change handoff must include copy-pasteable manual
   verification commands that use the thin `./atrinik` wrapper whenever it
   supports the workflow. Use exact profile, worktree, topology, service, and

@@ -157,6 +157,14 @@ files directly.
 
 ## Coordinate releases and GitHub changes
 
+- Treat `supply-chain/inventory.json` in the wrapper as the aggregate ownership
+  catalog while component lockfiles remain their release integrity boundary.
+  Update the catalog when a supported dependency, toolchain, action, image,
+  vendored source, license, owner, cadence, EOL response, or validation path
+  changes. Keep remote Actions on full commits with updater comments, images on
+  manifest digests, and Git submodules absent. Validate a coordinated profile
+  with `./atrinik supply-chain audit --profile PROFILE` and generate ignored
+  license/CycloneDX/SPDX reports through the same command.
 - Keep each repository independently releasable. A component squash commit
   changes and releases that component; never couple publication to a wrapper
   checkout or submodule pointer.

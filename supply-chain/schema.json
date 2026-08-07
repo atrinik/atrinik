@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atrinik.org/schema/supply-chain-inventory-v1.json",
+  "title": "Atrinik supply-chain inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "organization", "created", "repositories", "dependencies"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "organization": {"const": "atrinik"},
+    "created": {"type": "string", "format": "date-time"},
+    "repositories": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "repository", "supported", "role"],
+        "properties": {
+          "name": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "repository": {"type": "string", "pattern": "^atrinik/[a-z0-9][a-z0-9._-]*$"},
+          "supported": {"type": "boolean"},
+          "role": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/dependency"}
+    }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "path", "contains"],
+      "properties": {
+        "repository": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "path": {"type": "string", "minLength": 1},
+        "contains": {"type": "string", "minLength": 1}
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "name", "kind", "owner", "scope", "required", "version",
+        "version_source", "license", "source_url", "locator", "commit",
+        "checksum", "acquisition", "update_cadence_days", "update_mechanism",
+        "eol_response", "validation", "disposition", "packages", "evidence"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._/-]*$"},
+        "name": {"type": "string", "minLength": 1},
+        "kind": {
+          "enum": [
+            "container-feature", "container-image", "external-tool",
+            "github-action", "language-package-set", "source-archive",
+            "system-library", "system-package-set", "toolchain", "vendored-source"
+          ]
+        },
+        "owner": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "scope": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"}
+        },
+        "required": {"type": "boolean"},
+        "version": {"type": "string", "minLength": 1},
+        "version_source": {"type": "string", "minLength": 1},
+        "license": {"type": "string", "minLength": 1},
+        "source_url": {"type": "string", "format": "uri", "pattern": "^https://"},
+        "locator": {"type": "string", "minLength": 1},
+        "commit": {"type": ["string", "null"], "pattern": "^[0-9a-f]{40}$"},
+        "checksum": {"type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$"},
+        "acquisition": {"type": "string", "minLength": 1},
+        "update_cadence_days": {"type": "integer", "minimum": 1, "maximum": 366},
+        "update_mechanism": {"type": "string", "minLength": 1},
+        "eol_response": {"type": "string", "minLength": 1},
+        "validation": {"type": "string", "minLength": 1},
+        "disposition": {"enum": ["isolate", "remove", "replace", "retain"]},
+        "packages": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/evidence"}
+        }
+      }
+    }
+  }
+}
