@@ -73,14 +73,25 @@ workspace directory, use repeated absolute `--repository NAME=PATH` overrides;
 the command verifies each override's GitHub repository identity before reading
 it.
 
-Historical contributions by Zoey Rose may be copied, migrated, translated, or
-relicensed under MIT under her explicit grant only after a complete Git-history
-audit proves sole authorship of the selected material and a content review
-excludes embedded third-party or conflicting-licensed work. Current blame is
-not sufficient proof. The destination pull request or committed provenance
-manifest records the exact source, revision, destination, history and identity
-evidence, transformation, third-party review, and grant. Mixed or uncertain
-material remains under its existing license until its provenance is resolved.
+### Historical MIT provenance grants
+
+The approved grantor registry is exhaustive:
+
+| Grantor | Covered material | Permitted operations | Destination license |
+| --- | --- | --- | --- |
+| Zoey Rose | All original past Atrinik contributions solely authored by Zoey Rose | Copy, migrate, translate, or relicense | MIT |
+| Daniel Liptrot | All original past Atrinik contributions solely authored by Daniel Liptrot | Copy, migrate, translate, or relicense | MIT |
+
+Apply a grant only after a complete, non-shallow Git-history audit follows
+renames and moves, proves the selected material is the named grantor's original
+work and was solely authored by that grantor, and verifies historical author
+identities. Review also excludes embedded third-party or conflicting-licensed
+work. Current blame alone is not proof; mixed, incomplete, or uncertain
+material remains under its existing license until independently resolved. The
+destination pull request or committed provenance manifest records the exact
+source, revision, destination, history and identity evidence, transformation,
+third-party review, applicable grantor and grant, and exact wrapper repository
+revision containing the registry entry as grant evidence.
 
 ## Quick start
 

@@ -182,22 +182,26 @@ files directly.
   publishing. Report repository-specific commits, checks, releases, and any
   incomplete external operation separately.
 
-## Reuse Zoey Rose contributions under MIT
+## Apply approved historical MIT provenance grants
 
-Zoey Rose grants permission to copy, migrate, translate, or relicense under
-MIT any of her original past Atrinik contributions. Apply that grant only to
-selected material for which a complete Git-history audit proves sole Zoey Rose
-authorship and a content review finds no embedded third-party or
-conflicting-licensed material. This grant is not an automatic license change
-for a repository, file, or current-blame region.
+The following registry is exhaustive. Each person explicitly grants permission
+for the listed treatment of the listed original past Atrinik contributions.
 
-Before applying the grant:
+| Grantor | Covered material | Permitted operations | Destination license |
+| --- | --- | --- | --- |
+| Zoey Rose | All original past Atrinik contributions solely authored by Zoey Rose | Copy, migrate, translate, or relicense | MIT |
+| Daniel Liptrot | All original past Atrinik contributions solely authored by Daniel Liptrot | Copy, migrate, translate, or relicense | MIT |
+
+A registry entry is not an automatic license change for a repository, file, or
+current-blame region. Before applying a grant:
 
 1. Identify the exact source repository, path, and revision or revision range,
    following renames and moves through the complete, non-shallow history.
 2. Inspect the creation and every subsequent change to the selected material,
-   including relevant commit diffs. Map historical author identities to Zoey
-   Rose with recorded evidence; do not treat current blame alone as proof.
+   including relevant commit diffs. Prove that it is the named grantor's
+   original work and that the grantor solely authored it. Map historical author
+   identities to that grantor with recorded evidence; do not treat current
+   blame alone as proof.
 3. Review the material for copied, generated, vendored, or otherwise embedded
    third-party work and for notices or licenses that conflict with MIT reuse.
    A history gap, unresolved identity, mixed authorship, or uncertain origin
@@ -207,9 +211,11 @@ Before applying the grant:
    qualify.
 5. Record the exact source and destination repositories and paths, source
    revision, complete history and identity evidence, transformation performed,
-   third-party review, and Zoey Rose's grant in the destination pull request or
-   a committed provenance manifest. Retain any notices required by material
-   that is deliberately included under another compatible license.
+   third-party review, and the applicable grantor and grant in the destination
+   pull request or a committed provenance manifest. Cite the exact wrapper
+   repository revision containing the applicable registry entry as the grant
+   evidence. Retain any notices required by material that is deliberately
+   included under another compatible license.
 
 ## Maintain this guidance
 
