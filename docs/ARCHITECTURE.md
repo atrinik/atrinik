@@ -137,6 +137,9 @@ server in offline provisioning mode. The server uses its normal validation,
 Argon2id password, atomic account-save, and exclusive player-reservation paths;
 the empty player record causes first login to follow normal character creation.
 No scenario secret is stored in metadata or passed as a process argument.
+The metadata records path, commit, and dirty status for the selected server,
+content, resources, protocol, and library inputs so an audit does not imply
+that a scenario provisioned from local edits came from a clean commit.
 
 Creation and reset serialize on a scenario-operation lock. State registry
 writes also serialize independently, preventing concurrent state additions

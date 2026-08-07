@@ -82,7 +82,7 @@ SCENARIO_KEYS = {
     "account",
     "character",
     "archetype",
-    "server",
+    "resolved",
     "provisioned_at",
 }
 SCENARIO_PRESETS = {"basic-player": {"archetype": "human_male"}}
@@ -1083,6 +1083,11 @@ class Workspace:
             raise WorkspaceError(f"state path is not a directory: {resolved}")
         if resolved.exists():
             self._validate_state(resolved)
+        self._register_state(name, resolved)
+        print(resolved)
+        return resolved
+
+    def _register_state(self, name: str, resolved: Path) -> None:
         with exclusive_lock(self.paths.workspace / "states.lock", "states registry"):
             states = self._load_states()
             if name in states:
@@ -1092,8 +1097,6 @@ class Workspace:
                 self.paths.states_file,
                 {"schema_version": SCHEMA_VERSION, "states": states},
             )
-        print(resolved)
-        return resolved
 
     def _scenario_directory(self, name: str) -> Path:
         validate_name(name, "scenario name")
@@ -1124,10 +1127,11 @@ class Workspace:
         descriptor = open_regular_file(path, os.O_RDONLY, "scenario password")
         metadata = os.fstat(descriptor)
         mode = stat.S_IMODE(metadata.st_mode)
-        if mode != 0o600:
+        wrong_owner = hasattr(os, "geteuid") and metadata.st_uid != os.geteuid()
+        if wrong_owner or mode != 0o600:
             os.close(descriptor)
             raise WorkspaceError(
-                f"scenario password must have mode 0600, not {mode:04o}: {path}"
+                f"scenario password must be owned by this user and mode 0600: {path}"
             )
         if not 0 < metadata.st_size <= SCENARIO_PASSWORD_MAX_SIZE:
             os.close(descriptor)
@@ -1148,7 +1152,12 @@ class Workspace:
         finally:
             if descriptor >= 0:
                 os.close(descriptor)
-        if not password or len(password) > SCENARIO_PASSWORD_MAX_SIZE or "\n" in password:
+        if (
+            not password
+            or len(password) > SCENARIO_PASSWORD_MAX_SIZE
+            or "\n" in password
+            or "\r" in password
+        ):
             raise WorkspaceError(f"scenario password file is invalid: {path}")
         return password
 
@@ -1170,7 +1179,7 @@ class Workspace:
         if not isinstance(metadata, dict):
             raise WorkspaceError(f"scenario metadata must be an object: {name}")
         require_keys(metadata, SCENARIO_KEYS, f"scenario {name}")
-        server = metadata.get("server")
+        resolved = metadata.get("resolved")
         if (
             metadata.get("schema_version") != SCHEMA_VERSION
             or metadata.get("name") != name
@@ -1182,14 +1191,23 @@ class Workspace:
             or not isinstance(metadata.get("archetype"), str)
             or not isinstance(metadata.get("provisioned_at"), str)
             or not metadata["provisioned_at"]
-            or not isinstance(server, dict)
-            or set(server) != {"path", "head"}
-            or not isinstance(server.get("path"), str)
-            or not Path(server["path"]).is_absolute()
-            or not isinstance(server.get("head"), str)
-            or not re.fullmatch(r"[0-9a-f]{40,64}", server["head"])
+            or not isinstance(resolved, dict)
+            or set(resolved) != TARGET_DEPENDENCIES["server"]
         ):
             raise WorkspaceError(f"scenario metadata is invalid: {name}")
+        for component, record in resolved.items():
+            if (
+                not isinstance(record, dict)
+                or set(record) != {"path", "head", "dirty"}
+                or not isinstance(record.get("path"), str)
+                or not Path(record["path"]).is_absolute()
+                or not isinstance(record.get("head"), str)
+                or not re.fullmatch(r"[0-9a-f]{40,64}", record["head"])
+                or not isinstance(record.get("dirty"), bool)
+            ):
+                raise WorkspaceError(
+                    f"scenario component metadata is invalid: {name}/{component}"
+                )
         state = root / "state"
         if state.is_symlink():
             raise WorkspaceError(f"scenario state is invalid: {name}")
@@ -1205,7 +1223,7 @@ class Workspace:
         metadata: dict[str, Any],
         state: Path,
         password_file: Path,
-    ) -> dict[str, str]:
+    ) -> dict[str, dict[str, Any]]:
         required = TARGET_DEPENDENCIES["server"]
         selected = self._resolve_build_profile(metadata["profile"], required)
         root = self._build_resolved(
@@ -1226,10 +1244,15 @@ class Workspace:
             ],
             cwd=runtime,
         )
-        server = selected["server"]
         return {
-            "path": str(server),
-            "head": git(server, "rev-parse", "HEAD", capture=True, trace=False),
+            component: {
+                "path": str(path),
+                "head": git(path, "rev-parse", "HEAD", capture=True, trace=False),
+                "dirty": not _is_clean(path, trace=False),
+            }
+            for component, path in sorted(
+                (component, selected[component]) for component in required
+            )
         }
 
     def scenario_create(
@@ -1251,7 +1274,7 @@ class Workspace:
             "account": f"scenario{digest}",
             "character": f"Scenario {digest}",
             "archetype": SCENARIO_PRESETS[preset]["archetype"],
-            "server": {"path": "/", "head": "0" * 40},
+            "resolved": {},
             "provisioned_at": "pending",
         }
         operation_lock = self.paths.scenarios / "operation.lock"
@@ -1275,14 +1298,14 @@ class Workspace:
                 state = self.state_path(
                     state_name, server_source, resolved_path=staging / "state"
                 )
-                metadata["server"] = self._scenario_provision_state(
+                metadata["resolved"] = self._scenario_provision_state(
                     metadata, state, password_file
                 )
                 metadata["provisioned_at"] = datetime.now(timezone.utc).isoformat()
                 atomic_json(staging / "scenario.json", metadata)
                 staging.replace(root)
                 try:
-                    self.state_add(state_name, (root / "state").resolve())
+                    self._register_state(state_name, (root / "state").resolve())
                 except BaseException:
                     shutil.rmtree(root)
                     raise
@@ -1336,7 +1359,7 @@ class Workspace:
                         server_source,
                         resolved_path=staging_root / "state",
                     )
-                    metadata["server"] = self._scenario_provision_state(
+                    metadata["resolved"] = self._scenario_provision_state(
                         metadata, staging_state, root / "password"
                     )
                     metadata["provisioned_at"] = datetime.now(timezone.utc).isoformat()

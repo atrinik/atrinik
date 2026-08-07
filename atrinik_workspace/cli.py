@@ -186,7 +186,7 @@ def _print_scenario_handoff(summary: dict[str, object]) -> None:
     state = summary["state"]
     print("manual verification:")
     print(f"  ./atrinik profile show {profile}")
-    print(f"  ./atrinik build all --profile {profile} --test")
+    print(f"  ./atrinik build server --profile {profile} --test")
     print(f"  ./atrinik scenario credentials {name}")
     print(f"  ./atrinik topology show {profile} --state {state} --json")
     print(f"  ./atrinik up --name {name} --profile {profile} --state {state}")

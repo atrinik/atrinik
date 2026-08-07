@@ -220,7 +220,8 @@ the password; request it explicitly with `credentials` immediately before
 login.
 
 Scenarios live below ignored `workspace/scenarios/`. Their metadata records the
-profile and exact provisioning server commit. Account files contain the normal
+profile plus every resolved provisioning dependency's path, commit, and dirty
+status. Account files contain the normal
 Argon2id password record, and the reserved empty player file deliberately
 causes the first client login to use normal character initialization. The
 offline provisioner starts no listener, plugin, metaserver, or console and

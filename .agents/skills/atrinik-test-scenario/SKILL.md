@@ -61,7 +61,7 @@ uses:
 
 ```sh
 ./atrinik profile show PROFILE
-./atrinik build all --profile PROFILE --test
+./atrinik build server --profile PROFILE --test
 ./atrinik topology show PROFILE --state scenario-NAME --json
 ./atrinik up --name NAME --profile PROFILE --state scenario-NAME
 ./atrinik ps NAME --json
