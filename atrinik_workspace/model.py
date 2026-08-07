@@ -160,6 +160,7 @@ class Paths:
     worktrees: Path
     profiles: Path
     builds: Path
+    topologies: Path
     state: Path
     marker: Path
     states_file: Path
@@ -183,6 +184,7 @@ class Paths:
             worktrees=workspace / "worktrees",
             profiles=workspace / "profiles",
             builds=workspace / "build",
+            topologies=workspace / "topologies",
             state=workspace / "state",
             marker=workspace / ".atrinik-workspace.json",
             states_file=workspace / "states.json",
@@ -208,6 +210,7 @@ class Paths:
             self.worktrees,
             self.profiles,
             self.builds,
+            self.topologies,
             self.state,
         ):
             directory.mkdir(parents=True, exist_ok=True)
@@ -216,8 +219,10 @@ class Paths:
 
 
 def managed_reset(path: Path, workspace_builds: Path, purpose: str) -> None:
-    path = path.resolve(strict=False)
     builds = workspace_builds.resolve()
+    if path.is_symlink():
+        raise WorkspaceError(f"refusing symlinked managed build path: {path}")
+    path = path.parent.resolve() / path.name
     if builds not in path.parents:
         raise WorkspaceError(f"refusing to replace path outside workspace builds: {path}")
     marker = path / MANAGED_MARKER
@@ -233,8 +238,10 @@ def managed_reset(path: Path, workspace_builds: Path, purpose: str) -> None:
 
 
 def managed_directory(path: Path, workspace_builds: Path, purpose: str) -> None:
-    path = path.resolve(strict=False)
     builds = workspace_builds.resolve()
+    if path.is_symlink():
+        raise WorkspaceError(f"refusing symlinked managed build path: {path}")
+    path = path.parent.resolve() / path.name
     if builds != path and builds not in path.parents:
         raise WorkspaceError(f"refusing build path outside workspace builds: {path}")
     marker = path / MANAGED_MARKER
