@@ -23,6 +23,20 @@ the ignored `workspace/` directory.
 The Atrinik development container supplies the native build dependencies. Run
 all commands below from this repository's root.
 
+### Development container
+
+Open this wrapper repository in VS Code and choose **Dev Containers: Reopen in
+Container** to use the pinned Linux build environment. On first creation, the
+container runs `./atrinik init`; it clones missing component repositories and
+validates existing checkouts without updating or replacing them. The Windows
+cross-build configuration is available at
+`.devcontainer/windows-cross/devcontainer.json` after `./atrinik init` has
+prepared the component checkouts.
+
+The wrapper owns these launch configurations because they compose the complete
+development workspace. The standalone `devcontainer` component owns only the
+published Linux and Windows toolchain images they reference.
+
 ## Quick start
 
 ~~~sh
