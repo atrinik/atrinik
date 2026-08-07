@@ -35,6 +35,10 @@ description: Coordinate changes, reviews, builds, releases, and Git worktrees ac
    ./atrinik init [COMPONENT...]
    ```
 
+   Initialization follows the wrapper repository's GitHub SSH or HTTPS
+   transport for new component clones. Keep the wrapper's `origin` (or
+   `upstream`) transport current instead of adding per-component URL overrides.
+
 2. Inspect local state with `./atrinik status --json`. This is a quiet,
    non-networked snapshot suitable for automation; use `sync` before relying on
    its cached ahead/behind counts as current GitHub state.
@@ -88,13 +92,17 @@ profiles:
 ```sh
 ./atrinik state add NAME
 ./atrinik state add NAME --path /absolute/server-data
-./atrinik run server --profile REVIEW --state NAME --dry-run
-./atrinik run client --profile REVIEW --dry-run
+./atrinik run server --profile REVIEW --state NAME --port UDP_PORT --dry-run
+./atrinik run client --profile REVIEW --state NAME --port UDP_PORT --dry-run
 ```
 
-Remove `--dry-run` only when an actual launch is intended. Verify display
-forwarding before opening the client. Do not run two servers against one state
-directory outside the coordinator's locking model.
+Remove `--dry-run` only when an actual launch is intended. For foreground use,
+start the server first so its persistent QUIC identity exists, then use the
+same state and port for the client. The client is pinned to that identity and
+metaserver/STUN discovery is disabled; the server disables STUN discovery and
+automatic port mapping. Verify display forwarding before opening the client.
+Do not run two servers against one state directory outside the coordinator's
+locking model. Prefer the supervised lifecycle below for routine paired use.
 
 For a persistent client/server review session, treat the profile as a source
 topology and use the supervised lifecycle:

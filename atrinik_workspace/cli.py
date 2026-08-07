@@ -135,8 +135,10 @@ def parser() -> argparse.ArgumentParser:
     for target in ("client", "server"):
         target_parser = launch_commands.add_parser(target)
         target_parser.add_argument("--profile", default="default")
-        if target == "server":
-            target_parser.add_argument("--state", default="default")
+        target_parser.add_argument("--state", default="default")
+        target_parser.add_argument(
+            "--port", type=int, default=1730, help="server UDP port (default: 1730)"
+        )
         target_parser.add_argument("--dry-run", action="store_true")
         target_parser.add_argument("arguments", nargs=argparse.REMAINDER)
     return root
@@ -346,10 +348,20 @@ def main(arguments: list[str] | None = None) -> int:
         elif options.command == "run":
             forwarded = _forwarded_arguments(options.arguments)
             if options.target == "client":
-                workspace.run_client(options.profile, forwarded, options.dry_run)
+                workspace.run_client(
+                    options.profile,
+                    options.state,
+                    options.port,
+                    forwarded,
+                    options.dry_run,
+                )
             else:
                 workspace.run_server(
-                    options.profile, options.state, forwarded, options.dry_run
+                    options.profile,
+                    options.state,
+                    options.port,
+                    forwarded,
+                    options.dry_run,
                 )
         return 0
     except WorkspaceError as error:
