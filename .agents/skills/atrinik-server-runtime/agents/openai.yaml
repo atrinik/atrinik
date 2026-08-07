@@ -1,0 +1,4 @@
+interface:
+  display_name: "Atrinik Server Runtime"
+  short_description: "Run and diagnose isolated Atrinik servers"
+  default_prompt: "Use $atrinik-server-runtime to prepare and diagnose this Atrinik server runtime through an exact profile, isolated state, supervised logs, and safe cleanup."
