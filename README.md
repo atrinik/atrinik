@@ -39,6 +39,40 @@ The wrapper owns these launch configurations because they compose the complete
 development workspace. The standalone `devcontainer` component owns only the
 published Linux and Windows toolchain images they reference.
 
+## Dependency and supply-chain ownership
+
+`supply-chain/inventory.json` records every supported repository and the owned
+toolchains, actions, images, source archives, system libraries, optional tools,
+vendored sources, licenses, update cadences, EOL responses, and validation
+paths they consume. The strict schema is checked without a third-party Python
+dependency. GitHub Actions and container images use immutable commits or
+digests with human-readable update hints, and every active repository enables
+weekly Dependabot updates for its supported ecosystems. Git submodules are not
+a supported dependency path.
+
+Validate the catalog alone or audit the exact checkouts selected by a profile:
+
+~~~sh
+./atrinik supply-chain validate
+./atrinik supply-chain audit --profile default
+./atrinik supply-chain versions --output build/supply-chain/versions.json
+./atrinik supply-chain report --format licenses \
+  --output build/supply-chain/licenses.md
+./atrinik supply-chain report --format cyclonedx \
+  --output build/supply-chain/cyclonedx.json
+./atrinik supply-chain report --format spdx \
+  --output build/supply-chain/spdx.json
+~~~
+
+Generated reports remain ignored under `build/`. A scheduled organization
+audit checks out every active repository, rejects unowned dependency inputs,
+movable workflow/image references, and submodules, prints exact available tool
+versions, and publishes deterministic license, CycloneDX, and SPDX artifacts.
+When auditing a wrapper worktree that cannot safely share its containing
+workspace directory, use repeated absolute `--repository NAME=PATH` overrides;
+the command verifies each override's GitHub repository identity before reading
+it.
+
 ## Quick start
 
 ~~~sh
