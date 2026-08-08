@@ -400,6 +400,114 @@ class RepositoryMigrationTests(unittest.TestCase):
             {row["code"] for row in audit["refusals"]},
         )
 
+    def test_audit_rejects_later_matching_fetch_url(self) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        self.assertEqual(self.migration().execute("apply")["status"], "applied")
+        replacement = self.make_repository(
+            "client",
+            "client",
+            repository="someone-else/client",
+            classic=False,
+            text="unrelated client\n",
+        )
+        command(
+            "git",
+            "remote",
+            "set-url",
+            "--add",
+            "origin",
+            "https://github.com/atrinik/client.git",
+            cwd=replacement,
+        )
+        self.manifest.by_checkout["client"] = SimpleNamespace(
+            name="client",
+            repository="atrinik/client",
+            branch="main",
+            path="client",
+            generation="replacement",
+        )
+
+        audit = self.migration().execute("audit")
+
+        self.assertEqual(audit["status"], "incomplete")
+        self.assertIn(
+            "source_archive_audit_failed",
+            {row["code"] for row in audit["refusals"]},
+        )
+
+    def test_audit_rejects_classic_history_disguised_as_replacement(self) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        result = self.migration().execute("apply")
+        self.assertEqual(result["status"], "applied")
+        archive = Path(result["sources"][0]["archive"])
+        command("git", "clone", str(archive), str(source), cwd=self.wrapper)
+        command(
+            "git",
+            "remote",
+            "set-url",
+            "origin",
+            "https://github.com/atrinik/client.git",
+            cwd=source,
+        )
+        self.manifest.by_checkout["client"] = SimpleNamespace(
+            name="client",
+            repository="atrinik/client",
+            branch="main",
+            path="client",
+            generation="replacement",
+        )
+
+        audit = self.migration().execute("audit")
+
+        self.assertEqual(audit["status"], "incomplete")
+        self.assertIn(
+            "source_archive_audit_failed",
+            {row["code"] for row in audit["refusals"]},
+        )
+
+    def test_audit_rejects_replacement_path_nested_in_another_checkout(self) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        self.assertEqual(self.migration().execute("apply")["status"], "applied")
+        source.mkdir()
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        command("git", "config", "user.name", "Migration Tests", cwd=self.wrapper)
+        command(
+            "git",
+            "config",
+            "user.email",
+            "migration@example.invalid",
+            cwd=self.wrapper,
+        )
+        (source / "tracked.txt").write_text("nested replacement\n", encoding="utf-8")
+        command("git", "add", "client/tracked.txt", cwd=self.wrapper)
+        command("git", "commit", "-m", "feat: nested replacement", cwd=self.wrapper)
+        command(
+            "git",
+            "remote",
+            "add",
+            "origin",
+            "https://github.com/atrinik/client.git",
+            cwd=self.wrapper,
+        )
+        self.manifest.by_checkout["client"] = SimpleNamespace(
+            name="client",
+            repository="atrinik/client",
+            branch="main",
+            path="client",
+            generation="replacement",
+        )
+
+        audit = self.migration().execute("audit")
+
+        self.assertEqual(audit["status"], "incomplete")
+        self.assertIn(
+            "source_archive_audit_failed",
+            {row["code"] for row in audit["refusals"]},
+        )
+
     def test_audit_rejects_symlink_at_reused_source_path(self) -> None:
         source = self.make_repository("client", "client")
         self.make_classic({"client": source})
