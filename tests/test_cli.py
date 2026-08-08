@@ -89,6 +89,45 @@ class ParserTests(unittest.TestCase):
             ["worktrees", "builds"], 0, ["classic-client"], True
         )
 
+    def test_cleanup_text_report_includes_item_age_reasons_and_totals(self) -> None:
+        report = {
+            "items": [
+                {
+                    "disposition": "eligible",
+                    "kind": "worktree",
+                    "allocated_bytes": 4096,
+                    "age_seconds": 2 * 86400,
+                    "path": "/workspace/review",
+                    "reasons": ["merged_pr_head"],
+                }
+            ],
+            "summary": {
+                "candidate_count": 1,
+                "candidate_bytes": 4096,
+                "protected_count": 0,
+                "protected_bytes": 0,
+                "removed_count": 0,
+                "removed_bytes": 0,
+                "error_count": 0,
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.cleanup.return_value = report
+            with mock.patch("builtins.print") as output:
+                result = main(["cleanup", "--scope", "all"])
+
+        self.assertEqual(result, 0)
+        lines = [call.args[0] for call in output.call_args_list]
+        self.assertIn(
+            "eligible\tworktree\t4096\t2d\t/workspace/review\tmerged_pr_head",
+            lines,
+        )
+        self.assertIn(
+            "summary\tcandidates=1 candidate_bytes=4096 protected=0 "
+            "protected_bytes=0 removed=0 removed_bytes=0 errors=0",
+            lines,
+        )
+
     def test_init_with_classic_dispatches_only_documented_additive_option(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
             result = main(["init", "--with", "classic", "--jobs", "2"])

@@ -19,7 +19,6 @@ from .model import (
     atomic_json,
     load_json,
     managed_remove,
-    validate_name,
 )
 from .supervisor import process_matches
 from .workspace import (
@@ -1351,9 +1350,6 @@ class Cleanup:
                 or not HEAD_PATTERN.fullmatch(row["head"])
             ):
                 raise WorkspaceError("build coordinate metadata is invalid")
-            validate_name(role, "build coordinate role")
-            validate_name(row["component"], "build coordinate component")
-            validate_name(row["checkout"], "build coordinate checkout")
             component = self.manifest.by_name.get(row["component"])
             if (
                 component is None
@@ -1364,17 +1360,7 @@ class Cleanup:
                 or row["source"] != component.source
             ):
                 raise WorkspaceError("build coordinate manifest identity is invalid")
-            if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", row["repository"]):
-                raise WorkspaceError("build coordinate repository is invalid")
-            if any(character in row["branch"] for character in "\0\r\n"):
-                raise WorkspaceError("build coordinate branch is invalid")
             source = PurePosixPath(row["source"])
-            if (
-                source.is_absolute()
-                or any(part in {"", ".."} for part in source.parts)
-                or row["source"] != "." and ":" in row["source"]
-            ):
-                raise WorkspaceError("build coordinate source is invalid")
             try:
                 checkout_path = Path(row["checkout_path"]).resolve(strict=False)
                 expected_source = (

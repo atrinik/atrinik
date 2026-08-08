@@ -10,7 +10,15 @@ import tempfile
 import unittest
 from unittest import mock
 
-from atrinik_workspace.cleanup import Cleanup, _base_item
+from atrinik_workspace.cleanup import (
+    Cleanup,
+    _base_item,
+    _command,
+    _parse_time,
+    _path_relation,
+    _tree_usage,
+    _workspace_owned,
+)
 from atrinik_workspace.model import (
     MANAGED_MARKER,
     SCHEMA_VERSION,
@@ -154,6 +162,105 @@ class CleanupTests(unittest.TestCase):
 
         with mock.patch.object(Cleanup, "_github_pulls", side_effect=pulls):
             return self.workspace.cleanup(scopes, older, [], False)
+
+    def test_low_level_inventory_helpers_report_invalid_inputs(self) -> None:
+        with self.assertRaisesRegex(WorkspaceError, "zero or greater"):
+            self.workspace.cleanup(["builds"], -1, [], False)
+        with mock.patch(
+            "atrinik_workspace.cleanup.subprocess.run",
+            side_effect=FileNotFoundError,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "required command"):
+                _command(self.wrapper, "status")
+        failure = subprocess.CalledProcessError(
+            2, ["git"], stderr="broken repository\n"
+        )
+        with mock.patch(
+            "atrinik_workspace.cleanup.subprocess.run", side_effect=failure
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "broken repository"):
+                _command(self.wrapper, "status")
+
+        for value, message in (
+            (None, "must be a timestamp"),
+            ("not-a-time", "not a valid timestamp"),
+            ("2026-01-01T00:00:00", "must include a UTC offset"),
+        ):
+            with self.subTest(value=value), self.assertRaisesRegex(
+                WorkspaceError, message
+            ):
+                _parse_time(value, "fixture")
+
+        self.assertTrue(_workspace_owned(self.workspace.paths))
+        self.workspace.paths.marker.write_text("not-json\n", encoding="utf-8")
+        self.assertFalse(_workspace_owned(self.workspace.paths))
+        self.workspace.paths.marker.unlink()
+        self.assertFalse(_workspace_owned(self.workspace.paths))
+        with self.assertRaisesRegex(WorkspaceError, "ownership marker"):
+            self.workspace.cleanup(["builds"], 0, [], True)
+
+        usage_root = self.root / "usage"
+        excluded = usage_root / "excluded"
+        excluded.mkdir(parents=True)
+        (excluded / "large").write_bytes(b"x" * 8192)
+        (usage_root / "kept").write_bytes(b"x")
+        sizes, observed, error = _tree_usage(usage_root, [excluded])
+        self.assertIsNone(error)
+        self.assertIsNotNone(observed)
+        self.assertGreater(sum(sizes.values()), 0)
+
+        with mock.patch.object(Path, "resolve", side_effect=RuntimeError("loop")):
+            self.assertTrue(_path_relation(usage_root, excluded))
+            sizes, observed, error = _tree_usage(usage_root)
+        self.assertEqual(sizes, {})
+        self.assertIsNone(observed)
+        self.assertIn("loop", error or "")
+
+    def test_github_query_wraps_process_and_response_failures(self) -> None:
+        repository = "atrinik/atrinik"
+        head = "a" * 40
+        cases = (
+            (FileNotFoundError(), "required command"),
+            (
+                subprocess.CalledProcessError(
+                    1, ["gh"], stderr="authentication required\n"
+                ),
+                "authentication required",
+            ),
+            (subprocess.TimeoutExpired(["gh"], 30), "timed out"),
+        )
+        for error, message in cases:
+            with self.subTest(message=message), mock.patch(
+                "atrinik_workspace.cleanup.subprocess.run", side_effect=error
+            ), self.assertRaisesRegex(WorkspaceError, message):
+                Cleanup._github_pulls(repository, head)
+
+        for stdout, message in (
+            ("not-json\n", "not JSON"),
+            ("[]\n", "invalid shape"),
+        ):
+            completed = subprocess.CompletedProcess(["gh"], 0, stdout, "")
+            with self.subTest(stdout=stdout), mock.patch(
+                "atrinik_workspace.cleanup.subprocess.run", return_value=completed
+            ), self.assertRaisesRegex(WorkspaceError, message):
+                Cleanup._github_pulls(repository, head)
+
+        row = self.merged_pull(head)[0]
+        completed = subprocess.CompletedProcess(
+            ["gh"], 0, json.dumps(row) + "\n", ""
+        )
+        with mock.patch(
+            "atrinik_workspace.cleanup.subprocess.run", return_value=completed
+        ):
+            self.assertEqual(Cleanup._github_pulls(repository, head), [row])
+
+        self.assertEqual(
+            Cleanup._pull_evidence([], head, "main")[0], "no_associated_pr"
+        )
+        self.assertEqual(
+            Cleanup._pull_evidence([{"number": 1}], head, "main")[0],
+            "invalid_pull_request_evidence",
+        )
 
     def test_dry_run_finds_exact_merged_head_and_preserves_ignored_output(self) -> None:
         worktree = self.make_wrapper_worktree()
@@ -334,6 +441,11 @@ class CleanupTests(unittest.TestCase):
         self.assertIn("scenario_inventory_error", report["inventory_errors"])
         pulls.assert_not_called()
 
+        report = self.workspace.cleanup(["worktrees"], 0, [], True)
+        self.assertTrue(report["aborted"])
+        self.assertGreater(report["summary"]["error_count"], 0)
+        self.assertTrue(worktree.is_dir())
+
     def test_migration_original_and_destination_paths_are_protected(self) -> None:
         worktree = self.make_component_worktree()
         migrations = self.workspace.paths.workspace / "migrations"
@@ -350,6 +462,40 @@ class CleanupTests(unittest.TestCase):
         item = next(row for row in report["items"] if row["path"] == str(worktree))
         self.assertIn("migration_reference", item["reasons"])
         self.assertGreaterEqual(len(item["references"]["migration"]), 3)
+
+    def test_migration_path_inventory_covers_every_current_record_shape(self) -> None:
+        paths = list(
+            Cleanup._migration_paths(
+                {
+                    "sources": [
+                        {
+                            "source": str(self.root / "source"),
+                            "archive": str(self.root / "archive"),
+                        }
+                    ],
+                    "worktree_migrations": [
+                        {
+                            "path": str(self.root / "old"),
+                            "destination": str(self.root / "new"),
+                        }
+                    ],
+                    "composite_worktrees": [
+                        {"destination": str(self.root / "composite")}
+                    ],
+                    "worktrees": [{"destination": str(self.root / "worktree")}],
+                    "classic": {"path": str(self.root / "classic")},
+                }
+            )
+        )
+        self.assertEqual(len(paths), 7)
+        self.assertIn(("classic.path", self.root / "classic"), paths)
+
+        with self.assertRaisesRegex(WorkspaceError, "is not a list"):
+            list(Cleanup._migration_paths({"sources": {}}))
+        with self.assertRaisesRegex(WorkspaceError, "is invalid"):
+            list(Cleanup._migration_paths({"sources": ["invalid"]}))
+        with self.assertRaisesRegex(WorkspaceError, "classic path"):
+            list(Cleanup._migration_paths({"classic": 7}))
 
     def test_apply_revalidates_then_removes_without_deleting_branch(self) -> None:
         worktree = self.make_wrapper_worktree()
@@ -465,6 +611,80 @@ class CleanupTests(unittest.TestCase):
         self.assertTrue(item["source_worktree_removal"])
         self.assertEqual(item["reasons"], ["source_worktree_removal"])
 
+    def test_build_use_refreshes_exact_coordinate_metadata(self) -> None:
+        worktree = self.make_component_worktree()
+        self.workspace.create_profile("build-review")
+        self.workspace.set_profile(
+            "build-review", "client", "worktree", worktree.name
+        )
+        selected = {"client": worktree}
+        key = "c" * 12
+        root = self.workspace.paths.builds / "profiles" / f"build-review-{key}"
+        managed_directory(
+            root, self.workspace.paths.builds, f"profile:build-review:{key}"
+        )
+
+        self.workspace._refresh_build_metadata(
+            root, "build-review", key, selected
+        )
+
+        metadata = json.loads((root / ".atrinik-build.json").read_text(encoding="utf-8"))
+        self.assertEqual(metadata["profile"], "build-review")
+        self.assertEqual(metadata["key"], key)
+        self.assertEqual(
+            metadata["coordinates"]["client"],
+            {
+                "component": "client",
+                "checkout": "client",
+                "repository": "atrinik/client",
+                "branch": "main",
+                "source": ".",
+                "checkout_path": str(worktree.resolve()),
+                "source_path": str(worktree.resolve()),
+                "head": command("git", "rev-parse", "HEAD", cwd=worktree),
+            },
+        )
+        self.assertIsNotNone(_parse_time(metadata["last_used_at"], "last use"))
+
+    def test_invalid_or_future_build_metadata_protects_profile_root(self) -> None:
+        worktree = self.make_component_worktree()
+        build = self.make_build()
+        metadata = {
+            "schema_version": 1,
+            "profile": "review",
+            "key": "a" * 12,
+            "purpose": f"profile:review:{'a' * 12}",
+            "coordinates": {
+                "client": {
+                    "component": "client",
+                    "checkout": "client",
+                    "repository": "atrinik/client",
+                    "branch": "main",
+                    "source": ".",
+                    "checkout_path": str(worktree),
+                    "source_path": str(worktree),
+                    "head": command("git", "rev-parse", "HEAD", cwd=worktree),
+                }
+            },
+            "last_used_at": (
+                datetime.now(timezone.utc) + timedelta(days=1)
+            ).isoformat(),
+        }
+        atomic_json(build / ".atrinik-build.json", metadata)
+
+        report = self.workspace.cleanup(["builds"], 0, [], False)
+        item = next(row for row in report["items"] if row["path"] == str(build))
+        self.assertEqual(item["age_basis"], "last-used-at")
+        self.assertIn("future_last_used", item["reasons"])
+
+        metadata["coordinates"]["client"]["repository"] = "atrinik/server"
+        atomic_json(build / ".atrinik-build.json", metadata)
+        report = self.workspace.cleanup(["builds"], 0, [], False)
+        item = next(row for row in report["items"] if row["path"] == str(build))
+        self.assertIn("invalid_build_metadata", item["reasons"])
+        self.assertIn("manifest identity", item["error"])
+        self.assertIn("build_age_unavailable", item["reasons"])
+
     def test_apply_stops_after_first_post_mutation_failure_and_reports_actual_state(self) -> None:
         first = self.make_build("first", "a" * 12)
         second = self.make_build("second", "b" * 12)
@@ -530,11 +750,58 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["kind"], "unmanaged-build")
         self.assertEqual(item["disposition"], "protected")
 
+    def test_profile_marker_and_lock_validation_rejects_unsafe_shapes(self) -> None:
+        build = self.make_build()
+        marker = build / MANAGED_MARKER
+        self.assertEqual(
+            Cleanup._profile_marker(build),
+            (f"profile:review:{'a' * 12}", "review", "a" * 12),
+        )
+
+        marker.unlink()
+        with self.assertRaisesRegex(WorkspaceError, "missing or invalid"):
+            Cleanup._profile_marker(build)
+        atomic_json(marker, {"schema_version": SCHEMA_VERSION})
+        with self.assertRaisesRegex(WorkspaceError, "shape is invalid"):
+            Cleanup._profile_marker(build)
+        atomic_json(
+            marker,
+            {"schema_version": SCHEMA_VERSION, "purpose": "not-a-profile"},
+        )
+        with self.assertRaisesRegex(WorkspaceError, "purpose is invalid"):
+            Cleanup._profile_marker(build)
+        atomic_json(
+            marker,
+            {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": f"profile:other:{'a' * 12}",
+            },
+        )
+        with self.assertRaisesRegex(WorkspaceError, "does not match its path"):
+            Cleanup._profile_marker(build)
+
+        directory_lock = self.workspace.paths.builds / "directory.lock"
+        directory_lock.mkdir()
+        busy, error = Cleanup._lock_busy(directory_lock)
+        self.assertFalse(busy)
+        self.assertTrue(error)
+        fifo_lock = self.workspace.paths.builds / "fifo.lock"
+        os.mkfifo(fifo_lock)
+        busy, error = Cleanup._lock_busy(fifo_lock)
+        self.assertFalse(busy)
+        self.assertIn("not a regular file", error or "")
+        symlink_lock = self.workspace.paths.builds / "symlink.lock"
+        symlink_lock.symlink_to(directory_lock, target_is_directory=True)
+        busy, error = Cleanup._lock_busy(symlink_lock)
+        self.assertFalse(busy)
+        self.assertTrue(error)
+
     def test_symlinked_workspace_build_container_is_report_only(self) -> None:
         shutil.rmtree(self.workspace.paths.builds)
         external = self.root / "external-builds"
         target = external / "profiles" / f"review-{'a' * 12}"
         managed_directory(target, external, f"profile:review:{'a' * 12}")
+        (external / "npm-cache").mkdir()
         self.workspace.paths.builds.symlink_to(external, target_is_directory=True)
 
         report = self.workspace.cleanup(["builds"], 0, [], False)
@@ -547,6 +814,11 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["kind"], "unmanaged-build")
         self.assertEqual(item["reasons"], ["invalid_build_container"])
         self.assertTrue(target.is_dir())
+
+        report = self.workspace.cleanup(["npm-cache"], 0, [], False)
+        cache = next(row for row in report["items"] if row["kind"] == "npm-cache")
+        self.assertEqual(cache["reasons"], ["invalid_cache_path"])
+        self.assertFalse(cache["legacy_known_cache"])
 
     def test_build_only_scope_still_protects_a_nested_registered_worktree(self) -> None:
         build = self.make_build()
@@ -671,6 +943,69 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["disposition"], "removed")
         self.assertFalse(cache.exists())
 
+    def test_managed_npm_cache_honors_metadata_marker_and_active_builds(self) -> None:
+        cache = self.workspace.paths.builds / "npm-cache"
+        managed_directory(cache, self.workspace.paths.builds, "npm-cache")
+        metadata_path = cache / ".atrinik-cache.json"
+        atomic_json(
+            metadata_path,
+            {
+                "schema_version": 1,
+                "purpose": "npm-cache",
+                "last_used_at": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+
+        report = self.workspace.cleanup(["npm-cache"], 7, [], False)
+        item = next(row for row in report["items"] if row["kind"] == "npm-cache")
+        self.assertFalse(item["legacy_known_cache"])
+        self.assertEqual(item["age_basis"], "last-used-at")
+        self.assertIn("younger_than_grace_period", item["reasons"])
+
+        atomic_json(
+            metadata_path,
+            {
+                "schema_version": 1,
+                "purpose": "npm-cache",
+                "last_used_at": (
+                    datetime.now(timezone.utc) + timedelta(days=1)
+                ).isoformat(),
+            },
+        )
+        report = self.workspace.cleanup(["npm-cache"], 0, [], False)
+        item = next(row for row in report["items"] if row["kind"] == "npm-cache")
+        self.assertIn("future_last_used", item["reasons"])
+
+        atomic_json(metadata_path, {"schema_version": 1, "purpose": "wrong"})
+        atomic_json(
+            cache / MANAGED_MARKER,
+            {"schema_version": SCHEMA_VERSION, "purpose": "wrong"},
+        )
+        lock = self.workspace.paths.builds / "locks" / "active.lock"
+        lock.parent.mkdir()
+        with lock.open("w", encoding="utf-8") as stream:
+            import fcntl
+
+            fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            report = self.workspace.cleanup(["npm-cache"], 0, [], False)
+        item = next(row for row in report["items"] if row["kind"] == "npm-cache")
+        self.assertIn("invalid_managed_marker", item["reasons"])
+        self.assertIn("invalid_cache_metadata", item["reasons"])
+        self.assertIn("cache_age_unavailable", item["reasons"])
+        self.assertIn("active_build", item["reasons"])
+
+        cleanup = Cleanup(self.workspace)
+        with self.assertRaisesRegex(WorkspaceError, "marker appeared"):
+            cleanup._remove(
+                {
+                    "kind": "npm-cache",
+                    "path": str(cache),
+                    "legacy_known_cache": True,
+                }
+            )
+        with self.assertRaisesRegex(WorkspaceError, "unsupported cleanup target"):
+            cleanup._remove({"kind": "unknown", "path": str(cache)})
+
     def test_dry_run_does_not_create_an_absent_workspace(self) -> None:
         shutil.rmtree(self.workspace.paths.workspace)
         report = self.workspace.cleanup(["builds"], 7, [], False)
@@ -683,6 +1018,12 @@ class CleanupTests(unittest.TestCase):
         repository = Path(__file__).resolve().parents[1]
         actual_workspace = Workspace(repository)
         cleanup = Cleanup(actual_workspace)
+        self.assertEqual(
+            cleanup._normalize_scopes(["all"]), ["worktrees", "builds", "npm-cache"]
+        )
+        self.assertEqual(cleanup._normalize_names(["atrinik"]), {"atrinik"})
+        with self.assertRaisesRegex(WorkspaceError, "unknown components"):
+            cleanup._normalize_names(["not-a-component"])
         self.assertEqual(
             cleanup._normalize_names(
                 ["classic", "classic-client", "classic-server", "classic-protocol"]
