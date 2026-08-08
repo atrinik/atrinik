@@ -1567,8 +1567,35 @@ def repository_roots(
                 continue
             selected[member.name] = _component_source_root(checkout_root, member)
             selected_checkouts[member.name] = checkout_root
-    roots = {"atrinik": root}
     rows = {row["component"]: row for row in summary["components"]}
+    expected_components = {component.name for component in stack.components}
+    if set(rows) != expected_components:
+        raise WorkspaceError(
+            f"profile summary component set does not match {stack.name} stack"
+        )
+    missing_checkouts: dict[str, list[str]] = {}
+    for component in stack.components:
+        if component.name in selected or rows[component.name]["initialized"]:
+            continue
+        missing_checkouts.setdefault(component.checkout_name, []).append(
+            component.name
+        )
+    if missing_checkouts:
+        missing = ", ".join(
+            f"{checkout} ({', '.join(components)})"
+            for checkout, components in sorted(missing_checkouts.items())
+        )
+        initialization = (
+            "./atrinik init --with classic"
+            if stack.name == "classic"
+            else "./atrinik init"
+        )
+        raise WorkspaceError(
+            f"supply-chain profile {profile} is incomplete; initialize every "
+            f"selected checkout before auditing with {initialization}: {missing}"
+        )
+
+    roots = {"atrinik": root}
     for component in stack.components:
         if component.name not in audit_ready:
             continue
