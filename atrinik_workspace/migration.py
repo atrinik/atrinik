@@ -2550,7 +2550,15 @@ class RepositoryMigration:
                 continue
             source_path = Path(str(row.get("source", "")))
             archive = Path(str(row.get("archive", "")))
-            valid = not source_path.exists() and archive.is_dir() and not archive.is_symlink()
+            source_vacated = not source_path.exists() and not source_path.is_symlink()
+            source_reused = self._replacement_checkout_occupies_source_path(
+                source_path, archive
+            )
+            valid = (
+                (source_vacated or source_reused)
+                and archive.is_dir()
+                and not archive.is_symlink()
+            )
             if valid:
                 try:
                     valid = (
@@ -2925,6 +2933,39 @@ class RepositoryMigration:
             return str(checkout.repository), str(getattr(checkout, "path", "classic"))
         component = self._component("classic-client")
         return str(component.repository), str(getattr(component, "checkout", "classic"))
+
+    def _replacement_checkout_occupies_source_path(
+        self, source_path: Path, archive: Path
+    ) -> bool:
+        """Recognize a manifest-owned replacement at a vacated classic path."""
+
+        if source_path.is_symlink() or not source_path.is_dir():
+            return False
+        by_checkout = getattr(self.manifest, "by_checkout", {})
+        if not isinstance(by_checkout, dict):
+            return False
+        checkout = next(
+            (
+                value
+                for value in by_checkout.values()
+                if getattr(value, "generation", None) == "replacement"
+                and self.repository_root / str(getattr(value, "path", ""))
+                == source_path
+            ),
+            None,
+        )
+        if checkout is None:
+            return False
+        repository = str(getattr(checkout, "repository", ""))
+        identity, _, _, _ = self._repository_identity(source_path, {repository})
+        if identity != "expected":
+            return False
+        try:
+            return self._git_common_directory(source_path) != self._git_common_directory(
+                archive
+            )
+        except WorkspaceError:
+            return False
 
     def _archive_destination(self, source: Path) -> Path:
         preferred = self.archive_root / "repositories" / source.name
