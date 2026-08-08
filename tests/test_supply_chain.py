@@ -30,11 +30,13 @@ from atrinik_workspace.supply_chain import (
     _read_metadata,
     _relative_path,
     _safe_repository_path,
+    _static_matrix_values,
     _string_array,
     _system_package_versions,
     _text,
     _tracked_files,
     _validate_container_reference,
+    _workflow_job_blocks,
     _workflow_runners,
     _workflow_uses_unpinned_npx,
     repository_roots,
@@ -1176,6 +1178,44 @@ jobs:
         with self.assertRaisesRegex(WorkspaceError, "no static literals"):
             _workflow_runners(partly_dynamic)
 
+        commented = """
+jobs:
+  # The blank/comment paths must not affect structural indentation.
+
+  matrix:
+    strategy:
+      matrix:
+        # Runner values remain a direct static list.
+        os:
+          # Supported platforms.
+          - ubuntu-24.04
+        include:
+          - label
+    runs-on: ${{ matrix.os }}
+permissions: {}
+"""
+        self.assertEqual(_workflow_runners(commented), ("ubuntu-24.04",))
+        self.assertEqual(_static_matrix_values("matrix:\n", "os"), ())
+        self.assertEqual(_static_matrix_values("plain: value\n", "os"), ())
+
+    def test_workflow_job_blocks_are_bounded_to_jobs(self) -> None:
+        standalone = "runs-on: ubuntu-24.04\n"
+        self.assertEqual(_workflow_job_blocks(standalone), (standalone,))
+        self.assertEqual(
+            _workflow_job_blocks("jobs:\n  # no jobs\n\npermissions: {}\n"), ()
+        )
+        workflow = """
+jobs:
+  first:
+    runs-on: ubuntu-24.04
+  second:
+    runs-on: windows-2025
+permissions: {}
+"""
+        blocks = _workflow_job_blocks(workflow)
+        self.assertEqual(len(blocks), 2)
+        self.assertNotIn("permissions", blocks[-1])
+
     def test_npx_requires_an_immutable_setup_node_step(self) -> None:
         unpinned = "steps:\n  - run: npx --yes semantic-release\n"
         pinned = """
@@ -1205,6 +1245,19 @@ jobs:
       - run: npx --yes semantic-release
 """
         self.assertTrue(_workflow_uses_unpinned_npx(separate_jobs))
+
+        inventory = self.audit_inventory()
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.make_audit_repository(root)
+            workflow = root / ".github" / "workflows" / "ci.yml"
+            workflow.write_text(
+                workflow.read_text(encoding="utf-8")
+                + "\n  - run: npx --yes semantic-release\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(WorkspaceError, "npx requires"):
+                inventory.audit({"fixture": root})
 
     def test_metadata_audit_excludes_only_declared_logical_sources(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
