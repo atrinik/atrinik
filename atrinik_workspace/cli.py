@@ -6,15 +6,27 @@ from pathlib import Path
 import sys
 
 from .model import Manifest, WorkspaceError
-from .supply_chain import Inventory, repository_roots, version_report, write_generated
+from .supply_chain import (
+    Inventory,
+    report_component_commits,
+    repository_roots,
+    version_report,
+    write_generated,
+)
 from .workspace import Workspace
 
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
+class _ExactArgumentParser(argparse.ArgumentParser):
+    def __init__(self, *args: object, **kwargs: object):
+        kwargs.setdefault("allow_abbrev", False)
+        super().__init__(*args, **kwargs)
+
+
 def parser() -> argparse.ArgumentParser:
-    root = argparse.ArgumentParser(
+    root = _ExactArgumentParser(
         prog="atrinik", description="Atrinik multi-repository development workspace"
     )
     commands = root.add_subparsers(dest="command", required=True)
@@ -22,26 +34,61 @@ def parser() -> argparse.ArgumentParser:
     manifest = commands.add_parser("manifest", help="validate the component manifest")
     manifest.add_argument("action", choices=["validate"])
 
-    initialize = commands.add_parser("init", help="clone missing component repositories")
+    initialize = commands.add_parser("init", help="clone missing physical checkouts")
     initialize.add_argument("components", nargs="*")
+    initialize.add_argument(
+        "--with",
+        dest="additional_sets",
+        action="append",
+        choices=["classic"],
+        default=[],
+        help="add the complete classic cohort to the default checkout cohort",
+    )
     initialize.add_argument("--jobs", type=int, default=4)
 
-    sync = commands.add_parser("sync", help="fetch and fast-forward component repositories")
+    sync = commands.add_parser(
+        "sync", help="fetch and fast-forward physical checkouts"
+    )
     sync.add_argument("components", nargs="*")
+    sync.add_argument(
+        "--with",
+        dest="additional_sets",
+        action="append",
+        choices=["classic"],
+        default=[],
+        help="also synchronize initialized classic checkouts",
+    )
     sync.add_argument(
         "--worktrees",
         choices=["none", "merge", "rebase"],
         default="none",
-        help="also merge/rebase each component's clean feature worktrees",
+        help="also merge/rebase each physical checkout's clean feature worktrees",
     )
 
     status = commands.add_parser(
-        "status", help="summarize primary component checkout state"
+        "status", help="summarize primary physical-checkout state"
     )
     status.add_argument("components", nargs="*")
     status.add_argument("--json", action="store_true")
 
-    worktree = commands.add_parser("worktree", help="manage component worktrees")
+    migrate = commands.add_parser(
+        "migrate", help="safely migrate an existing workspace layout"
+    )
+    migrate_commands = migrate.add_subparsers(
+        dest="migrate_command", required=True
+    )
+    migrate_repositories = migrate_commands.add_parser(
+        "repositories", help="relocate classic primary checkouts"
+    )
+    migrate_mode = migrate_repositories.add_mutually_exclusive_group(required=True)
+    migrate_mode.add_argument("--dry-run", action="store_true")
+    migrate_mode.add_argument("--apply", action="store_true")
+    migrate_mode.add_argument("--audit", action="store_true")
+    migrate_repositories.add_argument("--json", action="store_true")
+
+    worktree = commands.add_parser(
+        "worktree", help="manage physical-checkout worktrees"
+    )
     worktree_commands = worktree.add_subparsers(dest="worktree_command", required=True)
     worktree_create = worktree_commands.add_parser("create")
     worktree_create.add_argument("component")
@@ -56,7 +103,7 @@ def parser() -> argparse.ArgumentParser:
     worktree_list.add_argument("components", nargs="*")
     worktree_list.add_argument("--json", action="store_true")
 
-    profile = commands.add_parser("profile", help="manage mixed-component profiles")
+    profile = commands.add_parser("profile", help="manage coherent source profiles")
     profile_commands = profile.add_subparsers(dest="profile_command", required=True)
     profile_create = profile_commands.add_parser("create")
     profile_create.add_argument("name")
@@ -73,7 +120,7 @@ def parser() -> argparse.ArgumentParser:
     profile_show.add_argument("--json", action="store_true")
 
     path = commands.add_parser(
-        "path", help="print a component checkout path for shell or tool use"
+        "path", help="print a resolved logical-component source path"
     )
     path.add_argument("component")
     path.add_argument("--profile", default="default")
@@ -167,11 +214,16 @@ def parser() -> argparse.ArgumentParser:
         action="append",
         default=[],
         metavar="NAME=PATH",
-        help="override one component checkout for a read-only audit",
+        help="override one component checkout or source root for a read-only audit",
     )
     supply_chain_report = supply_chain_commands.add_parser("report")
     supply_chain_report.add_argument(
         "--format", choices=["cyclonedx", "licenses", "spdx"], required=True
+    )
+    supply_chain_report.add_argument(
+        "--profile",
+        default="default",
+        help="profile whose initialized checkouts supply first-party commits",
     )
     supply_chain_report.add_argument("--output", type=Path)
     supply_chain_versions = supply_chain_commands.add_parser("versions")
@@ -248,15 +300,28 @@ def main(arguments: list[str] | None = None) -> int:
                 ):
                     print(message)
             elif options.supply_chain_command == "report":
+                stack, commits = report_component_commits(
+                    ROOT, workspace, options.profile
+                )
                 write_generated(
-                    ROOT, options.output, inventory.report(options.format)
+                    ROOT,
+                    options.output,
+                    inventory.report(options.format, commits, stack),
                 )
             else:
                 write_generated(ROOT, options.output, version_report(inventory))
         elif options.command == "init":
-            workspace.initialize(options.components, options.jobs)
+            workspace.initialize(
+                options.components,
+                options.jobs,
+                include_classic="classic" in options.additional_sets,
+            )
         elif options.command == "sync":
-            workspace.sync(options.components, options.worktrees)
+            workspace.sync(
+                options.components,
+                options.worktrees,
+                include_classic="classic" in options.additional_sets,
+            )
         elif options.command == "status":
             rows = workspace.repository_status(options.components)
             if options.json:
@@ -264,7 +329,12 @@ def main(arguments: list[str] | None = None) -> int:
             else:
                 for row in rows:
                     if not row["initialized"]:
-                        print(f"{row['component']}\tnot-initialized\t{row['path']}")
+                        membership = ",".join(row["cohorts"])
+                        print(
+                            f"{row['component']}\tnot-initialized\t"
+                            f"cohorts={membership}\toptional={str(row['optional']).lower()}\t"
+                            f"{row['path']}"
+                        )
                         continue
                     cleanliness = "dirty" if row["dirty"] else "clean"
                     comparison = (
@@ -274,8 +344,62 @@ def main(arguments: list[str] | None = None) -> int:
                     )
                     print(
                         f"{row['component']}\t{row['branch'] or 'detached'}\t"
-                        f"{row['head']}\t{cleanliness}\t{comparison}\t{row['path']}"
+                        f"{row['head']}\t{cleanliness}\t{comparison}\t"
+                        f"cohorts={','.join(row['cohorts'])}\t{row['path']}"
                     )
+        elif options.command == "migrate":
+            mode = "apply" if options.apply else "audit" if options.audit else "dry-run"
+            result = workspace.migrate_repositories(mode)
+            if options.json:
+                print(json.dumps(result, indent=2, sort_keys=True))
+            else:
+                print(f"migration\t{result['migration']}")
+                print(f"status\t{result['status']}")
+                classic = result.get("classic", {})
+                if classic:
+                    print(
+                        f"classic\t{classic.get('status', '-')}\t"
+                        f"{classic.get('path', '-')}"
+                    )
+                for source in result.get("sources", []):
+                    print(
+                        f"source\t{source['status']}\t{source['component']}\t"
+                        f"{source.get('source') or '-'}\t"
+                        f"{source.get('archive') or '-'}"
+                    )
+                for worktree in result.get("worktree_migrations", []):
+                    print(
+                        f"worktree\t{worktree['status']}\t"
+                        f"{worktree['component']}\t{worktree['path']}\t"
+                        f"{worktree.get('destination') or '-'}"
+                    )
+                for composite in result.get("composite_worktrees", []):
+                    print(
+                        f"composite\t{composite['status']}\t"
+                        f"{composite['profile']}\t{composite['destination']}"
+                    )
+                for profile in result.get("profile_rewrites", []):
+                    print(
+                        f"profile\t{profile['status']}\t{profile['name']}\t"
+                        f"{profile['path']}"
+                    )
+                for topology in result.get("topologies", []):
+                    print(
+                        f"topology\t{topology['status']}\t{topology['name']}\t"
+                        f"{topology['path']}"
+                    )
+                for inert in result.get("inert_paths", []):
+                    print(
+                        f"inert\t{inert['status']}\t{inert['name']}\t"
+                        f"{inert['path']}"
+                    )
+                for refusal in result["refusals"]:
+                    print(
+                        f"refusal\t{refusal['code']}\t{refusal['message']}\n"
+                        f"recovery\t{refusal['recovery']}"
+                    )
+            if result["refusals"]:
+                return 1
         elif options.command == "worktree":
             if options.worktree_command == "create":
                 if options.existing and options.start_point:
@@ -323,27 +447,23 @@ def main(arguments: list[str] | None = None) -> int:
                         options.name, options.component, "path", str(options.path)
                     )
             else:
-                rows = workspace.profile_summary(options.name)
+                summary = workspace.profile_summary(options.name)
                 if options.json:
-                    print(
-                        json.dumps(
-                            [
-                                {
-                                    "component": component,
-                                    "path": str(path),
-                                    "head": head,
-                                    "dirty": dirty,
-                                }
-                                for component, path, head, dirty in rows
-                            ],
-                            indent=2,
-                            sort_keys=True,
-                        )
-                    )
+                    print(json.dumps(summary, indent=2, sort_keys=True))
                 else:
-                    for component, path, head, dirty in rows:
-                        status = "dirty" if dirty else "clean"
-                        print(f"{component}\t{head}\t{status}\t{path}")
+                    print(f"profile\t{summary['name']}")
+                    print(f"stack\t{summary['stack']}")
+                    for row in summary["components"]:
+                        if not row["initialized"]:
+                            print(
+                                f"{row['component']}\tnot-initialized\t{row['path']}"
+                            )
+                            continue
+                        status = "dirty" if row["dirty"] else "clean"
+                        print(
+                            f"{row['component']}\t{row['head']}\t{status}\t"
+                            f"{row['path']}"
+                        )
         elif options.command == "path":
             print(workspace.component_path(options.component, options.profile))
         elif options.command == "build":
@@ -356,8 +476,11 @@ def main(arguments: list[str] | None = None) -> int:
                 print(json.dumps(summary, indent=2, sort_keys=True))
             else:
                 print(f"profile\t{summary['profile']}")
+                print(f"stack\t{summary['stack']}")
                 print(f"services\t{','.join(summary['services'])}")
                 print(f"dependencies\t{','.join(summary['dependencies'])}")
+                for role, provider in sorted(summary["providers"].items()):
+                    print(f"provider\t{role}\t{provider}")
                 print(f"state\t{summary['state'] or '-'}")
                 print(f"build\t{summary['build_root']}")
                 for component, row in summary["components"].items():

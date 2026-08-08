@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 from pathlib import Path
@@ -12,6 +14,7 @@ import time
 import unittest
 from unittest import mock
 
+from atrinik_workspace.migration import rename_no_replace as real_rename_no_replace
 from atrinik_workspace.model import (
     MANAGED_MARKER,
     WorkspaceError,
@@ -19,6 +22,7 @@ from atrinik_workspace.model import (
     load_json,
     managed_directory,
     managed_reset,
+    profile_key,
 )
 from atrinik_workspace.workspace import (
     Workspace,
@@ -143,8 +147,14 @@ class WorkspaceTests(unittest.TestCase):
         resolved: dict[str, dict[str, object]] = {}
         for component in ("server", "content", "resources", "libatrinik", "protocol"):
             path = self.workspace.paths.repositories / component
+            provider = self.workspace.manifest.by_name[component]
             resolved[component] = {
                 "path": str(path),
+                "checkout_path": str(path),
+                "checkout": component,
+                "repository": provider.repository,
+                "branch": provider.branch,
+                "source": ".",
                 "head": command("git", "rev-parse", "HEAD", cwd=path),
                 "dirty": False,
             }
@@ -163,6 +173,46 @@ class WorkspaceTests(unittest.TestCase):
         self.workspace.initialize(None, jobs=3)
         self.assertTrue((self.workspace.paths.repositories / "server" / ".git").exists())
 
+    def test_initialize_is_idempotent_and_preserves_existing_heads(self) -> None:
+        before = {
+            name: command(
+                "git",
+                "rev-parse",
+                "HEAD",
+                cwd=self.workspace.paths.repositories / name,
+            )
+            for name, _ in COMPONENTS
+        }
+
+        self.workspace.initialize(None, jobs=2)
+        self.workspace.initialize(None, jobs=4)
+
+        self.assertEqual(
+            before,
+            {
+                name: command(
+                    "git",
+                    "rev-parse",
+                    "HEAD",
+                    cwd=self.workspace.paths.repositories / name,
+                )
+                for name, _ in COMPONENTS
+            },
+        )
+
+    def test_initialize_serializes_concurrent_invocations(self) -> None:
+        other = Workspace(self.wrapper)
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            futures = [
+                executor.submit(workspace.initialize, None, 2)
+                for workspace in (self.workspace, other)
+            ]
+            for future in futures:
+                future.result(timeout=10)
+
+        self.assertTrue((self.workspace.paths.repositories / "client" / ".git").exists())
+
     def test_failed_clone_does_not_strand_destination(self) -> None:
         destination = self.workspace.paths.repositories / "client"
         shutil.rmtree(destination)
@@ -179,6 +229,35 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace._ensure_repository(self.workspace._component("client"))
 
         self.assertFalse(destination.exists())
+        self.assertEqual(
+            list(self.workspace.paths.repositories.glob(".atrinik-clone-client-*")), []
+        )
+
+    def test_clone_destination_race_never_replaces_raced_in_path(self) -> None:
+        destination = self.workspace.paths.repositories / "client"
+        shutil.rmtree(destination)
+
+        def race(temporary: Path, target: Path) -> None:
+            target.mkdir()
+            (target / "sentinel").write_text("preserve\n", encoding="utf-8")
+            real_rename_no_replace(temporary, target)
+
+        with mock.patch.object(
+            self.workspace,
+            "_component_clone_url",
+            return_value=str(self.origins["client"]),
+        ), mock.patch(
+            "atrinik_workspace.workspace.rename_no_replace", side_effect=race
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "destination appeared"):
+                self.workspace._ensure_repository(
+                    self.workspace._component("client")
+                )
+
+        self.assertEqual(
+            (destination / "sentinel").read_text(encoding="utf-8"),
+            "preserve\n",
+        )
         self.assertEqual(
             list(self.workspace.paths.repositories.glob(".atrinik-clone-client-*")), []
         )
@@ -213,6 +292,19 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertTrue(destination.is_symlink())
 
+    def test_sync_rejects_checkout_symlink_to_external_git_root(self) -> None:
+        destination = self.workspace.paths.repositories / "client"
+        external = self.root / "external-client"
+        destination.rename(external)
+        destination.symlink_to(external, target_is_directory=True)
+        before = command("git", "rev-parse", "HEAD", cwd=external)
+
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace.sync(["client"], "none")
+
+        self.assertTrue(destination.is_symlink())
+        self.assertEqual(command("git", "rev-parse", "HEAD", cwd=external), before)
+
     def test_sync_fast_forwards_primary_checkout(self) -> None:
         expected = self.advance_origin("client", "new-file")
         self.workspace.sync(["client"], "none")
@@ -227,6 +319,34 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "dirty primary"):
             self.workspace.sync(["client"], "none")
         self.assertTrue((checkout / "dirty").is_file())
+
+    def test_worktree_sync_excludes_protected_paths_before_dirty_check(self) -> None:
+        repository = self.workspace.paths.repositories / "content"
+        protected = self.workspace.paths.worktrees / "content" / "classic-maps"
+        ordinary = self.workspace.paths.worktrees / "content" / "main-maps"
+        records = [
+            {"worktree": str(repository), "branch": "refs/heads/main"},
+            {"worktree": str(protected), "branch": "refs/heads/classic-maps"},
+            {"worktree": str(ordinary), "branch": "refs/heads/main-maps"},
+        ]
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._worktree_records",
+                return_value=records,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace._is_clean",
+                side_effect=lambda path: path.resolve() != protected.resolve(),
+            ) as clean,
+        ):
+            candidates, skipped = self.workspace._component_worktrees(
+                repository, {protected.resolve()}
+            )
+
+        self.assertEqual(candidates, [ordinary.resolve()])
+        self.assertEqual(skipped, [protected.resolve()])
+        clean.assert_called_once_with(ordinary.resolve())
 
     def test_sync_preflights_every_checkout_before_updating(self) -> None:
         client = self.workspace.paths.repositories / "client"
@@ -355,6 +475,15 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "worktree root"):
             self.workspace.set_profile("review", "content", "path", str(nested))
 
+    def test_profile_rejects_symlinked_checkout_path(self) -> None:
+        checkout = self.workspace.paths.repositories / "content"
+        link = self.root / "content-link"
+        link.symlink_to(checkout, target_is_directory=True)
+        self.workspace.create_profile("review")
+
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace.set_profile("review", "content", "path", str(link))
+
     def test_component_build_resolves_only_its_dependencies(self) -> None:
         for name, _ in COMPONENTS:
             if name != "content":
@@ -368,6 +497,44 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(actual, expected)
         selected = build_resolved.call_args.args[4]
         self.assertEqual(set(selected), {"content"})
+
+    def test_profile_schema_namespace_leaves_old_partial_build_inert(self) -> None:
+        selected = {
+            "resources": self.workspace.paths.repositories / "resources"
+        }
+        old_key = profile_key(selected)
+        old_root = (
+            self.workspace.paths.builds / "profiles" / f"default-{old_key}"
+        )
+        managed_directory(
+            old_root,
+            self.workspace.paths.builds,
+            f"profile:default:{old_key}",
+        )
+        sentinel = old_root / "historical-output.bin"
+        sentinel.write_bytes(b"historical build output\x00\n")
+
+        new_root = self.workspace._build_resolved(
+            "resources", "default", False, ["resources"], selected
+        )
+
+        self.assertNotEqual(new_root, old_root)
+        self.assertEqual(sentinel.read_bytes(), b"historical build output\x00\n")
+        self.assertTrue(new_root.is_dir())
+
+    def test_profile_build_key_names_repository_and_branch_coordinates(self) -> None:
+        selected = {"server": self.workspace.paths.repositories / "server"}
+        with mock.patch(
+            "atrinik_workspace.workspace.profile_key", return_value="key"
+        ) as make_key:
+            self.assertEqual(
+                self.workspace._profile_build_key("default", selected), "key"
+            )
+
+        namespace = make_key.call_args.kwargs["namespace"]
+        self.assertIn(
+            "server=server@atrinik/server@main@server:.", namespace
+        )
 
     def test_start_point_cannot_be_an_option(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "must not begin"):
@@ -498,6 +665,63 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(target.read_text(encoding="utf-8"), "preserve\n")
 
+    def test_layout_sensitive_operations_wait_for_repository_lock(self) -> None:
+        operations = (
+            (
+                "_create_worktree",
+                lambda: self.workspace.create_worktree(
+                    "client", "review", "feat/review", None, False
+                ),
+            ),
+            (
+                "_remove_worktree",
+                lambda: self.workspace.remove_worktree("client", "review"),
+            ),
+            (
+                "_create_profile",
+                lambda: self.workspace.create_profile("review"),
+            ),
+            (
+                "_set_profile",
+                lambda: self.workspace.set_profile(
+                    "review", "client", "primary"
+                ),
+            ),
+            ("_build", lambda: self.workspace.build("client", "default", False)),
+            (
+                "_scenario_create",
+                lambda: self.workspace.scenario_create("review", "default"),
+            ),
+            (
+                "_scenario_reset",
+                lambda: self.workspace.scenario_reset("review"),
+            ),
+            (
+                "_topology_up",
+                lambda: self.workspace.topology_up(
+                    "review", "default", "review", ["server"], None
+                ),
+            ),
+            (
+                "_run_server",
+                lambda: self.workspace.run_server(
+                    "default", "review", 13327, [], True
+                ),
+            ),
+        )
+        lock = self.workspace.paths.workspace / "repository-layout.lock"
+        for private_name, invoke in operations:
+            with self.subTest(operation=private_name):
+                with mock.patch.object(self.workspace, private_name) as operation:
+                    with ThreadPoolExecutor(max_workers=1) as executor:
+                        with exclusive_lock(lock, "repository layout"):
+                            future = executor.submit(invoke)
+                            time.sleep(0.05)
+                            self.assertFalse(future.done())
+                            operation.assert_not_called()
+                        future.result(timeout=2)
+                    operation.assert_called_once()
+
     def test_server_runtime_paths_are_isolated_by_state(self) -> None:
         source = self.workspace.paths.repositories / "server"
         (source / "tools").mkdir()
@@ -546,9 +770,6 @@ class WorkspaceTests(unittest.TestCase):
             set(summary["components"]),
             {
                 "client",
-                "server",
-                "content",
-                "resources",
                 "sound",
                 "libatrinik",
                 "protocol",
@@ -841,6 +1062,53 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "supervisor status is invalid"):
             self.workspace.topology_status("invalid")
 
+    def test_topology_status_makes_pre_coordinate_records_inert(self) -> None:
+        root = self.workspace._topology_directory("historical-coordinate", create=True)
+        provider = self.workspace.manifest.provider("default", "server")
+        checkout = self.workspace.paths.repositories / "server"
+        base = {
+            "schema_version": 1,
+            "name": "historical-coordinate",
+            "profile": "default",
+            "stack": "default",
+            "providers": {"server": "server"},
+            "dependencies": ["server"],
+            "state": "/tmp/state",
+            "build_root": "/tmp/build",
+            "resolved": {
+                "server": {
+                    "path": str(checkout),
+                    "checkout_path": str(checkout),
+                    "checkout": "server",
+                    "source": ".",
+                    "head": "a" * 40,
+                    "dirty": False,
+                }
+            },
+            "endpoint": None,
+            "ready": False,
+            "started_at": "2026-08-08T00:00:00+00:00",
+            "stopped_at": None,
+            "supervisor": {"pid": 999, "start_time": "1"},
+            "services": {},
+            "error": "historical fixture",
+        }
+        atomic_json(root / "status.json", base)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.process_matches", return_value=False
+        ):
+            historical = self.workspace.topology_status("historical-coordinate")
+
+        self.assertTrue(historical["inert_historical_record"])
+
+        current = copy.deepcopy(base)
+        current["resolved"]["server"]["repository"] = "atrinik/wrong"
+        current["resolved"]["server"]["branch"] = provider.branch
+        atomic_json(root / "status.json", current)
+        with self.assertRaisesRegex(WorkspaceError, "component identity is invalid"):
+            self.workspace.topology_status("historical-coordinate")
+
     def test_client_only_topology_rejects_server_port(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "requires the server"):
             self.workspace.topology_up(
@@ -908,6 +1176,53 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertFalse((self.workspace.paths.scenarios / "failed").exists())
         self.assertNotIn("scenario-failed", self.workspace.list_states())
+
+    def test_historical_default_scenario_is_inert_without_stack_identity(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("historical-default", "default")
+
+        metadata_path = (
+            self.workspace.paths.scenarios / "historical-default" / "scenario.json"
+        )
+        metadata = load_json(metadata_path)
+        metadata["schema_version"] = 1
+        del metadata["stack"]
+        del metadata["providers"]
+        atomic_json(metadata_path, metadata)
+
+        with self.assertRaisesRegex(
+            WorkspaceError,
+            "historical scenario lacks immutable stack/provider identity and is inert",
+        ):
+            self.workspace.scenario_show("historical-default")
+
+    def test_historical_scenario_is_inert_without_repository_identity(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("historical-coordinate", "default")
+
+        metadata_path = (
+            self.workspace.paths.scenarios
+            / "historical-coordinate"
+            / "scenario.json"
+        )
+        metadata = load_json(metadata_path)
+        metadata["schema_version"] = 3
+        for record in metadata["resolved"].values():
+            del record["repository"]
+            del record["branch"]
+        atomic_json(metadata_path, metadata)
+
+        with self.assertRaisesRegex(
+            WorkspaceError,
+            "historical scenario lacks immutable repository/branch identity and is inert",
+        ):
+            self.workspace.scenario_show("historical-coordinate")
 
     def test_scenario_audit_records_only_server_dependency_closure(self) -> None:
         required = {"server", "content", "resources", "libatrinik", "protocol"}

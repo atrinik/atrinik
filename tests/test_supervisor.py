@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from atrinik_workspace.supervisor import ServerReadinessCapture
+from atrinik_workspace.supervisor import ServerReadinessCapture, _initial_status
 
 
 class ServerReadinessCaptureTests(unittest.TestCase):
@@ -27,6 +27,36 @@ class ServerReadinessCaptureTests(unittest.TestCase):
 
         self.assertEqual(capture.fingerprint, "b" * 64)
         self.assertTrue(capture.event.is_set())
+
+    def test_historical_spec_remains_identifiably_historical(self) -> None:
+        spec = {
+            "name": "historical",
+            "profile": "classic",
+            "dependencies": ["server"],
+            "state": "/tmp/state",
+            "build_root": "/tmp/build",
+            "resolved": {},
+            "endpoint": None,
+        }
+
+        historical = _initial_status(spec, "123")
+
+        self.assertNotIn("stack", historical)
+        self.assertNotIn("providers", historical)
+
+        current = _initial_status(
+            {
+                **spec,
+                "stack": "classic",
+                "providers": {"server": "classic-server"},
+            },
+            "123",
+        )
+        self.assertEqual(current["stack"], "classic")
+        self.assertEqual(current["providers"], {"server": "classic-server"})
+
+        with self.assertRaisesRegex(RuntimeError, "identity is incomplete"):
+            _initial_status({**spec, "stack": "classic"}, "123")
 
 
 if __name__ == "__main__":

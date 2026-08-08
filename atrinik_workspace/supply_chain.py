@@ -8,12 +8,13 @@ import re
 import subprocess
 from typing import Any, Iterable
 
-from .model import Manifest, WorkspaceError, load_json, require_keys
+from .model import Checkout, Component, Manifest, WorkspaceError, load_json, require_keys
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 3
 ACTION_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 CHECKSUM_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
+GIT_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}(?:[0-9a-f]{24})?$")
 SPDX_PATTERN = re.compile(r"^(?:[A-Za-z0-9-.+]+|NOASSERTION|LicenseRef-[A-Za-z0-9-.]+)$")
 ACTION_REFERENCE_PATTERN = re.compile(
     r"^\s*(?:-\s*)?uses:\s*"
@@ -55,6 +56,19 @@ DEPENDENCY_KINDS = {
 }
 DISPOSITIONS = {"isolate", "remove", "replace", "retain"}
 MAX_METADATA_BYTES = 16 * 1024 * 1024
+AUDIT_MODES = {"full", "metadata"}
+CHECKOUT_METADATA_REQUIRED_FILES = {
+    ".github/dependabot.yml",
+    ".github/workflows/check.yml",
+    ".github/workflows/pr-title.yml",
+    "AGENTS.md",
+    "ATTRIBUTIONS.md",
+    "DEPENDENCIES.md",
+    "LICENSE.md",
+    "PROVENANCE.md",
+    "docs/history/imports.json",
+    "tools/verify_import_history.py",
+}
 
 
 @dataclass(frozen=True)
@@ -93,7 +107,17 @@ class Dependency:
 class Repository:
     name: str
     repository: str
+    branch: str
+    checkout: str
+    source: str
+    cohorts: tuple[str, ...]
+    stacks: tuple[str, ...]
+    roles: tuple[str, ...]
+    license: str
+    commit: str | None
     supported: bool
+    audit_ready: bool
+    audit_mode: str
     role: str
 
 
@@ -133,27 +157,111 @@ class Inventory:
             raise WorkspaceError("inventory.repositories must be a non-empty array")
         repositories: list[Repository] = []
         repository_names: set[str] = set()
-        repository_coordinates: set[str] = set()
+        repository_coordinates: set[tuple[str, str, str, str]] = set()
         for index, value in enumerate(raw_repositories):
             context = f"inventory repository {index}"
             if not isinstance(value, dict):
                 raise WorkspaceError(f"{context} must be an object")
-            require_keys(value, {"name", "repository", "supported", "role"}, context)
+            require_keys(
+                value,
+                {
+                    "name",
+                    "repository",
+                    "branch",
+                    "checkout",
+                    "source",
+                    "cohorts",
+                    "stacks",
+                    "roles",
+                    "license",
+                    "commit",
+                    "supported",
+                    "audit_ready",
+                    "audit_mode",
+                    "role",
+                },
+                context,
+            )
             name = _identifier(value["name"], f"{context}.name")
             coordinate = _text(value["repository"], f"{context}.repository")
             if not re.fullmatch(r"atrinik/[a-z0-9][a-z0-9._-]*", coordinate):
                 raise WorkspaceError(f"{context}.repository must be an Atrinik repository")
+            branch = _text(value["branch"], f"{context}.branch")
+            checkout = _identifier(value["checkout"], f"{context}.checkout")
+            source = _source_path(value["source"], f"{context}.source")
+            cohorts = _string_array(
+                value["cohorts"], f"{context}.cohorts", allow_empty=True
+            )
+            stacks = _string_array(
+                value["stacks"], f"{context}.stacks", allow_empty=True
+            )
+            roles = _string_array(value["roles"], f"{context}.roles")
+            if list(cohorts) != sorted(set(cohorts)):
+                raise WorkspaceError(f"{context}.cohorts must be sorted and unique")
+            if list(stacks) != sorted(set(stacks)):
+                raise WorkspaceError(f"{context}.stacks must be sorted and unique")
+            if list(roles) != sorted(set(roles)):
+                raise WorkspaceError(f"{context}.roles must be sorted and unique")
+            license_name = _text(value["license"], f"{context}.license")
+            if not SPDX_PATTERN.fullmatch(license_name):
+                raise WorkspaceError(
+                    f"{context}.license is not an SPDX expression or LicenseRef"
+                )
+            commit = value["commit"]
+            if commit is not None and (
+                not isinstance(commit, str) or not GIT_COMMIT_PATTERN.fullmatch(commit)
+            ):
+                raise WorkspaceError(
+                    f"{context}.commit must be null or a full lowercase Git commit"
+                )
             if not isinstance(value["supported"], bool):
                 raise WorkspaceError(f"{context}.supported must be a boolean")
+            if value["supported"] and commit is not None:
+                raise WorkspaceError(
+                    f"{context}.commit must be null for a moving supported branch; "
+                    "resolve it from a validated profile"
+                )
+            if not isinstance(value["audit_ready"], bool):
+                raise WorkspaceError(f"{context}.audit_ready must be a boolean")
+            audit_mode = value["audit_mode"]
+            if audit_mode not in AUDIT_MODES:
+                raise WorkspaceError(
+                    f"{context}.audit_mode must be one of {sorted(AUDIT_MODES)}"
+                )
             role = _text(value["role"], f"{context}.role")
-            if name in repository_names or coordinate in repository_coordinates:
+            repository_identity = (coordinate, branch, checkout, source)
+            if name in repository_names or repository_identity in repository_coordinates:
                 raise WorkspaceError(f"duplicate inventory repository: {name}")
             repository_names.add(name)
-            repository_coordinates.add(coordinate)
-            repositories.append(Repository(name, coordinate, value["supported"], role))
+            repository_coordinates.add(repository_identity)
+            repositories.append(
+                Repository(
+                    name,
+                    coordinate,
+                    branch,
+                    checkout,
+                    source,
+                    cohorts,
+                    stacks,
+                    roles,
+                    license_name,
+                    commit,
+                    value["supported"],
+                    value["audit_ready"],
+                    audit_mode,
+                    role,
+                )
+            )
+        if [repository.name for repository in repositories] != sorted(repository_names):
+            raise WorkspaceError("inventory repositories must be sorted by name")
 
         manifest = Manifest.load(manifest_path)
-        expected_supported = {"atrinik", *(component.name for component in manifest.components)}
+        metadata_checkouts = _metadata_checkouts(manifest)
+        expected_supported = {
+            "atrinik",
+            *(component.name for component in manifest.components),
+            *(checkout.name for checkout in metadata_checkouts),
+        }
         actual_supported = {repository.name for repository in repositories if repository.supported}
         if actual_supported != expected_supported:
             missing = sorted(expected_supported - actual_supported)
@@ -162,12 +270,60 @@ class Inventory:
                 "inventory supported repositories do not match components.json: "
                 f"missing={missing}, extra={extra}"
             )
-        expected_coordinates = {component.name: component.repository for component in manifest.components}
-        expected_coordinates["atrinik"] = "atrinik/atrinik"
+        expected_metadata = {
+            component.name: {
+                "repository": component.repository,
+                "branch": component.branch,
+                "checkout": component.checkout_name,
+                "source": component.source,
+                "cohorts": tuple(sorted(manifest.component_cohorts(component.name))),
+                "stacks": tuple(sorted(manifest.component_stacks(component.name))),
+                "roles": tuple(sorted(component.provides)),
+                "license": component.license,
+                "audit_mode": "full",
+            }
+            for component in manifest.components
+        }
+        for checkout in metadata_checkouts:
+            expected_metadata[checkout.name] = {
+                "repository": checkout.repository,
+                "branch": checkout.branch,
+                "checkout": checkout.name,
+                "source": ".",
+                "cohorts": tuple(sorted(manifest.checkout_cohorts(checkout.name))),
+                "stacks": tuple(sorted(manifest.checkout_stacks(checkout.name))),
+                "roles": ("checkout-metadata",),
+                "license": checkout.license,
+                "audit_mode": "metadata",
+            }
+        expected_metadata["atrinik"] = {
+            "repository": "atrinik/atrinik",
+            "branch": "main",
+            "checkout": "atrinik",
+            "source": ".",
+            "cohorts": (),
+            "stacks": (),
+            "roles": ("workspace",),
+            "license": "MIT",
+            "audit_mode": "full",
+        }
         for repository in repositories:
-            if repository.supported and expected_coordinates[repository.name] != repository.repository:
+            if not repository.supported:
+                continue
+            actual = {
+                "repository": repository.repository,
+                "branch": repository.branch,
+                "checkout": repository.checkout,
+                "source": repository.source,
+                "cohorts": repository.cohorts,
+                "stacks": repository.stacks,
+                "roles": repository.roles,
+                "license": repository.license,
+                "audit_mode": repository.audit_mode,
+            }
+            if actual != expected_metadata[repository.name]:
                 raise WorkspaceError(
-                    f"inventory repository mismatch for {repository.name}: {repository.repository}"
+                    f"inventory repository metadata mismatch for {repository.name}: {actual}"
                 )
 
         raw_dependencies = root["dependencies"]
@@ -196,18 +352,21 @@ class Inventory:
             raise WorkspaceError("supply-chain schema root must be an object")
         if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
             raise WorkspaceError("supply-chain schema must use JSON Schema draft 2020-12")
-        if schema.get("$id") != "https://atrinik.org/schema/supply-chain-inventory-v1.json":
+        if schema.get("$id") != "https://atrinik.org/schema/supply-chain-inventory-v3.json":
             raise WorkspaceError("supply-chain schema has an unexpected $id")
         if schema.get("additionalProperties") is not False:
             raise WorkspaceError("supply-chain schema must reject additional root properties")
 
     def audit(self, roots: dict[str, Path], *, require_all: bool = True) -> list[str]:
-        supported = {repository.name for repository in self.repositories if repository.supported}
+        supported = {
+            repository.name
+            for repository in self.repositories
+            if repository.supported and repository.audit_ready
+        }
         supplied = set(roots)
-        if require_all and supplied != supported:
+        if require_all and not supplied:
             raise WorkspaceError(
-                "supply-chain audit roots are incomplete: "
-                f"missing={sorted(supported - supplied)}, extra={sorted(supplied - supported)}"
+                "supply-chain audit roots are incomplete: no audit-ready repositories supplied"
             )
         unknown = supplied - supported
         if unknown:
@@ -242,6 +401,19 @@ class Inventory:
         observed_runner_scopes = {
             locator: set() for locator in runner_dependencies
         }
+        logical_sources = {
+            repository.checkout: tuple(
+                sorted(
+                    candidate.source
+                    for candidate in self.repositories
+                    if candidate.checkout == repository.checkout
+                    and candidate.audit_mode == "full"
+                    and candidate.source != "."
+                )
+            )
+            for repository in self.repositories
+            if repository.audit_mode == "metadata"
+        }
         for dependency in self.dependencies:
             for evidence in dependency.evidence:
                 if evidence.repository not in normalized:
@@ -255,7 +427,10 @@ class Inventory:
                     )
 
         for repository_name, root in sorted(normalized.items()):
-            tracked = _tracked_files(root)
+            repository = self.repositories_by_name[repository_name]
+            tracked = _audit_files(
+                repository, root, logical_sources.get(repository.checkout, ())
+            )
             if ".gitmodules" in tracked:
                 raise WorkspaceError(f"{repository_name}: Git submodules are not supported")
             dependabot = ".github/dependabot.yml"
@@ -383,24 +558,121 @@ class Inventory:
                 )
         return messages
 
-    def report(self, format_name: str) -> str:
+    def report(
+        self,
+        format_name: str,
+        component_commits: dict[str, str | None] | None = None,
+        selected_stack: str | None = None,
+    ) -> str:
+        if selected_stack is not None and not any(
+            selected_stack in repository.stacks for repository in self.repositories
+        ):
+            raise WorkspaceError(
+                f"unknown supply-chain report stack: {selected_stack}"
+            )
+        resolved_commits = self._resolved_first_party_commits(
+            component_commits, selected_stack
+        )
         if format_name == "licenses":
-            return self._license_report()
+            return self._license_report(resolved_commits, selected_stack)
         if format_name == "cyclonedx":
-            return json.dumps(self._cyclonedx(), indent=2, sort_keys=True) + "\n"
+            return json.dumps(
+                self._cyclonedx(resolved_commits, selected_stack),
+                indent=2,
+                sort_keys=True,
+            ) + "\n"
         if format_name == "spdx":
-            return json.dumps(self._spdx(), indent=2, sort_keys=True) + "\n"
+            return json.dumps(
+                self._spdx(resolved_commits, selected_stack),
+                indent=2,
+                sort_keys=True,
+            ) + "\n"
         raise WorkspaceError(f"unsupported supply-chain report format: {format_name}")
 
-    def _license_report(self) -> str:
+    def _resolved_first_party_commits(
+        self,
+        component_commits: dict[str, str | None] | None,
+        selected_stack: str | None,
+    ) -> dict[str, str | None]:
+        resolved = {
+            repository.name: (
+                repository.commit if selected_stack is None else None
+            )
+            for repository in self._first_party_repositories()
+        }
+        if component_commits is None:
+            return resolved
+        unknown = sorted(set(component_commits) - set(resolved))
+        if unknown:
+            raise WorkspaceError(
+                f"unknown first-party component commits: {', '.join(unknown)}"
+            )
+        non_selected = sorted(
+            name
+            for name, commit in component_commits.items()
+            if commit is not None
+            and name != "atrinik"
+            and selected_stack is not None
+            and selected_stack not in self.repositories_by_name[name].stacks
+        )
+        if non_selected:
+            raise WorkspaceError(
+                "resolved commits include components outside the selected stack: "
+                + ", ".join(non_selected)
+            )
+        for name, commit in component_commits.items():
+            if commit is not None and (
+                not isinstance(commit, str) or not GIT_COMMIT_PATTERN.fullmatch(commit)
+            ):
+                raise WorkspaceError(
+                    f"resolved commit for {name} must be a full lowercase Git commit"
+                )
+            resolved[name] = commit
+        return resolved
+
+    @staticmethod
+    def _selected_for_report(
+        repository: Repository, selected_stack: str | None
+    ) -> bool:
+        return repository.name == "atrinik" or (
+            selected_stack is not None and selected_stack in repository.stacks
+        )
+
+    def _license_report(
+        self, commits: dict[str, str | None], selected_stack: str | None
+    ) -> str:
         lines = [
-            "# Atrinik third-party dependency and provenance report",
+            "# Atrinik component, dependency, and provenance report",
             "",
             "Generated deterministically from `supply-chain/inventory.json`.",
             "",
-            "| Dependency | Version | License | Owner | Disposition | Source |",
-            "| --- | --- | --- | --- | --- | --- |",
+            "## First-party components",
+            "",
+            "| Component | Repository | Branch | Checkout | Source | Commit | Selected | Cohorts | Stacks | Roles | License | Audit ready | Audit mode |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
         ]
+        for repository in self._first_party_repositories():
+            commit = commits[repository.name] or "unavailable"
+            selected = self._selected_for_report(repository, selected_stack)
+            lines.append(
+                f"| {repository.name} | {repository.repository} | {repository.branch} | "
+                f"{repository.checkout} | {repository.source} | {commit} | "
+                f"{'yes' if selected else 'no'} | "
+                f"{','.join(repository.cohorts) or '-'} | "
+                f"{','.join(repository.stacks) or '-'} | "
+                f"{','.join(repository.roles)} | {repository.license} | "
+                f"{'yes' if repository.audit_ready else 'no'} | "
+                f"{repository.audit_mode} |"
+            )
+        lines.extend(
+            [
+                "",
+                "## Third-party dependencies",
+                "",
+                "| Dependency | Version | License | Owner | Disposition | Source |",
+                "| --- | --- | --- | --- | --- | --- |",
+            ]
+        )
         for dependency in self.dependencies:
             lines.append(
                 f"| {dependency.name} | {dependency.version} | {dependency.license} | "
@@ -408,15 +680,77 @@ class Inventory:
             )
         return "\n".join(lines) + "\n"
 
-    def _cyclonedx(self) -> dict[str, Any]:
-        components = []
-        for dependency in self.dependencies:
-            license_value = (
-                {"name": dependency.license}
-                if dependency.license == "NOASSERTION"
-                or dependency.license.startswith("LicenseRef-")
-                else {"id": dependency.license}
+    def _first_party_repositories(self) -> list[Repository]:
+        return [repository for repository in self.repositories if repository.supported]
+
+    @staticmethod
+    def _cyclonedx_license(license_name: str) -> dict[str, str]:
+        if license_name == "NOASSERTION" or license_name.startswith("LicenseRef-"):
+            return {"name": license_name}
+        return {"id": license_name}
+
+    @staticmethod
+    def _repository_properties(
+        repository: Repository,
+        commit: str | None,
+        selected_stack: str | None,
+        selected: bool,
+    ) -> list[dict[str, str]]:
+        return [
+            {"name": "atrinik:component", "value": repository.name},
+            {"name": "atrinik:repository", "value": repository.repository},
+            {"name": "atrinik:branch", "value": repository.branch},
+            {"name": "atrinik:checkout", "value": repository.checkout},
+            {"name": "atrinik:source", "value": repository.source},
+            {"name": "atrinik:commit", "value": commit or "unavailable"},
+            {
+                "name": "atrinik:report-stack",
+                "value": selected_stack or "unresolved",
+            },
+            {"name": "atrinik:selected", "value": str(selected).lower()},
+            {"name": "atrinik:cohorts", "value": ",".join(repository.cohorts)},
+            {"name": "atrinik:stacks", "value": ",".join(repository.stacks)},
+            {"name": "atrinik:roles", "value": ",".join(repository.roles)},
+            {"name": "atrinik:license", "value": repository.license},
+            {
+                "name": "atrinik:audit-ready",
+                "value": str(repository.audit_ready).lower(),
+            },
+            {"name": "atrinik:audit-mode", "value": repository.audit_mode},
+        ]
+
+    def _cyclonedx(
+        self, commits: dict[str, str | None], selected_stack: str | None
+    ) -> dict[str, Any]:
+        components: list[dict[str, Any]] = []
+        for repository in self._first_party_repositories():
+            commit = commits[repository.name]
+            selected = self._selected_for_report(repository, selected_stack)
+            components.append(
+                {
+                    "type": "application",
+                    "bom-ref": f"atrinik:component:{repository.name}",
+                    "name": repository.name,
+                    "version": commit or "unavailable",
+                    "licenses": [
+                        {"license": self._cyclonedx_license(repository.license)}
+                    ],
+                    "externalReferences": [
+                        {
+                            "type": "vcs",
+                            "url": (
+                                f"https://github.com/{repository.repository}/tree/"
+                                f"{commit or repository.branch}"
+                            ),
+                        }
+                    ],
+                    "properties": self._repository_properties(
+                        repository, commit, selected_stack, selected
+                    ),
+                }
             )
+        for dependency in self.dependencies:
+            license_value = self._cyclonedx_license(dependency.license)
             component: dict[str, Any] = {
                 "type": _cyclonedx_type(dependency.kind),
                 "bom-ref": dependency.locator,
@@ -456,10 +790,66 @@ class Inventory:
             "components": components,
         }
 
-    def _spdx(self) -> dict[str, Any]:
-        packages = []
-        relationships = []
+    def _spdx(
+        self, commits: dict[str, str | None], selected_stack: str | None
+    ) -> dict[str, Any]:
+        packages: list[dict[str, Any]] = []
+        relationships: list[dict[str, str]] = []
         extracted_licenses: dict[str, dict[str, str]] = {}
+        for repository in self._first_party_repositories():
+            commit = commits[repository.name]
+            commit_value = commit or "unavailable"
+            selected = self._selected_for_report(repository, selected_stack)
+            suffix = hashlib.sha256(repository.name.encode()).hexdigest()[:16]
+            spdx_id = f"SPDXRef-Component-{suffix}"
+            packages.append(
+                {
+                    "SPDXID": spdx_id,
+                    "name": repository.name,
+                    "versionInfo": commit_value,
+                    "downloadLocation": f"https://github.com/{repository.repository}",
+                    "filesAnalyzed": False,
+                    "licenseConcluded": repository.license,
+                    "licenseDeclared": repository.license,
+                    "supplier": "Organization: Atrinik",
+                    "externalRefs": [
+                        {
+                            "referenceCategory": "OTHER",
+                            "referenceType": "atrinik-component-commit",
+                            "referenceLocator": commit_value,
+                        }
+                    ],
+                    "packageComment": (
+                        f"Atrinik component identity: {repository.name}; repository: "
+                        f"{repository.repository}; branch: {repository.branch}; commit: "
+                        f"{commit_value}; checkout: {repository.checkout}; source: "
+                        f"{repository.source}; cohorts: "
+                        f"{','.join(repository.cohorts)}; stacks: "
+                        f"{','.join(repository.stacks)}; roles: "
+                        f"{','.join(repository.roles)}; license: {repository.license}; "
+                        f"report stack: {selected_stack or 'unresolved'}; selected: "
+                        f"{str(selected).lower()}; "
+                        f"audit-ready: {str(repository.audit_ready).lower()}."
+                        f" audit-mode: {repository.audit_mode}."
+                    ),
+                }
+            )
+            relationships.append(
+                {
+                    "spdxElementId": "SPDXRef-DOCUMENT",
+                    "relationshipType": "DESCRIBES",
+                    "relatedSpdxElement": spdx_id,
+                }
+            )
+            if repository.license.startswith("LicenseRef-"):
+                extracted_licenses[repository.license] = {
+                    "licenseId": repository.license,
+                    "extractedText": (
+                        "The applicable license and provenance are recorded by the "
+                        "component's source-local licensing files and inventory metadata."
+                    ),
+                    "name": repository.license,
+                }
         for dependency in self.dependencies:
             suffix = hashlib.sha256(dependency.identifier.encode()).hexdigest()[:16]
             spdx_id = f"SPDXRef-Dependency-{suffix}"
@@ -688,6 +1078,13 @@ def _relative_path(value: object, context: str) -> str:
     return path.as_posix()
 
 
+def _source_path(value: object, context: str) -> str:
+    text = _text(value, context)
+    if text == ".":
+        return text
+    return _relative_path(text, context)
+
+
 def _safe_repository_path(root: Path, relative: str) -> Path:
     path = root.joinpath(*PurePosixPath(relative).parts)
     try:
@@ -736,6 +1133,28 @@ def _tracked_files(root: Path) -> set[str]:
         }
     except UnicodeDecodeError as error:
         raise WorkspaceError(f"tracked path is not UTF-8 in {root}") from error
+
+
+def _audit_files(
+    repository: Repository, root: Path, logical_sources: tuple[str, ...] = ()
+) -> set[str]:
+    tracked = _tracked_files(root)
+    if repository.audit_mode == "full":
+        return tracked
+    missing = sorted(CHECKOUT_METADATA_REQUIRED_FILES - tracked)
+    if missing:
+        raise WorkspaceError(
+            f"{repository.name}: checkout metadata audit is missing required files: "
+            + ", ".join(missing)
+        )
+    return {
+        relative
+        for relative in tracked
+        if not any(
+            relative == source or relative.startswith(f"{source}/")
+            for source in logical_sources
+        )
+    }
 
 
 def _is_dependency_input(relative: str, root: Path) -> bool:
@@ -939,6 +1358,66 @@ def _system_package_versions(package_names: list[str]) -> dict[str, dict[str, ob
     return versions
 
 
+def _metadata_checkouts(manifest: Manifest) -> list[Checkout]:
+    component_counts = {
+        checkout.name: sum(
+            component.checkout_name == checkout.name
+            for component in manifest.components
+        )
+        for checkout in manifest.checkouts
+    }
+    return [
+        checkout
+        for checkout in manifest.checkouts
+        if component_counts[checkout.name] > 1
+    ]
+
+
+def _summary_checkout_path(row: dict[str, Any], component: Component) -> Path:
+    checkout_path = row.get("checkout_path")
+    if checkout_path is not None:
+        return Path(checkout_path).resolve()
+    path = Path(row["path"])
+    if component.source == ".":
+        return path.resolve()
+    for _part in PurePosixPath(component.source).parts:
+        path = path.parent
+    return path.resolve()
+
+
+def _component_source_root(checkout_root: Path, component: Component) -> Path:
+    source = (
+        checkout_root
+        if component.source == "."
+        else checkout_root.joinpath(*PurePosixPath(component.source).parts)
+    )
+    lexical = checkout_root
+    parts = () if component.source == "." else PurePosixPath(component.source).parts
+    for part in parts:
+        lexical = lexical / part
+        if lexical.is_symlink():
+            raise WorkspaceError(
+                f"{component.name} source uses a symlink in {checkout_root}: {lexical}"
+            )
+    try:
+        resolved = source.resolve(strict=True)
+    except OSError as error:
+        raise WorkspaceError(
+            f"{component.name} source is unavailable in {checkout_root}: {source}"
+        ) from error
+    if not resolved.is_dir():
+        raise WorkspaceError(
+            f"{component.name} source is not a directory in {checkout_root}: {source}"
+        )
+    try:
+        resolved.relative_to(checkout_root.resolve(strict=True))
+    except ValueError as error:
+        raise WorkspaceError(
+            f"{component.name} source escapes checkout {checkout_root}: {source}"
+        ) from error
+    return resolved
+
+
 def repository_roots(
     root: Path,
     workspace: Any,
@@ -946,35 +1425,180 @@ def repository_roots(
     overrides: Iterable[str] = (),
 ) -> dict[str, Path]:
     manifest = Manifest.load(root / "components.json")
-    known = {component.name for component in manifest.components}
-    expected = {component.name: component.repository for component in manifest.components}
+    inventory = Inventory.load(
+        root / "supply-chain" / "inventory.json", root / "components.json"
+    )
+    summary = workspace.profile_summary(profile)
+    stack = manifest.stack(summary["stack"])
+    stack_components = {component.name: component for component in stack.components}
+    audit_ready = {
+        repository.name
+        for repository in inventory.repositories
+        if repository.supported and repository.audit_ready
+    }
     selected: dict[str, Path] = {}
+    selected_checkouts: dict[str, Path] = {}
+    overridden_checkouts: set[str] = set()
     for override in overrides:
         name, separator, raw_path = override.partition("=")
-        if not separator or name not in known or not raw_path:
+        if not separator or name not in stack_components or not raw_path:
             raise WorkspaceError(
-                f"supply-chain repository override must be NAME=PATH for a component: {override}"
+                "supply-chain repository override must be NAME=PATH for an "
+                f"audit-ready component in the selected stack: {override}"
+            )
+        if name not in audit_ready:
+            raise WorkspaceError(
+                f"supply-chain repository override is not audit-ready: {name}"
+            )
+        component = stack_components[name]
+        if component.checkout_name in overridden_checkouts:
+            raise WorkspaceError(
+                "duplicate supply-chain repository override for checkout "
+                f"{component.checkout_name}: {name}"
             )
         if name in selected:
             raise WorkspaceError(f"duplicate supply-chain repository override: {name}")
         path = Path(raw_path)
         if not path.is_absolute():
             raise WorkspaceError(f"supply-chain repository override must be absolute: {override}")
-        resolved = path.resolve(strict=True)
-        if _git_repository_coordinate(resolved) != expected[name]:
+        if path.is_symlink() or not path.is_dir():
             raise WorkspaceError(
-                f"supply-chain repository override is not {expected[name]}: {resolved}"
+                f"supply-chain repository override must be a normal directory: {override}"
             )
-        selected[name] = resolved
+        resolved = path.resolve(strict=True)
+        try:
+            checkout_root = _git_top_level(resolved)
+        except WorkspaceError as error:
+            raise WorkspaceError(
+                f"supply-chain repository override is not {component.repository}: "
+                f"{resolved}: {error}"
+            ) from error
+        try:
+            remote = _git_repository_remote(checkout_root, component.repository)
+        except WorkspaceError as error:
+            raise WorkspaceError(
+                f"supply-chain repository override is not {component.repository}: "
+                f"{resolved}: {error}"
+            ) from error
+        expected_source = _component_source_root(checkout_root, component)
+        if resolved not in {checkout_root, expected_source}:
+            raise WorkspaceError(
+                "supply-chain repository override must select the checkout root "
+                f"or {component.name} source directory: {resolved}"
+            )
+        checkout = manifest.checkout_for(component)
+        variants = [
+            candidate
+            for candidate in manifest.checkouts
+            if candidate.repository == checkout.repository
+        ]
+        canonical: Path | None = None
+        if len(variants) > 1:
+            canonical_path = root / checkout.path
+            if not canonical_path.is_dir() or canonical_path.is_symlink():
+                raise WorkspaceError(
+                    f"cannot prove {checkout.name}@{checkout.branch} lineage; "
+                    f"initialize its primary checkout first: {canonical_path}"
+                )
+            canonical = canonical_path.resolve()
+            try:
+                canonical_root = _git_top_level(canonical)
+                _git_repository_remote(canonical_root, component.repository)
+            except WorkspaceError as error:
+                raise WorkspaceError(
+                    f"cannot prove {checkout.name}@{checkout.branch} primary "
+                    f"checkout identity: {canonical}: {error}"
+                ) from error
+            if canonical_root != canonical:
+                raise WorkspaceError(
+                    f"canonical checkout is not a Git top level: {canonical}"
+                )
+        if not _git_repository_branch_compatible(
+            checkout_root,
+            component.branch,
+            canonical=canonical,
+            remote=remote,
+        ):
+            raise WorkspaceError(
+                "supply-chain repository override is not based on "
+                f"{component.repository}@{component.branch}: {resolved}"
+            )
+        overridden_checkouts.add(component.checkout_name)
+        for member in stack.components:
+            if member.checkout_name != component.checkout_name:
+                continue
+            selected[member.name] = _component_source_root(checkout_root, member)
+            selected_checkouts[member.name] = checkout_root
     roots = {"atrinik": root}
-    roots.update(
-        {
-            component.name: selected.get(component.name)
-            or workspace.component_path(component.name, profile)
-            for component in manifest.components
+    rows = {row["component"]: row for row in summary["components"]}
+    for component in stack.components:
+        if component.name not in audit_ready:
+            continue
+        if component.name in selected:
+            roots[component.name] = selected[component.name]
+        elif rows[component.name]["initialized"]:
+            roots[component.name] = Path(rows[component.name]["path"])
+    for repository in inventory.repositories:
+        if (
+            not repository.supported
+            or not repository.audit_ready
+            or repository.audit_mode != "metadata"
+            or stack.name not in repository.stacks
+        ):
+            continue
+        members = [
+            component
+            for component in stack.components
+            if component.checkout_name == repository.checkout
+        ]
+        override_candidates = {
+            selected_checkouts[component.name]
+            for component in members
+            if component.name in selected_checkouts
         }
-    )
+        candidates = override_candidates or {
+            _summary_checkout_path(rows[component.name], component)
+            for component in members
+            if rows[component.name]["initialized"]
+        }
+        if len(candidates) > 1:
+            raise WorkspaceError(
+                f"profile {profile} resolves checkout {repository.checkout} "
+                "to multiple physical roots"
+            )
+        if candidates:
+            roots[repository.name] = candidates.pop()
     return roots
+
+
+def report_component_commits(
+    root: Path, workspace: Any, profile: str
+) -> tuple[str, dict[str, str | None]]:
+    manifest = Manifest.load(root / "components.json")
+    summary = workspace.profile_summary(profile)
+    stack = manifest.stack(summary["stack"])
+    rows = {row["component"]: row for row in summary["components"]}
+    expected = {component.name for component in stack.components}
+    if set(rows) != expected:
+        raise WorkspaceError(
+            f"profile summary component set does not match {stack.name} stack"
+        )
+    commits: dict[str, str | None] = {"atrinik": _git_head(root)}
+    checkout_commits: dict[str, str] = {}
+    for component in stack.components:
+        row = rows[component.name]
+        if not row["initialized"]:
+            commits[component.name] = None
+            continue
+        if component.checkout_name not in checkout_commits:
+            checkout_commits[component.checkout_name] = _git_head(
+                _summary_checkout_path(row, component)
+            )
+        commits[component.name] = checkout_commits[component.checkout_name]
+    for checkout in _metadata_checkouts(manifest):
+        if stack.name in manifest.checkout_stacks(checkout.name):
+            commits[checkout.name] = checkout_commits.get(checkout.name)
+    return stack.name, commits
 
 
 def _git_repository_coordinate(root: Path) -> str:
@@ -988,11 +1612,161 @@ def _git_repository_coordinate(root: Path) -> str:
     )
     if result.returncode != 0:
         raise WorkspaceError(f"cannot inspect repository identity for {root}")
-    url = result.stdout.strip().removesuffix("/").removesuffix(".git")
-    match = re.search(r"github\.com(?::|/)([^/]+)/([^/]+)$", url)
-    if match is None:
+    url = result.stdout.strip()
+    repository = _github_repository_from_url(url)
+    if repository is None:
         raise WorkspaceError(f"unsupported repository remote for supply-chain audit: {url}")
-    return f"{match.group(1)}/{match.group(2)}"
+    return repository
+
+
+def _github_repository_from_url(url: str) -> str | None:
+    normalized = url.strip().removesuffix(".git")
+    prefixes = (
+        "git@github.com:",
+        "ssh://git@github.com/",
+        "https://github.com/",
+    )
+    for prefix in prefixes:
+        if normalized.startswith(prefix):
+            repository = normalized.removeprefix(prefix)
+            return repository if repository.count("/") == 1 else None
+    return None
+
+
+def _git_repository_remote(root: Path, repository: str) -> str:
+    """Return the effective origin/upstream that names ``repository``.
+
+    Git fetches the first URL configured for a remote.  A later URL that merely
+    looks canonical must therefore not prove checkout identity.  Fork-based
+    review worktrees remain valid when their effective ``origin`` is the fork
+    and their effective ``upstream`` is the Atrinik repository.
+    """
+
+    candidates: list[str] = []
+    for remote in ("origin", "upstream"):
+        result = subprocess.run(
+            ["git", "-C", str(root), "remote", "get-url", "--all", remote],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+        )
+        if result.returncode != 0:
+            continue
+        urls = result.stdout.splitlines()
+        if not urls:
+            continue
+        url = urls[0].strip()
+        candidates.append(f"{remote}={url}")
+        if _github_repository_from_url(url) == repository:
+            return remote
+    detail = ", ".join(candidates) or "no effective origin/upstream URLs"
+    raise WorkspaceError(
+        f"checkout has no effective origin/upstream for {repository}: {detail}"
+    )
+
+
+def _git_repository_branch_compatible(
+    root: Path,
+    branch: str,
+    canonical: Path | None = None,
+    remote: str = "origin",
+) -> bool:
+    if canonical is not None:
+        if not canonical.is_dir() or _git_current_branch(canonical) != branch:
+            return False
+        checkout_common = _git_common_directory(root)
+        canonical_common = _git_common_directory(canonical)
+        return checkout_common is not None and checkout_common == canonical_common
+    reference = f"refs/remotes/{remote}/{branch}"
+    verify = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "--verify", f"{reference}^{{commit}}"],
+        check=False,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        timeout=10,
+    )
+    if verify.returncode != 0:
+        return False
+    ancestry = subprocess.run(
+        ["git", "-C", str(root), "merge-base", "--is-ancestor", reference, "HEAD"],
+        check=False,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        timeout=10,
+    )
+    return ancestry.returncode == 0
+
+
+def _git_current_branch(root: Path) -> str | None:
+    result = subprocess.run(
+        ["git", "-C", str(root), "branch", "--show-current"],
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        timeout=10,
+    )
+    branch = result.stdout.strip()
+    return branch if result.returncode == 0 and branch else None
+
+
+def _git_common_directory(root: Path) -> Path | None:
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(root),
+            "rev-parse",
+            "--path-format=absolute",
+            "--git-common-dir",
+        ],
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        timeout=10,
+    )
+    if result.returncode != 0 or not result.stdout.strip():
+        return None
+    return Path(result.stdout.strip()).resolve(strict=False)
+
+
+def _git_top_level(root: Path) -> Path:
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(root),
+            "rev-parse",
+            "--path-format=absolute",
+            "--show-toplevel",
+        ],
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        timeout=10,
+    )
+    if result.returncode != 0 or not result.stdout.strip():
+        raise WorkspaceError(f"cannot resolve Git checkout root for {root}")
+    return Path(result.stdout.strip()).resolve(strict=True)
+
+
+def _git_head(root: Path) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "HEAD"],
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        timeout=10,
+    )
+    commit = result.stdout.strip()
+    if result.returncode != 0 or not GIT_COMMIT_PATTERN.fullmatch(commit):
+        raise WorkspaceError(f"cannot resolve full Git commit for {root}")
+    return commit
 
 
 def write_generated(root: Path, output: Path | None, value: str) -> None:
