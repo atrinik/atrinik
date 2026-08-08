@@ -2,8 +2,8 @@
   "schema_version": 1,
   "root_policy": {
     "repository": "atrinik/atrinik",
-    "revision": "d64a8e958ca2adad783ad8912493d468a805f3fd",
-    "path": "AGENTS.md",
+    "revision": "d7f5fad592e9ece11ca54f5bcdebda67ac975647",
+    "path": "docs/PROVENANCE.md",
     "rule": "Independent MIT implementation is the default. Historical reuse requires a complete non-shallow rename-aware history audit, proven sole original authorship by an approved grantor, identity verification, embedded-material review, an exact transformation record, and reviewer approval; mixed or uncertain material is excluded."
   },
   "required_record_fields": [
