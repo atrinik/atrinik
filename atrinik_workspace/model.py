@@ -1125,11 +1125,15 @@ def managed_directory(path: Path, workspace_builds: Path, purpose: str) -> None:
 def managed_remove(path: Path, workspace_builds: Path, purpose: str) -> None:
     """Remove one marker-owned build root after repeating every ownership check."""
 
+    if workspace_builds.is_symlink() or not workspace_builds.is_dir():
+        raise WorkspaceError(
+            f"workspace builds path is not a regular directory: {workspace_builds}"
+        )
     builds = workspace_builds.resolve()
     if path.is_symlink():
         raise WorkspaceError(f"refusing symlinked managed build path: {path}")
     path = path.parent.resolve() / path.name
-    if builds != path and builds not in path.parents:
+    if builds not in path.parents:
         raise WorkspaceError(f"refusing to remove path outside workspace builds: {path}")
     marker = path / MANAGED_MARKER
     if not path.is_dir() or not marker.is_file() or marker.is_symlink():

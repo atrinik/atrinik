@@ -654,6 +654,25 @@ class PathSafetyTests(unittest.TestCase):
                 managed_remove(outside, builds, "outside")
             self.assertTrue(outside.is_dir())
 
+    def test_managed_remove_rejects_a_symlinked_build_container(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            external = root / "external"
+            external.mkdir()
+            target = external / "profiles" / "review"
+            managed_directory(target, external, "profile:review:key")
+            builds = root / "build"
+            builds.symlink_to(external, target_is_directory=True)
+
+            with self.assertRaisesRegex(WorkspaceError, "not a regular directory"):
+                managed_remove(
+                    builds / "profiles" / "review",
+                    builds,
+                    "profile:review:key",
+                )
+
+            self.assertTrue(target.is_dir())
+
     def test_refuses_malformed_workspace_marker(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

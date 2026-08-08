@@ -42,6 +42,53 @@ class ParserTests(unittest.TestCase):
         workspace_type.return_value.cleanup.assert_called_once_with([], 7, [], False)
         self.assertEqual(json.loads(output.call_args.args[0]), report)
 
+    def test_cleanup_combines_scopes_filters_and_reports_apply_failure(self) -> None:
+        report = {
+            "schema_version": 1,
+            "mode": "apply",
+            "scopes": ["worktrees", "builds"],
+            "older_than_days": 0,
+            "filters": ["classic"],
+            "inventory_errors": [],
+            "items": [],
+            "summary": {
+                "item_count": 0,
+                "candidate_count": 0,
+                "candidate_bytes": 0,
+                "protected_count": 0,
+                "protected_bytes": 0,
+                "skipped_count": 0,
+                "skipped_bytes": 0,
+                "removed_count": 0,
+                "removed_bytes": 0,
+                "error_count": 1,
+                "error_bytes": 0,
+            },
+            "aborted": True,
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.cleanup.return_value = report
+            with mock.patch("builtins.print"):
+                result = main(
+                    [
+                        "cleanup",
+                        "classic-client",
+                        "--scope",
+                        "worktrees",
+                        "--scope",
+                        "builds",
+                        "--older-than",
+                        "0",
+                        "--apply",
+                        "--json",
+                    ]
+                )
+
+        self.assertEqual(result, 1)
+        workspace_type.return_value.cleanup.assert_called_once_with(
+            ["worktrees", "builds"], 0, ["classic-client"], True
+        )
+
     def test_init_with_classic_dispatches_only_documented_additive_option(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
             result = main(["init", "--with", "classic", "--jobs", "2"])

@@ -239,9 +239,16 @@ class Cleanup:
                 identity = (target["kind"], target["path"])
                 if identity in completed:
                     continue
-                fresh = self._plan(
-                    selected_scopes, older_than_days, selected_names, "apply"
-                )
+                try:
+                    fresh = self._plan(
+                        selected_scopes, older_than_days, selected_names, "apply"
+                    )
+                except (OSError, RuntimeError, WorkspaceError) as error:
+                    target["disposition"] = "error"
+                    target["reasons"] = ["revalidation_error"]
+                    target["error"] = str(error)
+                    report["aborted"] = True
+                    break
                 match = next(
                     (
                         item
@@ -267,7 +274,7 @@ class Cleanup:
                 report["mutation_attempted"] = True
                 try:
                     self._remove(match)
-                except (OSError, WorkspaceError) as error:
+                except (OSError, RuntimeError, WorkspaceError) as error:
                     target["disposition"] = "error"
                     target["reasons"] = ["removal_failed"]
                     target["error"] = str(error)
@@ -391,11 +398,18 @@ class Cleanup:
             "retention": {},
         }
         errors: set[str] = set()
-        self._profile_references(references, errors)
-        self._scenario_references(references, errors)
-        self._topology_references(references, errors)
-        self._migration_references(references, errors)
-        self._retention_references(references, errors)
+        collectors = (
+            (self._profile_references, "profile_inventory_error"),
+            (self._scenario_references, "scenario_inventory_error"),
+            (self._topology_references, "topology_inventory_error"),
+            (self._migration_references, "migration_inventory_error"),
+            (self._retention_references, "retention_inventory_error"),
+        )
+        for collector, reason in collectors:
+            try:
+                collector(references, errors)
+            except (OSError, RuntimeError, WorkspaceError):
+                errors.add(reason)
         return references, errors
 
     def _registered_worktree_paths(self) -> tuple[set[Path], bool]:
@@ -443,6 +457,22 @@ class Cleanup:
         except (OSError, RuntimeError) as error:
             raise WorkspaceError(f"cannot resolve retained path {path}: {error}") from error
         container.setdefault(normalized, []).append(name)
+
+    @staticmethod
+    def _owned_direct_child(path: Path, namespace: Path) -> bool:
+        """Prove a path is directly below one fixed non-symlink namespace."""
+
+        try:
+            if (
+                namespace.is_symlink()
+                or not namespace.is_dir()
+                or namespace.parent.is_symlink()
+                or not namespace.parent.is_dir()
+            ):
+                return False
+            return path.resolve(strict=False).parent == namespace.resolve()
+        except (OSError, RuntimeError):
+            return False
 
     def _profile_references(self, references: dict[str, Any], errors: set[str]) -> None:
         if not self.paths.profiles.is_dir() or self.paths.profiles.is_symlink():
@@ -507,7 +537,9 @@ class Cleanup:
                 ):
                     raise WorkspaceError("scenario metadata is a symlink")
                 metadata = load_json(metadata_path)
-                resolved = metadata.get("resolved") if isinstance(metadata, dict) else None
+                if not isinstance(metadata, dict):
+                    raise WorkspaceError("scenario metadata is invalid")
+                resolved = metadata.get("resolved")
                 if metadata.get("name") != root.name or not isinstance(resolved, dict):
                     raise WorkspaceError("scenario resolution is invalid")
                 for row in resolved.values():
@@ -576,21 +608,84 @@ class Cleanup:
                     continue
                 build_root = status_value.get("build_root")
                 resolved = status_value.get("resolved")
-                if not isinstance(build_root, str) or not Path(build_root).is_absolute():
+                if (
+                    status_value.get("schema_version") != SCHEMA_VERSION
+                    or status_value.get("name") != root.name
+                    or not isinstance(build_root, str)
+                    or not Path(build_root).is_absolute()
+                ):
                     raise WorkspaceError("topology build root is invalid")
                 self._add_reference(references["live_builds"], Path(build_root), root.name)
                 if not isinstance(resolved, dict):
                     raise WorkspaceError("topology resolution is invalid")
-                for row in resolved.values():
-                    if not isinstance(row, dict) or not isinstance(
-                        row.get("checkout_path"), str
+                stack_name = status_value.get("stack")
+                providers = status_value.get("providers")
+                dependencies = status_value.get("dependencies")
+                if (
+                    not isinstance(stack_name, str)
+                    or stack_name not in self.manifest.stacks
+                    or not isinstance(providers, dict)
+                    or not isinstance(dependencies, list)
+                    or not all(isinstance(value, str) for value in dependencies)
+                    or not all(
+                        isinstance(role, str) and isinstance(component, str)
+                        for role, component in providers.items()
+                    )
+                    or set(providers) != set(dependencies)
+                    or set(resolved) != set(providers.values())
+                ):
+                    raise WorkspaceError("topology coordinates are historical or invalid")
+                for role, component_name in providers.items():
+                    if (
+                        not isinstance(role, str)
+                        or not isinstance(component_name, str)
+                        or component_name not in self.manifest.by_name
+                        or self.manifest.provider(stack_name, role).name
+                        != component_name
                     ):
-                        raise WorkspaceError("topology checkout path is invalid")
+                        raise WorkspaceError("topology provider identity is invalid")
+                coordinate_keys = {
+                    "path",
+                    "checkout_path",
+                    "checkout",
+                    "repository",
+                    "branch",
+                    "source",
+                    "head",
+                    "dirty",
+                }
+                for component_name, row in resolved.items():
+                    component = self.manifest.by_name[component_name]
+                    if (
+                        not isinstance(row, dict)
+                        or set(row) != coordinate_keys
+                        or not isinstance(row.get("checkout_path"), str)
+                        or not isinstance(row.get("path"), str)
+                        or not isinstance(row.get("head"), str)
+                        or not HEAD_PATTERN.fullmatch(row["head"])
+                        or not isinstance(row.get("dirty"), bool)
+                        or row.get("checkout") != component.checkout_name
+                        or row.get("repository") != component.repository
+                        or row.get("branch") != component.branch
+                        or row.get("source") != component.source
+                    ):
+                        raise WorkspaceError("topology checkout identity is invalid")
                     selected = Path(row["checkout_path"])
-                    if not selected.is_absolute():
+                    source_path = Path(row["path"])
+                    if not selected.is_absolute() or not source_path.is_absolute():
                         raise WorkspaceError("topology checkout path is relative")
+                    source = PurePosixPath(component.source)
+                    expected_source = (
+                        selected
+                        if component.source == "."
+                        else selected.joinpath(*source.parts)
+                    )
+                    if source_path.resolve(strict=False) != expected_source.resolve(
+                        strict=False
+                    ):
+                        raise WorkspaceError("topology source path is invalid")
                     self._add_reference(references["topologies"], selected, root.name)
-            except (OSError, WorkspaceError):
+            except (OSError, RuntimeError, KeyError, WorkspaceError):
                 errors.add("topology_inventory_error")
 
     def _migration_references(self, references: dict[str, Any], errors: set[str]) -> None:
@@ -652,6 +747,12 @@ class Cleanup:
 
     def _retention_references(self, references: dict[str, Any], errors: set[str]) -> None:
         path = self.paths.builds / BUILD_RETENTION_RECORD
+        if self.paths.builds.is_symlink() or (
+            self.paths.builds.exists() and not self.paths.builds.is_dir()
+        ):
+            if path.exists() or path.is_symlink():
+                errors.add("retention_inventory_error")
+            return
         if not path.exists() and not path.is_symlink():
             return
         try:
@@ -795,9 +896,12 @@ class Cleanup:
             item["reasons"].append("detached_head")
         if "locked" in record:
             item["reasons"].append("locked_worktree")
-        owned = any(normalized.parent == root.resolve(strict=False) for root in allowed)
+        owned = any(self._owned_direct_child(path, root) for root in allowed)
         if not owned:
             item["reasons"].append("external_path")
+        primary_item = normalized == primary.resolve()
+        if primary_item:
+            item["reasons"].append("primary_checkout")
         reference_reasons = {
             "profiles": "profile_reference",
             "scenarios": "scenario_reference",
@@ -816,6 +920,8 @@ class Cleanup:
                 item["disposition"] = "skipped"
                 item["reasons"] = ["github_pending"]
             return item
+        if primary_item:
+            return item
         inodes, _, walk_error = _tree_usage(path)
         item["_inodes"] = inodes
         if walk_error:
@@ -823,8 +929,6 @@ class Cleanup:
             item["error"] = walk_error
         if path.is_symlink():
             item["reasons"].append("symlinked_worktree")
-        if normalized == primary.resolve():
-            item["reasons"].append("primary_checkout")
         if not path.is_dir():
             item["reasons"].append("missing_worktree")
             return item
@@ -1066,6 +1170,19 @@ class Cleanup:
         references: dict[str, Any],
         reference_errors: set[str],
     ) -> list[dict[str, Any]]:
+        if self.paths.builds.is_symlink() or (
+            self.paths.builds.exists() and not self.paths.builds.is_dir()
+        ):
+            item = _base_item(
+                "unmanaged-build", "atrinik", "atrinik/atrinik", self.paths.builds
+            )
+            item["reasons"] = ["invalid_build_container"]
+            inodes, _, error = _tree_usage(self.paths.builds)
+            item["_inodes"] = inodes
+            if error:
+                item["reasons"].append("filesystem_traversal_error")
+                item["error"] = error
+            return [item]
         profiles = self.paths.builds / "profiles"
         if not profiles.is_dir() or profiles.is_symlink():
             if profiles.exists() or profiles.is_symlink():
@@ -1079,6 +1196,15 @@ class Cleanup:
                     item["error"] = error
                 return [item]
             return []
+        try:
+            profile_roots = sorted(profiles.iterdir())
+        except OSError as error:
+            item = _base_item(
+                "unmanaged-build", "atrinik", "atrinik/atrinik", profiles
+            )
+            item["reasons"] = ["profiles_inventory_error"]
+            item["error"] = str(error)
+            return [item]
         return [
             self._build_item(
                 path,
@@ -1088,7 +1214,7 @@ class Cleanup:
                 references,
                 reference_errors,
             )
-            for path in sorted(profiles.iterdir())
+            for path in profile_roots
         ]
 
     def _build_item(
@@ -1197,8 +1323,9 @@ class Cleanup:
             raise WorkspaceError("profile build marker does not match its path")
         return purpose, profile, key
 
-    @staticmethod
-    def _load_build_metadata(path: Path, item: dict[str, Any]) -> dict[str, Any]:
+    def _load_build_metadata(
+        self, path: Path, item: dict[str, Any]
+    ) -> dict[str, Any]:
         if path.is_symlink() or not path.is_file():
             raise WorkspaceError("build metadata is not a regular file")
         value = load_json(path)
@@ -1227,6 +1354,16 @@ class Cleanup:
             validate_name(role, "build coordinate role")
             validate_name(row["component"], "build coordinate component")
             validate_name(row["checkout"], "build coordinate checkout")
+            component = self.manifest.by_name.get(row["component"])
+            if (
+                component is None
+                or role not in component.provides
+                or row["checkout"] != component.checkout_name
+                or row["repository"] != component.repository
+                or row["branch"] != component.branch
+                or row["source"] != component.source
+            ):
+                raise WorkspaceError("build coordinate manifest identity is invalid")
             if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", row["repository"]):
                 raise WorkspaceError("build coordinate repository is invalid")
             if any(character in row["branch"] for character in "\0\r\n"):
@@ -1282,30 +1419,36 @@ class Cleanup:
         roots: list[tuple[Path, list[Path]]] = []
         top = self._wrapper_primary / "build"
         if top.is_dir() and not top.is_symlink():
-            for path in sorted(top.iterdir()):
-                try:
-                    if path.resolve(strict=False) in registered:
+            try:
+                for path in sorted(top.iterdir()):
+                    try:
+                        if path.resolve(strict=False) in registered:
+                            continue
+                    except (OSError, RuntimeError):
+                        roots.append((path, []))
                         continue
-                except (OSError, RuntimeError):
-                    roots.append((path, []))
-                    continue
-                roots.append(
-                    (
-                        path,
-                        [
-                            candidate
-                            for candidate in registered
-                            if _path_relation(path, candidate)
-                        ],
+                    roots.append(
+                        (
+                            path,
+                            [
+                                candidate
+                                for candidate in registered
+                                if _path_relation(path, candidate)
+                            ],
+                        )
                     )
-                )
+            except OSError:
+                roots.append((top, []))
         elif top.exists() or top.is_symlink():
             roots.append((top, []))
         if self.paths.builds.is_dir() and not self.paths.builds.is_symlink():
-            for path in sorted(self.paths.builds.iterdir()):
-                if path.name in {"profiles", "npm-cache"}:
-                    continue
-                roots.append((path, []))
+            try:
+                for path in sorted(self.paths.builds.iterdir()):
+                    if path.name in {"profiles", "npm-cache"}:
+                        continue
+                    roots.append((path, []))
+            except OSError:
+                roots.append((self.paths.builds, []))
         for path, excluded in roots:
             item = _base_item("unmanaged-build", "atrinik", "atrinik/atrinik", path)
             inodes, observed, error = _tree_usage(path, excluded)
@@ -1332,6 +1475,10 @@ class Cleanup:
             return None
         item = _base_item("npm-cache", "atrinik", "atrinik/atrinik", path)
         item["_purpose"] = "npm-cache"
+        if self.paths.builds.is_symlink() or not self.paths.builds.is_dir():
+            item["reasons"] = ["invalid_cache_path"]
+            item["legacy_known_cache"] = False
+            return item
         inodes, observed, walk_error = _tree_usage(path)
         item["_inodes"] = inodes
         if walk_error:
@@ -1341,7 +1488,9 @@ class Cleanup:
             item["reasons"].append("invalid_workspace_marker")
         try:
             valid_path = (
-                not path.is_symlink()
+                not self.paths.builds.is_symlink()
+                and self.paths.builds.is_dir()
+                and not path.is_symlink()
                 and path.is_dir()
                 and path.resolve(strict=False)
                 == self.paths.builds.resolve(strict=False) / "npm-cache"
@@ -1413,10 +1562,13 @@ class Cleanup:
             return False, None
         if locks.is_symlink() or not locks.is_dir():
             return False, f"build lock directory is invalid: {locks}"
-        for path in sorted(locks.iterdir()):
-            busy, error = self._lock_busy(path)
-            if error or busy:
-                return busy, error
+        try:
+            for path in sorted(locks.iterdir()):
+                busy, error = self._lock_busy(path)
+                if error or busy:
+                    return busy, error
+        except OSError as error:
+            return False, str(error)
         return False, None
 
     @staticmethod
