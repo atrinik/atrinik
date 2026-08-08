@@ -181,11 +181,12 @@ without that full coordinate as inert; never reinterpret them through a newer
 manifest.
 
 The replacement `server`, `client`, `editor`, `protocol`, `renderer`,
-`content-toolkit`, and `website` repositories are seeds until their owning
-build/runtime contracts land. Do not route `default` through classic C/CMake
-code or claim it is currently runnable. Use a profile derived from `classic`
-for present game build, scenario, and runtime verification. GPL tools belong
-only to that classic closure.
+`content-toolkit`, and `website` repositories have validated standalone M1
+foundations. Their wrapper build/runtime adapters and integrated service
+closure have not landed. Do not route `default` through classic C/CMake code or
+claim it is currently runnable. Use a profile derived from `classic` for
+present game build, scenario, and runtime verification. GPL tools belong only
+to that classic closure.
 
 The resources repository owns its runtime distribution boundary in
 `runtime-paths.txt`. Add a new tracked asset collection to that allowlist in
