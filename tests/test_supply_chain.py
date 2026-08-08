@@ -30,11 +30,15 @@ from atrinik_workspace.supply_chain import (
     _read_metadata,
     _relative_path,
     _safe_repository_path,
+    _static_matrix_values,
     _string_array,
     _system_package_versions,
     _text,
     _tracked_files,
     _validate_container_reference,
+    _workflow_job_blocks,
+    _workflow_runners,
+    _workflow_uses_unpinned_npx,
     repository_roots,
     report_component_commits,
     version_report,
@@ -657,7 +661,7 @@ class InventoryTests(unittest.TestCase):
             ("runs-on: mystery-runner", "unowned workflow runner"),
             ("uses: ${{ matrix.action }}", "unsupported external Action"),
             ("uses: ./../outside", "local Action escapes"),
-            ("runs-on: ${{ matrix.os }}", "runner must be an explicit literal"),
+            ("runs-on: ${{ matrix.os }}", "runner matrix os has no static literals"),
         ]
         for line, expected in cases:
             with self.subTest(expected=expected):
@@ -1114,6 +1118,14 @@ FROM toolchain AS final
             dependency.write_text("find_package(OpenSSL REQUIRED)\n", encoding="utf-8")
 
             self.assertTrue(_is_dependency_input("package.json", root))
+            self.assertTrue(_is_dependency_input("Cargo.lock", root))
+            self.assertTrue(_is_dependency_input("crates/example/Cargo.toml", root))
+            self.assertTrue(_is_dependency_input("go.mod", root))
+            self.assertTrue(_is_dependency_input("go.sum", root))
+            self.assertTrue(_is_dependency_input("buf.gen.yaml", root))
+            self.assertTrue(_is_dependency_input("rust-toolchain.toml", root))
+            self.assertTrue(_is_dependency_input("deny.toml", root))
+            self.assertTrue(_is_dependency_input("policy/dependencies.json", root))
             self.assertTrue(_is_dependency_input("vendor/uthash.h", root))
             self.assertTrue(_is_dependency_input("Dockerfile.release", root))
             self.assertFalse(_is_dependency_input("plain.cmake", root))
@@ -1125,6 +1137,127 @@ FROM toolchain AS final
             self.assertTrue(_is_container_input("Dockerfile.release"))
             self.assertTrue(_is_container_input(".devcontainer/devcontainer.json"))
             self.assertFalse(_is_container_input("package.json"))
+
+    def test_workflow_runners_accept_only_static_literals_and_matrices(self) -> None:
+        workflow = """
+jobs:
+  direct:
+    runs-on: ubuntu-24.04
+  matrix:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-24.04
+          - windows-2025
+    runs-on: ${{ matrix.os }}
+"""
+        self.assertEqual(
+            _workflow_runners(workflow),
+            ("ubuntu-24.04", "ubuntu-24.04", "windows-2025"),
+        )
+        with self.assertRaisesRegex(WorkspaceError, "statically enumerated"):
+            _workflow_runners("runs-on: ${{ fromJSON(inputs.runner) }}\n")
+        with self.assertRaisesRegex(WorkspaceError, "no static literals"):
+            _workflow_runners("runs-on: ${{ matrix.os }}\n")
+        unrelated_matrix = """
+jobs:
+  static:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-24.04
+    runs-on: ubuntu-24.04
+  dynamic:
+    runs-on: ${{ matrix.os }}
+"""
+        with self.assertRaisesRegex(WorkspaceError, "no static literals"):
+            _workflow_runners(unrelated_matrix)
+        partly_dynamic = workflow.replace(
+            "          - windows-2025", "          - ${{ inputs.runner }}"
+        )
+        with self.assertRaisesRegex(WorkspaceError, "no static literals"):
+            _workflow_runners(partly_dynamic)
+
+        commented = """
+jobs:
+  # The blank/comment paths must not affect structural indentation.
+
+  matrix:
+    strategy:
+      matrix:
+        # Runner values remain a direct static list.
+        os:
+          # Supported platforms.
+          - ubuntu-24.04
+        include:
+          - label
+    runs-on: ${{ matrix.os }}
+permissions: {}
+"""
+        self.assertEqual(_workflow_runners(commented), ("ubuntu-24.04",))
+        self.assertEqual(_static_matrix_values("matrix:\n", "os"), ())
+        self.assertEqual(_static_matrix_values("plain: value\n", "os"), ())
+
+    def test_workflow_job_blocks_are_bounded_to_jobs(self) -> None:
+        standalone = "runs-on: ubuntu-24.04\n"
+        self.assertEqual(_workflow_job_blocks(standalone), (standalone,))
+        self.assertEqual(
+            _workflow_job_blocks("jobs:\n  # no jobs\n\npermissions: {}\n"), ()
+        )
+        workflow = """
+jobs:
+  first:
+    runs-on: ubuntu-24.04
+  second:
+    runs-on: windows-2025
+permissions: {}
+"""
+        blocks = _workflow_job_blocks(workflow)
+        self.assertEqual(len(blocks), 2)
+        self.assertNotIn("permissions", blocks[-1])
+
+    def test_npx_requires_an_immutable_setup_node_step(self) -> None:
+        unpinned = "steps:\n  - run: npx --yes semantic-release\n"
+        pinned = """
+steps:
+  - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+  - run: npx --yes semantic-release
+"""
+        movable = """
+steps:
+  - uses: actions/setup-node@v7
+  - run: npx --yes semantic-release
+"""
+        self.assertTrue(_workflow_uses_unpinned_npx(unpinned))
+        self.assertFalse(_workflow_uses_unpinned_npx(pinned))
+        self.assertTrue(_workflow_uses_unpinned_npx(movable))
+        setup_after_npx = pinned.replace(
+            "steps:", "steps:\n  - run: npx --yes semantic-release"
+        )
+        self.assertTrue(_workflow_uses_unpinned_npx(setup_after_npx))
+        separate_jobs = """
+jobs:
+  setup:
+    steps:
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+  release:
+    steps:
+      - run: npx --yes semantic-release
+"""
+        self.assertTrue(_workflow_uses_unpinned_npx(separate_jobs))
+
+        inventory = self.audit_inventory()
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.make_audit_repository(root)
+            workflow = root / ".github" / "workflows" / "ci.yml"
+            workflow.write_text(
+                workflow.read_text(encoding="utf-8")
+                + "\n  - run: npx --yes semantic-release\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(WorkspaceError, "npx requires"):
+                inventory.audit({"fixture": root})
 
     def test_metadata_audit_excludes_only_declared_logical_sources(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -1287,7 +1420,7 @@ FROM toolchain AS final
             "components": [
                 {
                     "component": name,
-                    "initialized": False,
+                    "initialized": name != "resources",
                     "path": f"/workspace/profile/{name}",
                 }
                 for name in default_components
@@ -1296,7 +1429,7 @@ FROM toolchain AS final
         invalid = [
             ("bad", "must be NAME=PATH"),
             ("unknown=/tmp", "must be NAME=PATH"),
-            ("client=/tmp", "not audit-ready"),
+            ("client=/tmp", "not atrinik/client"),
             ("resources=relative", "must be absolute"),
         ]
         for override, expected in invalid:
@@ -1359,10 +1492,40 @@ FROM toolchain AS final
                     )
                 roots = repository_roots(ROOT, workspace, "profile", [override])
 
+            content_review = path / "content-review"
+            content_review.mkdir()
+            with (
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_top_level",
+                    return_value=content_review,
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_repository_remote",
+                    return_value="origin",
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_current_branch",
+                    return_value="review/content",
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_repository_branch_compatible",
+                    return_value=False,
+                ),
+            ):
+                with self.assertRaisesRegex(
+                    WorkspaceError, "cannot prove content@main lineage"
+                ):
+                    repository_roots(
+                        ROOT,
+                        workspace,
+                        "profile",
+                        [f"content={content_review}"],
+                    )
+
         self.assertEqual(roots["atrinik"], ROOT)
         self.assertEqual(roots["resources"], path)
-        self.assertNotIn("server", roots)
-        self.assertNotIn("client", roots)
+        self.assertIn("server", roots)
+        self.assertIn("client", roots)
 
     def test_repository_override_accepts_fork_origin_and_canonical_upstream(self) -> None:
         workspace = mock.Mock()
@@ -1375,7 +1538,7 @@ FROM toolchain AS final
             "components": [
                 {
                     "component": name,
-                    "initialized": False,
+                    "initialized": name != "resources",
                     "path": f"/workspace/review/{name}",
                 }
                 for name in default_components
@@ -1445,7 +1608,7 @@ FROM toolchain AS final
                     ROOT, workspace, "review", [f"resources={review}"]
                 )
 
-    def test_repository_roots_keep_duplicate_coordinates_profile_scoped(self) -> None:
+    def test_repository_roots_reject_incomplete_profiles(self) -> None:
         workspace = mock.Mock()
         classic_components = json.loads(
             (ROOT / "components.json").read_text(encoding="utf-8")
@@ -1463,11 +1626,11 @@ FROM toolchain AS final
             ],
         }
 
-        roots = repository_roots(ROOT, workspace, "classic-review")
-
-        self.assertIn("content-1x", roots)
-        self.assertNotIn("content", roots)
-        self.assertNotIn("classic-server", roots)
+        with self.assertRaisesRegex(
+            WorkspaceError,
+            "profile classic-review is incomplete.*classic-client.*tools",
+        ):
+            repository_roots(ROOT, workspace, "classic-review")
 
     def test_repository_roots_add_one_classic_checkout_metadata_root(self) -> None:
         workspace = mock.Mock()
@@ -1484,7 +1647,7 @@ FROM toolchain AS final
             "components": [
                 {
                     "component": name,
-                    "initialized": components[name]["checkout"] == "classic",
+                    "initialized": True,
                     "checkout_path": (
                         "/workspace/classic"
                         if components[name]["checkout"] == "classic"
@@ -1523,7 +1686,7 @@ FROM toolchain AS final
             "components": [
                 {
                     "component": name,
-                    "initialized": component_documents[name]["checkout"] == "classic",
+                    "initialized": True,
                     "checkout_path": (
                         "/workspace/classic"
                         if component_documents[name]["checkout"] == "classic"
@@ -1851,6 +2014,12 @@ FROM toolchain AS final
             )
             self.assertFalse(
                 _git_repository_branch_compatible(separate_1x, "1.x", content_1x)
+            )
+            self.assertTrue(
+                _git_repository_branch_compatible(separate_main, "main")
+            )
+            self.assertTrue(
+                _git_repository_branch_compatible(separate_1x, "1.x")
             )
             self.assertTrue(
                 _git_repository_branch_compatible(review_main, "main", content)

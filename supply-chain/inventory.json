@@ -154,7 +154,7 @@
       "source": "server"
     },
     {
-      "audit_ready": false,
+      "audit_ready": true,
       "audit_mode": "full",
       "branch": "main",
       "cohorts": [
@@ -164,7 +164,7 @@
       "commit": null,
       "name": "client",
       "repository": "atrinik/client",
-      "role": "MIT Rust game client replacement awaiting bootstrap",
+      "role": "MIT Rust game client replacement with an independently validated M1 foundation",
       "roles": [
         "client"
       ],
@@ -220,7 +220,7 @@
       "source": "."
     },
     {
-      "audit_ready": false,
+      "audit_ready": true,
       "audit_mode": "full",
       "branch": "main",
       "cohorts": [
@@ -230,7 +230,7 @@
       "commit": null,
       "name": "content-toolkit",
       "repository": "atrinik/content-toolkit",
-      "role": "MIT content model, compiler, validator, and migration tooling awaiting wrapper integration",
+      "role": "MIT content model, compiler, validator, and migration toolkit with an independently validated M1 foundation",
       "roles": [
         "content-toolkit"
       ],
@@ -265,7 +265,7 @@
       "source": "."
     },
     {
-      "audit_ready": false,
+      "audit_ready": true,
       "audit_mode": "full",
       "branch": "main",
       "cohorts": [
@@ -275,7 +275,7 @@
       "commit": null,
       "name": "editor",
       "repository": "atrinik/editor",
-      "role": "MIT Rust content editor replacement awaiting bootstrap",
+      "role": "MIT Rust content editor replacement with an independently validated M1 foundation",
       "roles": [
         "editor"
       ],
@@ -333,7 +333,7 @@
       "source": "."
     },
     {
-      "audit_ready": false,
+      "audit_ready": true,
       "audit_mode": "full",
       "branch": "main",
       "cohorts": [],
@@ -351,7 +351,7 @@
       "source": "."
     },
     {
-      "audit_ready": false,
+      "audit_ready": true,
       "audit_mode": "full",
       "branch": "main",
       "cohorts": [
@@ -361,7 +361,7 @@
       "commit": null,
       "name": "protocol",
       "repository": "atrinik/protocol",
-      "role": "MIT replacement wire schemas and generated Go and Rust bindings awaiting bootstrap",
+      "role": "MIT replacement wire schemas and generated Go and Rust bindings with an independently validated M1 foundation",
       "roles": [
         "protocol"
       ],
@@ -373,7 +373,7 @@
       "source": "."
     },
     {
-      "audit_ready": false,
+      "audit_ready": true,
       "audit_mode": "full",
       "branch": "main",
       "cohorts": [
@@ -383,7 +383,7 @@
       "commit": null,
       "name": "renderer",
       "repository": "atrinik/renderer",
-      "role": "MIT shared Rust GPU renderer for the client and editor awaiting wrapper integration",
+      "role": "MIT shared Rust GPU renderer with an independently validated M1 foundation",
       "roles": [
         "renderer"
       ],
@@ -418,7 +418,7 @@
       "source": "."
     },
     {
-      "audit_ready": false,
+      "audit_ready": true,
       "audit_mode": "full",
       "branch": "main",
       "cohorts": [
@@ -428,7 +428,7 @@
       "commit": null,
       "name": "server",
       "repository": "atrinik/server",
-      "role": "MIT Go authoritative game server replacement awaiting bootstrap",
+      "role": "MIT Go authoritative game server replacement with an independently validated M1 foundation",
       "roles": [
         "server"
       ],
@@ -485,7 +485,7 @@
       "source": "."
     },
     {
-      "audit_ready": false,
+      "audit_ready": true,
       "audit_mode": "full",
       "branch": "main",
       "cohorts": [
@@ -495,7 +495,7 @@
       "commit": null,
       "name": "website",
       "repository": "atrinik/website",
-      "role": "MIT atrinik.org source awaiting wrapper integration",
+      "role": "MIT atrinik.org static website with an independently validated M1 foundation",
       "roles": [
         "website"
       ],
@@ -578,14 +578,21 @@
       "scope": [
         "atrinik",
         "classic",
+        "client",
         "content",
         "content-1x",
+        "content-toolkit",
         "devcontainer",
+        "editor",
         "github-settings",
         "metaserver-worker",
+        "protocol",
+        "renderer",
         "resources",
+        "server",
         "sound",
-        "tools"
+        "tools",
+        "website"
       ],
       "required": true,
       "version": "v7.0.1",
@@ -612,6 +619,41 @@
           "repository": "classic",
           "path": ".github/workflows/check.yml",
           "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+        },
+        {
+          "repository": "client",
+          "path": ".github/workflows/validate.yml",
+          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+        },
+        {
+          "repository": "content-toolkit",
+          "path": ".github/workflows/validate.yml",
+          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+        },
+        {
+          "repository": "editor",
+          "path": ".github/workflows/validate.yml",
+          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+        },
+        {
+          "repository": "protocol",
+          "path": ".github/workflows/validate.yml",
+          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+        },
+        {
+          "repository": "renderer",
+          "path": ".github/workflows/validate.yml",
+          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+        },
+        {
+          "repository": "server",
+          "path": ".github/workflows/validate.yml",
+          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+        },
+        {
+          "repository": "website",
+          "path": ".github/workflows/validate.yml",
+          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
         }
       ]
     },
@@ -621,7 +663,9 @@
       "kind": "github-action",
       "owner": "github-settings",
       "scope": [
-        "classic"
+        "classic",
+        "client",
+        "editor"
       ],
       "required": true,
       "version": "v8",
@@ -648,6 +692,53 @@
           "repository": "classic",
           "path": ".github/workflows/package-release.yml",
           "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+        },
+        {
+          "repository": "client",
+          "path": ".github/workflows/package-release.yml",
+          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+        },
+        {
+          "repository": "editor",
+          "path": ".github/workflows/package-release.yml",
+          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+        }
+      ]
+    },
+    {
+      "id": "action/actions-setup-go",
+      "name": "actions/setup-go",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "protocol",
+        "server"
+      ],
+      "required": true,
+      "version": "v6.0.0",
+      "version_source": "Reviewed upstream release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/setup-go",
+      "locator": "actions/setup-go",
+      "commit": "924ae3a1cded613372ab5595356fb5720e22ba16",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade the action with the supported Go toolchain or replace it",
+      "validation": "Actionlint plus Linux and Windows server validation",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "protocol",
+          "path": ".github/workflows/validate.yml",
+          "contains": "actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.0.0"
+        },
+        {
+          "repository": "server",
+          "path": ".github/workflows/validate.yml",
+          "contains": "actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.0.0"
         }
       ]
     },
@@ -659,7 +750,21 @@
       "scope": [
         "atrinik",
         "classic",
-        "metaserver-worker"
+        "client",
+        "content",
+        "content-1x",
+        "content-toolkit",
+        "devcontainer",
+        "editor",
+        "github-settings",
+        "metaserver-worker",
+        "protocol",
+        "renderer",
+        "resources",
+        "server",
+        "sound",
+        "tools",
+        "website"
       ],
       "required": true,
       "version": "v7.0.0",
@@ -684,6 +789,76 @@
         },
         {
           "repository": "classic",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "client",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "content",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "content-1x",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "content-toolkit",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "devcontainer",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "editor",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "github-settings",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "protocol",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "renderer",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "resources",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "server",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "sound",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "tools",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "website",
           "path": ".github/workflows/release.yml",
           "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
         }
@@ -735,7 +910,9 @@
       "owner": "github-settings",
       "scope": [
         "atrinik",
-        "classic"
+        "classic",
+        "client",
+        "editor"
       ],
       "required": true,
       "version": "v7",
@@ -761,6 +938,16 @@
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
+          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+        },
+        {
+          "repository": "client",
+          "path": ".github/workflows/package-release.yml",
+          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+        },
+        {
+          "repository": "editor",
+          "path": ".github/workflows/package-release.yml",
           "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
         }
       ]
@@ -1706,6 +1893,264 @@
       ]
     },
     {
+      "id": "language/replacement-client-cargo",
+      "name": "Replacement client Cargo dependency graph",
+      "kind": "language-package-set",
+      "owner": "client",
+      "scope": ["client"],
+      "required": true,
+      "version": "Cargo.lock-v4",
+      "version_source": "Cargo.lock, workspace manifests, and policy/dependencies.json",
+      "license": "NOASSERTION",
+      "source_url": "https://crates.io/",
+      "locator": "pkg:cargo/atrinik-client@0.1.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Cargo installs the exact locked graph; CI builds SDL from the locked crate source",
+      "update_cadence_days": 7,
+      "update_mechanism": "Grouped Dependabot Cargo updates plus monthly policy review",
+      "eol_response": "Upgrade, replace, or remove unsupported crates before release",
+      "validation": "cargo metadata, locked build/test/Clippy, cargo-deny, Linux/Windows validation, and Syft SBOM",
+      "disposition": "retain",
+      "packages": ["sdl3", "sha2"],
+      "evidence": [
+        {"repository":"client","path":"Cargo.lock","contains":"version = 4"},
+        {"repository":"client","path":"Cargo.toml","contains":"[workspace]"},
+        {"repository":"client","path":"crates/atrinik-actions/Cargo.toml","contains":"name = \"atrinik-actions\""},
+        {"repository":"client","path":"crates/atrinik-client/Cargo.toml","contains":"name = \"atrinik-client\""},
+        {"repository":"client","path":"crates/atrinik-config-cache/Cargo.toml","contains":"name = \"atrinik-config-cache\""},
+        {"repository":"client","path":"crates/atrinik-platform/Cargo.toml","contains":"name = \"atrinik-platform\""},
+        {"repository":"client","path":"crates/atrinik-protocol-adapter/Cargo.toml","contains":"name = \"atrinik-protocol-adapter\""},
+        {"repository":"client","path":"crates/atrinik-scene-adapter/Cargo.toml","contains":"name = \"atrinik-scene-adapter\""},
+        {"repository":"client","path":"crates/atrinik-session/Cargo.toml","contains":"name = \"atrinik-session\""},
+        {"repository":"client","path":"crates/atrinik-testkit/Cargo.toml","contains":"name = \"atrinik-testkit\""},
+        {"repository":"client","path":"crates/atrinik-ui-model/Cargo.toml","contains":"name = \"atrinik-ui-model\""},
+        {"repository":"client","path":"deny.toml","contains":"[licenses]"},
+        {"repository":"client","path":"policy/dependencies.json","contains":"\"owner\": \"client maintainers\""},
+        {"repository":"client","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""}
+      ]
+    },
+    {
+      "id": "language/replacement-content-toolkit-cargo",
+      "name": "Replacement content-toolkit Cargo dependency graph",
+      "kind": "language-package-set",
+      "owner": "content-toolkit",
+      "scope": ["content-toolkit"],
+      "required": true,
+      "version": "Cargo.lock-v4",
+      "version_source": "Cargo.lock, workspace manifests, and policy/dependencies.json",
+      "license": "NOASSERTION",
+      "source_url": "https://crates.io/",
+      "locator": "pkg:cargo/atrinik-content@0.1.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Cargo installs the exact locked graph",
+      "update_cadence_days": 7,
+      "update_mechanism": "Grouped Dependabot Cargo updates plus monthly policy review",
+      "eol_response": "Upgrade, replace, or remove unsupported crates before release",
+      "validation": "cargo metadata, locked build/test/Clippy, provenance checks, Trivy, and Syft SBOM",
+      "disposition": "retain",
+      "packages": ["sha2"],
+      "evidence": [
+        {"repository":"content-toolkit","path":"Cargo.lock","contains":"version = 4"},
+        {"repository":"content-toolkit","path":"Cargo.toml","contains":"[workspace]"},
+        {"repository":"content-toolkit","path":"crates/atrinik-artifact/Cargo.toml","contains":"name = \"atrinik-artifact\""},
+        {"repository":"content-toolkit","path":"crates/atrinik-catalog/Cargo.toml","contains":"name = \"atrinik-catalog\""},
+        {"repository":"content-toolkit","path":"crates/atrinik-content/Cargo.toml","contains":"name = \"atrinik-content\""},
+        {"repository":"content-toolkit","path":"crates/atrinik-diagnostics/Cargo.toml","contains":"name = \"atrinik-diagnostics\""},
+        {"repository":"content-toolkit","path":"crates/atrinik-schema/Cargo.toml","contains":"name = \"atrinik-schema\""},
+        {"repository":"content-toolkit","path":"crates/atrinik-source/Cargo.toml","contains":"name = \"atrinik-source\""},
+        {"repository":"content-toolkit","path":"crates/atrinik-testkit/Cargo.toml","contains":"name = \"atrinik-testkit\""},
+        {"repository":"content-toolkit","path":"crates/atrinik-transaction/Cargo.toml","contains":"name = \"atrinik-transaction\""},
+        {"repository":"content-toolkit","path":"policy/dependencies.json","contains":"\"name\": \"sha2\""},
+        {"repository":"content-toolkit","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""}
+      ]
+    },
+    {
+      "id": "language/replacement-editor-cargo",
+      "name": "Replacement editor Cargo dependency graph",
+      "kind": "language-package-set",
+      "owner": "editor",
+      "scope": ["editor"],
+      "required": true,
+      "version": "Cargo.lock-v4",
+      "version_source": "Cargo.lock, workspace manifests, and policy/dependencies.json",
+      "license": "NOASSERTION",
+      "source_url": "https://crates.io/",
+      "locator": "pkg:cargo/atrinik-editor@0.1.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Cargo installs the exact locked crates.io and immutable released-source graph",
+      "update_cadence_days": 7,
+      "update_mechanism": "Grouped Dependabot Cargo updates plus monthly policy review",
+      "eol_response": "Upgrade, replace, or remove unsupported crates and released Atrinik contracts before release",
+      "validation": "cargo metadata, locked build/test/Clippy, cargo-deny, Linux/Windows packages, and Syft SBOM",
+      "disposition": "retain",
+      "packages": ["atrinik-render-api", "atrinik-render-resources", "atrinik-scene", "atrinik-source", "atrinik-transaction", "sdl3"],
+      "evidence": [
+        {"repository":"editor","path":"Cargo.lock","contains":"version = 4"},
+        {"repository":"editor","path":"Cargo.toml","contains":"[workspace]"},
+        {"repository":"editor","path":"crates/atrinik-editor-app/Cargo.toml","contains":"name = \"atrinik-editor\""},
+        {"repository":"editor","path":"crates/atrinik-editor-commands/Cargo.toml","contains":"name = \"atrinik-editor-commands\""},
+        {"repository":"editor","path":"crates/atrinik-editor-document/Cargo.toml","contains":"name = \"atrinik-editor-document\""},
+        {"repository":"editor","path":"crates/atrinik-editor-preview/Cargo.toml","contains":"name = \"atrinik-editor-preview\""},
+        {"repository":"editor","path":"crates/atrinik-editor-project/Cargo.toml","contains":"name = \"atrinik-editor-project\""},
+        {"repository":"editor","path":"crates/atrinik-editor-testkit/Cargo.toml","contains":"name = \"atrinik-editor-testkit\""},
+        {"repository":"editor","path":"crates/atrinik-editor-ui/Cargo.toml","contains":"name = \"atrinik-editor-ui\""},
+        {"repository":"editor","path":"deny.toml","contains":"[licenses]"},
+        {"repository":"editor","path":"policy/dependencies.json","contains":"\"owner\": \"editor maintainers\""},
+        {"repository":"editor","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""}
+      ]
+    },
+    {
+      "id": "language/replacement-protocol-graphs",
+      "name": "Replacement protocol Buf, Cargo, and Go dependency graphs",
+      "kind": "language-package-set",
+      "owner": "protocol",
+      "scope": ["protocol"],
+      "required": true,
+      "version": "Buf-v2; Cargo.lock-v4; Go-1.26.0",
+      "version_source": "Buf configuration, Cargo.lock, go.mod, go.sum, and policy/dependencies.json",
+      "license": "NOASSERTION",
+      "source_url": "https://buf.build/",
+      "locator": "pkg:generic/atrinik-protocol-build@1",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Buf and local pinned generators produce bindings; Cargo and Go install exact locked/module graphs",
+      "update_cadence_days": 7,
+      "update_mechanism": "Grouped Dependabot Cargo/Go updates and reviewed Buf generator changes",
+      "eol_response": "Upgrade generators and package graphs together or stop publication before incompatibility",
+      "validation": "Buf lint/breaking checks, generated drift, Go tests/vet, Rust test/Clippy, and Syft SBOM",
+      "disposition": "retain",
+      "packages": ["buf", "bytes", "google.golang.org/protobuf", "prost", "protoc-gen-go", "protoc-gen-prost"],
+      "evidence": [
+        {"repository":"protocol","path":"Cargo.lock","contains":"version = 4"},
+        {"repository":"protocol","path":"Cargo.toml","contains":"[workspace]"},
+        {"repository":"protocol","path":"buf.gen.yaml","contains":"version: v2"},
+        {"repository":"protocol","path":"buf.yaml","contains":"version: v2"},
+        {"repository":"protocol","path":"crates/atrinik-protocol/Cargo.toml","contains":"name = \"atrinik-protocol\""},
+        {"repository":"protocol","path":"go.mod","contains":"module github.com/atrinik/protocol"},
+        {"repository":"protocol","path":"go.sum","contains":"google.golang.org/protobuf v1.36.11"},
+        {"repository":"protocol","path":"policy/dependencies.json","contains":"\"name\": \"prost\""},
+        {"repository":"protocol","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""}
+      ]
+    },
+    {
+      "id": "language/replacement-renderer-cargo",
+      "name": "Replacement renderer Cargo dependency graph",
+      "kind": "language-package-set",
+      "owner": "renderer",
+      "scope": ["renderer"],
+      "required": true,
+      "version": "Cargo.lock-v4",
+      "version_source": "Cargo.lock, workspace manifests, and policy/dependencies.json",
+      "license": "NOASSERTION",
+      "source_url": "https://crates.io/",
+      "locator": "pkg:cargo/atrinik-render@0.1.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Cargo installs the exact locked graph; CI builds SDL from crate source and uses pinned wgpu/naga APIs",
+      "update_cadence_days": 7,
+      "update_mechanism": "Grouped Dependabot Cargo updates plus monthly GPU/backend policy review",
+      "eol_response": "Upgrade, replace, or remove unsupported crates and GPU backends before release",
+      "validation": "cargo metadata, locked build/test/Clippy, corpus checks, Trivy, and Syft SBOM",
+      "disposition": "retain",
+      "packages": ["bytemuck", "naga", "pollster", "sdl3", "sha2", "tempfile", "wgpu"],
+      "evidence": [
+        {"repository":"renderer","path":"Cargo.lock","contains":"version = 4"},
+        {"repository":"renderer","path":"Cargo.toml","contains":"[workspace]"},
+        {"repository":"renderer","path":"crates/atrinik-render-api/Cargo.toml","contains":"name = \"atrinik-render-api\""},
+        {"repository":"renderer","path":"crates/atrinik-render-resources/Cargo.toml","contains":"name = \"atrinik-render-resources\""},
+        {"repository":"renderer","path":"crates/atrinik-render-sdl3/Cargo.toml","contains":"name = \"atrinik-render-sdl3\""},
+        {"repository":"renderer","path":"crates/atrinik-render-testkit/Cargo.toml","contains":"name = \"atrinik-render-testkit\""},
+        {"repository":"renderer","path":"crates/atrinik-render-ui/Cargo.toml","contains":"name = \"atrinik-render-ui\""},
+        {"repository":"renderer","path":"crates/atrinik-render-wgpu/Cargo.toml","contains":"name = \"atrinik-render-wgpu\""},
+        {"repository":"renderer","path":"crates/atrinik-render/Cargo.toml","contains":"name = \"atrinik-render\""},
+        {"repository":"renderer","path":"crates/atrinik-scene/Cargo.toml","contains":"name = \"atrinik-scene\""},
+        {"repository":"renderer","path":"policy/dependencies.json","contains":"\"name\":\"wgpu\""},
+        {"repository":"renderer","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""}
+      ]
+    },
+    {
+      "id": "language/replacement-server-go",
+      "name": "Replacement server Go module graph",
+      "kind": "language-package-set",
+      "owner": "server",
+      "scope": ["server"],
+      "required": true,
+      "version": "Go-1.26.5",
+      "version_source": "go.mod, go.sum, and policy/dependencies.json",
+      "license": "NOASSERTION",
+      "source_url": "https://proxy.golang.org/",
+      "locator": "pkg:golang/github.com/atrinik/server@1.0.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Go verifies the exact module checksums in go.sum",
+      "update_cadence_days": 7,
+      "update_mechanism": "Grouped Dependabot Go modules updates plus monthly policy review",
+      "eol_response": "Upgrade, replace, or remove unsupported modules before release",
+      "validation": "go mod verify, go list, vet, race tests, govulncheck, go-licenses, and Syft SBOM",
+      "disposition": "retain",
+      "packages": ["github.com/cespare/xxhash/v2", "github.com/go-logr/logr", "github.com/go-logr/stdr", "go.opentelemetry.io/auto/sdk", "go.opentelemetry.io/otel", "go.opentelemetry.io/otel/metric", "go.opentelemetry.io/otel/trace"],
+      "evidence": [
+        {"repository":"server","path":"go.mod","contains":"module github.com/atrinik/server"},
+        {"repository":"server","path":"go.sum","contains":"github.com/cespare/xxhash/v2 v2.3.0"},
+        {"repository":"server","path":"policy/dependencies.json","contains":"\"name\": \"go.opentelemetry.io/otel\""}
+      ]
+    },
+    {
+      "id": "language/replacement-website-npm",
+      "name": "Replacement website npm dependency graph",
+      "kind": "language-package-set",
+      "owner": "website",
+      "scope": ["website"],
+      "required": true,
+      "version": "lockfileVersion-3",
+      "version_source": "package-lock.json and policy/dependencies.json",
+      "license": "NOASSERTION",
+      "source_url": "https://www.npmjs.com/",
+      "locator": "pkg:npm/%40atrinik/website@0.0.0-development",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "npm ci installs the exact package-lock graph with denied optional scripts omitted",
+      "update_cadence_days": 7,
+      "update_mechanism": "Grouped Dependabot npm updates constrained by Astro compatibility",
+      "eol_response": "Upgrade compatible packages on the supported Node line or replace them",
+      "validation": "npm ci, Astro/type/format tests, install-script audit, npm audit, deploy dry run, and npm CycloneDX SBOM",
+      "disposition": "retain",
+      "packages": ["@astrojs/check", "@semantic-release/commit-analyzer", "@semantic-release/exec", "@semantic-release/github", "@semantic-release/release-notes-generator", "astro", "conventional-changelog-conventionalcommits", "prettier", "prettier-plugin-astro", "semantic-release", "typescript"],
+      "evidence": [
+        {"repository":"website","path":"package-lock.json","contains":"\"lockfileVersion\": 3"},
+        {"repository":"website","path":"package.json","contains":"\"name\": \"@atrinik/website\""},
+        {"repository":"website","path":"policy/dependencies.json","contains":"\"schemaVersion\": 1"}
+      ]
+    },
+    {
+      "id": "language/tools-bot-python",
+      "name": "Classic bot Python package graph",
+      "kind": "language-package-set",
+      "owner": "tools",
+      "scope": ["tools"],
+      "required": true,
+      "version": "Python>=3.11; scikit-build-core>=0.10; aioquic>=1.2",
+      "version_source": "atrinik_bot/pyproject.toml",
+      "license": "NOASSERTION",
+      "source_url": "https://pypi.org/",
+      "locator": "pkg:pypi/atrinik-bot@0.1.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Python build isolation and optional operator environment install declared packages",
+      "update_cadence_days": 30,
+      "update_mechanism": "Dependabot pip review and classic bot build/test validation",
+      "eol_response": "Upgrade, replace, or retire the classic-only bot package before dependency EOL",
+      "validation": "CMake strict build, native/Python tests, compileall, and loopback security checks",
+      "disposition": "replace",
+      "packages": ["aioquic", "atrinik-protocol", "scikit-build-core"],
+      "evidence": [
+        {"repository":"tools","path":"atrinik_bot/pyproject.toml","contains":"scikit-build-core>=0.10"}
+      ]
+    },
+    {
       "id": "language/wrapper-python-development",
       "name": "Workspace Python development dependencies",
       "kind": "language-package-set",
@@ -1744,7 +2189,8 @@
       "kind": "source-archive",
       "owner": "content",
       "scope": [
-        "classic-server"
+        "classic-server",
+        "tools"
       ],
       "required": true,
       "version": "v1.2.0",
@@ -1806,7 +2252,8 @@
       "kind": "source-archive",
       "owner": "classic-server",
       "scope": [
-        "classic-server"
+        "classic-server",
+        "tools"
       ],
       "required": true,
       "version": "v1.1.5",
@@ -1828,7 +2275,37 @@
           "repository": "classic-server",
           "path": "cmake/dependencies.lock.json",
           "contains": "libatrinik-1.1.5.tar.gz"
+        },
+        {
+          "repository": "tools",
+          "path": "atrinik_bot/CMakeLists.txt",
+          "contains": "libatrinik-1.1.5.tar.gz"
         }
+      ]
+    },
+    {
+      "id": "source/atrinik-protocol-bot",
+      "name": "Atrinik protocol Python wheel for the classic bot",
+      "kind": "source-archive",
+      "owner": "tools",
+      "scope": ["tools"],
+      "required": true,
+      "version": "v1.0.9",
+      "version_source": "atrinik_bot/pyproject.toml exact wheel URL and fragment",
+      "license": "MIT",
+      "source_url": "https://github.com/atrinik/protocol/releases/tag/v1.0.9",
+      "locator": "pkg:pypi/atrinik-protocol@1.0.9",
+      "commit": null,
+      "checksum": "sha256:78954264fa49ac8736dbfc7a72669f619e0202e6ae15445a0b0839aa8f30eb8a",
+      "acquisition": "pip downloads the exact HTTPS release wheel and verifies the URL-fragment digest",
+      "update_cadence_days": 30,
+      "update_mechanism": "Protocol release review and bot contract tests",
+      "eol_response": "Update to a supported protocol binding or retire direct-protocol bot operation",
+      "validation": "pip hash verification, bot protocol tests, and migration parity against the client automation API",
+      "disposition": "replace",
+      "packages": [],
+      "evidence": [
+        {"repository":"tools","path":"atrinik_bot/pyproject.toml","contains":"atrinik_protocol-1.0.9-py3-none-any.whl#sha256=78954264fa49ac8736dbfc7a72669f619e0202e6ae15445a0b0839aa8f30eb8a"}
       ]
     },
     {
@@ -2945,6 +3422,32 @@
       ]
     },
     {
+      "id": "toolchain/buf",
+      "name": "Buf and Protobuf generation toolchain",
+      "kind": "toolchain",
+      "owner": "protocol",
+      "scope": ["protocol"],
+      "required": true,
+      "version": "Buf 1.72.0; Protobuf 35.0; protoc-gen-go 1.36.11; protoc-gen-prost 0.5.0",
+      "version_source": "Protocol README and tools/generate.sh exact version gates",
+      "license": "Apache-2.0",
+      "source_url": "https://github.com/bufbuild/buf",
+      "locator": "pkg:github/bufbuild/buf@v1.72.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Pinned devcontainer toolchain packages and local exact-version gates",
+      "update_cadence_days": 30,
+      "update_mechanism": "Coordinated protocol generator and devcontainer review",
+      "eol_response": "Upgrade schemas, generators, baseline fixtures, and toolchain image together",
+      "validation": "Exact version gates, Buf format/lint/breaking checks, and generated-output drift",
+      "disposition": "retain",
+      "packages": ["buf", "protoc", "protoc-gen-go", "protoc-gen-prost"],
+      "evidence": [
+        {"repository":"protocol","path":"README.md","contains":"Buf 1.72.0"},
+        {"repository":"protocol","path":"tools/generate.sh","contains":"test \"$(buf --version)\" = 1.72.0"}
+      ]
+    },
+    {
       "id": "toolchain/cmake",
       "name": "CMake",
       "kind": "toolchain",
@@ -2954,7 +3457,8 @@
         "classic-libatrinik",
         "classic-protocol",
         "classic-server",
-        "devcontainer"
+        "devcontainer",
+        "tools"
       ],
       "required": true,
       "version": ">=3.21",
@@ -2997,6 +3501,11 @@
         {
           "repository": "classic-server",
           "path": "CMakeLists.txt",
+          "contains": "cmake_minimum_required(VERSION 3.21)"
+        },
+        {
+          "repository": "tools",
+          "path": "atrinik_bot/CMakeLists.txt",
           "contains": "cmake_minimum_required(VERSION 3.21)"
         }
       ]
@@ -3042,14 +3551,21 @@
       "scope": [
         "atrinik",
         "classic",
+        "client",
         "content",
         "content-1x",
+        "content-toolkit",
         "devcontainer",
+        "editor",
         "github-settings",
         "metaserver-worker",
+        "protocol",
+        "renderer",
         "resources",
+        "server",
         "sound",
-        "tools"
+        "tools",
+        "website"
       ],
       "required": true,
       "version": "ubuntu-24.04",
@@ -3078,6 +3594,11 @@
           "contains": "runs-on: ubuntu-24.04"
         },
         {
+          "repository": "client",
+          "path": ".github/workflows/validate.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
           "repository": "content",
           "path": ".github/workflows/check.yml",
           "contains": "runs-on: ubuntu-24.04"
@@ -3088,8 +3609,18 @@
           "contains": "runs-on: ubuntu-24.04"
         },
         {
+          "repository": "content-toolkit",
+          "path": ".github/workflows/validate.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
           "repository": "devcontainer",
           "path": ".github/workflows/pr-title.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "editor",
+          "path": ".github/workflows/validate.yml",
           "contains": "runs-on: ubuntu-24.04"
         },
         {
@@ -3103,8 +3634,23 @@
           "contains": "runs-on: ubuntu-24.04"
         },
         {
+          "repository": "protocol",
+          "path": ".github/workflows/validate.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "renderer",
+          "path": ".github/workflows/validate.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
           "repository": "resources",
           "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "server",
+          "path": ".github/workflows/validate.yml",
           "contains": "runs-on: ubuntu-24.04"
         },
         {
@@ -3115,6 +3661,11 @@
         {
           "repository": "tools",
           "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "website",
+          "path": ".github/workflows/validate.yml",
           "contains": "runs-on: ubuntu-24.04"
         }
       ]
@@ -3151,6 +3702,62 @@
       ]
     },
     {
+      "id": "toolchain/github-hosted-windows-2025",
+      "name": "GitHub-hosted Windows 2025 runner",
+      "kind": "toolchain",
+      "owner": "github-settings",
+      "scope": ["client", "content", "content-1x", "editor", "server", "website"],
+      "required": true,
+      "version": "windows-2025",
+      "version_source": "Explicit GitHub Actions runner label and generated version report",
+      "license": "LicenseRef-GitHub-Hosted-Runner",
+      "source_url": "https://github.com/actions/runner-images",
+      "locator": "github-hosted-runner/windows-2025",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "GitHub Actions provisions the explicit hosted runner image",
+      "update_cadence_days": 7,
+      "update_mechanism": "Scheduled supply-chain audit and runner-image review",
+      "eol_response": "Move all consumers to a supported immutable-label generation before removal",
+      "validation": "Windows validation and packaging jobs plus generated tool version report",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {"repository":"client","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
+        {"repository":"content","path":".github/workflows/check.yml","contains":"- windows-2025"},
+        {"repository":"content-1x","path":".github/workflows/check.yml","contains":"- windows-2025"},
+        {"repository":"editor","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
+        {"repository":"server","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
+        {"repository":"website","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"}
+      ]
+    },
+    {
+      "id": "toolchain/go",
+      "name": "Go replacement toolchain",
+      "kind": "toolchain",
+      "owner": "server",
+      "scope": ["protocol", "server"],
+      "required": true,
+      "version": "1.26.5",
+      "version_source": "Server .go-version and protocol/server module/tool policy",
+      "license": "BSD-3-Clause",
+      "source_url": "https://go.dev/dl/",
+      "locator": "pkg:generic/go@1.26.5",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Pinned devcontainer image and actions/setup-go module-file resolution",
+      "update_cadence_days": 30,
+      "update_mechanism": "Coordinated devcontainer, module, and workflow update",
+      "eol_response": "Upgrade both replacement consumers before the Go release loses support",
+      "validation": "Exact go directives, setup-go CI, go mod verify, vet, race/fuzz tests, and release metadata",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {"repository":"protocol","path":"README.md","contains":"Go 1.26.5"},
+        {"repository":"server","path":".go-version","contains":"1.26.5"}
+      ]
+    },
+    {
       "id": "toolchain/node",
       "name": "Node.js",
       "kind": "toolchain",
@@ -3158,11 +3765,25 @@
       "scope": [
         "atrinik",
         "classic",
-        "metaserver-worker"
+        "client",
+        "content",
+        "content-1x",
+        "content-toolkit",
+        "devcontainer",
+        "editor",
+        "github-settings",
+        "metaserver-worker",
+        "protocol",
+        "renderer",
+        "resources",
+        "server",
+        "sound",
+        "tools",
+        "website"
       ],
       "required": true,
-      "version": ">=20; wrapper release 22; Classic release 24",
-      "version_source": "Worker package engines and exact release workflow lines",
+      "version": ">=20; wrapper release 22; Classic release 24; replacement releases 24.18.1",
+      "version_source": "Worker/website package engines and exact release workflow lines",
       "license": "MIT",
       "source_url": "https://nodejs.org/",
       "locator": "pkg:generic/node",
@@ -3190,9 +3811,79 @@
           "contains": "node-version: \"24\""
         },
         {
+          "repository": "client",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "content",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "content-1x",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "content-toolkit",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "devcontainer",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "editor",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "github-settings",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
           "repository": "metaserver-worker",
           "path": "package.json",
           "contains": "\"node\": \">=20\""
+        },
+        {
+          "repository": "protocol",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "renderer",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "resources",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "server",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "sound",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "tools",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "website",
+          "path": "package.json",
+          "contains": "\"node\": \">=24.18.1 <25\""
         }
       ]
     },
@@ -3250,6 +3941,35 @@
           "path": "windows/Dockerfile",
           "contains": "PYTHON_VERSION=3.14.6"
         }
+      ]
+    },
+    {
+      "id": "toolchain/rust",
+      "name": "Rust replacement toolchain",
+      "kind": "toolchain",
+      "owner": "renderer",
+      "scope": ["client", "content-toolkit", "editor", "protocol", "renderer"],
+      "required": true,
+      "version": "1.97.1",
+      "version_source": "Repository rust-toolchain.toml files",
+      "license": "Apache-2.0",
+      "source_url": "https://static.rust-lang.org/",
+      "locator": "pkg:generic/rust@1.97.1",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "rustup installs the exact minimal toolchain selected by each repository",
+      "update_cadence_days": 30,
+      "update_mechanism": "Coordinated rust-toolchain, MSRV, devcontainer, and dependency review",
+      "eol_response": "Upgrade all replacement Rust repositories before the toolchain loses support",
+      "validation": "Exact toolchain files, formatting, Clippy warnings-as-errors, tests, and Linux/Windows builds",
+      "disposition": "retain",
+      "packages": ["clippy", "rustfmt"],
+      "evidence": [
+        {"repository":"client","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""},
+        {"repository":"content-toolkit","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""},
+        {"repository":"editor","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""},
+        {"repository":"protocol","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""},
+        {"repository":"renderer","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""}
       ]
     },
     {
