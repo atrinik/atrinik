@@ -92,7 +92,10 @@ value, and an `npx` invocation is owned only when the same workflow first pins
 an immutable `setup-node` action. For a shared monorepo checkout, only the root
 repository workflows and Dependabot file are active GitHub metadata; logical
 source audits exclude imported nested copies while continuing to audit their
-dependency inputs. Explicit worktree overrides are
+dependency inputs. A named profile audit refuses to run unless every
+audit-ready component in the stack is initialized or explicitly overridden;
+absence cannot degrade a complete audit into a partial report. Explicit
+worktree overrides are
 absolute and must match the expected repository and branch identity. A review
 branch for a repeated coordinate must share the expected checkout primary's
 common Git directory, preventing `content` and `content-1x` from being

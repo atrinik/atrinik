@@ -1420,7 +1420,7 @@ jobs:
             "components": [
                 {
                     "component": name,
-                    "initialized": False,
+                    "initialized": name != "resources",
                     "path": f"/workspace/profile/{name}",
                 }
                 for name in default_components
@@ -1494,8 +1494,8 @@ jobs:
 
         self.assertEqual(roots["atrinik"], ROOT)
         self.assertEqual(roots["resources"], path)
-        self.assertNotIn("server", roots)
-        self.assertNotIn("client", roots)
+        self.assertIn("server", roots)
+        self.assertIn("client", roots)
 
     def test_repository_override_accepts_fork_origin_and_canonical_upstream(self) -> None:
         workspace = mock.Mock()
@@ -1508,7 +1508,7 @@ jobs:
             "components": [
                 {
                     "component": name,
-                    "initialized": False,
+                    "initialized": name != "resources",
                     "path": f"/workspace/review/{name}",
                 }
                 for name in default_components
@@ -1578,7 +1578,7 @@ jobs:
                     ROOT, workspace, "review", [f"resources={review}"]
                 )
 
-    def test_repository_roots_keep_duplicate_coordinates_profile_scoped(self) -> None:
+    def test_repository_roots_reject_incomplete_profiles(self) -> None:
         workspace = mock.Mock()
         classic_components = json.loads(
             (ROOT / "components.json").read_text(encoding="utf-8")
@@ -1596,11 +1596,11 @@ jobs:
             ],
         }
 
-        roots = repository_roots(ROOT, workspace, "classic-review")
-
-        self.assertIn("content-1x", roots)
-        self.assertNotIn("content", roots)
-        self.assertNotIn("classic-server", roots)
+        with self.assertRaisesRegex(
+            WorkspaceError,
+            "profile classic-review is incomplete.*classic-client.*tools",
+        ):
+            repository_roots(ROOT, workspace, "classic-review")
 
     def test_repository_roots_add_one_classic_checkout_metadata_root(self) -> None:
         workspace = mock.Mock()
@@ -1617,7 +1617,7 @@ jobs:
             "components": [
                 {
                     "component": name,
-                    "initialized": components[name]["checkout"] == "classic",
+                    "initialized": True,
                     "checkout_path": (
                         "/workspace/classic"
                         if components[name]["checkout"] == "classic"
@@ -1656,7 +1656,7 @@ jobs:
             "components": [
                 {
                     "component": name,
-                    "initialized": component_documents[name]["checkout"] == "classic",
+                    "initialized": True,
                     "checkout_path": (
                         "/workspace/classic"
                         if component_documents[name]["checkout"] == "classic"

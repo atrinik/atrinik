@@ -96,6 +96,8 @@ Dependency-input discovery covers npm, Cargo, Go, Buf, Rust-toolchain, and
 repository dependency-policy manifests. Workflow audits accept only literal
 runners or statically enumerated matrix runner values, and every `npx` use must
 be preceded in the same workflow by an immutable `setup-node` action.
+An audit of a named profile is complete-or-fail: every audit-ready component in
+that stack must be initialized or supplied through a verified override.
 When auditing a wrapper worktree that cannot safely share its containing
 workspace directory, use repeated absolute `--repository NAME=PATH` overrides;
 the command verifies each override's GitHub repository and branch identity
