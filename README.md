@@ -105,6 +105,10 @@ component source roots, rejects unowned dependency inputs, movable
 workflow/image references, and submodules, prints exact available tool
 versions, and publishes
 separate deterministic license, CycloneDX, and SPDX artifacts for each stack.
+Dependency-input discovery covers npm, Cargo, Go, Buf, Rust-toolchain, and
+repository dependency-policy manifests. Workflow audits accept only literal
+runners or statically enumerated matrix runner values, and every `npx` use must
+be preceded in the same workflow by an immutable `setup-node` action.
 When auditing review code, initialize the complete profile beside that wrapper
 checkout and use repeated absolute `--repository NAME=PATH` overrides only for
 the components under review. The command verifies each override's GitHub
@@ -122,6 +126,12 @@ The approved grantor registry is exhaustive:
 | Zoey Rose | All original past Atrinik contributions solely authored by Zoey Rose | Copy, migrate, translate, or relicense | MIT |
 | Daniel Liptrot | All original past Atrinik contributions solely authored by Daniel Liptrot | Copy, migrate, translate, or relicense | MIT |
 
+The cross-repository M1 evidence and exact reuse procedure are indexed in
+[`docs/REPLACEMENT_FOUNDATIONS.md`](docs/REPLACEMENT_FOUNDATIONS.md). The
+machine record maps every fresh repository to its local CI, provenance,
+dependency, notices, packaging, SBOM, and mixed-license gates without making
+this coordinator a second copy of their implementation policy.
+
 Apply a grant only after a complete, non-shallow Git-history audit follows
 renames and moves, proves the selected material is the named grantor's original
 work and was solely authored by that grantor, and verifies historical author
@@ -132,6 +142,12 @@ destination pull request or committed provenance manifest records the exact
 source, revision, destination, history and identity evidence, transformation,
 third-party review, applicable grantor and grant, and exact wrapper repository
 revision containing the registry entry as grant evidence.
+
+The GPL classic utilities and their user-facing replacement/retirement paths
+are inventoried in
+[`docs/CLASSIC_TOOLS_MIGRATION.md`](docs/CLASSIC_TOOLS_MIGRATION.md). They are
+available only through the explicit classic cohort and are not a production
+replacement build or runtime dependency.
 
 ## Component sets and quick start
 
@@ -147,9 +163,10 @@ initialization cohort. That includes the replacement MIT `server`, `client`,
 `content` from `atrinik/content@main`; compatible shared resources, sound, and
 metaserver code; and required development infrastructure. It does not clone
 `atrinik/classic`, `atrinik/content@1.x`, or the GPL `tools` repository.
-The replacement repositories are intentionally seed repositories: until their
-component build and runtime contracts land, `default` is inspectable and
-editable but is not yet a buildable or runnable game profile.
+The replacement repositories have independently validated M1 build, package,
+provenance, and dependency contracts. Their wrapper manifest build/runtime
+adapters and complete service integration have not landed, so `default` is
+inspectable and editable but is not yet a buildable or runnable game profile.
 
 Add the complete currently playable classic stack explicitly:
 
@@ -685,7 +702,7 @@ one another, while the common state makes the comparison repeatable.
 
 ### Use case: run classic and replacement topologies at the same time
 
-Once the replacement repositories have build and runtime contracts, use
+Once the wrapper's replacement composition and runtime contracts land, use
 distinct profiles, topology names, server states, and ports to run `classic`
 beside `default`. This is the required isolation pattern; today only the
 classic command is runnable:
@@ -812,6 +829,6 @@ python3 -m compileall -q atrinik atrinik_workspace tests
 ~~~
 
 Use `./atrinik build COMPONENT --profile classic --test` for current native
-component integration. The replacement seeds intentionally fail with a
-clear unavailable-contract error until their build support lands. The
+component integration. Replacement components still fail with a clear
+unavailable-contract error until their wrapper build adapters land. The
 `metaserver-worker` contract always runs its complete `npm run check` suite.

@@ -44,10 +44,11 @@
   Records lacking the current immutable coordinate shape are historical and
   inert; never reinterpret them through the current manifest.
 - Replacement `server`, `client`, `editor`, `protocol`, `renderer`,
-  `content-toolkit`, and `website` repositories are seeds until their own build
-  and runtime contracts land. Do not route `default` through classic code or
-  claim it is currently runnable. Current game build/runtime verification uses
-  a profile created from `classic`.
+  `content-toolkit`, and `website` repositories have validated standalone M1
+  foundations. Their wrapper build/runtime adapters and integrated service
+  closure have not landed. Do not route `default` through classic code or claim
+  it is currently runnable. Current game build/runtime verification uses a
+  profile created from `classic`.
 - Give concurrent topologies distinct names and server states. A concurrent
   classic/replacement comparison also uses distinct `classic`/`default`
   profiles and generated roots. Let `up` choose ports or assign distinct

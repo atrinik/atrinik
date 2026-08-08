@@ -1,0 +1,51 @@
+# Classic tools ownership and migration
+
+[`governance/classic-tools.json`](../governance/classic-tools.json) inventories
+every supported top-level entry point in `atrinik/tools` at
+`80f14561b9090b1573a89feaf75053a490a891bc`. The repository is complete-history
+GPL-2.0-or-later evidence and remains an explicit optional member of the
+classic cohort only. Plain `./atrinik init` and the `default` profile neither
+select it nor depend on it for a build or runtime.
+
+| Old command/workflow | Replacement or removal | Owner and gate |
+| --- | --- | --- |
+| `python3 -m atrinik_bot` and bot utilities | Migrate policy to the released local automation SDK and headless client, then remove the duplicate transport/model | `atrinik/client#18`, M4 |
+| Gridarta type/material converters | Bounded editor import/conversion commands | `atrinik/editor#11`, M4 |
+| `python3 map-checker-qt/map-checker.py --cli` | `atrinik-content check`; retain the Qt checker until diagnostic parity | `atrinik/content-toolkit#8`, M4 |
+| Python 2/PyGTK map checker | Retire; use the Qt checker during migration | `atrinik/content-toolkit#8`, M4 |
+| `python2 map-maker/build.py ...` | Retire mixed package; use independent editor packages and wrapper-managed services | `atrinik/editor#11`, M4 |
+| `python3 mapset/mapset.py` | Bounded, lossless `atrinik-content` batch/query operations | `atrinik/content-toolkit#8`, M4 |
+| `randomizer/random` | Deterministic content-toolkit generation if retained use is proven | `atrinik/content-toolkit#8`, M4 |
+| `split_symbols.sh` and `stacktrace.py` | Keep only for disposable classic release diagnostics; replacement owners use native Go/Rust symbol tooling | `atrinik/classic#4`, M6 |
+| `php -S ... -t worldviewer` | Deterministic renderer imagery and projection metadata | `atrinik/renderer#13`, M6 |
+
+The JSON record is authoritative for paths, consumers, inputs, outputs, current
+usage, license method, security controls, and exact verification. A replacement
+owner may use behavior and fixtures as public compatibility evidence, but may
+not translate mixed GPL implementation. A provenance grant is considered only
+after the full root process in
+[`REPLACEMENT_FOUNDATIONS.md`](REPLACEMENT_FOUNDATIONS.md) proves a separable
+candidate.
+
+The final tools support gate is zero unowned entry points, passing replacement
+parity/safety fixtures, migrated user documentation, and preservation of the
+GPL history and releases. Until then, tools are optional classic operator
+utilities—not a hidden dependency of classic services and never a dependency
+of a production replacement build or runtime.
+
+## Classic repository disposition
+
+Operational classic development is owned only by `atrinik/classic`, with
+logical sources at `client/`, `server/`, `editor/`, `libatrinik/`, and
+`protocol/`. `components.json`, profiles, the supply-chain inventory, and
+GitHub desired state use that checkout. References to former `legacy-*`
+repositories are limited to checked local-worktree migration, archived source
+history, and immutable historical release inputs.
+
+The ported classic client PR was preserved and explicitly closed after green CI
+and review because its broad feature architecture exceeded the classic
+critical-maintenance boundary and duplicated the released MIT client
+foundation. It was not silently merged. The former repositories remain
+archived read-only; the wrapper migration retains recoverable local work and
+the supply-chain catalog resolves active module paths through `atrinik/classic`.
+
