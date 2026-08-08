@@ -40,14 +40,23 @@ FROM_PATTERN = re.compile(
 SYNTAX_PATTERN = re.compile(r"^\s*#\s*syntax=([^\s]+)", re.IGNORECASE | re.MULTILINE)
 DOCKER_PULL_PATTERN = re.compile(r"\bdocker\s+pull\s+([^\s'\"\\]+)")
 RUNNER_PATTERN = re.compile(r"^\s*runs-on:\s*(.*?)\s*$", re.MULTILINE)
+NPX_PATTERN = re.compile(r"(?:^|[\s;])npx(?:[\s\\]|$)", re.MULTILINE)
 DEPENDENCY_FILE_NAMES = {
+    "Cargo.lock",
+    "Cargo.toml",
+    "buf.gen.yaml",
+    "buf.yaml",
     "catalog.lock.json",
     "dependencies.lock.json",
     "devcontainer-lock.json",
+    "deny.toml",
+    "go.mod",
+    "go.sum",
     "package-lock.json",
     "package.json",
     "pyproject.toml",
     "requirements-dev.txt",
+    "rust-toolchain.toml",
 }
 VENDORED_FILE_NAMES = {"uthash.h", "utarray.h", "utlist.h"}
 DEPENDENCY_KINDS = {
@@ -470,6 +479,11 @@ class Inventory:
                 path for path in tracked if path.startswith(".github/workflows/") and path.endswith((".yml", ".yaml"))
             ):
                 text = _read_metadata(root / relative)
+                if _workflow_uses_unpinned_npx(text):
+                    raise WorkspaceError(
+                        f"{repository_name}/{relative}: npx requires an immutable "
+                        "actions/setup-node step in the same workflow"
+                    )
                 for match in USES_DECLARATION_PATTERN.finditer(text):
                     reference = match.group(1).partition("#")[0].strip()
                     if reference.startswith("./"):
@@ -526,13 +540,7 @@ class Inventory:
                     _validate_container_reference(
                         self.dependencies, repository_name, relative, image
                     )
-                for match in RUNNER_PATTERN.finditer(text):
-                    runner = match.group(1).partition("#")[0].strip()
-                    if not re.fullmatch(r"[A-Za-z0-9_.-]+", runner):
-                        raise WorkspaceError(
-                            f"{repository_name}/{relative}: workflow runner must be "
-                            f"an explicit literal: {runner or '<empty>'}"
-                        )
+                for runner in _workflow_runners(text):
                     locator = f"github-hosted-runner/{runner}"
                     dependency = runner_dependencies.get(locator)
                     if dependency is None:
@@ -1205,6 +1213,8 @@ def _is_inert_checkout_github_metadata(relative: str) -> bool:
 
 def _is_dependency_input(relative: str, root: Path) -> bool:
     path = PurePosixPath(relative)
+    if relative == "policy/dependencies.json":
+        return True
     if path.name in DEPENDENCY_FILE_NAMES:
         return True
     if path.name in VENDORED_FILE_NAMES:
@@ -1221,6 +1231,147 @@ def _is_dependency_input(relative: str, root: Path) -> bool:
     }:
         return True
     return False
+
+
+def _workflow_runners(text: str) -> tuple[str, ...]:
+    runners: list[str] = []
+    for job in _workflow_job_blocks(text):
+        for match in RUNNER_PATTERN.finditer(job):
+            runner = match.group(1).partition("#")[0].strip()
+            if re.fullmatch(r"[A-Za-z0-9_.-]+", runner):
+                runners.append(runner)
+                continue
+
+            matrix = re.fullmatch(
+                r"\$\{\{\s*matrix\.([A-Za-z0-9_-]+)\s*\}\}", runner
+            )
+            if matrix is None:
+                raise WorkspaceError(
+                    "workflow runner must be an explicit literal or a statically "
+                    f"enumerated matrix value: {runner or '<empty>'}"
+                )
+            values = _static_matrix_values(job, matrix.group(1))
+            if not values:
+                raise WorkspaceError(
+                    f"workflow runner matrix {matrix.group(1)} has no static literals"
+                )
+            runners.extend(values)
+    return tuple(runners)
+
+
+def _workflow_uses_unpinned_npx(text: str) -> bool:
+    setup_pattern = re.compile(
+        r"^\s*(?:-\s*)?uses:\s*actions/setup-node@[0-9a-f]{40}", re.MULTILINE
+    )
+    for job in _workflow_job_blocks(text):
+        npx = NPX_PATTERN.search(job)
+        if npx is None:
+            continue
+        setup = setup_pattern.search(job)
+        if setup is None or setup.start() > npx.start():
+            return True
+    return False
+
+
+def _workflow_job_blocks(text: str) -> tuple[str, ...]:
+    lines = text.splitlines(keepends=True)
+    jobs_index = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if re.fullmatch(r"\s*jobs:\s*(?:#.*)?\n?", line)
+        ),
+        None,
+    )
+    if jobs_index is None:
+        return (text,)
+
+    jobs_indent = len(lines[jobs_index]) - len(lines[jobs_index].lstrip())
+    jobs_end = len(lines)
+    for index in range(jobs_index + 1, len(lines)):
+        line = lines[index]
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        if len(line) - len(line.lstrip()) <= jobs_indent:
+            jobs_end = index
+            break
+    candidates = [
+        len(line) - len(line.lstrip())
+        for line in lines[jobs_index + 1 : jobs_end]
+        if line.strip()
+        and not line.lstrip().startswith("#")
+        and len(line) - len(line.lstrip()) > jobs_indent
+    ]
+    if not candidates:
+        return ()
+    job_indent = min(candidates)
+    starts = [
+        index
+        for index, line in enumerate(
+            lines[jobs_index + 1 : jobs_end], jobs_index + 1
+        )
+        if len(line) - len(line.lstrip()) == job_indent
+        and re.fullmatch(r"\s*[A-Za-z0-9_.-]+:\s*(?:#.*)?\n?", line)
+    ]
+    return tuple(
+        "".join(
+            lines[
+                start : starts[offset + 1]
+                if offset + 1 < len(starts)
+                else jobs_end
+            ]
+        )
+        for offset, start in enumerate(starts)
+    )
+
+
+def _static_matrix_values(text: str, key: str) -> tuple[str, ...]:
+    values: set[str] = set()
+    lines = text.splitlines()
+    matrix_pattern = re.compile(r"^(\s*)matrix:\s*(?:#.*)?$")
+    key_pattern = re.compile(rf"^(\s*){re.escape(key)}:\s*$")
+    value_pattern = re.compile(r"^(\s*)-\s*([A-Za-z0-9_.-]+)\s*$")
+    for matrix_index, line in enumerate(lines):
+        matrix_match = matrix_pattern.fullmatch(line)
+        if matrix_match is None:
+            continue
+        matrix_indent = len(matrix_match.group(1))
+        block_end = len(lines)
+        for index in range(matrix_index + 1, len(lines)):
+            candidate = lines[index]
+            if not candidate.strip() or candidate.lstrip().startswith("#"):
+                continue
+            indent = len(candidate) - len(candidate.lstrip())
+            if indent <= matrix_indent:
+                block_end = index
+                break
+        child_indents = [
+            len(candidate) - len(candidate.lstrip())
+            for candidate in lines[matrix_index + 1 : block_end]
+            if candidate.strip() and not candidate.lstrip().startswith("#")
+        ]
+        if not child_indents:
+            continue
+        child_indent = min(child_indents)
+        for key_index in range(matrix_index + 1, block_end):
+            key_match = key_pattern.fullmatch(lines[key_index])
+            if key_match is None or len(key_match.group(1)) != child_indent:
+                continue
+            key_indent = len(key_match.group(1))
+            list_indent: int | None = None
+            for candidate in lines[key_index + 1 : block_end]:
+                if not candidate.strip() or candidate.lstrip().startswith("#"):
+                    continue
+                indent = len(candidate) - len(candidate.lstrip())
+                if indent <= key_indent:
+                    break
+                if list_indent is None:
+                    list_indent = indent
+                value_match = value_pattern.fullmatch(candidate)
+                if value_match is None or indent != list_indent:
+                    return ()
+                values.add(value_match.group(2))
+    return tuple(sorted(values))
 
 
 def _is_container_input(relative: str) -> bool:
@@ -1552,7 +1703,13 @@ def repository_roots(
             if candidate.repository == checkout.repository
         ]
         canonical: Path | None = None
-        if len(variants) > 1:
+        exact_primary = (
+            _git_current_branch(checkout_root) == checkout.branch
+            and _git_repository_branch_compatible(
+                checkout_root, component.branch, remote=remote
+            )
+        )
+        if len(variants) > 1 and not exact_primary:
             canonical_path = root / checkout.path
             if not canonical_path.is_dir() or canonical_path.is_symlink():
                 raise WorkspaceError(

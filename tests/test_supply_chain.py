@@ -35,6 +35,8 @@ from atrinik_workspace.supply_chain import (
     _text,
     _tracked_files,
     _validate_container_reference,
+    _workflow_runners,
+    _workflow_uses_unpinned_npx,
     repository_roots,
     report_component_commits,
     version_report,
@@ -649,7 +651,7 @@ class InventoryTests(unittest.TestCase):
             ("runs-on: mystery-runner", "unowned workflow runner"),
             ("uses: ${{ matrix.action }}", "unsupported external Action"),
             ("uses: ./../outside", "local Action escapes"),
-            ("runs-on: ${{ matrix.os }}", "runner must be an explicit literal"),
+            ("runs-on: ${{ matrix.os }}", "runner matrix os has no static literals"),
         ]
         for line, expected in cases:
             with self.subTest(expected=expected):
@@ -1165,6 +1167,14 @@ FROM toolchain AS final
             dependency.write_text("find_package(OpenSSL REQUIRED)\n", encoding="utf-8")
 
             self.assertTrue(_is_dependency_input("package.json", root))
+            self.assertTrue(_is_dependency_input("Cargo.lock", root))
+            self.assertTrue(_is_dependency_input("crates/example/Cargo.toml", root))
+            self.assertTrue(_is_dependency_input("go.mod", root))
+            self.assertTrue(_is_dependency_input("go.sum", root))
+            self.assertTrue(_is_dependency_input("buf.gen.yaml", root))
+            self.assertTrue(_is_dependency_input("rust-toolchain.toml", root))
+            self.assertTrue(_is_dependency_input("deny.toml", root))
+            self.assertTrue(_is_dependency_input("policy/dependencies.json", root))
             self.assertTrue(_is_dependency_input("vendor/uthash.h", root))
             self.assertTrue(_is_dependency_input("Dockerfile.release", root))
             self.assertFalse(_is_dependency_input("plain.cmake", root))
@@ -1176,6 +1186,76 @@ FROM toolchain AS final
             self.assertTrue(_is_container_input("Dockerfile.release"))
             self.assertTrue(_is_container_input(".devcontainer/devcontainer.json"))
             self.assertFalse(_is_container_input("package.json"))
+
+    def test_workflow_runners_accept_only_static_literals_and_matrices(self) -> None:
+        workflow = """
+jobs:
+  direct:
+    runs-on: ubuntu-24.04
+  matrix:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-24.04
+          - windows-2025
+    runs-on: ${{ matrix.os }}
+"""
+        self.assertEqual(
+            _workflow_runners(workflow),
+            ("ubuntu-24.04", "ubuntu-24.04", "windows-2025"),
+        )
+        with self.assertRaisesRegex(WorkspaceError, "statically enumerated"):
+            _workflow_runners("runs-on: ${{ fromJSON(inputs.runner) }}\n")
+        with self.assertRaisesRegex(WorkspaceError, "no static literals"):
+            _workflow_runners("runs-on: ${{ matrix.os }}\n")
+        unrelated_matrix = """
+jobs:
+  static:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-24.04
+    runs-on: ubuntu-24.04
+  dynamic:
+    runs-on: ${{ matrix.os }}
+"""
+        with self.assertRaisesRegex(WorkspaceError, "no static literals"):
+            _workflow_runners(unrelated_matrix)
+        partly_dynamic = workflow.replace(
+            "          - windows-2025", "          - ${{ inputs.runner }}"
+        )
+        with self.assertRaisesRegex(WorkspaceError, "no static literals"):
+            _workflow_runners(partly_dynamic)
+
+    def test_npx_requires_an_immutable_setup_node_step(self) -> None:
+        unpinned = "steps:\n  - run: npx --yes semantic-release\n"
+        pinned = """
+steps:
+  - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+  - run: npx --yes semantic-release
+"""
+        movable = """
+steps:
+  - uses: actions/setup-node@v7
+  - run: npx --yes semantic-release
+"""
+        self.assertTrue(_workflow_uses_unpinned_npx(unpinned))
+        self.assertFalse(_workflow_uses_unpinned_npx(pinned))
+        self.assertTrue(_workflow_uses_unpinned_npx(movable))
+        setup_after_npx = pinned.replace(
+            "steps:", "steps:\n  - run: npx --yes semantic-release"
+        )
+        self.assertTrue(_workflow_uses_unpinned_npx(setup_after_npx))
+        separate_jobs = """
+jobs:
+  setup:
+    steps:
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+  release:
+    steps:
+      - run: npx --yes semantic-release
+"""
+        self.assertTrue(_workflow_uses_unpinned_npx(separate_jobs))
 
     def test_metadata_audit_excludes_only_declared_logical_sources(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -1347,7 +1427,7 @@ FROM toolchain AS final
         invalid = [
             ("bad", "must be NAME=PATH"),
             ("unknown=/tmp", "must be NAME=PATH"),
-            ("client=/tmp", "not audit-ready"),
+            ("client=/tmp", "not atrinik/client"),
             ("resources=relative", "must be absolute"),
         ]
         for override, expected in invalid:
@@ -1963,6 +2043,12 @@ FROM toolchain AS final
             )
             self.assertFalse(
                 _git_repository_branch_compatible(separate_1x, "1.x", content_1x)
+            )
+            self.assertTrue(
+                _git_repository_branch_compatible(separate_main, "main")
+            )
+            self.assertTrue(
+                _git_repository_branch_compatible(separate_1x, "1.x")
             )
             self.assertTrue(
                 _git_repository_branch_compatible(review_main, "main", content)
