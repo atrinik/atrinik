@@ -679,13 +679,18 @@
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade package aggregation workflows before the major is retired",
-      "validation": "Actionlint and root Classic release artifact aggregation",
+      "validation": "Actionlint, Classic release artifact aggregation, and native Windows test artifact execution",
       "disposition": "retain",
       "packages": [],
       "evidence": [
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
+          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/check.yml",
           "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
         },
         {
@@ -926,7 +931,7 @@
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade package producer workflows before the major is retired",
-      "validation": "Actionlint and root Classic release artifact round trips",
+      "validation": "Actionlint, Classic release artifact round trips, and native Windows test staging",
       "disposition": "retain",
       "packages": [],
       "evidence": [
@@ -938,6 +943,11 @@
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
+          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/check.yml",
           "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
         },
         {
@@ -1052,13 +1062,18 @@
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade all GHCR publisher jobs before the major is retired",
-      "validation": "Actionlint and least-privilege package publisher review",
+      "validation": "Actionlint and least-privilege package publisher or consumer review",
       "disposition": "retain",
       "packages": [],
       "evidence": [
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
+          "contains": "docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/check.yml",
           "contains": "docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4"
         },
         {
@@ -1413,11 +1428,11 @@
       "locator": "ghcr.io/atrinik/windows-build",
       "commit": null,
       "checksum": "sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7",
-      "acquisition": "Dev Containers pulls the release tag and immutable manifest digest",
+      "acquisition": "Dev Containers and GitHub Actions pull the release tag and immutable manifest digest",
       "update_cadence_days": 30,
       "update_mechanism": "Weekly audit plus reviewed devcontainer release update",
       "eol_response": "Publish a supported replacement image and update the wrapper atomically",
-      "validation": "Devcontainer configuration tests and portable MinGW builds",
+      "validation": "Devcontainer configuration tests, portable MinGW builds, and cross-built tests executed on native Windows",
       "disposition": "retain",
       "packages": [],
       "evidence": [
@@ -1429,6 +1444,11 @@
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
+          "contains": "ghcr.io/atrinik/windows-build:1.0.5@sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/check.yml",
           "contains": "ghcr.io/atrinik/windows-build:1.0.5@sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7"
         }
       ]
@@ -3706,7 +3726,7 @@
       "name": "GitHub-hosted Windows 2025 runner",
       "kind": "toolchain",
       "owner": "github-settings",
-      "scope": ["client", "content", "content-1x", "editor", "server", "website"],
+      "scope": ["classic", "client", "content", "content-1x", "editor", "server", "website"],
       "required": true,
       "version": "windows-2025",
       "version_source": "Explicit GitHub Actions runner label and generated version report",
@@ -3723,6 +3743,7 @@
       "disposition": "retain",
       "packages": [],
       "evidence": [
+        {"repository":"classic","path":".github/workflows/check.yml","contains":"runs-on: windows-2025"},
         {"repository":"client","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
         {"repository":"content","path":".github/workflows/check.yml","contains":"- windows-2025"},
         {"repository":"content-1x","path":".github/workflows/check.yml","contains":"- windows-2025"},
