@@ -418,6 +418,18 @@ class Inventory:
             for evidence in dependency.evidence:
                 if evidence.repository not in normalized:
                     continue
+                evidence_repository = self.repositories_by_name[evidence.repository]
+                evidence_sources = logical_sources.get(
+                    evidence_repository.checkout, ()
+                )
+                if _uses_checkout_metadata(
+                    evidence_repository, evidence_sources
+                ) and _is_inert_checkout_github_metadata(evidence.path):
+                    raise WorkspaceError(
+                        f"{dependency.identifier}: {evidence.repository}/"
+                        f"{evidence.path} is inert nested GitHub metadata and "
+                        "cannot be active dependency evidence"
+                    )
                 path = _safe_repository_path(normalized[evidence.repository], evidence.path)
                 text = _read_metadata(path)
                 if evidence.contains not in text:
@@ -428,18 +440,22 @@ class Inventory:
 
         for repository_name, root in sorted(normalized.items()):
             repository = self.repositories_by_name[repository_name]
+            checkout_sources = logical_sources.get(repository.checkout, ())
             tracked = _audit_files(
-                repository, root, logical_sources.get(repository.checkout, ())
+                repository, root, checkout_sources
             )
             if ".gitmodules" in tracked:
                 raise WorkspaceError(f"{repository_name}: Git submodules are not supported")
             dependabot = ".github/dependabot.yml"
-            if dependabot not in tracked:
-                raise WorkspaceError(f"{repository_name}: missing {dependabot}")
-            if "package-ecosystem: github-actions" not in _read_metadata(root / dependabot):
-                raise WorkspaceError(
-                    f"{repository_name}: Dependabot does not own GitHub Actions updates"
-                )
+            if not _uses_checkout_metadata(repository, checkout_sources):
+                if dependabot not in tracked:
+                    raise WorkspaceError(f"{repository_name}: missing {dependabot}")
+                if "package-ecosystem: github-actions" not in _read_metadata(
+                    root / dependabot
+                ):
+                    raise WorkspaceError(
+                        f"{repository_name}: Dependabot does not own GitHub Actions updates"
+                    )
 
             action_count = 0
             for relative in sorted(
@@ -1140,6 +1156,12 @@ def _audit_files(
 ) -> set[str]:
     tracked = _tracked_files(root)
     if repository.audit_mode == "full":
+        if _uses_checkout_metadata(repository, logical_sources):
+            return {
+                relative
+                for relative in tracked
+                if not _is_inert_checkout_github_metadata(relative)
+            }
         return tracked
     missing = sorted(CHECKOUT_METADATA_REQUIRED_FILES - tracked)
     if missing:
@@ -1155,6 +1177,22 @@ def _audit_files(
             for source in logical_sources
         )
     }
+
+
+def _uses_checkout_metadata(
+    repository: Repository, logical_sources: tuple[str, ...]
+) -> bool:
+    return (
+        repository.audit_mode == "full"
+        and repository.source != "."
+        and repository.source in logical_sources
+    )
+
+
+def _is_inert_checkout_github_metadata(relative: str) -> bool:
+    return relative == ".github/dependabot.yml" or relative.startswith(
+        ".github/workflows/"
+    )
 
 
 def _is_dependency_input(relative: str, root: Path) -> bool:

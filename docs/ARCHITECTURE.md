@@ -85,7 +85,10 @@ The `supply-chain` command resolves component inputs through the same profile
 selectors as builds, then reads Git-indexed files without mutating a checkout.
 The audit requires immutable remote Actions and container images, updater
 hints, an owned catalog entry for every dependency input, weekly GitHub Actions
-update configuration, and no submodules. Explicit worktree overrides are
+update configuration, and no submodules. For a shared monorepo checkout, only
+the root repository workflows and Dependabot file are active GitHub metadata;
+logical source audits exclude imported nested copies while continuing to audit
+their dependency inputs. Explicit worktree overrides are
 absolute and must match the expected repository and branch identity. A review
 branch for a repeated coordinate must share the expected checkout primary's
 common Git directory, preventing `content` and `content-1x` from being
