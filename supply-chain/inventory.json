@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "organization": "atrinik",
-  "created": "2026-08-07T00:00:00Z",
+  "created": "2026-08-08T00:00:00Z",
   "repositories": [
     {
       "audit_ready": true,
@@ -509,13 +509,43 @@
   ],
   "dependencies": [
     {
+      "id": "action/actions-attest",
+      "name": "actions/attest",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "classic"
+      ],
+      "required": true,
+      "version": "v4",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/attest",
+      "locator": "actions/attest",
+      "commit": "1e69f48acb82d1966a394da916b4c1698aa569d6",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade artifact provenance and SBOM attestations before the major is retired",
+      "validation": "Actionlint and production release attestation validation",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/package-release.yml",
+          "contains": "actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4"
+        }
+      ]
+    },
+    {
       "id": "action/actions-cache",
       "name": "actions/cache",
       "kind": "github-action",
       "owner": "github-settings",
       "scope": [
-        "classic",
-        "classic-client"
+        "classic"
       ],
       "required": true,
       "version": "v6",
@@ -529,17 +559,12 @@
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade all cache consumers together or remove the cache step",
-      "validation": "Actionlint plus classic client CI cache restore/save coverage",
+      "validation": "Actionlint plus root Classic client CI cache restore/save coverage",
       "disposition": "retain",
       "packages": [],
       "evidence": [
         {
           "repository": "classic",
-          "path": ".github/workflows/check.yml",
-          "contains": "actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6"
-        },
-        {
-          "repository": "classic-client",
           "path": ".github/workflows/check.yml",
           "contains": "actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6"
         }
@@ -553,11 +578,6 @@
       "scope": [
         "atrinik",
         "classic",
-        "classic-client",
-        "classic-editor",
-        "classic-libatrinik",
-        "classic-protocol",
-        "classic-server",
         "content",
         "content-1x",
         "devcontainer",
@@ -601,8 +621,7 @@
       "kind": "github-action",
       "owner": "github-settings",
       "scope": [
-        "classic-client",
-        "classic-server"
+        "classic"
       ],
       "required": true,
       "version": "v8",
@@ -616,12 +635,17 @@
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade package aggregation workflows before the major is retired",
-      "validation": "Actionlint and package-release artifact aggregation",
+      "validation": "Actionlint and root Classic release artifact aggregation",
       "disposition": "retain",
       "packages": [],
       "evidence": [
         {
-          "repository": "classic-client",
+          "repository": "classic",
+          "path": ".github/workflows/build-release-candidate.yml",
+          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+        },
+        {
+          "repository": "classic",
           "path": ".github/workflows/package-release.yml",
           "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
         }
@@ -634,6 +658,7 @@
       "owner": "github-settings",
       "scope": [
         "atrinik",
+        "classic",
         "metaserver-worker"
       ],
       "required": true,
@@ -656,6 +681,11 @@
           "repository": "atrinik",
           "path": ".github/workflows/release.yml",
           "contains": "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6"
         }
       ]
     },
@@ -667,7 +697,6 @@
       "scope": [
         "atrinik",
         "classic",
-        "classic-protocol",
         "content",
         "content-1x"
       ],
@@ -706,8 +735,7 @@
       "owner": "github-settings",
       "scope": [
         "atrinik",
-        "classic-client",
-        "classic-server"
+        "classic"
       ],
       "required": true,
       "version": "v7",
@@ -721,13 +749,18 @@
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade package producer workflows before the major is retired",
-      "validation": "Actionlint and package-release artifact round trips",
+      "validation": "Actionlint and root Classic release artifact round trips",
       "disposition": "retain",
       "packages": [],
       "evidence": [
         {
-          "repository": "classic-server",
-          "path": ".github/workflows/package-release.yml",
+          "repository": "atrinik",
+          "path": ".github/workflows/supply-chain.yml",
+          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/build-release-candidate.yml",
           "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
         }
       ]
@@ -739,10 +772,7 @@
       "owner": "github-settings",
       "scope": [
         "atrinik",
-        "classic",
-        "classic-client",
-        "classic-libatrinik",
-        "classic-server"
+        "classic"
       ],
       "required": false,
       "version": "v6",
@@ -778,7 +808,7 @@
       "kind": "github-action",
       "owner": "github-settings",
       "scope": [
-        "classic-server",
+        "classic",
         "devcontainer"
       ],
       "required": true,
@@ -798,6 +828,16 @@
       "packages": [],
       "evidence": [
         {
+          "repository": "classic",
+          "path": ".github/workflows/build-release-candidate.yml",
+          "contains": "docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/package-release.yml",
+          "contains": "docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7"
+        },
+        {
           "repository": "devcontainer",
           "path": ".github/workflows/validate.yml",
           "contains": "docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7"
@@ -810,8 +850,7 @@
       "kind": "github-action",
       "owner": "github-settings",
       "scope": [
-        "classic-client",
-        "classic-server",
+        "classic",
         "devcontainer"
       ],
       "required": true,
@@ -831,6 +870,16 @@
       "packages": [],
       "evidence": [
         {
+          "repository": "classic",
+          "path": ".github/workflows/build-release-candidate.yml",
+          "contains": "docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/package-release.yml",
+          "contains": "docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4"
+        },
+        {
           "repository": "devcontainer",
           "path": ".github/workflows/publish-linux.yml",
           "contains": "docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4"
@@ -843,7 +892,7 @@
       "kind": "github-action",
       "owner": "github-settings",
       "scope": [
-        "classic-server",
+        "classic",
         "devcontainer"
       ],
       "required": true,
@@ -863,9 +912,117 @@
       "packages": [],
       "evidence": [
         {
+          "repository": "classic",
+          "path": ".github/workflows/build-release-candidate.yml",
+          "contains": "docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/package-release.yml",
+          "contains": "docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4"
+        },
+        {
           "repository": "devcontainer",
           "path": ".github/workflows/validate.yml",
           "contains": "docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4"
+        }
+      ]
+    },
+    {
+      "id": "action/github-codeql-analyze",
+      "name": "GitHub CodeQL Action analyze",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "classic"
+      ],
+      "required": true,
+      "version": "v4.37.6",
+      "version_source": "Reviewed upstream release",
+      "license": "MIT",
+      "source_url": "https://github.com/github/codeql-action",
+      "locator": "github/codeql-action/analyze",
+      "commit": "5595ccaf912efad79be6eef63a5619ff05969be3",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade the advanced CodeQL workflow before the release is retired",
+      "validation": "Actionlint, advanced CodeQL analysis, and code-scanning policy",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/codeql.yml",
+          "contains": "github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6"
+        }
+      ]
+    },
+    {
+      "id": "action/github-codeql-init",
+      "name": "GitHub CodeQL Action init",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "classic"
+      ],
+      "required": true,
+      "version": "v4.37.6",
+      "version_source": "Reviewed upstream release",
+      "license": "MIT",
+      "source_url": "https://github.com/github/codeql-action",
+      "locator": "github/codeql-action/init",
+      "commit": "5595ccaf912efad79be6eef63a5619ff05969be3",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade the advanced CodeQL workflow before the release is retired",
+      "validation": "Actionlint, advanced CodeQL analysis, and code-scanning policy",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/codeql.yml",
+          "contains": "github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6"
+        }
+      ]
+    },
+    {
+      "id": "container/classic-server",
+      "name": "Atrinik Classic server image",
+      "kind": "container-image",
+      "owner": "classic-server",
+      "scope": [
+        "classic"
+      ],
+      "required": true,
+      "version": "semantic-release version and generated immutable digest",
+      "version_source": "Root Classic release workflows",
+      "license": "LicenseRef-Atrinik-Image-Contents",
+      "source_url": "https://github.com/atrinik/classic/pkgs/container/classic-server",
+      "locator": "ghcr.io/atrinik/classic-server",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "The root release workflow builds server/Dockerfile from the monorepo context and publishes the version tag with provenance and an SBOM",
+      "update_cadence_days": 30,
+      "update_mechanism": "Classic Dockerfile and release-workflow review with every dependency update",
+      "eol_response": "Publish a rebuilt supported image before retiring the current server image line",
+      "validation": "Read-only release-candidate image build plus production digest, provenance, and SBOM checks",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/build-release-candidate.yml",
+          "contains": "file: server/Dockerfile"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/package-release.yml",
+          "contains": "tags: ghcr.io/atrinik/classic-server:${{ needs.candidate.outputs.version }}"
         }
       ]
     },
@@ -1016,7 +1173,6 @@
       "owner": "devcontainer",
       "scope": [
         "classic",
-        "classic-client",
         "classic-server",
         "devcontainer"
       ],
@@ -1042,16 +1198,6 @@
           "contains": "ubuntu@sha256:678c6550cc43645e08669028bc177f50be4e7c5b8cca677067b1914d4afc7a03"
         },
         {
-          "repository": "classic-client",
-          "path": ".github/workflows/check.yml",
-          "contains": "ubuntu@sha256:678c6550cc43645e08669028bc177f50be4e7c5b8cca677067b1914d4afc7a03"
-        },
-        {
-          "repository": "classic-server",
-          "path": ".github/workflows/check.yml",
-          "contains": "ubuntu@sha256:678c6550cc43645e08669028bc177f50be4e7c5b8cca677067b1914d4afc7a03"
-        },
-        {
           "repository": "classic-server",
           "path": "Dockerfile",
           "contains": "ubuntu@sha256:678c6550cc43645e08669028bc177f50be4e7c5b8cca677067b1914d4afc7a03"
@@ -1070,8 +1216,7 @@
       "owner": "devcontainer",
       "scope": [
         "atrinik",
-        "classic-client",
-        "classic-server"
+        "classic"
       ],
       "required": true,
       "version": "1.0.5",
@@ -1095,13 +1240,8 @@
           "contains": "ghcr.io/atrinik/windows-build:1.0.5@sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7"
         },
         {
-          "repository": "classic-client",
-          "path": ".github/workflows/package-release.yml",
-          "contains": "ghcr.io/atrinik/windows-build:1.0.5@sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7"
-        },
-        {
-          "repository": "classic-server",
-          "path": ".github/workflows/package-release.yml",
+          "repository": "classic",
+          "path": ".github/workflows/build-release-candidate.yml",
           "contains": "ghcr.io/atrinik/windows-build:1.0.5@sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7"
         }
       ]
@@ -1299,6 +1439,123 @@
       ]
     },
     {
+      "id": "language/classic-conventional-changelog",
+      "name": "Classic Conventional Commits changelog preset",
+      "kind": "language-package-set",
+      "owner": "atrinik",
+      "scope": [
+        "atrinik",
+        "classic"
+      ],
+      "required": true,
+      "version": "9.3.1",
+      "version_source": "Exact npx package arguments in release workflows",
+      "license": "ISC",
+      "source_url": "https://github.com/conventional-changelog/conventional-changelog",
+      "locator": "pkg:npm/conventional-changelog-conventionalcommits@9.3.1",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "npx installs the exact reviewed package version for release analysis",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled release-tool review with exact workflow evidence",
+      "eol_response": "Upgrade or replace the preset before it loses supported Node compatibility",
+      "validation": "Semantic-release dry runs and exact next-version tests",
+      "disposition": "retain",
+      "packages": [
+        "conventional-changelog-conventionalcommits"
+      ],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/release.yml",
+          "contains": "--package=conventional-changelog-conventionalcommits@9.3.1"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/release.yml",
+          "contains": "--package=conventional-changelog-conventionalcommits@9.3.1"
+        }
+      ]
+    },
+    {
+      "id": "language/classic-semantic-release",
+      "name": "Classic semantic-release",
+      "kind": "language-package-set",
+      "owner": "atrinik",
+      "scope": [
+        "atrinik",
+        "classic"
+      ],
+      "required": true,
+      "version": "25.0.9",
+      "version_source": "Exact npx package arguments in release workflows",
+      "license": "MIT",
+      "source_url": "https://github.com/semantic-release/semantic-release",
+      "locator": "pkg:npm/semantic-release@25.0.9",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "npx installs the exact reviewed package version for release analysis",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled release-tool review with exact workflow evidence",
+      "eol_response": "Upgrade semantic-release before its Node line or release contract reaches EOL",
+      "validation": "Semantic-release dry runs and exact next-version tests",
+      "disposition": "retain",
+      "packages": [
+        "semantic-release"
+      ],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/release.yml",
+          "contains": "--package=semantic-release@25.0.9"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/release.yml",
+          "contains": "--package=semantic-release@25.0.9"
+        }
+      ]
+    },
+    {
+      "id": "language/classic-semantic-release-exec",
+      "name": "Classic semantic-release exec plugin",
+      "kind": "language-package-set",
+      "owner": "atrinik",
+      "scope": [
+        "atrinik",
+        "classic"
+      ],
+      "required": true,
+      "version": "7.1.0",
+      "version_source": "Exact npx package arguments in release workflows",
+      "license": "MIT",
+      "source_url": "https://github.com/semantic-release/exec",
+      "locator": "pkg:npm/%40semantic-release/exec@7.1.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "npx installs the exact reviewed package version for release execution",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled release-tool review with exact workflow evidence",
+      "eol_response": "Upgrade or replace the exec plugin before it loses semantic-release compatibility",
+      "validation": "Semantic-release dry runs and exact next-version tests",
+      "disposition": "retain",
+      "packages": [
+        "@semantic-release/exec"
+      ],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/release.yml",
+          "contains": "--package=@semantic-release/exec@7.1.0"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/release.yml",
+          "contains": "--package=@semantic-release/exec@7.1.0"
+        }
+      ]
+    },
+    {
       "id": "language/metaserver-npm",
       "name": "Metaserver Worker npm dependency graph",
       "kind": "language-package-set",
@@ -1347,10 +1604,11 @@
       "kind": "language-package-set",
       "owner": "classic-protocol",
       "scope": [
+        "classic",
         "classic-protocol"
       ],
       "required": true,
-      "version": "setuptools>=77; setuptools-scm>=8,<10; build=1.3.0",
+      "version": "setuptools>=77; setuptools-scm>=8,<11; build=1.3.0",
       "version_source": "pyproject.toml and workflows",
       "license": "MIT",
       "source_url": "https://pypi.org/project/build/",
@@ -1370,9 +1628,14 @@
       ],
       "evidence": [
         {
+          "repository": "classic",
+          "path": ".github/workflows/build-release-candidate.yml",
+          "contains": "python3 -m pip install build==1.3.0"
+        },
+        {
           "repository": "classic-protocol",
           "path": "pyproject.toml",
-          "contains": "setuptools-scm>=8,<10"
+          "contains": "setuptools-scm>=8,<11"
         }
       ]
     },
@@ -1441,18 +1704,16 @@
       ]
     },
     {
-      "id": "source/atrinik-libatrinik",
-      "name": "Archived classic libatrinik release source",
+      "id": "source/atrinik-libatrinik-client",
+      "name": "Archived classic libatrinik release source for the classic client",
       "kind": "source-archive",
-      "owner": "classic-libatrinik",
+      "owner": "classic-client",
       "scope": [
-        "classic-client",
-        "classic-libatrinik",
-        "classic-server"
+        "classic-client"
       ],
       "required": true,
       "version": "v1.0.3",
-      "version_source": "classic/client and classic/server CMake dependency locks",
+      "version_source": "classic/client CMake dependency lock",
       "license": "GPL-2.0-or-later",
       "source_url": "https://github.com/atrinik/legacy-libatrinik/releases/tag/v1.0.3",
       "locator": "pkg:github/atrinik/legacy-libatrinik@v1.0.3",
@@ -1462,7 +1723,7 @@
       "update_cadence_days": 30,
       "update_mechanism": "Weekly lock drift audit and coordinated downstream update",
       "eol_response": "Release and consume a supported library version before removing the old release",
-      "validation": "CMake lock validation, downstream native tests, and install consumer",
+      "validation": "CMake lock validation and classic client native tests",
       "disposition": "isolate",
       "packages": [],
       "evidence": [
@@ -1470,16 +1731,37 @@
           "repository": "classic-client",
           "path": "cmake/dependencies.lock.json",
           "contains": "libatrinik-1.0.3.tar.gz"
-        },
-        {
-          "repository": "classic-libatrinik",
-          "path": "tests/consumer/CMakeLists.txt",
-          "contains": "find_package(LibAtrinik 1 CONFIG REQUIRED)"
-        },
+        }
+      ]
+    },
+    {
+      "id": "source/atrinik-libatrinik-server",
+      "name": "Archived classic libatrinik release source for the classic server",
+      "kind": "source-archive",
+      "owner": "classic-server",
+      "scope": [
+        "classic-server"
+      ],
+      "required": true,
+      "version": "v1.1.5",
+      "version_source": "classic/server CMake dependency lock",
+      "license": "GPL-2.0-or-later",
+      "source_url": "https://github.com/atrinik/legacy-libatrinik/releases/tag/v1.1.5",
+      "locator": "pkg:github/atrinik/legacy-libatrinik@v1.1.5",
+      "commit": "4c3410063972ea22689b66ad7dd8c7949cc1fbff",
+      "checksum": "sha256:3c07b178cc236881f52272df6e38bc2d4186943b782e4cee34b2e733da9c8f9a",
+      "acquisition": "CMake FetchContent downloads the checksum-pinned release archive",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly lock drift audit and coordinated downstream update",
+      "eol_response": "Release and consume a supported library version before removing the old release",
+      "validation": "CMake lock validation and classic server native tests",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
         {
           "repository": "classic-server",
           "path": "cmake/dependencies.lock.json",
-          "contains": "libatrinik-1.0.3.tar.gz"
+          "contains": "libatrinik-1.1.5.tar.gz"
         }
       ]
     },
@@ -2637,6 +2919,11 @@
           "contains": "cmake_minimum_required(VERSION 3.21)"
         },
         {
+          "repository": "classic-libatrinik",
+          "path": "tests/consumer/CMakeLists.txt",
+          "contains": "find_package(LibAtrinik \"${ATRINIK_CONSUMER_VERSION}\" EXACT CONFIG REQUIRED)"
+        },
+        {
           "repository": "classic-protocol",
           "path": "CMakeLists.txt",
           "contains": "cmake_minimum_required(VERSION 3.21)"
@@ -2689,11 +2976,6 @@
       "scope": [
         "atrinik",
         "classic",
-        "classic-client",
-        "classic-editor",
-        "classic-libatrinik",
-        "classic-protocol",
-        "classic-server",
         "content",
         "content-1x",
         "devcontainer",
@@ -2726,31 +3008,6 @@
         },
         {
           "repository": "classic",
-          "path": ".github/workflows/check.yml",
-          "contains": "runs-on: ubuntu-24.04"
-        },
-        {
-          "repository": "classic-client",
-          "path": ".github/workflows/check.yml",
-          "contains": "runs-on: ubuntu-24.04"
-        },
-        {
-          "repository": "classic-editor",
-          "path": ".github/workflows/check.yml",
-          "contains": "runs-on: ubuntu-24.04"
-        },
-        {
-          "repository": "classic-libatrinik",
-          "path": ".github/workflows/check.yml",
-          "contains": "runs-on: ubuntu-24.04"
-        },
-        {
-          "repository": "classic-protocol",
-          "path": ".github/workflows/check.yml",
-          "contains": "runs-on: ubuntu-24.04"
-        },
-        {
-          "repository": "classic-server",
           "path": ".github/workflows/check.yml",
           "contains": "runs-on: ubuntu-24.04"
         },
@@ -2831,14 +3088,15 @@
       "id": "toolchain/node",
       "name": "Node.js",
       "kind": "toolchain",
-      "owner": "metaserver-worker",
+      "owner": "atrinik",
       "scope": [
         "atrinik",
+        "classic",
         "metaserver-worker"
       ],
       "required": true,
-      "version": ">=20",
-      "version_source": "Worker package engines and semantic-release",
+      "version": ">=20; wrapper release 22; Classic release 24",
+      "version_source": "Worker package engines and exact release workflow lines",
       "license": "MIT",
       "source_url": "https://nodejs.org/",
       "locator": "pkg:generic/node",
@@ -2855,6 +3113,16 @@
         "npm"
       ],
       "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 22"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: \"24\""
+        },
         {
           "repository": "metaserver-worker",
           "path": "package.json",

@@ -285,6 +285,10 @@ files directly.
   repeated repository coordinate, accept a supply-chain review-worktree
   override only when it shares the expected checkout primary's common Git
   directory; never infer `content` versus `content-1x` from one-way ancestry.
+  In an aggregate monorepo, treat root workflows and Dependabot configuration
+  as the active GitHub surface. Imported nested component workflows and
+  Dependabot files are inert and must not supply active inventory evidence;
+  dependency inputs elsewhere in each logical source remain audited.
 - Keep each physical repository independently releasable. A squash commit in
   `atrinik/classic` changes and releases that monorepo; do not describe its
   logical source directories as independently cloned repositories. Never

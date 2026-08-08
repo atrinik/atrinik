@@ -442,6 +442,123 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(len(messages), 1)
         self.assertIn("1 action references", messages[0])
 
+    def test_monorepo_logical_sources_ignore_inert_github_workflows(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for relative in CHECKOUT_METADATA_REQUIRED_FILES:
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("metadata\n", encoding="utf-8")
+            (root / ".github" / "dependabot.yml").write_text(
+                "updates:\n  - package-ecosystem: github-actions\n",
+                encoding="utf-8",
+            )
+            (root / ".github" / "workflows" / "check.yml").write_text(
+                f"runs-on: ubuntu-24.04\n"
+                f"uses: example/action@{'a' * 40} # v1\n",
+                encoding="utf-8",
+            )
+            nested = root / "client" / ".github"
+            (nested / "workflows").mkdir(parents=True)
+            (nested / "dependabot.yml").write_text(
+                "updates: []\n", encoding="utf-8"
+            )
+            (nested / "workflows" / "ci.yml").write_text(
+                "runs-on: retired-runner\nuses: retired/action@v1\n",
+                encoding="utf-8",
+            )
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+
+            aggregate = fixture_repository(
+                name="classic",
+                repository="atrinik/classic",
+                checkout="classic",
+                roles=("checkout-metadata",),
+                audit_mode="metadata",
+            )
+            logical = fixture_repository(
+                name="classic-client",
+                repository="atrinik/classic",
+                checkout="classic",
+                source="client",
+                roles=("client",),
+            )
+            action = fixture_dependency(
+                owner="classic",
+                scope=("classic",),
+                evidence=(
+                    Evidence(
+                        "classic",
+                        ".github/workflows/check.yml",
+                        f"example/action@{'a' * 40} # v1",
+                    ),
+                ),
+            )
+            runner = fixture_dependency(
+                identifier="runner/ubuntu-24.04",
+                name="Ubuntu runner",
+                kind="toolchain",
+                owner="classic",
+                scope=("classic",),
+                locator="github-hosted-runner/ubuntu-24.04",
+                commit=None,
+                evidence=(
+                    Evidence(
+                        "classic",
+                        ".github/workflows/check.yml",
+                        "runs-on: ubuntu-24.04",
+                    ),
+                ),
+            )
+            inventory = Inventory(
+                "atrinik",
+                "2026-08-08T00:00:00Z",
+                [aggregate, logical],
+                [action, runner],
+            )
+
+            messages = inventory.audit(
+                {"classic": root, "classic-client": root / "client"}
+            )
+            inert_evidence = fixture_dependency(
+                identifier="tool/inert-workflow",
+                name="Inert workflow evidence",
+                kind="toolchain",
+                owner="classic-client",
+                scope=("classic-client",),
+                locator="pkg:generic/inert-workflow",
+                commit=None,
+                evidence=(
+                    Evidence(
+                        "classic-client",
+                        ".github/workflows/ci.yml",
+                        "retired/action@v1",
+                    ),
+                ),
+            )
+            with self.assertRaisesRegex(
+                WorkspaceError, "inert nested GitHub metadata"
+            ):
+                Inventory(
+                    "atrinik",
+                    "2026-08-08T00:00:00Z",
+                    [aggregate, logical],
+                    [action, runner, inert_evidence],
+                ).audit({"classic": root, "classic-client": root / "client"})
+            (root / "client" / "package.json").write_text(
+                "{}\n", encoding="utf-8"
+            )
+            with self.assertRaisesRegex(
+                WorkspaceError, "classic-client/package.json.*absent"
+            ):
+                inventory.audit(
+                    {"classic": root, "classic-client": root / "client"}
+                )
+
+        self.assertEqual(len(messages), 2)
+        self.assertIn("1 action references", messages[0])
+        self.assertIn("0 action references", messages[1])
+
     def test_audit_rejects_invalid_roots_and_evidence(self) -> None:
         inventory = self.audit_inventory()
         with self.assertRaisesRegex(WorkspaceError, "roots are incomplete"):
