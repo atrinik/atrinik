@@ -69,11 +69,16 @@ digests with human-readable update hints, and every active repository enables
 weekly Dependabot updates for its supported ecosystems. Git submodules are not
 a supported dependency path.
 
-Validate the catalog alone or audit the exact checkouts selected by a profile:
+Validate the catalog alone or audit the exact checkouts selected by a complete
+profile. Initialize the replacement stack before its audit; use the additive
+Classic initialization when auditing either stack together or the Classic
+stack itself:
 
 ~~~sh
 ./atrinik supply-chain validate
+./atrinik init
 ./atrinik supply-chain audit --profile default
+./atrinik init --with classic
 ./atrinik supply-chain audit --profile classic
 ./atrinik supply-chain versions --output build/supply-chain/versions.json
 ./atrinik supply-chain report --profile default --format licenses \
@@ -86,18 +91,27 @@ Validate the catalog alone or audit the exact checkouts selected by a profile:
   --output build/supply-chain/classic/licenses.md
 ~~~
 
-Generated reports remain ignored under `build/`. A scheduled organization
-audit checks out every physical audit-ready repository once, audits both
-default and classic component source roots, rejects unowned dependency inputs,
-movable workflow/image references, and submodules, prints exact available tool
+An audit fails before scanning when any physical checkout or logical component
+selected by its profile is unavailable, including components that are not yet
+marked audit-ready. This prevents an isolated wrapper worktree or partial local
+workspace from silently weakening an aggregate audit. Absolute
+`--repository NAME=PATH` overrides can select review worktrees, but cannot make
+the rest of the profile optional.
+
+Generated reports remain ignored under `build/`. The scheduled organization
+audit uses `./atrinik init --with classic` to materialize the manifest-defined
+union of both stacks, audits their physical checkout metadata and logical
+component source roots, rejects unowned dependency inputs, movable
+workflow/image references, and submodules, prints exact available tool
 versions, and publishes
 separate deterministic license, CycloneDX, and SPDX artifacts for each stack.
-When auditing a wrapper worktree that cannot safely share its containing
-workspace directory, use repeated absolute `--repository NAME=PATH` overrides;
-the command verifies each override's GitHub repository and branch identity
-before reading it. For duplicate coordinates, a review branch is accepted only
-when its linked worktree shares the expected checkout primary's common Git
-directory, so `content` and `content-1x` cannot be exchanged.
+When auditing review code, initialize the complete profile beside that wrapper
+checkout and use repeated absolute `--repository NAME=PATH` overrides only for
+the components under review. The command verifies each override's GitHub
+repository and branch identity before reading it. For duplicate coordinates, a
+review branch is accepted only when its linked worktree shares the expected
+checkout primary's common Git directory, so `content` and `content-1x` cannot
+be exchanged.
 
 ### Historical MIT provenance grants
 
