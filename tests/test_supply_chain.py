@@ -1492,6 +1492,36 @@ jobs:
                     )
                 roots = repository_roots(ROOT, workspace, "profile", [override])
 
+            content_review = path / "content-review"
+            content_review.mkdir()
+            with (
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_top_level",
+                    return_value=content_review,
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_repository_remote",
+                    return_value="origin",
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_current_branch",
+                    return_value="review/content",
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_repository_branch_compatible",
+                    return_value=False,
+                ),
+            ):
+                with self.assertRaisesRegex(
+                    WorkspaceError, "cannot prove content@main lineage"
+                ):
+                    repository_roots(
+                        ROOT,
+                        workspace,
+                        "profile",
+                        [f"content={content_review}"],
+                    )
+
         self.assertEqual(roots["atrinik"], ROOT)
         self.assertEqual(roots["resources"], path)
         self.assertIn("server", roots)
