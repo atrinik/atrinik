@@ -588,12 +588,12 @@
         "tools"
       ],
       "required": true,
-      "version": "v6",
+      "version": "v7.0.1",
       "version_source": "Reviewed upstream major release",
       "license": "MIT",
       "source_url": "https://github.com/actions/checkout",
       "locator": "actions/checkout",
-      "commit": "d23441a48e516b6c34aea4fa41551a30e30af803",
+      "commit": "3d3c42e5aac5ba805825da76410c181273ba90b1",
       "checksum": null,
       "acquisition": "GitHub Actions downloads the immutable reviewed commit",
       "update_cadence_days": 7,
@@ -606,12 +606,12 @@
         {
           "repository": "atrinik",
           "path": ".github/workflows/integration.yml",
-          "contains": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6"
+          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6"
+          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
         }
       ]
     },
@@ -662,12 +662,12 @@
         "metaserver-worker"
       ],
       "required": true,
-      "version": "v6",
+      "version": "v7.0.0",
       "version_source": "Reviewed upstream major release",
       "license": "MIT",
       "source_url": "https://github.com/actions/setup-node",
       "locator": "actions/setup-node",
-      "commit": "249970729cb0ef3589644e2896645e5dc5ba9c38",
+      "commit": "820762786026740c76f36085b0efc47a31fe5020",
       "checksum": null,
       "acquisition": "GitHub Actions downloads the immutable reviewed commit",
       "update_cadence_days": 7,
@@ -680,12 +680,12 @@
         {
           "repository": "atrinik",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6"
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6"
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
         }
       ]
     },
@@ -701,12 +701,12 @@
         "content-1x"
       ],
       "required": true,
-      "version": "v6",
+      "version": "v7.0.0",
       "version_source": "Reviewed upstream major release",
       "license": "MIT",
       "source_url": "https://github.com/actions/setup-python",
       "locator": "actions/setup-python",
-      "commit": "ece7cb06caefa5fff74198d8649806c4678c61a1",
+      "commit": "5fda3b95a4ea91299a34e894583c3862153e4b97",
       "checksum": null,
       "acquisition": "GitHub Actions downloads the immutable reviewed commit",
       "update_cadence_days": 7,
@@ -719,12 +719,12 @@
         {
           "repository": "atrinik",
           "path": ".github/workflows/integration.yml",
-          "contains": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6"
+          "contains": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6"
+          "contains": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0"
         }
       ]
     },
@@ -1517,6 +1517,39 @@
       ]
     },
     {
+      "id": "language/classic-semantic-release-commit-analyzer",
+      "name": "Classic semantic-release commit analyzer",
+      "kind": "language-package-set",
+      "owner": "atrinik",
+      "scope": [
+        "classic"
+      ],
+      "required": true,
+      "version": "13.0.1",
+      "version_source": "Exact npx package arguments in Classic release workflows",
+      "license": "MIT",
+      "source_url": "https://github.com/semantic-release/commit-analyzer",
+      "locator": "pkg:npm/%40semantic-release/commit-analyzer@13.0.1",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "npx installs the exact reviewed package version for first-parent release analysis",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled release-tool review with exact workflow evidence",
+      "eol_response": "Upgrade or replace the analyzer before it loses semantic-release compatibility",
+      "validation": "Synthetic side-parent tests and full Classic graph release analysis",
+      "disposition": "retain",
+      "packages": [
+        "@semantic-release/commit-analyzer"
+      ],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/release.yml",
+          "contains": "--package=@semantic-release/commit-analyzer@13.0.1"
+        }
+      ]
+    },
+    {
       "id": "language/classic-semantic-release-exec",
       "name": "Classic semantic-release exec plugin",
       "kind": "language-package-set",
@@ -1552,6 +1585,39 @@
           "repository": "classic",
           "path": ".github/workflows/release.yml",
           "contains": "--package=@semantic-release/exec@7.1.0"
+        }
+      ]
+    },
+    {
+      "id": "language/classic-semantic-release-notes-generator",
+      "name": "Classic semantic-release notes generator",
+      "kind": "language-package-set",
+      "owner": "atrinik",
+      "scope": [
+        "classic"
+      ],
+      "required": true,
+      "version": "14.1.1",
+      "version_source": "Exact npx package arguments in Classic release workflows",
+      "license": "MIT",
+      "source_url": "https://github.com/semantic-release/release-notes-generator",
+      "locator": "pkg:npm/%40semantic-release/release-notes-generator@14.1.1",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "npx installs the exact reviewed package version for automatic and recovery notes",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled release-tool review with exact workflow evidence",
+      "eol_response": "Upgrade or replace the generator before it loses semantic-release compatibility",
+      "validation": "Byte-identical automatic and recovery first-parent release-note tests",
+      "disposition": "retain",
+      "packages": [
+        "@semantic-release/release-notes-generator"
+      ],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/recover-release.yml",
+          "contains": "--package=@semantic-release/release-notes-generator@14.1.1"
         }
       ]
     },
