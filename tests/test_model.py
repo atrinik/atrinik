@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import os
 from pathlib import Path
@@ -16,6 +17,9 @@ from atrinik_workspace.model import (
     managed_reset,
     profile_key,
 )
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 class ManifestTests(unittest.TestCase):
@@ -38,6 +42,20 @@ class ManifestTests(unittest.TestCase):
             )
         ]
 
+    def valid_v3_manifest(self) -> dict[str, object]:
+        value = json.loads((ROOT / "components.json").read_text(encoding="utf-8"))
+        by_name = {component["name"]: component for component in value["components"]}
+        value["components"] = [
+            by_name["content"],
+            by_name["content-1x"],
+            *(
+                component
+                for component in value["components"]
+                if component["name"] not in {"content", "content-1x"}
+            ),
+        ]
+        return value
+
     def test_loads_strict_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = self.write_manifest(
@@ -45,7 +63,383 @@ class ManifestTests(unittest.TestCase):
             )
             manifest = Manifest.load(path)
             self.assertEqual(len(manifest.components), 7)
-            self.assertEqual(manifest.by_name["server"].build, "server")
+            self.assertEqual(manifest.by_name["server"].build, "classic-server")
+            self.assertEqual(manifest.by_name["server"].checkout, "server")
+            self.assertEqual(manifest.cohorts["default"][0], "client")
+
+    def test_loads_v3_manifest_with_two_branches_of_content(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), self.valid_v3_manifest())
+            manifest = Manifest.load(path)
+
+            self.assertIn("content-1x", manifest.cohorts["classic"])
+            self.assertEqual(manifest.component_cohorts("content"), ("default",))
+            self.assertEqual(
+                manifest.component_stacks("content-1x"), ("classic",)
+            )
+            self.assertEqual(
+                manifest.provider("classic", "content").checkout, "content-1x"
+            )
+            self.assertIn(
+                "content-1x",
+                tuple(
+                    component.name
+                    for component in manifest.stack("classic").components
+                ),
+            )
+            self.assertEqual(
+                manifest.stack("classic").providers["content"].name,
+                "content-1x",
+            )
+            self.assertEqual(
+                manifest.by_name["classic-server"].checkout_name, "classic"
+            )
+            self.assertEqual(manifest.by_name["classic-server"].checkout, "classic")
+            self.assertEqual(manifest.by_name["classic-server"].source, "server")
+            self.assertEqual(
+                manifest.checkout_for("classic-server").repository,
+                "atrinik/classic",
+            )
+            self.assertEqual(
+                {checkout.name for checkout in manifest.cohort("classic")},
+                {"classic", "content-1x", "tools"},
+            )
+            self.assertIn(
+                "content",
+                [component.name for component in manifest.cohort("default")],
+            )
+
+    def test_v3_rejects_unsafe_and_overlapping_component_sources(self) -> None:
+        for source, expected in (
+            ("../server", "safe checkout-relative directory"),
+            ("client", "component sources overlap in checkout classic"),
+        ):
+            with self.subTest(source=source):
+                manifest = self.valid_v3_manifest()
+                components = manifest["components"]
+                self.assertIsInstance(components, list)
+                server = next(
+                    component
+                    for component in components
+                    if component["name"] == "classic-server"
+                )
+                server["source"] = source
+                with tempfile.TemporaryDirectory() as temporary:
+                    path = self.write_manifest(Path(temporary), manifest)
+                    with self.assertRaisesRegex(WorkspaceError, expected):
+                        Manifest.load(path)
+
+    def test_v3_rejects_duplicate_repository_and_branch(self) -> None:
+        manifest = self.valid_v3_manifest()
+        checkouts = manifest["checkouts"]
+        self.assertIsInstance(checkouts, list)
+        content_1x = next(
+            checkout for checkout in checkouts if checkout["name"] == "content-1x"
+        )
+        content_1x["branch"] = "main"
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(
+                WorkspaceError, "duplicate checkout repository and branch"
+            ):
+                Manifest.load(path)
+
+    def test_v3_rejects_duplicate_checkout_paths(self) -> None:
+        manifest = self.valid_v3_manifest()
+        checkouts = manifest["checkouts"]
+        self.assertIsInstance(checkouts, list)
+        content_1x = next(
+            checkout for checkout in checkouts if checkout["name"] == "content-1x"
+        )
+        content_1x["path"] = "content"
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(WorkspaceError, "duplicate checkout path"):
+                Manifest.load(path)
+
+    def test_v3_rejects_repository_variants_in_the_same_cohort_and_stack(self) -> None:
+        manifest = self.valid_v3_manifest()
+        checkouts = manifest["checkouts"]
+        components = manifest["components"]
+        cohorts = manifest["cohorts"]
+        stacks = manifest["stacks"]
+        self.assertIsInstance(checkouts, list)
+        self.assertIsInstance(components, list)
+        self.assertIsInstance(cohorts, dict)
+        self.assertIsInstance(stacks, dict)
+        content_1x = next(
+            component for component in components if component["name"] == "content-1x"
+        )
+        content_1x_checkout = next(
+            checkout for checkout in checkouts if checkout["name"] == "content-1x"
+        )
+        content_1x_checkout["generation"] = "replacement"
+        content_1x["generation"] = "replacement"
+        content_1x["build"] = "none"
+        content_1x["provides"] = ["sound"]
+        content_1x["requires"] = []
+        cohorts["classic"].remove("content-1x")  # type: ignore[index, union-attr]
+        cohorts["default"].append("content-1x")  # type: ignore[union-attr]
+        stacks["classic"]["components"].remove("content-1x")  # type: ignore[index, union-attr]
+        checkouts.append(  # type: ignore[union-attr]
+            {
+                "name": "classic-content-provider",
+                "repository": "atrinik/classic-content-provider",
+                "branch": "main",
+                "path": "classic-content-provider",
+                "generation": "classic",
+                "license": "MIT",
+            }
+        )
+        components.append(  # type: ignore[union-attr]
+            {
+                "name": "classic-content-provider",
+                "checkout": "classic-content-provider",
+                "source": ".",
+                "build": "classic-content",
+                "generation": "classic",
+                "provides": ["content"],
+                "requires": [],
+                "license": "MIT",
+            }
+        )
+        cohorts["classic"].append("classic-content-provider")  # type: ignore[union-attr]
+        stacks["classic"]["components"].append(  # type: ignore[index, union-attr]
+            "classic-content-provider"
+        )
+        stacks["classic"]["providers"]["content"] = (  # type: ignore[index]
+            "classic-content-provider"
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(
+                WorkspaceError, "distinct cohort and stack membership"
+            ):
+                Manifest.load(path)
+
+    def test_v3_rejects_unsafe_checkout_path(self) -> None:
+        manifest = self.valid_v3_manifest()
+        checkouts = manifest["checkouts"]
+        self.assertIsInstance(checkouts, list)
+        checkouts[0]["path"] = "../content"  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(WorkspaceError, "checkout 0.path must use"):
+                Manifest.load(path)
+
+    def test_v3_rejects_missing_cohort_membership(self) -> None:
+        manifest = self.valid_v3_manifest()
+        cohorts = manifest["cohorts"]
+        self.assertIsInstance(cohorts, dict)
+        cohorts["classic"] = []
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(WorkspaceError, "lack cohort membership"):
+                Manifest.load(path)
+
+    def test_v3_rejects_provider_map_that_disagrees_with_contracts(self) -> None:
+        manifest = self.valid_v3_manifest()
+        stacks = manifest["stacks"]
+        self.assertIsInstance(stacks, dict)
+        stacks["default"]["providers"] = {"wrong-role": "content"}  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(
+                WorkspaceError, "providers does not match component contracts"
+            ):
+                Manifest.load(path)
+
+    def test_v3_rejects_multiple_role_providers(self) -> None:
+        manifest = self.valid_v3_manifest()
+        checkouts = manifest["checkouts"]
+        components = manifest["components"]
+        cohorts = manifest["cohorts"]
+        stacks = manifest["stacks"]
+        self.assertIsInstance(checkouts, list)
+        self.assertIsInstance(components, list)
+        self.assertIsInstance(cohorts, dict)
+        self.assertIsInstance(stacks, dict)
+        duplicate = copy.deepcopy(components[0])
+        duplicate.update(
+            {
+                "name": "other-content",
+                "checkout": "other-content",
+                "source": ".",
+            }
+        )
+        checkouts.append(  # type: ignore[union-attr]
+            {
+                "name": "other-content",
+                "repository": "atrinik/other-content",
+                "branch": "main",
+                "path": "other-content",
+                "generation": duplicate["generation"],
+                "license": duplicate["license"],
+            }
+        )
+        components.append(duplicate)
+        cohorts["default"].append("other-content")  # type: ignore[union-attr]
+        stacks["default"]["components"].append("other-content")  # type: ignore[index, union-attr]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(WorkspaceError, "multiple providers for role content"):
+                Manifest.load(path)
+
+    def test_v3_rejects_unsatisfied_required_role(self) -> None:
+        manifest = self.valid_v3_manifest()
+        components = manifest["components"]
+        self.assertIsInstance(components, list)
+        components[0]["requires"] = ["libatrinik"]  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(WorkspaceError, "cannot satisfy required role libatrinik"):
+                Manifest.load(path)
+
+    def test_v3_rejects_incompatible_implementation_roles(self) -> None:
+        manifest = self.valid_v3_manifest()
+        components = manifest["components"]
+        stacks = manifest["stacks"]
+        self.assertIsInstance(components, list)
+        self.assertIsInstance(stacks, dict)
+        components[0]["provides"] = ["content", "server"]  # type: ignore[index]
+        stacks["default"]["providers"]["server"] = "content"  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(
+                WorkspaceError, "incompatible implementation roles"
+            ):
+                Manifest.load(path)
+
+    def test_v3_rejects_unknown_logical_roles(self) -> None:
+        manifest = self.valid_v3_manifest()
+        components = manifest["components"]
+        stacks = manifest["stacks"]
+        self.assertIsInstance(components, list)
+        self.assertIsInstance(stacks, dict)
+        components[0]["provides"] = ["contennt"]  # type: ignore[index]
+        stacks["default"]["providers"] = {"contennt": "content"}  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(WorkspaceError, "unknown logical roles: contennt"):
+                Manifest.load(path)
+
+    def test_v3_rejects_component_claiming_editor_and_renderer(self) -> None:
+        manifest = self.valid_v3_manifest()
+        components = manifest["components"]
+        self.assertIsInstance(components, list)
+        components[0]["provides"] = ["editor", "renderer"]  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(
+                WorkspaceError, "incompatible implementation roles"
+            ):
+                Manifest.load(path)
+
+    def test_v3_rejects_shared_implementation_provider_across_stacks(self) -> None:
+        manifest = self.valid_v3_manifest()
+        checkouts = manifest["checkouts"]
+        components = manifest["components"]
+        cohorts = manifest["cohorts"]
+        stacks = manifest["stacks"]
+        self.assertIsInstance(checkouts, list)
+        self.assertIsInstance(components, list)
+        self.assertIsInstance(cohorts, dict)
+        self.assertIsInstance(stacks, dict)
+        checkouts.append(
+            {
+                "name": "shared-server",
+                "repository": "atrinik/shared-server",
+                "branch": "main",
+                "path": "shared-server",
+                "generation": "shared",
+                "license": "MIT",
+            }
+        )
+        components.append(
+            {
+                "name": "shared-server",
+                "checkout": "shared-server",
+                "source": ".",
+                "build": "none",
+                "generation": "shared",
+                "provides": ["server"],
+                "requires": [],
+                "license": "MIT",
+            }
+        )
+        cohorts["default"].append("shared-server")  # type: ignore[index, union-attr]
+        for stack_name in ("default", "classic"):
+            stacks[stack_name]["components"].append("shared-server")  # type: ignore[index, union-attr]
+            stacks[stack_name]["providers"]["server"] = "shared-server"  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(
+                WorkspaceError, "shared component claims implementation role: server"
+            ):
+                Manifest.load(path)
+
+    def test_v3_rejects_classic_adapter_on_replacement_component(self) -> None:
+        manifest = self.valid_v3_manifest()
+        components = manifest["components"]
+        self.assertIsInstance(components, list)
+        components[0]["build"] = "classic-server"  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "classic-server is incompatible with replacement generation",
+            ):
+                Manifest.load(path)
+
+    def test_v3_rejects_generation_mixing(self) -> None:
+        manifest = self.valid_v3_manifest()
+        stacks = manifest["stacks"]
+        self.assertIsInstance(stacks, dict)
+        stacks["default"]["components"].append("content-1x")  # type: ignore[index, union-attr]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(WorkspaceError, "mixes classic component content-1x"):
+                Manifest.load(path)
+
+    def test_v3_rejects_dependency_cycles(self) -> None:
+        manifest = self.valid_v3_manifest()
+        components = manifest["components"]
+        cohorts = manifest["cohorts"]
+        stacks = manifest["stacks"]
+        self.assertIsInstance(components, list)
+        self.assertIsInstance(cohorts, dict)
+        self.assertIsInstance(stacks, dict)
+        components[0]["requires"] = ["server"]  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(WorkspaceError, "dependency cycle"):
+                Manifest.load(path)
+
+    def test_v3_rejects_missing_required_default_provider(self) -> None:
+        manifest = self.valid_v3_manifest()
+        checkouts = manifest["checkouts"]
+        components = manifest["components"]
+        cohorts = manifest["cohorts"]
+        stacks = manifest["stacks"]
+        self.assertIsInstance(checkouts, list)
+        self.assertIsInstance(components, list)
+        self.assertIsInstance(cohorts, dict)
+        self.assertIsInstance(stacks, dict)
+        components[:] = [
+            component for component in components if component["name"] != "server"
+        ]
+        checkouts[:] = [
+            checkout for checkout in checkouts if checkout["name"] != "server"
+        ]
+        cohorts["default"].remove("server")  # type: ignore[index, union-attr]
+        stacks["default"]["components"].remove("server")  # type: ignore[index, union-attr]
+        del stacks["default"]["providers"]["server"]  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(
+                WorkspaceError, "cohorts.default lacks required checkouts: server"
+            ):
+                Manifest.load(path)
 
     def test_rejects_duplicate_json_keys(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -77,6 +471,16 @@ class ManifestTests(unittest.TestCase):
             with self.assertRaisesRegex(WorkspaceError, "build is invalid"):
                 Manifest.load(path)
 
+    def test_v1_rejects_duplicate_repository(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            components = self.valid_components()
+            components[1]["repository"] = components[0]["repository"]
+            path = self.write_manifest(
+                Path(temporary), {"schema_version": 1, "components": components}
+            )
+            with self.assertRaisesRegex(WorkspaceError, "duplicate component identity"):
+                Manifest.load(path)
+
 
 class ReleaseConfigurationTests(unittest.TestCase):
     def test_release_rules_preserve_conventional_commit_precedence(self) -> None:
@@ -101,7 +505,77 @@ class ReleaseConfigurationTests(unittest.TestCase):
         ignored = set((root / ".gitignore").read_text(encoding="utf-8").splitlines())
 
         self.assertTrue(
-            {f"/{component.name}/" for component in manifest.components} <= ignored
+            {f"/{checkout.path}/" for checkout in manifest.checkouts} <= ignored
+        )
+        self.assertIn("/classic/", ignored)
+        self.assertIn("/libatrinik/", ignored)
+
+    def test_repository_manifest_separates_default_and_classic_cohorts(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        manifest = Manifest.load(root / "components.json")
+
+        self.assertEqual(
+            set(manifest.cohorts["default"]),
+            {
+                "client",
+                "server",
+                "protocol",
+                "editor",
+                "renderer",
+                "content-toolkit",
+                "website",
+                "content",
+                "sound",
+                "resources",
+                "metaserver-worker",
+                "devcontainer",
+                "github-settings",
+            },
+        )
+        self.assertEqual(
+            set(manifest.cohorts["classic"]),
+            {
+                "classic",
+                "content-1x",
+                "tools",
+            },
+        )
+        self.assertEqual(manifest.by_name["content"].branch, "main")
+        self.assertEqual(manifest.by_name["content-1x"].branch, "1.x")
+        self.assertEqual(
+            manifest.stack("classic").providers["libatrinik"].name,
+            "classic-libatrinik",
+        )
+        self.assertEqual(
+            {
+                role: manifest.stack("default").providers[role].name
+                for role in ("client", "server", "protocol", "content")
+            },
+            {
+                "client": "client",
+                "server": "server",
+                "protocol": "protocol",
+                "content": "content",
+            },
+        )
+        self.assertEqual(
+            {
+                role: manifest.stack("classic").providers[role].name
+                for role in ("client", "server", "protocol", "libatrinik", "content")
+            },
+            {
+                "client": "classic-client",
+                "server": "classic-server",
+                "protocol": "classic-protocol",
+                "libatrinik": "classic-libatrinik",
+                "content": "content-1x",
+            },
+        )
+        self.assertFalse(
+            any(
+                component.license.startswith("GPL-")
+                for component in manifest.cohort("default")
+            )
         )
 
 
@@ -196,6 +670,36 @@ class PathSafetyTests(unittest.TestCase):
         second = {"a": Path("/x"), "b": Path("/y\nb=/z")}
 
         self.assertNotEqual(profile_key(first), profile_key(second))
+
+    def test_profile_key_namespace_separates_schema_and_stack_generations(self) -> None:
+        paths = {"resources": Path("/workspace/resources")}
+
+        self.assertNotEqual(
+            profile_key(paths),
+            profile_key(
+                paths,
+                namespace=(
+                    "profile-schema:3;stack:default;generation:replacement;"
+                    "providers:resources=resources"
+                ),
+            ),
+        )
+        self.assertNotEqual(
+            profile_key(
+                paths,
+                namespace=(
+                    "profile-schema:3;stack:default;generation:replacement;"
+                    "providers:resources=resources"
+                ),
+            ),
+            profile_key(
+                paths,
+                namespace=(
+                    "profile-schema:3;stack:classic;generation:classic;"
+                    "providers:resources=resources"
+                ),
+            ),
+        )
 
 
 if __name__ == "__main__":

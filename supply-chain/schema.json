@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://atrinik.org/schema/supply-chain-inventory-v1.json",
+  "$id": "https://atrinik.org/schema/supply-chain-inventory-v3.json",
   "title": "Atrinik supply-chain inventory",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "organization", "created", "repositories", "dependencies"],
   "properties": {
-    "schema_version": {"const": 1},
+    "schema_version": {"const": 3},
     "organization": {"const": "atrinik"},
     "created": {"type": "string", "format": "date-time"},
     "repositories": {
@@ -15,13 +15,51 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "repository", "supported", "role"],
+        "required": [
+          "name", "repository", "branch", "checkout", "source", "cohorts", "stacks", "roles",
+          "license", "commit", "supported", "audit_ready", "audit_mode", "role"
+        ],
         "properties": {
           "name": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
           "repository": {"type": "string", "pattern": "^atrinik/[a-z0-9][a-z0-9._-]*$"},
+          "branch": {"type": "string", "minLength": 1},
+          "checkout": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "source": {
+            "type": "string",
+            "pattern": "^(?:\\.|[a-z0-9][a-z0-9._-]*(?:/[a-z0-9][a-z0-9._-]*)*)$"
+          },
+          "cohorts": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"enum": ["classic", "default"]}
+          },
+          "stacks": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"enum": ["classic", "default"]}
+          },
+          "roles": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"}
+          },
+          "license": {"type": "string", "minLength": 1},
+          "commit": {
+            "type": ["string", "null"],
+            "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+          },
           "supported": {"type": "boolean"},
+          "audit_ready": {"type": "boolean"},
+          "audit_mode": {"enum": ["full", "metadata"]},
           "role": {"type": "string", "minLength": 1}
-        }
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"supported": {"const": true}}},
+            "then": {"properties": {"commit": {"const": null}}}
+          }
+        ]
       }
     },
     "dependencies": {

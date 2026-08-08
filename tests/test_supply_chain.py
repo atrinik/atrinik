@@ -9,17 +9,22 @@ import tempfile
 import unittest
 from unittest import mock
 
-from atrinik_workspace.model import WorkspaceError
+from atrinik_workspace.model import Manifest, WorkspaceError
 from atrinik_workspace.supply_chain import (
     ACTION_REFERENCE_PATTERN,
+    CHECKOUT_METADATA_REQUIRED_FILES,
     DOCKER_PULL_PATTERN,
     Dependency,
     Evidence,
     Inventory,
     Repository,
+    _audit_files,
     _container_references,
+    _component_source_root,
     _cyclonedx_type,
     _git_repository_coordinate,
+    _git_repository_branch_compatible,
+    _git_head,
     _is_container_input,
     _is_dependency_input,
     _read_metadata,
@@ -31,6 +36,7 @@ from atrinik_workspace.supply_chain import (
     _tracked_files,
     _validate_container_reference,
     repository_roots,
+    report_component_commits,
     version_report,
     write_generated,
 )
@@ -73,6 +79,27 @@ def fixture_dependency(**changes: object) -> Dependency:
     return Dependency(**values)
 
 
+def fixture_repository(**changes: object) -> Repository:
+    values: dict[str, object] = {
+        "name": "fixture",
+        "repository": "atrinik/fixture",
+        "branch": "main",
+        "checkout": "fixture",
+        "source": ".",
+        "cohorts": ("default",),
+        "stacks": ("default",),
+        "roles": ("fixture",),
+        "license": "MIT",
+        "commit": None,
+        "supported": True,
+        "audit_ready": True,
+        "audit_mode": "full",
+        "role": "Fixture repository",
+    }
+    values.update(changes)
+    return Repository(**values)
+
+
 class InventoryTests(unittest.TestCase):
     def load_inventory(self) -> Inventory:
         return Inventory.load(
@@ -83,6 +110,23 @@ class InventoryTests(unittest.TestCase):
         return json.loads(
             (ROOT / "supply-chain" / "inventory.json").read_text(encoding="utf-8")
         )
+
+    def test_scheduled_audit_covers_both_content_lines_and_stacks(self) -> None:
+        workflow = (ROOT / ".github/workflows/supply-chain.yml").read_text(
+            encoding="utf-8"
+        )
+
+        initialize = "./atrinik init --with classic"
+        self.assertEqual(workflow.count(initialize), 1)
+        self.assertNotIn("          repository: atrinik/", workflow)
+        for profile in ("default", "classic"):
+            audit = f"./atrinik supply-chain audit --profile {profile}"
+            self.assertIn(audit, workflow)
+            self.assertLess(workflow.index(initialize), workflow.index(audit))
+            for report in ("licenses.md", "cyclonedx.json", "spdx.json"):
+                self.assertIn(
+                    f"build/supply-chain/{profile}/{report}", workflow
+                )
 
     def assert_invalid_document(
         self, document: object, expected: str
@@ -121,7 +165,7 @@ class InventoryTests(unittest.TestCase):
         return Inventory(
             "atrinik",
             "2026-08-07T00:00:00Z",
-            [Repository("fixture", "atrinik/fixture", True, "fixture")],
+            [fixture_repository()],
             [fixture_dependency(), runner],
         )
 
@@ -132,6 +176,60 @@ class InventoryTests(unittest.TestCase):
         self.assertGreaterEqual(len(inventory.dependencies), 60)
         self.assertIn("nawerhals", inventory.repositories_by_name)
         self.assertFalse(inventory.repositories_by_name["nawerhals"].supported)
+        self.assertEqual(
+            inventory.repositories_by_name["content"].repository,
+            inventory.repositories_by_name["content-1x"].repository,
+        )
+        self.assertNotEqual(
+            inventory.repositories_by_name["content"].branch,
+            inventory.repositories_by_name["content-1x"].branch,
+        )
+        classic = [
+            inventory.repositories_by_name[name]
+            for name in (
+                "classic-client",
+                "classic-editor",
+                "classic-libatrinik",
+                "classic-protocol",
+                "classic-server",
+            )
+        ]
+        self.assertEqual({repository.repository for repository in classic}, {"atrinik/classic"})
+        self.assertEqual({repository.checkout for repository in classic}, {"classic"})
+        self.assertTrue(all(repository.audit_mode == "full" for repository in classic))
+        self.assertEqual(
+            {repository.license for repository in classic},
+            {"GPL-2.0-or-later"},
+        )
+        self.assertEqual(
+            {repository.source for repository in classic},
+            {"client", "editor", "libatrinik", "protocol", "server"},
+        )
+        aggregate = inventory.repositories_by_name["classic"]
+        self.assertEqual(aggregate.repository, "atrinik/classic")
+        self.assertEqual(aggregate.checkout, "classic")
+        self.assertEqual(aggregate.source, ".")
+        self.assertEqual(aggregate.roles, ("checkout-metadata",))
+        self.assertEqual(aggregate.audit_mode, "metadata")
+        self.assertNotIn("libatrinik", inventory.repositories_by_name)
+        self.assertTrue(
+            all(
+                repository.commit is None
+                for repository in inventory.repositories
+                if repository.supported
+            )
+        )
+        self.assertFalse(
+            any(
+                dependency.owner == "libatrinik"
+                or "libatrinik" in dependency.scope
+                or any(
+                    evidence.repository == "libatrinik"
+                    for evidence in dependency.evidence
+                )
+                for dependency in inventory.dependencies
+            )
+        )
 
     def test_inventory_rejects_invalid_root_and_repository_metadata(self) -> None:
         self.assert_invalid_document([], "root must be an object")
@@ -155,7 +253,17 @@ class InventoryTests(unittest.TestCase):
         repository_mutations = [
             ("name", "Client", "lowercase identifier"),
             ("repository", "example/client", "Atrinik repository"),
+            ("branch", " padded ", "trimmed string"),
+            ("checkout", "Bad Checkout", "lowercase identifier"),
+            ("source", "../client", "safe repository-relative"),
+            ("cohorts", ["z", "default"], "sorted and unique"),
+            ("stacks", ["default", "classic"], "sorted and unique"),
+            ("roles", [], "non-empty array"),
+            ("license", "not a license!", "license is not an SPDX"),
+            ("commit", "A" * 40, "full lowercase Git commit"),
             ("supported", "true", "must be a boolean"),
+            ("audit_ready", "true", "must be a boolean"),
+            ("audit_mode", "partial", "must be one of"),
             ("role", "", "non-empty trimmed string"),
         ]
         for field, value, expected in repository_mutations:
@@ -174,7 +282,15 @@ class InventoryTests(unittest.TestCase):
 
         document = self.inventory_document()
         document["repositories"][0]["repository"] = "atrinik/not-client"
-        self.assert_invalid_document(document, "repository mismatch")
+        self.assert_invalid_document(document, "repository metadata mismatch")
+
+        document = self.inventory_document()
+        document["repositories"][1]["branch"] = "next"
+        self.assert_invalid_document(document, "repository metadata mismatch")
+
+        document = self.inventory_document()
+        document["repositories"][0]["commit"] = "a" * 40
+        self.assert_invalid_document(document, "must be null for a moving supported branch")
 
     def test_inventory_rejects_invalid_dependency_metadata(self) -> None:
         document = self.inventory_document()
@@ -265,6 +381,21 @@ class InventoryTests(unittest.TestCase):
         schema = json.loads(
             (ROOT / "supply-chain" / "schema.json").read_text(encoding="utf-8")
         )
+        repository_schema = schema["properties"]["repositories"]["items"]
+        self.assertFalse(repository_schema["additionalProperties"])
+        self.assertIn("commit", repository_schema["required"])
+        self.assertIn("audit_mode", repository_schema["required"])
+        self.assertEqual(
+            repository_schema["properties"]["audit_mode"]["enum"],
+            ["full", "metadata"],
+        )
+        self.assertEqual(
+            repository_schema["properties"]["commit"]["type"],
+            ["string", "null"],
+        )
+        self.assertIsNone(
+            repository_schema["allOf"][0]["then"]["properties"]["commit"]["const"]
+        )
         cases = [
             ([], "schema root must be an object"),
             ({**schema, "$schema": "draft-07"}, "draft 2020-12"),
@@ -303,12 +434,137 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(len(messages), 1)
         self.assertIn("1 action references", messages[0])
 
+    def test_monorepo_logical_sources_ignore_inert_github_workflows(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for relative in CHECKOUT_METADATA_REQUIRED_FILES:
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("metadata\n", encoding="utf-8")
+            (root / ".github" / "dependabot.yml").write_text(
+                "updates:\n  - package-ecosystem: github-actions\n",
+                encoding="utf-8",
+            )
+            (root / ".github" / "workflows" / "check.yml").write_text(
+                f"runs-on: ubuntu-24.04\n"
+                f"uses: example/action@{'a' * 40} # v1\n",
+                encoding="utf-8",
+            )
+            nested = root / "client" / ".github"
+            (nested / "workflows").mkdir(parents=True)
+            (nested / "dependabot.yml").write_text(
+                "updates: []\n", encoding="utf-8"
+            )
+            (nested / "workflows" / "ci.yml").write_text(
+                "runs-on: retired-runner\nuses: retired/action@v1\n",
+                encoding="utf-8",
+            )
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+
+            aggregate = fixture_repository(
+                name="classic",
+                repository="atrinik/classic",
+                checkout="classic",
+                roles=("checkout-metadata",),
+                audit_mode="metadata",
+            )
+            logical = fixture_repository(
+                name="classic-client",
+                repository="atrinik/classic",
+                checkout="classic",
+                source="client",
+                roles=("client",),
+            )
+            action = fixture_dependency(
+                owner="classic",
+                scope=("classic",),
+                evidence=(
+                    Evidence(
+                        "classic",
+                        ".github/workflows/check.yml",
+                        f"example/action@{'a' * 40} # v1",
+                    ),
+                ),
+            )
+            runner = fixture_dependency(
+                identifier="runner/ubuntu-24.04",
+                name="Ubuntu runner",
+                kind="toolchain",
+                owner="classic",
+                scope=("classic",),
+                locator="github-hosted-runner/ubuntu-24.04",
+                commit=None,
+                evidence=(
+                    Evidence(
+                        "classic",
+                        ".github/workflows/check.yml",
+                        "runs-on: ubuntu-24.04",
+                    ),
+                ),
+            )
+            inventory = Inventory(
+                "atrinik",
+                "2026-08-08T00:00:00Z",
+                [aggregate, logical],
+                [action, runner],
+            )
+
+            messages = inventory.audit(
+                {"classic": root, "classic-client": root / "client"}
+            )
+            inert_evidence = fixture_dependency(
+                identifier="tool/inert-workflow",
+                name="Inert workflow evidence",
+                kind="toolchain",
+                owner="classic-client",
+                scope=("classic-client",),
+                locator="pkg:generic/inert-workflow",
+                commit=None,
+                evidence=(
+                    Evidence(
+                        "classic-client",
+                        ".github/workflows/ci.yml",
+                        "retired/action@v1",
+                    ),
+                ),
+            )
+            with self.assertRaisesRegex(
+                WorkspaceError, "inert nested GitHub metadata"
+            ):
+                Inventory(
+                    "atrinik",
+                    "2026-08-08T00:00:00Z",
+                    [aggregate, logical],
+                    [action, runner, inert_evidence],
+                ).audit({"classic": root, "classic-client": root / "client"})
+            (root / "client" / "package.json").write_text(
+                "{}\n", encoding="utf-8"
+            )
+            with self.assertRaisesRegex(
+                WorkspaceError, "classic-client/package.json.*absent"
+            ):
+                inventory.audit(
+                    {"classic": root, "classic-client": root / "client"}
+                )
+
+        self.assertEqual(len(messages), 2)
+        self.assertIn("1 action references", messages[0])
+        self.assertIn("0 action references", messages[1])
+
     def test_audit_rejects_invalid_roots_and_evidence(self) -> None:
         inventory = self.audit_inventory()
         with self.assertRaisesRegex(WorkspaceError, "roots are incomplete"):
             inventory.audit({})
         with self.assertRaisesRegex(WorkspaceError, "unknown.*repositories"):
             inventory.audit({"unknown": ROOT}, require_all=False)
+        not_ready = Inventory(
+            inventory.organization,
+            inventory.created,
+            [replace(inventory.repositories[0], audit_ready=False)],
+            inventory.dependencies,
+        )
+        with self.assertRaisesRegex(WorkspaceError, "unknown.*repositories"):
+            not_ready.audit({"fixture": ROOT})
 
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -411,6 +667,65 @@ class InventoryTests(unittest.TestCase):
                     workflow.write_text(original, encoding="utf-8")
                     with self.assertRaisesRegex(WorkspaceError, expected):
                         semantic_inventory.audit({"fixture": root})
+
+    def test_content_1x_runner_policy_violation_fails_audit(self) -> None:
+        repository = fixture_repository(
+            name="content-1x",
+            repository="atrinik/content",
+            branch="1.x",
+            checkout="content-1x",
+            cohorts=("classic",),
+            stacks=("classic",),
+            roles=("content",),
+            license="LicenseRef-Atrinik-Content",
+        )
+        action = fixture_dependency(
+            owner="content-1x",
+            scope=("content-1x",),
+            evidence=(
+                Evidence(
+                    "content-1x",
+                    ".github/workflows/ci.yml",
+                    f"example/action@{'a' * 40} # v1",
+                ),
+            ),
+        )
+        runner = fixture_dependency(
+            identifier="runner/ubuntu-24.04",
+            name="Ubuntu runner",
+            kind="toolchain",
+            owner="content-1x",
+            scope=("content-1x",),
+            locator="github-hosted-runner/ubuntu-24.04",
+            commit=None,
+            evidence=(
+                Evidence(
+                    "content-1x",
+                    ".github/dependabot.yml",
+                    "package-ecosystem: github-actions",
+                ),
+            ),
+        )
+        inventory = Inventory(
+            "atrinik", "2026-08-08T00:00:00Z", [repository], [action, runner]
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.make_audit_repository(root)
+            workflow = root / ".github" / "workflows" / "ci.yml"
+            workflow.write_text(
+                workflow.read_text(encoding="utf-8").replace(
+                    "runs-on: ubuntu-24.04", "runs-on: ${{ matrix.os }}"
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                r"content-1x/.github/workflows/ci.yml: workflow runner must "
+                r"be an explicit literal",
+            ):
+                inventory.audit({"content-1x": root})
 
     def test_audit_rejects_inventory_scope_drift(self) -> None:
         inventory = self.audit_inventory()
@@ -542,7 +857,13 @@ class InventoryTests(unittest.TestCase):
 
         self.assertEqual(first, second)
         self.assertEqual(cyclonedx["specVersion"], "1.6")
-        self.assertEqual(len(cyclonedx["components"]), len(inventory.dependencies))
+        first_party = [
+            repository for repository in inventory.repositories if repository.supported
+        ]
+        self.assertEqual(
+            len(cyclonedx["components"]),
+            len(inventory.dependencies) + len(first_party),
+        )
         self.assertEqual(spdx["spdxVersion"], "SPDX-2.3")
         self.assertTrue(
             any(
@@ -551,10 +872,105 @@ class InventoryTests(unittest.TestCase):
                 for property_ in component["properties"]
             )
         )
-        self.assertTrue(
-            all(package["supplier"] == "NOASSERTION" for package in spdx["packages"])
+        self.assertEqual(
+            sum(
+                package["supplier"] == "Organization: Atrinik"
+                for package in spdx["packages"]
+            ),
+            len(first_party),
         )
+        content = next(
+            component
+            for component in cyclonedx["components"]
+            if component["bom-ref"] == "atrinik:component:content-1x"
+        )
+        properties = {
+            property_["name"]: property_["value"]
+            for property_ in content["properties"]
+        }
+        self.assertEqual(properties["atrinik:branch"], "1.x")
+        self.assertEqual(properties["atrinik:commit"], "unavailable")
+        self.assertEqual(content["version"], "unavailable")
+        self.assertEqual(properties["atrinik:stacks"], "classic")
+        self.assertEqual(properties["atrinik:roles"], "content")
+        spdx_content = next(
+            package
+            for package in spdx["packages"]
+            if package["name"] == "content-1x"
+        )
+        self.assertIn("repository: atrinik/content", spdx_content["packageComment"])
+        self.assertIn("branch: 1.x", spdx_content["packageComment"])
+        self.assertIn("stacks: classic", spdx_content["packageComment"])
+        self.assertIn("commit: unavailable", spdx_content["packageComment"])
         self.assertIn("| Dependency | Version |", inventory.report("licenses"))
+        self.assertIn("| Component | Repository | Branch |", inventory.report("licenses"))
+
+    def test_reports_resolve_profile_commits_without_conflating_content_branches(self) -> None:
+        inventory = self.load_inventory()
+        default_commit = "a" * 40
+        classic_commit = "b" * 40
+        root_commit = "c" * 40
+        default = json.loads(
+            inventory.report(
+                "cyclonedx",
+                {"atrinik": root_commit, "content": default_commit},
+                "default",
+            )
+        )
+        classic = json.loads(
+            inventory.report(
+                "cyclonedx",
+                {"atrinik": root_commit, "content-1x": classic_commit},
+                "classic",
+            )
+        )
+
+        def properties(document: dict[str, object], name: str) -> dict[str, str]:
+            component = next(
+                item
+                for item in document["components"]
+                if item["bom-ref"] == f"atrinik:component:{name}"
+            )
+            return {
+                item["name"]: item["value"] for item in component["properties"]
+            }
+
+        default_content = properties(default, "content")
+        default_classic_content = properties(default, "content-1x")
+        classic_content = properties(classic, "content-1x")
+        classic_default_content = properties(classic, "content")
+        self.assertEqual(default_content["atrinik:commit"], default_commit)
+        self.assertEqual(default_content["atrinik:selected"], "true")
+        self.assertEqual(default_classic_content["atrinik:commit"], "unavailable")
+        self.assertEqual(default_classic_content["atrinik:selected"], "false")
+        self.assertEqual(classic_content["atrinik:commit"], classic_commit)
+        self.assertEqual(classic_content["atrinik:selected"], "true")
+        self.assertEqual(classic_default_content["atrinik:commit"], "unavailable")
+        self.assertEqual(classic_default_content["atrinik:selected"], "false")
+
+        spdx = json.loads(
+            inventory.report(
+                "spdx",
+                {"atrinik": root_commit, "content-1x": classic_commit},
+                "classic",
+            )
+        )
+        content_package = next(
+            package for package in spdx["packages"] if package["name"] == "content-1x"
+        )
+        self.assertEqual(content_package["versionInfo"], classic_commit)
+        self.assertEqual(
+            content_package["externalRefs"][0]["referenceLocator"], classic_commit
+        )
+
+        with self.assertRaisesRegex(WorkspaceError, "unknown first-party"):
+            inventory.report("spdx", {"unknown": root_commit}, "classic")
+        with self.assertRaisesRegex(WorkspaceError, "outside the selected stack"):
+            inventory.report("spdx", {"content": default_commit}, "classic")
+        with self.assertRaisesRegex(WorkspaceError, "full lowercase Git commit"):
+            inventory.report("spdx", {"content-1x": "short"}, "classic")
+        with self.assertRaisesRegex(WorkspaceError, "unknown.*report stack"):
+            inventory.report("spdx", {}, "mixed")
 
     def test_reports_cover_license_references_checksums_and_invalid_formats(self) -> None:
         license_reference = fixture_dependency(
@@ -567,14 +983,19 @@ class InventoryTests(unittest.TestCase):
         inventory = Inventory(
             "atrinik",
             "2026-08-07T00:00:00Z",
-            [Repository("fixture", "atrinik/fixture", True, "fixture")],
+            [fixture_repository()],
             [license_reference],
         )
         cyclonedx = json.loads(inventory.report("cyclonedx"))
         spdx = json.loads(inventory.report("spdx"))
 
-        self.assertEqual(cyclonedx["components"][0]["type"], "library")
-        self.assertEqual(cyclonedx["components"][0]["hashes"][0]["alg"], "SHA-256")
+        dependency_component = next(
+            component
+            for component in cyclonedx["components"]
+            if component["bom-ref"] == license_reference.locator
+        )
+        self.assertEqual(dependency_component["type"], "library")
+        self.assertEqual(dependency_component["hashes"][0]["alg"], "SHA-256")
         self.assertEqual(
             spdx["hasExtractedLicensingInfos"][0]["licenseId"],
             "LicenseRef-Example",
@@ -587,7 +1008,7 @@ class InventoryTests(unittest.TestCase):
             Inventory(
                 "atrinik",
                 "2026-08-07T00:00:00Z",
-                [Repository("fixture", "atrinik/fixture", True, "fixture")],
+                [fixture_repository()],
                 [fixture_dependency()],
             ).report("spdx")
         )
@@ -756,6 +1177,53 @@ FROM toolchain AS final
             self.assertTrue(_is_container_input(".devcontainer/devcontainer.json"))
             self.assertFalse(_is_container_input("package.json"))
 
+    def test_metadata_audit_excludes_only_declared_logical_sources(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for relative in CHECKOUT_METADATA_REQUIRED_FILES:
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("metadata\n", encoding="utf-8")
+            root_tool = root / "tools" / "future-dependencies.lock.json"
+            root_tool.write_text("{}\n", encoding="utf-8")
+            nested = root / "client" / "dependencies.lock.json"
+            nested.parent.mkdir()
+            nested.write_text("{}\n", encoding="utf-8")
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+
+            files = _audit_files(
+                fixture_repository(
+                    name="classic",
+                    checkout="classic",
+                    audit_mode="metadata",
+                ),
+                root,
+                ("client", "server"),
+            )
+
+            self.assertIn("tools/future-dependencies.lock.json", files)
+            self.assertNotIn("client/dependencies.lock.json", files)
+
+            (root / "PROVENANCE.md").unlink()
+            with self.assertRaisesRegex(
+                WorkspaceError, "missing required files.*PROVENANCE.md"
+            ):
+                _audit_files(
+                    fixture_repository(audit_mode="metadata"),
+                    root,
+                    ("client",),
+                )
+
+    def test_component_source_root_rejects_symlinks(self) -> None:
+        component = Manifest.load(ROOT / "components.json").by_name["classic-server"]
+        with tempfile.TemporaryDirectory() as temporary:
+            checkout = Path(temporary)
+            (checkout / "client").mkdir()
+            (checkout / "server").symlink_to("client", target_is_directory=True)
+
+            with self.assertRaisesRegex(WorkspaceError, "source uses a symlink"):
+                _component_source_root(checkout, component)
+
     def test_git_file_listing_reports_command_and_encoding_failures(self) -> None:
         failed = subprocess.CompletedProcess(
             args=["git"], returncode=1, stdout=b"", stderr=b"not a repository"
@@ -822,6 +1290,7 @@ FROM toolchain AS final
         for url in (
             "https://github.com/atrinik/client.git\n",
             "git@github.com:atrinik/client.git\n",
+            "ssh://git@github.com/atrinik/client.git\n",
         ):
             with self.subTest(url=url):
                 completed = subprocess.CompletedProcess(
@@ -839,9 +1308,16 @@ FROM toolchain AS final
         unsupported = subprocess.CompletedProcess(
             args=["git"], returncode=0, stdout="file:///tmp/client\n", stderr=""
         )
+        misleading = subprocess.CompletedProcess(
+            args=["git"],
+            returncode=0,
+            stdout="https://example.invalid/github.com/atrinik/client.git\n",
+            stderr="",
+        )
         for result, expected in [
             (failed, "cannot inspect repository identity"),
             (unsupported, "unsupported repository remote"),
+            (misleading, "unsupported repository remote"),
         ]:
             with self.subTest(expected=expected):
                 with mock.patch(
@@ -853,13 +1329,26 @@ FROM toolchain AS final
 
     def test_repository_root_overrides_are_strict_and_identity_checked(self) -> None:
         workspace = mock.Mock()
-        workspace.component_path.side_effect = lambda name, profile: Path(
-            f"/workspace/{profile}/{name}"
-        )
+        default_components = json.loads(
+            (ROOT / "components.json").read_text(encoding="utf-8")
+        )["stacks"]["default"]["components"]
+        workspace.profile_summary.return_value = {
+            "name": "profile",
+            "stack": "default",
+            "components": [
+                {
+                    "component": name,
+                    "initialized": True,
+                    "path": f"/workspace/profile/{name}",
+                }
+                for name in default_components
+            ],
+        }
         invalid = [
             ("bad", "must be NAME=PATH"),
             ("unknown=/tmp", "must be NAME=PATH"),
-            ("client=relative", "must be absolute"),
+            ("client=/tmp", "not audit-ready"),
+            ("resources=relative", "must be absolute"),
         ]
         for override, expected in invalid:
             with self.subTest(override=override):
@@ -868,16 +1357,52 @@ FROM toolchain AS final
 
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary).resolve()
-            override = f"client={path}"
-            with mock.patch(
-                "atrinik_workspace.supply_chain._git_repository_coordinate",
-                return_value="atrinik/server",
+            override = f"resources={path}"
+            with (
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_top_level",
+                    return_value=path,
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_repository_remote",
+                    side_effect=WorkspaceError("wrong repository"),
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_repository_branch_compatible",
+                    return_value=True,
+                ),
             ):
-                with self.assertRaisesRegex(WorkspaceError, "is not atrinik/client"):
+                with self.assertRaisesRegex(WorkspaceError, "is not atrinik/resources"):
                     repository_roots(ROOT, workspace, "profile", [override])
-            with mock.patch(
-                "atrinik_workspace.supply_chain._git_repository_coordinate",
-                return_value="atrinik/client",
+            with (
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_top_level",
+                    return_value=path,
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_repository_remote",
+                    return_value="origin",
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_repository_branch_compatible",
+                    return_value=False,
+                ),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "not based on.*@main"):
+                    repository_roots(ROOT, workspace, "profile", [override])
+            with (
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_top_level",
+                    return_value=path,
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_repository_remote",
+                    return_value="origin",
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_repository_branch_compatible",
+                    return_value=True,
+                ),
             ):
                 with self.assertRaisesRegex(WorkspaceError, "duplicate.*override"):
                     repository_roots(
@@ -886,8 +1411,571 @@ FROM toolchain AS final
                 roots = repository_roots(ROOT, workspace, "profile", [override])
 
         self.assertEqual(roots["atrinik"], ROOT)
-        self.assertEqual(roots["client"], path)
-        self.assertIn("server", roots)
+        self.assertEqual(roots["resources"], path)
+        self.assertNotIn("server", roots)
+        self.assertNotIn("client", roots)
+
+    def test_repository_override_accepts_fork_origin_and_canonical_upstream(self) -> None:
+        workspace = mock.Mock()
+        default_components = json.loads(
+            (ROOT / "components.json").read_text(encoding="utf-8")
+        )["stacks"]["default"]["components"]
+        workspace.profile_summary.return_value = {
+            "name": "review",
+            "stack": "default",
+            "components": [
+                {
+                    "component": name,
+                    "initialized": True,
+                    "path": f"/workspace/review/{name}",
+                }
+                for name in default_components
+            ],
+        }
+
+        def git(*arguments: str, cwd: Path) -> str:
+            result = subprocess.run(
+                ["git", *arguments],
+                cwd=cwd,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+            return result.stdout.strip()
+
+        with tempfile.TemporaryDirectory() as temporary:
+            review = Path(temporary) / "resources-review"
+            review.mkdir()
+            git("init", "-q", "-b", "main", cwd=review)
+            git("config", "user.name", "Fixture", cwd=review)
+            git("config", "user.email", "fixture@example.invalid", cwd=review)
+            (review / "README.md").write_text("base\n", encoding="utf-8")
+            git("add", "README.md", cwd=review)
+            git("commit", "-q", "-m", "base", cwd=review)
+            base = git("rev-parse", "HEAD", cwd=review)
+            git(
+                "remote",
+                "add",
+                "origin",
+                "git@github.com:contributor/resources.git",
+                cwd=review,
+            )
+            # The canonical-looking second URL must not make the fork origin
+            # authoritative; Git fetches the first URL.
+            git(
+                "remote",
+                "set-url",
+                "--add",
+                "origin",
+                "https://github.com/atrinik/resources.git",
+                cwd=review,
+            )
+            git(
+                "remote",
+                "add",
+                "upstream",
+                "https://github.com/atrinik/resources.git",
+                cwd=review,
+            )
+            git("update-ref", "refs/remotes/upstream/main", base, cwd=review)
+            git("checkout", "-q", "-b", "review/resources", cwd=review)
+            (review / "README.md").write_text("review\n", encoding="utf-8")
+            git("commit", "-qam", "review", cwd=review)
+
+            roots = repository_roots(
+                ROOT, workspace, "review", [f"resources={review}"]
+            )
+            self.assertEqual(roots["resources"], review.resolve())
+
+            git("remote", "remove", "upstream", cwd=review)
+            with self.assertRaisesRegex(
+                WorkspaceError, "is not atrinik/resources"
+            ):
+                repository_roots(
+                    ROOT, workspace, "review", [f"resources={review}"]
+                )
+
+    def test_repository_roots_keep_duplicate_coordinates_profile_scoped(self) -> None:
+        workspace = mock.Mock()
+        classic_components = json.loads(
+            (ROOT / "components.json").read_text(encoding="utf-8")
+        )["stacks"]["classic"]["components"]
+        workspace.profile_summary.return_value = {
+            "name": "classic-review",
+            "stack": "classic",
+            "components": [
+                {
+                    "component": name,
+                    "initialized": name == "content-1x",
+                    "path": f"/workspace/classic-review/{name}",
+                }
+                for name in classic_components
+            ],
+        }
+
+        with self.assertRaisesRegex(
+            WorkspaceError,
+            r"profile classic-review is incomplete.*repair its selectors.*"
+            r"classic \(classic-client, "
+            r"classic-server, classic-protocol, classic-libatrinik, "
+            r"classic-editor\)",
+        ):
+            repository_roots(ROOT, workspace, "classic-review")
+
+    def test_repository_roots_fail_closed_when_content_1x_is_missing(self) -> None:
+        workspace = mock.Mock()
+        document = json.loads(
+            (ROOT / "components.json").read_text(encoding="utf-8")
+        )
+        classic_components = document["stacks"]["classic"]["components"]
+        workspace.profile_summary.return_value = {
+            "name": "classic",
+            "stack": "classic",
+            "components": [
+                {
+                    "component": name,
+                    "initialized": name != "content-1x",
+                    "path": f"/workspace/classic/{name}",
+                }
+                for name in classic_components
+            ],
+        }
+
+        with self.assertRaisesRegex(
+            WorkspaceError,
+            r"profile classic is incomplete.*./atrinik init --with classic.*"
+            r"content-1x \(content-1x\)",
+        ):
+            repository_roots(ROOT, workspace, "classic")
+
+    def test_repository_roots_reject_incomplete_profile_summary(self) -> None:
+        workspace = mock.Mock()
+        workspace.profile_summary.return_value = {
+            "name": "classic",
+            "stack": "classic",
+            "components": [],
+        }
+
+        with self.assertRaisesRegex(
+            WorkspaceError, "component set does not match classic stack"
+        ):
+            repository_roots(ROOT, workspace, "classic")
+
+        classic_components = json.loads(
+            (ROOT / "components.json").read_text(encoding="utf-8")
+        )["stacks"]["classic"]["components"]
+        workspace.profile_summary.return_value["components"] = [
+            {
+                "component": name,
+                "initialized": True,
+                "path": f"/workspace/classic/{name}",
+            }
+            for name in classic_components
+        ]
+        workspace.profile_summary.return_value["components"].append(
+            workspace.profile_summary.return_value["components"][0]
+        )
+        with self.assertRaisesRegex(
+            WorkspaceError, "component set does not match classic stack"
+        ):
+            repository_roots(ROOT, workspace, "classic")
+
+    def test_repository_roots_add_one_classic_checkout_metadata_root(self) -> None:
+        workspace = mock.Mock()
+        document = json.loads(
+            (ROOT / "components.json").read_text(encoding="utf-8")
+        )
+        components = {
+            component["name"]: component for component in document["components"]
+        }
+        classic_components = document["stacks"]["classic"]["components"]
+        workspace.profile_summary.return_value = {
+            "name": "classic",
+            "stack": "classic",
+            "components": [
+                {
+                    "component": name,
+                    "initialized": True,
+                    "checkout_path": (
+                        "/workspace/classic"
+                        if components[name]["checkout"] == "classic"
+                        else f"/missing/{name}"
+                    ),
+                    "path": (
+                        f"/workspace/classic/{components[name]['source']}"
+                        if components[name]["checkout"] == "classic"
+                        else f"/missing/{name}"
+                    ),
+                }
+                for name in classic_components
+            ],
+        }
+
+        roots = repository_roots(ROOT, workspace, "classic")
+
+        self.assertEqual(roots["classic"], Path("/workspace/classic"))
+        self.assertEqual(
+            roots["classic-server"], Path("/workspace/classic/server")
+        )
+
+    def test_classic_override_resolves_the_logical_source_root(self) -> None:
+        workspace = mock.Mock()
+        manifest_document = json.loads(
+            (ROOT / "components.json").read_text(encoding="utf-8")
+        )
+        classic_components = manifest_document["stacks"]["classic"]["components"]
+        component_documents = {
+            component["name"]: component
+            for component in manifest_document["components"]
+        }
+        workspace.profile_summary.return_value = {
+            "name": "classic-review",
+            "stack": "classic",
+            "components": [
+                {
+                    "component": name,
+                    "initialized": component_documents[name]["checkout"] != "classic",
+                    "checkout_path": (
+                        "/workspace/classic"
+                        if component_documents[name]["checkout"] == "classic"
+                        else f"/missing/{name}"
+                    ),
+                    "path": (
+                        f"/workspace/classic/{component_documents[name]['source']}"
+                        if component_documents[name]["checkout"] == "classic"
+                        else f"/missing/{name}"
+                    ),
+                }
+                for name in classic_components
+            ],
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            checkout = Path(temporary) / "classic"
+            checkout.mkdir()
+            for component in component_documents.values():
+                if component["checkout"] == "classic":
+                    (checkout / component["source"]).mkdir()
+            source = checkout / "server"
+            subprocess.run(["git", "init", "-q", str(checkout)], check=True)
+            checkout_link = Path(temporary) / "classic-link"
+            checkout_link.symlink_to(checkout, target_is_directory=True)
+            with self.assertRaisesRegex(WorkspaceError, "normal directory"):
+                repository_roots(
+                    ROOT,
+                    workspace,
+                    "classic-review",
+                    [f"classic-server={checkout_link}"],
+                )
+            with (
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_repository_remote",
+                    return_value="origin",
+                ),
+                mock.patch(
+                    "atrinik_workspace.supply_chain._git_repository_branch_compatible",
+                    return_value=True,
+                ),
+            ):
+                from_checkout = repository_roots(
+                    ROOT,
+                    workspace,
+                    "classic-review",
+                    [f"classic-server={checkout.resolve()}"],
+                )
+                from_source = repository_roots(
+                    ROOT,
+                    workspace,
+                    "classic-review",
+                    [f"classic-server={source.resolve()}"],
+                )
+                with self.assertRaisesRegex(
+                    WorkspaceError, "duplicate.*override.*checkout classic"
+                ):
+                    repository_roots(
+                        ROOT,
+                        workspace,
+                        "classic-review",
+                        [
+                            f"classic-server={checkout.resolve()}",
+                            f"classic-client={checkout.resolve()}",
+                        ],
+                    )
+
+        self.assertEqual(from_checkout["classic-server"], source.resolve())
+        self.assertEqual(from_source["classic-server"], source.resolve())
+        self.assertEqual(from_checkout["classic"], checkout.resolve())
+        for name in (
+            "classic-client",
+            "classic-editor",
+            "classic-libatrinik",
+            "classic-protocol",
+            "classic-server",
+        ):
+            expected = checkout / component_documents[name]["source"]
+            self.assertEqual(from_checkout[name], expected.resolve())
+            self.assertEqual(from_source[name], expected.resolve())
+
+    def test_report_component_commits_resolve_only_initialized_profile_stack(self) -> None:
+        workspace = mock.Mock()
+        classic_components = json.loads(
+            (ROOT / "components.json").read_text(encoding="utf-8")
+        )["stacks"]["classic"]["components"]
+        content_path = "/workspace/classic-review/content-1x"
+        workspace.profile_summary.return_value = {
+            "name": "classic-review",
+            "stack": "classic",
+            "components": [
+                {
+                    "component": name,
+                    "initialized": name == "content-1x",
+                    "path": content_path if name == "content-1x" else f"/missing/{name}",
+                }
+                for name in classic_components
+            ],
+        }
+        root_commit = "a" * 40
+        content_commit = "b" * 40
+        with mock.patch(
+            "atrinik_workspace.supply_chain._git_head",
+            side_effect=[root_commit, content_commit],
+        ) as git_head:
+            stack, commits = report_component_commits(
+                ROOT, workspace, "classic-review"
+            )
+
+        self.assertEqual(stack, "classic")
+        self.assertEqual(commits["atrinik"], root_commit)
+        self.assertEqual(commits["content-1x"], content_commit)
+        self.assertIsNone(commits["classic-server"])
+        self.assertIsNone(commits["classic"])
+        self.assertNotIn("content", commits)
+        self.assertEqual(git_head.call_count, 2)
+        git_head.assert_any_call(Path(content_path))
+
+        workspace.profile_summary.return_value["components"] = []
+        with self.assertRaisesRegex(WorkspaceError, "component set does not match"):
+            report_component_commits(ROOT, workspace, "classic-review")
+
+    def test_report_component_commits_deduplicates_the_classic_checkout(self) -> None:
+        workspace = mock.Mock()
+        document = json.loads(
+            (ROOT / "components.json").read_text(encoding="utf-8")
+        )
+        components = {
+            component["name"]: component for component in document["components"]
+        }
+        classic_components = document["stacks"]["classic"]["components"]
+        workspace.profile_summary.return_value = {
+            "name": "classic-review",
+            "stack": "classic",
+            "components": [
+                {
+                    "component": name,
+                    "initialized": components[name]["checkout"] == "classic",
+                    "checkout_path": "/workspace/classic",
+                    "path": f"/workspace/classic/{components[name]['source']}",
+                }
+                for name in classic_components
+            ],
+        }
+        root_commit = "a" * 40
+        classic_commit = "b" * 40
+        with mock.patch(
+            "atrinik_workspace.supply_chain._git_head",
+            side_effect=[root_commit, classic_commit],
+        ) as git_head:
+            stack, commits = report_component_commits(
+                ROOT, workspace, "classic-review"
+            )
+
+        self.assertEqual(stack, "classic")
+        self.assertEqual(commits["classic"], classic_commit)
+        for name in (
+            "classic-client",
+            "classic-editor",
+            "classic-libatrinik",
+            "classic-protocol",
+            "classic-server",
+        ):
+            self.assertEqual(commits[name], classic_commit)
+        self.assertEqual(git_head.call_count, 2)
+        git_head.assert_any_call(Path("/workspace/classic"))
+
+    def test_git_head_requires_a_full_commit(self) -> None:
+        for result, expected in [
+            (
+                subprocess.CompletedProcess(
+                    args=["git"], returncode=0, stdout="a" * 40 + "\n", stderr=""
+                ),
+                "a" * 40,
+            ),
+            (
+                subprocess.CompletedProcess(
+                    args=["git"], returncode=0, stdout="short\n", stderr=""
+                ),
+                None,
+            ),
+        ]:
+            with self.subTest(expected=expected):
+                with mock.patch(
+                    "atrinik_workspace.supply_chain.subprocess.run",
+                    return_value=result,
+                ):
+                    if expected is None:
+                        with self.assertRaisesRegex(WorkspaceError, "full Git commit"):
+                            _git_head(ROOT)
+                    else:
+                        self.assertEqual(_git_head(ROOT), expected)
+
+    def test_repository_branch_compatibility_uses_ancestry_for_unique_coordinates(self) -> None:
+        completed = subprocess.CompletedProcess(
+            args=["git"], returncode=0, stdout="", stderr=""
+        )
+        incompatible = subprocess.CompletedProcess(
+            args=["git"], returncode=1, stdout="", stderr=""
+        )
+        with mock.patch(
+            "atrinik_workspace.supply_chain.subprocess.run",
+            side_effect=[completed, completed],
+        ) as run_command:
+            self.assertTrue(_git_repository_branch_compatible(ROOT, "1.x"))
+        self.assertIn(
+            "refs/remotes/origin/1.x",
+            " ".join(run_command.call_args_list[0].args[0]),
+        )
+
+        with mock.patch(
+            "atrinik_workspace.supply_chain.subprocess.run",
+            side_effect=[incompatible],
+        ):
+            self.assertFalse(_git_repository_branch_compatible(ROOT, "main"))
+
+        with tempfile.TemporaryDirectory() as temporary:
+            checkout = Path(temporary)
+            subprocess.run(
+                ["git", "init", "-q", "-b", "main", str(checkout)], check=True
+            )
+            subprocess.run(
+                ["git", "-C", str(checkout), "config", "user.name", "Fixture"],
+                check=True,
+            )
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(checkout),
+                    "config",
+                    "user.email",
+                    "fixture@example.invalid",
+                ],
+                check=True,
+            )
+            (checkout / "README.md").write_text("fixture\n", encoding="utf-8")
+            subprocess.run(
+                ["git", "-C", str(checkout), "add", "README.md"], check=True
+            )
+            subprocess.run(
+                ["git", "-C", str(checkout), "commit", "-q", "-m", "fixture"],
+                check=True,
+            )
+            self.assertFalse(
+                _git_repository_branch_compatible(checkout, "main")
+            )
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(checkout),
+                    "update-ref",
+                    "refs/remotes/origin/main",
+                    "HEAD",
+                ],
+                check=True,
+            )
+            self.assertTrue(_git_repository_branch_compatible(checkout, "main"))
+
+    def test_duplicate_repository_branches_and_review_worktrees_are_directional(self) -> None:
+        def git(*arguments: str, cwd: Path | None = None) -> None:
+            subprocess.run(
+                ["git", *arguments],
+                cwd=cwd,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+
+        with tempfile.TemporaryDirectory() as temporary:
+            temporary_root = Path(temporary)
+            source = temporary_root / "source"
+            source.mkdir()
+            git("init", "-q", "-b", "main", cwd=source)
+            git("config", "user.name", "Fixture", cwd=source)
+            git("config", "user.email", "fixture@example.invalid", cwd=source)
+            (source / "README.md").write_text("fixture\n", encoding="utf-8")
+            git("add", "README.md", cwd=source)
+            git("commit", "-q", "-m", "fixture", cwd=source)
+            git("branch", "1.x", cwd=source)
+
+            content = temporary_root / "content"
+            content_1x = temporary_root / "content-1x"
+            separate_main = temporary_root / "separate-main"
+            separate_1x = temporary_root / "separate-1x"
+            git("clone", "-q", "--branch", "main", str(source), str(content))
+            git("clone", "-q", "--branch", "1.x", str(source), str(content_1x))
+            git("clone", "-q", "--branch", "main", str(source), str(separate_main))
+            git("clone", "-q", "--branch", "1.x", str(source), str(separate_1x))
+            review_main = temporary_root / "review-main"
+            review_1x = temporary_root / "review-1x"
+            git(
+                "worktree",
+                "add",
+                "-q",
+                "-b",
+                "review-main",
+                str(review_main),
+                cwd=content,
+            )
+            git(
+                "worktree",
+                "add",
+                "-q",
+                "-b",
+                "review-1x",
+                str(review_1x),
+                cwd=content_1x,
+            )
+
+            self.assertTrue(
+                _git_repository_branch_compatible(content, "main", content)
+            )
+            self.assertTrue(
+                _git_repository_branch_compatible(content_1x, "1.x", content_1x)
+            )
+            self.assertFalse(
+                _git_repository_branch_compatible(content, "1.x", content_1x)
+            )
+            self.assertFalse(
+                _git_repository_branch_compatible(content_1x, "main", content)
+            )
+            self.assertFalse(
+                _git_repository_branch_compatible(separate_main, "main", content)
+            )
+            self.assertFalse(
+                _git_repository_branch_compatible(separate_1x, "1.x", content_1x)
+            )
+            self.assertTrue(
+                _git_repository_branch_compatible(review_main, "main", content)
+            )
+            self.assertFalse(
+                _git_repository_branch_compatible(review_main, "1.x", content_1x)
+            )
+            self.assertTrue(
+                _git_repository_branch_compatible(review_1x, "1.x", content_1x)
+            )
+            self.assertFalse(
+                _git_repository_branch_compatible(review_1x, "main", content)
+            )
 
     def test_generated_output_can_be_printed_or_written_absolutely(self) -> None:
         with mock.patch("builtins.print") as output:

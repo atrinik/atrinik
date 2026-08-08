@@ -1,17 +1,423 @@
 {
-  "schema_version": 1,
+  "schema_version": 3,
+  "cohorts": {
+    "default": [
+      "client",
+      "server",
+      "protocol",
+      "editor",
+      "renderer",
+      "content-toolkit",
+      "website",
+      "content",
+      "sound",
+      "resources",
+      "metaserver-worker",
+      "devcontainer",
+      "github-settings"
+    ],
+    "classic": [
+      "classic",
+      "content-1x",
+      "tools"
+    ]
+  },
+  "stacks": {
+    "default": {
+      "generation": "replacement",
+      "components": [
+        "client",
+        "server",
+        "protocol",
+        "editor",
+        "renderer",
+        "content-toolkit",
+        "website",
+        "content",
+        "sound",
+        "resources",
+        "metaserver-worker",
+        "devcontainer",
+        "github-settings"
+      ],
+      "providers": {
+        "client": "client",
+        "server": "server",
+        "protocol": "protocol",
+        "editor": "editor",
+        "renderer": "renderer",
+        "content-toolkit": "content-toolkit",
+        "website": "website",
+        "content": "content",
+        "sound": "sound",
+        "resources": "resources",
+        "metaserver-worker": "metaserver-worker",
+        "devcontainer": "devcontainer",
+        "github-settings": "github-settings"
+      }
+    },
+    "classic": {
+      "generation": "classic",
+      "components": [
+        "classic-client",
+        "classic-server",
+        "classic-protocol",
+        "classic-libatrinik",
+        "classic-editor",
+        "content-1x",
+        "tools",
+        "sound",
+        "resources",
+        "metaserver-worker",
+        "devcontainer",
+        "github-settings"
+      ],
+      "providers": {
+        "client": "classic-client",
+        "server": "classic-server",
+        "protocol": "classic-protocol",
+        "libatrinik": "classic-libatrinik",
+        "editor": "classic-editor",
+        "content": "content-1x",
+        "tools": "tools",
+        "sound": "sound",
+        "resources": "resources",
+        "metaserver-worker": "metaserver-worker",
+        "devcontainer": "devcontainer",
+        "github-settings": "github-settings"
+      }
+    }
+  },
+  "checkouts": [
+    {
+      "name": "client",
+      "repository": "atrinik/client",
+      "branch": "main",
+      "path": "client",
+      "generation": "replacement",
+      "license": "MIT"
+    },
+    {
+      "name": "server",
+      "repository": "atrinik/server",
+      "branch": "main",
+      "path": "server",
+      "generation": "replacement",
+      "license": "MIT"
+    },
+    {
+      "name": "protocol",
+      "repository": "atrinik/protocol",
+      "branch": "main",
+      "path": "protocol",
+      "generation": "replacement",
+      "license": "MIT"
+    },
+    {
+      "name": "editor",
+      "repository": "atrinik/editor",
+      "branch": "main",
+      "path": "editor",
+      "generation": "replacement",
+      "license": "MIT"
+    },
+    {
+      "name": "renderer",
+      "repository": "atrinik/renderer",
+      "branch": "main",
+      "path": "renderer",
+      "generation": "replacement",
+      "license": "MIT"
+    },
+    {
+      "name": "content-toolkit",
+      "repository": "atrinik/content-toolkit",
+      "branch": "main",
+      "path": "content-toolkit",
+      "generation": "replacement",
+      "license": "MIT"
+    },
+    {
+      "name": "website",
+      "repository": "atrinik/website",
+      "branch": "main",
+      "path": "website",
+      "generation": "replacement",
+      "license": "MIT"
+    },
+    {
+      "name": "content",
+      "repository": "atrinik/content",
+      "branch": "main",
+      "path": "content",
+      "generation": "replacement",
+      "license": "LicenseRef-Atrinik-Content"
+    },
+    {
+      "name": "sound",
+      "repository": "atrinik/sound",
+      "branch": "main",
+      "path": "sound",
+      "generation": "shared",
+      "license": "LicenseRef-Atrinik-Sound"
+    },
+    {
+      "name": "resources",
+      "repository": "atrinik/resources",
+      "branch": "main",
+      "path": "resources",
+      "generation": "shared",
+      "license": "LicenseRef-Atrinik-Resources"
+    },
+    {
+      "name": "metaserver-worker",
+      "repository": "atrinik/metaserver-worker",
+      "branch": "main",
+      "path": "metaserver-worker",
+      "generation": "shared",
+      "license": "MIT"
+    },
+    {
+      "name": "devcontainer",
+      "repository": "atrinik/devcontainer",
+      "branch": "main",
+      "path": "devcontainer",
+      "generation": "shared",
+      "license": "MIT"
+    },
+    {
+      "name": "github-settings",
+      "repository": "atrinik/github-settings",
+      "branch": "main",
+      "path": "github-settings",
+      "generation": "shared",
+      "license": "MIT"
+    },
+    {
+      "name": "classic",
+      "repository": "atrinik/classic",
+      "branch": "main",
+      "path": "classic",
+      "generation": "classic",
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "name": "content-1x",
+      "repository": "atrinik/content",
+      "branch": "1.x",
+      "path": "content-1x",
+      "generation": "classic",
+      "license": "LicenseRef-Atrinik-Content"
+    },
+    {
+      "name": "tools",
+      "repository": "atrinik/tools",
+      "branch": "main",
+      "path": "tools",
+      "generation": "classic",
+      "license": "GPL-2.0-or-later"
+    }
+  ],
   "components": [
-    {"name": "client", "repository": "atrinik/client", "branch": "main", "build": "client"},
-    {"name": "server", "repository": "atrinik/server", "branch": "main", "build": "server"},
-    {"name": "protocol", "repository": "atrinik/protocol", "branch": "main", "build": "protocol"},
-    {"name": "libatrinik", "repository": "atrinik/libatrinik", "branch": "main", "build": "library"},
-    {"name": "content", "repository": "atrinik/content", "branch": "main", "build": "content"},
-    {"name": "sound", "repository": "atrinik/sound", "branch": "main", "build": "assets"},
-    {"name": "resources", "repository": "atrinik/resources", "branch": "main", "build": "assets"},
-    {"name": "tools", "repository": "atrinik/tools", "branch": "main", "build": "none"},
-    {"name": "editor", "repository": "atrinik/editor", "branch": "main", "build": "none"},
-    {"name": "metaserver-worker", "repository": "atrinik/metaserver-worker", "branch": "main", "build": "worker"},
-    {"name": "devcontainer", "repository": "atrinik/devcontainer", "branch": "main", "build": "none"},
-    {"name": "github-settings", "repository": "atrinik/github-settings", "branch": "main", "build": "none"}
+    {
+      "name": "client",
+      "checkout": "client",
+      "source": ".",
+      "build": "none",
+      "generation": "replacement",
+      "provides": ["client"],
+      "requires": ["protocol", "renderer", "content", "sound", "resources"],
+      "license": "MIT"
+    },
+    {
+      "name": "server",
+      "checkout": "server",
+      "source": ".",
+      "build": "none",
+      "generation": "replacement",
+      "provides": ["server"],
+      "requires": ["protocol", "content-toolkit", "content", "resources"],
+      "license": "MIT"
+    },
+    {
+      "name": "protocol",
+      "checkout": "protocol",
+      "source": ".",
+      "build": "none",
+      "generation": "replacement",
+      "provides": ["protocol"],
+      "requires": [],
+      "license": "MIT"
+    },
+    {
+      "name": "editor",
+      "checkout": "editor",
+      "source": ".",
+      "build": "none",
+      "generation": "replacement",
+      "provides": ["editor"],
+      "requires": ["renderer", "content-toolkit", "content", "sound", "resources"],
+      "license": "MIT"
+    },
+    {
+      "name": "renderer",
+      "checkout": "renderer",
+      "source": ".",
+      "build": "none",
+      "generation": "replacement",
+      "provides": ["renderer"],
+      "requires": ["resources"],
+      "license": "MIT"
+    },
+    {
+      "name": "content-toolkit",
+      "checkout": "content-toolkit",
+      "source": ".",
+      "build": "none",
+      "generation": "replacement",
+      "provides": ["content-toolkit"],
+      "requires": ["content"],
+      "license": "MIT"
+    },
+    {
+      "name": "website",
+      "checkout": "website",
+      "source": ".",
+      "build": "none",
+      "generation": "replacement",
+      "provides": ["website"],
+      "requires": [],
+      "license": "MIT"
+    },
+    {
+      "name": "content",
+      "checkout": "content",
+      "source": ".",
+      "build": "none",
+      "generation": "replacement",
+      "provides": ["content"],
+      "requires": [],
+      "license": "LicenseRef-Atrinik-Content"
+    },
+    {
+      "name": "sound",
+      "checkout": "sound",
+      "source": ".",
+      "build": "assets",
+      "generation": "shared",
+      "provides": ["sound"],
+      "requires": [],
+      "license": "LicenseRef-Atrinik-Sound"
+    },
+    {
+      "name": "resources",
+      "checkout": "resources",
+      "source": ".",
+      "build": "assets",
+      "generation": "shared",
+      "provides": ["resources"],
+      "requires": [],
+      "license": "LicenseRef-Atrinik-Resources"
+    },
+    {
+      "name": "metaserver-worker",
+      "checkout": "metaserver-worker",
+      "source": ".",
+      "build": "worker",
+      "generation": "shared",
+      "provides": ["metaserver-worker"],
+      "requires": [],
+      "license": "MIT"
+    },
+    {
+      "name": "devcontainer",
+      "checkout": "devcontainer",
+      "source": ".",
+      "build": "none",
+      "generation": "shared",
+      "provides": ["devcontainer"],
+      "requires": [],
+      "license": "MIT"
+    },
+    {
+      "name": "github-settings",
+      "checkout": "github-settings",
+      "source": ".",
+      "build": "none",
+      "generation": "shared",
+      "provides": ["github-settings"],
+      "requires": [],
+      "license": "MIT"
+    },
+    {
+      "name": "classic-client",
+      "checkout": "classic",
+      "source": "client",
+      "build": "classic-client",
+      "generation": "classic",
+      "provides": ["client"],
+      "requires": ["protocol", "libatrinik", "sound"],
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "name": "classic-server",
+      "checkout": "classic",
+      "source": "server",
+      "build": "classic-server",
+      "generation": "classic",
+      "provides": ["server"],
+      "requires": ["protocol", "libatrinik", "content", "resources"],
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "name": "classic-protocol",
+      "checkout": "classic",
+      "source": "protocol",
+      "build": "classic-protocol",
+      "generation": "classic",
+      "provides": ["protocol"],
+      "requires": [],
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "name": "classic-libatrinik",
+      "checkout": "classic",
+      "source": "libatrinik",
+      "build": "classic-library",
+      "generation": "classic",
+      "provides": ["libatrinik"],
+      "requires": ["protocol"],
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "name": "classic-editor",
+      "checkout": "classic",
+      "source": "editor",
+      "build": "none",
+      "generation": "classic",
+      "provides": ["editor"],
+      "requires": ["content", "resources"],
+      "license": "GPL-2.0-or-later"
+    },
+    {
+      "name": "content-1x",
+      "checkout": "content-1x",
+      "source": ".",
+      "build": "classic-content",
+      "generation": "classic",
+      "provides": ["content"],
+      "requires": [],
+      "license": "LicenseRef-Atrinik-Content"
+    },
+    {
+      "name": "tools",
+      "checkout": "tools",
+      "source": ".",
+      "build": "none",
+      "generation": "classic",
+      "provides": ["tools"],
+      "requires": ["content"],
+      "license": "GPL-2.0-or-later"
+    }
   ]
 }
