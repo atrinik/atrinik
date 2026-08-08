@@ -116,21 +116,13 @@ class InventoryTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn(
-            "repository: atrinik/content\n          path: content\n",
-            workflow,
-        )
-        self.assertIn(
-            "repository: atrinik/content\n          ref: 1.x\n"
-            "          path: content-1x\n",
-            workflow,
-        )
-        self.assertEqual(workflow.count("repository: atrinik/classic\n"), 1)
-        self.assertNotIn("repository: atrinik/legacy-", workflow)
+        initialize = "./atrinik init --with classic"
+        self.assertEqual(workflow.count(initialize), 1)
+        self.assertNotIn("          repository: atrinik/", workflow)
         for profile in ("default", "classic"):
-            self.assertIn(
-                f"./atrinik supply-chain audit --profile {profile}", workflow
-            )
+            audit = f"./atrinik supply-chain audit --profile {profile}"
+            self.assertIn(audit, workflow)
+            self.assertLess(workflow.index(initialize), workflow.index(audit))
             for report in ("licenses.md", "cyclonedx.json", "spdx.json"):
                 self.assertIn(
                     f"build/supply-chain/{profile}/{report}", workflow
@@ -675,6 +667,65 @@ class InventoryTests(unittest.TestCase):
                     workflow.write_text(original, encoding="utf-8")
                     with self.assertRaisesRegex(WorkspaceError, expected):
                         semantic_inventory.audit({"fixture": root})
+
+    def test_content_1x_runner_policy_violation_fails_audit(self) -> None:
+        repository = fixture_repository(
+            name="content-1x",
+            repository="atrinik/content",
+            branch="1.x",
+            checkout="content-1x",
+            cohorts=("classic",),
+            stacks=("classic",),
+            roles=("content",),
+            license="LicenseRef-Atrinik-Content",
+        )
+        action = fixture_dependency(
+            owner="content-1x",
+            scope=("content-1x",),
+            evidence=(
+                Evidence(
+                    "content-1x",
+                    ".github/workflows/ci.yml",
+                    f"example/action@{'a' * 40} # v1",
+                ),
+            ),
+        )
+        runner = fixture_dependency(
+            identifier="runner/ubuntu-24.04",
+            name="Ubuntu runner",
+            kind="toolchain",
+            owner="content-1x",
+            scope=("content-1x",),
+            locator="github-hosted-runner/ubuntu-24.04",
+            commit=None,
+            evidence=(
+                Evidence(
+                    "content-1x",
+                    ".github/dependabot.yml",
+                    "package-ecosystem: github-actions",
+                ),
+            ),
+        )
+        inventory = Inventory(
+            "atrinik", "2026-08-08T00:00:00Z", [repository], [action, runner]
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.make_audit_repository(root)
+            workflow = root / ".github" / "workflows" / "ci.yml"
+            workflow.write_text(
+                workflow.read_text(encoding="utf-8").replace(
+                    "runs-on: ubuntu-24.04", "runs-on: ${{ matrix.os }}"
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                r"content-1x/.github/workflows/ci.yml: workflow runner must "
+                r"be an explicit literal",
+            ):
+                inventory.audit({"content-1x": root})
 
     def test_audit_rejects_inventory_scope_drift(self) -> None:
         inventory = self.audit_inventory()
@@ -1287,7 +1338,7 @@ FROM toolchain AS final
             "components": [
                 {
                     "component": name,
-                    "initialized": False,
+                    "initialized": True,
                     "path": f"/workspace/profile/{name}",
                 }
                 for name in default_components
@@ -1375,7 +1426,7 @@ FROM toolchain AS final
             "components": [
                 {
                     "component": name,
-                    "initialized": False,
+                    "initialized": True,
                     "path": f"/workspace/review/{name}",
                 }
                 for name in default_components
@@ -1463,11 +1514,72 @@ FROM toolchain AS final
             ],
         }
 
-        roots = repository_roots(ROOT, workspace, "classic-review")
+        with self.assertRaisesRegex(
+            WorkspaceError,
+            r"profile classic-review is incomplete.*repair its selectors.*"
+            r"classic \(classic-client, "
+            r"classic-server, classic-protocol, classic-libatrinik, "
+            r"classic-editor\)",
+        ):
+            repository_roots(ROOT, workspace, "classic-review")
 
-        self.assertIn("content-1x", roots)
-        self.assertNotIn("content", roots)
-        self.assertNotIn("classic-server", roots)
+    def test_repository_roots_fail_closed_when_content_1x_is_missing(self) -> None:
+        workspace = mock.Mock()
+        document = json.loads(
+            (ROOT / "components.json").read_text(encoding="utf-8")
+        )
+        classic_components = document["stacks"]["classic"]["components"]
+        workspace.profile_summary.return_value = {
+            "name": "classic",
+            "stack": "classic",
+            "components": [
+                {
+                    "component": name,
+                    "initialized": name != "content-1x",
+                    "path": f"/workspace/classic/{name}",
+                }
+                for name in classic_components
+            ],
+        }
+
+        with self.assertRaisesRegex(
+            WorkspaceError,
+            r"profile classic is incomplete.*./atrinik init --with classic.*"
+            r"content-1x \(content-1x\)",
+        ):
+            repository_roots(ROOT, workspace, "classic")
+
+    def test_repository_roots_reject_incomplete_profile_summary(self) -> None:
+        workspace = mock.Mock()
+        workspace.profile_summary.return_value = {
+            "name": "classic",
+            "stack": "classic",
+            "components": [],
+        }
+
+        with self.assertRaisesRegex(
+            WorkspaceError, "component set does not match classic stack"
+        ):
+            repository_roots(ROOT, workspace, "classic")
+
+        classic_components = json.loads(
+            (ROOT / "components.json").read_text(encoding="utf-8")
+        )["stacks"]["classic"]["components"]
+        workspace.profile_summary.return_value["components"] = [
+            {
+                "component": name,
+                "initialized": True,
+                "path": f"/workspace/classic/{name}",
+            }
+            for name in classic_components
+        ]
+        workspace.profile_summary.return_value["components"].append(
+            workspace.profile_summary.return_value["components"][0]
+        )
+        with self.assertRaisesRegex(
+            WorkspaceError, "component set does not match classic stack"
+        ):
+            repository_roots(ROOT, workspace, "classic")
 
     def test_repository_roots_add_one_classic_checkout_metadata_root(self) -> None:
         workspace = mock.Mock()
@@ -1484,7 +1596,7 @@ FROM toolchain AS final
             "components": [
                 {
                     "component": name,
-                    "initialized": components[name]["checkout"] == "classic",
+                    "initialized": True,
                     "checkout_path": (
                         "/workspace/classic"
                         if components[name]["checkout"] == "classic"
@@ -1523,7 +1635,7 @@ FROM toolchain AS final
             "components": [
                 {
                     "component": name,
-                    "initialized": component_documents[name]["checkout"] == "classic",
+                    "initialized": component_documents[name]["checkout"] != "classic",
                     "checkout_path": (
                         "/workspace/classic"
                         if component_documents[name]["checkout"] == "classic"
