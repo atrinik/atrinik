@@ -92,6 +92,9 @@ SCENARIO_KEYS = {
 SCENARIO_SCHEMA_VERSION = 4
 SCENARIO_PRESETS = {"basic-player": {"archetype": "human_male"}}
 SCENARIO_PASSWORD_MAX_SIZE = 128
+BUILD_METADATA = ".atrinik-build.json"
+BUILD_METADATA_SCHEMA_VERSION = 1
+CACHE_METADATA = ".atrinik-cache.json"
 
 
 def display_arguments(arguments: list[str]) -> str:
@@ -261,6 +264,19 @@ class Workspace:
         return RepositoryMigration(
             self.paths.repository, self.paths, self.manifest
         ).execute(mode)
+
+    def cleanup(
+        self,
+        scopes: list[str],
+        older_than_days: int,
+        names: list[str],
+        apply: bool,
+    ) -> dict[str, Any]:
+        # Import lazily so the planner can reuse the workspace lock and metadata
+        # helpers without creating a module import cycle.
+        from .cleanup import Cleanup
+
+        return Cleanup(self).execute(scopes, older_than_days, names, apply)
 
     def _checkout_identity(self, value: Checkout | Component) -> Checkout:
         if isinstance(value, Checkout):
@@ -1323,6 +1339,7 @@ class Workspace:
         lock = self.paths.builds / "locks" / f"{profile_name}-{key}.lock"
         with exclusive_lock(lock, f"profile build {profile_name}"):
             managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
+            self._refresh_build_metadata(root, profile_name, key, selected)
             if "content" in targets or "server" in targets:
                 self._collect_content(root, selected)
             if "server" in targets:
@@ -1340,6 +1357,47 @@ class Workspace:
             if target in {"sound", "resources"}:
                 print(f"{target}: selected {selected[target]}")
         return root
+
+    def _refresh_build_metadata(
+        self,
+        root: Path,
+        profile_name: str,
+        key: str,
+        selected: dict[str, Path],
+    ) -> None:
+        profile = self._load_profile(profile_name, require_file=False)
+        stack = self.manifest.stack(profile["stack"])
+        coordinates: dict[str, dict[str, str]] = {}
+        for role in sorted(selected):
+            component = stack.providers[role]
+            checkout_path = self._selector_root(profile, component).resolve()
+            coordinates[role] = {
+                "component": component.name,
+                "checkout": component.checkout_name,
+                "repository": component.repository,
+                "branch": component.branch,
+                "source": component.source,
+                "checkout_path": str(checkout_path),
+                "source_path": str(selected[role].resolve()),
+                "head": git(
+                    checkout_path,
+                    "rev-parse",
+                    "HEAD",
+                    capture=True,
+                    trace=False,
+                ),
+            }
+        atomic_json(
+            root / BUILD_METADATA,
+            {
+                "schema_version": BUILD_METADATA_SCHEMA_VERSION,
+                "profile": profile_name,
+                "key": key,
+                "purpose": f"profile:{profile_name}:{key}",
+                "coordinates": coordinates,
+                "last_used_at": datetime.now(timezone.utc).isoformat(),
+            },
+        )
 
     def _profile_build_key(
         self, profile_name: str, selected: dict[str, Path]
@@ -1678,7 +1736,23 @@ class Workspace:
         )
         environment = os.environ.copy()
         npm_cache = self.paths.builds / "npm-cache"
-        npm_cache.mkdir(parents=True, exist_ok=True)
+        marker = npm_cache / MANAGED_MARKER
+        if npm_cache.exists() and not marker.exists() and not marker.is_symlink():
+            if npm_cache.is_symlink() or not npm_cache.is_dir():
+                raise WorkspaceError(f"npm cache path is invalid: {npm_cache}")
+            atomic_json(
+                marker,
+                {"schema_version": SCHEMA_VERSION, "purpose": "npm-cache"},
+            )
+        managed_directory(npm_cache, self.paths.builds, "npm-cache")
+        atomic_json(
+            npm_cache / CACHE_METADATA,
+            {
+                "schema_version": BUILD_METADATA_SCHEMA_VERSION,
+                "purpose": "npm-cache",
+                "last_used_at": datetime.now(timezone.utc).isoformat(),
+            },
+        )
         environment["npm_config_cache"] = str(npm_cache)
         run(["npm", "ci"], cwd=view, env=environment)
         run(["npm", "run", "check"], cwd=view, env=environment)

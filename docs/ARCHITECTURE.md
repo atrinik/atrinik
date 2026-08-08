@@ -131,6 +131,7 @@ workspace/
   profiles/<name>.json               logical component -> checkout selectors
   build/profiles/<name>-<key>/       isolated sources, builds, and runtime
   build/npm-cache/                   shared package download cache
+  build/retention.json               optional strict build pin/rollback record
   topologies/<name>/                 supervised process state and rotated logs
   state/server/<name>/               persistent mutable server data
   states.json                        named external-state registry
@@ -167,6 +168,67 @@ exact physical checkouts through either checkout or logical-component
 identities. One checkout is synchronized only once. A missing optional
 repository is reported and skipped rather than cloned as a synchronization
 side effect.
+
+## Cleanup inventory and retention
+
+`cleanup` is an explicit garbage-collection boundary, never an implicit step
+of initialization, synchronization, build, or startup. Default and explicit
+`--dry-run` modes are read-only. `--apply` first takes the same
+repository-layout lock used by checkout, build, topology, foreground-run, and
+scenario operations, fully recomputes the plan, and immediately revalidates
+each target. Build roots are removed before Git worktrees; the explicitly
+selected npm cache and safe prunable Git metadata come last. A race before the
+first mutation aborts the plan. A later failure stops the ordered sequence and
+reports completed reclamation without attempting to reconstruct generated
+data.
+
+Inventory records are stable-sorted and carry a kind, physical owner and
+repository, exact path, no-follow allocated size, age and age basis,
+disposition, stable reason codes, and applicable profile/scenario/topology/
+migration/retention or merged-PR evidence. Size accounting uses device/inode
+identity and excludes registered nested worktree roots from mixed container
+records, preventing hard links or overlapping roots from inflating global byte
+totals. Filesystem traversal or metadata ambiguity protects the affected
+scope.
+
+Current-checkout worktrees are owned only as direct children of
+`workspace/worktrees/<checkout>/`. Wrapper-self worktrees are owned only when
+Git registers them under `workspace/worktrees/atrinik/` or the historical
+top-level `build/worktrees/` namespace. Common-Git-directory and canonical
+repository identity, named/unlocked state, absence of in-progress Git
+operations, and ordinary tracked/untracked cleanliness are mandatory. Saved
+profile selectors of kind `worktree`, absolute `path`, or migration-only
+`migrated-worktree`; retained scenario coordinates; live topology coordinates;
+and every original/destination/composite migration path protect exact
+worktrees. Ignored output is sized and disclosed but does not defeat
+eligibility. GitHub's authenticated commit-associated-pulls API must prove an
+exact merged head against the checkout's manifest branch, no open association,
+and the requested grace age. Apply delegates to `git worktree remove` without
+force and preserves refs. Prunable administrative records use the same PR and
+ownership proof and are pruned only when no protected prunable sibling shares
+that repository-wide Git prune operation.
+
+Profile build ownership is a direct-child path plus an exact regular
+`.atrinik-workspace-managed.json` purpose marker. Each use under the per-build
+lock atomically refreshes `.atrinik-build.json` with the profile/key, purpose,
+exact role-to-repository/branch/checkout/source paths and commits, and
+`last_used_at`. Older marker-owned roots fall back to the maximum mtime from
+the same no-follow size walk. Live topology `build_root` values, busy build
+locks, registered Git worktrees, and exact absolute roots in strict schema-1
+`workspace/build/retention.json` protect a build. A shared `managed_remove()`
+helper repeats containment, symlink, marker, schema, and purpose validation
+immediately before deletion.
+
+The npm cache has an exact `npm-cache` purpose marker and atomically refreshed
+`.atrinik-cache.json` timestamp. Its scope is opt-in. One pre-marker cache at
+that fixed path can be treated as a legacy known cache only after the workspace
+marker, fixed containment, no-symlink shape, age, and inactive-build checks
+pass; apply adopts the marker before calling the common removal helper. No
+other unmarked path receives that exception. Unmarked profile roots, unknown
+`workspace/build` children, and the mixed top-level `build/` tree remain
+visible report-only `unmanaged-build` records. Cleanup never targets profiles,
+scenarios, state, topology records/logs, migration archives/evidence, branches,
+Git objects, or arbitrary unmarked paths.
 
 ## Classic monorepo migration
 

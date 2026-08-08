@@ -1122,6 +1122,24 @@ def managed_directory(path: Path, workspace_builds: Path, purpose: str) -> None:
     atomic_json(marker, {"schema_version": SCHEMA_VERSION, "purpose": purpose})
 
 
+def managed_remove(path: Path, workspace_builds: Path, purpose: str) -> None:
+    """Remove one marker-owned build root after repeating every ownership check."""
+
+    builds = workspace_builds.resolve()
+    if path.is_symlink():
+        raise WorkspaceError(f"refusing symlinked managed build path: {path}")
+    path = path.parent.resolve() / path.name
+    if builds != path and builds not in path.parents:
+        raise WorkspaceError(f"refusing to remove path outside workspace builds: {path}")
+    marker = path / MANAGED_MARKER
+    if not path.is_dir() or not marker.is_file() or marker.is_symlink():
+        raise WorkspaceError(f"refusing to remove unmanaged build path: {path}")
+    metadata = load_json(marker)
+    if metadata != {"schema_version": SCHEMA_VERSION, "purpose": purpose}:
+        raise WorkspaceError(f"managed build marker does not match {purpose}: {path}")
+    shutil.rmtree(path)
+
+
 def profile_key(paths: dict[str, Path], *, namespace: str = "") -> str:
     coordinates = {name: str(path) for name, path in paths.items()}
     value: Any = (

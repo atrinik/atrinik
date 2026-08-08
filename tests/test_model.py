@@ -14,6 +14,7 @@ from atrinik_workspace.model import (
     WorkspaceError,
     atomic_json,
     managed_directory,
+    managed_remove,
     managed_reset,
     profile_key,
 )
@@ -631,6 +632,27 @@ class PathSafetyTests(unittest.TestCase):
                 managed_reset(target, builds, "test")
 
             self.assertTrue(real.is_dir())
+
+    def test_managed_remove_revalidates_marker_purpose_and_containment(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            builds = root / "build"
+            target = builds / "profiles" / "review"
+            managed_directory(target, builds, "profile:review:key")
+            (target / "artifact").write_text("generated", encoding="utf-8")
+
+            with self.assertRaisesRegex(WorkspaceError, "does not match"):
+                managed_remove(target, builds, "profile:other:key")
+            self.assertTrue((target / "artifact").is_file())
+
+            managed_remove(target, builds, "profile:review:key")
+            self.assertFalse(target.exists())
+
+            outside = root / "outside"
+            managed_directory(outside, root, "outside")
+            with self.assertRaisesRegex(WorkspaceError, "outside workspace builds"):
+                managed_remove(outside, builds, "outside")
+            self.assertTrue(outside.is_dir())
 
     def test_refuses_malformed_workspace_marker(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
