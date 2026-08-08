@@ -162,22 +162,7 @@ def pump_output(
     process.stdout.close()
 
 
-def supervise(spec_path: Path, lock_fd: int | None) -> int:
-    with spec_path.open(encoding="utf-8") as stream:
-        spec = json.load(stream)
-    status_path = spec_path.parent / "status.json"
-    stop = False
-
-    def request_stop(_signum: int, _frame: object) -> None:
-        nonlocal stop
-        stop = True
-
-    signal.signal(signal.SIGINT, request_stop)
-    signal.signal(signal.SIGTERM, request_stop)
-
-    supervisor_start_time = process_start_time(os.getpid())
-    if supervisor_start_time is None:
-        raise RuntimeError("cannot identify topology supervisor process")
+def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[str, Any]:
     status: dict[str, Any] = {
         "schema_version": 1,
         "name": spec["name"],
@@ -200,6 +185,33 @@ def supervise(spec_path: Path, lock_fd: int | None) -> int:
         },
         "services": {},
     }
+    if "stack" in spec or "providers" in spec:
+        if not isinstance(spec.get("stack"), str) or not isinstance(
+            spec.get("providers"), dict
+        ):
+            raise RuntimeError("topology spec stack/provider identity is incomplete")
+        status["stack"] = spec["stack"]
+        status["providers"] = spec["providers"]
+    return status
+
+
+def supervise(spec_path: Path, lock_fd: int | None) -> int:
+    with spec_path.open(encoding="utf-8") as stream:
+        spec = json.load(stream)
+    status_path = spec_path.parent / "status.json"
+    stop = False
+
+    def request_stop(_signum: int, _frame: object) -> None:
+        nonlocal stop
+        stop = True
+
+    signal.signal(signal.SIGINT, request_stop)
+    signal.signal(signal.SIGTERM, request_stop)
+
+    supervisor_start_time = process_start_time(os.getpid())
+    if supervisor_start_time is None:
+        raise RuntimeError("cannot identify topology supervisor process")
+    status = _initial_status(spec, supervisor_start_time)
     processes: dict[str, subprocess.Popen[bytes]] = {}
     logs: list[RotatingLog] = []
     pumps: list[threading.Thread] = []

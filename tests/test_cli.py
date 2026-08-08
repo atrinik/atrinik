@@ -10,12 +10,139 @@ from atrinik_workspace.model import WorkspaceError
 
 
 class ParserTests(unittest.TestCase):
+    def test_init_with_classic_dispatches_only_documented_additive_option(self) -> None:
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            result = main(["init", "--with", "classic", "--jobs", "2"])
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.initialize.assert_called_once_with(
+            [], 2, include_classic=True
+        )
+
+    def test_sync_with_classic_never_uses_an_initialization_alias(self) -> None:
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            result = main(["sync", "--with", "classic"])
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.sync.assert_called_once_with(
+            [], "none", include_classic=True
+        )
+
+    def test_classic_cohort_option_rejects_abbreviated_spelling(self) -> None:
+        for command in ("init", "sync"):
+            with self.subTest(command=command):
+                with self.assertRaises(SystemExit):
+                    parser().parse_args([command, "--wi", "classic"])
+
+    def test_repository_migration_json_dispatches_selected_mode(self) -> None:
+        plan = {
+            "migration": "repositories",
+            "status": "ready",
+            "moves": [],
+            "refusals": [],
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.migrate_repositories.return_value = plan
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    ["migrate", "repositories", "--dry-run", "--json"]
+                )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.migrate_repositories.assert_called_once_with(
+            "dry-run"
+        )
+        self.assertEqual(json.loads(output.call_args.args[0]), plan)
+
+    def test_repository_migration_refusal_returns_failure(self) -> None:
+        plan = {
+            "migration": "repositories",
+            "status": "refused",
+            "moves": [],
+            "refusals": [
+                {
+                    "code": "dirty_primary",
+                    "message": "primary is dirty",
+                    "recovery": "preserve the changes",
+                }
+            ],
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.migrate_repositories.return_value = plan
+            with mock.patch("builtins.print"):
+                result = main(["migrate", "repositories", "--apply"])
+
+        self.assertEqual(result, 1)
+
+    def test_repository_migration_text_reports_action_statuses(self) -> None:
+        plan = {
+            "migration": "repositories",
+            "status": "ready",
+            "classic": {
+                "status": "verified",
+                "path": "/workspace/classic",
+            },
+            "sources": [
+                {
+                    "status": "planned",
+                    "component": "classic-client",
+                    "source": "/workspace/legacy-client",
+                    "archive": "/state/archive/legacy-client",
+                }
+            ],
+            "worktree_migrations": [
+                {
+                    "status": "planned",
+                    "component": "classic-client",
+                    "path": "/workspace/worktrees/legacy-client/review",
+                    "destination": "/state/worktrees/classic/review",
+                }
+            ],
+            "composite_worktrees": [],
+            "profile_rewrites": [
+                {
+                    "status": "planned",
+                    "name": "review",
+                    "path": "/state/profiles/review.json",
+                }
+            ],
+            "topologies": [],
+            "inert_paths": [],
+            "refusals": [],
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.migrate_repositories.return_value = plan
+            with mock.patch("builtins.print") as output:
+                result = main(["migrate", "repositories", "--dry-run"])
+
+        self.assertEqual(result, 0)
+        self.assertIn(
+            mock.call(
+                "source\tplanned\tclassic-client\t/workspace/legacy-client\t"
+                "/state/archive/legacy-client"
+            ),
+            output.call_args_list,
+        )
+        self.assertIn(
+            mock.call(
+                "worktree\tplanned\tclassic-client\t"
+                "/workspace/worktrees/legacy-client/review\t"
+                "/state/worktrees/classic/review"
+            ),
+            output.call_args_list,
+        )
+        self.assertIn(
+            mock.call("classic\tverified\t/workspace/classic"),
+            output.call_args_list,
+        )
+
     def test_supply_chain_commands_dispatch_validated_inventory(self) -> None:
         inventory = mock.Mock()
         inventory.dependencies = [object(), object()]
         inventory.audit.return_value = ["client: audited"]
         inventory.report.return_value = "report\n"
         roots = {"atrinik": Path("/workspace/atrinik")}
+        commits = {"atrinik": "a" * 40}
         with (
             mock.patch("atrinik_workspace.cli.Workspace"),
             mock.patch(
@@ -24,6 +151,10 @@ class ParserTests(unittest.TestCase):
             mock.patch(
                 "atrinik_workspace.cli.repository_roots", return_value=roots
             ) as resolve_roots,
+            mock.patch(
+                "atrinik_workspace.cli.report_component_commits",
+                return_value=("classic", commits),
+            ) as resolve_commits,
             mock.patch(
                 "atrinik_workspace.cli.version_report", return_value="versions\n"
             ) as versions,
@@ -51,6 +182,8 @@ class ParserTests(unittest.TestCase):
                         "report",
                         "--format",
                         "spdx",
+                        "--profile",
+                        "classic-review",
                         "--output",
                         "build/report.json",
                     ]
@@ -76,7 +209,9 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(resolve_roots.call_args.args[2], "review")
         self.assertEqual(resolve_roots.call_args.args[3], ["client=/tmp/client"])
         inventory.audit.assert_called_once_with(roots)
-        inventory.report.assert_called_once_with("spdx")
+        resolve_commits.assert_called_once()
+        self.assertEqual(resolve_commits.call_args.args[2], "classic-review")
+        inventory.report.assert_called_once_with("spdx", commits, "classic")
         versions.assert_called_once_with(inventory)
         self.assertEqual(write.call_count, 2)
         self.assertTrue(
@@ -133,6 +268,31 @@ class ParserTests(unittest.TestCase):
             "server", "review"
         )
         output.assert_called_once_with(Path("/workspace/worktrees/server/change"))
+
+    def test_topology_text_names_stack_and_logical_providers(self) -> None:
+        summary = {
+            "profile": "review",
+            "stack": "classic",
+            "services": ["server"],
+            "dependencies": ["protocol", "server"],
+            "providers": {
+                "protocol": "classic-protocol",
+                "server": "classic-server",
+            },
+            "state": "/workspace/state/server/review",
+            "build_root": "/workspace/build/review",
+            "components": {},
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.topology_summary.return_value = summary
+            with mock.patch("builtins.print") as output:
+                result = main(["topology", "show", "review"])
+
+        self.assertEqual(result, 0)
+        lines = [call.args[0] for call in output.call_args_list]
+        self.assertIn("stack\tclassic", lines)
+        self.assertIn("provider\tprotocol\tclassic-protocol", lines)
+        self.assertIn("provider\tserver\tclassic-server", lines)
 
     def test_run_options_follow_component_subcommand(self) -> None:
         options = parser().parse_args(

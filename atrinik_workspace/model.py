@@ -1,29 +1,148 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import fcntl
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import shutil
+import stat
 import tempfile
+import time
 from typing import Any, Iterable
 
 
 SCHEMA_VERSION = 1
+MANIFEST_SCHEMA_VERSION = 3
 MANAGED_MARKER = ".atrinik-workspace-managed.json"
 NAME_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 REPOSITORY_PATTERN = re.compile(r"^atrinik/[a-z0-9][a-z0-9._-]*$")
 BUILD_KINDS = {
-    "client",
-    "server",
-    "protocol",
-    "library",
-    "content",
+    "classic-client",
+    "classic-server",
+    "classic-protocol",
+    "classic-library",
+    "classic-content",
     "assets",
     "worker",
     "none",
+}
+V1_BUILD_KINDS = {
+    "client": "classic-client",
+    "server": "classic-server",
+    "protocol": "classic-protocol",
+    "library": "classic-library",
+    "content": "classic-content",
+    "assets": "assets",
+    "worker": "worker",
+    "none": "none",
+}
+GENERATIONS = {"replacement", "classic", "shared"}
+STACK_GENERATIONS = {"replacement", "classic"}
+COHORT_NAMES = {"default", "classic"}
+STACK_NAMES = {"default", "classic"}
+REQUIRED_COHORT_CHECKOUTS = {
+    "default": {
+        "client",
+        "server",
+        "protocol",
+        "editor",
+        "renderer",
+        "content-toolkit",
+        "website",
+        "content",
+        "sound",
+        "resources",
+        "metaserver-worker",
+        "devcontainer",
+        "github-settings",
+    },
+    "classic": {
+        "classic",
+        "content-1x",
+        "tools",
+    },
+}
+REQUIRED_STACK_PROVIDERS = {
+    "default": {
+        "client": "client",
+        "server": "server",
+        "protocol": "protocol",
+        "editor": "editor",
+        "renderer": "renderer",
+        "content-toolkit": "content-toolkit",
+        "website": "website",
+        "content": "content",
+        "sound": "sound",
+        "resources": "resources",
+        "metaserver-worker": "metaserver-worker",
+        "devcontainer": "devcontainer",
+        "github-settings": "github-settings",
+    },
+    "classic": {
+        "client": "classic-client",
+        "server": "classic-server",
+        "protocol": "classic-protocol",
+        "libatrinik": "classic-libatrinik",
+        "editor": "classic-editor",
+        "content": "content-1x",
+        "tools": "tools",
+        "sound": "sound",
+        "resources": "resources",
+        "metaserver-worker": "metaserver-worker",
+        "devcontainer": "devcontainer",
+        "github-settings": "github-settings",
+    },
+}
+LOGICAL_ROLES = {
+    "client",
+    "server",
+    "protocol",
+    "libatrinik",
+    "editor",
+    "renderer",
+    "content-toolkit",
+    "website",
+    "content",
+    "tools",
+    "sound",
+    "resources",
+    "metaserver-worker",
+    "devcontainer",
+    "github-settings",
+}
+IMPLEMENTATION_ROLES = {
+    "client",
+    "server",
+    "protocol",
+    "libatrinik",
+    "editor",
+    "renderer",
+    "content-toolkit",
+    "website",
+    "content",
+    "tools",
+}
+GENERATION_BUILD_KINDS = {
+    "replacement": {"none"},
+    "classic": {
+        "classic-client",
+        "classic-server",
+        "classic-protocol",
+        "classic-library",
+        "classic-content",
+        "none",
+    },
+    "shared": {"assets", "worker", "none"},
+}
+CLASSIC_BUILD_ROLES = {
+    "classic-client": "client",
+    "classic-server": "server",
+    "classic-protocol": "protocol",
+    "classic-library": "libatrinik",
+    "classic-content": "content",
 }
 
 
@@ -86,29 +205,116 @@ def validate_name(value: str, context: str) -> str:
 
 
 @dataclass(frozen=True)
-class Component:
+class Checkout:
     name: str
     repository: str
     branch: str
+    path: str
+    generation: str
+    license: str
+
+
+@dataclass(frozen=True)
+class Component:
+    name: str
+    checkout_name: str
+    source: str
+    repository: str
+    branch: str
+    checkout: str
     build: str
+    generation: str
+    provides: tuple[str, ...]
+    requires: tuple[str, ...]
+    license: str
+
+
+@dataclass(frozen=True)
+class Stack:
+    name: str
+    generation: str
+    components: tuple[Component, ...]
+    providers: dict[str, Component]
+
+
+@dataclass(frozen=True)
+class _StackSpec:
+    name: str
+    generation: str
+    components: tuple[str, ...]
+    providers: dict[str, str]
 
 
 class Manifest:
-    def __init__(self, components: list[Component]):
+    def __init__(
+        self,
+        checkouts: list[Checkout],
+        components: list[Component],
+        cohorts: dict[str, tuple[str, ...]],
+        stack_specs: dict[str, _StackSpec],
+    ):
+        self.checkouts = checkouts
+        self.by_checkout = {checkout.name: checkout for checkout in checkouts}
         self.components = components
         self.by_name = {component.name: component for component in components}
+        self.cohorts = cohorts
+        self.stacks = {
+            name: Stack(
+                name=spec.name,
+                generation=spec.generation,
+                components=tuple(self.by_name[component] for component in spec.components),
+                providers={
+                    role: self.by_name[component]
+                    for role, component in spec.providers.items()
+                },
+            )
+            for name, spec in stack_specs.items()
+        }
+        self._component_cohorts = {
+            component.name: self.checkout_cohorts(component.checkout_name)
+            for component in components
+        }
+        self._component_stacks = {
+            component.name: tuple(
+                name
+                for name, stack in stack_specs.items()
+                if component.name in stack.components
+            )
+            for component in components
+        }
+        self._checkout_stacks = {
+            checkout.name: tuple(
+                name
+                for name, spec in stack_specs.items()
+                if any(
+                    self.by_name[component].checkout_name == checkout.name
+                    for component in spec.components
+                )
+            )
+            for checkout in checkouts
+        }
 
     @classmethod
     def load(cls, path: Path) -> "Manifest":
         root = load_json(path)
         if not isinstance(root, dict):
             raise WorkspaceError("component manifest root must be an object")
-        require_keys(root, {"schema_version", "components"}, "component manifest")
-        if root["schema_version"] != SCHEMA_VERSION:
+        schema_version = root.get("schema_version")
+        if type(schema_version) is not int:
             raise WorkspaceError("unsupported component manifest schema")
+        if schema_version == 1:
+            return cls._load_v1(root)
+        if schema_version != MANIFEST_SCHEMA_VERSION:
+            raise WorkspaceError("unsupported component manifest schema")
+        return cls._load_v3(root)
+
+    @classmethod
+    def _load_v1(cls, root: dict[str, Any]) -> "Manifest":
+        require_keys(root, {"schema_version", "components"}, "component manifest")
         raw_components = root["components"]
         if not isinstance(raw_components, list) or not raw_components:
             raise WorkspaceError("components must be a non-empty array")
+        checkouts: list[Checkout] = []
         components: list[Component] = []
         names: set[str] = set()
         repositories: set[str] = set()
@@ -127,20 +333,467 @@ class Manifest:
                 )
             if not isinstance(branch, str) or not branch or branch.startswith("-"):
                 raise WorkspaceError(f"{context}.branch is invalid")
-            if not isinstance(build, str) or build not in BUILD_KINDS:
+            if not isinstance(build, str) or build not in V1_BUILD_KINDS:
                 raise WorkspaceError(f"{context}.build is invalid")
             if name in names or repository in repositories:
                 raise WorkspaceError(f"duplicate component identity: {name}/{repository}")
             names.add(name)
             repositories.add(repository)
-            components.append(Component(name, repository, branch, build))
+            components.append(
+                Component(
+                    name=name,
+                    checkout_name=name,
+                    source=".",
+                    repository=repository,
+                    branch=branch,
+                    checkout=name,
+                    build=V1_BUILD_KINDS[build],
+                    generation="shared",
+                    provides=(name,),
+                    requires=(),
+                    license="NOASSERTION",
+                )
+            )
+            checkouts.append(
+                Checkout(
+                    name=name,
+                    repository=repository,
+                    branch=branch,
+                    path=name,
+                    generation="shared",
+                    license="NOASSERTION",
+                )
+            )
         required = {"client", "server", "protocol", "libatrinik", "content", "sound", "resources"}
         missing = sorted(required - names)
         if missing:
             raise WorkspaceError(
                 f"component manifest lacks required components: {', '.join(missing)}"
             )
-        return cls(components)
+        members = tuple(component.name for component in components)
+        providers = {component.name: component.name for component in components}
+        return cls(
+            checkouts,
+            components,
+            {"default": members, "classic": ()},
+            {
+                "default": _StackSpec("default", "replacement", members, providers),
+                "classic": _StackSpec("classic", "classic", (), {}),
+            },
+        )
+
+    @classmethod
+    def _load_v3(cls, root: dict[str, Any]) -> "Manifest":
+        require_keys(
+            root,
+            {"schema_version", "cohorts", "stacks", "checkouts", "components"},
+            "component manifest",
+        )
+        checkouts = cls._load_v3_checkouts(root["checkouts"])
+        by_checkout = {checkout.name: checkout for checkout in checkouts}
+        components = cls._load_v3_components(root["components"], by_checkout)
+        by_name = {component.name: component for component in components}
+        cohorts = cls._load_cohorts(root["cohorts"], by_checkout)
+        stacks = cls._load_stacks(root["stacks"], by_name)
+        cls._validate_stack_contracts(stacks, by_name, by_checkout, cohorts)
+        manifest = cls(checkouts, components, cohorts, stacks)
+        manifest._validate_repository_variant_membership()
+        manifest._validate_required_contract()
+        return manifest
+
+    def _validate_repository_variant_membership(self) -> None:
+        by_repository: dict[str, list[Checkout]] = {}
+        for checkout in self.checkouts:
+            by_repository.setdefault(checkout.repository, []).append(checkout)
+        for repository, variants in by_repository.items():
+            for index, first in enumerate(variants):
+                for second in variants[index + 1 :]:
+                    if self.checkout_cohorts(first.name) == self.checkout_cohorts(
+                        second.name
+                    ) or set(self.checkout_stacks(first.name)) & set(
+                        self.checkout_stacks(second.name)
+                    ):
+                        raise WorkspaceError(
+                            "repository variants must have distinct cohort and stack "
+                            f"membership: {repository}"
+                        )
+
+    def _validate_required_contract(self) -> None:
+        for cohort_name, required in REQUIRED_COHORT_CHECKOUTS.items():
+            missing = sorted(required - set(self.cohorts[cohort_name]))
+            if missing:
+                raise WorkspaceError(
+                    f"cohorts.{cohort_name} lacks required checkouts: "
+                    f"{', '.join(missing)}"
+                )
+        for stack_name, required in REQUIRED_STACK_PROVIDERS.items():
+            providers = {
+                role: component.name
+                for role, component in self.stacks[stack_name].providers.items()
+            }
+            missing = sorted(set(required) - set(providers))
+            wrong = sorted(
+                role
+                for role in set(required) & set(providers)
+                if providers[role] != required[role]
+            )
+            if missing or wrong:
+                detail: list[str] = []
+                if missing:
+                    detail.append(f"missing roles {', '.join(missing)}")
+                if wrong:
+                    detail.append(f"wrong providers for {', '.join(wrong)}")
+                raise WorkspaceError(
+                    f"stacks.{stack_name} lacks required provider contract: "
+                    + "; ".join(detail)
+                )
+
+    @staticmethod
+    def _load_v3_checkouts(raw_checkouts: Any) -> list[Checkout]:
+        if not isinstance(raw_checkouts, list) or not raw_checkouts:
+            raise WorkspaceError("checkouts must be a non-empty array")
+        expected = {
+            "name",
+            "repository",
+            "branch",
+            "path",
+            "generation",
+            "license",
+        }
+        checkouts: list[Checkout] = []
+        names: set[str] = set()
+        paths: set[str] = set()
+        coordinates: set[tuple[str, str]] = set()
+        for index, raw in enumerate(raw_checkouts):
+            context = f"checkout {index}"
+            if not isinstance(raw, dict):
+                raise WorkspaceError(f"{context} must be an object")
+            require_keys(raw, expected, context)
+            name = validate_name(raw["name"], f"{context}.name")
+            repository = raw["repository"]
+            branch = raw["branch"]
+            path = validate_name(raw["path"], f"{context}.path")
+            generation = raw["generation"]
+            license_name = _validate_license(raw["license"], f"{context}.license")
+            if not isinstance(repository, str) or not REPOSITORY_PATTERN.fullmatch(repository):
+                raise WorkspaceError(
+                    f"{context}.repository must name an atrinik GitHub repository"
+                )
+            _validate_branch(branch, f"{context}.branch")
+            if not isinstance(generation, str) or generation not in GENERATIONS:
+                raise WorkspaceError(f"{context}.generation is invalid")
+            if name in names:
+                raise WorkspaceError(f"duplicate checkout name: {name}")
+            if path in paths:
+                raise WorkspaceError(f"duplicate checkout path: {path}")
+            coordinate = (repository, branch)
+            if coordinate in coordinates:
+                raise WorkspaceError(
+                    f"duplicate checkout repository and branch: {repository}@{branch}"
+                )
+            names.add(name)
+            paths.add(path)
+            coordinates.add(coordinate)
+            checkouts.append(
+                Checkout(name, repository, branch, path, generation, license_name)
+            )
+        return checkouts
+
+    @staticmethod
+    def _load_v3_components(
+        raw_components: Any, by_checkout: dict[str, Checkout]
+    ) -> list[Component]:
+        if not isinstance(raw_components, list) or not raw_components:
+            raise WorkspaceError("components must be a non-empty array")
+        components: list[Component] = []
+        names: set[str] = set()
+        sources: dict[str, list[tuple[str, PurePosixPath]]] = {}
+        expected = {
+            "name",
+            "checkout",
+            "source",
+            "build",
+            "generation",
+            "provides",
+            "requires",
+            "license",
+        }
+        for index, raw in enumerate(raw_components):
+            context = f"component {index}"
+            if not isinstance(raw, dict):
+                raise WorkspaceError(f"{context} must be an object")
+            require_keys(raw, expected, context)
+            name = validate_name(raw["name"], f"{context}.name")
+            checkout_name = validate_name(raw["checkout"], f"{context}.checkout")
+            if checkout_name not in by_checkout:
+                raise WorkspaceError(f"{context}.checkout names an unknown checkout")
+            checkout = by_checkout[checkout_name]
+            source = _validate_source(raw["source"], f"{context}.source")
+            build = raw["build"]
+            generation = raw["generation"]
+            license_name = _validate_license(raw["license"], f"{context}.license")
+            if not isinstance(build, str) or build not in BUILD_KINDS:
+                raise WorkspaceError(f"{context}.build is invalid")
+            if not isinstance(generation, str) or generation not in GENERATIONS:
+                raise WorkspaceError(f"{context}.generation is invalid")
+            if generation != checkout.generation:
+                raise WorkspaceError(
+                    f"{context}.generation does not match checkout {checkout.name}"
+                )
+            if build not in GENERATION_BUILD_KINDS[generation]:
+                raise WorkspaceError(
+                    f"{context}.build {build} is incompatible with {generation} generation"
+                )
+            provides = _validate_roles(raw["provides"], f"{context}.provides", nonempty=True)
+            requires = _validate_roles(raw["requires"], f"{context}.requires")
+            unknown_roles = sorted((set(provides) | set(requires)) - LOGICAL_ROLES)
+            if unknown_roles:
+                raise WorkspaceError(
+                    f"{context} names unknown logical roles: "
+                    f"{', '.join(unknown_roles)}"
+                )
+            claimed_implementations = IMPLEMENTATION_ROLES & set(provides)
+            if len(claimed_implementations) > 1:
+                raise WorkspaceError(
+                    f"{context} claims incompatible implementation roles: "
+                    f"{', '.join(sorted(claimed_implementations))}"
+                )
+            if generation == "shared" and claimed_implementations:
+                raise WorkspaceError(
+                    f"{context} shared component claims implementation role: "
+                    f"{', '.join(sorted(claimed_implementations))}"
+                )
+            adapter_role = CLASSIC_BUILD_ROLES.get(build)
+            if adapter_role is not None and adapter_role not in provides:
+                raise WorkspaceError(
+                    f"{context}.build {build} requires provided role {adapter_role}"
+                )
+            if name in names:
+                raise WorkspaceError(f"duplicate component name: {name}")
+            source_path = PurePosixPath(source)
+            for other_name, other_source in sources.get(checkout_name, []):
+                if (
+                    source_path == other_source
+                    or source_path in other_source.parents
+                    or other_source in source_path.parents
+                ):
+                    raise WorkspaceError(
+                        f"component sources overlap in checkout {checkout_name}: "
+                        f"{other_name}, {name}"
+                    )
+            names.add(name)
+            sources.setdefault(checkout_name, []).append((name, source_path))
+            components.append(
+                Component(
+                    name=name,
+                    checkout_name=checkout_name,
+                    source=source,
+                    repository=checkout.repository,
+                    branch=checkout.branch,
+                    checkout=checkout.path,
+                    build=build,
+                    generation=generation,
+                    provides=provides,
+                    requires=requires,
+                    license=license_name,
+                )
+            )
+        return components
+
+    @staticmethod
+    def _load_cohorts(
+        raw_cohorts: Any, by_checkout: dict[str, Checkout]
+    ) -> dict[str, tuple[str, ...]]:
+        if not isinstance(raw_cohorts, dict):
+            raise WorkspaceError("cohorts must be an object")
+        require_keys(raw_cohorts, COHORT_NAMES, "cohorts")
+        cohorts: dict[str, tuple[str, ...]] = {}
+        memberships: dict[str, str] = {}
+        for cohort_name in ("default", "classic"):
+            members = _validate_checkout_names(
+                raw_cohorts[cohort_name], f"cohorts.{cohort_name}", by_checkout
+            )
+            for checkout_name in members:
+                if checkout_name in memberships:
+                    raise WorkspaceError(
+                        f"checkout {checkout_name} belongs to multiple cohorts"
+                    )
+                memberships[checkout_name] = cohort_name
+                generation = by_checkout[checkout_name].generation
+                if cohort_name == "default" and generation == "classic":
+                    raise WorkspaceError(
+                        f"classic checkout {checkout_name} cannot belong to default cohort"
+                    )
+                if cohort_name == "classic" and generation != "classic":
+                    raise WorkspaceError(
+                        f"classic cohort checkout {checkout_name} must be classic"
+                    )
+            cohorts[cohort_name] = members
+        missing = sorted(set(by_checkout) - set(memberships))
+        if missing:
+            raise WorkspaceError(
+                f"checkouts lack cohort membership: {', '.join(missing)}"
+            )
+        return cohorts
+
+    @staticmethod
+    def _load_stacks(
+        raw_stacks: Any, by_name: dict[str, Component]
+    ) -> dict[str, _StackSpec]:
+        if not isinstance(raw_stacks, dict):
+            raise WorkspaceError("stacks must be an object")
+        require_keys(raw_stacks, STACK_NAMES, "stacks")
+        stacks: dict[str, _StackSpec] = {}
+        for stack_name in ("default", "classic"):
+            raw = raw_stacks[stack_name]
+            context = f"stacks.{stack_name}"
+            if not isinstance(raw, dict):
+                raise WorkspaceError(f"{context} must be an object")
+            require_keys(raw, {"generation", "components", "providers"}, context)
+            generation = raw["generation"]
+            if not isinstance(generation, str) or generation not in STACK_GENERATIONS:
+                raise WorkspaceError(f"{context}.generation is invalid")
+            expected_generation = "replacement" if stack_name == "default" else "classic"
+            if generation != expected_generation:
+                raise WorkspaceError(
+                    f"{context}.generation must be {expected_generation}"
+                )
+            members = _validate_component_names(
+                raw["components"], f"{context}.components", by_name
+            )
+            raw_providers = raw["providers"]
+            if not isinstance(raw_providers, dict):
+                raise WorkspaceError(f"{context}.providers must be an object")
+            providers: dict[str, str] = {}
+            for raw_role, component_name in raw_providers.items():
+                role = validate_name(raw_role, f"{context}.providers role")
+                if not isinstance(component_name, str) or component_name not in by_name:
+                    raise WorkspaceError(
+                        f"{context}.providers.{role} names an unknown component"
+                    )
+                if component_name not in members:
+                    raise WorkspaceError(
+                        f"{context}.providers.{role} is outside the stack"
+                    )
+                providers[role] = component_name
+            stacks[stack_name] = _StackSpec(
+                stack_name, generation, members, providers
+            )
+        return stacks
+
+    @staticmethod
+    def _validate_stack_contracts(
+        stacks: dict[str, _StackSpec],
+        by_name: dict[str, Component],
+        by_checkout: dict[str, Checkout],
+        cohorts: dict[str, tuple[str, ...]],
+    ) -> None:
+        checkout_cohort = {
+            checkout_name: cohort_name
+            for cohort_name, checkout_names in cohorts.items()
+            for checkout_name in checkout_names
+        }
+        for stack_name, stack in stacks.items():
+            context = f"stacks.{stack_name}"
+            actual_providers: dict[str, str] = {}
+            for component_name in stack.components:
+                component = by_name[component_name]
+                if component.generation not in {stack.generation, "shared"}:
+                    raise WorkspaceError(
+                        f"{context} mixes {component.generation} component {component_name} "
+                        f"into the {stack.generation} stack"
+                    )
+                allowed_cohorts = {"default"}
+                if stack_name == "classic":
+                    allowed_cohorts.add("classic")
+                if checkout_cohort[component.checkout_name] not in allowed_cohorts:
+                    raise WorkspaceError(
+                        f"{context} uses checkout {component.checkout_name} outside "
+                        "its initialization closure"
+                    )
+                for role in component.provides:
+                    if role in actual_providers:
+                        raise WorkspaceError(
+                            f"{context} has multiple providers for role {role}: "
+                            f"{actual_providers[role]}, {component_name}"
+                        )
+                    actual_providers[role] = component_name
+            if stack.providers != actual_providers:
+                missing = sorted(set(actual_providers) - set(stack.providers))
+                extra = sorted(set(stack.providers) - set(actual_providers))
+                wrong = sorted(
+                    role
+                    for role in set(stack.providers) & set(actual_providers)
+                    if stack.providers[role] != actual_providers[role]
+                )
+                detail = []
+                if missing:
+                    detail.append(f"missing roles {', '.join(missing)}")
+                if extra:
+                    detail.append(f"unexpected roles {', '.join(extra)}")
+                if wrong:
+                    detail.append(f"incorrect providers for {', '.join(wrong)}")
+                raise WorkspaceError(
+                    f"{context}.providers does not match component contracts: "
+                    + "; ".join(detail)
+                )
+            dependencies: dict[str, set[str]] = {
+                component_name: set() for component_name in stack.components
+            }
+            for component_name in stack.components:
+                component = by_name[component_name]
+                for role in component.requires:
+                    provider_name = stack.providers.get(role)
+                    if provider_name is None:
+                        raise WorkspaceError(
+                            f"{context} cannot satisfy required role {role} for {component_name}"
+                        )
+                    dependencies[component_name].add(provider_name)
+            _validate_dependency_cycles(dependencies, context)
+
+    def cohort(self, name: str) -> list[Checkout]:
+        if name not in self.cohorts:
+            raise WorkspaceError(f"unknown cohort: {name}")
+        return [self.by_checkout[checkout] for checkout in self.cohorts[name]]
+
+    def stack(self, name: str) -> Stack:
+        if name not in self.stacks:
+            raise WorkspaceError(f"unknown stack: {name}")
+        return self.stacks[name]
+
+    def provider(self, stack: str, role: str) -> Component:
+        selected = self.stack(stack)
+        if role not in selected.providers:
+            raise WorkspaceError(f"stack {stack} has no provider for role {role}")
+        return selected.providers[role]
+
+    def component_cohorts(self, name: str) -> tuple[str, ...]:
+        if name not in self.by_name:
+            raise WorkspaceError(f"unknown component: {name}")
+        return self._component_cohorts[name]
+
+    def checkout_cohorts(self, name: str) -> tuple[str, ...]:
+        if name not in self.by_checkout:
+            raise WorkspaceError(f"unknown checkout: {name}")
+        return tuple(
+            cohort_name
+            for cohort_name, members in self.cohorts.items()
+            if name in members
+        )
+
+    def checkout_stacks(self, name: str) -> tuple[str, ...]:
+        if name not in self.by_checkout:
+            raise WorkspaceError(f"unknown checkout: {name}")
+        return self._checkout_stacks[name]
+
+    def checkout_for(self, component: Component | str) -> Checkout:
+        selected = self.by_name[component] if isinstance(component, str) else component
+        return self.by_checkout[selected.checkout_name]
+
+    def component_stacks(self, name: str) -> tuple[str, ...]:
+        if name not in self.by_name:
+            raise WorkspaceError(f"unknown component: {name}")
+        return self._component_stacks[name]
 
     def select(self, names: list[str] | None) -> list[Component]:
         if not names:
@@ -150,6 +803,131 @@ class Manifest:
             raise WorkspaceError(f"unknown components: {', '.join(unknown)}")
         requested = set(names)
         return [component for component in self.components if component.name in requested]
+
+    def select_checkouts(self, names: list[str] | None) -> list[Checkout]:
+        if not names:
+            return self.checkouts
+        unknown = sorted(set(names) - set(self.by_checkout))
+        if unknown:
+            raise WorkspaceError(f"unknown checkouts: {', '.join(unknown)}")
+        requested = set(names)
+        return [checkout for checkout in self.checkouts if checkout.name in requested]
+
+
+def _validate_roles(value: Any, context: str, nonempty: bool = False) -> tuple[str, ...]:
+    if not isinstance(value, list) or (nonempty and not value):
+        qualifier = "non-empty " if nonempty else ""
+        raise WorkspaceError(f"{context} must be a {qualifier}array")
+    roles: list[str] = []
+    seen: set[str] = set()
+    for index, raw_role in enumerate(value):
+        role = validate_name(raw_role, f"{context}[{index}]")
+        if role in seen:
+            raise WorkspaceError(f"{context} contains duplicate role {role}")
+        seen.add(role)
+        roles.append(role)
+    return tuple(roles)
+
+
+def _validate_branch(value: Any, context: str) -> str:
+    if (
+        not isinstance(value, str)
+        or not value
+        or value.startswith("-")
+        or any(character.isspace() or ord(character) < 32 for character in value)
+        or ".." in value
+        or "@{" in value
+        or value.endswith(("/", ".", ".lock"))
+        or any(character in value for character in "~^:?*[\\")
+    ):
+        raise WorkspaceError(f"{context} is invalid")
+    return value
+
+
+def _validate_license(value: Any, context: str) -> str:
+    if (
+        not isinstance(value, str)
+        or not value.strip()
+        or value != value.strip()
+        or any(ord(character) < 32 for character in value)
+    ):
+        raise WorkspaceError(f"{context} is invalid")
+    return value
+
+
+def _validate_source(value: Any, context: str) -> str:
+    if not isinstance(value, str) or not value:
+        raise WorkspaceError(f"{context} must be a safe checkout-relative directory")
+    path = PurePosixPath(value)
+    if (
+        path.is_absolute()
+        or value != path.as_posix()
+        or any(part in {"", ".."} for part in path.parts)
+        or (value != "." and "." in path.parts)
+    ):
+        raise WorkspaceError(f"{context} must be a safe checkout-relative directory")
+    return value
+
+
+def _validate_component_names(
+    value: Any, context: str, by_name: dict[str, Component]
+) -> tuple[str, ...]:
+    if not isinstance(value, list):
+        raise WorkspaceError(f"{context} must be an array")
+    names: list[str] = []
+    seen: set[str] = set()
+    for index, raw_name in enumerate(value):
+        name = validate_name(raw_name, f"{context}[{index}]")
+        if name not in by_name:
+            raise WorkspaceError(f"{context} names unknown component {name}")
+        if name in seen:
+            raise WorkspaceError(f"{context} contains duplicate component {name}")
+        seen.add(name)
+        names.append(name)
+    return tuple(names)
+
+
+def _validate_checkout_names(
+    value: Any, context: str, by_name: dict[str, Checkout]
+) -> tuple[str, ...]:
+    if not isinstance(value, list):
+        raise WorkspaceError(f"{context} must be an array")
+    names: list[str] = []
+    seen: set[str] = set()
+    for index, raw_name in enumerate(value):
+        name = validate_name(raw_name, f"{context}[{index}]")
+        if name not in by_name:
+            raise WorkspaceError(f"{context} names unknown checkout {name}")
+        if name in seen:
+            raise WorkspaceError(f"{context} contains duplicate checkout {name}")
+        seen.add(name)
+        names.append(name)
+    return tuple(names)
+
+
+def _validate_dependency_cycles(
+    dependencies: dict[str, set[str]], context: str
+) -> None:
+    visiting: list[str] = []
+    visited: set[str] = set()
+
+    def visit(component_name: str) -> None:
+        if component_name in visiting:
+            start = visiting.index(component_name)
+            cycle = visiting[start:] + [component_name]
+            raise WorkspaceError(
+                f"{context} contains dependency cycle: {' -> '.join(cycle)}"
+            )
+        if component_name in visited:
+            return
+        visiting.append(component_name)
+        for dependency in sorted(dependencies[component_name]):
+            visit(dependency)
+        visiting.pop()
+        visited.add(component_name)
+
+    for component_name in dependencies:
+        visit(component_name)
 
 
 @dataclass(frozen=True)
@@ -197,28 +975,113 @@ class Paths:
             raise WorkspaceError(f"refusing unsafe workspace path: {self.workspace}")
         if self.workspace.exists() and not self.workspace.is_dir():
             raise WorkspaceError(f"workspace path is not a directory: {self.workspace}")
-        if self.workspace.exists():
-            if self.marker.is_file() and not self.marker.is_symlink():
-                if load_json(self.marker) != {"schema_version": SCHEMA_VERSION}:
-                    raise WorkspaceError(
-                        f"workspace ownership marker is invalid: {self.marker}"
-                    )
-            elif any(self.workspace.iterdir()):
+        self.workspace.mkdir(parents=True, exist_ok=True)
+        expected = {"schema_version": SCHEMA_VERSION}
+        created = False
+        descriptor: int | None = None
+        empty_marker_retries = 0
+        flags = os.O_RDWR | os.O_CLOEXEC
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+
+        while descriptor is None:
+            if self.marker.is_symlink():
                 raise WorkspaceError(
                     f"refusing unmanaged non-empty workspace directory: {self.workspace}"
                 )
-        self.workspace.mkdir(parents=True, exist_ok=True)
-        for directory in (
-            self.worktrees,
-            self.profiles,
-            self.builds,
-            self.topologies,
-            self.scenarios,
-            self.state,
-        ):
-            directory.mkdir(parents=True, exist_ok=True)
-        if not self.marker.exists():
-            atomic_json(self.marker, {"schema_version": SCHEMA_VERSION})
+            if not self.marker.exists() and not self.marker.is_symlink():
+                entries = list(self.workspace.iterdir())
+                if entries:
+                    # A concurrent initializer may have installed the marker
+                    # between the existence check and directory scan. Retry so
+                    # both callers serialize on that marker instead of
+                    # misclassifying its managed subdirectories as foreign.
+                    if self.marker.exists() or self.marker.is_symlink():
+                        continue
+                    raise WorkspaceError(
+                        f"refusing unmanaged non-empty workspace directory: {self.workspace}"
+                    )
+                try:
+                    descriptor = os.open(
+                        self.marker,
+                        flags | os.O_CREAT | os.O_EXCL,
+                        0o600,
+                    )
+                    created = True
+                    continue
+                except FileExistsError:
+                    continue
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot create workspace ownership marker {self.marker}: {error}"
+                    ) from error
+            try:
+                descriptor = os.open(self.marker, flags)
+            except OSError as error:
+                raise WorkspaceError(
+                    f"workspace ownership marker is invalid: {self.marker}: {error}"
+                ) from error
+            if os.fstat(descriptor).st_size == 0:
+                # The process that won O_EXCL has not published the complete
+                # marker yet. Do not take its lock first and mistake that
+                # transient empty file for corrupt ownership metadata.
+                os.close(descriptor)
+                descriptor = None
+                empty_marker_retries += 1
+                if empty_marker_retries >= 100:
+                    raise WorkspaceError(
+                        f"workspace ownership marker is invalid: {self.marker}"
+                    )
+                time.sleep(0.01)
+
+        try:
+            if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+                raise WorkspaceError(
+                    f"workspace ownership marker is invalid: {self.marker}"
+                )
+            with os.fdopen(descriptor, "r+", encoding="utf-8") as stream:
+                descriptor = None
+                fcntl.flock(stream, fcntl.LOCK_EX)
+                if created:
+                    unexpected = [
+                        entry for entry in self.workspace.iterdir() if entry != self.marker
+                    ]
+                    if unexpected:
+                        self.marker.unlink(missing_ok=True)
+                        raise WorkspaceError(
+                            "refusing concurrently modified unmanaged workspace "
+                            f"directory: {self.workspace}"
+                        )
+                    json.dump(expected, stream, indent=2, sort_keys=True)
+                    stream.write("\n")
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                else:
+                    stream.seek(0)
+                    try:
+                        actual = json.load(
+                            stream, object_pairs_hook=_reject_duplicate_keys
+                        )
+                    except (OSError, json.JSONDecodeError) as error:
+                        raise WorkspaceError(
+                            f"cannot read {self.marker}: {error}"
+                        ) from error
+                    if actual != expected:
+                        raise WorkspaceError(
+                            f"workspace ownership marker is invalid: {self.marker}"
+                        )
+                for directory in (
+                    self.worktrees,
+                    self.profiles,
+                    self.builds,
+                    self.topologies,
+                    self.scenarios,
+                    self.state,
+                ):
+                    directory.mkdir(parents=True, exist_ok=True)
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
 
 
 def managed_reset(path: Path, workspace_builds: Path, purpose: str) -> None:
@@ -259,10 +1122,12 @@ def managed_directory(path: Path, workspace_builds: Path, purpose: str) -> None:
     atomic_json(marker, {"schema_version": SCHEMA_VERSION, "purpose": purpose})
 
 
-def profile_key(paths: dict[str, Path]) -> str:
-    payload = json.dumps(
-        {name: str(path) for name, path in paths.items()},
-        sort_keys=True,
-        separators=(",", ":"),
+def profile_key(paths: dict[str, Path], *, namespace: str = "") -> str:
+    coordinates = {name: str(path) for name, path in paths.items()}
+    value: Any = (
+        {"namespace": namespace, "paths": coordinates}
+        if namespace
+        else coordinates
     )
+    payload = json.dumps(value, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode()).hexdigest()[:12]
