@@ -1,6 +1,6 @@
 ---
 name: atrinik-github-governance
-description: Maintain Atrinik GitHub repository settings, rulesets, merge policy, Actions permissions, required checks, organization policy, and governance automation. Use for any repository-policy or workflow-contract change.
+description: Change Atrinik GitHub settings, rulesets, merge/release policy, Actions permissions, required checks, or governance automation.
 ---
 
 # Atrinik GitHub Governance

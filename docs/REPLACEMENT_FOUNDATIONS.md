@@ -7,14 +7,14 @@ requests, stable aggregate check, contribution/provenance guidance, dependency
 policy, notices, package/SBOM contract, and mixed-license boundary.
 
 The repositories do not inherit permission to reuse classic code. New MIT work
-is the default. A historical grant is usable only through the exhaustive root
-registry at the exact revision recorded in the inventory and only after a
-complete, non-shallow, rename-aware history audit proves the named grantor's
-sole original authorship. The review must also verify identity, embedded
-third-party material, exact source/destination paths, transformation,
-copyright, grant, and reviewer. Mixed or uncertain candidates are excluded;
-current blame, committer identity, or a repository-level ownership inference is
-never enough.
+is the default. A historical grant is usable only through the exhaustive
+[`PROVENANCE.md`](PROVENANCE.md) registry at the exact path and revision
+recorded in the inventory and only after a complete, non-shallow, rename-aware
+history audit proves the named grantor's sole original authorship. The review
+must also verify identity, embedded third-party material, exact
+source/destination paths, transformation, copyright, grant, and reviewer.
+Mixed or uncertain candidates are excluded; current blame, committer identity,
+or a repository-level ownership inference is never enough.
 
 ## Reproducible decisions
 
@@ -56,4 +56,3 @@ An engine package may stay MIT while carrying or referring to content, sound,
 resources, downloads, or media under different licenses. Each repository's
 `license_boundary` states that separation; generated notices and SBOMs report
 the real component licenses instead of flattening a distribution to MIT.
-

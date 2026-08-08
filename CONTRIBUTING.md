@@ -23,9 +23,10 @@ cohort: the `atrinik/classic` monorepo checkout, `content-1x@1.x`, and retained
 GPL tools. The monorepo supplies the logical classic client, server, editor,
 protocol, and libatrinik components from source subdirectories. Do not put
 those checkouts in the default cohort or mix replacement and classic providers
-in one runnable profile. Replacement repositories remain seed components
-until their owning build/runtime contracts land, so current game integration
-uses a profile created from `classic`.
+in one runnable profile. Replacement repositories have validated standalone M1
+foundations; their wrapper build/runtime adapters and integrated service
+closure have not landed, so current game integration uses a profile created
+from `classic`.
 
 For a pre-split workspace, initialize only the destination with
 `./atrinik init classic`, run `./atrinik migrate repositories --dry-run`
@@ -42,6 +43,7 @@ Before opening a pull request, run:
 ~~~sh
 python3 -m unittest discover -v
 python3 -m compileall -q atrinik atrinik_workspace tests
+python3 -m atrinik_workspace.guidance_inventory --check
 ./atrinik manifest validate
 git diff --check
 ~~~
@@ -52,6 +54,7 @@ environment-specific.
 
 Exercise the smallest relevant real profile build as well. Changes to current
 source-view, collection, runtime, or CMake composition should validate both
-classic client and server with `--profile classic --test`. Default seed
-components should be inspected through their manifest/profile contracts until
-their standalone builds are implemented.
+classic client and server with `--profile classic --test`. Replacement
+components use their repository-owned aggregate validation today and remain
+inspectable through wrapper manifest/profile contracts until wrapper build
+adapters are implemented.

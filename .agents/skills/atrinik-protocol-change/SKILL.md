@@ -1,55 +1,48 @@
 ---
 name: atrinik-protocol-change
-description: Trace, redesign, implement, document, and validate Atrinik wire contracts. Use when protocol schemas, generated IDs, classic packets, QUIC payloads, ADS, or producer-consumer compatibility are primary.
+description: Change Atrinik wire contracts and all producers/consumers. Use for GP1 Protobuf/QUIC, classic packets and IDs, ADS, generated bindings, or compatibility transitions.
 ---
 
-# Atrinik Protocol Change
+# Atrinik protocol change
 
-Use this skill whenever bytes crossing a process or repository boundary are the
-primary contract. Combine it with `atrinik-multi-repo-workspace` and the
-relevant implementation skill for coordinated consumer changes.
+Use this skill when bytes crossing a process or repository boundary are the
+primary contract. Add `atrinik-multi-repo-workspace` and the relevant
+implementation skill for coordinated consumers.
 
-## Trace the whole contract
+## Select the authoritative contract
 
-1. Read every affected repository guide and select all sources with a workspace
-   profile before editing.
-2. Identify the authoritative contract. Classic command IDs come from
-   `protocol/schema/game-commands.json`; payload layouts may still be owned by
-   client/server implementations; ADS schemas live with their content format;
-   metaserver bootstrap contracts are owned by `metaserver-worker`.
-3. Find producers, consumers, generated outputs, fixtures, tests,
-   documentation, packet tooling, and release dependencies. Do not assume the
-   repository containing a numeric constant owns the protocol.
-4. Write down framing, field order, widths, signedness, byte order, lengths,
-   nullability, limits, state transitions, error behavior, and compatibility
-   policy before implementation.
+- Replacement Game Protocol 1 lives in the physical `protocol` checkout and
+  owns Protobuf/Buf policy, normative QUIC/framing specifications, generated
+  Go/Rust contracts, and conformance fixtures.
+- Classic numeric command IDs live at
+  `classic/protocol/schema/game-commands.json`; packet payloads may be owned by
+  classic client/server producers and consumers. Use a classic-derived profile
+  and the monorepo's `classic-protocol-change` skill.
+- ADS/authored schemas live with their exact `content@main` or
+  `content-1x@1.x` format. Metaserver contracts identify their own owner.
 
-## Implement one coherent transition
-
-- Edit schemas or other source definitions, regenerate checked-in artifacts,
-  and verify generation is clean. Never hand-edit generated IDs.
-- Update every in-scope producer and consumer together when compatibility is
-  intentionally broken. Delete superseded commands only after all selected
-  consumers have moved.
-- Reject malformed, truncated, oversized, out-of-order, or impossible input at
-  the boundary. Keep parsing transactional so partial messages cannot leak
-  half-applied state.
-- Avoid parallel old/new paths unless an explicit compatibility window owns
-  their removal. Use precise protocol names rather than vague age labels.
-- Add golden or round-trip fixtures and negative boundary tests where useful.
-
-## Validate every consumer
-
-Run protocol generation checks, the protocol unit and CMake suites, and wrapper
-build/tests for every affected component:
+Resolve paths rather than assuming the wrapper CWD:
 
 ```sh
-./atrinik profile show PROFILE
-./atrinik build protocol --profile PROFILE --test
-./atrinik build COMPONENT --profile PROFILE --test
+./atrinik path protocol --profile default
+./atrinik path classic-protocol --profile classic
 ```
 
-Run `git diff --check` in each repository. For a live transition, hand off the
-complete wrapper topology lifecycle and exact observable result; use
-`atrinik-test-scenario` when login state is needed. The final report must name
-the authoritative source, changed consumers, compatibility decision, and tests.
+Trace schemas, specifications, generated outputs, producers, consumers,
+fixtures, tests, tooling, and release dependencies. Define framing, field
+order, widths, signedness, byte order, bounds, state transitions, failures, and
+compatibility before implementation.
+
+Edit authoritative definitions and regenerate; never hand-edit generated IDs.
+Keep parsing bounded and transactional, test malformed/truncated/oversized and
+state-order failures, and remove an old path only after every selected consumer
+moves. Avoid parallel compatibility paths without an issue-owned removal gate.
+
+## Validate
+
+Run each owning repository's aggregate generation/test contract and every
+affected producer/consumer build. Use wrapper builds only for components whose
+wrapper adapters exist; do not route replacement GP1 through classic code.
+Finish with `git diff --check` in every repository and report the source,
+consumers, compatibility decision, and tests. Use a supervised topology and
+scenario when runtime proof is required.

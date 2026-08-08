@@ -60,26 +60,12 @@ unavailable so repeated coordinates such as `atrinik/content` or shared
 checkouts such as `atrinik/classic` cannot be collapsed into one ambiguous
 input.
 
-Source provenance is also a cross-repository contract. Its exhaustive approved
-historical MIT provenance grantor registry is:
-
-| Grantor | Covered material | Permitted operations | Destination license |
-| --- | --- | --- | --- |
-| Zoey Rose | All original past Atrinik contributions solely authored by Zoey Rose | Copy, migrate, translate, or relicense | MIT |
-| Daniel Liptrot | All original past Atrinik contributions solely authored by Daniel Liptrot | Copy, migrate, translate, or relicense | MIT |
-
-A grant applies only when complete, non-shallow Git history follows renames and
-moves, proves the selected material is the named grantor's original work and
-was solely authored by that grantor, and supports the historical author-identity
-mapping. Review must exclude embedded third-party or conflicting-licensed work.
-A migration records the exact source repository, path, and revision;
-destination repository and path; author identity and complete-history evidence;
-transformation; third-party review; applicable grantor and grant; and exact
-wrapper repository revision containing the registry entry as grant evidence in
-its pull request or a committed provenance manifest. Current blame, incomplete
-or uncertain history, or authorship of only part of a mixed file does not
-establish eligibility for the whole material; the process fails closed until
-every doubt is independently resolved.
+Source provenance is also a cross-repository contract.
+[`PROVENANCE.md`](PROVENANCE.md) is the single exhaustive historical MIT
+grantor registry and evidence procedure. Reuse fails closed unless complete,
+rename-aware history proves sole original authorship and identity, separates
+eligible material, excludes conflicting embedded work, and records the exact
+source, destination, transformation, review, and wrapper registry revision.
 
 The `supply-chain` command resolves component inputs through the same profile
 selectors as builds, then reads Git-indexed files without mutating a checkout.
