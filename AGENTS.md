@@ -86,8 +86,9 @@
 - Before combining former standalone classic repositories, use
   exact `./atrinik init classic`, then
   `./atrinik migrate repositories --dry-run`, `--apply`, and `--audit`.
-  Initialization must retain the wrapper-fetched classic `history/*` refs used
-  to prove and remap former branches and linked worktrees.
+  Initialization uses classic `main` only. Migration must bridge a verified
+  branch-only local commit directly when its retired rewritten map target is
+  absent; never recreate or depend on a classic `history/*` namespace.
   Do not run additive `init --with classic` until after migration in a
   pre-split workspace because its default-cohort preflight must reject the
   former classic repositories occupying replacement paths.

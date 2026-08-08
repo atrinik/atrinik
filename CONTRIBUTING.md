@@ -29,12 +29,13 @@ uses a profile created from `classic`.
 
 For a pre-split workspace, initialize only the destination with
 `./atrinik init classic`, run `./atrinik migrate repositories --dry-run`
-before apply, and finish with `--audit`. Using the preserved `history/*` refs
-fetched by `init classic`, the checked migration combines proven pre-monorepo
-repositories under `classic/`, preserves recoverable
+before apply, and finish with `--audit`. The checked migration combines proven
+pre-monorepo repositories under `classic/`, preserves recoverable
 originals and worktree state, refuses ambiguous or unsafe layouts, and rewrites
 proven classic profiles atomically. States, builds, runtimes, and logs remain
-outside the repository-layout migration.
+outside the repository-layout migration. It uses integrated commit-map targets
+when available and imports an exact verified local commit when a branch-only
+target disappeared with the retired classic `history/*` namespace.
 
 Before opening a pull request, run:
 

@@ -158,9 +158,8 @@ side effect.
 `migrate repositories` is a checked transaction for workspaces that still
 contain the five former standalone classic repositories. After the destination
 `./classic` checkout is initialized with exact `./atrinik init classic`,
-which fetches the monorepo's preserved `history/*` migration refs in addition
-to `main`, `--dry-run` computes and reports the full plan, `--apply` executes
-that plan, and `--audit` verifies the resulting
+`--dry-run` computes and reports the full plan, `--apply` executes that plan,
+and `--audit` verifies the resulting
 invariants; each mode supports `--json` for machine-readable output.
 Additive `init --with classic` is deferred until after migration because its
 default-cohort preflight refuses former classic repositories that still occupy
@@ -184,6 +183,11 @@ ambiguous or conflicting occupants, unsafe Git states, running affected
 topologies, or selectors that cannot be proven. The operator resolves a
 reported condition and reruns the complete dry run rather than moving paths by
 hand. Interruption and rollback handling never deletes a user path.
+
+Commit-map targets already integrated into classic history are reused as
+bridge parents. A branch-only map target that disappeared with the retired
+`history/*` namespace is not an error: apply imports the exact commit from the
+verified local source checkout and records it as the bridge parent.
 
 Repository migration does not move or reinterpret `content`, `content-1x`,
 state directories, build trees, collected runtimes, scenario data, topology

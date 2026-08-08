@@ -699,6 +699,51 @@ class RepositoryMigrationTests(unittest.TestCase):
         parents = command("git", "show", "-s", "--format=%P", "HEAD", cwd=migrated).decode().split()
         self.assertIn(mapped, parents)
 
+    def test_absent_branch_only_map_target_bridges_from_source_head(self) -> None:
+        source = self.make_repository("client", "client")
+        classic = self.make_classic({"client": source})
+        linked = self.paths.worktrees / "client" / "branch-only"
+        linked.parent.mkdir(parents=True)
+        command(
+            "git",
+            "worktree",
+            "add",
+            "-b",
+            "feat/branch-only",
+            str(linked),
+            cwd=source,
+        )
+        (linked / "tracked.txt").write_text(
+            "branch-only feature\n", encoding="utf-8"
+        )
+        command("git", "add", "tracked.txt", cwd=linked)
+        command("git", "commit", "-m", "feat: branch-only feature", cwd=linked)
+        old_head = command("git", "rev-parse", "HEAD", cwd=linked).decode().strip()
+        unavailable = "f" * 40
+        history = classic / "docs" / "history"
+        history.mkdir(parents=True)
+        (history / "client-commit-map.txt").write_text(
+            f"old                                      new\n{old_head} {unavailable}\n",
+            encoding="ascii",
+        )
+        command("git", "add", "docs/history/client-commit-map.txt", cwd=classic)
+        command("git", "commit", "-m", "docs: record branch-only map", cwd=classic)
+
+        result = self.migration().execute("apply")
+
+        row = next(
+            row
+            for row in result["worktree_migrations"]
+            if row["component"] == "classic-client" and not row["primary"]
+        )
+        self.assertIsNone(row["mapped_parent"])
+        migrated = Path(row["destination"])
+        parents = command(
+            "git", "show", "-s", "--format=%P", "HEAD", cwd=migrated
+        ).decode().split()
+        self.assertIn(old_head, parents)
+        self.assertEqual(self.migration().execute("audit")["status"], "complete")
+
     def test_malformed_exact_commit_map_fails_closed_without_writes(self) -> None:
         source = self.make_repository("client", "client")
         classic = self.make_classic({"client": source})
