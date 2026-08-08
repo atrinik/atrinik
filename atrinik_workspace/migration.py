@@ -2956,11 +2956,22 @@ class RepositoryMigration:
         )
         if checkout is None:
             return False
+        canonical = str(getattr(checkout, "name", ""))
+        if canonical not in {value[0] for value in CLASSIC_SOURCES}:
+            return False
+        if self.repository_root / canonical != source_path:
+            return False
         repository = str(getattr(checkout, "repository", ""))
-        identity, _, _, _ = self._repository_identity(source_path, {repository})
-        if identity != "expected":
+        if not self._effective_repository_remote_matches(source_path, repository):
             return False
         try:
+            top_level = Path(
+                self._git_text(source_path, "rev-parse", "--show-toplevel")
+            ).resolve()
+            if top_level != source_path.resolve():
+                return False
+            if self._classic_lineage(source_path, canonical):
+                return False
             return self._git_common_directory(source_path) != self._git_common_directory(
                 archive
             )
@@ -3048,6 +3059,21 @@ class RepositoryMigration:
             "no identifying origin/upstream URL"
             + (f" (found {', '.join(coordinates)})" if coordinates else ""),
         )
+
+    def _effective_repository_remote_matches(
+        self, path: Path, expected: str
+    ) -> bool:
+        """Match only the first URL Git fetches for origin or upstream."""
+
+        expected = expected.lower()
+        for remote in ("origin", "upstream"):
+            process = self._git_process(path, "remote", "get-url", "--all", remote)
+            if process.returncode:
+                continue
+            urls = process.stdout.decode(errors="replace").splitlines()
+            if urls and self._repository_from_url(urls[0].strip()) == expected:
+                return True
+        return False
 
     def _repository_coordinates(self, path: Path) -> set[str]:
         result: set[str] = set()
