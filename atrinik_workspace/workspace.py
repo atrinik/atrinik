@@ -73,9 +73,6 @@ PRE_MONOREPO_REPOSITORIES = {
     "libatrinik": "legacy-libatrinik",
     "protocol": "legacy-protocol",
 }
-CLASSIC_HISTORY_REFSPEC = (
-    "+refs/heads/history/*:refs/remotes/{remote}/history/*"
-)
 RESOURCE_PATHS_MANIFEST = "runtime-paths.txt"
 SERVER_IDENTITY_MAX_SIZE = 64 * 1024
 SCENARIO_KEYS = {
@@ -348,7 +345,6 @@ class Workspace:
     def _ensure_repository(self, value: Checkout | Component) -> Path:
         checkout = self._checkout_identity(value)
         destination = self._primary_path(checkout)
-        support_refs_ready = False
         if not destination.exists() and not destination.is_symlink():
             temporary = Path(
                 tempfile.mkdtemp(
@@ -369,9 +365,7 @@ class Workspace:
                         str(temporary),
                     ]
                 )
-                remote = self._validate_primary_checkout(checkout, temporary)
-                self._ensure_support_refs(checkout, temporary, remote)
-                support_refs_ready = True
+                self._validate_primary_checkout(checkout, temporary)
                 if destination.exists() or destination.is_symlink():
                     raise WorkspaceError(
                         f"component destination appeared during clone: {destination}"
@@ -380,24 +374,8 @@ class Workspace:
             except BaseException:
                 shutil.rmtree(temporary, ignore_errors=True)
                 raise
-        remote = self._validate_primary_checkout(checkout, destination)
-        if not support_refs_ready:
-            self._ensure_support_refs(checkout, destination, remote)
+        self._validate_primary_checkout(checkout, destination)
         return destination
-
-    def _ensure_support_refs(
-        self, checkout: Checkout, path: Path, remote: str
-    ) -> None:
-        if checkout.name != "classic":
-            return
-        git(
-            path,
-            "fetch",
-            "--prune",
-            "--no-tags",
-            remote,
-            CLASSIC_HISTORY_REFSPEC.format(remote=remote),
-        )
 
     def _validate_primary_checkout(
         self, value: Checkout | Component, path: Path, *, trace: bool = True

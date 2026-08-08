@@ -206,9 +206,11 @@ migration instead of moving directories by hand:
 ./atrinik migrate repositories --audit --json
 ~~~
 
-`init classic` also fetches the preserved `history/*` branches required to
-prove and remap former standalone branches and linked worktrees; a normal
-single-branch clone is not sufficient for this migration.
+`init classic` needs only the maintained `main` branch. The migration verifies
+integrated commits against the immutable commit maps. When an old local
+worktree points at a branch-only commit whose rewritten object is no longer
+published, apply imports that exact local source commit as a bridge parent
+instead of depending on a retired `history/*` ref.
 
 The dry run produces the complete migration plan without changing the
 workspace. Apply combines each proven former repository at the matching

@@ -102,9 +102,10 @@ migration workflow:
 ./atrinik migrate repositories --audit --json
 ```
 
-`init classic` fetches the preserved `history/*` branches used to prove and
-remap former standalone branches and linked worktrees. Do not substitute a
-plain single-branch clone.
+`init classic` needs only the maintained classic `main` branch. Commit maps
+prove integrated history. If a mapped branch-only rewritten object was retired,
+migration imports the exact verified local source commit as a bridge parent;
+do not recreate or fetch a `history/*` namespace.
 
 - Dry-run and audit are read-only. Review every planned move, worktree repair,
   and profile rewrite before apply.

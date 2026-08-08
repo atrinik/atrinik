@@ -941,11 +941,8 @@ class RepositoryMigration:
                     )
                 mapped_parent = self._mapped_parent(
                     classic.path,
-                    path,
                     canonical,
-                    prefix,
                     head,
-                    branch,
                 )
             result.append(
                 _Worktree(
@@ -974,11 +971,8 @@ class RepositoryMigration:
     def _mapped_parent(
         self,
         classic: Path,
-        source: Path,
         canonical: str,
-        prefix: str,
         old_head: str,
-        branch: str | None,
     ) -> str | None:
         path = classic / "docs" / "history" / f"{canonical}-commit-map.txt"
         if path.exists() or path.is_symlink():
@@ -1017,43 +1011,11 @@ class RepositoryMigration:
                     )
             mapped = mappings.get(old_head)
             if mapped is not None and set(mapped) != {"0"}:
-                self._verify_mapped_parent(classic, prefix, old_head, mapped)
-                return mapped
-        if branch:
-            for ref in (
-                f"refs/remotes/origin/history/{canonical}/{branch}",
-                f"refs/heads/history/{canonical}/{branch}",
-            ):
-                candidate = self._git_optional_text(classic, "rev-parse", "--verify", ref)
-                if candidate and self._mapped_tree_matches(
-                    classic,
-                    source,
-                    prefix,
-                    old_head,
-                    candidate,
+                if self._git_optional_text(
+                    classic, "rev-parse", "--verify", f"{mapped}^{{commit}}"
                 ):
-                    return candidate
+                    return mapped
         return None
-
-    def _verify_mapped_parent(
-        self, classic: Path, prefix: str, old_head: str, mapped: str
-    ) -> None:
-        if not self._git_optional_text(classic, "rev-parse", "--verify", f"{mapped}^{{commit}}"):
-            raise WorkspaceError(f"commit-map target is absent from classic history: {mapped}")
-        # The source object may not have been fetched into classic yet.  Tree
-        # equality is checked again after it is imported during apply.
-
-    def _mapped_tree_matches(
-        self,
-        classic: Path,
-        source: Path,
-        prefix: str,
-        old_head: str,
-        mapped: str,
-    ) -> bool:
-        old_tree = self._git_optional_text(source, "rev-parse", f"{old_head}^{{tree}}")
-        mapped_tree = self._git_optional_text(classic, "rev-parse", f"{mapped}:{prefix}")
-        return old_tree is not None and old_tree == mapped_tree
 
     def _inspect_profiles(
         self, sources: list[_Source], classic: _Classic | None
