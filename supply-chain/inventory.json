@@ -1714,7 +1714,7 @@
         "atrinik"
       ],
       "required": false,
-      "version": "coverage=7.15.2",
+      "version": "coverage=7.15.3",
       "version_source": "requirements-dev.txt",
       "license": "Apache-2.0",
       "source_url": "https://pypi.org/project/coverage/",
@@ -1734,7 +1734,7 @@
         {
           "repository": "atrinik",
           "path": "requirements-dev.txt",
-          "contains": "coverage==7.15.2"
+          "contains": "coverage==7.15.3"
         }
       ]
     },
