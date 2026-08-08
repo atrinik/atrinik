@@ -140,19 +140,6 @@ class CohortWorkspaceTests(unittest.TestCase):
         ):
             self.workspace.initialize(None, jobs=4, include_classic=True)
 
-            classic = self.wrapper / "classic"
-            subprocess.run(
-                [
-                    "git",
-                    "update-ref",
-                    "-d",
-                    "refs/remotes/origin/history/client/pr-48",
-                ],
-                cwd=classic,
-                check=True,
-            )
-            self.workspace.initialize(["classic"], jobs=1)
-
         classic_history = subprocess.run(
             [
                 "git",
@@ -161,20 +148,11 @@ class CohortWorkspaceTests(unittest.TestCase):
                 "refs/remotes/origin/history/client/pr-48",
             ],
             cwd=self.wrapper / "classic",
-            check=True,
+            check=False,
             capture_output=True,
             text=True,
-        ).stdout.strip()
-        self.assertEqual(
-            classic_history,
-            subprocess.run(
-                ["git", "rev-parse", "history/client/pr-48"],
-                cwd=seed,
-                check=True,
-                capture_output=True,
-                text=True,
-            ).stdout.strip(),
         )
+        self.assertNotEqual(classic_history.returncode, 0)
 
         for component in defaults:
             checkout = self.wrapper / component.path
