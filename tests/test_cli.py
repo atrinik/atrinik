@@ -10,6 +10,124 @@ from atrinik_workspace.model import WorkspaceError
 
 
 class ParserTests(unittest.TestCase):
+    def test_cleanup_defaults_to_preview_and_reports_json(self) -> None:
+        report = {
+            "schema_version": 1,
+            "mode": "dry-run",
+            "scopes": ["worktrees", "builds"],
+            "older_than_days": 7,
+            "filters": [],
+            "inventory_errors": [],
+            "items": [],
+            "summary": {
+                "item_count": 0,
+                "candidate_count": 0,
+                "candidate_bytes": 0,
+                "protected_count": 0,
+                "protected_bytes": 0,
+                "skipped_count": 0,
+                "skipped_bytes": 0,
+                "removed_count": 0,
+                "removed_bytes": 0,
+                "error_count": 0,
+                "error_bytes": 0,
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.cleanup.return_value = report
+            with mock.patch("builtins.print") as output:
+                result = main(["cleanup", "--dry-run", "--json"])
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.cleanup.assert_called_once_with([], 7, [], False)
+        self.assertEqual(json.loads(output.call_args.args[0]), report)
+
+    def test_cleanup_combines_scopes_filters_and_reports_apply_failure(self) -> None:
+        report = {
+            "schema_version": 1,
+            "mode": "apply",
+            "scopes": ["worktrees", "builds"],
+            "older_than_days": 0,
+            "filters": ["classic"],
+            "inventory_errors": [],
+            "items": [],
+            "summary": {
+                "item_count": 0,
+                "candidate_count": 0,
+                "candidate_bytes": 0,
+                "protected_count": 0,
+                "protected_bytes": 0,
+                "skipped_count": 0,
+                "skipped_bytes": 0,
+                "removed_count": 0,
+                "removed_bytes": 0,
+                "error_count": 1,
+                "error_bytes": 0,
+            },
+            "aborted": True,
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.cleanup.return_value = report
+            with mock.patch("builtins.print"):
+                result = main(
+                    [
+                        "cleanup",
+                        "classic-client",
+                        "--scope",
+                        "worktrees",
+                        "--scope",
+                        "builds",
+                        "--older-than",
+                        "0",
+                        "--apply",
+                        "--json",
+                    ]
+                )
+
+        self.assertEqual(result, 1)
+        workspace_type.return_value.cleanup.assert_called_once_with(
+            ["worktrees", "builds"], 0, ["classic-client"], True
+        )
+
+    def test_cleanup_text_report_includes_item_age_reasons_and_totals(self) -> None:
+        report = {
+            "items": [
+                {
+                    "disposition": "eligible",
+                    "kind": "worktree",
+                    "allocated_bytes": 4096,
+                    "age_seconds": 2 * 86400,
+                    "path": "/workspace/review",
+                    "reasons": ["merged_pr_head"],
+                }
+            ],
+            "summary": {
+                "candidate_count": 1,
+                "candidate_bytes": 4096,
+                "protected_count": 0,
+                "protected_bytes": 0,
+                "removed_count": 0,
+                "removed_bytes": 0,
+                "error_count": 0,
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.cleanup.return_value = report
+            with mock.patch("builtins.print") as output:
+                result = main(["cleanup", "--scope", "all"])
+
+        self.assertEqual(result, 0)
+        lines = [call.args[0] for call in output.call_args_list]
+        self.assertIn(
+            "eligible\tworktree\t4096\t2d\t/workspace/review\tmerged_pr_head",
+            lines,
+        )
+        self.assertIn(
+            "summary\tcandidates=1 candidate_bytes=4096 protected=0 "
+            "protected_bytes=0 removed=0 removed_bytes=0 errors=0",
+            lines,
+        )
+
     def test_init_with_classic_dispatches_only_documented_additive_option(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
             result = main(["init", "--with", "classic", "--jobs", "2"])

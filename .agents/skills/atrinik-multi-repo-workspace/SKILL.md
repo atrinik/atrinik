@@ -88,6 +88,26 @@ description: Coordinate changes, reviews, builds, releases, and Git worktrees ac
    Commits and open the pull request in that physical repository. Do not create
    a wrapper commit for component-source-only changes.
 
+6. Reclaim completed review data only through the explicit preview-first
+   workflow. Default cleanup covers worktrees plus profile builds; npm cache
+   removal is always opt-in:
+
+   ```sh
+   ./atrinik cleanup --dry-run --json
+   ./atrinik cleanup --scope worktrees --scope builds CHECKOUT... --older-than 7
+   ./atrinik cleanup --scope all --older-than 7 --apply
+   ```
+
+   A saved profile, retained scenario, live topology, migration record,
+   build-retention record, dirty/detached/locked/in-progress worktree, or
+   uncertain Git/GitHub/marker identity protects its target. Exact merged PR
+   heads alone qualify after the grace period. Apply recomputes under the
+   repository-layout lock, removes marker-owned builds first, invokes
+   non-force Git worktree removal second, and handles the explicit cache and
+   safely shared prunable metadata last. It never removes profiles, scenarios,
+   states, topology records/logs, migration evidence/archives, branches, Git
+   objects, deep-review reports, or arbitrary unmarked paths.
+
 ## Migrate a pre-split workspace
 
 Before replacing a workspace containing the former standalone classic
@@ -259,6 +279,11 @@ cleanup command. Do not substitute reconstructed internal build/runtime paths
 or direct executable invocations for a supported wrapper command. If runtime
 verification is not applicable, say so and provide the wrapper build/test and
 inspection commands that are applicable.
+
+For cleanup changes, runtime launch is normally not applicable. Use the exact
+worktree/profile fixture names from the task and include both a stable JSON
+preview and the opt-in apply form, with expected candidate/protection reasons
+and an explicit statement that branches and retained records remain.
 
 When the reviewer needs a ready login, also use the
 `atrinik-test-scenario` skill. Provision with `./atrinik scenario create`,
