@@ -103,6 +103,26 @@ def parser() -> argparse.ArgumentParser:
     worktree_list.add_argument("components", nargs="*")
     worktree_list.add_argument("--json", action="store_true")
 
+    cleanup = commands.add_parser(
+        "cleanup", help="preview or reclaim stale workspace data"
+    )
+    cleanup.add_argument(
+        "components",
+        nargs="*",
+        help="limit worktrees to repeated checkout/component identities",
+    )
+    cleanup.add_argument(
+        "--scope",
+        action="append",
+        choices=["worktrees", "builds", "npm-cache", "all"],
+        default=[],
+    )
+    cleanup.add_argument("--older-than", type=int, default=7, metavar="DAYS")
+    cleanup_mode = cleanup.add_mutually_exclusive_group()
+    cleanup_mode.add_argument("--dry-run", action="store_true")
+    cleanup_mode.add_argument("--apply", action="store_true")
+    cleanup.add_argument("--json", action="store_true")
+
     profile = commands.add_parser("profile", help="manage coherent source profiles")
     profile_commands = profile.add_subparsers(dest="profile_command", required=True)
     profile_create = profile_commands.add_parser("create")
@@ -432,6 +452,41 @@ def main(arguments: list[str] | None = None) -> int:
                             "refs/heads/"
                         )
                         print(f"{component}\t{branch}\t{record['worktree']}")
+        elif options.command == "cleanup":
+            report = workspace.cleanup(
+                options.scope,
+                options.older_than,
+                options.components,
+                options.apply,
+            )
+            if options.json:
+                print(json.dumps(report, indent=2, sort_keys=True))
+            else:
+                for item in report["items"]:
+                    age = (
+                        "-"
+                        if item["age_seconds"] is None
+                        else f"{item['age_seconds'] // 86400}d"
+                    )
+                    reasons = ",".join(item["reasons"])
+                    print(
+                        f"{item['disposition']}\t{item['kind']}\t"
+                        f"{item['allocated_bytes']}\t{age}\t{item['path']}\t"
+                        f"{reasons}"
+                    )
+                summary = report["summary"]
+                print(
+                    "summary\t"
+                    f"candidates={summary['candidate_count']} "
+                    f"candidate_bytes={summary['candidate_bytes']} "
+                    f"protected={summary['protected_count']} "
+                    f"protected_bytes={summary['protected_bytes']} "
+                    f"removed={summary['removed_count']} "
+                    f"removed_bytes={summary['removed_bytes']} "
+                    f"errors={summary['error_count']}"
+                )
+            if report["summary"]["error_count"] or report.get("aborted"):
+                return 1
         elif options.command == "profile":
             if options.profile_command == "create":
                 workspace.create_profile(options.name, options.source)

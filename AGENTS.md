@@ -93,6 +93,15 @@
   initialized default-cohort checkouts; opt-in classic-cohort synchronization
   uses exact `--with classic` or explicit checkout/component names. Operations
   deduplicate aliases that resolve to the same physical checkout.
+- Workspace cleanup is explicit and preview-first. Use `./atrinik cleanup`
+  or `--dry-run --json` before exact `--apply`; never add implicit cleanup to
+  init, sync, build, topology, scenario, or startup paths. Only registered,
+  exact-merged-head worktrees and marker-owned stale builds are candidates.
+  Preserve every profile/scenario/live-topology/migration/retention reference,
+  ordinary local change, branch/ref, state, log, archive, review report, and
+  unmarked path. The npm cache requires an explicit scope. Apply must hold the
+  repository-layout lock, recompute and immediately revalidate, use non-force
+  Git worktree removal, and stop accurately on the first post-mutation error.
 - Before combining former standalone classic repositories, use
   exact `./atrinik init classic`, then
   `./atrinik migrate repositories --dry-run`, `--apply`, and `--audit`.

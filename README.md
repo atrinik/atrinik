@@ -380,6 +380,73 @@ physical repository, so a classic worktree contains all five classic source
 directories. Ordinary `git commit`, `git push`, and `gh pr create` work from
 inside it.
 
+## Previewing and reclaiming stale workspace data
+
+Cleanup is always operator-invoked and preview-first. With no options it
+inventories registered worktrees and marker-owned profile builds older than
+seven days without changing the filesystem:
+
+~~~sh
+./atrinik cleanup
+./atrinik cleanup --dry-run --json
+./atrinik cleanup --scope worktrees classic-server --older-than 14
+./atrinik cleanup --scope builds --scope npm-cache --older-than 0
+./atrinik cleanup --scope all --older-than 7 --apply
+~~~
+
+`--dry-run` is the explicit spelling of the default mode; only `--apply`
+mutates. Repeated `--scope` options combine `worktrees`, `builds`, and the
+opt-in `npm-cache`; `all` selects all three. Positional checkout or logical
+component names narrow only the worktree inventory and still deduplicate
+aliases to one physical checkout. The special `atrinik` filter selects wrapper
+worktrees. JSON output is stable schema-versioned data and keeps Git/GitHub
+diagnostics off stdout. Text output ends with candidate, protected, removed,
+error, and allocated-byte totals.
+
+The worktree inventory covers every initialized physical checkout plus wrapper
+worktrees that Git proves are direct children of exactly
+`workspace/worktrees/atrinik/` or the historical `build/worktrees/`
+namespace. A worktree becomes eligible only when it is registered to the
+expected common Git directory and repository, named and unlocked, has no Git
+operation or ordinary tracked/untracked change, and is not retained by a
+profile, scenario, live topology, or repository-migration record. The
+authenticated `gh` commit-associated-pulls query must prove one merged PR with
+the manifest base branch, an exact `head.sha` match, no associated open PR, and
+a merge age beyond the grace period. Query failure, ambiguity, wrong base,
+closed-unmerged PR, advanced branch, detached worktree, external path, or any
+ownership uncertainty protects the item. Ignored compiler/dependency output
+does not make a worktree dirty, but its paths and allocated bytes are reported
+because `git worktree remove` will reclaim it. Apply never uses `--force` and
+does not delete local or remote branch refs.
+
+Profile builds are eligible only as direct
+`workspace/build/profiles/<profile>-<key>` children with an exact regular
+ownership marker. Each build use atomically refreshes strict metadata with its
+profile/key, selected repository/branch/checkout/source coordinates, commits,
+and `last_used_at`. A marker-proven build created before that metadata uses the
+maximum no-follow tree mtime as a conservative legacy age. A build selected by
+a live topology, busy build lock, registered worktree, or the optional strict
+`workspace/build/retention.json` record is protected. That retention record is
+schema 1 and contains exactly `schema_version` plus an absolute `build_roots`
+array. A build sourced from a worktree eligible in the same plan may be
+reclaimed regardless of age unless another protection applies.
+
+The shared `workspace/build/npm-cache` is never part of default cleanup. Its
+explicit scope accepts the exact marker-owned path or the one legacy known
+cache at that fixed location after proving the workspace marker, path shape,
+age, and absence of an active build. Unmarked profile roots, other
+`workspace/build` children, and all remaining mixed top-level `build/`
+entries are report-only `unmanaged-build` items. Deep-review reports, ad hoc
+builds, packages, archives, and unregistered siblings are never recursively
+deleted.
+
+Apply holds the repository-layout lock, recomputes the entire plan, then
+revalidates each target immediately before removal. It removes eligible builds
+first, exact Git worktrees second, and the explicitly selected cache or safely
+shared prunable Git metadata last. A pre-mutation race aborts without deletion;
+after the first successful mutation, the deterministic policy stops on the
+first error and reports exactly what was reclaimed without claiming rollback.
+
 ## Composing coherent component sources
 
 A profile retains a stack identity and chooses one physical checkout root for
@@ -755,12 +822,19 @@ worktrees, so commit, stash, or otherwise preserve intentional edits first:
 
 ~~~sh
 ./atrinik down combined-review
-./atrinik worktree remove classic combined-classic
-./atrinik worktree remove content-1x maps-review
+./atrinik profile set combined-review classic --primary
+./atrinik profile set combined-review content-1x --primary
+./atrinik cleanup --scope worktrees --scope builds \
+  classic content-1x --older-than 7 --dry-run
+./atrinik cleanup --scope worktrees --scope builds \
+  classic content-1x --older-than 7 --apply
 ~~~
 
-Profiles and rotated logs are small ignored metadata and may remain as a review
-record. Commits and branches remain owned by their physical Git repositories.
+The saved `combined-review` profile protects both selected worktrees until the
+explicit `profile set` commands repoint it. Do that only when the retained
+review selection is no longer useful, then preview cleanup. Cleanup never removes profiles,
+scenarios, topology records/logs, state, migration evidence, commits, or
+branches.
 
 ## Persistent server state
 
@@ -826,6 +900,7 @@ python3 -m coverage run -m unittest discover -v
 python3 -m coverage report --show-missing
 python3 -m compileall -q atrinik atrinik_workspace tests
 ./atrinik manifest validate
+./atrinik cleanup --scope all --older-than 7 --dry-run --json
 ~~~
 
 Use `./atrinik build COMPONENT --profile classic --test` for current native
