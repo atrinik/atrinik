@@ -540,7 +540,13 @@ class Inventory:
                     _validate_container_reference(
                         self.dependencies, repository_name, relative, image
                     )
-                for runner in _workflow_runners(text):
+                try:
+                    runners = _workflow_runners(text)
+                except WorkspaceError as error:
+                    raise WorkspaceError(
+                        f"{repository_name}/{relative}: {error}"
+                    ) from error
+                for runner in runners:
                     locator = f"github-hosted-runner/{runner}"
                     dependency = runner_dependencies.get(locator)
                     if dependency is None:

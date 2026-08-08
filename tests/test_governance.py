@@ -96,14 +96,25 @@ class ReplacementFoundationTests(unittest.TestCase):
                 self.assertEqual(supply_chain[record["repository"]]["branch"], "main")
                 self.assertTrue(supply_chain[record["repository"]]["audit_ready"])
 
-    def test_scheduled_audit_checks_out_every_replacement_repository(self) -> None:
+    def test_scheduled_audit_initializes_complete_profiles(self) -> None:
         workflow = (ROOT / ".github/workflows/supply-chain.yml").read_text(
             encoding="utf-8"
         )
+        self.assertIn("run: ./atrinik init --with classic", workflow)
+        self.assertIn("./atrinik supply-chain audit --profile default", workflow)
+        self.assertIn("./atrinik supply-chain audit --profile classic", workflow)
+
+        checkouts = {
+            checkout["name"]: checkout for checkout in self.manifest["checkouts"]
+        }
+        default_components = set(self.manifest["stacks"]["default"]["components"])
         for record in self.inventory["repositories"]:
             with self.subTest(repository=record["repository"]):
-                self.assertIn(f"repository: {record['repository']}", workflow)
-                self.assertIn(f"path: {record['name']}", workflow)
+                self.assertIn(record["name"], default_components)
+                self.assertEqual(
+                    checkouts[record["name"]]["repository"], record["repository"]
+                )
+                self.assertEqual(checkouts[record["name"]]["branch"], "main")
 
         dependencies = {
             dependency["id"]: dependency

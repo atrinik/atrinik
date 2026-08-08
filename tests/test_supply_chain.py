@@ -726,8 +726,8 @@ class InventoryTests(unittest.TestCase):
 
             with self.assertRaisesRegex(
                 WorkspaceError,
-                r"content-1x/.github/workflows/ci.yml: workflow runner must "
-                r"be an explicit literal",
+                r"content-1x/.github/workflows/ci.yml: workflow runner matrix "
+                r"os has no static literals",
             ):
                 inventory.audit({"content-1x": root})
 
