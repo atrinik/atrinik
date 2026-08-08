@@ -26,6 +26,7 @@ from typing import Any, Iterator, TextIO
 from .model import (
     MANAGED_MARKER,
     SCHEMA_VERSION,
+    Checkout,
     Component,
     Manifest,
     Paths,
@@ -38,10 +39,17 @@ from .model import (
     require_keys,
     validate_name,
 )
+from .migration import (
+    MIGRATED_CONTENT_WORKTREE_KIND,
+    RepositoryMigration,
+    classic_lineage,
+    rename_no_replace,
+)
 from .supervisor import process_matches
 
 
-PROFILE_KEYS = {"schema_version", "name", "components"}
+PROFILE_SCHEMA_VERSION = 3
+PROFILE_KEYS = {"schema_version", "name", "stack", "components"}
 SELECTOR_KEYS = {"kind", "value"}
 EXPECTED_SERVER_DATA = {
     "files": ("bans", "motd"),
@@ -57,26 +65,25 @@ ALL_BUILD_TARGETS = (
     "server",
     "metaserver-worker",
 )
-TARGET_DEPENDENCIES = {
-    "content": {"content"},
-    "protocol": {"protocol"},
-    "libatrinik": {"libatrinik", "protocol"},
-    "client": {"client", "sound", "libatrinik", "protocol"},
-    "server": {"server", "content", "resources", "libatrinik", "protocol"},
-    "metaserver-worker": {"metaserver-worker"},
-    "sound": {"sound"},
-    "resources": {"resources"},
-}
-PREFERRED_BUILD_COMPONENTS = set().union(
-    *(TARGET_DEPENDENCIES[target] for target in ALL_BUILD_TARGETS)
-)
 TOPOLOGY_SERVICES = ("server", "client")
+PRE_MONOREPO_REPOSITORIES = {
+    "client": "legacy-client",
+    "server": "legacy-server",
+    "editor": "legacy-editor",
+    "libatrinik": "legacy-libatrinik",
+    "protocol": "legacy-protocol",
+}
+CLASSIC_HISTORY_REFSPEC = (
+    "+refs/heads/history/*:refs/remotes/{remote}/history/*"
+)
 RESOURCE_PATHS_MANIFEST = "runtime-paths.txt"
 SERVER_IDENTITY_MAX_SIZE = 64 * 1024
 SCENARIO_KEYS = {
     "schema_version",
     "name",
     "profile",
+    "stack",
+    "providers",
     "preset",
     "state",
     "account",
@@ -85,6 +92,7 @@ SCENARIO_KEYS = {
     "resolved",
     "provisioned_at",
 }
+SCENARIO_SCHEMA_VERSION = 4
 SCENARIO_PRESETS = {"basic-player": {"archetype": "human_male"}}
 SCENARIO_PASSWORD_MAX_SIZE = 128
 
@@ -250,33 +258,101 @@ class Workspace:
         self.paths = Paths.discover(repository)
         self.manifest = Manifest.load(self.paths.repository / "components.json")
 
-    def initialize(self, names: list[str] | None = None, jobs: int = 4) -> None:
+    def migrate_repositories(self, mode: str) -> dict[str, Any]:
+        if mode == "apply":
+            self.paths.ensure()
+        return RepositoryMigration(
+            self.paths.repository, self.paths, self.manifest
+        ).execute(mode)
+
+    def _checkout_identity(self, value: Checkout | Component) -> Checkout:
+        if isinstance(value, Checkout):
+            return value
+        return self.manifest.checkout_for(value)
+
+    def _primary_path(self, value: Checkout | Component) -> Path:
+        checkout = self._checkout_identity(value)
+        return self.paths.repositories / checkout.path
+
+    def _operation_checkouts(
+        self,
+        names: list[str] | None,
+        include_classic: bool,
+    ) -> list[Checkout]:
+        requested: set[str] = set()
+        if names:
+            unknown: list[str] = []
+            for name in names:
+                if name in self.manifest.by_checkout:
+                    requested.add(name)
+                elif name in self.manifest.by_name:
+                    requested.add(self.manifest.by_name[name].checkout_name)
+                else:
+                    unknown.append(name)
+            if unknown:
+                raise WorkspaceError(
+                    f"unknown components or checkouts: {', '.join(sorted(set(unknown)))}"
+                )
+        else:
+            requested.update(self.manifest.cohorts["default"])
+        if include_classic:
+            requested.update(self.manifest.cohorts["default"])
+            requested.update(self.manifest.cohorts["classic"])
+        return [
+            checkout
+            for checkout in self.manifest.checkouts
+            if checkout.name in requested
+        ]
+
+    def initialize(
+        self,
+        names: list[str] | None = None,
+        jobs: int = 4,
+        *,
+        include_classic: bool = False,
+    ) -> None:
         self.paths.ensure()
-        components = self.manifest.select(names)
+        checkouts = self._operation_checkouts(names, include_classic)
         failures: list[str] = []
-        with ThreadPoolExecutor(max_workers=max(1, min(jobs, len(components)))) as executor:
-            futures = {
-                executor.submit(self._ensure_repository, component): component
-                for component in components
-            }
-            for future in as_completed(futures):
-                component = futures[future]
-                try:
-                    future.result()
-                    print(f"{component.name}: ready")
-                except Exception as error:
-                    failures.append(f"{component.name}: {error}")
+        with exclusive_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            # Validate every occupied destination before starting any clone.
+            # A pre-split classic checkout at a canonical replacement path
+            # must stop the entire operation without leaving a partially
+            # initialized replacement cohort behind.
+            for checkout in checkouts:
+                destination = self._primary_path(checkout)
+                if destination.exists() or destination.is_symlink():
+                    self._validate_primary_checkout(checkout, destination)
+            with ThreadPoolExecutor(
+                max_workers=max(1, min(jobs, len(checkouts)))
+            ) as executor:
+                futures = {
+                    executor.submit(self._ensure_repository, checkout): checkout
+                    for checkout in checkouts
+                }
+                for future in as_completed(futures):
+                    checkout = futures[future]
+                    try:
+                        future.result()
+                        print(f"{checkout.name}: ready")
+                    except Exception as error:
+                        failures.append(f"{checkout.name}: {error}")
         if failures:
             raise WorkspaceError(
                 "repository initialization failed:\n" + "\n".join(sorted(failures))
             )
 
-    def _ensure_repository(self, component: Component) -> Path:
-        destination = self.paths.repositories / component.name
+    def _ensure_repository(self, value: Checkout | Component) -> Path:
+        checkout = self._checkout_identity(value)
+        destination = self._primary_path(checkout)
+        support_refs_ready = False
         if not destination.exists() and not destination.is_symlink():
             temporary = Path(
                 tempfile.mkdtemp(
-                    prefix=f".atrinik-clone-{component.name}-",
+                    prefix=f".atrinik-clone-{checkout.name}-",
                     dir=self.paths.repositories,
                 )
             )
@@ -285,24 +361,61 @@ class Workspace:
                     [
                         "git",
                         "clone",
+                        "--branch",
+                        checkout.branch,
+                        "--single-branch",
                         "--",
-                        self._component_clone_url(component),
+                        self._component_clone_url(checkout),
                         str(temporary),
                     ]
                 )
-                self._validate_checkout(component, temporary)
+                remote = self._validate_primary_checkout(checkout, temporary)
+                self._ensure_support_refs(checkout, temporary, remote)
+                support_refs_ready = True
                 if destination.exists() or destination.is_symlink():
                     raise WorkspaceError(
                         f"component destination appeared during clone: {destination}"
                     )
-                temporary.replace(destination)
+                rename_no_replace(temporary, destination)
             except BaseException:
                 shutil.rmtree(temporary, ignore_errors=True)
                 raise
-        self._validate_checkout(component, destination)
+        remote = self._validate_primary_checkout(checkout, destination)
+        if not support_refs_ready:
+            self._ensure_support_refs(checkout, destination, remote)
         return destination
 
-    def _component_clone_url(self, component: Component) -> str:
+    def _ensure_support_refs(
+        self, checkout: Checkout, path: Path, remote: str
+    ) -> None:
+        if checkout.name != "classic":
+            return
+        git(
+            path,
+            "fetch",
+            "--prune",
+            "--no-tags",
+            remote,
+            CLASSIC_HISTORY_REFSPEC.format(remote=remote),
+        )
+
+    def _validate_primary_checkout(
+        self, value: Checkout | Component, path: Path, *, trace: bool = True
+    ) -> str:
+        checkout = self._checkout_identity(value)
+        remote = self._validate_checkout(checkout, path, trace=trace)
+        branch = git(
+            path, "branch", "--show-current", capture=True, trace=trace
+        )
+        if branch != checkout.branch:
+            raise WorkspaceError(
+                f"primary checkout must be on {checkout.branch}, found "
+                f"{branch or 'detached'}: {path}"
+            )
+        return remote
+
+    def _component_clone_url(self, value: Checkout | Component) -> str:
+        checkout = self._checkout_identity(value)
         for remote in ("origin", "upstream"):
             try:
                 urls = git(
@@ -317,14 +430,15 @@ class Workspace:
             except WorkspaceError:
                 continue
             for url in urls:
-                clone_url = _github_clone_url(url, component.repository)
+                clone_url = _github_clone_url(url, checkout.repository)
                 if clone_url is not None:
                     return clone_url
-        return f"https://github.com/{component.repository}.git"
+        return f"https://github.com/{checkout.repository}.git"
 
     def _canonical_remote(
-        self, component: Component, path: Path, *, trace: bool = True
+        self, value: Checkout | Component, path: Path, *, trace: bool = True
     ) -> str:
+        checkout = self._checkout_identity(value)
         for remote in ("origin", "upstream"):
             try:
                 urls = git(
@@ -341,16 +455,17 @@ class Workspace:
             # Git fetches the first URL when a remote has multiple fetch URLs.
             # Do not accept a later canonical-looking URL while fetching a fork
             # or unrelated repository from the effective first URL.
-            if urls and _remote_matches(urls[0], component.repository):
+            if urls and _remote_matches(urls[0], checkout.repository):
                 return remote
         raise WorkspaceError(
-            f"checkout has no origin/upstream for {component.repository}: {path}"
+            f"checkout has no origin/upstream for {checkout.repository}: {path}"
         )
 
     def _validate_checkout(
-        self, component: Component, path: Path, *, trace: bool = True
+        self, value: Checkout | Component, path: Path, *, trace: bool = True
     ) -> str:
-        if not path.is_dir():
+        checkout = self._checkout_identity(value)
+        if path.is_symlink() or not path.is_dir():
             raise WorkspaceError(f"component checkout is not a directory: {path}")
         try:
             inside = git(
@@ -375,18 +490,79 @@ class Workspace:
         ).resolve()
         if top_level != path.resolve():
             raise WorkspaceError(f"component path must be the Git worktree root: {path}")
-        return self._canonical_remote(component, path, trace=trace)
+        self._validate_checkout_lineage(checkout, path)
+        try:
+            return self._canonical_remote(checkout, path, trace=trace)
+        except WorkspaceError as error:
+            historical_name = PRE_MONOREPO_REPOSITORIES.get(checkout.name)
+            if historical_name is not None:
+                historical_repository = f"atrinik/{historical_name}"
+                for remote in ("origin", "upstream"):
+                    try:
+                        urls = git(
+                            path,
+                            "remote",
+                            "get-url",
+                            "--all",
+                            remote,
+                            capture=True,
+                            trace=trace,
+                        ).splitlines()
+                    except WorkspaceError:
+                        continue
+                    if urls and _remote_matches(urls[0], historical_repository):
+                        raise WorkspaceError(
+                            f"replacement path contains pre-monorepo classic history: "
+                            f"{path}; run ./atrinik migrate repositories --dry-run"
+                        ) from error
+            raise
+
+    def _validate_checkout_lineage(self, checkout: Checkout, path: Path) -> None:
+        old_name = checkout.name if checkout.name in PRE_MONOREPO_REPOSITORIES else None
+        if old_name is None:
+            return
+        try:
+            actual_classic = classic_lineage(path, old_name)
+        except WorkspaceError as error:
+            raise WorkspaceError(
+                f"cannot prove repository history for {checkout.name}: {path}: {error}"
+            ) from error
+        if actual_classic:
+            raise WorkspaceError(
+                f"replacement path contains pre-monorepo classic history: {path}; "
+                "run ./atrinik migrate repositories --dry-run"
+            )
 
     def repository_status(self, names: list[str] | None = None) -> list[dict[str, Any]]:
         """Return quiet, machine-readable primary-checkout status."""
         self.paths.ensure()
         rows: list[dict[str, Any]] = []
-        for component in self.manifest.select(names):
-            path = self.paths.repositories / component.name
+        checkouts = (
+            self._operation_checkouts(names, False)
+            if names
+            else self.manifest.checkouts
+        )
+        for checkout in checkouts:
+            modules = [
+                component
+                for component in self.manifest.components
+                if component.checkout_name == checkout.name
+            ]
+            path = self._primary_path(checkout)
             row: dict[str, Any] = {
-                "component": component.name,
-                "repository": component.repository,
-                "default_branch": component.branch,
+                "component": checkout.name,
+                "checkout": checkout.name,
+                "repository": checkout.repository,
+                "default_branch": checkout.branch,
+                "destination": checkout.path,
+                "cohorts": sorted(self.manifest.checkout_cohorts(checkout.name)),
+                "stacks": sorted(self.manifest.checkout_stacks(checkout.name)),
+                "modules": [component.name for component in modules],
+                "roles": sorted(
+                    {role for component in modules for role in component.provides}
+                ),
+                "license": checkout.license,
+                "optional": checkout.name not in self.manifest.cohorts["default"],
                 "path": str(path),
                 "initialized": False,
                 "branch": None,
@@ -399,7 +575,7 @@ class Workspace:
             if not path.exists() and not path.is_symlink():
                 rows.append(row)
                 continue
-            remote = self._validate_checkout(component, path, trace=False)
+            remote = self._validate_primary_checkout(checkout, path, trace=False)
             row.update(
                 {
                     "initialized": True,
@@ -425,7 +601,7 @@ class Workspace:
                     "rev-list",
                     "--left-right",
                     "--count",
-                    f"HEAD...{remote}/{component.branch}",
+                    f"HEAD...{remote}/{checkout.branch}",
                     capture=True,
                     trace=False,
                 ).split()
@@ -438,59 +614,133 @@ class Workspace:
             rows.append(row)
         return rows
 
-    def sync(self, names: list[str] | None, worktree_strategy: str) -> None:
+    def sync(
+        self,
+        names: list[str] | None,
+        worktree_strategy: str,
+        *,
+        include_classic: bool = False,
+    ) -> None:
         self.paths.ensure()
         if worktree_strategy not in {"none", "merge", "rebase"}:
             raise WorkspaceError(f"unknown worktree strategy: {worktree_strategy}")
-        components = self.manifest.select(names)
-        prepared: list[tuple[Component, Path, str, list[Path]]] = []
-        for component in components:
-            repository = self._ensure_repository(component)
+        checkouts = self._operation_checkouts(names, include_classic)
+        with exclusive_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            self._sync_components(checkouts, names, worktree_strategy)
+
+    def _sync_components(
+        self,
+        checkouts: list[Checkout],
+        explicit_names: list[str] | None,
+        worktree_strategy: str,
+    ) -> None:
+        migrated_content_worktrees = (
+            self._migrated_content_worktree_paths()
+            if worktree_strategy != "none"
+            and any(checkout.name == "content" for checkout in checkouts)
+            else set()
+        )
+        prepared: list[
+            tuple[Checkout, Path, str, list[Path], list[Path]]
+        ] = []
+        explicitly_requested_checkouts = {
+            checkout.name
+            for checkout in self._operation_checkouts(explicit_names, False)
+        } if explicit_names else set()
+        for checkout in checkouts:
+            repository = self._primary_path(checkout)
+            if not repository.exists() and not repository.is_symlink():
+                if checkout.name in explicitly_requested_checkouts:
+                    raise WorkspaceError(
+                        f"component is not initialized; run ./atrinik init "
+                        f"{checkout.name}: {repository}"
+                    )
+                continue
+            self._validate_primary_checkout(checkout, repository)
             if not _is_clean(repository):
                 raise WorkspaceError(f"refusing to update dirty primary checkout: {repository}")
-            branch = git(repository, "branch", "--show-current", capture=True)
-            if branch != component.branch:
-                raise WorkspaceError(
-                    f"primary checkout must be on {component.branch}, "
-                    f"found {branch or 'detached'}: {repository}"
+            remote = self._canonical_remote(checkout, repository)
+            candidates: list[Path] = []
+            skipped: list[Path] = []
+            if worktree_strategy != "none":
+                excluded = (
+                    migrated_content_worktrees
+                    if checkout.name == "content"
+                    else set()
                 )
-            remote = self._canonical_remote(component, repository)
-            candidates = (
-                self._component_worktrees(repository)
-                if worktree_strategy != "none"
-                else []
-            )
-            prepared.append((component, repository, remote, candidates))
-        for component, repository, remote, candidates in prepared:
+                candidates, skipped = self._component_worktrees(
+                    repository, excluded
+                )
+            prepared.append((checkout, repository, remote, candidates, skipped))
+        for checkout, repository, remote, candidates, skipped in prepared:
             git(repository, "fetch", "--prune", "--tags", remote)
-            git(repository, "merge", "--ff-only", f"{remote}/{component.branch}")
-            print(f"{component.name}: primary synchronized")
+            git(repository, "merge", "--ff-only", f"{remote}/{checkout.branch}")
+            print(f"{checkout.name}: primary synchronized")
+            for path in skipped:
+                print(
+                    f"{checkout.name}: skipped migration-only classic worktree "
+                    f"{path}"
+                )
             if worktree_strategy != "none":
                 self._sync_component_worktrees(
-                    component, candidates, worktree_strategy
+                    checkout, candidates, worktree_strategy
                 )
 
-    def _component_worktrees(self, repository: Path) -> list[Path]:
+    def _migrated_content_worktree_paths(self) -> set[Path]:
+        """Return profile-owned classic worktrees that main must never update."""
+
+        if not self.paths.profiles.is_dir():
+            return set()
+        component = self.manifest.by_name.get("content-1x")
+        if component is None:
+            return set()
+        protected: set[Path] = set()
+        for path in sorted(self.paths.profiles.glob("*.json")):
+            profile = self._load_profile(path.stem, require_file=True)
+            selector = profile["components"].get("content-1x")
+            if selector is None or selector["kind"] != MIGRATED_CONTENT_WORKTREE_KIND:
+                continue
+            selected = Path(selector["value"]).resolve()
+            self._validate_selected_checkout(
+                component,
+                selected,
+                MIGRATED_CONTENT_WORKTREE_KIND,
+                trace=False,
+            )
+            protected.add(selected)
+        return protected
+
+    def _component_worktrees(
+        self, repository: Path, excluded: set[Path] | None = None
+    ) -> tuple[list[Path], list[Path]]:
         primary = repository.resolve()
+        excluded = excluded or set()
         candidates: list[Path] = []
+        skipped: list[Path] = []
         for record in _worktree_records(repository):
             path = Path(record["worktree"]).resolve()
             if path == primary or "branch" not in record:
                 continue
+            if path in excluded:
+                skipped.append(path)
+                continue
             if not _is_clean(path):
                 raise WorkspaceError(f"refusing to update dirty worktree: {path}")
             candidates.append(path)
-        return candidates
+        return candidates, skipped
 
     def _sync_component_worktrees(
-        self, component: Component, candidates: list[Path], strategy: str
+        self, checkout: Checkout, candidates: list[Path], strategy: str
     ) -> None:
         for path in candidates:
             if strategy == "merge":
-                git(path, "merge", "--no-edit", component.branch)
+                git(path, "merge", "--no-edit", checkout.branch)
             elif strategy == "rebase":
-                git(path, "rebase", component.branch)
-            print(f"{component.name}: updated {path}")
+                git(path, "rebase", checkout.branch)
+            print(f"{checkout.name}: updated {path}")
 
     def create_worktree(
         self,
@@ -501,12 +751,29 @@ class Workspace:
         existing: bool,
     ) -> Path:
         self.paths.ensure()
+        with exclusive_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            return self._create_worktree(
+                component_name, label, branch, start_point, existing
+            )
+
+    def _create_worktree(
+        self,
+        component_name: str,
+        label: str,
+        branch: str,
+        start_point: str | None,
+        existing: bool,
+    ) -> Path:
+        self.paths.ensure()
         validate_name(label, "worktree label")
-        component = self._component(component_name)
-        repository = self._ensure_repository(component)
-        remote = self._canonical_remote(component, repository)
+        checkout = self._resolve_checkout(component_name)
+        repository = self._ensure_repository(checkout)
+        remote = self._canonical_remote(checkout, repository)
         run(["git", "check-ref-format", "--branch", branch], capture=True)
-        destination = self.paths.worktrees / component.name / label
+        destination = self.paths.worktrees / checkout.name / label
         if destination.exists():
             raise WorkspaceError(f"worktree destination already exists: {destination}")
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -515,7 +782,7 @@ class Workspace:
         else:
             if start_point is not None and start_point.startswith("-"):
                 raise WorkspaceError("worktree start point must not begin with '-'")
-            point = start_point or f"{remote}/{component.branch}"
+            point = start_point or f"{remote}/{checkout.branch}"
             git(repository, "fetch", "--prune", remote)
             commit = git(
                 repository,
@@ -535,21 +802,34 @@ class Workspace:
                 str(destination),
                 commit,
             )
-        self._validate_checkout(component, destination)
+        self._validate_checkout(checkout, destination)
         print(destination)
         return destination
 
     def remove_worktree(self, component_name: str, label: str) -> None:
         self.paths.ensure()
+        with exclusive_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            self._remove_worktree(component_name, label)
+
+    def _remove_worktree(self, component_name: str, label: str) -> None:
+        self.paths.ensure()
         validate_name(label, "worktree label")
-        component = self._component(component_name)
-        repository = self._ensure_repository(component)
-        destination = (self.paths.worktrees / component.name / label).resolve()
-        expected_parent = (self.paths.worktrees / component.name).resolve()
-        if destination.parent != expected_parent:
+        checkout = self._resolve_checkout(component_name)
+        repository = self._ensure_repository(checkout)
+        candidates = [self.paths.worktrees / checkout.name / label]
+        existing = [candidate.resolve() for candidate in candidates if candidate.is_dir()]
+        if len(existing) != 1:
+            rendered = ", ".join(str(candidate) for candidate in candidates)
+            raise WorkspaceError(f"worktree does not exist unambiguously: {rendered}")
+        destination = existing[0]
+        expected_parents = {
+            (self.paths.worktrees / checkout.name).resolve(),
+        }
+        if destination.parent not in expected_parents:
             raise WorkspaceError(f"invalid managed worktree path: {destination}")
-        if not destination.is_dir():
-            raise WorkspaceError(f"worktree does not exist: {destination}")
         if not _is_clean(destination):
             raise WorkspaceError(f"refusing to remove dirty worktree: {destination}")
         git(repository, "worktree", "remove", str(destination))
@@ -557,29 +837,43 @@ class Workspace:
     def list_worktrees(self, names: list[str] | None = None) -> list[tuple[str, dict[str, str]]]:
         self.paths.ensure()
         result: list[tuple[str, dict[str, str]]] = []
-        for component in self.manifest.select(names):
-            repository = self.paths.repositories / component.name
+        checkouts = (
+            self._operation_checkouts(names, False)
+            if names
+            else self.manifest.checkouts
+        )
+        for checkout in checkouts:
+            repository = self._primary_path(checkout)
             if not repository.is_dir():
                 continue
-            self._validate_checkout(component, repository, trace=False)
+            self._validate_checkout(checkout, repository, trace=False)
             result.extend(
-                (component.name, record)
+                (checkout.name, record)
                 for record in _worktree_records(repository, trace=False)
             )
         return result
 
     def create_profile(self, name: str, source: str = "default") -> Path:
         self.paths.ensure()
+        with exclusive_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            return self._create_profile(name, source)
+
+    def _create_profile(self, name: str, source: str = "default") -> Path:
+        self.paths.ensure()
         validate_name(name, "profile name")
-        if name == "default":
-            raise WorkspaceError("default is a built-in profile")
+        if name in self.manifest.stacks:
+            raise WorkspaceError(f"{name} is a built-in profile")
         path = self.paths.profiles / f"{name}.json"
         if path.exists():
             raise WorkspaceError(f"profile already exists: {name}")
         source_profile = self._load_profile(source, require_file=False)
         value = {
-            "schema_version": SCHEMA_VERSION,
+            "schema_version": PROFILE_SCHEMA_VERSION,
             "name": name,
+            "stack": source_profile["stack"],
             "components": {
                 component_name: dict(selector)
                 for component_name, selector in source_profile["components"].items()
@@ -593,25 +887,115 @@ class Workspace:
         self, name: str, component_name: str, kind: str, value: str = ""
     ) -> None:
         self.paths.ensure()
-        component = self._component(component_name)
+        with exclusive_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            self._set_profile(name, component_name, kind, value)
+
+    def _set_profile(
+        self, name: str, component_name: str, kind: str, value: str = ""
+    ) -> None:
+        self.paths.ensure()
         profile = self._load_profile(name, require_file=True)
+        components = self._profile_components(profile, component_name)
+        checkout_names = {component.checkout_name for component in components}
+        if len(checkout_names) != 1:
+            raise WorkspaceError(
+                f"profile selection spans multiple checkouts: {component_name}"
+            )
+        checkout = self.manifest.by_checkout[checkout_names.pop()]
         if kind == "primary":
             value = ""
         elif kind == "worktree":
             validate_name(value, "worktree label")
-            path = self.paths.worktrees / component.name / value
-            self._validate_checkout(component, path)
+            path = self.paths.worktrees / checkout.name / value
+            self._validate_selected_checkout(components[0], path, kind)
         elif kind == "path":
             path = Path(value).expanduser()
             if not path.is_absolute():
                 raise WorkspaceError("profile checkout path must be absolute")
-            path = path.resolve()
-            self._validate_checkout(component, path)
-            value = str(path)
+            self._validate_selected_checkout(components[0], path, kind)
+            value = str(path.resolve())
         else:
             raise WorkspaceError(f"invalid profile selector kind: {kind}")
-        profile["components"][component.name] = {"kind": kind, "value": value}
+        for component in components:
+            profile["components"][component.name] = {"kind": kind, "value": value}
         atomic_json(self.paths.profiles / f"{name}.json", profile)
+
+    def _profile_components(
+        self, profile: dict[str, Any], component_checkout_or_role: str
+    ) -> list[Component]:
+        stack = self.manifest.stack(profile["stack"])
+        if component_checkout_or_role in self.manifest.by_checkout:
+            selected = [
+                component
+                for component in stack.components
+                if component.checkout_name == component_checkout_or_role
+            ]
+            if selected:
+                return selected
+        component = self._profile_component(profile, component_checkout_or_role)
+        return [
+            candidate
+            for candidate in stack.components
+            if candidate.checkout_name == component.checkout_name
+        ]
+
+    def _profile_component(
+        self, profile: dict[str, Any], component_or_role: str
+    ) -> Component:
+        stack = self.manifest.stack(profile["stack"])
+        components = {component.name: component for component in stack.components}
+        if component_or_role in components:
+            return components[component_or_role]
+        provider = stack.providers.get(component_or_role)
+        if provider is not None:
+            return provider
+        raise WorkspaceError(
+            f"component or role is not part of {stack.name} stack: "
+            f"{component_or_role}"
+        )
+
+    def _selector_root(
+        self, profile: dict[str, Any], component: Component
+    ) -> Path:
+        selector = profile["components"][component.name]
+        if selector["kind"] == "primary":
+            return self._primary_path(component)
+        if selector["kind"] == "worktree":
+            return self.paths.worktrees / component.checkout_name / selector["value"]
+        return Path(selector["value"])
+
+    def _component_source(self, component: Component, checkout_root: Path) -> Path:
+        if checkout_root.is_symlink() or not checkout_root.is_dir():
+            raise WorkspaceError(
+                f"component checkout is not a directory: {checkout_root}"
+            )
+        root = checkout_root.resolve()
+        parts = (
+            ()
+            if component.source == "."
+            else PurePosixPath(component.source).parts
+        )
+        source = checkout_root
+        for part in parts:
+            source = source / part
+            if source.is_symlink():
+                raise WorkspaceError(
+                    f"component source is not a normal directory: "
+                    f"{component.name}: {source}"
+                )
+        if not source.is_dir():
+            raise WorkspaceError(
+                f"component source is not a normal directory: {component.name}: {source}"
+            )
+        resolved = source.resolve()
+        if resolved != root and root not in resolved.parents:
+            raise WorkspaceError(
+                f"component source escapes checkout: {component.name}: {source}"
+            )
+        return resolved
 
     def resolve_profile(
         self,
@@ -623,33 +1007,129 @@ class Workspace:
         self.paths.ensure()
         profile = self._load_profile(name, require_file=False)
         result: dict[str, Path] = {}
-        components = self.manifest.select(
-            sorted(component_names) if component_names is not None else None
-        )
+        stack = self.manifest.stack(profile["stack"])
+        stack_components = {component.name: component for component in stack.components}
+        if component_names is None:
+            components = list(stack.components)
+        else:
+            unknown = sorted(component_names - set(stack_components))
+            if unknown:
+                raise WorkspaceError(
+                    f"components are not part of {stack.name} stack: "
+                    f"{', '.join(unknown)}"
+                )
+            components = [
+                component
+                for component in stack.components
+                if component.name in component_names
+            ]
         for component in components:
+            root = self._selector_root(profile, component)
             selector = profile["components"][component.name]
-            kind = selector["kind"]
-            value = selector["value"]
-            if kind == "primary":
-                path = self.paths.repositories / component.name
-            elif kind == "worktree":
-                path = self.paths.worktrees / component.name / value
-            else:
-                path = Path(value)
-            path = path.resolve()
-            self._validate_checkout(component, path, trace=trace)
-            result[component.name] = path
+            self._validate_selected_checkout(
+                component, root, selector["kind"], trace=trace
+            )
+            result[component.name] = self._component_source(component, root)
         return result
+
+    def _validate_selected_checkout(
+        self,
+        component: Component,
+        path: Path,
+        selector_kind: str,
+        *,
+        trace: bool = True,
+    ) -> str:
+        checkout = self.manifest.checkout_for(component)
+        if selector_kind == "primary":
+            return self._validate_primary_checkout(checkout, path, trace=trace)
+        remote = self._validate_checkout(checkout, path, trace=trace)
+        if selector_kind == MIGRATED_CONTENT_WORKTREE_KIND:
+            if component.name != "content-1x":
+                raise WorkspaceError(
+                    "migration-only worktree selector is valid only for content-1x"
+                )
+            expected_parent = (self.paths.worktrees / "content").resolve()
+            if path.resolve().parent != expected_parent:
+                raise WorkspaceError(
+                    "migrated content worktree must remain directly below "
+                    f"{expected_parent}: {path}"
+                )
+            content_checkout = self.manifest.by_checkout.get("content")
+            if content_checkout is None:
+                raise WorkspaceError(
+                    "manifest has no canonical content provider for migrated worktree"
+                )
+            primary = self._primary_path(content_checkout)
+            if not primary.is_dir() or primary.is_symlink():
+                raise WorkspaceError(
+                    "cannot prove migrated content worktree lineage; initialize "
+                    f"canonical content first: {primary}"
+                )
+            self._validate_primary_checkout(content_checkout, primary, trace=trace)
+            selected_common = self._git_common_directory(path, trace=trace)
+            content_common = self._git_common_directory(primary, trace=trace)
+            if selected_common != content_common:
+                raise WorkspaceError(
+                    "migrated content worktree is no longer attached to canonical "
+                    f"content: {path}"
+                )
+            return remote
+        variants = [
+            candidate
+            for candidate in self.manifest.checkouts
+            if candidate.repository == checkout.repository
+        ]
+        if len(variants) < 2:
+            return remote
+
+        branch = git(
+            path, "branch", "--show-current", capture=True, trace=trace
+        )
+        if branch == checkout.branch:
+            return remote
+
+        primary = self._primary_path(checkout)
+        if not primary.is_dir() or primary.is_symlink():
+            raise WorkspaceError(
+                f"cannot prove {checkout.name}@{checkout.branch} lineage for {path}; "
+                f"initialize its primary checkout first: {primary}"
+            )
+        self._validate_primary_checkout(checkout, primary, trace=trace)
+        selected_common = self._git_common_directory(path, trace=trace)
+        primary_common = self._git_common_directory(primary, trace=trace)
+        if selected_common != primary_common:
+            raise WorkspaceError(
+                f"checkout cannot be proven to belong to {checkout.name}@"
+                f"{checkout.branch}: {path}; use that exact branch or a worktree "
+                f"attached to {primary}"
+            )
+        return remote
+
+    @staticmethod
+    def _git_common_directory(path: Path, *, trace: bool = True) -> Path:
+        value = Path(
+            git(
+                path,
+                "rev-parse",
+                "--git-common-dir",
+                capture=True,
+                trace=trace,
+            )
+        )
+        return value.resolve() if value.is_absolute() else (path / value).resolve()
 
     def _load_profile(self, name: str, require_file: bool) -> dict[str, Any]:
         validate_name(name, "profile name")
-        if name == "default" and not require_file:
+        if name in self.manifest.stacks and not require_file:
+            stack = self.manifest.stack(name)
             return {
-                "schema_version": SCHEMA_VERSION,
-                "name": "default",
+                "schema_version": PROFILE_SCHEMA_VERSION,
+                "name": name,
+                "stack": name,
                 "components": {
                     component.name: {"kind": "primary", "value": ""}
-                    for component in self.manifest.components
+                    for component in stack.components
                 },
             }
         path = self.paths.profiles / f"{name}.json"
@@ -659,18 +1139,32 @@ class Workspace:
         if not isinstance(profile, dict):
             raise WorkspaceError(f"profile must be an object: {name}")
         require_keys(profile, PROFILE_KEYS, f"profile {name}")
-        if profile["schema_version"] != SCHEMA_VERSION or profile["name"] != name:
+        if (
+            profile["schema_version"] != PROFILE_SCHEMA_VERSION
+            or profile["name"] != name
+        ):
             raise WorkspaceError(f"profile identity/schema mismatch: {name}")
+        stack_name = profile["stack"]
+        if not isinstance(stack_name, str) or stack_name not in self.manifest.stacks:
+            raise WorkspaceError(f"profile stack is invalid: {name}")
+        stack = self.manifest.stack(stack_name)
         selectors = profile["components"]
-        if not isinstance(selectors, dict) or set(selectors) != set(self.manifest.by_name):
+        expected = {component.name for component in stack.components}
+        if not isinstance(selectors, dict) or set(selectors) != expected:
             raise WorkspaceError(f"profile component set does not match manifest: {name}")
+        checkout_selectors: dict[str, dict[str, Any]] = {}
         for component_name, selector in selectors.items():
             if not isinstance(selector, dict):
                 raise WorkspaceError(f"profile selector must be an object: {component_name}")
             require_keys(selector, SELECTOR_KEYS, f"profile selector {component_name}")
             kind = selector["kind"]
             value = selector["value"]
-            if kind not in {"primary", "worktree", "path"} or not isinstance(value, str):
+            if kind not in {
+                "primary",
+                "worktree",
+                "path",
+                MIGRATED_CONTENT_WORKTREE_KIND,
+            } or not isinstance(value, str):
                 raise WorkspaceError(f"invalid profile selector: {component_name}")
             if kind == "primary" and value:
                 raise WorkspaceError(f"primary selector must not have a value: {component_name}")
@@ -678,54 +1172,163 @@ class Workspace:
                 validate_name(value, f"profile selector {component_name}")
             if kind == "path" and not Path(value).is_absolute():
                 raise WorkspaceError(f"profile path must be absolute: {component_name}")
+            if kind == MIGRATED_CONTENT_WORKTREE_KIND:
+                migrated = Path(value)
+                expected_parent = (self.paths.worktrees / "content").resolve()
+                if (
+                    component_name != "content-1x"
+                    or not migrated.is_absolute()
+                    or migrated.resolve(strict=False).parent != expected_parent
+                ):
+                    raise WorkspaceError(
+                        "invalid migrated content worktree selector: "
+                        f"{component_name}"
+                    )
+            checkout_name = self.manifest.by_name[component_name].checkout_name
+            previous = checkout_selectors.setdefault(checkout_name, selector)
+            if selector != previous:
+                raise WorkspaceError(
+                    "profile selectors for components in one checkout must match: "
+                    f"{name}/{checkout_name}"
+                )
         return profile
 
-    def profile_summary(self, name: str) -> list[tuple[str, Path, str, bool]]:
-        resolved = self.resolve_profile(name, trace=False)
-        rows = []
-        for component in self.manifest.components:
-            path = resolved[component.name]
-            head = git(
-                path,
-                "rev-parse",
-                "--short=12",
-                "HEAD",
-                capture=True,
-                trace=False,
+    def profile_summary(self, name: str) -> dict[str, Any]:
+        profile = self._load_profile(name, require_file=False)
+        stack = self.manifest.stack(profile["stack"])
+        rows: list[dict[str, Any]] = []
+        for component in stack.components:
+            selector_root = self._selector_root(profile, component)
+            checkout_root = selector_root.resolve()
+            path = (
+                checkout_root
+                if component.source == "."
+                else checkout_root.joinpath(*PurePosixPath(component.source).parts)
             )
-            rows.append((component.name, path, head, not _is_clean(path, trace=False)))
-        return rows
+            row: dict[str, Any] = {
+                "component": component.name,
+                "checkout": component.checkout_name,
+                "repository": component.repository,
+                "branch": component.branch,
+                "source": component.source,
+                "roles": sorted(component.provides),
+                "path": str(path),
+                "checkout_path": str(checkout_root),
+                "initialized": False,
+                "head": None,
+                "dirty": None,
+            }
+            if selector_root.exists() or selector_root.is_symlink():
+                selector = profile["components"][component.name]
+                self._validate_selected_checkout(
+                    component, selector_root, selector["kind"], trace=False
+                )
+                path = self._component_source(component, selector_root)
+                row["path"] = str(path)
+                row.update(
+                    {
+                        "initialized": True,
+                        "head": git(
+                            checkout_root,
+                            "rev-parse",
+                            "--short=12",
+                            "HEAD",
+                            capture=True,
+                            trace=False,
+                        ),
+                        "dirty": not _is_clean(checkout_root, trace=False),
+                    }
+                )
+            rows.append(row)
+        return {"name": name, "stack": stack.name, "components": rows}
 
     def component_path(self, component_name: str, profile_name: str) -> Path:
+        profile = self._load_profile(profile_name, require_file=False)
+        component = self._profile_component(profile, component_name)
         return self.resolve_profile(
-            profile_name, {component_name}, trace=False
-        )[component_name]
+            profile_name, {component.name}, trace=False
+        )[component.name]
+
+    @staticmethod
+    def _classic_requires(component: Component) -> tuple[str, ...]:
+        if component.requires:
+            return component.requires
+        return {
+            "classic-client": ("sound", "libatrinik", "protocol"),
+            "classic-server": ("content", "resources", "libatrinik", "protocol"),
+            "classic-library": ("protocol",),
+        }.get(component.build, ())
+
+    def _dependency_roles(
+        self, profile: dict[str, Any], requested: set[str]
+    ) -> set[str]:
+        stack = self.manifest.stack(profile["stack"])
+        unknown = sorted(requested - set(stack.providers))
+        if unknown:
+            raise WorkspaceError(
+                f"{stack.name} stack has no provider for roles: {', '.join(unknown)}"
+            )
+        resolved: set[str] = set()
+        pending = deque(sorted(requested))
+        while pending:
+            role = pending.popleft()
+            if role in resolved:
+                continue
+            resolved.add(role)
+            component = stack.providers[role]
+            for requirement in self._classic_requires(component):
+                if requirement not in stack.providers:
+                    raise WorkspaceError(
+                        f"{component.name} requires role {requirement}, which has no "
+                        f"provider in {stack.name} stack"
+                    )
+                if requirement not in resolved:
+                    pending.append(requirement)
+        return resolved
+
+    def _require_classic_contracts(
+        self, profile_name: str, requested: set[str]
+    ) -> None:
+        profile = self._load_profile(profile_name, require_file=False)
+        stack = self.manifest.stack(profile["stack"])
+        expected = {
+            "client": "classic-client",
+            "server": "classic-server",
+        }
+        for role in sorted(requested):
+            component = stack.providers.get(role)
+            adapter = expected.get(role)
+            if component is None:
+                raise WorkspaceError(
+                    f"{stack.name} stack has no provider for runtime role {role}"
+                )
+            if adapter is not None and component.build != adapter:
+                raise WorkspaceError(
+                    f"{component.name} has no wrapper build/runtime contract yet "
+                    f"for the {stack.name} stack"
+                )
 
     def _resolve_build_profile(
         self, profile_name: str, required: set[str]
     ) -> dict[str, Path]:
         profile = self._load_profile(profile_name, require_file=False)
-        preferred_components = PREFERRED_BUILD_COMPONENTS & set(self.manifest.by_name)
-        preferred_paths: list[Path] = []
-        for component_name in preferred_components:
-            selector = profile["components"][component_name]
-            if selector["kind"] == "primary":
-                path = self.paths.repositories / component_name
-            elif selector["kind"] == "worktree":
-                path = self.paths.worktrees / component_name / selector["value"]
-            else:
-                path = Path(selector["value"])
-            preferred_paths.append(path)
-        component_names = (
-            preferred_components
-            if all(path.is_dir() for path in preferred_paths)
-            else required
-        )
-        return self.resolve_profile(profile_name, component_names)
+        stack = self.manifest.stack(profile["stack"])
+        roles = self._dependency_roles(profile, required)
+        component_names = {stack.providers[role].name for role in roles}
+        paths = self.resolve_profile(profile_name, component_names)
+        return {role: paths[stack.providers[role].name] for role in roles}
 
     def build(self, target: str, profile_name: str, tests: bool) -> Path:
-        targets = self._expand_build_target(target)
-        required = set().union(*(TARGET_DEPENDENCIES[item] for item in targets))
+        self.paths.ensure()
+        with exclusive_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            return self._build(target, profile_name, tests)
+
+    def _build(self, target: str, profile_name: str, tests: bool) -> Path:
+        targets = self._expand_build_target(target, profile_name)
+        required = set(targets)
         selected = self._resolve_build_profile(profile_name, required)
         return self._build_resolved(target, profile_name, tests, targets, selected)
 
@@ -737,7 +1340,7 @@ class Workspace:
         targets: list[str],
         selected: dict[str, Path],
     ) -> Path:
-        key = profile_key(selected)
+        key = self._profile_build_key(profile_name, selected)
         root = self.paths.builds / "profiles" / f"{profile_name}-{key}"
         lock = self.paths.builds / "locks" / f"{profile_name}-{key}.lock"
         with exclusive_lock(lock, f"profile build {profile_name}"):
@@ -760,13 +1363,47 @@ class Workspace:
                 print(f"{target}: selected {selected[target]}")
         return root
 
-    def _expand_build_target(self, target: str) -> list[str]:
+    def _profile_build_key(
+        self, profile_name: str, selected: dict[str, Path]
+    ) -> str:
+        profile = self._load_profile(profile_name, require_file=False)
+        stack = self.manifest.stack(profile["stack"])
+        providers = ",".join(
+            f"{role}={stack.providers[role].name}@"
+            f"{stack.providers[role].repository}@"
+            f"{stack.providers[role].branch}@"
+            f"{stack.providers[role].checkout_name}:"
+            f"{stack.providers[role].source}"
+            for role in sorted(selected)
+        )
+        namespace = (
+            f"profile-schema:{PROFILE_SCHEMA_VERSION};stack:{stack.name};"
+            f"generation:{stack.generation};providers:{providers}"
+        )
+        return profile_key(selected, namespace=namespace)
+
+    def _expand_build_target(self, target: str, profile_name: str) -> list[str]:
+        profile = self._load_profile(profile_name, require_file=False)
+        stack = self.manifest.stack(profile["stack"])
         if target == "all":
-            return list(ALL_BUILD_TARGETS)
-        component = self._component(target)
-        if component.build == "none":
-            raise WorkspaceError(f"component has no wrapper build contract: {target}")
-        return [target]
+            targets = [role for role in ALL_BUILD_TARGETS if role in stack.providers]
+        elif target in stack.providers:
+            targets = [target]
+        else:
+            component = self._profile_component(profile, target)
+            targets = [
+                role
+                for role, provider in stack.providers.items()
+                if provider.name == component.name
+            ]
+        for role in targets:
+            component = stack.providers[role]
+            if component.build == "none":
+                raise WorkspaceError(
+                    f"{component.name} has no wrapper build/runtime contract yet "
+                    f"for the {stack.name} stack"
+                )
+        return targets
 
     def _profile_source_view(
         self,
@@ -1178,11 +1815,32 @@ class Workspace:
         metadata = load_json(metadata_path)
         if not isinstance(metadata, dict):
             raise WorkspaceError(f"scenario metadata must be an object: {name}")
-        require_keys(metadata, SCENARIO_KEYS, f"scenario {name}")
-        resolved = metadata.get("resolved")
+        actual_keys = set(metadata)
+        historical_keys = SCENARIO_KEYS - {"stack", "providers"}
         if (
-            metadata.get("schema_version") != SCHEMA_VERSION
-            or metadata.get("name") != name
+            actual_keys == historical_keys
+            and metadata.get("schema_version") == SCHEMA_VERSION
+        ):
+            raise WorkspaceError(
+                "historical scenario lacks immutable stack/provider identity and is "
+                f"inert; recreate it explicitly: {name}"
+            )
+        if actual_keys != SCENARIO_KEYS:
+            raise WorkspaceError(f"scenario fields are invalid: {name}")
+        if metadata.get("schema_version") != SCENARIO_SCHEMA_VERSION:
+            raise WorkspaceError(
+                "historical scenario lacks immutable repository/branch identity and "
+                f"is inert; recreate it explicitly: {name}"
+            )
+        resolved = metadata.get("resolved")
+        profile = self._load_profile(metadata.get("profile", ""), require_file=False)
+        stack = self.manifest.stack(profile["stack"])
+        required = self._dependency_roles(profile, {"server"})
+        expected_providers = {
+            role: stack.providers[role].name for role in sorted(required)
+        }
+        if (
+            metadata.get("name") != name
             or not isinstance(metadata.get("profile"), str)
             or metadata.get("preset") not in SCENARIO_PRESETS
             or metadata.get("state") != f"scenario-{name}"
@@ -1192,21 +1850,56 @@ class Workspace:
             or not isinstance(metadata.get("provisioned_at"), str)
             or not metadata["provisioned_at"]
             or not isinstance(resolved, dict)
-            or set(resolved) != TARGET_DEPENDENCIES["server"]
+            or set(resolved) != required
+            or metadata.get("stack") != stack.name
+            or metadata.get("providers") != expected_providers
         ):
             raise WorkspaceError(f"scenario metadata is invalid: {name}")
         for component, record in resolved.items():
             if (
                 not isinstance(record, dict)
-                or set(record) != {"path", "head", "dirty"}
+                or set(record)
+                != {
+                    "path",
+                    "checkout_path",
+                    "checkout",
+                    "repository",
+                    "branch",
+                    "source",
+                    "head",
+                    "dirty",
+                }
                 or not isinstance(record.get("path"), str)
                 or not Path(record["path"]).is_absolute()
+                or not isinstance(record.get("checkout_path"), str)
+                or not Path(record["checkout_path"]).is_absolute()
+                or not isinstance(record.get("checkout"), str)
+                or not isinstance(record.get("repository"), str)
+                or not isinstance(record.get("branch"), str)
+                or not isinstance(record.get("source"), str)
                 or not isinstance(record.get("head"), str)
                 or not re.fullmatch(r"[0-9a-f]{40,64}", record["head"])
                 or not isinstance(record.get("dirty"), bool)
             ):
                 raise WorkspaceError(
                     f"scenario component metadata is invalid: {name}/{component}"
+                )
+            provider = stack.providers[component]
+            checkout_path = Path(record["checkout_path"]).resolve(strict=False)
+            expected_path = (
+                checkout_path
+                if provider.source == "."
+                else checkout_path.joinpath(*PurePosixPath(provider.source).parts)
+            ).resolve(strict=False)
+            if (
+                record["checkout"] != provider.checkout_name
+                or record["repository"] != provider.repository
+                or record["branch"] != provider.branch
+                or record["source"] != provider.source
+                or Path(record["path"]).resolve(strict=False) != expected_path
+            ):
+                raise WorkspaceError(
+                    f"scenario component identity is invalid: {name}/{component}"
                 )
         state = root / "state"
         if state.is_symlink():
@@ -1224,7 +1917,8 @@ class Workspace:
         state: Path,
         password_file: Path,
     ) -> dict[str, dict[str, Any]]:
-        required = TARGET_DEPENDENCIES["server"]
+        profile = self._load_profile(metadata["profile"], require_file=False)
+        required = self._dependency_roles(profile, {"server"})
         selected = self._resolve_build_profile(metadata["profile"], required)
         root = self._build_resolved(
             "server", metadata["profile"], False, ["server"], selected
@@ -1244,18 +1938,46 @@ class Workspace:
             ],
             cwd=runtime,
         )
+        profile = self._load_profile(metadata["profile"], require_file=False)
+        stack = self.manifest.stack(profile["stack"])
         return {
-            component: {
+            role: {
                 "path": str(path),
-                "head": git(path, "rev-parse", "HEAD", capture=True, trace=False),
-                "dirty": not _is_clean(path, trace=False),
+                "checkout_path": str(
+                    self._selector_root(profile, stack.providers[role]).resolve()
+                ),
+                "checkout": stack.providers[role].checkout_name,
+                "repository": stack.providers[role].repository,
+                "branch": stack.providers[role].branch,
+                "source": stack.providers[role].source,
+                "head": git(
+                    self._selector_root(profile, stack.providers[role]).resolve(),
+                    "rev-parse",
+                    "HEAD",
+                    capture=True,
+                    trace=False,
+                ),
+                "dirty": not _is_clean(
+                    self._selector_root(profile, stack.providers[role]).resolve(),
+                    trace=False,
+                ),
             }
-            for component, path in sorted(
-                (component, selected[component]) for component in required
+            for role, path in sorted(
+                (role, selected[role]) for role in required
             )
         }
 
     def scenario_create(
+        self, name: str, profile: str, preset: str = "basic-player"
+    ) -> dict[str, Any]:
+        self.paths.ensure()
+        with exclusive_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            return self._scenario_create(name, profile, preset)
+
+    def _scenario_create(
         self, name: str, profile: str, preset: str = "basic-player"
     ) -> dict[str, Any]:
         self.paths.ensure()
@@ -1266,9 +1988,10 @@ class Workspace:
         state_name = f"scenario-{name}"
         digest = hashlib.sha256(name.encode()).hexdigest()[:8]
         metadata: dict[str, Any] = {
-            "schema_version": SCHEMA_VERSION,
+            "schema_version": SCENARIO_SCHEMA_VERSION,
             "name": name,
             "profile": profile,
+            "stack": self._load_profile(profile, require_file=False)["stack"],
             "preset": preset,
             "state": state_name,
             "account": f"scenario{digest}",
@@ -1276,6 +1999,13 @@ class Workspace:
             "archetype": SCENARIO_PRESETS[preset]["archetype"],
             "resolved": {},
             "provisioned_at": "pending",
+        }
+        selected_profile = self._load_profile(profile, require_file=False)
+        selected_stack = self.manifest.stack(selected_profile["stack"])
+        required = self._dependency_roles(selected_profile, {"server"})
+        self._require_classic_contracts(profile, {"server"})
+        metadata["providers"] = {
+            role: selected_stack.providers[role].name for role in sorted(required)
         }
         operation_lock = self.paths.scenarios / "operation.lock"
         with exclusive_lock(operation_lock, "scenario operation"):
@@ -1338,6 +2068,14 @@ class Workspace:
         }
 
     def scenario_reset(self, name: str) -> dict[str, Any]:
+        self.paths.ensure()
+        with exclusive_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            return self._scenario_reset(name)
+
+    def _scenario_reset(self, name: str) -> dict[str, Any]:
         self.paths.ensure()
         root = self._scenario_directory(name)
         operation_lock = self.paths.scenarios / "operation.lock"
@@ -1457,11 +2195,12 @@ class Workspace:
         services: list[str] | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
-        required = set().union(
-            *(TARGET_DEPENDENCIES[service] for service in selected_services)
-        )
-        resolved = self._resolve_build_profile(profile_name, required)
-        key = profile_key(resolved)
+        requested = set(selected_services)
+        profile = self._load_profile(profile_name, require_file=False)
+        stack = self.manifest.stack(profile["stack"])
+        resolved = self._resolve_build_profile(profile_name, requested)
+        required = set(resolved)
+        key = self._profile_build_key(profile_name, resolved)
         state = (
             str(self._state_location(state_name))
             if "server" in selected_services
@@ -1469,25 +2208,46 @@ class Workspace:
         )
         return {
             "profile": profile_name,
+            "stack": stack.name,
             "services": selected_services,
             "dependencies": sorted(required),
+            "providers": {
+                role: stack.providers[role].name for role in sorted(required)
+            },
             "state": state,
             "build_root": str(
                 self.paths.builds / "profiles" / f"{profile_name}-{key}"
             ),
             "components": {
-                name: {
+                stack.providers[role].name: {
+                    "checkout": stack.providers[role].checkout_name,
+                    "repository": stack.providers[role].repository,
+                    "branch": stack.providers[role].branch,
+                    "source": stack.providers[role].source,
+                    "roles": sorted(stack.providers[role].provides),
                     "path": str(path),
+                    "checkout_path": str(
+                        self._selector_root(
+                            profile, stack.providers[role]
+                        ).resolve()
+                    ),
                     "head": git(
-                        path,
+                        self._selector_root(
+                            profile, stack.providers[role]
+                        ).resolve(),
                         "rev-parse",
                         "HEAD",
                         capture=True,
                         trace=False,
                     ),
-                    "dirty": not _is_clean(path, trace=False),
+                    "dirty": not _is_clean(
+                        self._selector_root(
+                            profile, stack.providers[role]
+                        ).resolve(),
+                        trace=False,
+                    ),
                 }
-                for name, path in sorted(resolved.items())
+                for role, path in sorted(resolved.items())
             },
         }
 
@@ -1627,11 +2387,34 @@ class Workspace:
             "supervisor",
             "services",
         }
+        optional = {"stack", "providers"}
+        historical_record = isinstance(status, dict) and not (
+            {"stack", "providers"} & set(status)
+        )
+        historical_coordinate_keys = {
+            "path",
+            "checkout_path",
+            "checkout",
+            "source",
+            "head",
+            "dirty",
+        }
+        coordinate_historical_record = (
+            isinstance(status, dict)
+            and not historical_record
+            and isinstance(status.get("resolved"), dict)
+            and bool(status["resolved"])
+            and all(
+                isinstance(record, dict)
+                and set(record) == historical_coordinate_keys
+                for record in status["resolved"].values()
+            )
+        )
         if (
             not isinstance(status, dict)
             or status.get("schema_version") != SCHEMA_VERSION
             or status.get("name") != name
-            or not required <= set(status) <= required | {"error"}
+            or not required <= set(status) <= required | optional | {"error"}
             or not isinstance(status.get("dependencies"), list)
             or not isinstance(status.get("resolved"), dict)
             or not isinstance(status.get("ready"), bool)
@@ -1639,7 +2422,7 @@ class Workspace:
             or not status["profile"]
             or not all(
                 isinstance(dependency, str)
-                and dependency in PREFERRED_BUILD_COMPONENTS
+                and validate_name(dependency, "topology dependency")
                 for dependency in status["dependencies"]
             )
             or len(status["dependencies"]) != len(set(status["dependencies"]))
@@ -1658,18 +2441,125 @@ class Workspace:
             and not isinstance(status.get("error"), str)
         ):
             raise WorkspaceError(f"topology status is invalid: {name}")
-        for component, resolved in status["resolved"].items():
+        if historical_record:
+            status["stack"] = "classic"
+            status["providers"] = {
+                role: {
+                    "client": "classic-client",
+                    "server": "classic-server",
+                    "protocol": "classic-protocol",
+                    "libatrinik": "classic-libatrinik",
+                    "content": "content-1x",
+                }.get(role, role)
+                for role in status["dependencies"]
+            }
+            status["inert_historical_record"] = True
+        elif coordinate_historical_record:
+            stack_name = status.get("stack")
+            providers = status.get("providers")
             if (
-                component not in self.manifest.by_name
+                not isinstance(stack_name, str)
+                or not isinstance(providers, dict)
+                or set(providers) != set(status["dependencies"])
+                or any(
+                    not isinstance(role, str)
+                    or not isinstance(component, str)
+                    for role, component in providers.items()
+                )
+                or set(status["resolved"]) != set(providers.values())
+            ):
+                raise WorkspaceError(
+                    f"historical topology identity status is invalid: {name}"
+                )
+            status["inert_historical_record"] = True
+        else:
+            stack_name = status.get("stack")
+            providers = status.get("providers")
+            if (
+                not isinstance(stack_name, str)
+                or stack_name not in self.manifest.stacks
+                or not isinstance(providers, dict)
+                or set(providers) != set(status["dependencies"])
+                or any(
+                    not isinstance(component, str)
+                    or component
+                    != self.manifest.provider(stack_name, role).name
+                    for role, component in providers.items()
+                )
+            ):
+                raise WorkspaceError(f"topology stack/provider status is invalid: {name}")
+            if set(status["resolved"]) != set(providers.values()):
+                raise WorkspaceError(
+                    f"topology resolution/provider set is invalid: {name}"
+                )
+        for component, resolved in status["resolved"].items():
+            expected_resolved = (
+                {"path", "head", "dirty"}
+                if historical_record
+                else historical_coordinate_keys
+                if coordinate_historical_record
+                else {
+                    "path",
+                    "checkout_path",
+                    "checkout",
+                    "repository",
+                    "branch",
+                    "source",
+                    "head",
+                    "dirty",
+                }
+            )
+            if (
+                (
+                    not historical_record
+                    and component not in status["providers"].values()
+                )
                 or not isinstance(resolved, dict)
-                or set(resolved) != {"path", "head", "dirty"}
+                or set(resolved) != expected_resolved
                 or not isinstance(resolved.get("path"), str)
                 or not Path(resolved["path"]).is_absolute()
+                or not historical_record
+                and (
+                    not isinstance(resolved.get("checkout_path"), str)
+                    or not Path(resolved["checkout_path"]).is_absolute()
+                    or not isinstance(resolved.get("checkout"), str)
+                    or (
+                        not coordinate_historical_record
+                        and (
+                            not isinstance(resolved.get("repository"), str)
+                            or not isinstance(resolved.get("branch"), str)
+                        )
+                    )
+                    or not isinstance(resolved.get("source"), str)
+                )
                 or not isinstance(resolved.get("head"), str)
                 or not re.fullmatch(r"[0-9a-f]{40,64}", resolved["head"])
                 or not isinstance(resolved.get("dirty"), bool)
             ):
                 raise WorkspaceError(f"topology resolution status is invalid: {name}")
+            if not historical_record and not coordinate_historical_record:
+                provider = self.manifest.by_name[component]
+                checkout_path = Path(resolved["checkout_path"]).resolve(
+                    strict=False
+                )
+                expected_path = (
+                    checkout_path
+                    if provider.source == "."
+                    else checkout_path.joinpath(
+                        *PurePosixPath(provider.source).parts
+                    )
+                ).resolve(strict=False)
+                if (
+                    resolved["checkout"] != provider.checkout_name
+                    or resolved["repository"] != provider.repository
+                    or resolved["branch"] != provider.branch
+                    or resolved["source"] != provider.source
+                    or Path(resolved["path"]).resolve(strict=False)
+                    != expected_path
+                ):
+                    raise WorkspaceError(
+                        f"topology component identity is invalid: {name}/{component}"
+                    )
         supervisor = status.get("supervisor")
         if (
             not isinstance(supervisor, dict)
@@ -1806,9 +2696,27 @@ class Workspace:
         services: list[str] | None = None,
         port: int | None = None,
     ) -> dict[str, Any]:
+        self.paths.ensure()
+        with exclusive_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            return self._topology_up(
+                name, profile_name, state_name, services, port
+            )
+
+    def _topology_up(
+        self,
+        name: str,
+        profile_name: str,
+        state_name: str,
+        services: list[str] | None = None,
+        port: int | None = None,
+    ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
         if "server" not in selected_services and port is not None:
             raise WorkspaceError("--port requires the server service")
+        self._require_classic_contracts(profile_name, set(selected_services))
         topology_root = self._topology_directory(name, create=True)
         operation_lock = topology_root / "operation.lock"
         with exclusive_lock(
@@ -1820,6 +2728,11 @@ class Workspace:
                 if status_path.is_symlink():
                     raise WorkspaceError(f"topology status is invalid: {name}")
                 previous = self.topology_status(name)
+                if previous.get("inert_historical_record"):
+                    raise WorkspaceError(
+                        f"topology {name} is an inert pre-migration record; "
+                        "choose a new topology name"
+                    )
                 if previous["supervisor"]["running"] or any(
                     service["running"] for service in previous["services"].values()
                 ):
@@ -1828,10 +2741,10 @@ class Workspace:
             if "client" in selected_services:
                 self._require_client_display()
 
-            required = set().union(
-                *(TARGET_DEPENDENCIES[service] for service in selected_services)
+            selected = self._resolve_build_profile(
+                profile_name, set(selected_services)
             )
-            selected = self._resolve_build_profile(profile_name, required)
+            required = set(selected)
             targets = [service for service in ("client", "server") if service in selected_services]
 
             with ExitStack() as stack:
@@ -1926,24 +2839,47 @@ class Workspace:
                         },
                     }
 
+                profile = self._load_profile(profile_name, require_file=False)
+                selected_stack = self.manifest.stack(profile["stack"])
                 resolved_status = {
-                    component: {
+                    selected_stack.providers[role].name: {
                         "path": str(path),
+                        "checkout_path": str(
+                            self._selector_root(
+                                profile, selected_stack.providers[role]
+                            ).resolve()
+                        ),
+                        "checkout": selected_stack.providers[role].checkout_name,
+                        "repository": selected_stack.providers[role].repository,
+                        "branch": selected_stack.providers[role].branch,
+                        "source": selected_stack.providers[role].source,
                         "head": git(
-                            path,
+                            self._selector_root(
+                                profile, selected_stack.providers[role]
+                            ).resolve(),
                             "rev-parse",
                             "HEAD",
                             capture=True,
                             trace=False,
                         ),
-                        "dirty": not _is_clean(path, trace=False),
+                        "dirty": not _is_clean(
+                            self._selector_root(
+                                profile, selected_stack.providers[role]
+                            ).resolve(),
+                            trace=False,
+                        ),
                     }
-                    for component, path in sorted(selected.items())
+                    for role, path in sorted(selected.items())
                 }
                 spec = {
                     "schema_version": SCHEMA_VERSION,
                     "name": name,
                     "profile": profile_name,
+                    "stack": selected_stack.name,
+                    "providers": {
+                        role: selected_stack.providers[role].name
+                        for role in sorted(required)
+                    },
                     "dependencies": sorted(required),
                     "state": str(state_location) if state_location else None,
                     "build_root": str(root),
@@ -2156,6 +3092,7 @@ class Workspace:
         dry_run: bool,
     ) -> Path:
         self._validate_run_port(port)
+        self._require_classic_contracts(profile_name, {"client"})
         state = self._state_location(state_name)
         self._validate_state(state)
         fingerprint = self._server_identity_fingerprint(state)
@@ -2187,10 +3124,27 @@ class Workspace:
         arguments: list[str],
         dry_run: bool,
     ) -> Path:
+        self.paths.ensure()
+        with exclusive_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            return self._run_server(
+                profile_name, state_name, port, arguments, dry_run
+            )
+
+    def _run_server(
+        self,
+        profile_name: str,
+        state_name: str,
+        port: int,
+        arguments: list[str],
+        dry_run: bool,
+    ) -> Path:
         self._validate_run_port(port)
-        targets = self._expand_build_target("server")
-        required = set().union(*(TARGET_DEPENDENCIES[item] for item in targets))
-        selected = self._resolve_build_profile(profile_name, required)
+        self._require_classic_contracts(profile_name, {"server"})
+        targets = self._expand_build_target("server", profile_name)
+        selected = self._resolve_build_profile(profile_name, {"server"})
         state_location = self._state_location(state_name)
         lock_path = Path(f"{state_location}.lock")
         with exclusive_lock(lock_path, f"server state {state_location}", nonblocking=True):
@@ -2306,3 +3260,10 @@ class Workspace:
             return self.manifest.by_name[name]
         except KeyError as error:
             raise WorkspaceError(f"unknown component: {name}") from error
+
+    def _resolve_checkout(self, name: str) -> Checkout:
+        if name in self.manifest.by_checkout:
+            return self.manifest.by_checkout[name]
+        if name in self.manifest.by_name:
+            return self.manifest.checkout_for(name)
+        raise WorkspaceError(f"unknown component or checkout: {name}")
