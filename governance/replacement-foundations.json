@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "root_policy": {
+    "repository": "atrinik/atrinik",
+    "revision": "d64a8e958ca2adad783ad8912493d468a805f3fd",
+    "path": "AGENTS.md",
+    "rule": "Independent MIT implementation is the default. Historical reuse requires a complete non-shallow rename-aware history audit, proven sole original authorship by an approved grantor, identity verification, embedded-material review, an exact transformation record, and reviewer approval; mixed or uncertain material is excluded."
+  },
+  "required_record_fields": [
+    "decision",
+    "source_repository",
+    "source_revision",
+    "source_paths",
+    "history_evidence",
+    "identity_evidence",
+    "embedded_material_review",
+    "destination_paths",
+    "transformation",
+    "copyright",
+    "grant",
+    "reviewer"
+  ],
+  "repositories": [
+    {
+      "name": "client",
+      "repository": "atrinik/client",
+      "language": "Rust",
+      "m1_issues": [1, 2, 3, 4, 5, 15],
+      "proof_pull_requests": [43, 45, 46],
+      "aggregate_check": "Client validation",
+      "workflow": ".github/workflows/validate.yml",
+      "guidance": ["CONTRIBUTING.md", "PROVENANCE.md"],
+      "machine_records": [
+        "provenance/reuse.json",
+        "provenance/assets.json",
+        "migration/behavior-parity.json",
+        "policy/dependencies.json"
+      ],
+      "notice": "THIRD_PARTY_NOTICES.md",
+      "sbom_contract": ".github/workflows/release.yml",
+      "package_contract": ".github/workflows/package-release.yml",
+      "license_boundary": "Rust engine and synthetic fixtures are MIT; content, sound, resources, and future graphical assets remain separately licensed external inputs."
+    },
+    {
+      "name": "content-toolkit",
+      "repository": "atrinik/content-toolkit",
+      "language": "Rust",
+      "m1_issues": [1, 2, 3],
+      "proof_pull_requests": [11, 13, 14],
+      "aggregate_check": "Content toolkit validation",
+      "workflow": ".github/workflows/validate.yml",
+      "guidance": ["CONTRIBUTING.md", "PROVENANCE.md"],
+      "machine_records": [
+        "provenance/reuse.json",
+        "policy/dependencies.json",
+        "policy/toolchain.json"
+      ],
+      "notice": "THIRD_PARTY_NOTICES.md",
+      "sbom_contract": ".github/workflows/release.yml",
+      "package_contract": "tools/package-release.sh",
+      "license_boundary": "Toolkit code and synthetic fixtures are MIT; parsed content and emitted authored documents retain their content licenses."
+    },
+    {
+      "name": "editor",
+      "repository": "atrinik/editor",
+      "language": "Rust",
+      "m1_issues": [1, 2, 15],
+      "proof_pull_requests": [19],
+      "aggregate_check": "Editor validation",
+      "workflow": ".github/workflows/validate.yml",
+      "guidance": ["CONTRIBUTING.md", "PROVENANCE.md"],
+      "machine_records": [
+        "provenance/reuse.json",
+        "provenance/assets.json",
+        "migration/behavior-parity.json",
+        "policy/dependencies.json"
+      ],
+      "notice": "THIRD_PARTY_NOTICES.md",
+      "sbom_contract": ".github/workflows/release.yml",
+      "package_contract": ".github/workflows/package-release.yml",
+      "license_boundary": "Editor code and synthetic test documents are MIT; opened documents, content, and preview assets preserve their actual licenses."
+    },
+    {
+      "name": "protocol",
+      "repository": "atrinik/protocol",
+      "language": "Protobuf, Go, and Rust",
+      "m1_issues": [1, 2, 3],
+      "proof_pull_requests": [16, 17],
+      "aggregate_check": "Protocol validation",
+      "workflow": ".github/workflows/validate.yml",
+      "guidance": ["CONTRIBUTING.md", "PROVENANCE.md"],
+      "machine_records": [
+        "provenance/reuse.json",
+        "policy/dependencies.json",
+        "buf.yaml"
+      ],
+      "notice": "THIRD_PARTY_NOTICES.md",
+      "sbom_contract": ".github/workflows/release.yml",
+      "package_contract": "tools/package-release.sh",
+      "license_boundary": "Schemas, generated bindings, and synthetic interoperability fixtures use the MIT license; content and assets are never protocol payload licensing inputs."
+    },
+    {
+      "name": "renderer",
+      "repository": "atrinik/renderer",
+      "language": "Rust",
+      "m1_issues": [1, 2, 3, 4],
+      "proof_pull_requests": [24, 26],
+      "aggregate_check": "Renderer validation",
+      "workflow": ".github/workflows/validate.yml",
+      "guidance": ["CONTRIBUTING.md", "PROVENANCE.md"],
+      "machine_records": [
+        "corpus/manifest.json",
+        "policy/architecture.json",
+        "policy/dependencies.json",
+        "policy/toolchain.json"
+      ],
+      "notice": "THIRD_PARTY_NOTICES.md",
+      "sbom_contract": ".github/workflows/release.yml",
+      "package_contract": "tools/package-release.sh",
+      "license_boundary": "Renderer code and generated rectangle corpus are MIT; game resources and authored visual assets remain external under their recorded licenses."
+    },
+    {
+      "name": "server",
+      "repository": "atrinik/server",
+      "language": "Go",
+      "m1_issues": [1, 2, 3, 4, 5, 21],
+      "proof_pull_requests": [70],
+      "aggregate_check": "Server validation",
+      "workflow": ".github/workflows/validate.yml",
+      "guidance": ["CONTRIBUTING.md", "PROVENANCE.md"],
+      "machine_records": [
+        "migration/classic-behavior.json",
+        "policy/dependencies.json",
+        "go.sum"
+      ],
+      "notice": "THIRD_PARTY_NOTICES.md",
+      "sbom_contract": ".github/workflows/release.yml",
+      "package_contract": "tools/package-release.sh",
+      "license_boundary": "Go server code and synthetic tests are MIT; authored content and external resources remain separately licensed runtime inputs."
+    },
+    {
+      "name": "website",
+      "repository": "atrinik/website",
+      "language": "Astro and TypeScript",
+      "m1_issues": [1, 2],
+      "proof_pull_requests": [6, 9],
+      "aggregate_check": "Website validation",
+      "workflow": ".github/workflows/validate.yml",
+      "guidance": ["CONTRIBUTING.md", "PROVENANCE.md"],
+      "machine_records": [
+        "src/data/downloads.json",
+        "src/data/media.json",
+        "policy/dependencies.json",
+        "package-lock.json"
+      ],
+      "notice": "THIRD_PARTY_NOTICES.md",
+      "sbom_contract": ".github/workflows/release.yml",
+      "package_contract": "tools/package-release.mjs",
+      "license_boundary": "Astro source, prose, and synthetic fixtures are MIT; each published binary, content archive, screenshot, and media item carries its own license metadata."
+    }
+  ],
+  "reproducible_examples": {
+    "admitted": {
+      "repository": "atrinik/content-toolkit",
+      "record": "provenance/reuse.json#lossless-core-model",
+      "verification": "tools/audit-provenance.sh --source /absolute/non-shallow/content/checkout"
+    },
+    "excluded": {
+      "repository": "atrinik/content-toolkit",
+      "record": "provenance/reuse.json#remaining-content-tools",
+      "verification": "tools/check-provenance.sh"
+    }
+  }
+}
