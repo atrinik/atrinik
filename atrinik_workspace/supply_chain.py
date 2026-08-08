@@ -8,7 +8,15 @@ import re
 import subprocess
 from typing import Any, Iterable
 
-from .model import Checkout, Component, Manifest, WorkspaceError, load_json, require_keys
+from .model import (
+    Checkout,
+    Component,
+    Manifest,
+    Stack,
+    WorkspaceError,
+    load_json,
+    require_keys,
+)
 
 
 SCHEMA_VERSION = 3
@@ -1456,6 +1464,19 @@ def _component_source_root(checkout_root: Path, component: Component) -> Path:
     return resolved
 
 
+def _profile_component_rows(
+    stack: Stack, summary: dict[str, Any]
+) -> dict[str, dict[str, Any]]:
+    raw_rows = summary["components"]
+    rows = {row["component"]: row for row in raw_rows}
+    expected_components = {component.name for component in stack.components}
+    if len(rows) != len(raw_rows) or set(rows) != expected_components:
+        raise WorkspaceError(
+            f"profile summary component set does not match {stack.name} stack"
+        )
+    return rows
+
+
 def repository_roots(
     root: Path,
     workspace: Any,
@@ -1567,12 +1588,7 @@ def repository_roots(
                 continue
             selected[member.name] = _component_source_root(checkout_root, member)
             selected_checkouts[member.name] = checkout_root
-    rows = {row["component"]: row for row in summary["components"]}
-    expected_components = {component.name for component in stack.components}
-    if set(rows) != expected_components:
-        raise WorkspaceError(
-            f"profile summary component set does not match {stack.name} stack"
-        )
+    rows = _profile_component_rows(stack, summary)
     missing_checkouts: dict[str, list[str]] = {}
     for component in stack.components:
         if component.name in selected or rows[component.name]["initialized"]:
@@ -1585,14 +1601,23 @@ def repository_roots(
             f"{checkout} ({', '.join(components)})"
             for checkout, components in sorted(missing_checkouts.items())
         )
-        initialization = (
-            "./atrinik init --with classic"
-            if stack.name == "classic"
-            else "./atrinik init"
-        )
+        if profile == stack.name:
+            initialization = (
+                "./atrinik init --with classic"
+                if stack.name == "classic"
+                else "./atrinik init"
+            )
+            remediation = (
+                "initialize every selected checkout before auditing with "
+                f"{initialization}"
+            )
+        else:
+            remediation = (
+                "repair its selectors or initialize their selected checkouts "
+                "before auditing"
+            )
         raise WorkspaceError(
-            f"supply-chain profile {profile} is incomplete; initialize every "
-            f"selected checkout before auditing with {initialization}: {missing}"
+            f"supply-chain profile {profile} is incomplete; {remediation}: {missing}"
         )
 
     roots = {"atrinik": root}
@@ -1642,12 +1667,7 @@ def report_component_commits(
     manifest = Manifest.load(root / "components.json")
     summary = workspace.profile_summary(profile)
     stack = manifest.stack(summary["stack"])
-    rows = {row["component"]: row for row in summary["components"]}
-    expected = {component.name for component in stack.components}
-    if set(rows) != expected:
-        raise WorkspaceError(
-            f"profile summary component set does not match {stack.name} stack"
-        )
+    rows = _profile_component_rows(stack, summary)
     commits: dict[str, str | None] = {"atrinik": _git_head(root)}
     checkout_commits: dict[str, str] = {}
     for component in stack.components:

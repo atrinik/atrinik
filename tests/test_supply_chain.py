@@ -1516,7 +1516,8 @@ FROM toolchain AS final
 
         with self.assertRaisesRegex(
             WorkspaceError,
-            r"profile classic-review is incomplete.*classic \(classic-client, "
+            r"profile classic-review is incomplete.*repair its selectors.*"
+            r"classic \(classic-client, "
             r"classic-server, classic-protocol, classic-libatrinik, "
             r"classic-editor\)",
         ):
@@ -1556,6 +1557,25 @@ FROM toolchain AS final
             "components": [],
         }
 
+        with self.assertRaisesRegex(
+            WorkspaceError, "component set does not match classic stack"
+        ):
+            repository_roots(ROOT, workspace, "classic")
+
+        classic_components = json.loads(
+            (ROOT / "components.json").read_text(encoding="utf-8")
+        )["stacks"]["classic"]["components"]
+        workspace.profile_summary.return_value["components"] = [
+            {
+                "component": name,
+                "initialized": True,
+                "path": f"/workspace/classic/{name}",
+            }
+            for name in classic_components
+        ]
+        workspace.profile_summary.return_value["components"].append(
+            workspace.profile_summary.return_value["components"][0]
+        )
         with self.assertRaisesRegex(
             WorkspaceError, "component set does not match classic stack"
         ):
