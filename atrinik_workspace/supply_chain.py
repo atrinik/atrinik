@@ -1785,6 +1785,16 @@ def repository_roots(
             roots[component.name] = selected[component.name]
         elif rows[component.name]["initialized"]:
             roots[component.name] = Path(rows[component.name]["path"])
+    missing = sorted(
+        component.name
+        for component in stack.components
+        if component.name in audit_ready and component.name not in roots
+    )
+    if missing:
+        raise WorkspaceError(
+            f"profile {profile} is incomplete for supply-chain audit; initialize "
+            f"or override: {', '.join(missing)}"
+        )
     for repository in inventory.repositories:
         if (
             not repository.supported

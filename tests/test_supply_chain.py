@@ -1471,7 +1471,7 @@ jobs:
             "components": [
                 {
                     "component": name,
-                    "initialized": True,
+                    "initialized": name != "resources",
                     "path": f"/workspace/profile/{name}",
                 }
                 for name in default_components
@@ -1545,8 +1545,8 @@ jobs:
 
         self.assertEqual(roots["atrinik"], ROOT)
         self.assertEqual(roots["resources"], path)
-        self.assertNotIn("server", roots)
-        self.assertNotIn("client", roots)
+        self.assertIn("server", roots)
+        self.assertIn("client", roots)
 
     def test_repository_override_accepts_fork_origin_and_canonical_upstream(self) -> None:
         workspace = mock.Mock()
@@ -1559,7 +1559,7 @@ jobs:
             "components": [
                 {
                     "component": name,
-                    "initialized": True,
+                    "initialized": name != "resources",
                     "path": f"/workspace/review/{name}",
                 }
                 for name in default_components
@@ -1629,7 +1629,7 @@ jobs:
                     ROOT, workspace, "review", [f"resources={review}"]
                 )
 
-    def test_repository_roots_keep_duplicate_coordinates_profile_scoped(self) -> None:
+    def test_repository_roots_reject_incomplete_profiles(self) -> None:
         workspace = mock.Mock()
         classic_components = json.loads(
             (ROOT / "components.json").read_text(encoding="utf-8")
