@@ -90,10 +90,14 @@ member therefore fails the aggregate operation instead of turning it into a
 partial audit.
 The audit requires immutable remote Actions and container images, updater
 hints, an owned catalog entry for every dependency input, weekly GitHub Actions
-update configuration, and no submodules. For a shared monorepo checkout, only
-the root repository workflows and Dependabot file are active GitHub metadata;
-logical source audits exclude imported nested copies while continuing to audit
-their dependency inputs. Explicit worktree overrides are
+update configuration, and no submodules. It discovers npm, Cargo, Go, Buf,
+Rust-toolchain, and repository dependency-policy manifests. Workflow runner
+expressions are admitted only when a literal static matrix enumerates every
+value, and an `npx` invocation is owned only when the same workflow first pins
+an immutable `setup-node` action. For a shared monorepo checkout, only the root
+repository workflows and Dependabot file are active GitHub metadata; logical
+source audits exclude imported nested copies while continuing to audit their
+dependency inputs. Explicit worktree overrides are
 absolute and must match the expected repository and branch identity. A review
 branch for a repeated coordinate must share the expected checkout primary's
 common Git directory, preventing `content` and `content-1x` from being
@@ -269,11 +273,12 @@ selected Worker -------------------------> npm source view -> npm run check
 ~~~
 
 The replacement MIT `server`, `client`, `editor`, `protocol`, `renderer`,
-`content-toolkit`, and `website` repositories are seed components. Their
-manifest entries and default role graph are valid, but the game build and
-runtime commands reject unavailable contracts clearly until those contracts
-land. They are never routed through the classic C/CMake implementation merely
-to make `default` appear runnable.
+`content-toolkit`, and `website` repositories have validated standalone M1
+build, package, provenance, and dependency contracts. Their manifest entries
+and default role graph are valid, but wrapper build/runtime adapters and the
+integrated service closure have not landed, so game build/runtime commands
+still reject them clearly. They are never routed through the classic C/CMake
+implementation merely to make `default` appear runnable.
 
 The server source view uses a copied `install_data` directory because its CTest
 preparation uses CMake directory-copy semantics. Other authored inputs remain
