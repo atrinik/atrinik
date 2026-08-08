@@ -341,6 +341,119 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.assertEqual(audit["status"], "complete", audit)
         self.assertEqual(self.migration().execute("apply")["status"], "already-applied")
 
+    def test_audit_accepts_manifest_owned_replacement_at_reused_source_path(
+        self,
+    ) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+
+        result = self.migration().execute("apply")
+        self.assertEqual(result["status"], "applied")
+        replacement = self.make_repository(
+            "client",
+            "client",
+            repository="atrinik/client",
+            classic=False,
+            text="replacement client\n",
+        )
+        self.manifest.by_checkout["client"] = SimpleNamespace(
+            name="client",
+            repository="atrinik/client",
+            branch="main",
+            path="client",
+            generation="replacement",
+        )
+        (replacement / "local-change.txt").write_text(
+            "preserve me\n", encoding="utf-8"
+        )
+        status_before = self.status_bytes(replacement)
+
+        audit = self.migration().execute("audit")
+
+        self.assertEqual(audit["status"], "complete", audit)
+        self.assertEqual(self.status_bytes(replacement), status_before)
+
+    def test_audit_rejects_wrong_repository_at_reused_source_path(self) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        self.assertEqual(self.migration().execute("apply")["status"], "applied")
+        self.make_repository(
+            "client",
+            "client",
+            repository="someone-else/client",
+            classic=False,
+            text="unrelated client\n",
+        )
+        self.manifest.by_checkout["client"] = SimpleNamespace(
+            name="client",
+            repository="atrinik/client",
+            branch="main",
+            path="client",
+            generation="replacement",
+        )
+
+        audit = self.migration().execute("audit")
+
+        self.assertEqual(audit["status"], "incomplete")
+        self.assertIn(
+            "source_archive_audit_failed",
+            {row["code"] for row in audit["refusals"]},
+        )
+
+    def test_audit_rejects_symlink_at_reused_source_path(self) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        result = self.migration().execute("apply")
+        self.assertEqual(result["status"], "applied")
+        archive = Path(result["sources"][0]["archive"])
+        source.symlink_to(archive, target_is_directory=True)
+        self.manifest.by_checkout["client"] = SimpleNamespace(
+            name="client",
+            repository="atrinik/client",
+            branch="main",
+            path="client",
+            generation="replacement",
+        )
+
+        audit = self.migration().execute("audit")
+
+        self.assertEqual(audit["status"], "incomplete")
+        self.assertIn(
+            "source_archive_audit_failed",
+            {row["code"] for row in audit["refusals"]},
+        )
+
+    def test_audit_rejects_reused_source_path_sharing_archive_git_dir(self) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        result = self.migration().execute("apply")
+        self.assertEqual(result["status"], "applied")
+        archive = Path(result["sources"][0]["archive"])
+        command(
+            "git",
+            "worktree",
+            "add",
+            "-b",
+            "replacement-mask",
+            str(source),
+            cwd=archive,
+        )
+        self.manifest.by_checkout["client"] = SimpleNamespace(
+            name="client",
+            repository="atrinik/legacy-client",
+            branch="main",
+            path="client",
+            generation="replacement",
+        )
+
+        audit = self.migration().execute("audit")
+
+        self.assertEqual(audit["status"], "incomplete")
+        self.assertIn(
+            "source_archive_audit_failed",
+            {row["code"] for row in audit["refusals"]},
+        )
+
     def test_content_1x_worktree_becomes_protected_migration_selector(self) -> None:
         source = self.make_repository("client", "client")
         self.make_classic({"client": source})
