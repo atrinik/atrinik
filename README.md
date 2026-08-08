@@ -58,8 +58,12 @@ state, cohort, role, and license; generated reports resolve the full commit
 from the selected profile and explicitly mark uninitialized or non-selected
 components unavailable. That distinction is mandatory both for logical
 components sharing `atrinik/classic` and for the two `atrinik/content`
-checkouts. The
-strict schema is checked without a third-party Python dependency. GitHub
+checkouts. In an aggregate monorepo checkout, the physical checkout record
+audits the active root workflows and Dependabot policy. Logical component
+records still audit dependency inputs throughout their source directories, but
+ignore imported nested workflows and nested Dependabot files because GitHub
+does not activate them. The strict schema is checked without a third-party
+Python dependency. GitHub
 Actions and container images use immutable commits or
 digests with human-readable update hints, and every active repository enables
 weekly Dependabot updates for its supported ecosystems. Git submodules are not

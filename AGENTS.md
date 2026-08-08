@@ -76,6 +76,10 @@
   image, vendored input, license, owner, cadence, EOL response, and validation
   path. Keep Actions and images immutable, retain updater hints, do not add Git
   submodules, and run the profile-aware `./atrinik supply-chain audit`.
+  For an aggregate monorepo checkout, inventory and audit active Actions and
+  Dependabot configuration at the checkout root; imported `.github/workflows`
+  and `.github/dependabot.yml` files below logical component source roots are
+  inert history, not active dependency evidence.
   Records and SBOMs must distinguish physical checkout, logical component,
   source root, repository, branch, commit, cohort, role, and license even when
   repository coordinates repeat or components share one checkout.
