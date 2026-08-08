@@ -83,6 +83,11 @@ every doubt is independently resolved.
 
 The `supply-chain` command resolves component inputs through the same profile
 selectors as builds, then reads Git-indexed files without mutating a checkout.
+Before selecting audit-ready roots, it requires every physical checkout and
+logical component in the profile to resolve. Review-worktree overrides replace
+specific roots but never relax that completeness invariant. An unavailable
+member therefore fails the aggregate operation instead of turning it into a
+partial audit.
 The audit requires immutable remote Actions and container images, updater
 hints, an owned catalog entry for every dependency input, weekly GitHub Actions
 update configuration, and no submodules. For a shared monorepo checkout, only
@@ -95,11 +100,11 @@ common Git directory, preventing `content` and `content-1x` from being
 interchanged. Deterministic
 license, CycloneDX, SPDX, and local version reports are generated only below
 the ignored build directory; report generation resolves full commit IDs through
-`--profile PROFILE`. The scheduled audit composes and audits the initialized
-default and classic stacks explicitly, including both content release lines,
-and publishes stack-separated reports; pull-request CI validates the catalog
-and its implementation without silently accepting a partial organization
-snapshot.
+`--profile PROFILE`. The scheduled audit delegates checkout composition to
+`./atrinik init --with classic`, audits both complete stacks including both
+content release lines, and publishes stack-separated reports; regression tests
+bind that initialization ordering, the fail-closed profile contract, and the
+`content@1.x` workflow-runner policy.
 
 Read-only inspection commands keep structured data on stdout and suppress Git
 traces so callers can safely consume `status --json`, `worktree list --json`,

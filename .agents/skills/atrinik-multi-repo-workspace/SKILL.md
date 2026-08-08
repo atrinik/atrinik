@@ -278,7 +278,12 @@ files directly.
   coordinates. Keep remote Actions on full commits with updater comments,
   images on manifest
   digests, and Git submodules absent. Validate a coordinated profile with
-  `./atrinik supply-chain audit --profile PROFILE` and generate ignored
+  `./atrinik supply-chain audit --profile PROFILE`; initialize every checkout
+  selected by the profile first because an unavailable physical checkout or
+  logical component fails the audit. A review-worktree override changes only
+  its named checkout and never makes the other profile members optional. In
+  CI, provision the selected stacks through wrapper-native `init` rather than
+  duplicating the manifest as a checkout list. Generate ignored
   license/CycloneDX/SPDX reports with
   `./atrinik supply-chain report --profile PROFILE`; unresolved and
   non-selected component commits must remain explicitly unavailable. For a

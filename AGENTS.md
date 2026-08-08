@@ -76,6 +76,11 @@
   image, vendored input, license, owner, cadence, EOL response, and validation
   path. Keep Actions and images immutable, retain updater hints, do not add Git
   submodules, and run the profile-aware `./atrinik supply-chain audit`.
+  Initialize every checkout selected by that profile first; audits fail closed
+  when any physical checkout or logical component is unavailable, and a
+  review-worktree override never makes other profile members optional. CI must
+  use wrapper-native initialization rather than maintain a parallel checkout
+  list.
   For an aggregate monorepo checkout, inventory and audit active Actions and
   Dependabot configuration at the checkout root; imported `.github/workflows`
   and `.github/dependabot.yml` files below logical component source roots are
