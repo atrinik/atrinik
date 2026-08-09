@@ -720,7 +720,7 @@
         "server"
       ],
       "required": true,
-      "version": "v6.0.0",
+      "version": "v7.0.0",
       "version_source": "Reviewed upstream release",
       "license": "MIT",
       "source_url": "https://github.com/actions/setup-go",
@@ -738,12 +738,12 @@
         {
           "repository": "protocol",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v6.0.0"
+          "contains": "actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0"
         },
         {
           "repository": "server",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v6.0.0"
+          "contains": "actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0"
         }
       ]
     },
@@ -2201,7 +2201,7 @@
       "version_source": "requirements-dev.txt",
       "license": "Apache-2.0",
       "source_url": "https://pypi.org/project/coverage/",
-      "locator": "pkg:pypi/coverage@7.15.2",
+      "locator": "pkg:pypi/coverage@7.15.3",
       "commit": null,
       "checksum": null,
       "acquisition": "pip installs the exact development requirement",
