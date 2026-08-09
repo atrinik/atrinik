@@ -143,11 +143,9 @@ for supported wrapper operations.
   [`docs/PROVENANCE.md`](../../../docs/PROVENANCE.md). Fail closed and record the
   complete evidence in the destination repository.
 
-## Maintain the contract
+## Maintain guidance
 
-When the wrapper CLI, manifest, layout, ownership, profile/build/runtime,
-cleanup, release, or cross-repository procedure changes, update the affected
-root guide, skill, README, and architecture sections together. Remove
-superseded instructions. Validate skills, exercise the affected CLI path, run
-the complete wrapper tests/coverage and compileall, and finish with
-`git diff --check`.
+Load `atrinik-guidance-maintenance` when wrapper ownership, CLI, layout,
+profile/build/runtime, cleanup, release, or cross-repository contracts change.
+Update only affected canonical guidance, remove superseded instructions, and
+run that skill's inventory and validation workflow.
