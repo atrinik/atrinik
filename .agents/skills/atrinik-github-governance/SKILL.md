@@ -1,25 +1,19 @@
 ---
 name: atrinik-github-governance
-description: Change Atrinik GitHub policy, settings, Actions, required checks, or release governance.
+description: Manage Atrinik PR publication, GitHub policy, Actions, checks, settings, or releases.
 ---
 
 # Atrinik GitHub Governance
 
-Use this skill for changes to the standalone `github-settings` repository or
-to an Atrinik Actions workflow whose permissions, check names, dependency
-policy, or branch-protection contract may change.
-
 ## Review desired and live state
 
 1. Read the workspace and `github-settings/AGENTS.md` guides.
-2. Inspect the relevant `config/*.json`, publisher script, workflow, and recent
-   repository history. Treat configuration as desired state and the GitHub API
-   as live state; do not infer policy from one alone.
-3. Use the publisher's default plan mode before considering `--apply`.
-   Applying settings, changing repositories, or dispatching workflows requires
-   explicit authorization because it mutates external organization state.
-4. Preserve the current Team-plan compatibility contract. Do not introduce an
-   Enterprise-only control without a documented, reviewed migration.
+2. Inspect relevant configuration, publisher code, workflows, and history.
+   Treat configuration as desired state and the GitHub API as live state.
+3. Run the publisher's plan before `--apply`. External settings changes and
+   workflow dispatch require explicit authorization.
+4. Keep controls Team-plan compatible; document and review any migration to an
+   Enterprise-only feature.
 
 ## Change policy coherently
 
@@ -35,12 +29,21 @@ policy, or branch-protection contract may change.
 - Never print tokens or copy live secrets into configuration, logs, fixtures,
   commits, or review text.
 
+## Publish pull requests
+
+Use `type(optional-scope)!: concise description` for PR titles. Write bodies as
+renderable GitHub-Flavored Markdown with actual line breaks, never visible
+literal `\n` separators. Pass multi-section bodies by file, standard input, or
+another newline-preserving method. After create/edit, inspect the remote PR and
+verify headings, lists, inline code, issue-closing references, and validation
+sections render normally.
+
 ## Validate and hand off
 
 Run JSON parsing, shell syntax, ShellCheck, actionlint for workflow changes,
 the publisher's plan mode, and `git diff --check`. Review the complete plan for
 unexpected deletions or relaxations before any authorized apply.
 
-Document affected repositories, required check names, expected plan changes,
-rollback or re-plan steps, and whether live state was intentionally left
-unchanged. Use Conventional Commits for commits and pull-request titles.
+Document affected repositories, required checks, expected plan changes,
+rollback or re-plan steps, and intentionally unchanged live state. Use
+Conventional Commits for commits.

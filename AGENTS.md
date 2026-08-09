@@ -2,14 +2,14 @@
 
 ## Overview
 
-- This MIT Python 3.11+ repository coordinates Atrinik's independent Git
-  repositories; it does not own component source. `./atrinik` and
-  `components.json` manage profiles, worktrees, builds, supervised runtimes,
-  cleanup, migration, and supply-chain reports.
+- This MIT Python 3.11+ repository coordinates independent Atrinik Git
+  repositories, not component source. `./atrinik` and `components.json` manage
+  profiles, worktrees, builds, supervised runtimes, cleanup, migration, and
+  supply-chain reports.
 - `default` selects the MIT replacement stack (Rust, Go, Protobuf, and Astro).
-  Its standalone M1 foundations exist, but wrapper build/runtime integration
-  has not landed. `classic` selects the playable C17/CMake/Ninja stack. Never
-  mix providers or route unavailable replacement adapters through classic.
+  Its standalone M1 foundations lack wrapper integration. `classic` selects the
+  playable C17/CMake/Ninja stack. Never mix providers or route unavailable
+  replacement adapters through classic.
 
 ## Folder structure and ownership
 
@@ -58,9 +58,12 @@
 - Update `supply-chain/inventory.json` when dependency ownership or validation
   changes. Keep Actions/images immutable, add no submodules, and audit a
   complete profile. Only aggregate-root workflows and Dependabot are active.
-- Use Conventional Commits for commits and PR titles. Semantic-release owns
-  tags and release assets. Do not disclose confidential or unreleased work on
-  public surfaces; use `atrinik-github-governance` for GitHub policy.
+- Commits and PR titles use `type(optional-scope)!: concise description`. PR
+  bodies require renderable GitHub-Flavored Markdown and actual line breaks,
+  never visible literal `\n` separators. Feed multi-section bodies by file or
+  stdin; after create/edit, verify remote rendering. Use
+  `atrinik-github-governance` for publication and policy. Semantic-release owns
+  tags/assets; keep confidential or unreleased work off public surfaces.
 
 ## Working agreements and commands
 

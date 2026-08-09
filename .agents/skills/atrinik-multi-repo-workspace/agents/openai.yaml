@@ -1,4 +1,4 @@
 interface:
   display_name: "Atrinik Multi-Repo Workspace"
   short_description: "Coordinate Atrinik repositories and worktrees"
-  default_prompt: "Use $atrinik-multi-repo-workspace to coordinate this change across the owning Atrinik repositories."
+  default_prompt: "Use $atrinik-multi-repo-workspace to coordinate this change and its publication across the owning Atrinik repositories."

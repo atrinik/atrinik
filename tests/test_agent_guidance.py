@@ -139,6 +139,61 @@ class AgentGuidanceTests(unittest.TestCase):
             with self.subTest(stale=stale):
                 self.assertNotIn(stale, corpus)
 
+    def test_pull_request_publication_contract_is_synchronized(self) -> None:
+        governed = [
+            ROOT / "AGENTS.md",
+            ROOT / "CONTRIBUTING.md",
+            ROOT / ".agents/skills/atrinik-github-governance/SKILL.md",
+            ROOT / ".agents/skills/atrinik-multi-repo-workspace/SKILL.md",
+        ]
+        markers = {
+            "type(optional-scope)!: concise description",
+            "GitHub-Flavored Markdown",
+            "actual line breaks",
+            "literal `\\n` separators",
+            "multi-section",
+            "remote",
+        }
+        for path in governed:
+            guidance = " ".join(path.read_text(encoding="utf-8").split())
+            for marker in markers:
+                with self.subTest(path=path.relative_to(ROOT), marker=marker):
+                    self.assertIn(marker, guidance)
+            with self.subTest(path=path.relative_to(ROOT), marker="body input"):
+                self.assertRegex(
+                    guidance,
+                    r"multi-section bod(?:y|ies).*file.*(?:standard input|stdin)",
+                )
+
+        detailed = governed[1:3]
+        for path in detailed:
+            guidance = " ".join(path.read_text(encoding="utf-8").split())
+            for marker in {
+                "headings",
+                "lists",
+                "inline code",
+                "issue-closing references",
+                "validation sections",
+            }:
+                with self.subTest(path=path.relative_to(ROOT), marker=marker):
+                    self.assertIn(marker, guidance)
+
+        title_workflow = (ROOT / ".github/workflows/pr-title.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("type(optional-scope)!: concise description", title_workflow)
+
+        unrelated = {
+            path
+            for path in (ROOT / ".agents/skills").glob("*/SKILL.md")
+            if path not in governed
+        }
+        for path in unrelated:
+            with self.subTest(path=path.relative_to(ROOT)):
+                self.assertNotIn(
+                    "GitHub-Flavored Markdown", path.read_text(encoding="utf-8")
+                )
+
 
 if __name__ == "__main__":
     unittest.main()
