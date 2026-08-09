@@ -56,6 +56,13 @@ PROFILE_PURPOSE = re.compile(
     r"^profile:(?P<profile>[a-z0-9][a-z0-9._-]*):(?P<key>[0-9a-f]{12})$"
 )
 HEAD_PATTERN = re.compile(r"^[0-9a-f]{40,64}$")
+HISTORICAL_PULL_BASE_BOUNDARIES = {
+    (
+        "atrinik/atrinik",
+        "main",
+        "master",
+    ): "ee5ba2096c94bce0161629423d4962a966bc61d8",
+}
 
 
 def _command(path: Path, *arguments: str) -> str:
@@ -1171,6 +1178,12 @@ class Cleanup:
                 item["reasons"].append(reference_reason)
         item["reasons"].extend(sorted(reference_errors))
         if prunable:
+            try:
+                if self._prunable_metadata_has_submodules(common, path):
+                    item["reasons"].append("populated_submodules")
+            except WorkspaceError as error:
+                item["reasons"].append("git_inspection_error")
+                item["error"] = str(error)
             item["reasons"].append("prunable_metadata")
             if item["reasons"] == ["prunable_metadata"]:
                 item["disposition"] = "skipped"
@@ -1194,10 +1207,16 @@ class Cleanup:
                 item["reasons"].append("unexpected_git_common_directory")
             if worktree_git == common and normalized != primary.resolve():
                 item["reasons"].append("unexpected_primary_identity")
+            if self._populated_submodules(path, worktree_git):
+                item["reasons"].append("populated_submodules")
             if self._operation_in_progress(path):
                 item["reasons"].append("git_operation_in_progress")
             status_value = _command(
-                path, "status", "--porcelain=v1", "--untracked-files=all"
+                path,
+                "status",
+                "--porcelain=v1",
+                "--untracked-files=all",
+                "--ignore-submodules=none",
             )
             if status_value:
                 item["reasons"].append("dirty_worktree")
@@ -1241,6 +1260,74 @@ class Cleanup:
                 return True
         return False
 
+    @staticmethod
+    def _populated_submodules(path: Path, git_directory: Path) -> bool:
+        """Match Git's conservative refusal to remove populated submodules."""
+
+        try:
+            modules = git_directory / "modules"
+            if modules.exists() or modules.is_symlink():
+                return True
+            gitmodules = path / ".gitmodules"
+            if not gitmodules.exists() and not gitmodules.is_symlink():
+                return False
+            if gitmodules.is_symlink() or not gitmodules.is_file():
+                raise WorkspaceError(
+                    f"worktree has unsafe .gitmodules metadata: {path}"
+                )
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect worktree submodule metadata at {path}: {error}"
+            ) from error
+        output = _command(path, "submodule", "status", "--recursive")
+        for line in output.splitlines():
+            if not line or line[0] not in {" ", "-", "+", "U"}:
+                raise WorkspaceError(f"git returned invalid submodule status at {path}")
+            if line[0] != "-":
+                return True
+        return False
+
+    @staticmethod
+    def _prunable_metadata_has_submodules(common: Path, path: Path) -> bool:
+        """Inspect the exact missing worktree's retained administrative directory."""
+
+        worktrees = common / "worktrees"
+        try:
+            if worktrees.is_symlink() or not worktrees.is_dir():
+                raise WorkspaceError("worktree administrative directory is unsafe")
+            expected = (path / ".git").resolve(strict=False)
+            matches: list[Path] = []
+            for admin in worktrees.iterdir():
+                if admin.is_symlink() or not admin.is_dir():
+                    raise WorkspaceError(
+                        "worktree administrative entry is unsafe"
+                    )
+                gitdir = admin / "gitdir"
+                if gitdir.is_symlink() or not gitdir.is_file():
+                    raise WorkspaceError("worktree gitdir metadata is unsafe")
+                value = gitdir.read_text(encoding="utf-8")
+                if (
+                    not value.endswith("\n")
+                    or "\n" in value[:-1]
+                    or "\0" in value
+                    or not Path(value[:-1]).is_absolute()
+                ):
+                    raise WorkspaceError("worktree gitdir metadata is invalid")
+                if Path(value[:-1]).resolve(strict=False) == expected:
+                    matches.append(admin)
+            if len(matches) != 1:
+                raise WorkspaceError(
+                    "cannot map prunable worktree to administrative metadata"
+                )
+            modules = matches[0] / "modules"
+            return modules.exists() or modules.is_symlink()
+        except WorkspaceError:
+            raise
+        except (OSError, RuntimeError, UnicodeError) as error:
+            raise WorkspaceError(
+                f"cannot inspect prunable worktree metadata for {path}: {error}"
+            ) from error
+
     def _resolve_github(self, items: list[dict[str, Any]], older_than_days: int) -> None:
         pending = [
             item
@@ -1273,6 +1360,22 @@ class Cleanup:
             reason, evidence, merged_at = self._pull_evidence(
                 pulls, item["head"], item["base_branch"]
             )
+            historical_base = False
+            if reason == "wrong_base_branch":
+                row = pulls[0]
+                boundary = self._historical_pull_boundary(item, row)
+                if boundary is not None:
+                    historical_branch = row["base"]["ref"]
+                    reason, evidence, merged_at = self._pull_evidence(
+                        pulls, item["head"], historical_branch
+                    )
+                    if reason is None and not self._historical_merge_proven(
+                        item, row, boundary
+                    ):
+                        reason = "historical_base_unverified"
+                        evidence = None
+                        merged_at = None
+                    historical_base = reason is None
             if reason is not None:
                 item["reasons"] = [reason]
                 continue
@@ -1287,9 +1390,91 @@ class Cleanup:
                 item["reasons"] = ["younger_than_grace_period"]
             else:
                 item["disposition"] = "eligible"
-                item["reasons"] = ["merged_pr_head"]
+                item["reasons"] = [
+                    "merged_pr_head_historical_base"
+                    if historical_base
+                    else "merged_pr_head"
+                ]
                 if item["kind"] == "prunable-metadata":
                     item["reasons"].append("prunable_metadata")
+
+    def _historical_pull_boundary(
+        self, item: dict[str, Any], row: dict[str, Any]
+    ) -> str | None:
+        """Return the frozen pre-rewrite boundary for one legacy wrapper path."""
+
+        base = row.get("base")
+        primary = item.get("_primary")
+        if (
+            item.get("owner") != "atrinik"
+            or item.get("repository") != "atrinik/atrinik"
+            or item.get("base_branch") != "main"
+            or not isinstance(primary, str)
+            or not isinstance(base, dict)
+            or not isinstance(base.get("ref"), str)
+            or not self._owned_direct_child(
+                Path(item["path"]), Path(primary) / "build" / "worktrees"
+            )
+        ):
+            return None
+        return HISTORICAL_PULL_BASE_BOUNDARIES.get(
+            (item["repository"], item["base_branch"], base["ref"])
+        )
+
+    @staticmethod
+    def _historical_merge_proven(
+        item: dict[str, Any], row: dict[str, Any], boundary: str
+    ) -> bool:
+        """Prove GitHub's merge commit belongs to the frozen historical line."""
+
+        primary = item.get("_primary")
+        base = row.get("base")
+        merge_commit = row.get("merge_commit_sha")
+        if (
+            not isinstance(primary, str)
+            or not isinstance(base, dict)
+            or not isinstance(base.get("sha"), str)
+            or not isinstance(merge_commit, str)
+            or not HEAD_PATTERN.fullmatch(base["sha"])
+            or not HEAD_PATTERN.fullmatch(merge_commit)
+            or not HEAD_PATTERN.fullmatch(boundary)
+        ):
+            return False
+        try:
+            common = _git_common_directory(Path(primary))
+            grafts = common / "info" / "grafts"
+            try:
+                grafts.lstat()
+            except FileNotFoundError:
+                pass
+            else:
+                return False
+            commit = _command(
+                Path(primary),
+                "--no-replace-objects",
+                "rev-list",
+                "--parents",
+                "-n",
+                "1",
+                merge_commit,
+            ).split()
+            if (
+                len(commit) < 2
+                or commit[0] != merge_commit
+                or commit[1] != base["sha"]
+            ):
+                return False
+            _command(
+                Path(primary),
+                "--no-replace-objects",
+                "merge-base",
+                "--is-ancestor",
+                merge_commit,
+                boundary,
+            )
+        except (OSError, RuntimeError, WorkspaceError):
+            return False
+        return True
 
     @staticmethod
     def _protect_shared_prune_scope(items: list[dict[str, Any]]) -> None:
@@ -1320,8 +1505,8 @@ class Cleanup:
                     "Accept: application/vnd.github+json",
                     "--paginate",
                     "--jq",
-                    ".[] | {number,state,merged_at,head:{sha:.head.sha},"
-                    "base:{ref:.base.ref},html_url}",
+                    ".[] | {number,state,merged_at,merge_commit_sha,"
+                    "head:{sha:.head.sha},base:{ref:.base.ref,sha:.base.sha},html_url}",
                 ],
                 check=True,
                 capture_output=True,
@@ -1405,9 +1590,19 @@ class Cleanup:
         head = row.get("head")
         base = row.get("base")
         merged_at = row.get("merged_at")
+        merge_commit = row.get("merge_commit_sha")
         state_value = row.get("state")
         return (
-            set(row) == {"number", "state", "html_url", "merged_at", "head", "base"}
+            set(row)
+            == {
+                "number",
+                "state",
+                "html_url",
+                "merged_at",
+                "merge_commit_sha",
+                "head",
+                "base",
+            }
             and isinstance(row.get("number"), int)
             and not isinstance(row.get("number"), bool)
             and isinstance(row.get("html_url"), str)
@@ -1420,9 +1615,16 @@ class Cleanup:
             and isinstance(head.get("sha"), str)
             and bool(HEAD_PATTERN.fullmatch(head["sha"]))
             and isinstance(base, dict)
-            and set(base) == {"ref"}
+            and set(base) == {"ref", "sha"}
             and isinstance(base.get("ref"), str)
             and bool(base["ref"])
+            and isinstance(base.get("sha"), str)
+            and bool(HEAD_PATTERN.fullmatch(base["sha"]))
+            and (
+                merge_commit is None and merged_at is None
+                or isinstance(merge_commit, str)
+                and bool(HEAD_PATTERN.fullmatch(merge_commit))
+            )
         )
 
     def _builds(

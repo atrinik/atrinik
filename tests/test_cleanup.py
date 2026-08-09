@@ -113,6 +113,84 @@ class CleanupTests(unittest.TestCase):
         (path / "ignored" / "output.o").write_bytes(b"x" * 4096)
         return path
 
+    def add_local_submodule_to_wrapper(self) -> Path:
+        source = self.root / "local-submodule"
+        source.mkdir()
+        command("git", "init", "-b", "main", cwd=source)
+        command("git", "config", "user.name", "Tests", cwd=source)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=source)
+        (source / "README").write_text("local dependency\n", encoding="utf-8")
+        command("git", "add", "README", cwd=source)
+        command("git", "commit", "-m", "test: seed dependency", cwd=source)
+        command(
+            "git",
+            "-c",
+            "protocol.file.allow=always",
+            "submodule",
+            "add",
+            str(source),
+            "vendor/dependency",
+            cwd=self.wrapper,
+        )
+        command("git", "commit", "-am", "test: add local submodule", cwd=self.wrapper)
+        return source
+
+    @staticmethod
+    def initialize_local_submodule(worktree: Path) -> None:
+        command(
+            "git",
+            "-c",
+            "protocol.file.allow=always",
+            "submodule",
+            "update",
+            "--init",
+            "--recursive",
+            cwd=worktree,
+        )
+
+    def make_historical_wrapper_graph(
+        self, label: str = "legacy-master-review"
+    ) -> tuple[Path, str, str, str, str]:
+        base = command("git", "rev-parse", "main", cwd=self.wrapper)
+        path = self.wrapper / "build" / "worktrees" / label
+        path.parent.mkdir(parents=True, exist_ok=True)
+        command(
+            "git",
+            "worktree",
+            "add",
+            "-b",
+            f"feat/{label}",
+            str(path),
+            "main",
+            cwd=self.wrapper,
+        )
+        (path / "review").write_text("historical review\n", encoding="utf-8")
+        command("git", "add", "review", cwd=path)
+        command("git", "commit", "-m", "test: historical review", cwd=path)
+        head = command("git", "rev-parse", "HEAD", cwd=path)
+        tree = command("git", "rev-parse", f"{head}^{{tree}}", cwd=self.wrapper)
+        merge = command(
+            "git",
+            "commit-tree",
+            tree,
+            "-p",
+            base,
+            "-m",
+            "test: squash historical review",
+            cwd=self.wrapper,
+        )
+        boundary = command(
+            "git",
+            "commit-tree",
+            tree,
+            "-p",
+            merge,
+            "-m",
+            "test: freeze historical master",
+            cwd=self.wrapper,
+        )
+        return path, base, head, merge, boundary
+
     def make_component_worktree(
         self,
         label: str = "component-review",
@@ -150,7 +228,13 @@ class CleanupTests(unittest.TestCase):
         return path
 
     def merged_pull(
-        self, head: str, *, state: str = "closed", base: str = "main"
+        self,
+        head: str,
+        *,
+        state: str = "closed",
+        base: str = "main",
+        base_sha: str = "b" * 40,
+        merge_commit_sha: str = "c" * 40,
     ) -> list[dict[str, object]]:
         return [
             {
@@ -158,8 +242,11 @@ class CleanupTests(unittest.TestCase):
                 "state": state,
                 "html_url": "https://github.com/atrinik/atrinik/pull/42",
                 "merged_at": self.old.isoformat() if state == "closed" else None,
+                "merge_commit_sha": (
+                    merge_commit_sha if state == "closed" else None
+                ),
                 "head": {"sha": head},
-                "base": {"ref": base},
+                "base": {"ref": base, "sha": base_sha},
             }
         ]
 
@@ -258,8 +345,11 @@ class CleanupTests(unittest.TestCase):
         )
         with mock.patch(
             "atrinik_workspace.cleanup.subprocess.run", return_value=completed
-        ):
+        ) as process:
             self.assertEqual(Cleanup._github_pulls(repository, head), [row])
+        query = process.call_args.args[0][-1]
+        self.assertIn("merge_commit_sha", query)
+        self.assertIn("sha:.base.sha", query)
 
         self.assertEqual(
             Cleanup._pull_evidence([], head, "main")[0], "no_associated_pr"
@@ -365,6 +455,229 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["reasons"], ["github_unavailable"])
         self.assertEqual(item["github_error"], "offline")
 
+    def test_historical_master_pull_requires_the_legacy_wrapper_namespace(
+        self,
+    ) -> None:
+        historical, base, _, merge, boundary = self.make_historical_wrapper_graph()
+        modern = self.make_wrapper_worktree("modern-master-review")
+
+        def pulls(_repository: str, head: str) -> list[dict[str, object]]:
+            return self.merged_pull(
+                head,
+                base="master",
+                base_sha=base,
+                merge_commit_sha=merge,
+            )
+
+        with mock.patch.dict(
+            "atrinik_workspace.cleanup.HISTORICAL_PULL_BASE_BOUNDARIES",
+            {("atrinik/atrinik", "main", "master"): boundary},
+            clear=True,
+        ), mock.patch.object(Cleanup, "_github_pulls", side_effect=pulls):
+            report = self.workspace.cleanup(["worktrees"], 0, [], False)
+
+        by_path = {row["path"]: row for row in report["items"]}
+        historical_item = by_path[str(historical)]
+        self.assertEqual(historical_item["disposition"], "eligible")
+        self.assertEqual(
+            historical_item["reasons"], ["merged_pr_head_historical_base"]
+        )
+        self.assertEqual(historical_item["base_branch"], "main")
+        self.assertEqual(historical_item["merged_pr"]["base"], "master")
+        self.assertEqual(by_path[str(modern)]["disposition"], "protected")
+        self.assertEqual(by_path[str(modern)]["reasons"], ["wrong_base_branch"])
+
+    def test_historical_pull_graph_fields_are_strict(self) -> None:
+        worktree, base, head, merge, boundary = self.make_historical_wrapper_graph()
+        valid = self.merged_pull(
+            head,
+            base="master",
+            base_sha=base,
+            merge_commit_sha=merge,
+        )[0]
+        cases: list[tuple[str, dict[str, object]]] = []
+        for label, container, field, value in (
+            ("missing-base-sha", "base", "sha", None),
+            ("malformed-base-sha", "base", "sha", "not-a-sha"),
+            ("missing-merge-commit", "row", "merge_commit_sha", None),
+            ("malformed-merge-commit", "row", "merge_commit_sha", "not-a-sha"),
+        ):
+            row = json.loads(json.dumps(valid))
+            target = row if container == "row" else row[container]
+            if value is None:
+                del target[field]
+            else:
+                target[field] = value
+            cases.append((label, row))
+
+        for label, row in cases:
+            with self.subTest(label=label), mock.patch.dict(
+                "atrinik_workspace.cleanup.HISTORICAL_PULL_BASE_BOUNDARIES",
+                {("atrinik/atrinik", "main", "master"): boundary},
+                clear=True,
+            ), mock.patch.object(Cleanup, "_github_pulls", return_value=[row]):
+                report = self.workspace.cleanup(["worktrees"], 0, [], False)
+
+            item = next(
+                row for row in report["items"] if row["path"] == str(worktree)
+            )
+            self.assertEqual(item["disposition"], "protected")
+            self.assertEqual(item["reasons"], ["invalid_pull_request_evidence"])
+
+    def test_historical_pull_requires_first_parent_and_frozen_boundary(self) -> None:
+        worktree, base, head, merge, boundary = self.make_historical_wrapper_graph()
+        tree = command("git", "rev-parse", f"{merge}^{{tree}}", cwd=self.wrapper)
+        outside = command(
+            "git",
+            "commit-tree",
+            tree,
+            "-p",
+            boundary,
+            "-m",
+            "test: outside frozen master",
+            cwd=self.wrapper,
+        )
+        cases = (
+            ("wrong-first-parent", head, merge),
+            ("outside-boundary", boundary, outside),
+        )
+
+        for label, base_sha, merge_commit in cases:
+            pulls = self.merged_pull(
+                head,
+                base="master",
+                base_sha=base_sha,
+                merge_commit_sha=merge_commit,
+            )
+            with self.subTest(label=label), mock.patch.dict(
+                "atrinik_workspace.cleanup.HISTORICAL_PULL_BASE_BOUNDARIES",
+                {("atrinik/atrinik", "main", "master"): boundary},
+                clear=True,
+            ), mock.patch.object(Cleanup, "_github_pulls", return_value=pulls):
+                report = self.workspace.cleanup(["worktrees"], 0, [], False)
+
+            item = next(
+                row for row in report["items"] if row["path"] == str(worktree)
+            )
+            self.assertEqual(item["disposition"], "protected")
+            self.assertEqual(item["reasons"], ["historical_base_unverified"])
+
+    def test_historical_pull_graph_proof_ignores_git_replace_refs(self) -> None:
+        worktree, base, head, merge, _ = self.make_historical_wrapper_graph()
+        tree = command("git", "rev-parse", f"{merge}^{{tree}}", cwd=self.wrapper)
+        invalid_merge = command(
+            "git",
+            "commit-tree",
+            tree,
+            "-p",
+            head,
+            "-m",
+            "test: invalid historical merge parent",
+            cwd=self.wrapper,
+        )
+        boundary = command(
+            "git",
+            "commit-tree",
+            tree,
+            "-p",
+            invalid_merge,
+            "-m",
+            "test: boundary containing invalid merge",
+            cwd=self.wrapper,
+        )
+        command("git", "replace", invalid_merge, merge, cwd=self.wrapper)
+
+        self.assertEqual(
+            command(
+                "git",
+                "rev-list",
+                "--parents",
+                "-n",
+                "1",
+                invalid_merge,
+                cwd=self.wrapper,
+            ).split(),
+            [invalid_merge, base],
+        )
+        pulls = self.merged_pull(
+            head,
+            base="master",
+            base_sha=base,
+            merge_commit_sha=invalid_merge,
+        )
+        with mock.patch.dict(
+            "atrinik_workspace.cleanup.HISTORICAL_PULL_BASE_BOUNDARIES",
+            {("atrinik/atrinik", "main", "master"): boundary},
+            clear=True,
+        ), mock.patch.object(Cleanup, "_github_pulls", return_value=pulls):
+            report = self.workspace.cleanup(["worktrees"], 0, [], False)
+
+        item = next(row for row in report["items"] if row["path"] == str(worktree))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertEqual(item["reasons"], ["historical_base_unverified"])
+
+    def test_historical_pull_graph_proof_rejects_info_grafts(self) -> None:
+        worktree, base, head, merge, boundary = self.make_historical_wrapper_graph()
+        common_git = Path(
+            command(
+                "git",
+                "rev-parse",
+                "--path-format=absolute",
+                "--git-common-dir",
+                cwd=self.wrapper,
+            )
+        )
+        grafts = common_git / "info" / "grafts"
+        grafts.parent.mkdir(parents=True, exist_ok=True)
+        grafts.write_text(f"{boundary} {merge}\n", encoding="utf-8")
+        pulls = self.merged_pull(
+            head,
+            base="master",
+            base_sha=base,
+            merge_commit_sha=merge,
+        )
+
+        with mock.patch.dict(
+            "atrinik_workspace.cleanup.HISTORICAL_PULL_BASE_BOUNDARIES",
+            {("atrinik/atrinik", "main", "master"): boundary},
+            clear=True,
+        ), mock.patch.object(Cleanup, "_github_pulls", return_value=pulls):
+            report = self.workspace.cleanup(["worktrees"], 0, [], False)
+
+        item = next(row for row in report["items"] if row["path"] == str(worktree))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertEqual(item["reasons"], ["historical_base_unverified"])
+
+    def test_historical_namespace_is_proven_from_repository_primary(self) -> None:
+        historical, base, head, merge, boundary = (
+            self.make_historical_wrapper_graph()
+        )
+        invocation = self.make_wrapper_worktree("linked-invocation")
+        linked_workspace = Workspace(invocation)
+
+        def pulls(_repository: str, queried_head: str) -> list[dict[str, object]]:
+            if queried_head == head:
+                return self.merged_pull(
+                    queried_head,
+                    base="master",
+                    base_sha=base,
+                    merge_commit_sha=merge,
+                )
+            return self.merged_pull(queried_head, state="open")
+
+        with mock.patch.dict(
+            "atrinik_workspace.cleanup.HISTORICAL_PULL_BASE_BOUNDARIES",
+            {("atrinik/atrinik", "main", "master"): boundary},
+            clear=True,
+        ), mock.patch.object(Cleanup, "_github_pulls", side_effect=pulls):
+            report = linked_workspace.cleanup(["worktrees"], 0, [], False)
+
+        item = next(
+            row for row in report["items"] if row["path"] == str(historical)
+        )
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["merged_pr_head_historical_base"])
+
     def test_detached_locked_and_in_progress_worktrees_are_protected(self) -> None:
         detached = self.workspace.paths.worktrees / "atrinik" / "detached"
         detached.parent.mkdir(parents=True, exist_ok=True)
@@ -432,6 +745,61 @@ class CleanupTests(unittest.TestCase):
             report = self.workspace.cleanup(["worktrees"], 0, [], False)
         item = next(row for row in report["items"] if row["path"] == str(dirty))
         self.assertIn("dirty_worktree", item["reasons"])
+        pulls.assert_not_called()
+
+    def test_submodule_changes_are_dirty_even_when_configuration_ignores_them(
+        self,
+    ) -> None:
+        self.add_local_submodule_to_wrapper()
+        dirty = self.make_wrapper_worktree("dirty-submodule")
+        untracked = self.make_wrapper_worktree("untracked-submodule")
+        self.initialize_local_submodule(dirty)
+        self.initialize_local_submodule(untracked)
+        command(
+            "git",
+            "config",
+            "submodule.vendor/dependency.ignore",
+            "all",
+            cwd=self.wrapper,
+        )
+        (dirty / "vendor" / "dependency" / "README").write_text(
+            "dirty dependency\n", encoding="utf-8"
+        )
+        (untracked / "vendor" / "dependency" / "untracked").write_text(
+            "local dependency output\n", encoding="utf-8"
+        )
+        self.assertEqual(
+            command(
+                "git",
+                "status",
+                "--porcelain=v1",
+                "--untracked-files=all",
+                cwd=dirty,
+            ),
+            "",
+        )
+        self.assertEqual(
+            command(
+                "git",
+                "status",
+                "--porcelain=v1",
+                "--untracked-files=all",
+                cwd=untracked,
+            ),
+            "",
+        )
+
+        with mock.patch.object(Cleanup, "_github_pulls") as pulls:
+            report = self.workspace.cleanup(["worktrees"], 0, [], False)
+
+        by_path = {row["path"]: row for row in report["items"]}
+        for worktree in (dirty, untracked):
+            with self.subTest(worktree=worktree.name):
+                self.assertEqual(by_path[str(worktree)]["disposition"], "protected")
+                self.assertIn(
+                    "populated_submodules", by_path[str(worktree)]["reasons"]
+                )
+                self.assertIn("dirty_worktree", by_path[str(worktree)]["reasons"])
         pulls.assert_not_called()
 
     def test_all_profile_selector_kinds_and_retained_scenarios_protect_worktrees(self) -> None:
@@ -572,6 +940,123 @@ class CleanupTests(unittest.TestCase):
             f"{branch}",
         )
 
+    def test_populated_submodule_worktree_is_protected_in_preview_and_apply(
+        self,
+    ) -> None:
+        self.add_local_submodule_to_wrapper()
+        worktree = self.make_wrapper_worktree("populated-submodule")
+        self.initialize_local_submodule(worktree)
+        branch = command("git", "branch", "--show-current", cwd=worktree)
+        submodule_git = worktree / "vendor" / "dependency" / ".git"
+
+        for apply in (False, True):
+            with self.subTest(apply=apply), mock.patch.object(
+                Cleanup, "_github_pulls"
+            ) as pulls, mock.patch(
+                "atrinik_workspace.cleanup._command", wraps=_command
+            ) as git_command:
+                report = self.workspace.cleanup(["worktrees"], 0, [], apply)
+
+            item = next(
+                row for row in report["items"] if row["path"] == str(worktree)
+            )
+            remove_calls = [
+                call.args[1:]
+                for call in git_command.call_args_list
+                if call.args[1:3] == ("worktree", "remove")
+            ]
+            self.assertEqual(item["disposition"], "protected")
+            self.assertEqual(item["reasons"], ["populated_submodules"])
+            self.assertEqual(remove_calls, [])
+            pulls.assert_not_called()
+            if apply:
+                self.assertFalse(report["mutated"])
+                self.assertFalse(report["mutation_attempted"])
+            self.assertTrue(submodule_git.exists())
+            self.assertTrue(
+                command(
+                    "git", "branch", "--list", branch, cwd=self.wrapper
+                ).endswith(branch)
+            )
+
+        self.assertTrue(worktree.is_dir())
+
+    def test_apply_revalidates_and_removes_a_proven_historical_worktree(self) -> None:
+        worktree, base, head, merge, boundary = self.make_historical_wrapper_graph()
+        branch = command("git", "branch", "--show-current", cwd=worktree)
+        pulls = self.merged_pull(
+            head,
+            base="master",
+            base_sha=base,
+            merge_commit_sha=merge,
+        )
+
+        with mock.patch.dict(
+            "atrinik_workspace.cleanup.HISTORICAL_PULL_BASE_BOUNDARIES",
+            {("atrinik/atrinik", "main", "master"): boundary},
+            clear=True,
+        ), mock.patch.object(
+            Cleanup, "_github_pulls", return_value=pulls
+        ) as pull_query:
+            report = self.workspace.cleanup(["worktrees"], 0, [], True)
+
+        item = next(row for row in report["items"] if row["path"] == str(worktree))
+        self.assertEqual(pull_query.call_count, 2)
+        self.assertEqual(item["disposition"], "removed")
+        self.assertFalse(worktree.exists())
+        self.assertEqual(
+            command("git", "branch", "--list", branch, cwd=self.wrapper).strip(),
+            branch,
+        )
+
+    def test_apply_aborts_when_historical_graph_revalidation_changes(self) -> None:
+        worktree, base, head, merge, boundary = self.make_historical_wrapper_graph()
+        tree = command("git", "rev-parse", f"{merge}^{{tree}}", cwd=self.wrapper)
+        outside = command(
+            "git",
+            "commit-tree",
+            tree,
+            "-p",
+            boundary,
+            "-m",
+            "test: raced outside frozen master",
+            cwd=self.wrapper,
+        )
+        calls = 0
+
+        def pulls(_repository: str, queried_head: str) -> list[dict[str, object]]:
+            nonlocal calls
+            calls += 1
+            return self.merged_pull(
+                queried_head,
+                base="master",
+                base_sha=base if calls == 1 else boundary,
+                merge_commit_sha=merge if calls == 1 else outside,
+            )
+
+        with mock.patch.dict(
+            "atrinik_workspace.cleanup.HISTORICAL_PULL_BASE_BOUNDARIES",
+            {("atrinik/atrinik", "main", "master"): boundary},
+            clear=True,
+        ), mock.patch.object(Cleanup, "_github_pulls", side_effect=pulls):
+            report = self.workspace.cleanup(["worktrees"], 0, [], True)
+
+        item = next(row for row in report["items"] if row["path"] == str(worktree))
+        self.assertEqual(calls, 2)
+        self.assertTrue(report["aborted"])
+        self.assertFalse(report["mutated"])
+        self.assertFalse(report["mutation_attempted"])
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["revalidation_failed"])
+        self.assertEqual(
+            item["revalidation"],
+            {
+                "disposition": "protected",
+                "reasons": ["historical_base_unverified"],
+            },
+        )
+        self.assertTrue(worktree.is_dir())
+
     def test_apply_aborts_before_mutation_when_revalidation_changes(self) -> None:
         worktree = self.make_wrapper_worktree()
         calls = 0
@@ -612,6 +1097,92 @@ class CleanupTests(unittest.TestCase):
         item = next(row for row in report["items"] if row["kind"] == "prunable-metadata")
         self.assertEqual(item["disposition"], "removed")
         self.assertNotIn(str(worktree), command("git", "worktree", "list", cwd=self.wrapper))
+
+    def test_prunable_metadata_preserves_populated_submodule_admin_objects(
+        self,
+    ) -> None:
+        self.add_local_submodule_to_wrapper()
+        populated = self.make_wrapper_worktree("prunable-populated-submodule")
+        self.initialize_local_submodule(populated)
+        submodule = populated / "vendor" / "dependency"
+        command("git", "config", "user.name", "Tests", cwd=submodule)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=submodule)
+        (submodule / "private").write_text(
+            "private linked-worktree object\n", encoding="utf-8"
+        )
+        command("git", "add", "private", cwd=submodule)
+        command(
+            "git",
+            "commit",
+            "-m",
+            "test: private linked-worktree object",
+            cwd=submodule,
+        )
+        private_commit = command("git", "rev-parse", "HEAD", cwd=submodule)
+        worktree_git = Path(
+            command(
+                "git",
+                "rev-parse",
+                "--path-format=absolute",
+                "--git-dir",
+                cwd=populated,
+            )
+        )
+        modules = worktree_git / "modules"
+        private_object = Path(
+            command(
+                "git",
+                "rev-parse",
+                "--path-format=absolute",
+                "--git-path",
+                f"objects/{private_commit[:2]}/{private_commit[2:]}",
+                cwd=submodule,
+            )
+        )
+        self.assertTrue(private_object.is_relative_to(modules))
+        private_object_evidence = private_object.read_bytes()
+
+        ordinary = self.make_wrapper_worktree("prunable-ordinary")
+        (ordinary / "review").write_text("ordinary prunable\n", encoding="utf-8")
+        command("git", "add", "review", cwd=ordinary)
+        command("git", "commit", "-m", "test: ordinary prunable", cwd=ordinary)
+        ordinary_head = command("git", "rev-parse", "HEAD", cwd=ordinary)
+        shutil.rmtree(populated)
+        shutil.rmtree(ordinary)
+        self.assertTrue(modules.is_dir())
+        self.assertEqual(private_object.read_bytes(), private_object_evidence)
+
+        for apply in (False, True):
+            with self.subTest(apply=apply), mock.patch.object(
+                Cleanup,
+                "_github_pulls",
+                return_value=self.merged_pull(ordinary_head),
+            ) as pulls, mock.patch(
+                "atrinik_workspace.cleanup._command", wraps=_command
+            ) as git_command:
+                report = self.workspace.cleanup(["worktrees"], 0, [], apply)
+
+            by_path = {row["path"]: row for row in report["items"]}
+            populated_item = by_path[str(populated)]
+            ordinary_item = by_path[str(ordinary)]
+            prune_calls = [
+                call.args[1:]
+                for call in git_command.call_args_list
+                if call.args[1:3] == ("worktree", "prune")
+            ]
+            self.assertEqual(populated_item["disposition"], "protected")
+            self.assertIn("populated_submodules", populated_item["reasons"])
+            self.assertEqual(ordinary_item["disposition"], "protected")
+            self.assertEqual(
+                ordinary_item["reasons"], ["shared_prune_scope_protected"]
+            )
+            self.assertEqual(prune_calls, [])
+            pulls.assert_called_once_with("atrinik/atrinik", ordinary_head)
+            if apply:
+                self.assertFalse(report["mutated"])
+                self.assertFalse(report["mutation_attempted"])
+            self.assertTrue(modules.is_dir())
+            self.assertEqual(private_object.read_bytes(), private_object_evidence)
 
     def test_prunable_revalidation_protects_the_repository_wide_scope(self) -> None:
         first = self.make_wrapper_worktree("prunable-first")

@@ -30,7 +30,13 @@
   uncertain worktrees; profiles, scenarios, states, topology records/logs,
   migrations, retention records, branches, Git objects, review reports, and
   unmarked paths. The npm cache is opt-in. Apply recomputes under the layout
-  lock, uses non-force Git removal, and reports partial failure accurately.
+  lock, uses only non-force Git worktree removal, and reports partial failure
+  accurately. Status uses `--ignore-submodules=none`; populated submodules
+  protect the target because worktree-specific Git directories can retain
+  private refs, reflogs, and objects. Historical wrapper cleanup is confined to
+  direct `build/worktrees/` children and requires exact authenticated PR plus
+  frozen local merge ancestry. The proof ignores replace refs, rejects
+  `info/grafts`, fails closed on ambiguity, and is rerun by apply.
 - Use profiles for source selection. `default` selects the MIT replacement
   stack and `classic` the playable classic stack. Never mix providers or route
   unavailable replacement adapters through classic code. Replacement

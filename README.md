@@ -394,21 +394,40 @@ worktrees. JSON output is stable schema-versioned data and keeps Git/GitHub
 diagnostics off stdout. Text output ends with candidate, protected, removed,
 error, and allocated-byte totals.
 
-The worktree inventory covers every initialized physical checkout plus wrapper
-worktrees that Git proves are direct children of exactly
-`workspace/worktrees/atrinik/` or the historical `build/worktrees/`
-namespace. A worktree becomes eligible only when it is registered to the
-expected common Git directory and repository, named and unlocked, has no Git
-operation or ordinary tracked/untracked change, and is not retained by a
-profile, scenario, live topology, or repository-migration record. The
-authenticated `gh` commit-associated-pulls query must prove one merged PR with
-the manifest base branch, an exact `head.sha` match, no associated open PR, and
-a merge age beyond the grace period. Query failure, ambiguity, wrong base,
-closed-unmerged PR, advanced branch, detached worktree, external path, or any
-ownership uncertainty protects the item. Ignored compiler/dependency output
-does not make a worktree dirty, but its paths and allocated bytes are reported
-because `git worktree remove` will reclaim it. Apply never uses `--force` and
-does not delete local or remote branch refs.
+The worktree inventory covers every initialized physical checkout plus current
+wrapper worktrees that Git proves are direct children of exactly
+`workspace/worktrees/atrinik/`. Historical wrapper worktrees are considered
+only as direct children of the top-level `build/worktrees/` namespace. A
+worktree becomes eligible only when it is registered to the expected common
+Git directory and repository, named and unlocked, has no Git operation or
+ordinary tracked/untracked change, and is not retained by a profile, scenario,
+live topology, or repository-migration record. Normally, the authenticated
+`gh` commit-associated-pulls query must prove one merged PR with the manifest
+base branch, an exact `head.sha` match, no associated open PR, and a merge age
+beyond the grace period.
+
+The only historical-base exception is a wrapper worktree directly below
+`build/worktrees/`. Its expected coordinate remains `atrinik/atrinik@main`, but
+the PR base must be `master`. The authenticated API evidence must include the
+exact head, `base.sha`, and `merge_commit_sha`; the local merge commit's first
+parent must equal that base SHA, and the merge commit must be an ancestor of
+the frozen final-`master` boundary
+`ee5ba2096c94bce0161629423d4962a966bc61d8`. The local graph proof ignores
+replace refs and fails closed if `info/grafts` exists. Missing, unavailable,
+mismatched, or ambiguous API or local Git evidence protects the item, and
+apply reruns the proof immediately before removal. Wrong base, closed-unmerged
+PR, advanced branch, detached worktree, external path, or any other ownership
+uncertainty also protects it.
+
+Status inspection uses `--ignore-submodules=none`, so repository configuration
+cannot hide submodule changes. A worktree with populated submodules remains
+protected even when otherwise clean because its per-worktree Git directories
+can contain private refs, reflogs, and objects. If only its prunable
+administrative record remains, that record protects the repository-wide prune
+scope for the same reason. Ignored compiler/dependency output does not make a
+worktree dirty, but its paths and allocated bytes are reported because
+`git worktree remove` will reclaim it. Apply uses only ordinary non-force
+worktree removal and preserves local and remote branch refs and Git objects.
 
 Profile builds are eligible only as direct
 `workspace/build/profiles/<profile>-<key>` children with an exact regular
