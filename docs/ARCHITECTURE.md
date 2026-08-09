@@ -161,12 +161,14 @@ side effect.
 of initialization, synchronization, build, or startup. Default and explicit
 `--dry-run` modes are read-only. `--apply` first takes the same
 repository-layout lock used by checkout, build, topology, foreground-run, and
-scenario operations, fully recomputes the plan, and immediately revalidates
-each target. Build roots are removed before Git worktrees; the explicitly
-selected npm cache and safe prunable Git metadata come last. A race before the
-first mutation aborts the plan. A later failure stops the ordered sequence and
-reports completed reclamation without attempting to reconstruct generated
-data.
+scenario operations, then performs one complete inventory and size
+recomputation. Immediately before each removal it freshly revalidates that
+target's safety dependencies without rescanning unrelated report-only
+payloads; any new ambiguity fails closed. Build roots are removed before Git
+worktrees; the explicitly selected npm cache and safe prunable Git metadata
+come last. A race before the first mutation aborts the plan. A later failure
+stops the ordered sequence and reports completed reclamation without attempting
+to reconstruct generated data.
 
 Inventory records are stable-sorted and carry a kind, physical owner and
 repository, exact path, no-follow allocated size, age and age basis,

@@ -14,9 +14,11 @@ from atrinik_workspace.cleanup import (
     Cleanup,
     _base_item,
     _command,
+    _listed_usage,
     _parse_time,
     _path_relation,
     _tree_usage,
+    _worktree_records,
     _workspace_owned,
 )
 from atrinik_workspace.model import (
@@ -111,13 +113,18 @@ class CleanupTests(unittest.TestCase):
         (path / "ignored" / "output.o").write_bytes(b"x" * 4096)
         return path
 
-    def make_component_worktree(self, label: str = "component-review") -> Path:
-        primary = self.wrapper / "client"
+    def make_component_worktree(
+        self,
+        label: str = "component-review",
+        *,
+        component: str = "client",
+    ) -> Path:
+        primary = self.wrapper / component
         primary.mkdir()
         command("git", "init", "-b", "main", cwd=primary)
         command("git", "config", "user.name", "Tests", cwd=primary)
         command("git", "config", "user.email", "tests@example.invalid", cwd=primary)
-        (primary / "README").write_text("client\n", encoding="utf-8")
+        (primary / "README").write_text(f"{component}\n", encoding="utf-8")
         command("git", "add", ".", cwd=primary)
         command("git", "commit", "-m", "feat: seed", cwd=primary)
         command(
@@ -125,10 +132,10 @@ class CleanupTests(unittest.TestCase):
             "remote",
             "add",
             "origin",
-            "https://github.com/atrinik/client.git",
+            f"https://github.com/atrinik/{component}.git",
             cwd=primary,
         )
-        path = self.workspace.paths.worktrees / "client" / label
+        path = self.workspace.paths.worktrees / component / label
         path.parent.mkdir(parents=True, exist_ok=True)
         command(
             "git",
@@ -211,7 +218,7 @@ class CleanupTests(unittest.TestCase):
 
         with mock.patch.object(Path, "resolve", side_effect=RuntimeError("loop")):
             self.assertTrue(_path_relation(usage_root, excluded))
-            sizes, observed, error = _tree_usage(usage_root)
+            sizes, observed, error = _tree_usage(usage_root, [excluded])
         self.assertEqual(sizes, {})
         self.assertIsNone(observed)
         self.assertIn("loop", error or "")
@@ -262,6 +269,40 @@ class CleanupTests(unittest.TestCase):
             "invalid_pull_request_evidence",
         )
 
+    def test_tree_usage_is_no_follow_deduplicated_and_excludes_subtrees(self) -> None:
+        root = self.root / "tree-usage"
+        excluded = root / "excluded"
+        excluded.mkdir(parents=True)
+        (excluded / "payload").write_bytes(b"excluded")
+        artifact = root / "artifact"
+        artifact.write_bytes(b"included")
+        hardlink = root / "hardlink"
+        os.link(artifact, hardlink)
+        outside = self.root / "outside"
+        outside.write_bytes(b"outside")
+        symlink = root / "symlink"
+        symlink.symlink_to(outside)
+
+        sizes, observed, error = _tree_usage(root, [excluded])
+
+        artifact_key = (artifact.lstat().st_dev, artifact.lstat().st_ino)
+        excluded_key = (excluded.lstat().st_dev, excluded.lstat().st_ino)
+        outside_key = (outside.lstat().st_dev, outside.lstat().st_ino)
+        symlink_key = (symlink.lstat().st_dev, symlink.lstat().st_ino)
+        self.assertIsNone(error)
+        self.assertIsNotNone(observed)
+        self.assertIn(artifact_key, sizes)
+        self.assertIn(symlink_key, sizes)
+        self.assertNotIn(excluded_key, sizes)
+        self.assertNotIn(outside_key, sizes)
+        self.assertEqual(
+            _listed_usage(root, ["artifact", "hardlink", "symlink"]),
+            {
+                artifact_key: artifact.lstat().st_blocks * 512,
+                symlink_key: symlink.lstat().st_blocks * 512,
+            },
+        )
+
     def test_dry_run_finds_exact_merged_head_and_preserves_ignored_output(self) -> None:
         worktree = self.make_wrapper_worktree()
         report = self.plan(["worktrees"])
@@ -277,6 +318,22 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(primary["allocated_bytes"], 0)
         self.assertTrue(worktree.is_dir())
         self.assertEqual(report["mode"], "dry-run")
+
+    def test_plan_reuses_each_repository_worktree_inventory(self) -> None:
+        self.make_component_worktree()
+
+        def pulls(_repository: str, head: str) -> list[dict[str, object]]:
+            return self.merged_pull(head)
+
+        with mock.patch(
+            "atrinik_workspace.cleanup._worktree_records",
+            wraps=_worktree_records,
+        ) as records, mock.patch.object(
+            Cleanup, "_github_pulls", side_effect=pulls
+        ):
+            self.workspace.cleanup(["worktrees"], 7, [], False)
+
+        self.assertEqual(records.call_count, 2)
 
     def test_non_exact_or_unavailable_pull_evidence_fails_closed(self) -> None:
         worktree = self.make_wrapper_worktree()
@@ -524,9 +581,15 @@ class CleanupTests(unittest.TestCase):
             calls += 1
             return self.merged_pull(head, state="closed" if calls == 1 else "open")
 
-        with mock.patch.object(Cleanup, "_github_pulls", side_effect=pulls):
+        with mock.patch.object(
+            Cleanup, "_github_pulls", side_effect=pulls
+        ), mock.patch(
+            "atrinik_workspace.cleanup._worktree_records",
+            wraps=_worktree_records,
+        ) as records:
             report = self.workspace.cleanup(["worktrees"], 7, [], True)
         item = next(row for row in report["items"] if row["path"] == str(worktree))
+        self.assertEqual(records.call_count, 3)
         self.assertTrue(report["aborted"])
         self.assertEqual(item["disposition"], "error")
         self.assertEqual(item["reasons"], ["revalidation_failed"])
@@ -549,6 +612,35 @@ class CleanupTests(unittest.TestCase):
         item = next(row for row in report["items"] if row["kind"] == "prunable-metadata")
         self.assertEqual(item["disposition"], "removed")
         self.assertNotIn(str(worktree), command("git", "worktree", "list", cwd=self.wrapper))
+
+    def test_prunable_revalidation_protects_the_repository_wide_scope(self) -> None:
+        first = self.make_wrapper_worktree("prunable-first")
+        second = self.make_wrapper_worktree("prunable-second")
+        (second / "unique").write_text("second\n", encoding="utf-8")
+        command("git", "add", "unique", cwd=second)
+        command("git", "commit", "-m", "test: unique head", cwd=second)
+        first_head = command("git", "rev-parse", "HEAD", cwd=first)
+        second_head = command("git", "rev-parse", "HEAD", cwd=second)
+        shutil.rmtree(first)
+        shutil.rmtree(second)
+        calls: dict[str, int] = {}
+
+        def pulls(_repository: str, head: str) -> list[dict[str, object]]:
+            calls[head] = calls.get(head, 0) + 1
+            if head == second_head and calls[head] > 1:
+                return self.merged_pull(head, state="open")
+            return self.merged_pull(head)
+
+        with mock.patch.object(Cleanup, "_github_pulls", side_effect=pulls):
+            report = self.workspace.cleanup(["worktrees"], 7, [], True)
+
+        listing = command("git", "worktree", "list", cwd=self.wrapper)
+        self.assertEqual(calls[first_head], 2)
+        self.assertEqual(calls[second_head], 2)
+        self.assertTrue(report["aborted"])
+        self.assertFalse(report["mutated"])
+        self.assertIn(str(first), listing)
+        self.assertIn(str(second), listing)
 
     def make_build(self, profile: str = "review", key: str = "a" * 12) -> Path:
         path = self.workspace.paths.builds / "profiles" / f"{profile}-{key}"
@@ -610,6 +702,68 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["disposition"], "eligible")
         self.assertTrue(item["source_worktree_removal"])
         self.assertEqual(item["reasons"], ["source_worktree_removal"])
+
+    def test_apply_revalidates_a_builds_removable_source_worktree(self) -> None:
+        worktree = self.make_component_worktree()
+        unselected = self.make_component_worktree(
+            "server-review", component="server"
+        )
+        head = command("git", "rev-parse", "HEAD", cwd=worktree)
+        unselected_head = command("git", "rev-parse", "HEAD", cwd=unselected)
+        build = self.make_build()
+        atomic_json(
+            build / ".atrinik-build.json",
+            {
+                "schema_version": 1,
+                "profile": "review",
+                "key": "a" * 12,
+                "purpose": f"profile:review:{'a' * 12}",
+                "coordinates": {
+                    "client": {
+                        "component": "client",
+                        "checkout": "client",
+                        "repository": "atrinik/client",
+                        "branch": "main",
+                        "source": ".",
+                        "checkout_path": str(worktree),
+                        "source_path": str(worktree),
+                        "head": head,
+                    },
+                    "server": {
+                        "component": "server",
+                        "checkout": "server",
+                        "repository": "atrinik/server",
+                        "branch": "main",
+                        "source": ".",
+                        "checkout_path": str(unselected),
+                        "source_path": str(unselected),
+                        "head": unselected_head,
+                    }
+                },
+                "last_used_at": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+        calls: dict[str, int] = {}
+
+        def pulls(_repository: str, head: str) -> list[dict[str, object]]:
+            calls[head] = calls.get(head, 0) + 1
+            state = "open" if calls[head] > 1 else "closed"
+            return self.merged_pull(head, state=state)
+
+        with mock.patch.object(Cleanup, "_github_pulls", side_effect=pulls):
+            report = self.workspace.cleanup(
+                ["worktrees", "builds"], 7, ["client"], True
+            )
+
+        item = next(row for row in report["items"] if row["path"] == str(build))
+        self.assertEqual(calls, {head: 2})
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["revalidation_failed"])
+        self.assertFalse(report["mutated"])
+        self.assertTrue(report["aborted"])
+        self.assertTrue(build.exists())
+        self.assertTrue(worktree.exists())
+        self.assertTrue(unselected.exists())
 
     def test_build_use_refreshes_exact_coordinate_metadata(self) -> None:
         worktree = self.make_component_worktree()
@@ -706,20 +860,22 @@ class CleanupTests(unittest.TestCase):
         self.assertTrue(second.exists())
         self.assertTrue(report["aborted"])
 
-    def test_apply_reports_replan_error_after_a_completed_mutation(self) -> None:
+    def test_apply_reports_revalidation_error_after_a_completed_mutation(self) -> None:
         first = self.make_build("first", "a" * 12)
         second = self.make_build("second", "b" * 12)
-        original = Cleanup._plan
+        original = Cleanup._revalidate_target
         calls = 0
 
-        def plan(cleanup: Cleanup, *arguments: object) -> dict[str, object]:
+        def revalidate(
+            cleanup: Cleanup, *arguments: object
+        ) -> dict[str, object] | None:
             nonlocal calls
             calls += 1
-            if calls == 3:
+            if calls == 2:
                 raise WorkspaceError("raced inventory")
             return original(cleanup, *arguments)
 
-        with mock.patch.object(Cleanup, "_plan", new=plan):
+        with mock.patch.object(Cleanup, "_revalidate_target", new=revalidate):
             report = self.workspace.cleanup(["builds"], 7, [], True)
 
         by_path = {row["path"]: row for row in report["items"]}
@@ -730,6 +886,112 @@ class CleanupTests(unittest.TestCase):
         self.assertTrue(report["aborted"])
         self.assertFalse(first.exists())
         self.assertTrue(second.exists())
+
+    def test_apply_plans_once_and_revalidates_only_candidates(self) -> None:
+        first = self.make_build("first", "a" * 12)
+        second = self.make_build("second", "b" * 12)
+        protected = self.make_build("young", "c" * 12)
+        timestamp = datetime.now(timezone.utc).timestamp()
+        for candidate in (
+            protected / MANAGED_MARKER,
+            protected / "artifact",
+            protected,
+        ):
+            os.utime(candidate, (timestamp, timestamp), follow_symlinks=False)
+
+        original_plan = Cleanup._plan
+        original_revalidate = Cleanup._revalidate_target
+        plan_calls = 0
+        revalidated: list[str] = []
+
+        def plan(cleanup: Cleanup, *arguments: object) -> dict[str, object]:
+            nonlocal plan_calls
+            plan_calls += 1
+            return original_plan(cleanup, *arguments)
+
+        def revalidate(
+            cleanup: Cleanup, target: dict[str, object], *arguments: object
+        ) -> dict[str, object] | None:
+            revalidated.append(str(target["path"]))
+            return original_revalidate(cleanup, target, *arguments)
+
+        with mock.patch.object(Cleanup, "_plan", new=plan), mock.patch.object(
+            Cleanup, "_revalidate_target", new=revalidate
+        ):
+            report = self.workspace.cleanup(["builds"], 7, [], True)
+
+        self.assertEqual(plan_calls, 1)
+        self.assertEqual(revalidated, [str(first), str(second)])
+        self.assertFalse(first.exists())
+        self.assertFalse(second.exists())
+        self.assertTrue(protected.exists())
+        self.assertFalse(report["aborted"] if "aborted" in report else False)
+
+    def test_apply_preserves_globally_deduplicated_candidate_bytes(self) -> None:
+        first = self.make_build("first", "a" * 12)
+        second = self.make_build("second", "b" * 12)
+        (second / "artifact").unlink()
+        os.link(first / "artifact", second / "artifact")
+        timestamp = self.old.timestamp()
+        os.utime(second, (timestamp, timestamp), follow_symlinks=False)
+
+        preview = self.workspace.cleanup(["builds"], 7, [], False)
+        report = self.workspace.cleanup(["builds"], 7, [], True)
+
+        self.assertEqual(
+            report["summary"]["removed_bytes"],
+            preview["summary"]["candidate_bytes"],
+        )
+        self.assertFalse(first.exists())
+        self.assertFalse(second.exists())
+
+    def test_apply_target_revalidation_repeats_traversal_safety(self) -> None:
+        build = self.make_build()
+        checkout = self.wrapper / "client"
+        atomic_json(
+            build / ".atrinik-build.json",
+            {
+                "schema_version": 1,
+                "profile": "review",
+                "key": "a" * 12,
+                "purpose": f"profile:review:{'a' * 12}",
+                "coordinates": {
+                    "client": {
+                        "component": "client",
+                        "checkout": "client",
+                        "repository": "atrinik/client",
+                        "branch": "main",
+                        "source": ".",
+                        "checkout_path": str(checkout),
+                        "source_path": str(checkout),
+                        "head": "a" * 40,
+                    }
+                },
+                "last_used_at": self.old.isoformat(),
+            },
+        )
+        original = _tree_usage
+        build_walks = 0
+
+        def usage(
+            root: Path, excluded: object = ()
+        ) -> tuple[dict[tuple[int, int], int], datetime | None, str | None]:
+            nonlocal build_walks
+            if root == build:
+                build_walks += 1
+                if build_walks == 2:
+                    return {}, None, "raced traversal"
+            return original(root, excluded)
+
+        with mock.patch("atrinik_workspace.cleanup._tree_usage", side_effect=usage):
+            report = self.workspace.cleanup(["builds"], 7, [], True)
+
+        item = next(row for row in report["items"] if row["path"] == str(build))
+        self.assertEqual(build_walks, 2)
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["revalidation_failed"])
+        self.assertIn("filesystem_traversal_error", item["revalidation"]["reasons"])
+        self.assertTrue(build.exists())
 
     def test_invalid_marker_and_busy_lock_protect_builds(self) -> None:
         build = self.make_build()

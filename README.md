@@ -431,12 +431,14 @@ entries are report-only `unmanaged-build` items. Deep-review reports, ad hoc
 builds, packages, archives, and unregistered siblings are never recursively
 deleted.
 
-Apply holds the repository-layout lock, recomputes the entire plan, then
-revalidates each target immediately before removal. It removes eligible builds
-first, exact Git worktrees second, and the explicitly selected cache or safely
-shared prunable Git metadata last. A pre-mutation race aborts without deletion;
-after the first successful mutation, the deterministic policy stops on the
-first error and reports exactly what was reclaimed without claiming rollback.
+Apply holds the repository-layout lock and performs one complete inventory and
+size recomputation. Immediately before each removal it freshly revalidates the
+target's safety dependencies without rescanning unrelated report-only payloads.
+Any new uncertainty fails closed. It removes eligible builds first, exact Git
+worktrees second, and the explicitly selected cache or safely shared prunable
+Git metadata last. A pre-mutation race aborts without deletion; after the first
+successful mutation, the deterministic policy stops on the first error and
+reports exactly what was reclaimed without claiming rollback.
 
 ## Composing coherent component sources
 

@@ -64,12 +64,14 @@ Reclaim completed review data only through preview-first cleanup:
 
 The default covers registered worktrees and marker-owned builds; npm cache is
 always opt-in. References, local/Git uncertainty, and unsafe path or marker
-state protect a target. Apply recomputes under the repository-layout lock,
-removes builds before non-force Git worktrees, and preserves profiles,
-scenarios, states, topology records/logs, migrations, retention records,
-branches, Git objects, review reports, and unmarked paths. For cleanup changes,
-hand off exact fixture names, JSON preview/apply commands, expected reason
-codes, and the preserved records.
+state protect a target. Apply performs one complete inventory and size
+recomputation under the repository-layout lock, then freshly revalidates each
+target's safety dependencies without rescanning unrelated report-only payloads;
+new uncertainty fails closed. It removes builds before non-force Git worktrees
+and preserves profiles, scenarios, states, topology records/logs, migrations,
+retention records, branches, Git objects, review reports, and unmarked paths.
+For cleanup changes, hand off exact fixture names, JSON preview/apply commands,
+expected reason codes, and the preserved records.
 
 ## Compose coherent sources
 
