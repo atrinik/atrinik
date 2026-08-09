@@ -725,7 +725,7 @@
       "license": "MIT",
       "source_url": "https://github.com/actions/setup-go",
       "locator": "actions/setup-go",
-      "commit": "924ae3a1cded613372ab5595356fb5720e22ba16",
+      "commit": "b7ad1dad31e06c5925ef5d2fc7ad053ef454303e",
       "checksum": null,
       "acquisition": "GitHub Actions downloads the immutable reviewed commit",
       "update_cadence_days": 7,
@@ -738,12 +738,12 @@
         {
           "repository": "protocol",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.0.0"
+          "contains": "actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v6.0.0"
         },
         {
           "repository": "server",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.0.0"
+          "contains": "actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v6.0.0"
         }
       ]
     },
@@ -1846,13 +1846,16 @@
       "checksum": null,
       "acquisition": "npm ci installs the exact package-lock graph",
       "update_cadence_days": 7,
-      "update_mechanism": "Grouped Dependabot npm development updates",
+      "update_mechanism": "Grouped Dependabot npm development and production updates",
       "eol_response": "Upgrade incompatible packages on the supported Node line or replace them",
       "validation": "npm ci, type checks, Vitest, admin tests, and Wrangler dry run",
       "disposition": "retain",
       "packages": [
         "@cloudflare/vitest-pool-workers",
         "@types/node",
+        "@types/tr46",
+        "punycode",
+        "tr46",
         "tsx",
         "typescript",
         "vitest",
@@ -1861,8 +1864,18 @@
       "evidence": [
         {
           "repository": "metaserver-worker",
+          "path": ".github/dependabot.yml",
+          "contains": "dependency-type: production"
+        },
+        {
+          "repository": "metaserver-worker",
           "path": "package-lock.json",
           "contains": "\"lockfileVersion\": 3"
+        },
+        {
+          "repository": "metaserver-worker",
+          "path": "package.json",
+          "contains": "\"tr46\": \"6.0.0\""
         },
         {
           "repository": "metaserver-worker",
@@ -2042,15 +2055,19 @@
       "eol_response": "Upgrade generators and package graphs together or stop publication before incompatibility",
       "validation": "Buf lint/breaking checks, generated drift, Go tests/vet, Rust test/Clippy, and Syft SBOM",
       "disposition": "retain",
-      "packages": ["buf", "bytes", "google.golang.org/protobuf", "prost", "protoc-gen-go", "protoc-gen-prost"],
+      "packages": ["buf", "bytes", "golang.org/x/net", "google.golang.org/protobuf", "idna", "prost", "protoc-gen-go", "protoc-gen-prost"],
       "evidence": [
         {"repository":"protocol","path":"Cargo.lock","contains":"version = 4"},
         {"repository":"protocol","path":"Cargo.toml","contains":"[workspace]"},
+        {"repository":"protocol","path":"Cargo.toml","contains":"idna = \"=1.1.0\""},
         {"repository":"protocol","path":"buf.gen.yaml","contains":"version: v2"},
         {"repository":"protocol","path":"buf.yaml","contains":"version: v2"},
         {"repository":"protocol","path":"crates/atrinik-protocol/Cargo.toml","contains":"name = \"atrinik-protocol\""},
+        {"repository":"protocol","path":"go.mod","contains":"golang.org/x/net v0.57.0"},
         {"repository":"protocol","path":"go.mod","contains":"module github.com/atrinik/protocol"},
         {"repository":"protocol","path":"go.sum","contains":"google.golang.org/protobuf v1.36.11"},
+        {"repository":"protocol","path":"policy/dependencies.json","contains":"\"name\": \"golang.org/x/net\""},
+        {"repository":"protocol","path":"policy/dependencies.json","contains":"\"name\": \"idna\""},
         {"repository":"protocol","path":"policy/dependencies.json","contains":"\"name\": \"prost\""},
         {"repository":"protocol","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""}
       ]
