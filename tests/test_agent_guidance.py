@@ -33,7 +33,9 @@ class AgentGuidanceTests(unittest.TestCase):
                 if "://" in target or target.startswith("#"):
                     continue
                 with self.subTest(path=path.relative_to(ROOT), target=target):
-                    self.assertTrue((path.parent / target).resolve().is_file())
+                    resolved = (path.parent / target).resolve()
+                    self.assertTrue(resolved.is_relative_to(ROOT))
+                    self.assertTrue(resolved.is_file())
 
     def test_removed_stale_routes_do_not_return(self) -> None:
         paths = [ROOT / "AGENTS.md"]

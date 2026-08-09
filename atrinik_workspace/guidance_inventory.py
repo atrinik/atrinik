@@ -81,8 +81,15 @@ def collect_inventory() -> dict[str, object]:
     catalog_bytes = len(catalog_text.encode("utf-8"))
     skill_bytes = sum(skill.file.bytes for skill in skills)
     multi = next(
-        skill for skill in skills if skill.name == "atrinik-multi-repo-workspace"
+        (
+            skill
+            for skill in skills
+            if skill.name == "atrinik-multi-repo-workspace"
+        ),
+        None,
     )
+    if multi is None:
+        raise ValueError("missing atrinik-multi-repo-workspace skill")
     startup_bytes = root_guide.bytes + catalog_bytes
 
     return {
