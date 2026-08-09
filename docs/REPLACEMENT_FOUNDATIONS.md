@@ -7,12 +7,13 @@ requests, stable aggregate check, contribution/provenance guidance, dependency
 policy, notices, package/SBOM contract, and mixed-license boundary.
 
 The repositories do not inherit permission to reuse classic code. New MIT work
-is the default. A historical grant is usable only through the exhaustive
-[`PROVENANCE.md`](PROVENANCE.md) registry at the exact path and revision
-recorded in the inventory and only after a complete, non-shallow, rename-aware
-history audit proves the named grantor's sole original authorship. The review
-must also verify identity, embedded third-party material, exact
-source/destination paths, transformation, copyright, grant, and reviewer.
+is the default. [`PROVENANCE.md`](PROVENANCE.md) is the current exhaustive grant
+registry. Existing reproducible decisions retain the exact historical registry
+path and revision they used; new decisions cite the merged wrapper revision
+containing this file. A grant remains usable only after a complete,
+non-shallow, rename-aware history audit proves the named grantor's sole original
+authorship. The review must also verify identity, embedded third-party material,
+exact source/destination paths, transformation, copyright, grant, and reviewer.
 Mixed or uncertain candidates are excluded; current blame, committer identity,
 or a repository-level ownership inference is never enough.
 

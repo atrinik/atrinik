@@ -68,7 +68,7 @@ class ReplacementFoundationTests(unittest.TestCase):
         policy = self.inventory["root_policy"]
         self.assertEqual(policy["repository"], "atrinik/atrinik")
         self.assertRegex(policy["revision"], r"^[0-9a-f]{40}$")
-        self.assertEqual(policy["path"], "docs/PROVENANCE.md")
+        self.assertEqual(policy["path"], "AGENTS.md")
         registry = subprocess.run(
             [
                 "git",

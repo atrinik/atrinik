@@ -12,6 +12,11 @@ LINK = re.compile(r"\[[^]]+\]\(([^)]+)\)")
 
 
 class AgentGuidanceTests(unittest.TestCase):
+    def test_current_provenance_registry_is_complete(self) -> None:
+        registry = (ROOT / "docs/PROVENANCE.md").read_text(encoding="utf-8")
+        self.assertIn("Zoey Rose", registry)
+        self.assertIn("Daniel Liptrot", registry)
+
     def test_inventory_is_complete_and_within_budget(self) -> None:
         inventory = collect_inventory()
         self.assertEqual(inventory["summary"]["skill_count"], 7)
