@@ -2,33 +2,33 @@
 
 ## Overview
 
-- This MIT Python 3.11+ repository coordinates Atrinik's independent Git
-  repositories; it does not own component source. `./atrinik` and
-  `components.json` manage profiles, worktrees, builds, supervised runtimes,
-  cleanup, migration, and supply-chain reports.
+- This MIT Python 3.11+ repository coordinates independent Atrinik Git
+  repositories, not component source. `./atrinik` and `components.json` manage
+  profiles, worktrees, builds, supervised runtimes, cleanup, migration, and
+  supply-chain reports.
 - `default` selects the MIT replacement stack (Rust, Go, Protobuf, and Astro).
-  Its standalone M1 foundations exist, but wrapper build/runtime integration
-  has not landed. `classic` selects the playable C17/CMake/Ninja stack. Never
-  mix providers or route unavailable replacement adapters through classic.
+  Its standalone M1 foundations lack wrapper build/runtime integration.
+  `classic` selects the playable C17/CMake/Ninja stack. Never mix providers or
+  route unavailable replacement adapters through classic.
 
 ## Folder structure and ownership
 
-- `atrinik` is the CLI entry point; `atrinik_workspace/` owns orchestration;
-  `tests/` is the standard-library `unittest` suite.
-- `components.json` owns checkout, cohort, stack, role, source, and build
-  contracts. `supply-chain/` and `governance/` own machine policy; `docs/`,
-  `README.md`, and `CONTRIBUTING.md` own longer guidance.
-- `.agents/skills/` contains task workflows; `.devcontainer/`, `.github/`, and
-  `scripts/` own workspace composition, CI/release, and helpers.
+- `atrinik` is the CLI; `atrinik_workspace/` owns orchestration and `tests/` the
+  standard-library `unittest` suite.
+- Checkout, cohort, stack, role, source, and build contracts live in
+  `components.json`; machine policy in `supply-chain/` and `governance/`; longer
+  guidance in `docs/`, `README.md`, and `CONTRIBUTING.md`.
+- Task workflows live in `.agents/skills/`, workspace composition in
+  `.devcontainer/`, CI/release in `.github/`, and helpers in `scripts/`.
 - Manifest destinations such as `client/`, `server/`, and `classic/` are
-  independent ignored repositories. `workspace/` and `build/` are ignored
-  generated state. Root `git status` does not inspect those repositories.
-- Resolve ownership through `components.json`, then read the owning checkout's
-  nearest `AGENTS.md`; a nested guide governs its subtree. Keep implementation,
-  tests, packages, and component release configuration in that physical repo.
-- `classic/` is one monorepo providing five `classic-*` components. `content/`
-  is `atrinik/content@main`; `content-1x/` is its independent `1.x` checkout.
-  `.devcontainer/` owns wrapper composition; `devcontainer/` owns images.
+  independent ignored repositories; `workspace/` and `build/` are ignored
+  generated state. Root `git status` omits them.
+- Resolve ownership through `components.json` and the owning checkout's nearest
+  `AGENTS.md`. Keep implementation, tests, packages, and component releases in
+  that physical repository.
+- The `classic/` monorepo provides five `classic-*` components. `content/` is
+  `atrinik/content@main`; `content-1x/` is its separate `1.x` checkout.
+  `.devcontainer/` owns wrapper composition and `devcontainer/` reusable images.
 
 ## Core behaviors and patterns
 
@@ -58,14 +58,17 @@
 - Update `supply-chain/inventory.json` when dependency ownership or validation
   changes. Keep Actions/images immutable, add no submodules, and audit a
   complete profile. Only aggregate-root workflows and Dependabot are active.
-- Use Conventional Commits for commits and PR titles. Semantic-release owns
-  tags and release assets. Do not disclose confidential or unreleased work on
-  public surfaces; use `atrinik-github-governance` for GitHub policy.
+- Commits and PR titles use `type(optional-scope)!: concise description`. PR
+  bodies require renderable GitHub-Flavored Markdown and actual line breaks,
+  never visible literal `\n` separators. Feed multi-section bodies by file or
+  stdin; after create/edit, verify remote rendering. Use
+  `atrinik-github-governance` for publication and policy. Semantic-release owns
+  tags/assets; keep confidential or unreleased work off public surfaces.
 
 ## Working agreements and commands
 
-Run commands from this repository root. Inspect before mutation; initialization
-clones only missing repositories, and `sync` never initializes one:
+Run from this repository root. Inspect before mutation: initialization clones
+only missing repositories, and `sync` never initializes one:
 
 ```sh
 ./atrinik manifest validate
@@ -74,8 +77,8 @@ clones only missing repositories, and `sync` never initializes one:
 ./atrinik init --with classic
 ```
 
-Use this exact currently playable build/runtime lifecycle (use `--follow` only
-for an interactive log session):
+Use this exact playable build/runtime lifecycle (`--follow` only for an
+interactive log session):
 
 ```sh
 ./atrinik profile show classic --json
@@ -86,8 +89,7 @@ for an interactive log session):
 ./atrinik down classic-local
 ```
 
-Install test tooling once, then run the complete wrapper validation before
-finishing wrapper changes:
+Install test tooling once, then run the complete wrapper validation:
 
 ```sh
 python3 -m pip install --requirement requirements-dev.txt

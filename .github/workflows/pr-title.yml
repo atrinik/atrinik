@@ -20,6 +20,6 @@ jobs:
           pattern='^[a-z][a-z0-9-]*(\([a-z0-9][a-z0-9._/-]*\))?(!)?: .+'
           if [[ ! ${PR_TITLE} =~ ${pattern} ]]; then
             echo "PR title must use Conventional Commits style:" >&2
-            echo "  type(scope)!: concise description" >&2
+            echo "  type(optional-scope)!: concise description" >&2
             exit 1
           fi
