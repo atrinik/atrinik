@@ -1,4 +1,4 @@
 interface:
   display_name: "Atrinik GitHub Governance"
-  short_description: "Maintain Atrinik repository and Actions policy"
-  default_prompt: "Use $atrinik-github-governance to review and update this Atrinik GitHub policy safely, validating desired state before any authorized apply."
+  short_description: "Publish PRs and maintain Atrinik GitHub policy"
+  default_prompt: "Use $atrinik-github-governance to publish this pull request or safely update Atrinik GitHub policy after validating desired and live state."

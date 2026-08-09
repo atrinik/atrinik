@@ -10,6 +10,14 @@ Examples include `fix(cli): reject mismatched checkout paths` and
 `feat!: revise the profile schema`. Pull requests are squash-merged, and the
 squash title becomes the release-driving commit on `main`.
 
+Write pull-request descriptions as renderable GitHub-Flavored Markdown with
+actual line breaks, never visible literal `\n` separators. For a multi-section
+body, prefer `gh pr create --body-file FILE` or `gh pr edit --body-file FILE`;
+`--body-file -` reads standard input. After creating or editing a pull request,
+inspect GitHub's rendered web view or rendered `bodyHTML`/`body_html`, not only
+the raw body. Verify that headings, lists, inline code, issue-closing references,
+and validation sections render normally.
+
 Keep component implementation in its owning repository. Changes here should
 remain focused on the manifest, multi-repository workflows, or their tests and
 documentation. Preserve dirty physical checkouts and persistent state during

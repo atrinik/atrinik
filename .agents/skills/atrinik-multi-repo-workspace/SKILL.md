@@ -9,23 +9,21 @@ description: Coordinate work across checkouts, profiles, worktrees, cleanup, rel
 
 Run commands from the `atrinik/atrinik` wrapper root.
 
-1. Read root `AGENTS.md`. Read only the task-relevant wrapper source/docs:
-   - ownership, cohorts, roles, or build contracts: `components.json`;
-   - operator command behavior: the matching `README.md` section;
-   - layout, locking, trust, or lifecycle design: the matching
+1. Read root `AGENTS.md` and only task-relevant wrapper sources:
+   - ownership, cohorts, roles, and build contracts: `components.json`;
+   - operator behavior: the matching `README.md` section;
+   - layout, locking, trust, and lifecycle design: the matching
      `docs/ARCHITECTURE.md` section;
    - pre-split repositories: [repository migration](references/repository-migration.md).
-2. Resolve every affected logical component to its physical checkout and safe
-   source root. Read that checkout's nearest `AGENTS.md` before editing.
-3. Put component implementation/tests/packages/releases in the owning physical
-   repository. Put only orchestration, composition, manifest, and wrapper docs
-   here.
+2. Resolve each logical component to its physical checkout and safe source root;
+   read that checkout's nearest `AGENTS.md` before editing.
+3. Keep implementation, tests, packages, and releases in the physical owner;
+   keep only orchestration, composition, manifest, and wrapper docs here.
 
-Physical checkouts are independent ignored Git repositories. One `classic`
-worktree contains its five logical source directories. `content@main` and
-`content-1x@1.x` are distinct checkouts even though their GitHub coordinate is
-the same. Keep wrapper VS Code composition under `.devcontainer/`; reusable
-images belong to the `devcontainer` checkout.
+Checkouts are independent ignored Git repositories. One `classic` worktree
+contains all five `classic-*` components; `content@main` and `content-1x@1.x`
+are separate checkouts. Keep wrapper VS Code composition under `.devcontainer/`
+and reusable images in the `devcontainer` checkout.
 
 ## Prepare safe worktrees
 
@@ -36,9 +34,9 @@ Inspect local state before mutation:
 ./atrinik status --json
 ```
 
-Initialize only missing repositories. Plain `init` selects the replacement
+Initialize only absent repositories. Plain `init` selects the replacement
 cohort; exact `--with classic` adds the complete classic cohort. `sync` never
-clones an absent checkout.
+clones.
 
 ```sh
 ./atrinik init [COMPONENT...]
@@ -48,11 +46,10 @@ clones an absent checkout.
 ./atrinik worktree create COMPONENT LABEL --branch TYPE/TOPIC
 ```
 
-Synchronize only clean primaries. Preserve dirty checkouts and worktrees; never
-replace, move, or remove them implicitly. A logical classic name creates one
-full `classic` repository worktree under
-`workspace/worktrees/classic/LABEL`. Commit and push inside each owning
-worktree with Conventional Commits.
+Synchronize only clean primaries; never implicitly replace, move, or remove a
+dirty checkout or worktree. A logical classic selector creates the full
+repository under `workspace/worktrees/classic/LABEL`. Commit and push from each
+owning worktree.
 
 Reclaim completed review data only through preview-first cleanup:
 
@@ -62,29 +59,29 @@ Reclaim completed review data only through preview-first cleanup:
 ./atrinik cleanup --scope all --older-than 7 --apply
 ```
 
-The default covers registered worktrees and marker-owned builds; npm cache is
+Default scope covers registered worktrees and marker-owned builds; npm cache is
 opt-in. Text uses IEC sizes; JSON keeps exact bytes. References, Git ambiguity,
-and unsafe paths or markers protect a target. The only historical-base
-exception is an `atrinik/atrinik@main` wrapper worktree directly below
-`build/worktrees/`; its PR must target `master` with head, base, and merge SHAs.
-The merge's first parent must match the base and it must be an ancestor of
+and unsafe paths or markers protect targets. Only an `atrinik/atrinik@main`
+wrapper worktree directly below `build/worktrees/` may use the historical-base
+exception: its PR must target `master` and provide head, base, and merge SHAs.
+The merge's first parent must match the base, and it must be an ancestor of
 frozen boundary `ee5ba2096c94bce0161629423d4962a966bc61d8`. Graph proof ignores
-replace refs and rejects `info/grafts`. Apply inventories fully under the layout
-lock, then reruns the proof and exact-target safety without unrelated report
-scans; uncertainty fails closed.
-Status uses `--ignore-submodules=none`; populated submodule Git data protects.
-Cleanup removes builds first, uses only non-force Git removal, and preserves
-branch refs, profiles, scenarios, states, topology records/logs, migrations,
-retention records, Git objects, review reports, and unmarked paths. Hand off
-exact fixtures, JSON commands, reasons, and preserved records.
+replace refs and rejects `info/grafts`. Under the layout lock, `--apply`
+inventories fully and reruns the proof plus exact-target safety without
+unrelated report scans; uncertainty fails closed. Status uses
+`--ignore-submodules=none`;
+populated submodule Git data protects. Cleanup removes builds first, uses only
+non-force Git removal, and preserves branch refs, profiles, scenarios, states,
+topology records/logs, migrations, retention records, Git objects, review
+reports, and unmarked paths. Hand off exact fixtures, JSON commands, reasons,
+and preserved records.
 
 ## Compose coherent sources
 
-Use `default` for replacement sources and `classic` for the currently playable
-classic stack. Never mix providers or use classic C/CMake as a fallback for a
-missing replacement adapter. Replacement repositories have standalone M1
-foundations, but the wrapper replacement build/runtime closure is not yet
-available.
+Use `default` for replacement sources and `classic` for the playable stack.
+Never mix providers or substitute classic C/CMake for a missing replacement
+adapter. Replacement repositories have standalone M1 foundations, but no
+wrapper replacement build/runtime closure yet.
 
 ```sh
 ./atrinik profile create REVIEW --from classic
@@ -94,15 +91,14 @@ available.
 ./atrinik build COMPONENT --profile REVIEW --test
 ```
 
-Selecting checkout `classic`, one of its logical components, or a provided
-role updates all five classic selectors to one checkout root. Resolution then
-appends each manifest source path. Do not treat a classic subdirectory as an
-independent worktree.
+Selecting `classic`, one of its components, or a provided role updates all five
+classic selectors to one root; resolution appends each manifest source. Never
+treat a classic subdirectory as an independent worktree.
 
-Build, scenario, and topology records bind the exact repository, branch,
-checkout, source, component, and provider. Treat older records without current
-immutable coordinates as inert. Let the wrapper collect content/resources and
-own generated paths, locks, state, PIDs, logs, and process cleanup.
+Build, scenario, and topology records bind exact repository, branch, checkout,
+source, component, and provider coordinates. Records lacking current immutable
+coordinates are inert. Let the wrapper collect content/resources and own
+generated paths, locks, state, PIDs, logs, and process cleanup.
 
 For classic server execution or diagnosis, load `atrinik-server-runtime`. For
 a ready account and character, also load `atrinik-test-scenario`; never
@@ -111,8 +107,8 @@ distinct name and server state.
 
 ## Validate and hand off
 
-Use wrapper-native commands wherever supported. A runtime handoff includes
-concrete names and the complete lifecycle:
+Use wrapper-native commands wherever supported; a runtime handoff uses concrete
+names and follows this lifecycle:
 
 ```sh
 ./atrinik profile show PROFILE
@@ -124,21 +120,25 @@ concrete names and the complete lifecycle:
 ./atrinik down TOPOLOGY
 ```
 
-State prerequisites, feature actions, expected results, and cleanup. When
-runtime is irrelevant, say so and provide the applicable build/test and
-inspection commands. Do not substitute internal executable or generated paths
-for supported wrapper operations.
+Record prerequisites, actions, expected results, and cleanup. If runtime is
+irrelevant, hand off applicable build/test/inspection commands. Do not
+substitute internal executables or generated paths for supported wrapper
+operations.
 
 ## Coordinate publication and policy
 
-- Use `atrinik-github-governance` for Actions, permissions, required checks,
-  merge/release policy, or repository settings. Inspect live and desired state
-  before an authorized external change.
-- Keep each physical repository independently releasable. Semantic-release
-  owns version selection, tags, notes, and recovery; never publish manually.
-- Update `supply-chain/inventory.json` for changed dependency inputs and audit
-  the complete selected profile. Review overrides never make another member
-  optional. Only aggregate-checkout root workflows/Dependabot are active.
+- Use `atrinik-github-governance` for PR publication, Actions, permissions,
+  required checks, merge/release policy, or repository settings. For policy
+  changes, inspect live and desired state before an authorized external change.
+- PR titles use `type(optional-scope)!: concise description`; bodies use
+  renderable GitHub-Flavored Markdown and actual line breaks, never visible
+  literal `\n` separators. Feed multi-section bodies by file or stdin; after
+  create/edit, verify remote rendering.
+- Keep each physical repository independently releasable; semantic-release owns
+  versions, tags, notes, and recovery. Never publish manually.
+- For dependency-input changes, update `supply-chain/inventory.json` and audit
+  the complete profile. Overrides never make members optional; only aggregate
+  roots own active workflows and Dependabot.
 - Apply historical MIT grants only under
   [`docs/PROVENANCE.md`](../../../docs/PROVENANCE.md). Fail closed and record the
   complete evidence in the destination repository.
