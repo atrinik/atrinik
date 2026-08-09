@@ -5,6 +5,7 @@ import io
 import json
 from pathlib import Path
 import re
+import subprocess
 import tempfile
 import unittest
 from unittest import mock
@@ -140,11 +141,19 @@ class AgentGuidanceTests(unittest.TestCase):
                 self.assertNotIn(stale, corpus)
 
     def test_pull_request_publication_contract_is_synchronized(self) -> None:
+        root_guide = ROOT / "AGENTS.md"
+        contributing = ROOT / "CONTRIBUTING.md"
+        governance_skill = (
+            ROOT / ".agents/skills/atrinik-github-governance/SKILL.md"
+        )
+        workspace_skill = (
+            ROOT / ".agents/skills/atrinik-multi-repo-workspace/SKILL.md"
+        )
         governed = [
-            ROOT / "AGENTS.md",
-            ROOT / "CONTRIBUTING.md",
-            ROOT / ".agents/skills/atrinik-github-governance/SKILL.md",
-            ROOT / ".agents/skills/atrinik-multi-repo-workspace/SKILL.md",
+            root_guide,
+            contributing,
+            governance_skill,
+            workspace_skill,
         ]
         markers = {
             "type(optional-scope)!: concise description",
@@ -152,7 +161,6 @@ class AgentGuidanceTests(unittest.TestCase):
             "actual line breaks",
             "literal `\\n` separators",
             "multi-section",
-            "remote",
         }
         for path in governed:
             guidance = " ".join(path.read_text(encoding="utf-8").split())
@@ -162,11 +170,17 @@ class AgentGuidanceTests(unittest.TestCase):
             with self.subTest(path=path.relative_to(ROOT), marker="body input"):
                 self.assertRegex(
                     guidance,
-                    r"multi-section bod(?:y|ies).*file.*(?:standard input|stdin)",
+                    r"multi-section bod(?:y|ies)[^.]{0,200}file"
+                    r"[^.]{0,200}(?:standard input|stdin)",
+                )
+            with self.subTest(path=path.relative_to(ROOT), marker="remote render"):
+                self.assertRegex(
+                    guidance,
+                    r"[Aa]fter (?:create/edit|creating or editing a pull request)"
+                    r"[^.]{0,160}(?:inspect|verify)[^.]{0,80}(?:remote|GitHub)",
                 )
 
-        detailed = governed[1:3]
-        for path in detailed:
+        for path in [contributing, governance_skill]:
             guidance = " ".join(path.read_text(encoding="utf-8").split())
             for marker in {
                 "headings",
@@ -174,6 +188,8 @@ class AgentGuidanceTests(unittest.TestCase):
                 "inline code",
                 "issue-closing references",
                 "validation sections",
+                "bodyHTML",
+                "raw body",
             }:
                 with self.subTest(path=path.relative_to(ROOT), marker=marker):
                     self.assertIn(marker, guidance)
@@ -181,17 +197,70 @@ class AgentGuidanceTests(unittest.TestCase):
         title_workflow = (ROOT / ".github/workflows/pr-title.yml").read_text(
             encoding="utf-8"
         )
+        self.assertIn("pull_request_target:", title_workflow)
+        self.assertIn(
+            "types: [opened, edited, synchronize, reopened]", title_workflow
+        )
+        self.assertIn("name: Conventional PR title", title_workflow)
         self.assertIn("type(optional-scope)!: concise description", title_workflow)
 
-        unrelated = {
+        run_match = re.search(
+            r"(?m)^ {8}run: \|\n(?P<script>(?:^ {10}.*(?:\n|$))+)",
+            title_workflow,
+        )
+        if run_match is None:
+            self.fail("PR title workflow does not declare its validation script")
+        validation_script = "\n".join(
+            line[10:] for line in run_match.group("script").splitlines()
+        )
+        title_cases = {
+            True: {
+                "chore: refresh guidance",
+                "docs(agents): govern PR publication",
+                "feat!: revise the contract",
+            },
+            False: {
+                "Docs: uppercase type",
+                "docs(): empty scope",
+                "docs: ",
+                "update guidance",
+            },
+        }
+        for should_match, titles in title_cases.items():
+            for title in titles:
+                with self.subTest(title=title, should_match=should_match):
+                    result = subprocess.run(
+                        ["bash", "-c", validation_script],
+                        check=False,
+                        capture_output=True,
+                        env={"PR_TITLE": title},
+                        text=True,
+                    )
+                    self.assertEqual(
+                        result.returncode == 0,
+                        should_match,
+                        result.stderr,
+                    )
+
+        _, governance_description = skill_frontmatter(governance_skill)
+        self.assertIn("Publish Atrinik PRs", governance_description)
+        governance_interface = (
+            governance_skill.parent / "agents/openai.yaml"
+        ).read_text(encoding="utf-8")
+        self.assertIn("Publish PRs", governance_interface)
+        self.assertIn("$atrinik-github-governance", governance_interface)
+
+        unrelated = [
             path
             for path in (ROOT / ".agents/skills").glob("*/SKILL.md")
             if path not in governed
-        }
+        ]
         for path in unrelated:
             with self.subTest(path=path.relative_to(ROOT)):
-                self.assertNotIn(
-                    "GitHub-Flavored Markdown", path.read_text(encoding="utf-8")
+                guidance = " ".join(path.read_text(encoding="utf-8").split())
+                self.assertFalse(
+                    all(marker in guidance for marker in markers),
+                    "unrelated skill duplicates the complete PR publication contract",
                 )
 
 

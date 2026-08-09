@@ -1,6 +1,6 @@
 ---
 name: atrinik-multi-repo-workspace
-description: Coordinate Atrinik repositories, worktrees, profiles, cleanup, publication, releases, or wrapper CLI/layout.
+description: Coordinate work across checkouts, profiles, worktrees, cleanup, releases, or wrapper CLI and layout.
 ---
 
 # Atrinik multi-repository workspace
@@ -47,8 +47,9 @@ clones.
 ```
 
 Synchronize only clean primaries; never implicitly replace, move, or remove a
-dirty checkout or worktree. A classic alias creates the full repository under
-`workspace/worktrees/classic/LABEL`. Commit and push from each owning worktree.
+dirty checkout or worktree. A logical classic selector creates the full
+repository under `workspace/worktrees/classic/LABEL`. Commit and push from each
+owning worktree.
 
 Reclaim completed review data only through preview-first cleanup:
 
@@ -58,12 +59,12 @@ Reclaim completed review data only through preview-first cleanup:
 ./atrinik cleanup --scope all --older-than 7 --apply
 ```
 
-Default scope covers registered worktrees/marker-owned builds; npm cache is
+Default scope covers registered worktrees and marker-owned builds; npm cache is
 opt-in. Text uses IEC sizes; JSON keeps exact bytes. References, Git ambiguity,
-and unsafe paths/markers protect targets. Only an `atrinik/atrinik@main`
+and unsafe paths or markers protect targets. Only an `atrinik/atrinik@main`
 wrapper worktree directly below `build/worktrees/` may use the historical-base
-exception: its PR targets `master` and supplies head, base, and merge SHAs. The
-merge's first parent must match the base, and the merge must be an ancestor of
+exception: its PR must target `master` and provide head, base, and merge SHAs.
+The merge's first parent must match the base, and it must be an ancestor of
 frozen boundary `ee5ba2096c94bce0161629423d4962a966bc61d8`. Graph proof ignores
 replace refs and rejects `info/grafts`. Under the layout lock, `--apply`
 inventories fully and reruns the proof plus exact-target safety without
@@ -106,8 +107,8 @@ distinct name and server state.
 
 ## Validate and hand off
 
-Use wrapper-native commands wherever supported; a runtime handoff names
-concrete resources and follows this lifecycle:
+Use wrapper-native commands wherever supported; a runtime handoff uses concrete
+names and follows this lifecycle:
 
 ```sh
 ./atrinik profile show PROFILE
@@ -121,13 +122,14 @@ concrete resources and follows this lifecycle:
 
 Record prerequisites, actions, expected results, and cleanup. If runtime is
 irrelevant, hand off applicable build/test/inspection commands. Do not
-substitute internal executables or generated paths for supported operations.
+substitute internal executables or generated paths for supported wrapper
+operations.
 
 ## Coordinate publication and policy
 
 - Use `atrinik-github-governance` for PR publication, Actions, permissions,
-  required checks, merge/release policy, or repository settings. Inspect live
-  and desired state before an authorized external change.
+  required checks, merge/release policy, or repository settings. For policy
+  changes, inspect live and desired state before an authorized external change.
 - PR titles use `type(optional-scope)!: concise description`; bodies use
   renderable GitHub-Flavored Markdown and actual line breaks, never visible
   literal `\n` separators. Feed multi-section bodies by file or stdin; after
