@@ -56,6 +56,13 @@ PROFILE_PURPOSE = re.compile(
     r"^profile:(?P<profile>[a-z0-9][a-z0-9._-]*):(?P<key>[0-9a-f]{12})$"
 )
 HEAD_PATTERN = re.compile(r"^[0-9a-f]{40,64}$")
+HISTORICAL_PULL_BASE_BOUNDARIES = {
+    (
+        "atrinik/atrinik",
+        "main",
+        "master",
+    ): "ee5ba2096c94bce0161629423d4962a966bc61d8",
+}
 
 
 def _command(path: Path, *arguments: str) -> str:
@@ -95,13 +102,24 @@ def _worktree_records(repository: Path) -> list[dict[str, str]]:
 
 
 def _git_common_directory(path: Path) -> Path:
-    value = _command(path, "rev-parse", "--path-format=absolute", "--git-common-dir")
-    return Path(value).resolve()
+    return _git_directories(path)[0]
 
 
 def _git_directory(path: Path) -> Path:
-    value = _command(path, "rev-parse", "--path-format=absolute", "--git-dir")
-    return Path(value).resolve()
+    return _git_directories(path)[1]
+
+
+def _git_directories(path: Path) -> tuple[Path, Path]:
+    values = _command(
+        path,
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir",
+        "--git-dir",
+    ).splitlines()
+    if len(values) != 2 or not all(values):
+        raise WorkspaceError(f"git returned invalid directory metadata at {path}")
+    return Path(values[0]).resolve(), Path(values[1]).resolve()
 
 
 def _parse_time(value: Any, context: str) -> datetime:
@@ -145,27 +163,84 @@ def _tree_usage(
 ) -> tuple[dict[tuple[int, int], int], datetime | None, str | None]:
     sizes: dict[tuple[int, int], int] = {}
     maximum: float | None = None
-    stack = [root]
     try:
-        excluded_paths = {path.resolve(strict=False) for path in excluded}
+        root_value = os.fspath(root)
+        excluded_values = tuple(excluded)
+        if not excluded_values:
+            stack = [root_value]
+            while stack:
+                raw_path = stack.pop()
+                metadata = os.lstat(raw_path)
+                key = (metadata.st_dev, metadata.st_ino)
+                sizes.setdefault(key, metadata.st_blocks * 512)
+                maximum = (
+                    metadata.st_mtime
+                    if maximum is None
+                    else max(maximum, metadata.st_mtime)
+                )
+                if stat.S_ISDIR(metadata.st_mode) and not stat.S_ISLNK(
+                    metadata.st_mode
+                ):
+                    with os.scandir(raw_path) as entries:
+                        stack.extend(entry.path for entry in entries)
+            observed = (
+                datetime.fromtimestamp(maximum, timezone.utc)
+                if maximum is not None
+                else None
+            )
+            return sizes, observed, None
+        resolved_root = root.resolve(strict=False)
+        excluded_paths = {
+            path.resolve(strict=False) for path in excluded_values
+        }
+        stack = [(root_value, resolved_root)]
         while stack:
-            path = stack.pop()
-            normalized = path.resolve(strict=False)
-            if path != root and normalized in excluded_paths:
+            raw_path, normalized = stack.pop()
+            if raw_path != root_value and normalized in excluded_paths:
                 continue
-            metadata = path.lstat()
+            metadata = os.lstat(raw_path)
             key = (metadata.st_dev, metadata.st_ino)
             sizes.setdefault(key, metadata.st_blocks * 512)
             maximum = metadata.st_mtime if maximum is None else max(maximum, metadata.st_mtime)
             if stat.S_ISDIR(metadata.st_mode) and not stat.S_ISLNK(metadata.st_mode):
-                with os.scandir(path) as entries:
-                    stack.extend(Path(entry.path) for entry in entries)
+                with os.scandir(raw_path) as entries:
+                    stack.extend(
+                        (entry.path, normalized / entry.name) for entry in entries
+                    )
     except (OSError, RuntimeError) as error:
         return {}, None, str(error)
     observed = (
         datetime.fromtimestamp(maximum, timezone.utc) if maximum is not None else None
     )
     return sizes, observed, None
+
+
+def _listed_usage(root: Path, relative_paths: Iterable[str]) -> dict[tuple[int, int], int]:
+    """Account for Git-listed paths without resolving and rewalking every file."""
+
+    sizes: dict[tuple[int, int], int] = {}
+    root_value = os.fspath(root)
+    for relative in relative_paths:
+        parts = relative.split("/")
+        if (
+            not relative
+            or relative.startswith("/")
+            or ".." in parts
+            or "" in parts
+        ):
+            continue
+        candidate = os.path.join(root_value, *parts)
+        try:
+            metadata = os.lstat(candidate)
+        except OSError:
+            continue
+        if stat.S_ISDIR(metadata.st_mode) and not stat.S_ISLNK(metadata.st_mode):
+            nested, _, error = _tree_usage(Path(candidate))
+            if error is None:
+                sizes.update(nested)
+            continue
+        sizes.setdefault((metadata.st_dev, metadata.st_ino), metadata.st_blocks * 512)
+    return sizes
 
 
 def _base_item(kind: str, owner: str, repository: str, path: Path) -> dict[str, Any]:
@@ -199,6 +274,10 @@ class Cleanup:
         self.now = datetime.now(timezone.utc)
         self._repositories: dict[str, Path] = {}
         self._wrapper_primary = self.paths.repository
+        self._repository_cache: dict[
+            tuple[str, str],
+            tuple[Path, list[dict[str, str]], Path] | str,
+        ] = {}
         self._github_cache: dict[
             tuple[str, str], tuple[list[dict[str, Any]] | None, str | None]
         ] = {}
@@ -239,8 +318,11 @@ class Cleanup:
                 if identity in completed:
                     continue
                 try:
-                    fresh = self._plan(
-                        selected_scopes, older_than_days, selected_names, "apply"
+                    match = self._revalidate_target(
+                        target,
+                        older_than_days,
+                        selected_scopes,
+                        selected_names,
                     )
                 except (OSError, RuntimeError, WorkspaceError) as error:
                     target["disposition"] = "error"
@@ -248,15 +330,6 @@ class Cleanup:
                     target["error"] = str(error)
                     report["aborted"] = True
                     break
-                match = next(
-                    (
-                        item
-                        for item in fresh["items"]
-                        if item["kind"] == target["kind"]
-                        and item["path"] == target["path"]
-                    ),
-                    None,
-                )
                 if match is None or match["disposition"] != "eligible":
                     target["disposition"] = "error"
                     target["reasons"] = ["revalidation_failed"]
@@ -267,9 +340,15 @@ class Cleanup:
                         }
                     report["aborted"] = True
                     break
+                credited = {
+                    key: target[key]
+                    for key in ("allocated_bytes", "ignored_bytes", "ignored_paths")
+                    if key in target
+                }
                 for key, value in match.items():
                     if not key.startswith("_"):
                         target[key] = value
+                target.update(credited)
                 report["mutation_attempted"] = True
                 try:
                     self._remove(match)
@@ -331,9 +410,7 @@ class Cleanup:
         names: set[str] | None,
         mode: str,
     ) -> dict[str, Any]:
-        self.now = datetime.now(timezone.utc)
-        self._repositories = {}
-        self._github_cache = {}
+        self._reset_inventory()
         references, reference_errors = self._references()
         items: list[dict[str, Any]] = []
         registered, registered_error = self._registered_worktree_paths()
@@ -371,9 +448,7 @@ class Cleanup:
         items.sort(key=lambda item: (item["kind"], item["owner"], item["path"]))
         self._credit_sizes(items)
         for item in items:
-            item.pop("_inodes", None)
-            item.pop("_primary", None)
-            item.pop("_purpose", None)
+            self._strip_internal(item)
         summary = self._summary(items)
         summary["error_count"] += len(reference_errors)
         return {
@@ -386,6 +461,185 @@ class Cleanup:
             "items": items,
             "summary": summary,
         }
+
+    def _reset_inventory(self) -> None:
+        self.now = datetime.now(timezone.utc)
+        self._repositories = {}
+        self._repository_cache = {}
+        self._github_cache = {}
+
+    @staticmethod
+    def _strip_internal(item: dict[str, Any]) -> None:
+        item.pop("_inodes", None)
+        item.pop("_primary", None)
+        item.pop("_purpose", None)
+
+    def _revalidate_target(
+        self,
+        target: dict[str, Any],
+        older_than_days: int,
+        scopes: list[str],
+        names: set[str] | None,
+    ) -> dict[str, Any] | None:
+        """Refresh one target's safety predicates without rebuilding report payloads."""
+
+        self._reset_inventory()
+        references, reference_errors = self._references()
+        registered, registered_error = self._registered_worktree_paths()
+        if registered_error:
+            reference_errors.add("worktree_inventory_error")
+        path = Path(target["path"])
+        kind = target["kind"]
+        if kind == "profile-build":
+            removable_worktrees = (
+                self._revalidate_build_sources(
+                    path,
+                    older_than_days,
+                    references,
+                    reference_errors,
+                    names,
+                )
+                if target.get("source_worktree_removal")
+                and "worktrees" in scopes
+                else set()
+            )
+            item = self._build_item(
+                path,
+                older_than_days,
+                registered,
+                removable_worktrees,
+                references,
+                reference_errors,
+            )
+        elif kind in {"worktree", "prunable-metadata"}:
+            item = self._revalidate_worktree(
+                target["owner"],
+                path,
+                kind,
+                older_than_days,
+                references,
+                reference_errors,
+            )
+        elif kind == "npm-cache":
+            item = self._npm_cache(
+                older_than_days,
+                references,
+                reference_errors,
+            )
+            if item is not None and item["path"] != target["path"]:
+                item = None
+        else:
+            raise WorkspaceError(f"unsupported cleanup target: {kind}")
+        if item is not None:
+            self._strip_internal(item)
+        return item
+
+    def _revalidate_build_sources(
+        self,
+        path: Path,
+        older_than_days: int,
+        references: dict[str, Any],
+        reference_errors: set[str],
+        names: set[str] | None,
+    ) -> set[Path]:
+        try:
+            purpose, profile, key = self._profile_marker(path)
+            probe = _base_item("profile-build", "atrinik", "atrinik/atrinik", path)
+            probe.update(
+                {"profile": profile, "key": key, "_purpose": purpose}
+            )
+            metadata = self._load_build_metadata(path / BUILD_METADATA, probe)
+        except (OSError, RuntimeError, WorkspaceError):
+            return set()
+        removable: set[Path] = set()
+        candidates = {
+            (row["checkout"], Path(row["checkout_path"]).resolve(strict=False))
+            for row in metadata["coordinates"].values()
+            if names is None or row["checkout"] in names
+        }
+        for owner, candidate in sorted(candidates, key=lambda value: str(value[1])):
+            item = self._revalidate_worktree(
+                owner,
+                candidate,
+                "worktree",
+                older_than_days,
+                references,
+                reference_errors,
+            )
+            if item is not None and item["disposition"] == "eligible":
+                removable.add(candidate)
+        return removable
+
+    def _revalidate_worktree(
+        self,
+        owner: str,
+        target: Path,
+        kind: str,
+        older_than_days: int,
+        references: dict[str, Any],
+        reference_errors: set[str],
+    ) -> dict[str, Any] | None:
+        if owner == "atrinik":
+            repository = "atrinik/atrinik"
+            base = "main"
+            invocation = self.paths.repository
+            wrapper = True
+        else:
+            checkout = self.manifest.by_checkout.get(owner)
+            if checkout is None:
+                raise WorkspaceError(f"unknown cleanup worktree owner: {owner}")
+            repository = checkout.repository
+            base = checkout.branch
+            invocation = self.paths.repositories / checkout.path
+            wrapper = False
+        self._repository_cache.pop((repository, str(invocation)), None)
+        common, records, primary = self._repository_inventory(repository, invocation)
+        self._repositories[owner] = primary
+        allowed = (
+            [
+                self.paths.worktrees / "atrinik",
+                primary / "build" / "worktrees",
+            ]
+            if wrapper
+            else [self.paths.worktrees / owner]
+        )
+        normalized_target = target.resolve(strict=False)
+        selected: list[dict[str, Any]] = []
+        for row in records:
+            raw = row.get("worktree")
+            if raw is None:
+                continue
+            candidate = Path(raw)
+            if kind == "prunable-metadata":
+                if "prunable" not in row or candidate.exists():
+                    continue
+            elif candidate.resolve(strict=False) != normalized_target:
+                continue
+            selected.append(
+                self._worktree_item(
+                    owner,
+                    repository,
+                    base,
+                    primary,
+                    common,
+                    allowed,
+                    row,
+                    references,
+                    reference_errors,
+                )
+            )
+        self._resolve_github(selected, older_than_days)
+        if kind == "prunable-metadata":
+            self._protect_shared_prune_scope(selected)
+        return next(
+            (
+                item
+                for item in selected
+                if item["kind"] == kind
+                and Path(item["path"]).resolve(strict=False) == normalized_target
+            ),
+            None,
+        )
 
     def _references(self) -> tuple[dict[str, Any], set[str]]:
         references: dict[str, Any] = {
@@ -423,21 +677,9 @@ class Cleanup:
                 repositories.append((checkout.repository, candidate))
         for repository, invocation in repositories:
             try:
-                records = _worktree_records(invocation)
-                common = _git_common_directory(invocation)
-                primary = None
-                for row in records:
-                    candidate = Path(row.get("worktree", ""))
-                    if not candidate.is_dir() or candidate.is_symlink():
-                        continue
-                    try:
-                        if _git_directory(candidate) == common:
-                            primary = candidate
-                            break
-                    except WorkspaceError:
-                        continue
-                if primary is None or not self._remote_identity(primary, repository):
-                    raise WorkspaceError("repository identity is unproven")
+                _, records, primary = self._repository_inventory(
+                    repository, invocation
+                )
                 if repository == "atrinik/atrinik":
                     self._wrapper_primary = primary.resolve()
                 registered.update(
@@ -448,6 +690,39 @@ class Cleanup:
             except (OSError, RuntimeError, WorkspaceError):
                 failed = True
         return registered, failed
+
+    def _repository_inventory(
+        self, repository: str, invocation: Path
+    ) -> tuple[Path, list[dict[str, str]], Path]:
+        key = (repository, str(invocation))
+        cached = self._repository_cache.get(key)
+        if isinstance(cached, str):
+            raise WorkspaceError(cached)
+        if cached is not None:
+            return cached
+        try:
+            common = _git_common_directory(invocation)
+            records = _worktree_records(invocation)
+            primary = None
+            for row in records:
+                candidate = Path(row.get("worktree", ""))
+                if not candidate.is_dir() or candidate.is_symlink():
+                    continue
+                try:
+                    if _git_directory(candidate) == common:
+                        primary = candidate.resolve()
+                        break
+                except WorkspaceError:
+                    continue
+            if primary is None or not self._remote_identity(primary, repository):
+                raise WorkspaceError("repository identity is unproven")
+        except (OSError, RuntimeError, WorkspaceError) as error:
+            detail = str(error)
+            self._repository_cache[key] = detail
+            raise WorkspaceError(detail) from error
+        result = (common, records, primary)
+        self._repository_cache[key] = result
+        return result
 
     @staticmethod
     def _add_reference(container: dict[Path, list[str]], path: Path, name: str) -> None:
@@ -796,21 +1071,9 @@ class Cleanup:
                 )
         for owner, repository, base, invocation, wrapper in repositories:
             try:
-                common = _git_common_directory(invocation)
-                records = _worktree_records(invocation)
-                primary = None
-                for row in records:
-                    candidate = Path(row.get("worktree", ""))
-                    if not candidate.is_dir() or candidate.is_symlink():
-                        continue
-                    try:
-                        if _git_directory(candidate) == common:
-                            primary = candidate.resolve()
-                            break
-                    except WorkspaceError:
-                        continue
-                if primary is None or not self._remote_identity(primary, repository):
-                    raise WorkspaceError("repository identity is unproven")
+                common, records, primary = self._repository_inventory(
+                    repository, invocation
+                )
                 self._repositories[owner] = primary
                 allowed = (
                     [
@@ -826,18 +1089,19 @@ class Cleanup:
                     path = Path(row["worktree"])
                     normalized = path.resolve(strict=False)
                     registered.add(normalized)
-                    item = self._worktree_item(
-                        owner,
-                        repository,
-                        base,
-                        primary,
-                        common,
-                        allowed,
-                        row,
-                        references,
-                        reference_errors,
+                    items.append(
+                        self._worktree_item(
+                            owner,
+                            repository,
+                            base,
+                            primary,
+                            common,
+                            allowed,
+                            row,
+                            references,
+                            reference_errors,
+                        )
                     )
-                    items.append(item)
             except (OSError, RuntimeError, WorkspaceError) as error:
                 item = _base_item("worktree", owner, repository, invocation)
                 item["disposition"] = "error"
@@ -914,6 +1178,12 @@ class Cleanup:
                 item["reasons"].append(reference_reason)
         item["reasons"].extend(sorted(reference_errors))
         if prunable:
+            try:
+                if self._prunable_metadata_has_submodules(common, path):
+                    item["reasons"].append("populated_submodules")
+            except WorkspaceError as error:
+                item["reasons"].append("git_inspection_error")
+                item["error"] = str(error)
             item["reasons"].append("prunable_metadata")
             if item["reasons"] == ["prunable_metadata"]:
                 item["disposition"] = "skipped"
@@ -932,14 +1202,21 @@ class Cleanup:
             item["reasons"].append("missing_worktree")
             return item
         try:
-            if _git_common_directory(path) != common:
+            worktree_common, worktree_git = _git_directories(path)
+            if worktree_common != common:
                 item["reasons"].append("unexpected_git_common_directory")
-            if _git_directory(path) == common and normalized != primary.resolve():
+            if worktree_git == common and normalized != primary.resolve():
                 item["reasons"].append("unexpected_primary_identity")
+            if self._populated_submodules(path, worktree_git):
+                item["reasons"].append("populated_submodules")
             if self._operation_in_progress(path):
                 item["reasons"].append("git_operation_in_progress")
             status_value = _command(
-                path, "status", "--porcelain=v1", "--untracked-files=all"
+                path,
+                "status",
+                "--porcelain=v1",
+                "--untracked-files=all",
+                "--ignore-submodules=none",
             )
             if status_value:
                 item["reasons"].append("dirty_worktree")
@@ -952,11 +1229,7 @@ class Cleanup:
                 "-z",
             )
             ignored_paths = [value for value in ignored.split("\0") if value]
-            ignored_sizes: dict[tuple[int, int], int] = {}
-            for raw in ignored_paths:
-                candidate = path / raw
-                sizes, _, _ = _tree_usage(candidate)
-                ignored_sizes.update(sizes)
+            ignored_sizes = _listed_usage(path, ignored_paths)
             item["ignored_paths"] = len(ignored_paths)
             item["ignored_bytes"] = sum(ignored_sizes.values())
         except WorkspaceError as error:
@@ -969,13 +1242,91 @@ class Cleanup:
 
     @staticmethod
     def _operation_in_progress(path: Path) -> bool:
-        for name in OPERATION_PATHS:
-            operation_path = Path(_command(path, "rev-parse", "--git-path", name))
+        arguments = tuple(
+            argument
+            for name in OPERATION_PATHS
+            for argument in ("--git-path", name)
+        )
+        values = _command(path, "rev-parse", *arguments).splitlines()
+        if len(values) != len(OPERATION_PATHS):
+            raise WorkspaceError(
+                f"git returned invalid operation metadata at {path}"
+            )
+        for value in values:
+            operation_path = Path(value)
             if not operation_path.is_absolute():
                 operation_path = path / operation_path
             if operation_path.exists() or operation_path.is_symlink():
                 return True
         return False
+
+    @staticmethod
+    def _populated_submodules(path: Path, git_directory: Path) -> bool:
+        """Match Git's conservative refusal to remove populated submodules."""
+
+        try:
+            modules = git_directory / "modules"
+            if modules.exists() or modules.is_symlink():
+                return True
+            gitmodules = path / ".gitmodules"
+            if not gitmodules.exists() and not gitmodules.is_symlink():
+                return False
+            if gitmodules.is_symlink() or not gitmodules.is_file():
+                raise WorkspaceError(
+                    f"worktree has unsafe .gitmodules metadata: {path}"
+                )
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect worktree submodule metadata at {path}: {error}"
+            ) from error
+        output = _command(path, "submodule", "status", "--recursive")
+        for line in output.splitlines():
+            if not line or line[0] not in {" ", "-", "+", "U"}:
+                raise WorkspaceError(f"git returned invalid submodule status at {path}")
+            if line[0] != "-":
+                return True
+        return False
+
+    @staticmethod
+    def _prunable_metadata_has_submodules(common: Path, path: Path) -> bool:
+        """Inspect the exact missing worktree's retained administrative directory."""
+
+        worktrees = common / "worktrees"
+        try:
+            if worktrees.is_symlink() or not worktrees.is_dir():
+                raise WorkspaceError("worktree administrative directory is unsafe")
+            expected = (path / ".git").resolve(strict=False)
+            matches: list[Path] = []
+            for admin in worktrees.iterdir():
+                if admin.is_symlink() or not admin.is_dir():
+                    raise WorkspaceError(
+                        "worktree administrative entry is unsafe"
+                    )
+                gitdir = admin / "gitdir"
+                if gitdir.is_symlink() or not gitdir.is_file():
+                    raise WorkspaceError("worktree gitdir metadata is unsafe")
+                value = gitdir.read_text(encoding="utf-8")
+                if (
+                    not value.endswith("\n")
+                    or "\n" in value[:-1]
+                    or "\0" in value
+                    or not Path(value[:-1]).is_absolute()
+                ):
+                    raise WorkspaceError("worktree gitdir metadata is invalid")
+                if Path(value[:-1]).resolve(strict=False) == expected:
+                    matches.append(admin)
+            if len(matches) != 1:
+                raise WorkspaceError(
+                    "cannot map prunable worktree to administrative metadata"
+                )
+            modules = matches[0] / "modules"
+            return modules.exists() or modules.is_symlink()
+        except WorkspaceError:
+            raise
+        except (OSError, RuntimeError, UnicodeError) as error:
+            raise WorkspaceError(
+                f"cannot inspect prunable worktree metadata for {path}: {error}"
+            ) from error
 
     def _resolve_github(self, items: list[dict[str, Any]], older_than_days: int) -> None:
         pending = [
@@ -1009,6 +1360,22 @@ class Cleanup:
             reason, evidence, merged_at = self._pull_evidence(
                 pulls, item["head"], item["base_branch"]
             )
+            historical_base = False
+            if reason == "wrong_base_branch":
+                row = pulls[0]
+                boundary = self._historical_pull_boundary(item, row)
+                if boundary is not None:
+                    historical_branch = row["base"]["ref"]
+                    reason, evidence, merged_at = self._pull_evidence(
+                        pulls, item["head"], historical_branch
+                    )
+                    if reason is None and not self._historical_merge_proven(
+                        item, row, boundary
+                    ):
+                        reason = "historical_base_unverified"
+                        evidence = None
+                        merged_at = None
+                    historical_base = reason is None
             if reason is not None:
                 item["reasons"] = [reason]
                 continue
@@ -1023,9 +1390,91 @@ class Cleanup:
                 item["reasons"] = ["younger_than_grace_period"]
             else:
                 item["disposition"] = "eligible"
-                item["reasons"] = ["merged_pr_head"]
+                item["reasons"] = [
+                    "merged_pr_head_historical_base"
+                    if historical_base
+                    else "merged_pr_head"
+                ]
                 if item["kind"] == "prunable-metadata":
                     item["reasons"].append("prunable_metadata")
+
+    def _historical_pull_boundary(
+        self, item: dict[str, Any], row: dict[str, Any]
+    ) -> str | None:
+        """Return the frozen pre-rewrite boundary for one legacy wrapper path."""
+
+        base = row.get("base")
+        primary = item.get("_primary")
+        if (
+            item.get("owner") != "atrinik"
+            or item.get("repository") != "atrinik/atrinik"
+            or item.get("base_branch") != "main"
+            or not isinstance(primary, str)
+            or not isinstance(base, dict)
+            or not isinstance(base.get("ref"), str)
+            or not self._owned_direct_child(
+                Path(item["path"]), Path(primary) / "build" / "worktrees"
+            )
+        ):
+            return None
+        return HISTORICAL_PULL_BASE_BOUNDARIES.get(
+            (item["repository"], item["base_branch"], base["ref"])
+        )
+
+    @staticmethod
+    def _historical_merge_proven(
+        item: dict[str, Any], row: dict[str, Any], boundary: str
+    ) -> bool:
+        """Prove GitHub's merge commit belongs to the frozen historical line."""
+
+        primary = item.get("_primary")
+        base = row.get("base")
+        merge_commit = row.get("merge_commit_sha")
+        if (
+            not isinstance(primary, str)
+            or not isinstance(base, dict)
+            or not isinstance(base.get("sha"), str)
+            or not isinstance(merge_commit, str)
+            or not HEAD_PATTERN.fullmatch(base["sha"])
+            or not HEAD_PATTERN.fullmatch(merge_commit)
+            or not HEAD_PATTERN.fullmatch(boundary)
+        ):
+            return False
+        try:
+            common = _git_common_directory(Path(primary))
+            grafts = common / "info" / "grafts"
+            try:
+                grafts.lstat()
+            except FileNotFoundError:
+                pass
+            else:
+                return False
+            commit = _command(
+                Path(primary),
+                "--no-replace-objects",
+                "rev-list",
+                "--parents",
+                "-n",
+                "1",
+                merge_commit,
+            ).split()
+            if (
+                len(commit) < 2
+                or commit[0] != merge_commit
+                or commit[1] != base["sha"]
+            ):
+                return False
+            _command(
+                Path(primary),
+                "--no-replace-objects",
+                "merge-base",
+                "--is-ancestor",
+                merge_commit,
+                boundary,
+            )
+        except (OSError, RuntimeError, WorkspaceError):
+            return False
+        return True
 
     @staticmethod
     def _protect_shared_prune_scope(items: list[dict[str, Any]]) -> None:
@@ -1056,8 +1505,8 @@ class Cleanup:
                     "Accept: application/vnd.github+json",
                     "--paginate",
                     "--jq",
-                    ".[] | {number,state,merged_at,head:{sha:.head.sha},"
-                    "base:{ref:.base.ref},html_url}",
+                    ".[] | {number,state,merged_at,merge_commit_sha,"
+                    "head:{sha:.head.sha},base:{ref:.base.ref,sha:.base.sha},html_url}",
                 ],
                 check=True,
                 capture_output=True,
@@ -1141,9 +1590,19 @@ class Cleanup:
         head = row.get("head")
         base = row.get("base")
         merged_at = row.get("merged_at")
+        merge_commit = row.get("merge_commit_sha")
         state_value = row.get("state")
         return (
-            set(row) == {"number", "state", "html_url", "merged_at", "head", "base"}
+            set(row)
+            == {
+                "number",
+                "state",
+                "html_url",
+                "merged_at",
+                "merge_commit_sha",
+                "head",
+                "base",
+            }
             and isinstance(row.get("number"), int)
             and not isinstance(row.get("number"), bool)
             and isinstance(row.get("html_url"), str)
@@ -1156,9 +1615,16 @@ class Cleanup:
             and isinstance(head.get("sha"), str)
             and bool(HEAD_PATTERN.fullmatch(head["sha"]))
             and isinstance(base, dict)
-            and set(base) == {"ref"}
+            and set(base) == {"ref", "sha"}
             and isinstance(base.get("ref"), str)
             and bool(base["ref"])
+            and isinstance(base.get("sha"), str)
+            and bool(HEAD_PATTERN.fullmatch(base["sha"]))
+            and (
+                merge_commit is None and merged_at is None
+                or isinstance(merge_commit, str)
+                and bool(HEAD_PATTERN.fullmatch(merge_commit))
+            )
         )
 
     def _builds(
@@ -1226,6 +1692,7 @@ class Cleanup:
         reference_errors: set[str],
     ) -> dict[str, Any]:
         item = _base_item("profile-build", "atrinik", "atrinik/atrinik", path)
+        metadata_path = path / BUILD_METADATA
         inodes, observed, walk_error = _tree_usage(path)
         item["_inodes"] = inodes
         if walk_error:
@@ -1261,7 +1728,6 @@ class Cleanup:
         elif busy:
             item["reasons"].append("build_lock_busy")
         source_removal = False
-        metadata_path = path / BUILD_METADATA
         if metadata_path.exists() or metadata_path.is_symlink():
             try:
                 metadata = self._load_build_metadata(metadata_path, item)
@@ -1465,6 +1931,7 @@ class Cleanup:
             item["reasons"] = ["invalid_cache_path"]
             item["legacy_known_cache"] = False
             return item
+        metadata_path = path / CACHE_METADATA
         inodes, observed, walk_error = _tree_usage(path)
         item["_inodes"] = inodes
         if walk_error:
@@ -1505,7 +1972,6 @@ class Cleanup:
         elif busy:
             item["reasons"].append("active_build")
         item["reasons"].extend(sorted(reference_errors))
-        metadata_path = path / CACHE_METADATA
         if metadata_path.exists() or metadata_path.is_symlink():
             try:
                 if metadata_path.is_symlink() or not metadata_path.is_file():

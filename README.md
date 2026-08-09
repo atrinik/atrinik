@@ -391,24 +391,44 @@ opt-in `npm-cache`; `all` selects all three. Positional checkout or logical
 component names narrow only the worktree inventory and still deduplicate
 aliases to one physical checkout. The special `atrinik` filter selects wrapper
 worktrees. JSON output is stable schema-versioned data and keeps Git/GitHub
-diagnostics off stdout. Text output ends with candidate, protected, removed,
-error, and allocated-byte totals.
+diagnostics off stdout; its byte fields remain exact integers. Text output uses
+compact base-1024 IEC sizes (`KiB`, `MiB`, `GiB`, and larger) for allocated,
+ignored, candidate, protected, and removed bytes.
 
-The worktree inventory covers every initialized physical checkout plus wrapper
-worktrees that Git proves are direct children of exactly
-`workspace/worktrees/atrinik/` or the historical `build/worktrees/`
-namespace. A worktree becomes eligible only when it is registered to the
-expected common Git directory and repository, named and unlocked, has no Git
-operation or ordinary tracked/untracked change, and is not retained by a
-profile, scenario, live topology, or repository-migration record. The
-authenticated `gh` commit-associated-pulls query must prove one merged PR with
-the manifest base branch, an exact `head.sha` match, no associated open PR, and
-a merge age beyond the grace period. Query failure, ambiguity, wrong base,
-closed-unmerged PR, advanced branch, detached worktree, external path, or any
-ownership uncertainty protects the item. Ignored compiler/dependency output
-does not make a worktree dirty, but its paths and allocated bytes are reported
-because `git worktree remove` will reclaim it. Apply never uses `--force` and
-does not delete local or remote branch refs.
+The worktree inventory covers every initialized physical checkout plus current
+wrapper worktrees that Git proves are direct children of exactly
+`workspace/worktrees/atrinik/`. Historical wrapper worktrees are considered
+only as direct children of the top-level `build/worktrees/` namespace. A
+worktree becomes eligible only when it is registered to the expected common
+Git directory and repository, named and unlocked, has no Git operation or
+ordinary tracked/untracked change, and is not retained by a profile, scenario,
+live topology, or repository-migration record. Normally, the authenticated
+`gh` commit-associated-pulls query must prove one merged PR with the manifest
+base branch, an exact `head.sha` match, no associated open PR, and a merge age
+beyond the grace period.
+
+The only historical-base exception is a wrapper worktree directly below
+`build/worktrees/`. Its expected coordinate remains `atrinik/atrinik@main`, but
+the PR base must be `master`. The authenticated API evidence must include the
+exact head, `base.sha`, and `merge_commit_sha`; the local merge commit's first
+parent must equal that base SHA, and the merge commit must be an ancestor of
+the frozen final-`master` boundary
+`ee5ba2096c94bce0161629423d4962a966bc61d8`. The local graph proof ignores
+replace refs and fails closed if `info/grafts` exists. Missing, unavailable,
+mismatched, or ambiguous API or local Git evidence protects the item, and
+apply reruns the proof immediately before removal. Wrong base, closed-unmerged
+PR, advanced branch, detached worktree, external path, or any other ownership
+uncertainty also protects it.
+
+Status inspection uses `--ignore-submodules=none`, so repository configuration
+cannot hide submodule changes. A worktree with populated submodules remains
+protected even when otherwise clean because its per-worktree Git directories
+can contain private refs, reflogs, and objects. If only its prunable
+administrative record remains, that record protects the repository-wide prune
+scope for the same reason. Ignored compiler/dependency output does not make a
+worktree dirty, but its paths and allocated bytes are reported because
+`git worktree remove` will reclaim it. Apply uses only ordinary non-force
+worktree removal and preserves local and remote branch refs and Git objects.
 
 Profile builds are eligible only as direct
 `workspace/build/profiles/<profile>-<key>` children with an exact regular
@@ -431,12 +451,14 @@ entries are report-only `unmanaged-build` items. Deep-review reports, ad hoc
 builds, packages, archives, and unregistered siblings are never recursively
 deleted.
 
-Apply holds the repository-layout lock, recomputes the entire plan, then
-revalidates each target immediately before removal. It removes eligible builds
-first, exact Git worktrees second, and the explicitly selected cache or safely
-shared prunable Git metadata last. A pre-mutation race aborts without deletion;
-after the first successful mutation, the deterministic policy stops on the
-first error and reports exactly what was reclaimed without claiming rollback.
+Apply holds the repository-layout lock and performs one complete inventory and
+size recomputation. Immediately before each removal it freshly revalidates the
+target's safety dependencies without rescanning unrelated report-only payloads.
+Any new uncertainty fails closed. It removes eligible builds first, exact Git
+worktrees second, and the explicitly selected cache or safely shared prunable
+Git metadata last. A pre-mutation race aborts without deletion; after the first
+successful mutation, the deterministic policy stops on the first error and
+reports exactly what was reclaimed without claiming rollback.
 
 ## Composing coherent component sources
 

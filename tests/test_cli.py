@@ -5,11 +5,24 @@ from pathlib import Path
 import unittest
 from unittest import mock
 
-from atrinik_workspace.cli import main, parser
+from atrinik_workspace.cli import _human_bytes, main, parser
 from atrinik_workspace.model import WorkspaceError
 
 
 class ParserTests(unittest.TestCase):
+    def test_human_bytes_uses_compact_iec_units_and_promotes_rounding(self) -> None:
+        self.assertEqual(
+            [_human_bytes(value) for value in (0, 1023, 1024, 1536)],
+            ["0B", "1023B", "1KiB", "1.5KiB"],
+        )
+        self.assertEqual(_human_bytes(1024**2 - 1), "1MiB")
+        self.assertEqual(_human_bytes(1024**3), "1GiB")
+        self.assertEqual(_human_bytes(1024**4), "1TiB")
+        self.assertEqual(_human_bytes(1024**5), "1PiB")
+        self.assertEqual(_human_bytes(1024**6), "1EiB")
+        with self.assertRaisesRegex(ValueError, "cannot be negative"):
+            _human_bytes(-1)
+
     def test_cleanup_defaults_to_preview_and_reports_json(self) -> None:
         report = {
             "schema_version": 1,
@@ -41,6 +54,37 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(result, 0)
         workspace_type.return_value.cleanup.assert_called_once_with([], 7, [], False)
         self.assertEqual(json.loads(output.call_args.args[0]), report)
+
+    def test_cleanup_json_preserves_exact_numeric_byte_fields(self) -> None:
+        allocated = 1024**4 + 123
+        ignored = 1024**3 + 7
+        report = {
+            "items": [
+                {
+                    "allocated_bytes": allocated,
+                    "ignored_bytes": ignored,
+                }
+            ],
+            "summary": {
+                "candidate_bytes": allocated,
+                "protected_bytes": ignored,
+                "removed_bytes": allocated + ignored,
+                "error_count": 0,
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.cleanup.return_value = report
+            with mock.patch("builtins.print") as output:
+                result = main(["cleanup", "--json"])
+
+        rendered = json.loads(output.call_args.args[0])
+        self.assertEqual(result, 0)
+        self.assertEqual(rendered, report)
+        self.assertEqual(rendered["items"][0]["allocated_bytes"], allocated)
+        self.assertEqual(rendered["items"][0]["ignored_bytes"], ignored)
+        self.assertEqual(
+            rendered["summary"]["removed_bytes"], allocated + ignored
+        )
 
     def test_cleanup_combines_scopes_filters_and_reports_apply_failure(self) -> None:
         report = {
@@ -96,6 +140,7 @@ class ParserTests(unittest.TestCase):
                     "disposition": "eligible",
                     "kind": "worktree",
                     "allocated_bytes": 4096,
+                    "ignored_bytes": 1024,
                     "age_seconds": 2 * 86400,
                     "path": "/workspace/review",
                     "reasons": ["merged_pr_head"],
@@ -119,12 +164,95 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(result, 0)
         lines = [call.args[0] for call in output.call_args_list]
         self.assertIn(
-            "eligible\tworktree\t4096\t2d\t/workspace/review\tmerged_pr_head",
+            "eligible\tworktree\tallocated=4KiB,ignored=1KiB\t2d\t"
+            "/workspace/review\tmerged_pr_head",
             lines,
         )
         self.assertIn(
-            "summary\tcandidates=1 candidate_bytes=4096 protected=0 "
-            "protected_bytes=0 removed=0 removed_bytes=0 errors=0",
+            "summary\tcandidates=1 candidate_bytes=4KiB protected=0 "
+            "protected_bytes=0B removed=0 removed_bytes=0B errors=0",
+            lines,
+        )
+
+    def test_cleanup_text_report_uses_concise_iec_byte_units(self) -> None:
+        report = {
+            "items": [
+                {
+                    "disposition": "eligible",
+                    "kind": "worktree",
+                    "allocated_bytes": 0,
+                    "ignored_bytes": 511,
+                    "age_seconds": None,
+                    "path": "/workspace/zero",
+                    "reasons": ["zero-sized"],
+                },
+                {
+                    "disposition": "protected",
+                    "kind": "worktree",
+                    "allocated_bytes": 1536,
+                    "ignored_bytes": 1024**2,
+                    "age_seconds": 0,
+                    "path": "/workspace/medium",
+                    "reasons": ["protected"],
+                },
+                {
+                    "disposition": "removed",
+                    "kind": "worktree",
+                    "allocated_bytes": 1024**3,
+                    "ignored_bytes": 1024**4,
+                    "age_seconds": 86400,
+                    "path": "/workspace/large",
+                    "reasons": ["removed"],
+                },
+                {
+                    "disposition": "skipped",
+                    "kind": "profile-build",
+                    "allocated_bytes": 1,
+                    "age_seconds": None,
+                    "path": "/workspace/no-ignored-size",
+                    "reasons": ["retained"],
+                },
+            ],
+            "summary": {
+                "candidate_count": 1,
+                "candidate_bytes": 0,
+                "protected_count": 1,
+                "protected_bytes": 1536,
+                "removed_count": 1,
+                "removed_bytes": 1024**3,
+                "error_count": 0,
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.cleanup.return_value = report
+            with mock.patch("builtins.print") as output:
+                result = main(["cleanup"])
+
+        lines = [call.args[0] for call in output.call_args_list]
+        self.assertEqual(result, 0)
+        self.assertIn(
+            "eligible\tworktree\tallocated=0B,ignored=511B\t-\t"
+            "/workspace/zero\tzero-sized",
+            lines,
+        )
+        self.assertIn(
+            "protected\tworktree\tallocated=1.5KiB,ignored=1MiB\t0d\t"
+            "/workspace/medium\tprotected",
+            lines,
+        )
+        self.assertIn(
+            "removed\tworktree\tallocated=1GiB,ignored=1TiB\t1d\t"
+            "/workspace/large\tremoved",
+            lines,
+        )
+        self.assertIn(
+            "skipped\tprofile-build\tallocated=1B\t-\t"
+            "/workspace/no-ignored-size\tretained",
+            lines,
+        )
+        self.assertIn(
+            "summary\tcandidates=1 candidate_bytes=0B protected=1 "
+            "protected_bytes=1.5KiB removed=1 removed_bytes=1GiB errors=0",
             lines,
         )
 
