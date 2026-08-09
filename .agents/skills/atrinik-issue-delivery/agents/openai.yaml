@@ -1,0 +1,6 @@
+interface:
+  display_name: "Atrinik Issue Delivery"
+  short_description: "Deliver Atrinik issues as merge-ready pull requests"
+  default_prompt: "Use $atrinik-issue-delivery to deliver this Atrinik GitHub issue through isolated worktrees, review/fix loops, passing checks, and an exact handoff. You may assign the issue, update its Project status, push branches, open or update draft PRs, and post brief delivery comments; do not force-push, close, merge, destructively reset, or apply cleanup."
+policy:
+  allow_implicit_invocation: false

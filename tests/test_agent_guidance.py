@@ -33,7 +33,7 @@ class AgentGuidanceTests(unittest.TestCase):
 
     def test_inventory_is_complete_and_within_budget(self) -> None:
         inventory = collect_inventory()
-        self.assertEqual(inventory["summary"]["skill_count"], 8)
+        self.assertEqual(inventory["summary"]["skill_count"], 9)
         self.assertIn(
             "atrinik-guidance-maintenance",
             [skill["name"] for skill in inventory["skills"]],
@@ -94,7 +94,7 @@ class AgentGuidanceTests(unittest.TestCase):
         with redirect_stdout(stdout):
             self.assertEqual(main(["--json"]), 0)
         inventory = json.loads(stdout.getvalue())
-        self.assertEqual(inventory["summary"]["skill_count"], 8)
+        self.assertEqual(inventory["summary"]["skill_count"], 9)
 
         stderr = io.StringIO()
         with mock.patch.object(
@@ -126,6 +126,61 @@ class AgentGuidanceTests(unittest.TestCase):
                     resolved = (path.parent / target).resolve()
                     self.assertTrue(resolved.is_relative_to(ROOT))
                     self.assertTrue(resolved.is_file())
+
+    def test_issue_delivery_skill_is_explicit_and_complete(self) -> None:
+        skill = ROOT / ".agents/skills/atrinik-issue-delivery"
+        package = {
+            path.relative_to(skill).as_posix()
+            for path in skill.rglob("*")
+            if path.is_file()
+        }
+        self.assertEqual(
+            package,
+            {
+                "SKILL.md",
+                "agents/openai.yaml",
+                "assets/deep-review-report.md",
+                "references/deep-review-checklist.md",
+            },
+        )
+
+        body = (skill / "SKILL.md").read_text(encoding="utf-8")
+        interface = (skill / "agents/openai.yaml").read_text(encoding="utf-8")
+        report = (skill / "assets/deep-review-report.md").read_text(
+            encoding="utf-8"
+        )
+        checklist = (
+            skill / "references/deep-review-checklist.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("Never trigger implicitly", body)
+        self.assertIn("$atrinik-issue-delivery", body)
+        self.assertIn("policy:\n  allow_implicit_invocation: false", interface)
+        self.assertIn("$atrinik-issue-delivery", interface)
+        for mutation in {
+            "assign the issue",
+            "update its Project status",
+            "push branches",
+            "open or update draft PRs",
+            "post brief delivery comments",
+        }:
+            with self.subTest(mutation=mutation):
+                self.assertIn(mutation, interface)
+        for exclusion in {
+            "do not force-push",
+            "close",
+            "merge",
+            "destructively reset",
+            "apply cleanup",
+        }:
+            with self.subTest(exclusion=exclusion):
+                self.assertIn(exclusion, interface)
+
+        self.assertIn("references/deep-review-checklist.md", body)
+        self.assertIn("assets/deep-review-report.md", body)
+        self.assertIn("| ID | Severity | Location |", report)
+        self.assertIn("## Scale and performance", checklist)
+        self.assertIn("## Safety, security, and supply chain", checklist)
 
     def test_removed_stale_routes_do_not_return(self) -> None:
         paths = [ROOT / "AGENTS.md"]
