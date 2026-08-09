@@ -2132,17 +2132,18 @@
       "locator": "pkg:npm/%40atrinik/website@0.0.0-development",
       "commit": null,
       "checksum": null,
-      "acquisition": "npm ci installs the exact package-lock graph with denied optional scripts omitted",
+      "acquisition": "npm ci installs the exact package-lock graph with denied optional scripts omitted, only the reviewed esbuild install script allowed, and the audited npm security override applied",
       "update_cadence_days": 7,
       "update_mechanism": "Grouped Dependabot npm updates constrained by Astro compatibility",
       "eol_response": "Upgrade compatible packages on the supported Node line or replace them",
       "validation": "npm ci, Astro/type/format tests, install-script audit, npm audit, deploy dry run, and npm CycloneDX SBOM",
       "disposition": "retain",
-      "packages": ["@astrojs/check", "@semantic-release/commit-analyzer", "@semantic-release/exec", "@semantic-release/github", "@semantic-release/release-notes-generator", "astro", "conventional-changelog-conventionalcommits", "prettier", "prettier-plugin-astro", "semantic-release", "typescript"],
+      "packages": ["@astrojs/check", "@semantic-release/commit-analyzer", "@semantic-release/exec", "@semantic-release/github", "@semantic-release/release-notes-generator", "astro", "conventional-changelog-conventionalcommits", "npm", "prettier", "prettier-plugin-astro", "semantic-release", "typescript"],
       "evidence": [
         {"repository":"website","path":"package-lock.json","contains":"\"lockfileVersion\": 3"},
         {"repository":"website","path":"package.json","contains":"\"name\": \"@atrinik/website\""},
-        {"repository":"website","path":"policy/dependencies.json","contains":"\"schemaVersion\": 1"}
+        {"repository":"website","path":"policy/dependencies.json","contains":"\"name\": \"esbuild\""},
+        {"repository":"website","path":"policy/dependencies.json","contains":"\"name\": \"npm\""}
       ]
     },
     {
