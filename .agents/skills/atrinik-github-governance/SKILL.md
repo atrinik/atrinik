@@ -1,6 +1,6 @@
 ---
 name: atrinik-github-governance
-description: Change Atrinik GitHub settings, rulesets, merge/release policy, Actions permissions, required checks, or governance automation.
+description: Change Atrinik GitHub policy, settings, Actions, required checks, or release governance.
 ---
 
 # Atrinik GitHub Governance

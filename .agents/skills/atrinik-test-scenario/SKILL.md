@@ -1,6 +1,6 @@
 ---
 name: atrinik-test-scenario
-description: Provision, inspect, reset, and hand off a deterministic classic account/character with isolated state through `./atrinik`.
+description: Provision deterministic classic account/character scenarios with isolated state through `./atrinik`.
 ---
 
 # Atrinik test scenario

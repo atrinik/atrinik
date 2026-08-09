@@ -1,6 +1,6 @@
 ---
 name: atrinik-protocol-change
-description: Change Atrinik wire contracts and all producers/consumers. Use for GP1 Protobuf/QUIC, classic packets and IDs, ADS, generated bindings, or compatibility transitions.
+description: Change GP1, classic, QUIC, or ADS wire contracts and their producers or consumers.
 ---
 
 # Atrinik protocol change

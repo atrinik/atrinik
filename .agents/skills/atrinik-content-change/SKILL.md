@@ -1,6 +1,6 @@
 ---
 name: atrinik-content-change
-description: Change and validate Atrinik authored world data. Use for maps, archetypes, media metadata, quests, interfaces, embedded scripts, or content collection on `main` or `1.x`.
+description: Change authored content on `main` or `1.x`, including maps, archetypes, media, and scripts.
 ---
 
 # Atrinik content change

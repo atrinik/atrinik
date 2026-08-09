@@ -1,6 +1,6 @@
 ---
 name: atrinik-multi-repo-workspace
-description: Coordinate Atrinik work across checkouts, profiles, worktrees, cleanup, wrapper builds/runtime, releases, or workspace CLI and layout. Use when ownership crosses a physical repository or the wrapper itself changes.
+description: Coordinate work across checkouts, profiles, worktrees, cleanup, releases, or wrapper CLI and layout.
 ---
 
 # Atrinik multi-repository workspace

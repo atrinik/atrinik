@@ -1,6 +1,6 @@
 ---
 name: atrinik-c-change
-description: Implement and validate classic Atrinik C17/CMake changes. Use for native classic client, server, libatrinik, generated consumers, or shared headers; replacement client/server work is Rust/Go.
+description: Change classic C17/CMake code, headers, and generated consumers; excludes Rust/Go replacements.
 ---
 
 # Atrinik classic C change

@@ -1,6 +1,6 @@
 ---
 name: atrinik-server-runtime
-description: Run or diagnose isolated classic server builds, state, resources, scenarios, and supervised topologies through `./atrinik`.
+description: Run or diagnose isolated classic servers and supervised topologies through `./atrinik`.
 ---
 
 # Atrinik server runtime
