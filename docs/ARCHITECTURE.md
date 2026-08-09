@@ -161,25 +161,29 @@ side effect.
 of initialization, synchronization, build, or startup. Default and explicit
 `--dry-run` modes are read-only. `--apply` first takes the same
 repository-layout lock used by checkout, build, topology, foreground-run, and
-scenario operations, fully recomputes the plan, and immediately revalidates
-each target. Build roots are removed before Git worktrees; the explicitly
-selected npm cache and safe prunable Git metadata come last. A race before the
-first mutation aborts the plan. A later failure stops the ordered sequence and
-reports completed reclamation without attempting to reconstruct generated
-data.
+scenario operations, then performs one complete inventory and size
+recomputation. Immediately before each removal it freshly revalidates that
+target's safety dependencies without rescanning unrelated report-only
+payloads; any new ambiguity fails closed. Build roots are removed before Git
+worktrees; the explicitly selected npm cache and safe prunable Git metadata
+come last. A race before the first mutation aborts the plan. A later failure
+stops the ordered sequence and reports completed reclamation without attempting
+to reconstruct generated data.
 
 Inventory records are stable-sorted and carry a kind, physical owner and
 repository, exact path, no-follow allocated size, age and age basis,
 disposition, stable reason codes, and applicable profile/scenario/topology/
-migration/retention or merged-PR evidence. Size accounting uses device/inode
-identity and excludes registered nested worktree roots from mixed container
-records, preventing hard links or overlapping roots from inflating global byte
-totals. Filesystem traversal or metadata ambiguity protects the affected
-scope.
+migration/retention or merged-PR evidence. JSON retains exact integer byte
+fields; text renders compact base-1024 IEC sizes. Size accounting uses
+device/inode identity and excludes registered nested worktree roots from mixed
+container records, preventing hard links or overlapping roots from inflating
+global byte totals. Filesystem traversal or metadata ambiguity protects the
+affected scope.
 
 Current-checkout worktrees are owned only as direct children of
-`workspace/worktrees/<checkout>/`. Wrapper-self worktrees are owned only when
-Git registers them under `workspace/worktrees/atrinik/` or the historical
+`workspace/worktrees/<checkout>/`. Current wrapper-self worktrees are owned
+only when Git registers them directly under `workspace/worktrees/atrinik/`;
+historical wrapper worktrees are recognized only as direct children of the
 top-level `build/worktrees/` namespace. Common-Git-directory and canonical
 repository identity, named/unlocked state, absence of in-progress Git
 operations, and ordinary tracked/untracked cleanliness are mandatory. Saved
@@ -187,12 +191,30 @@ profile selectors of kind `worktree`, absolute `path`, or migration-only
 `migrated-worktree`; retained scenario coordinates; live topology coordinates;
 and every original/destination/composite migration path protect exact
 worktrees. Ignored output is sized and disclosed but does not defeat
-eligibility. GitHub's authenticated commit-associated-pulls API must prove an
-exact merged head against the checkout's manifest branch, no open association,
-and the requested grace age. Apply delegates to `git worktree remove` without
-force and preserves refs. Prunable administrative records use the same PR and
-ownership proof and are pruned only when no protected prunable sibling shares
-that repository-wide Git prune operation.
+eligibility. GitHub's authenticated commit-associated-pulls API normally must
+prove an exact merged head against the checkout's manifest branch, no open
+association, and the requested grace age.
+
+Only a historical wrapper worktree directly below `build/worktrees/` may use
+the historical PR-base proof. Its expected coordinate remains
+`atrinik/atrinik@main`, while the PR base must be `master`. Authenticated API
+evidence supplies the exact `head.sha`, `base.sha`, and `merge_commit_sha`; the
+local merge commit's first parent must equal the API base SHA and that merge
+commit must be an ancestor of the frozen final-`master` boundary
+`ee5ba2096c94bce0161629423d4962a966bc61d8`. Graph inspection ignores replace
+refs and fails closed when `info/grafts` exists, so neither replacement nor
+graft metadata can rewrite the ancestry proof. Missing, mismatched,
+unavailable, or ambiguous evidence protects the target. Apply reruns this API
+and local Git proof immediately before removal.
+
+Worktree status is inspected with `--ignore-submodules=none`. A populated
+submodule protects the worktree even when its visible files are clean because
+per-worktree Git directories can retain private refs, reflogs, and objects. A
+missing worktree whose administrative record retains such a `modules`
+directory protects its repository-wide prune scope. Removal remains entirely
+non-force and preserves local and remote branch refs and Git objects. Prunable
+administrative records use the same PR and ownership proof and are pruned only
+when no protected prunable sibling shares that Git prune operation.
 
 Profile build ownership is a direct-child path plus an exact regular
 `.atrinik-workspace-managed.json` purpose marker. Each use under the per-build

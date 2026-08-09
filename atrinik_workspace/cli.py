@@ -19,6 +19,27 @@ from .workspace import Workspace
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _human_bytes(value: int) -> str:
+    """Render an exact byte count compactly for human-facing output."""
+
+    if value < 0:
+        raise ValueError("byte count cannot be negative")
+    units = ("B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB")
+    unit = 0
+    amount = float(value)
+    while amount >= 1024 and unit < len(units) - 1:
+        amount /= 1024
+        unit += 1
+    rounded = round(amount, 1)
+    if rounded >= 1024 and unit < len(units) - 1:
+        rounded /= 1024
+        unit += 1
+    if unit == 0:
+        return f"{value}{units[unit]}"
+    rendered = f"{rounded:.1f}".removesuffix(".0")
+    return f"{rendered}{units[unit]}"
+
+
 class _ExactArgumentParser(argparse.ArgumentParser):
     def __init__(self, *args: object, **kwargs: object):
         kwargs.setdefault("allow_abbrev", False)
@@ -469,20 +490,28 @@ def main(arguments: list[str] | None = None) -> int:
                         else f"{item['age_seconds'] // 86400}d"
                     )
                     reasons = ",".join(item["reasons"])
+                    sizes = [
+                        f"allocated={_human_bytes(item['allocated_bytes'])}"
+                    ]
+                    if "ignored_bytes" in item:
+                        sizes.append(
+                            f"ignored={_human_bytes(item['ignored_bytes'])}"
+                        )
+                    size_fields = ",".join(sizes)
                     print(
                         f"{item['disposition']}\t{item['kind']}\t"
-                        f"{item['allocated_bytes']}\t{age}\t{item['path']}\t"
+                        f"{size_fields}\t{age}\t{item['path']}\t"
                         f"{reasons}"
                     )
                 summary = report["summary"]
                 print(
                     "summary\t"
                     f"candidates={summary['candidate_count']} "
-                    f"candidate_bytes={summary['candidate_bytes']} "
+                    f"candidate_bytes={_human_bytes(summary['candidate_bytes'])} "
                     f"protected={summary['protected_count']} "
-                    f"protected_bytes={summary['protected_bytes']} "
+                    f"protected_bytes={_human_bytes(summary['protected_bytes'])} "
                     f"removed={summary['removed_count']} "
-                    f"removed_bytes={summary['removed_bytes']} "
+                    f"removed_bytes={_human_bytes(summary['removed_bytes'])} "
                     f"errors={summary['error_count']}"
                 )
             if report["summary"]["error_count"] or report.get("aborted"):
