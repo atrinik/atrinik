@@ -1,94 +1,116 @@
-# Atrinik workspace repository guide
+# Atrinik workspace agent guide
 
-## Ownership and routing
+## Overview
 
-- This repository owns multi-repository orchestration, not component source.
-  Keep implementation, tests, packages, and component release configuration in
-  the owning physical repository.
-- Use `atrinik-multi-repo-workspace` for cross-checkout ownership, profiles,
-  worktrees, migration, cleanup, releases, or wrapper CLI/layout changes. Add
-  only the narrow specialist skill needed for classic C, protocol, content,
-  runtime, scenarios, or GitHub governance work.
-- Resolve ownership from `components.json`, then read the owning checkout's
-  nearest `AGENTS.md`. Wrapper skills coordinate those contracts; they must not
-  duplicate component implementation guidance.
-- Checkouts are independent ignored Git repositories at manifest destinations.
-  `./classic` is one monorepo owning five `classic-*` logical components;
-  `content` is `atrinik/content@main`, while `content-1x` is the independent
-  `atrinik/content@1.x` checkout. `.devcontainer/` owns workspace composition;
-  the `devcontainer` checkout owns reusable images.
+- This MIT Python 3.11+ repository coordinates Atrinik's independent Git
+  repositories; it does not own component source. `./atrinik` and
+  `components.json` manage profiles, worktrees, builds, supervised runtimes,
+  cleanup, migration, and supply-chain reports.
+- `default` selects the MIT replacement stack (Rust, Go, Protobuf, and Astro).
+  Its standalone M1 foundations exist, but wrapper build/runtime integration
+  has not landed. `classic` selects the playable C17/CMake/Ninja stack. Never
+  mix providers or route unavailable replacement adapters through classic.
 
-## Safety and coherent stacks
+## Folder structure and ownership
 
+- `atrinik` is the CLI entry point; `atrinik_workspace/` owns orchestration;
+  `tests/` is the standard-library `unittest` suite.
+- `components.json` owns checkout, cohort, stack, role, source, and build
+  contracts. `supply-chain/` and `governance/` own machine policy; `docs/`,
+  `README.md`, and `CONTRIBUTING.md` own longer guidance.
+- `.agents/skills/` contains task workflows; `.devcontainer/`, `.github/`, and
+  `scripts/` own workspace composition, CI/release, and helpers.
+- Manifest destinations such as `client/`, `server/`, and `classic/` are
+  independent ignored repositories. `workspace/` and `build/` are ignored
+  generated state. Root `git status` does not inspect those repositories.
+- Resolve ownership through `components.json`, then read the owning checkout's
+  nearest `AGENTS.md`; a nested guide governs its subtree. Keep implementation,
+  tests, packages, and component release configuration in that physical repo.
+- `classic/` is one monorepo providing five `classic-*` components. `content/`
+  is `atrinik/content@main`; `content-1x/` is its independent `1.x` checkout.
+  `.devcontainer/` owns wrapper composition; `devcontainer/` owns images.
+
+## Core behaviors and patterns
+
+- Use `atrinik-multi-repo-workspace` for ownership, profiles, worktrees,
+  migration, cleanup, releases, or wrapper CLI/layout work. Add only the narrow
+  C, content, protocol, runtime, scenario, or GitHub skill needed. Use
+  `atrinik-guidance-maintenance` for periodic guidance audits or drift updates.
 - Never replace or move a dirty primary checkout, remove a dirty worktree, or
-  overwrite mutable server data. Preserve recoverable originals during checked
-  migration; only the migration command may repair a linked worktree's Git
-  administrative pointer without changing its working files.
-- Cleanup is explicit: preview `./atrinik cleanup --dry-run --json` before exact
-  `--apply`; never run it implicitly. Text uses IEC sizes; JSON keeps exact
-  bytes. Preserve dirty, detached, locked, in-progress, referenced, or
-  uncertain worktrees; profiles, scenarios, states, topology records/logs,
-  migrations, retention records, branches, Git objects, review reports, and
-  unmarked paths. The npm cache is opt-in. Apply recomputes under the layout
-  lock, uses non-force Git worktree removal, and reports partial failures.
-  Status uses `--ignore-submodules=none`; populated submodules protect
-  worktree-specific refs, reflogs, and objects. Historical wrapper cleanup
-  allows only direct `build/worktrees/` children with authenticated PR and
-  frozen ancestry proof. It ignores replace refs, rejects `info/grafts`, fails
-  closed on ambiguity, and is rerun by apply.
-- Use profiles for source selection. `default` selects the MIT replacement
-  stack and `classic` the playable classic stack. Never mix providers or route
-  unavailable replacement adapters through classic code. Replacement
-  repositories have standalone M1 foundations, but their wrapper build/runtime
-  adapters and integrated service closure have not landed.
-- A worktree belongs to a physical checkout. Selecting `classic`, a
-  `classic-*` component, or one of its roles changes all five classic selectors
-  to the same checkout root; profile resolution appends the manifest source.
-- Use `./atrinik path`, `topology show`, `up`, `ps`, `logs`, and `down`; do not
-  reconstruct managed build, runtime, PID, log, lock, or state paths. Persisted
-  records without current immutable repository/branch/checkout/source/provider
-  coordinates are historical and inert.
-- Give concurrent topologies distinct names and server states. Keep comparison
-  profiles, ports, generated roots, and client configuration isolated.
-- Do not mention confidential or unreleased Atrinik work in commits, issues,
-  pull requests, or other public surfaces.
+  overwrite mutable server data. Preserve recoverable migration inputs.
+- Cleanup is explicit and preview-first. Run
+  `./atrinik cleanup --dry-run --json` before the same scoped `--apply`; never
+  invoke cleanup implicitly.
+  Preserve dirty, detached, locked, active, referenced, or uncertain targets.
+  Historical eligibility fails closed. The multi-repository skill owns the
+  full cleanup proof and retention contract.
+- A worktree belongs to its physical checkout. Selecting `classic`, any
+  `classic-*` component, or one of its roles selects one root for all five;
+  profile resolution appends each manifest source directory.
+- Use `./atrinik path`, `topology show`, `up`, `ps`, `logs`, and `down`. Do not
+  reconstruct managed build, PID, log, lock, runtime, or state paths. Give
+  concurrent topologies distinct names, states, ports, and client config.
+- Persisted records lacking current immutable repository, branch, checkout,
+  source, and provider coordinates are historical and inert.
+- Follow `docs/PROVENANCE.md` for historical MIT reuse; incomplete history,
+  mixed authorship, uncertain identity, or embedded third-party material fails
+  closed. Cite the exact wrapper registry revision used.
+- Update `supply-chain/inventory.json` when dependency ownership or validation
+  changes. Keep Actions/images immutable, add no submodules, and audit a
+  complete profile. Only aggregate-root workflows and Dependabot are active.
+- Use Conventional Commits for commits and PR titles. Semantic-release owns
+  tags and release assets. Do not disclose confidential or unreleased work on
+  public surfaces; use `atrinik-github-governance` for GitHub policy.
 
-## Provenance, dependencies, and publication
+## Working agreements and commands
 
-- Follow [`docs/PROVENANCE.md`](docs/PROVENANCE.md) for the exhaustive approved
-  historical MIT grantor registry and evidence contract. Reuse fails closed on
-  incomplete history, mixed authorship, uncertain identity, or embedded
-  third-party material. Cite the exact wrapper revision containing the registry
-  used.
-- `supply-chain/inventory.json` is the organization dependency-ownership source.
-  Update it for changed toolchains, packages, Actions, images, vendored inputs,
-  licenses, owners, cadences, EOL responses, or validation paths. Keep Actions
-  and images immutable, retain updater hints, add no submodules, initialize the
-  complete selected profile, and run `./atrinik supply-chain audit --profile
-  PROFILE`. A review override never makes another profile member optional.
-- Treat only an aggregate checkout's root workflows and Dependabot file as
-  active GitHub configuration. Nested imported copies are inert history.
-- Commits and pull-request titles use Conventional Commits. Semantic-release
-  owns every squash release; never create or move release tags/assets manually.
-  Use `atrinik-github-governance` for policy, Actions, or release contracts.
+Run commands from this repository root. Inspect before mutation; initialization
+clones only missing repositories, and `sync` never initializes one:
 
-## Workflow and validation
+```sh
+./atrinik manifest validate
+./atrinik status --json
+./atrinik init
+./atrinik init --with classic
+```
 
-- `./atrinik init` initializes the replacement/default cohort. Exact
-  `./atrinik init --with classic` adds the complete classic cohort; `sync`
-  never initializes repositories. Use the multi-repository skill's migration
-  reference for a pre-split workspace.
-- Handoffs must provide copy-pasteable wrapper commands with exact profile,
-  worktree, topology, service, state, and scenario names. Include automated
-  validation, prerequisites, observable results, and cleanup. Use
-  `atrinik-test-scenario` for a ready account/character; never handcraft saves or
-  expose credentials.
-- Before finishing wrapper changes, run the complete unittest/coverage suite,
-  compileall, manifest validation, `git diff --check`, ShellCheck for shell
-  changes, actionlint for workflows, and the profile-aware supply-chain audit
-  when dependency inputs change. Preserve `.coveragerc` and OIDC Codecov
-  boundaries.
-- Keep this guide, affected skills, `README.md`, and `docs/ARCHITECTURE.md`
-  synchronized when wrapper ownership, commands, layout, or safety contracts
-  change. Treat stale agent guidance as a defect. Deep-review reports are
-  ignored local artifacts under `build/`.
+Use this exact currently playable build/runtime lifecycle (use `--follow` only
+for an interactive log session):
+
+```sh
+./atrinik profile show classic --json
+./atrinik build all --profile classic --test
+./atrinik up --name classic-local --profile classic --state default
+./atrinik ps classic-local --json
+./atrinik logs classic-local server --tail 100
+./atrinik down classic-local
+```
+
+Install test tooling once, then run the complete wrapper validation before
+finishing wrapper changes:
+
+```sh
+python3 -m pip install --requirement requirements-dev.txt
+python3 -m coverage run -m unittest discover -v
+python3 -m coverage report --show-missing
+python3 -m compileall -q atrinik atrinik_workspace tests
+python3 -m atrinik_workspace.guidance_inventory --check
+./atrinik manifest validate
+./atrinik supply-chain validate
+git diff --check
+```
+
+For cleanup changes also run:
+
+```sh
+./atrinik cleanup --scope all --older-than 7 --dry-run --json
+```
+
+Run ShellCheck for shell changes, actionlint for workflows, and
+`./atrinik supply-chain audit --profile PROFILE` when dependency inputs change.
+Preserve `.coveragerc` and OIDC Codecov boundaries.
+
+Handoffs must name exact profiles, worktrees, topologies, services, states, and
+scenarios, plus prerequisites, results, validation, and cleanup. Synchronize
+this guide, affected skills, README, architecture, and contributor guidance
+with contract changes; treat stale guidance as a defect.
