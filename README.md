@@ -119,12 +119,9 @@ be exchanged.
 
 ### Historical MIT provenance grants
 
-The approved grantor registry is exhaustive:
-
-| Grantor | Covered material | Permitted operations | Destination license |
-| --- | --- | --- | --- |
-| Zoey Rose | All original past Atrinik contributions solely authored by Zoey Rose | Copy, migrate, translate, or relicense | MIT |
-| Daniel Liptrot | All original past Atrinik contributions solely authored by Daniel Liptrot | Copy, migrate, translate, or relicense | MIT |
+[`docs/PROVENANCE.md`](docs/PROVENANCE.md) is the single exhaustive approved
+grantor registry and evidence contract. Do not duplicate its table in component
+guides or skills.
 
 The cross-repository M1 evidence and exact reuse procedure are indexed in
 [`docs/REPLACEMENT_FOUNDATIONS.md`](docs/REPLACEMENT_FOUNDATIONS.md). The
@@ -132,16 +129,10 @@ machine record maps every fresh repository to its local CI, provenance,
 dependency, notices, packaging, SBOM, and mixed-license gates without making
 this coordinator a second copy of their implementation policy.
 
-Apply a grant only after a complete, non-shallow Git-history audit follows
-renames and moves, proves the selected material is the named grantor's original
-work and was solely authored by that grantor, and verifies historical author
-identities. Review also excludes embedded third-party or conflicting-licensed
-work. Current blame alone is not proof; mixed, incomplete, or uncertain
-material remains under its existing license until independently resolved. The
-destination pull request or committed provenance manifest records the exact
-source, revision, destination, history and identity evidence, transformation,
-third-party review, applicable grantor and grant, and exact wrapper repository
-revision containing the registry entry as grant evidence.
+Historical reuse fails closed unless the canonical contract proves complete
+history, sole original authorship, identity, separability, and third-party
+review. Destination evidence cites the exact wrapper revision containing the
+registry used.
 
 The GPL classic utilities and their user-facing replacement/retirement paths
 are inventoried in
@@ -769,10 +760,10 @@ one another, while the common state makes the comparison repeatable.
 
 ### Use case: run classic and replacement topologies at the same time
 
-Once the wrapper's replacement composition and runtime contracts land, use
-distinct profiles, topology names, server states, and ports to run `classic`
-beside `default`. This is the required isolation pattern; today only the
-classic command is runnable:
+Once the replacement components' wrapper build/runtime adapters and integrated
+service closure land, use distinct profiles, topology names, server states, and
+ports to run `classic` beside `default`. This is the required isolation
+pattern; today only the classic command is runnable:
 
 ~~~sh
 ./atrinik state add classic-world
@@ -904,6 +895,7 @@ python3 -m compileall -q atrinik atrinik_workspace tests
 ~~~
 
 Use `./atrinik build COMPONENT --profile classic --test` for current native
-component integration. Replacement components still fail with a clear
-unavailable-contract error until their wrapper build adapters land. The
-`metaserver-worker` contract always runs its complete `npm run check` suite.
+component integration. Replacement repositories run their standalone
+aggregate validations today; wrapper builds still fail with a clear
+unavailable-contract error until their adapters land. The `metaserver-worker`
+wrapper contract runs its complete `npm run check` suite.

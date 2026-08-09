@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import subprocess
 import unittest
 
 
@@ -68,6 +69,19 @@ class ReplacementFoundationTests(unittest.TestCase):
         self.assertEqual(policy["repository"], "atrinik/atrinik")
         self.assertRegex(policy["revision"], r"^[0-9a-f]{40}$")
         self.assertEqual(policy["path"], "AGENTS.md")
+        registry = subprocess.run(
+            [
+                "git",
+                "show",
+                f"{policy['revision']}:{policy['path']}",
+            ],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+        self.assertIn("Zoey Rose", registry)
+        self.assertIn("Daniel Liptrot", registry)
 
         required_fields = self.inventory["required_record_fields"]
         self.assertEqual(len(required_fields), len(set(required_fields)))
