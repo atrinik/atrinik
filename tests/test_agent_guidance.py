@@ -32,7 +32,11 @@ class AgentGuidanceTests(unittest.TestCase):
 
     def test_inventory_is_complete_and_within_budget(self) -> None:
         inventory = collect_inventory()
-        self.assertEqual(inventory["summary"]["skill_count"], 7)
+        self.assertEqual(inventory["summary"]["skill_count"], 8)
+        self.assertIn(
+            "atrinik-guidance-maintenance",
+            [skill["name"] for skill in inventory["skills"]],
+        )
         self.assertEqual(
             [skill["name"] for skill in inventory["skills"]],
             sorted(
@@ -49,6 +53,7 @@ class AgentGuidanceTests(unittest.TestCase):
         metrics = file_metrics(ROOT / "AGENTS.md")
         self.assertEqual(metrics.path, "AGENTS.md")
         self.assertGreater(metrics.bytes, 0)
+        self.assertLess(metrics.lines, 150)
 
     def test_frontmatter_validation_fails_closed(self) -> None:
         cases = {
@@ -88,7 +93,7 @@ class AgentGuidanceTests(unittest.TestCase):
         with redirect_stdout(stdout):
             self.assertEqual(main(["--json"]), 0)
         inventory = json.loads(stdout.getvalue())
-        self.assertEqual(inventory["summary"]["skill_count"], 7)
+        self.assertEqual(inventory["summary"]["skill_count"], 8)
 
         stderr = io.StringIO()
         with mock.patch.object(
