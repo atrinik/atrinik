@@ -63,21 +63,20 @@ Reclaim completed review data only through preview-first cleanup:
 ```
 
 The default covers registered worktrees and marker-owned builds; npm cache is
-always opt-in. References, local/Git uncertainty, and unsafe path or marker
-state protect a target. The only historical-base exception is an
-`atrinik/atrinik@main` wrapper worktree directly below `build/worktrees/`; the
-PR must target `master` with head, base, and merge SHAs. The merge's first
-parent must match the base and it must be an ancestor of
+opt-in. Text uses IEC sizes; JSON keeps exact bytes. References, Git ambiguity,
+and unsafe paths or markers protect a target. The only historical-base
+exception is an `atrinik/atrinik@main` wrapper worktree directly below
+`build/worktrees/`; its PR must target `master` with head, base, and merge SHAs.
+The merge's first parent must match the base and it must be an ancestor of
 frozen boundary `ee5ba2096c94bce0161629423d4962a966bc61d8`. Graph proof ignores
 replace refs and rejects `info/grafts`. Apply inventories fully under the layout
 lock, then reruns the proof and exact-target safety without unrelated report
 scans; uncertainty fails closed.
-Status uses `--ignore-submodules=none`; populated submodules protect because
-worktree-specific Git directories can retain private refs, reflogs, and objects.
+Status uses `--ignore-submodules=none`; populated submodule Git data protects.
 Cleanup removes builds first, uses only non-force Git removal, and preserves
 branch refs, profiles, scenarios, states, topology records/logs, migrations,
-retention records, Git objects, review reports, and unmarked paths. For cleanup
-changes, hand off exact fixtures, JSON commands, reasons, and preserved records.
+retention records, Git objects, review reports, and unmarked paths. Hand off
+exact fixtures, JSON commands, reasons, and preserved records.
 
 ## Compose coherent sources
 

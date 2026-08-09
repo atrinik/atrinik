@@ -173,11 +173,12 @@ to reconstruct generated data.
 Inventory records are stable-sorted and carry a kind, physical owner and
 repository, exact path, no-follow allocated size, age and age basis,
 disposition, stable reason codes, and applicable profile/scenario/topology/
-migration/retention or merged-PR evidence. Size accounting uses device/inode
-identity and excludes registered nested worktree roots from mixed container
-records, preventing hard links or overlapping roots from inflating global byte
-totals. Filesystem traversal or metadata ambiguity protects the affected
-scope.
+migration/retention or merged-PR evidence. JSON retains exact integer byte
+fields; text renders compact base-1024 IEC sizes. Size accounting uses
+device/inode identity and excludes registered nested worktree roots from mixed
+container records, preventing hard links or overlapping roots from inflating
+global byte totals. Filesystem traversal or metadata ambiguity protects the
+affected scope.
 
 Current-checkout worktrees are owned only as direct children of
 `workspace/worktrees/<checkout>/`. Current wrapper-self worktrees are owned

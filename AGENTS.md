@@ -24,19 +24,18 @@
   overwrite mutable server data. Preserve recoverable originals during checked
   migration; only the migration command may repair a linked worktree's Git
   administrative pointer without changing its working files.
-- Workspace cleanup is explicit and preview-first. Use `./atrinik cleanup
-  --dry-run --json` before exact `--apply`; never add implicit cleanup to other
-  commands. Preserve dirty, detached, locked, in-progress, referenced, or
+- Cleanup is explicit: preview `./atrinik cleanup --dry-run --json` before exact
+  `--apply`; never run it implicitly. Text uses IEC sizes; JSON keeps exact
+  bytes. Preserve dirty, detached, locked, in-progress, referenced, or
   uncertain worktrees; profiles, scenarios, states, topology records/logs,
   migrations, retention records, branches, Git objects, review reports, and
   unmarked paths. The npm cache is opt-in. Apply recomputes under the layout
-  lock, uses only non-force Git worktree removal, and reports partial failure
-  accurately. Status uses `--ignore-submodules=none`; populated submodules
-  protect the target because worktree-specific Git directories can retain
-  private refs, reflogs, and objects. Historical wrapper cleanup is confined to
-  direct `build/worktrees/` children and requires exact authenticated PR plus
-  frozen local merge ancestry. The proof ignores replace refs, rejects
-  `info/grafts`, fails closed on ambiguity, and is rerun by apply.
+  lock, uses non-force Git worktree removal, and reports partial failures.
+  Status uses `--ignore-submodules=none`; populated submodules protect
+  worktree-specific refs, reflogs, and objects. Historical wrapper cleanup
+  allows only direct `build/worktrees/` children with authenticated PR and
+  frozen ancestry proof. It ignores replace refs, rejects `info/grafts`, fails
+  closed on ambiguity, and is rerun by apply.
 - Use profiles for source selection. `default` selects the MIT replacement
   stack and `classic` the playable classic stack. Never mix providers or route
   unavailable replacement adapters through classic code. Replacement

@@ -391,8 +391,9 @@ opt-in `npm-cache`; `all` selects all three. Positional checkout or logical
 component names narrow only the worktree inventory and still deduplicate
 aliases to one physical checkout. The special `atrinik` filter selects wrapper
 worktrees. JSON output is stable schema-versioned data and keeps Git/GitHub
-diagnostics off stdout. Text output ends with candidate, protected, removed,
-error, and allocated-byte totals.
+diagnostics off stdout; its byte fields remain exact integers. Text output uses
+compact base-1024 IEC sizes (`KiB`, `MiB`, `GiB`, and larger) for allocated,
+ignored, candidate, protected, and removed bytes.
 
 The worktree inventory covers every initialized physical checkout plus current
 wrapper worktrees that Git proves are direct children of exactly
