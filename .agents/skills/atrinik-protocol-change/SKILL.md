@@ -1,6 +1,6 @@
 ---
 name: atrinik-protocol-change
-description: Change GP1, classic, QUIC, or ADS wire contracts and their producers or consumers.
+description: Change GP1, metaserver, classic, QUIC, or ADS wire contracts and their producers or consumers.
 ---
 
 # Atrinik protocol change
@@ -11,15 +11,16 @@ implementation skill for coordinated consumers.
 
 ## Select the authoritative contract
 
-- Replacement Game Protocol 1 lives in the physical `protocol` checkout and
-  owns Protobuf/Buf policy, normative QUIC/framing specifications, generated
-  Go/Rust contracts, and conformance fixtures.
+- Replacement GP1 and metaserver publisher/directory contracts live in the
+  physical `protocol` checkout, which owns Protobuf/Buf policy, normative
+  specifications, generated Go/Rust contracts, and conformance fixtures.
 - Classic numeric command IDs live at
   `classic/protocol/schema/game-commands.json`; packet payloads may be owned by
   classic client/server producers and consumers. Use a classic-derived profile
   and the monorepo's `classic-protocol-change` skill.
 - ADS/authored schemas live with their exact `content@main` or
-  `content-1x@1.x` format. Metaserver contracts identify their own owner.
+  `content-1x@1.x` format; `metaserver-worker` owns discovery implementation
+  and state rather than the shared contracts.
 
 Resolve paths rather than assuming the wrapper CWD:
 

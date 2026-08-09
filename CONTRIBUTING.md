@@ -41,10 +41,13 @@ target disappeared with the retired classic `history/*` namespace.
 Before opening a pull request, run:
 
 ~~~sh
-python3 -m unittest discover -v
+python3 -m pip install --requirement requirements-dev.txt
+python3 -m coverage run -m unittest discover -v
+python3 -m coverage report --show-missing
 python3 -m compileall -q atrinik atrinik_workspace tests
 python3 -m atrinik_workspace.guidance_inventory --check
 ./atrinik manifest validate
+./atrinik supply-chain validate
 git diff --check
 ~~~
 
