@@ -190,14 +190,16 @@ dirty inputs regenerate on every build. Missing `incuna_-1` output, incomplete
 pairs, malformed files, or generator failure stop the build while preserving
 the last valid cache.
 
-Server launch uses a disposable HTTP asset root that combines the named
-state's existing `http/data` with those generated maps. It does not copy into
-or overlay an already registered state. A supervised topology copies the maps
-into its owned runtime snapshot before the server takes its immutable asset
-snapshot. Region maps are reclaimed with their marker-owned profile build by
-the normal preview-first `./atrinik cleanup --scope builds` lifecycle; topology
-snapshots remain with the retained topology record and are atomically replaced
-the next time that topology name is launched.
+Server launch uses a disposable `assets` staging root with a writable `data`
+directory and the selected generated `client-maps`. Generated game data never
+needs to exist in, copy into, or overlay a registered state. A supervised
+topology copies the maps into its owned runtime snapshot before the server
+takes its immutable asset snapshot. QUIC serves that snapshot by default;
+`http_url` only advertises an optional operator-managed HTTP(S) origin. Region
+maps are reclaimed with their marker-owned profile build by the normal
+preview-first `./atrinik cleanup --scope builds` lifecycle; topology snapshots
+remain with the retained topology record and are atomically replaced the next
+time that topology name is launched.
 
 `--with classic` has one exact meaning: add the complete classic initialization
 cohort to the replacement/default cohort. It is not a classic-only mode. The

@@ -114,7 +114,6 @@ class WorkspaceTests(unittest.TestCase):
         if name == "server":
             (seed / "install_data" / "keys").mkdir(parents=True)
             (seed / "install_data" / "unique-items").mkdir()
-            (seed / "install_data" / "http" / "data").mkdir(parents=True)
             (seed / "install_data" / "keys" / "test.pub").write_text(
                 "key\n", encoding="utf-8"
             )
@@ -123,9 +122,6 @@ class WorkspaceTests(unittest.TestCase):
             )
             (seed / "install_data" / "bans").write_text("", encoding="utf-8")
             (seed / "install_data" / "motd").write_text("Welcome\n", encoding="utf-8")
-            (seed / "install_data" / "http" / "data" / "listing.txt").write_text(
-                "assets\n", encoding="utf-8"
-            )
         command("git", "add", ".", cwd=seed)
         command("git", "commit", "-m", "feat: seed", cwd=seed)
         command("git", "remote", "add", "origin", str(origin), cwd=seed)
@@ -684,9 +680,9 @@ class WorkspaceTests(unittest.TestCase):
             "counter = binary.with_name('worldmaker-count')\n"
             "count = int(counter.read_text()) + 1 if counter.exists() else 1\n"
             "counter.write_text(str(count))\n"
-            "http = Path(next(arg.split('=', 1)[1] for arg in sys.argv "
-            "if arg.startswith('--httppath=')))\n"
-            "output = http / 'client-maps'\n"
+            "assets = Path(next(arg.split('=', 1)[1] for arg in sys.argv "
+            "if arg.startswith('--assetspath=')))\n"
+            "output = assets / 'client-maps'\n"
             "output.mkdir(parents=True)\n"
             "(output / 'incuna_-1.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n')\n"
             "(output / 'incuna_-1.def').write_text('pixel_size 4\\n')\n",
@@ -921,26 +917,10 @@ class WorkspaceTests(unittest.TestCase):
         ):
             path.mkdir(parents=True, exist_ok=True)
         self.make_region_map_cache(root)
-        missing_http_state = self.root / "state-missing-http"
-        with self.assertRaisesRegex(WorkspaceError, "lacks required HTTP data"):
-            self.workspace._prepare_server_runtime(
-                root, {"server": source}, missing_http_state, "missing-http"
-            )
-        linked_http_state = self.root / "state-linked-http"
-        (linked_http_state / "http").mkdir(parents=True)
-        http_target = self.root / "http-target"
-        http_target.mkdir()
-        (linked_http_state / "http" / "data").symlink_to(
-            http_target, target_is_directory=True
-        )
-        with self.assertRaisesRegex(WorkspaceError, "lacks required HTTP data"):
-            self.workspace._prepare_server_runtime(
-                root, {"server": source}, linked_http_state, "linked-http"
-            )
         state_one = self.root / "state-one"
         state_two = self.root / "state-two"
-        (state_one / "http" / "data").mkdir(parents=True)
-        (state_two / "http" / "data").mkdir(parents=True)
+        state_one.mkdir()
+        state_two.mkdir()
 
         first = self.workspace._prepare_server_runtime(
             root, {"server": source}, state_one, "one"
@@ -952,10 +932,38 @@ class WorkspaceTests(unittest.TestCase):
         self.assertNotEqual(first, second)
         self.assertTrue((first / "data").is_symlink())
         self.assertEqual((second / "data").resolve(), state_two)
+        self.assertTrue((first / "assets" / "data").is_dir())
+        self.assertFalse((first / "assets" / "data").is_symlink())
+        self.assertNotEqual(first / "assets", second / "assets")
         self.assertEqual(
-            (first / "http" / "client-maps").resolve(),
+            (first / "assets" / "client-maps").resolve(),
             root / "runtime" / "client-maps",
         )
+
+        generated = first / "assets" / "data" / "listing.txt"
+        generated.write_text("generated\n", encoding="utf-8")
+        repeated = self.workspace._prepare_server_runtime(
+            root, {"server": source}, state_one, "one"
+        )
+        self.assertEqual(repeated, first)
+        self.assertFalse(generated.exists())
+
+    def test_asset_staging_directory_rejects_invalid_nodes(self) -> None:
+        missing = self.root / "missing-assets"
+        self.workspace._prepare_asset_staging_directory(missing)
+        self.assertTrue(missing.is_dir())
+
+        invalid_file = self.root / "asset-file"
+        invalid_file.write_text("invalid\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "asset staging path is invalid"):
+            self.workspace._prepare_asset_staging_directory(invalid_file)
+
+        target = self.root / "asset-target"
+        target.mkdir()
+        invalid_link = self.root / "asset-link"
+        invalid_link.symlink_to(target, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "asset staging path is invalid"):
+            self.workspace._prepare_asset_staging_directory(invalid_link)
 
     def test_topology_summary_resolves_service_dependency_closure(self) -> None:
         summary = self.workspace.topology_summary(
@@ -1148,7 +1156,7 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertTrue((topology_maps / "incuna_-1.png").is_file())
         self.assertEqual(
-            (server_runtime / "http" / "client-maps").resolve(), topology_maps
+            (server_runtime / "assets" / "client-maps").resolve(), topology_maps
         )
         self.assertTrue(
             (build_root / "runtime" / "client-maps" / "incuna_-1.png").is_file()
@@ -1170,7 +1178,7 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("'--port_mapping=off'", server_log.read_text())
         self.assertIn("'--stun_server=off'", server_log.read_text())
         self.assertIn(
-            f"'--httppath={server_runtime / 'http'}'", server_log.read_text()
+            f"'--assetspath={server_runtime / 'assets'}'", server_log.read_text()
         )
         self.assertIn(
             f"'--server=127.0.0.1 17300 {'a' * 64}'", client_log.read_text()
@@ -1579,7 +1587,7 @@ class WorkspaceTests(unittest.TestCase):
                 "default",
                 "default",
                 1731,
-                ["--no_console", "--httppath=/tmp/untrusted"],
+                ["--no_console", "--assetspath=/tmp/untrusted"],
                 True,
             )
 
@@ -1590,8 +1598,8 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("--stun_server=off", rendered)
         self.assertIn("--no_console", rendered)
         self.assertLess(
-            rendered.index("--httppath=/tmp/untrusted"),
-            rendered.index(f"--httppath={runtime / 'http'}"),
+            rendered.index("--assetspath=/tmp/untrusted"),
+            rendered.index(f"--assetspath={runtime / 'assets'}"),
         )
 
     def test_foreground_launch_rejects_invalid_port(self) -> None:
