@@ -1528,11 +1528,14 @@ class WorkspaceTests(unittest.TestCase):
         executable.write_text(
             "#!/usr/bin/env python3\n"
             "from pathlib import Path\n"
+            "import os\n"
             "import sys\n"
             "binary = Path(__file__).resolve()\n"
             "counter = binary.with_name('worldmaker-count')\n"
             "count = int(counter.read_text()) + 1 if counter.exists() else 1\n"
             "counter.write_text(str(count))\n"
+            "binary.with_name('worldmaker-bytecode').write_text("
+            "os.environ.get('PYTHONDONTWRITEBYTECODE', ''))\n"
             "assets = Path(next(arg.split('=', 1)[1] for arg in sys.argv "
             "if arg.startswith('--assetspath=')))\n"
             "output = assets / 'client-maps'\n"
@@ -1559,6 +1562,7 @@ class WorkspaceTests(unittest.TestCase):
         self.workspace._generate_region_maps(root, "default", selected)
 
         self.assertEqual((binary / "worldmaker-count").read_text(), "1")
+        self.assertEqual((binary / "worldmaker-bytecode").read_text(), "1")
         self.assertTrue((output / "incuna_-1.png").is_file())
         previous = (output / "incuna_-1.def").read_text(encoding="utf-8")
         atomic_json(output / ".atrinik-region-maps.json", {"stale": True})

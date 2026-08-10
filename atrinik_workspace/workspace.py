@@ -2428,6 +2428,8 @@ class Workspace:
                 working, root, selected, data, content, resources
             )
             executable = working / "atrinik-server"
+            environment = os.environ.copy()
+            environment["PYTHONDONTWRITEBYTECODE"] = "1"
             run(
                 [
                     str(executable),
@@ -2439,6 +2441,7 @@ class Workspace:
                     f"--resourcespath={working / 'resources'}",
                 ],
                 cwd=working,
+                env=environment,
             )
             self._validate_region_maps(generated)
             final_inputs, final_cacheable = self._region_map_inputs(
