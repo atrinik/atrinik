@@ -219,14 +219,15 @@ class AgentGuidanceTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
 
         for marker in {
-            "content@main",
-            "content-1x@1.x",
-            "separate worktrees",
-            "validation",
-            "commits",
-            "linked PRs",
-            "evidence-backed",
-            "single-line exception",
+            "For issue fixes, assess both `content@main` and `content-1x@1.x`",
+            (
+                "Shared authored changes normally need separate worktrees, "
+                "validation, commits, and linked PRs on both lines"
+            ),
+            (
+                "record an evidence-backed format, consumer, runtime, or "
+                "provenance reason for any single-line exception"
+            ),
         }:
             with self.subTest(surface="content", marker=marker):
                 self.assertIn(marker, content)
@@ -236,7 +237,10 @@ class AgentGuidanceTests(unittest.TestCase):
             "final-head checks",
             "Paired: only the default-branch PR closes; companions link",
             "companions link",
-            "A sole `main` PR closes. A sole `1.x` PR links without a closing keyword; close its issue manually after merge",
+            (
+                "A sole `main` PR closes. A sole `1.x` PR links without a "
+                "closing keyword; close its issue manually after merge"
+            ),
             "per-target bases",
         }:
             with self.subTest(surface="delivery", marker=marker):
