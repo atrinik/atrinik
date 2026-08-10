@@ -4,16 +4,47 @@ import argparse
 import json
 from pathlib import Path
 import sys
+from typing import Any
 
+from .completion import mark, protocol, protocol_command, shell_script
 from .model import Manifest, WorkspaceError
-from .supply_chain import (
-    Inventory,
-    report_component_commits,
-    repository_roots,
-    version_report,
-    write_generated,
-)
-from .workspace import Workspace
+
+
+# Keep completion startup independent from the heavyweight workspace/runtime module.
+# Tests replace this hook directly; normal dispatch resolves it lazily below.
+Workspace: Any = None
+
+
+class Inventory:
+    @staticmethod
+    def load(*arguments: object, **keywords: object) -> object:
+        from .supply_chain import Inventory as implementation
+
+        return implementation.load(*arguments, **keywords)
+
+
+def repository_roots(*arguments: object, **keywords: object) -> object:
+    from .supply_chain import repository_roots as implementation
+
+    return implementation(*arguments, **keywords)
+
+
+def report_component_commits(*arguments: object, **keywords: object) -> object:
+    from .supply_chain import report_component_commits as implementation
+
+    return implementation(*arguments, **keywords)
+
+
+def version_report(*arguments: object, **keywords: object) -> object:
+    from .supply_chain import version_report as implementation
+
+    return implementation(*arguments, **keywords)
+
+
+def write_generated(*arguments: object, **keywords: object) -> object:
+    from .supply_chain import write_generated as implementation
+
+    return implementation(*arguments, **keywords)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,7 +87,7 @@ def parser() -> argparse.ArgumentParser:
     manifest.add_argument("action", choices=["validate"])
 
     initialize = commands.add_parser("init", help="clone missing physical checkouts")
-    initialize.add_argument("components", nargs="*")
+    mark(initialize.add_argument("components", nargs="*"), "component")
     initialize.add_argument(
         "--with",
         dest="additional_sets",
@@ -65,12 +96,12 @@ def parser() -> argparse.ArgumentParser:
         default=[],
         help="add the complete classic cohort to the default checkout cohort",
     )
-    initialize.add_argument("--jobs", type=int, default=4)
+    mark(initialize.add_argument("--jobs", type=int, default=4), "none")
 
     sync = commands.add_parser(
         "sync", help="fetch and fast-forward physical checkouts"
     )
-    sync.add_argument("components", nargs="*")
+    mark(sync.add_argument("components", nargs="*"), "component")
     sync.add_argument(
         "--with",
         dest="additional_sets",
@@ -89,7 +120,7 @@ def parser() -> argparse.ArgumentParser:
     status = commands.add_parser(
         "status", help="summarize primary physical-checkout state"
     )
-    status.add_argument("components", nargs="*")
+    mark(status.add_argument("components", nargs="*"), "component")
     status.add_argument("--json", action="store_true")
 
     migrate = commands.add_parser(
@@ -112,33 +143,33 @@ def parser() -> argparse.ArgumentParser:
     )
     worktree_commands = worktree.add_subparsers(dest="worktree_command", required=True)
     worktree_create = worktree_commands.add_parser("create")
-    worktree_create.add_argument("component")
-    worktree_create.add_argument("label")
-    worktree_create.add_argument("--branch", required=True)
-    worktree_create.add_argument("--from", dest="start_point")
+    mark(worktree_create.add_argument("component"), "component")
+    mark(worktree_create.add_argument("label"), "none")
+    mark(worktree_create.add_argument("--branch", required=True), "none")
+    mark(worktree_create.add_argument("--from", dest="start_point"), "none")
     worktree_create.add_argument("--existing", action="store_true")
     worktree_remove = worktree_commands.add_parser("remove")
-    worktree_remove.add_argument("component")
-    worktree_remove.add_argument("label")
+    mark(worktree_remove.add_argument("component"), "component")
+    mark(worktree_remove.add_argument("label"), "worktree")
     worktree_list = worktree_commands.add_parser("list")
-    worktree_list.add_argument("components", nargs="*")
+    mark(worktree_list.add_argument("components", nargs="*"), "component")
     worktree_list.add_argument("--json", action="store_true")
 
     cleanup = commands.add_parser(
         "cleanup", help="preview or reclaim stale workspace data"
     )
-    cleanup.add_argument(
+    mark(cleanup.add_argument(
         "components",
         nargs="*",
         help="limit worktrees to repeated checkout/component identities",
-    )
+    ), "component")
     cleanup.add_argument(
         "--scope",
         action="append",
         choices=["worktrees", "builds", "npm-cache", "all"],
         default=[],
     )
-    cleanup.add_argument("--older-than", type=int, default=7, metavar="DAYS")
+    mark(cleanup.add_argument("--older-than", type=int, default=7, metavar="DAYS"), "none")
     cleanup_mode = cleanup.add_mutually_exclusive_group()
     cleanup_mode.add_argument("--dry-run", action="store_true")
     cleanup_mode.add_argument("--apply", action="store_true")
@@ -147,28 +178,28 @@ def parser() -> argparse.ArgumentParser:
     profile = commands.add_parser("profile", help="manage coherent source profiles")
     profile_commands = profile.add_subparsers(dest="profile_command", required=True)
     profile_create = profile_commands.add_parser("create")
-    profile_create.add_argument("name")
-    profile_create.add_argument("--from", dest="source", default="default")
+    mark(profile_create.add_argument("name"), "none")
+    mark(profile_create.add_argument("--from", dest="source", default="default"), "profile")
     profile_set = profile_commands.add_parser("set")
-    profile_set.add_argument("name")
-    profile_set.add_argument("component")
+    mark(profile_set.add_argument("name"), "profile")
+    mark(profile_set.add_argument("component"), "profile_component")
     selector = profile_set.add_mutually_exclusive_group(required=True)
     selector.add_argument("--primary", action="store_true")
-    selector.add_argument("--worktree")
-    selector.add_argument("--path", type=Path)
+    mark(selector.add_argument("--worktree"), "worktree")
+    mark(selector.add_argument("--path", type=Path), "path")
     profile_show = profile_commands.add_parser("show")
-    profile_show.add_argument("name", nargs="?", default="default")
+    mark(profile_show.add_argument("name", nargs="?", default="default"), "profile")
     profile_show.add_argument("--json", action="store_true")
 
     path = commands.add_parser(
         "path", help="print a resolved logical-component source path"
     )
-    path.add_argument("component")
-    path.add_argument("--profile", default="default")
+    mark(path.add_argument("component"), "profile_component")
+    mark(path.add_argument("--profile", default="default"), "profile")
 
     build = commands.add_parser("build", help="build a component or the playable system")
-    build.add_argument("target", help="all or a component name")
-    build.add_argument("--profile", default="default")
+    mark(build.add_argument("target", help="all or a component name"), "build_target")
+    mark(build.add_argument("--profile", default="default"), "profile")
     build.add_argument("--test", action="store_true")
 
     topology = commands.add_parser(
@@ -178,44 +209,44 @@ def parser() -> argparse.ArgumentParser:
         dest="topology_command", required=True
     )
     topology_show = topology_commands.add_parser("show")
-    topology_show.add_argument("profile", nargs="?", default="default")
-    topology_show.add_argument("--state", default="default")
+    mark(topology_show.add_argument("profile", nargs="?", default="default"), "profile")
+    mark(topology_show.add_argument("--state", default="default"), "state")
     topology_show.add_argument(
         "--service", choices=["server", "client"], action="append"
     )
     topology_show.add_argument("--json", action="store_true")
 
     up = commands.add_parser("up", help="build and start a supervised topology")
-    up.add_argument("--name")
-    up.add_argument("--profile", default="default")
-    up.add_argument("--state", default="default")
-    up.add_argument(
+    mark(up.add_argument("--name"), "none")
+    mark(up.add_argument("--profile", default="default"), "profile")
+    mark(up.add_argument("--state", default="default"), "state")
+    mark(up.add_argument(
         "--port",
         type=int,
         help="server UDP port (default: choose an available port)",
-    )
+    ), "none")
     up.add_argument("--service", choices=["server", "client"], action="append")
     up.add_argument("--json", action="store_true")
 
     ps = commands.add_parser("ps", help="show supervised topology processes")
-    ps.add_argument("name", nargs="?")
+    mark(ps.add_argument("name", nargs="?"), "topology")
     ps.add_argument("--json", action="store_true")
 
     logs = commands.add_parser("logs", help="show supervised topology logs")
-    logs.add_argument("name", nargs="?", default="default")
+    mark(logs.add_argument("name", nargs="?", default="default"), "topology")
     logs.add_argument("service", nargs="?", choices=["server", "client"])
-    logs.add_argument("--tail", type=int, default=100)
+    mark(logs.add_argument("--tail", type=int, default=100), "none")
     logs.add_argument("--follow", "-f", action="store_true")
 
     down = commands.add_parser("down", help="stop a supervised topology")
-    down.add_argument("name", nargs="?", default="default")
+    mark(down.add_argument("name", nargs="?", default="default"), "topology")
     down.add_argument("--json", action="store_true")
 
     state = commands.add_parser("state", help="register persistent server state")
     state_commands = state.add_subparsers(dest="state_command", required=True)
     state_add = state_commands.add_parser("add")
-    state_add.add_argument("name")
-    state_add.add_argument("--path", type=Path)
+    mark(state_add.add_argument("name"), "none")
+    mark(state_add.add_argument("--path", type=Path), "path")
     state_list = state_commands.add_parser("list")
     state_list.add_argument("--json", action="store_true")
 
@@ -226,19 +257,19 @@ def parser() -> argparse.ArgumentParser:
         dest="scenario_command", required=True
     )
     scenario_create = scenario_commands.add_parser("create")
-    scenario_create.add_argument("name")
-    scenario_create.add_argument("--profile", default="default")
-    scenario_create.add_argument("--preset", default="basic-player")
+    mark(scenario_create.add_argument("name"), "none")
+    mark(scenario_create.add_argument("--profile", default="default"), "profile")
+    mark(scenario_create.add_argument("--preset", default="basic-player"), "none")
     scenario_create.add_argument("--json", action="store_true")
     scenario_list = scenario_commands.add_parser("list")
     scenario_list.add_argument("--json", action="store_true")
     scenario_show = scenario_commands.add_parser("show")
-    scenario_show.add_argument("name")
+    mark(scenario_show.add_argument("name"), "scenario")
     scenario_show.add_argument("--json", action="store_true")
     scenario_credentials = scenario_commands.add_parser("credentials")
-    scenario_credentials.add_argument("name")
+    mark(scenario_credentials.add_argument("name"), "scenario")
     scenario_reset = scenario_commands.add_parser("reset")
-    scenario_reset.add_argument("name")
+    mark(scenario_reset.add_argument("name"), "scenario")
     scenario_reset.add_argument("--json", action="store_true")
 
     supply_chain = commands.add_parser(
@@ -249,38 +280,43 @@ def parser() -> argparse.ArgumentParser:
     )
     supply_chain_commands.add_parser("validate")
     supply_chain_audit = supply_chain_commands.add_parser("audit")
-    supply_chain_audit.add_argument("--profile", default="default")
-    supply_chain_audit.add_argument(
+    mark(supply_chain_audit.add_argument("--profile", default="default"), "profile")
+    mark(supply_chain_audit.add_argument(
         "--repository",
         action="append",
         default=[],
         metavar="NAME=PATH",
         help="override one component checkout or source root for a read-only audit",
-    )
+    ), "none")
     supply_chain_report = supply_chain_commands.add_parser("report")
     supply_chain_report.add_argument(
         "--format", choices=["cyclonedx", "licenses", "spdx"], required=True
     )
-    supply_chain_report.add_argument(
+    mark(supply_chain_report.add_argument(
         "--profile",
         default="default",
         help="profile whose initialized checkouts supply first-party commits",
-    )
-    supply_chain_report.add_argument("--output", type=Path)
+    ), "profile")
+    mark(supply_chain_report.add_argument("--output", type=Path), "path")
     supply_chain_versions = supply_chain_commands.add_parser("versions")
-    supply_chain_versions.add_argument("--output", type=Path)
+    mark(supply_chain_versions.add_argument("--output", type=Path), "path")
 
     launch = commands.add_parser("run", help="build and run client or server")
     launch_commands = launch.add_subparsers(dest="target", required=True)
     for target in ("client", "server"):
         target_parser = launch_commands.add_parser(target)
-        target_parser.add_argument("--profile", default="default")
-        target_parser.add_argument("--state", default="default")
-        target_parser.add_argument(
+        mark(target_parser.add_argument("--profile", default="default"), "profile")
+        mark(target_parser.add_argument("--state", default="default"), "state")
+        mark(target_parser.add_argument(
             "--port", type=int, default=1730, help="server UDP port (default: 1730)"
-        )
+        ), "none")
         target_parser.add_argument("--dry-run", action="store_true")
-        target_parser.add_argument("arguments", nargs=argparse.REMAINDER)
+        mark(target_parser.add_argument("arguments", nargs=argparse.REMAINDER), "none")
+
+    completion = commands.add_parser(
+        "completion", help="emit a native shell completion activation script"
+    )
+    completion.add_argument("shell", choices=["bash", "zsh", "fish"])
     return root
 
 
@@ -315,14 +351,24 @@ def _print_scenario_handoff(summary: dict[str, object]) -> None:
 
 
 def main(arguments: list[str] | None = None) -> int:
-    options = parser().parse_args(arguments)
+    raw_arguments = list(sys.argv[1:] if arguments is None else arguments)
+    root_parser = parser()
+    if raw_arguments and raw_arguments[0] == protocol_command():
+        return protocol(root_parser, ROOT, raw_arguments[1:])
+    options = root_parser.parse_args(raw_arguments)
     try:
+        if options.command == "completion":
+            print(shell_script(options.shell), end="")
+            return 0
         if options.command == "manifest":
             manifest = Manifest.load(ROOT / "components.json")
             print(f"components.json: valid ({len(manifest.components)} components)")
             return 0
 
-        workspace = Workspace(ROOT)
+        workspace_type = Workspace
+        if workspace_type is None:
+            from .workspace import Workspace as workspace_type
+        workspace = workspace_type(ROOT)
         if options.command == "supply-chain":
             inventory = Inventory.load(
                 ROOT / "supply-chain" / "inventory.json", ROOT / "components.json"

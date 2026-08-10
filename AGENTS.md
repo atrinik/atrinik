@@ -52,8 +52,9 @@
 - Use `./atrinik path`, `topology show`, `up`, `ps`, `logs`, and `down`. Do not
   reconstruct managed build, PID, log, lock, runtime, or state paths. Give
   concurrent topologies distinct names, states, ports, and client config.
-- Persisted records lacking current immutable repository, branch, checkout,
-  source, and provider coordinates are historical and inert.
+- Keep shell completion parser-driven, bounded, local-only, secret-free, and
+  ahead of `Workspace` construction.
+- Persisted records without current immutable coordinates are historical and inert.
 - Follow `docs/PROVENANCE.md` for historical MIT reuse; incomplete history,
   mixed authorship, uncertain identity, or embedded third-party material fails
   closed. Cite the exact wrapper registry revision used.
