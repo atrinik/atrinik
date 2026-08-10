@@ -31,8 +31,12 @@ scenario procedures.
    when needed and set its existing Status to **In progress** per
    `github-settings/config/planning.json`; never invent an `in-progress` label.
    Use a status label only where an authorized repository makes it canonical.
-4. Leave the issue open. Give only the canonical PR a closing reference; link
-   companion PRs without making them race to close it.
+4. For content, assess `main` and `1.x`. Give shared fixes separate bases,
+   worktrees, validation, commits, linked PRs, reviews, and final-head checks;
+   record an evidence-backed exception. Paired: only the default-branch PR
+   closes; companions link. A sole `main` PR closes. A sole `1.x` PR links
+   without a closing keyword; close its issue manually after merge. Leave
+   issues open.
 
 ## Resolve ownership and isolate work
 
@@ -52,11 +56,10 @@ scenario procedures.
 
 ## Implement and publish a draft
 
-Implement requirements with repository-owned tests and contract updates.
-Commit coherent Conventional Commit checkpoints; never rewrite published
-history without separate authority. Run focused validation, push normally, and
-open a draft PR against `TARGET_BRANCH` (for example, `--base TARGET_BRANCH`)
-once coherent; verify the returned PR base.
+Implement requirements with owner tests/contracts. Commit coherent Conventional
+Commit checkpoints; never rewrite published history without separate authority.
+Validate, push normally, and open a coherent draft against `TARGET_BRANCH`
+(for example, `--base TARGET_BRANCH`); verify the returned base.
 
 Use a Conventional Commit title and newline-preserving GitHub-Flavored Markdown
 body. Record issue linkage, base/head branches and SHAs, worktree, commits,
@@ -139,11 +142,10 @@ actionable feedback restarts the fix, validation, and whole-diff loop.
 Missing human approval blocks merging, not the ready transition after the stated
 exit conditions pass.
 
-Hand off issue/PR URLs; repositories; base/head SHAs; branches, commits, and
-worktrees; report path/rounds/findings; exact validation and check state;
-mergeability; runtime applicability; all reused/created/preserved profile,
-build, server/client, scenario, state, topology, and service data; prerequisites,
-actions, results, repeat/shutdown/cleanup commands; and blockers or `none`.
+Hand off issue/PR URLs; per-target bases, heads, branches, commits, worktrees,
+review findings, validation/checks, mergeability, runtime applicability,
+resources, verification/repeat/shutdown/cleanup commands, and blockers or
+`none`.
 
 Keep worktrees and reports while PRs are open. Stop before merge or closure.
 Cleanup requires a separate post-merge request beginning with
