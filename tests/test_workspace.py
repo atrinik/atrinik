@@ -751,6 +751,13 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "not a directory"):
             self.workspace._validate_region_maps(output)
 
+        target = self.root / "map-target"
+        target.mkdir()
+        output.symlink_to(target, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace._validate_region_maps(output)
+        output.unlink()
+
         reset()
         with self.assertRaisesRegex(WorkspaceError, "lack required"):
             self.workspace._validate_region_maps(output)
@@ -801,6 +808,12 @@ class WorkspaceTests(unittest.TestCase):
         marker.unlink()
         self.assertFalse(
             self.workspace._region_map_cache_matches(output, inputs, True)
+        )
+
+        linked_output = self.root / "linked-maps"
+        linked_output.symlink_to(output, target_is_directory=True)
+        self.assertFalse(
+            self.workspace._region_map_cache_matches(linked_output, inputs, True)
         )
 
         atomic_json(
@@ -908,6 +921,22 @@ class WorkspaceTests(unittest.TestCase):
         ):
             path.mkdir(parents=True, exist_ok=True)
         self.make_region_map_cache(root)
+        missing_http_state = self.root / "state-missing-http"
+        with self.assertRaisesRegex(WorkspaceError, "lacks required HTTP data"):
+            self.workspace._prepare_server_runtime(
+                root, {"server": source}, missing_http_state, "missing-http"
+            )
+        linked_http_state = self.root / "state-linked-http"
+        (linked_http_state / "http").mkdir(parents=True)
+        http_target = self.root / "http-target"
+        http_target.mkdir()
+        (linked_http_state / "http" / "data").symlink_to(
+            http_target, target_is_directory=True
+        )
+        with self.assertRaisesRegex(WorkspaceError, "lacks required HTTP data"):
+            self.workspace._prepare_server_runtime(
+                root, {"server": source}, linked_http_state, "linked-http"
+            )
         state_one = self.root / "state-one"
         state_two = self.root / "state-two"
         (state_one / "http" / "data").mkdir(parents=True)
