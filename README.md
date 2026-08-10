@@ -693,13 +693,17 @@ commands turn that selection into a Compose-like native development stack:
 ./atrinik down TOPOLOGY
 ~~~
 
-`up` resolves the selected providers for the `client`, `server`, `content`,
-`protocol`, `libatrinik`, `sound`, and `resources` roles automatically.
+For a complete Classic profile, `up`, scenarios, and individual builds resolve
+one manifest-derived build-root selection across the `client`, `server`,
+`content`, `protocol`, `libatrinik`, `sound`, `resources`, and
+`metaserver-worker` roles. Only the requested game service targets are built;
+the wider selection keeps their incremental outputs and recorded coordinates
+on one root. Partial profiles retain the requested service's dependency closure.
 Provider selection is stack-coherent: a classic service never binds a
 replacement protocol or `content@main`. Today the `classic` stack is the
 runnable implementation; the `default` replacement profile will become
 runnable as its component contracts land. For a runnable profile, `up` builds
-the required closure, collects content, stages resources/sound, prepares an
+the requested targets, collects content, stages resources/sound, prepares an
 isolated runtime, and starts both game processes under one supervisor. A server
 gets an available UDP port by default; use `--port` when a stable port is
 useful. The supervisor waits for both the QUIC certificate fingerprint and

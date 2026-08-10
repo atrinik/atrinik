@@ -737,6 +737,19 @@ class WorkspaceTests(unittest.TestCase):
             (output / "incuna_-1.def").read_text(encoding="utf-8"), previous
         )
 
+    def test_region_map_inputs_ignore_unrelated_common_build_roles(self) -> None:
+        profile = self.workspace._load_profile("default", require_file=False)
+        required = self.workspace._dependency_roles(profile, {"server"})
+        selected = {
+            role: self.workspace.paths.repositories / role
+            for role in required | {"client", "sound"}
+        }
+
+        inputs, cacheable = self.workspace._region_map_inputs("default", selected)
+
+        self.assertTrue(cacheable)
+        self.assertEqual(set(inputs["coordinates"]), required)
+
     def test_region_map_validation_rejects_malformed_outputs(self) -> None:
         output = self.root / "client-maps"
 
@@ -965,7 +978,7 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "asset staging path is invalid"):
             self.workspace._prepare_asset_staging_directory(invalid_link)
 
-    def test_topology_summary_resolves_service_dependency_closure(self) -> None:
+    def test_topology_summary_uses_complete_profile_build_roles(self) -> None:
         summary = self.workspace.topology_summary(
             "default", "default", ["client"]
         )
@@ -974,13 +987,24 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIsNone(summary["state"])
         self.assertEqual(
             set(summary["dependencies"]),
-            {"client", "sound", "libatrinik", "protocol"},
+            {
+                "client",
+                "server",
+                "sound",
+                "content",
+                "resources",
+                "libatrinik",
+                "protocol",
+            },
         )
         self.assertEqual(
             set(summary["components"]),
             {
                 "client",
+                "server",
                 "sound",
+                "content",
+                "resources",
                 "libatrinik",
                 "protocol",
             },
