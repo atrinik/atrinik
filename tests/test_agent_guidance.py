@@ -153,28 +153,42 @@ class AgentGuidanceTests(unittest.TestCase):
             skill / "references/deep-review-checklist.md"
         ).read_text(encoding="utf-8")
 
-        self.assertIn("Never trigger implicitly", body)
+        self.assertIn("never trigger implicitly", body.lower())
         self.assertIn("$atrinik-issue-delivery", body)
         self.assertIn("policy:\n  allow_implicit_invocation: false", interface)
         self.assertIn("$atrinik-issue-delivery", interface)
+        self.assertIn('display_name: "Atrinik Issue Delivery"', interface)
+        self.assertIn(
+            'short_description: "Deliver Atrinik issues as merge-ready pull requests"',
+            interface,
+        )
         for mutation in {
             "assign the issue",
             "update its Project status",
             "push branches",
             "open or update draft PRs",
+            "mark drafts ready after exit conditions",
             "post brief delivery comments",
         }:
             with self.subTest(mutation=mutation):
                 self.assertIn(mutation, interface)
-        for exclusion in {
-            "do not force-push",
-            "close",
-            "merge",
-            "destructively reset",
-            "apply cleanup",
+        self.assertIn(
+            "do not force-push, close, merge, bypass policy, destructively reset, or apply cleanup",
+            interface,
+        )
+
+        for contract in {
+            "--from BASE_SHA",
+            "HEAD` equals `BASE_SHA",
+            "--base TARGET_BRANCH",
+            "wrapper-owned",
+            "never reconstruct, copy",
+            "skipped/neutral checks",
+            "required human",
+            "concise PR update",
         }:
-            with self.subTest(exclusion=exclusion):
-                self.assertIn(exclusion, interface)
+            with self.subTest(contract=contract):
+                self.assertIn(contract, body)
 
         self.assertIn("references/deep-review-checklist.md", body)
         self.assertIn("assets/deep-review-report.md", body)

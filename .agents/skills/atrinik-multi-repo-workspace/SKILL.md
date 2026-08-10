@@ -64,7 +64,7 @@ opt-in. Text uses IEC sizes; JSON keeps exact bytes. References, ambiguous Git,
 and unsafe paths/markers protect targets. Only an `atrinik/atrinik@main`
 worktree directly below `build/worktrees/` has the historical-base exception:
 its PR targets `master` and supplies head, base, and merge SHAs; the merge's
-first parent equals the base and is ancestral to frozen boundary
+first parent equals the base, and the merge is ancestral to frozen boundary
 `ee5ba2096c94bce0161629423d4962a966bc61d8`. Proof ignores replace refs and
 rejects `info/grafts`. Under the layout lock, `--apply` reinventories and reruns
 proof plus exact-target safety; uncertainty fails closed. Status uses
@@ -132,7 +132,8 @@ operations.
   literal `\n` separators. Give multi-section bodies by file or stdin; after
   create/edit, verify remote rendering.
 - Keep physical repositories independently releasable; semantic-release owns
-  publication. Dependency changes require `supply-chain/inventory.json` and a
+  versions, tags, notes, and recovery. Never publish manually. Dependency
+  changes require `supply-chain/inventory.json` and a
   complete-profile audit; overrides stay mandatory and only aggregate roots own
   workflows/Dependabot.
 - Apply historical MIT grants only under
