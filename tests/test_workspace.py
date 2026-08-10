@@ -1208,20 +1208,21 @@ class WorkspaceTests(unittest.TestCase):
             sources.append((name, source, purpose))
         status = topology / "status.json"
         status.write_text("previous status\n", encoding="utf-8")
-        real_copy = shutil.copytree
+        real_copy = self.workspace._copy_topology_runtime_tree
         copied = 0
 
         def fail_second_copy(
-            source_path: Path, destination: Path, **kwargs: object
-        ) -> Path:
+            source_path: Path, destination: Path
+        ) -> None:
             nonlocal copied
             copied += 1
             if copied == 2:
                 raise OSError("disk full")
-            return real_copy(source_path, destination, **kwargs)
+            real_copy(source_path, destination)
 
-        with mock.patch(
-            "atrinik_workspace.workspace.shutil.copytree",
+        with mock.patch.object(
+            self.workspace,
+            "_copy_topology_runtime_tree",
             side_effect=fail_second_copy,
         ):
             with self.assertRaisesRegex(OSError, "disk full"):
@@ -1261,6 +1262,46 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(list(topology.iterdir()), [])
 
+    def test_topology_runtime_set_rejects_file_changed_to_link_during_copy(
+        self,
+    ) -> None:
+        topology = self.root / "topology"
+        topology.mkdir()
+        source = self.root / "shared-content"
+        source.mkdir()
+        payload = source / "payload"
+        payload.write_text("shared\n", encoding="utf-8")
+        external = self.root / "external"
+        external.write_text("private\n", encoding="utf-8")
+        atomic_json(
+            source / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "collected-content"},
+        )
+        real_stat = os.stat
+        changed = False
+
+        def stat_then_change(
+            path: object, *args: object, **kwargs: object
+        ) -> os.stat_result:
+            nonlocal changed
+            result = real_stat(path, *args, **kwargs)
+            if path == "payload" and kwargs.get("dir_fd") is not None and not changed:
+                changed = True
+                payload.unlink()
+                payload.symlink_to(external)
+            return result
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.stat", side_effect=stat_then_change
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed or contains a link"):
+                self.workspace._copy_topology_runtime_inputs(
+                    topology,
+                    (("content", source, "collected-content"),),
+                )
+
+        self.assertEqual(list(topology.iterdir()), [])
+
     def test_replace_directory_cleanup_failure_keeps_committed_output(self) -> None:
         output = self.root / "output"
         output.mkdir()
@@ -1281,6 +1322,14 @@ class WorkspaceTests(unittest.TestCase):
         ):
             workspace_replace_directory(output, staging, ".previous-")
 
+            next_staging = self.root / "next-staging"
+            next_staging.mkdir()
+            (next_staging / "payload").write_text("next\n", encoding="utf-8")
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot reclaim replaced-directory backup"
+            ):
+                workspace_replace_directory(output, next_staging, ".previous-")
+
         self.assertEqual(
             (output / "payload").read_text(encoding="utf-8"), "new\n"
         )
@@ -1293,6 +1342,18 @@ class WorkspaceTests(unittest.TestCase):
                 ]
             ),
             1,
+        )
+        workspace_replace_directory(output, next_staging, ".previous-")
+        self.assertEqual(
+            (output / "payload").read_text(encoding="utf-8"), "next\n"
+        )
+        self.assertEqual(
+            [
+                path
+                for path in self.root.iterdir()
+                if path.name.startswith(".previous-")
+            ],
+            [],
         )
 
     def test_region_maps_are_atomic_cached_and_keyed_by_clean_inputs(self) -> None:

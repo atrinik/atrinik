@@ -165,15 +165,43 @@ def replace_directory(
     backup_prefix: str,
     verify_after_install: Callable[[], None] | None = None,
 ) -> None:
+    backup_container = output.parent / f"{backup_prefix}pending"
+    backup_metadata = {
+        "schema_version": SCHEMA_VERSION,
+        "purpose": "replaced-directory-backup",
+        "output": output.name,
+    }
+    if backup_container.exists() or backup_container.is_symlink():
+        marker = backup_container / MANAGED_MARKER
+        if (
+            not backup_container.is_dir()
+            or backup_container.is_symlink()
+            or not marker.is_file()
+            or marker.is_symlink()
+            or load_json(marker) != backup_metadata
+        ):
+            raise WorkspaceError(
+                f"replaced-directory backup is not managed: {backup_container}"
+            )
+        try:
+            shutil.rmtree(backup_container)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot reclaim replaced-directory backup {backup_container}: "
+                f"{error}"
+            ) from error
+
     backup: Path | None = None
     if output.exists():
-        backup = Path(tempfile.mkdtemp(prefix=backup_prefix, dir=output.parent))
-        backup.rmdir()
+        backup_container.mkdir()
+        atomic_json(backup_container / MANAGED_MARKER, backup_metadata)
+        backup = backup_container / "previous"
         output.replace(backup)
         try:
             staging.replace(output)
         except BaseException:
             backup.replace(output)
+            shutil.rmtree(backup_container)
             raise
     else:
         staging.replace(output)
@@ -184,13 +212,16 @@ def replace_directory(
         output.replace(staging)
         if backup is not None:
             backup.replace(output)
+            shutil.rmtree(backup_container)
         raise
     if backup is not None:
         try:
-            shutil.rmtree(backup)
+            shutil.rmtree(backup_container)
         except OSError as error:
             print(
-                f"warning: cannot remove replaced directory {backup}: {error}",
+                "warning: cannot remove managed replaced-directory backup "
+                f"{backup_container}: {error}; the next replacement will retry "
+                "before changing output",
                 file=sys.stderr,
             )
 
@@ -2989,28 +3020,159 @@ class Workspace:
         return path
 
     @staticmethod
-    def _validate_topology_runtime_tree(path: Path) -> None:
-        for directory, dirnames, filenames in os.walk(path, followlinks=False):
-            directory_path = Path(directory)
-            for name in dirnames:
-                child = directory_path / name
-                if child.is_symlink():
-                    raise WorkspaceError(
-                        f"topology runtime input contains a link: {child}"
-                    )
-            for name in filenames:
-                child = directory_path / name
+    def _runtime_tree_identity(value: os.stat_result) -> tuple[int, ...]:
+        return (
+            value.st_dev,
+            value.st_ino,
+            value.st_mode,
+            value.st_size,
+            value.st_mtime_ns,
+            value.st_ctime_ns,
+        )
+
+    def _copy_topology_runtime_directory(
+        self,
+        source_fd: int,
+        source_display: Path,
+        destination: Path,
+    ) -> None:
+        directory_before = os.fstat(source_fd)
+        if not stat.S_ISDIR(directory_before.st_mode):
+            raise WorkspaceError(
+                f"topology runtime input is not a directory: {source_display}"
+            )
+        destination.mkdir(mode=stat.S_IMODE(directory_before.st_mode))
+        try:
+            names = sorted(os.listdir(source_fd))
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot list topology runtime input {source_display}: {error}"
+            ) from error
+        for name in names:
+            source_child = source_display / name
+            destination_child = destination / name
+            try:
+                child_before = os.stat(name, dir_fd=source_fd, follow_symlinks=False)
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect topology runtime input {source_child}: {error}"
+                ) from error
+            if stat.S_ISDIR(child_before.st_mode):
+                flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
                 try:
-                    mode = child.lstat().st_mode
+                    child_fd = os.open(name, flags, dir_fd=source_fd)
                 except OSError as error:
                     raise WorkspaceError(
-                        f"cannot inspect topology runtime input {child}: {error}"
+                        "topology runtime input changed or contains a link: "
+                        f"{source_child}"
                     ) from error
-                if not stat.S_ISREG(mode):
-                    raise WorkspaceError(
-                        "topology runtime input contains a non-regular file: "
-                        f"{child}"
+                try:
+                    if self._runtime_tree_identity(os.fstat(child_fd)) != (
+                        self._runtime_tree_identity(child_before)
+                    ):
+                        raise WorkspaceError(
+                            f"topology runtime input changed during copy: {source_child}"
+                        )
+                    self._copy_topology_runtime_directory(
+                        child_fd, source_child, destination_child
                     )
+                finally:
+                    os.close(child_fd)
+            elif stat.S_ISREG(child_before.st_mode):
+                flags = os.O_RDONLY | os.O_NOFOLLOW
+                try:
+                    child_fd = os.open(name, flags, dir_fd=source_fd)
+                except OSError as error:
+                    raise WorkspaceError(
+                        "topology runtime input changed or contains a link: "
+                        f"{source_child}"
+                    ) from error
+                try:
+                    opened = os.fstat(child_fd)
+                    if (
+                        not stat.S_ISREG(opened.st_mode)
+                        or self._runtime_tree_identity(opened)
+                        != self._runtime_tree_identity(child_before)
+                    ):
+                        raise WorkspaceError(
+                            f"topology runtime input changed during copy: {source_child}"
+                        )
+                    destination_fd = os.open(
+                        destination_child,
+                        os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                        stat.S_IMODE(opened.st_mode),
+                    )
+                    try:
+                        with os.fdopen(child_fd, "rb", closefd=False) as source_file:
+                            with os.fdopen(
+                                destination_fd, "wb", closefd=False
+                            ) as destination_file:
+                                shutil.copyfileobj(source_file, destination_file)
+                        copied = os.fstat(child_fd)
+                        if self._runtime_tree_identity(copied) != (
+                            self._runtime_tree_identity(opened)
+                        ):
+                            raise WorkspaceError(
+                                "topology runtime input changed during copy: "
+                                f"{source_child}"
+                            )
+                        os.fchmod(destination_fd, stat.S_IMODE(opened.st_mode))
+                    finally:
+                        os.close(destination_fd)
+                finally:
+                    os.close(child_fd)
+                os.utime(
+                    destination_child,
+                    ns=(opened.st_atime_ns, opened.st_mtime_ns),
+                    follow_symlinks=False,
+                )
+            else:
+                raise WorkspaceError(
+                    "topology runtime input contains a link or non-regular file: "
+                    f"{source_child}"
+                )
+        directory_after = os.fstat(source_fd)
+        if self._runtime_tree_identity(directory_after) != self._runtime_tree_identity(
+            directory_before
+        ):
+            raise WorkspaceError(
+                f"topology runtime input changed during copy: {source_display}"
+            )
+        destination.chmod(stat.S_IMODE(directory_before.st_mode))
+        os.utime(
+            destination,
+            ns=(directory_before.st_atime_ns, directory_before.st_mtime_ns),
+            follow_symlinks=False,
+        )
+
+    def _copy_topology_runtime_tree(
+        self, source: Path, destination: Path
+    ) -> None:
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        try:
+            source_before = source.stat(follow_symlinks=False)
+            source_fd = os.open(source, flags)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot open topology runtime input {source}: {error}"
+            ) from error
+        try:
+            if self._runtime_tree_identity(os.fstat(source_fd)) != (
+                self._runtime_tree_identity(source_before)
+            ):
+                raise WorkspaceError(
+                    f"topology runtime input changed during copy: {source}"
+                )
+            self._copy_topology_runtime_directory(source_fd, source, destination)
+            source_after = source.stat(follow_symlinks=False)
+            if self._runtime_tree_identity(source_after) != (
+                self._runtime_tree_identity(source_before)
+            ):
+                raise WorkspaceError(
+                    f"topology runtime input changed during copy: {source}"
+                )
+        finally:
+            os.close(source_fd)
 
     def _copy_topology_runtime_inputs(
         self,
@@ -3059,9 +3221,8 @@ class Workspace:
                     raise WorkspaceError(
                         f"topology runtime input is not managed for {purpose}: {source}"
                     )
-                self._validate_topology_runtime_tree(source)
                 destination = staging / name
-                shutil.copytree(source, destination, symlinks=True)
+                self._copy_topology_runtime_tree(source, destination)
                 copied_marker = destination / MANAGED_MARKER
                 if (
                     not destination.is_dir()
@@ -3073,7 +3234,6 @@ class Workspace:
                     raise WorkspaceError(
                         f"copied topology runtime input is invalid: {destination}"
                     )
-                self._validate_topology_runtime_tree(destination)
             replace_directory(container, staging, ".runtime-previous-")
         except BaseException:
             if staging.exists():

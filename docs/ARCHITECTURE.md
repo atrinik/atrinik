@@ -452,6 +452,10 @@ other topology removal or mutation cannot change the filesystem seen by a
 running process. Content, resources, and generated client maps are staged and
 installed as one runtime-input transaction, so a copy or validation failure
 before installation retains the complete previous snapshot set and status.
+Snapshot traversal opens every directory and regular file descriptor-relative
+with no-follow semantics and rejects identity changes, links, and special files.
+Atomic replacement keeps at most one marker-owned prior-output backup; failed
+reclamation is retried before another replacement may change the output.
 Because the caches remain below the marker-owned profile build, existing build
 retention and marker-safe cleanup own their lifecycle; topology copies follow
 topology retention.
