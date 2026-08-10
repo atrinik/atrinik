@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import re
 import stat
 from typing import Any, Iterable
 
@@ -101,6 +102,8 @@ def complete(
             mode, values = _value_candidates(
                 action, repository, selected.values, prefix
             )
+            if mode == "path":
+                return mode, values
             return mode, [f"{option}={value}" for value in values]
     if current.startswith("-"):
         return "candidates", _option_candidates(selected, current)
@@ -236,7 +239,7 @@ def _value_candidates(
     else:
         kind = getattr(action, "completion_kind", "none")
         if kind == "path":
-            return "path", []
+            return "path", [prefix]
         candidates = _dynamic_candidates(kind, repository, values)
     return "candidates", [
         candidate
@@ -257,27 +260,40 @@ def _dynamic_candidates(
             *(checkout.name for checkout in manifest.checkouts),
             *(component.name for component in manifest.components),
         ]
-    if kind == "profile_component":
+    if kind in {"profile_component", "profile_selection"}:
         if manifest is None:
             return []
-        profile = _last(values, "name") or "default"
+        profile = _last(values, "name") or _last(values, "profile") or "default"
         stack_name = _profile_stack(manifest, paths, profile)
-        roles = manifest.stacks[stack_name].providers if stack_name else {}
-        return [
-            *(checkout.name for checkout in manifest.checkouts),
-            *(component.name for component in manifest.components),
-            *roles,
+        if stack_name is None:
+            return []
+        stack = manifest.stacks[stack_name]
+        candidates = [
+            *(component.name for component in stack.components),
+            *stack.providers,
         ]
+        if kind == "profile_selection":
+            candidates.extend(component.checkout_name for component in stack.components)
+        return candidates
     if kind == "build_target":
         if manifest is None:
             return ["all"]
+        profile = _last(values, "profile") or "default"
+        stack_name = _profile_stack(manifest, paths, profile)
+        if stack_name is None:
+            return []
+        stack = manifest.stacks[stack_name]
         return [
             "all",
             *(
                 role
-                for component in manifest.components
+                for role, component in stack.providers.items()
                 if component.build != "none"
-                for role in component.provides
+            ),
+            *(
+                component.name
+                for component in stack.components
+                if component.build != "none"
             ),
         ]
     if kind == "profile":
@@ -285,44 +301,61 @@ def _dynamic_candidates(
         return [*builtins, *_profile_names(manifest, paths)]
     if kind == "worktree":
         checkout = _selected_checkout(manifest, paths, values)
-        return _directory_names(paths.worktrees / checkout) if paths and checkout else []
+        return _worktree_names(paths, checkout) if paths and checkout else []
     if kind == "state":
         return ["default", *_state_names(paths)]
     if kind == "scenario":
-        return _record_names(paths.scenarios, "scenario.json", "name") if paths else []
+        return _scenario_names(manifest, paths)
     if kind == "topology":
-        return _topology_names(paths)
+        return _topology_names(manifest, paths)
     return []
 
 
 def _manifest(repository: Path) -> Manifest | None:
-    path = repository / "components.json"
     try:
-        if not _regular_file(path) or path.stat().st_size > _MAX_METADATA_BYTES:
+        value = _json(repository / "components.json")
+        if value is None:
             return None
-        return Manifest.load(path)
-    except (OSError, WorkspaceError):
+        return Manifest.from_value(value)
+    except (OSError, RecursionError, WorkspaceError):
         return None
 
 
 def _paths(repository: Path) -> Paths | None:
     try:
-        return Paths.discover(repository)
-    except (OSError, WorkspaceError):
+        paths = Paths.discover(repository)
+        descriptor = _workspace_descriptor(paths)
+        if descriptor is None:
+            return None
+        os.close(descriptor)
+        return paths
+    except (OSError, RuntimeError, WorkspaceError):
         return None
 
 
 def _profile_names(manifest: Manifest | None, paths: Paths | None) -> list[str]:
     if manifest is None or paths is None:
         return []
-    names: list[str] = []
-    for path in _entries(paths.profiles):
-        if path.suffix != ".json" or not _regular_file(path):
-            continue
-        name = path.stem
-        if _profile_record(manifest, paths, name) is not None:
-            names.append(name)
-    return names
+    root = _workspace_descriptor(paths)
+    if root is None:
+        return []
+    profiles = _directory_descriptor("profiles", dir_fd=root)
+    try:
+        if profiles is None:
+            return []
+        names: list[str] = []
+        for filename in _entry_names(profiles, file_type="file"):
+            path = Path(filename)
+            if path.suffix != ".json":
+                continue
+            name = path.stem
+            if _profile_value(manifest, profiles, name) is not None:
+                names.append(name)
+        return names
+    finally:
+        if profiles is not None:
+            os.close(profiles)
+        os.close(root)
 
 
 def _profile_stack(
@@ -332,19 +365,32 @@ def _profile_stack(
         return profile
     if paths is None or not _valid_name(profile):
         return None
-    value = _profile_record(manifest, paths, profile)
-    if value is None:
+    root = _workspace_descriptor(paths)
+    if root is None:
         return None
-    stack = value.get("stack")
-    return stack if isinstance(stack, str) and stack in manifest.stacks else None
+    profiles = _directory_descriptor("profiles", dir_fd=root)
+    try:
+        value = (
+            _profile_value(manifest, profiles, profile)
+            if profiles is not None
+            else None
+        )
+        if value is None:
+            return None
+        stack = value.get("stack")
+        return stack if isinstance(stack, str) and stack in manifest.stacks else None
+    finally:
+        if profiles is not None:
+            os.close(profiles)
+        os.close(root)
 
 
-def _profile_record(
-    manifest: Manifest, paths: Paths, name: str
+def _profile_value(
+    manifest: Manifest, profiles: int, name: str
 ) -> dict[str, Any] | None:
     if not _valid_name(name):
         return None
-    value = _json(paths.profiles / f"{name}.json")
+    value = _json_at(profiles, f"{name}.json")
     if not isinstance(value, dict) or set(value) != _PROFILE_KEYS:
         return None
     stack_name = value.get("stack")
@@ -410,123 +456,426 @@ def _selected_checkout(
 def _state_names(paths: Paths | None) -> list[str]:
     if paths is None:
         return []
-    value = _json(paths.states_file)
-    if (
-        not isinstance(value, dict)
-        or set(value) != {"schema_version", "states"}
-        or value.get("schema_version") != 1
-    ):
+    root = _workspace_descriptor(paths)
+    if root is None:
         return []
-    states = value.get("states")
-    if not isinstance(states, dict):
-        return []
-    if any(
-        not _valid_name(name)
-        or not isinstance(path, str)
-        or not Path(path).is_absolute()
-        for name, path in states.items()
-    ):
-        return []
-    return list(states)
-
-
-def _record_names(directory: Path, metadata: str, key: str) -> list[str]:
-    names: list[str] = []
-    for path in _entries(directory):
-        if not _normal_directory(path) or not _valid_name(path.name):
-            continue
-        value = _json(path / metadata)
+    try:
+        value = _json_at(root, "states.json")
         if (
-            isinstance(value, dict)
-            and set(value) == _SCENARIO_KEYS
-            and value.get("schema_version") == 4
-            and value.get(key) == path.name
-            and all(
-                isinstance(value.get(field), str)
-                for field in (
-                    "profile",
-                    "stack",
-                    "preset",
-                    "state",
-                    "account",
-                    "character",
-                    "archetype",
-                    "provisioned_at",
-                )
-            )
-            and isinstance(value.get("providers"), dict)
-            and isinstance(value.get("resolved"), dict)
+            not isinstance(value, dict)
+            or set(value) != {"schema_version", "states"}
+            or value.get("schema_version") != 1
         ):
-            names.append(path.name)
-    return names
-
-
-def _topology_names(paths: Paths | None) -> list[str]:
-    if paths is None:
-        return []
-    names: list[str] = []
-    for path in _entries(paths.topologies):
-        if not _normal_directory(path) or not _valid_name(path.name):
-            continue
-        marker = _json(path / MANAGED_MARKER)
-        if marker == {"schema_version": 1, "purpose": f"topology:{path.name}"}:
-            names.append(path.name)
-    return names
-
-
-def _directory_names(directory: Path) -> list[str]:
-    return [
-        path.name
-        for path in _entries(directory)
-        if _normal_directory(path) and _valid_name(path.name)
-    ]
-
-
-def _entries(directory: Path) -> list[Path]:
-    try:
-        if not _normal_directory(directory):
             return []
+        states = value.get("states")
+        if not isinstance(states, dict):
+            return []
+        if any(
+            not _valid_name(name)
+            or not isinstance(path, str)
+            or not Path(path).is_absolute()
+            for name, path in states.items()
+        ):
+            return []
+        return list(states)
+    finally:
+        os.close(root)
+
+
+def _scenario_names(manifest: Manifest | None, paths: Paths | None) -> list[str]:
+    if manifest is None or paths is None:
+        return []
+    opened = _workspace_child_descriptor(paths, "scenarios")
+    if opened is None:
+        return []
+    root, records = opened
+    try:
+        names: list[str] = []
+        for name in _entry_names(records, file_type="directory"):
+            if not _valid_name(name):
+                continue
+            record = _directory_descriptor(name, dir_fd=records)
+            if record is None:
+                continue
+            try:
+                marker = _json_at(record, MANAGED_MARKER)
+                value = _json_at(record, "scenario.json")
+                if (
+                    marker == {"schema_version": 1, "purpose": "test-scenario"}
+                    and _valid_scenario(manifest, paths, name, value)
+                ):
+                    names.append(name)
+            finally:
+                os.close(record)
+        return names
+    finally:
+        os.close(records)
+        os.close(root)
+
+
+def _valid_scenario(
+    manifest: Manifest, paths: Paths, name: str, value: Any
+) -> bool:
+    if not isinstance(value, dict) or set(value) != _SCENARIO_KEYS:
+        return False
+    profile = value.get("profile")
+    stack_name = (
+        _profile_stack(manifest, paths, profile)
+        if isinstance(profile, str)
+        else None
+    )
+    if stack_name is None:
+        return False
+    stack = manifest.stacks[stack_name]
+    providers = value.get("providers")
+    resolved = value.get("resolved")
+    if (
+        value.get("schema_version") != 4
+        or value.get("name") != name
+        or value.get("stack") != stack_name
+        or value.get("state") != f"scenario-{name}"
+        or value.get("preset") != "basic-player"
+        or any(
+            not isinstance(value.get(field), str) or not value[field]
+            for field in ("account", "character", "archetype", "provisioned_at")
+        )
+        or not isinstance(providers, dict)
+        or not isinstance(resolved, dict)
+        or set(resolved) != set(providers)
+    ):
+        return False
+    for role, component_name in providers.items():
+        provider = stack.providers.get(role)
+        record = resolved.get(role)
+        if (
+            provider is None
+            or component_name != provider.name
+            or not isinstance(record, dict)
+            or set(record)
+            != {
+                "path", "checkout_path", "checkout", "repository", "branch",
+                "source", "head", "dirty",
+            }
+            or record.get("checkout") != provider.checkout_name
+            or record.get("repository") != provider.repository
+            or record.get("branch") != provider.branch
+            or record.get("source") != provider.source
+            or not isinstance(record.get("path"), str)
+            or not Path(record["path"]).is_absolute()
+            or not isinstance(record.get("checkout_path"), str)
+            or not Path(record["checkout_path"]).is_absolute()
+            or not isinstance(record.get("head"), str)
+            or re.fullmatch(r"[0-9a-f]{40,64}", record["head"]) is None
+            or not isinstance(record.get("dirty"), bool)
+        ):
+            return False
+        expected = Path(record["checkout_path"])
+        if provider.source != ".":
+            expected = expected.joinpath(*provider.source.split("/"))
+        if Path(record["path"]) != expected:
+            return False
+    return True
+
+
+def _topology_names(manifest: Manifest | None, paths: Paths | None) -> list[str]:
+    if manifest is None or paths is None:
+        return []
+    opened = _workspace_child_descriptor(paths, "topologies")
+    if opened is None:
+        return []
+    root, topologies = opened
+    try:
+        names: list[str] = []
+        for name in _entry_names(topologies, file_type="directory"):
+            if not _valid_name(name):
+                continue
+            record = _directory_descriptor(name, dir_fd=topologies)
+            if record is None:
+                continue
+            try:
+                marker = _json_at(record, MANAGED_MARKER)
+                status = _json_at(record, "status.json")
+                if (
+                    marker == {"schema_version": 1, "purpose": f"topology:{name}"}
+                    and _valid_topology(manifest, paths, name, status)
+                ):
+                    names.append(name)
+            finally:
+                os.close(record)
+        return names
+    finally:
+        os.close(topologies)
+        os.close(root)
+
+
+def _valid_topology(
+    manifest: Manifest, paths: Paths, name: str, status: Any
+) -> bool:
+    required = {
+        "schema_version", "name", "profile", "stack", "providers",
+        "dependencies", "state", "build_root", "resolved", "endpoint", "ready",
+        "started_at", "stopped_at", "supervisor", "services",
+    }
+    if not isinstance(status, dict) or set(status) != required:
+        return False
+    profile = status.get("profile")
+    stack_name = (
+        _profile_stack(manifest, paths, profile)
+        if isinstance(profile, str)
+        else None
+    )
+    dependencies = status.get("dependencies")
+    providers = status.get("providers")
+    resolved = status.get("resolved")
+    if (
+        status.get("schema_version") != 1
+        or status.get("name") != name
+        or stack_name is None
+        or status.get("stack") != stack_name
+        or not isinstance(dependencies, list)
+        or not dependencies
+        or len(dependencies) != len(set(dependencies))
+        or not isinstance(providers, dict)
+        or set(providers) != set(dependencies)
+        or not isinstance(resolved, dict)
+        or set(resolved) != set(providers.values())
+        or status.get("state") is not None
+        and (
+            not isinstance(status["state"], str)
+            or not Path(status["state"]).is_absolute()
+        )
+        or not isinstance(status.get("build_root"), str)
+        or not Path(status["build_root"]).is_absolute()
+        or not isinstance(status.get("ready"), bool)
+        or not isinstance(status.get("started_at"), str)
+        or not status["started_at"]
+        or status.get("stopped_at") is not None
+        and not isinstance(status["stopped_at"], str)
+    ):
+        return False
+    stack = manifest.stacks[stack_name]
+    for role, component_name in providers.items():
+        provider = stack.providers.get(role)
+        if provider is None or component_name != provider.name:
+            return False
+        if not _valid_resolution(provider, resolved.get(component_name)):
+            return False
+    supervisor = status.get("supervisor")
+    if not _valid_process(supervisor):
+        return False
+    endpoint = status.get("endpoint")
+    if endpoint is not None and (
+        not isinstance(endpoint, dict)
+        or set(endpoint) != {"host", "port", "fingerprint"}
+        or endpoint.get("host") != "127.0.0.1"
+        or not isinstance(endpoint.get("port"), int)
+        or isinstance(endpoint.get("port"), bool)
+        or not 1 <= endpoint["port"] <= 65535
+        or endpoint.get("fingerprint") is not None
+        and (
+            not isinstance(endpoint["fingerprint"], str)
+            or re.fullmatch(r"[0-9a-f]{64}", endpoint["fingerprint"]) is None
+        )
+    ):
+        return False
+    services = status.get("services")
+    if (
+        not isinstance(services, dict)
+        or not services
+        or not set(services) <= {"client", "server"}
+    ):
+        return False
+    for service in services.values():
+        if (
+            not _valid_process(service)
+            or set(service)
+            != {"pid", "start_time", "status", "exit_code", "log", "cwd"}
+            or service.get("status") not in {"starting", "running", "exited"}
+            or service.get("exit_code") is not None
+            and (
+                not isinstance(service["exit_code"], int)
+                or isinstance(service["exit_code"], bool)
+            )
+            or not isinstance(service.get("log"), str)
+            or not Path(service["log"]).is_absolute()
+            or not isinstance(service.get("cwd"), str)
+            or not Path(service["cwd"]).is_absolute()
+        ):
+            return False
+    return ("server" in services) == (endpoint is not None)
+
+
+def _valid_process(record: Any) -> bool:
+    return (
+        isinstance(record, dict)
+        and isinstance(record.get("pid"), int)
+        and not isinstance(record.get("pid"), bool)
+        and record["pid"] > 0
+        and isinstance(record.get("start_time"), str)
+        and record["start_time"].isdigit()
+    )
+
+
+def _valid_resolution(provider: Any, record: Any) -> bool:
+    if (
+        not isinstance(record, dict)
+        or set(record)
+        != {
+            "path", "checkout_path", "checkout", "repository", "branch", "source",
+            "head", "dirty",
+        }
+        or record.get("checkout") != provider.checkout_name
+        or record.get("repository") != provider.repository
+        or record.get("branch") != provider.branch
+        or record.get("source") != provider.source
+        or not isinstance(record.get("path"), str)
+        or not Path(record["path"]).is_absolute()
+        or not isinstance(record.get("checkout_path"), str)
+        or not Path(record["checkout_path"]).is_absolute()
+        or not isinstance(record.get("head"), str)
+        or re.fullmatch(r"[0-9a-f]{40,64}", record["head"]) is None
+        or not isinstance(record.get("dirty"), bool)
+    ):
+        return False
+    expected = Path(record["checkout_path"])
+    if provider.source != ".":
+        expected = expected.joinpath(*provider.source.split("/"))
+    return Path(record["path"]) == expected
+
+
+def _worktree_names(paths: Paths, checkout: str) -> list[str]:
+    opened = _workspace_child_descriptor(paths, "worktrees")
+    if opened is None:
+        return []
+    root, worktrees = opened
+    selected = _directory_descriptor(checkout, dir_fd=worktrees)
+    try:
+        if selected is None:
+            return []
+        names: list[str] = []
+        for name in _entry_names(selected, file_type="directory"):
+            candidate = _directory_descriptor(name, dir_fd=selected)
+            if candidate is None:
+                continue
+            try:
+                if _valid_name(name) and _regular_at(candidate, ".git"):
+                    names.append(name)
+            finally:
+                os.close(candidate)
+        return names
+    finally:
+        if selected is not None:
+            os.close(selected)
+        os.close(worktrees)
+        os.close(root)
+
+
+def _directory_descriptor(path: str | Path, *, dir_fd: int | None = None) -> int | None:
+    flags = os.O_RDONLY | os.O_CLOEXEC
+    flags |= getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        return os.open(path, flags, dir_fd=dir_fd)
+    except OSError:
+        return None
+
+
+def _workspace_descriptor(paths: Paths) -> int | None:
+    root = _directory_descriptor(paths.workspace)
+    if root is None:
+        return None
+    if _json_at(root, paths.marker.name) != {"schema_version": 1}:
+        os.close(root)
+        return None
+    return root
+
+
+def _workspace_child_descriptor(paths: Paths, name: str) -> tuple[int, int] | None:
+    root = _workspace_descriptor(paths)
+    if root is None:
+        return None
+    child = _directory_descriptor(name, dir_fd=root)
+    if child is None:
+        os.close(root)
+        return None
+    return root, child
+
+
+def _entry_names(directory: int, *, file_type: str) -> list[str]:
+    try:
+        names: list[str] = []
         with os.scandir(directory) as stream:
-            names: list[str] = []
-            for entry in stream:
-                names.append(entry.name)
-                if len(names) > _MAX_DIRECTORY_ENTRIES:
+            for index, entry in enumerate(stream):
+                if index >= _MAX_DIRECTORY_ENTRIES:
                     return []
-        return [directory / name for name in sorted(names)]
+                matches = (
+                    entry.is_dir(follow_symlinks=False)
+                    if file_type == "directory"
+                    else entry.is_file(follow_symlinks=False)
+                )
+                if matches:
+                    names.append(entry.name)
+        return sorted(names)
     except OSError:
         return []
 
 
-def _normal_directory(path: Path) -> bool:
+def _regular_at(directory: int, name: str) -> bool:
+    flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_NONBLOCK", 0)
+    flags |= getattr(os, "O_NOFOLLOW", 0)
     try:
-        mode = path.lstat().st_mode
+        descriptor = os.open(name, flags, dir_fd=directory)
     except OSError:
         return False
-    return stat.S_ISDIR(mode)
-
-
-def _regular_file(path: Path) -> bool:
     try:
-        return stat.S_ISREG(path.lstat().st_mode)
-    except OSError:
-        return False
+        return stat.S_ISREG(os.fstat(descriptor).st_mode)
+    finally:
+        os.close(descriptor)
 
 
 def _json(path: Path) -> Any:
-    flags = os.O_RDONLY | os.O_CLOEXEC
-    if hasattr(os, "O_NOFOLLOW"):
-        flags |= os.O_NOFOLLOW
+    flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_NONBLOCK", 0)
+    flags |= getattr(os, "O_NOFOLLOW", 0)
     try:
         descriptor = os.open(path, flags)
-        with os.fdopen(descriptor, encoding="utf-8") as stream:
-            metadata = os.fstat(stream.fileno())
-            if (
-                not stat.S_ISREG(metadata.st_mode)
-                or metadata.st_size > _MAX_METADATA_BYTES
-            ):
-                return None
-            return json.load(stream, object_pairs_hook=_unique_object)
-    except (OSError, UnicodeError, ValueError, json.JSONDecodeError):
+    except OSError:
+        return None
+    try:
+        return _json_descriptor(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _json_at(directory: int, name: str) -> Any:
+    flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_NONBLOCK", 0)
+    flags |= getattr(os, "O_NOFOLLOW", 0)
+    try:
+        descriptor = os.open(name, flags, dir_fd=directory)
+    except OSError:
+        return None
+    try:
+        return _json_descriptor(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _json_descriptor(descriptor: int) -> Any:
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > _MAX_METADATA_BYTES:
+            return None
+        chunks: list[bytes] = []
+        remaining = _MAX_METADATA_BYTES + 1
+        while remaining:
+            chunk = os.read(descriptor, min(64 * 1024, remaining))
+            if not chunk:
+                break
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        data = b"".join(chunks)
+        if len(data) > _MAX_METADATA_BYTES:
+            return None
+        return json.loads(data.decode("utf-8"), object_pairs_hook=_unique_object)
+    except (OSError, UnicodeError, ValueError, RecursionError, json.JSONDecodeError):
         return None
 
 
@@ -584,7 +933,12 @@ _atrinik_completion() {
     COMPREPLY=()
     case ${response[0]-none} in
         path)
-            mapfile -t COMPREPLY < <(compgen -f -- "$current")
+            local fragment=${response[1]-$current}
+            local option_prefix=${current%"$fragment"}
+            local path
+            while IFS= read -r path; do
+                COMPREPLY+=("${option_prefix}${path}")
+            done < <(compgen -f -- "$fragment")
             ;;
         candidates)
             local candidate
@@ -598,15 +952,19 @@ complete -o filenames -F _atrinik_completion atrinik ./atrinik
 '''
 
 
-_ZSH_SCRIPT = r'''# Atrinik Zsh completion; generated by ./atrinik completion zsh.
-_atrinik_completion() {
+_ZSH_SCRIPT = r'''#compdef atrinik
+# Atrinik Zsh completion; generated by ./atrinik completion zsh.
+_atrinik() {
     local output
     local -a response
     output=$("${words[1]}" __complete "$((CURRENT - 1))" -- "${words[@]}" 2>/dev/null)
     response=("${(@f)output}")
     case ${response[1]-none} in
         path)
-            _files
+            local fragment=${response[2]-${words[CURRENT]}}
+            local option_prefix=${words[CURRENT]%$fragment}
+            PREFIX=$fragment
+            _files -P "$option_prefix"
             ;;
         candidates)
             shift response
@@ -614,7 +972,11 @@ _atrinik_completion() {
             ;;
     esac
 }
-compdef _atrinik_completion atrinik ./atrinik
+if [[ ${funcstack[1]-} == _atrinik ]]; then
+    _atrinik "$@"
+else
+    compdef _atrinik atrinik ./atrinik
+fi
 '''
 
 
@@ -627,7 +989,11 @@ function __atrinik_completion
     set -l response (command $words[1] __complete $cursor -- $words 2>/dev/null)
     switch "$response[1]"
         case path
-            __fish_complete_path "$current"
+            set -l fragment "$response[2]"
+            set -l option_prefix (string replace -r -- (string escape --style=regex "$fragment")'$' '' "$current")
+            for candidate in (__fish_complete_path "$fragment")
+                printf '%s%s\n' "$option_prefix" "$candidate"
+            end
         case candidates
             for candidate in $response[2..-1]
                 string escape -- "$candidate"

@@ -299,7 +299,12 @@ class Manifest:
 
     @classmethod
     def load(cls, path: Path) -> "Manifest":
-        root = load_json(path)
+        return cls.from_value(load_json(path))
+
+    @classmethod
+    def from_value(cls, root: Any) -> "Manifest":
+        """Load a manifest from an already bounded and decoded JSON value."""
+
         if not isinstance(root, dict):
             raise WorkspaceError("component manifest root must be an object")
         schema_version = root.get("schema_version")

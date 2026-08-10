@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import ExitStack, redirect_stderr, redirect_stdout
 import io
 import json
 import os
@@ -9,6 +9,7 @@ from pathlib import Path
 import shutil
 import shlex
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -34,6 +35,10 @@ class CompletionTests(unittest.TestCase):
             os.environ, {"ATRINIK_WORKSPACE_DIR": str(self.workspace)}
         )
         self.environment.start()
+        self.workspace.mkdir()
+        (self.workspace / ".atrinik-workspace.json").write_text(
+            json.dumps({"schema_version": 1}), encoding="utf-8"
+        )
 
     def tearDown(self) -> None:
         self.environment.stop()
@@ -57,6 +62,40 @@ class CompletionTests(unittest.TestCase):
                 component.name: {"kind": "primary", "value": ""}
                 for component in manifest.stacks[stack].components
             },
+        }
+
+    def scenario_record(self, name: str) -> dict[str, object]:
+        manifest = Manifest.load(self.wrapper / "components.json")
+        stack = manifest.stacks["classic"]
+        roles = {"server", "content", "resources", "libatrinik", "protocol"}
+        providers = {role: stack.providers[role].name for role in sorted(roles)}
+        resolved = {}
+        for role in sorted(roles):
+            provider = stack.providers[role]
+            checkout_path = self.root / provider.checkout_name
+            resolved[role] = {
+                "path": str(checkout_path / provider.source),
+                "checkout_path": str(checkout_path),
+                "checkout": provider.checkout_name,
+                "repository": provider.repository,
+                "branch": provider.branch,
+                "source": provider.source,
+                "head": "a" * 40,
+                "dirty": False,
+            }
+        return {
+            "schema_version": 4,
+            "name": name,
+            "profile": "classic",
+            "stack": "classic",
+            "providers": providers,
+            "preset": "basic-player",
+            "state": f"scenario-{name}",
+            "account": "scenario292",
+            "character": "Scenario 292",
+            "archetype": "human_male",
+            "resolved": resolved,
+            "provisioned_at": "2026-08-10T00:00:00Z",
         }
 
     def test_commands_nested_commands_options_and_choices_follow_parser(self) -> None:
@@ -117,11 +156,18 @@ class CompletionTests(unittest.TestCase):
         self.assertIn("content", values)
         self.assertIn("content-1x", values)
 
-        mode, values = self.candidates("build", "")
+        mode, values = self.candidates("build", "--profile", "classic", "")
         self.assertEqual(mode, "candidates")
         self.assertIn("all", values)
         self.assertIn("libatrinik", values)
-        self.assertIn("metaserver-worker", values)
+        self.assertIn("classic-server", values)
+
+        _, default_values = self.candidates("build", "--profile", "default", "")
+        self.assertIn("metaserver-worker", default_values)
+        self.assertNotIn("libatrinik", default_values)
+        _, path_values = self.candidates("path", "--profile", "classic", "")
+        self.assertIn("classic-client", path_values)
+        self.assertNotIn("website", path_values)
 
     def test_profiles_refresh_and_malformed_records_fail_softly(self) -> None:
         profiles = self.workspace / "profiles"
@@ -148,6 +194,12 @@ class CompletionTests(unittest.TestCase):
         (self.workspace / "worktrees" / "content-1x" / "classic-maps").mkdir(
             parents=True
         )
+        (self.workspace / "worktrees" / "content" / "main-maps" / ".git").write_text(
+            "gitdir: /tmp/main-maps\n", encoding="utf-8"
+        )
+        (
+            self.workspace / "worktrees" / "content-1x" / "classic-maps" / ".git"
+        ).write_text("gitdir: /tmp/classic-maps\n", encoding="utf-8")
         _, main_values = self.candidates("worktree", "remove", "content", "")
         _, classic_values = self.candidates(
             "worktree", "remove", "content-1x", ""
@@ -163,6 +215,9 @@ class CompletionTests(unittest.TestCase):
             self.profile_record("review", "classic"),
         )
         (self.workspace / "worktrees" / "classic" / "feature").mkdir(parents=True)
+        (self.workspace / "worktrees" / "classic" / "feature" / ".git").write_text(
+            "gitdir: /tmp/feature\n", encoding="utf-8"
+        )
         words = [
             "atrinik",
             "profile",
@@ -184,20 +239,14 @@ class CompletionTests(unittest.TestCase):
         )
         self.write_json(
             self.workspace / "scenarios" / "issue-292" / "scenario.json",
-            {
-                "schema_version": 4,
-                "name": "issue-292",
-                "profile": "classic",
-                "stack": "classic",
-                "providers": {},
-                "preset": "basic-player",
-                "state": "scenario-issue-292",
-                "account": "scenario292",
-                "character": "Scenario 292",
-                "archetype": "human_male",
-                "resolved": {},
-                "provisioned_at": "2026-08-10T00:00:00Z",
-            },
+            self.scenario_record("issue-292"),
+        )
+        self.write_json(
+            self.workspace
+            / "scenarios"
+            / "issue-292"
+            / ".atrinik-workspace-managed.json",
+            {"schema_version": 1, "purpose": "test-scenario"},
         )
         (self.workspace / "scenarios" / "issue-292" / "password").write_text(
             "secret", encoding="utf-8"
@@ -208,6 +257,50 @@ class CompletionTests(unittest.TestCase):
             / "completion-review"
             / ".atrinik-workspace-managed.json",
             {"schema_version": 1, "purpose": "topology:completion-review"},
+        )
+        self.write_json(
+            self.workspace / "topologies" / "completion-review" / "status.json",
+            {
+                "schema_version": 1,
+                "name": "completion-review",
+                "profile": "classic",
+                "stack": "classic",
+                "providers": {"server": "classic-server"},
+                "dependencies": ["server"],
+                "state": "/tmp/completion-state",
+                "build_root": "/tmp/completion-build",
+                "resolved": {
+                    "classic-server": {
+                        "path": "/tmp/classic/server",
+                        "checkout_path": "/tmp/classic",
+                        "checkout": "classic",
+                        "repository": "atrinik/classic",
+                        "branch": "main",
+                        "source": "server",
+                        "head": "b" * 40,
+                        "dirty": False,
+                    }
+                },
+                "endpoint": {
+                    "host": "127.0.0.1",
+                    "port": 13327,
+                    "fingerprint": "c" * 64,
+                },
+                "ready": True,
+                "started_at": "2026-08-10T00:00:00Z",
+                "stopped_at": None,
+                "supervisor": {"pid": 123, "start_time": "1"},
+                "services": {
+                    "server": {
+                        "pid": 124,
+                        "start_time": "2",
+                        "status": "running",
+                        "exit_code": None,
+                        "log": "/tmp/server.log",
+                        "cwd": "/tmp/classic/server",
+                    }
+                },
+            },
         )
 
         self.assertEqual(
@@ -245,8 +338,10 @@ class CompletionTests(unittest.TestCase):
             "line\nbreak",
         ]
         (root / safe).mkdir()
+        (root / safe / ".git").write_text("gitdir: /tmp/safe\n", encoding="utf-8")
         for name in unsafe:
             (root / name).mkdir()
+            (root / name / ".git").write_text("gitdir: /tmp/unsafe\n", encoding="utf-8")
         _, values = self.candidates("worktree", "remove", "client", "")
         self.assertEqual(values, [safe])
 
@@ -263,11 +358,16 @@ class CompletionTests(unittest.TestCase):
     def test_path_arguments_delegate_to_native_shell_completion(self) -> None:
         self.assertEqual(
             self.candidates("state", "add", "review", "--path", ""),
-            ("path", []),
+            ("path", [""]),
         )
         self.assertEqual(
             self.candidates("supply-chain", "versions", "--output", ""),
-            ("path", []),
+            ("path", [""]),
+        )
+        words = ["atrinik", "state", "add", "review", "--path=some/file"]
+        self.assertEqual(
+            complete(parser(), self.wrapper, words, len(words) - 1),
+            ("path", ["some/file"]),
         )
 
     def test_missing_workspace_is_quiet_read_only_and_avoids_dispatch(self) -> None:
@@ -288,6 +388,88 @@ class CompletionTests(unittest.TestCase):
         self.assertFalse(missing.exists())
         workspace.assert_not_called()
         run.assert_not_called()
+
+    def test_completion_has_no_mutating_network_or_dispatch_path(self) -> None:
+        stdout = io.StringIO()
+        mutations = [
+            "mkdir", "write_text", "write_bytes", "unlink", "rename", "replace",
+        ]
+        with ExitStack() as stack:
+            for name in mutations:
+                stack.enter_context(mock.patch.object(Path, name))
+            workspace = stack.enter_context(
+                mock.patch("atrinik_workspace.cli.Workspace")
+            )
+            popen = stack.enter_context(mock.patch("subprocess.Popen"))
+            run = stack.enter_context(mock.patch("subprocess.run"))
+            call = stack.enter_context(mock.patch("subprocess.call"))
+            check_call = stack.enter_context(mock.patch("subprocess.check_call"))
+            check_output = stack.enter_context(mock.patch("subprocess.check_output"))
+            socket_api = stack.enter_context(mock.patch("socket.socket"))
+            connect = stack.enter_context(mock.patch("socket.create_connection"))
+            stack.enter_context(redirect_stdout(stdout))
+            result = main(["__complete", "1", "--", "atrinik", ""])
+        self.assertEqual(result, 0)
+        self.assertTrue(stdout.getvalue().startswith("candidates\n"))
+        for forbidden in (
+            workspace, popen, run, call, check_call, check_output, socket_api, connect
+        ):
+            forbidden.assert_not_called()
+
+    def test_fresh_completion_avoids_heavy_dispatch_imports(self) -> None:
+        script = "\n".join(
+            [
+                "import sys",
+                "from atrinik_workspace.cli import main",
+                "main(['__complete', '1', '--', 'atrinik', ''])",
+                "assert 'atrinik_workspace.workspace' not in sys.modules",
+                "assert 'atrinik_workspace.supply_chain' not in sys.modules",
+            ]
+        )
+        result = subprocess.run(
+            [sys.executable, "-c", script], capture_output=True, text=True, cwd=ROOT
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_metadata_reads_are_bounded_and_non_regular_files_fail_closed(self) -> None:
+        metadata = self.wrapper / "metadata.json"
+        metadata.write_text("{}", encoding="utf-8")
+        supplied = 0
+
+        def growing_read(descriptor: int, size: int) -> bytes:
+            nonlocal supplied
+            supplied += size
+            return b" " * size
+
+        with mock.patch("atrinik_workspace.completion.os.read", side_effect=growing_read):
+            self.assertIsNone(completion._json(metadata))
+        self.assertEqual(supplied, completion._MAX_METADATA_BYTES + 1)
+
+        fifo = self.wrapper / "fifo.json"
+        os.mkfifo(fifo)
+        self.assertIsNone(completion._json(fifo))
+
+    def test_workspace_markers_symlinks_and_unmanaged_worktrees_fail_closed(self) -> None:
+        (self.workspace / ".atrinik-workspace.json").write_text(
+            "{}", encoding="utf-8"
+        )
+        self.assertEqual(self.candidates("profile", "show", ""), (
+            "candidates", ["classic", "default"]
+        ))
+
+        (self.workspace / ".atrinik-workspace.json").write_text(
+            json.dumps({"schema_version": 1}), encoding="utf-8"
+        )
+        external = self.root / "external"
+        (external / "client" / "escaped").mkdir(parents=True)
+        (external / "client" / "escaped" / ".git").write_text(
+            "gitdir: /tmp/escaped\n", encoding="utf-8"
+        )
+        (self.workspace / "worktrees").symlink_to(external, target_is_directory=True)
+        self.assertEqual(
+            self.candidates("worktree", "remove", "client", ""),
+            ("candidates", []),
+        )
 
     def test_script_generation_avoids_workspace_dispatch(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace:
@@ -372,6 +554,28 @@ class CompletionTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout.splitlines(), ["create", "set", "show"])
 
+    def test_bash_adapter_completes_equals_form_paths(self) -> None:
+        bash = shutil.which("bash")
+        if bash is None:
+            self.skipTest("Bash is unavailable")
+        target = self.root / "path-target"
+        target.mkdir()
+        (target / "finished").touch()
+        current = f"--path={target}/fin"
+        program = shell_script("bash") + "\n" + "\n".join(
+            [
+                f"COMP_WORDS=(./atrinik state add review {shlex.quote(current)})",
+                "COMP_CWORD=4",
+                "_atrinik_completion",
+                "printf '%s\\n' \"${COMPREPLY[@]}\"",
+            ]
+        )
+        result = subprocess.run(
+            [bash], input=program, text=True, capture_output=True, cwd=ROOT
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines(), [f"--path={target}/finished"])
+
     def test_zsh_adapter_smoke(self) -> None:
         zsh = shutil.which("zsh")
         if zsh is None:
@@ -383,7 +587,7 @@ class CompletionTests(unittest.TestCase):
                 "source <(./atrinik completion zsh)",
                 "words=(./atrinik profile '')",
                 "CURRENT=3",
-                "_atrinik_completion",
+                "_atrinik",
             ]
         )
         result = subprocess.run(
@@ -393,6 +597,31 @@ class CompletionTests(unittest.TestCase):
         self.assertEqual(
             result.stdout.splitlines(), ["--", "create", "set", "show"]
         )
+
+    def test_zsh_adapter_loads_from_fpath_with_real_compinit(self) -> None:
+        zsh = shutil.which("zsh")
+        if zsh is None:
+            self.skipTest("Zsh is unavailable")
+        functions = self.root / "zfunc"
+        functions.mkdir()
+        (functions / "_atrinik").write_text(shell_script("zsh"), encoding="utf-8")
+        cache = self.root / "zcompdump"
+        program = "\n".join(
+            [
+                f"fpath=({shlex.quote(str(functions))} $fpath)",
+                "autoload -Uz compinit",
+                f"compinit -d {shlex.quote(str(cache))}",
+                "function compadd { print -l -- \"$@\" }",
+                "words=(./atrinik profile '')",
+                "CURRENT=3",
+                "_atrinik",
+            ]
+        )
+        result = subprocess.run(
+            [zsh, "-c", program], text=True, capture_output=True, cwd=ROOT
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines(), ["--", "create", "set", "show"])
 
     def test_fish_adapter_smoke(self) -> None:
         fish = shutil.which("fish")
