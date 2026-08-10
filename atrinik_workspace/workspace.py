@@ -1022,12 +1022,15 @@ class Workspace:
                 for component in stack.components
                 if component.name in component_names
             ]
+        validated_checkouts: set[str] = set()
         for component in components:
             root = self._selector_root(profile, component)
-            selector = profile["components"][component.name]
-            self._validate_selected_checkout(
-                component, root, selector["kind"], trace=trace
-            )
+            if component.checkout_name not in validated_checkouts:
+                selector = profile["components"][component.name]
+                self._validate_selected_checkout(
+                    component, root, selector["kind"], trace=trace
+                )
+                validated_checkouts.add(component.checkout_name)
             result[component.name] = self._component_source(component, root)
         return result
 
@@ -1312,9 +1315,50 @@ class Workspace:
     ) -> dict[str, Path]:
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
-        roles = self._dependency_roles(profile, required)
+        requested_roles = self._dependency_roles(profile, required)
+        build_targets = {
+            role
+            for role, component in stack.providers.items()
+            if component.build != "none"
+        }
+        common_roles = self._dependency_roles(profile, build_targets)
+        common_components = {
+            stack.providers[role].name for role in common_roles
+        }
+
+        # Missing preferred checkouts identify a deliberately partial workspace.
+        # Any preferred checkout that is present must still pass full profile
+        # validation, so a malformed path cannot silently shrink the build key.
+        complete = True
+        present_components: set[str] = set()
+        for component in stack.components:
+            if component.name not in common_components:
+                continue
+            root = self._selector_root(profile, component)
+            if root.exists() or root.is_symlink():
+                present_components.add(component.name)
+            else:
+                complete = False
+        present_paths = (
+            self.resolve_profile(profile_name, present_components)
+            if present_components
+            else {}
+        )
+
+        roles = common_roles if complete else requested_roles
         component_names = {stack.providers[role].name for role in roles}
-        paths = self.resolve_profile(profile_name, component_names)
+        missing_required = component_names - set(present_paths)
+        if missing_required:
+            # This normally raises the precise missing-checkout/source error. If
+            # initialization completed after the existence snapshot, accept the
+            # newly valid checkout without revalidating already-present roots.
+            present_paths.update(
+                self.resolve_profile(profile_name, missing_required)
+            )
+        paths = {
+            component_name: present_paths[component_name]
+            for component_name in component_names
+        }
         return {role: paths[stack.providers[role].name] for role in roles}
 
     def build(self, target: str, profile_name: str, tests: bool) -> Path:
@@ -1373,10 +1417,14 @@ class Workspace:
     ) -> None:
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
+        checkout_states = self._selected_checkout_states(
+            profile, selected, include_dirty=False
+        )
         coordinates: dict[str, dict[str, str]] = {}
         for role in sorted(selected):
             component = stack.providers[role]
-            checkout_path = self._selector_root(profile, component).resolve()
+            checkout_state = checkout_states[component.checkout_name]
+            checkout_path = checkout_state["path"]
             coordinates[role] = {
                 "component": component.name,
                 "checkout": component.checkout_name,
@@ -1385,13 +1433,7 @@ class Workspace:
                 "source": component.source,
                 "checkout_path": str(checkout_path),
                 "source_path": str(selected[role].resolve()),
-                "head": git(
-                    checkout_path,
-                    "rev-parse",
-                    "HEAD",
-                    capture=True,
-                    trace=False,
-                ),
+                "head": checkout_state["head"],
             }
         atomic_json(
             root / BUILD_METADATA,
@@ -1404,6 +1446,35 @@ class Workspace:
                 "last_used_at": datetime.now(timezone.utc).isoformat(),
             },
         )
+
+    def _selected_checkout_states(
+        self,
+        profile: dict[str, Any],
+        selected: dict[str, Path],
+        *,
+        include_dirty: bool,
+    ) -> dict[str, dict[str, Any]]:
+        stack = self.manifest.stack(profile["stack"])
+        states: dict[str, dict[str, Any]] = {}
+        for role in sorted(selected):
+            component = stack.providers[role]
+            if component.checkout_name in states:
+                continue
+            checkout = self._selector_root(profile, component).resolve()
+            state: dict[str, Any] = {
+                "path": checkout,
+                "head": git(
+                    checkout,
+                    "rev-parse",
+                    "HEAD",
+                    capture=True,
+                    trace=False,
+                ),
+            }
+            if include_dirty:
+                state["dirty"] = not _is_clean(checkout, trace=False)
+            states[component.checkout_name] = state
+        return states
 
     def _profile_build_key(
         self, profile_name: str, selected: dict[str, Path]
@@ -2193,27 +2264,22 @@ class Workspace:
         )
         profile = self._load_profile(metadata["profile"], require_file=False)
         stack = self.manifest.stack(profile["stack"])
+        audited = {role: selected[role] for role in required}
+        checkout_states = self._selected_checkout_states(
+            profile, audited, include_dirty=True
+        )
         return {
             role: {
                 "path": str(path),
                 "checkout_path": str(
-                    self._selector_root(profile, stack.providers[role]).resolve()
+                    checkout_states[stack.providers[role].checkout_name]["path"]
                 ),
                 "checkout": stack.providers[role].checkout_name,
                 "repository": stack.providers[role].repository,
                 "branch": stack.providers[role].branch,
                 "source": stack.providers[role].source,
-                "head": git(
-                    self._selector_root(profile, stack.providers[role]).resolve(),
-                    "rev-parse",
-                    "HEAD",
-                    capture=True,
-                    trace=False,
-                ),
-                "dirty": not _is_clean(
-                    self._selector_root(profile, stack.providers[role]).resolve(),
-                    trace=False,
-                ),
+                "head": checkout_states[stack.providers[role].checkout_name]["head"],
+                "dirty": checkout_states[stack.providers[role].checkout_name]["dirty"],
             }
             for role, path in sorted(
                 (role, selected[role]) for role in required
@@ -2454,6 +2520,9 @@ class Workspace:
         resolved = self._resolve_build_profile(profile_name, requested)
         required = set(resolved)
         key = self._profile_build_key(profile_name, resolved)
+        checkout_states = self._selected_checkout_states(
+            profile, resolved, include_dirty=True
+        )
         state = (
             str(self._state_location(state_name))
             if "server" in selected_services
@@ -2480,25 +2549,10 @@ class Workspace:
                     "roles": sorted(stack.providers[role].provides),
                     "path": str(path),
                     "checkout_path": str(
-                        self._selector_root(
-                            profile, stack.providers[role]
-                        ).resolve()
+                        checkout_states[stack.providers[role].checkout_name]["path"]
                     ),
-                    "head": git(
-                        self._selector_root(
-                            profile, stack.providers[role]
-                        ).resolve(),
-                        "rev-parse",
-                        "HEAD",
-                        capture=True,
-                        trace=False,
-                    ),
-                    "dirty": not _is_clean(
-                        self._selector_root(
-                            profile, stack.providers[role]
-                        ).resolve(),
-                        trace=False,
-                    ),
+                    "head": checkout_states[stack.providers[role].checkout_name]["head"],
+                    "dirty": checkout_states[stack.providers[role].checkout_name]["dirty"],
                 }
                 for role, path in sorted(resolved.items())
             },
@@ -3109,33 +3163,27 @@ class Workspace:
 
                 profile = self._load_profile(profile_name, require_file=False)
                 selected_stack = self.manifest.stack(profile["stack"])
+                checkout_states = self._selected_checkout_states(
+                    profile, selected, include_dirty=True
+                )
                 resolved_status = {
                     selected_stack.providers[role].name: {
                         "path": str(path),
                         "checkout_path": str(
-                            self._selector_root(
-                                profile, selected_stack.providers[role]
-                            ).resolve()
+                            checkout_states[
+                                selected_stack.providers[role].checkout_name
+                            ]["path"]
                         ),
                         "checkout": selected_stack.providers[role].checkout_name,
                         "repository": selected_stack.providers[role].repository,
                         "branch": selected_stack.providers[role].branch,
                         "source": selected_stack.providers[role].source,
-                        "head": git(
-                            self._selector_root(
-                                profile, selected_stack.providers[role]
-                            ).resolve(),
-                            "rev-parse",
-                            "HEAD",
-                            capture=True,
-                            trace=False,
-                        ),
-                        "dirty": not _is_clean(
-                            self._selector_root(
-                                profile, selected_stack.providers[role]
-                            ).resolve(),
-                            trace=False,
-                        ),
+                        "head": checkout_states[
+                            selected_stack.providers[role].checkout_name
+                        ]["head"],
+                        "dirty": checkout_states[
+                            selected_stack.providers[role].checkout_name
+                        ]["dirty"],
                     }
                     for role, path in sorted(selected.items())
                 }

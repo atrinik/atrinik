@@ -965,7 +965,7 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "asset staging path is invalid"):
             self.workspace._prepare_asset_staging_directory(invalid_link)
 
-    def test_topology_summary_resolves_service_dependency_closure(self) -> None:
+    def test_topology_summary_uses_complete_profile_build_roles(self) -> None:
         summary = self.workspace.topology_summary(
             "default", "default", ["client"]
         )
@@ -974,13 +974,24 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIsNone(summary["state"])
         self.assertEqual(
             set(summary["dependencies"]),
-            {"client", "sound", "libatrinik", "protocol"},
+            {
+                "client",
+                "server",
+                "sound",
+                "content",
+                "resources",
+                "libatrinik",
+                "protocol",
+            },
         )
         self.assertEqual(
             set(summary["components"]),
             {
                 "client",
+                "server",
                 "sound",
+                "content",
+                "resources",
                 "libatrinik",
                 "protocol",
             },

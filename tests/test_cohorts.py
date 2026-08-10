@@ -34,6 +34,30 @@ class CohortWorkspaceTests(unittest.TestCase):
         self.environment.stop()
         self.temporary.cleanup()
 
+    def make_classic_build_profile(self, *, include_worker: bool = True) -> None:
+        profile = self.workspace._load_profile("classic", require_file=False)
+        stack = self.workspace.manifest.stack("classic")
+        build_targets = {
+            role
+            for role in (
+                "content",
+                "protocol",
+                "libatrinik",
+                "client",
+                "server",
+                "metaserver-worker",
+            )
+            if role in stack.providers and stack.providers[role].build != "none"
+        }
+        roles = self.workspace._dependency_roles(profile, build_targets)
+        for role in roles:
+            component = stack.providers[role]
+            if not include_worker and role == "metaserver-worker":
+                continue
+            root = self.workspace._selector_root(profile, component)
+            source = root / component.source if component.source != "." else root
+            source.mkdir(parents=True, exist_ok=True)
+
     def test_plain_init_selects_only_default_cohort(self) -> None:
         with mock.patch.object(
             self.workspace, "_ensure_repository", return_value=self.wrapper
@@ -358,6 +382,136 @@ class CohortWorkspaceTests(unittest.TestCase):
                 for name in names
             },
         )
+
+    def test_complete_classic_commands_share_common_build_root(self) -> None:
+        self.make_classic_build_profile()
+        expected_roles = {
+            "client",
+            "server",
+            "protocol",
+            "libatrinik",
+            "content",
+            "sound",
+            "resources",
+            "metaserver-worker",
+        }
+
+        roots: list[Path] = []
+
+        def build_resolved(
+            target: str,
+            profile_name: str,
+            tests: bool,
+            targets: list[str],
+            selected: dict[str, Path],
+        ) -> Path:
+            self.assertEqual(set(selected), expected_roles)
+            root = self.workspace.paths.builds / "profiles" / (
+                f"{profile_name}-{self.workspace._profile_build_key(profile_name, selected)}"
+            )
+            roots.append(root)
+            return root
+
+        with (
+            mock.patch.object(
+                self.workspace, "_validate_selected_checkout", return_value="origin"
+            ) as validate,
+            mock.patch.object(
+                self.workspace, "_build_resolved", side_effect=build_resolved
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.git", return_value="a" * 40
+            ) as git,
+            mock.patch(
+                "atrinik_workspace.workspace._is_clean", return_value=True
+            ) as clean,
+        ):
+            roots.extend(
+                [
+                    self.workspace.build("client", "classic", tests=False),
+                    self.workspace.build("server", "classic", tests=False),
+                    self.workspace.build("all", "classic", tests=False),
+                    Path(
+                        self.workspace.topology_summary(
+                            "classic", "default", ["server", "client"]
+                        )["build_root"]
+                    ),
+                ]
+            )
+
+        self.assertEqual(len(set(roots)), 1)
+        # Each of four resolutions validates the five selected physical
+        # checkouts once; four Classic logical providers share one checkout.
+        self.assertEqual(validate.call_count, 20)
+        expected_checkouts = {
+            "classic",
+            "content-1x",
+            "sound",
+            "resources",
+            "metaserver-worker",
+        }
+        validated = [
+            call.args[0].checkout_name for call in validate.call_args_list
+        ]
+        for offset in range(0, len(validated), len(expected_checkouts)):
+            self.assertEqual(
+                set(validated[offset : offset + len(expected_checkouts)]),
+                expected_checkouts,
+            )
+        self.assertEqual(git.call_count, 5)
+        self.assertEqual(clean.call_count, 5)
+
+    def test_partial_classic_profile_keeps_requested_dependency_closure(self) -> None:
+        self.make_classic_build_profile(include_worker=False)
+
+        with mock.patch.object(
+            self.workspace, "_validate_selected_checkout", return_value="origin"
+        ):
+            selected = self.workspace._resolve_build_profile("classic", {"client"})
+
+        self.assertEqual(
+            set(selected), {"client", "sound", "libatrinik", "protocol"}
+        )
+
+    def test_malformed_present_common_checkout_fails_closed(self) -> None:
+        self.make_classic_build_profile(include_worker=False)
+        worker = self.wrapper / "metaserver-worker"
+        worker.write_text("not a checkout\n", encoding="utf-8")
+
+        with mock.patch.object(
+            self.workspace, "_validate_selected_checkout", return_value="origin"
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "component checkout is not a directory"
+            ):
+                self.workspace._resolve_build_profile("classic", {"client"})
+
+    def test_complete_classic_worktree_profile_uses_common_build_root(self) -> None:
+        self.make_classic_build_profile()
+        self.workspace.create_profile("classic-review", "classic")
+        worktree = self.workspace.paths.worktrees / "classic" / "review"
+        for source in ("client", "server", "protocol", "libatrinik", "editor"):
+            (worktree / source).mkdir(parents=True, exist_ok=True)
+        with mock.patch.object(
+            self.workspace, "_validate_selected_checkout", return_value="origin"
+        ):
+            self.workspace.set_profile(
+                "classic-review", "classic", "worktree", "review"
+            )
+            client = self.workspace._resolve_build_profile(
+                "classic-review", {"client"}
+            )
+            server = self.workspace._resolve_build_profile(
+                "classic-review", {"server"}
+            )
+
+        self.assertEqual(set(client), set(server))
+        self.assertEqual(
+            self.workspace._profile_build_key("classic-review", client),
+            self.workspace._profile_build_key("classic-review", server),
+        )
+        for role in ("client", "server", "protocol", "libatrinik"):
+            self.assertEqual(client[role], worktree / role)
 
     def test_classic_component_source_rejects_symlinked_module(self) -> None:
         checkout = self.wrapper / "classic"

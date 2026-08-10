@@ -330,14 +330,18 @@ and role-provider identities, and normalized absolute roots are hashed into the
 profile build key. Topology and scenario records persist the same repository
 and branch coordinates; records from before that identity existed remain inert
 instead of being reinterpreted through a changed manifest. A fully initialized
-classic workspace uses the common buildable-component
-selection, so `build all --profile classic`, component builds, and classic
-launches share incremental output. A partial workspace uses only the requested
-target's dependency closure. This separates combinations across distinct
-physical checkouts while preserving compiler output when the same worktrees advance,
-and makes pre-split build trees inert rather than reinterpreting them under
-replacement identities. The coordinator creates disposable source views
-rather than writing dependency links or output into source checkouts.
+classic workspace derives one common buildable role set from the selected
+stack's providers and dependency graph, so `build all --profile classic`,
+component builds, scenarios, and classic launches share incremental output.
+Resolution validates each selected physical checkout once before deriving its
+logical role paths and coordinate records. A partial workspace uses only the
+requested target's dependency closure; a preferred checkout that is present
+but malformed fails validation rather than silently shrinking that closure.
+This separates combinations across distinct physical checkouts while
+preserving compiler output when the same worktrees advance, and makes pre-split
+build trees inert rather than reinterpreting them under replacement identities.
+The coordinator creates disposable source views rather than writing dependency
+links or output into source checkouts.
 
 The currently playable classic build flow is:
 
