@@ -286,8 +286,21 @@ def _dynamic_candidates(
         if stack_name is None:
             return []
         stack = manifest.stacks[stack_name]
+        all_roles = [
+            role for role in (
+                "content", "protocol", "libatrinik", "client", "server",
+                "metaserver-worker",
+            )
+            if role in stack.providers
+        ]
         return [
-            "all",
+            *(
+                ["all"]
+                if all(
+                    stack.providers[role].build != "none" for role in all_roles
+                )
+                else []
+            ),
             *(
                 role
                 for role, component in stack.providers.items()
@@ -481,28 +494,32 @@ def _registered_states(paths: Paths | None) -> dict[str, str]:
         return {}
     root = _workspace_descriptor(paths)
     if root is None:
-        return []
+        return {}
     try:
-        value = _json_at(root, "states.json", _MAX_RECORD_BYTES)
-        if (
-            not isinstance(value, dict)
-            or set(value) != {"schema_version", "states"}
-            or value.get("schema_version") != 1
-        ):
-            return {}
-        states = value.get("states")
-        if not isinstance(states, dict):
-            return {}
-        if any(
-            not _valid_name(name)
-            or not isinstance(path, str)
-            or not Path(path).is_absolute()
-            for name, path in states.items()
-        ):
-            return {}
-        return states
+        return _registered_states_at(root)
     finally:
         os.close(root)
+
+
+def _registered_states_at(root: int) -> dict[str, str]:
+    value = _json_at(root, "states.json", _MAX_RECORD_BYTES)
+    if (
+        not isinstance(value, dict)
+        or set(value) != {"schema_version", "states"}
+        or value.get("schema_version") != 1
+    ):
+        return {}
+    states = value.get("states")
+    if not isinstance(states, dict):
+        return {}
+    if any(
+        not _valid_name(name)
+        or not isinstance(path, str)
+        or not Path(path).is_absolute()
+        for name, path in states.items()
+    ):
+        return {}
+    return states
 
 
 def _scenario_names(manifest: Manifest | None, paths: Paths | None) -> list[str]:
@@ -512,7 +529,7 @@ def _scenario_names(manifest: Manifest | None, paths: Paths | None) -> list[str]
     if opened is None:
         return []
     root, records = opened
-    states = _registered_states(paths)
+    states = _registered_states_at(root)
     try:
         names: list[str] = []
         for name in _entry_names(
@@ -652,7 +669,7 @@ def _topology_names(manifest: Manifest | None, paths: Paths | None) -> list[str]
                 status = _json_at(record, "status.json", _MAX_RECORD_BYTES)
                 if (
                     marker == {"schema_version": 1, "purpose": f"topology:{name}"}
-                    and _valid_topology(manifest, paths, name, status)
+                    and _valid_topology(manifest, name, status)
                 ):
                     names.append(name)
             finally:
@@ -664,7 +681,7 @@ def _topology_names(manifest: Manifest | None, paths: Paths | None) -> list[str]
 
 
 def _valid_topology(
-    manifest: Manifest, paths: Paths, name: str, status: Any
+    manifest: Manifest, name: str, status: Any
 ) -> bool:
     required = {
         "schema_version", "name", "profile", "stack", "providers",
@@ -679,19 +696,17 @@ def _valid_topology(
     ):
         return False
     profile = status.get("profile")
-    stack_name = (
-        _profile_stack(manifest, paths, profile)
-        if isinstance(profile, str)
-        else None
-    )
+    stack_name = status.get("stack")
     dependencies = status.get("dependencies")
     providers = status.get("providers")
     resolved = status.get("resolved")
     if (
         status.get("schema_version") != 1
         or status.get("name") != name
-        or stack_name is None
-        or status.get("stack") != stack_name
+        or not isinstance(profile, str)
+        or not profile
+        or not isinstance(stack_name, str)
+        or stack_name not in manifest.stacks
         or not isinstance(dependencies, list)
         or not dependencies
         or not all(isinstance(role, str) and _valid_name(role) for role in dependencies)
@@ -726,7 +741,10 @@ def _valid_topology(
         if not _valid_resolution(provider, resolved.get(component_name)):
             return False
     supervisor = status.get("supervisor")
-    if not _valid_process(supervisor):
+    if (
+        not _valid_process(supervisor)
+        or set(supervisor) != {"pid", "start_time"}
+    ):
         return False
     endpoint = status.get("endpoint")
     if endpoint is not None and (
@@ -746,7 +764,7 @@ def _valid_topology(
     services = status.get("services")
     if (
         not isinstance(services, dict)
-        or not services and "error" not in status
+        or not services and not status.get("error")
         or not set(services) <= {"client", "server"}
     ):
         return False
@@ -767,7 +785,14 @@ def _valid_topology(
             or not Path(service["cwd"]).is_absolute()
         ):
             return False
-    return ("server" in services) == (endpoint is not None)
+    return (
+        ("server" in services) == (endpoint is not None)
+        and not (
+            status["ready"]
+            and endpoint is not None
+            and endpoint["fingerprint"] is None
+        )
+    )
 
 
 def _valid_process(record: Any) -> bool:

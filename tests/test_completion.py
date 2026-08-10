@@ -171,6 +171,7 @@ class CompletionTests(unittest.TestCase):
         _, default_values = self.candidates("build", "--profile", "default", "")
         self.assertIn("metaserver-worker", default_values)
         self.assertNotIn("libatrinik", default_values)
+        self.assertNotIn("all", default_values)
         _, path_values = self.candidates("path", "--profile", "classic", "")
         self.assertIn("classic-client", path_values)
         self.assertNotIn("website", path_values)
@@ -369,6 +370,15 @@ class CompletionTests(unittest.TestCase):
             ("candidates", ["completion-review"]),
         )
 
+        status_path = self.workspace / "topologies" / "completion-review" / "status.json"
+        status = json.loads(status_path.read_text(encoding="utf-8"))
+        status["profile"] = "deleted-profile"
+        self.write_json(status_path, status)
+        self.assertEqual(
+            self.candidates("logs", ""),
+            ("candidates", ["completion-review"]),
+        )
+
         broken_scenario = self.scenario_record("broken")
         broken_scenario["providers"] = {}
         broken_scenario["resolved"] = {}
@@ -383,8 +393,6 @@ class CompletionTests(unittest.TestCase):
         _, scenarios = self.candidates("scenario", "show", "")
         self.assertNotIn("broken", scenarios)
 
-        status_path = self.workspace / "topologies" / "completion-review" / "status.json"
-        status = json.loads(status_path.read_text(encoding="utf-8"))
         status["dependencies"] = [[]]
         self.write_json(status_path, status)
         self.assertEqual(self.candidates("logs", ""), ("candidates", []))
@@ -398,6 +406,30 @@ class CompletionTests(unittest.TestCase):
             self.candidates("logs", ""),
             ("candidates", ["completion-review"]),
         )
+
+        status["error"] = ""
+        self.write_json(status_path, status)
+        self.assertEqual(self.candidates("logs", ""), ("candidates", []))
+
+        del status["error"]
+        status["services"] = {
+            "server": {
+                "pid": 124,
+                "start_time": "2",
+                "status": "running",
+                "exit_code": None,
+                "log": "/tmp/server.log",
+                "cwd": "/tmp/classic/server",
+            }
+        }
+        status["endpoint"] = {
+            "host": "127.0.0.1",
+            "port": 13327,
+            "fingerprint": None,
+        }
+        status["ready"] = True
+        self.write_json(status_path, status)
+        self.assertEqual(self.candidates("logs", ""), ("candidates", []))
 
     def test_unsafe_and_control_character_records_are_never_candidates(self) -> None:
         root = self.workspace / "worktrees" / "client"
@@ -554,6 +586,12 @@ class CompletionTests(unittest.TestCase):
             self.candidates("worktree", "remove", "client", ""),
             ("candidates", []),
         )
+        paths = completion._paths(self.wrapper)
+        self.assertIsNotNone(paths)
+        with mock.patch(
+            "atrinik_workspace.completion._workspace_descriptor", return_value=None
+        ):
+            self.assertEqual(completion._registered_states(paths), {})
 
     def test_script_generation_avoids_workspace_dispatch(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace:
