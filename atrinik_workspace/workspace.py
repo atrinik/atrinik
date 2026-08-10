@@ -3153,7 +3153,13 @@ class Workspace:
                 profile_name, set(selected_services)
             )
             required = set(selected)
-            targets = [service for service in ("client", "server") if service in selected_services]
+            targets = [
+                service
+                for service in ("client", "server")
+                if service in selected_services
+            ]
+            if set(targets) == {"client", "server"}:
+                targets = ["protocol", "libatrinik", *targets]
 
             with ExitStack() as stack:
                 state_location: Path | None = None

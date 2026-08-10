@@ -1137,12 +1137,13 @@ class WorkspaceTests(unittest.TestCase):
         with (
             mock.patch.object(
                 self.workspace, "_build_resolved", return_value=build_root
-            ),
+            ) as build_resolved,
             mock.patch.object(self.workspace, "_require_client_display"),
         ):
             status = self.workspace.topology_up(
                 "review", "default", "default", ["client"]
             )
+        self.assertEqual(build_resolved.call_args.args[3], ["client"])
         try:
             self.assertTrue(status["supervisor"]["running"])
             self.assertTrue(status["services"]["client"]["running"])
@@ -1276,7 +1277,7 @@ class WorkspaceTests(unittest.TestCase):
         with (
             mock.patch.object(
                 self.workspace, "_build_resolved", return_value=build_root
-            ),
+            ) as build_resolved,
             mock.patch.object(
                 self.workspace, "_select_topology_port", return_value=17300
             ),
@@ -1285,6 +1286,10 @@ class WorkspaceTests(unittest.TestCase):
             status = self.workspace.topology_up(
                 "server-review", "default", "default", None, 17300
             )
+        self.assertEqual(
+            build_resolved.call_args.args[3],
+            ["protocol", "libatrinik", "client", "server"],
+        )
         self.assertTrue(status["ready"])
         self.assertEqual(status["endpoint"]["port"], 17300)
         self.assertEqual(status["endpoint"]["fingerprint"], "a" * 64)
