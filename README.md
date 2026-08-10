@@ -54,6 +54,66 @@ component checkouts beside the wrapper remain indexed. Open a managed worktree
 under `workspace/worktrees/` as its own VS Code folder or window when it needs
 language-service coverage.
 
+### Shell completion
+
+Activate native completion for the current Bash, Zsh, or Fish session without
+changing a startup file:
+
+~~~sh
+# Bash (the same command works after putting atrinik on PATH)
+source <(./atrinik completion bash)
+
+# Zsh, after compinit is available
+autoload -Uz compinit && compinit
+source <(./atrinik completion zsh)
+
+# Fish
+./atrinik completion fish | source
+~~~
+
+For persistent per-user activation, create the shell's normal completion
+directory yourself and write the deterministic output to its native file:
+
+~~~sh
+# Bash
+./atrinik completion bash > ~/.local/share/bash-completion/completions/atrinik
+
+# Zsh (ensure ~/.zfunc is in fpath before compinit)
+./atrinik completion zsh > ~/.zfunc/_atrinik
+
+# Fish
+./atrinik completion fish > ~/.config/fish/completions/atrinik.fish
+~~~
+
+The wrapper never creates those directories or edits shell configuration.
+Completion works for `./atrinik`, an `atrinik` command on `PATH`, and absolute
+invocation paths. Commands, nested commands, exact options, mutually exclusive
+flags, and static parser choices come from the live `argparse` tree. Local
+manifest identities, built-in and saved profiles, owning-checkout worktree
+labels, states, scenarios, and recorded topologies are reread on every keypress.
+Filesystem values such as `--path` and `--output` remain native shell path
+completion, and wrapper suggestions stop after the `run client|server --`
+forwarding boundary.
+
+The provider reads only bounded local metadata and fails quietly to static
+parser candidates when optional state is absent or malformed. It does not
+construct a `Workspace`, inspect Git, probe processes, read scenario password
+files, or use the network. A development-container benchmark can be repeated
+with the private adapter protocol below; measure one cold invocation, then the
+median of repeated fresh processes after filesystem caches are warm:
+
+~~~sh
+time ./atrinik __complete 1 -- atrinik "" >/dev/null
+for run in $(seq 1 30); do
+  time ./atrinik __complete 1 -- atrinik "" >/dev/null
+done
+~~~
+
+On the Python 3.14 development container used for this implementation, the
+top-level candidate query measured 63 ms cold and 61 ms warm median. The
+protocol is internal to the generated adapters; scripts should be obtained
+through `completion bash|zsh|fish` rather than hand-written against it.
+
 ## Dependency and supply-chain ownership
 
 `supply-chain/inventory.json` records every supported repository and the owned
