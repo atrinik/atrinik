@@ -1302,6 +1302,87 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(list(topology.iterdir()), [])
 
+    def test_topology_runtime_set_rejects_destination_directory_link_race(
+        self,
+    ) -> None:
+        topology = self.root / "topology"
+        topology.mkdir()
+        source = self.root / "shared-content"
+        nested = source / "nested"
+        nested.mkdir(parents=True)
+        (nested / "payload").write_text("shared\n", encoding="utf-8")
+        atomic_json(
+            source / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "collected-content"},
+        )
+        external = self.root / "external"
+        external.mkdir()
+        (external / "sentinel").write_text("private\n", encoding="utf-8")
+        real_open = os.open
+        changed = False
+
+        def open_after_change(
+            path: object, flags: int, *args: object, **kwargs: object
+        ) -> int:
+            nonlocal changed
+            directory_fd = kwargs.get("dir_fd")
+            if (
+                path == "nested"
+                and isinstance(directory_fd, int)
+                and flags & os.O_DIRECTORY
+                and not changed
+            ):
+                parent = Path(f"/proc/self/fd/{directory_fd}").resolve()
+                if ".runtime-" in str(parent):
+                    changed = True
+                    (parent / "nested").rmdir()
+                    (parent / "nested").symlink_to(external, target_is_directory=True)
+            return real_open(path, flags, *args, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.open", side_effect=open_after_change
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "staging destination changed"
+            ):
+                self.workspace._copy_topology_runtime_inputs(
+                    topology,
+                    (("content", source, "collected-content"),),
+                )
+
+        self.assertTrue(changed)
+        self.assertEqual(
+            (external / "sentinel").read_text(encoding="utf-8"), "private\n"
+        )
+        self.assertEqual(sorted(path.name for path in external.iterdir()), ["sentinel"])
+        self.assertEqual(list(topology.iterdir()), [])
+
+    def test_topology_runtime_set_copies_read_only_directories(self) -> None:
+        topology = self.root / "topology"
+        topology.mkdir()
+        source = self.root / "shared-content"
+        nested = source / "nested"
+        nested.mkdir(parents=True)
+        (nested / "payload").write_text("shared\n", encoding="utf-8")
+        atomic_json(
+            source / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "collected-content"},
+        )
+        nested.chmod(0o555)
+        source.chmod(0o555)
+
+        copied = self.workspace._copy_topology_runtime_inputs(
+            topology,
+            (("content", source, "collected-content"),),
+        )["content"]
+
+        self.assertEqual(
+            (copied / "nested" / "payload").read_text(encoding="utf-8"),
+            "shared\n",
+        )
+        self.assertEqual(stat.S_IMODE(copied.stat().st_mode), 0o555)
+        self.assertEqual(stat.S_IMODE((copied / "nested").stat().st_mode), 0o555)
+
     def test_replace_directory_cleanup_failure_keeps_committed_output(self) -> None:
         output = self.root / "output"
         output.mkdir()
@@ -1355,6 +1436,30 @@ class WorkspaceTests(unittest.TestCase):
             ],
             [],
         )
+
+    def test_replace_directory_restores_interrupted_pending_output(self) -> None:
+        output = self.root / "output"
+        pending = self.root / ".previous-pending"
+        previous = pending / "previous"
+        previous.mkdir(parents=True)
+        (previous / "payload").write_text("previous\n", encoding="utf-8")
+        atomic_json(
+            pending / MANAGED_MARKER,
+            {
+                "schema_version": 1,
+                "purpose": "replaced-directory-backup",
+                "output": "output",
+            },
+        )
+        missing_staging = self.root / "missing-staging"
+
+        with self.assertRaises(FileNotFoundError):
+            workspace_replace_directory(output, missing_staging, ".previous-")
+
+        self.assertEqual(
+            (output / "payload").read_text(encoding="utf-8"), "previous\n"
+        )
+        self.assertFalse(pending.exists())
 
     def test_region_maps_are_atomic_cached_and_keyed_by_clean_inputs(self) -> None:
         source = self.workspace.paths.repositories / "server"

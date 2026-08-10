@@ -173,16 +173,20 @@ def replace_directory(
     }
     if backup_container.exists() or backup_container.is_symlink():
         marker = backup_container / MANAGED_MARKER
+        previous = backup_container / "previous"
         if (
             not backup_container.is_dir()
             or backup_container.is_symlink()
             or not marker.is_file()
             or marker.is_symlink()
             or load_json(marker) != backup_metadata
+            or (not output.exists() and (not previous.is_dir() or previous.is_symlink()))
         ):
             raise WorkspaceError(
                 f"replaced-directory backup is not managed: {backup_container}"
             )
+        if not output.exists():
+            previous.replace(output)
         try:
             shutil.rmtree(backup_container)
         except OSError as error:
@@ -3034,14 +3038,14 @@ class Workspace:
         self,
         source_fd: int,
         source_display: Path,
-        destination: Path,
+        destination_fd: int,
+        destination_display: Path,
     ) -> None:
         directory_before = os.fstat(source_fd)
         if not stat.S_ISDIR(directory_before.st_mode):
             raise WorkspaceError(
                 f"topology runtime input is not a directory: {source_display}"
             )
-        destination.mkdir(mode=stat.S_IMODE(directory_before.st_mode))
         try:
             names = sorted(os.listdir(source_fd))
         except OSError as error:
@@ -3050,7 +3054,7 @@ class Workspace:
             ) from error
         for name in names:
             source_child = source_display / name
-            destination_child = destination / name
+            destination_child = destination_display / name
             try:
                 child_before = os.stat(name, dir_fd=source_fd, follow_symlinks=False)
             except OSError as error:
@@ -3058,9 +3062,9 @@ class Workspace:
                     f"cannot inspect topology runtime input {source_child}: {error}"
                 ) from error
             if stat.S_ISDIR(child_before.st_mode):
-                flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+                source_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
                 try:
-                    child_fd = os.open(name, flags, dir_fd=source_fd)
+                    child_fd = os.open(name, source_flags, dir_fd=source_fd)
                 except OSError as error:
                     raise WorkspaceError(
                         "topology runtime input changed or contains a link: "
@@ -3073,9 +3077,31 @@ class Workspace:
                         raise WorkspaceError(
                             f"topology runtime input changed during copy: {source_child}"
                         )
-                    self._copy_topology_runtime_directory(
-                        child_fd, source_child, destination_child
-                    )
+                    try:
+                        os.mkdir(
+                            name,
+                            stat.S_IMODE(child_before.st_mode) | 0o700,
+                            dir_fd=destination_fd,
+                        )
+                        destination_child_fd = os.open(
+                            name,
+                            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                            dir_fd=destination_fd,
+                        )
+                    except OSError as error:
+                        raise WorkspaceError(
+                            "topology runtime staging destination changed during "
+                            f"copy: {destination_child}"
+                        ) from error
+                    try:
+                        self._copy_topology_runtime_directory(
+                            child_fd,
+                            source_child,
+                            destination_child_fd,
+                            destination_child,
+                        )
+                    finally:
+                        os.close(destination_child_fd)
                 finally:
                     os.close(child_fd)
             elif stat.S_ISREG(child_before.st_mode):
@@ -3097,15 +3123,22 @@ class Workspace:
                         raise WorkspaceError(
                             f"topology runtime input changed during copy: {source_child}"
                         )
-                    destination_fd = os.open(
-                        destination_child,
-                        os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
-                        stat.S_IMODE(opened.st_mode),
-                    )
+                    try:
+                        destination_file_fd = os.open(
+                            name,
+                            os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                            stat.S_IMODE(opened.st_mode),
+                            dir_fd=destination_fd,
+                        )
+                    except OSError as error:
+                        raise WorkspaceError(
+                            "topology runtime staging destination changed during "
+                            f"copy: {destination_child}"
+                        ) from error
                     try:
                         with os.fdopen(child_fd, "rb", closefd=False) as source_file:
                             with os.fdopen(
-                                destination_fd, "wb", closefd=False
+                                destination_file_fd, "wb", closefd=False
                             ) as destination_file:
                                 shutil.copyfileobj(source_file, destination_file)
                         copied = os.fstat(child_fd)
@@ -3116,14 +3149,17 @@ class Workspace:
                                 "topology runtime input changed during copy: "
                                 f"{source_child}"
                             )
-                        os.fchmod(destination_fd, stat.S_IMODE(opened.st_mode))
+                        os.fchmod(
+                            destination_file_fd, stat.S_IMODE(opened.st_mode)
+                        )
                     finally:
-                        os.close(destination_fd)
+                        os.close(destination_file_fd)
                 finally:
                     os.close(child_fd)
                 os.utime(
-                    destination_child,
+                    name,
                     ns=(opened.st_atime_ns, opened.st_mtime_ns),
+                    dir_fd=destination_fd,
                     follow_symlinks=False,
                 )
             else:
@@ -3138,11 +3174,10 @@ class Workspace:
             raise WorkspaceError(
                 f"topology runtime input changed during copy: {source_display}"
             )
-        destination.chmod(stat.S_IMODE(directory_before.st_mode))
+        os.fchmod(destination_fd, stat.S_IMODE(directory_before.st_mode))
         os.utime(
-            destination,
+            destination_fd,
             ns=(directory_before.st_atime_ns, directory_before.st_mtime_ns),
-            follow_symlinks=False,
         )
 
     def _copy_topology_runtime_tree(
@@ -3156,6 +3191,8 @@ class Workspace:
             raise WorkspaceError(
                 f"cannot open topology runtime input {source}: {error}"
             ) from error
+        destination_parent_fd: int | None = None
+        destination_fd: int | None = None
         try:
             if self._runtime_tree_identity(os.fstat(source_fd)) != (
                 self._runtime_tree_identity(source_before)
@@ -3163,7 +3200,45 @@ class Workspace:
                 raise WorkspaceError(
                     f"topology runtime input changed during copy: {source}"
                 )
-            self._copy_topology_runtime_directory(source_fd, source, destination)
+            destination_parent_before = destination.parent.stat(
+                follow_symlinks=False
+            )
+            destination_parent_fd = os.open(destination.parent, flags)
+            if self._runtime_tree_identity(os.fstat(destination_parent_fd)) != (
+                self._runtime_tree_identity(destination_parent_before)
+            ):
+                raise WorkspaceError(
+                    "topology runtime staging directory changed during copy: "
+                    f"{destination.parent}"
+                )
+            try:
+                os.mkdir(
+                    destination.name,
+                    stat.S_IMODE(source_before.st_mode) | 0o700,
+                    dir_fd=destination_parent_fd,
+                )
+                destination_fd = os.open(
+                    destination.name,
+                    flags,
+                    dir_fd=destination_parent_fd,
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    "topology runtime staging destination changed during copy: "
+                    f"{destination}"
+                ) from error
+            self._copy_topology_runtime_directory(
+                source_fd, source, destination_fd, destination
+            )
+            destination_parent_after = os.fstat(destination_parent_fd)
+            if (
+                destination_parent_after.st_dev != destination_parent_before.st_dev
+                or destination_parent_after.st_ino != destination_parent_before.st_ino
+            ):
+                raise WorkspaceError(
+                    "topology runtime staging directory changed during copy: "
+                    f"{destination.parent}"
+                )
             source_after = source.stat(follow_symlinks=False)
             if self._runtime_tree_identity(source_after) != (
                 self._runtime_tree_identity(source_before)
@@ -3172,6 +3247,10 @@ class Workspace:
                     f"topology runtime input changed during copy: {source}"
                 )
         finally:
+            if destination_fd is not None:
+                os.close(destination_fd)
+            if destination_parent_fd is not None:
+                os.close(destination_parent_fd)
             os.close(source_fd)
 
     def _copy_topology_runtime_inputs(
