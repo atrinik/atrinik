@@ -1502,13 +1502,13 @@
         "classic"
       ],
       "required": true,
-      "version": "1.0.5",
+      "version": "1.2.1",
       "version_source": "Immutable semantic-release image tag",
       "license": "LicenseRef-Atrinik-Image-Contents",
       "source_url": "https://github.com/atrinik/devcontainer/pkgs/container/windows-build",
       "locator": "ghcr.io/atrinik/windows-build",
       "commit": null,
-      "checksum": "sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7",
+      "checksum": "sha256:d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb",
       "acquisition": "Dev Containers and GitHub Actions pull the release tag and immutable manifest digest",
       "update_cadence_days": 30,
       "update_mechanism": "Weekly audit plus reviewed devcontainer release update",
@@ -1520,17 +1520,17 @@
         {
           "repository": "atrinik",
           "path": ".devcontainer/windows-cross/devcontainer.json",
-          "contains": "ghcr.io/atrinik/windows-build:1.0.5@sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7"
+          "contains": "ghcr.io/atrinik/windows-build:1.2.1@sha256:d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
-          "contains": "ghcr.io/atrinik/windows-build:1.0.5@sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7"
+          "contains": "ghcr.io/atrinik/windows-build:1.2.1@sha256:d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "ghcr.io/atrinik/windows-build:1.0.5@sha256:9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7"
+          "contains": "ghcr.io/atrinik/windows-build:1.2.1@sha256:d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb"
         }
       ]
     },
