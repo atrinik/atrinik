@@ -425,6 +425,11 @@ first, waits for its fingerprint and final ready signal, and then pins the
 client to that authenticated loopback endpoint. Available UDP ports are
 allocated under a workspace-wide lock, or callers may request an explicit
 port. Each runtime name owns an isolated persistent client configuration base.
+A supervised client also receives a bounded, process-only launch label naming
+its topology and profile; a foreground client receives its profile and direct
+run mode. The client uses this label only for its native window title. It is
+not part of persisted settings, package or protocol identity, or network
+metadata, and unmanaged launches receive no label.
 A server topology takes ownership of its collected content and staged resource
 directories after the shared incremental build, so later builds cannot mutate
 the filesystem seen by a running process.

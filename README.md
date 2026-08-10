@@ -903,8 +903,13 @@ pattern; today only the classic command is runnable:
 This is useful for side-by-side regression checks, protocol experiments, and
 reviewing two pull-request combinations without stopping either one. Each
 client is pinned to its own server fingerprint and has separate settings and
-caches. Omit both `--port` options to have the coordinator choose two available
-ports. Two live servers may not use the same state directory; the state lock
+caches. A managed client's native window title includes both its topology and
+profile, for example `Atrinik Client — topology classic-side - profile classic`.
+Use the topology name shown there with `./atrinik ps NAME --json`,
+`./atrinik logs NAME client`, and `./atrinik down NAME`; clients from the same
+profile remain distinguishable by topology. Omit both `--port` options to have
+the coordinator choose two available ports. Two live servers may not use the
+same state directory; the state lock
 turns that mistake into an immediate error instead of mutable-data corruption.
 
 ### Use case: run only a headless server
@@ -977,7 +982,12 @@ The foreground commands are a paired local-development path: use the same
 `--state` and `--port` in both terminals. The server always starts with
 automatic port mapping and STUN discovery disabled. The client reads the
 state's generated QUIC certificate, adds its authenticated loopback endpoint,
-and starts with metaserver and STUN discovery disabled. Start the server first
+and starts with metaserver and STUN discovery disabled. Its native title shows
+`profile PROFILE (direct run)` so it cannot be confused with a supervised
+topology. The bounded launch identity exists only in the child process
+environment; it is not saved to client configuration or used as package,
+protocol, or network user-agent version data. Clients started outside the
+wrapper retain the ordinary package title. Start the server first
 so that its persistent `quic-identity.pem` exists. Additional arguments are
 appended after these defaults, and join-password arguments are redacted from
 command logging. Prefer `up` for routine use because it allocates a port,
