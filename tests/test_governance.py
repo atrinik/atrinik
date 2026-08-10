@@ -238,6 +238,10 @@ class ClassicToolsInventoryTests(unittest.TestCase):
         )
         self.assertIn("MIT", bot["licensing_method"])
         self.assertIn("GPL", bot["licensing_method"])
+        self.assertIn("OpenAI Codex", bot["licensing_method"])
+        self.assertIn("direct supervision and steering", bot["licensing_method"])
+        self.assertIn("rights she holds", bot["licensing_method"])
+        self.assertNotIn("wholly authored", bot["licensing_method"])
         self.assertNotIn("playtester", self.manifest["cohorts"]["default"])
         self.assertIn("playtester", self.manifest["cohorts"]["classic"])
         self.assertNotIn(
