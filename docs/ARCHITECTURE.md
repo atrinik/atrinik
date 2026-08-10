@@ -380,9 +380,11 @@ temporary directory; the coordinator accepts it only when every output is a
 nonempty regular `.png` or UTF-8 `.def`, the basename sets form complete pairs,
 and the expected `incuna_-1` pair exists. It then installs the marker-owned
 cache atomically, preserving the previous valid cache on failure. Cache
-metadata records all selected provider, repository, branch, checkout, source,
-path, and commit coordinates. It is reusable only for clean checkouts with an
-exact metadata match; dirty inputs deliberately regenerate.
+metadata records provider, repository, branch, checkout, source, path, and
+commit coordinates for the server dependency closure consumed by the
+worldmaker. Unrelated roles in the common profile build root do not invalidate
+that cache. It is reusable only for clean input checkouts with an exact metadata
+match; dirty inputs deliberately regenerate.
 
 ## Runtime and state
 
@@ -413,11 +415,13 @@ participate in the state lock, so operators must not point those processes at
 the same state concurrently.
 
 Profiles are stack-aware source-topology definitions for supervised runtime as
-well as builds. `up` resolves the requested service's logical provider closure
-once, records the exact paths/commits and build root, prepares the same isolated
-views used by foreground launches, and hands the state-lock file descriptor
-through a short forking bootstrap to a detached native supervisor and its
-server child. The lock remains held for the server lifetime without a
+well as builds. For a complete Classic profile, `up` resolves the common
+manifest-derived build-root selection once while building only the requested
+service targets; a partial profile retains the requested service's dependency
+closure. It records the exact paths, commits, and build root, prepares the same
+isolated views used by foreground launches, and hands the state-lock file
+descriptor through a short forking bootstrap to a detached native supervisor
+and its server child. The lock remains held for the server lifetime without a
 long-lived invoking CLI process.
 
 The supervisor owns child lifetimes and size-bounded rotating logs. Status

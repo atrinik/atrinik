@@ -9,7 +9,7 @@ import tempfile
 import unittest
 from unittest import mock
 
-from atrinik_workspace.model import WorkspaceError, atomic_json
+from atrinik_workspace.model import WorkspaceError, atomic_json, load_json
 from atrinik_workspace.workspace import Workspace
 
 
@@ -529,7 +529,8 @@ class CohortWorkspaceTests(unittest.TestCase):
                 "default", "default", ["client"]
             )
 
-        self.assertIn("client", summary["dependencies"])
+        self.assertEqual(set(summary["dependencies"]), common | requested)
+        self.assertEqual(set(summary["providers"]), common | requested)
         self.assertEqual(summary["providers"]["client"], "client")
 
     def test_partial_classic_profile_keeps_requested_dependency_closure(self) -> None:
@@ -594,6 +595,9 @@ class CohortWorkspaceTests(unittest.TestCase):
             mock.patch(
                 "atrinik_workspace.workspace.git", return_value="a" * 40
             ) as git,
+            mock.patch(
+                "atrinik_workspace.workspace._is_clean", return_value=True
+            ),
         ):
             self.workspace.set_profile(
                 "classic-review", "classic", "worktree", "review"
@@ -612,6 +616,9 @@ class CohortWorkspaceTests(unittest.TestCase):
                 self.workspace._profile_build_key("classic-review", client),
                 client,
             )
+            region_inputs, _ = self.workspace._region_map_inputs(
+                "classic-review", client
+            )
 
         self.assertEqual(set(client), set(server))
         self.assertEqual(
@@ -620,7 +627,23 @@ class CohortWorkspaceTests(unittest.TestCase):
         )
         for role in ("client", "server", "protocol", "libatrinik"):
             self.assertEqual(client[role], worktree / role)
-        self.assertEqual(git.call_count, 5)
+        metadata = load_json(metadata_root / ".atrinik-build.json")
+        self.assertEqual(set(metadata["coordinates"]), set(client))
+        for role in ("client", "server", "protocol", "libatrinik"):
+            coordinate = metadata["coordinates"][role]
+            self.assertEqual(coordinate["component"], f"classic-{role}")
+            self.assertEqual(coordinate["source"], role)
+            self.assertEqual(coordinate["checkout_path"], str(worktree.resolve()))
+            self.assertEqual(
+                coordinate["source_path"], str((worktree / role).resolve())
+            )
+            self.assertEqual(coordinate["head"], "a" * 40)
+        profile = self.workspace._load_profile("classic-review", require_file=True)
+        server_roles = self.workspace._dependency_roles(profile, {"server"})
+        self.assertEqual(set(region_inputs["coordinates"]), server_roles)
+        # Five metadata checkouts plus the three physical server/worldmaker
+        # inputs (Classic, content, and resources) are each probed once.
+        self.assertEqual(git.call_count, 8)
 
     def test_classic_component_source_rejects_symlinked_module(self) -> None:
         checkout = self.wrapper / "classic"

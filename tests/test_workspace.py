@@ -738,17 +738,17 @@ class WorkspaceTests(unittest.TestCase):
         )
 
     def test_region_map_inputs_ignore_unrelated_common_build_roles(self) -> None:
+        profile = self.workspace._load_profile("default", require_file=False)
+        required = self.workspace._dependency_roles(profile, {"server"})
         selected = {
             role: self.workspace.paths.repositories / role
-            for role in ("server", "content", "resources", "client", "sound")
+            for role in required | {"client", "sound"}
         }
 
         inputs, cacheable = self.workspace._region_map_inputs("default", selected)
 
         self.assertTrue(cacheable)
-        self.assertEqual(
-            set(inputs["coordinates"]), {"server", "content", "resources"}
-        )
+        self.assertEqual(set(inputs["coordinates"]), required)
 
     def test_region_map_validation_rejects_malformed_outputs(self) -> None:
         output = self.root / "client-maps"
