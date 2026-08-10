@@ -236,9 +236,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "final-head checks",
             "Paired: only the default-branch PR closes; companions link",
             "companions link",
-            "sole `main` PR closes",
-            "sole `1.x` PR links without a closing keyword",
-            "close its issue manually after merge",
+            "A sole `main` PR closes. A sole `1.x` PR links without a closing keyword; close its issue manually after merge",
             "per-target bases",
         }:
             with self.subTest(surface="delivery", marker=marker):
