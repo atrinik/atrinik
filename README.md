@@ -188,8 +188,8 @@ or overlay an already registered state. A supervised topology copies the maps
 into its owned runtime snapshot before the server takes its immutable asset
 snapshot. Region maps are reclaimed with their marker-owned profile build by
 the normal preview-first `./atrinik cleanup --scope builds` lifecycle; topology
-snapshots remain protected by the topology record and are removed with normal
-topology cleanup.
+snapshots remain with the retained topology record and are atomically replaced
+the next time that topology name is launched.
 
 `--with classic` has one exact meaning: add the complete classic initialization
 cohort to the replacement/default cohort. It is not a classic-only mode. The

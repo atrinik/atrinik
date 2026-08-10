@@ -394,7 +394,8 @@ topology copies that cache into its owned runtime before launch, so a later
 build cannot change the server's immutable startup asset snapshot. Fresh and
 registered states therefore receive the selected generated maps without
 writing them into mutable state. The cache follows marker-owned profile-build
-cleanup and topology copies follow topology retention and cleanup.
+cleanup; topology copies follow topology retention and are replaced on the
+next launch of that topology name.
 
 The coordinator takes an advisory exclusive lock next to the state directory
 before build/runtime preparation and holds it for the lifetime of a launched

@@ -1737,10 +1737,22 @@ class Workspace:
         stack = self.manifest.stack(profile["stack"])
         coordinates: dict[str, dict[str, str]] = {}
         cacheable = True
+        checkout_states: dict[Path, tuple[bool, str]] = {}
         for role, source in sorted(selected.items()):
             component = stack.providers[role]
             checkout = self._selector_root(profile, component).resolve()
-            clean = _is_clean(checkout, trace=False)
+            if checkout not in checkout_states:
+                checkout_states[checkout] = (
+                    _is_clean(checkout, trace=False),
+                    git(
+                        checkout,
+                        "rev-parse",
+                        "HEAD",
+                        capture=True,
+                        trace=False,
+                    ),
+                )
+            clean, head = checkout_states[checkout]
             cacheable = cacheable and clean
             coordinates[role] = {
                 "component": component.name,
@@ -1750,9 +1762,7 @@ class Workspace:
                 "source": component.source,
                 "checkout_path": str(checkout),
                 "source_path": str(source.resolve()),
-                "head": git(
-                    checkout, "rev-parse", "HEAD", capture=True, trace=False
-                ),
+                "head": head,
             }
         return (
             {
@@ -1782,23 +1792,29 @@ class Workspace:
                 raise WorkspaceError(
                     f"generated region-map output is invalid: {entry}"
                 )
-            if entry.stat().st_size == 0:
-                raise WorkspaceError(f"generated region map is empty: {entry}")
-            if entry.suffix == ".png":
-                with entry.open("rb") as stream:
-                    if stream.read(8) != b"\x89PNG\r\n\x1a\n":
+            descriptor = open_regular_file(
+                entry, os.O_RDONLY, "generated region map"
+            )
+            try:
+                with os.fdopen(descriptor, "rb") as stream:
+                    if os.fstat(stream.fileno()).st_size == 0:
                         raise WorkspaceError(
-                            f"generated region map is not a PNG file: {entry}"
+                            f"generated region map is empty: {entry}"
                         )
-                png_names.add(entry.stem)
-            else:
-                try:
-                    entry.read_text(encoding="utf-8")
-                except (OSError, UnicodeError) as error:
-                    raise WorkspaceError(
-                        f"generated region-map definition is not UTF-8: {entry}"
-                    ) from error
-                definition_names.add(entry.stem)
+                    if entry.suffix == ".png":
+                        signature = stream.read(8)
+                        if signature != b"\x89PNG\r\n\x1a\n":
+                            raise WorkspaceError(
+                                f"generated region map is not a PNG file: {entry}"
+                            )
+                        png_names.add(entry.stem)
+                    else:
+                        stream.read().decode("utf-8")
+                        definition_names.add(entry.stem)
+            except UnicodeError as error:
+                raise WorkspaceError(
+                    f"generated region-map definition is not UTF-8: {entry}"
+                ) from error
         if png_names != definition_names:
             missing_png = sorted(definition_names - png_names)
             missing_definition = sorted(png_names - definition_names)
@@ -1879,10 +1895,20 @@ class Workspace:
                     "--worldmaker",
                     f"--datapath={data}",
                     f"--httppath={http}",
+                    f"--libpath={working / 'lib'}",
+                    f"--mapspath={working / 'maps'}",
+                    f"--resourcespath={working / 'resources'}",
                 ],
                 cwd=working,
             )
             self._validate_region_maps(generated)
+            final_inputs, final_cacheable = self._region_map_inputs(
+                profile_name, selected
+            )
+            if final_inputs != inputs or final_cacheable != cacheable:
+                raise WorkspaceError(
+                    "selected region-map inputs changed during generation"
+                )
             atomic_json(
                 generated / MANAGED_MARKER,
                 {
@@ -3399,8 +3425,8 @@ class Workspace:
                 f"--port_quic={port}",
                 "--port_mapping=off",
                 "--stun_server=off",
-                f"--httppath={runtime / 'http'}",
                 *arguments,
+                f"--httppath={runtime / 'http'}",
             ]
             print(f"state: {state}")
             print(f"cwd: {runtime}")

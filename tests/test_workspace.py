@@ -712,13 +712,69 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual((binary / "worldmaker-count").read_text(), "1")
         self.assertTrue((output / "incuna_-1.png").is_file())
         previous = (output / "incuna_-1.def").read_text(encoding="utf-8")
-        (source / "README").write_text("dirty input\n", encoding="utf-8")
+        atomic_json(output / ".atrinik-region-maps.json", {"stale": True})
+
+        def mutate_after_generation(
+            arguments: list[str], **kwargs: object
+        ) -> str:
+            result = workspace_run(arguments, **kwargs)
+            if Path(arguments[0]).resolve() == executable:
+                (source / "README").write_text(
+                    "dirty input\n", encoding="utf-8"
+                )
+            return result
+
+        with mock.patch(
+            "atrinik_workspace.workspace.run", side_effect=mutate_after_generation
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed during generation"):
+                self.workspace._generate_region_maps(root, "default", selected)
+        self.assertEqual(
+            (output / "incuna_-1.def").read_text(encoding="utf-8"), previous
+        )
+
         executable.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
         with self.assertRaisesRegex(WorkspaceError, "command failed"):
             self.workspace._generate_region_maps(root, "default", selected)
         self.assertEqual(
             (output / "incuna_-1.def").read_text(encoding="utf-8"), previous
         )
+
+    def test_region_map_validation_rejects_malformed_outputs(self) -> None:
+        output = self.root / "client-maps"
+
+        def reset() -> None:
+            if output.exists():
+                shutil.rmtree(output)
+            output.mkdir()
+
+        reset()
+        with self.assertRaisesRegex(WorkspaceError, "lack required"):
+            self.workspace._validate_region_maps(output)
+
+        (output / "incuna_-1.def").write_text("pixel_size 4\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "pairs are incomplete"):
+            self.workspace._validate_region_maps(output)
+
+        (output / "incuna_-1.png").write_bytes(b"not a png")
+        with self.assertRaisesRegex(WorkspaceError, "not a PNG"):
+            self.workspace._validate_region_maps(output)
+
+        (output / "incuna_-1.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+        (output / "incuna_-1.def").write_bytes(b"\xff")
+        with self.assertRaisesRegex(WorkspaceError, "not UTF-8"):
+            self.workspace._validate_region_maps(output)
+
+        reset()
+        (output / "unexpected").mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "output is invalid"):
+            self.workspace._validate_region_maps(output)
+
+        reset()
+        (output / "incuna_-1.png").write_bytes(b"")
+        (output / "incuna_-1.def").write_text("pixel_size 4\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "is empty"):
+            self.workspace._validate_region_maps(output)
 
     def test_exclusive_lock_rejects_concurrent_nonblocking_user(self) -> None:
         lock = self.workspace.paths.builds / "locks" / "test.lock"
@@ -1454,7 +1510,11 @@ class WorkspaceTests(unittest.TestCase):
             mock.patch("builtins.print") as output,
         ):
             result = self.workspace.run_server(
-                "default", "default", 1731, ["--no_console"], True
+                "default",
+                "default",
+                1731,
+                ["--no_console", "--httppath=/tmp/untrusted"],
+                True,
             )
 
         self.assertEqual(result, executable)
@@ -1463,6 +1523,10 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("--port_mapping=off", rendered)
         self.assertIn("--stun_server=off", rendered)
         self.assertIn("--no_console", rendered)
+        self.assertLess(
+            rendered.index("--httppath=/tmp/untrusted"),
+            rendered.index(f"--httppath={runtime / 'http'}"),
+        )
 
     def test_foreground_launch_rejects_invalid_port(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "between 1 and 65535"):
