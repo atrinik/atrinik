@@ -1739,7 +1739,9 @@ class Workspace:
         targets: list[str], selected: dict[str, Path]
     ) -> bool:
         shared_roles = {"client", "server", "protocol", "libatrinik"}
-        if not shared_roles.issubset(targets) or not shared_roles.issubset(selected):
+        if not {"client", "server"}.issubset(targets) or not shared_roles.issubset(
+            selected
+        ):
             return False
         checkout = selected["client"].parent.resolve()
         return (checkout / "CMakeLists.txt").is_file() and all(
@@ -3158,8 +3160,6 @@ class Workspace:
                 for service in ("client", "server")
                 if service in selected_services
             ]
-            if set(targets) == {"client", "server"}:
-                targets = ["protocol", "libatrinik", *targets]
 
             with ExitStack() as stack:
                 state_location: Path | None = None

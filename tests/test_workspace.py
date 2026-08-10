@@ -524,7 +524,7 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertTrue(
             self.workspace._uses_integrated_classic_build(
-                ["protocol", "libatrinik", "client", "server"], selected
+                ["client", "server"], selected
             )
         )
         self.assertFalse(
@@ -592,6 +592,33 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace._classic_binary_directory(root, "server"),
             root / "build" / "integrated" / "server",
         )
+
+    def test_paired_classic_build_falls_back_without_shared_role_builds(self) -> None:
+        selected = {
+            role: self.workspace.paths.repositories / role
+            for role in ("client", "server", "protocol", "libatrinik")
+        }
+        with (
+            mock.patch.object(
+                self.workspace, "_profile_build_key", return_value="fallback"
+            ),
+            mock.patch.object(self.workspace, "_refresh_build_metadata"),
+            mock.patch.object(self.workspace, "_collect_content"),
+            mock.patch.object(self.workspace, "_stage_resources"),
+            mock.patch.object(self.workspace, "_build_protocol") as build_protocol,
+            mock.patch.object(self.workspace, "_build_library") as build_library,
+            mock.patch.object(self.workspace, "_build_client") as build_client,
+            mock.patch.object(self.workspace, "_build_server") as build_server,
+            mock.patch.object(self.workspace, "_generate_region_maps"),
+        ):
+            self.workspace._build_resolved(
+                "topology", "default", False, ["client", "server"], selected
+            )
+
+        build_protocol.assert_not_called()
+        build_library.assert_not_called()
+        build_client.assert_called_once()
+        build_server.assert_called_once()
 
     def test_classic_binary_directory_tracks_last_successful_graph(self) -> None:
         root = self.workspace.paths.builds / "profiles" / "classic-test"
@@ -1288,7 +1315,7 @@ class WorkspaceTests(unittest.TestCase):
             )
         self.assertEqual(
             build_resolved.call_args.args[3],
-            ["protocol", "libatrinik", "client", "server"],
+            ["client", "server"],
         )
         self.assertTrue(status["ready"])
         self.assertEqual(status["endpoint"]["port"], 17300)
