@@ -393,7 +393,7 @@ remains unavailable until its native component contracts land.
 
 The server's configured `assetspath` is a disposable transport-neutral runtime
 view. Its real `data` directory receives generated core data, while its
-`client-maps` entry points at the validated generated cache. Neither belongs to
+`client-maps` directory copies the validated generated cache. Neither belongs to
 the named persistent state. A supervised topology copies the cache into its
 owned runtime before launch, so a later build cannot change the server's
 immutable startup asset snapshot. QUIC serves the snapshot by default;

@@ -3539,9 +3539,7 @@ class Workspace:
         assets = runtime / "assets"
         self._prepare_asset_staging_directory(assets)
         self._prepare_asset_staging_directory(assets / "data")
-        (assets / "client-maps").symlink_to(
-            client_maps, target_is_directory=True
-        )
+        shutil.copytree(client_maps, assets / "client-maps")
         return runtime
 
     @staticmethod

@@ -935,10 +935,9 @@ class WorkspaceTests(unittest.TestCase):
         self.assertTrue((first / "assets" / "data").is_dir())
         self.assertFalse((first / "assets" / "data").is_symlink())
         self.assertNotEqual(first / "assets", second / "assets")
-        self.assertEqual(
-            (first / "assets" / "client-maps").resolve(),
-            root / "runtime" / "client-maps",
-        )
+        staged_maps = first / "assets" / "client-maps"
+        self.assertTrue((staged_maps / "incuna_-1.png").is_file())
+        self.assertFalse(staged_maps.is_symlink())
 
         generated = first / "assets" / "data" / "listing.txt"
         generated.write_text("generated\n", encoding="utf-8")
@@ -1155,9 +1154,9 @@ class WorkspaceTests(unittest.TestCase):
             / "client-maps"
         )
         self.assertTrue((topology_maps / "incuna_-1.png").is_file())
-        self.assertEqual(
-            (server_runtime / "assets" / "client-maps").resolve(), topology_maps
-        )
+        staged_maps = server_runtime / "assets" / "client-maps"
+        self.assertTrue((staged_maps / "incuna_-1.png").is_file())
+        self.assertFalse(staged_maps.is_symlink())
         self.assertTrue(
             (build_root / "runtime" / "client-maps" / "incuna_-1.png").is_file()
         )
@@ -1391,6 +1390,85 @@ class WorkspaceTests(unittest.TestCase):
             self.assertGreater(reset["provisioned_at"], created["provisioned_at"])
 
         self.assertEqual(provision.call_count, 2)
+
+    def test_scenario_lifecycle_prepares_fresh_asset_staging(self) -> None:
+        selected = {
+            component: self.workspace.paths.repositories / component
+            for component in ("server", "content", "resources", "libatrinik", "protocol")
+        }
+        source = selected["server"]
+        (source / "tools").mkdir()
+        for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / name).write_text("test\n", encoding="utf-8")
+
+        build_root = self.workspace.paths.builds / "profiles" / "scenario-assets"
+        managed_directory(build_root, self.workspace.paths.builds, "test-profile")
+        binary = build_root / "build" / "server"
+        binary.mkdir(parents=True)
+        for name in ("atrinik-server", "libplugin_arena.so", "libplugin_python.so"):
+            (binary / name).write_text("test\n", encoding="utf-8")
+        for path in (
+            build_root / "runtime" / "content" / "lib",
+            build_root / "runtime" / "content" / "maps",
+            build_root / "runtime" / "resources",
+        ):
+            path.mkdir(parents=True, exist_ok=True)
+        self.make_region_map_cache(build_root)
+
+        staged_assets: list[Path] = []
+
+        def provision(
+            arguments: list[str], *, cwd: Path | None = None, **kwargs: object
+        ) -> object:
+            if "--provision_scenario" not in arguments:
+                return workspace_run(arguments, cwd=cwd, **kwargs)
+            assert cwd is not None
+            assetspath = Path(
+                next(
+                    argument.split("=", 1)[1]
+                    for argument in arguments
+                    if argument.startswith("--assetspath=")
+                )
+            )
+            self.assertEqual(assetspath, cwd / "assets")
+            self.assertFalse(assetspath.is_symlink())
+            self.assertTrue((assetspath / "data").is_dir())
+            self.assertFalse((assetspath / "data").is_symlink())
+            self.assertTrue((assetspath / "client-maps" / "incuna_-1.png").is_file())
+            self.assertFalse((assetspath / "client-maps").is_symlink())
+            self.assertFalse((assetspath / "data" / "previous-run").exists())
+            self.assertFalse((cwd / "data" / "http").exists())
+            (assetspath / "data" / "previous-run").write_text(
+                "generated\n", encoding="utf-8"
+            )
+            staged_assets.append(assetspath)
+            return None
+
+        with (
+            mock.patch.object(
+                self.workspace, "_resolve_build_profile", return_value=selected
+            ),
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            mock.patch("atrinik_workspace.workspace.run", side_effect=provision),
+        ):
+            created = self.workspace.scenario_create(
+                "fresh-assets", "default", "basic-player"
+            )
+            self.assertEqual(
+                self.workspace.scenario_show("fresh-assets")["state"],
+                "scenario-fresh-assets",
+            )
+            reset = self.workspace.scenario_reset("fresh-assets")
+
+        self.assertEqual(created["state"], "scenario-fresh-assets")
+        self.assertEqual(reset["state"], "scenario-fresh-assets")
+        self.assertEqual(len(staged_assets), 2)
+        self.assertNotEqual(staged_assets[0], staged_assets[1])
+        state = self.workspace.paths.scenarios / "fresh-assets" / "state"
+        self.assertFalse((state / "assets").exists())
+        self.assertFalse((state / "http").exists())
 
     def test_scenario_create_rolls_back_failed_provisioning(self) -> None:
         with mock.patch.object(
