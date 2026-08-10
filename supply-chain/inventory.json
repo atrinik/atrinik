@@ -1310,7 +1310,8 @@
       "owner": "devcontainer",
       "scope": [
         "classic-server",
-        "devcontainer"
+        "devcontainer",
+        "sound"
       ],
       "required": true,
       "version": "1",
@@ -1341,6 +1342,11 @@
         {
           "repository": "devcontainer",
           "path": "windows/Dockerfile",
+          "contains": "docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89"
+        },
+        {
+          "repository": "sound",
+          "path": "tools/audio/Dockerfile",
           "contains": "docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89"
         }
       ]
@@ -1373,6 +1379,42 @@
           "repository": "atrinik",
           "path": ".devcontainer/devcontainer.json",
           "contains": "ghcr.io/atrinik/linux-build:1.0.5@sha256:be3427cfc7dabcf837450c7306d55883c32e20ba1ab7cc96b4da4b966b8066de"
+        }
+      ]
+    },
+    {
+      "id": "container/linux-build-sound",
+      "name": "Atrinik Linux audio build image",
+      "kind": "container-image",
+      "owner": "devcontainer",
+      "scope": [
+        "sound"
+      ],
+      "required": true,
+      "version": "1.2.0",
+      "version_source": "sound/manifests/audio-toolchain.json",
+      "license": "LicenseRef-Atrinik-Image-Contents",
+      "source_url": "https://github.com/atrinik/devcontainer/pkgs/container/linux-build",
+      "locator": "ghcr.io/atrinik/linux-build",
+      "commit": "66b8508434044ca50822558172c5cef47a888762",
+      "checksum": "sha256:1231b39d40161c1199fd3e45e99e3d826dde02dade79729c030cc0ce3710898f",
+      "acquisition": "The sound pipeline pulls the immutable devcontainer release image by manifest digest",
+      "update_cadence_days": 30,
+      "update_mechanism": "Reviewed audio-toolchain manifest update with deterministic fixture rebuild",
+      "eol_response": "Move the audio pipeline to a supported devcontainer release and rebuild all fixtures",
+      "validation": "Source commit/release/digest manifest validation, image probe, and reproducible sound fixtures",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "sound",
+          "path": "manifests/audio-toolchain.json",
+          "contains": "66b8508434044ca50822558172c5cef47a888762"
+        },
+        {
+          "repository": "sound",
+          "path": "tools/audio/Dockerfile",
+          "contains": "ghcr.io/atrinik/linux-build@sha256:1231b39d40161c1199fd3e45e99e3d826dde02dade79729c030cc0ce3710898f"
         }
       ]
     },
@@ -2209,10 +2251,14 @@
       "eol_response": "Upgrade, replace, or remove unsupported modules before release",
       "validation": "go mod verify, go list, vet, race tests, govulncheck, go-licenses, and Syft SBOM",
       "disposition": "retain",
-      "packages": ["github.com/cespare/xxhash/v2", "github.com/go-logr/logr", "github.com/go-logr/stdr", "go.opentelemetry.io/auto/sdk", "go.opentelemetry.io/otel", "go.opentelemetry.io/otel/metric", "go.opentelemetry.io/otel/trace"],
+      "packages": ["github.com/atrinik/protocol", "github.com/cespare/xxhash/v2", "github.com/go-logr/logr", "github.com/go-logr/stdr", "go.opentelemetry.io/auto/sdk", "go.opentelemetry.io/otel", "go.opentelemetry.io/otel/metric", "go.opentelemetry.io/otel/trace", "golang.org/x/net", "golang.org/x/sys", "golang.org/x/text", "google.golang.org/protobuf"],
       "evidence": [
+        {"repository":"server","path":"go.mod","contains":"github.com/atrinik/protocol v1.3.0"},
+        {"repository":"server","path":"go.mod","contains":"golang.org/x/sys v0.47.0"},
         {"repository":"server","path":"go.mod","contains":"module github.com/atrinik/server"},
         {"repository":"server","path":"go.sum","contains":"github.com/cespare/xxhash/v2 v2.3.0"},
+        {"repository":"server","path":"go.sum","contains":"google.golang.org/protobuf v1.36.11"},
+        {"repository":"server","path":"policy/dependencies.json","contains":"\"name\": \"github.com/atrinik/protocol\""},
         {"repository":"server","path":"policy/dependencies.json","contains":"\"name\": \"go.opentelemetry.io/otel\""}
       ]
     },
@@ -2594,6 +2640,99 @@
       ]
     },
     {
+      "id": "source/cc-by-3-license-text",
+      "name": "Creative Commons Attribution 3.0 legal code",
+      "kind": "source-archive",
+      "owner": "sound",
+      "scope": [
+        "sound"
+      ],
+      "required": true,
+      "version": "3.0",
+      "version_source": "sound/manifests/audio-toolchain.json",
+      "license": "NOASSERTION",
+      "source_url": "https://creativecommons.org/licenses/by/3.0/legalcode.txt",
+      "locator": "https://creativecommons.org/licenses/by/3.0/legalcode.txt",
+      "commit": null,
+      "checksum": "sha256:e6bc9e9c474700b708f568bac9e5a8a9bcb2b1dad53442f5ba449fcb848b8e76",
+      "acquisition": "The sound image downloads and verifies the exact legal text for release attribution",
+      "update_cadence_days": 365,
+      "update_mechanism": "Reviewed license-corpus checksum update",
+      "eol_response": "Retain the reviewed immutable text required by existing attributed assets",
+      "validation": "Checksum, release license-path allowlist, and archive attribution tests",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "sound",
+          "path": "tools/audio/Dockerfile",
+          "contains": "CC_BY_SHA256=e6bc9e9c474700b708f568bac9e5a8a9bcb2b1dad53442f5ba449fcb848b8e76"
+        }
+      ]
+    },
+    {
+      "id": "source/cc-by-sa-3-license-text",
+      "name": "Creative Commons Attribution-ShareAlike 3.0 legal code",
+      "kind": "source-archive",
+      "owner": "sound",
+      "scope": [
+        "sound"
+      ],
+      "required": true,
+      "version": "3.0",
+      "version_source": "sound/manifests/audio-toolchain.json",
+      "license": "NOASSERTION",
+      "source_url": "https://creativecommons.org/licenses/by-sa/3.0/legalcode.txt",
+      "locator": "https://creativecommons.org/licenses/by-sa/3.0/legalcode.txt",
+      "commit": null,
+      "checksum": "sha256:3f941b3b89cf7b8370ceb83cc76d2120d471b58735d8ca60238a751a48d7f72f",
+      "acquisition": "The sound image downloads and verifies the exact legal text for release attribution",
+      "update_cadence_days": 365,
+      "update_mechanism": "Reviewed license-corpus checksum update",
+      "eol_response": "Retain the reviewed immutable text required by existing share-alike assets",
+      "validation": "Checksum, release license-path allowlist, and archive attribution tests",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "sound",
+          "path": "tools/audio/Dockerfile",
+          "contains": "CC_BY_SA_SHA256=3f941b3b89cf7b8370ceb83cc76d2120d471b58735d8ca60238a751a48d7f72f"
+        }
+      ]
+    },
+    {
+      "id": "source/cc0-1-license-text",
+      "name": "Creative Commons CC0 1.0 legal code",
+      "kind": "source-archive",
+      "owner": "sound",
+      "scope": [
+        "sound"
+      ],
+      "required": true,
+      "version": "1.0",
+      "version_source": "sound/manifests/audio-toolchain.json",
+      "license": "NOASSERTION",
+      "source_url": "https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt",
+      "locator": "https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt",
+      "commit": null,
+      "checksum": "sha256:a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
+      "acquisition": "The sound image downloads and verifies the exact legal text for release attribution",
+      "update_cadence_days": 365,
+      "update_mechanism": "Reviewed license-corpus checksum update",
+      "eol_response": "Retain the reviewed immutable text required by existing CC0 assets",
+      "validation": "Checksum, release license-path allowlist, and archive attribution tests",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "sound",
+          "path": "tools/audio/Dockerfile",
+          "contains": "CC0_SHA256=a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+        }
+      ]
+    },
+    {
       "id": "source/content-catalog",
       "name": "Content catalog package",
       "kind": "source-archive",
@@ -2621,6 +2760,135 @@
           "repository": "tools",
           "path": "map-checker-qt/catalog.lock.json",
           "contains": "atrinik-content-1.2.0/tools/content_catalog"
+        }
+      ]
+    },
+    {
+      "id": "source/freepats",
+      "name": "FreePats General MIDI instrument bank",
+      "kind": "source-archive",
+      "owner": "sound",
+      "scope": [
+        "sound"
+      ],
+      "required": true,
+      "version": "20060219",
+      "version_source": "sound/manifests/audio-toolchain.json",
+      "license": "LicenseRef-FreePats-GPL-Exception",
+      "source_url": "https://deb.debian.org/debian/pool/main/f/freepats/freepats_20060219.orig.tar.gz",
+      "locator": "https://deb.debian.org/debian/pool/main/f/freepats/freepats_20060219.orig.tar.gz",
+      "commit": null,
+      "checksum": "sha256:70bf8ca084df3903d6c9de43fe20539fc0a553d95cfba4d525da3fe66fda5f10",
+      "acquisition": "The sound image downloads the Debian source archive, verifies both archive layers, and installs the unmodified instrument bank",
+      "update_cadence_days": 365,
+      "update_mechanism": "Reviewed instrument-bank and license-exception audit",
+      "eol_response": "Replace the renderer input with a reviewed distributable bank before removing this source",
+      "validation": "Outer and inner checksums, installed-tree/config digests, MIDI fixture render, and release exclusion",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "sound",
+          "path": "manifests/audio-toolchain.json",
+          "contains": "0261ea1057b232183fa472432d5cedb0dca33698a5319328cdf193d4b2193c8a"
+        },
+        {
+          "repository": "sound",
+          "path": "tools/audio/Dockerfile",
+          "contains": "FREEPATS_SHA256=70bf8ca084df3903d6c9de43fe20539fc0a553d95cfba4d525da3fe66fda5f10"
+        }
+      ]
+    },
+    {
+      "id": "source/libogg-sdl",
+      "name": "libogg for SDL3_mixer",
+      "kind": "source-archive",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "1.3.5",
+      "version_source": "devcontainer/audio-toolchain.json",
+      "license": "BSD-3-Clause",
+      "source_url": "https://github.com/libsdl-org/ogg",
+      "locator": "pkg:github/libsdl-org/ogg@936fdd822a4e4fc963197b3eda931b89b52859a0",
+      "commit": "936fdd822a4e4fc963197b3eda931b89b52859a0",
+      "checksum": "sha256:4e2e1da271f4b7b9902f325a714e07d6412e9df7a0dbe43ca53257901c5d74ff",
+      "acquisition": "Both build images download the checksum-pinned commit archive and link it statically into SDL3_mixer",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled audio-manifest review with complete Linux and Windows image builds",
+      "eol_response": "Advance the reviewed audio cohort or disable Opus explicitly before an unsupported source ships",
+      "validation": "Manifest checksum, nested SPDX record, source build, Linux decoder probe, and Windows import closure",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "audio-toolchain.json",
+          "contains": "936fdd822a4e4fc963197b3eda931b89b52859a0"
+        }
+      ]
+    },
+    {
+      "id": "source/libopus-sdl",
+      "name": "libopus for SDL3_mixer",
+      "kind": "source-archive",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "1.4",
+      "version_source": "devcontainer/audio-toolchain.json",
+      "license": "BSD-3-Clause",
+      "source_url": "https://github.com/libsdl-org/opus",
+      "locator": "pkg:github/libsdl-org/opus@ac9f053e1db9cc1c7608b74e029c25ded0254e3e",
+      "commit": "ac9f053e1db9cc1c7608b74e029c25ded0254e3e",
+      "checksum": "sha256:3af32ef61579bc441883a63fce6b28bc9975df194d72b399415db67c61d5c25a",
+      "acquisition": "Both build images download the checksum-pinned commit archive and link it statically into SDL3_mixer",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled audio-manifest review with complete Linux and Windows image builds",
+      "eol_response": "Advance the reviewed audio cohort or disable Opus explicitly before an unsupported source ships",
+      "validation": "Manifest checksum, nested SPDX record, source build, Linux decoder probe, and Windows import closure",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "audio-toolchain.json",
+          "contains": "ac9f053e1db9cc1c7608b74e029c25ded0254e3e"
+        }
+      ]
+    },
+    {
+      "id": "source/libopusfile-sdl",
+      "name": "libopusfile for SDL3_mixer",
+      "kind": "source-archive",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "0.12",
+      "version_source": "devcontainer/audio-toolchain.json",
+      "license": "BSD-3-Clause",
+      "source_url": "https://github.com/libsdl-org/opusfile",
+      "locator": "pkg:github/libsdl-org/opusfile@9e5322c62de32d2b2ad88324b3ad311174cec41d",
+      "commit": "9e5322c62de32d2b2ad88324b3ad311174cec41d",
+      "checksum": "sha256:ed9ea07e9e7e9f9b603e793ffac9551218c978cd5021c7d8f9a3a5dfece9a860",
+      "acquisition": "Both build images download the checksum-pinned commit archive and link it statically into SDL3_mixer",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled audio-manifest review with complete Linux and Windows image builds",
+      "eol_response": "Advance the reviewed audio cohort or disable Opus explicitly before an unsupported source ships",
+      "validation": "Manifest checksum, nested SPDX record, source build, Linux decoder probe, and Windows import closure",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "audio-toolchain.json",
+          "contains": "9e5322c62de32d2b2ad88324b3ad311174cec41d"
         }
       ]
     },
@@ -2727,37 +2995,6 @@
       ]
     },
     {
-      "id": "source/sdl3-mixer-mingw",
-      "name": "SDL3_mixer MinGW SDK",
-      "kind": "source-archive",
-      "owner": "devcontainer",
-      "scope": [
-        "devcontainer"
-      ],
-      "required": true,
-      "version": "3.2.4",
-      "version_source": "windows/Dockerfile",
-      "license": "Zlib",
-      "source_url": "https://github.com/libsdl-org/SDL_mixer/releases/tag/release-3.2.4",
-      "locator": "pkg:github/libsdl-org/SDL_mixer@release-3.2.4#mingw",
-      "commit": null,
-      "checksum": "sha256:2ff5f59be4683e0afb4339c4fa73c6228651e52d37b040ecf80da08edb3cecd6",
-      "acquisition": "Windows image downloads the official checksum-pinned SDK",
-      "update_cadence_days": 30,
-      "update_mechanism": "Scheduled release drift review with Windows sound import verification",
-      "eol_response": "Upgrade with SDL3 and rebuild the complete portable classic client",
-      "validation": "Checksum, pkg-config version, DLL presence, and classic client import check",
-      "disposition": "isolate",
-      "packages": [],
-      "evidence": [
-        {
-          "repository": "devcontainer",
-          "path": "windows/Dockerfile",
-          "contains": "SDL3_MIXER_MINGW_SHA256=2ff5f59be4683e0afb4339c4fa73c6228651e52d37b040ecf80da08edb3cecd6"
-        }
-      ]
-    },
-    {
       "id": "source/sdl3-mixer-source",
       "name": "SDL3_mixer source archive",
       "kind": "source-archive",
@@ -2768,7 +3005,7 @@
       ],
       "required": true,
       "version": "3.2.4",
-      "version_source": "Linux image and classic client CI installer",
+      "version_source": "devcontainer/audio-toolchain.json and classic client CI installer",
       "license": "Zlib",
       "source_url": "https://github.com/libsdl-org/SDL_mixer/releases/tag/release-3.2.4",
       "locator": "pkg:github/libsdl-org/SDL_mixer@release-3.2.4",
@@ -2778,7 +3015,7 @@
       "update_cadence_days": 30,
       "update_mechanism": "Scheduled release drift review and classic client audio tests",
       "eol_response": "Upgrade with SDL3 or temporarily disable unsupported codecs explicitly",
-      "validation": "Checksum, pkg-config version, native classic client build, and sound tests",
+      "validation": "Checksum, nested SPDX record, Linux and Windows source builds, decoder/import probes, native classic client build, and sound tests",
       "disposition": "isolate",
       "packages": [],
       "evidence": [
@@ -2789,8 +3026,8 @@
         },
         {
           "repository": "devcontainer",
-          "path": "linux/Dockerfile",
-          "contains": "SDL3_MIXER_SHA256=182a07c745375e113dc740d43964ff21b0be29f29f59876c4dbc4db3d32f6901"
+          "path": "audio-toolchain.json",
+          "contains": "182a07c745375e113dc740d43964ff21b0be29f29f59876c4dbc4db3d32f6901"
         }
       ]
     },
@@ -3344,6 +3581,46 @@
           "repository": "classic-server",
           "path": "Dockerfile",
           "contains": "libpython3.14 libreadline8t64 libssl3t64 python3 zlib1g"
+        }
+      ]
+    },
+    {
+      "id": "system/sound-audio-image-packages",
+      "name": "Sound conversion image package set",
+      "kind": "system-package-set",
+      "owner": "sound",
+      "scope": [
+        "sound"
+      ],
+      "required": true,
+      "version": "ubuntu-20260810T000000Z",
+      "version_source": "sound/tools/audio/Dockerfile",
+      "license": "NOASSERTION",
+      "source_url": "https://snapshot.ubuntu.com/ubuntu/20260810T000000Z",
+      "locator": "ubuntu-sound-audio-packages-20260810T000000Z",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "apt installs exact versions from the immutable Ubuntu snapshot layered on the digest-pinned build image",
+      "update_cadence_days": 30,
+      "update_mechanism": "Reviewed snapshot/package update with complete deterministic sound fixture rebuild",
+      "eol_response": "Advance the complete conversion toolchain together; never fall back to floating package repositories",
+      "validation": "Snapshot URL and exact package/version checks, installed binary digests, two-build fixture comparison, and decoder probes",
+      "disposition": "isolate",
+      "packages": [
+        "ffmpeg=7:8.0.1-3ubuntu2",
+        "openmpt123=0.8.4-1",
+        "opus-tools=0.2-1build5"
+      ],
+      "evidence": [
+        {
+          "repository": "sound",
+          "path": "manifests/audio-toolchain.json",
+          "contains": "ffmpeg=7:8.0.1-3ubuntu2"
+        },
+        {
+          "repository": "sound",
+          "path": "tools/audio/Dockerfile",
+          "contains": "UBUNTU_SNAPSHOT=https://snapshot.ubuntu.com/ubuntu/20260810T000000Z"
         }
       ]
     },
