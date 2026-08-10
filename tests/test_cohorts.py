@@ -9,7 +9,7 @@ import tempfile
 import unittest
 from unittest import mock
 
-from atrinik_workspace.model import WorkspaceError, atomic_json
+from atrinik_workspace.model import WorkspaceError, atomic_json, load_json
 from atrinik_workspace.workspace import Workspace
 
 
@@ -33,6 +33,30 @@ class CohortWorkspaceTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.environment.stop()
         self.temporary.cleanup()
+
+    def make_classic_build_profile(self, *, include_worker: bool = True) -> None:
+        profile = self.workspace._load_profile("classic", require_file=False)
+        stack = self.workspace.manifest.stack("classic")
+        build_targets = {
+            role
+            for role in (
+                "content",
+                "protocol",
+                "libatrinik",
+                "client",
+                "server",
+                "metaserver-worker",
+            )
+            if role in stack.providers and stack.providers[role].build != "none"
+        }
+        roles = self.workspace._dependency_roles(profile, build_targets)
+        for role in roles:
+            component = stack.providers[role]
+            if not include_worker and role == "metaserver-worker":
+                continue
+            root = self.workspace._selector_root(profile, component)
+            source = root / component.source if component.source != "." else root
+            source.mkdir(parents=True, exist_ok=True)
 
     def test_plain_init_selects_only_default_cohort(self) -> None:
         with mock.patch.object(
@@ -358,6 +382,268 @@ class CohortWorkspaceTests(unittest.TestCase):
                 for name in names
             },
         )
+
+    def test_complete_classic_commands_share_common_build_root(self) -> None:
+        self.make_classic_build_profile()
+        expected_roles = {
+            "client",
+            "server",
+            "protocol",
+            "libatrinik",
+            "content",
+            "sound",
+            "resources",
+            "metaserver-worker",
+        }
+
+        roots: list[Path] = []
+
+        class StopTopology(Exception):
+            pass
+
+        def build_resolved(
+            target: str,
+            profile_name: str,
+            tests: bool,
+            targets: list[str],
+            selected: dict[str, Path],
+        ) -> Path:
+            self.assertEqual(set(selected), expected_roles)
+            root = self.workspace.paths.builds / "profiles" / (
+                f"{profile_name}-{self.workspace._profile_build_key(profile_name, selected)}"
+            )
+            roots.append(root)
+            if target == "topology":
+                raise StopTopology
+            return root
+
+        with (
+            mock.patch.object(
+                self.workspace, "_validate_selected_checkout", return_value="origin"
+            ) as validate,
+            mock.patch.object(
+                self.workspace, "_build_resolved", side_effect=build_resolved
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.git", return_value="a" * 40
+            ) as git,
+            mock.patch(
+                "atrinik_workspace.workspace._is_clean", return_value=True
+            ) as clean,
+            mock.patch.object(
+                self.workspace,
+                "_prepare_server_runtime",
+                return_value=self.root / "scenario-runtime",
+            ),
+            mock.patch.object(
+                self.workspace, "_state_location", return_value=self.root / "state"
+            ),
+            mock.patch.object(self.workspace, "_require_client_display"),
+            mock.patch("atrinik_workspace.workspace.run"),
+        ):
+            roots.extend(
+                [
+                    self.workspace.build("client", "classic", tests=False),
+                    self.workspace.build("server", "classic", tests=False),
+                    self.workspace.build("all", "classic", tests=False),
+                    Path(
+                        self.workspace.topology_summary(
+                            "classic", "default", ["server", "client"]
+                        )["build_root"]
+                    ),
+                ]
+            )
+            audited = self.workspace._scenario_provision_state(
+                {
+                    "profile": "classic",
+                    "state": "scenario-common-root",
+                    "account": "scenario",
+                    "character": "Scenario",
+                    "archetype": "human_male",
+                },
+                self.root / "state",
+                self.root / "password",
+            )
+            with self.assertRaises(StopTopology):
+                self.workspace._topology_up(
+                    "common-root",
+                    "classic",
+                    "default",
+                    ["server", "client"],
+                )
+
+        self.assertEqual(len(set(roots)), 1)
+        self.assertEqual(
+            set(audited),
+            {"server", "content", "resources", "libatrinik", "protocol"},
+        )
+        # Each of six resolutions validates the five selected physical
+        # checkouts once; four Classic logical providers share one checkout.
+        self.assertEqual(validate.call_count, 30)
+        expected_checkouts = {
+            "classic",
+            "content-1x",
+            "sound",
+            "resources",
+            "metaserver-worker",
+        }
+        validated = [
+            call.args[0].checkout_name for call in validate.call_args_list
+        ]
+        for offset in range(0, len(validated), len(expected_checkouts)):
+            self.assertEqual(
+                set(validated[offset : offset + len(expected_checkouts)]),
+                expected_checkouts,
+            )
+        # Topology summary probes all five physical roots once. Scenario audit
+        # intentionally records only the three physical server-closure roots.
+        self.assertEqual(git.call_count, 8)
+        self.assertEqual(clean.call_count, 8)
+
+    def test_complete_default_selection_keeps_requested_service(self) -> None:
+        profile = self.workspace._load_profile("default", require_file=False)
+        stack = self.workspace.manifest.stack("default")
+        common = self.workspace._dependency_roles(
+            profile,
+            {
+                role
+                for role, component in stack.providers.items()
+                if component.build != "none"
+            },
+        )
+        requested = self.workspace._dependency_roles(profile, {"client"})
+        for role in common | requested:
+            component = stack.providers[role]
+            root = self.workspace._selector_root(profile, component)
+            source = root / component.source if component.source != "." else root
+            source.mkdir(parents=True, exist_ok=True)
+
+        with (
+            mock.patch.object(
+                self.workspace, "_validate_selected_checkout", return_value="origin"
+            ),
+            mock.patch("atrinik_workspace.workspace.git", return_value="a" * 40),
+            mock.patch("atrinik_workspace.workspace._is_clean", return_value=True),
+        ):
+            summary = self.workspace.topology_summary(
+                "default", "default", ["client"]
+            )
+
+        self.assertEqual(set(summary["dependencies"]), common | requested)
+        self.assertEqual(set(summary["providers"]), common | requested)
+        self.assertEqual(summary["providers"]["client"], "client")
+
+    def test_partial_classic_profile_keeps_requested_dependency_closure(self) -> None:
+        self.make_classic_build_profile(include_worker=False)
+
+        with mock.patch.object(
+            self.workspace, "_validate_selected_checkout", return_value="origin"
+        ):
+            selected = self.workspace._resolve_build_profile("classic", {"client"})
+
+        self.assertEqual(
+            set(selected), {"client", "sound", "libatrinik", "protocol"}
+        )
+
+    def test_malformed_present_common_checkout_fails_closed(self) -> None:
+        self.make_classic_build_profile(include_worker=False)
+        worker = self.wrapper / "metaserver-worker"
+        worker.write_text("not a checkout\n", encoding="utf-8")
+
+        with mock.patch.object(
+            self.workspace, "_validate_selected_checkout", return_value="origin"
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "component checkout is not a directory"
+            ):
+                self.workspace._resolve_build_profile("classic", {"client"})
+
+    def test_initialization_race_validates_shared_checkout_once(self) -> None:
+        self.make_classic_build_profile()
+        classic = self.wrapper / "classic"
+        original_exists = Path.exists
+        first_classic_check = True
+
+        def racing_exists(path: Path) -> bool:
+            nonlocal first_classic_check
+            if path == classic and first_classic_check:
+                first_classic_check = False
+                return False
+            return original_exists(path)
+
+        with (
+            mock.patch.object(Path, "exists", racing_exists),
+            mock.patch.object(
+                self.workspace, "_validate_selected_checkout", return_value="origin"
+            ) as validate,
+        ):
+            self.workspace._resolve_build_profile("classic", {"client"})
+
+        validated = [call.args[0].checkout_name for call in validate.call_args_list]
+        self.assertEqual(validated.count("classic"), 1)
+
+    def test_complete_classic_worktree_profile_uses_common_build_root(self) -> None:
+        self.make_classic_build_profile()
+        self.workspace.create_profile("classic-review", "classic")
+        worktree = self.workspace.paths.worktrees / "classic" / "review"
+        for source in ("client", "server", "protocol", "libatrinik", "editor"):
+            (worktree / source).mkdir(parents=True, exist_ok=True)
+        with (
+            mock.patch.object(
+                self.workspace, "_validate_selected_checkout", return_value="origin"
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.git", return_value="a" * 40
+            ) as git,
+            mock.patch(
+                "atrinik_workspace.workspace._is_clean", return_value=True
+            ),
+        ):
+            self.workspace.set_profile(
+                "classic-review", "classic", "worktree", "review"
+            )
+            client = self.workspace._resolve_build_profile(
+                "classic-review", {"client"}
+            )
+            server = self.workspace._resolve_build_profile(
+                "classic-review", {"server"}
+            )
+            metadata_root = self.root / "worktree-build"
+            metadata_root.mkdir()
+            self.workspace._refresh_build_metadata(
+                metadata_root,
+                "classic-review",
+                self.workspace._profile_build_key("classic-review", client),
+                client,
+            )
+            region_inputs, _ = self.workspace._region_map_inputs(
+                "classic-review", client
+            )
+
+        self.assertEqual(set(client), set(server))
+        self.assertEqual(
+            self.workspace._profile_build_key("classic-review", client),
+            self.workspace._profile_build_key("classic-review", server),
+        )
+        for role in ("client", "server", "protocol", "libatrinik"):
+            self.assertEqual(client[role], worktree / role)
+        metadata = load_json(metadata_root / ".atrinik-build.json")
+        self.assertEqual(set(metadata["coordinates"]), set(client))
+        for role in ("client", "server", "protocol", "libatrinik"):
+            coordinate = metadata["coordinates"][role]
+            self.assertEqual(coordinate["component"], f"classic-{role}")
+            self.assertEqual(coordinate["source"], role)
+            self.assertEqual(coordinate["checkout_path"], str(worktree.resolve()))
+            self.assertEqual(
+                coordinate["source_path"], str((worktree / role).resolve())
+            )
+            self.assertEqual(coordinate["head"], "a" * 40)
+        profile = self.workspace._load_profile("classic-review", require_file=True)
+        server_roles = self.workspace._dependency_roles(profile, {"server"})
+        self.assertEqual(set(region_inputs["coordinates"]), server_roles)
+        # Five metadata checkouts plus the three physical server/worldmaker
+        # inputs (Classic, content, and resources) are each probed once.
+        self.assertEqual(git.call_count, 8)
 
     def test_classic_component_source_rejects_symlinked_module(self) -> None:
         checkout = self.wrapper / "classic"
