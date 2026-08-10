@@ -8,14 +8,12 @@ vulnerability detail. Do not commit or publish this report.
 
 - Issue: `<URL>`
 - Pull request(s): `<URL(s)>`
-- Canonical closing PR: `<URL>`
-- Repository: `<owner/repository>`
-- Target branch / fetched base SHA: `<branch>` / `<sha>`
-- Head branch / SHA: `<branch>` / `<sha>`
-- Merge base: `<sha>`
-- Worktree: `<absolute path>`
-- Commits reviewed: `<sha and subject list>`
+- Issue-closing path: `<default-branch PR URL or manual post-merge close>`
 - Review started / last refreshed: `<UTC timestamps>`
+
+| Release line / owner | Target / fetched base | Head branch / SHA | Merge base | Worktree | Commits reviewed |
+| --- | --- | --- | --- | --- | --- |
+| `<repository@line>` | `<branch>` / `<sha>` | `<branch>` / `<sha>` | `<sha>` | `<absolute path>` | `<sha and subject list>` |
 
 ## Acceptance traceability
 
@@ -30,7 +28,7 @@ vulnerability detail. Do not commit or publish this report.
 - Added: `<paths or none>`
 - Modified: `<paths or none>`
 - Deleted/renamed/mode/binary: `<paths or none>`
-- Cross-repository consumers/contracts: `<impact or none>`
+- Cross-repository or cross-line consumers/contracts: `<impact or none>`
 - Generated versus authored files: `<inventory>`
 - Unrelated or formatting-only churn: `<none or explanation>`
 
