@@ -103,7 +103,7 @@ class ManifestTests(unittest.TestCase):
             )
             self.assertEqual(
                 {checkout.name for checkout in manifest.cohort("classic")},
-                {"classic", "content-1x", "tools"},
+                {"classic", "content-1x", "playtester", "tools"},
             )
             self.assertIn(
                 "content",
@@ -538,6 +538,7 @@ class ReleaseConfigurationTests(unittest.TestCase):
             {
                 "classic",
                 "content-1x",
+                "playtester",
                 "tools",
             },
         )
@@ -546,6 +547,14 @@ class ReleaseConfigurationTests(unittest.TestCase):
         self.assertEqual(
             manifest.stack("classic").providers["libatrinik"].name,
             "classic-libatrinik",
+        )
+        self.assertEqual(
+            manifest.stack("classic").providers["playtester"].name,
+            "playtester",
+        )
+        self.assertEqual(
+            manifest.by_name["playtester"].requires,
+            ("content", "libatrinik", "protocol"),
         )
         self.assertEqual(
             {

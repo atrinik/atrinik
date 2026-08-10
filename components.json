@@ -19,6 +19,7 @@
     "classic": [
       "classic",
       "content-1x",
+      "playtester",
       "tools"
     ]
   },
@@ -65,6 +66,7 @@
         "classic-libatrinik",
         "classic-editor",
         "content-1x",
+        "playtester",
         "tools",
         "sound",
         "resources",
@@ -79,6 +81,7 @@
         "libatrinik": "classic-libatrinik",
         "editor": "classic-editor",
         "content": "content-1x",
+        "playtester": "playtester",
         "tools": "tools",
         "sound": "sound",
         "resources": "resources",
@@ -208,6 +211,14 @@
       "path": "content-1x",
       "generation": "classic",
       "license": "LicenseRef-Atrinik-Content"
+    },
+    {
+      "name": "playtester",
+      "repository": "atrinik/playtester",
+      "branch": "main",
+      "path": "playtester",
+      "generation": "classic",
+      "license": "MIT"
     },
     {
       "name": "tools",
@@ -408,6 +419,16 @@
       "provides": ["content"],
       "requires": [],
       "license": "LicenseRef-Atrinik-Content"
+    },
+    {
+      "name": "playtester",
+      "checkout": "playtester",
+      "source": ".",
+      "build": "none",
+      "generation": "classic",
+      "provides": ["playtester"],
+      "requires": ["content", "libatrinik", "protocol"],
+      "license": "MIT"
     },
     {
       "name": "tools",

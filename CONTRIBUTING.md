@@ -27,11 +27,14 @@ The canonical `server`, `client`, `editor`, `protocol`, `renderer`,
 `content-toolkit`, and `website` repositories form the MIT replacement stack.
 Plain `./atrinik init` is replacement/default-only. Exact
 `./atrinik init --with classic` adds the complete currently playable classic
-cohort: the `atrinik/classic` monorepo checkout, `content-1x@1.x`, and retained
-GPL tools. The monorepo supplies the logical classic client, server, editor,
-protocol, and libatrinik components from source subdirectories. Do not put
-those checkouts in the default cohort or mix replacement and classic providers
-in one runnable profile. Replacement repositories have validated standalone M1
+cohort: the `atrinik/classic` monorepo checkout, `content-1x@1.x`, the
+independent MIT `atrinik/playtester` checkout, and retained GPL tools. The
+monorepo supplies the logical classic client, server, editor, protocol, and
+libatrinik components from source subdirectories. The playtester remains
+classic-only, has a wrapper `build: none` contract, and owns its installation
+and validation in its physical repository. Do not put those checkouts in the
+default cohort or mix replacement and classic providers in one runnable
+profile. Replacement repositories have validated standalone M1
 foundations; their wrapper build/runtime adapters and integrated service
 closure have not landed, so current game integration uses a profile created
 from `classic`.

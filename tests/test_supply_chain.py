@@ -216,6 +216,93 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(aggregate.roles, ("checkout-metadata",))
         self.assertEqual(aggregate.audit_mode, "metadata")
         self.assertNotIn("libatrinik", inventory.repositories_by_name)
+        playtester = inventory.repositories_by_name["playtester"]
+        self.assertEqual(playtester.repository, "atrinik/playtester")
+        self.assertEqual(playtester.cohorts, ("classic",))
+        self.assertEqual(playtester.stacks, ("classic",))
+        self.assertEqual(playtester.roles, ("playtester",))
+        self.assertEqual(playtester.license, "MIT")
+
+        playtester_python = inventory.dependencies_by_id[
+            "language/playtester-python"
+        ]
+        self.assertEqual(playtester_python.owner, "playtester")
+        self.assertEqual(playtester_python.scope, ("playtester",))
+        self.assertEqual(
+            playtester_python.locator,
+            "pkg:pypi/atrinik-playtester@0.1.0",
+        )
+        self.assertNotIn("language/tools-bot-python", inventory.dependencies_by_id)
+
+        playtester_content = inventory.dependencies_by_id[
+            "source/atrinik-content-playtester"
+        ]
+        self.assertEqual(playtester_content.owner, "content-1x")
+        self.assertEqual(playtester_content.scope, ("playtester",))
+        self.assertEqual(playtester_content.version, "v1.8.0")
+        self.assertEqual(
+            playtester_content.commit,
+            "96073eeff1854fc29347fdafd32e622394f24c07",
+        )
+
+        playtester_protocol = inventory.dependencies_by_id[
+            "source/atrinik-protocol-playtester"
+        ]
+        self.assertEqual(playtester_protocol.owner, "playtester")
+        self.assertEqual(playtester_protocol.scope, ("playtester",))
+        self.assertEqual(
+            playtester_protocol.source_url,
+            "https://github.com/atrinik/legacy-protocol/releases/tag/v1.0.9",
+        )
+
+        playtester_libatrinik = inventory.dependencies_by_id[
+            "source/atrinik-libatrinik-playtester"
+        ]
+        self.assertEqual(playtester_libatrinik.owner, "playtester")
+        self.assertEqual(playtester_libatrinik.scope, ("playtester",))
+        self.assertEqual(
+            inventory.dependencies_by_id[
+                "source/atrinik-libatrinik-server"
+            ].scope,
+            ("classic-server",),
+        )
+        self.assertIn(
+            "playtester",
+            inventory.dependencies_by_id["action/actions-checkout"].scope,
+        )
+        self.assertIn(
+            "playtester",
+            inventory.dependencies_by_id["action/actions-setup-node"].scope,
+        )
+        self.assertIn(
+            "playtester",
+            inventory.dependencies_by_id[
+                "language/classic-conventional-changelog"
+            ].scope,
+        )
+        self.assertIn(
+            "playtester",
+            inventory.dependencies_by_id[
+                "language/classic-semantic-release"
+            ].scope,
+        )
+        self.assertIn(
+            "playtester",
+            inventory.dependencies_by_id[
+                "toolchain/github-hosted-ubuntu-24.04"
+            ].scope,
+        )
+        self.assertIn(
+            "playtester",
+            inventory.dependencies_by_id["toolchain/node"].scope,
+        )
+        self.assertIn(
+            "playtester",
+            inventory.dependencies_by_id["toolchain/python"].scope,
+        )
+        cmake = inventory.dependencies_by_id["toolchain/cmake"]
+        self.assertIn("playtester", cmake.scope)
+        self.assertNotIn("tools", cmake.scope)
         self.assertTrue(
             all(
                 repository.commit is None

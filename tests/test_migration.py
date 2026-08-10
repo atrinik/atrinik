@@ -44,6 +44,7 @@ CLASSIC_LOGICAL = (
 )
 SHARED = (
     "content-1x",
+    "playtester",
     "tools",
     "sound",
     "resources",
@@ -116,6 +117,12 @@ class RepositoryMigrationTests(unittest.TestCase):
 
     def migration(self) -> RepositoryMigration:
         return RepositoryMigration(self.wrapper, self.paths, self.manifest)
+
+    def test_classic_profile_fallback_includes_playtester(self) -> None:
+        migration = self.migration()
+        migration.manifest = SimpleNamespace()
+
+        self.assertIn("playtester", migration._classic_profile_component_names())
 
     def make_repository(
         self,

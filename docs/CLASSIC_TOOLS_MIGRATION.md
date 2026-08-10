@@ -9,7 +9,7 @@ select it nor depend on it for a build or runtime.
 
 | Old command/workflow | Replacement or removal | Owner and gate |
 | --- | --- | --- |
-| `python3 -m atrinik_bot` and bot utilities | Migrate policy to the released local automation SDK and headless client, then remove the duplicate transport/model | `atrinik/client#18`, M4 |
+| `python3 -m atrinik_bot` and bot utilities | Move to the standalone MIT playtester; retain the Classic backend behind a narrow interface and expand toward an unattended full-game run | `atrinik/playtester#1`, M1 |
 | Gridarta type/material converters | Bounded editor import/conversion commands | `atrinik/editor#11`, M4 |
 | `python3 map-checker-qt/map-checker.py --cli` | `atrinik-content check`; retain the Qt checker until diagnostic parity | `atrinik/content-toolkit#8`, M4 |
 | Python 2/PyGTK map checker | Retire; use the Qt checker during migration | `atrinik/content-toolkit#8`, M4 |
@@ -20,8 +20,12 @@ select it nor depend on it for a build or runtime.
 | `php -S ... -t worldviewer` | Deterministic renderer imagery and projection metadata | `atrinik/renderer#13`, M6 |
 
 The JSON record is authoritative for paths, consumers, inputs, outputs, current
-usage, license method, security controls, and exact verification. A replacement
-owner may use behavior and fixtures as public compatibility evidence, but may
+usage, license method, security controls, and exact verification. Zoey Rose has
+directly granted MIT relicensing for the wholly authored `atrinik_bot` source,
+so its destination owner is `atrinik/playtester`. That grant does not relicense
+the separately fetched GPL libatrinik source or any combined binary; those
+obligations remain explicit in the supply-chain inventory. Other replacement
+owners may use behavior and fixtures as public compatibility evidence, but may
 not translate mixed GPL implementation. A provenance grant is considered only
 after the full root process in
 [`REPLACEMENT_FOUNDATIONS.md`](REPLACEMENT_FOUNDATIONS.md) proves a separable
@@ -48,4 +52,3 @@ critical-maintenance boundary and duplicated the released MIT client
 foundation. It was not silently merged. The former repositories remain
 archived read-only; the wrapper migration retains recoverable local work and
 the supply-chain catalog resolves active module paths through `atrinik/classic`.
-
