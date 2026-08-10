@@ -186,6 +186,9 @@ class AgentGuidanceTests(unittest.TestCase):
             "skipped/neutral checks",
             "required human",
             "concise PR update",
+            "Reuse rather than recreate",
+            "issue profile selecting the final",
+            "blocks merging, not the ready transition",
         }:
             with self.subTest(contract=contract):
                 self.assertIn(contract, body)

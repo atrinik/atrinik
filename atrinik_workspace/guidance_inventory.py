@@ -18,8 +18,8 @@ MAX_STARTUP_BYTES = 8_000
 MAX_MULTI_SELECTED_BYTES = 14_000
 # The ninth skill adds explicit issue delivery while its large checklist stays
 # progressively disclosed. The measured pre-addition total was 20,844 bytes;
-# 28,500 is the smallest 250-byte ceiling retaining a strict regression guard.
-MAX_ALL_SKILL_BYTES = 28_500
+# 28,750 is the smallest 250-byte ceiling retaining a strict regression guard.
+MAX_ALL_SKILL_BYTES = 28_750
 
 
 @dataclass(frozen=True)

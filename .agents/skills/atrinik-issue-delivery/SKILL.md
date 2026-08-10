@@ -96,9 +96,9 @@ Before provisioning, run the supported inventories as applicable:
 ./atrinik topology show PROFILE --state STATE --json
 ```
 
-Prefer a compatible issue profile and wrapper-selected build, stopped issue
-topology, wrapper-owned state and server/client data, and issue-owned scenario.
-Reuse only resources
+Reuse rather than recreate a compatible issue profile, stopped issue topology,
+wrapper-owned state and server/client data, or issue-owned scenario. Reuse only
+resources
 whose immutable repository, branch, checkout, source, provider, commit, profile,
 generation, and state-owner coordinates match final HEAD; incomplete historical
 records are inert. Scenarios must also be dedicated to the issue, stopped, and
@@ -119,10 +119,11 @@ bounded-log, action/result, repeat, shutdown, and cleanup commands. Initial
 `down` applies only to that exact running topology; reset only issue-owned data.
 State display/login prerequisites.
 
-For replacement work, inspect current capabilities. While integrated adapters
-are absent, give owner-native validation plus supported profile/topology
-inspection, identify boundaries #266, #269, and #270, and never substitute
-Classic. If runtime is irrelevant, explain why and give exact applicable tests.
+For replacement work, create or reuse an issue profile selecting the final
+worktree and inspect current capabilities. While integrated adapters are absent,
+give owner-native validation plus supported profile/topology inspection,
+identify boundaries #266, #269, and #270, and never substitute Classic. If
+runtime is irrelevant, explain why and give exact applicable tests.
 Put the same exact capability-aware recipe in a concise PR update and the final
 handoff.
 
@@ -135,6 +136,8 @@ applicable optional checks must pass. Explain skipped/neutral checks and block
 on an expected missing, failed, or cancelled check. Report required human
 approval as a blocker rather than claiming literal merge eligibility. New
 actionable feedback restarts the fix, validation, and whole-diff loop.
+Missing human approval blocks merging, not the ready transition after the stated
+exit conditions pass.
 
 Hand off issue/PR URLs; repositories; base/head SHAs; branches, commits, and
 worktrees; report path/rounds/findings; exact validation and check state;
