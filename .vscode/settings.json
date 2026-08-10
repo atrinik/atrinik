@@ -1,0 +1,6 @@
+{
+  "files.watcherExclude": {
+    "workspace/**": true,
+    "build/**": true
+  }
+}

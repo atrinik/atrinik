@@ -46,7 +46,11 @@
         "clangd.arguments": [
           "--background-index",
           "--clang-tidy"
-        ]
+        ],
+        "files.watcherExclude": {
+          "workspace/**": true,
+          "build/**": true
+        }
       }
     }
   }

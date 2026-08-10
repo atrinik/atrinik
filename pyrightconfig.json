@@ -1,0 +1,9 @@
+{
+  "exclude": [
+    "workspace",
+    "build",
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*"
+  ]
+}
