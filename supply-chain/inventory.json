@@ -2857,6 +2857,7 @@
         "curl",
         "gcovr",
         "libcurl4-openssl-dev",
+        "libidn2-dev",
         "libsdl3-dev",
         "libsdl3-image-dev",
         "libsdl3-ttf-dev",
@@ -2976,6 +2977,42 @@
           "repository": "classic-server",
           "path": "CMakeLists.txt",
           "contains": "find_library(GD_LIBRARY gd)"
+        }
+      ]
+    },
+    {
+      "id": "system/idn2",
+      "name": "GNU Libidn2",
+      "kind": "system-library",
+      "owner": "classic-libatrinik",
+      "scope": [
+        "classic-client",
+        "classic-libatrinik",
+        "classic-server",
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "distribution/MXE-provided",
+      "version_source": "Pinned build images and MXE commit",
+      "license": "LGPL-3.0-or-later",
+      "source_url": "https://gitlab.com/libidn/libidn2",
+      "locator": "pkg:generic/libidn2",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "CMake links the native or MXE library already present in the reviewed package set",
+      "update_cadence_days": 30,
+      "update_mechanism": "Image rebuild, MXE review, and exact version report",
+      "eol_response": "Upgrade promptly for unsupported or security-affected IDNA implementations",
+      "validation": "CMake discovery plus shared hostname positive and adversarial UTS 46 tests",
+      "disposition": "retain",
+      "packages": [
+        "libidn2-dev"
+      ],
+      "evidence": [
+        {
+          "repository": "classic-libatrinik",
+          "path": "CMakeLists.txt",
+          "contains": "pkg_check_modules(IDN2 REQUIRED IMPORTED_TARGET libidn2)"
         }
       ]
     },
@@ -3286,6 +3323,8 @@
         "libcurl4t64",
         "libgd-dev",
         "libgd3",
+        "libidn2-0",
+        "libidn2-dev",
         "libminiupnpc-dev",
         "libminiupnpc21",
         "libpython3.14",
@@ -3388,6 +3427,7 @@
         "libclang-rt-dev",
         "libcurl4-openssl-dev",
         "libgd-dev",
+        "libidn2-dev",
         "libminiupnpc-dev",
         "libreadline-dev",
         "libsdl3-dev",
