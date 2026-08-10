@@ -35,8 +35,8 @@ class DevcontainerTests(unittest.TestCase):
         )
         self.assertEqual(
             config["image"],
-            "ghcr.io/atrinik/windows-build:1.0.5@sha256:"
-            "9cc373f620a577328fc0a7a7fa823bddaca6d7dc75ac73bcf21be421c49676f7",
+            "ghcr.io/atrinik/windows-build:1.2.1@sha256:"
+            "d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb",
         )
 
     def test_default_feature_lock_matches_configuration(self) -> None:
