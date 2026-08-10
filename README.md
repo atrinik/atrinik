@@ -173,6 +173,24 @@ Add the complete currently playable classic stack explicitly:
 ./atrinik down classic-local
 ~~~
 
+Building the Classic server also runs its offline worldmaker and stages the
+generated region-map `.png`/`.def` pairs in the profile build. Generation uses
+the selected Classic, `content-1x`, and resource views, so it requires the same
+native build dependencies as the server. A marker-owned cache is reused only
+while every selected checkout is clean and its recorded commit still matches;
+dirty inputs regenerate on every build. Missing `incuna_-1` output, incomplete
+pairs, malformed files, or generator failure stop the build while preserving
+the last valid cache.
+
+Server launch uses a disposable HTTP asset root that combines the named
+state's existing `http/data` with those generated maps. It does not copy into
+or overlay an already registered state. A supervised topology copies the maps
+into its owned runtime snapshot before the server takes its immutable asset
+snapshot. Region maps are reclaimed with their marker-owned profile build by
+the normal preview-first `./atrinik cleanup --scope builds` lifecycle; topology
+snapshots remain with the retained topology record and are atomically replaced
+the next time that topology name is launched.
+
 `--with classic` has one exact meaning: add the complete classic initialization
 cohort to the replacement/default cohort. It is not a classic-only mode. The
 cohort consists of one `atrinik/classic` checkout, a distinct `content-1x`

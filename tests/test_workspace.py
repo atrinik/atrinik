@@ -114,6 +114,7 @@ class WorkspaceTests(unittest.TestCase):
         if name == "server":
             (seed / "install_data" / "keys").mkdir(parents=True)
             (seed / "install_data" / "unique-items").mkdir()
+            (seed / "install_data" / "http" / "data").mkdir(parents=True)
             (seed / "install_data" / "keys" / "test.pub").write_text(
                 "key\n", encoding="utf-8"
             )
@@ -122,6 +123,9 @@ class WorkspaceTests(unittest.TestCase):
             )
             (seed / "install_data" / "bans").write_text("", encoding="utf-8")
             (seed / "install_data" / "motd").write_text("Welcome\n", encoding="utf-8")
+            (seed / "install_data" / "http" / "data" / "listing.txt").write_text(
+                "assets\n", encoding="utf-8"
+            )
         command("git", "add", ".", cwd=seed)
         command("git", "commit", "-m", "feat: seed", cwd=seed)
         command("git", "remote", "add", "origin", str(origin), cwd=seed)
@@ -159,6 +163,20 @@ class WorkspaceTests(unittest.TestCase):
                 "dirty": False,
             }
         return resolved
+
+    @staticmethod
+    def make_region_map_cache(root: Path) -> Path:
+        output = root / "runtime" / "client-maps"
+        output.mkdir(parents=True)
+        (output / "incuna_-1.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+        (output / "incuna_-1.def").write_text(
+            "pixel_size 4\n", encoding="utf-8"
+        )
+        atomic_json(
+            output / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "region-map-cache"},
+        )
+        return output
 
     def advance_origin(self, name: str, filename: str) -> str:
         seed = self.seeds[name]
@@ -645,6 +663,169 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual((output / "sentinel").read_text(encoding="utf-8"), "last good\n")
 
+    def test_region_maps_are_atomic_cached_and_keyed_by_clean_inputs(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / name).write_text("test\n", encoding="utf-8")
+        command("git", "add", ".", cwd=source)
+        command("git", "commit", "-m", "test: add runtime inputs", cwd=source)
+
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        binary = root / "build" / "server"
+        binary.mkdir(parents=True)
+        executable = binary / "atrinik-server"
+        executable.write_text(
+            "#!/usr/bin/env python3\n"
+            "from pathlib import Path\n"
+            "import sys\n"
+            "binary = Path(__file__).resolve()\n"
+            "counter = binary.with_name('worldmaker-count')\n"
+            "count = int(counter.read_text()) + 1 if counter.exists() else 1\n"
+            "counter.write_text(str(count))\n"
+            "http = Path(next(arg.split('=', 1)[1] for arg in sys.argv "
+            "if arg.startswith('--httppath=')))\n"
+            "output = http / 'client-maps'\n"
+            "output.mkdir(parents=True)\n"
+            "(output / 'incuna_-1.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n')\n"
+            "(output / 'incuna_-1.def').write_text('pixel_size 4\\n')\n",
+            encoding="utf-8",
+        )
+        executable.chmod(0o755)
+        for name in ("libplugin_arena.so", "libplugin_python.so"):
+            (binary / name).write_text("test\n", encoding="utf-8")
+        for path in (
+            root / "runtime" / "content" / "lib",
+            root / "runtime" / "content" / "maps",
+            root / "runtime" / "resources",
+        ):
+            path.mkdir(parents=True, exist_ok=True)
+        selected = {
+            role: self.workspace.paths.repositories / role
+            for role in ("server", "content", "resources")
+        }
+
+        output = self.workspace._generate_region_maps(root, "default", selected)
+        self.workspace._generate_region_maps(root, "default", selected)
+
+        self.assertEqual((binary / "worldmaker-count").read_text(), "1")
+        self.assertTrue((output / "incuna_-1.png").is_file())
+        previous = (output / "incuna_-1.def").read_text(encoding="utf-8")
+        atomic_json(output / ".atrinik-region-maps.json", {"stale": True})
+
+        def mutate_after_generation(
+            arguments: list[str], **kwargs: object
+        ) -> str:
+            result = workspace_run(arguments, **kwargs)
+            if Path(arguments[0]).resolve() == executable:
+                (source / "README").write_text(
+                    "dirty input\n", encoding="utf-8"
+                )
+            return result
+
+        with mock.patch(
+            "atrinik_workspace.workspace.run", side_effect=mutate_after_generation
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed during generation"):
+                self.workspace._generate_region_maps(root, "default", selected)
+        self.assertEqual(
+            (output / "incuna_-1.def").read_text(encoding="utf-8"), previous
+        )
+
+        executable.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "command failed"):
+            self.workspace._generate_region_maps(root, "default", selected)
+        self.assertEqual(
+            (output / "incuna_-1.def").read_text(encoding="utf-8"), previous
+        )
+
+    def test_region_map_validation_rejects_malformed_outputs(self) -> None:
+        output = self.root / "client-maps"
+
+        def reset() -> None:
+            if output.exists():
+                shutil.rmtree(output)
+            output.mkdir()
+
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace._validate_region_maps(output)
+
+        target = self.root / "map-target"
+        target.mkdir()
+        output.symlink_to(target, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace._validate_region_maps(output)
+        output.unlink()
+
+        reset()
+        with self.assertRaisesRegex(WorkspaceError, "lack required"):
+            self.workspace._validate_region_maps(output)
+
+        (output / "incuna_-1.def").write_text("pixel_size 4\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "pairs are incomplete"):
+            self.workspace._validate_region_maps(output)
+
+        reset()
+        (output / "incuna_-1.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+        with self.assertRaisesRegex(WorkspaceError, "missing definition"):
+            self.workspace._validate_region_maps(output)
+
+        (output / "incuna_-1.png").write_bytes(b"not a png")
+        with self.assertRaisesRegex(WorkspaceError, "not a PNG"):
+            self.workspace._validate_region_maps(output)
+
+        (output / "incuna_-1.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+        (output / "incuna_-1.def").write_bytes(b"\xff")
+        with self.assertRaisesRegex(WorkspaceError, "not UTF-8"):
+            self.workspace._validate_region_maps(output)
+
+        reset()
+        (output / "unexpected").mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "output is invalid"):
+            self.workspace._validate_region_maps(output)
+
+        reset()
+        (output / "incuna_-1.png").write_bytes(b"")
+        (output / "incuna_-1.def").write_text("pixel_size 4\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "is empty"):
+            self.workspace._validate_region_maps(output)
+
+        reset()
+        entry = mock.Mock()
+        entry.name = "vanished.png"
+        entry.lstat.side_effect = OSError("vanished")
+        with mock.patch("pathlib.Path.iterdir", return_value=iter([entry])):
+            with self.assertRaisesRegex(WorkspaceError, "cannot inspect"):
+                self.workspace._validate_region_maps(output)
+
+    def test_region_map_cache_rejects_incomplete_or_invalid_metadata(self) -> None:
+        output = self.make_region_map_cache(self.root)
+        marker = output / MANAGED_MARKER
+        metadata = output / ".atrinik-region-maps.json"
+        inputs = {"schema_version": 1, "cacheable": True, "coordinates": {}}
+
+        marker.unlink()
+        self.assertFalse(
+            self.workspace._region_map_cache_matches(output, inputs, True)
+        )
+
+        linked_output = self.root / "linked-maps"
+        linked_output.symlink_to(output, target_is_directory=True)
+        self.assertFalse(
+            self.workspace._region_map_cache_matches(linked_output, inputs, True)
+        )
+
+        atomic_json(
+            marker,
+            {"schema_version": 1, "purpose": "region-map-cache"},
+        )
+        atomic_json(metadata, inputs)
+        marker.write_text("{", encoding="utf-8")
+        self.assertFalse(
+            self.workspace._region_map_cache_matches(output, inputs, True)
+        )
+
     def test_exclusive_lock_rejects_concurrent_nonblocking_user(self) -> None:
         lock = self.workspace.paths.builds / "locks" / "test.lock"
         with exclusive_lock(lock, "test resource"):
@@ -739,10 +920,27 @@ class WorkspaceTests(unittest.TestCase):
             root / "runtime" / "resources",
         ):
             path.mkdir(parents=True, exist_ok=True)
+        self.make_region_map_cache(root)
+        missing_http_state = self.root / "state-missing-http"
+        with self.assertRaisesRegex(WorkspaceError, "lacks required HTTP data"):
+            self.workspace._prepare_server_runtime(
+                root, {"server": source}, missing_http_state, "missing-http"
+            )
+        linked_http_state = self.root / "state-linked-http"
+        (linked_http_state / "http").mkdir(parents=True)
+        http_target = self.root / "http-target"
+        http_target.mkdir()
+        (linked_http_state / "http" / "data").symlink_to(
+            http_target, target_is_directory=True
+        )
+        with self.assertRaisesRegex(WorkspaceError, "lacks required HTTP data"):
+            self.workspace._prepare_server_runtime(
+                root, {"server": source}, linked_http_state, "linked-http"
+            )
         state_one = self.root / "state-one"
         state_two = self.root / "state-two"
-        state_one.mkdir()
-        state_two.mkdir()
+        (state_one / "http" / "data").mkdir(parents=True)
+        (state_two / "http" / "data").mkdir(parents=True)
 
         first = self.workspace._prepare_server_runtime(
             root, {"server": source}, state_one, "one"
@@ -754,6 +952,10 @@ class WorkspaceTests(unittest.TestCase):
         self.assertNotEqual(first, second)
         self.assertTrue((first / "data").is_symlink())
         self.assertEqual((second / "data").resolve(), state_two)
+        self.assertEqual(
+            (first / "http" / "client-maps").resolve(),
+            root / "runtime" / "client-maps",
+        )
 
     def test_topology_summary_resolves_service_dependency_closure(self) -> None:
         summary = self.workspace.topology_summary(
@@ -899,6 +1101,7 @@ class WorkspaceTests(unittest.TestCase):
             build_root / "runtime" / "resources" / MANAGED_MARKER,
             {"schema_version": 1, "purpose": "resource-view"},
         )
+        self.make_region_map_cache(build_root)
         client = build_root / "build" / "client" / "atrinik"
         client.parent.mkdir(parents=True)
         (build_root / "sources" / "client").mkdir(parents=True)
@@ -937,6 +1140,19 @@ class WorkspaceTests(unittest.TestCase):
             / "content"
             / "maps",
         )
+        topology_maps = (
+            self.workspace.paths.topologies
+            / "server-review"
+            / "runtime"
+            / "client-maps"
+        )
+        self.assertTrue((topology_maps / "incuna_-1.png").is_file())
+        self.assertEqual(
+            (server_runtime / "http" / "client-maps").resolve(), topology_maps
+        )
+        self.assertTrue(
+            (build_root / "runtime" / "client-maps" / "incuna_-1.png").is_file()
+        )
         self.assertEqual(
             Path(status["services"]["client"]["cwd"]),
             self.workspace.paths.topologies
@@ -953,6 +1169,9 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("'--port_quic=17300'", server_log.read_text())
         self.assertIn("'--port_mapping=off'", server_log.read_text())
         self.assertIn("'--stun_server=off'", server_log.read_text())
+        self.assertIn(
+            f"'--httppath={server_runtime / 'http'}'", server_log.read_text()
+        )
         self.assertIn(
             f"'--server=127.0.0.1 17300 {'a' * 64}'", client_log.read_text()
         )
@@ -1357,7 +1576,11 @@ class WorkspaceTests(unittest.TestCase):
             mock.patch("builtins.print") as output,
         ):
             result = self.workspace.run_server(
-                "default", "default", 1731, ["--no_console"], True
+                "default",
+                "default",
+                1731,
+                ["--no_console", "--httppath=/tmp/untrusted"],
+                True,
             )
 
         self.assertEqual(result, executable)
@@ -1366,6 +1589,10 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("--port_mapping=off", rendered)
         self.assertIn("--stun_server=off", rendered)
         self.assertIn("--no_console", rendered)
+        self.assertLess(
+            rendered.index("--httppath=/tmp/untrusted"),
+            rendered.index(f"--httppath={runtime / 'http'}"),
+        )
 
     def test_foreground_launch_rejects_invalid_port(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "between 1 and 65535"):
