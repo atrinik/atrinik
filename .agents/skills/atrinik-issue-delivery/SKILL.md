@@ -31,11 +31,12 @@ scenario procedures.
    when needed and set its existing Status to **In progress** per
    `github-settings/config/planning.json`; never invent an `in-progress` label.
    Use a status label only where an authorized repository makes it canonical.
-4. For content issues, assess `main` and `1.x`; normally give shared authored
-   fixes separate bases, worktrees, validation, commits, linked PRs, reviews,
-   and final-head checks. Record an evidence-backed single-line exception. For
-   paired delivery, only the canonical default-branch PR closes while companions
-   link; otherwise the sole applicable PR is canonical. Leave the issue open.
+4. For content, assess `main` and `1.x`. Give shared fixes separate bases,
+   worktrees, validation, commits, linked PRs, reviews, and final-head checks;
+   record an evidence-backed exception. Paired: only the default-branch PR
+   closes; companions link. A sole `main` PR closes. A sole `1.x` PR links
+   without a closing keyword; close its issue manually after merge. Leave
+   issues open.
 
 ## Resolve ownership and isolate work
 

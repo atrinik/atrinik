@@ -234,15 +234,19 @@ class AgentGuidanceTests(unittest.TestCase):
             "assess `main` and `1.x`",
             "separate bases",
             "final-head checks",
-            "paired delivery, only the canonical default-branch PR closes while companions link",
+            "Paired: only the default-branch PR closes; companions link",
             "companions link",
-            "sole applicable PR is canonical",
+            "sole `main` PR closes",
+            "sole `1.x` PR links without a closing keyword",
+            "close its issue manually after merge",
             "per-target bases",
         }:
             with self.subTest(surface="delivery", marker=marker):
                 self.assertIn(marker, delivery)
         self.assertIn("| Release line / owner |", report)
         self.assertIn("cross-repository or cross-line", checklist)
+        self.assertIn("Issue-closing path", report)
+        self.assertIn("manual post-merge close", checklist)
 
     def test_removed_stale_routes_do_not_return(self) -> None:
         paths = [ROOT / "AGENTS.md"]

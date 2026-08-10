@@ -8,7 +8,7 @@ vulnerability detail. Do not commit or publish this report.
 
 - Issue: `<URL>`
 - Pull request(s): `<URL(s)>`
-- Canonical closing PR: `<URL>`
+- Issue-closing path: `<default-branch PR URL or manual post-merge close>`
 - Review started / last refreshed: `<UTC timestamps>`
 
 | Release line / owner | Target / fetched base | Head branch / SHA | Merge base | Worktree | Commits reviewed |

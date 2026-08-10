@@ -45,7 +45,8 @@ categories into invented findings.
   accidentally omitted files.
 - Confirm each file belongs to the physical repository that owns its contract.
 - Check cross-repository or cross-line changes have independent branches,
-  commits, PRs, and one unambiguous canonical issue-closing PR.
+  commits, PRs, and one unambiguous issue-closing path: a default-branch
+  closing keyword or documented manual post-merge close.
 - Verify the fetched target branch and recorded base SHA are current and correct.
 - Check public APIs, protocols, schemas, manifests, fixtures, docs, packages,
   release inputs, and generated consumers stay synchronized where applicable.
