@@ -698,6 +698,7 @@
       "scope": [
         "classic",
         "client",
+        "devcontainer",
         "editor"
       ],
       "required": true,
@@ -734,6 +735,11 @@
         {
           "repository": "client",
           "path": ".github/workflows/package-release.yml",
+          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+        },
+        {
+          "repository": "devcontainer",
+          "path": ".github/workflows/validate.yml",
           "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
         },
         {
@@ -956,6 +962,7 @@
         "atrinik",
         "classic",
         "client",
+        "devcontainer",
         "editor"
       ],
       "required": true,
@@ -992,6 +999,11 @@
         {
           "repository": "client",
           "path": ".github/workflows/package-release.yml",
+          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+        },
+        {
+          "repository": "devcontainer",
+          "path": ".github/workflows/validate.yml",
           "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
         },
         {
@@ -1300,6 +1312,68 @@
           "repository": "atrinik",
           "path": ".devcontainer/devcontainer.json",
           "contains": "ghcr.io/devcontainers/features/docker-in-docker:4"
+        }
+      ]
+    },
+    {
+      "id": "container/docker-dind",
+      "name": "Docker-in-Docker daemon image",
+      "kind": "container-image",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "27.5.1-dind",
+      "version_source": "Docker Official Images manifest",
+      "license": "Apache-2.0",
+      "source_url": "https://github.com/docker-library/docker",
+      "locator": "docker.io/library/docker",
+      "commit": null,
+      "checksum": "sha256:aa3df78ecf320f5fafdce71c659f1629e96e9de0968305fe1de670e0ca9176ce",
+      "acquisition": "The Classic Check measurement harness pulls the immutable manifest and creates one isolated daemon per trial",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly inventory audit plus reviewed measurement-harness update",
+      "eol_response": "Advance the harness to a supported stable Docker daemon before upstream support ends",
+      "validation": "Four counterbalanced fresh-daemon pull trials with owned-container and anonymous-volume cleanup checks",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "tools/measure-classic-check-images.sh",
+          "contains": "docker:27.5.1-dind@sha256:aa3df78ecf320f5fafdce71c659f1629e96e9de0968305fe1de670e0ca9176ce"
+        }
+      ]
+    },
+    {
+      "id": "container/docker-registry",
+      "name": "Docker Distribution registry image",
+      "kind": "container-image",
+      "owner": "devcontainer",
+      "scope": [
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "2.8.3",
+      "version_source": "Docker Official Images manifest",
+      "license": "Apache-2.0",
+      "source_url": "https://github.com/distribution/distribution",
+      "locator": "docker.io/library/registry",
+      "commit": null,
+      "checksum": "sha256:a3d8aaa63ed8681a604f1dea0aa03f100d5895b6a58ace528858a7b332415373",
+      "acquisition": "The Classic Check measurement harness pulls the immutable manifest for an invocation-scoped loopback registry",
+      "update_cadence_days": 30,
+      "update_mechanism": "Weekly inventory audit plus reviewed measurement-harness update",
+      "eol_response": "Advance the harness to a supported stable Distribution registry before upstream support ends",
+      "validation": "Four-trial pull measurement with loopback-only exposure and owned-container, tag, network, and volume cleanup checks",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "tools/measure-classic-check-images.sh",
+          "contains": "registry:2.8.3@sha256:a3d8aaa63ed8681a604f1dea0aa03f100d5895b6a58ace528858a7b332415373"
         }
       ]
     },
@@ -4234,7 +4308,7 @@
       "name": "GitHub-hosted Windows 2025 runner",
       "kind": "toolchain",
       "owner": "github-settings",
-      "scope": ["classic", "client", "content", "content-1x", "editor", "server", "website"],
+      "scope": ["classic", "client", "content", "content-1x", "devcontainer", "editor", "server", "website"],
       "required": true,
       "version": "windows-2025",
       "version_source": "Explicit GitHub Actions runner label and generated version report",
@@ -4255,6 +4329,7 @@
         {"repository":"client","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
         {"repository":"content","path":".github/workflows/check.yml","contains":"- windows-2025"},
         {"repository":"content-1x","path":".github/workflows/check.yml","contains":"- windows-2025"},
+        {"repository":"devcontainer","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
         {"repository":"editor","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
         {"repository":"server","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
         {"repository":"website","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"}
