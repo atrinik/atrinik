@@ -2411,25 +2411,26 @@
     },
     {
       "id": "language/wrapper-python-development",
-      "name": "Workspace Python development dependencies",
+      "name": "Workspace and Classic Python development dependencies",
       "kind": "language-package-set",
       "owner": "atrinik",
       "scope": [
-        "atrinik"
+        "atrinik",
+        "classic"
       ],
       "required": false,
       "version": "coverage=7.15.3",
-      "version_source": "requirements-dev.txt",
+      "version_source": "requirements-dev.txt and the Classic Check workflow",
       "license": "Apache-2.0",
       "source_url": "https://pypi.org/project/coverage/",
       "locator": "pkg:pypi/coverage@7.15.3",
       "commit": null,
       "checksum": null,
-      "acquisition": "pip installs the exact development requirement",
+      "acquisition": "pip installs the exact development or CI requirement",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot pip updates",
       "eol_response": "Upgrade with the supported Python line or retain stdlib test execution without coverage",
-      "validation": "Complete unittest suite and coverage report",
+      "validation": "Complete wrapper and Classic release-tool unittest suites and coverage reports",
       "disposition": "retain",
       "packages": [
         "coverage"
@@ -2439,6 +2440,11 @@
           "repository": "atrinik",
           "path": "requirements-dev.txt",
           "contains": "coverage==7.15.3"
+        },
+        {
+          "repository": "classic",
+          "path": ".github/workflows/check.yml",
+          "contains": "python3 -m pip install coverage==7.15.3"
         }
       ]
     },
