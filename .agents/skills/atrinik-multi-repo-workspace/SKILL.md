@@ -60,21 +60,19 @@ Reclaim completed review data only through preview-first cleanup:
 ```
 
 Default scope covers registered worktrees and marker-owned builds; npm cache is
-opt-in. Text uses IEC sizes; JSON keeps exact bytes. References, Git ambiguity,
-and unsafe paths or markers protect targets. Only an `atrinik/atrinik@main`
-wrapper worktree directly below `build/worktrees/` may use the historical-base
-exception: its PR must target `master` and provide head, base, and merge SHAs.
-The merge's first parent must match the base, and it must be an ancestor of
-frozen boundary `ee5ba2096c94bce0161629423d4962a966bc61d8`. Graph proof ignores
-replace refs and rejects `info/grafts`. Under the layout lock, `--apply`
-inventories fully and reruns the proof plus exact-target safety without
-unrelated report scans; uncertainty fails closed. Status uses
-`--ignore-submodules=none`;
-populated submodule Git data protects. Cleanup removes builds first, uses only
-non-force Git removal, and preserves branch refs, profiles, scenarios, states,
-topology records/logs, migrations, retention records, Git objects, review
-reports, and unmarked paths. Hand off exact fixtures, JSON commands, reasons,
-and preserved records.
+opt-in. Text uses IEC sizes; JSON keeps exact bytes. References, ambiguous Git,
+and unsafe paths/markers protect targets. Only an `atrinik/atrinik@main`
+worktree directly below `build/worktrees/` has the historical-base exception:
+its PR targets `master` and supplies head, base, and merge SHAs; the merge's
+first parent equals the base, and the merge is ancestral to frozen boundary
+`ee5ba2096c94bce0161629423d4962a966bc61d8`. Proof ignores replace refs and
+rejects `info/grafts`. Under the layout lock, `--apply` reinventories and reruns
+proof plus exact-target safety; uncertainty fails closed. Status uses
+`--ignore-submodules=none`; populated submodule Git data protects. Cleanup
+removes builds first via non-force Git, preserving branch refs, profiles,
+scenarios, states, topology records/logs, migrations, retention records, Git
+objects, review reports, and unmarked paths. Hand off exact fixtures, JSON
+commands, reasons, and preserved records.
 
 ## Compose coherent sources
 
@@ -127,21 +125,20 @@ operations.
 
 ## Coordinate publication and policy
 
-- Use `atrinik-github-governance` for PR publication, Actions, permissions,
-  required checks, merge/release policy, or repository settings. For policy
-  changes, inspect live and desired state before an authorized external change.
+- Use `atrinik-github-governance` for PR publication or policy; compare live and
+  desired state before authorized policy mutations.
 - PR titles use `type(optional-scope)!: concise description`; bodies use
   renderable GitHub-Flavored Markdown and actual line breaks, never visible
-  literal `\n` separators. Feed multi-section bodies by file or stdin; after
+  literal `\n` separators. Give multi-section bodies by file or stdin; after
   create/edit, verify remote rendering.
-- Keep each physical repository independently releasable; semantic-release owns
-  versions, tags, notes, and recovery. Never publish manually.
-- For dependency-input changes, update `supply-chain/inventory.json` and audit
-  the complete profile. Overrides never make members optional; only aggregate
-  roots own active workflows and Dependabot.
+- Keep physical repositories independently releasable; semantic-release owns
+  versions, tags, notes, and recovery. Never publish manually. Dependency
+  changes require `supply-chain/inventory.json` and a
+  complete-profile audit; overrides stay mandatory and only aggregate roots own
+  workflows/Dependabot.
 - Apply historical MIT grants only under
-  [`docs/PROVENANCE.md`](../../../docs/PROVENANCE.md). Fail closed and record the
-  complete evidence in the destination repository.
+  [`docs/PROVENANCE.md`](../../../docs/PROVENANCE.md); fail closed and record
+  complete evidence in the destination.
 
 ## Maintain guidance
 
