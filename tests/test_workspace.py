@@ -748,12 +748,20 @@ class WorkspaceTests(unittest.TestCase):
                 shutil.rmtree(output)
             output.mkdir()
 
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace._validate_region_maps(output)
+
         reset()
         with self.assertRaisesRegex(WorkspaceError, "lack required"):
             self.workspace._validate_region_maps(output)
 
         (output / "incuna_-1.def").write_text("pixel_size 4\n", encoding="utf-8")
         with self.assertRaisesRegex(WorkspaceError, "pairs are incomplete"):
+            self.workspace._validate_region_maps(output)
+
+        reset()
+        (output / "incuna_-1.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+        with self.assertRaisesRegex(WorkspaceError, "missing definition"):
             self.workspace._validate_region_maps(output)
 
         (output / "incuna_-1.png").write_bytes(b"not a png")
@@ -775,6 +783,35 @@ class WorkspaceTests(unittest.TestCase):
         (output / "incuna_-1.def").write_text("pixel_size 4\n", encoding="utf-8")
         with self.assertRaisesRegex(WorkspaceError, "is empty"):
             self.workspace._validate_region_maps(output)
+
+        reset()
+        entry = mock.Mock()
+        entry.name = "vanished.png"
+        entry.lstat.side_effect = OSError("vanished")
+        with mock.patch("pathlib.Path.iterdir", return_value=iter([entry])):
+            with self.assertRaisesRegex(WorkspaceError, "cannot inspect"):
+                self.workspace._validate_region_maps(output)
+
+    def test_region_map_cache_rejects_incomplete_or_invalid_metadata(self) -> None:
+        output = self.make_region_map_cache(self.root)
+        marker = output / MANAGED_MARKER
+        metadata = output / ".atrinik-region-maps.json"
+        inputs = {"schema_version": 1, "cacheable": True, "coordinates": {}}
+
+        marker.unlink()
+        self.assertFalse(
+            self.workspace._region_map_cache_matches(output, inputs, True)
+        )
+
+        atomic_json(
+            marker,
+            {"schema_version": 1, "purpose": "region-map-cache"},
+        )
+        atomic_json(metadata, inputs)
+        marker.write_text("{", encoding="utf-8")
+        self.assertFalse(
+            self.workspace._region_map_cache_matches(output, inputs, True)
+        )
 
     def test_exclusive_lock_rejects_concurrent_nonblocking_user(self) -> None:
         lock = self.workspace.paths.builds / "locks" / "test.lock"
