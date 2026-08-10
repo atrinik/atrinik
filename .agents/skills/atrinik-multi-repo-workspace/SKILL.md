@@ -92,10 +92,12 @@ wrapper replacement build/runtime closure yet.
 Classic selection is checkout-wide; subdirectories are not worktrees. Region
 maps cache only clean matching inputs; runtimes copy snapshots without overlays.
 
-Build, scenario, and topology records bind exact repository, branch, checkout,
-source, component, and provider coordinates. Records lacking current immutable
-coordinates are inert. Let the wrapper collect content/resources and own
-generated paths, locks, state, PIDs, logs, and process cleanup.
+Build, scenario, and topology records bind exact immutable coordinates;
+incomplete records are inert. Let the wrapper own generated paths, locks,
+state, PIDs, logs, content/resources, and process cleanup.
+
+Keep completion parser-driven, bounded, read-only, local-only, secret-free,
+before `Workspace`, and stopped at `--` or a `run` remainder.
 
 For classic server execution or diagnosis, load `atrinik-server-runtime`. For
 a ready account and character, also load `atrinik-test-scenario`; never
