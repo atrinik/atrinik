@@ -482,6 +482,27 @@ CMake, Python collection, npm, and runtime commands execute code from the
 selected profile. Review a pull request before selecting its worktree.
 Profiles do not provide a security sandbox.
 
+Shell completion is a separate read-only path ahead of `Workspace`
+construction and normal command dispatch. One bounded line-oriented protocol
+walks the same `argparse` metadata as execution and supplies all three generated
+shell adapters. It loads `components.json` directly and uses shallow,
+no-follow reads of existing profile, worktree-label, state, scenario, and
+topology names under the path selected by `ATRINIK_WORKSPACE_DIR`. Directory
+scans and metadata sizes are capped; malformed, stale, unreadable, symlinked,
+or unsafe/control-character records fail quietly without removing static
+parser candidates. Filesystem arguments are delegated to native shell path
+completion, and the protocol never reads scenario passwords or external state.
+
+The completion path does not create the workspace or its ownership marker,
+directories, locks, profiles, or registries. It does not inspect Git, call a
+subprocess, use the network, validate repositories, probe topology liveness,
+or enter initialization, synchronization, build, migration, cleanup, runtime,
+or credential dispatch. Each keypress starts a fresh bounded query, so local
+additions and removals are visible without a persistent cache. Generated
+adapters pass the invocation and words as argument arrays and never evaluate a
+candidate as shell code; wrapper completion stops at `--` and the `run`
+remainder boundary.
+
 Subprocesses use argument arrays rather than a shell. User-provided executable
 arguments are not evaluated as shell syntax, and recognized join-password
 forms are redacted from diagnostics. Git operations refuse dirty primary
