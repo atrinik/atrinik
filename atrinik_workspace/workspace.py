@@ -159,12 +159,19 @@ def git(
     return run(["git", "-C", str(path), *arguments], capture=capture, trace=trace)
 
 
-def replace_directory(
-    output: Path,
-    staging: Path,
-    backup_prefix: str,
-    verify_after_install: Callable[[], None] | None = None,
-) -> None:
+def remove_owned_tree(path: Path) -> None:
+    os.chmod(path, stat.S_IRWXU, follow_symlinks=False)
+    for directory, dirnames, _filenames in os.walk(path, followlinks=False):
+        directory_path = Path(directory)
+        os.chmod(directory_path, stat.S_IRWXU, follow_symlinks=False)
+        for name in dirnames:
+            child = directory_path / name
+            if not child.is_symlink():
+                os.chmod(child, stat.S_IRWXU, follow_symlinks=False)
+    shutil.rmtree(path)
+
+
+def recover_replaced_directory(output: Path, backup_prefix: str) -> None:
     backup_container = output.parent / f"{backup_prefix}pending"
     backup_metadata = {
         "schema_version": SCHEMA_VERSION,
@@ -180,7 +187,10 @@ def replace_directory(
             or not marker.is_file()
             or marker.is_symlink()
             or load_json(marker) != backup_metadata
-            or (not output.exists() and (not previous.is_dir() or previous.is_symlink()))
+            or (
+                not output.exists()
+                and (not previous.is_dir() or previous.is_symlink())
+            )
         ):
             raise WorkspaceError(
                 f"replaced-directory backup is not managed: {backup_container}"
@@ -188,12 +198,37 @@ def replace_directory(
         if not output.exists():
             previous.replace(output)
         try:
-            shutil.rmtree(backup_container)
+            if previous.exists() or previous.is_symlink():
+                if not previous.is_dir() or previous.is_symlink():
+                    raise WorkspaceError(
+                        "replaced-directory backup payload is invalid: "
+                        f"{previous}"
+                    )
+                remove_owned_tree(previous)
+            marker.unlink()
+            backup_container.rmdir()
         except OSError as error:
+            if backup_container.is_dir() and not marker.exists():
+                atomic_json(marker, backup_metadata)
             raise WorkspaceError(
                 f"cannot reclaim replaced-directory backup {backup_container}: "
                 f"{error}"
             ) from error
+
+
+def replace_directory(
+    output: Path,
+    staging: Path,
+    backup_prefix: str,
+    verify_after_install: Callable[[], None] | None = None,
+) -> None:
+    recover_replaced_directory(output, backup_prefix)
+    backup_container = output.parent / f"{backup_prefix}pending"
+    backup_metadata = {
+        "schema_version": SCHEMA_VERSION,
+        "purpose": "replaced-directory-backup",
+        "output": output.name,
+    }
 
     backup: Path | None = None
     if output.exists():
@@ -205,7 +240,9 @@ def replace_directory(
             staging.replace(output)
         except BaseException:
             backup.replace(output)
-            shutil.rmtree(backup_container)
+            marker = backup_container / MANAGED_MARKER
+            marker.unlink()
+            backup_container.rmdir()
             raise
     else:
         staging.replace(output)
@@ -216,11 +253,15 @@ def replace_directory(
         output.replace(staging)
         if backup is not None:
             backup.replace(output)
-            shutil.rmtree(backup_container)
+            marker = backup_container / MANAGED_MARKER
+            marker.unlink()
+            backup_container.rmdir()
         raise
     if backup is not None:
         try:
-            shutil.rmtree(backup_container)
+            remove_owned_tree(backup)
+            (backup_container / MANAGED_MARKER).unlink()
+            backup_container.rmdir()
         except OSError as error:
             print(
                 "warning: cannot remove managed replaced-directory backup "
@@ -2824,6 +2865,9 @@ class Workspace:
         root = self._scenario_directory(name)
         operation_lock = self.paths.scenarios / "operation.lock"
         with exclusive_lock(operation_lock, "scenario operation"):
+            recover_replaced_directory(
+                root / "state", f".{name}-state-previous-"
+            )
             metadata = self._load_scenario(name)
             state = root / "state"
             with exclusive_lock(
@@ -3034,6 +3078,159 @@ class Workspace:
             value.st_ctime_ns,
         )
 
+    def _compare_topology_runtime_directories(
+        self,
+        source_fd: int,
+        destination_fd: int,
+        source_display: Path,
+        destination_display: Path,
+    ) -> None:
+        source_before = os.fstat(source_fd)
+        destination_before = os.fstat(destination_fd)
+        if (
+            not stat.S_ISDIR(source_before.st_mode)
+            or not stat.S_ISDIR(destination_before.st_mode)
+            or stat.S_IMODE(source_before.st_mode)
+            != stat.S_IMODE(destination_before.st_mode)
+        ):
+            raise WorkspaceError(
+                "copied topology runtime directory metadata differs: "
+                f"{destination_display}"
+            )
+        try:
+            source_names = sorted(os.listdir(source_fd))
+            destination_names = sorted(os.listdir(destination_fd))
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot validate copied topology runtime input: {error}"
+            ) from error
+        if source_names != destination_names:
+            raise WorkspaceError(
+                f"copied topology runtime tree differs: {destination_display}"
+            )
+        for name in source_names:
+            source_child = source_display / name
+            destination_child = destination_display / name
+            try:
+                source_entry = os.stat(
+                    name, dir_fd=source_fd, follow_symlinks=False
+                )
+                destination_entry = os.stat(
+                    name, dir_fd=destination_fd, follow_symlinks=False
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot validate copied topology runtime input: {error}"
+                ) from error
+            if (
+                stat.S_IFMT(source_entry.st_mode)
+                != stat.S_IFMT(destination_entry.st_mode)
+                or stat.S_IMODE(source_entry.st_mode)
+                != stat.S_IMODE(destination_entry.st_mode)
+            ):
+                raise WorkspaceError(
+                    f"copied topology runtime entry differs: {destination_child}"
+                )
+            if stat.S_ISDIR(source_entry.st_mode):
+                flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+                try:
+                    source_child_fd = os.open(name, flags, dir_fd=source_fd)
+                except OSError as error:
+                    raise WorkspaceError(
+                        "copied topology runtime source changed or contains a link: "
+                        f"{source_child}"
+                    ) from error
+                try:
+                    destination_child_fd = os.open(
+                        name, flags, dir_fd=destination_fd
+                    )
+                except OSError as error:
+                    os.close(source_child_fd)
+                    raise WorkspaceError(
+                        "copied topology runtime input changed or contains a link: "
+                        f"{destination_child}"
+                    ) from error
+                try:
+                    self._compare_topology_runtime_directories(
+                        source_child_fd,
+                        destination_child_fd,
+                        source_child,
+                        destination_child,
+                    )
+                finally:
+                    os.close(source_child_fd)
+                    os.close(destination_child_fd)
+            elif stat.S_ISREG(source_entry.st_mode):
+                flags = os.O_RDONLY | os.O_NOFOLLOW
+                try:
+                    source_child_fd = os.open(name, flags, dir_fd=source_fd)
+                except OSError as error:
+                    raise WorkspaceError(
+                        "copied topology runtime source changed or contains a link: "
+                        f"{source_child}"
+                    ) from error
+                try:
+                    destination_child_fd = os.open(
+                        name, flags, dir_fd=destination_fd
+                    )
+                except OSError as error:
+                    os.close(source_child_fd)
+                    raise WorkspaceError(
+                        "copied topology runtime input changed or contains a link: "
+                        f"{destination_child}"
+                    ) from error
+                try:
+                    source_file_before = os.fstat(source_child_fd)
+                    destination_file_before = os.fstat(destination_child_fd)
+                    if source_file_before.st_size != destination_file_before.st_size:
+                        raise WorkspaceError(
+                            f"copied topology runtime file differs: {destination_child}"
+                        )
+                    with os.fdopen(
+                        source_child_fd, "rb", closefd=False
+                    ) as source_file:
+                        with os.fdopen(
+                            destination_child_fd, "rb", closefd=False
+                        ) as destination_file:
+                            while True:
+                                source_chunk = source_file.read(1024 * 1024)
+                                destination_chunk = destination_file.read(1024 * 1024)
+                                if source_chunk != destination_chunk:
+                                    raise WorkspaceError(
+                                        "copied topology runtime file differs: "
+                                        f"{destination_child}"
+                                    )
+                                if not source_chunk:
+                                    break
+                    if (
+                        self._runtime_tree_identity(os.fstat(source_child_fd))
+                        != self._runtime_tree_identity(source_file_before)
+                        or self._runtime_tree_identity(os.fstat(destination_child_fd))
+                        != self._runtime_tree_identity(destination_file_before)
+                    ):
+                        raise WorkspaceError(
+                            "topology runtime input changed during validation: "
+                            f"{destination_child}"
+                        )
+                finally:
+                    os.close(source_child_fd)
+                    os.close(destination_child_fd)
+            else:
+                raise WorkspaceError(
+                    "copied topology runtime input contains a link or non-regular "
+                    f"file: {destination_child}"
+                )
+        if (
+            self._runtime_tree_identity(os.fstat(source_fd))
+            != self._runtime_tree_identity(source_before)
+            or self._runtime_tree_identity(os.fstat(destination_fd))
+            != self._runtime_tree_identity(destination_before)
+        ):
+            raise WorkspaceError(
+                "topology runtime input changed during validation: "
+                f"{destination_display}"
+            )
+
     def _copy_topology_runtime_directory(
         self,
         source_fd: int,
@@ -3182,8 +3379,9 @@ class Workspace:
 
     def _copy_topology_runtime_tree(
         self, source: Path, destination: Path
-    ) -> None:
+    ) -> int:
         flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        retained_destination_fd: int | None = None
         try:
             source_before = source.stat(follow_symlinks=False)
             source_fd = os.open(source, flags)
@@ -3246,6 +3444,8 @@ class Workspace:
                 raise WorkspaceError(
                     f"topology runtime input changed during copy: {source}"
                 )
+            retained_destination_fd = os.dup(destination_fd)
+            return retained_destination_fd
         finally:
             if destination_fd is not None:
                 os.close(destination_fd)
@@ -3286,6 +3486,7 @@ class Workspace:
         staging = Path(tempfile.mkdtemp(prefix=".runtime-", dir=topology_root))
         staging.rmdir()
         staging.mkdir()
+        copied_descriptors: dict[str, int] = {}
         try:
             for name, source, purpose in inputs:
                 metadata = expected[name]
@@ -3301,7 +3502,9 @@ class Workspace:
                         f"topology runtime input is not managed for {purpose}: {source}"
                     )
                 destination = staging / name
-                self._copy_topology_runtime_tree(source, destination)
+                copied_descriptors[name] = self._copy_topology_runtime_tree(
+                    source, destination
+                )
                 copied_marker = destination / MANAGED_MARKER
                 if (
                     not destination.is_dir()
@@ -3313,11 +3516,60 @@ class Workspace:
                     raise WorkspaceError(
                         f"copied topology runtime input is invalid: {destination}"
                     )
-            replace_directory(container, staging, ".runtime-previous-")
+
+            def verify_runtime_install() -> None:
+                flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+                for name, source, _purpose in inputs:
+                    retained_fd = copied_descriptors[name]
+                    try:
+                        installed_fd = os.open(container / name, flags)
+                    except OSError as error:
+                        raise WorkspaceError(
+                            "cannot validate installed topology runtime input "
+                            f"{container / name}: {error}"
+                        ) from error
+                    try:
+                        source_fd = os.open(source, flags)
+                    except OSError as error:
+                        os.close(installed_fd)
+                        raise WorkspaceError(
+                            "cannot validate topology runtime source "
+                            f"{source}: {error}"
+                        ) from error
+                    try:
+                        retained = os.fstat(retained_fd)
+                        installed = os.fstat(installed_fd)
+                        if (
+                            retained.st_dev != installed.st_dev
+                            or retained.st_ino != installed.st_ino
+                        ):
+                            raise WorkspaceError(
+                                "installed topology runtime input changed: "
+                                f"{container / name}"
+                            )
+                        self._compare_topology_runtime_directories(
+                            source_fd,
+                            installed_fd,
+                            source,
+                            container / name,
+                        )
+                    finally:
+                        os.close(source_fd)
+                        os.close(installed_fd)
+
+            replace_directory(
+                container,
+                staging,
+                ".runtime-previous-",
+                verify_runtime_install,
+            )
         except BaseException:
             if staging.exists():
-                shutil.rmtree(staging)
+                remove_owned_tree(staging)
             raise
+        finally:
+            for descriptor in copied_descriptors.values():
+                os.close(descriptor)
         return {name: container / name for name in expected}
 
     def _prepare_topology_client_runtime(

@@ -1213,12 +1213,12 @@ class WorkspaceTests(unittest.TestCase):
 
         def fail_second_copy(
             source_path: Path, destination: Path
-        ) -> None:
+        ) -> int:
             nonlocal copied
             copied += 1
             if copied == 2:
                 raise OSError("disk full")
-            real_copy(source_path, destination)
+            return real_copy(source_path, destination)
 
         with mock.patch.object(
             self.workspace,
@@ -1375,6 +1375,10 @@ class WorkspaceTests(unittest.TestCase):
             topology,
             (("content", source, "collected-content"),),
         )["content"]
+        copied = self.workspace._copy_topology_runtime_inputs(
+            topology,
+            (("content", source, "collected-content"),),
+        )["content"]
 
         self.assertEqual(
             (copied / "nested" / "payload").read_text(encoding="utf-8"),
@@ -1393,7 +1397,10 @@ class WorkspaceTests(unittest.TestCase):
         real_remove = shutil.rmtree
 
         def fail_backup_cleanup(path: Path, **kwargs: object) -> None:
-            if Path(path).name.startswith(".previous-"):
+            if Path(path).name == "previous" and Path(path).parent.name.startswith(
+                ".previous-"
+            ):
+                (Path(path) / "payload").unlink(missing_ok=True)
                 raise PermissionError("read only")
             real_remove(path, **kwargs)
 
@@ -1423,6 +1430,9 @@ class WorkspaceTests(unittest.TestCase):
                 ]
             ),
             1,
+        )
+        self.assertTrue(
+            (self.root / ".previous-pending" / MANAGED_MARKER).is_file()
         )
         workspace_replace_directory(output, next_staging, ".previous-")
         self.assertEqual(
@@ -1460,6 +1470,47 @@ class WorkspaceTests(unittest.TestCase):
             (output / "payload").read_text(encoding="utf-8"), "previous\n"
         )
         self.assertFalse(pending.exists())
+
+    def test_topology_runtime_install_rejects_post_copy_replacement(self) -> None:
+        topology = self.root / "topology"
+        topology.mkdir()
+        source = self.root / "shared-content"
+        source.mkdir()
+        (source / "payload").write_text("shared\n", encoding="utf-8")
+        atomic_json(
+            source / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "collected-content"},
+        )
+        external = self.root / "external"
+        external.write_text("private\n", encoding="utf-8")
+        real_copy = self.workspace._copy_topology_runtime_tree
+
+        def copy_then_replace(source_path: Path, destination: Path) -> int:
+            descriptor = real_copy(source_path, destination)
+            destination.replace(destination.with_name("copied-original"))
+            destination.mkdir()
+            (destination / "payload").symlink_to(external)
+            atomic_json(
+                destination / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": "collected-content"},
+            )
+            return descriptor
+
+        with mock.patch.object(
+            self.workspace,
+            "_copy_topology_runtime_tree",
+            side_effect=copy_then_replace,
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "installed topology runtime input changed"
+            ):
+                self.workspace._copy_topology_runtime_inputs(
+                    topology,
+                    (("content", source, "collected-content"),),
+                )
+
+        self.assertEqual(list(topology.iterdir()), [])
+        self.assertEqual(external.read_text(encoding="utf-8"), "private\n")
 
     def test_region_maps_are_atomic_cached_and_keyed_by_clean_inputs(self) -> None:
         source = self.workspace.paths.repositories / "server"
@@ -2511,6 +2562,39 @@ class WorkspaceTests(unittest.TestCase):
         with exclusive_lock(Path(f"{state}.lock"), "test state"):
             with self.assertRaisesRegex(WorkspaceError, "already in use"):
                 self.workspace.scenario_reset("locked")
+
+    def test_scenario_reset_recovers_state_before_loading_scenario(self) -> None:
+        root = self.workspace.paths.scenarios / "recovery"
+        pending = root / ".recovery-state-previous-pending"
+        previous = pending / "previous"
+        previous.mkdir(parents=True)
+        (previous / "payload").write_text("previous\n", encoding="utf-8")
+        atomic_json(
+            pending / MANAGED_MARKER,
+            {
+                "schema_version": 1,
+                "purpose": "replaced-directory-backup",
+                "output": "state",
+            },
+        )
+
+        def observe_recovered_state(name: str) -> dict[str, object]:
+            self.assertEqual(name, "recovery")
+            self.assertEqual(
+                (root / "state" / "payload").read_text(encoding="utf-8"),
+                "previous\n",
+            )
+            raise WorkspaceError("stop after recovery")
+
+        with mock.patch.object(
+            self.workspace,
+            "_load_scenario",
+            side_effect=observe_recovered_state,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "stop after recovery"):
+                self.workspace._scenario_reset("recovery")
+
+        self.assertFalse(pending.exists())
 
     def test_foreground_client_pins_matching_server_state(self) -> None:
         server = self.workspace.paths.repositories / "server"

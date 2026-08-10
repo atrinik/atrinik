@@ -453,7 +453,9 @@ running process. Content, resources, and generated client maps are staged and
 installed as one runtime-input transaction, so a copy or validation failure
 before installation retains the complete previous snapshot set and status.
 Snapshot traversal opens every directory and regular file descriptor-relative
-with no-follow semantics and rejects identity changes, links, and special files.
+with no-follow semantics and rejects identity changes, links, and special files;
+retained descriptors bind a complete source/destination comparison through
+installation.
 Atomic replacement keeps at most one marker-owned prior-output backup; failed
 reclamation is retried before another replacement may change the output, and
 an interrupted move is restored before a later replacement attempt.
