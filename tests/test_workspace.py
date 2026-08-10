@@ -32,6 +32,7 @@ from atrinik_workspace.workspace import (
     _remote_matches as real_remote_matches,
     display_arguments,
     exclusive_lock,
+    replace_directory as workspace_replace_directory,
     run as workspace_run,
 )
 
@@ -781,6 +782,64 @@ class WorkspaceTests(unittest.TestCase):
             previous,
         )
 
+    def test_resource_install_race_rolls_back_previous_cache(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        output = self.workspace._stage_resources(root, {"resources": source})
+        previous = (output / "paintings" / "scene.jpg").read_text(encoding="utf-8")
+        (source / "paintings" / "scene.jpg").write_text(
+            "next commit\n", encoding="utf-8"
+        )
+        command("git", "add", ".", cwd=source)
+        command("git", "commit", "-m", "test: advance resource", cwd=source)
+        advanced = False
+
+        def replace_then_advance(
+            destination: Path,
+            staging: Path,
+            backup_prefix: str,
+            verify_after_install: object = None,
+        ) -> None:
+            nonlocal advanced
+
+            def advance_and_verify() -> None:
+                nonlocal advanced
+                if not advanced:
+                    advanced = True
+                    (source / "paintings" / "scene.jpg").write_text(
+                        "commit after install\n", encoding="utf-8"
+                    )
+                    command("git", "add", ".", cwd=source)
+                    command(
+                        "git",
+                        "commit",
+                        "-m",
+                        "test: race after install",
+                        cwd=source,
+                    )
+                assert callable(verify_after_install)
+                verify_after_install()
+
+            workspace_replace_directory(
+                destination,
+                staging,
+                backup_prefix,
+                advance_and_verify,
+            )
+
+        with mock.patch(
+            "atrinik_workspace.workspace.replace_directory",
+            side_effect=replace_then_advance,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed during staging"):
+                self.workspace._stage_resources(root, {"resources": source})
+
+        self.assertEqual(
+            (output / "paintings" / "scene.jpg").read_text(encoding="utf-8"),
+            previous,
+        )
+
     def test_resource_view_resamples_coordinates_before_staging(self) -> None:
         source = self.workspace.paths.repositories / "resources"
         root = self.workspace.paths.builds / "profiles" / "test"
@@ -1020,11 +1079,66 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertFalse((output / RUNTIME_INPUT_METADATA).exists())
 
+    def test_content_install_race_rolls_back_previous_cache(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+
+        def collect(arguments: list[str], **kwargs: object) -> str:
+            if arguments[0] != os.sys.executable:
+                return workspace_run(arguments, **kwargs)
+            output = Path(arguments[arguments.index("--output") + 1])
+            self.make_content_candidate(
+                output,
+                arguments[arguments.index("--source-commit") + 1],
+                "content\n",
+            )
+            return ""
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=collect):
+            output = self.workspace._collect_content(root, {"content": source})
+            previous = (output / "manifest.json").read_text(encoding="utf-8")
+            (source / "README").write_text("next commit\n", encoding="utf-8")
+            command("git", "add", ".", cwd=source)
+            command("git", "commit", "-m", "test: advance content", cwd=source)
+            advanced = False
+
+            def advance_after_metadata(path: Path, value: object) -> None:
+                nonlocal advanced
+                atomic_json(path, value)
+                if path.name == RUNTIME_INPUT_METADATA and not advanced:
+                    advanced = True
+                    (source / "README").write_text(
+                        "commit after metadata\n", encoding="utf-8"
+                    )
+                    command("git", "add", ".", cwd=source)
+                    command(
+                        "git",
+                        "commit",
+                        "-m",
+                        "test: race after metadata",
+                        cwd=source,
+                    )
+
+            with mock.patch(
+                "atrinik_workspace.workspace.atomic_json",
+                side_effect=advance_after_metadata,
+            ):
+                with self.assertRaisesRegex(
+                    WorkspaceError, "changed during collection"
+                ):
+                    self.workspace._collect_content(root, {"content": source})
+
+        self.assertEqual(
+            (output / "manifest.json").read_text(encoding="utf-8"), previous
+        )
+
     def test_topology_runtime_copies_are_independent_from_shared_cache(self) -> None:
         sources: dict[str, Path] = {}
         for name, purpose in (
             ("content", "collected-content"),
             ("resources", "resource-view"),
+            ("client-maps", "region-map-cache"),
         ):
             source = self.root / f"shared-{name}-cache"
             source.mkdir()
@@ -1038,25 +1152,24 @@ class WorkspaceTests(unittest.TestCase):
         second_root = self.root / "second-topology"
         first_root.mkdir()
         second_root.mkdir()
+        specifications = tuple(
+            (name, sources[name], purpose)
+            for name, purpose in (
+                ("content", "collected-content"),
+                ("resources", "resource-view"),
+                ("client-maps", "region-map-cache"),
+            )
+        )
+        first_inputs = self.workspace._copy_topology_runtime_inputs(
+            first_root, specifications
+        )
+        second_inputs = self.workspace._copy_topology_runtime_inputs(
+            second_root, specifications
+        )
 
-        for name, purpose in (
-            ("content", "collected-content"),
-            ("resources", "resource-view"),
-        ):
-            first = self.workspace._take_topology_runtime_input(
-                first_root,
-                sources[name],
-                name,
-                purpose,
-                preserve_source=True,
-            )
-            second = self.workspace._take_topology_runtime_input(
-                second_root,
-                sources[name],
-                name,
-                purpose,
-                preserve_source=True,
-            )
+        for name in sources:
+            first = first_inputs[name]
+            second = second_inputs[name]
             (first / "payload").write_text("first changed\n", encoding="utf-8")
             shutil.rmtree(first)
 
@@ -1067,47 +1180,6 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(
                 (second / "payload").read_text(encoding="utf-8"), "shared\n"
             )
-
-    def test_topology_runtime_copy_failure_preserves_previous_snapshot(self) -> None:
-        source = self.root / "shared-cache"
-        source.mkdir()
-        (source / "payload").write_text("new\n", encoding="utf-8")
-        atomic_json(
-            source / MANAGED_MARKER,
-            {"schema_version": 1, "purpose": "resource-view"},
-        )
-        topology = self.root / "topology"
-        destination = topology / "runtime" / "resources"
-        destination.mkdir(parents=True)
-        (destination / "payload").write_text("previous\n", encoding="utf-8")
-        atomic_json(
-            destination / MANAGED_MARKER,
-            {"schema_version": 1, "purpose": "resource-view"},
-        )
-
-        def fail_copy(source_path: Path, staging: Path, **kwargs: object) -> None:
-            staging.mkdir()
-            (staging / "partial").write_text("partial\n", encoding="utf-8")
-            raise OSError("disk full")
-
-        with mock.patch(
-            "atrinik_workspace.workspace.shutil.copytree", side_effect=fail_copy
-        ):
-            with self.assertRaisesRegex(OSError, "disk full"):
-                self.workspace._take_topology_runtime_input(
-                    topology,
-                    source,
-                    "resources",
-                    "resource-view",
-                    preserve_source=True,
-                )
-
-        self.assertEqual(
-            (destination / "payload").read_text(encoding="utf-8"), "previous\n"
-        )
-        self.assertEqual(
-            [entry.name for entry in destination.parent.iterdir()], ["resources"]
-        )
 
     def test_topology_runtime_set_copy_failure_preserves_all_snapshots(self) -> None:
         topology = self.root / "topology"
@@ -1166,6 +1238,61 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(
             sorted(entry.name for entry in topology.iterdir()),
             ["runtime", "status.json"],
+        )
+
+    def test_topology_runtime_set_rejects_internal_links(self) -> None:
+        topology = self.root / "topology"
+        topology.mkdir()
+        source = self.root / "shared-content"
+        source.mkdir()
+        external = self.root / "external"
+        external.write_text("private\n", encoding="utf-8")
+        (source / "payload").symlink_to(external)
+        atomic_json(
+            source / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "collected-content"},
+        )
+
+        with self.assertRaisesRegex(WorkspaceError, "contains a"):
+            self.workspace._copy_topology_runtime_inputs(
+                topology,
+                (("content", source, "collected-content"),),
+            )
+
+        self.assertEqual(list(topology.iterdir()), [])
+
+    def test_replace_directory_cleanup_failure_keeps_committed_output(self) -> None:
+        output = self.root / "output"
+        output.mkdir()
+        (output / "payload").write_text("previous\n", encoding="utf-8")
+        staging = self.root / "staging"
+        staging.mkdir()
+        (staging / "payload").write_text("new\n", encoding="utf-8")
+        real_remove = shutil.rmtree
+
+        def fail_backup_cleanup(path: Path, **kwargs: object) -> None:
+            if Path(path).name.startswith(".previous-"):
+                raise PermissionError("read only")
+            real_remove(path, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.shutil.rmtree",
+            side_effect=fail_backup_cleanup,
+        ):
+            workspace_replace_directory(output, staging, ".previous-")
+
+        self.assertEqual(
+            (output / "payload").read_text(encoding="utf-8"), "new\n"
+        )
+        self.assertEqual(
+            len(
+                [
+                    path
+                    for path in self.root.iterdir()
+                    if path.name.startswith(".previous-")
+                ]
+            ),
+            1,
         )
 
     def test_region_maps_are_atomic_cached_and_keyed_by_clean_inputs(self) -> None:

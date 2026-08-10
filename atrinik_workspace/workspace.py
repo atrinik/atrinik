@@ -159,7 +159,13 @@ def git(
     return run(["git", "-C", str(path), *arguments], capture=capture, trace=trace)
 
 
-def replace_directory(output: Path, staging: Path, backup_prefix: str) -> None:
+def replace_directory(
+    output: Path,
+    staging: Path,
+    backup_prefix: str,
+    verify_after_install: Callable[[], None] | None = None,
+) -> None:
+    backup: Path | None = None
     if output.exists():
         backup = Path(tempfile.mkdtemp(prefix=backup_prefix, dir=output.parent))
         backup.rmdir()
@@ -169,9 +175,24 @@ def replace_directory(output: Path, staging: Path, backup_prefix: str) -> None:
         except BaseException:
             backup.replace(output)
             raise
-        shutil.rmtree(backup)
     else:
         staging.replace(output)
+    try:
+        if verify_after_install is not None:
+            verify_after_install()
+    except BaseException:
+        output.replace(staging)
+        if backup is not None:
+            backup.replace(output)
+        raise
+    if backup is not None:
+        try:
+            shutil.rmtree(backup)
+        except OSError as error:
+            print(
+                f"warning: cannot remove replaced directory {backup}: {error}",
+                file=sys.stderr,
+            )
 
 
 def _remote_matches(url: str, repository: str) -> bool:
@@ -1914,11 +1935,31 @@ class Workspace:
                 raise WorkspaceError("selected content input changed during collection")
             if cacheable:
                 atomic_json(staging / RUNTIME_INPUT_METADATA, inputs)
+
+            def verify_content_install() -> None:
+                installed_inputs, installed_cacheable = (
+                    self._runtime_input_coordinates(
+                        profile_name, selected, "content"
+                    )
+                )
+                if (
+                    installed_inputs != inputs
+                    or installed_cacheable != cacheable
+                ):
+                    raise WorkspaceError(
+                        "selected content input changed during collection"
+                    )
+
+            replace_directory(
+                output,
+                staging,
+                ".content-previous-",
+                verify_content_install,
+            )
         except BaseException:
             if staging.exists():
                 shutil.rmtree(staging)
             raise
-        replace_directory(output, staging, ".content-previous-")
         print(f"content: collected {output}")
         return output
 
@@ -2018,10 +2059,36 @@ class Workspace:
                 or installed_tracked != tracked
             ):
                 raise WorkspaceError("selected resource input changed during staging")
+
+            def verify_resource_install() -> None:
+                published_inputs, published_cacheable = (
+                    self._runtime_input_coordinates(
+                        profile_name, selected, "resources"
+                    )
+                )
+                published_runtime_paths, published_tracked = (
+                    self._resource_runtime_files(source)
+                )
+                if (
+                    published_inputs != inputs
+                    or published_cacheable != cacheable
+                    or published_runtime_paths != runtime_paths
+                    or published_tracked != tracked
+                ):
+                    raise WorkspaceError(
+                        "selected resource input changed during staging"
+                    )
+
+            replace_directory(
+                output,
+                staging,
+                ".resources-previous-",
+                verify_resource_install,
+            )
         except BaseException:
-            shutil.rmtree(staging)
+            if staging.exists():
+                shutil.rmtree(staging)
             raise
-        replace_directory(output, staging, ".resources-previous-")
         print(f"resources: staged {output}")
         return output
 
@@ -2921,73 +2988,29 @@ class Workspace:
         atomic_json(path / MANAGED_MARKER, metadata)
         return path
 
-    def _take_topology_runtime_input(
-        self,
-        topology_root: Path,
-        source: Path,
-        name: str,
-        purpose: str,
-        preserve_source: bool = False,
-    ) -> Path:
-        expected = {"schema_version": SCHEMA_VERSION, "purpose": purpose}
-        marker = source / MANAGED_MARKER
-        if (
-            not source.is_dir()
-            or source.is_symlink()
-            or not marker.is_file()
-            or marker.is_symlink()
-            or load_json(marker) != expected
-        ):
-            raise WorkspaceError(
-                f"topology runtime input is not managed for {purpose}: {source}"
-            )
-        container = topology_root / "runtime"
-        if container.exists() or container.is_symlink():
-            if not container.is_dir() or container.is_symlink():
-                raise WorkspaceError(
-                    f"topology runtime container is invalid: {container}"
-                )
-        else:
-            container.mkdir()
-        destination = container / name
-        if destination.exists() or destination.is_symlink():
-            destination_marker = destination / MANAGED_MARKER
-            if (
-                not destination.is_dir()
-                or destination.is_symlink()
-                or not destination_marker.is_file()
-                or destination_marker.is_symlink()
-                or load_json(destination_marker) != expected
-            ):
-                raise WorkspaceError(
-                    f"topology runtime destination is not managed: {destination}"
-                )
-        if preserve_source:
-            staging = Path(
-                tempfile.mkdtemp(prefix=f".{name}-", dir=container)
-            )
-            staging.rmdir()
-            try:
-                shutil.copytree(source, staging)
-                staging_marker = staging / MANAGED_MARKER
-                if (
-                    not staging.is_dir()
-                    or staging.is_symlink()
-                    or not staging_marker.is_file()
-                    or staging_marker.is_symlink()
-                    or load_json(staging_marker) != expected
-                ):
+    @staticmethod
+    def _validate_topology_runtime_tree(path: Path) -> None:
+        for directory, dirnames, filenames in os.walk(path, followlinks=False):
+            directory_path = Path(directory)
+            for name in dirnames:
+                child = directory_path / name
+                if child.is_symlink():
                     raise WorkspaceError(
-                        f"copied topology runtime input is invalid: {staging}"
+                        f"topology runtime input contains a link: {child}"
                     )
-                replace_directory(destination, staging, f".{name}-previous-")
-            except BaseException:
-                if staging.exists():
-                    shutil.rmtree(staging)
-                raise
-        else:
-            replace_directory(destination, source, f".{name}-previous-")
-        return destination
+            for name in filenames:
+                child = directory_path / name
+                try:
+                    mode = child.lstat().st_mode
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot inspect topology runtime input {child}: {error}"
+                    ) from error
+                if not stat.S_ISREG(mode):
+                    raise WorkspaceError(
+                        "topology runtime input contains a non-regular file: "
+                        f"{child}"
+                    )
 
     def _copy_topology_runtime_inputs(
         self,
@@ -3036,8 +3059,9 @@ class Workspace:
                     raise WorkspaceError(
                         f"topology runtime input is not managed for {purpose}: {source}"
                     )
+                self._validate_topology_runtime_tree(source)
                 destination = staging / name
-                shutil.copytree(source, destination)
+                shutil.copytree(source, destination, symlinks=True)
                 copied_marker = destination / MANAGED_MARKER
                 if (
                     not destination.is_dir()
@@ -3049,6 +3073,7 @@ class Workspace:
                     raise WorkspaceError(
                         f"copied topology runtime input is invalid: {destination}"
                     )
+                self._validate_topology_runtime_tree(destination)
             replace_directory(container, staging, ".runtime-previous-")
         except BaseException:
             if staging.exists():
