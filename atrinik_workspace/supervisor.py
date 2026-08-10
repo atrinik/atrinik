@@ -15,6 +15,8 @@ import threading
 import time
 from typing import Any, BinaryIO
 
+from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
+
 
 LOG_LIMIT = 10 * 1024 * 1024
 LOG_BACKUPS = 3
@@ -233,6 +235,10 @@ def supervise(spec_path: Path, lock_fd: int | None) -> int:
         command.extend(extra_arguments or [])
         environment = os.environ.copy()
         environment.update(service.get("environment", {}))
+        if name == "client":
+            environment[CLIENT_LAUNCH_LABEL_ENV] = client_launch_label(
+                spec["profile"], spec["name"]
+            )
         process = subprocess.Popen(
             command,
             cwd=service["cwd"],

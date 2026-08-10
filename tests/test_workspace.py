@@ -15,6 +15,7 @@ import unittest
 from unittest import mock
 
 from atrinik_workspace.migration import rename_no_replace as real_rename_no_replace
+from atrinik_workspace.launch_identity import client_launch_label
 from atrinik_workspace.model import (
     MANAGED_MARKER,
     WorkspaceError,
@@ -27,7 +28,6 @@ from atrinik_workspace.model import (
 from atrinik_workspace.workspace import (
     Workspace,
     _remote_matches as real_remote_matches,
-    client_launch_label,
     display_arguments,
     exclusive_lock,
     run as workspace_run,
@@ -1057,6 +1057,11 @@ class WorkspaceTests(unittest.TestCase):
                 log.read_text(),
             )
             self.assertIn("launch=topology review - profile default", log.read_text())
+            persisted_spec = (
+                self.workspace.paths.topologies / "review" / "spec.json"
+            ).read_text()
+            self.assertNotIn("ATRINIK_LAUNCH_LABEL", persisted_spec)
+            self.assertNotIn("topology review - profile default", persisted_spec)
 
             second_log = self.workspace.paths.topologies / "review-two" / "client.log"
             deadline = time.monotonic() + 5

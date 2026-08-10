@@ -23,6 +23,8 @@ import tempfile
 import time
 from typing import Any, Iterator, TextIO
 
+from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
+
 from .model import (
     MANAGED_MARKER,
     SCHEMA_VERSION,
@@ -98,8 +100,6 @@ CACHE_METADATA = ".atrinik-cache.json"
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
 REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
-CLIENT_LAUNCH_LABEL_ENV = "ATRINIK_LAUNCH_LABEL"
-CLIENT_LAUNCH_LABEL_MAX_SIZE = 96
 
 
 def display_arguments(arguments: list[str]) -> str:
@@ -117,20 +117,6 @@ def display_arguments(arguments: list[str]) -> str:
         else:
             displayed.append(argument)
     return shlex.join(displayed)
-
-
-def client_launch_label(profile: str, topology: str | None = None) -> str:
-    validate_name(profile, "profile name")
-    if topology is None:
-        label = f"profile {profile} (direct run)"
-    else:
-        validate_name(topology, "topology name")
-        label = f"topology {topology} - profile {profile}"
-    if len(label.encode("ascii")) > CLIENT_LAUNCH_LABEL_MAX_SIZE:
-        raise WorkspaceError(
-            f"client launch label exceeds {CLIENT_LAUNCH_LABEL_MAX_SIZE} bytes"
-        )
-    return label
 
 
 def run(
@@ -2985,11 +2971,8 @@ class Workspace:
         port: int | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
-        launch_label = (
+        if "client" in selected_services:
             client_launch_label(profile_name, name)
-            if "client" in selected_services
-            else None
-        )
         if "server" not in selected_services and port is not None:
             raise WorkspaceError("--port requires the server service")
         self._require_classic_contracts(profile_name, set(selected_services))
@@ -3101,7 +3084,6 @@ class Workspace:
                         "log": str(topology_root / "server.log"),
                     }
                 if "client" in selected_services:
-                    assert launch_label is not None
                     executable = root / "build" / "client" / "atrinik"
                     working = self._prepare_topology_client_runtime(
                         topology_root, selected
@@ -3121,8 +3103,7 @@ class Workspace:
                         "cwd": str(working),
                         "log": str(topology_root / "client.log"),
                         "environment": {
-                            "ATRINIK_CONFIG_DIR": str(client_config.resolve()),
-                            CLIENT_LAUNCH_LABEL_ENV: launch_label,
+                            "ATRINIK_CONFIG_DIR": str(client_config.resolve())
                         },
                     }
 
