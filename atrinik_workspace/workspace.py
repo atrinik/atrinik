@@ -1339,22 +1339,16 @@ class Workspace:
                 present_components.add(component.name)
             else:
                 complete = False
-        present_paths = (
-            self.resolve_profile(profile_name, present_components)
-            if present_components
-            else {}
+        roles = (
+            common_roles | requested_roles if complete else requested_roles
         )
-
-        roles = common_roles if complete else requested_roles
         component_names = {stack.providers[role].name for role in roles}
-        missing_required = component_names - set(present_paths)
-        if missing_required:
-            # This normally raises the precise missing-checkout/source error. If
-            # initialization completed after the existence snapshot, accept the
-            # newly valid checkout without revalidating already-present roots.
-            present_paths.update(
-                self.resolve_profile(profile_name, missing_required)
-            )
+        # Resolve present preferred components and the required selection in one
+        # pass. This both fails closed for malformed optional checkouts and keeps
+        # validation deduplicated if initialization races the existence snapshot.
+        present_paths = self.resolve_profile(
+            profile_name, present_components | component_names
+        )
         paths = {
             component_name: present_paths[component_name]
             for component_name in component_names
@@ -1808,10 +1802,12 @@ class Workspace:
     ) -> tuple[dict[str, Any], bool]:
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
+        required = self._dependency_roles(profile, {"server"})
         coordinates: dict[str, dict[str, str]] = {}
         cacheable = True
         checkout_states: dict[Path, tuple[bool, str]] = {}
-        for role, source in sorted(selected.items()):
+        for role in sorted(required & set(selected)):
+            source = selected[role]
             component = stack.providers[role]
             checkout = self._selector_root(profile, component).resolve()
             if checkout not in checkout_states:

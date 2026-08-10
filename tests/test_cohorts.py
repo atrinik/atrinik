@@ -398,6 +398,9 @@ class CohortWorkspaceTests(unittest.TestCase):
 
         roots: list[Path] = []
 
+        class StopTopology(Exception):
+            pass
+
         def build_resolved(
             target: str,
             profile_name: str,
@@ -410,6 +413,8 @@ class CohortWorkspaceTests(unittest.TestCase):
                 f"{profile_name}-{self.workspace._profile_build_key(profile_name, selected)}"
             )
             roots.append(root)
+            if target == "topology":
+                raise StopTopology
             return root
 
         with (
@@ -425,6 +430,16 @@ class CohortWorkspaceTests(unittest.TestCase):
             mock.patch(
                 "atrinik_workspace.workspace._is_clean", return_value=True
             ) as clean,
+            mock.patch.object(
+                self.workspace,
+                "_prepare_server_runtime",
+                return_value=self.root / "scenario-runtime",
+            ),
+            mock.patch.object(
+                self.workspace, "_state_location", return_value=self.root / "state"
+            ),
+            mock.patch.object(self.workspace, "_require_client_display"),
+            mock.patch("atrinik_workspace.workspace.run"),
         ):
             roots.extend(
                 [
@@ -438,11 +453,33 @@ class CohortWorkspaceTests(unittest.TestCase):
                     ),
                 ]
             )
+            audited = self.workspace._scenario_provision_state(
+                {
+                    "profile": "classic",
+                    "state": "scenario-common-root",
+                    "account": "scenario",
+                    "character": "Scenario",
+                    "archetype": "human_male",
+                },
+                self.root / "state",
+                self.root / "password",
+            )
+            with self.assertRaises(StopTopology):
+                self.workspace._topology_up(
+                    "common-root",
+                    "classic",
+                    "default",
+                    ["server", "client"],
+                )
 
         self.assertEqual(len(set(roots)), 1)
-        # Each of four resolutions validates the five selected physical
+        self.assertEqual(
+            set(audited),
+            {"server", "content", "resources", "libatrinik", "protocol"},
+        )
+        # Each of six resolutions validates the five selected physical
         # checkouts once; four Classic logical providers share one checkout.
-        self.assertEqual(validate.call_count, 20)
+        self.assertEqual(validate.call_count, 30)
         expected_checkouts = {
             "classic",
             "content-1x",
@@ -458,8 +495,42 @@ class CohortWorkspaceTests(unittest.TestCase):
                 set(validated[offset : offset + len(expected_checkouts)]),
                 expected_checkouts,
             )
-        self.assertEqual(git.call_count, 5)
-        self.assertEqual(clean.call_count, 5)
+        # Topology summary probes all five physical roots once. Scenario audit
+        # intentionally records only the three physical server-closure roots.
+        self.assertEqual(git.call_count, 8)
+        self.assertEqual(clean.call_count, 8)
+
+    def test_complete_default_selection_keeps_requested_service(self) -> None:
+        profile = self.workspace._load_profile("default", require_file=False)
+        stack = self.workspace.manifest.stack("default")
+        common = self.workspace._dependency_roles(
+            profile,
+            {
+                role
+                for role, component in stack.providers.items()
+                if component.build != "none"
+            },
+        )
+        requested = self.workspace._dependency_roles(profile, {"client"})
+        for role in common | requested:
+            component = stack.providers[role]
+            root = self.workspace._selector_root(profile, component)
+            source = root / component.source if component.source != "." else root
+            source.mkdir(parents=True, exist_ok=True)
+
+        with (
+            mock.patch.object(
+                self.workspace, "_validate_selected_checkout", return_value="origin"
+            ),
+            mock.patch("atrinik_workspace.workspace.git", return_value="a" * 40),
+            mock.patch("atrinik_workspace.workspace._is_clean", return_value=True),
+        ):
+            summary = self.workspace.topology_summary(
+                "default", "default", ["client"]
+            )
+
+        self.assertIn("client", summary["dependencies"])
+        self.assertEqual(summary["providers"]["client"], "client")
 
     def test_partial_classic_profile_keeps_requested_dependency_closure(self) -> None:
         self.make_classic_build_profile(include_worker=False)
@@ -486,14 +557,43 @@ class CohortWorkspaceTests(unittest.TestCase):
             ):
                 self.workspace._resolve_build_profile("classic", {"client"})
 
+    def test_initialization_race_validates_shared_checkout_once(self) -> None:
+        self.make_classic_build_profile()
+        classic = self.wrapper / "classic"
+        original_exists = Path.exists
+        first_classic_check = True
+
+        def racing_exists(path: Path) -> bool:
+            nonlocal first_classic_check
+            if path == classic and first_classic_check:
+                first_classic_check = False
+                return False
+            return original_exists(path)
+
+        with (
+            mock.patch.object(Path, "exists", racing_exists),
+            mock.patch.object(
+                self.workspace, "_validate_selected_checkout", return_value="origin"
+            ) as validate,
+        ):
+            self.workspace._resolve_build_profile("classic", {"client"})
+
+        validated = [call.args[0].checkout_name for call in validate.call_args_list]
+        self.assertEqual(validated.count("classic"), 1)
+
     def test_complete_classic_worktree_profile_uses_common_build_root(self) -> None:
         self.make_classic_build_profile()
         self.workspace.create_profile("classic-review", "classic")
         worktree = self.workspace.paths.worktrees / "classic" / "review"
         for source in ("client", "server", "protocol", "libatrinik", "editor"):
             (worktree / source).mkdir(parents=True, exist_ok=True)
-        with mock.patch.object(
-            self.workspace, "_validate_selected_checkout", return_value="origin"
+        with (
+            mock.patch.object(
+                self.workspace, "_validate_selected_checkout", return_value="origin"
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.git", return_value="a" * 40
+            ) as git,
         ):
             self.workspace.set_profile(
                 "classic-review", "classic", "worktree", "review"
@@ -504,6 +604,14 @@ class CohortWorkspaceTests(unittest.TestCase):
             server = self.workspace._resolve_build_profile(
                 "classic-review", {"server"}
             )
+            metadata_root = self.root / "worktree-build"
+            metadata_root.mkdir()
+            self.workspace._refresh_build_metadata(
+                metadata_root,
+                "classic-review",
+                self.workspace._profile_build_key("classic-review", client),
+                client,
+            )
 
         self.assertEqual(set(client), set(server))
         self.assertEqual(
@@ -512,6 +620,7 @@ class CohortWorkspaceTests(unittest.TestCase):
         )
         for role in ("client", "server", "protocol", "libatrinik"):
             self.assertEqual(client[role], worktree / role)
+        self.assertEqual(git.call_count, 5)
 
     def test_classic_component_source_rejects_symlinked_module(self) -> None:
         checkout = self.wrapper / "classic"

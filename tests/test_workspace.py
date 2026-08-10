@@ -737,6 +737,19 @@ class WorkspaceTests(unittest.TestCase):
             (output / "incuna_-1.def").read_text(encoding="utf-8"), previous
         )
 
+    def test_region_map_inputs_ignore_unrelated_common_build_roles(self) -> None:
+        selected = {
+            role: self.workspace.paths.repositories / role
+            for role in ("server", "content", "resources", "client", "sound")
+        }
+
+        inputs, cacheable = self.workspace._region_map_inputs("default", selected)
+
+        self.assertTrue(cacheable)
+        self.assertEqual(
+            set(inputs["coordinates"]), {"server", "content", "resources"}
+        )
+
     def test_region_map_validation_rejects_malformed_outputs(self) -> None:
         output = self.root / "client-maps"
 
