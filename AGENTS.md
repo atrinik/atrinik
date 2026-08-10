@@ -36,6 +36,8 @@
   migration, cleanup, releases, or wrapper CLI/layout work. Add only the narrow
   C, content, protocol, runtime, scenario, or GitHub skill needed. Use
   `atrinik-guidance-maintenance` for periodic guidance audits or drift updates.
+- Use `atrinik-issue-delivery` only when explicitly invoked for
+  issue-to-ready-PR delivery; it stops before merge.
 - Never replace or move a dirty primary checkout, remove a dirty worktree, or
   overwrite mutable server data. Preserve recoverable migration inputs.
 - Cleanup is explicit and preview-first. Run
