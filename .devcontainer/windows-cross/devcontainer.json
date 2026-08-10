@@ -21,7 +21,11 @@
         "cmake.cmakePath": "/opt/mxe/usr/bin/x86_64-w64-mingw32.shared-cmake",
         "cmake.configureArgs": [
           "--no-warn-unused-cli"
-        ]
+        ],
+        "files.watcherExclude": {
+          "workspace/**": true,
+          "build/**": true
+        }
       }
     }
   }
