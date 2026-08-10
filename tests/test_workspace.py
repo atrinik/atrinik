@@ -1489,13 +1489,49 @@ class WorkspaceTests(unittest.TestCase):
 
         with mock.patch(
             "atrinik_workspace.workspace._descriptor_mount_id",
-            side_effect=[1, 1, 1, 1, 2],
+            side_effect=[1, 1, 1, 2],
         ):
             with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
                 remove_owned_tree(owned)
 
         self.assertEqual(payload.read_text(encoding="utf-8"), "preserve\n")
         self.assertEqual(stat.S_IMODE(nested.stat().st_mode), original_mode)
+
+    def test_owned_tree_removal_uses_portable_mount_fallback(self) -> None:
+        owned = self.root / "owned"
+        owned.mkdir()
+        (owned / "payload").write_text("remove\n", encoding="utf-8")
+
+        with mock.patch("atrinik_workspace.workspace.sys.platform", "darwin"):
+            remove_owned_tree(owned)
+
+        self.assertFalse(owned.exists())
+
+    def test_replace_directory_interrupted_journal_publish_is_retryable(
+        self,
+    ) -> None:
+        output = self.root / "output"
+        output.mkdir()
+        (output / "payload").write_text("previous\n", encoding="utf-8")
+        staging = self.root / "staging"
+        staging.mkdir()
+        (staging / "payload").write_text("new\n", encoding="utf-8")
+
+        with mock.patch(
+            "atrinik_workspace.workspace.atomic_json",
+            side_effect=KeyboardInterrupt("interrupted"),
+        ):
+            with self.assertRaises(KeyboardInterrupt):
+                workspace_replace_directory(output, staging, ".previous-")
+
+        self.assertEqual(
+            (output / "payload").read_text(encoding="utf-8"), "previous\n"
+        )
+        self.assertFalse((self.root / ".previous-pending").exists())
+        workspace_replace_directory(output, staging, ".previous-")
+        self.assertEqual(
+            (output / "payload").read_text(encoding="utf-8"), "new\n"
+        )
 
     def test_topology_runtime_install_rejects_post_copy_replacement(self) -> None:
         topology = self.root / "topology"

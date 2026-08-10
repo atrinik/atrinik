@@ -160,6 +160,8 @@ def git(
 
 
 def _descriptor_mount_id(descriptor: int) -> int:
+    if sys.platform != "linux":
+        return os.fstat(descriptor).st_dev
     try:
         metadata = Path(f"/proc/self/fdinfo/{descriptor}").read_text(
             encoding="ascii"
@@ -190,28 +192,6 @@ def _prepare_owned_tree_removal(
     for name in sorted(os.listdir(descriptor)):
         child_display = display / name
         child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
-        try:
-            child_probe = os.open(
-                name,
-                os.O_PATH | os.O_NOFOLLOW,
-                dir_fd=descriptor,
-            )
-        except OSError as error:
-            raise WorkspaceError(
-                f"owned removal entry changed: {child_display}"
-            ) from error
-        try:
-            probed = os.fstat(child_probe)
-            if (
-                probed.st_dev != child.st_dev
-                or probed.st_ino != child.st_ino
-                or _descriptor_mount_id(child_probe) != mount_id
-            ):
-                raise WorkspaceError(
-                    f"owned removal encountered a mount: {child_display}"
-                )
-        finally:
-            os.close(child_probe)
         if child.st_dev != device:
             raise WorkspaceError(
                 f"owned removal encountered a mount: {child_display}"
@@ -251,28 +231,6 @@ def _remove_owned_tree_contents(
     for name in sorted(os.listdir(descriptor)):
         child_display = display / name
         child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
-        try:
-            child_probe = os.open(
-                name,
-                os.O_PATH | os.O_NOFOLLOW,
-                dir_fd=descriptor,
-            )
-        except OSError as error:
-            raise WorkspaceError(
-                f"owned removal entry changed: {child_display}"
-            ) from error
-        try:
-            probed = os.fstat(child_probe)
-            if (
-                probed.st_dev != child.st_dev
-                or probed.st_ino != child.st_ino
-                or _descriptor_mount_id(child_probe) != mount_id
-            ):
-                raise WorkspaceError(
-                    f"owned removal encountered a mount: {child_display}"
-                )
-        finally:
-            os.close(child_probe)
         if child.st_dev != device:
             raise WorkspaceError(
                 f"owned removal encountered a mount: {child_display}"
@@ -317,35 +275,18 @@ def remove_owned_tree(path: Path) -> None:
     descriptor: int | None = None
     try:
         before = os.stat(path.name, dir_fd=parent_descriptor, follow_symlinks=False)
-        root_probe = os.open(
-            path.name,
-            os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW,
-            dir_fd=parent_descriptor,
-        )
-        try:
-            probed = os.fstat(root_probe)
-            parent_mount_id = _descriptor_mount_id(parent_descriptor)
-            root_mount_id = _descriptor_mount_id(root_probe)
-            if (
-                probed.st_dev != before.st_dev
-                or probed.st_ino != before.st_ino
-                or root_mount_id != parent_mount_id
-            ):
-                raise WorkspaceError(
-                    f"owned removal root changed or is mounted: {path}"
-                )
-        finally:
-            os.close(root_probe)
+        parent_mount_id = _descriptor_mount_id(parent_descriptor)
         descriptor = os.open(
             path.name,
             os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
             dir_fd=parent_descriptor,
         )
         opened = os.fstat(descriptor)
+        root_mount_id = _descriptor_mount_id(descriptor)
         if (
             opened.st_dev != before.st_dev
             or opened.st_ino != before.st_ino
-            or _descriptor_mount_id(descriptor) != root_mount_id
+            or root_mount_id != parent_mount_id
         ):
             raise WorkspaceError(f"owned removal root changed or is mounted: {path}")
         os.fchmod(descriptor, stat.S_IRWXU)
@@ -362,6 +303,51 @@ def remove_owned_tree(path: Path) -> None:
         if descriptor is not None:
             os.close(descriptor)
         os.close(parent_descriptor)
+
+
+def _create_replaced_directory_backup(
+    backup_container: Path, backup_metadata: dict[str, object], backup_prefix: str
+) -> None:
+    prepared = Path(
+        tempfile.mkdtemp(
+            prefix=f"{backup_prefix}prepared-", dir=backup_container.parent
+        )
+    )
+    marker = prepared / MANAGED_MARKER
+    try:
+        atomic_json(marker, backup_metadata)
+        prepared.replace(backup_container)
+    except BaseException:
+        if marker.is_file() and not marker.is_symlink():
+            remove_owned_tree(prepared)
+        else:
+            prepared.rmdir()
+        raise
+
+
+def _retire_replaced_directory_backup(
+    backup_container: Path, backup_prefix: str
+) -> None:
+    retired = backup_container.parent / (
+        f"{backup_prefix}retired-{secrets.token_hex(8)}"
+    )
+    try:
+        backup_container.replace(retired)
+    except OSError as error:
+        print(
+            "warning: cannot retire managed replaced-directory backup "
+            f"{backup_container}: {error}; the next replacement will retry",
+            file=sys.stderr,
+        )
+        return
+    try:
+        remove_owned_tree(retired)
+    except (OSError, WorkspaceError) as error:
+        print(
+            "warning: cannot remove retired managed replaced-directory backup "
+            f"{retired}: {error}; profile cleanup will retain or reclaim it",
+            file=sys.stderr,
+        )
 
 
 def recover_replaced_directory(output: Path, backup_prefix: str) -> None:
@@ -398,11 +384,8 @@ def recover_replaced_directory(output: Path, backup_prefix: str) -> None:
                         f"{previous}"
                     )
                 remove_owned_tree(previous)
-            marker.unlink()
-            backup_container.rmdir()
+            _retire_replaced_directory_backup(backup_container, backup_prefix)
         except OSError as error:
-            if backup_container.is_dir() and not marker.exists():
-                atomic_json(marker, backup_metadata)
             raise WorkspaceError(
                 f"cannot reclaim replaced-directory backup {backup_container}: "
                 f"{error}"
@@ -425,17 +408,16 @@ def replace_runtime_directory(
 
     backup: Path | None = None
     if output.exists():
-        backup_container.mkdir()
-        atomic_json(backup_container / MANAGED_MARKER, backup_metadata)
+        _create_replaced_directory_backup(
+            backup_container, backup_metadata, backup_prefix
+        )
         backup = backup_container / "previous"
         output.replace(backup)
         try:
             staging.replace(output)
         except BaseException:
             backup.replace(output)
-            marker = backup_container / MANAGED_MARKER
-            marker.unlink()
-            backup_container.rmdir()
+            _retire_replaced_directory_backup(backup_container, backup_prefix)
             raise
     else:
         staging.replace(output)
@@ -446,15 +428,11 @@ def replace_runtime_directory(
         output.replace(staging)
         if backup is not None:
             backup.replace(output)
-            marker = backup_container / MANAGED_MARKER
-            marker.unlink()
-            backup_container.rmdir()
+            _retire_replaced_directory_backup(backup_container, backup_prefix)
         raise
     if backup is not None:
         try:
             remove_owned_tree(backup)
-            (backup_container / MANAGED_MARKER).unlink()
-            backup_container.rmdir()
         except (OSError, WorkspaceError) as error:
             print(
                 "warning: cannot remove managed replaced-directory backup "
@@ -462,6 +440,8 @@ def replace_runtime_directory(
                 "before changing output",
                 file=sys.stderr,
             )
+        else:
+            _retire_replaced_directory_backup(backup_container, backup_prefix)
 
 
 def replace_directory(output: Path, staging: Path, backup_prefix: str) -> None:
