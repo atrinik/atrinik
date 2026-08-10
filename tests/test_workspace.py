@@ -1421,7 +1421,7 @@ class WorkspaceTests(unittest.TestCase):
             next_staging.mkdir()
             (next_staging / "payload").write_text("next\n", encoding="utf-8")
             with self.assertRaisesRegex(
-                WorkspaceError, "cannot reclaim replaced-directory backup"
+                WorkspaceError, "cannot recover replaced-directory transaction"
             ):
                 workspace_replace_directory(output, next_staging, ".previous-")
 
@@ -1436,11 +1436,9 @@ class WorkspaceTests(unittest.TestCase):
                     if path.name.startswith(".previous-")
                 ]
             ),
-            1,
+            2,
         )
-        self.assertTrue(
-            (self.root / ".previous-pending" / MANAGED_MARKER).is_file()
-        )
+        self.assertTrue((self.root / ".previous-pending.json").is_file())
         workspace_replace_directory(output, next_staging, ".previous-")
         self.assertEqual(
             (output / "payload").read_text(encoding="utf-8"), "next\n"
@@ -1461,11 +1459,12 @@ class WorkspaceTests(unittest.TestCase):
         previous.mkdir(parents=True)
         (previous / "payload").write_text("previous\n", encoding="utf-8")
         atomic_json(
-            pending / MANAGED_MARKER,
+            self.root / ".previous-pending.json",
             {
                 "schema_version": 1,
                 "purpose": "replaced-directory-backup",
                 "output": "output",
+                "phase": "prepared",
             },
         )
         missing_staging = self.root / "missing-staging"
@@ -1477,6 +1476,36 @@ class WorkspaceTests(unittest.TestCase):
             (output / "payload").read_text(encoding="utf-8"), "previous\n"
         )
         self.assertFalse(pending.exists())
+        self.assertFalse((self.root / ".previous-pending.json").exists())
+
+    def test_replace_directory_restores_unverified_installed_output(self) -> None:
+        output = self.root / "output"
+        output.mkdir()
+        (output / "payload").write_text("unverified\n", encoding="utf-8")
+        pending = self.root / ".previous-pending"
+        previous = pending / "previous"
+        previous.mkdir(parents=True)
+        (previous / "payload").write_text("previous\n", encoding="utf-8")
+        atomic_json(
+            self.root / ".previous-pending.json",
+            {
+                "schema_version": 1,
+                "purpose": "replaced-directory-backup",
+                "output": "output",
+                "phase": "prepared",
+            },
+        )
+
+        with self.assertRaises(FileNotFoundError):
+            workspace_replace_directory(
+                output, self.root / "missing-staging", ".previous-"
+            )
+
+        self.assertEqual(
+            (output / "payload").read_text(encoding="utf-8"), "previous\n"
+        )
+        self.assertFalse(pending.exists())
+        self.assertFalse((self.root / ".previous-pending.json").exists())
 
     def test_owned_tree_removal_refuses_nested_mount_before_deletion(self) -> None:
         owned = self.root / "owned"
@@ -1502,7 +1531,46 @@ class WorkspaceTests(unittest.TestCase):
         owned.mkdir()
         (owned / "payload").write_text("remove\n", encoding="utf-8")
 
-        with mock.patch("atrinik_workspace.workspace.sys.platform", "darwin"):
+        with (
+            mock.patch("atrinik_workspace.workspace.sys.platform", "darwin"),
+            mock.patch(
+                "atrinik_workspace.workspace._darwin_descriptor_mount_id",
+                return_value=(1, 2),
+            ),
+        ):
+            remove_owned_tree(owned)
+
+        self.assertFalse(owned.exists())
+
+    def test_owned_tree_removal_checks_file_mounts_before_deletion(self) -> None:
+        owned = self.root / "owned"
+        owned.mkdir()
+        first = owned / "a-first"
+        mounted = owned / "z-mounted"
+        first.write_text("preserve first\n", encoding="utf-8")
+        mounted.write_text("preserve mounted\n", encoding="utf-8")
+
+        with mock.patch(
+            "atrinik_workspace.workspace._descriptor_mount_id",
+            side_effect=[1, 1, 1, 1, 2],
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
+                remove_owned_tree(owned)
+
+        self.assertEqual(first.read_text(encoding="utf-8"), "preserve first\n")
+        self.assertEqual(
+            mounted.read_text(encoding="utf-8"), "preserve mounted\n"
+        )
+
+    def test_owned_tree_removal_does_not_require_procfs(self) -> None:
+        owned = self.root / "owned"
+        owned.mkdir()
+        (owned / "payload").write_text("remove\n", encoding="utf-8")
+
+        with mock.patch(
+            "atrinik_workspace.workspace.Path.read_text",
+            side_effect=FileNotFoundError("no procfs"),
+        ):
             remove_owned_tree(owned)
 
         self.assertFalse(owned.exists())

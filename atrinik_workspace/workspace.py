@@ -4,6 +4,7 @@ import binascii
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import ExitStack, contextmanager
+import ctypes
 from datetime import datetime, timezone
 import fcntl
 import hashlib
@@ -159,27 +160,109 @@ def git(
     return run(["git", "-C", str(path), *arguments], capture=capture, trace=trace)
 
 
-def _descriptor_mount_id(descriptor: int) -> int:
-    if sys.platform != "linux":
-        return os.fstat(descriptor).st_dev
+def _darwin_descriptor_mount_id(descriptor: int) -> tuple[int, int]:
+    buffer = ctypes.create_string_buffer(4096)
+    library = ctypes.CDLL(None, use_errno=True)
+    fstatfs = library.fstatfs
+    fstatfs.argtypes = [ctypes.c_int, ctypes.c_void_p]
+    fstatfs.restype = ctypes.c_int
+    if fstatfs(descriptor, ctypes.byref(buffer)) != 0:
+        error = ctypes.get_errno()
+        raise WorkspaceError(
+            "cannot inspect filesystem mount for descriptor "
+            f"{descriptor}: {os.strerror(error)}"
+        )
+    # Darwin's fsid_t is two signed 32-bit integers at byte offset 48 in
+    # struct statfs, after the size and block/file count fields.
+    first = ctypes.c_int32.from_buffer(buffer, 48).value
+    second = ctypes.c_int32.from_buffer(buffer, 52).value
+    return first, second
+
+
+def _linux_descriptor_mount_id(descriptor: int) -> int:
+    buffer = ctypes.create_string_buffer(256)
+    library = ctypes.CDLL(None, use_errno=True)
     try:
-        metadata = Path(f"/proc/self/fdinfo/{descriptor}").read_text(
-            encoding="ascii"
+        statx = library.statx
+    except AttributeError as error:
+        raise WorkspaceError("Linux statx mount identity is unavailable") from error
+    statx.argtypes = [
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_int,
+        ctypes.c_uint,
+        ctypes.c_void_p,
+    ]
+    statx.restype = ctypes.c_int
+    statx_mount_id = 0x1000
+    at_empty_path = 0x1000
+    if (
+        statx(
+            descriptor,
+            b"",
+            at_empty_path,
+            statx_mount_id,
+            ctypes.byref(buffer),
         )
-    except (OSError, UnicodeError) as error:
+        != 0
+    ):
+        error = ctypes.get_errno()
         raise WorkspaceError(
-            f"cannot inspect filesystem mount for descriptor {descriptor}: {error}"
-        ) from error
-    match = re.search(r"^mnt_id:\s+(\d+)$", metadata, re.MULTILINE)
-    if match is None:
-        raise WorkspaceError(
-            f"filesystem mount identity is unavailable for descriptor {descriptor}"
+            "cannot inspect filesystem mount for descriptor "
+            f"{descriptor}: {os.strerror(error)}"
         )
-    return int(match.group(1))
+    returned_mask = ctypes.c_uint32.from_buffer(buffer, 0).value
+    if returned_mask & statx_mount_id == 0:
+        raise WorkspaceError("Linux statx did not return a mount identity")
+    return ctypes.c_uint64.from_buffer(buffer, 144).value
+
+
+def _descriptor_mount_id(descriptor: int) -> int | tuple[int, int]:
+    if sys.platform == "darwin":
+        return _darwin_descriptor_mount_id(descriptor)
+    if sys.platform == "linux":
+        return _linux_descriptor_mount_id(descriptor)
+    else:
+        raise WorkspaceError(
+            f"filesystem mount identity is unavailable on {sys.platform}"
+        )
+
+
+def _probe_owned_tree_entry_mount(
+    descriptor: int,
+    name: str,
+    child: os.stat_result,
+    mount_id: int | tuple[int, int],
+    display: Path,
+) -> None:
+    if stat.S_ISLNK(child.st_mode):
+        return
+    flags = os.O_NOFOLLOW
+    if sys.platform == "linux":
+        flags |= os.O_PATH
+    else:
+        flags |= os.O_RDONLY
+    try:
+        probe = os.open(name, flags, dir_fd=descriptor)
+    except OSError as error:
+        raise WorkspaceError(f"owned removal entry changed: {display}") from error
+    try:
+        opened = os.fstat(probe)
+        if (
+            opened.st_dev != child.st_dev
+            or opened.st_ino != child.st_ino
+            or _descriptor_mount_id(probe) != mount_id
+        ):
+            raise WorkspaceError(f"owned removal encountered a mount: {display}")
+    finally:
+        os.close(probe)
 
 
 def _prepare_owned_tree_removal(
-    descriptor: int, device: int, mount_id: int, display: Path
+    descriptor: int,
+    device: int,
+    mount_id: int | tuple[int, int],
+    display: Path,
 ) -> None:
     root = os.fstat(descriptor)
     if (
@@ -192,6 +275,9 @@ def _prepare_owned_tree_removal(
     for name in sorted(os.listdir(descriptor)):
         child_display = display / name
         child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+        _probe_owned_tree_entry_mount(
+            descriptor, name, child, mount_id, child_display
+        )
         if child.st_dev != device:
             raise WorkspaceError(
                 f"owned removal encountered a mount: {child_display}"
@@ -226,11 +312,17 @@ def _prepare_owned_tree_removal(
 
 
 def _remove_owned_tree_contents(
-    descriptor: int, device: int, mount_id: int, display: Path
+    descriptor: int,
+    device: int,
+    mount_id: int | tuple[int, int],
+    display: Path,
 ) -> None:
     for name in sorted(os.listdir(descriptor)):
         child_display = display / name
         child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+        _probe_owned_tree_entry_mount(
+            descriptor, name, child, mount_id, child_display
+        )
         if child.st_dev != device:
             raise WorkspaceError(
                 f"owned removal encountered a mount: {child_display}"
@@ -305,91 +397,88 @@ def remove_owned_tree(path: Path) -> None:
         os.close(parent_descriptor)
 
 
-def _create_replaced_directory_backup(
-    backup_container: Path, backup_metadata: dict[str, object], backup_prefix: str
-) -> None:
-    prepared = Path(
-        tempfile.mkdtemp(
-            prefix=f"{backup_prefix}prepared-", dir=backup_container.parent
-        )
-    )
-    marker = prepared / MANAGED_MARKER
-    try:
-        atomic_json(marker, backup_metadata)
-        prepared.replace(backup_container)
-    except BaseException:
-        if marker.is_file() and not marker.is_symlink():
-            remove_owned_tree(prepared)
-        else:
-            prepared.rmdir()
-        raise
-
-
-def _retire_replaced_directory_backup(
-    backup_container: Path, backup_prefix: str
-) -> None:
-    retired = backup_container.parent / (
-        f"{backup_prefix}retired-{secrets.token_hex(8)}"
-    )
-    try:
-        backup_container.replace(retired)
-    except OSError as error:
-        print(
-            "warning: cannot retire managed replaced-directory backup "
-            f"{backup_container}: {error}; the next replacement will retry",
-            file=sys.stderr,
-        )
-        return
-    try:
-        remove_owned_tree(retired)
-    except (OSError, WorkspaceError) as error:
-        print(
-            "warning: cannot remove retired managed replaced-directory backup "
-            f"{retired}: {error}; profile cleanup will retain or reclaim it",
-            file=sys.stderr,
-        )
-
-
 def recover_replaced_directory(output: Path, backup_prefix: str) -> None:
     backup_container = output.parent / f"{backup_prefix}pending"
-    backup_metadata = {
+    journal = output.parent / f"{backup_prefix}pending.json"
+    expected_metadata = {
         "schema_version": SCHEMA_VERSION,
         "purpose": "replaced-directory-backup",
         "output": output.name,
     }
-    if backup_container.exists() or backup_container.is_symlink():
-        marker = backup_container / MANAGED_MARKER
-        previous = backup_container / "previous"
-        if (
-            not backup_container.is_dir()
-            or backup_container.is_symlink()
-            or not marker.is_file()
-            or marker.is_symlink()
-            or load_json(marker) != backup_metadata
-            or (
-                not output.exists()
-                and (not previous.is_dir() or previous.is_symlink())
-            )
-        ):
+    if not (journal.exists() or journal.is_symlink()):
+        if backup_container.exists() or backup_container.is_symlink():
             raise WorkspaceError(
                 f"replaced-directory backup is not managed: {backup_container}"
             )
-        if not output.exists():
-            previous.replace(output)
-        try:
+        return
+    if not journal.is_file() or journal.is_symlink():
+        raise WorkspaceError(f"replaced-directory journal is invalid: {journal}")
+    metadata = load_json(journal)
+    if not isinstance(metadata, dict):
+        raise WorkspaceError(f"replaced-directory journal is invalid: {journal}")
+    phase = metadata.pop("phase", None)
+    if metadata != expected_metadata or phase not in {"initializing", "prepared", "committed"}:
+        raise WorkspaceError(f"replaced-directory journal is invalid: {journal}")
+    previous = backup_container / "previous"
+    try:
+        if phase == "initializing":
+            if backup_container.exists() or backup_container.is_symlink():
+                if (
+                    not backup_container.is_dir()
+                    or backup_container.is_symlink()
+                    or any(backup_container.iterdir())
+                ):
+                    raise WorkspaceError(
+                        f"replaced-directory backup is invalid: {backup_container}"
+                    )
+                remove_owned_tree(backup_container)
+        else:
+            if not backup_container.is_dir() or backup_container.is_symlink():
+                if phase == "committed" and output.is_dir() and not output.is_symlink():
+                    journal.unlink()
+                    return
+                raise WorkspaceError(
+                    f"replaced-directory backup is invalid: {backup_container}"
+                )
             if previous.exists() or previous.is_symlink():
                 if not previous.is_dir() or previous.is_symlink():
                     raise WorkspaceError(
                         "replaced-directory backup payload is invalid: "
                         f"{previous}"
                     )
-                remove_owned_tree(previous)
-            _retire_replaced_directory_backup(backup_container, backup_prefix)
-        except OSError as error:
-            raise WorkspaceError(
-                f"cannot reclaim replaced-directory backup {backup_container}: "
-                f"{error}"
-            ) from error
+                if phase == "prepared":
+                    if output.exists() or output.is_symlink():
+                        if not output.is_dir() or output.is_symlink():
+                            raise WorkspaceError(
+                                f"uncommitted replacement is invalid: {output}"
+                            )
+                        remove_owned_tree(output)
+                    previous.replace(output)
+                else:
+                    if not output.is_dir() or output.is_symlink():
+                        raise WorkspaceError(
+                            f"committed replacement is invalid: {output}"
+                        )
+                    remove_owned_tree(previous)
+            elif phase == "committed":
+                if not output.is_dir() or output.is_symlink():
+                    raise WorkspaceError(
+                        f"committed replacement is invalid: {output}"
+                    )
+            elif not output.is_dir() or output.is_symlink():
+                raise WorkspaceError(
+                    f"uncommitted replacement is invalid: {output}"
+                )
+            if any(backup_container.iterdir()):
+                raise WorkspaceError(
+                    f"replaced-directory backup is not empty: {backup_container}"
+                )
+            remove_owned_tree(backup_container)
+        journal.unlink()
+    except OSError as error:
+        raise WorkspaceError(
+            f"cannot recover replaced-directory transaction {journal}: {error}"
+        ) from error
 
 
 def replace_runtime_directory(
@@ -400,24 +489,28 @@ def replace_runtime_directory(
 ) -> None:
     recover_replaced_directory(output, backup_prefix)
     backup_container = output.parent / f"{backup_prefix}pending"
-    backup_metadata = {
+    journal = output.parent / f"{backup_prefix}pending.json"
+    backup_metadata: dict[str, object] = {
         "schema_version": SCHEMA_VERSION,
         "purpose": "replaced-directory-backup",
         "output": output.name,
+        "phase": "initializing",
     }
 
     backup: Path | None = None
     if output.exists():
-        _create_replaced_directory_backup(
-            backup_container, backup_metadata, backup_prefix
-        )
+        atomic_json(journal, backup_metadata)
+        backup_container.mkdir()
+        backup_metadata["phase"] = "prepared"
+        atomic_json(journal, backup_metadata)
         backup = backup_container / "previous"
         output.replace(backup)
         try:
             staging.replace(output)
         except BaseException:
             backup.replace(output)
-            _retire_replaced_directory_backup(backup_container, backup_prefix)
+            remove_owned_tree(backup_container)
+            journal.unlink()
             raise
     else:
         staging.replace(output)
@@ -428,11 +521,16 @@ def replace_runtime_directory(
         output.replace(staging)
         if backup is not None:
             backup.replace(output)
-            _retire_replaced_directory_backup(backup_container, backup_prefix)
+            remove_owned_tree(backup_container)
+            journal.unlink()
         raise
     if backup is not None:
+        backup_metadata["phase"] = "committed"
+        atomic_json(journal, backup_metadata)
         try:
             remove_owned_tree(backup)
+            remove_owned_tree(backup_container)
+            journal.unlink()
         except (OSError, WorkspaceError) as error:
             print(
                 "warning: cannot remove managed replaced-directory backup "
@@ -440,8 +538,6 @@ def replace_runtime_directory(
                 "before changing output",
                 file=sys.stderr,
             )
-        else:
-            _retire_replaced_directory_backup(backup_container, backup_prefix)
 
 
 def replace_directory(output: Path, staging: Path, backup_prefix: str) -> None:
