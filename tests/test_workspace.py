@@ -1482,17 +1482,20 @@ class WorkspaceTests(unittest.TestCase):
         owned = self.root / "owned"
         nested = owned / "nested"
         nested.mkdir(parents=True)
+        nested.chmod(0o755)
         payload = nested / "payload"
         payload.write_text("preserve\n", encoding="utf-8")
+        original_mode = stat.S_IMODE(nested.stat().st_mode)
 
         with mock.patch(
-            "atrinik_workspace.workspace._descriptor_is_mount",
-            side_effect=[False, True],
+            "atrinik_workspace.workspace._descriptor_mount_id",
+            side_effect=[1, 1, 1, 1, 2],
         ):
             with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
                 remove_owned_tree(owned)
 
         self.assertEqual(payload.read_text(encoding="utf-8"), "preserve\n")
+        self.assertEqual(stat.S_IMODE(nested.stat().st_mode), original_mode)
 
     def test_topology_runtime_install_rejects_post_copy_replacement(self) -> None:
         topology = self.root / "topology"

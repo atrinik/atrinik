@@ -159,35 +159,64 @@ def git(
     return run(["git", "-C", str(path), *arguments], capture=capture, trace=trace)
 
 
-def _descriptor_is_mount(descriptor: int) -> bool:
-    return os.path.ismount(Path(f"/proc/self/fd/{descriptor}").resolve())
+def _descriptor_mount_id(descriptor: int) -> int:
+    try:
+        metadata = Path(f"/proc/self/fdinfo/{descriptor}").read_text(
+            encoding="ascii"
+        )
+    except (OSError, UnicodeError) as error:
+        raise WorkspaceError(
+            f"cannot inspect filesystem mount for descriptor {descriptor}: {error}"
+        ) from error
+    match = re.search(r"^mnt_id:\s+(\d+)$", metadata, re.MULTILINE)
+    if match is None:
+        raise WorkspaceError(
+            f"filesystem mount identity is unavailable for descriptor {descriptor}"
+        )
+    return int(match.group(1))
 
 
 def _prepare_owned_tree_removal(
-    descriptor: int, device: int, display: Path
+    descriptor: int, device: int, mount_id: int, display: Path
 ) -> None:
     root = os.fstat(descriptor)
-    if not stat.S_ISDIR(root.st_mode) or root.st_dev != device:
+    if (
+        not stat.S_ISDIR(root.st_mode)
+        or root.st_dev != device
+        or _descriptor_mount_id(descriptor) != mount_id
+    ):
         raise WorkspaceError(f"owned removal crossed a filesystem boundary: {display}")
     os.fchmod(descriptor, stat.S_IRWXU)
     for name in sorted(os.listdir(descriptor)):
         child_display = display / name
         child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
-        if os.path.ismount(child_display):
+        try:
+            child_probe = os.open(
+                name,
+                os.O_PATH | os.O_NOFOLLOW,
+                dir_fd=descriptor,
+            )
+        except OSError as error:
+            raise WorkspaceError(
+                f"owned removal entry changed: {child_display}"
+            ) from error
+        try:
+            probed = os.fstat(child_probe)
+            if (
+                probed.st_dev != child.st_dev
+                or probed.st_ino != child.st_ino
+                or _descriptor_mount_id(child_probe) != mount_id
+            ):
+                raise WorkspaceError(
+                    f"owned removal encountered a mount: {child_display}"
+                )
+        finally:
+            os.close(child_probe)
+        if child.st_dev != device:
             raise WorkspaceError(
                 f"owned removal encountered a mount: {child_display}"
             )
         if stat.S_ISDIR(child.st_mode):
-            if child.st_dev != device:
-                raise WorkspaceError(
-                    f"owned removal encountered a mount: {child_display}"
-                )
-            os.chmod(
-                name,
-                stat.S_IRWXU,
-                dir_fd=descriptor,
-                follow_symlinks=False,
-            )
             try:
                 child_descriptor = os.open(
                     name,
@@ -203,33 +232,52 @@ def _prepare_owned_tree_removal(
                 if (
                     opened.st_dev != child.st_dev
                     or opened.st_ino != child.st_ino
-                    or _descriptor_is_mount(child_descriptor)
+                    or _descriptor_mount_id(child_descriptor) != mount_id
                 ):
                     raise WorkspaceError(
                         f"owned removal encountered a mount: {child_display}"
                     )
+                os.fchmod(child_descriptor, stat.S_IRWXU)
                 _prepare_owned_tree_removal(
-                    child_descriptor, device, child_display
+                    child_descriptor, device, mount_id, child_display
                 )
             finally:
                 os.close(child_descriptor)
 
 
 def _remove_owned_tree_contents(
-    descriptor: int, device: int, display: Path
+    descriptor: int, device: int, mount_id: int, display: Path
 ) -> None:
     for name in sorted(os.listdir(descriptor)):
         child_display = display / name
         child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
-        if os.path.ismount(child_display):
+        try:
+            child_probe = os.open(
+                name,
+                os.O_PATH | os.O_NOFOLLOW,
+                dir_fd=descriptor,
+            )
+        except OSError as error:
+            raise WorkspaceError(
+                f"owned removal entry changed: {child_display}"
+            ) from error
+        try:
+            probed = os.fstat(child_probe)
+            if (
+                probed.st_dev != child.st_dev
+                or probed.st_ino != child.st_ino
+                or _descriptor_mount_id(child_probe) != mount_id
+            ):
+                raise WorkspaceError(
+                    f"owned removal encountered a mount: {child_display}"
+                )
+        finally:
+            os.close(child_probe)
+        if child.st_dev != device:
             raise WorkspaceError(
                 f"owned removal encountered a mount: {child_display}"
             )
         if stat.S_ISDIR(child.st_mode):
-            if child.st_dev != device:
-                raise WorkspaceError(
-                    f"owned removal encountered a mount: {child_display}"
-                )
             try:
                 child_descriptor = os.open(
                     name,
@@ -245,13 +293,13 @@ def _remove_owned_tree_contents(
                 if (
                     opened.st_dev != child.st_dev
                     or opened.st_ino != child.st_ino
-                    or _descriptor_is_mount(child_descriptor)
+                    or _descriptor_mount_id(child_descriptor) != mount_id
                 ):
                     raise WorkspaceError(
                         f"owned removal encountered a mount: {child_display}"
                     )
                 _remove_owned_tree_contents(
-                    child_descriptor, device, child_display
+                    child_descriptor, device, mount_id, child_display
                 )
             finally:
                 os.close(child_descriptor)
@@ -261,7 +309,7 @@ def _remove_owned_tree_contents(
 
 
 def remove_owned_tree(path: Path) -> None:
-    if path.is_symlink() or not path.is_dir() or os.path.ismount(path):
+    if path.is_symlink() or not path.is_dir():
         raise WorkspaceError(f"owned removal root is invalid: {path}")
     parent_descriptor = os.open(
         path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
@@ -269,12 +317,25 @@ def remove_owned_tree(path: Path) -> None:
     descriptor: int | None = None
     try:
         before = os.stat(path.name, dir_fd=parent_descriptor, follow_symlinks=False)
-        os.chmod(
+        root_probe = os.open(
             path.name,
-            stat.S_IRWXU,
+            os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW,
             dir_fd=parent_descriptor,
-            follow_symlinks=False,
         )
+        try:
+            probed = os.fstat(root_probe)
+            parent_mount_id = _descriptor_mount_id(parent_descriptor)
+            root_mount_id = _descriptor_mount_id(root_probe)
+            if (
+                probed.st_dev != before.st_dev
+                or probed.st_ino != before.st_ino
+                or root_mount_id != parent_mount_id
+            ):
+                raise WorkspaceError(
+                    f"owned removal root changed or is mounted: {path}"
+                )
+        finally:
+            os.close(root_probe)
         descriptor = os.open(
             path.name,
             os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
@@ -284,11 +345,16 @@ def remove_owned_tree(path: Path) -> None:
         if (
             opened.st_dev != before.st_dev
             or opened.st_ino != before.st_ino
-            or _descriptor_is_mount(descriptor)
+            or _descriptor_mount_id(descriptor) != root_mount_id
         ):
             raise WorkspaceError(f"owned removal root changed or is mounted: {path}")
-        _prepare_owned_tree_removal(descriptor, opened.st_dev, path)
-        _remove_owned_tree_contents(descriptor, opened.st_dev, path)
+        os.fchmod(descriptor, stat.S_IRWXU)
+        _prepare_owned_tree_removal(
+            descriptor, opened.st_dev, root_mount_id, path
+        )
+        _remove_owned_tree_contents(
+            descriptor, opened.st_dev, root_mount_id, path
+        )
         os.close(descriptor)
         descriptor = None
         os.rmdir(path.name, dir_fd=parent_descriptor)
@@ -389,7 +455,7 @@ def replace_runtime_directory(
             remove_owned_tree(backup)
             (backup_container / MANAGED_MARKER).unlink()
             backup_container.rmdir()
-        except OSError as error:
+        except (OSError, WorkspaceError) as error:
             print(
                 "warning: cannot remove managed replaced-directory backup "
                 f"{backup_container}: {error}; the next replacement will retry "
