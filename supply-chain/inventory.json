@@ -1572,6 +1572,50 @@
       ]
     },
     {
+      "id": "external/crates-io",
+      "name": "crates.io registry publication and distribution",
+      "kind": "external-tool",
+      "owner": "protocol",
+      "scope": ["protocol"],
+      "required": true,
+      "version": "API v1; atrinik-protocol 0.1.0 bootstrap",
+      "version_source": "Fixed protocol bootstrap workflow and immutable v1.4.0 release provenance",
+      "license": "NOASSERTION",
+      "source_url": "https://crates.io/",
+      "locator": "pkg:cargo/atrinik-protocol@0.1.0",
+      "commit": null,
+      "checksum": "sha256:413c4da6c1b304d4a622065efe0d36c3f591041972f1a5ee76c538926f3c0b6b",
+      "acquisition": "A protected manual GitHub environment publishes only the byte-reproduced immutable release crate after required review",
+      "update_cadence_days": 30,
+      "update_mechanism": "Remove the one-time bootstrap after registration and replace it with a separately reviewed crate-scoped release policy",
+      "eol_response": "Stop registry publication and consumer rollout if ownership, integrity, availability, or supported Cargo compatibility cannot be maintained",
+      "validation": "Fixed workflow contract, offline package reproduction, GitHub release provenance and SHA-256 checks, and post-upload crates.io checksum verification",
+      "disposition": "retain",
+      "packages": ["atrinik-protocol"],
+      "evidence": [
+        {
+          "repository": "protocol",
+          "path": ".github/workflows/publish-crate.yml",
+          "contains": "CRATE_SHA256: 413c4da6c1b304d4a622065efe0d36c3f591041972f1a5ee76c538926f3c0b6b"
+        },
+        {
+          "repository": "protocol",
+          "path": ".github/workflows/publish-crate.yml",
+          "contains": "environment: crates-io-bootstrap"
+        },
+        {
+          "repository": "protocol",
+          "path": "crates/atrinik-protocol/Cargo.toml",
+          "contains": "publish = [\"crates-io\"]"
+        },
+        {
+          "repository": "protocol",
+          "path": "tools/check-crate-publication.py",
+          "contains": "bootstrap token must appear in exactly one step"
+        }
+      ]
+    },
+    {
       "id": "external/gridarta",
       "name": "Gridarta source checkout",
       "kind": "external-tool",
