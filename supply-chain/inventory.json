@@ -355,6 +355,28 @@
       "audit_mode": "full",
       "branch": "main",
       "cohorts": [
+        "classic"
+      ],
+      "license": "MIT",
+      "commit": null,
+      "name": "playtester",
+      "repository": "atrinik/playtester",
+      "role": "MIT autonomous end-to-end playtester for the classic game",
+      "roles": [
+        "playtester"
+      ],
+      "stacks": [
+        "classic"
+      ],
+      "supported": true,
+      "checkout": "playtester",
+      "source": "."
+    },
+    {
+      "audit_ready": true,
+      "audit_mode": "full",
+      "branch": "main",
+      "cohorts": [
         "default"
       ],
       "license": "MIT",
@@ -586,6 +608,7 @@
         "editor",
         "github-settings",
         "metaserver-worker",
+        "playtester",
         "protocol",
         "renderer",
         "resources",
@@ -632,6 +655,16 @@
         },
         {
           "repository": "editor",
+          "path": ".github/workflows/validate.yml",
+          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+        },
+        {
+          "repository": "playtester",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+        },
+        {
+          "repository": "playtester",
           "path": ".github/workflows/validate.yml",
           "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
         },
@@ -763,6 +796,7 @@
         "editor",
         "github-settings",
         "metaserver-worker",
+        "playtester",
         "protocol",
         "renderer",
         "resources",
@@ -829,6 +863,11 @@
         },
         {
           "repository": "github-settings",
+          "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "playtester",
           "path": ".github/workflows/release.yml",
           "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
         },
@@ -1652,7 +1691,8 @@
       "owner": "atrinik",
       "scope": [
         "atrinik",
-        "classic"
+        "classic",
+        "playtester"
       ],
       "required": true,
       "version": "9.3.1",
@@ -1681,6 +1721,11 @@
           "repository": "classic",
           "path": ".github/workflows/release.yml",
           "contains": "--package=conventional-changelog-conventionalcommits@9.3.1"
+        },
+        {
+          "repository": "playtester",
+          "path": ".github/workflows/release.yml",
+          "contains": "--package=conventional-changelog-conventionalcommits@9.3.1"
         }
       ]
     },
@@ -1691,7 +1736,8 @@
       "owner": "atrinik",
       "scope": [
         "atrinik",
-        "classic"
+        "classic",
+        "playtester"
       ],
       "required": true,
       "version": "25.0.9",
@@ -1720,6 +1766,16 @@
           "repository": "classic",
           "path": ".github/workflows/release.yml",
           "contains": "--package=semantic-release@25.0.9"
+        },
+        {
+          "repository": "playtester",
+          "path": ".github/workflows/release.yml",
+          "contains": "--package=semantic-release@25.0.9"
+        },
+        {
+          "repository": "playtester",
+          "path": ".releaserc.json",
+          "contains": "\"@semantic-release/github\""
         }
       ]
     },
@@ -1882,6 +1938,31 @@
           "path": "package.json",
           "contains": "\"wrangler\": \"^4.118.0\""
         }
+      ]
+    },
+    {
+      "id": "language/playtester-python",
+      "name": "Playtester Python package graph",
+      "kind": "language-package-set",
+      "owner": "playtester",
+      "scope": ["playtester"],
+      "required": true,
+      "version": "Python>=3.11; scikit-build-core>=0.10; aioquic>=1.2",
+      "version_source": "pyproject.toml",
+      "license": "NOASSERTION",
+      "source_url": "https://pypi.org/",
+      "locator": "pkg:pypi/atrinik-playtester@0.1.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Python build isolation and optional operator environment install declared packages",
+      "update_cadence_days": 30,
+      "update_mechanism": "Dependabot pip review and playtester build/test validation",
+      "eol_response": "Upgrade or replace the playtester package dependency before EOL",
+      "validation": "CMake strict build, native/Python tests, compileall, and loopback security checks",
+      "disposition": "retain",
+      "packages": ["aioquic", "atrinik-protocol", "scikit-build-core"],
+      "evidence": [
+        {"repository":"playtester","path":"pyproject.toml","contains":"scikit-build-core>=0.10"}
       ]
     },
     {
@@ -2164,31 +2245,6 @@
       ]
     },
     {
-      "id": "language/tools-bot-python",
-      "name": "Classic bot Python package graph",
-      "kind": "language-package-set",
-      "owner": "tools",
-      "scope": ["tools"],
-      "required": true,
-      "version": "Python>=3.11; scikit-build-core>=0.10; aioquic>=1.2",
-      "version_source": "atrinik_bot/pyproject.toml",
-      "license": "NOASSERTION",
-      "source_url": "https://pypi.org/",
-      "locator": "pkg:pypi/atrinik-bot@0.1.0",
-      "commit": null,
-      "checksum": null,
-      "acquisition": "Python build isolation and optional operator environment install declared packages",
-      "update_cadence_days": 30,
-      "update_mechanism": "Dependabot pip review and classic bot build/test validation",
-      "eol_response": "Upgrade, replace, or retire the classic-only bot package before dependency EOL",
-      "validation": "CMake strict build, native/Python tests, compileall, and loopback security checks",
-      "disposition": "replace",
-      "packages": ["aioquic", "atrinik-protocol", "scikit-build-core"],
-      "evidence": [
-        {"repository":"tools","path":"atrinik_bot/pyproject.toml","contains":"scikit-build-core>=0.10"}
-      ]
-    },
-    {
       "id": "language/wrapper-python-development",
       "name": "Workspace Python development dependencies",
       "kind": "language-package-set",
@@ -2222,13 +2278,43 @@
       ]
     },
     {
+      "id": "source/atrinik-content-playtester",
+      "name": "Atrinik content source for playtester world planning",
+      "kind": "source-archive",
+      "owner": "content-1x",
+      "scope": [
+        "playtester"
+      ],
+      "required": true,
+      "version": "v1.8.0",
+      "version_source": "dependencies.lock.json content input",
+      "license": "LicenseRef-Atrinik-Content",
+      "source_url": "https://github.com/atrinik/content/releases/tag/v1.8.0",
+      "locator": "pkg:github/atrinik/content@v1.8.0",
+      "commit": "96073eeff1854fc29347fdafd32e622394f24c07",
+      "checksum": null,
+      "acquisition": "The playtester verifies the exact content release commit before compiling world and runtime inputs",
+      "update_cadence_days": 30,
+      "update_mechanism": "Reviewed content compatibility update with complete playtester regression validation",
+      "eol_response": "Advance to a supported content release before removing the pinned compatibility baseline",
+      "validation": "Content identity verification, world-graph compilation, runtime asset loading, and playtester regression tests",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "playtester",
+          "path": "dependencies.lock.json",
+          "contains": "96073eeff1854fc29347fdafd32e622394f24c07"
+        }
+      ]
+    },
+    {
       "id": "source/atrinik-content-runtime",
       "name": "Atrinik content runtime archive",
       "kind": "source-archive",
       "owner": "content",
       "scope": [
-        "classic-server",
-        "tools"
+        "classic-server"
       ],
       "required": true,
       "version": "v1.2.0",
@@ -2285,13 +2371,48 @@
       ]
     },
     {
+      "id": "source/atrinik-libatrinik-playtester",
+      "name": "Archived classic libatrinik release source for the playtester",
+      "kind": "source-archive",
+      "owner": "playtester",
+      "scope": [
+        "playtester"
+      ],
+      "required": true,
+      "version": "v1.1.5",
+      "version_source": "CMakeLists.txt FetchContent declaration",
+      "license": "GPL-2.0-or-later",
+      "source_url": "https://github.com/atrinik/legacy-libatrinik/releases/tag/v1.1.5",
+      "locator": "pkg:github/atrinik/legacy-libatrinik@v1.1.5",
+      "commit": "4c3410063972ea22689b66ad7dd8c7949cc1fbff",
+      "checksum": "sha256:3c07b178cc236881f52272df6e38bc2d4186943b782e4cee34b2e733da9c8f9a",
+      "acquisition": "CMake FetchContent downloads the checksum-pinned release archive",
+      "update_cadence_days": 30,
+      "update_mechanism": "Reviewed pathfinding compatibility update and complete playtester regression validation",
+      "eol_response": "Update or replace the pathfinding dependency before its archived release becomes unusable",
+      "validation": "CMake lock validation, native pathfinding tests, and playtester Python regression tests",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "playtester",
+          "path": "CMakeLists.txt",
+          "contains": "libatrinik-1.1.5.tar.gz"
+        },
+        {
+          "repository": "playtester",
+          "path": "dependencies.lock.json",
+          "contains": "3c07b178cc236881f52272df6e38bc2d4186943b782e4cee34b2e733da9c8f9a"
+        }
+      ]
+    },
+    {
       "id": "source/atrinik-libatrinik-server",
       "name": "Archived classic libatrinik release source for the classic server",
       "kind": "source-archive",
       "owner": "classic-server",
       "scope": [
-        "classic-server",
-        "tools"
+        "classic-server"
       ],
       "required": true,
       "version": "v1.1.5",
@@ -2313,37 +2434,7 @@
           "repository": "classic-server",
           "path": "cmake/dependencies.lock.json",
           "contains": "libatrinik-1.1.5.tar.gz"
-        },
-        {
-          "repository": "tools",
-          "path": "atrinik_bot/CMakeLists.txt",
-          "contains": "libatrinik-1.1.5.tar.gz"
         }
-      ]
-    },
-    {
-      "id": "source/atrinik-protocol-bot",
-      "name": "Atrinik protocol Python wheel for the classic bot",
-      "kind": "source-archive",
-      "owner": "tools",
-      "scope": ["tools"],
-      "required": true,
-      "version": "v1.0.9",
-      "version_source": "atrinik_bot/pyproject.toml exact wheel URL and fragment",
-      "license": "MIT",
-      "source_url": "https://github.com/atrinik/protocol/releases/tag/v1.0.9",
-      "locator": "pkg:pypi/atrinik-protocol@1.0.9",
-      "commit": null,
-      "checksum": "sha256:78954264fa49ac8736dbfc7a72669f619e0202e6ae15445a0b0839aa8f30eb8a",
-      "acquisition": "pip downloads the exact HTTPS release wheel and verifies the URL-fragment digest",
-      "update_cadence_days": 30,
-      "update_mechanism": "Protocol release review and bot contract tests",
-      "eol_response": "Update to a supported protocol binding or retire direct-protocol bot operation",
-      "validation": "pip hash verification, bot protocol tests, and migration parity against the client automation API",
-      "disposition": "replace",
-      "packages": [],
-      "evidence": [
-        {"repository":"tools","path":"atrinik_bot/pyproject.toml","contains":"atrinik_protocol-1.0.9-py3-none-any.whl#sha256=78954264fa49ac8736dbfc7a72669f619e0202e6ae15445a0b0839aa8f30eb8a"}
       ]
     },
     {
@@ -2412,6 +2503,32 @@
           "path": "dependencies.lock.json",
           "contains": "atrinik-protocol-1.0.0.tar.gz"
         }
+      ]
+    },
+    {
+      "id": "source/atrinik-protocol-playtester",
+      "name": "Atrinik protocol Python wheel for the playtester",
+      "kind": "source-archive",
+      "owner": "playtester",
+      "scope": ["playtester"],
+      "required": true,
+      "version": "v1.0.9",
+      "version_source": "pyproject.toml exact wheel URL and fragment",
+      "license": "MIT",
+      "source_url": "https://github.com/atrinik/legacy-protocol/releases/tag/v1.0.9",
+      "locator": "pkg:pypi/atrinik-protocol@1.0.9",
+      "commit": null,
+      "checksum": "sha256:78954264fa49ac8736dbfc7a72669f619e0202e6ae15445a0b0839aa8f30eb8a",
+      "acquisition": "pip downloads the exact HTTPS release wheel and verifies the URL-fragment digest",
+      "update_cadence_days": 30,
+      "update_mechanism": "Protocol release review and playtester contract tests",
+      "eol_response": "Update to a supported protocol binding or retire direct Classic protocol operation",
+      "validation": "pip hash verification, playtester protocol tests, and migration parity against the client automation API",
+      "disposition": "replace",
+      "packages": [],
+      "evidence": [
+        {"repository":"playtester","path":"dependencies.lock.json","contains":"78954264fa49ac8736dbfc7a72669f619e0202e6ae15445a0b0839aa8f30eb8a"},
+        {"repository":"playtester","path":"pyproject.toml","contains":"atrinik_protocol-1.0.9-py3-none-any.whl#sha256=78954264fa49ac8736dbfc7a72669f619e0202e6ae15445a0b0839aa8f30eb8a"}
       ]
     },
     {
@@ -3496,7 +3613,7 @@
         "classic-protocol",
         "classic-server",
         "devcontainer",
-        "tools"
+        "playtester"
       ],
       "required": true,
       "version": ">=3.21",
@@ -3542,8 +3659,8 @@
           "contains": "cmake_minimum_required(VERSION 3.21)"
         },
         {
-          "repository": "tools",
-          "path": "atrinik_bot/CMakeLists.txt",
+          "repository": "playtester",
+          "path": "CMakeLists.txt",
           "contains": "cmake_minimum_required(VERSION 3.21)"
         }
       ]
@@ -3597,6 +3714,7 @@
         "editor",
         "github-settings",
         "metaserver-worker",
+        "playtester",
         "protocol",
         "renderer",
         "resources",
@@ -3669,6 +3787,16 @@
         {
           "repository": "metaserver-worker",
           "path": ".github/workflows/check.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "playtester",
+          "path": ".github/workflows/release.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "playtester",
+          "path": ".github/workflows/validate.yml",
           "contains": "runs-on: ubuntu-24.04"
         },
         {
@@ -3812,6 +3940,7 @@
         "editor",
         "github-settings",
         "metaserver-worker",
+        "playtester",
         "protocol",
         "renderer",
         "resources",
@@ -3821,7 +3950,7 @@
         "website"
       ],
       "required": true,
-      "version": ">=20; wrapper release 22; Classic release 24; replacement releases 24.18.1",
+      "version": ">=20; wrapper release 22; Classic release 24; playtester and replacement releases 24.18.1",
       "version_source": "Worker/website package engines and exact release workflow lines",
       "license": "MIT",
       "source_url": "https://nodejs.org/",
@@ -3890,6 +4019,16 @@
           "contains": "\"node\": \">=20\""
         },
         {
+          "repository": "playtester",
+          "path": ".github/workflows/release.yml",
+          "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "playtester",
+          "path": ".github/workflows/release.yml",
+          "contains": "npx --yes"
+        },
+        {
           "repository": "protocol",
           "path": ".github/workflows/release.yml",
           "contains": "node-version: 24.18.1"
@@ -3939,6 +4078,7 @@
         "content",
         "content-1x",
         "devcontainer",
+        "playtester",
         "tools"
       ],
       "required": true,
@@ -3979,6 +4119,11 @@
           "repository": "devcontainer",
           "path": "windows/Dockerfile",
           "contains": "PYTHON_VERSION=3.14.6"
+        },
+        {
+          "repository": "playtester",
+          "path": "pyproject.toml",
+          "contains": "requires-python = \">=3.11\""
         }
       ]
     },

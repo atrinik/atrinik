@@ -7,23 +7,23 @@ description: Coordinate work across checkouts, profiles, worktrees, cleanup, rel
 
 ## Resolve scope and ownership
 
-Run commands from the `atrinik/atrinik` wrapper root.
+Run from the `atrinik/atrinik` wrapper root.
 
-1. Read root `AGENTS.md` and only task-relevant wrapper sources:
+1. Read root `AGENTS.md` and task-relevant wrapper sources:
    - ownership, cohorts, roles, and build contracts: `components.json`;
    - operator behavior: the matching `README.md` section;
    - layout, locking, trust, and lifecycle design: the matching
      `docs/ARCHITECTURE.md` section;
    - pre-split repositories: [repository migration](references/repository-migration.md).
-2. Resolve each logical component to its physical checkout and safe source root;
+2. Resolve each component to its physical checkout and safe source root;
    read that checkout's nearest `AGENTS.md` before editing.
 3. Keep implementation, tests, packages, and releases in the physical owner;
    keep only orchestration, composition, manifest, and wrapper docs here.
 
-Checkouts are independent ignored Git repositories. One `classic` worktree
-contains all five `classic-*` components; `content@main` and `content-1x@1.x`
-are separate checkouts. Keep wrapper VS Code composition under `.devcontainer/`
-and reusable images in the `devcontainer` checkout.
+Checkouts are independent ignored repositories. A `classic` worktree contains
+all five `classic-*` components; `content@main` and `content-1x@1.x` stay
+separate. Keep wrapper composition in `.devcontainer/` and reusable images in
+the `devcontainer` checkout.
 
 ## Prepare safe worktrees
 
@@ -46,12 +46,12 @@ clones.
 ./atrinik worktree create COMPONENT LABEL --branch TYPE/TOPIC
 ```
 
-Synchronize only clean primaries; never implicitly replace, move, or remove a
+Sync only clean primaries; never implicitly replace, move, or remove a
 dirty checkout or worktree. A logical classic selector creates the full
 repository under `workspace/worktrees/classic/LABEL`. Commit and push from each
 owning worktree.
 
-Reclaim completed review data only through preview-first cleanup:
+Reclaim review data only through preview-first cleanup:
 
 ```sh
 ./atrinik cleanup --dry-run --json
@@ -89,8 +89,8 @@ wrapper replacement build/runtime closure yet.
 ./atrinik build COMPONENT --profile REVIEW --test
 ```
 
-Selecting `classic`, its components, or its roles updates all five selectors to
-one root. Never treat a classic subdirectory as an independent worktree.
+Selecting `classic`, its components, or roles updates all five selectors to one
+root. Classic subdirectories are not independent worktrees.
 
 Classic server builds cache validated region maps only for matching clean
 inputs; dirty inputs regenerate. Runtimes do not overlay state, and topologies

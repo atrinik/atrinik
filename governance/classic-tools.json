@@ -22,15 +22,15 @@
       "purpose": "Headless classic client automation, navigation policy, and loopback dashboard.",
       "inputs": ["classic game service", "content runtime", "protocol bindings", "pathfinding library"],
       "outputs": ["player actions", "bot state", "operator dashboard", "benchmarks"],
-      "current_usage": ".github/workflows/check.yml builds and tests the bot; direct protocol operation remains a classic-only operator workflow.",
-      "owner_repository": "atrinik/client",
-      "owner_issue": "https://github.com/atrinik/client/issues/18",
-      "owner_milestone": "M4 — Shared editor and scalable presentation",
+      "current_usage": "Migration to atrinik/playtester preserves direct Classic protocol operation as a classic-only operator workflow.",
+      "owner_repository": "atrinik/playtester",
+      "owner_issue": "https://github.com/atrinik/playtester/issues/1",
+      "owner_milestone": "M1 — Standalone runner",
       "disposition": "migrate-then-retire",
-      "replacement_command": "Future released client automation SDK and headless-client command from atrinik/client#18.",
-      "licensing_method": "Keep the GPL implementation in tools. Treat behavior as public specification only unless a later path-level grant record proves complete history, sole authorship, identity, and embedded-material eligibility.",
+      "replacement_command": "The independently released atrinik/playtester command; a future client automation SDK may become an additional backend without owning campaign policy.",
+      "licensing_method": "Zoey Rose directly granted MIT relicensing for the wholly authored bot source. Keep the fetched GPL-2.0-or-later libatrinik dependency separate and report its combined-binary obligations.",
       "safety": "Do not expose its loopback control service remotely; isolate credentials and mutable memory; remove its duplicate transport and decoder after API parity.",
-      "verification": "cmake -S atrinik_bot -B build/atrinik-bot -G Ninja -DBUILD_TESTING=ON && cmake --build build/atrinik-bot && ctest --test-dir build/atrinik-bot --output-on-failure"
+      "verification": "Run the repository-owned CMake, native pathfinding, Python regression, and content-identity checks in atrinik/playtester."
     },
     {
       "id": "gridarta-converters",

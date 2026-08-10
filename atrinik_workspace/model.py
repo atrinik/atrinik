@@ -62,6 +62,7 @@ REQUIRED_COHORT_CHECKOUTS = {
     "classic": {
         "classic",
         "content-1x",
+        "playtester",
         "tools",
     },
 }
@@ -88,6 +89,7 @@ REQUIRED_STACK_PROVIDERS = {
         "libatrinik": "classic-libatrinik",
         "editor": "classic-editor",
         "content": "content-1x",
+        "playtester": "playtester",
         "tools": "tools",
         "sound": "sound",
         "resources": "resources",
@@ -106,6 +108,7 @@ LOGICAL_ROLES = {
     "content-toolkit",
     "website",
     "content",
+    "playtester",
     "tools",
     "sound",
     "resources",

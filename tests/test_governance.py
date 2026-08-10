@@ -225,6 +225,29 @@ class ClassicToolsInventoryTests(unittest.TestCase):
             if component["name"] in default_components:
                 self.assertNotIn("tools", component.get("requires", []))
 
+    def test_bot_migration_is_owned_by_the_classic_only_playtester(self) -> None:
+        bot = next(
+            entry
+            for entry in self.inventory["entries"]
+            if entry["id"] == "atrinik-bot"
+        )
+
+        self.assertEqual(bot["owner_repository"], "atrinik/playtester")
+        self.assertEqual(
+            bot["owner_issue"], "https://github.com/atrinik/playtester/issues/1"
+        )
+        self.assertIn("MIT", bot["licensing_method"])
+        self.assertIn("GPL", bot["licensing_method"])
+        self.assertNotIn("playtester", self.manifest["cohorts"]["default"])
+        self.assertIn("playtester", self.manifest["cohorts"]["classic"])
+        self.assertNotIn(
+            "playtester", self.manifest["stacks"]["default"]["components"]
+        )
+        self.assertEqual(
+            self.manifest["stacks"]["classic"]["providers"]["playtester"],
+            "playtester",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

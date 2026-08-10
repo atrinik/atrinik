@@ -33,6 +33,10 @@ components: `classic-client` from `client/`, `classic-server` from `server/`,
 `classic-protocol` from `protocol/`. `content` remains
 `atrinik/content@main` at `./content` for the replacement stack, while
 `content-1x` is `atrinik/content@1.x` at `./content-1x` for the classic stack.
+The classic-only `playtester` component occupies `atrinik/playtester@main` at
+`./playtester`, provides the `playtester` role, and requires the classic stack's
+`content`, `libatrinik`, and `protocol` providers. Its `build: none` contract
+keeps repository-owned installation and validation outside wrapper adapters.
 
 Manifest validation rejects duplicate checkout or component names, duplicate
 local destinations, unsafe or overlapping source roots within one checkout,
@@ -140,12 +144,12 @@ public HTTPS is the fallback when the wrapper has no recognized GitHub remote.
 With no explicit arguments, initialization resolves only the
 replacement/default cohort. `init --with classic` resolves the union of the
 default and classic cohorts; the option is additive and has no classic-only
-alias. The `classic` monorepo, GPL `tools`, and `content-1x@1.x` are absent from
-ordinary initialization. Explicit checkout or logical-component
-initialization remains available for partial workspaces. Aliases that own one
-physical checkout are deduplicated. Initialization is idempotent, stages clones
-away from their destination, and does not update or repurpose an existing
-checkout.
+alias. The `classic` monorepo, GPL `tools`, MIT `playtester`, and
+`content-1x@1.x` are absent from ordinary initialization. Explicit checkout or
+logical-component initialization remains available for partial workspaces.
+Aliases that own one physical checkout are deduplicated. Initialization is
+idempotent, stages clones away from their destination, and does not update or
+repurpose an existing checkout.
 
 Synchronization is intentionally narrower than initialization. With no names
 it visits only already-initialized default-cohort primaries; `--with classic`
