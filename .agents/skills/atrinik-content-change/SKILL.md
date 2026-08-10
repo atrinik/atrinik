@@ -5,36 +5,35 @@ description: Change authored content on `main` or `1.x`, including maps, archety
 
 # Atrinik content change
 
-Use `content@main` for replacement forward authoring and `content-1x@1.x` for
-classic maintenance. Never assume a format or generated artifact belongs on
-both lines; cross-line changes use separate worktrees, validation, commits, and
-pull requests. Add `atrinik-multi-repo-workspace` when another checkout is
-affected.
+For issue fixes, assess both `content@main` and `content-1x@1.x`. Shared
+authored changes normally need separate worktrees, validation, commits, and
+linked PRs on both lines; record an evidence-backed format, consumer, runtime,
+or provenance reason for any single-line exception. Never merge lines wholesale
+or share generated output. Use `main` for replacement forward authoring and
+`1.x` for Classic maintenance; add `atrinik-multi-repo-workspace` for cross-line
+work.
 
 ## Establish the contract
 
-1. Select the exact content checkout/branch, then read its root guide and the
-   nearest `arch/` or `maps/` guide.
-2. Use `tools/content_catalog` for stable domain identities and references.
-   Trace every affected map, archetype, animation, image, artifact, treasure,
-   faction, interface, and script reference.
+1. Select the exact checkout/branch and read its root and nearest `arch/` or
+   `maps/` guides.
+2. Use `tools/content_catalog` for stable identities and references; trace each
+   affected map, archetype, animation, image, artifact, treasure, faction,
+   interface, and script.
 3. Preserve layout, formatting, case, attribution, and per-asset licenses.
-   Keep unrelated normalization out of the diff. Never mask a missing
-   reference with an absolute path or generated placeholder.
-4. Treat embedded Python as classic runtime code. Keep runtime output in an
-   isolated generated directory and never overwrite mutable server state.
+   Exclude unrelated normalization and never mask missing references.
+4. Treat embedded Python as Classic runtime code. Isolate generated runtime
+   output and never overwrite mutable server state.
 
 ## Validate
 
-Run the checkout's canonical aggregate validator; it already performs contract,
-schema, syntax, and runtime-build validation:
+Run the checkout's aggregate contract, schema, syntax, and runtime validator:
 
 ```sh
 python3 tools/validate.py
 git diff --check
 ```
 
-Run `python3 tools/world_content_audit.py all` only when its read-only report is
-relevant, plus focused commands named by the changed domain. For live behavior,
-select the exact content worktree in a coherent profile and use wrapper-native
-build/topology commands. Use `atrinik-test-scenario` for repeatable state.
+Run focused or read-only world audits only when relevant. For live behavior,
+select the exact worktree in a coherent profile and use wrapper-native
+build/topology commands plus `atrinik-test-scenario` for repeatable state.

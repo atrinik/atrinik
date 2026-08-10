@@ -199,6 +199,57 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("## Scale and performance", checklist)
         self.assertIn("## Safety, security, and supply chain", checklist)
 
+    def test_content_issue_delivery_covers_both_release_lines(self) -> None:
+        content = " ".join(
+            (
+                ROOT / ".agents/skills/atrinik-content-change/SKILL.md"
+            ).read_text(encoding="utf-8").split()
+        )
+        delivery_root = ROOT / ".agents/skills/atrinik-issue-delivery"
+        delivery = " ".join(
+            (delivery_root / "SKILL.md").read_text(
+                encoding="utf-8"
+            ).split()
+        )
+        report = (delivery_root / "assets/deep-review-report.md").read_text(
+            encoding="utf-8"
+        )
+        checklist = (
+            delivery_root / "references/deep-review-checklist.md"
+        ).read_text(encoding="utf-8")
+
+        for marker in {
+            "For issue fixes, assess both `content@main` and `content-1x@1.x`",
+            (
+                "Shared authored changes normally need separate worktrees, "
+                "validation, commits, and linked PRs on both lines"
+            ),
+            (
+                "record an evidence-backed format, consumer, runtime, or "
+                "provenance reason for any single-line exception"
+            ),
+        }:
+            with self.subTest(surface="content", marker=marker):
+                self.assertIn(marker, content)
+        for marker in {
+            "assess `main` and `1.x`",
+            "separate bases",
+            "final-head checks",
+            "Paired: only the default-branch PR closes; companions link",
+            "companions link",
+            (
+                "A sole `main` PR closes. A sole `1.x` PR links without a "
+                "closing keyword; close its issue manually after merge"
+            ),
+            "per-target bases",
+        }:
+            with self.subTest(surface="delivery", marker=marker):
+                self.assertIn(marker, delivery)
+        self.assertIn("| Release line / owner |", report)
+        self.assertIn("cross-repository or cross-line", checklist)
+        self.assertIn("Issue-closing path", report)
+        self.assertIn("manual post-merge close", checklist)
+
     def test_removed_stale_routes_do_not_return(self) -> None:
         paths = [ROOT / "AGENTS.md"]
         paths.extend(sorted((ROOT / ".agents/skills").glob("*/SKILL.md")))
