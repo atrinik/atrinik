@@ -47,6 +47,13 @@ The wrapper owns these launch configurations because they compose the complete
 development workspace. The standalone `devcontainer` component owns only the
 published Linux and Windows toolchain images they reference.
 
+The workspace and container VS Code settings exclude the wrapper-owned
+`workspace/` and top-level `build/` trees from recursive file watching, and the
+root Pyright configuration excludes them from Python analysis. Primary
+component checkouts beside the wrapper remain indexed. Open a managed worktree
+under `workspace/worktrees/` as its own VS Code folder or window when it needs
+language-service coverage.
+
 ## Dependency and supply-chain ownership
 
 `supply-chain/inventory.json` records every supported repository and the owned

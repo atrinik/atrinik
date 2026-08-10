@@ -45,6 +45,41 @@ class DevcontainerTests(unittest.TestCase):
 
         self.assertEqual(set(config["features"]), set(lock["features"]))
 
+    def test_editor_excludes_generated_workspace_state(self) -> None:
+        default_config = self.load_config(".devcontainer/devcontainer.json")
+        windows_config = self.load_config(
+            ".devcontainer/windows-cross/devcontainer.json"
+        )
+        workspace_settings = self.load_config(".vscode/settings.json")
+        expected_watcher_excludes = {
+            "workspace/**": True,
+            "build/**": True,
+        }
+
+        for config in (default_config, windows_config):
+            settings = config["customizations"]["vscode"]["settings"]
+            self.assertEqual(
+                settings["files.watcherExclude"],
+                expected_watcher_excludes,
+            )
+
+        self.assertEqual(
+            workspace_settings["files.watcherExclude"],
+            expected_watcher_excludes,
+        )
+
+        pyright_config = self.load_config("pyrightconfig.json")
+        self.assertEqual(
+            pyright_config["exclude"],
+            [
+                "workspace",
+                "build",
+                "**/node_modules",
+                "**/__pycache__",
+                "**/.*",
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
