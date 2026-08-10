@@ -3024,6 +3024,7 @@ class RepositoryMigration:
                 "classic-libatrinik",
                 "classic-protocol",
                 "content-1x",
+                "playtester",
                 "tools",
                 "sound",
                 "resources",

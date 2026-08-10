@@ -6,7 +6,7 @@ This repository is a small, MIT-licensed coordinator for Atrinik's physical
 repositories and logical components. Each checkout remains a normal Git
 repository with its own branches, remotes, commits, and worktrees. A logical
 component may occupy that checkout's root or a declared source directory. The
-coordinator keeps the MIT replacement stack and the opt-in GPL classic
+coordinator keeps the MIT replacement stack and the opt-in playable classic
 stack as explicit, coherent sets. It supplies one command for safe
 initialization and synchronization, composes worktrees into stack-aware review
 profiles, builds components whose contracts are available, and shares
@@ -38,8 +38,8 @@ Open this wrapper repository in VS Code and choose **Dev Containers: Reopen in
 Container** to use the pinned Linux build environment. On first creation, the
 container runs `./atrinik init`; it clones only missing replacement/default
 repositories and validates existing checkouts without updating or replacing
-them. It never adds classic repositories, `content@1.x`, or GPL tools
-implicitly. The Windows cross-build configuration is available at
+them. It never adds classic repositories, `content@1.x`, the MIT playtester,
+or GPL tools implicitly. The Windows cross-build configuration is available at
 `.devcontainer/windows-cross/devcontainer.json` after the required component
 checkouts have been initialized.
 
@@ -153,7 +153,8 @@ initialization cohort. That includes the replacement MIT `server`, `client`,
 `editor`, `protocol`, `renderer`, `content-toolkit`, and `website` repositories;
 `content` from `atrinik/content@main`; compatible shared resources, sound, and
 metaserver code; and required development infrastructure. It does not clone
-`atrinik/classic`, `atrinik/content@1.x`, or the GPL `tools` repository.
+`atrinik/classic`, `atrinik/content@1.x`, `atrinik/playtester`, or the GPL
+`tools` repository.
 The replacement repositories have independently validated M1 build, package,
 provenance, and dependency contracts. Their wrapper manifest build/runtime
 adapters and complete service integration have not landed, so `default` is
@@ -194,13 +195,20 @@ the next time that topology name is launched.
 `--with classic` has one exact meaning: add the complete classic initialization
 cohort to the replacement/default cohort. It is not a classic-only mode. The
 cohort consists of one `atrinik/classic` checkout, a distinct `content-1x`
-checkout of `atrinik/content@1.x`, and the retained GPL `tools` repository.
+checkout of `atrinik/content@1.x`, the MIT `atrinik/playtester` checkout, and
+the retained GPL `tools` repository.
 The classic monorepo supplies logical `classic-server`, `classic-client`,
 `classic-editor`, `classic-libatrinik`, and `classic-protocol` components from
 its `server/`, `client/`, `editor/`, `libatrinik/`, and `protocol/` source
 directories. Compatible shared assets and infrastructure are reused from the
 default cohort. Rerunning either initialization mode is idempotent and never
 updates, rebranches, replaces, or repurposes an existing checkout.
+
+The `playtester` logical component provides the classic-only `playtester` role
+and declares `content`, `libatrinik`, and `protocol` inputs. Its wrapper build
+contract is `none`: initialization, profiles, worktrees, and supply-chain
+identity are coordinated here, while installation and tests remain owned by
+`atrinik/playtester`.
 
 Checkout entries have explicit local destinations; normally these are direct
 children of the wrapper root such as `./client`, `./classic`, `./content`, and
@@ -220,9 +228,9 @@ checkouts are reported as optional rather than invalidating status or a
 built-in profile.
 
 The manifest assigns logical roles such as `client`, `server`, `protocol`,
-`libatrinik`, and `content` to providers within each stack. The built-in
-`default` and `classic` profiles resolve exactly one compatible provider for
-every role they require.
+`libatrinik`, `content`, and `playtester` to providers within each stack. The
+built-in `default` and `classic` profiles resolve exactly one compatible
+provider for every role they require.
 A runnable service closure cannot combine replacement and classic
 implementations; shared read-only repositories are reusable only where the
 manifest declares them compatible.

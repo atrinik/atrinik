@@ -2,32 +2,33 @@
 
 ## Overview
 
-- This MIT Python 3.11+ repository coordinates independent Atrinik Git
-  repositories, not component source. `./atrinik` and `components.json` manage
-  profiles, worktrees, builds, supervised runtimes, cleanup, migration, and
-  supply-chain reports.
+- This MIT Python 3.11+ repository coordinates Atrinik repositories, not
+  component source.
+  `./atrinik` and `components.json` manage profiles, worktrees, builds, runtimes,
+  cleanup, migration, and supply-chain reports.
 - `default` selects the MIT replacement stack (Rust, Go, Protobuf, and Astro).
   Its standalone M1 foundations lack wrapper build/runtime integration.
-  `classic` selects the playable C17/CMake/Ninja stack. Never mix providers or
-  route unavailable replacement adapters through classic.
+  `classic` selects playable C17/CMake/Ninja plus the MIT playtester. Never mix
+  providers or route unavailable replacement adapters through classic.
 
 ## Folder structure and ownership
 
-- `atrinik` is the CLI; `atrinik_workspace/` owns orchestration and `tests/` the
-  standard-library `unittest` suite.
+- `atrinik` is the CLI, `atrinik_workspace/` owns orchestration, and `tests/`
+  the `unittest` suite.
 - Checkout, cohort, stack, role, source, and build contracts live in
   `components.json`; machine policy in `supply-chain/` and `governance/`; longer
   guidance in `docs/`, `README.md`, and `CONTRIBUTING.md`.
-- Task workflows live in `.agents/skills/`, workspace composition in
-  `.devcontainer/`, CI/release in `.github/`, and helpers in `scripts/`.
-- Manifest destinations such as `client/`, `server/`, and `classic/` are
-  independent ignored repositories; `workspace/` and `build/` are ignored
-  generated state. Root `git status` omits them.
-- Resolve ownership through `components.json` and the owning checkout's nearest
-  `AGENTS.md`. Keep implementation, tests, packages, and component releases in
-  that physical repository.
-- The `classic/` monorepo provides five `classic-*` components. `content/` is
-  `atrinik/content@main`; `content-1x/` is its separate `1.x` checkout.
+- Workflows live in `.agents/skills/`, composition in `.devcontainer/`,
+  CI/release in `.github/`, and helpers in `scripts/`.
+- Manifest destinations (`client/`, `server/`, `classic/`) are independent
+  ignored repositories; `workspace/` and `build/` are ignored generated state,
+  so root `git status` omits them.
+- Resolve ownership through `components.json` and the checkout's nearest
+  `AGENTS.md`; keep implementation, tests, packages, and releases there.
+- `classic/` provides five `classic-*` components. `content/` is
+  `atrinik/content@main`; `content-1x/` its `1.x` checkout. `playtester/` is
+  classic-only `atrinik/playtester` with wrapper `build: none` and
+  repository-owned validation.
   `.devcontainer/` owns wrapper composition and `devcontainer/` reusable images.
 
 ## Core behaviors and patterns
@@ -40,15 +41,14 @@
   issue-to-ready-PR delivery; it stops before merge.
 - Never replace or move a dirty primary checkout, remove a dirty worktree, or
   overwrite mutable server data. Preserve recoverable migration inputs.
-- Cleanup is explicit and preview-first. Run
+- Cleanup is explicit and preview-first: run
   `./atrinik cleanup --dry-run --json` before the same scoped `--apply`; never
-  invoke cleanup implicitly.
-  Preserve dirty, detached, locked, active, referenced, or uncertain targets.
-  Historical eligibility fails closed. The multi-repository skill owns the
-  full cleanup proof and retention contract.
-- A worktree belongs to its physical checkout. Selecting `classic`, any
-  `classic-*` component, or one of its roles selects one root for all five;
-  profile resolution appends each manifest source directory.
+  invoke it implicitly. Preserve dirty, detached, locked, active, referenced,
+  or uncertain targets. Historical eligibility fails closed; the
+  multi-repository skill owns cleanup proof and retention.
+- Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
+  component, or one of its roles selects one root for all five; profiles append
+  manifest source directories.
 - Use `./atrinik path`, `topology show`, `up`, `ps`, `logs`, and `down`. Do not
   reconstruct managed build, PID, log, lock, runtime, or state paths. Give
   concurrent topologies distinct names, states, ports, and client config.

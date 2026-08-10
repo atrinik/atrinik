@@ -47,6 +47,7 @@ class CohortWorkspaceTests(unittest.TestCase):
         )
         self.assertNotIn("classic", selected)
         self.assertNotIn("content-1x", selected)
+        self.assertNotIn("playtester", selected)
         self.assertNotIn("tools", selected)
 
     def test_with_classic_is_additive_and_complete(self) -> None:
@@ -63,6 +64,7 @@ class CohortWorkspaceTests(unittest.TestCase):
         }
         self.assertEqual(selected, expected)
         self.assertIn("content-1x", selected)
+        self.assertIn("playtester", selected)
         self.assertIn("tools", selected)
 
     def test_with_classic_leaves_existing_default_checkouts_byte_identical(self) -> None:
