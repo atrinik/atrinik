@@ -348,11 +348,22 @@ The currently playable classic build flow is:
 ~~~text
 selected content-1x -> build_runtime.py -> isolated content/lib + content/maps
 selected tracked resource allowlist -> isolated resource view
-selected classic protocol/library + sound -> client source view -> CMake/Ninja
-selected classic protocol/library --------> server source view -> CMake/Ninja
+full Classic closure -> integrated source view -> one protocol/libatrinik graph
+                                             +-> client targets -> CMake/Ninja
+                                             +-> server targets -> CMake/Ninja
+component-only client/server request -> standalone source view -> CMake/Ninja
 selected Classic + content + resources ---> offline worldmaker -> region-map cache
 selected Worker -------------------------> npm source view -> npm run check
 ~~~
+
+The integrated graph is selected only when client, server, protocol, and
+libatrinik resolve to sibling directories in one physical Classic checkout.
+Its binaries remain below a distinct `build/integrated` tree, and per-role
+marker records select those artifacts for later runtime staging. A successful
+standalone component build updates only that role's marker. This prevents an
+older graph from being selected merely because its output directory exists,
+while keeping partial Classic checkouts and component-specific FetchContent
+validation supported.
 
 The replacement MIT `server`, `client`, `editor`, `protocol`, `renderer`,
 `content-toolkit`, and `website` repositories have validated standalone M1

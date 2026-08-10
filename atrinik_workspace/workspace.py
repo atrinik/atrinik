@@ -1387,14 +1387,21 @@ class Workspace:
                 self._collect_content(root, selected)
             if "server" in targets:
                 self._stage_resources(root, selected)
-            if "protocol" in targets:
-                self._build_protocol(root, selected, tests)
-            if "libatrinik" in targets:
-                self._build_library(root, selected, tests)
-            if "client" in targets:
-                self._build_client(root, selected, tests)
+            integrated_classic = self._uses_integrated_classic_build(
+                targets, selected
+            )
+            if integrated_classic:
+                self._build_integrated_classic(root, selected, tests)
+            else:
+                if "protocol" in targets:
+                    self._build_protocol(root, selected, tests)
+                if "libatrinik" in targets:
+                    self._build_library(root, selected, tests)
+                if "client" in targets:
+                    self._build_client(root, selected, tests)
+                if "server" in targets:
+                    self._build_server(root, selected, tests)
             if "server" in targets:
-                self._build_server(root, selected, tests)
                 self._generate_region_maps(root, profile_name, selected)
             if "metaserver-worker" in targets:
                 self._build_worker(root, selected)
@@ -1727,6 +1734,96 @@ class Workspace:
     def _build_protocol(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
         self._cmake(selected["protocol"], root / "build" / "protocol", [], tests)
 
+    @staticmethod
+    def _uses_integrated_classic_build(
+        targets: list[str], selected: dict[str, Path]
+    ) -> bool:
+        shared_roles = {"client", "server", "protocol", "libatrinik"}
+        if not shared_roles.issubset(targets) or not shared_roles.issubset(selected):
+            return False
+        checkout = selected["client"].parent.resolve()
+        return (checkout / "CMakeLists.txt").is_file() and all(
+            selected[role].resolve() == checkout / role for role in shared_roles
+        )
+
+    @staticmethod
+    def _record_classic_graph(root: Path, roles: set[str], graph: str) -> None:
+        for role in roles:
+            atomic_json(
+                root / "build" / f".{role}-graph.json",
+                {
+                    "schema_version": 1,
+                    "purpose": "classic-build-graph",
+                    "graph": graph,
+                },
+            )
+
+    @staticmethod
+    def _classic_binary_directory(root: Path, role: str) -> Path:
+        marker = root / "build" / f".{role}-graph.json"
+        try:
+            record = load_json(marker)
+        except (OSError, ValueError, WorkspaceError):
+            record = {}
+        if (
+            record.get("schema_version") == 1
+            and record.get("purpose") == "classic-build-graph"
+            and record.get("graph") == "integrated"
+        ):
+            return root / "build" / "integrated" / role
+        return root / "build" / role
+
+    def _build_integrated_classic(
+        self, root: Path, selected: dict[str, Path], tests: bool
+    ) -> None:
+        checkout = selected["client"].parent.resolve()
+        view = self._profile_source_view(
+            root, "integrated", checkout, {"build", "client", "server"}
+        )
+        client = self._profile_source_view(
+            root,
+            "integrated/client",
+            selected["client"],
+            {"build", "sound"},
+        )
+        (client / "sound").symlink_to(selected["sound"], target_is_directory=True)
+        server = self._profile_source_view(
+            root,
+            "integrated/server",
+            selected["server"],
+            {
+                "atrinik-server",
+                "build",
+                "data",
+                "lib",
+                "maps",
+                "resources",
+                "runtime",
+                "libplugin_arena.so",
+                "libplugin_python.so",
+            },
+            {"install_data"},
+        )
+        runtime = server / "runtime"
+        runtime.mkdir()
+        (runtime / "content").symlink_to(
+            root / "runtime" / "content", target_is_directory=True
+        )
+        (server / "resources").symlink_to(
+            root / "runtime" / "resources", target_is_directory=True
+        )
+        self._cmake(
+            view,
+            root / "build" / "integrated",
+            [
+                "-DENABLE_WARNING_ERRORS=ON",
+                "-DPACKAGE_TYPE=none",
+                "-DENABLE_PYTHON_PLUGIN=ON",
+            ],
+            tests,
+        )
+        self._record_classic_graph(root, {"client", "server"}, "integrated")
+
     def _build_library(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
         self._cmake(
             selected["libatrinik"],
@@ -1754,6 +1851,7 @@ class Workspace:
             ],
             tests,
         )
+        self._record_classic_graph(root, {"client"}, "standalone")
 
     def _build_server(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
         view = self._profile_source_view(
@@ -1796,6 +1894,7 @@ class Workspace:
             ],
             tests,
         )
+        self._record_classic_graph(root, {"server"}, "standalone")
 
     def _region_map_inputs(
         self, profile_name: str, selected: dict[str, Path]
@@ -3134,7 +3233,9 @@ class Workspace:
                         "log": str(topology_root / "server.log"),
                     }
                 if "client" in selected_services:
-                    executable = root / "build" / "client" / "atrinik"
+                    executable = (
+                        self._classic_binary_directory(root, "client") / "atrinik"
+                    )
                     working = self._prepare_topology_client_runtime(
                         topology_root, selected
                     )
@@ -3410,7 +3511,7 @@ class Workspace:
         self._validate_state(state)
         fingerprint = self._server_identity_fingerprint(state)
         root = self.build("client", profile_name, tests=False)
-        executable = root / "build" / "client" / "atrinik"
+        executable = self._classic_binary_directory(root, "client") / "atrinik"
         working = root / "sources" / "client"
         if not executable.is_file():
             raise WorkspaceError(f"client executable is missing: {executable}")
@@ -3547,7 +3648,7 @@ class Workspace:
         resources: Path,
     ) -> None:
         source = selected["server"]
-        binary = root / "build" / "server"
+        binary = self._classic_binary_directory(root, "server")
         links = {
             "atrinik-server": binary / "atrinik-server",
             "libplugin_arena.so": binary / "libplugin_arena.so",

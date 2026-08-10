@@ -513,6 +513,111 @@ class WorkspaceTests(unittest.TestCase):
         selected = build_resolved.call_args.args[4]
         self.assertEqual(set(selected), {"content"})
 
+    def test_integrated_classic_build_requires_one_complete_monorepo(self) -> None:
+        checkout = self.root / "classic"
+        checkout.mkdir()
+        (checkout / "CMakeLists.txt").write_text("project(classic)\n", encoding="utf-8")
+        selected = {}
+        for role in ("client", "server", "protocol", "libatrinik"):
+            selected[role] = checkout / role
+            selected[role].mkdir()
+
+        self.assertTrue(
+            self.workspace._uses_integrated_classic_build(
+                ["protocol", "libatrinik", "client", "server"], selected
+            )
+        )
+        self.assertFalse(
+            self.workspace._uses_integrated_classic_build(
+                ["protocol", "libatrinik", "client"], selected
+            )
+        )
+        selected["server"] = self.root / "other" / "server"
+        self.assertFalse(
+            self.workspace._uses_integrated_classic_build(
+                ["protocol", "libatrinik", "client", "server"], selected
+            )
+        )
+
+    def test_integrated_classic_build_creates_one_nested_source_graph(self) -> None:
+        checkout = self.root / "classic"
+        for role in ("client", "server", "protocol", "libatrinik"):
+            (checkout / role).mkdir(parents=True)
+            (checkout / role / "README").write_text(role + "\n", encoding="utf-8")
+        (checkout / "CMakeLists.txt").write_text(
+            "project(classic)\n", encoding="utf-8"
+        )
+        (checkout / "server" / "install_data").mkdir()
+        sound = self.root / "sound"
+        sound.mkdir()
+        selected = {
+            role: checkout / role
+            for role in ("client", "server", "protocol", "libatrinik")
+        }
+        selected["sound"] = sound
+        root = self.workspace.paths.builds / "profiles" / "classic-test"
+        root.mkdir(parents=True)
+        (root / "runtime" / "content").mkdir(parents=True)
+        (root / "runtime" / "resources").mkdir()
+
+        with mock.patch.object(self.workspace, "_cmake") as cmake:
+            self.workspace._build_integrated_classic(root, selected, tests=True)
+
+        cmake.assert_called_once_with(
+            root / "sources" / "integrated",
+            root / "build" / "integrated",
+            [
+                "-DENABLE_WARNING_ERRORS=ON",
+                "-DPACKAGE_TYPE=none",
+                "-DENABLE_PYTHON_PLUGIN=ON",
+            ],
+            True,
+        )
+        self.assertEqual(
+            (root / "sources" / "integrated" / "client" / "sound").resolve(),
+            sound,
+        )
+        self.assertEqual(
+            (
+                root
+                / "sources"
+                / "integrated"
+                / "server"
+                / "runtime"
+                / "content"
+            ).resolve(),
+            root / "runtime" / "content",
+        )
+        self.assertEqual(
+            self.workspace._classic_binary_directory(root, "server"),
+            root / "build" / "integrated" / "server",
+        )
+
+    def test_classic_binary_directory_tracks_last_successful_graph(self) -> None:
+        root = self.workspace.paths.builds / "profiles" / "classic-test"
+        (root / "build").mkdir(parents=True)
+
+        self.assertEqual(
+            self.workspace._classic_binary_directory(root, "client"),
+            root / "build" / "client",
+        )
+        self.workspace._record_classic_graph(
+            root, {"client", "server"}, "integrated"
+        )
+        self.assertEqual(
+            self.workspace._classic_binary_directory(root, "client"),
+            root / "build" / "integrated" / "client",
+        )
+        self.workspace._record_classic_graph(root, {"client"}, "standalone")
+        self.assertEqual(
+            self.workspace._classic_binary_directory(root, "client"),
+            root / "build" / "client",
+        )
+        self.assertEqual(
+            self.workspace._classic_binary_directory(root, "server"),
+            root / "build" / "integrated" / "server",
+        )
+
     def test_profile_schema_namespace_leaves_old_partial_build_inert(self) -> None:
         selected = {
             "resources": self.workspace.paths.repositories / "resources"
