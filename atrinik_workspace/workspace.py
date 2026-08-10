@@ -23,6 +23,8 @@ import tempfile
 import time
 from typing import Any, Iterator, TextIO
 
+from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
+
 from .model import (
     MANAGED_MARKER,
     SCHEMA_VERSION,
@@ -2969,6 +2971,8 @@ class Workspace:
         port: int | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
+        if "client" in selected_services:
+            client_launch_label(profile_name, name)
         if "server" not in selected_services and port is not None:
             raise WorkspaceError("--port requires the server service")
         self._require_classic_contracts(profile_name, set(selected_services))
@@ -3356,6 +3360,7 @@ class Workspace:
         dry_run: bool,
     ) -> Path:
         self._validate_run_port(port)
+        launch_label = client_launch_label(profile_name)
         self._require_classic_contracts(profile_name, {"client"})
         state = self._state_location(state_name)
         self._validate_state(state)
@@ -3374,10 +3379,18 @@ class Workspace:
         ]
         print(f"state: {state}")
         print(f"cwd: {working}")
+        print(f"launch label: {launch_label}")
         print(f"command: {display_arguments(command)}")
         if not dry_run:
             self._require_client_display()
-            run(command, cwd=working, diagnostics_to_stderr=False)
+            environment = os.environ.copy()
+            environment[CLIENT_LAUNCH_LABEL_ENV] = launch_label
+            run(
+                command,
+                cwd=working,
+                env=environment,
+                diagnostics_to_stderr=False,
+            )
         return executable
 
     def run_server(

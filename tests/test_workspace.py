@@ -15,6 +15,7 @@ import unittest
 from unittest import mock
 
 from atrinik_workspace.migration import rename_no_replace as real_rename_no_replace
+from atrinik_workspace.launch_identity import client_launch_label
 from atrinik_workspace.model import (
     MANAGED_MARKER,
     WorkspaceError,
@@ -993,9 +994,11 @@ class WorkspaceTests(unittest.TestCase):
         (build_root / "sources" / "client").mkdir(parents=True)
         executable.write_text(
             "#!/usr/bin/env python3\n"
-            "import os, time\n"
+            "import os, sys, time\n"
             "print('client ready', flush=True)\n"
+            "print('arguments=' + repr(sys.argv[1:]), flush=True)\n"
             "print('config=' + os.environ['ATRINIK_CONFIG_DIR'], flush=True)\n"
+            "print('launch=' + os.environ['ATRINIK_LAUNCH_LABEL'], flush=True)\n"
             "while True:\n"
             "    time.sleep(0.1)\n",
             encoding="utf-8",
@@ -1052,6 +1055,23 @@ class WorkspaceTests(unittest.TestCase):
             self.assertIn(
                 str(self.workspace.paths.topologies / "review" / "client-config"),
                 log.read_text(),
+            )
+            self.assertIn("launch=topology review - profile default", log.read_text())
+            persisted_spec = (
+                self.workspace.paths.topologies / "review" / "spec.json"
+            ).read_text()
+            self.assertNotIn("ATRINIK_LAUNCH_LABEL", persisted_spec)
+            self.assertNotIn("topology review - profile default", persisted_spec)
+
+            second_log = self.workspace.paths.topologies / "review-two" / "client.log"
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline and (
+                not second_log.is_file() or "launch=" not in second_log.read_text()
+            ):
+                time.sleep(0.05)
+            self.assertIn(
+                "launch=topology review-two - profile default",
+                second_log.read_text(),
             )
 
             with mock.patch("builtins.print") as output:
@@ -1117,6 +1137,7 @@ class WorkspaceTests(unittest.TestCase):
             "import os, sys, time\n"
             "print(repr(sys.argv[1:]), flush=True)\n"
             "print('config=' + os.environ['ATRINIK_CONFIG_DIR'], flush=True)\n"
+            "print('launch=' + os.environ['ATRINIK_LAUNCH_LABEL'], flush=True)\n"
             "while True:\n"
             "    time.sleep(0.1)\n",
             encoding="utf-8",
@@ -1185,6 +1206,10 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("'--connect=127.0.0.1'", client_log.read_text())
         self.assertIn("'--stun_server=off'", client_log.read_text())
         self.assertIn("'--nometa'", client_log.read_text())
+        self.assertIn(
+            "launch=topology server-review - profile default",
+            client_log.read_text(),
+        )
         self.assertIn(
             str(
                 self.workspace.paths.topologies
@@ -1611,9 +1636,11 @@ class WorkspaceTests(unittest.TestCase):
         with (
             mock.patch.object(self.workspace, "build", return_value=build_root),
             mock.patch("builtins.print") as output,
+            mock.patch("atrinik_workspace.workspace.run") as execute,
+            mock.patch.object(self.workspace, "_require_client_display"),
         ):
             result = self.workspace.run_client(
-                "default", "default", 1731, ["--fullscreen"], True
+                "default", "default", 1731, ["--fullscreen"], False
             )
 
         self.assertEqual(result, executable)
@@ -1622,6 +1649,17 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("--stun_server=off", rendered)
         self.assertIn("--nometa", rendered)
         self.assertIn("--fullscreen", rendered)
+        self.assertIn("launch label: profile default (direct run)", rendered)
+        environment = execute.call_args.kwargs["env"]
+        self.assertEqual(
+            environment["ATRINIK_LAUNCH_LABEL"],
+            "profile default (direct run)",
+        )
+
+    def test_client_launch_label_is_bounded(self) -> None:
+        long_profile = "p" * 96
+        with self.assertRaisesRegex(WorkspaceError, "launch label exceeds 96 bytes"):
+            client_launch_label(long_profile)
 
     def test_foreground_client_requires_initialized_server_identity(self) -> None:
         server = self.workspace.paths.repositories / "server"
