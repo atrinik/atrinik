@@ -234,7 +234,8 @@ class AgentGuidanceTests(unittest.TestCase):
             "assess `main` and `1.x`",
             "separate bases",
             "final-head checks",
-            "canonical default-branch PR",
+            "paired delivery, only the canonical default-branch PR closes while companions link",
+            "companions link",
             "sole applicable PR is canonical",
             "per-target bases",
         }:
