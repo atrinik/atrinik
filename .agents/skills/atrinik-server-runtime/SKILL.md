@@ -5,15 +5,18 @@ description: Run or diagnose isolated classic servers and supervised topologies 
 
 # Atrinik server runtime
 
-Use the wrapper for build, collection, state locking, supervision, logs, and
-cleanup. Do not reconstruct internal paths or invoke generated binaries when a
-wrapper command owns the operation.
+The wrapper owns builds, collection, state locks, supervision, logs, and
+cleanup. Never reconstruct its paths or invoke generated binaries.
 
-1. Read the workspace and selected classic server/content/resource guides.
-2. Select a coherent classic-derived profile and inspect it with `profile show`
-   and `topology show`.
-3. Use a distinct registered state for each concurrent topology. Never replace
-   source, share live state, or edit wrapper-managed runtime files.
+Classic preparation owns disposable `assets` staging. Generated `data/*`,
+exact-profile `client-maps/*`, and resources use authenticated QUIC by default;
+`http_url` only names an optional external HTTP(S) origin. Never stage assets in
+state or restore a bundled HTTP listener.
+
+1. Read the workspace and selected server/content/resource guides.
+2. Inspect a coherent classic-derived profile and topology.
+3. Give concurrent topologies distinct registered states. Never replace source,
+   share live state, or edit managed runtime files.
 
 ```sh
 ./atrinik build server --profile PROFILE --test
@@ -24,9 +27,7 @@ wrapper command owns the operation.
 ./atrinik down NAME
 ```
 
-Let `up` allocate a port unless an exact distinct port is required. Separate
-build, collection, state, plugin, network, and gameplay failures before editing
-code. Use `atrinik-test-scenario` for a provisioned account/character; never
-handcraft saves. Inspect relevant service logs, state exact actions/results,
-always stop the topology, and reset only scenario-owned state with `scenario
-reset`. Finish with each changed repository's tests and `git diff --check`.
+Let `up` allocate a port unless a distinct fixed port is required. Diagnose
+build, state, plugin, network, and gameplay failures separately. Use
+`atrinik-test-scenario` for accounts; never handcraft saves. Record actions and
+logs, stop the topology, reset only scenario state, and run owner validation.

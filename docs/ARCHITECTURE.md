@@ -391,15 +391,15 @@ First use initializes a state atomically from the selected server's
 inside a server source worktree is rejected. Replacement runtime preparation
 remains unavailable until its native component contracts land.
 
-The server's configured HTTP asset root is a disposable runtime view. Its
-`data` entry points at the named state's existing `http/data`, while its
-`client-maps` entry points at the validated generated cache. A supervised
-topology copies that cache into its owned runtime before launch, so a later
-build cannot change the server's immutable startup asset snapshot. Fresh and
-registered states therefore receive the selected generated maps without
-writing them into mutable state. The cache follows marker-owned profile-build
-cleanup; topology copies follow topology retention and are replaced on the
-next launch of that topology name.
+The server's configured `assetspath` is a disposable transport-neutral runtime
+view. Its real `data` directory receives generated core data, while its
+`client-maps` directory copies the validated generated cache. Neither belongs to
+the named persistent state. A supervised topology copies the cache into its
+owned runtime before launch, so a later build cannot change the server's
+immutable startup asset snapshot. QUIC serves the snapshot by default;
+`http_url` separately advertises an optional operator-managed HTTP(S) origin.
+The cache follows marker-owned profile-build cleanup; topology copies follow
+topology retention and are replaced on the next launch of that topology name.
 
 The coordinator takes an advisory exclusive lock next to the state directory
 before build/runtime preparation and holds it for the lifetime of a launched
