@@ -32,7 +32,8 @@ from atrinik_workspace.workspace import (
     _remote_matches as real_remote_matches,
     display_arguments,
     exclusive_lock,
-    replace_directory as workspace_replace_directory,
+    remove_owned_tree,
+    replace_runtime_directory as workspace_replace_directory,
     run as workspace_run,
 )
 
@@ -829,7 +830,7 @@ class WorkspaceTests(unittest.TestCase):
             )
 
         with mock.patch(
-            "atrinik_workspace.workspace.replace_directory",
+            "atrinik_workspace.workspace.replace_runtime_directory",
             side_effect=replace_then_advance,
         ):
             with self.assertRaisesRegex(WorkspaceError, "changed during staging"):
@@ -1390,22 +1391,28 @@ class WorkspaceTests(unittest.TestCase):
     def test_replace_directory_cleanup_failure_keeps_committed_output(self) -> None:
         output = self.root / "output"
         output.mkdir()
+        (output / "first").write_text("delete first\n", encoding="utf-8")
         (output / "payload").write_text("previous\n", encoding="utf-8")
         staging = self.root / "staging"
         staging.mkdir()
         (staging / "payload").write_text("new\n", encoding="utf-8")
-        real_remove = shutil.rmtree
+        real_unlink = os.unlink
 
-        def fail_backup_cleanup(path: Path, **kwargs: object) -> None:
-            if Path(path).name == "previous" and Path(path).parent.name.startswith(
-                ".previous-"
-            ):
-                (Path(path) / "payload").unlink(missing_ok=True)
+        def fail_backup_cleanup(
+            path: object, *args: object, **kwargs: object
+        ) -> None:
+            directory_fd = kwargs.get("dir_fd")
+            parent = (
+                Path(f"/proc/self/fd/{directory_fd}").resolve()
+                if isinstance(directory_fd, int)
+                else None
+            )
+            if path == "payload" and parent is not None and parent.name == "previous":
                 raise PermissionError("read only")
-            real_remove(path, **kwargs)
+            real_unlink(path, *args, **kwargs)
 
         with mock.patch(
-            "atrinik_workspace.workspace.shutil.rmtree",
+            "atrinik_workspace.workspace.os.unlink",
             side_effect=fail_backup_cleanup,
         ):
             workspace_replace_directory(output, staging, ".previous-")
@@ -1470,6 +1477,22 @@ class WorkspaceTests(unittest.TestCase):
             (output / "payload").read_text(encoding="utf-8"), "previous\n"
         )
         self.assertFalse(pending.exists())
+
+    def test_owned_tree_removal_refuses_nested_mount_before_deletion(self) -> None:
+        owned = self.root / "owned"
+        nested = owned / "nested"
+        nested.mkdir(parents=True)
+        payload = nested / "payload"
+        payload.write_text("preserve\n", encoding="utf-8")
+
+        with mock.patch(
+            "atrinik_workspace.workspace._descriptor_is_mount",
+            side_effect=[False, True],
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
+                remove_owned_tree(owned)
+
+        self.assertEqual(payload.read_text(encoding="utf-8"), "preserve\n")
 
     def test_topology_runtime_install_rejects_post_copy_replacement(self) -> None:
         topology = self.root / "topology"
@@ -2566,39 +2589,6 @@ class WorkspaceTests(unittest.TestCase):
         with exclusive_lock(Path(f"{state}.lock"), "test state"):
             with self.assertRaisesRegex(WorkspaceError, "already in use"):
                 self.workspace.scenario_reset("locked")
-
-    def test_scenario_reset_recovers_state_before_loading_scenario(self) -> None:
-        root = self.workspace.paths.scenarios / "recovery"
-        pending = root / ".recovery-state-previous-pending"
-        previous = pending / "previous"
-        previous.mkdir(parents=True)
-        (previous / "payload").write_text("previous\n", encoding="utf-8")
-        atomic_json(
-            pending / MANAGED_MARKER,
-            {
-                "schema_version": 1,
-                "purpose": "replaced-directory-backup",
-                "output": "state",
-            },
-        )
-
-        def observe_recovered_state(name: str) -> dict[str, object]:
-            self.assertEqual(name, "recovery")
-            self.assertEqual(
-                (root / "state" / "payload").read_text(encoding="utf-8"),
-                "previous\n",
-            )
-            raise WorkspaceError("stop after recovery")
-
-        with mock.patch.object(
-            self.workspace,
-            "_load_scenario",
-            side_effect=observe_recovered_state,
-        ):
-            with self.assertRaisesRegex(WorkspaceError, "stop after recovery"):
-                self.workspace._scenario_reset("recovery")
-
-        self.assertFalse(pending.exists())
 
     def test_foreground_client_pins_matching_server_state(self) -> None:
         server = self.workspace.paths.repositories / "server"

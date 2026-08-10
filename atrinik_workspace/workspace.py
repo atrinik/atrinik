@@ -159,16 +159,143 @@ def git(
     return run(["git", "-C", str(path), *arguments], capture=capture, trace=trace)
 
 
+def _descriptor_is_mount(descriptor: int) -> bool:
+    return os.path.ismount(Path(f"/proc/self/fd/{descriptor}").resolve())
+
+
+def _prepare_owned_tree_removal(
+    descriptor: int, device: int, display: Path
+) -> None:
+    root = os.fstat(descriptor)
+    if not stat.S_ISDIR(root.st_mode) or root.st_dev != device:
+        raise WorkspaceError(f"owned removal crossed a filesystem boundary: {display}")
+    os.fchmod(descriptor, stat.S_IRWXU)
+    for name in sorted(os.listdir(descriptor)):
+        child_display = display / name
+        child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+        if os.path.ismount(child_display):
+            raise WorkspaceError(
+                f"owned removal encountered a mount: {child_display}"
+            )
+        if stat.S_ISDIR(child.st_mode):
+            if child.st_dev != device:
+                raise WorkspaceError(
+                    f"owned removal encountered a mount: {child_display}"
+                )
+            os.chmod(
+                name,
+                stat.S_IRWXU,
+                dir_fd=descriptor,
+                follow_symlinks=False,
+            )
+            try:
+                child_descriptor = os.open(
+                    name,
+                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                    dir_fd=descriptor,
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    f"owned removal directory changed: {child_display}"
+                ) from error
+            try:
+                opened = os.fstat(child_descriptor)
+                if (
+                    opened.st_dev != child.st_dev
+                    or opened.st_ino != child.st_ino
+                    or _descriptor_is_mount(child_descriptor)
+                ):
+                    raise WorkspaceError(
+                        f"owned removal encountered a mount: {child_display}"
+                    )
+                _prepare_owned_tree_removal(
+                    child_descriptor, device, child_display
+                )
+            finally:
+                os.close(child_descriptor)
+
+
+def _remove_owned_tree_contents(
+    descriptor: int, device: int, display: Path
+) -> None:
+    for name in sorted(os.listdir(descriptor)):
+        child_display = display / name
+        child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+        if os.path.ismount(child_display):
+            raise WorkspaceError(
+                f"owned removal encountered a mount: {child_display}"
+            )
+        if stat.S_ISDIR(child.st_mode):
+            if child.st_dev != device:
+                raise WorkspaceError(
+                    f"owned removal encountered a mount: {child_display}"
+                )
+            try:
+                child_descriptor = os.open(
+                    name,
+                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                    dir_fd=descriptor,
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    f"owned removal directory changed: {child_display}"
+                ) from error
+            try:
+                opened = os.fstat(child_descriptor)
+                if (
+                    opened.st_dev != child.st_dev
+                    or opened.st_ino != child.st_ino
+                    or _descriptor_is_mount(child_descriptor)
+                ):
+                    raise WorkspaceError(
+                        f"owned removal encountered a mount: {child_display}"
+                    )
+                _remove_owned_tree_contents(
+                    child_descriptor, device, child_display
+                )
+            finally:
+                os.close(child_descriptor)
+            os.rmdir(name, dir_fd=descriptor)
+        else:
+            os.unlink(name, dir_fd=descriptor)
+
+
 def remove_owned_tree(path: Path) -> None:
-    os.chmod(path, stat.S_IRWXU, follow_symlinks=False)
-    for directory, dirnames, _filenames in os.walk(path, followlinks=False):
-        directory_path = Path(directory)
-        os.chmod(directory_path, stat.S_IRWXU, follow_symlinks=False)
-        for name in dirnames:
-            child = directory_path / name
-            if not child.is_symlink():
-                os.chmod(child, stat.S_IRWXU, follow_symlinks=False)
-    shutil.rmtree(path)
+    if path.is_symlink() or not path.is_dir() or os.path.ismount(path):
+        raise WorkspaceError(f"owned removal root is invalid: {path}")
+    parent_descriptor = os.open(
+        path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    )
+    descriptor: int | None = None
+    try:
+        before = os.stat(path.name, dir_fd=parent_descriptor, follow_symlinks=False)
+        os.chmod(
+            path.name,
+            stat.S_IRWXU,
+            dir_fd=parent_descriptor,
+            follow_symlinks=False,
+        )
+        descriptor = os.open(
+            path.name,
+            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+            dir_fd=parent_descriptor,
+        )
+        opened = os.fstat(descriptor)
+        if (
+            opened.st_dev != before.st_dev
+            or opened.st_ino != before.st_ino
+            or _descriptor_is_mount(descriptor)
+        ):
+            raise WorkspaceError(f"owned removal root changed or is mounted: {path}")
+        _prepare_owned_tree_removal(descriptor, opened.st_dev, path)
+        _remove_owned_tree_contents(descriptor, opened.st_dev, path)
+        os.close(descriptor)
+        descriptor = None
+        os.rmdir(path.name, dir_fd=parent_descriptor)
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+        os.close(parent_descriptor)
 
 
 def recover_replaced_directory(output: Path, backup_prefix: str) -> None:
@@ -216,7 +343,7 @@ def recover_replaced_directory(output: Path, backup_prefix: str) -> None:
             ) from error
 
 
-def replace_directory(
+def replace_runtime_directory(
     output: Path,
     staging: Path,
     backup_prefix: str,
@@ -269,6 +396,21 @@ def replace_directory(
                 "before changing output",
                 file=sys.stderr,
             )
+
+
+def replace_directory(output: Path, staging: Path, backup_prefix: str) -> None:
+    if output.exists():
+        backup = Path(tempfile.mkdtemp(prefix=backup_prefix, dir=output.parent))
+        backup.rmdir()
+        output.replace(backup)
+        try:
+            staging.replace(output)
+        except BaseException:
+            backup.replace(output)
+            raise
+        shutil.rmtree(backup)
+    else:
+        staging.replace(output)
 
 
 def _remote_matches(url: str, repository: str) -> bool:
@@ -2026,7 +2168,7 @@ class Workspace:
                         "selected content input changed during collection"
                     )
 
-            replace_directory(
+            replace_runtime_directory(
                 output,
                 staging,
                 ".content-previous-",
@@ -2155,7 +2297,7 @@ class Workspace:
                         "selected resource input changed during staging"
                     )
 
-            replace_directory(
+            replace_runtime_directory(
                 output,
                 staging,
                 ".resources-previous-",
@@ -2868,9 +3010,6 @@ class Workspace:
         root = self._scenario_directory(name)
         operation_lock = self.paths.scenarios / "operation.lock"
         with exclusive_lock(operation_lock, "scenario operation"):
-            recover_replaced_directory(
-                root / "state", f".{name}-state-previous-"
-            )
             metadata = self._load_scenario(name)
             state = root / "state"
             with exclusive_lock(
@@ -3560,7 +3699,7 @@ class Workspace:
                         os.close(source_fd)
                         os.close(installed_fd)
 
-            replace_directory(
+            replace_runtime_directory(
                 container,
                 staging,
                 ".runtime-previous-",
