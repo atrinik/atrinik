@@ -21,7 +21,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from typing import Any, Iterator, TextIO
+from typing import Any, Callable, Iterator, TextIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 
@@ -97,6 +97,8 @@ SCENARIO_PASSWORD_MAX_SIZE = 128
 BUILD_METADATA = ".atrinik-build.json"
 BUILD_METADATA_SCHEMA_VERSION = 1
 CACHE_METADATA = ".atrinik-cache.json"
+RUNTIME_INPUT_METADATA = ".atrinik-dependency.json"
+RUNTIME_INPUT_SCHEMA_VERSION = 1
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
 REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
@@ -1384,9 +1386,9 @@ class Workspace:
             managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
             self._refresh_build_metadata(root, profile_name, key, selected)
             if "content" in targets or "server" in targets:
-                self._collect_content(root, selected)
+                self._collect_content(root, selected, profile_name)
             if "server" in targets:
-                self._stage_resources(root, selected)
+                self._stage_resources(root, selected, profile_name)
             if "protocol" in targets:
                 self._build_protocol(root, selected, tests)
             if "libatrinik" in targets:
@@ -1548,55 +1550,213 @@ class Workspace:
                 destination.symlink_to(entry, target_is_directory=entry.is_dir())
         return view
 
-    def _collect_content(self, root: Path, selected: dict[str, Path]) -> Path:
-        output = root / "runtime" / "content"
-        output.parent.mkdir(parents=True, exist_ok=True)
-        if output.exists():
-            managed_directory(output, self.paths.builds, "collected-content")
-        staging = Path(tempfile.mkdtemp(prefix=".content-", dir=output.parent))
-        staging.rmdir()
-        source = selected["content"]
-        commit = git(source, "rev-parse", "HEAD", capture=True)
-        try:
-            run(
-                [
-                    sys.executable,
-                    str(source / "tools" / "build_runtime.py"),
-                    "--source",
-                    str(source),
-                    "--output",
-                    str(staging),
-                    "--source-commit",
-                    commit,
-                ]
-            )
-            atomic_json(
-                staging / MANAGED_MARKER,
-                {"schema_version": SCHEMA_VERSION, "purpose": "collected-content"},
-            )
-            atomic_json(
-                staging / ".atrinik-dependency.json",
-                {
-                    "schema_version": SCHEMA_VERSION,
-                    "workspace_source": str(source),
-                    "commit": commit,
-                },
-            )
-            if not (staging / "lib").is_dir() or not (staging / "maps").is_dir():
-                raise WorkspaceError("content collection did not produce lib and maps")
-        except BaseException:
-            if staging.exists():
-                shutil.rmtree(staging)
-            raise
-        replace_directory(output, staging, ".content-previous-")
-        return output
+    def _runtime_input_coordinates(
+        self,
+        profile_name: str,
+        selected: dict[str, Path],
+        role: str,
+    ) -> tuple[dict[str, Any], bool]:
+        profile = self._load_profile(profile_name, require_file=False)
+        component = self.manifest.stack(profile["stack"]).providers[role]
+        checkout = self._selector_root(profile, component).resolve()
+        clean = _is_clean(checkout, trace=False)
+        coordinate = {
+            "component": component.name,
+            "repository": component.repository,
+            "branch": component.branch,
+            "checkout": component.checkout_name,
+            "source": component.source,
+            "checkout_path": str(checkout),
+            "source_path": str(selected[role].resolve()),
+            "head": git(
+                checkout,
+                "rev-parse",
+                "HEAD",
+                capture=True,
+                trace=False,
+            ),
+        }
+        return (
+            {
+                "schema_version": RUNTIME_INPUT_SCHEMA_VERSION,
+                "cacheable": clean,
+                "coordinate": coordinate,
+            },
+            clean,
+        )
 
-    def _stage_resources(self, root: Path, selected: dict[str, Path]) -> Path:
-        output = root / "runtime" / "resources"
-        source = selected["resources"]
-        output.parent.mkdir(parents=True, exist_ok=True)
-        if output.exists() or output.is_symlink():
-            managed_directory(output, self.paths.builds, "resource-view")
+    @staticmethod
+    def _validate_collected_content(
+        path: Path,
+        coordinate: dict[str, str],
+        *,
+        require_metadata: bool = True,
+    ) -> None:
+        if not path.is_dir() or path.is_symlink():
+            raise WorkspaceError(f"collected content is not a directory: {path}")
+        for name in ("lib", "maps"):
+            required = path / name
+            if not required.is_dir() or required.is_symlink():
+                raise WorkspaceError(
+                    f"collected content lacks required directory: {required}"
+                )
+        for name in ("compatibility.json", "manifest.json"):
+            required = path / name
+            if not required.is_file() or required.is_symlink():
+                raise WorkspaceError(
+                    f"collected content lacks required file: {required}"
+                )
+        manifest = load_json(path / "manifest.json")
+        if (
+            not isinstance(manifest, dict)
+            or manifest.get("schema_version") != 2
+            or manifest.get("source")
+            != {
+                "repository": coordinate["repository"],
+                "branch": coordinate["branch"],
+                "commit": coordinate["head"],
+            }
+            or not isinstance(manifest.get("files"), list)
+        ):
+            raise WorkspaceError("collected content manifest is invalid")
+        expected = {MANAGED_MARKER, "manifest.json"}
+        if require_metadata:
+            expected.add(RUNTIME_INPUT_METADATA)
+        for entry in manifest["files"]:
+            if not isinstance(entry, dict) or set(entry) != {"path", "sha256", "size"}:
+                raise WorkspaceError("collected content manifest file entry is invalid")
+            relative = entry["path"]
+            relative_path = PurePosixPath(relative) if isinstance(relative, str) else None
+            if (
+                relative_path is None
+                or relative_path.is_absolute()
+                or relative != relative_path.as_posix()
+                or any(part in {"", ".", ".."} for part in relative_path.parts)
+                or relative in expected
+                or not isinstance(entry["size"], int)
+                or isinstance(entry["size"], bool)
+                or entry["size"] < 0
+                or not isinstance(entry["sha256"], str)
+                or re.fullmatch(r"[0-9a-f]{64}", entry["sha256"]) is None
+            ):
+                raise WorkspaceError("collected content manifest file entry is invalid")
+            expected.add(relative)
+        actual: set[str] = set()
+        for directory, dirnames, filenames in os.walk(path, followlinks=False):
+            directory_path = Path(directory)
+            for name in dirnames:
+                child = directory_path / name
+                if child.is_symlink():
+                    raise WorkspaceError(f"collected content contains a link: {child}")
+            for name in filenames:
+                child = directory_path / name
+                try:
+                    mode = child.lstat().st_mode
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot inspect collected content {child}: {error}"
+                    ) from error
+                if not stat.S_ISREG(mode):
+                    raise WorkspaceError(
+                        f"collected content contains a non-regular file: {child}"
+                    )
+                relative = child.relative_to(path).as_posix()
+                actual.add(relative)
+        if actual != expected:
+            raise WorkspaceError("collected content does not match its manifest")
+        entries = {entry["path"]: entry for entry in manifest["files"]}
+        for relative, entry in entries.items():
+            candidate = path.joinpath(*PurePosixPath(relative).parts)
+            digest = hashlib.sha256()
+            descriptor = open_regular_file(
+                candidate, os.O_RDONLY, "collected content file"
+            )
+            with os.fdopen(descriptor, "rb") as stream:
+                if os.fstat(stream.fileno()).st_size != entry["size"]:
+                    raise WorkspaceError(
+                        "collected content file size does not match manifest"
+                    )
+                while chunk := stream.read(1024 * 1024):
+                    digest.update(chunk)
+            if digest.hexdigest() != entry["sha256"]:
+                raise WorkspaceError(
+                    "collected content file digest does not match manifest"
+                )
+
+    @staticmethod
+    def _validate_resource_view(
+        path: Path, tracked: list[str], *, require_metadata: bool = True
+    ) -> None:
+        if not path.is_dir() or path.is_symlink():
+            raise WorkspaceError(f"resource view is not a directory: {path}")
+        expected = {MANAGED_MARKER, *tracked}
+        if require_metadata:
+            expected.add(RUNTIME_INPUT_METADATA)
+        actual: set[str] = set()
+        actual_directories: set[str] = set()
+        for directory, dirnames, filenames in os.walk(path, followlinks=False):
+            directory_path = Path(directory)
+            for name in dirnames:
+                child = directory_path / name
+                if child.is_symlink():
+                    raise WorkspaceError(f"resource view contains a link: {child}")
+                actual_directories.add(child.relative_to(path).as_posix())
+            for name in filenames:
+                child = directory_path / name
+                try:
+                    mode = child.lstat().st_mode
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot inspect staged resource {child}: {error}"
+                    ) from error
+                if not stat.S_ISREG(mode):
+                    raise WorkspaceError(
+                        f"resource view contains a non-regular file: {child}"
+                    )
+                actual.add(child.relative_to(path).as_posix())
+        if actual != expected:
+            raise WorkspaceError("resource view does not match its tracked file set")
+        expected_directories = {
+            parent.as_posix()
+            for relative in tracked
+            for parent in PurePosixPath(relative).parents
+            if parent != PurePosixPath(".")
+        }
+        if actual_directories != expected_directories:
+            raise WorkspaceError("resource view does not match its tracked directories")
+
+    def _runtime_input_cache_matches(
+        self,
+        output: Path,
+        purpose: str,
+        inputs: dict[str, Any],
+        cacheable: bool,
+        validate: Callable[[Path], None],
+    ) -> bool:
+        if not cacheable or not output.is_dir() or output.is_symlink():
+            return False
+        marker = output / MANAGED_MARKER
+        metadata = output / RUNTIME_INPUT_METADATA
+        if (
+            not marker.is_file()
+            or marker.is_symlink()
+            or not metadata.is_file()
+            or metadata.is_symlink()
+        ):
+            return False
+        try:
+            if load_json(marker) != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": purpose,
+            } or load_json(metadata) != inputs:
+                return False
+            validate(output)
+        except WorkspaceError:
+            return False
+        return True
+
+    @staticmethod
+    def _resource_runtime_files(source: Path) -> tuple[list[str], list[str]]:
         manifest = source / RESOURCE_PATHS_MANIFEST
         try:
             lines = manifest.read_text(encoding="utf-8").splitlines()
@@ -1642,7 +1802,9 @@ class Workspace:
         except subprocess.CalledProcessError as error:
             detail = error.stderr.decode("utf-8", errors="replace").strip()
             suffix = f": {detail}" if detail else ""
-            raise WorkspaceError(f"cannot list tracked runtime resources{suffix}") from error
+            raise WorkspaceError(
+                f"cannot list tracked runtime resources{suffix}"
+            ) from error
 
         try:
             tracked = [
@@ -1651,11 +1813,126 @@ class Workspace:
                 if item
             ]
         except UnicodeDecodeError as error:
-            raise WorkspaceError("runtime resource paths must use UTF-8 names") from error
+            raise WorkspaceError(
+                "runtime resource paths must use UTF-8 names"
+            ) from error
         if not tracked:
             raise WorkspaceError(
                 f"resource runtime manifest selects no tracked files: {manifest}"
             )
+        return runtime_paths, tracked
+
+    def _collect_content(
+        self,
+        root: Path,
+        selected: dict[str, Path],
+        profile_name: str = "default",
+    ) -> Path:
+        output = root / "runtime" / "content"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        inputs, cacheable = self._runtime_input_coordinates(
+            profile_name, selected, "content"
+        )
+        matched = self._runtime_input_cache_matches(
+            output,
+            "collected-content",
+            inputs,
+            cacheable,
+            lambda path: self._validate_collected_content(
+                path, inputs["coordinate"]
+            ),
+        )
+        validated_inputs, validated_cacheable = self._runtime_input_coordinates(
+            profile_name, selected, "content"
+        )
+        if matched and (
+            validated_inputs == inputs
+            and validated_cacheable == cacheable
+            and validated_cacheable
+        ):
+            print(f"content: cached {output}")
+            return output
+        inputs, cacheable = validated_inputs, validated_cacheable
+        if output.exists() or output.is_symlink():
+            managed_directory(output, self.paths.builds, "collected-content")
+        staging = Path(tempfile.mkdtemp(prefix=".content-", dir=output.parent))
+        staging.rmdir()
+        source = selected["content"]
+        commit = inputs["coordinate"]["head"]
+        try:
+            run(
+                [
+                    sys.executable,
+                    str(source / "tools" / "build_runtime.py"),
+                    "--source",
+                    str(source),
+                    "--output",
+                    str(staging),
+                    "--source-commit",
+                    commit,
+                ]
+            )
+            atomic_json(
+                staging / MANAGED_MARKER,
+                {"schema_version": SCHEMA_VERSION, "purpose": "collected-content"},
+            )
+            self._validate_collected_content(
+                staging, inputs["coordinate"], require_metadata=False
+            )
+            final_inputs, final_cacheable = self._runtime_input_coordinates(
+                profile_name, selected, "content"
+            )
+            if final_inputs != inputs or final_cacheable != cacheable:
+                raise WorkspaceError("selected content input changed during collection")
+            if cacheable:
+                atomic_json(staging / RUNTIME_INPUT_METADATA, inputs)
+        except BaseException:
+            if staging.exists():
+                shutil.rmtree(staging)
+            raise
+        replace_directory(output, staging, ".content-previous-")
+        print(f"content: collected {output}")
+        return output
+
+    def _stage_resources(
+        self,
+        root: Path,
+        selected: dict[str, Path],
+        profile_name: str = "default",
+    ) -> Path:
+        output = root / "runtime" / "resources"
+        source = selected["resources"]
+        output.parent.mkdir(parents=True, exist_ok=True)
+        if output.exists() or output.is_symlink():
+            managed_directory(output, self.paths.builds, "resource-view")
+        inputs, cacheable = self._runtime_input_coordinates(
+            profile_name, selected, "resources"
+        )
+        runtime_paths, tracked = self._resource_runtime_files(source)
+        matched = self._runtime_input_cache_matches(
+            output,
+            "resource-view",
+            inputs,
+            cacheable,
+            lambda path: self._validate_resource_view(path, tracked),
+        )
+        validated_inputs, validated_cacheable = self._runtime_input_coordinates(
+            profile_name, selected, "resources"
+        )
+        validated_runtime_paths, validated_tracked = self._resource_runtime_files(
+            source
+        )
+        if matched and (
+            validated_inputs == inputs
+            and validated_cacheable == cacheable
+            and validated_cacheable
+            and validated_runtime_paths == runtime_paths
+            and validated_tracked == tracked
+        ):
+            print(f"resources: cached {output}")
+            return output
+        inputs, cacheable = validated_inputs, validated_cacheable
+        runtime_paths, tracked = validated_runtime_paths, validated_tracked
         staging = Path(tempfile.mkdtemp(prefix=".resources-", dir=output.parent))
         selected_roots = tuple(PurePosixPath(path) for path in runtime_paths)
         try:
@@ -1684,18 +1961,27 @@ class Workspace:
                 destination = staging.joinpath(*path.parts)
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(source_path, destination, follow_symlinks=False)
-            atomic_json(
-                staging / ".atrinik-dependency.json",
-                {
-                    "schema_version": SCHEMA_VERSION,
-                    "workspace_source": str(source),
-                    "commit": git(source, "rev-parse", "HEAD", capture=True),
-                },
+            final_inputs, final_cacheable = self._runtime_input_coordinates(
+                profile_name, selected, "resources"
+            )
+            final_runtime_paths, final_tracked = self._resource_runtime_files(source)
+            if (
+                final_inputs != inputs
+                or final_cacheable != cacheable
+                or final_runtime_paths != runtime_paths
+                or final_tracked != tracked
+            ):
+                raise WorkspaceError("selected resource input changed during staging")
+            if cacheable:
+                atomic_json(staging / RUNTIME_INPUT_METADATA, inputs)
+            self._validate_resource_view(
+                staging, tracked, require_metadata=cacheable
             )
         except BaseException:
             shutil.rmtree(staging)
             raise
         replace_directory(output, staging, ".resources-previous-")
+        print(f"resources: staged {output}")
         return output
 
     def _cmake(
@@ -2635,11 +2921,31 @@ class Workspace:
                 raise WorkspaceError(
                     f"topology runtime destination is not managed: {destination}"
                 )
-            shutil.rmtree(destination)
         if preserve_source:
-            shutil.copytree(source, destination)
+            staging = Path(
+                tempfile.mkdtemp(prefix=f".{name}-", dir=container)
+            )
+            staging.rmdir()
+            try:
+                shutil.copytree(source, staging)
+                staging_marker = staging / MANAGED_MARKER
+                if (
+                    not staging.is_dir()
+                    or staging.is_symlink()
+                    or not staging_marker.is_file()
+                    or staging_marker.is_symlink()
+                    or load_json(staging_marker) != expected
+                ):
+                    raise WorkspaceError(
+                        f"copied topology runtime input is invalid: {staging}"
+                    )
+                replace_directory(destination, staging, f".{name}-previous-")
+            except BaseException:
+                if staging.exists():
+                    shutil.rmtree(staging)
+                raise
         else:
-            source.replace(destination)
+            replace_directory(destination, source, f".{name}-previous-")
         return destination
 
     def _prepare_topology_client_runtime(
@@ -3097,12 +3403,14 @@ class Workspace:
                         root / "runtime" / "content",
                         "content",
                         "collected-content",
+                        preserve_source=True,
                     )
                     resources = self._take_topology_runtime_input(
                         topology_root,
                         root / "runtime" / "resources",
                         "resources",
                         "resource-view",
+                        preserve_source=True,
                     )
                     client_maps = self._take_topology_runtime_input(
                         topology_root,

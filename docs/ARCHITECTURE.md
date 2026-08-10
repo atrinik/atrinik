@@ -375,8 +375,15 @@ protocol.
 
 After a Classic server build, the coordinator runs the built server's offline
 worldmaker in a temporary runtime assembled from the selected server,
-collected content, and staged resources. The generator writes into a sibling
-temporary directory; the coordinator accepts it only when every output is a
+collected content, and staged resources. Content and resources are themselves
+marker-owned caches within the profile build. Their schema-versioned metadata
+binds the exact provider, repository, branch, checkout, source, resolved paths,
+and clean commit. Reuse also validates the content manifest/compatibility files,
+`lib` and `maps` directories, or the resource allowlist's exact regular-file
+set. Dirty inputs always regenerate without cache metadata. Each generator
+rechecks cleanliness and `HEAD` before atomic installation, preserving the
+previous cache if a clean input changes during generation. The generator writes into a sibling
+temporary directory. The coordinator accepts it only when every output is a
 nonempty regular `.png` or UTF-8 `.def`, the basename sets form complete pairs,
 and the expected `incuna_-1` pair exists. It then installs the marker-owned
 cache atomically, preserving the previous valid cache on failure. Cache
@@ -438,9 +445,13 @@ its topology and profile; a foreground client receives its profile and direct
 run mode. The client uses this label only for its native window title. It is
 not part of persisted settings, package or protocol identity, or network
 metadata, and unmanaged launches receive no label.
-A server topology takes ownership of its collected content and staged resource
-directories after the shared incremental build, so later builds cannot mutate
-the filesystem seen by a running process.
+A server topology copies the collected-content and staged-resource caches after
+the shared incremental build. The profile build retains its source caches, and
+each topology owns independent immutable-at-startup copies, so later builds and
+other topology removal or mutation cannot change the filesystem seen by a
+running process. Because the caches remain below the marker-owned profile build,
+existing build retention and marker-safe cleanup own their lifecycle; topology
+copies follow topology retention.
 A topology may select one service, and distinct runtime names permit concurrent
 combinations as long as their server ports and mutable state directories do not
 conflict. When replacement runtime support lands, a concurrent `classic` and

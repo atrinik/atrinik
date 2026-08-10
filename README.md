@@ -629,13 +629,18 @@ cd "$(./atrinik path classic-server --profile maps-review)"
 commands such as `status`, `sync`, and `worktree` when the full repository root
 is required.
 
-Before every server build or launch, the coordinator collects the selected
-content checkout into an isolated runtime tree and stages the selected resource
-repository. Only tracked files below the resource repository's
-`runtime-paths.txt` allowlist are staged; development metadata and untracked
-files cannot become server assets. Client builds similarly expose the selected
-sound checkout. These operations never write generated files into a component
-checkout.
+Before a server build or launch, the coordinator prepares marker-owned content
+and resource caches inside the exact profile build. A cache is reused only when
+its schema and provider, repository, branch, checkout, source path, checkout
+path, and clean `HEAD` metadata match and its required output structure remains
+valid. Dirty inputs rebuild every time and do not receive reusable metadata;
+inputs are checked again after generation so a concurrent checkout change
+cannot replace the previous valid cache. Only tracked files below the resource
+repository's `runtime-paths.txt` allowlist are staged; development metadata and
+untracked files cannot become server assets. Client builds similarly expose the
+selected sound checkout. These operations never write generated files into a
+component checkout. The caches remain under the marker-owned profile build, so
+ordinary build retention and preview-first cleanup cover them.
 
 ## Deterministic test scenarios
 
@@ -703,8 +708,9 @@ Provider selection is stack-coherent: a classic service never binds a
 replacement protocol or `content@main`. Today the `classic` stack is the
 runnable implementation; the `default` replacement profile will become
 runnable as its component contracts land. For a runnable profile, `up` builds
-the requested targets, collects content, stages resources/sound, prepares an
-isolated runtime, and starts both game processes under one supervisor. A server
+the requested targets, reuses or refreshes content and resource caches, stages
+sound, prepares an isolated runtime, and starts both game processes under one
+supervisor. A server
 gets an available UDP port by default; use `--port` when a stable port is
 useful. The supervisor waits for both the QUIC certificate fingerprint and
 completed server initialization, then gives the paired client an authenticated
@@ -719,10 +725,10 @@ start identities. `ps` without a name lists every recorded topology; a name
 selects one. It distinguishes a live process from a reused PID, `down` signals
 only the matching supervisor, and the server state remains locked for the
 complete supervised lifetime. Each topology also has a persistent isolated
-client configuration/cache root and its own collected content and resource
-snapshot, so a subsequent build cannot replace files underneath a running
-topology. Logs live below `workspace/topologies/` and rotate at 10 MiB with
-three backups.
+client configuration/cache root and its own copies of the collected content and
+resource caches, so changing or removing one topology cannot affect another
+topology or the retained build caches. Logs live below `workspace/topologies/`
+and rotate at 10 MiB with three backups.
 
 ### Use case: run the latest playable classic branches
 

@@ -89,8 +89,9 @@ wrapper replacement build/runtime closure yet.
 ./atrinik build COMPONENT --profile REVIEW --test
 ```
 
-Classic selection is checkout-wide; subdirectories are not worktrees. Region
-maps cache only clean matching inputs; runtimes copy snapshots without overlays.
+Classic selection is checkout-wide; subdirectories are not worktrees. Content,
+resource, and region-map caches reuse only clean exact-coordinate inputs;
+runtimes copy independent topology-owned snapshots without overlays.
 
 Build, scenario, and topology records bind exact immutable coordinates;
 incomplete records are inert. Let the wrapper own generated paths, locks,

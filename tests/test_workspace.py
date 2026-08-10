@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 from concurrent.futures import ThreadPoolExecutor
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -26,6 +27,7 @@ from atrinik_workspace.model import (
     profile_key,
 )
 from atrinik_workspace.workspace import (
+    RUNTIME_INPUT_METADATA,
     Workspace,
     _remote_matches as real_remote_matches,
     display_arguments,
@@ -174,6 +176,33 @@ class WorkspaceTests(unittest.TestCase):
             {"schema_version": 1, "purpose": "region-map-cache"},
         )
         return output
+
+    @staticmethod
+    def make_content_candidate(output: Path, commit: str, payload: str) -> None:
+        (output / "lib").mkdir(parents=True)
+        (output / "maps").mkdir()
+        compatibility = output / "compatibility.json"
+        compatibility.write_text(payload, encoding="utf-8")
+        atomic_json(
+            output / "manifest.json",
+            {
+                "schema_version": 2,
+                "source": {
+                    "repository": "atrinik/content",
+                    "branch": "main",
+                    "commit": commit,
+                },
+                "files": [
+                    {
+                        "path": "compatibility.json",
+                        "sha256": hashlib.sha256(
+                            compatibility.read_bytes()
+                        ).hexdigest(),
+                        "size": compatibility.stat().st_size,
+                    }
+                ],
+            },
+        )
 
     def advance_origin(self, name: str, filename: str) -> str:
         seed = self.seeds[name]
@@ -587,10 +616,7 @@ class WorkspaceTests(unittest.TestCase):
         output = self.workspace._stage_resources(root, {"resources": source})
 
         self.assertEqual(load_json(output / MANAGED_MARKER)["purpose"], "resource-view")
-        self.assertEqual(
-            load_json(output / ".atrinik-dependency.json")["workspace_source"],
-            str(source),
-        )
+        self.assertFalse((output / RUNTIME_INPUT_METADATA).exists())
         self.assertEqual(
             (source / ".atrinik-dependency.json").read_text(encoding="utf-8"),
             "component metadata\n",
@@ -639,6 +665,163 @@ class WorkspaceTests(unittest.TestCase):
             "resource\n",
         )
 
+    def test_resource_view_reuses_only_exact_clean_valid_inputs(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        copied = 0
+        real_copy = shutil.copy2
+
+        def counting_copy(source_path: Path, destination: Path, **kwargs: object) -> None:
+            nonlocal copied
+            copied += 1
+            real_copy(source_path, destination, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.shutil.copy2", side_effect=counting_copy
+        ):
+            output = self.workspace._stage_resources(root, {"resources": source})
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 1)
+
+            (source / "paintings" / "scene.jpg").write_text(
+                "new commit\n", encoding="utf-8"
+            )
+            command("git", "add", ".", cwd=source)
+            command("git", "commit", "-m", "test: change resource", cwd=source)
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 2)
+
+            dirty = source / "local-only"
+            dirty.write_text("dirty\n", encoding="utf-8")
+            self.workspace._stage_resources(root, {"resources": source})
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 4)
+            self.assertFalse((output / RUNTIME_INPUT_METADATA).exists())
+            dirty.unlink()
+
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 5)
+            (output / RUNTIME_INPUT_METADATA).write_text("{", encoding="utf-8")
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 6)
+
+            (output / MANAGED_MARKER).write_text("{", encoding="utf-8")
+            with self.assertRaisesRegex(WorkspaceError, "cannot read"):
+                self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 6)
+            atomic_json(
+                output / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": "resource-view"},
+            )
+
+            (output / "unexpected").write_text("corrupt\n", encoding="utf-8")
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 7)
+            self.assertFalse((output / "unexpected").exists())
+
+    def test_resource_view_race_preserves_previous_cache(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        output = self.workspace._stage_resources(root, {"resources": source})
+        previous = (output / "paintings" / "scene.jpg").read_text(encoding="utf-8")
+
+        (source / "paintings" / "scene.jpg").write_text(
+            "next commit\n", encoding="utf-8"
+        )
+        command("git", "add", ".", cwd=source)
+        command("git", "commit", "-m", "test: advance resource", cwd=source)
+        real_copy = shutil.copy2
+        mutated = False
+
+        def mutate_after_copy(source_path: Path, destination: Path, **kwargs: object) -> None:
+            nonlocal mutated
+            real_copy(source_path, destination, **kwargs)
+            if not mutated:
+                mutated = True
+                (source / "README").write_text("changed during staging\n", encoding="utf-8")
+
+        try:
+            with mock.patch(
+                "atrinik_workspace.workspace.shutil.copy2",
+                side_effect=mutate_after_copy,
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "changed during staging"):
+                    self.workspace._stage_resources(root, {"resources": source})
+        finally:
+            command("git", "checkout", "--", "README", cwd=source)
+
+        self.assertEqual(
+            (output / "paintings" / "scene.jpg").read_text(encoding="utf-8"),
+            previous,
+        )
+
+    def test_resource_view_resamples_coordinates_before_staging(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        real_files = self.workspace._resource_runtime_files
+        sampled = False
+
+        def advance_after_first_sample(path: Path) -> tuple[list[str], list[str]]:
+            nonlocal sampled
+            result = real_files(path)
+            if not sampled:
+                sampled = True
+                (source / "catalog").mkdir()
+                (source / "catalog" / "resources.json").write_text(
+                    "new resource\n", encoding="utf-8"
+                )
+                (source / "runtime-paths.txt").write_text(
+                    "catalog\n", encoding="utf-8"
+                )
+                command("git", "add", ".", cwd=source)
+                command(
+                    "git", "commit", "-m", "test: change resource allowlist", cwd=source
+                )
+            return result
+
+        with mock.patch.object(
+            self.workspace,
+            "_resource_runtime_files",
+            side_effect=advance_after_first_sample,
+        ):
+            output = self.workspace._stage_resources(root, {"resources": source})
+
+        self.assertTrue((output / "catalog" / "resources.json").is_file())
+        self.assertFalse((output / "paintings").exists())
+        self.assertEqual(
+            load_json(output / RUNTIME_INPUT_METADATA)["coordinate"]["head"],
+            command("git", "rev-parse", "HEAD", cwd=source),
+        )
+
+    def test_resource_cache_hit_rechecks_source_after_validation(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        output = self.workspace._stage_resources(root, {"resources": source})
+        real_validate = self.workspace._validate_resource_view
+        mutated = False
+
+        def mutate_after_validation(
+            path: Path, tracked: list[str], *, require_metadata: bool = True
+        ) -> None:
+            nonlocal mutated
+            real_validate(path, tracked, require_metadata=require_metadata)
+            if not mutated:
+                mutated = True
+                (source / "local-race").write_text("dirty\n", encoding="utf-8")
+
+        with mock.patch.object(
+            self.workspace,
+            "_validate_resource_view",
+            side_effect=mutate_after_validation,
+        ):
+            self.workspace._stage_resources(root, {"resources": source})
+
+        self.assertFalse((output / RUNTIME_INPUT_METADATA).exists())
+
     def test_content_collection_failure_preserves_previous_output(self) -> None:
         root = self.workspace.paths.builds / "profiles" / "test"
         managed_directory(root, self.workspace.paths.builds, "test-profile")
@@ -659,6 +842,239 @@ class WorkspaceTests(unittest.TestCase):
                 )
 
         self.assertEqual((output / "sentinel").read_text(encoding="utf-8"), "last good\n")
+
+    def test_content_collection_reuses_only_exact_clean_valid_inputs(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        collections = 0
+
+        def collect(arguments: list[str], **kwargs: object) -> str:
+            nonlocal collections
+            if arguments[0] != os.sys.executable:
+                return workspace_run(arguments, **kwargs)
+            collections += 1
+            output = Path(arguments[arguments.index("--output") + 1])
+            self.make_content_candidate(
+                output,
+                arguments[arguments.index("--source-commit") + 1],
+                f"collection {collections}\n",
+            )
+            return ""
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=collect):
+            output = self.workspace._collect_content(root, {"content": source})
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 1)
+
+            (source / "README").write_text("new commit\n", encoding="utf-8")
+            command("git", "add", ".", cwd=source)
+            command("git", "commit", "-m", "test: change content", cwd=source)
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 2)
+
+            dirty = source / "local-only"
+            dirty.write_text("dirty\n", encoding="utf-8")
+            self.workspace._collect_content(root, {"content": source})
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 4)
+            self.assertFalse((output / RUNTIME_INPUT_METADATA).exists())
+            dirty.unlink()
+
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 5)
+            (output / RUNTIME_INPUT_METADATA).write_text("{", encoding="utf-8")
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 6)
+            compatibility = output / "compatibility.json"
+            corrupted = compatibility.read_bytes()
+            compatibility.write_bytes(b"X" + corrupted[1:])
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 7)
+            (output / MANAGED_MARKER).write_text("{", encoding="utf-8")
+            with self.assertRaisesRegex(WorkspaceError, "cannot read"):
+                self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 7)
+            atomic_json(
+                output / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": "collected-content"},
+            )
+            (output / "manifest.json").unlink()
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 8)
+
+    def test_content_collection_race_preserves_previous_cache(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        mutate = False
+
+        def collect(arguments: list[str], **kwargs: object) -> str:
+            if arguments[0] != os.sys.executable:
+                return workspace_run(arguments, **kwargs)
+            output = Path(arguments[arguments.index("--output") + 1])
+            self.make_content_candidate(
+                output,
+                arguments[arguments.index("--source-commit") + 1],
+                "generated\n",
+            )
+            if mutate:
+                (source / "README").write_text(
+                    "changed during collection\n", encoding="utf-8"
+                )
+            return ""
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=collect):
+            output = self.workspace._collect_content(root, {"content": source})
+            previous = (output / "manifest.json").read_text(encoding="utf-8")
+            (source / "README").write_text("next commit\n", encoding="utf-8")
+            command("git", "add", ".", cwd=source)
+            command("git", "commit", "-m", "test: advance content", cwd=source)
+            mutate = True
+            try:
+                with self.assertRaisesRegex(
+                    WorkspaceError, "changed during collection"
+                ):
+                    self.workspace._collect_content(root, {"content": source})
+            finally:
+                command("git", "checkout", "--", "README", cwd=source)
+
+        self.assertEqual(
+            (output / "manifest.json").read_text(encoding="utf-8"), previous
+        )
+
+    def test_content_cache_hit_rechecks_source_after_validation(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+
+        def collect(arguments: list[str], **kwargs: object) -> str:
+            if arguments[0] != os.sys.executable:
+                return workspace_run(arguments, **kwargs)
+            output = Path(arguments[arguments.index("--output") + 1])
+            self.make_content_candidate(
+                output,
+                arguments[arguments.index("--source-commit") + 1],
+                "content\n",
+            )
+            return ""
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=collect):
+            output = self.workspace._collect_content(root, {"content": source})
+            real_validate = self.workspace._validate_collected_content
+            mutated = False
+
+            def mutate_after_validation(
+                path: Path,
+                coordinate: dict[str, str],
+                *,
+                require_metadata: bool = True,
+            ) -> None:
+                nonlocal mutated
+                real_validate(
+                    path, coordinate, require_metadata=require_metadata
+                )
+                if not mutated:
+                    mutated = True
+                    (source / "local-race").write_text("dirty\n", encoding="utf-8")
+
+            with mock.patch.object(
+                self.workspace,
+                "_validate_collected_content",
+                side_effect=mutate_after_validation,
+            ):
+                self.workspace._collect_content(root, {"content": source})
+
+        self.assertFalse((output / RUNTIME_INPUT_METADATA).exists())
+
+    def test_topology_runtime_copies_are_independent_from_shared_cache(self) -> None:
+        sources: dict[str, Path] = {}
+        for name, purpose in (
+            ("content", "collected-content"),
+            ("resources", "resource-view"),
+        ):
+            source = self.root / f"shared-{name}-cache"
+            source.mkdir()
+            (source / "payload").write_text("shared\n", encoding="utf-8")
+            atomic_json(
+                source / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": purpose},
+            )
+            sources[name] = source
+        first_root = self.root / "first-topology"
+        second_root = self.root / "second-topology"
+        first_root.mkdir()
+        second_root.mkdir()
+
+        for name, purpose in (
+            ("content", "collected-content"),
+            ("resources", "resource-view"),
+        ):
+            first = self.workspace._take_topology_runtime_input(
+                first_root,
+                sources[name],
+                name,
+                purpose,
+                preserve_source=True,
+            )
+            second = self.workspace._take_topology_runtime_input(
+                second_root,
+                sources[name],
+                name,
+                purpose,
+                preserve_source=True,
+            )
+            (first / "payload").write_text("first changed\n", encoding="utf-8")
+            shutil.rmtree(first)
+
+            self.assertEqual(
+                (sources[name] / "payload").read_text(encoding="utf-8"),
+                "shared\n",
+            )
+            self.assertEqual(
+                (second / "payload").read_text(encoding="utf-8"), "shared\n"
+            )
+
+    def test_topology_runtime_copy_failure_preserves_previous_snapshot(self) -> None:
+        source = self.root / "shared-cache"
+        source.mkdir()
+        (source / "payload").write_text("new\n", encoding="utf-8")
+        atomic_json(
+            source / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "resource-view"},
+        )
+        topology = self.root / "topology"
+        destination = topology / "runtime" / "resources"
+        destination.mkdir(parents=True)
+        (destination / "payload").write_text("previous\n", encoding="utf-8")
+        atomic_json(
+            destination / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "resource-view"},
+        )
+
+        def fail_copy(source_path: Path, staging: Path, **kwargs: object) -> None:
+            staging.mkdir()
+            (staging / "partial").write_text("partial\n", encoding="utf-8")
+            raise OSError("disk full")
+
+        with mock.patch(
+            "atrinik_workspace.workspace.shutil.copytree", side_effect=fail_copy
+        ):
+            with self.assertRaisesRegex(OSError, "disk full"):
+                self.workspace._take_topology_runtime_input(
+                    topology,
+                    source,
+                    "resources",
+                    "resource-view",
+                    preserve_source=True,
+                )
+
+        self.assertEqual(
+            (destination / "payload").read_text(encoding="utf-8"), "previous\n"
+        )
+        self.assertEqual(
+            [entry.name for entry in destination.parent.iterdir()], ["resources"]
+        )
 
     def test_region_maps_are_atomic_cached_and_keyed_by_clean_inputs(self) -> None:
         source = self.workspace.paths.repositories / "server"
@@ -1144,6 +1560,12 @@ class WorkspaceTests(unittest.TestCase):
             build_root / "runtime" / "resources",
         ):
             path.mkdir(parents=True, exist_ok=True)
+        (build_root / "runtime" / "content" / "maps" / "map").write_text(
+            "shared content\n", encoding="utf-8"
+        )
+        (build_root / "runtime" / "resources" / "resource").write_text(
+            "shared resource\n", encoding="utf-8"
+        )
         atomic_json(
             build_root / "runtime" / "content" / MANAGED_MARKER,
             {"schema_version": 1, "purpose": "collected-content"},
@@ -1205,6 +1627,12 @@ class WorkspaceTests(unittest.TestCase):
         self.assertTrue(
             (build_root / "runtime" / "client-maps" / "incuna_-1.png").is_file()
         )
+        self.assertTrue(
+            (build_root / "runtime" / "content" / "maps" / "map").is_file()
+        )
+        self.assertTrue(
+            (build_root / "runtime" / "resources" / "resource").is_file()
+        )
         self.assertEqual(
             Path(status["services"]["client"]["cwd"]),
             self.workspace.paths.topologies
@@ -1243,7 +1671,54 @@ class WorkspaceTests(unittest.TestCase):
             client_log.read_text(),
         )
         state = self.workspace._state_location("default")
+        second_state = self.workspace.state_add("second", None)
         try:
+            with (
+                mock.patch.object(
+                    self.workspace, "_build_resolved", return_value=build_root
+                ),
+                mock.patch.object(
+                    self.workspace, "_select_topology_port", return_value=17301
+                ),
+            ):
+                second = self.workspace.topology_up(
+                    "server-review-two", "default", "second", ["server"], 17301
+                )
+            self.assertTrue(second["ready"])
+            self.assertEqual(second["endpoint"]["port"], 17301)
+            for topology in ("server-review", "server-review-two"):
+                snapshot = self.workspace.paths.topologies / topology / "runtime"
+                self.assertEqual(
+                    (snapshot / "content" / "maps" / "map").read_text(),
+                    "shared content\n",
+                )
+                self.assertEqual(
+                    (snapshot / "resources" / "resource").read_text(),
+                    "shared resource\n",
+                )
+            self.workspace.topology_down("server-review-two", timeout=5)
+            second_content = (
+                self.workspace.paths.topologies
+                / "server-review-two"
+                / "runtime"
+                / "content"
+            )
+            shutil.rmtree(second_content)
+            self.assertEqual(
+                (
+                    self.workspace.paths.topologies
+                    / "server-review"
+                    / "runtime"
+                    / "content"
+                    / "maps"
+                    / "map"
+                ).read_text(),
+                "shared content\n",
+            )
+            self.assertEqual(
+                (build_root / "runtime" / "content" / "maps" / "map").read_text(),
+                "shared content\n",
+            )
             with self.assertRaisesRegex(WorkspaceError, "already in use"):
                 with exclusive_lock(
                     Path(f"{state}.lock"), "server state", nonblocking=True
@@ -1282,6 +1757,12 @@ class WorkspaceTests(unittest.TestCase):
                 any(service["running"] for service in recovered["services"].values())
             )
         finally:
+            second_remaining = self.workspace.topology_status("server-review-two")
+            if second_remaining["supervisor"]["running"] or any(
+                service["running"]
+                for service in second_remaining["services"].values()
+            ):
+                self.workspace.topology_down("server-review-two", timeout=5)
             remaining = self.workspace.topology_status("server-review")
             if remaining["supervisor"]["running"] or any(
                 service["running"] for service in remaining["services"].values()
@@ -1289,6 +1770,10 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace.topology_down("server-review", timeout=5)
 
         with exclusive_lock(Path(f"{state}.lock"), "server state", nonblocking=True):
+            pass
+        with exclusive_lock(
+            Path(f"{second_state}.lock"), "server state", nonblocking=True
+        ):
             pass
 
     def test_topology_port_selection_rejects_unavailable_port(self) -> None:
