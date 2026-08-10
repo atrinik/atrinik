@@ -241,6 +241,11 @@ Add the complete currently playable classic stack explicitly:
 ./atrinik down classic-local
 ~~~
 
+`build all` configures the selected Classic monorepo through its root CMake
+project, so protocol and libatrinik are compiled once and shared by the client
+and server. A component-specific build such as `build client` or `build server`
+continues to exercise that module's supported standalone FetchContent path.
+
 Building the Classic server also runs its offline worldmaker and stages the
 generated region-map `.png`/`.def` pairs in the profile build. Generation uses
 the selected Classic, `content-1x`, and resource views, so it requires the same
