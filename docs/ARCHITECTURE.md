@@ -121,6 +121,7 @@ workspace/
   profiles/<name>.json               logical component -> checkout selectors
   build/profiles/<name>-<key>/       isolated sources, builds, and runtime
   build/npm-cache/                   shared package download cache
+  build/compiler-cache/              bounded shared native compiler cache
   build/retention.json               optional strict build pin/rollback record
   topologies/<name>/                 supervised process state and rotated logs
   state/server/<name>/               persistent mutable server data
@@ -231,12 +232,13 @@ locks, registered Git worktrees, and exact absolute roots in strict schema-1
 helper repeats containment, symlink, marker, schema, and purpose validation
 immediately before deletion.
 
-The npm cache has an exact `npm-cache` purpose marker and atomically refreshed
-`.atrinik-cache.json` timestamp. Its scope is opt-in. One pre-marker cache at
-that fixed path can be treated as a legacy known cache only after the workspace
-marker, fixed containment, no-symlink shape, age, and inactive-build checks
-pass; apply adopts the marker before calling the common removal helper. No
-other unmarked path receives that exception. Unmarked profile roots, unknown
+The npm and compiler caches have exact purpose markers and atomically refreshed
+`.atrinik-cache.json` timestamps. The compiler cache metadata also fixes its
+5 GiB bound. Both scopes are opt-in. One pre-marker npm cache at its fixed path
+can be treated as a legacy known cache only after the workspace marker, fixed
+containment, no-symlink shape, age, and inactive-build checks pass; apply
+adopts the marker before calling the common removal helper. No other unmarked
+path receives that exception. Unmarked profile roots, unknown
 `workspace/build` children, and the mixed top-level `build/` tree remain
 visible report-only `unmanaged-build` records. Cleanup never targets profiles,
 scenarios, state, topology records/logs, migration archives/evidence, branches,
@@ -340,19 +342,35 @@ but malformed fails validation rather than silently shrinking that closure.
 This separates combinations across distinct physical checkouts while
 preserving compiler output when the same worktrees advance, and makes pre-split
 build trees inert rather than reinterpreting them under replacement identities.
-The coordinator creates disposable source views rather than writing dependency
-links or output into source checkouts.
+The coordinator reconciles marker-owned source views in place rather than
+writing dependency links or output into source checkouts. It retains unchanged
+safe links and copies, replaces changed or retargeted entries, removes stale
+entries, and rejects source symlinks that escape their selected source root.
+Linked-tree structure and symlink targets participate in view identity; dirty
+Git sources conservatively force configure so untracked or otherwise unmodeled
+CMake inputs cannot remain hidden behind a warm graph.
 
 The currently playable classic build flow is:
 
 ~~~text
 selected content-1x -> build_runtime.py -> isolated content/lib + content/maps
 selected tracked resource allowlist -> isolated resource view
-selected classic protocol/library + sound -> client source view -> CMake/Ninja
-selected classic protocol/library --------> server source view -> CMake/Ninja
+full Classic closure -> integrated source view -> one protocol/libatrinik graph
+                                             +-> client targets -> CMake/Ninja
+                                             +-> server targets -> CMake/Ninja
+component-only client/server request -> standalone source view -> CMake/Ninja
 selected Classic + content + resources ---> offline worldmaker -> region-map cache
 selected Worker -------------------------> npm source view -> npm run check
 ~~~
+
+The integrated graph is selected only when client, server, protocol, and
+libatrinik resolve to sibling directories in one physical Classic checkout.
+Its binaries remain below a distinct `build/integrated` tree, and per-role
+marker records select those artifacts for later runtime staging. A successful
+standalone component build updates only that role's marker. This prevents an
+older graph from being selected merely because its output directory exists,
+while keeping partial Classic checkouts and component-specific FetchContent
+validation supported.
 
 The replacement MIT `server`, `client`, `editor`, `protocol`, `renderer`,
 `content-toolkit`, and `website` repositories have validated standalone M1
@@ -372,6 +390,28 @@ The resources repository's `runtime-paths.txt` is the distribution boundary:
 only tracked regular files below those paths enter the runtime view. This keeps
 repository metadata, local untracked files, and symlinks out of the asset
 protocol.
+
+Each CMake binary tree stores an atomic configure fingerprint covering the
+source-view identity, Ninja generator, CMake and compiler identities, toolchain
+and cache arguments, `BUILD_TESTING`, and relevant compiler/platform
+environment. The wrapper skips only its explicit configure command when both
+that fingerprint and the reconciled view are unchanged and the CMake cache and
+Ninja graph still identify the expected source/generator; `cmake --build`
+remains able to invoke CMake/Ninja dependency regeneration. Compiler,
+toolchain-file, and initialization-environment changes reinitialize only the
+marker-owned CMake binary tree. A forced configure is available through
+`--force-reconfigure` without resetting an otherwise matching tree.
+
+When `ccache` is discoverable, the wrapper sets supported C and C++ CMake
+compiler launchers and a marker-owned shared cache with a fixed 5 GiB maximum.
+The per-build cache base and compiler prefix-map arguments normalize equivalent
+profile roots to stable `/atrinik/source` and `/atrinik/build` diagnostics
+without sharing mutable CMake binary trees. Prefix-map flags are added only
+after the selected environment compiler proves support; opaque toolchain
+compilers retain their own flag syntax and directory-sensitive cache keys.
+Compiler, toolchain, test-mode, or relevant environment changes invalidate
+configure state; source dependency changes continue through Ninja.
+`--no-ccache` explicitly opts out and clears any cached launcher setting.
 
 After a Classic server build, the coordinator runs the built server's offline
 worldmaker in a temporary runtime assembled from the selected server,

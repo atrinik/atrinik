@@ -72,3 +72,8 @@ classic client and server with `--profile classic --test`. Replacement
 components use their repository-owned aggregate validation today and remain
 inspectable through wrapper manifest/profile contracts until wrapper build
 adapters are implemented.
+
+For CMake/cache changes, also repeat an unchanged build, exercise
+`--force-reconfigure` and `--no-ccache`, inspect `ccache --show-stats` when the
+command is installed, and preview shared-cache retention with
+`./atrinik cleanup --scope compiler-cache --dry-run --json`.

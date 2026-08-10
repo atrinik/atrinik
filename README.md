@@ -241,6 +241,35 @@ Add the complete currently playable classic stack explicitly:
 ./atrinik down classic-local
 ~~~
 
+`build all` configures the selected Classic monorepo through its root CMake
+project, so protocol and libatrinik are compiled once and shared by the client
+and server. A component-specific build such as `build client` or `build server`
+continues to exercise that module's supported standalone FetchContent path.
+
+Managed source views are reconciled in place, so unchanged links and copied
+files retain their identity while changed, retargeted, and stale entries are
+updated without following unsafe symlinks. Linked-directory structure and
+symlink targets participate in view identity; a dirty Git source conservatively
+runs configure on every build. CMake configuration is skipped only when the
+source-view state and a fingerprint of the generator, CMake/compiler
+toolchain, cache arguments, test mode, and relevant environment still match.
+Ninja may still run CMake's dependency regeneration during the build. Use
+`--force-reconfigure` to run the explicit configure step regardless. A skip
+also requires the expected CMake cache and Ninja graph to identify the current
+source and generator. Compiler, toolchain-file, or initialization-environment
+changes safely reinitialize only that marker-owned binary tree while retaining
+the shared compiler cache.
+
+When `ccache` is available, native C and C++ builds automatically use the
+marker-owned shared `workspace/build/compiler-cache`, bounded at 5 GiB. Debug
+and source prefixes are normalized across equivalent profile roots when the
+selected environment compiler proves support for the required prefix-map
+switches. Opaque toolchain-selected compilers retain their own flag contract
+instead of receiving incompatible GCC-style switches, and retain directory
+hashing so objects with profile-specific debug paths cannot cross profile
+roots. Pass `--no-ccache` for an explicit uncached build; an unavailable cache
+command is reported with the same opt-out guidance.
+
 Building the Classic server also runs its offline worldmaker and stages the
 generated region-map `.png`/`.def` pairs in the profile build. Generation uses
 the selected Classic, `content-1x`, and resource views, so it requires the same
@@ -476,13 +505,13 @@ seven days without changing the filesystem:
 ./atrinik cleanup
 ./atrinik cleanup --dry-run --json
 ./atrinik cleanup --scope worktrees classic-server --older-than 14
-./atrinik cleanup --scope builds --scope npm-cache --older-than 0
+./atrinik cleanup --scope builds --scope npm-cache --scope compiler-cache --older-than 0
 ./atrinik cleanup --scope all --older-than 7 --apply
 ~~~
 
 `--dry-run` is the explicit spelling of the default mode; only `--apply`
 mutates. Repeated `--scope` options combine `worktrees`, `builds`, and the
-opt-in `npm-cache`; `all` selects all three. Positional checkout or logical
+opt-in `npm-cache` and `compiler-cache`; `all` selects all four. Positional checkout or logical
 component names narrow only the worktree inventory and still deduplicate
 aliases to one physical checkout. The special `atrinik` filter selects wrapper
 worktrees. JSON output is stable schema-versioned data and keeps Git/GitHub
@@ -537,10 +566,11 @@ schema 1 and contains exactly `schema_version` plus an absolute `build_roots`
 array. A build sourced from a worktree eligible in the same plan may be
 reclaimed regardless of age unless another protection applies.
 
-The shared `workspace/build/npm-cache` is never part of default cleanup. Its
-explicit scope accepts the exact marker-owned path or the one legacy known
-cache at that fixed location after proving the workspace marker, path shape,
-age, and absence of an active build. Unmarked profile roots, other
+The shared `workspace/build/npm-cache` and `workspace/build/compiler-cache`
+are never part of default cleanup. Their explicit scopes require exact
+marker-owned paths, valid last-use metadata, safe fixed containment, age, and
+absence of an active build. Only the npm path admits one legacy known cache
+after the same proof. Unmarked profile roots, other
 `workspace/build` children, and all remaining mixed top-level `build/`
 entries are report-only `unmanaged-build` items. Deep-review reports, ad hoc
 builds, packages, archives, and unregistered siblings are never recursively
