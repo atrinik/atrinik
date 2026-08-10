@@ -1685,7 +1685,11 @@ class Workspace:
 
     @staticmethod
     def _validate_resource_view(
-        path: Path, tracked: list[str], *, require_metadata: bool = True
+        path: Path,
+        source: Path,
+        tracked: list[str],
+        *,
+        require_metadata: bool = True,
     ) -> None:
         if not path.is_dir() or path.is_symlink():
             raise WorkspaceError(f"resource view is not a directory: {path}")
@@ -1724,6 +1728,24 @@ class Workspace:
         }
         if actual_directories != expected_directories:
             raise WorkspaceError("resource view does not match its tracked directories")
+        for relative in tracked:
+            parts = PurePosixPath(relative).parts
+            identities: list[tuple[int, str]] = []
+            for candidate, label in (
+                (source.joinpath(*parts), "source resource"),
+                (path.joinpath(*parts), "staged resource"),
+            ):
+                digest = hashlib.sha256()
+                descriptor = open_regular_file(candidate, os.O_RDONLY, label)
+                with os.fdopen(descriptor, "rb") as stream:
+                    size = os.fstat(stream.fileno()).st_size
+                    while chunk := stream.read(1024 * 1024):
+                        digest.update(chunk)
+                identities.append((size, digest.hexdigest()))
+            if identities[0] != identities[1]:
+                raise WorkspaceError(
+                    f"staged resource does not match selected source: {relative}"
+                )
 
     def _runtime_input_cache_matches(
         self,
@@ -1820,6 +1842,12 @@ class Workspace:
             raise WorkspaceError(
                 f"resource runtime manifest selects no tracked files: {manifest}"
             )
+        reserved = {MANAGED_MARKER, RUNTIME_INPUT_METADATA}
+        if selected_reserved := sorted(reserved.intersection(tracked)):
+            raise WorkspaceError(
+                "resource runtime manifest selects reserved generated paths: "
+                + ", ".join(selected_reserved)
+            )
         return runtime_paths, tracked
 
     def _collect_content(
@@ -1914,7 +1942,7 @@ class Workspace:
             "resource-view",
             inputs,
             cacheable,
-            lambda path: self._validate_resource_view(path, tracked),
+            lambda path: self._validate_resource_view(path, source, tracked),
         )
         validated_inputs, validated_cacheable = self._runtime_input_coordinates(
             profile_name, selected, "resources"
@@ -1975,8 +2003,21 @@ class Workspace:
             if cacheable:
                 atomic_json(staging / RUNTIME_INPUT_METADATA, inputs)
             self._validate_resource_view(
-                staging, tracked, require_metadata=cacheable
+                staging, source, tracked, require_metadata=cacheable
             )
+            installed_inputs, installed_cacheable = self._runtime_input_coordinates(
+                profile_name, selected, "resources"
+            )
+            installed_runtime_paths, installed_tracked = (
+                self._resource_runtime_files(source)
+            )
+            if (
+                installed_inputs != inputs
+                or installed_cacheable != cacheable
+                or installed_runtime_paths != runtime_paths
+                or installed_tracked != tracked
+            ):
+                raise WorkspaceError("selected resource input changed during staging")
         except BaseException:
             shutil.rmtree(staging)
             raise
@@ -2948,6 +2989,73 @@ class Workspace:
             replace_directory(destination, source, f".{name}-previous-")
         return destination
 
+    def _copy_topology_runtime_inputs(
+        self,
+        topology_root: Path,
+        inputs: tuple[tuple[str, Path, str], ...],
+    ) -> dict[str, Path]:
+        container = topology_root / "runtime"
+        expected = {
+            name: {"schema_version": SCHEMA_VERSION, "purpose": purpose}
+            for name, _source, purpose in inputs
+        }
+        if container.exists() or container.is_symlink():
+            if not container.is_dir() or container.is_symlink():
+                raise WorkspaceError(
+                    f"topology runtime container is invalid: {container}"
+                )
+            for entry in container.iterdir():
+                metadata = expected.get(entry.name)
+                marker = entry / MANAGED_MARKER
+                if (
+                    metadata is None
+                    or not entry.is_dir()
+                    or entry.is_symlink()
+                    or not marker.is_file()
+                    or marker.is_symlink()
+                    or load_json(marker) != metadata
+                ):
+                    raise WorkspaceError(
+                        f"topology runtime container has an unmanaged entry: {entry}"
+                    )
+
+        staging = Path(tempfile.mkdtemp(prefix=".runtime-", dir=topology_root))
+        staging.rmdir()
+        staging.mkdir()
+        try:
+            for name, source, purpose in inputs:
+                metadata = expected[name]
+                marker = source / MANAGED_MARKER
+                if (
+                    not source.is_dir()
+                    or source.is_symlink()
+                    or not marker.is_file()
+                    or marker.is_symlink()
+                    or load_json(marker) != metadata
+                ):
+                    raise WorkspaceError(
+                        f"topology runtime input is not managed for {purpose}: {source}"
+                    )
+                destination = staging / name
+                shutil.copytree(source, destination)
+                copied_marker = destination / MANAGED_MARKER
+                if (
+                    not destination.is_dir()
+                    or destination.is_symlink()
+                    or not copied_marker.is_file()
+                    or copied_marker.is_symlink()
+                    or load_json(copied_marker) != metadata
+                ):
+                    raise WorkspaceError(
+                        f"copied topology runtime input is invalid: {destination}"
+                    )
+            replace_directory(container, staging, ".runtime-previous-")
+        except BaseException:
+            if staging.exists():
+                shutil.rmtree(staging)
+            raise
+        return {name: container / name for name in expected}
+
     def _prepare_topology_client_runtime(
         self, topology_root: Path, selected: dict[str, Path]
     ) -> Path:
@@ -3398,27 +3506,29 @@ class Workspace:
                         selected["server"],
                         resolved_path=state_location,
                     )
-                    content = self._take_topology_runtime_input(
+                    runtime_inputs = self._copy_topology_runtime_inputs(
                         topology_root,
-                        root / "runtime" / "content",
-                        "content",
-                        "collected-content",
-                        preserve_source=True,
+                        (
+                            (
+                                "content",
+                                root / "runtime" / "content",
+                                "collected-content",
+                            ),
+                            (
+                                "resources",
+                                root / "runtime" / "resources",
+                                "resource-view",
+                            ),
+                            (
+                                "client-maps",
+                                root / "runtime" / "client-maps",
+                                "region-map-cache",
+                            ),
+                        ),
                     )
-                    resources = self._take_topology_runtime_input(
-                        topology_root,
-                        root / "runtime" / "resources",
-                        "resources",
-                        "resource-view",
-                        preserve_source=True,
-                    )
-                    client_maps = self._take_topology_runtime_input(
-                        topology_root,
-                        root / "runtime" / "client-maps",
-                        "client-maps",
-                        "region-map-cache",
-                        preserve_source=True,
-                    )
+                    content = runtime_inputs["content"]
+                    resources = runtime_inputs["resources"]
+                    client_maps = runtime_inputs["client-maps"]
                     runtime = self._prepare_server_runtime(
                         root,
                         selected,

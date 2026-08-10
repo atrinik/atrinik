@@ -449,9 +449,11 @@ A server topology copies the collected-content and staged-resource caches after
 the shared incremental build. The profile build retains its source caches, and
 each topology owns independent immutable-at-startup copies, so later builds and
 other topology removal or mutation cannot change the filesystem seen by a
-running process. Because the caches remain below the marker-owned profile build,
-existing build retention and marker-safe cleanup own their lifecycle; topology
-copies follow topology retention.
+running process. Content, resources, and generated client maps are staged and
+installed as one runtime-input transaction, so a failed restart retains the
+complete previous snapshot set and status. Because the caches remain below the
+marker-owned profile build, existing build retention and marker-safe cleanup
+own their lifecycle; topology copies follow topology retention.
 A topology may select one service, and distinct runtime names permit concurrent
 combinations as long as their server ports and mutable state directories do not
 conflict. When replacement runtime support lands, a concurrent `classic` and

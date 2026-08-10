@@ -641,6 +641,20 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertFalse((output / "paintings" / "private.txt").exists())
 
+    def test_resource_view_rejects_tracked_generated_metadata_names(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        (source / MANAGED_MARKER).write_text("payload\n", encoding="utf-8")
+        (source / "runtime-paths.txt").write_text(
+            f"{MANAGED_MARKER}\n", encoding="utf-8"
+        )
+        command("git", "add", ".", cwd=source)
+        command("git", "commit", "-m", "test: select reserved resource", cwd=source)
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+
+        with self.assertRaisesRegex(WorkspaceError, "reserved generated paths"):
+            self.workspace._stage_resources(root, {"resources": source})
+
     def test_resource_view_rejects_unsafe_manifest_path(self) -> None:
         source = self.workspace.paths.repositories / "resources"
         (source / "runtime-paths.txt").write_text("../outside\n", encoding="utf-8")
@@ -719,6 +733,16 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace._stage_resources(root, {"resources": source})
             self.assertEqual(copied, 7)
             self.assertFalse((output / "unexpected").exists())
+
+            (output / "paintings" / "scene.jpg").write_text(
+                "bad cache!\n", encoding="utf-8"
+            )
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 8)
+            self.assertEqual(
+                (output / "paintings" / "scene.jpg").read_text(encoding="utf-8"),
+                "new commit\n",
+            )
 
     def test_resource_view_race_preserves_previous_cache(self) -> None:
         source = self.workspace.paths.repositories / "resources"
@@ -805,10 +829,19 @@ class WorkspaceTests(unittest.TestCase):
         mutated = False
 
         def mutate_after_validation(
-            path: Path, tracked: list[str], *, require_metadata: bool = True
+            path: Path,
+            selected_source: Path,
+            tracked: list[str],
+            *,
+            require_metadata: bool = True,
         ) -> None:
             nonlocal mutated
-            real_validate(path, tracked, require_metadata=require_metadata)
+            real_validate(
+                path,
+                selected_source,
+                tracked,
+                require_metadata=require_metadata,
+            )
             if not mutated:
                 mutated = True
                 (source / "local-race").write_text("dirty\n", encoding="utf-8")
@@ -1074,6 +1107,65 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(
             [entry.name for entry in destination.parent.iterdir()], ["resources"]
+        )
+
+    def test_topology_runtime_set_copy_failure_preserves_all_snapshots(self) -> None:
+        topology = self.root / "topology"
+        runtime = topology / "runtime"
+        runtime.mkdir(parents=True)
+        sources: list[tuple[str, Path, str]] = []
+        for name, purpose in (
+            ("content", "collected-content"),
+            ("resources", "resource-view"),
+            ("client-maps", "region-map-cache"),
+        ):
+            source = self.root / f"shared-{name}"
+            source.mkdir()
+            (source / "payload").write_text("new\n", encoding="utf-8")
+            atomic_json(
+                source / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": purpose},
+            )
+            destination = runtime / name
+            destination.mkdir()
+            (destination / "payload").write_text("previous\n", encoding="utf-8")
+            atomic_json(
+                destination / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": purpose},
+            )
+            sources.append((name, source, purpose))
+        status = topology / "status.json"
+        status.write_text("previous status\n", encoding="utf-8")
+        real_copy = shutil.copytree
+        copied = 0
+
+        def fail_second_copy(
+            source_path: Path, destination: Path, **kwargs: object
+        ) -> Path:
+            nonlocal copied
+            copied += 1
+            if copied == 2:
+                raise OSError("disk full")
+            return real_copy(source_path, destination, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.shutil.copytree",
+            side_effect=fail_second_copy,
+        ):
+            with self.assertRaisesRegex(OSError, "disk full"):
+                self.workspace._copy_topology_runtime_inputs(
+                    topology, tuple(sources)
+                )
+
+        for name, _source, _purpose in sources:
+            self.assertEqual(
+                (runtime / name / "payload").read_text(encoding="utf-8"),
+                "previous\n",
+            )
+        self.assertEqual(status.read_text(encoding="utf-8"), "previous status\n")
+        self.assertEqual(
+            sorted(entry.name for entry in topology.iterdir()),
+            ["runtime", "status.json"],
         )
 
     def test_region_maps_are_atomic_cached_and_keyed_by_clean_inputs(self) -> None:
