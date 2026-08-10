@@ -95,6 +95,9 @@ SCENARIO_PASSWORD_MAX_SIZE = 128
 BUILD_METADATA = ".atrinik-build.json"
 BUILD_METADATA_SCHEMA_VERSION = 1
 CACHE_METADATA = ".atrinik-cache.json"
+REGION_MAP_METADATA = ".atrinik-region-maps.json"
+REGION_MAP_SCHEMA_VERSION = 1
+EXPECTED_REGION_MAP = "incuna_-1"
 
 
 def display_arguments(arguments: list[str]) -> str:
@@ -1352,6 +1355,7 @@ class Workspace:
                 self._build_client(root, selected, tests)
             if "server" in targets:
                 self._build_server(root, selected, tests)
+                self._generate_region_maps(root, profile_name, selected)
             if "metaserver-worker" in targets:
                 self._build_worker(root, selected)
             if target in {"sound", "resources"}:
@@ -1726,6 +1730,174 @@ class Workspace:
             tests,
         )
 
+    def _region_map_inputs(
+        self, profile_name: str, selected: dict[str, Path]
+    ) -> tuple[dict[str, Any], bool]:
+        profile = self._load_profile(profile_name, require_file=False)
+        stack = self.manifest.stack(profile["stack"])
+        coordinates: dict[str, dict[str, str]] = {}
+        cacheable = True
+        for role, source in sorted(selected.items()):
+            component = stack.providers[role]
+            checkout = self._selector_root(profile, component).resolve()
+            clean = _is_clean(checkout, trace=False)
+            cacheable = cacheable and clean
+            coordinates[role] = {
+                "component": component.name,
+                "repository": component.repository,
+                "branch": component.branch,
+                "checkout": component.checkout_name,
+                "source": component.source,
+                "checkout_path": str(checkout),
+                "source_path": str(source.resolve()),
+                "head": git(
+                    checkout, "rev-parse", "HEAD", capture=True, trace=False
+                ),
+            }
+        return (
+            {
+                "schema_version": REGION_MAP_SCHEMA_VERSION,
+                "cacheable": cacheable,
+                "coordinates": coordinates,
+            },
+            cacheable,
+        )
+
+    @staticmethod
+    def _validate_region_maps(path: Path) -> None:
+        if not path.is_dir() or path.is_symlink():
+            raise WorkspaceError(f"region-map output is not a directory: {path}")
+        png_names: set[str] = set()
+        definition_names: set[str] = set()
+        for entry in path.iterdir():
+            if entry.name in {MANAGED_MARKER, REGION_MAP_METADATA}:
+                continue
+            try:
+                mode = entry.lstat().st_mode
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect generated region map {entry}: {error}"
+                ) from error
+            if not stat.S_ISREG(mode) or entry.suffix not in {".png", ".def"}:
+                raise WorkspaceError(
+                    f"generated region-map output is invalid: {entry}"
+                )
+            if entry.stat().st_size == 0:
+                raise WorkspaceError(f"generated region map is empty: {entry}")
+            if entry.suffix == ".png":
+                with entry.open("rb") as stream:
+                    if stream.read(8) != b"\x89PNG\r\n\x1a\n":
+                        raise WorkspaceError(
+                            f"generated region map is not a PNG file: {entry}"
+                        )
+                png_names.add(entry.stem)
+            else:
+                try:
+                    entry.read_text(encoding="utf-8")
+                except (OSError, UnicodeError) as error:
+                    raise WorkspaceError(
+                        f"generated region-map definition is not UTF-8: {entry}"
+                    ) from error
+                definition_names.add(entry.stem)
+        if png_names != definition_names:
+            missing_png = sorted(definition_names - png_names)
+            missing_definition = sorted(png_names - definition_names)
+            details = []
+            if missing_png:
+                details.append(f"missing PNG: {', '.join(missing_png)}")
+            if missing_definition:
+                details.append(
+                    f"missing definition: {', '.join(missing_definition)}"
+                )
+            raise WorkspaceError(
+                f"generated region-map pairs are incomplete ({'; '.join(details)})"
+            )
+        if EXPECTED_REGION_MAP not in png_names:
+            raise WorkspaceError(
+                f"generated region maps lack required {EXPECTED_REGION_MAP} pair"
+            )
+
+    def _region_map_cache_matches(
+        self, output: Path, inputs: dict[str, Any], cacheable: bool
+    ) -> bool:
+        if not cacheable or not output.is_dir() or output.is_symlink():
+            return False
+        marker = output / MANAGED_MARKER
+        metadata = output / REGION_MAP_METADATA
+        expected_marker = {
+            "schema_version": SCHEMA_VERSION,
+            "purpose": "region-map-cache",
+        }
+        if (
+            not marker.is_file()
+            or marker.is_symlink()
+            or not metadata.is_file()
+            or metadata.is_symlink()
+        ):
+            return False
+        try:
+            if load_json(marker) != expected_marker or load_json(metadata) != inputs:
+                return False
+            self._validate_region_maps(output)
+        except WorkspaceError:
+            return False
+        return True
+
+    def _generate_region_maps(
+        self, root: Path, profile_name: str, selected: dict[str, Path]
+    ) -> Path:
+        output = root / "runtime" / "client-maps"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        inputs, cacheable = self._region_map_inputs(profile_name, selected)
+        if self._region_map_cache_matches(output, inputs, cacheable):
+            print(f"region maps: cached {output}")
+            return output
+        if output.exists() or output.is_symlink():
+            managed_directory(output, self.paths.builds, "region-map-cache")
+
+        staging_root = Path(
+            tempfile.mkdtemp(prefix=".region-maps-", dir=output.parent)
+        )
+        try:
+            working = staging_root / "server"
+            working.mkdir()
+            data = staging_root / "data"
+            shutil.copytree(selected["server"] / "install_data", data)
+            (data / "tmp").mkdir(exist_ok=True)
+            http = staging_root / "http"
+            http.mkdir()
+            generated = http / "client-maps"
+            content = root / "runtime" / "content"
+            resources = root / "runtime" / "resources"
+            self._link_server_runtime_inputs(
+                working, root, selected, data, content, resources
+            )
+            executable = working / "atrinik-server"
+            run(
+                [
+                    str(executable),
+                    "--worldmaker",
+                    f"--datapath={data}",
+                    f"--httppath={http}",
+                ],
+                cwd=working,
+            )
+            self._validate_region_maps(generated)
+            atomic_json(
+                generated / MANAGED_MARKER,
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": "region-map-cache",
+                },
+            )
+            atomic_json(generated / REGION_MAP_METADATA, inputs)
+            replace_directory(output, generated, ".client-maps-previous-")
+        finally:
+            if staging_root.exists():
+                shutil.rmtree(staging_root)
+        print(f"region maps: generated {output}")
+        return output
+
     def _build_worker(self, root: Path, selected: dict[str, Path]) -> None:
         view = self._profile_source_view(
             root,
@@ -1987,6 +2159,7 @@ class Workspace:
                 f"--provision_character={metadata['character']}",
                 f"--provision_archetype={metadata['archetype']}",
                 f"--provision_password_file={password_file}",
+                f"--httppath={runtime / 'http'}",
             ],
             cwd=runtime,
         )
@@ -2349,6 +2522,7 @@ class Workspace:
         source: Path,
         name: str,
         purpose: str,
+        preserve_source: bool = False,
     ) -> Path:
         expected = {"schema_version": SCHEMA_VERSION, "purpose": purpose}
         marker = source / MANAGED_MARKER
@@ -2384,7 +2558,10 @@ class Workspace:
                     f"topology runtime destination is not managed: {destination}"
                 )
             shutil.rmtree(destination)
-        source.replace(destination)
+        if preserve_source:
+            shutil.copytree(source, destination)
+        else:
+            source.replace(destination)
         return destination
 
     def _prepare_topology_client_runtime(
@@ -2847,6 +3024,13 @@ class Workspace:
                         "resources",
                         "resource-view",
                     )
+                    client_maps = self._take_topology_runtime_input(
+                        topology_root,
+                        root / "runtime" / "client-maps",
+                        "client-maps",
+                        "region-map-cache",
+                        preserve_source=True,
+                    )
                     runtime = self._prepare_server_runtime(
                         root,
                         selected,
@@ -2854,6 +3038,7 @@ class Workspace:
                         state_name,
                         content,
                         resources,
+                        client_maps,
                     )
                     executable = runtime / "atrinik-server"
                     service_specs["server"] = {
@@ -2862,6 +3047,7 @@ class Workspace:
                             f"--port_quic={endpoint['port']}",
                             "--port_mapping=off",
                             "--stun_server=off",
+                            f"--httppath={runtime / 'http'}",
                             "--no_console",
                         ],
                         "cwd": str(runtime),
@@ -3213,6 +3399,7 @@ class Workspace:
                 f"--port_quic={port}",
                 "--port_mapping=off",
                 "--stun_server=off",
+                f"--httppath={runtime / 'http'}",
                 *arguments,
             ]
             print(f"state: {state}")
@@ -3267,22 +3454,17 @@ class Workspace:
             ) from error
         return hashlib.sha256(encoded).hexdigest()
 
-    def _prepare_server_runtime(
+    def _link_server_runtime_inputs(
         self,
+        runtime: Path,
         root: Path,
         selected: dict[str, Path],
         state: Path,
-        state_name: str,
-        content: Path | None = None,
-        resources: Path | None = None,
-    ) -> Path:
-        state_key = profile_key({"state": state})
-        runtime = root / "run" / "server" / f"{state_name}-{state_key}"
-        managed_reset(runtime, self.paths.builds, f"server-runtime:{state_key}")
+        content: Path,
+        resources: Path,
+    ) -> None:
         source = selected["server"]
         binary = root / "build" / "server"
-        content = content or root / "runtime" / "content"
-        resources = resources or root / "runtime" / "resources"
         links = {
             "atrinik-server": binary / "atrinik-server",
             "libplugin_arena.so": binary / "libplugin_arena.so",
@@ -3296,7 +3478,9 @@ class Workspace:
         for name, target in links.items():
             if not target.exists():
                 raise WorkspaceError(f"server runtime input is missing: {target}")
-            (runtime / name).symlink_to(target, target_is_directory=target.is_dir())
+            (runtime / name).symlink_to(
+                target, target_is_directory=target.is_dir()
+            )
         for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
             target = source / name
             if not target.is_file():
@@ -3305,6 +3489,38 @@ class Workspace:
         custom = source / "server-custom.cfg"
         if custom.is_file():
             (runtime / "server-custom.cfg").symlink_to(custom)
+
+    def _prepare_server_runtime(
+        self,
+        root: Path,
+        selected: dict[str, Path],
+        state: Path,
+        state_name: str,
+        content: Path | None = None,
+        resources: Path | None = None,
+        client_maps: Path | None = None,
+    ) -> Path:
+        state_key = profile_key({"state": state})
+        runtime = root / "run" / "server" / f"{state_name}-{state_key}"
+        managed_reset(runtime, self.paths.builds, f"server-runtime:{state_key}")
+        content = content or root / "runtime" / "content"
+        resources = resources or root / "runtime" / "resources"
+        client_maps = client_maps or root / "runtime" / "client-maps"
+        self._validate_region_maps(client_maps)
+        http_data = state / "http" / "data"
+        if not http_data.is_dir() or http_data.is_symlink():
+            raise WorkspaceError(
+                f"server state lacks required HTTP data directory: {http_data}"
+            )
+        self._link_server_runtime_inputs(
+            runtime, root, selected, state, content, resources
+        )
+        http = runtime / "http"
+        http.mkdir()
+        (http / "data").symlink_to(http_data, target_is_directory=True)
+        (http / "client-maps").symlink_to(
+            client_maps, target_is_directory=True
+        )
         return runtime
 
     def _component(self, name: str) -> Component:

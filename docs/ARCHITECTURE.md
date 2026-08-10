@@ -342,6 +342,7 @@ selected content-1x -> build_runtime.py -> isolated content/lib + content/maps
 selected tracked resource allowlist -> isolated resource view
 selected classic protocol/library + sound -> client source view -> CMake/Ninja
 selected classic protocol/library --------> server source view -> CMake/Ninja
+selected Classic + content + resources ---> offline worldmaker -> region-map cache
 selected Worker -------------------------> npm source view -> npm run check
 ~~~
 
@@ -364,6 +365,17 @@ only tracked regular files below those paths enter the runtime view. This keeps
 repository metadata, local untracked files, and symlinks out of the asset
 protocol.
 
+After a Classic server build, the coordinator runs the built server's offline
+worldmaker in a temporary runtime assembled from the selected server,
+collected content, and staged resources. The generator writes into a sibling
+temporary directory; the coordinator accepts it only when every output is a
+nonempty regular `.png` or UTF-8 `.def`, the basename sets form complete pairs,
+and the expected `incuna_-1` pair exists. It then installs the marker-owned
+cache atomically, preserving the previous valid cache on failure. Cache
+metadata records all selected provider, repository, branch, checkout, source,
+path, and commit coordinates. It is reusable only for clean checkouts with an
+exact metadata match; dirty inputs deliberately regenerate.
+
 ## Runtime and state
 
 For the currently runnable classic profile, server launch preparation assembles
@@ -374,6 +386,15 @@ First use initializes a state atomically from the selected server's
 `install_data`; an existing directory is validated and never overlaid. State
 inside a server source worktree is rejected. Replacement runtime preparation
 remains unavailable until its native component contracts land.
+
+The server's configured HTTP asset root is a disposable runtime view. Its
+`data` entry points at the named state's existing `http/data`, while its
+`client-maps` entry points at the validated generated cache. A supervised
+topology copies that cache into its owned runtime before launch, so a later
+build cannot change the server's immutable startup asset snapshot. Fresh and
+registered states therefore receive the selected generated maps without
+writing them into mutable state. The cache follows marker-owned profile-build
+cleanup and topology copies follow topology retention and cleanup.
 
 The coordinator takes an advisory exclusive lock next to the state directory
 before build/runtime preparation and holds it for the lifetime of a launched
