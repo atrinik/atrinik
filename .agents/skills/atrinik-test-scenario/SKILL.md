@@ -5,9 +5,11 @@ description: Provision deterministic classic account/character scenarios with is
 
 # Atrinik test scenario
 
-Use scenarios for repeatable manual reproductions. Keep account creation inside
-the server API and orchestration inside the wrapper; never construct or edit
-account/player files.
+Use scenarios for repeatable reproductions. Keep account creation in the server
+API and orchestration in the wrapper; never edit account/player files.
+
+Fresh state comes from Classic `install_data`; the wrapper creates disposable
+asset staging. Never add generated assets to scenario state.
 
 1. Select the exact coherent classic-derived profile.
 2. Choose a lowercase issue/feature name and use `basic-player` unless a tested

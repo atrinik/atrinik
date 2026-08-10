@@ -1880,9 +1880,9 @@ class Workspace:
             data = staging_root / "data"
             shutil.copytree(selected["server"] / "install_data", data)
             (data / "tmp").mkdir(exist_ok=True)
-            http = staging_root / "http"
-            http.mkdir()
-            generated = http / "client-maps"
+            assets = staging_root / "assets"
+            assets.mkdir()
+            generated = assets / "client-maps"
             content = root / "runtime" / "content"
             resources = root / "runtime" / "resources"
             self._link_server_runtime_inputs(
@@ -1894,7 +1894,7 @@ class Workspace:
                     str(executable),
                     "--worldmaker",
                     f"--datapath={data}",
-                    f"--httppath={http}",
+                    f"--assetspath={assets}",
                     f"--libpath={working / 'lib'}",
                     f"--mapspath={working / 'maps'}",
                     f"--resourcespath={working / 'resources'}",
@@ -2185,7 +2185,7 @@ class Workspace:
                 f"--provision_character={metadata['character']}",
                 f"--provision_archetype={metadata['archetype']}",
                 f"--provision_password_file={password_file}",
-                f"--httppath={runtime / 'http'}",
+                f"--assetspath={runtime / 'assets'}",
             ],
             cwd=runtime,
         )
@@ -3073,7 +3073,7 @@ class Workspace:
                             f"--port_quic={endpoint['port']}",
                             "--port_mapping=off",
                             "--stun_server=off",
-                            f"--httppath={runtime / 'http'}",
+                            f"--assetspath={runtime / 'assets'}",
                             "--no_console",
                         ],
                         "cwd": str(runtime),
@@ -3426,7 +3426,7 @@ class Workspace:
                 "--port_mapping=off",
                 "--stun_server=off",
                 *arguments,
-                f"--httppath={runtime / 'http'}",
+                f"--assetspath={runtime / 'assets'}",
             ]
             print(f"state: {state}")
             print(f"cwd: {runtime}")
@@ -3533,21 +3533,30 @@ class Workspace:
         resources = resources or root / "runtime" / "resources"
         client_maps = client_maps or root / "runtime" / "client-maps"
         self._validate_region_maps(client_maps)
-        http_data = state / "http" / "data"
-        if not http_data.is_dir() or http_data.is_symlink():
-            raise WorkspaceError(
-                f"server state lacks required HTTP data directory: {http_data}"
-            )
         self._link_server_runtime_inputs(
             runtime, root, selected, state, content, resources
         )
-        http = runtime / "http"
-        http.mkdir()
-        (http / "data").symlink_to(http_data, target_is_directory=True)
-        (http / "client-maps").symlink_to(
-            client_maps, target_is_directory=True
-        )
+        assets = runtime / "assets"
+        self._prepare_asset_staging_directory(assets)
+        self._prepare_asset_staging_directory(assets / "data")
+        shutil.copytree(client_maps, assets / "client-maps")
         return runtime
+
+    @staticmethod
+    def _prepare_asset_staging_directory(path: Path) -> None:
+        if path.is_symlink():
+            raise WorkspaceError(f"server asset staging path is invalid: {path}")
+        try:
+            mode = path.lstat().st_mode
+        except FileNotFoundError:
+            path.mkdir()
+            return
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect server asset staging path {path}: {error}"
+            ) from error
+        if not stat.S_ISDIR(mode):
+            raise WorkspaceError(f"server asset staging path is invalid: {path}")
 
     def _component(self, name: str) -> Component:
         try:
