@@ -181,7 +181,7 @@ def parser() -> argparse.ArgumentParser:
     mark(profile_create.add_argument("name"), "none")
     mark(profile_create.add_argument("--from", dest="source", default="default"), "profile")
     profile_set = profile_commands.add_parser("set")
-    mark(profile_set.add_argument("name"), "profile")
+    mark(profile_set.add_argument("name"), "saved_profile")
     mark(profile_set.add_argument("component"), "profile_selection")
     selector = profile_set.add_mutually_exclusive_group(required=True)
     selector.add_argument("--primary", action="store_true")

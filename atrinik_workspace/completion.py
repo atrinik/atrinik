@@ -16,6 +16,9 @@ _MAX_WORDS = 256
 _MAX_WORD_LENGTH = 4096
 _MAX_DIRECTORY_ENTRIES = 256
 _MAX_METADATA_BYTES = 256 * 1024
+_MAX_RECORD_ENTRIES = 64
+_MAX_RECORD_BYTES = 64 * 1024
+_MAX_MARKER_BYTES = 1024
 _PROFILE_KEYS = {"schema_version", "name", "stack", "components"}
 _SCENARIO_KEYS = {
     "schema_version",
@@ -299,6 +302,8 @@ def _dynamic_candidates(
     if kind == "profile":
         builtins = list(manifest.stacks) if manifest is not None else ["default", "classic"]
         return [*builtins, *_profile_names(manifest, paths)]
+    if kind == "saved_profile":
+        return _profile_names(manifest, paths)
     if kind == "worktree":
         checkout = _selected_checkout(manifest, paths, values)
         return _worktree_names(paths, checkout) if paths and checkout else []
@@ -338,7 +343,7 @@ def _profile_names(manifest: Manifest | None, paths: Paths | None) -> list[str]:
         return []
     root = _workspace_descriptor(paths)
     if root is None:
-        return []
+        return {}
     profiles = _directory_descriptor("profiles", dir_fd=root)
     try:
         if profiles is None:
@@ -349,7 +354,7 @@ def _profile_names(manifest: Manifest | None, paths: Paths | None) -> list[str]:
             if path.suffix != ".json":
                 continue
             name = path.stem
-            if _profile_value(manifest, profiles, name) is not None:
+            if _profile_value(manifest, paths, profiles, name) is not None:
                 names.append(name)
         return names
     finally:
@@ -371,7 +376,7 @@ def _profile_stack(
     profiles = _directory_descriptor("profiles", dir_fd=root)
     try:
         value = (
-            _profile_value(manifest, profiles, profile)
+            _profile_value(manifest, paths, profiles, profile)
             if profiles is not None
             else None
         )
@@ -386,11 +391,11 @@ def _profile_stack(
 
 
 def _profile_value(
-    manifest: Manifest, profiles: int, name: str
+    manifest: Manifest, paths: Paths, profiles: int, name: str
 ) -> dict[str, Any] | None:
     if not _valid_name(name):
         return None
-    value = _json_at(profiles, f"{name}.json")
+    value = _json_at(profiles, f"{name}.json", _MAX_RECORD_BYTES)
     if not isinstance(value, dict) or set(value) != _PROFILE_KEYS:
         return None
     stack_name = value.get("stack")
@@ -405,7 +410,8 @@ def _profile_value(
     expected = {component.name for component in manifest.stacks[stack_name].components}
     if set(value["components"]) != expected:
         return None
-    for selector in value["components"].values():
+    checkout_selectors: dict[str, dict[str, Any]] = {}
+    for component_name, selector in value["components"].items():
         if (
             not isinstance(selector, dict)
             or set(selector) != {"kind", "value"}
@@ -421,7 +427,20 @@ def _profile_value(
             return None
         if kind == "worktree" and not _valid_name(selected):
             return None
-        if kind in {"path", "migrated-worktree"} and not Path(selected).is_absolute():
+        if kind == "path" and not Path(selected).is_absolute():
+            return None
+        if kind == "migrated-worktree":
+            migrated = Path(selected)
+            if (
+                component_name != "content-1x"
+                or not migrated.is_absolute()
+                or paths is None
+                or migrated.parent != paths.worktrees / "content"
+            ):
+                return None
+        checkout = manifest.by_name[component_name].checkout_name
+        previous = checkout_selectors.setdefault(checkout, selector)
+        if selector != previous:
             return None
     return value
 
@@ -454,30 +473,34 @@ def _selected_checkout(
 
 
 def _state_names(paths: Paths | None) -> list[str]:
+    return list(_registered_states(paths))
+
+
+def _registered_states(paths: Paths | None) -> dict[str, str]:
     if paths is None:
-        return []
+        return {}
     root = _workspace_descriptor(paths)
     if root is None:
         return []
     try:
-        value = _json_at(root, "states.json")
+        value = _json_at(root, "states.json", _MAX_RECORD_BYTES)
         if (
             not isinstance(value, dict)
             or set(value) != {"schema_version", "states"}
             or value.get("schema_version") != 1
         ):
-            return []
+            return {}
         states = value.get("states")
         if not isinstance(states, dict):
-            return []
+            return {}
         if any(
             not _valid_name(name)
             or not isinstance(path, str)
             or not Path(path).is_absolute()
             for name, path in states.items()
         ):
-            return []
-        return list(states)
+            return {}
+        return states
     finally:
         os.close(root)
 
@@ -489,20 +512,23 @@ def _scenario_names(manifest: Manifest | None, paths: Paths | None) -> list[str]
     if opened is None:
         return []
     root, records = opened
+    states = _registered_states(paths)
     try:
         names: list[str] = []
-        for name in _entry_names(records, file_type="directory"):
+        for name in _entry_names(
+            records, file_type="directory", limit=_MAX_RECORD_ENTRIES
+        ):
             if not _valid_name(name):
                 continue
             record = _directory_descriptor(name, dir_fd=records)
             if record is None:
                 continue
             try:
-                marker = _json_at(record, MANAGED_MARKER)
-                value = _json_at(record, "scenario.json")
+                marker = _json_at(record, MANAGED_MARKER, _MAX_MARKER_BYTES)
+                value = _json_at(record, "scenario.json", _MAX_RECORD_BYTES)
                 if (
                     marker == {"schema_version": 1, "purpose": "test-scenario"}
-                    and _valid_scenario(manifest, paths, name, value)
+                    and _valid_scenario(manifest, paths, states, name, value)
                 ):
                     names.append(name)
             finally:
@@ -514,7 +540,11 @@ def _scenario_names(manifest: Manifest | None, paths: Paths | None) -> list[str]
 
 
 def _valid_scenario(
-    manifest: Manifest, paths: Paths, name: str, value: Any
+    manifest: Manifest,
+    paths: Paths,
+    states: dict[str, str],
+    name: str,
+    value: Any,
 ) -> bool:
     if not isinstance(value, dict) or set(value) != _SCENARIO_KEYS:
         return False
@@ -529,19 +559,27 @@ def _valid_scenario(
     stack = manifest.stacks[stack_name]
     providers = value.get("providers")
     resolved = value.get("resolved")
+    required = _required_roles(stack, "server")
+    expected_providers = {
+        role: stack.providers[role].name for role in sorted(required)
+    }
+    state_name = f"scenario-{name}"
     if (
         value.get("schema_version") != 4
+        or not required
         or value.get("name") != name
         or value.get("stack") != stack_name
-        or value.get("state") != f"scenario-{name}"
+        or value.get("state") != state_name
         or value.get("preset") != "basic-player"
         or any(
             not isinstance(value.get(field), str) or not value[field]
             for field in ("account", "character", "archetype", "provisioned_at")
         )
         or not isinstance(providers, dict)
+        or providers != expected_providers
         or not isinstance(resolved, dict)
-        or set(resolved) != set(providers)
+        or set(resolved) != required
+        or states.get(state_name) != str(paths.scenarios / name / "state")
     ):
         return False
     for role, component_name in providers.items():
@@ -577,6 +615,21 @@ def _valid_scenario(
     return True
 
 
+def _required_roles(stack: Any, role: str) -> set[str]:
+    required: set[str] = set()
+    pending = [role]
+    while pending:
+        current = pending.pop()
+        if current in required:
+            continue
+        provider = stack.providers.get(current)
+        if provider is None:
+            return set()
+        required.add(current)
+        pending.extend(provider.requires)
+    return required
+
+
 def _topology_names(manifest: Manifest | None, paths: Paths | None) -> list[str]:
     if manifest is None or paths is None:
         return []
@@ -586,15 +639,17 @@ def _topology_names(manifest: Manifest | None, paths: Paths | None) -> list[str]
     root, topologies = opened
     try:
         names: list[str] = []
-        for name in _entry_names(topologies, file_type="directory"):
+        for name in _entry_names(
+            topologies, file_type="directory", limit=_MAX_RECORD_ENTRIES
+        ):
             if not _valid_name(name):
                 continue
             record = _directory_descriptor(name, dir_fd=topologies)
             if record is None:
                 continue
             try:
-                marker = _json_at(record, MANAGED_MARKER)
-                status = _json_at(record, "status.json")
+                marker = _json_at(record, MANAGED_MARKER, _MAX_MARKER_BYTES)
+                status = _json_at(record, "status.json", _MAX_RECORD_BYTES)
                 if (
                     marker == {"schema_version": 1, "purpose": f"topology:{name}"}
                     and _valid_topology(manifest, paths, name, status)
@@ -616,7 +671,12 @@ def _valid_topology(
         "dependencies", "state", "build_root", "resolved", "endpoint", "ready",
         "started_at", "stopped_at", "supervisor", "services",
     }
-    if not isinstance(status, dict) or set(status) != required:
+    if (
+        not isinstance(status, dict)
+        or not required <= set(status) <= required | {"error"}
+        or "error" in status
+        and not isinstance(status["error"], str)
+    ):
         return False
     profile = status.get("profile")
     stack_name = (
@@ -634,8 +694,13 @@ def _valid_topology(
         or status.get("stack") != stack_name
         or not isinstance(dependencies, list)
         or not dependencies
+        or not all(isinstance(role, str) and _valid_name(role) for role in dependencies)
         or len(dependencies) != len(set(dependencies))
         or not isinstance(providers, dict)
+        or not all(
+            isinstance(role, str) and isinstance(component, str)
+            for role, component in providers.items()
+        )
         or set(providers) != set(dependencies)
         or not isinstance(resolved, dict)
         or set(resolved) != set(providers.values())
@@ -681,7 +746,7 @@ def _valid_topology(
     services = status.get("services")
     if (
         not isinstance(services, dict)
-        or not services
+        or not services and "error" not in status
         or not set(services) <= {"client", "server"}
     ):
         return False
@@ -783,7 +848,7 @@ def _workspace_descriptor(paths: Paths) -> int | None:
     root = _directory_descriptor(paths.workspace)
     if root is None:
         return None
-    if _json_at(root, paths.marker.name) != {"schema_version": 1}:
+    if _json_at(root, paths.marker.name, _MAX_MARKER_BYTES) != {"schema_version": 1}:
         os.close(root)
         return None
     return root
@@ -800,12 +865,14 @@ def _workspace_child_descriptor(paths: Paths, name: str) -> tuple[int, int] | No
     return root, child
 
 
-def _entry_names(directory: int, *, file_type: str) -> list[str]:
+def _entry_names(
+    directory: int, *, file_type: str, limit: int = _MAX_DIRECTORY_ENTRIES
+) -> list[str]:
     try:
         names: list[str] = []
         with os.scandir(directory) as stream:
             for index, entry in enumerate(stream):
-                if index >= _MAX_DIRECTORY_ENTRIES:
+                if index >= limit:
                     return []
                 matches = (
                     entry.is_dir(follow_symlinks=False)
@@ -845,7 +912,9 @@ def _json(path: Path) -> Any:
         os.close(descriptor)
 
 
-def _json_at(directory: int, name: str) -> Any:
+def _json_at(
+    directory: int, name: str, max_bytes: int = _MAX_METADATA_BYTES
+) -> Any:
     flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_NONBLOCK", 0)
     flags |= getattr(os, "O_NOFOLLOW", 0)
     try:
@@ -853,18 +922,20 @@ def _json_at(directory: int, name: str) -> Any:
     except OSError:
         return None
     try:
-        return _json_descriptor(descriptor)
+        return _json_descriptor(descriptor, max_bytes)
     finally:
         os.close(descriptor)
 
 
-def _json_descriptor(descriptor: int) -> Any:
+def _json_descriptor(
+    descriptor: int, max_bytes: int = _MAX_METADATA_BYTES
+) -> Any:
     try:
         metadata = os.fstat(descriptor)
-        if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > _MAX_METADATA_BYTES:
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > max_bytes:
             return None
         chunks: list[bytes] = []
-        remaining = _MAX_METADATA_BYTES + 1
+        remaining = max_bytes + 1
         while remaining:
             chunk = os.read(descriptor, min(64 * 1024, remaining))
             if not chunk:
@@ -872,7 +943,7 @@ def _json_descriptor(descriptor: int) -> Any:
             chunks.append(chunk)
             remaining -= len(chunk)
         data = b"".join(chunks)
-        if len(data) > _MAX_METADATA_BYTES:
+        if len(data) > max_bytes:
             return None
         return json.loads(data.decode("utf-8"), object_pairs_hook=_unique_object)
     except (OSError, UnicodeError, ValueError, RecursionError, json.JSONDecodeError):

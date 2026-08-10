@@ -99,6 +99,10 @@ class CompletionTests(unittest.TestCase):
         }
 
     def test_commands_nested_commands_options_and_choices_follow_parser(self) -> None:
+        self.write_json(
+            self.workspace / "profiles" / "review.json",
+            self.profile_record("review", "classic"),
+        )
         mode, values = self.candidates("")
         self.assertEqual(mode, "candidates")
         self.assertIn("completion", values)
@@ -116,7 +120,9 @@ class CompletionTests(unittest.TestCase):
             self.candidates("init", "--with", "c"),
             ("candidates", ["classic"]),
         )
-        _, profile_values = self.candidates("profile", "set", "classic", "")
+        _, profile_names = self.candidates("profile", "set", "")
+        self.assertEqual(profile_names, ["review"])
+        _, profile_values = self.candidates("profile", "set", "review", "")
         self.assertIn("libatrinik", profile_values)
         mode, values = self.candidates("logs", "default", "server", "--f")
         self.assertEqual(mode, "candidates")
@@ -189,6 +195,29 @@ class CompletionTests(unittest.TestCase):
         _, after = self.candidates("profile", "show", "")
         self.assertNotIn("review", after)
 
+    def test_profiles_reject_cross_checkout_and_invalid_migration_selectors(self) -> None:
+        record = self.profile_record("broken", "classic")
+        record["components"]["classic-client"] = {
+            "kind": "worktree",
+            "value": "feature",
+        }
+        self.write_json(self.workspace / "profiles" / "broken.json", record)
+        _, names = self.candidates("profile", "show", "")
+        self.assertNotIn("broken", names)
+        self.assertEqual(
+            self.candidates("build", "--profile", "broken", ""),
+            ("candidates", []),
+        )
+
+        migrated = self.profile_record("migrated", "classic")
+        migrated["components"]["content-1x"] = {
+            "kind": "migrated-worktree",
+            "value": "/tmp/not-managed/content-1x",
+        }
+        self.write_json(self.workspace / "profiles" / "migrated.json", migrated)
+        _, names = self.candidates("profile", "show", "")
+        self.assertNotIn("migrated", names)
+
     def test_worktree_labels_are_filtered_by_selected_physical_checkout(self) -> None:
         (self.workspace / "worktrees" / "content" / "main-maps").mkdir(parents=True)
         (self.workspace / "worktrees" / "content-1x" / "classic-maps").mkdir(
@@ -235,7 +264,15 @@ class CompletionTests(unittest.TestCase):
     def test_state_scenario_and_topology_records_refresh_without_secrets(self) -> None:
         self.write_json(
             self.workspace / "states.json",
-            {"schema_version": 1, "states": {"review": "/tmp/review"}},
+            {
+                "schema_version": 1,
+                "states": {
+                    "review": "/tmp/review",
+                    "scenario-issue-292": str(
+                        self.workspace / "scenarios" / "issue-292" / "state"
+                    ),
+                },
+            },
         )
         self.write_json(
             self.workspace / "scenarios" / "issue-292" / "scenario.json",
@@ -305,7 +342,7 @@ class CompletionTests(unittest.TestCase):
 
         self.assertEqual(
             self.candidates("topology", "show", "default", "--state", ""),
-            ("candidates", ["default", "review"]),
+            ("candidates", ["default", "review", "scenario-issue-292"]),
         )
         with mock.patch(
             "atrinik_workspace.completion._json", wraps=completion._json
@@ -318,6 +355,45 @@ class CompletionTests(unittest.TestCase):
             self.workspace / "scenarios" / "issue-292" / "password",
             [call.args[0] for call in load_metadata.call_args_list],
         )
+        states = json.loads(
+            (self.workspace / "states.json").read_text(encoding="utf-8")
+        )
+        del states["states"]["scenario-issue-292"]
+        self.write_json(self.workspace / "states.json", states)
+        self.assertEqual(
+            self.candidates("scenario", "show", ""),
+            ("candidates", []),
+        )
+        self.assertEqual(
+            self.candidates("logs", ""),
+            ("candidates", ["completion-review"]),
+        )
+
+        broken_scenario = self.scenario_record("broken")
+        broken_scenario["providers"] = {}
+        broken_scenario["resolved"] = {}
+        self.write_json(
+            self.workspace / "scenarios" / "broken" / "scenario.json",
+            broken_scenario,
+        )
+        self.write_json(
+            self.workspace / "scenarios" / "broken" / completion.MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "test-scenario"},
+        )
+        _, scenarios = self.candidates("scenario", "show", "")
+        self.assertNotIn("broken", scenarios)
+
+        status_path = self.workspace / "topologies" / "completion-review" / "status.json"
+        status = json.loads(status_path.read_text(encoding="utf-8"))
+        status["dependencies"] = [[]]
+        self.write_json(status_path, status)
+        self.assertEqual(self.candidates("logs", ""), ("candidates", []))
+
+        status["dependencies"] = ["server"]
+        status["services"] = {}
+        status["endpoint"] = None
+        status["error"] = "RuntimeError: startup failed"
+        self.write_json(status_path, status)
         self.assertEqual(
             self.candidates("logs", ""),
             ("candidates", ["completion-review"]),
@@ -352,6 +428,14 @@ class CompletionTests(unittest.TestCase):
             (root / f"label-{index:03d}").mkdir()
         self.assertEqual(
             self.candidates("worktree", "remove", "client", ""),
+            ("candidates", []),
+        )
+
+        scenarios = self.workspace / "scenarios"
+        for index in range(completion._MAX_RECORD_ENTRIES + 1):
+            (scenarios / f"scenario-{index:03d}").mkdir(parents=True)
+        self.assertEqual(
+            self.candidates("scenario", "show", ""),
             ("candidates", []),
         )
 
