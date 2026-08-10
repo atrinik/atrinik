@@ -89,12 +89,8 @@ wrapper replacement build/runtime closure yet.
 ./atrinik build COMPONENT --profile REVIEW --test
 ```
 
-Selecting `classic`, its components, or roles updates all five selectors to one
-root. Classic subdirectories are not independent worktrees.
-
-Classic server builds cache validated region maps only for matching clean
-inputs; dirty inputs regenerate. Runtimes do not overlay state, and topologies
-copy snapshots.
+Classic selection is checkout-wide; subdirectories are not worktrees. Region
+maps cache only clean matching inputs; runtimes copy snapshots without overlays.
 
 Build, scenario, and topology records bind exact repository, branch, checkout,
 source, component, and provider coordinates. Records lacking current immutable
