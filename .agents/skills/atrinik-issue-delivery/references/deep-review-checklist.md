@@ -44,8 +44,8 @@ categories into invented findings.
 - Identify unrequested behavior, scope creep, hidden compatibility changes, and
   accidentally omitted files.
 - Confirm each file belongs to the physical repository that owns its contract.
-- Check cross-repository changes have independent branches, commits, PRs, and
-  one unambiguous canonical issue-closing PR.
+- Check cross-repository or cross-line changes have independent branches,
+  commits, PRs, and one unambiguous canonical issue-closing PR.
 - Verify the fetched target branch and recorded base SHA are current and correct.
 - Check public APIs, protocols, schemas, manifests, fixtures, docs, packages,
   release inputs, and generated consumers stay synchronized where applicable.
