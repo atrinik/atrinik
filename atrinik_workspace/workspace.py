@@ -237,11 +237,13 @@ def _probe_owned_tree_entry_mount(
 ) -> None:
     if stat.S_ISLNK(child.st_mode):
         return
+    if not (stat.S_ISREG(child.st_mode) or stat.S_ISDIR(child.st_mode)):
+        raise WorkspaceError(f"owned removal entry is unsupported: {display}")
     flags = os.O_NOFOLLOW
     if sys.platform == "linux":
         flags |= os.O_PATH
     else:
-        flags |= os.O_RDONLY
+        flags |= os.O_RDONLY | os.O_NONBLOCK
     try:
         probe = os.open(name, flags, dir_fd=descriptor)
     except OSError as error:

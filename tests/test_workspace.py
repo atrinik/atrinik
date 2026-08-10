@@ -1575,6 +1575,24 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertFalse(owned.exists())
 
+    def test_owned_tree_removal_rejects_special_nodes_without_opening(self) -> None:
+        owned = self.root / "owned"
+        owned.mkdir()
+        fifo = owned / "fifo"
+        os.mkfifo(fifo)
+
+        with (
+            mock.patch("atrinik_workspace.workspace.sys.platform", "darwin"),
+            mock.patch(
+                "atrinik_workspace.workspace._darwin_descriptor_mount_id",
+                return_value=(1, 2),
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "entry is unsupported"):
+                remove_owned_tree(owned)
+
+        self.assertTrue(fifo.exists())
+
     def test_replace_directory_interrupted_journal_publish_is_retryable(
         self,
     ) -> None:
