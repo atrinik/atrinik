@@ -32,6 +32,7 @@ from .workspace import (
     COMPILER_CACHE_PURPOSE,
     _remote_matches,
     exclusive_lock,
+    remove_owned_tree,
 )
 
 
@@ -2576,7 +2577,7 @@ class Cleanup:
                     raise WorkspaceError(
                         f"Worker dependency transaction changed before removal: {path}"
                     )
-                shutil.rmtree(path)
+                remove_owned_tree(path)
         elif item["kind"] == "worktree":
             primary = self._repositories[item["owner"]]
             _command(primary, "worktree", "remove", "--", str(path))

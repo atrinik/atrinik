@@ -715,7 +715,9 @@ def replace_directory(
     staging: Path,
     backup_prefix: str,
     backup_parent: Path | None = None,
+    verify_after_install: Callable[[], None] | None = None,
 ) -> None:
+    backup: Path | None = None
     if output.exists():
         backup = Path(
             tempfile.mkdtemp(prefix=backup_prefix, dir=backup_parent or output.parent)
@@ -732,9 +734,25 @@ def replace_directory(
         except BaseException:
             backup.replace(output)
             raise
-        shutil.rmtree(backup)
     else:
         staging.replace(output)
+    try:
+        if verify_after_install is not None:
+            verify_after_install()
+    except BaseException:
+        output.replace(staging)
+        if backup is not None:
+            backup.replace(output)
+        raise
+    if backup is not None:
+        try:
+            remove_owned_tree(backup)
+        except (OSError, WorkspaceError) as error:
+            print(
+                f"warning: cannot remove managed replacement backup {backup}: "
+                f"{error}; cleanup will retry after its grace period",
+                file=sys.stderr,
+            )
 
 
 def _file_digest(path: Path, description: str) -> str:
@@ -4926,7 +4944,7 @@ class Workspace:
                 # leave this one exact unmarked path behind. Its marker-owned
                 # parent, deterministic key-derived name, and held key lock
                 # provide the ownership proof needed to recover it safely.
-                shutil.rmtree(staging)
+                remove_owned_tree(staging)
             managed_directory(
                 staging,
                 self.paths.builds,
@@ -4993,7 +5011,7 @@ class Workspace:
                     if child.is_symlink() or not child.is_dir():
                         child.unlink()
                     else:
-                        shutil.rmtree(child)
+                        remove_owned_tree(child)
                 for name, expected in inputs["files"].items():
                     if expected is not None and name != ".npmrc":
                         shutil.copy2(source / name, staging / name)
@@ -5038,15 +5056,26 @@ class Workspace:
                     },
                 )
                 atomic_json(staging / WORKER_DEPENDENCY_METADATA, metadata)
+
+                def verify_dependency_install() -> None:
+                    installed = self._worker_dependency_cache_matches(
+                        entry, key, inputs, required
+                    )
+                    if installed != metadata:
+                        raise WorkspaceError(
+                            "published Worker dependencies failed validation"
+                        )
+
                 replace_directory(
                     entry,
                     staging,
                     f"{key}-backup-",
                     backup_parent=transactions,
+                    verify_after_install=verify_dependency_install,
                 )
             finally:
                 if staging.exists():
-                    shutil.rmtree(staging)
+                    remove_owned_tree(staging)
             elapsed = time.monotonic() - started
             consumed = (
                 consume(entry / "node_modules", key, metadata)
@@ -5107,37 +5136,42 @@ class Workspace:
         }
         marker_path = view / MANAGED_MARKER
         metadata_path = view / WORKER_VIEW_METADATA
-        try:
+
+        def validate_installed_view() -> None:
             if (
-                not view.is_symlink()
-                and view.is_dir()
-                and marker_path.is_file()
-                and not marker_path.is_symlink()
-                and metadata_path.is_file()
-                and not metadata_path.is_symlink()
-                and load_json(marker_path)
-                == {
+                view.is_symlink()
+                or not view.is_dir()
+                or not marker_path.is_file()
+                or marker_path.is_symlink()
+                or not metadata_path.is_file()
+                or metadata_path.is_symlink()
+                or load_json(marker_path)
+                != {
                     "schema_version": SCHEMA_VERSION,
                     "purpose": "source-view:metaserver-worker",
                 }
-                and load_json(metadata_path) == expected
-                and _tree_digest(view, WORKER_SOURCE_EXCLUSIONS) == source_digest
-                and _tree_digest(
+                or load_json(metadata_path) != expected
+                or _tree_digest(view, WORKER_SOURCE_EXCLUSIONS) != source_digest
+                or _tree_digest(
                     view,
                     WORKER_SOURCE_EXCLUSIONS,
                     copied_metadata=True,
                     ignore_root_mtime=True,
                 )
-                == source_view_digest
+                != source_view_digest
             ):
-                self._validate_worker_node_modules(
-                    view / "node_modules",
-                    dependency_metadata["node_modules_lock_sha256"],
-                    dependency_metadata["node_modules_view_sha256"],
-                    self._worker_required_packages(source),
-                    WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
-                )
-                return view, True, time.monotonic() - started
+                raise WorkspaceError("published Worker view failed validation")
+            self._validate_worker_node_modules(
+                view / "node_modules",
+                dependency_metadata["node_modules_lock_sha256"],
+                dependency_metadata["node_modules_view_sha256"],
+                self._worker_required_packages(source),
+                WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
+            )
+
+        try:
+            validate_installed_view()
+            return view, True, time.monotonic() - started
         except (OSError, WorkspaceError):
             pass
         if view.exists() or view.is_symlink():
@@ -5188,10 +5222,15 @@ class Workspace:
                 },
             )
             atomic_json(staging / WORKER_VIEW_METADATA, expected)
-            replace_directory(view, staging, ".metaserver-worker-previous-")
+            replace_directory(
+                view,
+                staging,
+                ".metaserver-worker-previous-",
+                verify_after_install=validate_installed_view,
+            )
         finally:
             if staging.exists():
-                shutil.rmtree(staging)
+                remove_owned_tree(staging)
         return view, False, time.monotonic() - started
 
     @staticmethod
@@ -5359,7 +5398,7 @@ class Workspace:
                         if control_path.is_symlink() or not control_path.is_dir():
                             control_path.unlink(missing_ok=True)
                         else:
-                            shutil.rmtree(control_path)
+                            remove_owned_tree(control_path)
                     atomic_json(marker_path, expected_marker)
                     atomic_json(metadata_path, control_metadata)
         finally:

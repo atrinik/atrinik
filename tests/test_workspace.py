@@ -45,6 +45,7 @@ from atrinik_workspace.workspace import (
     display_arguments,
     exclusive_lock,
     remove_owned_tree,
+    replace_directory as worker_replace_directory,
     replace_runtime_directory as workspace_replace_directory,
     run as workspace_run,
 )
@@ -867,6 +868,56 @@ class WorkspaceTests(unittest.TestCase):
             raise AssertionError(f"unexpected command: {arguments}")
 
         return invoke
+
+    def test_worker_dependency_publication_revalidates_after_rename(self) -> None:
+        source = self.make_worker_source()
+        installs: list[Path] = []
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+
+        def mutate_before_verification(
+            output: Path,
+            staging: Path,
+            backup_prefix: str,
+            backup_parent: Path | None = None,
+            verify_after_install: object = None,
+        ) -> None:
+            assert callable(verify_after_install)
+
+            def corrupt_then_verify() -> None:
+                (output / "node_modules" / "alpha" / "bin.js").write_text(
+                    "post-rename corruption\n", encoding="utf-8"
+                )
+                verify_after_install()
+
+            worker_replace_directory(
+                output,
+                staging,
+                backup_prefix,
+                backup_parent,
+                corrupt_then_verify,
+            )
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.run",
+                side_effect=self.fake_worker_run(
+                    installs, versions, threading.Lock()
+                ),
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.replace_directory",
+                side_effect=mutate_before_verification,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "published Worker dependencies"),
+        ):
+            self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+        self.assertEqual(len(installs), 1)
+        entries = [
+            path
+            for path in (self.workspace.paths.builds / "worker-dependencies").iterdir()
+            if path.name not in {".transactions", MANAGED_MARKER}
+        ]
+        self.assertEqual(entries, [])
 
     def test_worker_dependencies_reuse_exact_inputs_and_rebuild_corruption(self) -> None:
         source = self.make_worker_source()
@@ -1786,6 +1837,44 @@ class WorkspaceTests(unittest.TestCase):
             WORKER_SOURCE_EXCLUSIONS,
             reject_symlinks=True,
             copied_metadata=True,
+        )
+
+        def corrupt_view_before_verification(
+            output: Path,
+            staging: Path,
+            backup_prefix: str,
+            backup_parent: Path | None = None,
+            verify_after_install: object = None,
+        ) -> None:
+            assert callable(verify_after_install)
+
+            def corrupt_then_verify() -> None:
+                (output / "worker.ts").write_text(
+                    "post-rename corruption\n", encoding="utf-8"
+                )
+                verify_after_install()
+
+            worker_replace_directory(
+                output,
+                staging,
+                backup_prefix,
+                backup_parent,
+                corrupt_then_verify,
+            )
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.replace_directory",
+                side_effect=corrupt_view_before_verification,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "published Worker view"),
+        ):
+            self.workspace._worker_view(
+                root, source, dependencies, "b" * 64, metadata
+            )
+        self.assertEqual(
+            (first[0] / "worker.ts").read_text(encoding="utf-8"),
+            "export const value = 1;\n",
         )
         changed = self.workspace._worker_view(
             root, source, dependencies, "b" * 64, metadata

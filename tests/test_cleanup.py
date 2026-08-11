@@ -2040,12 +2040,9 @@ class CleanupTests(unittest.TestCase):
         staging = transactions / f"{key}-staging-install"
         staging.mkdir()
 
-        with (
-            mock.patch(
-                "atrinik_workspace.workspace.shutil.rmtree",
-                side_effect=WorkspaceError("simulated interruption"),
-            ),
-            self.assertRaisesRegex(WorkspaceError, "simulated interruption"),
+        with mock.patch(
+            "atrinik_workspace.workspace.remove_owned_tree",
+            side_effect=WorkspaceError("simulated interruption"),
         ):
             replace_directory(
                 entry,
