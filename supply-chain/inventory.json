@@ -1124,11 +1124,6 @@
         },
         {
           "repository": "classic",
-          "path": ".github/workflows/check.yml",
-          "contains": "docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4"
-        },
-        {
-          "repository": "classic",
           "path": ".github/workflows/package-release.yml",
           "contains": "docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4"
         },
@@ -1240,6 +1235,43 @@
           "repository": "classic",
           "path": ".github/workflows/codeql.yml",
           "contains": "github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6"
+        }
+      ]
+    },
+    {
+      "id": "container/classic-build",
+      "name": "Atrinik Classic Linux build image",
+      "kind": "container-image",
+      "owner": "devcontainer",
+      "scope": [
+        "classic",
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "1.2.3",
+      "version_source": "Immutable semantic-release image tag and Classic Check digest pin",
+      "license": "LicenseRef-Atrinik-Image-Contents",
+      "source_url": "https://github.com/atrinik/devcontainer/pkgs/container/classic-build",
+      "locator": "ghcr.io/atrinik/classic-build",
+      "commit": "cfd1afd4088f76f6cd327159b0d58b20a6a6b0dd",
+      "checksum": "sha256:d0ec0a31f97fa1d699f62b81bbe697d95b335f44f1c99fde8704dfc528e2102f",
+      "acquisition": "Classic GitHub Actions anonymously pulls the public release tag at its immutable manifest digest",
+      "update_cadence_days": 30,
+      "update_mechanism": "Reviewed devcontainer candidate evidence followed by semantic release, embedded-inventory verification, and an atomic Classic digest update",
+      "eol_response": "Publish and verify a supported replacement image before advancing the Classic Check digest",
+      "validation": "Anonymous manifest inspection, OCI source/revision and embedded-inventory verification, and complete core, client, server, integrated-graph, cold-cache, and restored-cache validation",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/check.yml",
+          "contains": "ghcr.io/atrinik/classic-build:1.2.3@sha256:d0ec0a31f97fa1d699f62b81bbe697d95b335f44f1c99fde8704dfc528e2102f"
+        },
+        {
+          "repository": "devcontainer",
+          "path": "classic-toolchain.json",
+          "contains": "\"repository\": \"atrinik/classic\""
         }
       ]
     },
@@ -1529,7 +1561,6 @@
       "kind": "container-image",
       "owner": "devcontainer",
       "scope": [
-        "classic",
         "classic-server",
         "devcontainer"
       ],
@@ -1549,11 +1580,6 @@
       "disposition": "retain",
       "packages": [],
       "evidence": [
-        {
-          "repository": "classic",
-          "path": ".github/workflows/check.yml",
-          "contains": "ubuntu@sha256:678c6550cc43645e08669028bc177f50be4e7c5b8cca677067b1914d4afc7a03"
-        },
         {
           "repository": "classic-server",
           "path": "Dockerfile",
@@ -1583,11 +1609,11 @@
       "locator": "ghcr.io/atrinik/windows-build",
       "commit": null,
       "checksum": "sha256:d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb",
-      "acquisition": "Dev Containers and GitHub Actions pull the release tag and immutable manifest digest",
+      "acquisition": "Dev Containers and GitHub Actions anonymously pull the public release tag and immutable manifest digest",
       "update_cadence_days": 30,
       "update_mechanism": "Weekly audit plus reviewed devcontainer release update",
       "eol_response": "Publish a supported replacement image and update the wrapper atomically",
-      "validation": "Devcontainer configuration tests, portable MinGW builds, and cross-built tests executed on native Windows",
+      "validation": "Anonymous manifest inspection, devcontainer configuration tests, portable MinGW builds, and cross-built tests executed on native Windows",
       "disposition": "retain",
       "packages": [],
       "evidence": [
@@ -3044,7 +3070,7 @@
         {
           "repository": "classic-server",
           "path": "cmake/pcpnatpmp.cmake",
-          "contains": "866d283da99f5e98eecff702a8df63e2ae57ffca.tar.gz"
+          "contains": "866d283da99f5e98eecff702a8df63e2ae57ffca"
         }
       ]
     },
