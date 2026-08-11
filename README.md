@@ -260,9 +260,12 @@ the shared compiler cache.
 
 When `ccache` is available, native C and C++ builds automatically use the
 marker-owned shared `workspace/build/compiler-cache`, bounded at 5 GiB. Debug
-and source prefixes are normalized across equivalent profile roots. Pass
-`--no-ccache` for an explicit uncached build; an unavailable cache command is
-reported with the same opt-out guidance.
+and source prefixes are normalized across equivalent profile roots when the
+selected environment compiler proves support for the required prefix-map
+switches. Opaque toolchain-selected compilers retain their own flag contract
+instead of receiving incompatible GCC-style switches. Pass `--no-ccache` for
+an explicit uncached build; an unavailable cache command is reported with the
+same opt-out guidance.
 
 Building the Classic server also runs its offline worldmaker and stages the
 generated region-map `.png`/`.def` pairs in the profile build. Generation uses

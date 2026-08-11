@@ -786,6 +786,13 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "escapes its source root"):
             self.workspace._profile_source_view(root, "content", source, set())
 
+        (source / "escape").unlink()
+        nested = source / "nested-linked-directory"
+        nested.mkdir()
+        (nested / "escape").symlink_to(outside)
+        with self.assertRaisesRegex(WorkspaceError, "escapes its source root"):
+            self.workspace._profile_source_view(root, "content", source, set())
+
     def test_copied_source_view_recursively_excludes_generated_entries(self) -> None:
         source = self.workspace.paths.repositories / "content"
         nested = source / "nested"
@@ -906,7 +913,11 @@ class WorkspaceTests(unittest.TestCase):
                 return
             (binary / "CMakeCache.txt").write_text(
                 f"CMAKE_HOME_DIRECTORY:INTERNAL={source.resolve()}\n"
-                "CMAKE_GENERATOR:INTERNAL=Ninja\n",
+                "CMAKE_GENERATOR:INTERNAL=Ninja\n"
+                "CMAKE_BUILD_TYPE:STRING=Debug\n"
+                "BUILD_TESTING:UNINITIALIZED=OFF\n"
+                "CMAKE_C_COMPILER_LAUNCHER:UNINITIALIZED=\n"
+                "CMAKE_CXX_COMPILER_LAUNCHER:UNINITIALIZED=\n",
                 encoding="utf-8",
             )
             (binary / "build.ninja").write_text("# generated\n", encoding="utf-8")
@@ -1037,6 +1048,9 @@ class WorkspaceTests(unittest.TestCase):
                 "_tool_identity",
                 return_value={"command": "tool", "path": "/tool", "version": "1"},
             ),
+            mock.patch.object(
+                self.workspace, "_compiler_supports_prefix_maps", return_value=True
+            ),
             mock.patch("atrinik_workspace.workspace.run") as run,
         ):
             self.workspace._cmake(source, binary, [], tests=False)
@@ -1054,6 +1068,30 @@ class WorkspaceTests(unittest.TestCase):
         cache = self.workspace.paths.builds / "compiler-cache"
         self.assertEqual(load_json(cache / MANAGED_MARKER)["purpose"], "compiler-cache")
         self.assertEqual(load_json(cache / ".atrinik-cache.json")["max_size"], "5G")
+
+    def test_debug_prefix_flags_require_supported_non_toolchain_compilers(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        binary = self.workspace.paths.builds / "profiles" / "test" / "build" / "content"
+        environment = {"CFLAGS": "/existing", "CXXFLAGS": "/existing-cxx"}
+        with mock.patch.object(
+            self.workspace, "_compiler_supports_prefix_maps", return_value=False
+        ):
+            self.workspace._add_debug_prefix_environment(
+                source, binary, environment, []
+            )
+        self.assertEqual(environment["CFLAGS"], "/existing")
+        self.assertEqual(environment["CXXFLAGS"], "/existing-cxx")
+
+        with mock.patch.object(
+            self.workspace, "_compiler_supports_prefix_maps"
+        ) as supported:
+            self.workspace._add_debug_prefix_environment(
+                source,
+                binary,
+                environment,
+                ["-DCMAKE_TOOLCHAIN_FILE=/tmp/windows-toolchain.cmake"],
+            )
+        supported.assert_not_called()
 
     @unittest.skipUnless(
         all(shutil.which(tool) for tool in ("cc", "cmake", "ninja")),
@@ -1080,8 +1118,7 @@ class WorkspaceTests(unittest.TestCase):
         compiler.chmod(0o755)
         fragment = self.root / "toolchain-flags.cmake"
         fragment.write_text(
-            'set(CMAKE_C_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} -DTOOLCHAIN_VALUE=1")\n',
-            encoding="utf-8",
+            'set(CMAKE_C_FLAGS_INIT "-DTOOLCHAIN_VALUE=1")\n', encoding="utf-8"
         )
         toolchain_target = self.root / "toolchain-real.cmake"
         toolchain_target.write_text(
@@ -1101,13 +1138,20 @@ class WorkspaceTests(unittest.TestCase):
         )
         cache = (binary / "CMakeCache.txt").read_text(encoding="utf-8")
         self.assertIn("-DTOOLCHAIN_VALUE=1", cache)
-        self.assertIn("-fdebug-prefix-map=", cache)
+        preserved = binary / "preserved-on-unchanged-toolchain"
+        preserved.write_text("current\n", encoding="utf-8")
+        self.workspace._cmake(
+            source,
+            binary,
+            [f"-DCMAKE_TOOLCHAIN_FILE={toolchain}"],
+            tests=False,
+        )
+        self.assertTrue(preserved.is_file())
         sentinel = binary / "removed-on-toolchain-change"
         sentinel.write_text("stale\n", encoding="utf-8")
 
         fragment.write_text(
-            'set(CMAKE_C_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} -DTOOLCHAIN_VALUE=2")\n',
-            encoding="utf-8",
+            'set(CMAKE_C_FLAGS_INIT "-DTOOLCHAIN_VALUE=2")\n', encoding="utf-8"
         )
         self.workspace._cmake(
             source,
@@ -1141,7 +1185,7 @@ class WorkspaceTests(unittest.TestCase):
         link_sentinel.write_text("stale\n", encoding="utf-8")
         second_target = self.root / "toolchain-second.cmake"
         second_target.write_text(
-            f'include("{fragment}")\nset(CMAKE_C_COMPILER "{compiler}")\n'
+            f"include([[{fragment}]])\nset(CMAKE_C_COMPILER \"{compiler}\")\n"
             "# second toolchain target\n",
             encoding="utf-8",
         )
@@ -1171,6 +1215,95 @@ class WorkspaceTests(unittest.TestCase):
                 capture_output=True,
                 text=True,
             ).stdout,
+        )
+
+        compiler_path = self.root / "compiler-path.txt"
+        compiler_path.write_text(str(compiler), encoding="utf-8")
+        dynamic_target = self.root / "toolchain-dynamic.cmake"
+        dynamic_target.write_text(
+            f'include("{fragment}")\n'
+            f'file(READ "{compiler_path}" SELECTED_COMPILER)\n'
+            'set(CMAKE_C_COMPILER "${SELECTED_COMPILER}")\n',
+            encoding="utf-8",
+        )
+        toolchain.unlink()
+        toolchain.symlink_to(dynamic_target)
+        self.workspace._cmake(
+            source,
+            binary,
+            [f"-DCMAKE_TOOLCHAIN_FILE={toolchain}"],
+            tests=False,
+        )
+        incomplete_sentinel = binary / "removed-for-unproven-toolchain-inputs"
+        incomplete_sentinel.write_text("stale\n", encoding="utf-8")
+        self.workspace._cmake(
+            source,
+            binary,
+            [f"-DCMAKE_TOOLCHAIN_FILE={toolchain}"],
+            tests=False,
+        )
+        self.assertFalse(incomplete_sentinel.exists())
+
+    @unittest.skipUnless(
+        all(shutil.which(tool) for tool in ("cc", "cmake", "ninja")),
+        "real CMake toolchain is unavailable",
+    )
+    def test_real_cmake_repairs_cache_and_rebuilds_for_implicit_environment(
+        self,
+    ) -> None:
+        source = self.root / "environment-source"
+        source.mkdir()
+        (source / "CMakeLists.txt").write_text(
+            "cmake_minimum_required(VERSION 3.20)\n"
+            "project(environment_rebuild C)\n"
+            "add_executable(environment main.c)\n",
+            encoding="utf-8",
+        )
+        (source / "main.c").write_text(
+            '#include <stdio.h>\n#include "selected-value.h"\n'
+            "int main(void) { return puts(SELECTED_VALUE); }\n",
+            encoding="utf-8",
+        )
+        include_one = self.root / "include-one"
+        include_two = self.root / "include-two"
+        include_one.mkdir()
+        include_two.mkdir()
+        (include_one / "selected-value.h").write_text(
+            '#define SELECTED_VALUE "atrinik-environment-one"\n', encoding="utf-8"
+        )
+        (include_two / "selected-value.h").write_text(
+            '#define SELECTED_VALUE "atrinik-environment-two"\n', encoding="utf-8"
+        )
+        binary = self.workspace.paths.builds / "profiles" / "environment" / "build" / "sample"
+        self.workspace._use_ccache = False
+
+        with mock.patch.dict(os.environ, {"CPATH": str(include_one)}):
+            self.workspace._cmake(source, binary, [], tests=False)
+            preserved = binary / "preserved-on-unchanged-environment"
+            preserved.write_text("current\n", encoding="utf-8")
+            self.workspace._cmake(source, binary, [], tests=False)
+            self.assertTrue(preserved.is_file())
+            cache = binary / "CMakeCache.txt"
+            cache.write_text(
+                cache.read_text(encoding="utf-8").replace(
+                    "CMAKE_BUILD_TYPE:STRING=Debug",
+                    "CMAKE_BUILD_TYPE:STRING=Release",
+                ),
+                encoding="utf-8",
+            )
+            self.workspace._cmake(source, binary, [], tests=False)
+            self.assertFalse(preserved.exists())
+            self.assertIn(
+                "CMAKE_BUILD_TYPE:STRING=Debug", cache.read_text(encoding="utf-8")
+            )
+
+        environment_sentinel = binary / "removed-on-implicit-environment-change"
+        environment_sentinel.write_text("stale\n", encoding="utf-8")
+        with mock.patch.dict(os.environ, {"CPATH": str(include_two)}):
+            self.workspace._cmake(source, binary, [], tests=False)
+        self.assertFalse(environment_sentinel.exists())
+        self.assertIn(
+            b"atrinik-environment-two", (binary / "environment").read_bytes()
         )
 
     @unittest.skipUnless(

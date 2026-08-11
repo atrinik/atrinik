@@ -403,7 +403,9 @@ When `ccache` is discoverable, the wrapper sets supported C and C++ CMake
 compiler launchers and a marker-owned shared cache with a fixed 5 GiB maximum.
 The per-build cache base and compiler prefix-map arguments normalize equivalent
 profile roots to stable `/atrinik/source` and `/atrinik/build` diagnostics
-without sharing mutable CMake binary trees. Compiler, toolchain, test-mode, or
+without sharing mutable CMake binary trees. Prefix-map flags are added only
+after the selected environment compiler proves support; opaque toolchain
+compilers retain their own flag syntax. Compiler, toolchain, test-mode, or
 relevant environment changes invalidate configure state; source dependency
 changes continue through Ninja. `--no-ccache` explicitly opts out and clears
 any cached launcher setting.

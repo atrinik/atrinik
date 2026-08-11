@@ -1646,6 +1646,8 @@ class Workspace:
                     raise WorkspaceError(
                         f"source-view input is not a file or directory: {entry}"
                     )
+                elif stat.S_ISDIR(mode):
+                    self._validate_source_tree_symlinks(entry, source)
                 target = str(entry)
                 if not destination.is_symlink() or os.readlink(destination) != target:
                     self._source_view_changed = True
@@ -1737,6 +1739,25 @@ class Workspace:
             raise WorkspaceError(f"unsafe source-view symlink {path}: {error}") from error
         if resolved != source and source not in resolved.parents:
             raise WorkspaceError(f"source-view symlink escapes its source root: {path}")
+
+    @classmethod
+    def _validate_source_tree_symlinks(cls, path: Path, root: Path) -> None:
+        def traversal_error(error: OSError) -> None:
+            raise error
+
+        try:
+            for directory, directories, files in os.walk(
+                path, followlinks=False, onerror=traversal_error
+            ):
+                parent = Path(directory)
+                for name in (*directories, *files):
+                    candidate = parent / name
+                    if candidate.is_symlink():
+                        cls._validate_source_symlink(candidate, root)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect source-view directory {path}: {error}"
+            ) from error
 
     def _reconcile_source_tree(
         self,
@@ -2021,7 +2042,9 @@ class Workspace:
                 file=sys.stderr,
             )
 
-        self._add_debug_prefix_environment(source, binary, environment)
+        self._add_debug_prefix_environment(
+            source, binary, environment, arguments
+        )
         configure = [
             "cmake",
             "-S",
@@ -2061,7 +2084,9 @@ class Workspace:
         toolchain_identity = fingerprint["build_tree_identity"]["toolchain_file"]
         if toolchain_identity is not None and not toolchain_identity["complete"]:
             build_tree_changed = True
-        if build_tree_changed or not self._cmake_state_valid(source, binary):
+        if build_tree_changed or not self._cmake_state_valid(
+            source, binary, configure
+        ):
             managed_reset(binary, self.paths.builds, "cmake-binary")
             configured = False
         if (
@@ -2123,7 +2148,9 @@ class Workspace:
         )
 
     @staticmethod
-    def _cmake_state_valid(source: Path, binary: Path) -> bool:
+    def _cmake_state_valid(
+        source: Path, binary: Path, configure: list[str]
+    ) -> bool:
         cache = binary / "CMakeCache.txt"
         ninja = binary / "build.ninja"
         if (
@@ -2136,6 +2163,9 @@ class Workspace:
         values: dict[str, str] = {}
         try:
             for line in cache.read_text(encoding="utf-8").splitlines():
+                if "=" in line and ":" in line.split("=", 1)[0]:
+                    key, value = line.split("=", 1)
+                    values[key.split(":", 1)[0]] = value
                 if line.startswith("CMAKE_HOME_DIRECTORY:INTERNAL="):
                     values["source"] = line.split("=", 1)[1]
                 elif line.startswith("CMAKE_GENERATOR:INTERNAL="):
@@ -2144,6 +2174,14 @@ class Workspace:
         except (KeyError, OSError, RuntimeError, UnicodeError):
             return False
         if cached_source != source.resolve() or values.get("generator") != "Ninja":
+            return False
+        expected: dict[str, str] = {}
+        for argument in configure:
+            if not argument.startswith("-D") or "=" not in argument:
+                continue
+            key, value = argument[2:].split("=", 1)
+            expected[key.split(":", 1)[0]] = value
+        if any(values.get(key) != value for key, value in expected.items()):
             return False
         try:
             graph = run(
@@ -2155,10 +2193,20 @@ class Workspace:
             return False
         return graph.startswith("build.ninja:\n  input: RERUN_CMAKE")
 
-    @staticmethod
     def _add_debug_prefix_environment(
-        source: Path, binary: Path, environment: dict[str, str]
+        self,
+        source: Path,
+        binary: Path,
+        environment: dict[str, str],
+        arguments: list[str],
     ) -> None:
+        if environment.get("CMAKE_TOOLCHAIN_FILE") or any(
+            argument.startswith(
+                ("-DCMAKE_TOOLCHAIN_FILE=", "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=")
+            )
+            for argument in arguments
+        ):
+            return
         source_path = source.resolve()
         binary_path = binary.resolve()
         relative_source = os.path.relpath(source_path, binary_path)
@@ -2171,12 +2219,55 @@ class Workspace:
             f"-ffile-prefix-map={binary_path}=/atrinik/build",
         )
         mappings = " ".join(shlex.quote(option) for option in options)
-        environment["CFLAGS"] = " ".join(
-            filter(None, (environment.get("CFLAGS", ""), mappings))
-        )
-        environment["CXXFLAGS"] = " ".join(
-            filter(None, (environment.get("CXXFLAGS", ""), mappings))
-        )
+        for variable, command, language in (
+            ("CFLAGS", environment.get("CC", "cc"), "c"),
+            ("CXXFLAGS", environment.get("CXX", "c++"), "c++"),
+        ):
+            if self._compiler_supports_prefix_maps(command, language):
+                environment[variable] = " ".join(
+                    filter(None, (environment.get(variable, ""), mappings))
+                )
+
+    def _compiler_supports_prefix_maps(self, command: str, language: str) -> bool:
+        identity = self._tool_identity(command)
+        key = (command, language, identity.get("resolved_path"), identity.get("sha256"))
+        cached = getattr(self, "_prefix_map_support", {}).get(key)
+        if cached is not None:
+            return cached
+        try:
+            words = shlex.split(command)
+        except ValueError:
+            words = [command]
+        executable = shutil.which(words[0]) if words else None
+        supported = False
+        if executable is not None:
+            with tempfile.TemporaryDirectory(prefix="atrinik-prefix-probe-") as temporary:
+                root = Path(temporary)
+                source = root / ("probe.cc" if language == "c++" else "probe.c")
+                output = root / "probe.o"
+                source.write_text("int atrinik_prefix_probe;\n", encoding="utf-8")
+                try:
+                    run(
+                        [
+                            executable,
+                            *words[1:],
+                            "-x",
+                            language,
+                            "-fdebug-prefix-map=/atrinik-prefix-probe=/atrinik/probe",
+                            "-ffile-prefix-map=/atrinik-prefix-probe=/atrinik/probe",
+                            "-c",
+                            str(source),
+                            "-o",
+                            str(output),
+                        ],
+                        trace=False,
+                    )
+                    supported = output.is_file()
+                except WorkspaceError:
+                    supported = False
+        self._prefix_map_support = getattr(self, "_prefix_map_support", {})
+        self._prefix_map_support[key] = supported
+        return supported
 
     @staticmethod
     def _tool_identity(command: str) -> dict[str, str | None]:
@@ -2274,6 +2365,10 @@ class Workspace:
             "CFLAGS",
             "CXXFLAGS",
             "LDFLAGS",
+            "CPATH",
+            "C_INCLUDE_PATH",
+            "CPLUS_INCLUDE_PATH",
+            "LIBRARY_PATH",
             "CMAKE_TOOLCHAIN_FILE",
             "CMAKE_GENERATOR_PLATFORM",
             "CMAKE_GENERATOR_TOOLSET",
@@ -2423,16 +2518,22 @@ class Workspace:
                     "sha256": hashlib.sha256(data).hexdigest(),
                 }
             )
-            if re.search(
-                r"(?im)^\s*(?:find_package|add_subdirectory|cmake_language)\s*\(",
-                text,
+            command_names = re.findall(
+                r"(?im)^\s*([a-z_][a-z0-9_]*)\s*\(", text
+            )
+            if "$" in text or any(
+                name.lower() not in {"include", "set"} for name in command_names
             ):
                 complete = False
             pattern = re.compile(
-                r"(?im)^\s*include\s*\(\s*(?:\"([^\"]+)\"|'([^']+)'|([^\s\)]+))"
+                r"(?ims)^\s*include\s*\(\s*(?:\"([^\"]+)\"|"
+                r"\[(=*)\[(.*?)\]\2\]|([^\s\)]+))"
             )
-            for match in pattern.finditer(text):
-                included = next(group for group in match.groups() if group is not None)
+            matches = list(pattern.finditer(text))
+            if sum(name.lower() == "include" for name in command_names) != len(matches):
+                complete = False
+            for match in matches:
+                included = match.group(1) or match.group(3) or match.group(4)
                 if "$" in included:
                     complete = False
                     continue
