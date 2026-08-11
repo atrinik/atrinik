@@ -25,6 +25,8 @@ from .workspace import (
     BUILD_METADATA,
     BUILD_METADATA_SCHEMA_VERSION,
     CACHE_METADATA,
+    WORKER_DEPENDENCY_METADATA,
+    WORKER_DEPENDENCY_SCHEMA_VERSION,
     _remote_matches,
     exclusive_lock,
 )
@@ -508,6 +510,14 @@ class Cleanup:
                 older_than_days,
                 registered,
                 removable_worktrees,
+                references,
+                reference_errors,
+            )
+        elif kind == "worker-dependencies":
+            item = self._worker_dependency_item(
+                path,
+                older_than_days,
+                registered,
                 references,
                 reference_errors,
             )
@@ -1649,6 +1659,7 @@ class Cleanup:
                 item["error"] = error
             return [item]
         profiles = self.paths.builds / "profiles"
+        items: list[dict[str, Any]] = []
         if not profiles.is_dir() or profiles.is_symlink():
             if profiles.exists() or profiles.is_symlink():
                 item = _base_item(
@@ -1659,28 +1670,196 @@ class Cleanup:
                 item["_inodes"] = inodes
                 if error:
                     item["error"] = error
-                return [item]
+                items.append(item)
+        else:
+            try:
+                profile_roots = sorted(profiles.iterdir())
+            except OSError as error:
+                item = _base_item(
+                    "unmanaged-build", "atrinik", "atrinik/atrinik", profiles
+                )
+                item["reasons"] = ["profiles_inventory_error"]
+                item["error"] = str(error)
+                items.append(item)
+            else:
+                items.extend(
+                    self._build_item(
+                        path,
+                        older_than_days,
+                        registered,
+                        removable_worktrees,
+                        references,
+                        reference_errors,
+                    )
+                    for path in profile_roots
+                )
+        items.extend(
+            self._worker_dependency_caches(
+                older_than_days, registered, references, reference_errors
+            )
+        )
+        return items
+
+    def _worker_dependency_caches(
+        self,
+        older_than_days: int,
+        registered: set[Path],
+        references: dict[str, Any],
+        reference_errors: set[str],
+    ) -> list[dict[str, Any]]:
+        root = self.paths.builds / "worker-dependencies"
+        if not root.exists() and not root.is_symlink():
             return []
         try:
-            profile_roots = sorted(profiles.iterdir())
-        except OSError as error:
-            item = _base_item(
-                "unmanaged-build", "atrinik", "atrinik/atrinik", profiles
+            marker = root / MANAGED_MARKER
+            if (
+                root.is_symlink()
+                or not root.is_dir()
+                or marker.is_symlink()
+                or load_json(marker)
+                != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": "worker-dependency-cache",
+                }
+            ):
+                raise WorkspaceError(
+                    "Worker dependency cache root is not marker-owned"
+                )
+            paths = sorted(
+                path for path in root.iterdir() if path.name != MANAGED_MARKER
             )
-            item["reasons"] = ["profiles_inventory_error"]
+        except (OSError, WorkspaceError) as error:
+            item = _base_item(
+                "unmanaged-build", "atrinik", "atrinik/atrinik", root
+            )
+            item["reasons"] = ["invalid_worker_dependency_cache"]
             item["error"] = str(error)
+            inodes, _, walk_error = _tree_usage(root)
+            item["_inodes"] = inodes
+            if walk_error:
+                item["reasons"].append("filesystem_traversal_error")
             return [item]
         return [
-            self._build_item(
+            self._worker_dependency_item(
                 path,
                 older_than_days,
                 registered,
-                removable_worktrees,
                 references,
                 reference_errors,
             )
-            for path in profile_roots
+            for path in paths
         ]
+
+    def _worker_dependency_item(
+        self,
+        path: Path,
+        older_than_days: int,
+        registered: set[Path],
+        references: dict[str, Any],
+        reference_errors: set[str],
+    ) -> dict[str, Any]:
+        item = _base_item(
+            "worker-dependencies", "atrinik", "atrinik/atrinik", path
+        )
+        inodes, _, walk_error = _tree_usage(path)
+        item["_inodes"] = inodes
+        if walk_error:
+            item["reasons"].append("filesystem_traversal_error")
+            item["error"] = walk_error
+        key = path.name
+        purpose = f"worker-dependencies:{key}"
+        item["key"] = key
+        item["_purpose"] = purpose
+        try:
+            if not re.fullmatch(r"[0-9a-f]{64}", key):
+                raise WorkspaceError("Worker dependency cache key is invalid")
+            marker = path / MANAGED_MARKER
+            if (
+                path.is_symlink()
+                or not path.is_dir()
+                or marker.is_symlink()
+                or load_json(marker)
+                != {"schema_version": SCHEMA_VERSION, "purpose": purpose}
+            ):
+                raise WorkspaceError("Worker dependency cache marker is invalid")
+            metadata_path = path / WORKER_DEPENDENCY_METADATA
+            if metadata_path.is_symlink() or not metadata_path.is_file():
+                raise WorkspaceError(
+                    "Worker dependency metadata is not a regular file"
+                )
+            metadata = load_json(metadata_path)
+            if (
+                not isinstance(metadata, dict)
+                or set(metadata)
+                != {
+                    "schema_version",
+                    "purpose",
+                    "key",
+                    "inputs",
+                    "node_modules_lock_sha256",
+                    "last_used_at",
+                }
+                or metadata.get("schema_version")
+                != WORKER_DEPENDENCY_SCHEMA_VERSION
+                or metadata.get("purpose") != "worker-dependencies"
+                or metadata.get("key") != key
+                or not isinstance(metadata.get("inputs"), dict)
+                or not isinstance(metadata.get("node_modules_lock_sha256"), str)
+                or not re.fullmatch(
+                    r"[0-9a-f]{64}", metadata["node_modules_lock_sha256"]
+                )
+            ):
+                raise WorkspaceError(
+                    "Worker dependency metadata fields are invalid"
+                )
+            used_at = _parse_time(
+                metadata.get("last_used_at"),
+                "Worker dependencies last_used_at",
+            )
+            item["age_basis"] = "last-used-at"
+        except (OSError, WorkspaceError) as error:
+            item["reasons"].append("invalid_worker_dependency_cache")
+            item["error"] = str(error)
+            used_at = None
+        normalized = path.resolve(strict=False)
+        if any(_path_relation(normalized, worktree) for worktree in registered):
+            item["reasons"].append("contains_registered_worktree")
+        for category, reason in (
+            ("live_builds", "live_topology"),
+            ("retention", "retention_reference"),
+        ):
+            values = references[category].get(normalized, [])
+            if values:
+                target = (
+                    "topologies" if category == "live_builds" else "retention"
+                )
+                item["references"][target] = sorted(set(values))
+                item["reasons"].append(reason)
+        item["reasons"].extend(sorted(reference_errors))
+        if re.fullmatch(r"[0-9a-f]{64}", key):
+            lock = (
+                self.paths.builds / "locks" / f"worker-dependencies-{key}.lock"
+            )
+            busy, lock_error = self._lock_busy(lock)
+            if lock_error:
+                item["reasons"].append("build_lock_error")
+                item["error"] = lock_error
+            elif busy:
+                item["reasons"].append("build_lock_busy")
+        if used_at is None:
+            item["reasons"].append("build_age_unavailable")
+        else:
+            age = max(0, int((self.now - used_at).total_seconds()))
+            item["age_seconds"] = age
+            if used_at > self.now:
+                item["reasons"].append("future_last_used")
+            elif age < older_than_days * 86400:
+                item["reasons"].append("younger_than_grace_period")
+        item["reasons"] = sorted(set(item["reasons"]))
+        if not item["reasons"]:
+            item["disposition"] = "eligible"
+            item["reasons"] = ["stale_worker_dependencies"]
+        return item
 
     def _build_item(
         self,
@@ -1896,7 +2075,11 @@ class Cleanup:
         if self.paths.builds.is_dir() and not self.paths.builds.is_symlink():
             try:
                 for path in sorted(self.paths.builds.iterdir()):
-                    if path.name in {"profiles", "npm-cache"}:
+                    if path.name in {
+                        "profiles",
+                        "npm-cache",
+                        "worker-dependencies",
+                    }:
                         continue
                     roots.append((path, []))
             except OSError:
@@ -2059,6 +2242,7 @@ class Cleanup:
     def _apply_order(item: dict[str, Any]) -> tuple[int, str]:
         order = {
             "profile-build": 0,
+            "worker-dependencies": 0,
             "worktree": 1,
             "npm-cache": 2,
             "prunable-metadata": 3,
@@ -2078,6 +2262,22 @@ class Cleanup:
                     path,
                     self.paths.builds,
                     f"profile:{item['profile']}:{item['key']}",
+                )
+        elif item["kind"] == "worker-dependencies":
+            lock = (
+                self.paths.builds
+                / "locks"
+                / f"worker-dependencies-{item['key']}.lock"
+            )
+            with exclusive_lock(
+                lock,
+                f"Worker dependencies {item['key']}",
+                nonblocking=True,
+            ):
+                managed_remove(
+                    path,
+                    self.paths.builds,
+                    f"worker-dependencies:{item['key']}",
                 )
         elif item["kind"] == "worktree":
             primary = self._repositories[item["owner"]]

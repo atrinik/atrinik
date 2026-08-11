@@ -1839,6 +1839,85 @@ class CleanupTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "unsupported cleanup target"):
             cleanup._remove({"kind": "unknown", "path": str(cache)})
 
+    def make_worker_dependency_cache(self, key: str = "a" * 64) -> Path:
+        root = self.workspace.paths.builds / "worker-dependencies"
+        managed_directory(root, self.workspace.paths.builds, "worker-dependency-cache")
+        entry = root / key
+        managed_directory(
+            entry,
+            self.workspace.paths.builds,
+            f"worker-dependencies:{key}",
+        )
+        atomic_json(
+            entry / ".atrinik-worker-dependencies.json",
+            {
+                "schema_version": 1,
+                "purpose": "worker-dependencies",
+                "key": key,
+                "inputs": {"lock": "exact"},
+                "node_modules_lock_sha256": "b" * 64,
+                "last_used_at": self.old.isoformat(),
+            },
+        )
+        (entry / "node_modules").mkdir()
+        return entry
+
+    def test_worker_dependency_cache_is_bounded_preview_first_and_locked(self) -> None:
+        entry = self.make_worker_dependency_cache()
+        preview = self.workspace.cleanup(["builds"], 7, [], False)
+        item = next(
+            row
+            for row in preview["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["stale_worker_dependencies"])
+        self.assertEqual(item["age_basis"], "last-used-at")
+        self.assertTrue(entry.exists())
+
+        lock = (
+            self.workspace.paths.builds
+            / "locks"
+            / f"worker-dependencies-{'a' * 64}.lock"
+        )
+        lock.parent.mkdir(parents=True, exist_ok=True)
+        with lock.open("w", encoding="utf-8") as stream:
+            import fcntl
+
+            fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            protected = self.workspace.cleanup(["builds"], 7, [], False)
+        item = next(
+            row
+            for row in protected["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertIn("build_lock_busy", item["reasons"])
+
+        applied = self.workspace.cleanup(["builds"], 7, [], True)
+        item = next(
+            row
+            for row in applied["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertEqual(item["disposition"], "removed")
+        self.assertFalse(entry.exists())
+        self.assertTrue((self.workspace.paths.builds / "worker-dependencies").exists())
+
+    def test_invalid_worker_dependency_cache_is_protected(self) -> None:
+        entry = self.make_worker_dependency_cache()
+        (entry / ".atrinik-worker-dependencies.json").write_text(
+            "{}\n", encoding="utf-8"
+        )
+        report = self.workspace.cleanup(["builds"], 0, [], False)
+        item = next(
+            row
+            for row in report["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("invalid_worker_dependency_cache", item["reasons"])
+        self.assertTrue(entry.exists())
+
     def test_dry_run_does_not_create_an_absent_workspace(self) -> None:
         shutil.rmtree(self.workspace.paths.workspace)
         report = self.workspace.cleanup(["builds"], 7, [], False)

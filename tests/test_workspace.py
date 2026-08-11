@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 from concurrent.futures import ThreadPoolExecutor
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -10,6 +11,7 @@ import signal
 import stat
 import subprocess
 import tempfile
+import threading
 import time
 import unittest
 from unittest import mock
@@ -706,6 +708,242 @@ class WorkspaceTests(unittest.TestCase):
         )
         (copied / "README").write_text("changed in view\n", encoding="utf-8")
         self.assertEqual((source / "README").read_text(encoding="utf-8"), "content\n")
+
+    def make_worker_source(self) -> Path:
+        source = self.root / "worker-source"
+        source.mkdir()
+        (source / "package.json").write_text(
+            json.dumps(
+                {
+                    "name": "worker-test",
+                    "version": "1.0.0",
+                    "scripts": {"check": "node check.js"},
+                    "dependencies": {"alpha": "1.0.0"},
+                    "devDependencies": {"@scope/beta": "2.0.0"},
+                }
+            ),
+            encoding="utf-8",
+        )
+        (source / "package-lock.json").write_text(
+            json.dumps(
+                {
+                    "name": "worker-test",
+                    "version": "1.0.0",
+                    "lockfileVersion": 3,
+                    "packages": {},
+                }
+            ),
+            encoding="utf-8",
+        )
+        (source / "worker.ts").write_text("export const value = 1;\n", encoding="utf-8")
+        return source
+
+    @staticmethod
+    def fake_worker_run(
+        installs: list[Path], versions: dict[str, str], install_lock: threading.Lock
+    ):
+        def invoke(
+            arguments: list[str],
+            *,
+            cwd: Path | None = None,
+            capture: bool = False,
+            env: dict[str, str] | None = None,
+            **_kwargs: object,
+        ) -> str:
+            if arguments == ["node", "--version"]:
+                return versions["node"]
+            if arguments == ["npm", "--version"]:
+                return versions["npm"]
+            if arguments == ["npm", "config", "list", "--json"]:
+                return json.dumps(
+                    {
+                        "cache": (env or {}).get("npm_config_cache"),
+                        "ignore-scripts": False,
+                    }
+                )
+            if arguments == ["npm", "ci"]:
+                assert cwd is not None
+                with install_lock:
+                    installs.append(cwd)
+                modules = cwd / "node_modules"
+                (modules / "alpha").mkdir(parents=True)
+                (modules / "@scope" / "beta").mkdir(parents=True)
+                (modules / ".package-lock.json").write_text(
+                    json.dumps(
+                        {
+                            "lockfileVersion": 3,
+                            "packages": {
+                                "node_modules/alpha": {},
+                                "node_modules/@scope/beta": {},
+                            },
+                        }
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                )
+                return ""
+            raise AssertionError(f"unexpected command: {arguments}")
+
+        return invoke
+
+    def test_worker_dependencies_reuse_exact_inputs_and_rebuild_corruption(self) -> None:
+        source = self.make_worker_source()
+        installs: list[Path] = []
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        with mock.patch(
+            "atrinik_workspace.workspace.run",
+            side_effect=self.fake_worker_run(installs, versions, threading.Lock()),
+        ):
+            first = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+            second = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+            self.assertFalse(first[3])
+            self.assertTrue(second[3])
+            self.assertEqual(first[1], second[1])
+            self.assertEqual(len(installs), 1)
+
+            (source / "worker.ts").write_text(
+                "export const value = 2;\n", encoding="utf-8"
+            )
+            application_changed = self.workspace._worker_dependencies(
+                source, {"PATH": "/bin"}
+            )
+            self.assertTrue(application_changed[3])
+            self.assertEqual(application_changed[1], first[1])
+            self.assertEqual(len(installs), 1)
+
+            (application_changed[0] / "alpha").rename(
+                application_changed[0] / "alpha-corrupt"
+            )
+            rebuilt = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+            self.assertFalse(rebuilt[3])
+            self.assertEqual(rebuilt[1], first[1])
+            self.assertEqual(len(installs), 2)
+
+            versions["npm"] = "11.1.0"
+            invalidated = self.workspace._worker_dependencies(
+                source, {"PATH": "/bin"}
+            )
+            self.assertNotEqual(invalidated[1], first[1])
+            self.assertEqual(len(installs), 3)
+
+            (source / ".npmrc").write_text("strict-peer-deps=true\n", encoding="utf-8")
+            config_changed = self.workspace._worker_dependencies(
+                source, {"PATH": "/bin"}
+            )
+            self.assertNotEqual(config_changed[1], invalidated[1])
+            self.assertEqual(len(installs), 4)
+
+            (source / "package-lock.json").write_text(
+                '{"lockfileVersion":3,"changed":true}\n', encoding="utf-8"
+            )
+            lock_changed = self.workspace._worker_dependencies(
+                source, {"PATH": "/bin"}
+            )
+            self.assertNotEqual(lock_changed[1], config_changed[1])
+            self.assertEqual(len(installs), 5)
+
+    def test_worker_root_lifecycle_scripts_key_complete_source(self) -> None:
+        source = self.make_worker_source()
+        package = json.loads((source / "package.json").read_text(encoding="utf-8"))
+        package["scripts"]["postinstall"] = "node worker.ts"
+        (source / "package.json").write_text(json.dumps(package), encoding="utf-8")
+        installs: list[Path] = []
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        with mock.patch(
+            "atrinik_workspace.workspace.run",
+            side_effect=self.fake_worker_run(installs, versions, threading.Lock()),
+        ):
+            environment = {"PATH": "/bin", "BUILD_MODE": "one"}
+            environment["npm_config_cache"] = "/cache"
+            first = self.workspace._worker_dependency_inputs(source, environment)
+            (source / "worker.ts").write_text(
+                "export const value = 2;\n", encoding="utf-8"
+            )
+            second = self.workspace._worker_dependency_inputs(source, environment)
+            changed_environment = dict(environment, BUILD_MODE="two")
+            third = self.workspace._worker_dependency_inputs(
+                source, changed_environment
+            )
+        self.assertEqual(first["root_lifecycle_scripts"], ["postinstall"])
+        self.assertNotEqual(
+            first["root_lifecycle_source_sha256"],
+            second["root_lifecycle_source_sha256"],
+        )
+        self.assertNotEqual(
+            second["environment_sha256"], third["environment_sha256"]
+        )
+
+    def test_worker_dependency_concurrency_installs_once(self) -> None:
+        source = self.make_worker_source()
+        installs: list[Path] = []
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        install_lock = threading.Lock()
+        with mock.patch(
+            "atrinik_workspace.workspace.run",
+            side_effect=self.fake_worker_run(installs, versions, install_lock),
+        ):
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                results = list(
+                    executor.map(
+                        lambda _value: self.workspace._worker_dependencies(
+                            source, {"PATH": "/bin"}
+                        ),
+                        range(2),
+                    )
+                )
+        self.assertEqual(len(installs), 1)
+        self.assertEqual(results[0][1], results[1][1])
+        self.assertEqual(sorted(result[3] for result in results), [False, True])
+
+    def test_worker_view_reuses_application_and_isolates_dependencies(self) -> None:
+        source = self.make_worker_source()
+        dependencies = self.root / "cached-node-modules"
+        (dependencies / "alpha").mkdir(parents=True)
+        (dependencies / "@scope" / "beta").mkdir(parents=True)
+        hidden = dependencies / ".package-lock.json"
+        hidden.write_text(
+            json.dumps(
+                {
+                    "lockfileVersion": 3,
+                    "packages": {
+                        "node_modules/alpha": {},
+                        "node_modules/@scope/beta": {},
+                    },
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        hidden_digest = hashlib.sha256(hidden.read_bytes()).hexdigest()
+        metadata = {"node_modules_lock_sha256": hidden_digest}
+        root = self.workspace.paths.builds / "profiles" / "worker-test"
+        managed_directory(root, self.workspace.paths.builds, "worker-test")
+
+        first = self.workspace._worker_view(
+            root, source, dependencies, "a" * 64, metadata
+        )
+        second = self.workspace._worker_view(
+            root, source, dependencies, "a" * 64, metadata
+        )
+        self.assertFalse(first[1])
+        self.assertTrue(second[1])
+        (second[0] / "node_modules" / "alpha" / "local").write_text(
+            "profile only\n", encoding="utf-8"
+        )
+        self.assertFalse((dependencies / "alpha" / "local").exists())
+
+        (source / "worker.ts").write_text(
+            "export const value = 2;\n", encoding="utf-8"
+        )
+        changed = self.workspace._worker_view(
+            root, source, dependencies, "a" * 64, metadata
+        )
+        self.assertFalse(changed[1])
+        self.assertEqual(
+            (changed[0] / "worker.ts").read_text(encoding="utf-8"),
+            "export const value = 2;\n",
+        )
+        self.assertFalse((changed[0] / "node_modules" / "alpha" / "local").exists())
 
     def test_resource_view_reserves_generated_metadata_names(self) -> None:
         source = self.workspace.paths.repositories / "resources"

@@ -121,6 +121,7 @@ workspace/
   profiles/<name>.json               logical component -> checkout selectors
   build/profiles/<name>-<key>/       isolated sources, builds, and runtime
   build/npm-cache/                   shared package download cache
+  build/worker-dependencies/<key>/   shared validated Worker installations
   build/retention.json               optional strict build pin/rollback record
   topologies/<name>/                 supervised process state and rotated logs
   state/server/<name>/               persistent mutable server data
@@ -242,6 +243,19 @@ visible report-only `unmanaged-build` records. Cleanup never targets profiles,
 scenarios, state, topology records/logs, migration archives/evidence, branches,
 Git objects, or arbitrary unmarked paths.
 
+Worker dependency entries are direct children of the marker-owned
+`worker-dependencies` container. Each key covers exact `package.json`,
+`package-lock.json`, and optional project `.npmrc` bytes; Node and npm versions;
+OS and architecture; the effective npm configuration; and a digest of the
+complete lifecycle-script environment. Only digests, never configuration or
+environment values, enter metadata. Each entry has its own lock, ownership
+marker, installed-lockfile digest, required top-level dependency checks, and
+atomically refreshed `last_used_at`. Marker or structural corruption is a
+cache miss and is replaced only after a clean staged `npm ci` succeeds. When
+the root package defines an install lifecycle hook, the complete non-generated
+source digest also enters the key and its source is staged for that hook;
+otherwise application-only edits do not invalidate dependencies.
+
 ## Classic monorepo migration
 
 `migrate repositories` is a checked transaction for workspaces that still
@@ -353,7 +367,7 @@ full Classic closure -> integrated source view -> one protocol/libatrinik graph
                                              +-> server targets -> CMake/Ninja
 component-only client/server request -> standalone source view -> CMake/Ninja
 selected Classic + content + resources ---> offline worldmaker -> region-map cache
-selected Worker -------------------------> npm source view -> npm run check
+selected Worker -> keyed npm ci cache -> isolated reconciled view -> npm run check
 ~~~
 
 The integrated graph is selected only when client, server, protocol, and
@@ -377,7 +391,13 @@ The server source view uses a copied `install_data` directory because its CTest
 preparation uses CMake directory-copy semantics. Other authored inputs remain
 links to their selected worktrees. The Worker view is copied because Node's
 module resolver follows configuration-file links and would otherwise search the
-Worker checkout instead of the isolated dependency directory. Collected
+Worker checkout instead of the isolated dependency directory. The coordinator
+fingerprints all non-generated source entries, so an unchanged profile view is
+reused without another source copy. Application-only clean or dirty edits
+invalidate that view but keep lockfile-identical dependencies; package or
+project npm configuration edits invalidate both. The profile receives a real
+copy of cached `node_modules`, never a link or shared inode contract, so its
+checks cannot mutate the shared installation. Collected
 content and resource dependency metadata identify the selected path and commit.
 The resources repository's `runtime-paths.txt` is the distribution boundary:
 only tracked regular files below those paths enter the runtime view. This keeps

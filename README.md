@@ -266,6 +266,18 @@ preview-first `./atrinik cleanup --scope builds` lifecycle; topology snapshots
 remain with the retained topology record and are atomically replaced the next
 time that topology name is launched.
 
+Building `metaserver-worker` retains a validated dependency installation keyed
+by exact package and lockfile bytes, optional project `.npmrc`, Node/npm and
+platform identity, effective npm configuration, and the complete hashed
+lifecycle-script environment. `npm ci` remains the only installer. A second
+lockfile-identical build reuses that installation and an unchanged profile
+source view; application-only edits refresh the profile view without
+reinstalling dependencies unless the root package defines an install lifecycle
+hook, in which case the complete source digest participates in the dependency
+key. Every profile gets its own `node_modules` copy, so
+its checks cannot mutate the shared cache. Build output reports dependency
+installation/cache time and source-view preparation/reuse time.
+
 `--with classic` has one exact meaning: add the complete classic initialization
 cohort to the replacement/default cohort. It is not a classic-only mode. The
 cohort consists of one `atrinik/classic` checkout, a distinct `content-1x`
@@ -475,7 +487,8 @@ inside it.
 
 Cleanup is always operator-invoked and preview-first. With no options it
 inventories registered worktrees and marker-owned profile builds older than
-seven days without changing the filesystem:
+seven days, including individually marker-owned Worker dependency entries,
+without changing the filesystem:
 
 ~~~sh
 ./atrinik cleanup
@@ -542,10 +555,17 @@ schema 1 and contains exactly `schema_version` plus an absolute `build_roots`
 array. A build sourced from a worktree eligible in the same plan may be
 reclaimed regardless of age unless another protection applies.
 
+Worker dependency entries under `workspace/build/worker-dependencies/` use the
+same default `builds` scope and grace period. Cleanup requires the exact parent
+and entry markers, strict metadata and last-used time, a safe direct-child key,
+and an idle per-key build lock; uncertainty protects the entry. Removing a
+stale entry leaves the marker-owned container and npm download cache intact.
+
 The shared `workspace/build/npm-cache` is never part of default cleanup. Its
 explicit scope accepts the exact marker-owned path or the one legacy known
 cache at that fixed location after proving the workspace marker, path shape,
-age, and absence of an active build. Unmarked profile roots, other
+age, and absence of an active build. Unmarked profile roots, invalid Worker
+cache entries, other
 `workspace/build` children, and all remaining mixed top-level `build/`
 entries are report-only `unmanaged-build` items. Deep-review reports, ad hoc
 builds, packages, archives, and unregistered siblings are never recursively
