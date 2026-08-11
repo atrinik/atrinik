@@ -791,6 +791,15 @@ declaring the topology ready. Use
 `--service server` or `--service client` for a single service. Client startup
 requires a live forwarded display socket.
 
+Build and runtime-preparation commands hold a shared repository-layout lock.
+Different profile build roots may compile concurrently; an exclusive per-root
+lock still serializes the same root. Initialization, synchronization, worktree
+or profile changes, cleanup apply, and repository migration take the layout
+lock exclusively, so they wait until every build or startup reader finishes.
+The wrapper fails closed when advisory shared locking is unavailable. The
+layout lock is always acquired before topology, scenario, state, build-root,
+port, registry, or cache locks.
+
 The supervisor records exact source commits, build and state paths, and process
 start identities. `ps` without a name lists every recorded topology; a name
 selects one. It distinguishes a live process from a reused PID, `down` signals

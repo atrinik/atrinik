@@ -44,20 +44,19 @@
 - Cleanup is explicit and preview-first: run
   `./atrinik cleanup --dry-run --json` before the same scoped `--apply`; never
   invoke it implicitly. Preserve dirty, detached, locked, active, referenced,
-  or uncertain targets. Historical eligibility fails closed; the
-  multi-repository skill owns cleanup proof and retention.
+  or uncertain targets; historical proof fails closed.
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.
-- Use `./atrinik path`, `topology show`, `up`, `ps`, `logs`, and `down`. Do not
-  reconstruct managed build, PID, log, lock, runtime, or state paths. Give
+- Use wrapper path/topology commands; never reconstruct managed paths. Give
   concurrent topologies distinct names, states, ports, and client config.
 - Keep shell completion parser-driven, bounded, local-only, secret-free, and
   ahead of `Workspace` construction.
+- Build/runtime layout readers share the outer lock; layout mutation stays
+  exclusive. Fail closed without shared locking and take finer locks afterward.
 - Persisted records without current immutable coordinates are historical and inert.
-- Follow `docs/PROVENANCE.md` for historical MIT reuse; incomplete history,
-  mixed authorship, uncertain identity, or embedded third-party material fails
-  closed. Cite the exact wrapper registry revision used.
+- Historical MIT reuse follows `docs/PROVENANCE.md` and fails closed on
+  incomplete or uncertain evidence. Cite the exact registry revision.
 - Update `supply-chain/inventory.json` when dependency ownership or validation
   changes. Keep Actions/images immutable, add no submodules, and audit a
   complete profile. Only aggregate-root workflows and Dependabot are active.

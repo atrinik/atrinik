@@ -6,8 +6,10 @@ import ctypes
 import errno
 import hashlib
 import json
+import multiprocessing
 import os
 from pathlib import Path
+import queue
 import shutil
 import signal
 import stat
@@ -44,11 +46,94 @@ from atrinik_workspace.workspace import (
     _remote_matches as real_remote_matches,
     display_arguments,
     exclusive_lock,
+    shared_lock,
     remove_owned_tree,
     replace_directory as worker_replace_directory,
     replace_runtime_directory as workspace_replace_directory,
     run as workspace_run,
 )
+
+
+def synthetic_build_process(
+    wrapper: str,
+    workspace_directory: str,
+    profile: str,
+    attempting: object,
+    entered: object,
+    release: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+
+            def pause_build(*_arguments: object) -> None:
+                entered.put(profile)
+                if not release.wait(10):
+                    raise TimeoutError("test build was not released")
+
+            with (
+                mock.patch.object(
+                    workspace, "_expand_build_target", return_value=["client"]
+                ),
+                mock.patch.object(
+                    workspace,
+                    "_resolve_build_profile",
+                    return_value={"client": Path(wrapper)},
+                ),
+                mock.patch.object(
+                    workspace, "_profile_build_key", return_value="a" * 12
+                ),
+                mock.patch.object(
+                    workspace, "_refresh_build_metadata", side_effect=pause_build
+                ),
+                mock.patch.object(
+                    workspace, "_uses_integrated_classic_build", return_value=False
+                ),
+                mock.patch.object(workspace, "_build_client"),
+            ):
+                attempting.set()
+                workspace.build("client", profile, False)
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def layout_writer_process(
+    wrapper: str,
+    workspace_directory: str,
+    operation: str,
+    attempting: object,
+    entered: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            attempting.set()
+            if operation == "sync":
+                with mock.patch.object(
+                    workspace,
+                    "_sync_components",
+                    side_effect=lambda *_: entered.set(),
+                ):
+                    workspace.sync([], "none")
+            else:
+                with mock.patch.object(
+                    workspace,
+                    "_remove_worktree",
+                    side_effect=lambda *_: entered.set(),
+                ):
+                    workspace.remove_worktree("client", "review")
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
 
 
 COMPONENTS = (
@@ -4938,6 +5023,157 @@ class WorkspaceTests(unittest.TestCase):
                 with exclusive_lock(lock, "test resource", nonblocking=True):
                     self.fail("concurrent lock unexpectedly succeeded")
 
+    def test_shared_lock_fails_closed_without_platform_primitive(self) -> None:
+        lock = self.workspace.paths.builds / "locks" / "test.lock"
+        with mock.patch.object(workspace_module.fcntl, "LOCK_SH", None):
+            with self.assertRaisesRegex(
+                WorkspaceError, "shared locking is unavailable"
+            ):
+                with shared_lock(lock, "test resource"):
+                    self.fail("shared lock unexpectedly succeeded")
+
+        with mock.patch.object(
+            workspace_module.fcntl,
+            "flock",
+            side_effect=OSError(errno.ENOTSUP, "operation not supported"),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot acquire test resource lock"
+            ):
+                with shared_lock(lock, "test resource"):
+                    self.fail("unsupported shared lock unexpectedly succeeded")
+
+    def test_independent_build_roots_overlap_across_processes(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        entered = context.Queue()
+        release = context.Event()
+        results = context.Queue()
+        attempting = [context.Event(), context.Event()]
+        processes = [
+            context.Process(
+                target=synthetic_build_process,
+                args=(
+                    str(self.wrapper),
+                    str(self.workspace_directory),
+                    profile,
+                    attempting[index],
+                    entered,
+                    release,
+                    results,
+                ),
+            )
+            for index, profile in enumerate(("independent-a", "independent-b"))
+        ]
+        try:
+            for process in processes:
+                process.start()
+            self.assertEqual(
+                {entered.get(timeout=5), entered.get(timeout=5)},
+                {"independent-a", "independent-b"},
+            )
+        finally:
+            release.set()
+            for process in processes:
+                process.join(timeout=10)
+        self.assertEqual(
+            [process.exitcode for process in processes], [0, 0]
+        )
+        self.assertEqual(
+            [results.get(timeout=2), results.get(timeout=2)], [None, None]
+        )
+
+    def test_same_build_root_serializes_across_processes(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        entered = context.Queue()
+        release = context.Event()
+        results = context.Queue()
+        attempting = [context.Event(), context.Event()]
+        processes = [
+            context.Process(
+                target=synthetic_build_process,
+                args=(
+                    str(self.wrapper),
+                    str(self.workspace_directory),
+                    "same-root",
+                    attempting[index],
+                    entered,
+                    release,
+                    results,
+                ),
+            )
+            for index in range(2)
+        ]
+        try:
+            processes[0].start()
+            self.assertEqual(entered.get(timeout=5), "same-root")
+            processes[1].start()
+            self.assertTrue(attempting[1].wait(timeout=5))
+            with self.assertRaises(queue.Empty):
+                entered.get(timeout=0.25)
+        finally:
+            release.set()
+            for process in processes:
+                process.join(timeout=10)
+        self.assertEqual(entered.get(timeout=2), "same-root")
+        self.assertEqual(
+            [process.exitcode for process in processes], [0, 0]
+        )
+        self.assertEqual(
+            [results.get(timeout=2), results.get(timeout=2)], [None, None]
+        )
+
+    def test_layout_writers_wait_for_build_readers_across_processes(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        for operation in ("sync", "remove-worktree"):
+            with self.subTest(operation=operation):
+                entered = context.Queue()
+                release = context.Event()
+                reader_results = context.Queue()
+                reader_attempting = context.Event()
+                writer_attempting = context.Event()
+                writer_entered = context.Event()
+                writer_results = context.Queue()
+                reader = context.Process(
+                    target=synthetic_build_process,
+                    args=(
+                        str(self.wrapper),
+                        str(self.workspace_directory),
+                        f"reader-{operation}",
+                        reader_attempting,
+                        entered,
+                        release,
+                        reader_results,
+                    ),
+                )
+                writer = context.Process(
+                    target=layout_writer_process,
+                    args=(
+                        str(self.wrapper),
+                        str(self.workspace_directory),
+                        operation,
+                        writer_attempting,
+                        writer_entered,
+                        writer_results,
+                    ),
+                )
+                try:
+                    reader.start()
+                    self.assertEqual(
+                        entered.get(timeout=5), f"reader-{operation}"
+                    )
+                    writer.start()
+                    self.assertTrue(writer_attempting.wait(timeout=5))
+                    self.assertFalse(writer_entered.wait(timeout=0.25))
+                finally:
+                    release.set()
+                    reader.join(timeout=10)
+                    writer.join(timeout=10)
+                self.assertTrue(writer_entered.is_set())
+                self.assertEqual(reader.exitcode, 0)
+                self.assertEqual(writer.exitcode, 0)
+                self.assertIsNone(reader_results.get(timeout=2))
+                self.assertIsNone(writer_results.get(timeout=2))
+
     def test_exclusive_lock_refuses_symlink(self) -> None:
         target = self.root / "valuable"
         target.write_text("preserve\n", encoding="utf-8")
@@ -5006,6 +5242,39 @@ class WorkspaceTests(unittest.TestCase):
                             self.assertFalse(future.done())
                             operation.assert_not_called()
                         future.result(timeout=2)
+                    operation.assert_called_once()
+
+    def test_layout_readers_share_repository_lock(self) -> None:
+        operations = (
+            ("_build", lambda: self.workspace.build("client", "default", False)),
+            (
+                "_scenario_create",
+                lambda: self.workspace.scenario_create("review", "default"),
+            ),
+            (
+                "_scenario_reset",
+                lambda: self.workspace.scenario_reset("review"),
+            ),
+            (
+                "_topology_up",
+                lambda: self.workspace.topology_up(
+                    "review", "default", "review", ["server"], None
+                ),
+            ),
+            (
+                "_run_server",
+                lambda: self.workspace.run_server(
+                    "default", "review", 13327, [], True
+                ),
+            ),
+        )
+        lock = self.workspace.paths.workspace / "repository-layout.lock"
+        for private_name, invoke in operations:
+            with self.subTest(operation=private_name):
+                with mock.patch.object(self.workspace, private_name) as operation:
+                    with shared_lock(lock, "repository layout"):
+                        with ThreadPoolExecutor(max_workers=1) as executor:
+                            executor.submit(invoke).result(timeout=2)
                     operation.assert_called_once()
 
     def test_server_runtime_paths_are_isolated_by_state(self) -> None:

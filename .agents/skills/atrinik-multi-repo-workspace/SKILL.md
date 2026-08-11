@@ -95,12 +95,11 @@ Classic selection is checkout-wide; subdirectories are not worktrees. Clean
 exact-coordinate content, resource, and region-map caches are reused; runtimes
 copy independent topology-owned snapshots.
 
-Build, scenario, and topology records bind exact immutable coordinates;
-incomplete records are inert. Let the wrapper own generated paths, locks,
-state, PIDs, logs, content/resources, and process cleanup.
-
-Keep completion parser-driven, bounded, read-only, local-only, secret-free,
-before `Workspace`, and stopped at `--` or a `run` remainder.
+Build/runtime readers share the outer layout lock: independent roots overlap,
+each exact root stays exclusive, and layout mutation is exclusive. Acquire it
+before finer locks and fail closed without reliable sharing. Incomplete
+immutable-coordinate records are inert; the wrapper owns generated paths,
+locks, state, PIDs, logs, content/resources, and process cleanup.
 
 For classic server execution or diagnosis, load `atrinik-server-runtime`. For
 a ready account and character, also load `atrinik-test-scenario`; never

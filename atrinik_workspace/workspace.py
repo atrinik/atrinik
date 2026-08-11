@@ -1129,16 +1129,45 @@ def open_regular_file(
 def exclusive_lock(
     path: Path, description: str, nonblocking: bool = False
 ) -> Iterator[TextIO]:
+    with _advisory_lock(
+        path, description, fcntl.LOCK_EX, nonblocking=nonblocking
+    ) as lock:
+        yield lock
+
+
+@contextmanager
+def shared_lock(path: Path, description: str) -> Iterator[TextIO]:
+    operation = getattr(fcntl, "LOCK_SH", None)
+    if not isinstance(operation, int):
+        raise WorkspaceError(
+            f"shared locking is unavailable for {description}; refusing to continue"
+        )
+    with _advisory_lock(path, description, operation) as lock:
+        yield lock
+
+
+@contextmanager
+def _advisory_lock(
+    path: Path,
+    description: str,
+    operation: int,
+    *,
+    nonblocking: bool = False,
+) -> Iterator[TextIO]:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor = open_regular_file(
         path, os.O_RDWR | os.O_CREAT, f"{description} lock"
     )
     with os.fdopen(descriptor, "a+") as lock:
-        operation = fcntl.LOCK_EX | (fcntl.LOCK_NB if nonblocking else 0)
+        operation |= fcntl.LOCK_NB if nonblocking else 0
         try:
             fcntl.flock(lock, operation)
         except BlockingIOError as error:
             raise WorkspaceError(f"{description} is already in use") from error
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot acquire {description} lock: {error}"
+            ) from error
         yield lock
 
 
@@ -2249,7 +2278,7 @@ class Workspace:
         use_ccache: bool = True,
     ) -> Path:
         self.paths.ensure()
-        with exclusive_lock(
+        with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -5718,7 +5747,7 @@ class Workspace:
         self, name: str, profile: str, preset: str = "basic-player"
     ) -> dict[str, Any]:
         self.paths.ensure()
-        with exclusive_lock(
+        with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -5816,7 +5845,7 @@ class Workspace:
 
     def scenario_reset(self, name: str) -> dict[str, Any]:
         self.paths.ensure()
-        with exclusive_lock(
+        with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -6893,7 +6922,7 @@ class Workspace:
         port: int | None = None,
     ) -> dict[str, Any]:
         self.paths.ensure()
-        with exclusive_lock(
+        with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -7345,7 +7374,7 @@ class Workspace:
         dry_run: bool,
     ) -> Path:
         self.paths.ensure()
-        with exclusive_lock(
+        with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
