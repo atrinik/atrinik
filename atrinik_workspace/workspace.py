@@ -194,6 +194,11 @@ def replace_directory(
         backup.rmdir()
         output.replace(backup)
         try:
+            # Rename preserves the old tree's timestamps. Refresh the backup
+            # root so cleanup's no-follow tree age measures when this
+            # transaction was created, not when the replaced output last
+            # changed.
+            os.utime(backup, None, follow_symlinks=False)
             staging.replace(output)
         except BaseException:
             backup.replace(output)
@@ -2429,6 +2434,20 @@ class Workspace:
     ) -> str:
         """Hash file-backed effective npm configuration without storing secrets."""
 
+        script_shells = {
+            name: value
+            for name, value in config.items()
+            if name == "script-shell" or name.rsplit(":", 1)[-1] == "script-shell"
+        }
+        for name, value in sorted(script_shells.items()):
+            if value is None or value == "":
+                continue
+            if not isinstance(value, str) or "\0" in value:
+                raise WorkspaceError(f"npm configuration {name} path is invalid")
+            raise WorkspaceError(
+                "custom npm script-shell configuration is unsupported"
+            )
+
         records: list[tuple[str, str, str | None]] = []
         file_values = {
             name: value
@@ -2491,6 +2510,46 @@ class Workspace:
             if not value or "\n" in value or len(value) > 256:
                 raise WorkspaceError(f"{command} returned an invalid version")
             versions[command] = value
+        raw_node_runtime = run(
+            [
+                "node",
+                "-p",
+                "JSON.stringify({platform:process.platform,arch:process.arch,"
+                "versions:process.versions})",
+            ],
+            cwd=source,
+            capture=True,
+            env=environment,
+            trace=False,
+        )
+        try:
+            node_runtime = json.loads(raw_node_runtime)
+        except json.JSONDecodeError as error:
+            raise WorkspaceError("Node runtime identity is not valid JSON") from error
+        if (
+            not isinstance(node_runtime, dict)
+            or set(node_runtime) != {"platform", "arch", "versions"}
+            or not isinstance(node_runtime.get("platform"), str)
+            or not re.fullmatch(r"[a-z0-9._-]{1,64}", node_runtime["platform"])
+            or not isinstance(node_runtime.get("arch"), str)
+            or not re.fullmatch(r"[a-z0-9._-]{1,64}", node_runtime["arch"])
+            or not isinstance(node_runtime.get("versions"), dict)
+            or not node_runtime["versions"]
+            or not all(
+                isinstance(name, str)
+                and re.fullmatch(r"[a-z0-9._-]{1,64}", name)
+                and isinstance(value, str)
+                and len(value) <= 256
+                and "\n" not in value
+                for name, value in node_runtime["versions"].items()
+            )
+        ):
+            raise WorkspaceError("Node runtime identity is invalid")
+        node_versions_digest = hashlib.sha256(
+            json.dumps(
+                node_runtime["versions"], sort_keys=True, separators=(",", ":")
+            ).encode()
+        ).hexdigest()
         raw_config = run(
             ["npm", "config", "list", "--json"],
             cwd=source,
@@ -2529,6 +2588,9 @@ class Workspace:
             "files": files,
             "node_version": versions["node"],
             "npm_version": versions["npm"],
+            "node_platform": node_runtime["platform"],
+            "node_architecture": node_runtime["arch"],
+            "node_versions_sha256": node_versions_digest,
             "os": platform.system(),
             "architecture": platform.machine(),
             "python_platform": sys.platform,

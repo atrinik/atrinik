@@ -762,6 +762,19 @@ class WorkspaceTests(unittest.TestCase):
                 return versions["node"]
             if arguments == ["npm", "--version"]:
                 return versions["npm"]
+            if arguments == [
+                "node",
+                "-p",
+                "JSON.stringify({platform:process.platform,arch:process.arch,"
+                "versions:process.versions})",
+            ]:
+                return json.dumps(
+                    {
+                        "platform": versions.get("node_platform", "linux"),
+                        "arch": versions.get("node_architecture", "x64"),
+                        "versions": {"modules": "127", "napi": "10"},
+                    }
+                )
             if arguments == ["npm", "config", "list", "--json"]:
                 return json.dumps(
                     {
@@ -875,6 +888,26 @@ class WorkspaceTests(unittest.TestCase):
             )
             self.assertNotEqual(lock_changed[1], config_changed[1])
             self.assertEqual(len(installs), 6)
+
+    def test_worker_dependency_keys_node_runtime_architecture(self) -> None:
+        source = self.make_worker_source()
+        installs: list[Path] = []
+        versions = {
+            "node": "v22.0.0",
+            "npm": "11.0.0",
+            "node_architecture": "x64",
+        }
+        with mock.patch(
+            "atrinik_workspace.workspace.run",
+            side_effect=self.fake_worker_run(
+                installs, versions, threading.Lock()
+            ),
+        ):
+            first = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+            versions["node_architecture"] = "arm64"
+            changed = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+        self.assertNotEqual(first[1], changed[1])
+        self.assertEqual(len(installs), 2)
 
     def test_worker_dependency_cache_preserves_unowned_entries(self) -> None:
         source = self.make_worker_source()
@@ -1050,6 +1083,37 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 self.workspace._worker_dependency_inputs(source, environment)
 
+    def test_worker_dependency_rejects_custom_npm_script_shell(self) -> None:
+        source = self.make_worker_source()
+        script_shell = self.root / "npm-script-shell"
+        script_shell.write_text(
+            "#!/bin/sh\nexec /bin/sh \"$@\"\n", encoding="utf-8"
+        )
+        script_shell.chmod(0o755)
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        installs: list[Path] = []
+        runner = self.fake_worker_run(installs, versions, threading.Lock())
+
+        def configured_run(arguments: list[str], **kwargs: object) -> str:
+            if arguments == ["npm", "config", "list", "--json"]:
+                return json.dumps({"script-shell": str(script_shell)})
+            return runner(arguments, **kwargs)
+
+        environment = {"PATH": "/bin", "npm_config_cache": "/cache"}
+        with mock.patch(
+            "atrinik_workspace.workspace.run", side_effect=configured_run
+        ):
+            for contents in (
+                "#!/bin/sh\nexec /bin/sh \"$@\"\n",
+                "#!/bin/sh\nexit 99\n",
+            ):
+                script_shell.write_text(contents, encoding="utf-8")
+                with self.assertRaisesRegex(
+                    WorkspaceError, "custom npm script-shell"
+                ):
+                    self.workspace._worker_dependencies(source, environment)
+        self.assertEqual(installs, [])
+
     def test_worker_dependency_authenticates_staged_project_npmrc(self) -> None:
         source = self.make_worker_source()
         (source / ".npmrc").write_text("strict-peer-deps=true\n", encoding="utf-8")
@@ -1221,9 +1285,29 @@ class WorkspaceTests(unittest.TestCase):
             with self.assertRaisesRegex(WorkspaceError, "invalid version"):
                 self.workspace._worker_dependency_inputs(source, environment)
 
+        def valid_node_runtime() -> str:
+            return json.dumps(
+                {
+                    "platform": "linux",
+                    "arch": "x64",
+                    "versions": {"modules": "127", "napi": "10"},
+                }
+            )
+
+        def invalid_runtime(arguments: list[str], **_kwargs: object) -> str:
+            if arguments in (["node", "--version"], ["npm", "--version"]):
+                return "v22.0.0"
+            return "not-json"
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=invalid_runtime):
+            with self.assertRaisesRegex(WorkspaceError, "runtime identity"):
+                self.workspace._worker_dependency_inputs(source, environment)
+
         def invalid_config(arguments: list[str], **_kwargs: object) -> str:
             if arguments in (["node", "--version"], ["npm", "--version"]):
                 return "v22.0.0"
+            if arguments[:2] == ["node", "-p"]:
+                return valid_node_runtime()
             return "not-json"
 
         with mock.patch("atrinik_workspace.workspace.run", side_effect=invalid_config):
@@ -1236,6 +1320,8 @@ class WorkspaceTests(unittest.TestCase):
             side_effect=lambda arguments, **_kwargs: (
                 "{}"
                 if arguments == ["npm", "config", "list", "--json"]
+                else valid_node_runtime()
+                if arguments[:2] == ["node", "-p"]
                 else "v22.0.0"
             ),
         ):

@@ -267,10 +267,11 @@ remain with the retained topology record and are atomically replaced the next
 time that topology name is launched.
 
 Building `metaserver-worker` retains a validated dependency installation keyed
-by exact package and lockfile bytes, optional project `.npmrc`, Node/npm and
-platform identity and effective npm configuration. External file-backed npm
-configuration fails closed; project `.npmrc` is supported through an
-authenticated copy. The hashed lifecycle-script environment and source
+by exact package and lockfile bytes, optional project `.npmrc`, Node/npm, Node
+runtime and host platform identity, and effective npm configuration. External
+file-backed npm configuration and custom script shells fail closed; project
+`.npmrc` is supported through an authenticated copy. The hashed lifecycle-script
+environment and source
 metadata also participate in the key. `npm ci` remains the only
 installer. A second
 input-identical build reuses that installation and an unchanged profile source

@@ -247,13 +247,15 @@ Worker dependency entries are direct key children of the marker-owned
 `worker-dependencies` container; its reserved `.transactions` child owns
 recoverable staging and backup artifacts. Each key covers exact `package.json`,
 `package-lock.json`, and optional project `.npmrc` bytes; Node and npm versions;
-OS and architecture; the effective npm configuration; and a digest of the
+Node runtime platform, architecture, and ABI identity; host OS and architecture;
+the effective npm configuration; and a digest of the
 complete lifecycle-script environment. Only digests, never configuration or
-environment values, enter metadata. External file-backed npm configuration
-fails closed rather than remaining live during install; project `.npmrc` uses
-an authenticated temporary copy. Each entry has its own lock, ownership
-marker, installed-lockfile digest, canonical complete-tree digest, required
-top-level dependency checks, and atomically refreshed `last_used_at`. Invalid
+environment values, enter metadata. External file-backed npm configuration and
+custom script shells fail closed rather than remaining live during install;
+project `.npmrc` uses an authenticated temporary copy. Each entry has its own
+lock, ownership marker, installed-lockfile digest, canonical complete-tree
+digest, required top-level dependency checks, and atomically refreshed
+`last_used_at`. Invalid
 ownership fails closed; corruption of an exactly owned entry is replaced only
 after a clean staged `npm ci` succeeds. Because enabled dependency lifecycle
 scripts can observe root files, the complete non-generated source digest always

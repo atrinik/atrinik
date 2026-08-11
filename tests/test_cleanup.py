@@ -29,7 +29,11 @@ from atrinik_workspace.model import (
     managed_directory,
     managed_remove as real_managed_remove,
 )
-from atrinik_workspace.workspace import WORKER_DEPENDENCY_SCHEMA_VERSION, Workspace
+from atrinik_workspace.workspace import (
+    WORKER_DEPENDENCY_SCHEMA_VERSION,
+    Workspace,
+    replace_directory,
+)
 
 
 def command(*arguments: str, cwd: Path) -> str:
@@ -2006,6 +2010,45 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["disposition"], "removed")
         self.assertFalse(transaction.exists())
         self.assertTrue(transactions.exists())
+
+    def test_new_worker_dependency_backup_gets_a_fresh_grace_period(self) -> None:
+        key = "f" * 64
+        entry = self.make_worker_dependency_cache(key)
+        transactions = entry.parent / ".transactions"
+        managed_directory(
+            transactions,
+            self.workspace.paths.builds,
+            "worker-dependency-transactions",
+        )
+        old_timestamp = self.old.timestamp()
+        for path in sorted(entry.rglob("*"), reverse=True):
+            os.utime(path, (old_timestamp, old_timestamp), follow_symlinks=False)
+        os.utime(entry, (old_timestamp, old_timestamp), follow_symlinks=False)
+        staging = transactions / f"{key}-staging-install"
+        staging.mkdir()
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.shutil.rmtree",
+                side_effect=WorkspaceError("simulated interruption"),
+            ),
+            self.assertRaisesRegex(WorkspaceError, "simulated interruption"),
+        ):
+            replace_directory(
+                entry,
+                staging,
+                f"{key}-backup-",
+                backup_parent=transactions,
+            )
+
+        preview = self.workspace.cleanup(["builds"], 7, [], False)
+        backup = next(
+            row
+            for row in preview["items"]
+            if row["kind"] == "worker-dependency-transaction"
+        )
+        self.assertEqual(backup["disposition"], "protected")
+        self.assertIn("younger_than_grace_period", backup["reasons"])
 
     def test_worker_dependency_transaction_uncertainty_protects_artifacts(self) -> None:
         key = "e" * 64
