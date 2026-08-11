@@ -247,10 +247,11 @@ Worker dependency entries are direct key children of the marker-owned
 `worker-dependencies` container; its reserved `.transactions` child owns
 recoverable staging and backup artifacts. Each key covers exact `package.json`,
 `package-lock.json`, and optional project `.npmrc` bytes; Node and npm versions;
-OS and architecture; the effective npm configuration and path/content digests
-for every file-backed configuration input; and a digest of the
+OS and architecture; the effective npm configuration; and a digest of the
 complete lifecycle-script environment. Only digests, never configuration or
-environment values, enter metadata. Each entry has its own lock, ownership
+environment values, enter metadata. External file-backed npm configuration
+fails closed rather than remaining live during install; project `.npmrc` uses
+an authenticated temporary copy. Each entry has its own lock, ownership
 marker, installed-lockfile digest, canonical complete-tree digest, required
 top-level dependency checks, and atomically refreshed `last_used_at`. Invalid
 ownership fails closed; corruption of an exactly owned entry is replaced only
@@ -260,7 +261,8 @@ enters the key, the source is staged, and source symlinks fail closed. Installed
 relative links must resolve within `node_modules`; absolute, escaping, dangling,
 or unsupported entries invalidate the installation.
 The per-key staging path is stable within the workspace and its parent identity
-is hashed. Copied modification times and extended metadata are keyed, and the
+is hashed. Copied modification times, filesystem flags, and extended metadata
+are keyed; staging access times are normalized; and the
 staged source snapshot is authenticated before installation. A project `.npmrc`
 is a restrictive no-follow temporary copy that is removed before publication;
 installed output containing the staging path is rejected as non-relocatable.

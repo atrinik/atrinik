@@ -30,6 +30,7 @@ from atrinik_workspace.model import (
 from atrinik_workspace.workspace import (
     WORKER_SOURCE_EXCLUSIONS,
     Workspace,
+    _copy_regular_file as real_copy_regular_file,
     _copy_worker_source as real_copy_worker_source,
     _tree_digest,
     _remote_matches as real_remote_matches,
@@ -772,6 +773,10 @@ class WorkspaceTests(unittest.TestCase):
                 assert cwd is not None
                 if not (cwd / "worker.ts").is_file():
                     raise AssertionError("npm lifecycle source was not staged")
+                if (cwd / "worker.ts").stat().st_atime_ns != 0:
+                    raise AssertionError(
+                        "lifecycle source access time was not normalized"
+                    )
                 npmrc = cwd / ".npmrc"
                 if npmrc.exists():
                     if (
@@ -980,7 +985,6 @@ class WorkspaceTests(unittest.TestCase):
         self.assertNotEqual(
             before, _tree_digest(first, set(), copied_metadata=True)
         )
-
         source = self.make_worker_source()
         (source / "linked.ts").symlink_to("worker.ts")
         versions = {"node": "v22.0.0", "npm": "11.0.0"}
@@ -993,7 +997,7 @@ class WorkspaceTests(unittest.TestCase):
                     source, {"PATH": "/bin", "npm_config_cache": "/cache"}
                 )
 
-    def test_worker_dependency_keys_file_backed_npm_configuration(self) -> None:
+    def test_worker_dependency_rejects_external_npm_configuration(self) -> None:
         source = self.make_worker_source()
         userconfig = self.root / "user.npmrc"
         userconfig.write_text(
@@ -1011,17 +1015,38 @@ class WorkspaceTests(unittest.TestCase):
         with mock.patch(
             "atrinik_workspace.workspace.run", side_effect=configured_run
         ):
-            first = self.workspace._worker_dependency_inputs(source, environment)
-            userconfig.write_text(
-                "//registry.example/:_authToken=second\n", encoding="utf-8"
-            )
-            second = self.workspace._worker_dependency_inputs(source, environment)
-        self.assertEqual(first["npm_config_sha256"], second["npm_config_sha256"])
-        self.assertNotEqual(
-            first["npm_file_config_sha256"],
-            second["npm_file_config_sha256"],
-        )
-        self.assertNotIn("_authToken", json.dumps(second))
+            with self.assertRaisesRegex(
+                WorkspaceError, "external file-backed npm configuration"
+            ):
+                self.workspace._worker_dependency_inputs(source, environment)
+
+    def test_worker_dependency_authenticates_staged_project_npmrc(self) -> None:
+        source = self.make_worker_source()
+        (source / ".npmrc").write_text("strict-peer-deps=true\n", encoding="utf-8")
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        installs: list[Path] = []
+
+        def corrupt_copy(*args: object, **kwargs: object) -> None:
+            real_copy_regular_file(*args, **kwargs)
+            destination = args[1]
+            assert isinstance(destination, Path)
+            destination.write_text("strict-peer-deps=false\n", encoding="utf-8")
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.run",
+                side_effect=self.fake_worker_run(
+                    installs, versions, threading.Lock()
+                ),
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace._copy_regular_file",
+                side_effect=corrupt_copy,
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "does not match its cache key"):
+                self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+        self.assertEqual(installs, [])
 
     def test_worker_dependency_authenticates_staged_source_snapshot(self) -> None:
         source = self.make_worker_source()

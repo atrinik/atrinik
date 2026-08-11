@@ -273,7 +273,11 @@ def _tree_digest(
                 status = entry.lstat()
                 mode = stat.S_IMODE(status.st_mode)
                 metadata: tuple[object, ...] = (
-                    (status.st_mtime_ns, extended_attributes(entry))
+                    (
+                        status.st_mtime_ns,
+                        getattr(status, "st_flags", 0),
+                        extended_attributes(entry),
+                    )
                     if copied_metadata
                     else ()
                 )
@@ -338,7 +342,11 @@ def _tree_digest(
         raise WorkspaceError(f"Worker source is not a regular directory: {root}")
     root_status = root.lstat()
     root_metadata: tuple[object, ...] = (
-        (root_status.st_mtime_ns, extended_attributes(root))
+        (
+            root_status.st_mtime_ns,
+            getattr(root_status, "st_flags", 0),
+            extended_attributes(root),
+        )
         if copied_metadata
         else ()
     )
@@ -403,6 +411,27 @@ def _copy_regular_file(source: Path, destination: Path, description: str) -> Non
             os.close(source_descriptor)
         if destination_descriptor is not None:
             os.close(destination_descriptor)
+
+
+def _normalize_worker_atime(root: Path) -> None:
+    """Give lifecycle staging a deterministic initial access time."""
+
+    paths = [root]
+    for directory, directories, files in os.walk(root, followlinks=False):
+        parent = Path(directory)
+        paths.extend(parent / name for name in (*directories, *files))
+    for path in reversed(paths):
+        try:
+            status = path.lstat()
+            os.utime(
+                path,
+                ns=(0, status.st_mtime_ns),
+                follow_symlinks=False,
+            )
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot normalize Worker lifecycle access time {path}: {error}"
+            ) from error
 
 
 def _tree_references_path(root: Path, referenced: Path) -> bool:
@@ -2426,7 +2455,11 @@ class Workspace:
             path = Path(os.path.abspath(path))
             path_digest = hashlib.sha256(str(path).encode()).hexdigest()
             if path.exists() or path.is_symlink():
-                content_digest = _file_digest(path, f"npm {name}")
+                _file_digest(path, f"npm {name}")
+                raise WorkspaceError(
+                    "external file-backed npm configuration is unsupported; "
+                    "use the project .npmrc"
+                )
             else:
                 content_digest = None
             records.append((name, path_digest, content_digest))
@@ -2808,6 +2841,14 @@ class Workspace:
                     )
                 if (staging / ".npmrc").exists():
                     (staging / ".npmrc").chmod(0o600)
+                    if (
+                        _file_digest(staging / ".npmrc", "staged Worker .npmrc")
+                        != inputs["files"][".npmrc"]
+                    ):
+                        raise WorkspaceError(
+                            "staged Worker .npmrc does not match its cache key"
+                        )
+                _normalize_worker_atime(staging)
                 run(["npm", "ci"], cwd=staging, env=environment)
                 if _tree_references_path(staging / "node_modules", staging):
                     raise WorkspaceError(

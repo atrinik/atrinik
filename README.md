@@ -268,14 +268,17 @@ time that topology name is launched.
 
 Building `metaserver-worker` retains a validated dependency installation keyed
 by exact package and lockfile bytes, optional project `.npmrc`, Node/npm and
-platform identity, effective npm configuration plus its file-backed inputs,
-and the hashed lifecycle-script environment. `npm ci` remains the only
+platform identity and effective npm configuration. External file-backed npm
+configuration fails closed; project `.npmrc` is supported through an
+authenticated copy. The hashed lifecycle-script environment and source
+metadata also participate in the key. `npm ci` remains the only
 installer. A second
 input-identical build reuses that installation and an unchanged profile source
 view. Because enabled dependency lifecycle scripts can observe root files, the
 complete non-generated source digest participates in every dependency key and
 source symlinks fail closed. The install root is stable and hashed; copied
-timestamps and extended metadata participate in the key; the lifecycle source
+modification times, filesystem flags, and extended metadata participate in the
+key while staging access times are normalized; the lifecycle source
 is authenticated before install; installed output that embeds its staging path
 is rejected; and project `.npmrc` content is provided as a restrictive
 temporary copy and never published in the shared cache. Every profile gets its
