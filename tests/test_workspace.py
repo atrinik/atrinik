@@ -29,6 +29,7 @@ from atrinik_workspace.model import (
 )
 from atrinik_workspace.workspace import (
     Workspace,
+    _tree_digest,
     _remote_matches as real_remote_matches,
     display_arguments,
     exclusive_lock,
@@ -763,11 +764,18 @@ class WorkspaceTests(unittest.TestCase):
                 )
             if arguments == ["npm", "ci"]:
                 assert cwd is not None
+                if not (cwd / "worker.ts").is_file():
+                    raise AssertionError("npm lifecycle source was not staged")
                 with install_lock:
                     installs.append(cwd)
                 modules = cwd / "node_modules"
                 (modules / "alpha").mkdir(parents=True)
+                (modules / "alpha" / "bin.js").write_text(
+                    "console.log('alpha');\n", encoding="utf-8"
+                )
                 (modules / "@scope" / "beta").mkdir(parents=True)
+                (modules / ".bin").mkdir()
+                (modules / ".bin" / "alpha").symlink_to("../alpha/bin.js")
                 (modules / ".package-lock.json").write_text(
                     json.dumps(
                         {
@@ -800,6 +808,7 @@ class WorkspaceTests(unittest.TestCase):
             self.assertTrue(second[3])
             self.assertEqual(first[1], second[1])
             self.assertEqual(len(installs), 1)
+            self.assertFalse((first[0].parent / "worker.ts").exists())
 
             (source / "worker.ts").write_text(
                 "export const value = 2;\n", encoding="utf-8"
@@ -807,31 +816,31 @@ class WorkspaceTests(unittest.TestCase):
             application_changed = self.workspace._worker_dependencies(
                 source, {"PATH": "/bin"}
             )
-            self.assertTrue(application_changed[3])
-            self.assertEqual(application_changed[1], first[1])
-            self.assertEqual(len(installs), 1)
+            self.assertFalse(application_changed[3])
+            self.assertNotEqual(application_changed[1], first[1])
+            self.assertEqual(len(installs), 2)
 
             (application_changed[0] / "alpha").rename(
                 application_changed[0] / "alpha-corrupt"
             )
             rebuilt = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
             self.assertFalse(rebuilt[3])
-            self.assertEqual(rebuilt[1], first[1])
-            self.assertEqual(len(installs), 2)
+            self.assertEqual(rebuilt[1], application_changed[1])
+            self.assertEqual(len(installs), 3)
 
             versions["npm"] = "11.1.0"
             invalidated = self.workspace._worker_dependencies(
                 source, {"PATH": "/bin"}
             )
             self.assertNotEqual(invalidated[1], first[1])
-            self.assertEqual(len(installs), 3)
+            self.assertEqual(len(installs), 4)
 
             (source / ".npmrc").write_text("strict-peer-deps=true\n", encoding="utf-8")
             config_changed = self.workspace._worker_dependencies(
                 source, {"PATH": "/bin"}
             )
             self.assertNotEqual(config_changed[1], invalidated[1])
-            self.assertEqual(len(installs), 4)
+            self.assertEqual(len(installs), 5)
 
             (source / "package-lock.json").write_text(
                 '{"lockfileVersion":3,"changed":true}\n', encoding="utf-8"
@@ -840,7 +849,224 @@ class WorkspaceTests(unittest.TestCase):
                 source, {"PATH": "/bin"}
             )
             self.assertNotEqual(lock_changed[1], config_changed[1])
-            self.assertEqual(len(installs), 5)
+            self.assertEqual(len(installs), 6)
+
+    def test_worker_dependency_cache_preserves_unowned_entries(self) -> None:
+        source = self.make_worker_source()
+        installs: list[Path] = []
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        runner = self.fake_worker_run(installs, versions, threading.Lock())
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=runner):
+            first = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+            entry = first[0].parent
+            for marker in (None, {"schema_version": 1, "purpose": "unrelated"}):
+                with self.subTest(marker=marker):
+                    shutil.rmtree(entry)
+                    entry.mkdir()
+                    valuable = entry / "valuable.txt"
+                    valuable.write_text("preserve\n", encoding="utf-8")
+                    if marker is not None:
+                        atomic_json(entry / MANAGED_MARKER, marker)
+                    with self.assertRaisesRegex(
+                        WorkspaceError, "unmanaged|marker does not match"
+                    ):
+                        self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+                    self.assertEqual(valuable.read_text(encoding="utf-8"), "preserve\n")
+
+    def test_worker_dependency_cache_authenticates_complete_tree(self) -> None:
+        source = self.make_worker_source()
+        installs: list[Path] = []
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        runner = self.fake_worker_run(installs, versions, threading.Lock())
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=runner):
+            first = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+            modules = first[0]
+            (modules / "alpha" / "bin.js").write_text(
+                "corrupt\n", encoding="utf-8"
+            )
+            rebuilt_content = self.workspace._worker_dependencies(
+                source, {"PATH": "/bin"}
+            )
+            self.assertFalse(rebuilt_content[3])
+            self.assertEqual(len(installs), 2)
+
+            (modules / "unexpected.txt").write_text("unexpected\n", encoding="utf-8")
+            rebuilt_addition = self.workspace._worker_dependencies(
+                source, {"PATH": "/bin"}
+            )
+            self.assertFalse(rebuilt_addition[3])
+            self.assertEqual(len(installs), 3)
+
+            (modules / "escape").symlink_to("../../outside")
+            rebuilt_link = self.workspace._worker_dependencies(
+                source, {"PATH": "/bin"}
+            )
+            self.assertFalse(rebuilt_link[3])
+            self.assertEqual(len(installs), 4)
+
+    def test_worker_dependency_failed_rebuild_preserves_owned_cache(self) -> None:
+        source = self.make_worker_source()
+        installs: list[Path] = []
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        runner = self.fake_worker_run(installs, versions, threading.Lock())
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=runner):
+            first = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+        damaged = first[0] / "alpha" / "bin.js"
+        damaged.write_text("valuable-corrupt-state\n", encoding="utf-8")
+
+        def failing_run(arguments: list[str], **kwargs: object) -> str:
+            if arguments == ["npm", "ci"]:
+                raise WorkspaceError("simulated install failure")
+            return runner(arguments, **kwargs)
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=failing_run):
+            with self.assertRaisesRegex(WorkspaceError, "simulated install failure"):
+                self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+        self.assertEqual(
+            damaged.read_text(encoding="utf-8"), "valuable-corrupt-state\n"
+        )
+
+    def test_worker_tree_digest_is_canonical_and_lifecycle_rejects_links(self) -> None:
+        first = self.root / "tree-first"
+        second = self.root / "tree-second"
+        first.mkdir()
+        second.mkdir()
+        (first / "a").write_bytes(b"Xf\0b\0Y")
+        (second / "a").write_bytes(b"X")
+        (second / "b").write_bytes(b"Y")
+        self.assertNotEqual(_tree_digest(first, set()), _tree_digest(second, set()))
+        before = _tree_digest(first, set())
+        (first / "a").chmod(0o755)
+        self.assertNotEqual(before, _tree_digest(first, set()))
+
+        source = self.make_worker_source()
+        (source / "linked.ts").symlink_to("worker.ts")
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        with mock.patch(
+            "atrinik_workspace.workspace.run",
+            side_effect=self.fake_worker_run([], versions, threading.Lock()),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "symbolic link"):
+                self.workspace._worker_dependency_inputs(
+                    source, {"PATH": "/bin", "npm_config_cache": "/cache"}
+                )
+
+    def test_worker_dependency_consumer_holds_key_lock(self) -> None:
+        source = self.make_worker_source()
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+
+        def consume(_modules: Path, key: str, _metadata: dict[str, object]) -> str:
+            lock = (
+                self.workspace.paths.builds
+                / "locks"
+                / f"worker-dependencies-{key}.lock"
+            )
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(lock, "competing cleanup", nonblocking=True):
+                    self.fail("dependency lease was not held")
+            return "consumed"
+
+        with mock.patch(
+            "atrinik_workspace.workspace.run",
+            side_effect=self.fake_worker_run([], versions, threading.Lock()),
+        ):
+            result = self.workspace._worker_dependencies(
+                source, {"PATH": "/bin"}, consume
+            )
+        self.assertEqual(result[5], "consumed")
+
+    def test_worker_package_and_tool_metadata_fail_closed(self) -> None:
+        source = self.make_worker_source()
+        package_path = source / "package.json"
+        cases = (
+            ([], "root is not an object"),
+            ({"dependencies": []}, "dependencies is invalid"),
+            ({"dependencies": {"../escape": "1"}}, "package name is unsafe"),
+        )
+        for package, message in cases:
+            with self.subTest(message=message):
+                package_path.write_text(json.dumps(package), encoding="utf-8")
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    self.workspace._worker_required_packages(source)
+
+        package_path.write_text(
+            json.dumps({"scripts": {"check": "node check.js"}}), encoding="utf-8"
+        )
+        environment = {"PATH": "/bin", "npm_config_cache": "/cache"}
+
+        def invalid_version(arguments: list[str], **_kwargs: object) -> str:
+            if arguments == ["node", "--version"]:
+                return "v22\ninvalid"
+            return "11.0.0"
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=invalid_version):
+            with self.assertRaisesRegex(WorkspaceError, "invalid version"):
+                self.workspace._worker_dependency_inputs(source, environment)
+
+        def invalid_config(arguments: list[str], **_kwargs: object) -> str:
+            if arguments in (["node", "--version"], ["npm", "--version"]):
+                return "v22.0.0"
+            return "not-json"
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=invalid_config):
+            with self.assertRaisesRegex(WorkspaceError, "not valid JSON"):
+                self.workspace._worker_dependency_inputs(source, environment)
+
+        package_path.write_text(json.dumps({"scripts": []}), encoding="utf-8")
+        with mock.patch(
+            "atrinik_workspace.workspace.run",
+            side_effect=lambda arguments, **_kwargs: (
+                "{}"
+                if arguments == ["npm", "config", "list", "--json"]
+                else "v22.0.0"
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "scripts are invalid"):
+                self.workspace._worker_dependency_inputs(source, environment)
+
+    def test_worker_installed_tree_validation_rejects_unsafe_shapes(self) -> None:
+        modules = self.root / "validation-node-modules"
+        with self.assertRaisesRegex(WorkspaceError, "not a regular directory"):
+            self.workspace._validate_worker_node_modules(
+                modules, "0" * 64, "0" * 64, ()
+            )
+        modules.mkdir()
+        hidden = modules / ".package-lock.json"
+
+        def write_hidden(packages: object) -> str:
+            hidden.write_text(json.dumps({"packages": packages}), encoding="utf-8")
+            return hashlib.sha256(hidden.read_bytes()).hexdigest()
+
+        digest = write_hidden({})
+        with self.assertRaisesRegex(WorkspaceError, "installed lockfile does not match"):
+            self.workspace._validate_worker_node_modules(
+                modules, "0" * 64, _tree_digest(modules, set()), ()
+            )
+        digest = write_hidden([])
+        with self.assertRaisesRegex(WorkspaceError, "packages are invalid"):
+            self.workspace._validate_worker_node_modules(
+                modules, digest, _tree_digest(modules, set()), ()
+            )
+        for packages, message in (
+            ({"invalid": {}}, "package path is invalid"),
+            ({"node_modules/../escape": {}}, "package path is unsafe"),
+            ({"node_modules/missing": {}}, "package is missing or unsafe"),
+        ):
+            with self.subTest(message=message):
+                digest = write_hidden(packages)
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    self.workspace._validate_worker_node_modules(
+                        modules, digest, _tree_digest(modules, set()), ()
+                    )
+        digest = write_hidden({})
+        with self.assertRaisesRegex(WorkspaceError, "dependency is missing"):
+            self.workspace._validate_worker_node_modules(
+                modules, digest, _tree_digest(modules, set()), ("required",)
+            )
+        with self.assertRaisesRegex(WorkspaceError, "does not match cache metadata"):
+            self.workspace._validate_worker_node_modules(
+                modules, digest, "0" * 64, ()
+            )
 
     def test_worker_root_lifecycle_scripts_key_complete_source(self) -> None:
         source = self.make_worker_source()
@@ -866,8 +1092,8 @@ class WorkspaceTests(unittest.TestCase):
             )
         self.assertEqual(first["root_lifecycle_scripts"], ["postinstall"])
         self.assertNotEqual(
-            first["root_lifecycle_source_sha256"],
-            second["root_lifecycle_source_sha256"],
+            first["lifecycle_source_sha256"],
+            second["lifecycle_source_sha256"],
         )
         self.assertNotEqual(
             second["environment_sha256"], third["environment_sha256"]
@@ -915,7 +1141,12 @@ class WorkspaceTests(unittest.TestCase):
             encoding="utf-8",
         )
         hidden_digest = hashlib.sha256(hidden.read_bytes()).hexdigest()
-        metadata = {"node_modules_lock_sha256": hidden_digest}
+        metadata = {
+            "node_modules_lock_sha256": hidden_digest,
+            "node_modules_sha256": _tree_digest(
+                dependencies, set(), bounded_symlinks=True
+            ),
+        }
         root = self.workspace.paths.builds / "profiles" / "worker-test"
         managed_directory(root, self.workspace.paths.builds, "worker-test")
 

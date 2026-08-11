@@ -23,7 +23,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from typing import Any, Iterator, TextIO
+from typing import Any, Callable, Iterator, TextIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 
@@ -101,7 +101,7 @@ BUILD_METADATA_SCHEMA_VERSION = 1
 CACHE_METADATA = ".atrinik-cache.json"
 WORKER_DEPENDENCY_METADATA = ".atrinik-worker-dependencies.json"
 WORKER_VIEW_METADATA = ".atrinik-worker-view.json"
-WORKER_DEPENDENCY_SCHEMA_VERSION = 1
+WORKER_DEPENDENCY_SCHEMA_VERSION = 2
 WORKER_VIEW_SCHEMA_VERSION = 1
 WORKER_DEPENDENCY_FILES = ("package.json", "package-lock.json")
 WORKER_SOURCE_EXCLUSIONS = {
@@ -173,9 +173,16 @@ def git(
     return run(["git", "-C", str(path), *arguments], capture=capture, trace=trace)
 
 
-def replace_directory(output: Path, staging: Path, backup_prefix: str) -> None:
+def replace_directory(
+    output: Path,
+    staging: Path,
+    backup_prefix: str,
+    backup_parent: Path | None = None,
+) -> None:
     if output.exists():
-        backup = Path(tempfile.mkdtemp(prefix=backup_prefix, dir=output.parent))
+        backup = Path(
+            tempfile.mkdtemp(prefix=backup_prefix, dir=backup_parent or output.parent)
+        )
         backup.rmdir()
         output.replace(backup)
         try:
@@ -207,10 +214,24 @@ def _file_digest(path: Path, description: str) -> str:
             os.close(descriptor)
 
 
-def _tree_digest(root: Path, exclusions: set[str]) -> str:
-    """Hash one source tree without following links or generated top-level roots."""
+def _tree_digest(
+    root: Path,
+    exclusions: set[str],
+    *,
+    bounded_symlinks: bool = False,
+    reject_symlinks: bool = False,
+) -> str:
+    """Hash a tree as framed records without following links."""
 
     digest = hashlib.sha256()
+    resolved_root = root.resolve()
+
+    def record(*fields: object) -> None:
+        encoded = json.dumps(
+            fields, ensure_ascii=True, separators=(",", ":")
+        ).encode()
+        digest.update(len(encoded).to_bytes(8, "big"))
+        digest.update(encoded)
 
     def visit(directory: Path, relative: PurePosixPath) -> None:
         try:
@@ -223,25 +244,43 @@ def _tree_digest(root: Path, exclusions: set[str]) -> str:
             if not relative.parts and entry.name in exclusions:
                 continue
             child = relative / entry.name
-            encoded = child.as_posix().encode("utf-8", "surrogateescape")
             try:
                 status = entry.lstat()
+                mode = stat.S_IMODE(status.st_mode)
                 if stat.S_ISDIR(status.st_mode):
-                    digest.update(b"d\0" + encoded + b"\0")
+                    record("directory", child.as_posix(), mode)
                     visit(entry, child)
                 elif stat.S_ISREG(status.st_mode):
-                    digest.update(b"f\0" + encoded + b"\0")
-                    with entry.open("rb") as stream:
-                        while chunk := stream.read(1024 * 1024):
-                            digest.update(chunk)
-                elif stat.S_ISLNK(status.st_mode):
-                    digest.update(
-                        b"l\0"
-                        + encoded
-                        + b"\0"
-                        + os.readlink(entry).encode("utf-8", "surrogateescape")
-                        + b"\0"
+                    record(
+                        "file",
+                        child.as_posix(),
+                        mode,
+                        status.st_size,
+                        _file_digest(entry, "Worker tree file"),
                     )
+                elif stat.S_ISLNK(status.st_mode):
+                    target = os.readlink(entry)
+                    if reject_symlinks:
+                        raise WorkspaceError(
+                            f"Worker source contains a symbolic link: {entry}"
+                        )
+                    if bounded_symlinks:
+                        if Path(target).is_absolute():
+                            raise WorkspaceError(
+                                f"Worker dependencies contain an absolute link: {entry}"
+                            )
+                        resolved = entry.parent.joinpath(target).resolve(strict=False)
+                        try:
+                            resolved.relative_to(resolved_root)
+                        except ValueError as error:
+                            raise WorkspaceError(
+                                f"Worker dependencies contain an escaping link: {entry}"
+                            ) from error
+                        if not resolved.exists():
+                            raise WorkspaceError(
+                                f"Worker dependencies contain a dangling link: {entry}"
+                            )
+                    record("symlink", child.as_posix(), mode, target)
                 else:
                     raise WorkspaceError(
                         f"Worker source contains an unsupported file type: {entry}"
@@ -2287,10 +2326,11 @@ class Workspace:
             "install_command": ["npm", "ci"],
             "lifecycle_scripts": "enabled; complete environment participates in key",
             "root_lifecycle_scripts": list(root_lifecycle),
-            "root_lifecycle_source_sha256": (
-                _tree_digest(source, WORKER_SOURCE_EXCLUSIONS)
-                if root_lifecycle
-                else None
+            # Dependency lifecycle scripts can observe INIT_CWD and arbitrary
+            # root files even when package.json has no root hook. Preserve npm's
+            # enabled-script semantics by staging and keying the complete source.
+            "lifecycle_source_sha256": _tree_digest(
+                source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
             ),
         }
 
@@ -2301,7 +2341,10 @@ class Workspace:
 
     @staticmethod
     def _validate_worker_node_modules(
-        node_modules: Path, hidden_lock_digest: str, required: tuple[str, ...]
+        node_modules: Path,
+        hidden_lock_digest: str,
+        tree_digest: str,
+        required: tuple[str, ...],
     ) -> None:
         if node_modules.is_symlink() or not node_modules.is_dir():
             raise WorkspaceError("Worker node_modules is not a regular directory")
@@ -2336,6 +2379,11 @@ class Workspace:
             dependency = node_modules.joinpath(*name.split("/"))
             if dependency.is_symlink() or not dependency.is_dir():
                 raise WorkspaceError(f"Worker dependency is missing or unsafe: {name}")
+        if (
+            _tree_digest(node_modules, set(), bounded_symlinks=True)
+            != tree_digest
+        ):
+            raise WorkspaceError("Worker node_modules does not match cache metadata")
 
     def _worker_dependency_cache_matches(
         self,
@@ -2370,6 +2418,7 @@ class Workspace:
                     "key",
                     "inputs",
                     "node_modules_lock_sha256",
+                    "node_modules_sha256",
                     "last_used_at",
                 }
                 or metadata.get("schema_version") != WORKER_DEPENDENCY_SCHEMA_VERSION
@@ -2380,6 +2429,8 @@ class Workspace:
                 or not re.fullmatch(
                     r"[0-9a-f]{64}", metadata["node_modules_lock_sha256"]
                 )
+                or not isinstance(metadata.get("node_modules_sha256"), str)
+                or not re.fullmatch(r"[0-9a-f]{64}", metadata["node_modules_sha256"])
                 or not isinstance(metadata.get("last_used_at"), str)
             ):
                 return None
@@ -2393,6 +2444,7 @@ class Workspace:
             self._validate_worker_node_modules(
                 entry / "node_modules",
                 metadata["node_modules_lock_sha256"],
+                metadata["node_modules_sha256"],
                 required,
             )
             return metadata
@@ -2400,8 +2452,11 @@ class Workspace:
             return None
 
     def _worker_dependencies(
-        self, source: Path, environment: dict[str, str]
-    ) -> tuple[Path, str, dict[str, Any], bool, float]:
+        self,
+        source: Path,
+        environment: dict[str, str],
+        consume: Callable[[Path, str, dict[str, Any]], Any] | None = None,
+    ) -> tuple[Path, str, dict[str, Any], bool, float, Any]:
         npm_cache = self.paths.builds / "npm-cache"
         npm_cache_lock = self.paths.builds / "locks" / "npm-cache.lock"
         with exclusive_lock(npm_cache_lock, "npm download cache"):
@@ -2434,6 +2489,12 @@ class Workspace:
             managed_directory(
                 cache_root, self.paths.builds, "worker-dependency-cache"
             )
+            transactions = cache_root / ".transactions"
+            managed_directory(
+                transactions,
+                self.paths.builds,
+                "worker-dependency-transactions",
+            )
         entry = cache_root / key
         lock = self.paths.builds / "locks" / f"worker-dependencies-{key}.lock"
         started = time.monotonic()
@@ -2445,35 +2506,62 @@ class Workspace:
                 metadata["last_used_at"] = datetime.now(timezone.utc).isoformat()
                 atomic_json(entry / WORKER_DEPENDENCY_METADATA, metadata)
                 elapsed = time.monotonic() - started
-                return entry / "node_modules", key, metadata, True, elapsed
+                consumed = (
+                    consume(entry / "node_modules", key, metadata)
+                    if consume is not None
+                    else None
+                )
+                return entry / "node_modules", key, metadata, True, elapsed, consumed
             if entry.is_symlink() or entry.exists() and not entry.is_dir():
                 raise WorkspaceError(f"Worker dependency cache path is unsafe: {entry}")
-            staging = Path(tempfile.mkdtemp(prefix=f".{key}-", dir=cache_root))
+            if entry.exists():
+                managed_directory(
+                    entry,
+                    self.paths.builds,
+                    f"worker-dependencies:{key}",
+                )
+            staging = transactions / f"{key}-staging-{secrets.token_hex(8)}"
+            managed_directory(
+                staging,
+                self.paths.builds,
+                f"worker-dependency-transaction:{key}",
+            )
             try:
-                if inputs["root_lifecycle_scripts"]:
-                    shutil.copytree(
-                        source,
-                        staging,
-                        dirs_exist_ok=True,
-                        symlinks=True,
-                        ignore=shutil.ignore_patterns(*WORKER_SOURCE_EXCLUSIONS),
-                    )
-                else:
-                    for name, expected in inputs["files"].items():
-                        if expected is not None:
-                            shutil.copy2(source / name, staging / name)
+                shutil.copytree(
+                    source,
+                    staging,
+                    dirs_exist_ok=True,
+                    symlinks=True,
+                    ignore=shutil.ignore_patterns(*WORKER_SOURCE_EXCLUSIONS),
+                )
                 run(["npm", "ci"], cwd=staging, env=environment)
                 final_inputs = self._worker_dependency_inputs(source, environment)
                 if final_inputs != inputs:
                     raise WorkspaceError(
                         "Worker dependency inputs changed during installation"
                     )
+                for child in staging.iterdir():
+                    if child.name == "node_modules":
+                        continue
+                    if child.is_symlink() or not child.is_dir():
+                        child.unlink()
+                    else:
+                        shutil.rmtree(child)
+                for name, expected in inputs["files"].items():
+                    if expected is not None:
+                        shutil.copy2(source / name, staging / name)
                 hidden_digest = _file_digest(
                     staging / "node_modules" / ".package-lock.json",
                     "Worker installed lockfile",
                 )
+                modules_digest = _tree_digest(
+                    staging / "node_modules", set(), bounded_symlinks=True
+                )
                 self._validate_worker_node_modules(
-                    staging / "node_modules", hidden_digest, required
+                    staging / "node_modules",
+                    hidden_digest,
+                    modules_digest,
+                    required,
                 )
                 metadata = {
                     "schema_version": WORKER_DEPENDENCY_SCHEMA_VERSION,
@@ -2481,6 +2569,7 @@ class Workspace:
                     "key": key,
                     "inputs": inputs,
                     "node_modules_lock_sha256": hidden_digest,
+                    "node_modules_sha256": modules_digest,
                     "last_used_at": datetime.now(timezone.utc).isoformat(),
                 }
                 atomic_json(
@@ -2491,11 +2580,28 @@ class Workspace:
                     },
                 )
                 atomic_json(staging / WORKER_DEPENDENCY_METADATA, metadata)
-                replace_directory(entry, staging, f".{key}-previous-")
+                replace_directory(
+                    entry,
+                    staging,
+                    f"{key}-backup-",
+                    backup_parent=transactions,
+                )
             finally:
                 if staging.exists():
                     shutil.rmtree(staging)
-        return entry / "node_modules", key, metadata, False, time.monotonic() - started
+            consumed = (
+                consume(entry / "node_modules", key, metadata)
+                if consume is not None
+                else None
+            )
+        return (
+            entry / "node_modules",
+            key,
+            metadata,
+            False,
+            time.monotonic() - started,
+            consumed,
+        )
 
     def _worker_view(
         self,
@@ -2532,6 +2638,7 @@ class Workspace:
                 self._validate_worker_node_modules(
                     view / "node_modules",
                     dependency_metadata["node_modules_lock_sha256"],
+                    dependency_metadata["node_modules_sha256"],
                     self._worker_required_packages(source),
                 )
                 return view, True, time.monotonic() - started
@@ -2556,6 +2663,12 @@ class Workspace:
             shutil.copytree(dependencies, staging / "node_modules", symlinks=True)
             if _tree_digest(source, WORKER_SOURCE_EXCLUSIONS) != source_digest:
                 raise WorkspaceError("Worker source changed during view preparation")
+            self._validate_worker_node_modules(
+                staging / "node_modules",
+                dependency_metadata["node_modules_lock_sha256"],
+                dependency_metadata["node_modules_sha256"],
+                self._worker_required_packages(source),
+            )
             atomic_json(
                 staging / MANAGED_MARKER,
                 {
@@ -2573,12 +2686,16 @@ class Workspace:
     def _build_worker(self, root: Path, selected: dict[str, Path]) -> None:
         source = selected["metaserver-worker"]
         environment = os.environ.copy()
-        dependencies, key, metadata, cache_hit, install_seconds = (
-            self._worker_dependencies(source, environment)
+        dependencies, key, metadata, cache_hit, install_seconds, view_result = (
+            self._worker_dependencies(
+                source,
+                environment,
+                lambda dependencies, key, metadata: self._worker_view(
+                    root, source, dependencies, key, metadata
+                ),
+            )
         )
-        view, view_hit, view_seconds = self._worker_view(
-            root, source, dependencies, key, metadata
-        )
+        view, view_hit, view_seconds = view_result
         print(
             f"worker dependencies: {'cached' if cache_hit else 'installed'} "
             f"{key} ({install_seconds:.2f}s)"

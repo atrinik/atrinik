@@ -60,8 +60,8 @@ Reclaim review data only through preview-first cleanup:
 ```
 
 Default scope covers registered worktrees, profile builds, and individually
-marker-owned Worker dependency entries; the npm download cache is opt-in. Text
-uses IEC sizes; JSON keeps exact bytes. References, ambiguous Git,
+marker-owned Worker installs and stale transactions; npm downloads are opt-in.
+Text uses IEC sizes; JSON keeps bytes. References, ambiguous Git,
 and unsafe paths/markers protect targets. Only an `atrinik/atrinik@main`
 worktree directly below `build/worktrees/` has the historical-base exception:
 its PR targets `master` and supplies head, base, and merge SHAs; the merge's

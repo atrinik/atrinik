@@ -270,13 +270,14 @@ Building `metaserver-worker` retains a validated dependency installation keyed
 by exact package and lockfile bytes, optional project `.npmrc`, Node/npm and
 platform identity, effective npm configuration, and the complete hashed
 lifecycle-script environment. `npm ci` remains the only installer. A second
-lockfile-identical build reuses that installation and an unchanged profile
-source view; application-only edits refresh the profile view without
-reinstalling dependencies unless the root package defines an install lifecycle
-hook, in which case the complete source digest participates in the dependency
-key. Every profile gets its own `node_modules` copy, so
-its checks cannot mutate the shared cache. Build output reports dependency
-installation/cache time and source-view preparation/reuse time.
+input-identical build reuses that installation and an unchanged profile source
+view. Because enabled dependency lifecycle scripts can observe root files, the
+complete non-generated source digest participates in every dependency key and
+source symlinks fail closed. Every profile gets its own `node_modules` copy, so
+its checks cannot mutate the shared cache. A canonical no-follow digest covers
+the complete installed tree, including modes and bounded relative links. Build
+output reports dependency installation/cache time and source-view
+preparation/reuse time.
 
 `--with classic` has one exact meaning: add the complete classic initialization
 cohort to the replacement/default cohort. It is not a classic-only mode. The
@@ -560,6 +561,9 @@ same default `builds` scope and grace period. Cleanup requires the exact parent
 and entry markers, strict metadata and last-used time, a safe direct-child key,
 and an idle per-key build lock; uncertainty protects the entry. Removing a
 stale entry leaves the marker-owned container and npm download cache intact.
+Recognizable interrupted staging and backup directories live below the
+separately marker-owned `.transactions` container and are reclaimed by the
+same preview-first scope only after their grace period and per-key lock checks.
 
 The shared `workspace/build/npm-cache` is never part of default cleanup. Its
 explicit scope accepts the exact marker-owned path or the one legacy known
