@@ -12,6 +12,7 @@ import shutil
 import signal
 import stat
 import subprocess
+import sys
 import tempfile
 import time
 import unittest
@@ -2734,7 +2735,7 @@ class WorkspaceTests(unittest.TestCase):
 
         with mock.patch(
             "atrinik_workspace.workspace._descriptor_mount_id",
-            side_effect=[1, 1, 1, 1, 1, 1, 1, 2],
+            side_effect=[1] * 9 + [2],
         ):
             with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
                 remove_owned_tree(owned)
@@ -2773,7 +2774,7 @@ class WorkspaceTests(unittest.TestCase):
 
         with mock.patch(
             "atrinik_workspace.workspace._descriptor_mount_id",
-            side_effect=[1, 1, 1, 1, 2],
+            side_effect=[1] * 6 + [2],
         ):
             with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
                 remove_owned_tree(owned)
@@ -2793,6 +2794,19 @@ class WorkspaceTests(unittest.TestCase):
             side_effect=FileNotFoundError("no procfs"),
         ):
             remove_owned_tree(owned)
+
+        self.assertFalse(owned.exists())
+
+    @unittest.skipUnless(sys.platform == "linux", "requires Linux O_PATH")
+    def test_owned_tree_removal_handles_unreadable_directories(self) -> None:
+        owned = self.root / "owned"
+        nested = owned / "nested"
+        nested.mkdir(parents=True)
+        (nested / "payload").write_text("remove\n", encoding="utf-8")
+        nested.chmod(0)
+        owned.chmod(0)
+
+        remove_owned_tree(owned)
 
         self.assertFalse(owned.exists())
 
