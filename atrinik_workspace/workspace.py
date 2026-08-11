@@ -1581,6 +1581,10 @@ class Workspace:
             SOURCE_VIEW_METADATA,
         }
         copied_directories = copied_directories or set()
+        try:
+            source_clean: bool | None = _is_clean(source, trace=False)
+        except WorkspaceError:
+            source_clean = None
         expected: dict[str, dict[str, Any]] = {}
         for entry in sorted(source.iterdir(), key=lambda path: path.name):
             if entry.name in exclusions:
@@ -1642,18 +1646,38 @@ class Workspace:
                     ) from error
                 if stat.S_ISLNK(mode):
                     self._validate_source_symlink(entry, source)
+                    source_symlinks = {".": os.readlink(entry)}
+                    source_structure = hashlib.sha256(
+                        f"symlink:{os.readlink(entry)}".encode()
+                    ).hexdigest()
                 elif not (stat.S_ISREG(mode) or stat.S_ISDIR(mode)):
                     raise WorkspaceError(
                         f"source-view input is not a file or directory: {entry}"
                     )
                 elif stat.S_ISDIR(mode):
-                    self._validate_source_tree_symlinks(entry, source)
+                    source_symlinks, source_structure = (
+                        self._validate_source_tree_symlinks(
+                            entry, source, hash_contents=source_clean is None
+                        )
+                    )
+                else:
+                    source_symlinks = {}
+                    source_structure = (
+                        hashlib.sha256(entry.read_bytes()).hexdigest()
+                        if source_clean is None
+                        else f"file:{stat.S_IMODE(mode):o}"
+                    )
                 target = str(entry)
                 if not destination.is_symlink() or os.readlink(destination) != target:
                     self._source_view_changed = True
                     self._remove_source_view_entry(destination)
                     destination.symlink_to(target, target_is_directory=stat.S_ISDIR(mode))
-                expected[entry.name] = {"kind": "link", "target": target}
+                expected[entry.name] = {
+                    "kind": "link",
+                    "target": target,
+                    "source_symlinks": source_symlinks,
+                    "source_structure": source_structure,
+                }
         reserved = {
             MANAGED_MARKER,
             SOURCE_VIEW_METADATA,
@@ -1675,6 +1699,7 @@ class Workspace:
                 unchanged = (
                     load_json(metadata_path) == metadata
                     and not self._source_view_changed
+                    and source_clean is not False
                 )
             except WorkspaceError:
                 unchanged = False
@@ -1741,23 +1766,48 @@ class Workspace:
             raise WorkspaceError(f"source-view symlink escapes its source root: {path}")
 
     @classmethod
-    def _validate_source_tree_symlinks(cls, path: Path, root: Path) -> None:
+    def _validate_source_tree_symlinks(
+        cls, path: Path, root: Path, *, hash_contents: bool
+    ) -> tuple[dict[str, str], str]:
         def traversal_error(error: OSError) -> None:
             raise error
 
+        symlinks: dict[str, str] = {}
+        structure = hashlib.sha256()
         try:
             for directory, directories, files in os.walk(
                 path, followlinks=False, onerror=traversal_error
             ):
                 parent = Path(directory)
+                directories.sort()
+                files.sort()
                 for name in (*directories, *files):
                     candidate = parent / name
+                    relative = candidate.relative_to(path).as_posix()
+                    mode = candidate.lstat().st_mode
+                    structure.update(relative.encode())
                     if candidate.is_symlink():
                         cls._validate_source_symlink(candidate, root)
+                        target = os.readlink(candidate)
+                        symlinks[relative] = target
+                        structure.update(f"\0symlink\0{target}\0".encode())
+                    elif stat.S_ISDIR(mode):
+                        structure.update(b"\0directory\0")
+                    elif stat.S_ISREG(mode):
+                        structure.update(b"\0file\0")
+                        if hash_contents:
+                            structure.update(
+                                hashlib.sha256(candidate.read_bytes()).digest()
+                            )
+                    else:
+                        raise WorkspaceError(
+                            f"source-view input is not a regular entry: {candidate}"
+                        )
         except OSError as error:
             raise WorkspaceError(
                 f"cannot inspect source-view directory {path}: {error}"
             ) from error
+        return symlinks, structure.hexdigest()
 
     def _reconcile_source_tree(
         self,
@@ -2358,28 +2408,11 @@ class Workspace:
             for name in relevant_names
             if name in environment
         }
-        initialization_names = {
-            "CC",
-            "CXX",
-            "CPPFLAGS",
-            "CFLAGS",
-            "CXXFLAGS",
-            "LDFLAGS",
-            "CPATH",
-            "C_INCLUDE_PATH",
-            "CPLUS_INCLUDE_PATH",
-            "LIBRARY_PATH",
-            "CMAKE_TOOLCHAIN_FILE",
-            "CMAKE_GENERATOR_PLATFORM",
-            "CMAKE_GENERATOR_TOOLSET",
-            "SDKROOT",
-            "MACOSX_DEPLOYMENT_TARGET",
-        }
-        initialization_environment = {
-            name: value
-            for name, value in environment_identity.items()
-            if name in initialization_names
-        }
+        # CMake caches discovery results from all of these inputs.  Re-running
+        # configure in the old tree does not reliably invalidate find_* or
+        # pkg-config cache entries, so every relevant environment change is a
+        # build-tree identity change.
+        initialization_environment = environment_identity
         generator_tool = self._tool_identity("ninja")
         cmake_tool = self._tool_identity("cmake")
         compilers = {

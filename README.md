@@ -248,8 +248,10 @@ continues to exercise that module's supported standalone FetchContent path.
 
 Managed source views are reconciled in place, so unchanged links and copied
 files retain their identity while changed, retargeted, and stale entries are
-updated without following unsafe symlinks. CMake configuration is skipped only
-when the source-view state and a fingerprint of the generator, CMake/compiler
+updated without following unsafe symlinks. Linked-directory structure and
+symlink targets participate in view identity; a dirty Git source conservatively
+runs configure on every build. CMake configuration is skipped only when the
+source-view state and a fingerprint of the generator, CMake/compiler
 toolchain, cache arguments, test mode, and relevant environment still match.
 Ninja may still run CMake's dependency regeneration during the build. Use
 `--force-reconfigure` to run the explicit configure step regardless. A skip

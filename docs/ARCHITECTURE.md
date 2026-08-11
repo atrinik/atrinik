@@ -346,6 +346,9 @@ The coordinator reconciles marker-owned source views in place rather than
 writing dependency links or output into source checkouts. It retains unchanged
 safe links and copies, replaces changed or retargeted entries, removes stale
 entries, and rejects source symlinks that escape their selected source root.
+Linked-tree structure and symlink targets participate in view identity; dirty
+Git sources conservatively force configure so untracked or otherwise unmodeled
+CMake inputs cannot remain hidden behind a warm graph.
 
 The currently playable classic build flow is:
 

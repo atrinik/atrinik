@@ -769,6 +769,22 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual((view / "README").lstat().st_ino, inode)
         self.assertTrue(self.workspace._source_view_unchanged[str(view.resolve())])
 
+        internal_target = source / "internal-target"
+        internal_target.write_text("one\n", encoding="utf-8")
+        source_link = source / "internal-link"
+        source_link.symlink_to(internal_target.name)
+        self.workspace._profile_source_view(root, "content", source, set())
+        self.workspace._profile_source_view(root, "content", source, set())
+        self.assertFalse(self.workspace._source_view_unchanged[str(view.resolve())])
+        first_metadata = load_json(view / SOURCE_VIEW_METADATA)
+        second_target = source / "second-target"
+        second_target.write_text("two\n", encoding="utf-8")
+        source_link.unlink()
+        source_link.symlink_to(second_target.name)
+        self.workspace._profile_source_view(root, "content", source, set())
+        self.assertFalse(self.workspace._source_view_unchanged[str(view.resolve())])
+        self.assertNotEqual(first_metadata, load_json(view / SOURCE_VIEW_METADATA))
+
         outside_directory = self.root / "outside-directory"
         outside_directory.mkdir()
         sentinel = outside_directory / "sentinel"
@@ -935,7 +951,11 @@ class WorkspaceTests(unittest.TestCase):
             first_count = run.call_count
             self.workspace._profile_source_view(root, "content", source_root, set())
             self.workspace._cmake(source, binary, [], tests=False)
-            second_commands = [call.args[0] for call in run.call_args_list[first_count:]]
+            second_commands = [
+                call.args[0]
+                for call in run.call_args_list[first_count:]
+                if call.args[0][0] != "git"
+            ]
             self.assertEqual(
                 second_commands,
                 [
@@ -1256,6 +1276,8 @@ class WorkspaceTests(unittest.TestCase):
         (source / "CMakeLists.txt").write_text(
             "cmake_minimum_required(VERSION 3.20)\n"
             "project(environment_rebuild C)\n"
+            "find_program(SELECTED_TOOL selected-tool REQUIRED)\n"
+            'file(WRITE "${CMAKE_BINARY_DIR}/selected-tool.txt" "${SELECTED_TOOL}")\n'
             "add_executable(environment main.c)\n",
             encoding="utf-8",
         )
@@ -1268,6 +1290,14 @@ class WorkspaceTests(unittest.TestCase):
         include_two = self.root / "include-two"
         include_one.mkdir()
         include_two.mkdir()
+        tool_one = self.root / "tool-one"
+        tool_two = self.root / "tool-two"
+        tool_one.mkdir()
+        tool_two.mkdir()
+        for directory in (tool_one, tool_two):
+            tool = directory / "selected-tool"
+            tool.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+            tool.chmod(0o755)
         (include_one / "selected-value.h").write_text(
             '#define SELECTED_VALUE "atrinik-environment-one"\n', encoding="utf-8"
         )
@@ -1277,8 +1307,16 @@ class WorkspaceTests(unittest.TestCase):
         binary = self.workspace.paths.builds / "profiles" / "environment" / "build" / "sample"
         self.workspace._use_ccache = False
 
-        with mock.patch.dict(os.environ, {"CPATH": str(include_one)}):
+        base_path = os.environ.get("PATH", "")
+        with mock.patch.dict(
+            os.environ,
+            {"CPATH": str(include_one), "PATH": f"{tool_one}{os.pathsep}{base_path}"},
+        ):
             self.workspace._cmake(source, binary, [], tests=False)
+            self.assertEqual(
+                (binary / "selected-tool.txt").read_text(encoding="utf-8"),
+                str(tool_one / "selected-tool"),
+            )
             preserved = binary / "preserved-on-unchanged-environment"
             preserved.write_text("current\n", encoding="utf-8")
             self.workspace._cmake(source, binary, [], tests=False)
@@ -1299,11 +1337,85 @@ class WorkspaceTests(unittest.TestCase):
 
         environment_sentinel = binary / "removed-on-implicit-environment-change"
         environment_sentinel.write_text("stale\n", encoding="utf-8")
-        with mock.patch.dict(os.environ, {"CPATH": str(include_two)}):
+        with mock.patch.dict(
+            os.environ,
+            {"CPATH": str(include_two), "PATH": f"{tool_two}{os.pathsep}{base_path}"},
+        ):
             self.workspace._cmake(source, binary, [], tests=False)
         self.assertFalse(environment_sentinel.exists())
         self.assertIn(
             b"atrinik-environment-two", (binary / "environment").read_bytes()
+        )
+        discovery_sentinel = binary / "removed-on-discovery-environment-change"
+        discovery_sentinel.write_text("stale\n", encoding="utf-8")
+        with mock.patch.dict(
+            os.environ,
+            {"CPATH": str(include_two), "PATH": f"{tool_one}{os.pathsep}{base_path}"},
+        ):
+            self.workspace._cmake(source, binary, [], tests=False)
+        self.assertFalse(discovery_sentinel.exists())
+        self.assertEqual(
+            (binary / "selected-tool.txt").read_text(encoding="utf-8"),
+            str(tool_one / "selected-tool"),
+        )
+
+    @unittest.skipUnless(
+        all(shutil.which(tool) for tool in ("cmake", "ninja")),
+        "real CMake/Ninja toolchain is unavailable",
+    )
+    def test_real_cmake_reconfigures_after_source_symlink_retarget(self) -> None:
+        source = self.root / "symlinked-cmake-source"
+        source.mkdir()
+        nested = source / "src"
+        nested.mkdir()
+        (nested / "a.c").write_text("int a;\n", encoding="utf-8")
+        first = source / "first.cmake"
+        second = source / "second.cmake"
+        first.write_text(
+            "cmake_minimum_required(VERSION 3.20)\n"
+            "project(first NONE)\n"
+            'file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")\n'
+            'file(WRITE "${CMAKE_BINARY_DIR}/selected.txt" "first:${SOURCES}")\n',
+            encoding="utf-8",
+        )
+        second.write_text(
+            "cmake_minimum_required(VERSION 3.20)\n"
+            "project(second NONE)\n"
+            'file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")\n'
+            'file(WRITE "${CMAKE_BINARY_DIR}/selected.txt" "second:${SOURCES}")\n',
+            encoding="utf-8",
+        )
+        older = first.stat().st_mtime - 60
+        os.utime(second, (older, older))
+        cmakelists = source / "CMakeLists.txt"
+        cmakelists.symlink_to(first.name)
+        root = self.workspace.paths.builds / "profiles" / "symlink-configure"
+        managed_directory(root, self.workspace.paths.builds, "profile:symlink")
+        view = self.workspace._profile_source_view(
+            root, "sample", source, set()
+        )
+        binary = root / "build" / "sample"
+        self.workspace._use_ccache = False
+
+        self.workspace._cmake(view, binary, [], tests=False)
+        self.assertIn(
+            "first:", (binary / "selected.txt").read_text(encoding="utf-8")
+        )
+        cmakelists.unlink()
+        cmakelists.symlink_to(second.name)
+        self.workspace._profile_source_view(root, "sample", source, set())
+        self.workspace._cmake(view, binary, [], tests=False)
+        selected = (binary / "selected.txt").read_text(encoding="utf-8")
+        self.assertIn("second:", selected)
+        self.assertNotIn("b.c", selected)
+
+        added = nested / "b.c"
+        added.write_text("int b;\n", encoding="utf-8")
+        os.utime(added, (older, older))
+        self.workspace._profile_source_view(root, "sample", source, set())
+        self.workspace._cmake(view, binary, [], tests=False)
+        self.assertIn(
+            "b.c", (binary / "selected.txt").read_text(encoding="utf-8")
         )
 
     @unittest.skipUnless(
