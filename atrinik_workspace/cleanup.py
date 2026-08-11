@@ -7,7 +7,6 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
-import shutil
 import stat
 import subprocess
 from typing import Any, Iterable
@@ -2526,11 +2525,22 @@ class Cleanup:
                     raise WorkspaceError(
                         "Worker dependency cache is no longer old enough to remove"
                     )
-                managed_remove(
-                    path,
-                    self.paths.builds,
-                    f"worker-dependencies:{item['key']}",
-                )
+                marker = path / MANAGED_MARKER
+                if (
+                    path.is_symlink()
+                    or not path.is_dir()
+                    or marker.is_symlink()
+                    or not marker.is_file()
+                    or load_json(marker)
+                    != {
+                        "schema_version": SCHEMA_VERSION,
+                        "purpose": f"worker-dependencies:{item['key']}",
+                    }
+                ):
+                    raise WorkspaceError(
+                        "Worker dependency cache ownership changed before removal"
+                    )
+                remove_owned_tree(path)
         elif item["kind"] == "worker-dependency-transaction":
             key = item["key"]
             lock = (

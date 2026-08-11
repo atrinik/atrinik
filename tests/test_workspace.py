@@ -1287,6 +1287,7 @@ class WorkspaceTests(unittest.TestCase):
             real_copy_regular_file(*args, **kwargs)
             destination = args[1]
             assert isinstance(destination, Path)
+            self.assertEqual(stat.S_IMODE(destination.stat().st_mode), 0o600)
             destination.write_text("strict-peer-deps=false\n", encoding="utf-8")
 
         with (

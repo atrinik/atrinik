@@ -1913,6 +1913,27 @@ class CleanupTests(unittest.TestCase):
         self.assertFalse(entry.exists())
         self.assertTrue((self.workspace.paths.builds / "worker-dependencies").exists())
 
+    def test_worker_dependency_cache_removal_is_mount_bounded(self) -> None:
+        entry = self.make_worker_dependency_cache()
+        payload = entry / "node_modules" / "package.js"
+        payload.write_text("preserve\n", encoding="utf-8")
+
+        with mock.patch(
+            "atrinik_workspace.cleanup.remove_owned_tree",
+            side_effect=WorkspaceError("owned removal encountered a mount boundary"),
+        ):
+            report = self.workspace.cleanup(["builds"], 7, [], True)
+
+        item = next(
+            row
+            for row in report["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["removal_failed"])
+        self.assertIn("mount boundary", item["error"])
+        self.assertEqual(payload.read_text(encoding="utf-8"), "preserve\n")
+
     def test_prior_worker_dependency_schema_is_reclaimable(self) -> None:
         for schema_version, key in ((1, "1" * 64), (2, "2" * 64), (3, "3" * 64)):
             with self.subTest(schema_version=schema_version):

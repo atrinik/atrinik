@@ -965,14 +965,23 @@ def _copy_worker_source_metadata(source: Path, destination: Path) -> None:
     visit(source, destination, True)
 
 
-def _copy_regular_file(source: Path, destination: Path, description: str) -> None:
+def _copy_regular_file(
+    source: Path,
+    destination: Path,
+    description: str,
+    destination_mode: int | None = None,
+) -> None:
     """Copy one no-follow regular file without inheriting extended metadata."""
 
     source_descriptor = open_regular_file(source, os.O_RDONLY, description)
     destination_descriptor: int | None = None
     try:
         source_status = os.fstat(source_descriptor)
-        mode = stat.S_IMODE(source_status.st_mode)
+        mode = (
+            stat.S_IMODE(source_status.st_mode)
+            if destination_mode is None
+            else destination_mode
+        )
         destination_descriptor = os.open(
             destination,
             os.O_WRONLY | os.O_CREAT | os.O_EXCL,
@@ -4965,6 +4974,7 @@ class Workspace:
                         source / ".npmrc",
                         staging / ".npmrc",
                         "Worker .npmrc",
+                        0o600,
                     )
                 shutil.copystat(source, staging, follow_symlinks=False)
                 if (
