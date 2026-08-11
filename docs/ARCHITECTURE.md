@@ -260,7 +260,7 @@ enters the key, the source is staged, and source symlinks fail closed. Installed
 relative links must resolve within `node_modules`; absolute, escaping, dangling,
 or unsupported entries invalidate the installation.
 The per-key staging path is stable within the workspace and its parent identity
-is hashed. Copied timestamps and extended metadata are normalized, and the
+is hashed. Copied modification times and extended metadata are keyed, and the
 staged source snapshot is authenticated before installation. A project `.npmrc`
 is a restrictive no-follow temporary copy that is removed before publication;
 installed output containing the staging path is rejected as non-relocatable.

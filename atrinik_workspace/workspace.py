@@ -228,6 +228,7 @@ def _tree_digest(
     *,
     bounded_symlinks: bool = False,
     reject_symlinks: bool = False,
+    copied_metadata: bool = False,
 ) -> str:
     """Hash a tree as framed records without following links."""
 
@@ -240,6 +241,22 @@ def _tree_digest(
         ).encode()
         digest.update(len(encoded).to_bytes(8, "big"))
         digest.update(encoded)
+
+    def extended_attributes(path: Path) -> tuple[tuple[str, int, str], ...]:
+        if not hasattr(os, "listxattr"):
+            return ()
+        try:
+            values = []
+            for name in sorted(os.listxattr(path, follow_symlinks=False)):
+                value = os.getxattr(path, name, follow_symlinks=False)
+                values.append(
+                    (name, len(value), hashlib.sha256(value).hexdigest())
+                )
+            return tuple(values)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect Worker source metadata {path}: {error}"
+            ) from error
 
     def visit(directory: Path, relative: PurePosixPath) -> None:
         try:
@@ -255,8 +272,18 @@ def _tree_digest(
             try:
                 status = entry.lstat()
                 mode = stat.S_IMODE(status.st_mode)
+                metadata: tuple[object, ...] = (
+                    (status.st_mtime_ns, extended_attributes(entry))
+                    if copied_metadata
+                    else ()
+                )
                 if stat.S_ISDIR(status.st_mode):
-                    record("directory", child.as_posix(), mode)
+                    record(
+                        "directory",
+                        child.as_posix(),
+                        mode,
+                        *metadata,
+                    )
                     visit(entry, child)
                 elif stat.S_ISREG(status.st_mode):
                     record(
@@ -265,6 +292,7 @@ def _tree_digest(
                         mode,
                         status.st_size,
                         _file_digest(entry, "Worker tree file"),
+                        *metadata,
                     )
                 elif stat.S_ISLNK(status.st_mode):
                     target = os.readlink(entry)
@@ -288,7 +316,13 @@ def _tree_digest(
                             raise WorkspaceError(
                                 f"Worker dependencies contain a dangling link: {entry}"
                             )
-                    record("symlink", child.as_posix(), mode, target)
+                    record(
+                        "symlink",
+                        child.as_posix(),
+                        mode,
+                        target,
+                        *metadata,
+                    )
                 else:
                     raise WorkspaceError(
                         f"Worker source contains an unsupported file type: {entry}"
@@ -302,6 +336,13 @@ def _tree_digest(
 
     if root.is_symlink() or not root.is_dir():
         raise WorkspaceError(f"Worker source is not a regular directory: {root}")
+    root_status = root.lstat()
+    root_metadata: tuple[object, ...] = (
+        (root_status.st_mtime_ns, extended_attributes(root))
+        if copied_metadata
+        else ()
+    )
+    record("root", stat.S_IMODE(root_status.st_mode), *root_metadata)
     visit(root, PurePosixPath())
     return digest.hexdigest()
 
@@ -311,7 +352,6 @@ def _copy_worker_source(
     destination: Path,
     *,
     include_npmrc: bool = True,
-    preserve_metadata: bool = True,
 ) -> None:
     """Copy Worker source while excluding generated names only at its root."""
 
@@ -329,7 +369,6 @@ def _copy_worker_source(
         dirs_exist_ok=True,
         symlinks=True,
         ignore=ignore,
-        copy_function=shutil.copy2 if preserve_metadata else shutil.copy,
     )
 
 
@@ -339,7 +378,8 @@ def _copy_regular_file(source: Path, destination: Path, description: str) -> Non
     source_descriptor = open_regular_file(source, os.O_RDONLY, description)
     destination_descriptor: int | None = None
     try:
-        mode = stat.S_IMODE(os.fstat(source_descriptor).st_mode)
+        source_status = os.fstat(source_descriptor)
+        mode = stat.S_IMODE(source_status.st_mode)
         destination_descriptor = os.open(
             destination,
             os.O_WRONLY | os.O_CREAT | os.O_EXCL,
@@ -351,6 +391,11 @@ def _copy_regular_file(source: Path, destination: Path, description: str) -> Non
             with os.fdopen(destination_descriptor, "wb") as destination_stream:
                 destination_descriptor = None
                 shutil.copyfileobj(source_stream, destination_stream)
+        os.utime(
+            destination,
+            ns=(source_status.st_atime_ns, source_status.st_mtime_ns),
+            follow_symlinks=False,
+        )
     except OSError as error:
         raise WorkspaceError(f"cannot stage {description} {source}: {error}") from error
     finally:
@@ -358,25 +403,6 @@ def _copy_regular_file(source: Path, destination: Path, description: str) -> Non
             os.close(source_descriptor)
         if destination_descriptor is not None:
             os.close(destination_descriptor)
-
-
-def _normalize_worker_staging(root: Path) -> None:
-    """Remove unkeyed copied metadata before lifecycle scripts can observe it."""
-
-    paths = [root]
-    for directory, directories, files in os.walk(root, followlinks=False):
-        parent = Path(directory)
-        paths.extend(parent / name for name in (*directories, *files))
-    for path in reversed(paths):
-        try:
-            if hasattr(os, "listxattr"):
-                for attribute in os.listxattr(path, follow_symlinks=False):
-                    os.removexattr(path, attribute, follow_symlinks=False)
-            os.utime(path, ns=(0, 0), follow_symlinks=False)
-        except OSError as error:
-            raise WorkspaceError(
-                f"cannot normalize Worker lifecycle staging path {path}: {error}"
-            ) from error
 
 
 def _tree_references_path(root: Path, referenced: Path) -> bool:
@@ -2485,7 +2511,16 @@ class Workspace:
             # root files even when package.json has no root hook. Preserve npm's
             # enabled-script semantics by staging and keying the complete source.
             "lifecycle_source_sha256": _tree_digest(
-                source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+                source,
+                WORKER_SOURCE_EXCLUSIONS,
+                reject_symlinks=True,
+                copied_metadata=True,
+            ),
+            "lifecycle_source_without_npmrc_sha256": _tree_digest(
+                source,
+                WORKER_SOURCE_EXCLUSIONS | {".npmrc"},
+                reject_symlinks=True,
+                copied_metadata=True,
             ),
             "install_root_sha256": hashlib.sha256(
                 str(
@@ -2751,7 +2786,6 @@ class Workspace:
                     source,
                     staging,
                     include_npmrc=False,
-                    preserve_metadata=False,
                 )
                 if inputs["files"][".npmrc"] is not None:
                     _copy_regular_file(
@@ -2759,20 +2793,21 @@ class Workspace:
                         staging / ".npmrc",
                         "Worker .npmrc",
                     )
+                shutil.copystat(source, staging, follow_symlinks=False)
                 if (
                     _tree_digest(
                         staging,
-                        WORKER_SOURCE_EXCLUSIONS,
+                        WORKER_SOURCE_EXCLUSIONS | {".npmrc"},
                         reject_symlinks=True,
+                        copied_metadata=True,
                     )
-                    != inputs["lifecycle_source_sha256"]
+                    != inputs["lifecycle_source_without_npmrc_sha256"]
                 ):
                     raise WorkspaceError(
                         "staged Worker lifecycle source does not match its cache key"
                     )
                 if (staging / ".npmrc").exists():
                     (staging / ".npmrc").chmod(0o600)
-                _normalize_worker_staging(staging)
                 run(["npm", "ci"], cwd=staging, env=environment)
                 if _tree_references_path(staging / "node_modules", staging):
                     raise WorkspaceError(
@@ -2857,13 +2892,19 @@ class Workspace:
     ) -> tuple[Path, bool, float]:
         started = time.monotonic()
         view = root / "sources" / "metaserver-worker"
+        lifecycle_source_digest = _tree_digest(
+            source,
+            WORKER_SOURCE_EXCLUSIONS,
+            reject_symlinks=True,
+            copied_metadata=True,
+        )
         source_digest = _tree_digest(
             source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
         )
         dependency_source_digest = dependency_metadata.get("inputs", {}).get(
             "lifecycle_source_sha256"
         )
-        if source_digest != dependency_source_digest:
+        if lifecycle_source_digest != dependency_source_digest:
             raise WorkspaceError(
                 "Worker source does not match dependency lifecycle inputs"
             )
@@ -2907,25 +2948,28 @@ class Workspace:
             tempfile.mkdtemp(prefix=".metaserver-worker-", dir=view.parent)
         )
         try:
-            _copy_worker_source(source, staging, preserve_metadata=False)
+            _copy_worker_source(source, staging)
             if (
                 _tree_digest(
                     staging,
                     WORKER_SOURCE_EXCLUSIONS,
                     reject_symlinks=True,
+                    copied_metadata=True,
                 )
-                != source_digest
+                != lifecycle_source_digest
             ):
                 raise WorkspaceError(
                     "staged Worker view source does not match its fingerprint"
                 )
-            _normalize_worker_staging(staging)
             shutil.copytree(dependencies, staging / "node_modules", symlinks=True)
             if (
                 _tree_digest(
-                    source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+                    source,
+                    WORKER_SOURCE_EXCLUSIONS,
+                    reject_symlinks=True,
+                    copied_metadata=True,
                 )
-                != source_digest
+                != lifecycle_source_digest
             ):
                 raise WorkspaceError("Worker source changed during view preparation")
             self._validate_worker_node_modules(

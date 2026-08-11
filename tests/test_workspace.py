@@ -772,8 +772,6 @@ class WorkspaceTests(unittest.TestCase):
                 assert cwd is not None
                 if not (cwd / "worker.ts").is_file():
                     raise AssertionError("npm lifecycle source was not staged")
-                if (cwd / "worker.ts").stat().st_mtime_ns != 0:
-                    raise AssertionError("lifecycle source metadata was not normalized")
                 npmrc = cwd / ".npmrc"
                 if npmrc.exists():
                     if (
@@ -976,6 +974,12 @@ class WorkspaceTests(unittest.TestCase):
         before = _tree_digest(first, set())
         (first / "a").chmod(0o755)
         self.assertNotEqual(before, _tree_digest(first, set()))
+        before = _tree_digest(first, set(), copied_metadata=True)
+        status = (first / "a").stat()
+        os.utime(first / "a", ns=(status.st_atime_ns, status.st_mtime_ns + 1))
+        self.assertNotEqual(
+            before, _tree_digest(first, set(), copied_metadata=True)
+        )
 
         source = self.make_worker_source()
         (source / "linked.ts").symlink_to("worker.ts")
@@ -1288,7 +1292,10 @@ class WorkspaceTests(unittest.TestCase):
             ),
             "inputs": {
                 "lifecycle_source_sha256": _tree_digest(
-                    source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+                    source,
+                    WORKER_SOURCE_EXCLUSIONS,
+                    reject_symlinks=True,
+                    copied_metadata=True,
                 )
             },
         }
@@ -1340,7 +1347,10 @@ class WorkspaceTests(unittest.TestCase):
                 root, source, dependencies, "a" * 64, metadata
             )
         metadata["inputs"]["lifecycle_source_sha256"] = _tree_digest(
-            source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+            source,
+            WORKER_SOURCE_EXCLUSIONS,
+            reject_symlinks=True,
+            copied_metadata=True,
         )
         changed = self.workspace._worker_view(
             root, source, dependencies, "b" * 64, metadata

@@ -274,8 +274,8 @@ installer. A second
 input-identical build reuses that installation and an unchanged profile source
 view. Because enabled dependency lifecycle scripts can observe root files, the
 complete non-generated source digest participates in every dependency key and
-source symlinks fail closed. The install root is stable and hashed; staged
-timestamps and extended metadata are normalized; the copied lifecycle source
+source symlinks fail closed. The install root is stable and hashed; copied
+timestamps and extended metadata participate in the key; the lifecycle source
 is authenticated before install; installed output that embeds its staging path
 is rejected; and project `.npmrc` content is provided as a restrictive
 temporary copy and never published in the shared cache. Every profile gets its
