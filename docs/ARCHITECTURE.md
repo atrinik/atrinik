@@ -121,6 +121,7 @@ workspace/
   profiles/<name>.json               logical component -> checkout selectors
   build/profiles/<name>-<key>/       isolated sources, builds, and runtime
   build/npm-cache/                   shared package download cache
+  build/worker-dependencies/<key>/   shared validated Worker installations
   build/compiler-cache/              bounded shared native compiler cache
   build/retention.json               optional strict build pin/rollback record
   topologies/<name>/                 supervised process state and rotated logs
@@ -244,6 +245,40 @@ visible report-only `unmanaged-build` records. Cleanup never targets profiles,
 scenarios, state, topology records/logs, migration archives/evidence, branches,
 Git objects, or arbitrary unmarked paths.
 
+Worker dependency entries are direct key children of the marker-owned
+`worker-dependencies` container; its reserved `.transactions` child owns
+recoverable staging and backup artifacts. Each key covers exact `package.json`,
+`package-lock.json`, and optional project `.npmrc` bytes; Node and npm versions;
+Node runtime platform, architecture, and ABI identity; host OS and architecture;
+the effective npm configuration; and a digest of the
+complete lifecycle-script environment. Only digests, never configuration or
+environment values, enter metadata. External file-backed npm configuration,
+custom script shells, and external Node preload options fail closed rather than
+remaining live during install;
+project `.npmrc` uses an authenticated temporary copy. Each entry has its own
+lock, ownership marker, installed-lockfile digest, canonical complete-tree
+digest, required top-level dependency checks, and atomically refreshed
+`last_used_at`. Invalid
+ownership fails closed; corruption of an exactly owned entry is replaced only
+after a clean staged `npm ci` succeeds. Because enabled dependency lifecycle
+scripts can observe root files, the complete non-generated source digest always
+enters the key, the source is staged, and source symlinks fail closed. Installed
+relative links must resolve within `node_modules`; absolute, escaping, dangling,
+or unsupported entries invalidate the installation.
+The per-key staging path is stable within the workspace and its parent identity
+is hashed. Copied modification times, filesystem flags, and extended metadata
+are keyed; staging access times are normalized; and the
+staged source snapshot is authenticated before installation. A project `.npmrc`
+is a restrictive no-follow temporary copy that is removed before publication;
+the transaction marker is hidden during lifecycle execution and restored before
+publication; installed output containing the staging path is rejected as
+non-relocatable.
+A missing canonical entry recovers the newest structurally valid matching
+backup under the per-key lock before falling back to a new `npm ci`.
+Cleanup ages transaction artifacts from the newer of their no-follow tree
+mtime and root ctime, then repeats inode identity, marker, age, and path checks
+while holding the per-key lock through deletion.
+
 ## Classic monorepo migration
 
 `migrate repositories` is a checked transaction for workspaces that still
@@ -360,7 +395,7 @@ full Classic closure -> integrated source view -> one protocol/libatrinik graph
                                              +-> server targets -> CMake/Ninja
 component-only client/server request -> standalone source view -> CMake/Ninja
 selected Classic + content + resources ---> offline worldmaker -> region-map cache
-selected Worker -------------------------> npm source view -> npm run check
+selected Worker -> keyed npm ci cache -> isolated reconciled view -> npm run check
 ~~~
 
 The integrated graph is selected only when client, server, protocol, and
@@ -384,7 +419,16 @@ The server source view uses a copied `install_data` directory because its CTest
 preparation uses CMake directory-copy semantics. Other authored inputs remain
 links to their selected worktrees. The Worker view is copied because Node's
 module resolver follows configuration-file links and would otherwise search the
-Worker checkout instead of the isolated dependency directory. Collected
+Worker checkout instead of the isolated dependency directory. The coordinator
+fingerprints all non-generated source entries, so an unchanged profile view is
+reused without another source copy. Any clean or dirty source edit invalidates
+both the view and dependency key because dependency lifecycle scripts remain
+enabled; package or project npm configuration edits do the same. The profile
+receives a real, revalidated copy of cached `node_modules`, never a link or
+shared inode contract, so its checks cannot mutate the shared installation.
+View reuse excludes only Vite's profile-local `.vite` and `.vite-temp` outputs
+from the immutable dependency digest.
+Collected
 content and resource dependency metadata identify the selected path and commit.
 The resources repository's `runtime-paths.txt` is the distribution boundary:
 only tracked regular files below those paths enter the runtime view. This keeps

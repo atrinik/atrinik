@@ -29,7 +29,11 @@ from atrinik_workspace.model import (
     managed_directory,
     managed_remove as real_managed_remove,
 )
-from atrinik_workspace.workspace import Workspace
+from atrinik_workspace.workspace import (
+    WORKER_DEPENDENCY_SCHEMA_VERSION,
+    Workspace,
+    replace_directory,
+)
 
 
 def command(*arguments: str, cwd: Path) -> str:
@@ -1839,6 +1843,435 @@ class CleanupTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "unsupported cleanup target"):
             cleanup._remove({"kind": "unknown", "path": str(cache)})
 
+    def make_worker_dependency_cache(
+        self,
+        key: str = "a" * 64,
+        schema_version: int = WORKER_DEPENDENCY_SCHEMA_VERSION,
+    ) -> Path:
+        root = self.workspace.paths.builds / "worker-dependencies"
+        managed_directory(root, self.workspace.paths.builds, "worker-dependency-cache")
+        entry = root / key
+        managed_directory(
+            entry,
+            self.workspace.paths.builds,
+            f"worker-dependencies:{key}",
+        )
+        metadata = {
+            "schema_version": schema_version,
+            "purpose": "worker-dependencies",
+            "key": key,
+            "inputs": {"lock": "exact"},
+            "node_modules_lock_sha256": "b" * 64,
+            "last_used_at": self.old.isoformat(),
+        }
+        if schema_version != 1:
+            metadata["node_modules_sha256"] = "c" * 64
+        if schema_version == WORKER_DEPENDENCY_SCHEMA_VERSION:
+            metadata["node_modules_view_sha256"] = "d" * 64
+        atomic_json(entry / ".atrinik-worker-dependencies.json", metadata)
+        (entry / "node_modules").mkdir()
+        return entry
+
+    def test_worker_dependency_cache_is_bounded_preview_first_and_locked(self) -> None:
+        entry = self.make_worker_dependency_cache()
+        preview = self.workspace.cleanup(["builds"], 7, [], False)
+        item = next(
+            row
+            for row in preview["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["stale_worker_dependencies"])
+        self.assertEqual(item["age_basis"], "last-used-at")
+        self.assertTrue(entry.exists())
+
+        lock = (
+            self.workspace.paths.builds
+            / "locks"
+            / f"worker-dependencies-{'a' * 64}.lock"
+        )
+        lock.parent.mkdir(parents=True, exist_ok=True)
+        with lock.open("w", encoding="utf-8") as stream:
+            import fcntl
+
+            fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            protected = self.workspace.cleanup(["builds"], 7, [], False)
+        item = next(
+            row
+            for row in protected["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertIn("build_lock_busy", item["reasons"])
+
+        applied = self.workspace.cleanup(["builds"], 7, [], True)
+        item = next(
+            row
+            for row in applied["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertEqual(item["disposition"], "removed")
+        self.assertFalse(entry.exists())
+        self.assertTrue((self.workspace.paths.builds / "worker-dependencies").exists())
+
+    def test_worker_dependency_cache_removal_is_mount_bounded(self) -> None:
+        entry = self.make_worker_dependency_cache()
+        payload = entry / "node_modules" / "package.js"
+        payload.write_text("preserve\n", encoding="utf-8")
+
+        with mock.patch(
+            "atrinik_workspace.cleanup.remove_owned_tree",
+            side_effect=WorkspaceError("owned removal encountered a mount boundary"),
+        ):
+            report = self.workspace.cleanup(["builds"], 7, [], True)
+
+        item = next(
+            row
+            for row in report["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["removal_failed"])
+        self.assertIn("mount boundary", item["error"])
+        self.assertEqual(payload.read_text(encoding="utf-8"), "preserve\n")
+
+    def test_prior_worker_dependency_schema_is_reclaimable(self) -> None:
+        for schema_version, key in ((1, "1" * 64), (2, "2" * 64), (3, "3" * 64)):
+            with self.subTest(schema_version=schema_version):
+                entry = self.make_worker_dependency_cache(key, schema_version)
+                preview = self.workspace.cleanup(["builds"], 7, [], False)
+                item = next(
+                    row
+                    for row in preview["items"]
+                    if row["path"] == str(entry)
+                )
+                self.assertEqual(item["disposition"], "eligible")
+                self.assertEqual(item["reasons"], ["stale_worker_dependencies"])
+                self.assertTrue(entry.exists())
+
+                applied = self.workspace.cleanup(["builds"], 7, [], True)
+                item = next(
+                    row
+                    for row in applied["items"]
+                    if row["path"] == str(entry)
+                )
+                self.assertEqual(item["disposition"], "removed")
+                self.assertFalse(entry.exists())
+
+    def test_invalid_worker_dependency_cache_is_protected(self) -> None:
+        entry = self.make_worker_dependency_cache()
+        (entry / ".atrinik-worker-dependencies.json").write_text(
+            "{}\n", encoding="utf-8"
+        )
+        report = self.workspace.cleanup(["builds"], 0, [], False)
+        item = next(
+            row
+            for row in report["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("invalid_worker_dependency_cache", item["reasons"])
+        self.assertTrue(entry.exists())
+
+    def test_worker_dependency_cleanup_rejects_concurrent_refresh(self) -> None:
+        entry = self.make_worker_dependency_cache()
+        original_remove = Cleanup._remove
+
+        def refresh_before_remove(
+            cleanup: Cleanup, item: dict[str, object], older_than_days: int = 0
+        ) -> None:
+            if item["kind"] == "worker-dependencies":
+                metadata_path = entry / ".atrinik-worker-dependencies.json"
+                metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+                metadata["last_used_at"] = cleanup.now.isoformat()
+                atomic_json(metadata_path, metadata)
+            original_remove(cleanup, item, older_than_days)
+
+        with mock.patch.object(Cleanup, "_remove", new=refresh_before_remove):
+            report = self.workspace.cleanup(["builds"], 7, [], True)
+        item = next(
+            row
+            for row in report["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["removal_failed"])
+        self.assertIn("refreshed", item["error"])
+        self.assertTrue(entry.exists())
+
+    def test_worker_dependency_transactions_are_previewed_and_bounded(self) -> None:
+        key = "d" * 64
+        root = self.workspace.paths.builds / "worker-dependencies"
+        managed_directory(root, self.workspace.paths.builds, "worker-dependency-cache")
+        transactions = root / ".transactions"
+        managed_directory(
+            transactions,
+            self.workspace.paths.builds,
+            "worker-dependency-transactions",
+        )
+        transaction = transactions / f"{key}-backup-_n056r1s"
+        transaction.mkdir()
+        (transaction / "partial-package").write_text("partial\n", encoding="utf-8")
+        old_timestamp = self.old.timestamp()
+        os.utime(transaction / "partial-package", (old_timestamp, old_timestamp))
+        os.utime(transaction, (old_timestamp, old_timestamp))
+
+        with mock.patch.object(
+            Cleanup,
+            "_worker_dependency_transaction_created_at",
+            return_value=self.old,
+        ):
+            preview = self.workspace.cleanup(["builds"], 7, [], False)
+        item = next(
+            row
+            for row in preview["items"]
+            if row["kind"] == "worker-dependency-transaction"
+        )
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["stale_worker_dependency_transaction"])
+        self.assertTrue(transaction.exists())
+
+        with mock.patch.object(
+            Cleanup,
+            "_worker_dependency_transaction_created_at",
+            return_value=self.old,
+        ):
+            applied = self.workspace.cleanup(["builds"], 7, [], True)
+        item = next(
+            row
+            for row in applied["items"]
+            if row["kind"] == "worker-dependency-transaction"
+        )
+        self.assertEqual(item["disposition"], "removed")
+        self.assertFalse(transaction.exists())
+        self.assertTrue(transactions.exists())
+
+    def test_new_worker_dependency_backup_gets_a_fresh_grace_period(self) -> None:
+        key = "f" * 64
+        entry = self.make_worker_dependency_cache(key)
+        transactions = entry.parent / ".transactions"
+        managed_directory(
+            transactions,
+            self.workspace.paths.builds,
+            "worker-dependency-transactions",
+        )
+        old_timestamp = self.old.timestamp()
+        for path in sorted(entry.rglob("*"), reverse=True):
+            os.utime(path, (old_timestamp, old_timestamp), follow_symlinks=False)
+        os.utime(entry, (old_timestamp, old_timestamp), follow_symlinks=False)
+        staging = transactions / f"{key}-staging-install"
+        staging.mkdir()
+
+        with mock.patch(
+            "atrinik_workspace.workspace.remove_owned_tree",
+            side_effect=WorkspaceError("simulated interruption"),
+        ):
+            replace_directory(
+                entry,
+                staging,
+                f"{key}-backup-",
+                backup_parent=transactions,
+            )
+
+        preview = self.workspace.cleanup(["builds"], 7, [], False)
+        backup = next(
+            row
+            for row in preview["items"]
+            if row["kind"] == "worker-dependency-transaction"
+        )
+        self.assertEqual(backup["disposition"], "protected")
+        self.assertIn("younger_than_grace_period", backup["reasons"])
+
+    def test_new_staging_with_old_source_mtimes_gets_a_fresh_grace_period(
+        self,
+    ) -> None:
+        key = "9" * 64
+        root = self.workspace.paths.builds / "worker-dependencies"
+        managed_directory(root, self.workspace.paths.builds, "worker-dependency-cache")
+        transactions = root / ".transactions"
+        managed_directory(
+            transactions,
+            self.workspace.paths.builds,
+            "worker-dependency-transactions",
+        )
+        source = self.root / "old-worker-source"
+        source.mkdir()
+        (source / "worker.ts").write_text("old\n", encoding="utf-8")
+        old_timestamp = self.old.timestamp()
+        os.utime(source / "worker.ts", (old_timestamp, old_timestamp))
+        os.utime(source, (old_timestamp, old_timestamp))
+        staging = transactions / f"{key}-staging-install"
+        managed_directory(
+            staging,
+            self.workspace.paths.builds,
+            f"worker-dependency-transaction:{key}",
+        )
+        (staging / MANAGED_MARKER).unlink()
+        shutil.copy2(source / "worker.ts", staging / "worker.ts")
+        shutil.copystat(source, staging, follow_symlinks=False)
+
+        preview = self.workspace.cleanup(["builds"], 7, [], False)
+        item = next(row for row in preview["items"] if row["path"] == str(staging))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertEqual(item["age_basis"], "tree-mtime-or-root-ctime")
+        self.assertIn("younger_than_grace_period", item["reasons"])
+
+    def test_worker_dependency_transaction_removal_rejects_aba(self) -> None:
+        key = "8" * 64
+        root = self.workspace.paths.builds / "worker-dependencies"
+        managed_directory(root, self.workspace.paths.builds, "worker-dependency-cache")
+        transactions = root / ".transactions"
+        managed_directory(
+            transactions,
+            self.workspace.paths.builds,
+            "worker-dependency-transactions",
+        )
+        transaction = transactions / f"{key}-staging-install"
+        transaction.mkdir()
+        old_timestamp = self.old.timestamp()
+        os.utime(transaction, (old_timestamp, old_timestamp))
+        original_remove = Cleanup._remove
+        original_transaction = transactions / f".{transaction.name}-original"
+
+        def replace_before_remove(
+            cleanup: Cleanup, item: dict[str, object], older_than_days: int = 0
+        ) -> None:
+            if item["kind"] == "worker-dependency-transaction":
+                transaction.replace(original_transaction)
+                transaction.mkdir()
+                os.utime(transaction, (old_timestamp, old_timestamp))
+            try:
+                original_remove(cleanup, item, older_than_days)
+            finally:
+                if original_transaction.exists():
+                    shutil.rmtree(original_transaction)
+
+        with (
+            mock.patch.object(
+                Cleanup,
+                "_worker_dependency_transaction_created_at",
+                return_value=self.old,
+            ),
+            mock.patch.object(Cleanup, "_remove", new=replace_before_remove),
+        ):
+            applied = self.workspace.cleanup(["builds"], 7, [], True)
+        item = next(
+            row
+            for row in applied["items"]
+            if row["path"] == str(transaction)
+        )
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["removal_failed"])
+        self.assertIn("changed before removal", item["error"])
+        self.assertTrue(transaction.exists())
+
+    def test_worker_dependency_transaction_uncertainty_protects_artifacts(self) -> None:
+        key = "e" * 64
+        root = self.workspace.paths.builds / "worker-dependencies"
+        managed_directory(root, self.workspace.paths.builds, "worker-dependency-cache")
+        transactions = root / ".transactions"
+        managed_directory(
+            transactions,
+            self.workspace.paths.builds,
+            "worker-dependency-transactions",
+        )
+        old_timestamp = self.old.timestamp()
+
+        invalid_name = transactions / "unrecognized"
+        invalid_name.mkdir()
+        os.utime(invalid_name, (old_timestamp, old_timestamp))
+
+        wrong_marker = transactions / f"{key}-staging-bad"
+        wrong_marker.mkdir()
+        atomic_json(
+            wrong_marker / MANAGED_MARKER,
+            {"schema_version": SCHEMA_VERSION, "purpose": "unrelated"},
+        )
+        os.utime(wrong_marker, (old_timestamp, old_timestamp))
+
+        future = transactions / f"{key}-backup-feed"
+        future.mkdir()
+        now = datetime.now(timezone.utc)
+        future_timestamp = (now + timedelta(days=1)).timestamp()
+        os.utime(future, (future_timestamp, future_timestamp))
+
+        young = transactions / f"{key}-staging-cafe"
+        young.mkdir()
+
+        busy = transactions / f"{key}-staging-dead"
+        busy.mkdir()
+        os.utime(busy, (old_timestamp, old_timestamp))
+        lock = (
+            self.workspace.paths.builds
+            / "locks"
+            / f"worker-dependencies-{key}.lock"
+        )
+        lock.parent.mkdir(parents=True, exist_ok=True)
+        with lock.open("w", encoding="utf-8") as stream:
+            import fcntl
+
+            fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            report = self.workspace.cleanup(["builds"], 7, [], False)
+
+        items = {
+            Path(row["path"]).name: row
+            for row in report["items"]
+            if row["kind"] == "worker-dependency-transaction"
+        }
+        self.assertIn(
+            "invalid_worker_dependency_transaction",
+            items[invalid_name.name]["reasons"],
+        )
+        self.assertIn(
+            "invalid_worker_dependency_transaction",
+            items[wrong_marker.name]["reasons"],
+        )
+        self.assertIn("future_tree_mtime", items[future.name]["reasons"])
+        self.assertIn("younger_than_grace_period", items[young.name]["reasons"])
+        self.assertIn("build_lock_busy", items[busy.name]["reasons"])
+
+    def test_invalid_worker_dependency_transaction_root_is_protected(self) -> None:
+        root = self.workspace.paths.builds / "worker-dependencies"
+        managed_directory(root, self.workspace.paths.builds, "worker-dependency-cache")
+        transactions = root / ".transactions"
+        transactions.mkdir()
+        atomic_json(
+            transactions / MANAGED_MARKER,
+            {"schema_version": SCHEMA_VERSION, "purpose": "unrelated"},
+        )
+        report = self.workspace.cleanup(["builds"], 0, [], False)
+        item = next(
+            row
+            for row in report["items"]
+            if row["path"] == str(transactions)
+        )
+        self.assertEqual(item["disposition"], "protected")
+        self.assertEqual(item["reasons"], ["invalid_worker_dependency_transactions"])
+
+    def test_worker_dependency_cache_age_and_key_fail_closed(self) -> None:
+        entry = self.make_worker_dependency_cache()
+        metadata_path = entry / ".atrinik-worker-dependencies.json"
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        now = datetime.now(timezone.utc)
+        metadata["last_used_at"] = (now + timedelta(days=1)).isoformat()
+        atomic_json(metadata_path, metadata)
+        report = self.workspace.cleanup(["builds"], 7, [], False)
+        item = next(
+            row for row in report["items"] if row["kind"] == "worker-dependencies"
+        )
+        self.assertIn("future_last_used", item["reasons"])
+
+        metadata["last_used_at"] = now.isoformat()
+        atomic_json(metadata_path, metadata)
+        report = self.workspace.cleanup(["builds"], 7, [], False)
+        item = next(
+            row for row in report["items"] if row["kind"] == "worker-dependencies"
+        )
+        self.assertIn("younger_than_grace_period", item["reasons"])
+
+        invalid = self.make_worker_dependency_cache("not-a-key")
+        report = self.workspace.cleanup(["builds"], 0, [], False)
+        item = next(row for row in report["items"] if row["path"] == str(invalid))
+        self.assertIn("invalid_worker_dependency_cache", item["reasons"])
     def test_compiler_cache_is_bounded_marker_owned_and_explicitly_reclaimed(
         self,
     ) -> None:

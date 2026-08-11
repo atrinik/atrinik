@@ -59,9 +59,10 @@ Reclaim review data only through preview-first cleanup:
 ./atrinik cleanup --scope all --older-than 7 --apply
 ```
 
-Default scope covers registered worktrees and marker-owned builds; shared npm
-and compiler caches are opt-in. Text uses IEC sizes; JSON keeps exact bytes.
-References, ambiguous Git,
+Default scope covers worktrees, profile builds, Worker installs, and stale
+transactions; npm/compiler caches are opt-in. Text uses IEC; JSON uses bytes.
+References,
+ambiguous Git,
 and unsafe paths/markers protect targets. Only an `atrinik/atrinik@main`
 worktree directly below `build/worktrees/` has the historical-base exception:
 its PR targets `master` and supplies head, base, and merge SHAs; the merge's
