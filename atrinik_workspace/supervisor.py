@@ -16,6 +16,7 @@ import time
 from typing import Any, BinaryIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
+from .process_tree import holders_exist, signal_holders
 
 
 LOG_LIMIT = 10 * 1024 * 1024
@@ -72,24 +73,93 @@ def open_log(path: Path) -> BinaryIO:
     return os.fdopen(descriptor, "ab", buffering=0)
 
 
-def terminate(processes: dict[str, subprocess.Popen[bytes]]) -> None:
-    for process in processes.values():
-        if process.poll() is None:
+def _peek_exit_code(process: subprocess.Popen[bytes]) -> int | None:
+    """Observe a child exit without reaping its process-group leader."""
+    try:
+        result = os.waitid(
+            os.P_PID,
+            process.pid,
+            os.WEXITED | os.WNOHANG | os.WNOWAIT,
+        )
+    except ChildProcessError:
+        return process.returncode
+    if result is None:
+        return None
+    if result.si_code == os.CLD_EXITED:
+        return result.si_status
+    return -result.si_status
+
+
+def terminate(
+    processes: dict[str, subprocess.Popen[bytes]],
+    process_tree_fd: int | None,
+    timeout: float = 10,
+) -> None:
+    # An unreaped session leader pins its numeric process-group identity, so
+    # these groups remain safe to signal until the final waits below. The lease
+    # additionally finds descendants whose recorded leader was already reaped.
+    process_groups = [
+        process.pid
+        for process in processes.values()
+        if process.returncode is None
+    ]
+
+    def signal_groups(signum: signal.Signals) -> None:
+        for process_group in process_groups:
             try:
-                os.killpg(process.pid, signal.SIGTERM)
+                os.killpg(process_group, signum)
             except ProcessLookupError:
                 pass
-    deadline = time.monotonic() + 10
-    while time.monotonic() < deadline and any(
-        process.poll() is None for process in processes.values()
-    ):
+
+    def groups_exist() -> bool:
+        groups = set(process_groups)
+        try:
+            entries = list(Path("/proc").iterdir())
+        except OSError:
+            entries = []
+        for entry in entries:
+            if not entry.name.isdigit():
+                continue
+            try:
+                fields = (entry / "stat").read_text().rsplit(")", 1)[1].split()
+                state = fields[0]
+                process_group = int(fields[2])
+            except (OSError, IndexError, ValueError):
+                continue
+            if process_group in groups and state != "Z":
+                return True
+        return False
+
+    signal_groups(signal.SIGTERM)
+    if process_tree_fd is not None:
+        signal_holders(
+            process_tree_fd, signal.SIGTERM, exclude=(os.getpid(),)
+        )
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        running = groups_exist()
+        if process_tree_fd is not None:
+            running = running or holders_exist(
+                process_tree_fd, exclude=(os.getpid(),)
+            )
+        if not running:
+            break
         time.sleep(0.1)
-    for process in processes.values():
-        if process.poll() is None:
-            try:
-                os.killpg(process.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
+    signal_groups(signal.SIGKILL)
+    if process_tree_fd is not None:
+        signal_holders(
+            process_tree_fd, signal.SIGKILL, exclude=(os.getpid(),)
+        )
+        kill_deadline = time.monotonic() + 2
+        while time.monotonic() < kill_deadline and (
+            groups_exist()
+            or holders_exist(process_tree_fd, exclude=(os.getpid(),))
+        ):
+            signal_groups(signal.SIGKILL)
+            signal_holders(
+                process_tree_fd, signal.SIGKILL, exclude=(os.getpid(),)
+            )
+            time.sleep(0.05)
     for process in processes.values():
         try:
             process.wait(timeout=2)
@@ -197,7 +267,13 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
     return status
 
 
-def supervise(spec_path: Path, lock_fd: int | None) -> int:
+def supervise(
+    spec_path: Path,
+    lock_fd: int | None,
+    layout_lock_fd: int | None,
+    build_lock_fd: int | None,
+    process_tree_fd: int | None,
+) -> int:
     with spec_path.open(encoding="utf-8") as stream:
         spec = json.load(stream)
     status_path = spec_path.parent / "status.json"
@@ -239,6 +315,15 @@ def supervise(spec_path: Path, lock_fd: int | None) -> int:
             environment[CLIENT_LAUNCH_LABEL_ENV] = client_launch_label(
                 spec["profile"], spec["name"]
             )
+        inherited_locks: list[int] = []
+        if name == "server" and lock_fd is not None:
+            inherited_locks.append(lock_fd)
+        if layout_lock_fd is not None:
+            inherited_locks.append(layout_lock_fd)
+        if build_lock_fd is not None:
+            inherited_locks.append(build_lock_fd)
+        if process_tree_fd is not None:
+            inherited_locks.append(process_tree_fd)
         process = subprocess.Popen(
             command,
             cwd=service["cwd"],
@@ -247,13 +332,12 @@ def supervise(spec_path: Path, lock_fd: int | None) -> int:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             start_new_session=True,
-            pass_fds=(lock_fd,) if name == "server" and lock_fd is not None else (),
+            pass_fds=tuple(inherited_locks),
         )
+        processes[name] = process
         start_time = process_start_time(process.pid)
         if start_time is None:
-            process.terminate()
             raise RuntimeError(f"cannot identify {name} process")
-        processes[name] = process
         pump = threading.Thread(
             target=pump_output,
             args=(process, output, capture),
@@ -279,9 +363,10 @@ def supervise(spec_path: Path, lock_fd: int | None) -> int:
             server = start_service("server", capture=capture)
             deadline = time.monotonic() + SERVER_READY_TIMEOUT
             while not capture.event.wait(timeout=0.1):
-                if server.poll() is not None:
+                code = _peek_exit_code(server)
+                if code is not None:
                     raise RuntimeError(
-                        f"server exited before becoming ready with code {server.returncode}"
+                        f"server exited before becoming ready with code {code}"
                     )
                 if stop:
                     raise RuntimeError("topology stopped before the server became ready")
@@ -310,31 +395,35 @@ def supervise(spec_path: Path, lock_fd: int | None) -> int:
         status["ready"] = True
         atomic_status(status_path, status)
 
-        while not stop and all(
-            process.poll() is None for process in processes.values()
-        ):
+        while not stop:
             changed = False
+            running = True
             for name, process in processes.items():
-                code = process.poll()
+                code = _peek_exit_code(process)
                 service_status = status["services"][name]
                 if code is not None and service_status["status"] == "running":
                     service_status["status"] = "exited"
                     service_status["exit_code"] = code
                     changed = True
+                    running = False
             if changed:
                 atomic_status(status_path, status)
+            if not running:
+                break
             time.sleep(0.2)
     except BaseException as error:
         status["error"] = f"{type(error).__name__}: {error}"
         atomic_status(status_path, status)
         return 1
     finally:
-        terminate(processes)
+        terminate(processes, process_tree_fd)
         for pump in pumps:
             pump.join(timeout=2)
         for name, process in processes.items():
             code = process.poll()
-            service_status = status["services"][name]
+            service_status = status["services"].get(name)
+            if service_status is None:
+                continue
             service_status["status"] = "exited"
             service_status["exit_code"] = code
         status["stopped_at"] = datetime.now(timezone.utc).isoformat()
@@ -344,6 +433,12 @@ def supervise(spec_path: Path, lock_fd: int | None) -> int:
             output.close()
         if lock_fd is not None:
             os.close(lock_fd)
+        if layout_lock_fd is not None:
+            os.close(layout_lock_fd)
+        if build_lock_fd is not None:
+            os.close(build_lock_fd)
+        if process_tree_fd is not None:
+            os.close(process_tree_fd)
     return 0
 
 
@@ -351,12 +446,21 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", type=Path, required=True)
     parser.add_argument("--lock-fd", type=int)
+    parser.add_argument("--layout-lock-fd", type=int)
+    parser.add_argument("--build-lock-fd", type=int)
+    parser.add_argument("--process-tree-fd", type=int)
     parser.add_argument("--daemonize", action="store_true")
     options = parser.parse_args()
     if options.daemonize and os.fork() != 0:
         return 0
     try:
-        return supervise(options.spec, options.lock_fd)
+        return supervise(
+            options.spec,
+            options.lock_fd,
+            options.layout_lock_fd,
+            options.build_lock_fd,
+            options.process_tree_fd,
+        )
     except BaseException as error:
         message = f"{type(error).__name__}: {error}"
         print(f"topology supervisor failed during startup: {message}", file=sys.stderr)
@@ -367,6 +471,21 @@ def main() -> int:
         if options.lock_fd is not None:
             try:
                 os.close(options.lock_fd)
+            except OSError:
+                pass
+        if options.layout_lock_fd is not None:
+            try:
+                os.close(options.layout_lock_fd)
+            except OSError:
+                pass
+        if options.build_lock_fd is not None:
+            try:
+                os.close(options.build_lock_fd)
+            except OSError:
+                pass
+        if options.process_tree_fd is not None:
+            try:
+                os.close(options.process_tree_fd)
             except OSError:
                 pass
         return 1

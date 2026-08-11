@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextvars import copy_context
 from datetime import datetime, timezone
 import fcntl
 import json
@@ -11,6 +12,7 @@ import stat
 import subprocess
 from typing import Any, Iterable
 
+from .locking import active_lock_fds
 from .migration import MIGRATION_PENDING, MIGRATION_RECORD, OPERATION_PATHS
 from .model import (
     MANAGED_MARKER,
@@ -80,6 +82,7 @@ def _command(path: Path, *arguments: str) -> str:
             check=True,
             capture_output=True,
             text=True,
+            pass_fds=active_lock_fds(),
         )
     except FileNotFoundError as error:
         raise WorkspaceError("required command not found: git") from error
@@ -1371,7 +1374,9 @@ class Cleanup:
         keys = sorted({(item["repository"], item["head"]) for item in pending})
         with ThreadPoolExecutor(max_workers=min(8, max(1, len(keys)))) as executor:
             futures = {
-                executor.submit(self._github_pulls, repository, head): (repository, head)
+                executor.submit(
+                    copy_context().run, self._github_pulls, repository, head
+                ): (repository, head)
                 for repository, head in keys
             }
             for future in as_completed(futures):
@@ -1543,6 +1548,7 @@ class Cleanup:
                 check=True,
                 capture_output=True,
                 text=True,
+                pass_fds=active_lock_fds(),
                 timeout=30,
             )
         except FileNotFoundError as error:

@@ -4,10 +4,13 @@ import copy
 from concurrent.futures import ThreadPoolExecutor
 import ctypes
 import errno
+import fcntl
 import hashlib
 import json
+import multiprocessing
 import os
 from pathlib import Path
+import queue
 import shutil
 import signal
 import stat
@@ -44,11 +47,403 @@ from atrinik_workspace.workspace import (
     _remote_matches as real_remote_matches,
     display_arguments,
     exclusive_lock,
+    shared_lock,
     remove_owned_tree,
     replace_directory as worker_replace_directory,
     replace_runtime_directory as workspace_replace_directory,
     run as workspace_run,
 )
+
+
+def synthetic_build_process(
+    wrapper: str,
+    workspace_directory: str,
+    profile: str,
+    attempting: object,
+    entered: object,
+    release: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            real_flock = workspace_module.fcntl.flock
+
+            def observe_flock(lock: object, operation: int) -> None:
+                if operation & workspace_module.fcntl.LOCK_EX:
+                    attempting.set()
+                real_flock(lock, operation)
+
+            def pause_build(*_arguments: object) -> None:
+                entered.put(profile)
+                if not release.wait(10):
+                    raise TimeoutError("test build was not released")
+
+            with (
+                mock.patch.object(
+                    workspace, "_expand_build_target", return_value=["client"]
+                ),
+                mock.patch.object(
+                    workspace,
+                    "_resolve_build_profile",
+                    return_value={"client": Path(wrapper)},
+                ),
+                mock.patch.object(
+                    workspace, "_profile_build_key", return_value="a" * 12
+                ),
+                mock.patch.object(
+                    workspace, "_refresh_build_metadata", side_effect=pause_build
+                ),
+                mock.patch.object(
+                    workspace, "_uses_integrated_classic_build", return_value=False
+                ),
+                mock.patch.object(workspace, "_build_client"),
+                mock.patch.object(
+                    workspace_module.fcntl, "flock", side_effect=observe_flock
+                ),
+            ):
+                workspace.build("client", profile, False)
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def layout_writer_process(
+    wrapper: str,
+    workspace_directory: str,
+    operation: str,
+    attempting: object,
+    entered: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            real_flock = workspace_module.fcntl.flock
+
+            def observe_flock(lock: object, lock_operation: int) -> None:
+                if lock_operation & workspace_module.fcntl.LOCK_EX:
+                    attempting.set()
+                real_flock(lock, lock_operation)
+
+            with mock.patch.object(
+                workspace_module.fcntl, "flock", side_effect=observe_flock
+            ):
+                if operation == "sync":
+                    with mock.patch.object(
+                        workspace,
+                        "_sync_components",
+                        side_effect=lambda *_: entered.set(),
+                    ):
+                        workspace.sync([], "none")
+                else:
+                    with mock.patch.object(
+                        workspace,
+                        "_remove_worktree",
+                        side_effect=lambda *_: entered.set(),
+                    ):
+                        workspace.remove_worktree("client", "review")
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def synthetic_client_process(
+    wrapper: str,
+    workspace_directory: str,
+    attempting: object,
+    entered: object,
+    release: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            real_flock = workspace_module.fcntl.flock
+
+            def observe_flock(lock: object, operation: int) -> None:
+                if operation & workspace_module.fcntl.LOCK_SH:
+                    attempting.set()
+                real_flock(lock, operation)
+
+            def pause_client(
+                *_arguments: object, **_keywords: object
+            ) -> Path:
+                entered.set()
+                if not release.wait(10):
+                    raise TimeoutError("test client was not released")
+                return Path(wrapper) / "client"
+
+            with (
+                mock.patch.object(
+                    workspace, "_run_client", side_effect=pause_client
+                ),
+                mock.patch.object(
+                    workspace_module.fcntl, "flock", side_effect=observe_flock
+                ),
+            ):
+                workspace.run_client("default", "default", 13327, [], True)
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def timed_public_build_process(
+    wrapper: str,
+    workspace_directory: str,
+    profile: str,
+    mode: str,
+    ready: object,
+    start: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            ready.put(profile)
+            if not start.wait(5):
+                raise TimeoutError("timed build test did not start")
+            with (
+                mock.patch.object(
+                    workspace, "_expand_build_target", return_value=["client"]
+                ),
+                mock.patch.object(
+                    workspace,
+                    "_resolve_build_profile",
+                    return_value={"client": Path(wrapper)},
+                ),
+                mock.patch.object(
+                    workspace, "_profile_build_key", return_value="a" * 12
+                ),
+                mock.patch.object(
+                    workspace,
+                    "_refresh_build_metadata",
+                    side_effect=lambda *_: time.sleep(0.4),
+                ),
+                mock.patch.object(
+                    workspace, "_uses_integrated_classic_build", return_value=False
+                ),
+                mock.patch.object(workspace, "_build_client"),
+            ):
+                if mode == "shared":
+                    workspace.build("client", profile, False)
+                else:
+                    with exclusive_lock(
+                        workspace.paths.workspace / "repository-layout.lock",
+                        "legacy repository layout",
+                    ):
+                        workspace._build("client", profile, False)
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def inherited_leases_wrapper_process(
+    layout_path: str,
+    build_path: str,
+    state_path: str,
+    child_script: str,
+    child_pid_path: str,
+) -> None:
+    with (
+        shared_lock(Path(layout_path), "repository layout"),
+        exclusive_lock(Path(build_path), "profile build orphan"),
+        exclusive_lock(Path(state_path), "server state orphan"),
+    ):
+        workspace_run(
+            [sys.executable, child_script, child_pid_path],
+            diagnostics_to_stderr=False,
+        )
+
+
+def cleanup_writer_wrapper_process(
+    layout_path: str,
+    repository: str,
+    executable_directory: str,
+    child_pid_path: str,
+) -> None:
+    from atrinik_workspace.cleanup import _command as cleanup_command
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "PATH": executable_directory + os.pathsep + os.environ["PATH"],
+            "ATRINIK_TEST_CHILD_PID": child_pid_path,
+        },
+    ):
+        with exclusive_lock(Path(layout_path), "repository layout"):
+            cleanup_command(Path(repository), "worktree", "prune")
+
+
+def compiler_cache_first_use_process(
+    wrapper: str,
+    workspace_directory: str,
+    source_path: str,
+    binary_path: str,
+    ready: object,
+    start: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            ready.put(binary_path)
+            if not start.wait(5):
+                raise TimeoutError("compiler-cache test did not start")
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.shutil.which",
+                    side_effect=lambda tool: (
+                        "/usr/bin/ccache" if tool == "ccache" else None
+                    ),
+                ),
+                mock.patch.object(
+                    workspace,
+                    "_add_debug_prefix_environment",
+                    return_value={"c": False, "cxx": False},
+                ),
+                mock.patch("atrinik_workspace.workspace.run"),
+            ):
+                workspace._cmake(
+                    Path(source_path), Path(binary_path), [], False
+                )
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def mixed_layout_operation_process(
+    wrapper: str,
+    workspace_directory: str,
+    operation: str,
+    status: dict[str, object],
+    ready: object,
+    start: object,
+    entered: object,
+    release: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            topology_root = workspace.paths.topologies / "stress"
+            first_entry = True
+            topology_generation = 0
+
+            def rendezvous() -> None:
+                nonlocal first_entry
+                if not first_entry:
+                    return
+                first_entry = False
+                entered.put(operation)
+                if not release.wait(5):
+                    raise TimeoutError("mixed operation was not released")
+
+            def compile_client(*_arguments: object, **_keywords: object) -> None:
+                rendezvous()
+
+            def refresh_topology(
+                *_arguments: object, **_keywords: object
+            ) -> dict[str, object]:
+                nonlocal topology_generation
+                selected = workspace._resolve_build_profile("default", {"server"})
+                rendezvous()
+                current = copy.deepcopy(status)
+                current["resolved"] = workspace._topology_resolved_status(
+                    "default", selected
+                )
+                current["dependencies"] = sorted(selected)
+                current["error"] = f"stress generation {topology_generation}"
+                topology_generation += 1
+                atomic_json(topology_root / "status.json", current)
+                return current
+
+            ready.put(operation)
+            if not start.wait(5):
+                raise TimeoutError("mixed operation test did not start")
+            if operation == "build":
+                with (
+                    mock.patch.object(
+                        workspace, "_expand_build_target", return_value=["client"]
+                    ),
+                    mock.patch.object(
+                        workspace, "_build_client", side_effect=compile_client
+                    ),
+                ):
+                    for _ in range(20):
+                        workspace.build("client", "stress", False)
+            elif operation == "topology":
+                with mock.patch.object(
+                    workspace, "_topology_up", side_effect=refresh_topology
+                ):
+                    for _ in range(20):
+                        workspace.topology_up(
+                            "stress", "default", "default", ["server"], None
+                        )
+            elif operation == "status":
+                with mock.patch(
+                    "atrinik_workspace.workspace.process_matches",
+                    return_value=False,
+                ):
+                    for index in range(20):
+                        current = workspace.topology_status("stress")
+                        for coordinate in current["resolved"].values():
+                            checkout = Path(coordinate["checkout_path"])
+                            if coordinate["head"] != command(
+                                "git", "rev-parse", "HEAD", cwd=checkout
+                            ):
+                                raise AssertionError("topology coordinates changed")
+                        if index == 0:
+                            rendezvous()
+            else:
+                with mock.patch(
+                    "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
+                    return_value=(set(), None),
+                ):
+                    for index in range(20):
+                        report = workspace.cleanup(["builds"], 7, [], False)
+                        if report["inventory_errors"]:
+                            raise AssertionError(report["inventory_errors"])
+                        if index == 0:
+                            rendezvous()
+        results.put((operation, None))
+    except BaseException as error:
+        results.put((operation, f"{type(error).__name__}: {error}"))
+        raise
+
+
+def join_or_stop_processes(
+    processes: list[multiprocessing.Process], timeout: float
+) -> None:
+    deadline = time.monotonic() + timeout
+    for process in processes:
+        process.join(timeout=max(0.0, deadline - time.monotonic()))
+    for process in processes:
+        if process.is_alive():
+            process.terminate()
+    for process in processes:
+        process.join(timeout=2)
+    for process in processes:
+        if process.is_alive():
+            process.kill()
+            process.join(timeout=2)
 
 
 COMPONENTS = (
@@ -271,6 +666,40 @@ class WorkspaceTests(unittest.TestCase):
                 future.result(timeout=10)
 
         self.assertTrue((self.workspace.paths.repositories / "client" / ".git").exists())
+
+    def test_initialize_workers_inherit_repository_layout_lease(self) -> None:
+        observed: list[tuple[int, ...]] = []
+        observed_lock = threading.Lock()
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+
+        def run_in_worker(*_arguments: object, **keywords: object) -> object:
+            descriptors = keywords["pass_fds"]
+            with observed_lock:
+                observed.append(descriptors)
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    layout, "repository layout", nonblocking=True
+                ):
+                    self.fail("initialize worker released its layout lease")
+            return mock.MagicMock(stdout="")
+
+        def ensure(_checkout: object) -> None:
+            workspace_run(["tool"])
+
+        with (
+            mock.patch.object(self.workspace, "_validate_primary_checkout"),
+            mock.patch.object(
+                self.workspace, "_ensure_repository", side_effect=ensure
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.subprocess.run",
+                side_effect=run_in_worker,
+            ),
+        ):
+            self.workspace.initialize(["client", "server"], jobs=2)
+
+        self.assertEqual(len(observed), 2)
+        self.assertTrue(all(len(descriptors) == 1 for descriptors in observed))
 
     def test_failed_clone_does_not_strand_destination(self) -> None:
         destination = self.workspace.paths.repositories / "client"
@@ -2342,6 +2771,60 @@ class WorkspaceTests(unittest.TestCase):
         cache = self.workspace.paths.builds / "compiler-cache"
         self.assertEqual(load_json(cache / MANAGED_MARKER)["purpose"], "compiler-cache")
         self.assertEqual(load_json(cache / ".atrinik-cache.json")["max_size"], "5G")
+
+    def test_compiler_cache_first_use_is_serialized_across_processes(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        ready = context.Queue()
+        start = context.Event()
+        results = context.Queue()
+        source = self.root / "cache-source"
+        source.mkdir()
+        (source / "CMakeLists.txt").write_text(
+            "project(cache_first_use NONE)\n", encoding="utf-8"
+        )
+        processes = [
+            context.Process(
+                target=compiler_cache_first_use_process,
+                args=(
+                    str(self.wrapper),
+                    str(self.workspace_directory),
+                    str(source),
+                    str(
+                        self.workspace.paths.builds
+                        / "profiles"
+                        / f"cache-first-{index}"
+                        / "build"
+                        / "sample"
+                    ),
+                    ready,
+                    start,
+                    results,
+                ),
+            )
+            for index in range(2)
+        ]
+        try:
+            for process in processes:
+                process.start()
+            self.assertEqual(len({ready.get(timeout=5) for _ in processes}), 2)
+            start.set()
+        finally:
+            join_or_stop_processes(processes, 10)
+        self.assertEqual([process.exitcode for process in processes], [0, 0])
+        self.assertEqual(
+            [results.get(timeout=2), results.get(timeout=2)], [None, None]
+        )
+        cache = (
+            self.workspace.paths.builds / workspace_module.COMPILER_CACHE_PURPOSE
+        )
+        self.assertEqual(
+            load_json(cache / MANAGED_MARKER)["purpose"],
+            workspace_module.COMPILER_CACHE_PURPOSE,
+        )
+        self.assertEqual(
+            load_json(cache / workspace_module.CACHE_METADATA)["max_size"],
+            workspace_module.COMPILER_CACHE_MAX_SIZE,
+        )
 
     def test_debug_prefix_flags_require_supported_non_toolchain_compilers(self) -> None:
         source = self.workspace.paths.repositories / "content"
@@ -4938,6 +5421,265 @@ class WorkspaceTests(unittest.TestCase):
                 with exclusive_lock(lock, "test resource", nonblocking=True):
                     self.fail("concurrent lock unexpectedly succeeded")
 
+    def test_shared_lock_fails_closed_without_platform_primitive(self) -> None:
+        lock = self.workspace.paths.builds / "locks" / "test.lock"
+        with mock.patch.object(workspace_module.fcntl, "LOCK_SH", None):
+            with self.assertRaisesRegex(
+                WorkspaceError, "shared locking is unavailable"
+            ):
+                with shared_lock(lock, "test resource"):
+                    self.fail("shared lock unexpectedly succeeded")
+
+        with mock.patch.object(
+            workspace_module.fcntl,
+            "flock",
+            side_effect=OSError(errno.ENOTSUP, "operation not supported"),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot acquire test resource lock"
+            ):
+                with shared_lock(lock, "test resource"):
+                    self.fail("unsupported shared lock unexpectedly succeeded")
+
+    def test_independent_build_roots_overlap_across_processes(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        entered = context.Queue()
+        release = context.Event()
+        results = context.Queue()
+        attempting = [context.Event(), context.Event()]
+        processes = [
+            context.Process(
+                target=synthetic_build_process,
+                args=(
+                    str(self.wrapper),
+                    str(self.workspace_directory),
+                    profile,
+                    attempting[index],
+                    entered,
+                    release,
+                    results,
+                ),
+            )
+            for index, profile in enumerate(("independent-a", "independent-b"))
+        ]
+        try:
+            for process in processes:
+                process.start()
+            self.assertEqual(
+                {entered.get(timeout=5), entered.get(timeout=5)},
+                {"independent-a", "independent-b"},
+            )
+        finally:
+            release.set()
+            join_or_stop_processes(processes, 10)
+        self.assertEqual(
+            [process.exitcode for process in processes], [0, 0]
+        )
+        self.assertEqual(
+            [results.get(timeout=2), results.get(timeout=2)], [None, None]
+        )
+
+    def test_independent_build_options_are_thread_local(self) -> None:
+        self.workspace.create_profile("thread-a")
+        self.workspace.create_profile("thread-b")
+        selected = {"client": self.workspace.paths.repositories / "client"}
+        barrier = threading.Barrier(2)
+        observed: dict[str, tuple[bool, bool, set[str]]] = {}
+
+        def inspect_build(
+            root: Path, *_arguments: object, **_keywords: object
+        ) -> None:
+            self.workspace._source_view_unchanged[str(root)] = True
+            barrier.wait(timeout=5)
+            observed[root.name] = (
+                self.workspace._force_reconfigure,
+                self.workspace._use_ccache,
+                set(self.workspace._source_view_unchanged),
+            )
+
+        def build(profile: str, force: bool, ccache: bool) -> Path:
+            return self.workspace._build_resolved(
+                "client",
+                profile,
+                False,
+                ["client"],
+                selected,
+                force_reconfigure=force,
+                use_ccache=ccache,
+            )
+
+        with (
+            mock.patch.object(self.workspace, "_refresh_build_metadata"),
+            mock.patch.object(
+                self.workspace, "_build_client", side_effect=inspect_build
+            ),
+            ThreadPoolExecutor(max_workers=2) as executor,
+        ):
+            futures = (
+                executor.submit(build, "thread-a", True, False),
+                executor.submit(build, "thread-b", False, True),
+            )
+            roots = [future.result(timeout=10) for future in futures]
+
+        self.assertEqual(
+            observed[roots[0].name], (True, False, {str(roots[0])})
+        )
+        self.assertEqual(
+            observed[roots[1].name], (False, True, {str(roots[1])})
+        )
+
+    def test_shared_layout_lock_improves_independent_elapsed_time(self) -> None:
+        context = multiprocessing.get_context("spawn")
+
+        def measure(mode: str) -> float:
+            ready = context.Queue()
+            start = context.Event()
+            results = context.Queue()
+            processes = [
+                context.Process(
+                    target=timed_public_build_process,
+                    args=(
+                        str(self.wrapper),
+                        str(self.workspace_directory),
+                        f"timed-{mode}-{index}",
+                        mode,
+                        ready,
+                        start,
+                        results,
+                    ),
+                )
+                for index in range(2)
+            ]
+            try:
+                for process in processes:
+                    process.start()
+                self.assertEqual(
+                    {ready.get(timeout=5), ready.get(timeout=5)},
+                    {f"timed-{mode}-0", f"timed-{mode}-1"},
+                )
+                began = time.monotonic()
+                start.set()
+            finally:
+                join_or_stop_processes(processes, 5)
+            elapsed = time.monotonic() - began
+            self.assertEqual([process.exitcode for process in processes], [0, 0])
+            self.assertEqual(
+                [results.get(timeout=2), results.get(timeout=2)], [None, None]
+            )
+            return elapsed
+
+        exclusive_elapsed = measure("exclusive")
+        shared_elapsed = measure("shared")
+        self.assertLess(shared_elapsed, exclusive_elapsed * 0.8)
+
+    def test_same_build_root_serializes_across_processes(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        entered = context.Queue()
+        release = context.Event()
+        results = context.Queue()
+        attempting = [context.Event(), context.Event()]
+        processes = [
+            context.Process(
+                target=synthetic_build_process,
+                args=(
+                    str(self.wrapper),
+                    str(self.workspace_directory),
+                    "same-root",
+                    attempting[index],
+                    entered,
+                    release,
+                    results,
+                ),
+            )
+            for index in range(2)
+        ]
+        try:
+            processes[0].start()
+            self.assertEqual(entered.get(timeout=5), "same-root")
+            processes[1].start()
+            self.assertTrue(attempting[1].wait(timeout=5))
+            build_lock = (
+                self.workspace.paths.builds
+                / "locks"
+                / f"same-root-{'a' * 12}.lock"
+            )
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    build_lock, "profile build same-root", nonblocking=True
+                ):
+                    self.fail("held build-root lock unexpectedly available")
+            with self.assertRaises(queue.Empty):
+                entered.get(timeout=0.25)
+        finally:
+            release.set()
+            join_or_stop_processes(processes, 10)
+        self.assertEqual(entered.get(timeout=2), "same-root")
+        self.assertEqual(
+            [process.exitcode for process in processes], [0, 0]
+        )
+        self.assertEqual(
+            [results.get(timeout=2), results.get(timeout=2)], [None, None]
+        )
+
+    def test_layout_writers_wait_for_build_readers_across_processes(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        for operation in ("sync", "remove-worktree"):
+            with self.subTest(operation=operation):
+                entered = context.Queue()
+                release = context.Event()
+                reader_results = context.Queue()
+                reader_attempting = context.Event()
+                writer_attempting = context.Event()
+                writer_entered = context.Event()
+                writer_results = context.Queue()
+                reader = context.Process(
+                    target=synthetic_build_process,
+                    args=(
+                        str(self.wrapper),
+                        str(self.workspace_directory),
+                        f"reader-{operation}",
+                        reader_attempting,
+                        entered,
+                        release,
+                        reader_results,
+                    ),
+                )
+                writer = context.Process(
+                    target=layout_writer_process,
+                    args=(
+                        str(self.wrapper),
+                        str(self.workspace_directory),
+                        operation,
+                        writer_attempting,
+                        writer_entered,
+                        writer_results,
+                    ),
+                )
+                try:
+                    reader.start()
+                    self.assertEqual(
+                        entered.get(timeout=5), f"reader-{operation}"
+                    )
+                    writer.start()
+                    self.assertTrue(writer_attempting.wait(timeout=5))
+                    with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                        with exclusive_lock(
+                            self.workspace.paths.workspace
+                            / "repository-layout.lock",
+                            "repository layout",
+                            nonblocking=True,
+                        ):
+                            self.fail("held layout lock unexpectedly available")
+                    self.assertFalse(writer_entered.wait(timeout=0.25))
+                finally:
+                    release.set()
+                    join_or_stop_processes([reader, writer], 10)
+                self.assertTrue(writer_entered.is_set())
+                self.assertEqual(reader.exitcode, 0)
+                self.assertEqual(writer.exitcode, 0)
+                self.assertIsNone(reader_results.get(timeout=2))
+                self.assertIsNone(writer_results.get(timeout=2))
+
     def test_exclusive_lock_refuses_symlink(self) -> None:
         target = self.root / "valuable"
         target.write_text("preserve\n", encoding="utf-8")
@@ -4994,6 +5736,18 @@ class WorkspaceTests(unittest.TestCase):
                     "default", "review", 13327, [], True
                 ),
             ),
+            (
+                "_run_client",
+                lambda: self.workspace.run_client(
+                    "default", "review", 13327, [], True
+                ),
+            ),
+            (
+                "_run_client",
+                lambda: self.workspace.run_client(
+                    "default", "review", 13327, [], True
+                ),
+            ),
         )
         lock = self.workspace.paths.workspace / "repository-layout.lock"
         for private_name, invoke in operations:
@@ -5007,6 +5761,194 @@ class WorkspaceTests(unittest.TestCase):
                             operation.assert_not_called()
                         future.result(timeout=2)
                     operation.assert_called_once()
+
+    def test_layout_readers_share_repository_lock(self) -> None:
+        operations = (
+            ("_build", lambda: self.workspace.build("client", "default", False)),
+            (
+                "_scenario_create",
+                lambda: self.workspace.scenario_create("review", "default"),
+            ),
+            (
+                "_scenario_reset",
+                lambda: self.workspace.scenario_reset("review"),
+            ),
+            (
+                "_topology_up",
+                lambda: self.workspace.topology_up(
+                    "review", "default", "review", ["server"], None
+                ),
+            ),
+            (
+                "_run_server",
+                lambda: self.workspace.run_server(
+                    "default", "review", 13327, [], True
+                ),
+            ),
+        )
+        lock = self.workspace.paths.workspace / "repository-layout.lock"
+        for private_name, invoke in operations:
+            with self.subTest(operation=private_name):
+                with mock.patch.object(self.workspace, private_name) as operation:
+                    with shared_lock(lock, "repository layout"):
+                        with ThreadPoolExecutor(max_workers=1) as executor:
+                            executor.submit(invoke).result(timeout=2)
+                    operation.assert_called_once()
+
+    def test_mixed_layout_readers_preserve_markers_and_coordinates(self) -> None:
+        self.workspace.create_profile("stress")
+        selected_build = self.workspace._resolve_build_profile(
+            "stress", {"client"}
+        )
+        build_key = self.workspace._profile_build_key("stress", selected_build)
+        build_root = (
+            self.workspace.paths.builds / "profiles" / f"stress-{build_key}"
+        )
+        managed_directory(
+            build_root,
+            self.workspace.paths.builds,
+            f"profile:stress:{build_key}",
+        )
+        marker = load_json(build_root / MANAGED_MARKER)
+        topology_root = self.workspace._topology_directory("stress", create=True)
+        selected_topology = self.workspace._resolve_build_profile(
+            "default", {"server"}
+        )
+        resolved = self.workspace._topology_resolved_status(
+            "default", selected_topology
+        )
+        status = {
+            "schema_version": 1,
+            "name": "stress",
+            "profile": "default",
+            "stack": "default",
+            "providers": {
+                role: self.workspace.manifest.stack("default").providers[role].name
+                for role in sorted(selected_topology)
+            },
+            "dependencies": sorted(selected_topology),
+            "state": None,
+            "build_root": str(build_root),
+            "resolved": resolved,
+            "endpoint": None,
+            "ready": False,
+            "started_at": "2026-08-11T00:00:00+00:00",
+            "stopped_at": None,
+            "supervisor": {"pid": 999, "start_time": "1"},
+            "services": {},
+            "error": "stress fixture",
+        }
+        atomic_json(topology_root / "status.json", status)
+        context = multiprocessing.get_context("spawn")
+        ready = context.Queue()
+        start = context.Event()
+        entered = context.Queue()
+        release = context.Event()
+        results = context.Queue()
+        operations = ("build", "topology", "status", "cleanup")
+        processes = [
+            context.Process(
+                target=mixed_layout_operation_process,
+                args=(
+                    str(self.wrapper),
+                    str(self.workspace_directory),
+                    operation,
+                    status,
+                    ready,
+                    start,
+                    entered,
+                    release,
+                    results,
+                ),
+            )
+            for operation in operations
+        ]
+        try:
+            for process in processes:
+                process.start()
+            self.assertEqual(
+                {ready.get(timeout=5) for _ in processes}, set(operations)
+            )
+            start.set()
+            self.assertEqual(
+                {entered.get(timeout=5) for _ in processes}, set(operations)
+            )
+        finally:
+            release.set()
+            join_or_stop_processes(processes, 20)
+        self.assertEqual([process.exitcode for process in processes], [0] * 4)
+        outcomes = dict(results.get(timeout=2) for _ in processes)
+        self.assertEqual(outcomes, {operation: None for operation in operations})
+        self.assertEqual(load_json(build_root / MANAGED_MARKER), marker)
+        metadata = load_json(build_root / workspace_module.BUILD_METADATA)
+        self.assertEqual(metadata["profile"], "stress")
+        self.assertEqual(metadata["key"], build_key)
+        for role, coordinate in metadata["coordinates"].items():
+            self.assertEqual(
+                Path(coordinate["source_path"]), selected_build[role].resolve()
+            )
+            checkout_path = Path(coordinate["checkout_path"])
+            self.assertEqual(
+                coordinate["head"],
+                command("git", "rev-parse", "HEAD", cwd=checkout_path),
+            )
+        expected_status = copy.deepcopy(status)
+        expected_status["error"] = "stress generation 19"
+        self.assertEqual(load_json(topology_root / "status.json"), expected_status)
+
+    def test_layout_writer_waits_for_foreground_client_process(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        client_attempting = context.Event()
+        client_entered = context.Event()
+        release = context.Event()
+        client_results = context.Queue()
+        writer_attempting = context.Event()
+        writer_entered = context.Event()
+        writer_results = context.Queue()
+        client = context.Process(
+            target=synthetic_client_process,
+            args=(
+                str(self.wrapper),
+                str(self.workspace_directory),
+                client_attempting,
+                client_entered,
+                release,
+                client_results,
+            ),
+        )
+        writer = context.Process(
+            target=layout_writer_process,
+            args=(
+                str(self.wrapper),
+                str(self.workspace_directory),
+                "remove-worktree",
+                writer_attempting,
+                writer_entered,
+                writer_results,
+            ),
+        )
+        try:
+            client.start()
+            self.assertTrue(client_entered.wait(timeout=5))
+            writer.start()
+            self.assertTrue(writer_attempting.wait(timeout=5))
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    self.workspace.paths.workspace / "repository-layout.lock",
+                    "repository layout",
+                    nonblocking=True,
+                ):
+                    self.fail("held layout lock unexpectedly available")
+            self.assertFalse(writer_entered.wait(timeout=0.25))
+        finally:
+            release.set()
+            client.join(timeout=10)
+            writer.join(timeout=10)
+        self.assertTrue(writer_entered.is_set())
+        self.assertEqual(client.exitcode, 0)
+        self.assertEqual(writer.exitcode, 0)
+        self.assertIsNone(client_results.get(timeout=2))
+        self.assertIsNone(writer_results.get(timeout=2))
 
     def test_server_runtime_paths_are_isolated_by_state(self) -> None:
         source = self.workspace.paths.repositories / "server"
@@ -5123,6 +6065,8 @@ class WorkspaceTests(unittest.TestCase):
             encoding="utf-8",
         )
         executable.chmod(0o755)
+        second_build_root = self.workspace.paths.builds / "fake-topology-second"
+        shutil.copytree(build_root, second_build_root, symlinks=True)
 
         with (
             mock.patch.object(
@@ -5143,7 +6087,9 @@ class WorkspaceTests(unittest.TestCase):
             )
             with (
                 mock.patch.object(
-                    self.workspace, "_build_resolved", return_value=build_root
+                    self.workspace,
+                    "_build_resolved",
+                    return_value=second_build_root,
                 ),
                 mock.patch.object(self.workspace, "_require_client_display"),
             ):
@@ -5197,6 +6143,12 @@ class WorkspaceTests(unittest.TestCase):
             with mock.patch("builtins.print") as output:
                 self.workspace.topology_logs("review", "client", 10, False)
             self.assertIn("client ready", "".join(call.args[0] for call in output.call_args_list))
+            process_tree_path = (
+                self.workspace.paths.topologies
+                / "review"
+                / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+            )
+            process_tree_path.unlink()
         finally:
             try:
                 if self.workspace.topology_status("review-two")["supervisor"][
@@ -5269,6 +6221,11 @@ class WorkspaceTests(unittest.TestCase):
             encoding="utf-8",
         )
         client.chmod(0o755)
+        second_build_root = (
+            self.workspace.paths.builds / "profiles" / "fake-server-topology-second"
+        )
+        second_build_root.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(build_root, second_build_root, symlinks=True)
 
         with (
             mock.patch.object(
@@ -5356,10 +6313,16 @@ class WorkspaceTests(unittest.TestCase):
         )
         state = self.workspace._state_location("default")
         second_state = self.workspace.state_add("second", None)
+        layout_lock = self.workspace.paths.workspace / "repository-layout.lock"
+        profile_lock = (
+            self.workspace.paths.builds / "locks" / f"{build_root.name}.lock"
+        )
         try:
             with (
                 mock.patch.object(
-                    self.workspace, "_build_resolved", return_value=build_root
+                    self.workspace,
+                    "_build_resolved",
+                    return_value=second_build_root,
                 ),
                 mock.patch.object(
                     self.workspace, "_select_topology_port", return_value=17301
@@ -5408,6 +6371,16 @@ class WorkspaceTests(unittest.TestCase):
                     Path(f"{state}.lock"), "server state", nonblocking=True
                 ):
                     self.fail("supervised state lock unexpectedly became available")
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    layout_lock, "repository layout", nonblocking=True
+                ):
+                    self.fail("supervised client released its layout lock")
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    profile_lock, "profile build default", nonblocking=True
+                ):
+                    self.fail("supervised services released their build-root lock")
 
             supervisor = status["supervisor"]
             pidfd = os.pidfd_open(supervisor["pid"])
@@ -5436,6 +6409,21 @@ class WorkspaceTests(unittest.TestCase):
                     Path(f"{state}.lock"), "server state", nonblocking=True
                 ):
                     self.fail("orphaned server released its state lock")
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    layout_lock, "repository layout", nonblocking=True
+                ):
+                    self.fail("orphaned client released its layout lock")
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    profile_lock, "profile build default", nonblocking=True
+                ):
+                    self.fail("orphaned services released their build-root lock")
+            (
+                self.workspace.paths.topologies
+                / "server-review"
+                / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+            ).unlink()
             recovered = self.workspace.topology_down("server-review", timeout=5)
             self.assertFalse(
                 any(service["running"] for service in recovered["services"].values())
@@ -5453,10 +6441,113 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 self.workspace.topology_down("server-review", timeout=5)
 
+        with (
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            mock.patch.object(
+                self.workspace, "_select_topology_port", return_value=17302
+            ),
+        ):
+            executable.write_text(
+                "#!/usr/bin/env python3\n"
+                "import os, signal, time\n"
+                "child = os.fork()\n"
+                "if child == 0:\n"
+                "    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
+                "    while True:\n"
+                "        time.sleep(0.1)\n"
+                "open('descendant.pid', 'w', encoding='utf-8').write(str(child))\n"
+                f"print('QUIC certificate SHA-256: {'a' * 64}', flush=True)\n"
+                "print('Server ready. Waiting for connections...', flush=True)\n"
+                "while True:\n"
+                "    time.sleep(0.1)\n",
+                encoding="utf-8",
+            )
+            server_only = self.workspace.topology_up(
+                "server-lease", "default", "default", ["server"], 17302
+            )
+        try:
+            self.assertTrue(server_only["ready"])
+            for path, description in (
+                (layout_lock, "repository layout"),
+                (profile_lock, "profile build default"),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_lock(path, description, nonblocking=True):
+                        self.fail(f"server-only topology released {description}")
+            descendant_path = Path(
+                server_only["services"]["server"]["cwd"]
+            ) / "descendant.pid"
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline and not descendant_path.is_file():
+                time.sleep(0.05)
+            descendant_pid = int(descendant_path.read_text(encoding="utf-8"))
+            service = server_only["services"]["server"]
+            service_pidfd = os.pidfd_open(service["pid"])
+            try:
+                signal.pidfd_send_signal(service_pidfd, signal.SIGTERM)
+            finally:
+                os.close(service_pidfd)
+            deadline = time.monotonic() + 5
+            while (
+                time.monotonic() < deadline
+                and self.workspace.topology_status("server-lease")["services"][
+                    "server"
+                ]["running"]
+            ):
+                time.sleep(0.05)
+            self.assertTrue(
+                self.workspace.topology_status("server-lease")["supervisor"][
+                    "running"
+                ]
+            )
+            supervisor = server_only["supervisor"]
+            pidfd = os.pidfd_open(supervisor["pid"])
+            try:
+                signal.pidfd_send_signal(pidfd, signal.SIGKILL)
+            finally:
+                os.close(pidfd)
+            deadline = time.monotonic() + 5
+            while (
+                time.monotonic() < deadline
+                and self.workspace.topology_status("server-lease")["supervisor"][
+                    "running"
+                ]
+            ):
+                time.sleep(0.05)
+            orphaned = self.workspace.topology_status("server-lease")
+            self.assertFalse(orphaned["supervisor"]["running"])
+            self.assertFalse(orphaned["services"]["server"]["running"])
+            self.assertTrue(Path(f"/proc/{descendant_pid}").exists())
+            for path, description in (
+                (layout_lock, "repository layout"),
+                (profile_lock, "profile build default"),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_lock(path, description, nonblocking=True):
+                        self.fail(f"orphaned server released {description}")
+            self.workspace.topology_down("server-lease", timeout=0.5)
+            deadline = time.monotonic() + 2
+            while (
+                time.monotonic() < deadline
+                and Path(f"/proc/{descendant_pid}").exists()
+            ):
+                time.sleep(0.05)
+            self.assertFalse(Path(f"/proc/{descendant_pid}").exists())
+        finally:
+            self.workspace.topology_down("server-lease", timeout=5)
+
         with exclusive_lock(Path(f"{state}.lock"), "server state", nonblocking=True):
             pass
         with exclusive_lock(
             Path(f"{second_state}.lock"), "server state", nonblocking=True
+        ):
+            pass
+        with exclusive_lock(layout_lock, "repository layout", nonblocking=True):
+            pass
+        with exclusive_lock(
+            profile_lock, "profile build default", nonblocking=True
         ):
             pass
 
@@ -5505,6 +6596,59 @@ class WorkspaceTests(unittest.TestCase):
 
         with self.assertRaisesRegex(WorkspaceError, "supervisor status is invalid"):
             self.workspace.topology_status("invalid")
+
+    def test_topology_down_uses_legacy_fallback_for_empty_process_tree_lease(
+        self,
+    ) -> None:
+        root = self.workspace._topology_directory("empty-lease", create=True)
+        (root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE).touch(mode=0o600)
+        status = {
+            "supervisor": {"running": True},
+            "services": {},
+        }
+        stopped = {
+            "supervisor": {"running": False},
+            "services": {},
+        }
+
+        with (
+            mock.patch.object(
+                self.workspace, "topology_status", return_value=status
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_legacy_topology_down",
+                return_value=stopped,
+            ) as fallback,
+        ):
+            self.assertEqual(
+                self.workspace.topology_down("empty-lease", timeout=0.1),
+                stopped,
+            )
+
+        fallback.assert_called_once_with("empty-lease", status, 0.1)
+
+    def test_topology_up_refuses_locked_process_tree_generation(self) -> None:
+        root = self.workspace._topology_directory("locked-generation", create=True)
+        descriptor = os.open(
+            root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE,
+            os.O_RDWR | os.O_CREAT,
+            0o600,
+        )
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with (
+                mock.patch.object(self.workspace, "_require_classic_contracts"),
+                self.assertRaisesRegex(WorkspaceError, "already running"),
+            ):
+                self.workspace._topology_up(
+                    "locked-generation",
+                    "default",
+                    "default",
+                    ["server"],
+                )
+        finally:
+            os.close(descriptor)
 
     def test_topology_status_makes_pre_coordinate_records_inert(self) -> None:
         root = self.workspace._topology_directory("historical-coordinate", create=True)
@@ -5826,10 +6970,31 @@ class WorkspaceTests(unittest.TestCase):
         executable.write_text("client\n", encoding="utf-8")
         (build_root / "sources" / "client").mkdir(parents=True)
         expected = "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
+
+        def execute_client(*_arguments: object, **_keywords: object) -> None:
+            self.assertEqual(len(_keywords["pass_fds"]), 2)
+            for path, description in (
+                (
+                    self.workspace.paths.workspace / "repository-layout.lock",
+                    "repository layout",
+                ),
+                (
+                    self.workspace.paths.builds
+                    / "locks"
+                    / "client-build.lock",
+                    "profile build default",
+                ),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_lock(path, description, nonblocking=True):
+                        self.fail(f"foreground client released {description}")
+
         with (
-            mock.patch.object(self.workspace, "build", return_value=build_root),
+            mock.patch.object(self.workspace, "_build", return_value=build_root),
             mock.patch("builtins.print") as output,
-            mock.patch("atrinik_workspace.workspace.run") as execute,
+            mock.patch(
+                "atrinik_workspace.workspace.run", side_effect=execute_client
+            ) as execute,
             mock.patch.object(self.workspace, "_require_client_display"),
         ):
             result = self.workspace.run_client(
@@ -5880,6 +7045,29 @@ class WorkspaceTests(unittest.TestCase):
         executable = runtime / "atrinik-server"
         executable.write_text("server\n", encoding="utf-8")
         selected = {"server": server}
+
+        def execute_server(*_arguments: object, **_keywords: object) -> None:
+            self.assertEqual(len(_keywords["pass_fds"]), 3)
+            for path, description in (
+                (
+                    self.workspace.paths.workspace / "repository-layout.lock",
+                    "repository layout",
+                ),
+                (
+                    self.workspace.paths.builds
+                    / "locks"
+                    / "server-build.lock",
+                    "profile build default",
+                ),
+                (
+                    Path(f"{self.workspace._state_location('default')}.lock"),
+                    "server state",
+                ),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_lock(path, description, nonblocking=True):
+                        self.fail(f"foreground server released {description}")
+
         with (
             mock.patch.object(
                 self.workspace, "_resolve_build_profile", return_value=selected
@@ -5890,6 +7078,9 @@ class WorkspaceTests(unittest.TestCase):
             mock.patch.object(
                 self.workspace, "_prepare_server_runtime", return_value=runtime
             ),
+            mock.patch(
+                "atrinik_workspace.workspace.run", side_effect=execute_server
+            ),
             mock.patch("builtins.print") as output,
         ):
             result = self.workspace.run_server(
@@ -5897,7 +7088,7 @@ class WorkspaceTests(unittest.TestCase):
                 "default",
                 1731,
                 ["--no_console", "--assetspath=/tmp/untrusted"],
-                True,
+                False,
             )
 
         self.assertEqual(result, executable)
@@ -5930,6 +7121,202 @@ class WorkspaceTests(unittest.TestCase):
             workspace_run(["tool"])
 
         self.assertIs(invoke.call_args.kwargs["stdout"], os.sys.stderr)
+
+    def test_operational_subprocess_inherits_active_lock_descriptors(self) -> None:
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        build = self.workspace.paths.builds / "locks" / "inherited-build.lock"
+        state = self.workspace.paths.state / "inherited-state.lock"
+        completed = mock.MagicMock(stdout="")
+        with (
+            shared_lock(layout, "repository layout") as layout_lease,
+            exclusive_lock(build, "profile build inherited") as build_lease,
+            exclusive_lock(state, "server state inherited") as state_lease,
+            mock.patch(
+                "atrinik_workspace.workspace.subprocess.run",
+                return_value=completed,
+            ) as invoke,
+        ):
+            workspace_run(["tool"])
+            self.assertEqual(
+                set(invoke.call_args.kwargs["pass_fds"]),
+                {
+                    layout_lease.fileno(),
+                    build_lease.fileno(),
+                    state_lease.fileno(),
+                },
+            )
+            for path, description in (
+                (layout, "repository layout"),
+                (build, "profile build inherited"),
+                (state, "server state inherited"),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_lock(path, description, nonblocking=True):
+                        self.fail(f"subprocess lease did not protect {description}")
+
+    def test_resource_listing_inherits_active_lock_descriptors(self) -> None:
+        source = self.root / "resource-listing"
+        source.mkdir()
+        (source / workspace_module.RESOURCE_PATHS_MANIFEST).write_text(
+            "paintings\n", encoding="utf-8"
+        )
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        build = self.workspace.paths.builds / "locks" / "resource-build.lock"
+        completed = mock.MagicMock(stdout=b"paintings/scene.jpg\0", stderr=b"")
+        with (
+            shared_lock(layout, "repository layout") as layout_lease,
+            exclusive_lock(build, "profile build resources") as build_lease,
+            mock.patch(
+                "atrinik_workspace.workspace.subprocess.run",
+                return_value=completed,
+            ) as invoke,
+        ):
+            expected_fds = {layout_lease.fileno(), build_lease.fileno()}
+            runtime_paths, tracked = self.workspace._resource_runtime_files(source)
+
+        self.assertEqual(runtime_paths, ["paintings"])
+        self.assertEqual(tracked, ["paintings/scene.jpg"])
+        self.assertEqual(
+            set(invoke.call_args.kwargs["pass_fds"]),
+            expected_fds,
+        )
+
+    def test_orphaned_operational_subprocess_retains_active_leases(self) -> None:
+        child_script = self.root / "lease-child.py"
+        child_pid_path = self.root / "lease-child.pid"
+        child_script.write_text(
+            "import os, pathlib, sys, time\n"
+            "path = pathlib.Path(sys.argv[1])\n"
+            "path.write_text(str(os.getpid()), encoding='ascii')\n"
+            "while True:\n"
+            "    time.sleep(0.1)\n",
+            encoding="utf-8",
+        )
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        build = self.workspace.paths.builds / "locks" / "orphan-build.lock"
+        state = self.workspace.paths.state / "orphan-state.lock"
+        context = multiprocessing.get_context("spawn")
+        wrapper = context.Process(
+            target=inherited_leases_wrapper_process,
+            args=(
+                str(layout),
+                str(build),
+                str(state),
+                str(child_script),
+                str(child_pid_path),
+            ),
+        )
+        child_pidfd: int | None = None
+        try:
+            wrapper.start()
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline and not child_pid_path.is_file():
+                time.sleep(0.05)
+            self.assertTrue(child_pid_path.is_file())
+            child_pid = int(child_pid_path.read_text(encoding="ascii"))
+            child_pidfd = os.pidfd_open(child_pid)
+            wrapper.kill()
+            wrapper.join(timeout=5)
+            self.assertFalse(wrapper.is_alive())
+            for path, description in (
+                (layout, "repository layout"),
+                (build, "profile build orphan"),
+                (state, "server state orphan"),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_lock(path, description, nonblocking=True):
+                        self.fail(f"orphaned child released {description}")
+        finally:
+            if wrapper.is_alive():
+                wrapper.kill()
+                wrapper.join(timeout=5)
+            if child_pidfd is not None:
+                try:
+                    signal.pidfd_send_signal(child_pidfd, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                os.close(child_pidfd)
+
+        deadline = time.monotonic() + 5
+        while True:
+            try:
+                with (
+                    exclusive_lock(layout, "repository layout", nonblocking=True),
+                    exclusive_lock(build, "profile build orphan", nonblocking=True),
+                    exclusive_lock(state, "server state orphan", nonblocking=True),
+                ):
+                    break
+            except WorkspaceError:
+                if time.monotonic() >= deadline:
+                    self.fail("orphaned child did not release inherited leases")
+                time.sleep(0.05)
+
+    def test_orphaned_cleanup_child_retains_layout_lease(self) -> None:
+        executable_directory = self.root / "fake-bin"
+        executable_directory.mkdir()
+        fake_git = executable_directory / "git"
+        fake_git.write_text(
+            f"#!{sys.executable}\n"
+            "import os, pathlib, time\n"
+            "pathlib.Path(os.environ['ATRINIK_TEST_CHILD_PID']).write_text("
+            "str(os.getpid()), encoding='ascii')\n"
+            "while True:\n"
+            "    time.sleep(0.1)\n",
+            encoding="utf-8",
+        )
+        fake_git.chmod(0o755)
+        child_pid_path = self.root / "cleanup-child.pid"
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        context = multiprocessing.get_context("spawn")
+        wrapper = context.Process(
+            target=cleanup_writer_wrapper_process,
+            args=(
+                str(layout),
+                str(self.wrapper),
+                str(executable_directory),
+                str(child_pid_path),
+            ),
+        )
+        child_pidfd: int | None = None
+        try:
+            wrapper.start()
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline and not child_pid_path.is_file():
+                time.sleep(0.05)
+            self.assertTrue(child_pid_path.is_file())
+            child_pidfd = os.pidfd_open(
+                int(child_pid_path.read_text(encoding="ascii"))
+            )
+            wrapper.kill()
+            wrapper.join(timeout=5)
+            self.assertFalse(wrapper.is_alive())
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    layout, "repository layout", nonblocking=True
+                ):
+                    self.fail("orphaned cleanup child released the layout lock")
+        finally:
+            if wrapper.is_alive():
+                wrapper.kill()
+                wrapper.join(timeout=5)
+            if child_pidfd is not None:
+                try:
+                    signal.pidfd_send_signal(child_pidfd, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                os.close(child_pidfd)
+
+        deadline = time.monotonic() + 5
+        while True:
+            try:
+                with exclusive_lock(
+                    layout, "repository layout", nonblocking=True
+                ):
+                    break
+            except WorkspaceError:
+                if time.monotonic() >= deadline:
+                    self.fail("cleanup child did not release the layout lease")
+                time.sleep(0.05)
 
 
 if __name__ == "__main__":

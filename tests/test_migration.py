@@ -13,6 +13,7 @@ import unittest
 from unittest import mock
 
 from atrinik_workspace import migration as migration_module
+from atrinik_workspace.locking import inherit_lock_fds
 from atrinik_workspace.migration import RepositoryMigration
 from atrinik_workspace.model import Paths, WorkspaceError
 
@@ -55,6 +56,19 @@ SHARED = (
 
 
 class RepositoryMigrationTests(unittest.TestCase):
+    def test_git_helpers_inherit_active_layout_descriptor(self) -> None:
+        completed = mock.MagicMock(returncode=0, stdout=b"", stderr=b"")
+        with (
+            tempfile.TemporaryFile(mode="w+") as lease,
+            inherit_lock_fds(lease),
+            mock.patch(
+                "atrinik_workspace.migration.subprocess.run",
+                return_value=completed,
+            ) as invoke,
+        ):
+            RepositoryMigration._git_process(Path("/tmp/repository"), "status")
+            self.assertEqual(invoke.call_args.kwargs["pass_fds"], (lease.fileno(),))
+
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)

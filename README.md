@@ -791,14 +791,32 @@ declaring the topology ready. Use
 `--service server` or `--service client` for a single service. Client startup
 requires a live forwarded display socket.
 
+Build, foreground run, and runtime-preparation commands hold a shared
+repository-layout lock.
+Different profile build roots may compile concurrently; an exclusive per-root
+lock still serializes the same root. Initialization, synchronization, worktree
+or profile changes, and cleanup apply take the layout lock exclusively, so they
+wait until every build or runtime reader finishes. Repository migration uses
+the same exclusive mode but reports a busy result instead of waiting. The
+wrapper fails closed when advisory shared locking is unavailable. The layout
+lock is always acquired before topology, scenario, state, build-root, port,
+registry, or cache locks. Foreground processes inherit their layout and exact
+build-root leases. Supervised services inherit both leases through the daemon
+and keep them until every service exits or `down` completes. Build and scenario
+subprocesses inherit every active layout, build-root, state, registry, and cache
+lease so an orphan cannot outlive its reader protection.
+
 The supervisor records exact source commits, build and state paths, and process
 start identities. `ps` without a name lists every recorded topology; a name
-selects one. It distinguishes a live process from a reused PID, `down` signals
-only the matching supervisor, and the server state remains locked for the
+selects one. It distinguishes a live process from a reused PID, and `down`
+signals only processes holding that topology's identity lease, including
+orphaned services and descendants. The server state remains locked for the
 complete supervised lifetime. Each topology also has a persistent isolated
 client configuration/cache root and its own copies of the collected content and
 resource caches, so changing or removing one topology cannot affect another
-topology or the retained build caches. Logs live below `workspace/topologies/`
+topology or the retained build caches. The inherited identity lease atomically
+prevents the same topology name from restarting while any generation remains.
+Logs live below `workspace/topologies/`
 and rotate at 10 MiB with three backups.
 
 ### Use case: run the latest playable classic branches
