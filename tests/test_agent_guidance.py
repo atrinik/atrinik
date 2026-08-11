@@ -41,7 +41,7 @@ class AgentGuidanceTests(unittest.TestCase):
         )
 
         for marker in {
-            "On touch, refresh existing copyright terminal years",
+            "On touch, refresh existing Atrinik-owned copyright terminal years",
             "blanket holders",
             "`CONTRIBUTING.md`",
             "preserve precise attribution",
@@ -51,10 +51,13 @@ class AgentGuidanceTests(unittest.TestCase):
 
         for marker in {
             "Use `The Atrinik Project` as the exact collective holder",
+            "already predominates in modern MIT source headers",
             "migrate prospectively",
+            "each existing Atrinik-owned copyright notice",
             "retain its original start year",
             "current calendar year",
             "Crossfire, Daimonin and other upstream notices",
+            "Leave upstream and third-party notice years unchanged",
             "SPDX identifiers",
             "authoritative generator or template",
             "a separate legal and attribution surface",

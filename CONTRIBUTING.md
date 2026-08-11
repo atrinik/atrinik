@@ -30,10 +30,13 @@ updated blanket Atrinik copyright header. Existing blanket forms such as
 `Atrinik contributors`, `Atrinik Development Team`, or bare `Atrinik` migrate
 prospectively: do not churn untouched files, but normalize the holder when an
 otherwise edited Atrinik-authored file already carries that blanket header.
+`The Atrinik Project` is canonical because it already predominates in modern
+MIT source headers; the other forms remain historical inventory, not templates
+for new blanket attribution.
 
-Whenever an Atrinik-authored file with an existing copyright header is edited,
-retain its original start year and set its terminal year to the current
-calendar year in the same change. For example, in 2026:
+Whenever an Atrinik-authored file is edited, update each existing Atrinik-owned
+copyright notice in the same change: retain its original start year and set its
+terminal year to the current calendar year. For example, in 2026:
 
 - `Copyright 2021-2024 The Atrinik Project` becomes
   `Copyright 2021-2026 The Atrinik Project`;
@@ -47,10 +50,11 @@ The named-holder example deliberately retains its more precise mixed
 attribution instead of replacing it with the canonical blanket holder. Always
 preserve named holders, original start years, Crossfire, Daimonin and other
 upstream notices, third-party attribution, SPDX identifiers, license terms,
-and provenance text. Do not add a header to a file that lacks one, and do not
-rewrite vendored, imported, preserved-history, or third-party files under this
-rule. Update generated headers through their authoritative generator or
-template rather than editing generated output.
+and provenance text. Leave upstream and third-party notice years unchanged. Do
+not add a header to a file that lacks one, and do not rewrite vendored,
+imported, preserved-history, or third-party files under this rule. Update
+generated headers through their authoritative generator or template rather
+than editing generated output.
 
 Repository `LICENSE` notice lines are a separate legal and attribution surface.
 Do not normalize them as source headers; change one only through deliberate

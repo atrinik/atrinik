@@ -53,11 +53,11 @@
 - Keep shell completion parser-driven, bounded, local-only, secret-free, and
   ahead of `Workspace` construction.
 - Build/runtime readers share the outer layout lock; mutations are exclusive
-  and finer locks follow.
+  then finer locks.
 - Unbound persisted records are historical and inert.
-- On touch, refresh existing copyright terminal years and blanket holders per
-  `CONTRIBUTING.md`; preserve precise attribution.
-- Historical MIT reuse follows `docs/PROVENANCE.md`; incomplete evidence fails
+- On touch, refresh existing Atrinik-owned copyright terminal years and blanket
+  holders per `CONTRIBUTING.md`; preserve precise attribution.
+- MIT reuse follows `docs/PROVENANCE.md`; incomplete evidence fails
   closed. Cite its registry revision.
 - Update `supply-chain/inventory.json` when dependency ownership or validation
   changes. Keep Actions/images immutable, add no submodules, and audit a
