@@ -2799,6 +2799,17 @@ class WorkspaceTests(unittest.TestCase):
 
     @unittest.skipUnless(sys.platform == "linux", "requires Linux O_PATH")
     def test_owned_tree_removal_handles_unreadable_directories(self) -> None:
+        real_open = os.open
+
+        def deny_initial_read(
+            path: object, flags: int, *args: object, **kwargs: object
+        ) -> int:
+            if path in {"owned", "nested", "unsupported"} and not (
+                flags & os.O_PATH
+            ):
+                raise PermissionError(errno.EACCES, "permission denied")
+            return real_open(path, flags, *args, **kwargs)
+
         readable = self.root / "readable"
         readable.mkdir()
         (readable / "payload").write_text("remove\n", encoding="utf-8")
@@ -2817,7 +2828,10 @@ class WorkspaceTests(unittest.TestCase):
         nested.chmod(0)
         owned.chmod(0)
 
-        remove_owned_tree(owned)
+        with mock.patch(
+            "atrinik_workspace.workspace.os.open", side_effect=deny_initial_read
+        ):
+            remove_owned_tree(owned)
 
         self.assertFalse(owned.exists())
 
@@ -2827,9 +2841,15 @@ class WorkspaceTests(unittest.TestCase):
         payload.write_text("preserve\n", encoding="utf-8")
         unsupported.chmod(0)
         try:
-            with mock.patch(
-                "atrinik_workspace.workspace._linux_fchmod_path_descriptor",
-                side_effect=WorkspaceError("fchmodat2 unavailable"),
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.os.open",
+                    side_effect=deny_initial_read,
+                ),
+                mock.patch(
+                    "atrinik_workspace.workspace._linux_fchmod_path_descriptor",
+                    side_effect=WorkspaceError("fchmodat2 unavailable"),
+                ),
             ):
                 with self.assertRaisesRegex(WorkspaceError, "unavailable"):
                     remove_owned_tree(unsupported)
