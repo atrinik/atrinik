@@ -4,7 +4,7 @@ import binascii
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import ExitStack, contextmanager
-from contextvars import ContextVar, copy_context
+from contextvars import copy_context
 import ctypes
 from datetime import datetime, timezone
 import errno
@@ -30,6 +30,7 @@ import time
 from typing import Any, Callable, Iterator, TextIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
+from .locking import active_lock_fds, inherit_lock_fds
 
 from .model import (
     MANAGED_MARKER,
@@ -137,20 +138,6 @@ RUNTIME_INPUT_SCHEMA_VERSION = 1
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
 REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
-_INHERITED_LOCK_FDS: ContextVar[tuple[int, ...]] = ContextVar(
-    "atrinik_inherited_lock_fds", default=()
-)
-
-
-@contextmanager
-def _inherit_lock_fds(*leases: TextIO) -> Iterator[None]:
-    descriptors = tuple(lease.fileno() for lease in leases)
-    current = _INHERITED_LOCK_FDS.get()
-    token = _INHERITED_LOCK_FDS.set(tuple(dict.fromkeys((*current, *descriptors))))
-    try:
-        yield
-    finally:
-        _INHERITED_LOCK_FDS.reset(token)
 
 
 def display_arguments(arguments: list[str]) -> str:
@@ -184,7 +171,7 @@ def run(
         print(f"+ {display_arguments(arguments)}", file=sys.stderr)
     try:
         inherited_fds = tuple(
-            dict.fromkeys((*_INHERITED_LOCK_FDS.get(), *pass_fds))
+            dict.fromkeys((*active_lock_fds(), *pass_fds))
         )
         result = subprocess.run(
             arguments,
@@ -1153,7 +1140,7 @@ def exclusive_lock(
     with _advisory_lock(
         path, description, fcntl.LOCK_EX, nonblocking=nonblocking
     ) as lock:
-        with _inherit_lock_fds(lock):
+        with inherit_lock_fds(lock):
             yield lock
 
 
@@ -1165,7 +1152,7 @@ def shared_lock(path: Path, description: str) -> Iterator[TextIO]:
             f"shared locking is unavailable for {description}; refusing to continue"
         )
     with _advisory_lock(path, description, operation) as lock:
-        with _inherit_lock_fds(lock):
+        with inherit_lock_fds(lock):
             yield lock
 
 
@@ -3200,6 +3187,7 @@ class Workspace:
                 check=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                pass_fds=active_lock_fds(),
             )
         except FileNotFoundError as error:
             raise WorkspaceError("required command not found: git") from error

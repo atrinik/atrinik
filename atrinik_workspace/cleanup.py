@@ -11,6 +11,7 @@ import stat
 import subprocess
 from typing import Any, Iterable
 
+from .locking import active_lock_fds
 from .migration import MIGRATION_PENDING, MIGRATION_RECORD, OPERATION_PATHS
 from .model import (
     MANAGED_MARKER,
@@ -80,6 +81,7 @@ def _command(path: Path, *arguments: str) -> str:
             check=True,
             capture_output=True,
             text=True,
+            pass_fds=active_lock_fds(),
         )
     except FileNotFoundError as error:
         raise WorkspaceError("required command not found: git") from error
@@ -1543,6 +1545,7 @@ class Cleanup:
                 check=True,
                 capture_output=True,
                 text=True,
+                pass_fds=active_lock_fds(),
                 timeout=30,
             )
         except FileNotFoundError as error:

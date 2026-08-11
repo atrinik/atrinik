@@ -196,20 +196,53 @@ def synthetic_client_process(
         raise
 
 
-def timed_layout_lock_process(
-    lock_path: str,
+def timed_public_build_process(
+    wrapper: str,
+    workspace_directory: str,
+    profile: str,
     mode: str,
     ready: object,
     start: object,
     results: object,
 ) -> None:
     try:
-        ready.put(mode)
-        if not start.wait(5):
-            raise TimeoutError("timed lock test did not start")
-        lock = shared_lock if mode == "shared" else exclusive_lock
-        with lock(Path(lock_path), "timed repository layout"):
-            time.sleep(0.4)
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            ready.put(profile)
+            if not start.wait(5):
+                raise TimeoutError("timed build test did not start")
+            with (
+                mock.patch.object(
+                    workspace, "_expand_build_target", return_value=["client"]
+                ),
+                mock.patch.object(
+                    workspace,
+                    "_resolve_build_profile",
+                    return_value={"client": Path(wrapper)},
+                ),
+                mock.patch.object(
+                    workspace, "_profile_build_key", return_value="a" * 12
+                ),
+                mock.patch.object(
+                    workspace,
+                    "_refresh_build_metadata",
+                    side_effect=lambda *_: time.sleep(0.4),
+                ),
+                mock.patch.object(
+                    workspace, "_uses_integrated_classic_build", return_value=False
+                ),
+                mock.patch.object(workspace, "_build_client"),
+            ):
+                if mode == "shared":
+                    workspace.build("client", profile, False)
+                else:
+                    with exclusive_lock(
+                        workspace.paths.workspace / "repository-layout.lock",
+                        "legacy repository layout",
+                    ):
+                        workspace._build("client", profile, False)
         results.put(None)
     except BaseException as error:
         results.put(f"{type(error).__name__}: {error}")
@@ -232,6 +265,25 @@ def inherited_leases_wrapper_process(
             [sys.executable, child_script, child_pid_path],
             diagnostics_to_stderr=False,
         )
+
+
+def cleanup_writer_wrapper_process(
+    layout_path: str,
+    repository: str,
+    executable_directory: str,
+    child_pid_path: str,
+) -> None:
+    from atrinik_workspace.cleanup import _command as cleanup_command
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "PATH": executable_directory + os.pathsep + os.environ["PATH"],
+            "ATRINIK_TEST_CHILD_PID": child_pid_path,
+        },
+    ):
+        with exclusive_lock(Path(layout_path), "repository layout"):
+            cleanup_command(Path(repository), "worktree", "prune")
 
 
 def compiler_cache_first_use_process(
@@ -5476,7 +5528,6 @@ class WorkspaceTests(unittest.TestCase):
 
     def test_shared_layout_lock_improves_independent_elapsed_time(self) -> None:
         context = multiprocessing.get_context("spawn")
-        lock = self.workspace.paths.workspace / "timed-layout.lock"
 
         def measure(mode: str) -> float:
             ready = context.Queue()
@@ -5484,20 +5535,30 @@ class WorkspaceTests(unittest.TestCase):
             results = context.Queue()
             processes = [
                 context.Process(
-                    target=timed_layout_lock_process,
-                    args=(str(lock), mode, ready, start, results),
+                    target=timed_public_build_process,
+                    args=(
+                        str(self.wrapper),
+                        str(self.workspace_directory),
+                        f"timed-{mode}-{index}",
+                        mode,
+                        ready,
+                        start,
+                        results,
+                    ),
                 )
-                for _ in range(2)
+                for index in range(2)
             ]
-            for process in processes:
-                process.start()
-            self.assertEqual(
-                [ready.get(timeout=5), ready.get(timeout=5)], [mode, mode]
-            )
-            began = time.monotonic()
-            start.set()
-            for process in processes:
-                process.join(timeout=5)
+            try:
+                for process in processes:
+                    process.start()
+                self.assertEqual(
+                    {ready.get(timeout=5), ready.get(timeout=5)},
+                    {f"timed-{mode}-0", f"timed-{mode}-1"},
+                )
+                began = time.monotonic()
+                start.set()
+            finally:
+                join_or_stop_processes(processes, 5)
             elapsed = time.monotonic() - began
             self.assertEqual([process.exitcode for process in processes], [0, 0])
             self.assertEqual(
@@ -6968,6 +7029,33 @@ class WorkspaceTests(unittest.TestCase):
                     with exclusive_lock(path, description, nonblocking=True):
                         self.fail(f"subprocess lease did not protect {description}")
 
+    def test_resource_listing_inherits_active_lock_descriptors(self) -> None:
+        source = self.root / "resource-listing"
+        source.mkdir()
+        (source / workspace_module.RESOURCE_PATHS_MANIFEST).write_text(
+            "paintings\n", encoding="utf-8"
+        )
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        build = self.workspace.paths.builds / "locks" / "resource-build.lock"
+        completed = mock.MagicMock(stdout=b"paintings/scene.jpg\0", stderr=b"")
+        with (
+            shared_lock(layout, "repository layout") as layout_lease,
+            exclusive_lock(build, "profile build resources") as build_lease,
+            mock.patch(
+                "atrinik_workspace.workspace.subprocess.run",
+                return_value=completed,
+            ) as invoke,
+        ):
+            expected_fds = {layout_lease.fileno(), build_lease.fileno()}
+            runtime_paths, tracked = self.workspace._resource_runtime_files(source)
+
+        self.assertEqual(runtime_paths, ["paintings"])
+        self.assertEqual(tracked, ["paintings/scene.jpg"])
+        self.assertEqual(
+            set(invoke.call_args.kwargs["pass_fds"]),
+            expected_fds,
+        )
+
     def test_orphaned_operational_subprocess_retains_active_leases(self) -> None:
         child_script = self.root / "lease-child.py"
         child_pid_path = self.root / "lease-child.pid"
@@ -7036,6 +7124,73 @@ class WorkspaceTests(unittest.TestCase):
             except WorkspaceError:
                 if time.monotonic() >= deadline:
                     self.fail("orphaned child did not release inherited leases")
+                time.sleep(0.05)
+
+    def test_orphaned_cleanup_child_retains_layout_lease(self) -> None:
+        executable_directory = self.root / "fake-bin"
+        executable_directory.mkdir()
+        fake_git = executable_directory / "git"
+        fake_git.write_text(
+            f"#!{sys.executable}\n"
+            "import os, pathlib, time\n"
+            "pathlib.Path(os.environ['ATRINIK_TEST_CHILD_PID']).write_text("
+            "str(os.getpid()), encoding='ascii')\n"
+            "while True:\n"
+            "    time.sleep(0.1)\n",
+            encoding="utf-8",
+        )
+        fake_git.chmod(0o755)
+        child_pid_path = self.root / "cleanup-child.pid"
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        context = multiprocessing.get_context("spawn")
+        wrapper = context.Process(
+            target=cleanup_writer_wrapper_process,
+            args=(
+                str(layout),
+                str(self.wrapper),
+                str(executable_directory),
+                str(child_pid_path),
+            ),
+        )
+        child_pidfd: int | None = None
+        try:
+            wrapper.start()
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline and not child_pid_path.is_file():
+                time.sleep(0.05)
+            self.assertTrue(child_pid_path.is_file())
+            child_pidfd = os.pidfd_open(
+                int(child_pid_path.read_text(encoding="ascii"))
+            )
+            wrapper.kill()
+            wrapper.join(timeout=5)
+            self.assertFalse(wrapper.is_alive())
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    layout, "repository layout", nonblocking=True
+                ):
+                    self.fail("orphaned cleanup child released the layout lock")
+        finally:
+            if wrapper.is_alive():
+                wrapper.kill()
+                wrapper.join(timeout=5)
+            if child_pidfd is not None:
+                try:
+                    signal.pidfd_send_signal(child_pidfd, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                os.close(child_pidfd)
+
+        deadline = time.monotonic() + 5
+        while True:
+            try:
+                with exclusive_lock(
+                    layout, "repository layout", nonblocking=True
+                ):
+                    break
+            except WorkspaceError:
+                if time.monotonic() >= deadline:
+                    self.fail("cleanup child did not release the layout lease")
                 time.sleep(0.05)
 
 
