@@ -2799,6 +2799,17 @@ class WorkspaceTests(unittest.TestCase):
 
     @unittest.skipUnless(sys.platform == "linux", "requires Linux O_PATH")
     def test_owned_tree_removal_handles_unreadable_directories(self) -> None:
+        readable = self.root / "readable"
+        readable.mkdir()
+        (readable / "payload").write_text("remove\n", encoding="utf-8")
+        with mock.patch(
+            "atrinik_workspace.workspace._linux_fchmod_path_descriptor",
+            side_effect=WorkspaceError("fchmodat2 unavailable"),
+        ) as fallback:
+            remove_owned_tree(readable)
+        fallback.assert_not_called()
+        self.assertFalse(readable.exists())
+
         owned = self.root / "owned"
         nested = owned / "nested"
         nested.mkdir(parents=True)
@@ -2809,6 +2820,24 @@ class WorkspaceTests(unittest.TestCase):
         remove_owned_tree(owned)
 
         self.assertFalse(owned.exists())
+
+        unsupported = self.root / "unsupported"
+        unsupported.mkdir()
+        payload = unsupported / "payload"
+        payload.write_text("preserve\n", encoding="utf-8")
+        unsupported.chmod(0)
+        try:
+            with mock.patch(
+                "atrinik_workspace.workspace._linux_fchmod_path_descriptor",
+                side_effect=WorkspaceError("fchmodat2 unavailable"),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "unavailable"):
+                    remove_owned_tree(unsupported)
+            self.assertEqual(stat.S_IMODE(unsupported.stat().st_mode), 0)
+            unsupported.chmod(0o700)
+            self.assertEqual(payload.read_text(encoding="utf-8"), "preserve\n")
+        finally:
+            unsupported.chmod(0o700)
 
     def test_owned_tree_removal_rejects_special_nodes_without_opening(self) -> None:
         owned = self.root / "owned"

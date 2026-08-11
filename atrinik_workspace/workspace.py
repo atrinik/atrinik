@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import ExitStack, contextmanager
 import ctypes
 from datetime import datetime, timezone
+import errno
 import fcntl
 import hashlib
 import os
@@ -266,14 +267,72 @@ def _open_owned_tree_directory(
     *,
     root: bool = False,
 ) -> int:
-    flags = os.O_DIRECTORY | os.O_NOFOLLOW
-    if sys.platform == "linux":
-        flags |= os.O_PATH
-    else:
-        flags |= os.O_RDONLY
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    try:
+        readable_descriptor = os.open(name, flags, dir_fd=parent_descriptor)
+    except OSError as error:
+        if sys.platform == "linux" and error.errno in (errno.EACCES, errno.EPERM):
+            return _open_unreadable_linux_owned_tree_directory(
+                parent_descriptor, name, before, mount_id, display, root=root
+            )
+        label = "root" if root else "directory"
+        raise WorkspaceError(
+            f"owned removal {label} changed: {display}"
+        ) from error
+    changed_mode = False
+    try:
+        opened = os.fstat(readable_descriptor)
+        if (
+            opened.st_dev != before.st_dev
+            or opened.st_ino != before.st_ino
+            or _descriptor_mount_id(readable_descriptor) != mount_id
+        ):
+            message = (
+                f"owned removal root changed or is mounted: {display}"
+                if root
+                else f"owned removal encountered a mount: {display}"
+            )
+            raise WorkspaceError(message)
+        os.fchmod(readable_descriptor, stat.S_IRWXU)
+        changed_mode = True
+        readable = os.fstat(readable_descriptor)
+        if (
+            readable.st_dev != before.st_dev
+            or readable.st_ino != before.st_ino
+            or _descriptor_mount_id(readable_descriptor) != mount_id
+        ):
+            raise WorkspaceError(
+                f"owned removal encountered a mount: {display}"
+            )
+        return readable_descriptor
+    except BaseException:
+        try:
+            if changed_mode:
+                os.fchmod(readable_descriptor, stat.S_IMODE(before.st_mode))
+        except OSError as restore_error:
+            raise WorkspaceError(
+                "cannot restore owned removal directory mode after "
+                f"open failure: {display}"
+            ) from restore_error
+        finally:
+            os.close(readable_descriptor)
+        raise
+
+
+def _open_unreadable_linux_owned_tree_directory(
+    parent_descriptor: int,
+    name: str,
+    before: os.stat_result,
+    mount_id: int | tuple[int, int],
+    display: Path,
+    *,
+    root: bool,
+) -> int:
     try:
         bound_descriptor = os.open(
-            name, flags, dir_fd=parent_descriptor
+            name,
+            os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW,
+            dir_fd=parent_descriptor,
         )
     except OSError as error:
         label = "root" if root else "directory"
@@ -294,19 +353,13 @@ def _open_owned_tree_directory(
                 else f"owned removal encountered a mount: {display}"
             )
             raise WorkspaceError(message)
-        if sys.platform == "linux":
-            _linux_fchmod_path_descriptor(bound_descriptor, stat.S_IRWXU)
-            changed_mode = True
-            readable_descriptor = os.open(
-                ".",
-                os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
-                dir_fd=bound_descriptor,
-            )
-        else:
-            os.fchmod(bound_descriptor, stat.S_IRWXU)
-            changed_mode = True
-            readable_descriptor = bound_descriptor
-            bound_descriptor = -1
+        _linux_fchmod_path_descriptor(bound_descriptor, stat.S_IRWXU)
+        changed_mode = True
+        readable_descriptor = os.open(
+            ".",
+            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+            dir_fd=bound_descriptor,
+        )
         readable = os.fstat(readable_descriptor)
         if (
             readable.st_dev != before.st_dev
@@ -319,7 +372,7 @@ def _open_owned_tree_directory(
             )
         return readable_descriptor
     except BaseException:
-        if changed_mode and bound_descriptor >= 0:
+        if changed_mode:
             try:
                 _linux_fchmod_path_descriptor(
                     bound_descriptor, stat.S_IMODE(before.st_mode)
@@ -331,8 +384,7 @@ def _open_owned_tree_directory(
                 ) from restore_error
         raise
     finally:
-        if bound_descriptor >= 0:
-            os.close(bound_descriptor)
+        os.close(bound_descriptor)
 
 
 def _probe_owned_tree_entry_mount(
