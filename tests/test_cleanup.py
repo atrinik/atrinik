@@ -2112,15 +2112,20 @@ class CleanupTests(unittest.TestCase):
         old_timestamp = self.old.timestamp()
         os.utime(transaction, (old_timestamp, old_timestamp))
         original_remove = Cleanup._remove
+        original_transaction = transactions / f".{transaction.name}-original"
 
         def replace_before_remove(
             cleanup: Cleanup, item: dict[str, object], older_than_days: int = 0
         ) -> None:
             if item["kind"] == "worker-dependency-transaction":
-                shutil.rmtree(transaction)
+                transaction.replace(original_transaction)
                 transaction.mkdir()
                 os.utime(transaction, (old_timestamp, old_timestamp))
-            original_remove(cleanup, item, older_than_days)
+            try:
+                original_remove(cleanup, item, older_than_days)
+            finally:
+                if original_transaction.exists():
+                    shutil.rmtree(original_transaction)
 
         with (
             mock.patch.object(

@@ -1568,6 +1568,72 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(first[1])
         self.assertTrue(second[1])
         self.assertTrue((second[0] / "src" / "build" / "nested.ts").is_file())
+
+        copied_source = second[0] / "worker.ts"
+        copied_status = copied_source.stat()
+        os.utime(
+            copied_source,
+            ns=(copied_status.st_atime_ns, copied_status.st_mtime_ns + 1),
+        )
+        reconciled_metadata = self.workspace._worker_view(
+            root, source, dependencies, "a" * 64, metadata
+        )
+        self.assertFalse(reconciled_metadata[1])
+        if hasattr(os, "setxattr"):
+            try:
+                os.setxattr(
+                    reconciled_metadata[0] / "worker.ts",
+                    "user.atrinik-view-test",
+                    b"changed",
+                )
+            except OSError:
+                pass
+            else:
+                reconciled_metadata = self.workspace._worker_view(
+                    root, source, dependencies, "a" * 64, metadata
+                )
+                self.assertFalse(reconciled_metadata[1])
+
+        external_metadata = self.root / "matching-worker-view.json"
+        view_metadata = reconciled_metadata[0] / ".atrinik-worker-view.json"
+        shutil.copy2(view_metadata, external_metadata)
+        view_metadata.unlink()
+        view_metadata.symlink_to(external_metadata)
+        reconciled_control = self.workspace._worker_view(
+            root, source, dependencies, "a" * 64, metadata
+        )
+        self.assertFalse(reconciled_control[1])
+        self.assertFalse(
+            (reconciled_control[0] / ".atrinik-worker-view.json").is_symlink()
+        )
+
+        copied_source = reconciled_control[0] / "worker.ts"
+        copied_status = copied_source.stat()
+        os.utime(
+            copied_source,
+            ns=(copied_status.st_atime_ns, copied_status.st_mtime_ns + 1),
+        )
+        self.workspace._reconcile_worker_view_source(
+            source, reconciled_control[0], metadata
+        )
+        reconciled_after_check = self.workspace._worker_view(
+            root, source, dependencies, "a" * 64, metadata
+        )
+        self.assertTrue(reconciled_after_check[1])
+
+        external_marker = self.root / "matching-worker-marker.json"
+        marker = reconciled_after_check[0] / MANAGED_MARKER
+        shutil.copy2(marker, external_marker)
+        marker.unlink()
+        marker.symlink_to(external_marker)
+        with self.assertRaises(WorkspaceError):
+            self.workspace._worker_view(
+                root, source, dependencies, "a" * 64, metadata
+            )
+        self.assertTrue(marker.is_symlink())
+        marker.unlink()
+        shutil.copy2(external_marker, marker)
+
         (second[0] / "node_modules" / "alpha" / "local").write_text(
             "profile only\n", encoding="utf-8"
         )

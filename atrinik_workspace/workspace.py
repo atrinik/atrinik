@@ -102,7 +102,7 @@ CACHE_METADATA = ".atrinik-cache.json"
 WORKER_DEPENDENCY_METADATA = ".atrinik-worker-dependencies.json"
 WORKER_VIEW_METADATA = ".atrinik-worker-view.json"
 WORKER_DEPENDENCY_SCHEMA_VERSION = 4
-WORKER_VIEW_SCHEMA_VERSION = 1
+WORKER_VIEW_SCHEMA_VERSION = 2
 WORKER_DEPENDENCY_FILES = ("package.json", "package-lock.json")
 WORKER_SOURCE_EXCLUSIONS = {
     ".git",
@@ -3048,6 +3048,13 @@ class Workspace:
         source_digest = _tree_digest(
             source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
         )
+        source_view_digest = _tree_digest(
+            source,
+            WORKER_SOURCE_EXCLUSIONS,
+            reject_symlinks=True,
+            copied_metadata=True,
+            ignore_root_mtime=True,
+        )
         dependency_source_digest = dependency_metadata.get("inputs", {}).get(
             "lifecycle_source_sha256"
         )
@@ -3059,22 +3066,36 @@ class Workspace:
             "schema_version": WORKER_VIEW_SCHEMA_VERSION,
             "purpose": "worker-view",
             "source_sha256": source_digest,
+            "source_view_sha256": source_view_digest,
             "dependency_key": dependency_key,
             "node_modules_lock_sha256": dependency_metadata[
                 "node_modules_lock_sha256"
             ],
         }
+        marker_path = view / MANAGED_MARKER
+        metadata_path = view / WORKER_VIEW_METADATA
         try:
             if (
                 not view.is_symlink()
                 and view.is_dir()
-                and load_json(view / MANAGED_MARKER)
+                and marker_path.is_file()
+                and not marker_path.is_symlink()
+                and metadata_path.is_file()
+                and not metadata_path.is_symlink()
+                and load_json(marker_path)
                 == {
                     "schema_version": SCHEMA_VERSION,
                     "purpose": "source-view:metaserver-worker",
                 }
-                and load_json(view / WORKER_VIEW_METADATA) == expected
+                and load_json(metadata_path) == expected
                 and _tree_digest(view, WORKER_SOURCE_EXCLUSIONS) == source_digest
+                and _tree_digest(
+                    view,
+                    WORKER_SOURCE_EXCLUSIONS,
+                    copied_metadata=True,
+                    ignore_root_mtime=True,
+                )
+                == source_view_digest
             ):
                 self._validate_worker_node_modules(
                     view / "node_modules",
@@ -3140,6 +3161,59 @@ class Workspace:
                 shutil.rmtree(staging)
         return view, False, time.monotonic() - started
 
+    @staticmethod
+    def _reconcile_worker_view_source(
+        source: Path,
+        view: Path,
+        dependency_metadata: dict[str, Any],
+    ) -> None:
+        lifecycle_source_digest = dependency_metadata.get("inputs", {}).get(
+            "lifecycle_source_sha256"
+        )
+        source_digest = _tree_digest(
+            source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+        )
+        if (
+            _tree_digest(
+                source,
+                WORKER_SOURCE_EXCLUSIONS,
+                reject_symlinks=True,
+                copied_metadata=True,
+            )
+            != lifecycle_source_digest
+            or _tree_digest(
+                view, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+            )
+            != source_digest
+        ):
+            raise WorkspaceError("Worker source changed while running checks")
+        _copy_worker_source(source, view)
+        source_view_digest = _tree_digest(
+            source,
+            WORKER_SOURCE_EXCLUSIONS,
+            reject_symlinks=True,
+            copied_metadata=True,
+            ignore_root_mtime=True,
+        )
+        if (
+            _tree_digest(
+                source,
+                WORKER_SOURCE_EXCLUSIONS,
+                reject_symlinks=True,
+                copied_metadata=True,
+            )
+            != lifecycle_source_digest
+            or _tree_digest(
+                view,
+                WORKER_SOURCE_EXCLUSIONS,
+                reject_symlinks=True,
+                copied_metadata=True,
+                ignore_root_mtime=True,
+            )
+            != source_view_digest
+        ):
+            raise WorkspaceError("Worker source changed during view reconciliation")
+
     def _build_worker(self, root: Path, selected: dict[str, Path]) -> None:
         source = selected["metaserver-worker"]
         environment = os.environ.copy()
@@ -3162,6 +3236,7 @@ class Workspace:
             f"({view_seconds:.2f}s)"
         )
         run(["npm", "run", "check"], cwd=view, env=environment)
+        self._reconcile_worker_view_source(source, view, metadata)
 
     def state_add(self, name: str, path: Path | None) -> Path:
         self.paths.ensure()

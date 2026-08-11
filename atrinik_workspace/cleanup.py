@@ -1825,7 +1825,13 @@ class Cleanup:
         item["_inodes"] = inodes
         try:
             path_status = path.lstat()
-            item["_identity"] = (path_status.st_dev, path_status.st_ino)
+            item["_identity"] = (
+                path_status.st_dev,
+                path_status.st_ino,
+                path_status.st_ctime_ns,
+                stat.S_IFMT(path_status.st_mode),
+                stat.S_IMODE(path_status.st_mode),
+            )
             created = self._worker_dependency_transaction_created_at(path)
             observed = created if observed is None else max(observed, created)
         except OSError as error:
