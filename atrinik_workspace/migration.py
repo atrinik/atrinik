@@ -17,6 +17,7 @@ import subprocess
 import tempfile
 from typing import Any, Iterable
 
+from .locking import active_lock_fds, inherit_lock_fds
 from .model import WorkspaceError, atomic_json, load_json
 from .supervisor import process_matches
 
@@ -156,6 +157,7 @@ def classic_lineage(path: Path, canonical: str) -> bool:
                 stderr=subprocess.PIPE,
                 check=False,
                 env=environment,
+                pass_fds=active_lock_fds(),
             )
         except OSError as error:
             raise WorkspaceError(f"cannot inspect Git history: {error}") from error
@@ -415,7 +417,7 @@ class RepositoryMigration:
             raise WorkspaceError(
                 f"repository migration lock is not a regular file: {lock_path}"
             )
-        with os.fdopen(descriptor, "a+") as lock:
+        with os.fdopen(descriptor, "a+") as lock, inherit_lock_fds(lock):
             try:
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError:
@@ -3595,6 +3597,7 @@ class RepositoryMigration:
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             check=False,
+            pass_fds=active_lock_fds(),
         )
         if process.returncode == 0:
             return True
@@ -3614,6 +3617,7 @@ class RepositoryMigration:
                 stderr=subprocess.PIPE,
                 check=False,
                 env=environment,
+                pass_fds=active_lock_fds(),
             )
         except OSError as error:
             raise WorkspaceError(f"cannot run Git: {error}") from error
@@ -3656,6 +3660,7 @@ class RepositoryMigration:
                 stderr=subprocess.PIPE,
                 check=False,
                 env=environment,
+                pass_fds=active_lock_fds(),
             )
         except OSError as error:
             raise WorkspaceError(f"cannot run Git: {error}") from error

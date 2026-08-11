@@ -4,6 +4,7 @@ import binascii
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import ExitStack, contextmanager
+from contextvars import copy_context
 import ctypes
 from datetime import datetime, timezone
 import errno
@@ -24,10 +25,13 @@ import stat
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from typing import Any, Callable, Iterator, TextIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
+from .locking import active_lock_fds, inherit_lock_fds
+from .process_tree import holders_exist, signal_holders
 
 from .model import (
     MANAGED_MARKER,
@@ -79,6 +83,7 @@ CONFIGURE_SCHEMA_VERSION = 2
 COMPILER_CACHE_PURPOSE = "compiler-cache"
 COMPILER_CACHE_MAX_SIZE = "5G"
 TOPOLOGY_SERVICES = ("server", "client")
+TOPOLOGY_PROCESS_TREE_LEASE = "process-tree.lease"
 PRE_MONOREPO_REPOSITORIES = {
     "client": "legacy-client",
     "server": "legacy-server",
@@ -162,10 +167,14 @@ def run(
     env: dict[str, str] | None = None,
     trace: bool = True,
     diagnostics_to_stderr: bool = True,
+    pass_fds: tuple[int, ...] = (),
 ) -> str:
     if trace:
         print(f"+ {display_arguments(arguments)}", file=sys.stderr)
     try:
+        inherited_fds = tuple(
+            dict.fromkeys((*active_lock_fds(), *pass_fds))
+        )
         result = subprocess.run(
             arguments,
             cwd=cwd,
@@ -174,6 +183,7 @@ def run(
             capture_output=capture,
             env=env,
             stdout=sys.stderr if diagnostics_to_stderr and not capture else None,
+            pass_fds=inherited_fds,
         )
     except FileNotFoundError as error:
         raise WorkspaceError(f"required command not found: {arguments[0]}") from error
@@ -1129,16 +1139,47 @@ def open_regular_file(
 def exclusive_lock(
     path: Path, description: str, nonblocking: bool = False
 ) -> Iterator[TextIO]:
+    with _advisory_lock(
+        path, description, fcntl.LOCK_EX, nonblocking=nonblocking
+    ) as lock:
+        with inherit_lock_fds(lock):
+            yield lock
+
+
+@contextmanager
+def shared_lock(path: Path, description: str) -> Iterator[TextIO]:
+    operation = getattr(fcntl, "LOCK_SH", None)
+    if not isinstance(operation, int):
+        raise WorkspaceError(
+            f"shared locking is unavailable for {description}; refusing to continue"
+        )
+    with _advisory_lock(path, description, operation) as lock:
+        with inherit_lock_fds(lock):
+            yield lock
+
+
+@contextmanager
+def _advisory_lock(
+    path: Path,
+    description: str,
+    operation: int,
+    *,
+    nonblocking: bool = False,
+) -> Iterator[TextIO]:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor = open_regular_file(
         path, os.O_RDWR | os.O_CREAT, f"{description} lock"
     )
     with os.fdopen(descriptor, "a+") as lock:
-        operation = fcntl.LOCK_EX | (fcntl.LOCK_NB if nonblocking else 0)
+        operation |= fcntl.LOCK_NB if nonblocking else 0
         try:
             fcntl.flock(lock, operation)
         except BlockingIOError as error:
             raise WorkspaceError(f"{description} is already in use") from error
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot acquire {description} lock: {error}"
+            ) from error
         yield lock
 
 
@@ -1146,6 +1187,47 @@ class Workspace:
     def __init__(self, repository: Path):
         self.paths = Paths.discover(repository)
         self.manifest = Manifest.load(self.paths.repository / "components.json")
+        self._build_state = threading.local()
+        self._prefix_map_support: dict[
+            tuple[str, str, str | None, str | None], bool
+        ] = {}
+        self._prefix_map_support_lock = threading.Lock()
+
+    @property
+    def _force_reconfigure(self) -> bool:
+        return getattr(self._build_state, "force_reconfigure", False)
+
+    @_force_reconfigure.setter
+    def _force_reconfigure(self, value: bool) -> None:
+        self._build_state.force_reconfigure = value
+
+    @property
+    def _use_ccache(self) -> bool:
+        return getattr(self._build_state, "use_ccache", True)
+
+    @_use_ccache.setter
+    def _use_ccache(self, value: bool) -> None:
+        self._build_state.use_ccache = value
+
+    @property
+    def _source_view_changed(self) -> bool:
+        return getattr(self._build_state, "source_view_changed", False)
+
+    @_source_view_changed.setter
+    def _source_view_changed(self, value: bool) -> None:
+        self._build_state.source_view_changed = value
+
+    @property
+    def _source_view_unchanged(self) -> dict[str, bool]:
+        current = getattr(self._build_state, "source_view_unchanged", None)
+        if current is None:
+            current = {}
+            self._build_state.source_view_unchanged = current
+        return current
+
+    @_source_view_unchanged.setter
+    def _source_view_unchanged(self, value: dict[str, bool]) -> None:
+        self._build_state.source_view_unchanged = value
 
     def migrate_repositories(self, mode: str) -> dict[str, Any]:
         if mode == "apply":
@@ -1232,7 +1314,9 @@ class Workspace:
                 max_workers=max(1, min(jobs, len(checkouts)))
             ) as executor:
                 futures = {
-                    executor.submit(self._ensure_repository, checkout): checkout
+                    executor.submit(
+                        copy_context().run, self._ensure_repository, checkout
+                    ): checkout
                     for checkout in checkouts
                 }
                 for future in as_completed(futures):
@@ -2249,7 +2333,7 @@ class Workspace:
         use_ccache: bool = True,
     ) -> Path:
         self.paths.ensure()
-        with exclusive_lock(
+        with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -2296,10 +2380,10 @@ class Workspace:
     ) -> Path:
         key = self._profile_build_key(profile_name, selected)
         root = self.paths.builds / "profiles" / f"{profile_name}-{key}"
-        lock = self.paths.builds / "locks" / f"{profile_name}-{key}.lock"
-        with exclusive_lock(lock, f"profile build {profile_name}"):
+        with self._profile_build_lock(root, profile_name):
             self._force_reconfigure = force_reconfigure
             self._use_ccache = use_ccache
+            self._source_view_unchanged = {}
             managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
             self._refresh_build_metadata(root, profile_name, key, selected)
             if "content" in targets or "server" in targets:
@@ -2327,6 +2411,14 @@ class Workspace:
             if target in {"sound", "resources"}:
                 print(f"{target}: selected {selected[target]}")
         return root
+
+    @contextmanager
+    def _profile_build_lock(
+        self, root: Path, profile_name: str
+    ) -> Iterator[TextIO]:
+        lock = self.paths.builds / "locks" / f"{root.name}.lock"
+        with exclusive_lock(lock, f"profile build {profile_name}") as lease:
+            yield lease
 
     def _refresh_build_metadata(
         self,
@@ -2597,7 +2689,6 @@ class Workspace:
                 unchanged = False
         if not unchanged:
             atomic_json(metadata_path, metadata)
-        self._source_view_unchanged = getattr(self, "_source_view_unchanged", {})
         self._source_view_unchanged[str(view.resolve())] = unchanged
         return view
 
@@ -3098,6 +3189,7 @@ class Workspace:
                 check=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                pass_fds=active_lock_fds(),
             )
         except FileNotFoundError as error:
             raise WorkspaceError("required command not found: git") from error
@@ -3360,7 +3452,7 @@ class Workspace:
     ) -> None:
         self._prepare_cmake_binary(binary)
         environment = os.environ.copy()
-        ccache = shutil.which("ccache") if getattr(self, "_use_ccache", True) else None
+        ccache = shutil.which("ccache") if self._use_ccache else None
         cache_arguments = [
             "-DCMAKE_C_COMPILER_LAUNCHER=",
             "-DCMAKE_CXX_COMPILER_LAUNCHER=",
@@ -3370,16 +3462,20 @@ class Workspace:
         )
         if ccache is not None:
             cache = self.paths.builds / COMPILER_CACHE_PURPOSE
-            managed_directory(cache, self.paths.builds, COMPILER_CACHE_PURPOSE)
-            atomic_json(
-                cache / CACHE_METADATA,
-                {
-                    "schema_version": BUILD_METADATA_SCHEMA_VERSION,
-                    "purpose": COMPILER_CACHE_PURPOSE,
-                    "last_used_at": datetime.now(timezone.utc).isoformat(),
-                    "max_size": COMPILER_CACHE_MAX_SIZE,
-                },
-            )
+            with exclusive_lock(
+                self.paths.builds / "locks" / "compiler-cache.lock",
+                "compiler cache initialization",
+            ):
+                managed_directory(cache, self.paths.builds, COMPILER_CACHE_PURPOSE)
+                atomic_json(
+                    cache / CACHE_METADATA,
+                    {
+                        "schema_version": BUILD_METADATA_SCHEMA_VERSION,
+                        "purpose": COMPILER_CACHE_PURPOSE,
+                        "last_used_at": datetime.now(timezone.utc).isoformat(),
+                        "max_size": COMPILER_CACHE_MAX_SIZE,
+                    },
+                )
             environment.update(
                 {
                     "CCACHE_DIR": str(cache),
@@ -3401,7 +3497,7 @@ class Workspace:
                 f"ccache: enabled at {cache} (maximum {COMPILER_CACHE_MAX_SIZE})",
                 file=sys.stderr,
             )
-        elif getattr(self, "_use_ccache", True):
+        elif self._use_ccache:
             print(
                 "ccache: command not found; install ccache or pass --no-ccache "
                 "to disable this diagnostic",
@@ -3428,7 +3524,7 @@ class Workspace:
         source_resolved = source.resolve()
         unchanged_view = all(
             unchanged
-            for view, unchanged in getattr(self, "_source_view_unchanged", {}).items()
+            for view, unchanged in self._source_view_unchanged.items()
             if Path(view) == source_resolved or source_resolved in Path(view).parents
         )
         previous: dict[str, Any] = {}
@@ -3453,7 +3549,7 @@ class Workspace:
             managed_reset(binary, self.paths.builds, "cmake-binary")
             configured = False
         if (
-            getattr(self, "_force_reconfigure", False)
+            self._force_reconfigure
             or not unchanged_view
             or not fingerprint["source"].get("configure_skip_safe", True)
             or not configured
@@ -3601,7 +3697,8 @@ class Workspace:
     def _compiler_supports_prefix_maps(self, command: str, language: str) -> bool:
         identity = self._tool_identity(command)
         key = (command, language, identity.get("resolved_path"), identity.get("sha256"))
-        cached = getattr(self, "_prefix_map_support", {}).get(key)
+        with self._prefix_map_support_lock:
+            cached = self._prefix_map_support.get(key)
         if cached is not None:
             return cached
         try:
@@ -3635,9 +3732,8 @@ class Workspace:
                     supported = output.is_file()
                 except WorkspaceError:
                     supported = False
-        self._prefix_map_support = getattr(self, "_prefix_map_support", {})
-        self._prefix_map_support[key] = supported
-        return supported
+        with self._prefix_map_support_lock:
+            return self._prefix_map_support.setdefault(key, supported)
 
     @staticmethod
     def _tool_identity(command: str) -> dict[str, str | None]:
@@ -5674,22 +5770,23 @@ class Workspace:
         root = self._build_resolved(
             "server", metadata["profile"], False, ["server"], selected
         )
-        runtime = self._prepare_server_runtime(
-            root, selected, state, metadata["state"]
-        )
-        executable = runtime / "atrinik-server"
-        run(
-            [
-                str(executable),
-                "--provision_scenario",
-                f"--provision_account={metadata['account']}",
-                f"--provision_character={metadata['character']}",
-                f"--provision_archetype={metadata['archetype']}",
-                f"--provision_password_file={password_file}",
-                f"--assetspath={runtime / 'assets'}",
-            ],
-            cwd=runtime,
-        )
+        with self._profile_build_lock(root, metadata["profile"]):
+            runtime = self._prepare_server_runtime(
+                root, selected, state, metadata["state"]
+            )
+            executable = runtime / "atrinik-server"
+            run(
+                [
+                    str(executable),
+                    "--provision_scenario",
+                    f"--provision_account={metadata['account']}",
+                    f"--provision_character={metadata['character']}",
+                    f"--provision_archetype={metadata['archetype']}",
+                    f"--provision_password_file={password_file}",
+                    f"--assetspath={runtime / 'assets'}",
+                ],
+                cwd=runtime,
+            )
         profile = self._load_profile(metadata["profile"], require_file=False)
         stack = self.manifest.stack(profile["stack"])
         audited = {role: selected[role] for role in required}
@@ -5718,7 +5815,7 @@ class Workspace:
         self, name: str, profile: str, preset: str = "basic-player"
     ) -> dict[str, Any]:
         self.paths.ensure()
-        with exclusive_lock(
+        with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -5816,7 +5913,7 @@ class Workspace:
 
     def scenario_reset(self, name: str) -> dict[str, Any]:
         self.paths.ensure()
-        with exclusive_lock(
+        with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -6893,13 +6990,42 @@ class Workspace:
         port: int | None = None,
     ) -> dict[str, Any]:
         self.paths.ensure()
-        with exclusive_lock(
+        with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
-        ):
+        ) as layout_lock:
             return self._topology_up(
-                name, profile_name, state_name, services, port
+                name,
+                profile_name,
+                state_name,
+                services,
+                port,
+                layout_lock=layout_lock,
             )
+
+    def _topology_resolved_status(
+        self, profile_name: str, selected: dict[str, Path]
+    ) -> dict[str, dict[str, Any]]:
+        profile = self._load_profile(profile_name, require_file=False)
+        stack = self.manifest.stack(profile["stack"])
+        checkout_states = self._selected_checkout_states(
+            profile, selected, include_dirty=True
+        )
+        return {
+            stack.providers[role].name: {
+                "path": str(path),
+                "checkout_path": str(
+                    checkout_states[stack.providers[role].checkout_name]["path"]
+                ),
+                "checkout": stack.providers[role].checkout_name,
+                "repository": stack.providers[role].repository,
+                "branch": stack.providers[role].branch,
+                "source": stack.providers[role].source,
+                "head": checkout_states[stack.providers[role].checkout_name]["head"],
+                "dirty": checkout_states[stack.providers[role].checkout_name]["dirty"],
+            }
+            for role, path in sorted(selected.items())
+        }
 
     def _topology_up(
         self,
@@ -6908,6 +7034,8 @@ class Workspace:
         state_name: str,
         services: list[str] | None = None,
         port: int | None = None,
+        *,
+        layout_lock: TextIO | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
         if "client" in selected_services:
@@ -6920,6 +7048,7 @@ class Workspace:
         with exclusive_lock(
             operation_lock, f"topology {name} operation", nonblocking=True
         ):
+            process_tree_path = topology_root / TOPOLOGY_PROCESS_TREE_LEASE
             status_path = topology_root / "status.json"
             startup_error_path = topology_root / "startup-error.json"
             if status_path.is_file():
@@ -6950,6 +7079,27 @@ class Workspace:
             ]
 
             with ExitStack() as stack:
+                process_tree_fd = open_regular_file(
+                    process_tree_path,
+                    os.O_RDWR | os.O_CREAT,
+                    "topology process-tree lease",
+                )
+                stack.callback(os.close, process_tree_fd)
+                try:
+                    fcntl.flock(
+                        process_tree_fd, fcntl.LOCK_EX | fcntl.LOCK_NB
+                    )
+                except BlockingIOError as error:
+                    raise WorkspaceError(
+                        f"topology is already running: {name}"
+                    ) from error
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot lock topology process-tree lease: {error}"
+                    ) from error
+                if holders_exist(process_tree_fd, exclude=(os.getpid(),)):
+                    raise WorkspaceError(f"topology is already running: {name}")
+
                 state_location: Path | None = None
                 state_lock: TextIO | None = None
                 if "server" in selected_services:
@@ -6964,6 +7114,9 @@ class Workspace:
 
                 root = self._build_resolved(
                     "topology", profile_name, False, targets, selected
+                )
+                build_lock = stack.enter_context(
+                    self._profile_build_lock(root, profile_name)
                 )
                 endpoint: dict[str, Any] | None = None
                 if "server" in selected_services:
@@ -7058,30 +7211,9 @@ class Workspace:
 
                 profile = self._load_profile(profile_name, require_file=False)
                 selected_stack = self.manifest.stack(profile["stack"])
-                checkout_states = self._selected_checkout_states(
-                    profile, selected, include_dirty=True
+                resolved_status = self._topology_resolved_status(
+                    profile_name, selected
                 )
-                resolved_status = {
-                    selected_stack.providers[role].name: {
-                        "path": str(path),
-                        "checkout_path": str(
-                            checkout_states[
-                                selected_stack.providers[role].checkout_name
-                            ]["path"]
-                        ),
-                        "checkout": selected_stack.providers[role].checkout_name,
-                        "repository": selected_stack.providers[role].repository,
-                        "branch": selected_stack.providers[role].branch,
-                        "source": selected_stack.providers[role].source,
-                        "head": checkout_states[
-                            selected_stack.providers[role].checkout_name
-                        ]["head"],
-                        "dirty": checkout_states[
-                            selected_stack.providers[role].checkout_name
-                        ]["dirty"],
-                    }
-                    for role, path in sorted(selected.items())
-                }
                 spec = {
                     "schema_version": SCHEMA_VERSION,
                     "name": name,
@@ -7122,10 +7254,23 @@ class Workspace:
                         "--spec",
                         str(spec_path),
                     ]
-                    pass_fds: tuple[int, ...] = ()
+                    inherited_locks: list[int] = []
                     if state_lock is not None:
                         command.extend(["--lock-fd", str(state_lock.fileno())])
-                        pass_fds = (state_lock.fileno(),)
+                        inherited_locks.append(state_lock.fileno())
+                    if layout_lock is not None:
+                        command.extend(
+                            ["--layout-lock-fd", str(layout_lock.fileno())]
+                        )
+                        inherited_locks.append(layout_lock.fileno())
+                    command.extend(
+                        ["--build-lock-fd", str(build_lock.fileno())]
+                    )
+                    inherited_locks.append(build_lock.fileno())
+                    command.extend(
+                        ["--process-tree-fd", str(process_tree_fd)]
+                    )
+                    inherited_locks.append(process_tree_fd)
                     environment = os.environ.copy()
                     source_root = str(Path(__file__).resolve().parents[1])
                     python_path = environment.get("PYTHONPATH")
@@ -7142,7 +7287,7 @@ class Workspace:
                         stdout=supervisor_log,
                         stderr=subprocess.STDOUT,
                         start_new_session=True,
-                        pass_fds=pass_fds,
+                        pass_fds=tuple(inherited_locks),
                     )
                 except OSError as error:
                     raise WorkspaceError(f"cannot start topology supervisor: {error}") from error
@@ -7191,36 +7336,146 @@ class Workspace:
             root / "operation.lock", f"topology {name} operation", nonblocking=True
         ):
             status = self.topology_status(name)
-            supervisor = status["supervisor"]
-            orphaned = [
-                service
-                for service in status["services"].values()
-                if service["running"]
-            ]
-            targets = [supervisor] if supervisor["running"] else orphaned
-            if not targets:
-                return status
-            for record in targets:
-                pid = record["pid"]
-                start_time = record["start_time"]
-                try:
-                    pidfd = os.pidfd_open(pid)
-                except ProcessLookupError:
-                    continue
-                try:
-                    if process_matches(pid, start_time):
-                        signal.pidfd_send_signal(pidfd, signal.SIGTERM)
-                finally:
-                    os.close(pidfd)
-            deadline = time.monotonic() + timeout
-            while time.monotonic() < deadline:
-                if not any(self._recorded_process_running(record) for record in targets):
-                    status = self.topology_status(name)
+            process_tree_path = root / TOPOLOGY_PROCESS_TREE_LEASE
+            if process_tree_path.is_symlink():
+                raise WorkspaceError(
+                    f"topology process-tree lease is invalid: {name}"
+                )
+            if not process_tree_path.is_file():
+                return self._legacy_topology_down(name, status, timeout)
+            process_tree_fd = open_regular_file(
+                process_tree_path,
+                os.O_RDWR,
+                "topology process-tree lease",
+            )
+            try:
+                active_holders = holders_exist(
+                    process_tree_fd, exclude=(os.getpid(),)
+                )
+                if not active_holders:
+                    recorded_running = status["supervisor"]["running"] or any(
+                        service["running"]
+                        for service in status["services"].values()
+                    )
+                    if recorded_running:
+                        return self._legacy_topology_down(name, status, timeout)
                     return status
-                time.sleep(0.1)
+                signal_holders(
+                    process_tree_fd, signal.SIGTERM, exclude=(os.getpid(),)
+                )
+                deadline = time.monotonic() + timeout
+                while time.monotonic() < deadline:
+                    current = self.topology_status(name)
+                    recorded_running = current["supervisor"]["running"] or any(
+                        service["running"]
+                        for service in current["services"].values()
+                    )
+                    if not holders_exist(
+                        process_tree_fd, exclude=(os.getpid(),)
+                    ) and not recorded_running:
+                        return current
+                    time.sleep(0.1)
+                signal_holders(
+                    process_tree_fd, signal.SIGKILL, exclude=(os.getpid(),)
+                )
+                kill_deadline = time.monotonic() + min(max(timeout, 0.1), 2.0)
+                while time.monotonic() < kill_deadline:
+                    signal_holders(
+                        process_tree_fd,
+                        signal.SIGKILL,
+                        exclude=(os.getpid(),),
+                    )
+                    current = self.topology_status(name)
+                    recorded_running = current["supervisor"]["running"] or any(
+                        service["running"]
+                        for service in current["services"].values()
+                    )
+                    if not holders_exist(
+                        process_tree_fd, exclude=(os.getpid(),)
+                    ) and not recorded_running:
+                        return current
+                    time.sleep(0.05)
+            finally:
+                os.close(process_tree_fd)
             raise WorkspaceError(
                 f"topology did not stop within {timeout:g} seconds: {name}"
             )
+
+    def _legacy_topology_down(
+        self, name: str, status: dict[str, Any], timeout: float
+    ) -> dict[str, Any]:
+        supervisor = status["supervisor"]
+        supervisor_owned = supervisor["running"]
+        targets = [supervisor] if supervisor_owned else [
+            service
+            for service in status["services"].values()
+            if service["running"]
+        ]
+        verified: list[tuple[dict[str, Any], int]] = []
+        try:
+            for record in targets:
+                try:
+                    pidfd = os.pidfd_open(record["pid"])
+                except ProcessLookupError:
+                    continue
+                if not process_matches(record["pid"], record["start_time"]):
+                    os.close(pidfd)
+                    continue
+                verified.append((record, pidfd))
+                if supervisor_owned:
+                    signal.pidfd_send_signal(pidfd, signal.SIGTERM)
+                else:
+                    try:
+                        os.killpg(record["pid"], signal.SIGTERM)
+                    except ProcessLookupError:
+                        pass
+            deadline = time.monotonic() + timeout
+            while time.monotonic() < deadline:
+                if supervisor_owned:
+                    running = any(
+                        self._recorded_process_running(record)
+                        for record, _pidfd in verified
+                    )
+                else:
+                    running = any(
+                        self._process_group_running(record["pid"])
+                        for record, _pidfd in verified
+                    )
+                if not running:
+                    return self.topology_status(name)
+                time.sleep(0.1)
+            if not supervisor_owned:
+                for record, _pidfd in verified:
+                    if not self._process_group_running(record["pid"]):
+                        continue
+                    try:
+                        os.killpg(record["pid"], signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                kill_deadline = time.monotonic() + min(max(timeout, 0.1), 2.0)
+                while time.monotonic() < kill_deadline:
+                    if not any(
+                        self._process_group_running(record["pid"])
+                        for record, _pidfd in verified
+                    ):
+                        return self.topology_status(name)
+                    time.sleep(0.05)
+        finally:
+            for _record, pidfd in verified:
+                os.close(pidfd)
+        raise WorkspaceError(
+            f"topology did not stop within {timeout:g} seconds: {name}"
+        )
+
+    @staticmethod
+    def _process_group_running(process_group: int) -> bool:
+        try:
+            os.killpg(process_group, 0)
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            return True
+        return True
 
     def topology_logs(
         self,
@@ -7302,39 +7557,69 @@ class Workspace:
         arguments: list[str],
         dry_run: bool,
     ) -> Path:
+        self.paths.ensure()
+        with shared_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ) as layout_lock:
+            return self._run_client(
+                profile_name,
+                state_name,
+                port,
+                arguments,
+                dry_run,
+                layout_lock=layout_lock,
+            )
+
+    def _run_client(
+        self,
+        profile_name: str,
+        state_name: str,
+        port: int,
+        arguments: list[str],
+        dry_run: bool,
+        *,
+        layout_lock: TextIO | None = None,
+    ) -> Path:
         self._validate_run_port(port)
         launch_label = client_launch_label(profile_name)
         self._require_classic_contracts(profile_name, {"client"})
         state = self._state_location(state_name)
         self._validate_state(state)
         fingerprint = self._server_identity_fingerprint(state)
-        root = self.build("client", profile_name, tests=False)
-        executable = self._classic_binary_directory(root, "client") / "atrinik"
-        working = root / "sources" / "client"
-        if not executable.is_file():
-            raise WorkspaceError(f"client executable is missing: {executable}")
-        command = [
-            str(executable),
-            f"--server=127.0.0.1 {port} {fingerprint}",
-            "--stun_server=off",
-            "--nometa",
-            *arguments,
-        ]
-        print(f"state: {state}")
-        print(f"cwd: {working}")
-        print(f"launch label: {launch_label}")
-        print(f"command: {display_arguments(command)}")
-        if not dry_run:
-            self._require_client_display()
-            environment = os.environ.copy()
-            environment[CLIENT_LAUNCH_LABEL_ENV] = launch_label
-            run(
-                command,
-                cwd=working,
-                env=environment,
-                diagnostics_to_stderr=False,
-            )
-        return executable
+        root = self._build("client", profile_name, tests=False)
+        with self._profile_build_lock(root, profile_name) as build_lock:
+            executable = self._classic_binary_directory(root, "client") / "atrinik"
+            working = root / "sources" / "client"
+            if not executable.is_file():
+                raise WorkspaceError(f"client executable is missing: {executable}")
+            command = [
+                str(executable),
+                f"--server=127.0.0.1 {port} {fingerprint}",
+                "--stun_server=off",
+                "--nometa",
+                *arguments,
+            ]
+            print(f"state: {state}")
+            print(f"cwd: {working}")
+            print(f"launch label: {launch_label}")
+            print(f"command: {display_arguments(command)}")
+            if not dry_run:
+                self._require_client_display()
+                environment = os.environ.copy()
+                environment[CLIENT_LAUNCH_LABEL_ENV] = launch_label
+                run(
+                    command,
+                    cwd=working,
+                    env=environment,
+                    diagnostics_to_stderr=False,
+                    pass_fds=tuple(
+                        lease.fileno()
+                        for lease in (layout_lock, build_lock)
+                        if lease is not None
+                    ),
+                )
+            return executable
 
     def run_server(
         self,
@@ -7345,12 +7630,17 @@ class Workspace:
         dry_run: bool,
     ) -> Path:
         self.paths.ensure()
-        with exclusive_lock(
+        with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
-        ):
+        ) as layout_lock:
             return self._run_server(
-                profile_name, state_name, port, arguments, dry_run
+                profile_name,
+                state_name,
+                port,
+                arguments,
+                dry_run,
+                layout_lock=layout_lock,
             )
 
     def _run_server(
@@ -7360,6 +7650,8 @@ class Workspace:
         port: int,
         arguments: list[str],
         dry_run: bool,
+        *,
+        layout_lock: TextIO | None = None,
     ) -> Path:
         self._validate_run_port(port)
         self._require_classic_contracts(profile_name, {"server"})
@@ -7367,29 +7659,43 @@ class Workspace:
         selected = self._resolve_build_profile(profile_name, {"server"})
         state_location = self._state_location(state_name)
         lock_path = Path(f"{state_location}.lock")
-        with exclusive_lock(lock_path, f"server state {state_location}", nonblocking=True):
+        with exclusive_lock(
+            lock_path, f"server state {state_location}", nonblocking=True
+        ) as state_lock:
             root = self._build_resolved(
                 "server", profile_name, False, targets, selected
             )
-            state = self.state_path(
-                state_name, selected["server"], resolved_path=state_location
-            )
-            runtime = self._prepare_server_runtime(root, selected, state, state_name)
-            executable = runtime / "atrinik-server"
-            command = [
-                str(executable),
-                f"--port_quic={port}",
-                "--port_mapping=off",
-                "--stun_server=off",
-                *arguments,
-                f"--assetspath={runtime / 'assets'}",
-            ]
-            print(f"state: {state}")
-            print(f"cwd: {runtime}")
-            print(f"command: {display_arguments(command)}")
-            if not dry_run:
-                run(command, cwd=runtime, diagnostics_to_stderr=False)
-            return executable
+            with self._profile_build_lock(root, profile_name) as build_lock:
+                state = self.state_path(
+                    state_name, selected["server"], resolved_path=state_location
+                )
+                runtime = self._prepare_server_runtime(
+                    root, selected, state, state_name
+                )
+                executable = runtime / "atrinik-server"
+                command = [
+                    str(executable),
+                    f"--port_quic={port}",
+                    "--port_mapping=off",
+                    "--stun_server=off",
+                    *arguments,
+                    f"--assetspath={runtime / 'assets'}",
+                ]
+                print(f"state: {state}")
+                print(f"cwd: {runtime}")
+                print(f"command: {display_arguments(command)}")
+                if not dry_run:
+                    run(
+                        command,
+                        cwd=runtime,
+                        diagnostics_to_stderr=False,
+                        pass_fds=tuple(
+                            lease.fileno()
+                            for lease in (layout_lock, state_lock, build_lock)
+                            if lease is not None
+                        ),
+                    )
+                return executable
 
     @staticmethod
     def _validate_run_port(port: int) -> None:
