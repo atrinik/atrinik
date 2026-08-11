@@ -9,7 +9,7 @@ import stat
 import subprocess
 from typing import Any
 
-from .model import WorkspaceError, load_json
+from .model import WorkspaceError
 
 
 PLAYTEST_MODE = "local-playtest"
@@ -259,7 +259,16 @@ def verify_playtest_tree(
     ):
         if manifest.get(key) != expected_inputs.get(key):
             raise WorkspaceError(f"local-playtest manifest has stale or tampered {key}")
-    toolchain = load_json(source / "manifests" / "playtest-audio-toolchain.json")
+    toolchain_payload = _read_regular(
+        source / "manifests" / "playtest-audio-toolchain.json",
+        "selected sound playtest toolchain",
+    )
+    if _hash_bytes(toolchain_payload) != expected_inputs.get("toolchain_sha256"):
+        raise WorkspaceError("selected sound playtest toolchain is stale or tampered")
+    try:
+        toolchain = json.loads(toolchain_payload)
+    except json.JSONDecodeError as error:
+        raise WorkspaceError("selected sound playtest toolchain is invalid JSON") from error
     if (
         not isinstance(toolchain, dict)
         or toolchain.get("$schema")
@@ -317,7 +326,18 @@ def verify_playtest_tree(
     ):
         raise WorkspaceError("local-playtest blocker report contract is invalid")
 
-    source_manifest = load_json(source / "manifests" / "source-assets.json")
+    source_manifest_payload = _read_regular(
+        source / "manifests" / "source-assets.json",
+        "selected sound source manifest",
+    )
+    if _hash_bytes(source_manifest_payload) != expected_inputs.get(
+        "source_manifest_sha256"
+    ):
+        raise WorkspaceError("selected sound source manifest is stale or tampered")
+    try:
+        source_manifest = json.loads(source_manifest_payload)
+    except json.JSONDecodeError as error:
+        raise WorkspaceError("selected sound source manifest is invalid JSON") from error
     if not isinstance(source_manifest, dict) or not isinstance(
         source_manifest.get("assets"), list
     ):

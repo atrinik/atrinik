@@ -371,12 +371,47 @@ class PlaytestSoundTests(unittest.TestCase):
             with self.subTest(description=description):
                 try:
                     assert callable(mutate)
-                    mutate()
+                    candidate_inputs = mutate()
+                    inputs = (
+                        candidate_inputs
+                        if isinstance(candidate_inputs, dict)
+                        else self.inputs
+                    )
                     with self.assertRaisesRegex(WorkspaceError, error):
-                        verify_playtest_tree(self.source, self.output, self.inputs)
+                        verify_playtest_tree(
+                            self.source,
+                            self.output,
+                            inputs,
+                        )
                 finally:
                     for path, payload in originals.items():
                         path.write_bytes(payload)
+
+        def install_toolchain_payload(payload: bytes) -> dict[str, str]:
+            toolchain_path.write_bytes(payload)
+            toolchain_hash = digest(toolchain_path)
+            manifest = copy.deepcopy(self.manifest)
+            manifest["toolchain_sha256"] = toolchain_hash
+            self.rewrite_manifest(manifest)
+            return {**self.inputs, "toolchain_sha256": toolchain_hash}
+
+        def install_toolchain(value: object) -> dict[str, str]:
+            return install_toolchain_payload(canonical(value))
+
+        def install_source_manifest_payload(payload: bytes) -> dict[str, str]:
+            source_manifest_path.write_bytes(payload)
+            source_manifest_hash = digest(source_manifest_path)
+            blocker = json.loads(originals[blocker_path])
+            blocker["source_manifest_sha256"] = source_manifest_hash
+            blocker_path.write_bytes(canonical(blocker))
+            manifest = copy.deepcopy(self.manifest)
+            manifest["source_manifest_sha256"] = source_manifest_hash
+            manifest["blocker_report_sha256"] = digest(blocker_path)
+            self.rewrite_manifest(manifest)
+            return {**self.inputs, "source_manifest_sha256": source_manifest_hash}
+
+        def install_source_manifest(value: object) -> dict[str, str]:
+            return install_source_manifest_payload(canonical(value))
 
         reject(
             "manifest-json",
@@ -391,7 +426,19 @@ class PlaytestSoundTests(unittest.TestCase):
         reject(
             "toolchain-schema",
             "toolchain schema is invalid",
-            lambda: toolchain_path.write_bytes(canonical({"schema_version": 2})),
+            lambda: install_toolchain({"schema_version": 2}),
+        )
+        reject(
+            "toolchain-json",
+            "toolchain is invalid JSON",
+            lambda: install_toolchain_payload(b"{"),
+        )
+        reject(
+            "toolchain-hash",
+            "toolchain is stale or tampered",
+            lambda: toolchain_path.write_bytes(
+                canonical({**json.loads(originals[toolchain_path]), "unused": True})
+            ),
         )
         reject(
             "packaged-schema",
@@ -428,13 +475,27 @@ class PlaytestSoundTests(unittest.TestCase):
         reject(
             "source-manifest",
             "source manifest is invalid",
-            lambda: source_manifest_path.write_bytes(canonical({"assets": {}})),
+            lambda: install_source_manifest({"assets": {}}),
+        )
+        reject(
+            "source-manifest-json",
+            "source manifest is invalid JSON",
+            lambda: install_source_manifest_payload(b"{"),
+        )
+        reject(
+            "source-manifest-hash",
+            "source manifest is stale or tampered",
+            lambda: source_manifest_path.write_bytes(
+                canonical(
+                    {**json.loads(originals[source_manifest_path]), "unused": True}
+                )
+            ),
         )
 
-        def invalid_source_asset() -> None:
+        def invalid_source_asset() -> dict[str, str]:
             source_manifest = json.loads(originals[source_manifest_path])
             source_manifest["assets"][0] = []
-            source_manifest_path.write_bytes(canonical(source_manifest))
+            return install_source_manifest(source_manifest)
 
         reject(
             "source-asset",
@@ -442,10 +503,10 @@ class PlaytestSoundTests(unittest.TestCase):
             invalid_source_asset,
         )
 
-        def invalid_expected_source() -> None:
+        def invalid_expected_source() -> dict[str, str]:
             source_manifest = json.loads(originals[source_manifest_path])
             source_manifest["assets"][0]["source"] = []
-            source_manifest_path.write_bytes(canonical(source_manifest))
+            return install_source_manifest(source_manifest)
 
         reject(
             "source-asset-identity",
@@ -453,12 +514,12 @@ class PlaytestSoundTests(unittest.TestCase):
             invalid_expected_source,
         )
 
-        def duplicate_source_asset() -> None:
+        def duplicate_source_asset() -> dict[str, str]:
             source_manifest = json.loads(originals[source_manifest_path])
             source_manifest["assets"][1]["logical_path"] = source_manifest["assets"][0][
                 "logical_path"
             ]
-            source_manifest_path.write_bytes(canonical(source_manifest))
+            return install_source_manifest(source_manifest)
 
         reject(
             "duplicate-source-asset",
