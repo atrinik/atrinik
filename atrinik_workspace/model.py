@@ -1092,13 +1092,42 @@ class Paths:
                 os.close(descriptor)
 
 
+def _managed_path_no_symlinks(path: Path, workspace_builds: Path) -> Path:
+    if workspace_builds.exists() or workspace_builds.is_symlink():
+        if workspace_builds.is_symlink() or not workspace_builds.is_dir():
+            raise WorkspaceError(
+                f"workspace builds path is not a regular directory: {workspace_builds}"
+            )
+    builds = Path(os.path.abspath(workspace_builds))
+    candidate = Path(os.path.abspath(path))
+    try:
+        relative = candidate.relative_to(builds)
+    except ValueError as error:
+        raise WorkspaceError(
+            f"managed build path is outside workspace builds: {candidate}"
+        ) from error
+    current = builds
+    for part in relative.parts:
+        current /= part
+        try:
+            mode = current.lstat().st_mode
+        except FileNotFoundError:
+            break
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect managed build path {current}: {error}"
+            ) from error
+        if stat.S_ISLNK(mode):
+            raise WorkspaceError(f"refusing symlinked managed build path: {current}")
+        if current != candidate and not stat.S_ISDIR(mode):
+            raise WorkspaceError(
+                f"managed build parent is not a directory: {current}"
+            )
+    return candidate
+
+
 def managed_reset(path: Path, workspace_builds: Path, purpose: str) -> None:
-    builds = workspace_builds.resolve()
-    if path.is_symlink():
-        raise WorkspaceError(f"refusing symlinked managed build path: {path}")
-    path = path.parent.resolve() / path.name
-    if builds not in path.parents:
-        raise WorkspaceError(f"refusing to replace path outside workspace builds: {path}")
+    path = _managed_path_no_symlinks(path, workspace_builds)
     marker = path / MANAGED_MARKER
     if path.exists():
         if not path.is_dir() or not marker.is_file() or marker.is_symlink():
@@ -1112,12 +1141,7 @@ def managed_reset(path: Path, workspace_builds: Path, purpose: str) -> None:
 
 
 def managed_directory(path: Path, workspace_builds: Path, purpose: str) -> None:
-    builds = workspace_builds.resolve()
-    if path.is_symlink():
-        raise WorkspaceError(f"refusing symlinked managed build path: {path}")
-    path = path.parent.resolve() / path.name
-    if builds != path and builds not in path.parents:
-        raise WorkspaceError(f"refusing build path outside workspace builds: {path}")
+    path = _managed_path_no_symlinks(path, workspace_builds)
     marker = path / MANAGED_MARKER
     if path.exists():
         if not path.is_dir() or not marker.is_file() or marker.is_symlink():
@@ -1137,12 +1161,7 @@ def managed_remove(path: Path, workspace_builds: Path, purpose: str) -> None:
         raise WorkspaceError(
             f"workspace builds path is not a regular directory: {workspace_builds}"
         )
-    builds = workspace_builds.resolve()
-    if path.is_symlink():
-        raise WorkspaceError(f"refusing symlinked managed build path: {path}")
-    path = path.parent.resolve() / path.name
-    if builds not in path.parents:
-        raise WorkspaceError(f"refusing to remove path outside workspace builds: {path}")
+    path = _managed_path_no_symlinks(path, workspace_builds)
     marker = path / MANAGED_MARKER
     if not path.is_dir() or not marker.is_file() or marker.is_symlink():
         raise WorkspaceError(f"refusing to remove unmanaged build path: {path}")
