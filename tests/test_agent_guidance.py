@@ -31,6 +31,51 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("Zoey Rose", registry)
         self.assertIn("Daniel Liptrot", registry)
 
+    def test_copyright_header_contract_is_complete(self) -> None:
+        guide = " ".join(
+            (ROOT / "AGENTS.md").read_text(encoding="utf-8").split()
+        )
+        contributing = " ".join(
+            (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8").split()
+        )
+
+        for marker in {
+            "On touch, refresh existing Atrinik-owned copyright terminal years",
+            "blanket holders",
+            "`CONTRIBUTING.md`",
+            "preserve precise attribution",
+        }:
+            with self.subTest(surface="AGENTS.md", marker=marker):
+                self.assertIn(marker, guide)
+
+        for marker in {
+            "Use `The Atrinik Project` as the exact collective holder",
+            "already predominates in modern MIT source headers",
+            "exact blanket format is `Copyright START[-END] The Atrinik Project`",
+            "Only the surrounding comment delimiters vary by file format",
+            "omit `(C)`, `(c)`, `©`, commas, and trailing punctuation",
+            "migrate prospectively",
+            "each existing Atrinik-owned copyright notice",
+            "retain its original start year",
+            "current calendar year",
+            "Crossfire, Daimonin and other upstream notices",
+            "Leave upstream and third-party notice years unchanged",
+            "SPDX identifiers",
+            "authoritative generator or template",
+            "a separate legal and attribution surface",
+        }:
+            with self.subTest(surface="CONTRIBUTING.md", marker=marker):
+                self.assertIn(marker, contributing)
+
+        for example in {
+            "Copyright 2021-2026 The Atrinik Project",
+            "Copyright 2026 The Atrinik Project",
+            "Copyright 2024-2026 The Atrinik Project",
+            "Copyright (C) 2009-2026 Zoey Rose and Atrinik Development Team",
+        }:
+            with self.subTest(example=example):
+                self.assertIn(example, contributing)
+
     def test_inventory_is_complete_and_within_budget(self) -> None:
         inventory = collect_inventory()
         self.assertEqual(inventory["summary"]["skill_count"], 9)
