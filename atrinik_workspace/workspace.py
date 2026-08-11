@@ -4,7 +4,9 @@ import binascii
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import ExitStack, contextmanager
+import ctypes
 from datetime import datetime, timezone
+import errno
 import fcntl
 import hashlib
 import os
@@ -21,7 +23,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from typing import Any, Iterator, TextIO
+from typing import Any, Callable, Iterator, TextIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 
@@ -104,6 +106,8 @@ SCENARIO_PASSWORD_MAX_SIZE = 128
 BUILD_METADATA = ".atrinik-build.json"
 BUILD_METADATA_SCHEMA_VERSION = 1
 CACHE_METADATA = ".atrinik-cache.json"
+RUNTIME_INPUT_METADATA = ".atrinik-dependency.json"
+RUNTIME_INPUT_SCHEMA_VERSION = 1
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
 REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
@@ -162,6 +166,524 @@ def git(
     path: Path, *arguments: str, capture: bool = False, trace: bool = True
 ) -> str:
     return run(["git", "-C", str(path), *arguments], capture=capture, trace=trace)
+
+
+def _darwin_descriptor_mount_id(descriptor: int) -> tuple[int, int]:
+    buffer = ctypes.create_string_buffer(4096)
+    library = ctypes.CDLL(None, use_errno=True)
+    fstatfs = library.fstatfs
+    fstatfs.argtypes = [ctypes.c_int, ctypes.c_void_p]
+    fstatfs.restype = ctypes.c_int
+    if fstatfs(descriptor, ctypes.byref(buffer)) != 0:
+        error = ctypes.get_errno()
+        raise WorkspaceError(
+            "cannot inspect filesystem mount for descriptor "
+            f"{descriptor}: {os.strerror(error)}"
+        )
+    # Darwin's fsid_t is two signed 32-bit integers at byte offset 48 in
+    # struct statfs, after the size and block/file count fields.
+    first = ctypes.c_int32.from_buffer(buffer, 48).value
+    second = ctypes.c_int32.from_buffer(buffer, 52).value
+    return first, second
+
+
+def _linux_descriptor_mount_id(descriptor: int) -> int:
+    buffer = ctypes.create_string_buffer(256)
+    library = ctypes.CDLL(None, use_errno=True)
+    try:
+        statx = library.statx
+    except AttributeError as error:
+        raise WorkspaceError("Linux statx mount identity is unavailable") from error
+    statx.argtypes = [
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_int,
+        ctypes.c_uint,
+        ctypes.c_void_p,
+    ]
+    statx.restype = ctypes.c_int
+    statx_mount_id = 0x1000
+    at_empty_path = 0x1000
+    if (
+        statx(
+            descriptor,
+            b"",
+            at_empty_path,
+            statx_mount_id,
+            ctypes.byref(buffer),
+        )
+        != 0
+    ):
+        error = ctypes.get_errno()
+        raise WorkspaceError(
+            "cannot inspect filesystem mount for descriptor "
+            f"{descriptor}: {os.strerror(error)}"
+        )
+    returned_mask = ctypes.c_uint32.from_buffer(buffer, 0).value
+    if returned_mask & statx_mount_id == 0:
+        raise WorkspaceError("Linux statx did not return a mount identity")
+    return ctypes.c_uint64.from_buffer(buffer, 144).value
+
+
+def _descriptor_mount_id(descriptor: int) -> int | tuple[int, int]:
+    if sys.platform == "darwin":
+        return _darwin_descriptor_mount_id(descriptor)
+    if sys.platform == "linux":
+        return _linux_descriptor_mount_id(descriptor)
+    else:
+        raise WorkspaceError(
+            f"filesystem mount identity is unavailable on {sys.platform}"
+        )
+
+
+def _linux_fchmod_path_descriptor(descriptor: int, mode: int) -> None:
+    library = ctypes.CDLL(None, use_errno=True)
+    syscall = library.syscall
+    syscall.restype = ctypes.c_long
+    # fchmodat2 is syscall 452 on the Linux generic and x86-64 tables.
+    if (
+        syscall(
+            ctypes.c_long(452),
+            ctypes.c_int(descriptor),
+            ctypes.c_char_p(b""),
+            ctypes.c_uint(mode),
+            ctypes.c_int(0x1000),  # AT_EMPTY_PATH
+        )
+        != 0
+    ):
+        error = ctypes.get_errno()
+        raise WorkspaceError(
+            "cannot change owned removal directory mode for descriptor "
+            f"{descriptor}: {os.strerror(error)}"
+        )
+
+
+def _open_owned_tree_directory(
+    parent_descriptor: int,
+    name: str,
+    before: os.stat_result,
+    mount_id: int | tuple[int, int],
+    display: Path,
+    *,
+    root: bool = False,
+) -> int:
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    try:
+        readable_descriptor = os.open(name, flags, dir_fd=parent_descriptor)
+    except OSError as error:
+        if sys.platform == "linux" and error.errno in (errno.EACCES, errno.EPERM):
+            return _open_unreadable_linux_owned_tree_directory(
+                parent_descriptor, name, before, mount_id, display, root=root
+            )
+        label = "root" if root else "directory"
+        raise WorkspaceError(
+            f"owned removal {label} changed: {display}"
+        ) from error
+    changed_mode = False
+    try:
+        opened = os.fstat(readable_descriptor)
+        if (
+            opened.st_dev != before.st_dev
+            or opened.st_ino != before.st_ino
+            or _descriptor_mount_id(readable_descriptor) != mount_id
+        ):
+            message = (
+                f"owned removal root changed or is mounted: {display}"
+                if root
+                else f"owned removal encountered a mount: {display}"
+            )
+            raise WorkspaceError(message)
+        os.fchmod(readable_descriptor, stat.S_IRWXU)
+        changed_mode = True
+        readable = os.fstat(readable_descriptor)
+        if (
+            readable.st_dev != before.st_dev
+            or readable.st_ino != before.st_ino
+            or _descriptor_mount_id(readable_descriptor) != mount_id
+        ):
+            raise WorkspaceError(
+                f"owned removal encountered a mount: {display}"
+            )
+        return readable_descriptor
+    except BaseException:
+        try:
+            if changed_mode:
+                os.fchmod(readable_descriptor, stat.S_IMODE(before.st_mode))
+        except OSError as restore_error:
+            raise WorkspaceError(
+                "cannot restore owned removal directory mode after "
+                f"open failure: {display}"
+            ) from restore_error
+        finally:
+            os.close(readable_descriptor)
+        raise
+
+
+def _open_unreadable_linux_owned_tree_directory(
+    parent_descriptor: int,
+    name: str,
+    before: os.stat_result,
+    mount_id: int | tuple[int, int],
+    display: Path,
+    *,
+    root: bool,
+) -> int:
+    try:
+        bound_descriptor = os.open(
+            name,
+            os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW,
+            dir_fd=parent_descriptor,
+        )
+    except OSError as error:
+        label = "root" if root else "directory"
+        raise WorkspaceError(
+            f"owned removal {label} changed: {display}"
+        ) from error
+    changed_mode = False
+    try:
+        opened = os.fstat(bound_descriptor)
+        if (
+            opened.st_dev != before.st_dev
+            or opened.st_ino != before.st_ino
+            or _descriptor_mount_id(bound_descriptor) != mount_id
+        ):
+            message = (
+                f"owned removal root changed or is mounted: {display}"
+                if root
+                else f"owned removal encountered a mount: {display}"
+            )
+            raise WorkspaceError(message)
+        _linux_fchmod_path_descriptor(bound_descriptor, stat.S_IRWXU)
+        changed_mode = True
+        readable_descriptor = os.open(
+            ".",
+            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+            dir_fd=bound_descriptor,
+        )
+        readable = os.fstat(readable_descriptor)
+        if (
+            readable.st_dev != before.st_dev
+            or readable.st_ino != before.st_ino
+            or _descriptor_mount_id(readable_descriptor) != mount_id
+        ):
+            os.close(readable_descriptor)
+            raise WorkspaceError(
+                f"owned removal encountered a mount: {display}"
+            )
+        return readable_descriptor
+    except BaseException:
+        if changed_mode:
+            try:
+                _linux_fchmod_path_descriptor(
+                    bound_descriptor, stat.S_IMODE(before.st_mode)
+                )
+            except WorkspaceError as restore_error:
+                raise WorkspaceError(
+                    "cannot restore owned removal directory mode after "
+                    f"open failure: {display}"
+                ) from restore_error
+        raise
+    finally:
+        os.close(bound_descriptor)
+
+
+def _probe_owned_tree_entry_mount(
+    descriptor: int,
+    name: str,
+    child: os.stat_result,
+    mount_id: int | tuple[int, int],
+    display: Path,
+) -> None:
+    if stat.S_ISLNK(child.st_mode):
+        return
+    if not (stat.S_ISREG(child.st_mode) or stat.S_ISDIR(child.st_mode)):
+        raise WorkspaceError(f"owned removal entry is unsupported: {display}")
+    flags = os.O_NOFOLLOW
+    if sys.platform == "linux":
+        flags |= os.O_PATH
+    else:
+        flags |= os.O_RDONLY | os.O_NONBLOCK
+    try:
+        probe = os.open(name, flags, dir_fd=descriptor)
+    except OSError as error:
+        raise WorkspaceError(f"owned removal entry changed: {display}") from error
+    try:
+        opened = os.fstat(probe)
+        if (
+            opened.st_dev != child.st_dev
+            or opened.st_ino != child.st_ino
+            or _descriptor_mount_id(probe) != mount_id
+        ):
+            raise WorkspaceError(f"owned removal encountered a mount: {display}")
+    finally:
+        os.close(probe)
+
+
+def _prepare_owned_tree_removal(
+    descriptor: int,
+    device: int,
+    mount_id: int | tuple[int, int],
+    display: Path,
+    original_mode: int | None = None,
+) -> None:
+    root = os.fstat(descriptor)
+    if (
+        not stat.S_ISDIR(root.st_mode)
+        or root.st_dev != device
+        or _descriptor_mount_id(descriptor) != mount_id
+    ):
+        raise WorkspaceError(f"owned removal crossed a filesystem boundary: {display}")
+    restore_mode = (
+        stat.S_IMODE(root.st_mode) if original_mode is None else original_mode
+    )
+    os.fchmod(descriptor, stat.S_IRWXU)
+    try:
+        for name in sorted(os.listdir(descriptor)):
+            child_display = display / name
+            child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+            if child.st_dev != device:
+                raise WorkspaceError(
+                    f"owned removal encountered a mount: {child_display}"
+                )
+            if stat.S_ISDIR(child.st_mode):
+                child_descriptor = _open_owned_tree_directory(
+                    descriptor, name, child, mount_id, child_display
+                )
+                try:
+                    _prepare_owned_tree_removal(
+                        child_descriptor,
+                        device,
+                        mount_id,
+                        child_display,
+                        stat.S_IMODE(child.st_mode),
+                    )
+                finally:
+                    os.close(child_descriptor)
+            else:
+                _probe_owned_tree_entry_mount(
+                    descriptor, name, child, mount_id, child_display
+                )
+    finally:
+        try:
+            os.fchmod(descriptor, restore_mode)
+        except OSError as restore_error:
+            raise WorkspaceError(
+                f"cannot restore owned removal directory mode: {display}"
+            ) from restore_error
+
+
+def _remove_owned_tree_contents(
+    descriptor: int,
+    device: int,
+    mount_id: int | tuple[int, int],
+    display: Path,
+) -> None:
+    for name in sorted(os.listdir(descriptor)):
+        child_display = display / name
+        child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+        if child.st_dev != device:
+            raise WorkspaceError(
+                f"owned removal encountered a mount: {child_display}"
+            )
+        if stat.S_ISDIR(child.st_mode):
+            child_descriptor = _open_owned_tree_directory(
+                descriptor, name, child, mount_id, child_display
+            )
+            try:
+                _remove_owned_tree_contents(
+                    child_descriptor, device, mount_id, child_display
+                )
+            finally:
+                os.close(child_descriptor)
+            os.rmdir(name, dir_fd=descriptor)
+        else:
+            _probe_owned_tree_entry_mount(
+                descriptor, name, child, mount_id, child_display
+            )
+            os.unlink(name, dir_fd=descriptor)
+
+
+def remove_owned_tree(path: Path) -> None:
+    if path.is_symlink() or not path.is_dir():
+        raise WorkspaceError(f"owned removal root is invalid: {path}")
+    parent_descriptor = os.open(
+        path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    )
+    descriptor: int | None = None
+    try:
+        before = os.stat(path.name, dir_fd=parent_descriptor, follow_symlinks=False)
+        parent_mount_id = _descriptor_mount_id(parent_descriptor)
+        descriptor = _open_owned_tree_directory(
+            parent_descriptor,
+            path.name,
+            before,
+            parent_mount_id,
+            path,
+            root=True,
+        )
+        opened = os.fstat(descriptor)
+        root_mount_id = _descriptor_mount_id(descriptor)
+        _prepare_owned_tree_removal(
+            descriptor,
+            opened.st_dev,
+            root_mount_id,
+            path,
+            stat.S_IMODE(before.st_mode),
+        )
+        os.fchmod(descriptor, stat.S_IRWXU)
+        _remove_owned_tree_contents(
+            descriptor, opened.st_dev, root_mount_id, path
+        )
+        os.close(descriptor)
+        descriptor = None
+        os.rmdir(path.name, dir_fd=parent_descriptor)
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+        os.close(parent_descriptor)
+
+
+def recover_replaced_directory(output: Path, backup_prefix: str) -> None:
+    backup_container = output.parent / f"{backup_prefix}pending"
+    journal = output.parent / f"{backup_prefix}pending.json"
+    expected_metadata = {
+        "schema_version": SCHEMA_VERSION,
+        "purpose": "replaced-directory-backup",
+        "output": output.name,
+    }
+    if not (journal.exists() or journal.is_symlink()):
+        if backup_container.exists() or backup_container.is_symlink():
+            raise WorkspaceError(
+                f"replaced-directory backup is not managed: {backup_container}"
+            )
+        return
+    if not journal.is_file() or journal.is_symlink():
+        raise WorkspaceError(f"replaced-directory journal is invalid: {journal}")
+    metadata = load_json(journal)
+    if not isinstance(metadata, dict):
+        raise WorkspaceError(f"replaced-directory journal is invalid: {journal}")
+    phase = metadata.pop("phase", None)
+    if metadata != expected_metadata or phase not in {"initializing", "prepared", "committed"}:
+        raise WorkspaceError(f"replaced-directory journal is invalid: {journal}")
+    previous = backup_container / "previous"
+    try:
+        if phase == "initializing":
+            if backup_container.exists() or backup_container.is_symlink():
+                if (
+                    not backup_container.is_dir()
+                    or backup_container.is_symlink()
+                    or any(backup_container.iterdir())
+                ):
+                    raise WorkspaceError(
+                        f"replaced-directory backup is invalid: {backup_container}"
+                    )
+                remove_owned_tree(backup_container)
+        else:
+            if not backup_container.is_dir() or backup_container.is_symlink():
+                if phase == "committed" and output.is_dir() and not output.is_symlink():
+                    journal.unlink()
+                    return
+                raise WorkspaceError(
+                    f"replaced-directory backup is invalid: {backup_container}"
+                )
+            if previous.exists() or previous.is_symlink():
+                if not previous.is_dir() or previous.is_symlink():
+                    raise WorkspaceError(
+                        "replaced-directory backup payload is invalid: "
+                        f"{previous}"
+                    )
+                if phase == "prepared":
+                    if output.exists() or output.is_symlink():
+                        if not output.is_dir() or output.is_symlink():
+                            raise WorkspaceError(
+                                f"uncommitted replacement is invalid: {output}"
+                            )
+                        remove_owned_tree(output)
+                    previous.replace(output)
+                else:
+                    if not output.is_dir() or output.is_symlink():
+                        raise WorkspaceError(
+                            f"committed replacement is invalid: {output}"
+                        )
+                    remove_owned_tree(previous)
+            elif phase == "committed":
+                if not output.is_dir() or output.is_symlink():
+                    raise WorkspaceError(
+                        f"committed replacement is invalid: {output}"
+                    )
+            elif not output.is_dir() or output.is_symlink():
+                raise WorkspaceError(
+                    f"uncommitted replacement is invalid: {output}"
+                )
+            if any(backup_container.iterdir()):
+                raise WorkspaceError(
+                    f"replaced-directory backup is not empty: {backup_container}"
+                )
+            remove_owned_tree(backup_container)
+        journal.unlink()
+    except OSError as error:
+        raise WorkspaceError(
+            f"cannot recover replaced-directory transaction {journal}: {error}"
+        ) from error
+
+
+def replace_runtime_directory(
+    output: Path,
+    staging: Path,
+    backup_prefix: str,
+    verify_after_install: Callable[[], None] | None = None,
+) -> None:
+    recover_replaced_directory(output, backup_prefix)
+    backup_container = output.parent / f"{backup_prefix}pending"
+    journal = output.parent / f"{backup_prefix}pending.json"
+    backup_metadata: dict[str, object] = {
+        "schema_version": SCHEMA_VERSION,
+        "purpose": "replaced-directory-backup",
+        "output": output.name,
+        "phase": "initializing",
+    }
+
+    backup: Path | None = None
+    if output.exists():
+        atomic_json(journal, backup_metadata)
+        backup_container.mkdir()
+        backup_metadata["phase"] = "prepared"
+        atomic_json(journal, backup_metadata)
+        backup = backup_container / "previous"
+        output.replace(backup)
+        try:
+            staging.replace(output)
+        except BaseException:
+            backup.replace(output)
+            remove_owned_tree(backup_container)
+            journal.unlink()
+            raise
+    else:
+        staging.replace(output)
+    try:
+        if verify_after_install is not None:
+            verify_after_install()
+    except BaseException:
+        output.replace(staging)
+        if backup is not None:
+            backup.replace(output)
+            remove_owned_tree(backup_container)
+            journal.unlink()
+        raise
+    if backup is not None:
+        backup_metadata["phase"] = "committed"
+        atomic_json(journal, backup_metadata)
+        try:
+            remove_owned_tree(backup)
+            remove_owned_tree(backup_container)
+            journal.unlink()
+        except (OSError, WorkspaceError) as error:
+            print(
+                "warning: cannot remove managed replaced-directory backup "
+                f"{backup_container}: {error}; the next replacement will retry "
+                "before changing output",
+                file=sys.stderr,
+            )
 
 
 def replace_directory(output: Path, staging: Path, backup_prefix: str) -> None:
@@ -1426,9 +1948,9 @@ class Workspace:
             managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
             self._refresh_build_metadata(root, profile_name, key, selected)
             if "content" in targets or "server" in targets:
-                self._collect_content(root, selected)
+                self._collect_content(root, selected, profile_name)
             if "server" in targets:
-                self._stage_resources(root, selected)
+                self._stage_resources(root, selected, profile_name)
             integrated_classic = self._uses_integrated_classic_build(
                 targets, selected
             )
@@ -1724,6 +2246,41 @@ class Workspace:
         self._source_view_unchanged[str(view.resolve())] = unchanged
         return view
 
+    def _runtime_input_coordinates(
+        self,
+        profile_name: str,
+        selected: dict[str, Path],
+        role: str,
+    ) -> tuple[dict[str, Any], bool]:
+        profile = self._load_profile(profile_name, require_file=False)
+        component = self.manifest.stack(profile["stack"]).providers[role]
+        checkout = self._selector_root(profile, component).resolve()
+        clean = _is_clean(checkout, trace=False)
+        coordinate = {
+            "component": component.name,
+            "repository": component.repository,
+            "branch": component.branch,
+            "checkout": component.checkout_name,
+            "source": component.source,
+            "checkout_path": str(checkout),
+            "source_path": str(selected[role].resolve()),
+            "head": git(
+                checkout,
+                "rev-parse",
+                "HEAD",
+                capture=True,
+                trace=False,
+            ),
+        }
+        return (
+            {
+                "schema_version": RUNTIME_INPUT_SCHEMA_VERSION,
+                "cacheable": clean,
+                "coordinate": coordinate,
+            },
+            clean,
+        )
+
     def _source_view_link(
         self,
         view: Path,
@@ -1953,55 +2510,200 @@ class Workspace:
         mapped = view / relative
         return os.path.relpath(mapped, destination.parent), relative.as_posix()
 
-    def _collect_content(self, root: Path, selected: dict[str, Path]) -> Path:
-        output = root / "runtime" / "content"
-        output.parent.mkdir(parents=True, exist_ok=True)
-        if output.exists():
-            managed_directory(output, self.paths.builds, "collected-content")
-        staging = Path(tempfile.mkdtemp(prefix=".content-", dir=output.parent))
-        staging.rmdir()
-        source = selected["content"]
-        commit = git(source, "rev-parse", "HEAD", capture=True)
-        try:
-            run(
-                [
-                    sys.executable,
-                    str(source / "tools" / "build_runtime.py"),
-                    "--source",
-                    str(source),
-                    "--output",
-                    str(staging),
-                    "--source-commit",
-                    commit,
-                ]
+    @staticmethod
+    def _validate_collected_content(
+        path: Path,
+        coordinate: dict[str, str],
+        *,
+        require_metadata: bool = True,
+    ) -> None:
+        if not path.is_dir() or path.is_symlink():
+            raise WorkspaceError(f"collected content is not a directory: {path}")
+        for name in ("lib", "maps"):
+            required = path / name
+            if not required.is_dir() or required.is_symlink():
+                raise WorkspaceError(
+                    f"collected content lacks required directory: {required}"
+                )
+        for name in ("compatibility.json", "manifest.json"):
+            required = path / name
+            if not required.is_file() or required.is_symlink():
+                raise WorkspaceError(
+                    f"collected content lacks required file: {required}"
+                )
+        manifest = load_json(path / "manifest.json")
+        if (
+            not isinstance(manifest, dict)
+            or manifest.get("schema_version") != 2
+            or manifest.get("source")
+            != {
+                "repository": coordinate["repository"],
+                "branch": coordinate["branch"],
+                "commit": coordinate["head"],
+            }
+            or not isinstance(manifest.get("files"), list)
+        ):
+            raise WorkspaceError("collected content manifest is invalid")
+        expected = {MANAGED_MARKER, "manifest.json"}
+        if require_metadata:
+            expected.add(RUNTIME_INPUT_METADATA)
+        for entry in manifest["files"]:
+            if not isinstance(entry, dict) or set(entry) != {"path", "sha256", "size"}:
+                raise WorkspaceError("collected content manifest file entry is invalid")
+            relative = entry["path"]
+            relative_path = PurePosixPath(relative) if isinstance(relative, str) else None
+            if (
+                relative_path is None
+                or relative_path.is_absolute()
+                or relative != relative_path.as_posix()
+                or any(part in {"", ".", ".."} for part in relative_path.parts)
+                or relative in expected
+                or not isinstance(entry["size"], int)
+                or isinstance(entry["size"], bool)
+                or entry["size"] < 0
+                or not isinstance(entry["sha256"], str)
+                or re.fullmatch(r"[0-9a-f]{64}", entry["sha256"]) is None
+            ):
+                raise WorkspaceError("collected content manifest file entry is invalid")
+            expected.add(relative)
+        actual: set[str] = set()
+        for directory, dirnames, filenames in os.walk(path, followlinks=False):
+            directory_path = Path(directory)
+            for name in dirnames:
+                child = directory_path / name
+                if child.is_symlink():
+                    raise WorkspaceError(f"collected content contains a link: {child}")
+            for name in filenames:
+                child = directory_path / name
+                try:
+                    mode = child.lstat().st_mode
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot inspect collected content {child}: {error}"
+                    ) from error
+                if not stat.S_ISREG(mode):
+                    raise WorkspaceError(
+                        f"collected content contains a non-regular file: {child}"
+                    )
+                relative = child.relative_to(path).as_posix()
+                actual.add(relative)
+        if actual != expected:
+            raise WorkspaceError("collected content does not match its manifest")
+        entries = {entry["path"]: entry for entry in manifest["files"]}
+        for relative, entry in entries.items():
+            candidate = path.joinpath(*PurePosixPath(relative).parts)
+            digest = hashlib.sha256()
+            descriptor = open_regular_file(
+                candidate, os.O_RDONLY, "collected content file"
             )
-            atomic_json(
-                staging / MANAGED_MARKER,
-                {"schema_version": SCHEMA_VERSION, "purpose": "collected-content"},
-            )
-            atomic_json(
-                staging / ".atrinik-dependency.json",
-                {
-                    "schema_version": SCHEMA_VERSION,
-                    "workspace_source": str(source),
-                    "commit": commit,
-                },
-            )
-            if not (staging / "lib").is_dir() or not (staging / "maps").is_dir():
-                raise WorkspaceError("content collection did not produce lib and maps")
-        except BaseException:
-            if staging.exists():
-                shutil.rmtree(staging)
-            raise
-        replace_directory(output, staging, ".content-previous-")
-        return output
+            with os.fdopen(descriptor, "rb") as stream:
+                if os.fstat(stream.fileno()).st_size != entry["size"]:
+                    raise WorkspaceError(
+                        "collected content file size does not match manifest"
+                    )
+                while chunk := stream.read(1024 * 1024):
+                    digest.update(chunk)
+            if digest.hexdigest() != entry["sha256"]:
+                raise WorkspaceError(
+                    "collected content file digest does not match manifest"
+                )
 
-    def _stage_resources(self, root: Path, selected: dict[str, Path]) -> Path:
-        output = root / "runtime" / "resources"
-        source = selected["resources"]
-        output.parent.mkdir(parents=True, exist_ok=True)
-        if output.exists() or output.is_symlink():
-            managed_directory(output, self.paths.builds, "resource-view")
+    @staticmethod
+    def _validate_resource_view(
+        path: Path,
+        source: Path,
+        tracked: list[str],
+        *,
+        require_metadata: bool = True,
+    ) -> None:
+        if not path.is_dir() or path.is_symlink():
+            raise WorkspaceError(f"resource view is not a directory: {path}")
+        expected = {MANAGED_MARKER, *tracked}
+        if require_metadata:
+            expected.add(RUNTIME_INPUT_METADATA)
+        actual: set[str] = set()
+        actual_directories: set[str] = set()
+        for directory, dirnames, filenames in os.walk(path, followlinks=False):
+            directory_path = Path(directory)
+            for name in dirnames:
+                child = directory_path / name
+                if child.is_symlink():
+                    raise WorkspaceError(f"resource view contains a link: {child}")
+                actual_directories.add(child.relative_to(path).as_posix())
+            for name in filenames:
+                child = directory_path / name
+                try:
+                    mode = child.lstat().st_mode
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot inspect staged resource {child}: {error}"
+                    ) from error
+                if not stat.S_ISREG(mode):
+                    raise WorkspaceError(
+                        f"resource view contains a non-regular file: {child}"
+                    )
+                actual.add(child.relative_to(path).as_posix())
+        if actual != expected:
+            raise WorkspaceError("resource view does not match its tracked file set")
+        expected_directories = {
+            parent.as_posix()
+            for relative in tracked
+            for parent in PurePosixPath(relative).parents
+            if parent != PurePosixPath(".")
+        }
+        if actual_directories != expected_directories:
+            raise WorkspaceError("resource view does not match its tracked directories")
+        for relative in tracked:
+            parts = PurePosixPath(relative).parts
+            identities: list[tuple[int, str]] = []
+            for candidate, label in (
+                (source.joinpath(*parts), "source resource"),
+                (path.joinpath(*parts), "staged resource"),
+            ):
+                digest = hashlib.sha256()
+                descriptor = open_regular_file(candidate, os.O_RDONLY, label)
+                with os.fdopen(descriptor, "rb") as stream:
+                    size = os.fstat(stream.fileno()).st_size
+                    while chunk := stream.read(1024 * 1024):
+                        digest.update(chunk)
+                identities.append((size, digest.hexdigest()))
+            if identities[0] != identities[1]:
+                raise WorkspaceError(
+                    f"staged resource does not match selected source: {relative}"
+                )
+
+    def _runtime_input_cache_matches(
+        self,
+        output: Path,
+        purpose: str,
+        inputs: dict[str, Any],
+        cacheable: bool,
+        validate: Callable[[Path], None],
+    ) -> bool:
+        if not cacheable or not output.is_dir() or output.is_symlink():
+            return False
+        marker = output / MANAGED_MARKER
+        metadata = output / RUNTIME_INPUT_METADATA
+        if (
+            not marker.is_file()
+            or marker.is_symlink()
+            or not metadata.is_file()
+            or metadata.is_symlink()
+        ):
+            return False
+        try:
+            if load_json(marker) != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": purpose,
+            } or load_json(metadata) != inputs:
+                return False
+            validate(output)
+        except WorkspaceError:
+            return False
+        return True
+
+    @staticmethod
+    def _resource_runtime_files(source: Path) -> tuple[list[str], list[str]]:
         manifest = source / RESOURCE_PATHS_MANIFEST
         try:
             lines = manifest.read_text(encoding="utf-8").splitlines()
@@ -2047,7 +2749,9 @@ class Workspace:
         except subprocess.CalledProcessError as error:
             detail = error.stderr.decode("utf-8", errors="replace").strip()
             suffix = f": {detail}" if detail else ""
-            raise WorkspaceError(f"cannot list tracked runtime resources{suffix}") from error
+            raise WorkspaceError(
+                f"cannot list tracked runtime resources{suffix}"
+            ) from error
 
         try:
             tracked = [
@@ -2056,11 +2760,152 @@ class Workspace:
                 if item
             ]
         except UnicodeDecodeError as error:
-            raise WorkspaceError("runtime resource paths must use UTF-8 names") from error
+            raise WorkspaceError(
+                "runtime resource paths must use UTF-8 names"
+            ) from error
         if not tracked:
             raise WorkspaceError(
                 f"resource runtime manifest selects no tracked files: {manifest}"
             )
+        reserved = {MANAGED_MARKER, RUNTIME_INPUT_METADATA}
+        if selected_reserved := sorted(reserved.intersection(tracked)):
+            raise WorkspaceError(
+                "resource runtime manifest selects reserved generated paths: "
+                + ", ".join(selected_reserved)
+            )
+        return runtime_paths, tracked
+
+    def _collect_content(
+        self,
+        root: Path,
+        selected: dict[str, Path],
+        profile_name: str = "default",
+    ) -> Path:
+        output = root / "runtime" / "content"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        inputs, cacheable = self._runtime_input_coordinates(
+            profile_name, selected, "content"
+        )
+        matched = self._runtime_input_cache_matches(
+            output,
+            "collected-content",
+            inputs,
+            cacheable,
+            lambda path: self._validate_collected_content(
+                path, inputs["coordinate"]
+            ),
+        )
+        validated_inputs, validated_cacheable = self._runtime_input_coordinates(
+            profile_name, selected, "content"
+        )
+        if matched and (
+            validated_inputs == inputs
+            and validated_cacheable == cacheable
+            and validated_cacheable
+        ):
+            print(f"content: cached {output}")
+            return output
+        inputs, cacheable = validated_inputs, validated_cacheable
+        if output.exists() or output.is_symlink():
+            managed_directory(output, self.paths.builds, "collected-content")
+        staging = Path(tempfile.mkdtemp(prefix=".content-", dir=output.parent))
+        staging.rmdir()
+        source = selected["content"]
+        commit = inputs["coordinate"]["head"]
+        try:
+            run(
+                [
+                    sys.executable,
+                    str(source / "tools" / "build_runtime.py"),
+                    "--source",
+                    str(source),
+                    "--output",
+                    str(staging),
+                    "--source-commit",
+                    commit,
+                ]
+            )
+            atomic_json(
+                staging / MANAGED_MARKER,
+                {"schema_version": SCHEMA_VERSION, "purpose": "collected-content"},
+            )
+            self._validate_collected_content(
+                staging, inputs["coordinate"], require_metadata=False
+            )
+            final_inputs, final_cacheable = self._runtime_input_coordinates(
+                profile_name, selected, "content"
+            )
+            if final_inputs != inputs or final_cacheable != cacheable:
+                raise WorkspaceError("selected content input changed during collection")
+            if cacheable:
+                atomic_json(staging / RUNTIME_INPUT_METADATA, inputs)
+
+            def verify_content_install() -> None:
+                installed_inputs, installed_cacheable = (
+                    self._runtime_input_coordinates(
+                        profile_name, selected, "content"
+                    )
+                )
+                if (
+                    installed_inputs != inputs
+                    or installed_cacheable != cacheable
+                ):
+                    raise WorkspaceError(
+                        "selected content input changed during collection"
+                    )
+
+            replace_runtime_directory(
+                output,
+                staging,
+                ".content-previous-",
+                verify_content_install,
+            )
+        except BaseException:
+            if staging.exists():
+                shutil.rmtree(staging)
+            raise
+        print(f"content: collected {output}")
+        return output
+
+    def _stage_resources(
+        self,
+        root: Path,
+        selected: dict[str, Path],
+        profile_name: str = "default",
+    ) -> Path:
+        output = root / "runtime" / "resources"
+        source = selected["resources"]
+        output.parent.mkdir(parents=True, exist_ok=True)
+        if output.exists() or output.is_symlink():
+            managed_directory(output, self.paths.builds, "resource-view")
+        inputs, cacheable = self._runtime_input_coordinates(
+            profile_name, selected, "resources"
+        )
+        runtime_paths, tracked = self._resource_runtime_files(source)
+        matched = self._runtime_input_cache_matches(
+            output,
+            "resource-view",
+            inputs,
+            cacheable,
+            lambda path: self._validate_resource_view(path, source, tracked),
+        )
+        validated_inputs, validated_cacheable = self._runtime_input_coordinates(
+            profile_name, selected, "resources"
+        )
+        validated_runtime_paths, validated_tracked = self._resource_runtime_files(
+            source
+        )
+        if matched and (
+            validated_inputs == inputs
+            and validated_cacheable == cacheable
+            and validated_cacheable
+            and validated_runtime_paths == runtime_paths
+            and validated_tracked == tracked
+        ):
+            print(f"resources: cached {output}")
+            return output
+        inputs, cacheable = validated_inputs, validated_cacheable
+        runtime_paths, tracked = validated_runtime_paths, validated_tracked
         staging = Path(tempfile.mkdtemp(prefix=".resources-", dir=output.parent))
         selected_roots = tuple(PurePosixPath(path) for path in runtime_paths)
         try:
@@ -2089,18 +2934,66 @@ class Workspace:
                 destination = staging.joinpath(*path.parts)
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(source_path, destination, follow_symlinks=False)
-            atomic_json(
-                staging / ".atrinik-dependency.json",
-                {
-                    "schema_version": SCHEMA_VERSION,
-                    "workspace_source": str(source),
-                    "commit": git(source, "rev-parse", "HEAD", capture=True),
-                },
+            final_inputs, final_cacheable = self._runtime_input_coordinates(
+                profile_name, selected, "resources"
+            )
+            final_runtime_paths, final_tracked = self._resource_runtime_files(source)
+            if (
+                final_inputs != inputs
+                or final_cacheable != cacheable
+                or final_runtime_paths != runtime_paths
+                or final_tracked != tracked
+            ):
+                raise WorkspaceError("selected resource input changed during staging")
+            if cacheable:
+                atomic_json(staging / RUNTIME_INPUT_METADATA, inputs)
+            self._validate_resource_view(
+                staging, source, tracked, require_metadata=cacheable
+            )
+            installed_inputs, installed_cacheable = self._runtime_input_coordinates(
+                profile_name, selected, "resources"
+            )
+            installed_runtime_paths, installed_tracked = (
+                self._resource_runtime_files(source)
+            )
+            if (
+                installed_inputs != inputs
+                or installed_cacheable != cacheable
+                or installed_runtime_paths != runtime_paths
+                or installed_tracked != tracked
+            ):
+                raise WorkspaceError("selected resource input changed during staging")
+
+            def verify_resource_install() -> None:
+                published_inputs, published_cacheable = (
+                    self._runtime_input_coordinates(
+                        profile_name, selected, "resources"
+                    )
+                )
+                published_runtime_paths, published_tracked = (
+                    self._resource_runtime_files(source)
+                )
+                if (
+                    published_inputs != inputs
+                    or published_cacheable != cacheable
+                    or published_runtime_paths != runtime_paths
+                    or published_tracked != tracked
+                ):
+                    raise WorkspaceError(
+                        "selected resource input changed during staging"
+                    )
+
+            replace_runtime_directory(
+                output,
+                staging,
+                ".resources-previous-",
+                verify_resource_install,
             )
         except BaseException:
-            shutil.rmtree(staging)
+            if staging.exists():
+                shutil.rmtree(staging)
             raise
-        replace_directory(output, staging, ".resources-previous-")
+        print(f"resources: staged {output}")
         return output
 
     def _cmake(
@@ -3153,6 +4046,8 @@ class Workspace:
                 working, root, selected, data, content, resources
             )
             executable = working / "atrinik-server"
+            environment = os.environ.copy()
+            environment["PYTHONDONTWRITEBYTECODE"] = "1"
             run(
                 [
                     str(executable),
@@ -3164,6 +4059,7 @@ class Workspace:
                     f"--resourcespath={working / 'resources'}",
                 ],
                 cwd=working,
+                env=environment,
             )
             self._validate_region_maps(generated)
             final_inputs, final_cacheable = self._region_map_inputs(
@@ -3789,53 +4685,510 @@ class Workspace:
         atomic_json(path / MANAGED_MARKER, metadata)
         return path
 
-    def _take_topology_runtime_input(
+    @staticmethod
+    def _runtime_tree_identity(value: os.stat_result) -> tuple[int, ...]:
+        return (
+            value.st_dev,
+            value.st_ino,
+            value.st_mode,
+            value.st_size,
+            value.st_mtime_ns,
+            value.st_ctime_ns,
+        )
+
+    def _compare_topology_runtime_directories(
         self,
-        topology_root: Path,
-        source: Path,
-        name: str,
-        purpose: str,
-        preserve_source: bool = False,
-    ) -> Path:
-        expected = {"schema_version": SCHEMA_VERSION, "purpose": purpose}
-        marker = source / MANAGED_MARKER
+        source_fd: int,
+        destination_fd: int,
+        source_display: Path,
+        destination_display: Path,
+    ) -> None:
+        source_before = os.fstat(source_fd)
+        destination_before = os.fstat(destination_fd)
         if (
-            not source.is_dir()
-            or source.is_symlink()
-            or not marker.is_file()
-            or marker.is_symlink()
-            or load_json(marker) != expected
+            not stat.S_ISDIR(source_before.st_mode)
+            or not stat.S_ISDIR(destination_before.st_mode)
+            or stat.S_IMODE(source_before.st_mode)
+            != stat.S_IMODE(destination_before.st_mode)
         ):
             raise WorkspaceError(
-                f"topology runtime input is not managed for {purpose}: {source}"
+                "copied topology runtime directory metadata differs: "
+                f"{destination_display}"
             )
+        try:
+            source_names = sorted(os.listdir(source_fd))
+            destination_names = sorted(os.listdir(destination_fd))
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot validate copied topology runtime input: {error}"
+            ) from error
+        if source_names != destination_names:
+            raise WorkspaceError(
+                f"copied topology runtime tree differs: {destination_display}"
+            )
+        for name in source_names:
+            source_child = source_display / name
+            destination_child = destination_display / name
+            try:
+                source_entry = os.stat(
+                    name, dir_fd=source_fd, follow_symlinks=False
+                )
+                destination_entry = os.stat(
+                    name, dir_fd=destination_fd, follow_symlinks=False
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot validate copied topology runtime input: {error}"
+                ) from error
+            if (
+                stat.S_IFMT(source_entry.st_mode)
+                != stat.S_IFMT(destination_entry.st_mode)
+                or stat.S_IMODE(source_entry.st_mode)
+                != stat.S_IMODE(destination_entry.st_mode)
+            ):
+                raise WorkspaceError(
+                    f"copied topology runtime entry differs: {destination_child}"
+                )
+            if stat.S_ISDIR(source_entry.st_mode):
+                flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+                try:
+                    source_child_fd = os.open(name, flags, dir_fd=source_fd)
+                except OSError as error:
+                    raise WorkspaceError(
+                        "copied topology runtime source changed or contains a link: "
+                        f"{source_child}"
+                    ) from error
+                try:
+                    destination_child_fd = os.open(
+                        name, flags, dir_fd=destination_fd
+                    )
+                except OSError as error:
+                    os.close(source_child_fd)
+                    raise WorkspaceError(
+                        "copied topology runtime input changed or contains a link: "
+                        f"{destination_child}"
+                    ) from error
+                try:
+                    self._compare_topology_runtime_directories(
+                        source_child_fd,
+                        destination_child_fd,
+                        source_child,
+                        destination_child,
+                    )
+                finally:
+                    os.close(source_child_fd)
+                    os.close(destination_child_fd)
+            elif stat.S_ISREG(source_entry.st_mode):
+                flags = os.O_RDONLY | os.O_NOFOLLOW
+                try:
+                    source_child_fd = os.open(name, flags, dir_fd=source_fd)
+                except OSError as error:
+                    raise WorkspaceError(
+                        "copied topology runtime source changed or contains a link: "
+                        f"{source_child}"
+                    ) from error
+                try:
+                    destination_child_fd = os.open(
+                        name, flags, dir_fd=destination_fd
+                    )
+                except OSError as error:
+                    os.close(source_child_fd)
+                    raise WorkspaceError(
+                        "copied topology runtime input changed or contains a link: "
+                        f"{destination_child}"
+                    ) from error
+                try:
+                    source_file_before = os.fstat(source_child_fd)
+                    destination_file_before = os.fstat(destination_child_fd)
+                    if source_file_before.st_size != destination_file_before.st_size:
+                        raise WorkspaceError(
+                            f"copied topology runtime file differs: {destination_child}"
+                        )
+                    with os.fdopen(
+                        source_child_fd, "rb", closefd=False
+                    ) as source_file:
+                        with os.fdopen(
+                            destination_child_fd, "rb", closefd=False
+                        ) as destination_file:
+                            while True:
+                                source_chunk = source_file.read(1024 * 1024)
+                                destination_chunk = destination_file.read(1024 * 1024)
+                                if source_chunk != destination_chunk:
+                                    raise WorkspaceError(
+                                        "copied topology runtime file differs: "
+                                        f"{destination_child}"
+                                    )
+                                if not source_chunk:
+                                    break
+                    if (
+                        self._runtime_tree_identity(os.fstat(source_child_fd))
+                        != self._runtime_tree_identity(source_file_before)
+                        or self._runtime_tree_identity(os.fstat(destination_child_fd))
+                        != self._runtime_tree_identity(destination_file_before)
+                    ):
+                        raise WorkspaceError(
+                            "topology runtime input changed during validation: "
+                            f"{destination_child}"
+                        )
+                finally:
+                    os.close(source_child_fd)
+                    os.close(destination_child_fd)
+            else:
+                raise WorkspaceError(
+                    "copied topology runtime input contains a link or non-regular "
+                    f"file: {destination_child}"
+                )
+        if (
+            self._runtime_tree_identity(os.fstat(source_fd))
+            != self._runtime_tree_identity(source_before)
+            or self._runtime_tree_identity(os.fstat(destination_fd))
+            != self._runtime_tree_identity(destination_before)
+        ):
+            raise WorkspaceError(
+                "topology runtime input changed during validation: "
+                f"{destination_display}"
+            )
+
+    def _copy_topology_runtime_directory(
+        self,
+        source_fd: int,
+        source_display: Path,
+        destination_fd: int,
+        destination_display: Path,
+    ) -> None:
+        directory_before = os.fstat(source_fd)
+        if not stat.S_ISDIR(directory_before.st_mode):
+            raise WorkspaceError(
+                f"topology runtime input is not a directory: {source_display}"
+            )
+        try:
+            names = sorted(os.listdir(source_fd))
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot list topology runtime input {source_display}: {error}"
+            ) from error
+        for name in names:
+            source_child = source_display / name
+            destination_child = destination_display / name
+            try:
+                child_before = os.stat(name, dir_fd=source_fd, follow_symlinks=False)
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect topology runtime input {source_child}: {error}"
+                ) from error
+            if stat.S_ISDIR(child_before.st_mode):
+                source_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+                try:
+                    child_fd = os.open(name, source_flags, dir_fd=source_fd)
+                except OSError as error:
+                    raise WorkspaceError(
+                        "topology runtime input changed or contains a link: "
+                        f"{source_child}"
+                    ) from error
+                try:
+                    if self._runtime_tree_identity(os.fstat(child_fd)) != (
+                        self._runtime_tree_identity(child_before)
+                    ):
+                        raise WorkspaceError(
+                            f"topology runtime input changed during copy: {source_child}"
+                        )
+                    try:
+                        os.mkdir(
+                            name,
+                            stat.S_IMODE(child_before.st_mode) | 0o700,
+                            dir_fd=destination_fd,
+                        )
+                        destination_child_fd = os.open(
+                            name,
+                            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                            dir_fd=destination_fd,
+                        )
+                    except OSError as error:
+                        raise WorkspaceError(
+                            "topology runtime staging destination changed during "
+                            f"copy: {destination_child}"
+                        ) from error
+                    try:
+                        self._copy_topology_runtime_directory(
+                            child_fd,
+                            source_child,
+                            destination_child_fd,
+                            destination_child,
+                        )
+                    finally:
+                        os.close(destination_child_fd)
+                finally:
+                    os.close(child_fd)
+            elif stat.S_ISREG(child_before.st_mode):
+                flags = os.O_RDONLY | os.O_NOFOLLOW
+                try:
+                    child_fd = os.open(name, flags, dir_fd=source_fd)
+                except OSError as error:
+                    raise WorkspaceError(
+                        "topology runtime input changed or contains a link: "
+                        f"{source_child}"
+                    ) from error
+                try:
+                    opened = os.fstat(child_fd)
+                    if (
+                        not stat.S_ISREG(opened.st_mode)
+                        or self._runtime_tree_identity(opened)
+                        != self._runtime_tree_identity(child_before)
+                    ):
+                        raise WorkspaceError(
+                            f"topology runtime input changed during copy: {source_child}"
+                        )
+                    try:
+                        destination_file_fd = os.open(
+                            name,
+                            os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                            stat.S_IMODE(opened.st_mode),
+                            dir_fd=destination_fd,
+                        )
+                    except OSError as error:
+                        raise WorkspaceError(
+                            "topology runtime staging destination changed during "
+                            f"copy: {destination_child}"
+                        ) from error
+                    try:
+                        with os.fdopen(child_fd, "rb", closefd=False) as source_file:
+                            with os.fdopen(
+                                destination_file_fd, "wb", closefd=False
+                            ) as destination_file:
+                                shutil.copyfileobj(source_file, destination_file)
+                        copied = os.fstat(child_fd)
+                        if self._runtime_tree_identity(copied) != (
+                            self._runtime_tree_identity(opened)
+                        ):
+                            raise WorkspaceError(
+                                "topology runtime input changed during copy: "
+                                f"{source_child}"
+                            )
+                        os.fchmod(
+                            destination_file_fd, stat.S_IMODE(opened.st_mode)
+                        )
+                    finally:
+                        os.close(destination_file_fd)
+                finally:
+                    os.close(child_fd)
+                os.utime(
+                    name,
+                    ns=(opened.st_atime_ns, opened.st_mtime_ns),
+                    dir_fd=destination_fd,
+                    follow_symlinks=False,
+                )
+            else:
+                raise WorkspaceError(
+                    "topology runtime input contains a link or non-regular file: "
+                    f"{source_child}"
+                )
+        directory_after = os.fstat(source_fd)
+        if self._runtime_tree_identity(directory_after) != self._runtime_tree_identity(
+            directory_before
+        ):
+            raise WorkspaceError(
+                f"topology runtime input changed during copy: {source_display}"
+            )
+        os.fchmod(destination_fd, stat.S_IMODE(directory_before.st_mode))
+        os.utime(
+            destination_fd,
+            ns=(directory_before.st_atime_ns, directory_before.st_mtime_ns),
+        )
+
+    def _copy_topology_runtime_tree(
+        self, source: Path, destination: Path
+    ) -> int:
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        retained_destination_fd: int | None = None
+        try:
+            source_before = source.stat(follow_symlinks=False)
+            source_fd = os.open(source, flags)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot open topology runtime input {source}: {error}"
+            ) from error
+        destination_parent_fd: int | None = None
+        destination_fd: int | None = None
+        try:
+            if self._runtime_tree_identity(os.fstat(source_fd)) != (
+                self._runtime_tree_identity(source_before)
+            ):
+                raise WorkspaceError(
+                    f"topology runtime input changed during copy: {source}"
+                )
+            destination_parent_before = destination.parent.stat(
+                follow_symlinks=False
+            )
+            destination_parent_fd = os.open(destination.parent, flags)
+            if self._runtime_tree_identity(os.fstat(destination_parent_fd)) != (
+                self._runtime_tree_identity(destination_parent_before)
+            ):
+                raise WorkspaceError(
+                    "topology runtime staging directory changed during copy: "
+                    f"{destination.parent}"
+                )
+            try:
+                os.mkdir(
+                    destination.name,
+                    stat.S_IMODE(source_before.st_mode) | 0o700,
+                    dir_fd=destination_parent_fd,
+                )
+                destination_fd = os.open(
+                    destination.name,
+                    flags,
+                    dir_fd=destination_parent_fd,
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    "topology runtime staging destination changed during copy: "
+                    f"{destination}"
+                ) from error
+            self._copy_topology_runtime_directory(
+                source_fd, source, destination_fd, destination
+            )
+            destination_parent_after = os.fstat(destination_parent_fd)
+            if (
+                destination_parent_after.st_dev != destination_parent_before.st_dev
+                or destination_parent_after.st_ino != destination_parent_before.st_ino
+            ):
+                raise WorkspaceError(
+                    "topology runtime staging directory changed during copy: "
+                    f"{destination.parent}"
+                )
+            source_after = source.stat(follow_symlinks=False)
+            if self._runtime_tree_identity(source_after) != (
+                self._runtime_tree_identity(source_before)
+            ):
+                raise WorkspaceError(
+                    f"topology runtime input changed during copy: {source}"
+                )
+            retained_destination_fd = os.dup(destination_fd)
+            return retained_destination_fd
+        finally:
+            if destination_fd is not None:
+                os.close(destination_fd)
+            if destination_parent_fd is not None:
+                os.close(destination_parent_fd)
+            os.close(source_fd)
+
+    def _copy_topology_runtime_inputs(
+        self,
+        topology_root: Path,
+        inputs: tuple[tuple[str, Path, str], ...],
+    ) -> dict[str, Path]:
         container = topology_root / "runtime"
+        expected = {
+            name: {"schema_version": SCHEMA_VERSION, "purpose": purpose}
+            for name, _source, purpose in inputs
+        }
         if container.exists() or container.is_symlink():
             if not container.is_dir() or container.is_symlink():
                 raise WorkspaceError(
                     f"topology runtime container is invalid: {container}"
                 )
-        else:
-            container.mkdir()
-        destination = container / name
-        if destination.exists() or destination.is_symlink():
-            destination_marker = destination / MANAGED_MARKER
-            if (
-                not destination.is_dir()
-                or destination.is_symlink()
-                or not destination_marker.is_file()
-                or destination_marker.is_symlink()
-                or load_json(destination_marker) != expected
-            ):
-                raise WorkspaceError(
-                    f"topology runtime destination is not managed: {destination}"
+            for entry in container.iterdir():
+                metadata = expected.get(entry.name)
+                marker = entry / MANAGED_MARKER
+                if (
+                    metadata is None
+                    or not entry.is_dir()
+                    or entry.is_symlink()
+                    or not marker.is_file()
+                    or marker.is_symlink()
+                    or load_json(marker) != metadata
+                ):
+                    raise WorkspaceError(
+                        f"topology runtime container has an unmanaged entry: {entry}"
+                    )
+
+        staging = Path(tempfile.mkdtemp(prefix=".runtime-", dir=topology_root))
+        staging.rmdir()
+        staging.mkdir()
+        copied_descriptors: dict[str, int] = {}
+        try:
+            for name, source, purpose in inputs:
+                metadata = expected[name]
+                marker = source / MANAGED_MARKER
+                if (
+                    not source.is_dir()
+                    or source.is_symlink()
+                    or not marker.is_file()
+                    or marker.is_symlink()
+                    or load_json(marker) != metadata
+                ):
+                    raise WorkspaceError(
+                        f"topology runtime input is not managed for {purpose}: {source}"
+                    )
+                destination = staging / name
+                copied_descriptors[name] = self._copy_topology_runtime_tree(
+                    source, destination
                 )
-            shutil.rmtree(destination)
-        if preserve_source:
-            shutil.copytree(source, destination)
-        else:
-            source.replace(destination)
-        return destination
+                copied_marker = destination / MANAGED_MARKER
+                if (
+                    not destination.is_dir()
+                    or destination.is_symlink()
+                    or not copied_marker.is_file()
+                    or copied_marker.is_symlink()
+                    or load_json(copied_marker) != metadata
+                ):
+                    raise WorkspaceError(
+                        f"copied topology runtime input is invalid: {destination}"
+                    )
+
+            def verify_runtime_install() -> None:
+                flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+                for name, source, _purpose in inputs:
+                    retained_fd = copied_descriptors[name]
+                    try:
+                        installed_fd = os.open(container / name, flags)
+                    except OSError as error:
+                        raise WorkspaceError(
+                            "cannot validate installed topology runtime input "
+                            f"{container / name}: {error}"
+                        ) from error
+                    try:
+                        source_fd = os.open(source, flags)
+                    except OSError as error:
+                        os.close(installed_fd)
+                        raise WorkspaceError(
+                            "cannot validate topology runtime source "
+                            f"{source}: {error}"
+                        ) from error
+                    try:
+                        retained = os.fstat(retained_fd)
+                        installed = os.fstat(installed_fd)
+                        if (
+                            retained.st_dev != installed.st_dev
+                            or retained.st_ino != installed.st_ino
+                        ):
+                            raise WorkspaceError(
+                                "installed topology runtime input changed: "
+                                f"{container / name}"
+                            )
+                        self._compare_topology_runtime_directories(
+                            source_fd,
+                            installed_fd,
+                            source,
+                            container / name,
+                        )
+                    finally:
+                        os.close(source_fd)
+                        os.close(installed_fd)
+
+            replace_runtime_directory(
+                container,
+                staging,
+                ".runtime-previous-",
+                verify_runtime_install,
+            )
+        except BaseException:
+            if staging.exists():
+                remove_owned_tree(staging)
+            raise
+        finally:
+            for descriptor in copied_descriptors.values():
+                os.close(descriptor)
+        return {name: container / name for name in expected}
 
     def _prepare_topology_client_runtime(
         self, topology_root: Path, selected: dict[str, Path]
@@ -4291,25 +5644,29 @@ class Workspace:
                         selected["server"],
                         resolved_path=state_location,
                     )
-                    content = self._take_topology_runtime_input(
+                    runtime_inputs = self._copy_topology_runtime_inputs(
                         topology_root,
-                        root / "runtime" / "content",
-                        "content",
-                        "collected-content",
+                        (
+                            (
+                                "content",
+                                root / "runtime" / "content",
+                                "collected-content",
+                            ),
+                            (
+                                "resources",
+                                root / "runtime" / "resources",
+                                "resource-view",
+                            ),
+                            (
+                                "client-maps",
+                                root / "runtime" / "client-maps",
+                                "region-map-cache",
+                            ),
+                        ),
                     )
-                    resources = self._take_topology_runtime_input(
-                        topology_root,
-                        root / "runtime" / "resources",
-                        "resources",
-                        "resource-view",
-                    )
-                    client_maps = self._take_topology_runtime_input(
-                        topology_root,
-                        root / "runtime" / "client-maps",
-                        "client-maps",
-                        "region-map-cache",
-                        preserve_source=True,
-                    )
+                    content = runtime_inputs["content"]
+                    resources = runtime_inputs["resources"]
+                    client_maps = runtime_inputs["client-maps"]
                     runtime = self._prepare_server_runtime(
                         root,
                         selected,
