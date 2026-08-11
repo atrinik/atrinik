@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
 from contextvars import copy_context
 from datetime import datetime, timezone
 import fcntl
@@ -10,7 +11,7 @@ from pathlib import Path, PurePosixPath
 import re
 import stat
 import subprocess
-from typing import Any, Iterable
+from typing import Any, Iterable, Iterator
 
 from .locking import active_lock_fds
 from .migration import MIGRATION_PENDING, MIGRATION_RECORD, OPERATION_PATHS
@@ -23,6 +24,7 @@ from .model import (
     managed_remove,
 )
 from .supervisor import process_matches
+from .sound import PLAYTEST_MARKER
 from .workspace import (
     BUILD_METADATA,
     BUILD_METADATA_SCHEMA_VERSION,
@@ -42,9 +44,10 @@ WORKER_DEPENDENCY_CLEANUP_SCHEMA_VERSIONS = frozenset(
     {1, 2, 3, WORKER_DEPENDENCY_SCHEMA_VERSION}
 )
 DEFAULT_SCOPES = ("worktrees", "builds")
-ALL_SCOPES = (*DEFAULT_SCOPES, "npm-cache", "compiler-cache")
+ALL_SCOPES = (*DEFAULT_SCOPES, "npm-cache", "compiler-cache", "sound-cache")
 BUILD_RETENTION_RECORD = "retention.json"
-BUILD_METADATA_KEYS = {
+LEGACY_BUILD_METADATA_SCHEMA_VERSION = 1
+LEGACY_BUILD_METADATA_KEYS = {
     "schema_version",
     "profile",
     "key",
@@ -52,6 +55,7 @@ BUILD_METADATA_KEYS = {
     "coordinates",
     "last_used_at",
 }
+BUILD_METADATA_KEYS = {*LEGACY_BUILD_METADATA_KEYS, "sound"}
 BUILD_COORDINATE_KEYS = {
     "component",
     "checkout",
@@ -66,6 +70,8 @@ PROFILE_PURPOSE = re.compile(
     r"^profile:(?P<profile>[a-z0-9][a-z0-9._-]*):(?P<key>[0-9a-f]{12})$"
 )
 HEAD_PATTERN = re.compile(r"^[0-9a-f]{40,64}$")
+SOUND_PRODUCER_LOCK = "atrinik-playtest-builds.lock"
+SOUND_PRODUCER_LOCK_MARKER = "atrinik-sound-playtest-builds-v1\n"
 HISTORICAL_PULL_BASE_BOUNDARIES = {
     (
         "atrinik/atrinik",
@@ -131,6 +137,147 @@ def _git_directories(path: Path) -> tuple[Path, Path]:
     if len(values) != 2 or not all(values):
         raise WorkspaceError(f"git returned invalid directory metadata at {path}")
     return Path(values[0]).resolve(), Path(values[1]).resolve()
+
+
+def _regular_text_identity(path: Path) -> tuple[str, tuple[int, int, int, int]]:
+    flags = os.O_RDONLY | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags)
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
+            raise WorkspaceError(f"Git worktree pointer is not a safe regular file: {path}")
+        with os.fdopen(os.dup(descriptor), "r", encoding="utf-8") as stream:
+            value = stream.read(4097)
+        if len(value) > 4096:
+            raise WorkspaceError(f"Git worktree pointer is oversized: {path}")
+        return value, (
+            metadata.st_dev,
+            metadata.st_ino,
+            metadata.st_ctime_ns,
+            metadata.st_size,
+        )
+    finally:
+        os.close(descriptor)
+
+
+def _sound_worktree_identity(worktree: Path, common: Path) -> tuple[Any, ...]:
+    """Bind a sound path to its exact primary or linked Git admin record."""
+    common = common.resolve()
+    reported_common, git_directory = _git_directories(worktree)
+    if reported_common != common:
+        raise WorkspaceError("sound worktree has an unexpected Git common directory")
+    worktree_metadata = worktree.lstat()
+    if not stat.S_ISDIR(worktree_metadata.st_mode) or stat.S_ISLNK(worktree_metadata.st_mode):
+        raise WorkspaceError("sound worktree path is not a safe directory")
+    pointer = worktree / ".git"
+    if git_directory == common:
+        pointer_metadata = pointer.lstat()
+        if (
+            stat.S_ISLNK(pointer_metadata.st_mode)
+            or not stat.S_ISDIR(pointer_metadata.st_mode)
+            or pointer.resolve() != common
+        ):
+            raise WorkspaceError("sound primary Git directory is invalid")
+        return (
+            "primary",
+            worktree_metadata.st_dev,
+            worktree_metadata.st_ino,
+            pointer_metadata.st_dev,
+            pointer_metadata.st_ino,
+            str(common),
+        )
+    pointer_value, pointer_identity = _regular_text_identity(pointer)
+    prefix = "gitdir: "
+    if not pointer_value.endswith("\n") or not pointer_value.startswith(prefix):
+        raise WorkspaceError("sound linked-worktree pointer is invalid")
+    raw_git_directory = pointer_value.removeprefix(prefix).strip()
+    pointer_git_directory = Path(raw_git_directory)
+    if not pointer_git_directory.is_absolute():
+        pointer_git_directory = pointer.parent / pointer_git_directory
+    if pointer_git_directory.resolve() != git_directory:
+        raise WorkspaceError("sound linked-worktree pointer changed identity")
+    admin_metadata = git_directory.lstat()
+    if (
+        stat.S_ISLNK(admin_metadata.st_mode)
+        or not stat.S_ISDIR(admin_metadata.st_mode)
+        or git_directory.parent.resolve() != (common / "worktrees").resolve()
+    ):
+        raise WorkspaceError("sound linked-worktree Git directory is invalid")
+    backlink_value, backlink_identity = _regular_text_identity(git_directory / "gitdir")
+    backlink = Path(backlink_value.strip())
+    if not backlink.is_absolute():
+        backlink = git_directory / backlink
+    if backlink.resolve() != pointer.resolve():
+        raise WorkspaceError("sound linked-worktree Git backlink does not match its path")
+    return (
+        "linked",
+        worktree_metadata.st_dev,
+        worktree_metadata.st_ino,
+        *pointer_identity,
+        admin_metadata.st_dev,
+        admin_metadata.st_ino,
+        *backlink_identity,
+        str(common),
+        str(git_directory),
+    )
+
+
+def _sound_producer_lock_snapshot(
+    worktree: Path,
+) -> tuple[Path, tuple[int, int, int, int]]:
+    path = _git_directory(worktree) / SOUND_PRODUCER_LOCK
+    marker, identity = _regular_text_identity(path)
+    if marker != SOUND_PRODUCER_LOCK_MARKER or path.lstat().st_uid != os.geteuid():
+        raise WorkspaceError("sound producer cleanup lease marker is invalid")
+    return path, identity
+
+
+@contextmanager
+def _exclusive_sound_producer_lease(
+    worktree: Path,
+    expected_identity: tuple[int, int, int, int],
+) -> Iterator[None]:
+    path = _git_directory(worktree) / SOUND_PRODUCER_LOCK
+    flags = os.O_RDWR | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags)
+    try:
+        metadata = os.fstat(descriptor)
+        identity = (
+            metadata.st_dev,
+            metadata.st_ino,
+            metadata.st_ctime_ns,
+            metadata.st_size,
+        )
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_nlink != 1
+            or metadata.st_uid != os.geteuid()
+            or identity != expected_identity
+        ):
+            raise WorkspaceError("sound producer cleanup lease changed identity")
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise WorkspaceError("sound playtest producer is already in use") from error
+        os.lseek(descriptor, 0, os.SEEK_SET)
+        marker = os.read(descriptor, len(SOUND_PRODUCER_LOCK_MARKER.encode()) + 1)
+        try:
+            path_metadata = path.lstat()
+        except OSError as error:
+            raise WorkspaceError("sound producer cleanup lease path changed") from error
+        if (
+            marker != SOUND_PRODUCER_LOCK_MARKER.encode()
+            or (path_metadata.st_dev, path_metadata.st_ino)
+            != (metadata.st_dev, metadata.st_ino)
+        ):
+            raise WorkspaceError("sound producer cleanup lease changed while locking")
+        yield
+    finally:
+        os.close(descriptor)
 
 
 def _parse_time(value: Any, context: str) -> datetime:
@@ -462,6 +609,10 @@ class Cleanup:
             )
             if cache is not None:
                 items.append(cache)
+        if "sound-cache" in scopes and (names is None or "sound" in names):
+            items.extend(
+                self._sound_caches(older_than_days, reference_errors)
+            )
         items.sort(key=lambda item: (item["kind"], item["owner"], item["path"]))
         self._credit_sizes(items)
         for item in items:
@@ -492,6 +643,10 @@ class Cleanup:
         item.pop("_purpose", None)
         item.pop("_older_than_days", None)
         item.pop("_identity", None)
+        item.pop("_worktree_identity", None)
+        item.pop("_git_common", None)
+        item.pop("_sound_worktree_identity", None)
+        item.pop("_sound_producer_identity", None)
 
     def _revalidate_target(
         self,
@@ -560,13 +715,35 @@ class Cleanup:
             )
             if item is not None and item["path"] != target["path"]:
                 item = None
+        elif kind == "sound-cache":
+            item = next(
+                (
+                    candidate
+                    for candidate in self._sound_caches(
+                        older_than_days, reference_errors
+                    )
+                    if candidate["path"] == target["path"]
+                ),
+                None,
+            )
         else:
             raise WorkspaceError(f"unsupported cleanup target: {kind}")
         if item is not None:
             filesystem_identity = item.get("_identity")
+            worktree_identity = item.get("_worktree_identity")
+            git_common = item.get("_git_common")
+            sound_worktree_identity = item.get("_sound_worktree_identity")
+            sound_producer_identity = item.get("_sound_producer_identity")
             self._strip_internal(item)
-            if kind == "worker-dependency-transaction":
+            if kind in {"worker-dependency-transaction", "sound-cache"}:
                 item["_identity"] = filesystem_identity
+            if kind == "sound-cache":
+                item["_worktree_identity"] = worktree_identity
+                item["_git_common"] = git_common
+                item["_sound_producer_identity"] = sound_producer_identity
+            if kind == "worktree" and target["owner"] == "sound":
+                item["_sound_worktree_identity"] = sound_worktree_identity
+                item["_sound_producer_identity"] = sound_producer_identity
         return item
 
     def _revalidate_build_sources(
@@ -1236,6 +1413,25 @@ class Cleanup:
         if not path.is_dir():
             item["reasons"].append("missing_worktree")
             return item
+        if owner == "sound":
+            try:
+                item["_sound_worktree_identity"] = _sound_worktree_identity(
+                    path, common
+                )
+            except (OSError, RuntimeError, WorkspaceError) as error:
+                item["reasons"].append("unexpected_git_worktree_identity")
+                item["error"] = str(error)
+                item["_sound_worktree_identity"] = None
+            try:
+                _producer_path, producer_identity = (
+                    _sound_producer_lock_snapshot(path)
+                )
+                item["_sound_producer_identity"] = producer_identity
+            except FileNotFoundError:
+                item["_sound_producer_identity"] = None
+            except (OSError, RuntimeError, WorkspaceError):
+                item["_sound_producer_identity"] = None
+            item["reasons"].extend(self._sound_worktree_lock_reasons(path))
         try:
             worktree_common, worktree_git = _git_directories(path)
             if worktree_common != common:
@@ -1274,6 +1470,48 @@ class Cleanup:
             item["disposition"] = "skipped"
             item["reasons"] = ["github_pending"]
         return item
+
+    def _sound_worktree_lock_reasons(self, worktree: Path) -> list[str]:
+        reasons: list[str] = []
+        try:
+            producer_lock, _producer_identity = _sound_producer_lock_snapshot(
+                worktree
+            )
+            producer_busy, producer_error = self._lock_busy(producer_lock)
+        except FileNotFoundError:
+            reasons.append("sound_cleanup_lease_unavailable")
+            producer_busy, producer_error = False, None
+        except (OSError, RuntimeError, WorkspaceError):
+            reasons.append("sound_cache_lock_uncertain")
+            producer_busy, producer_error = False, None
+        if producer_error:
+            reasons.append("sound_cache_lock_uncertain")
+        elif producer_busy:
+            reasons.append("active_sound_build")
+        build_root = worktree / "build"
+        cache_root = build_root / "atrinik-workspace"
+        if not cache_root.exists() and not cache_root.is_symlink():
+            return reasons
+        if (
+            build_root.is_symlink()
+            or cache_root.is_symlink()
+            or not cache_root.is_dir()
+        ):
+            return sorted(set([*reasons, "sound_cache_lock_uncertain"]))
+        try:
+            children = sorted(cache_root.iterdir())
+        except OSError:
+            return sorted(set([*reasons, "sound_cache_lock_uncertain"]))
+        for child in children:
+            if not re.fullmatch(r"\.[0-9a-f]{20}\.build\.lock", child.name):
+                reasons.append("sound_cache_present")
+                continue
+            busy, error = self._lock_busy(child)
+            if error:
+                reasons.append("sound_cache_lock_uncertain")
+            elif busy:
+                reasons.append("active_sound_build")
+        return sorted(set(reasons))
 
     @staticmethod
     def _operation_in_progress(path: Path) -> bool:
@@ -2161,10 +2399,22 @@ class Cleanup:
         if path.is_symlink() or not path.is_file():
             raise WorkspaceError("build metadata is not a regular file")
         value = load_json(path)
-        if not isinstance(value, dict) or set(value) != BUILD_METADATA_KEYS:
+        if not isinstance(value, dict):
+            raise WorkspaceError("build metadata fields are invalid")
+        schema_version = value.get("schema_version")
+        expected_keys = (
+            LEGACY_BUILD_METADATA_KEYS
+            if schema_version == LEGACY_BUILD_METADATA_SCHEMA_VERSION
+            else BUILD_METADATA_KEYS
+        )
+        if set(value) != expected_keys:
             raise WorkspaceError("build metadata fields are invalid")
         if (
-            value.get("schema_version") != BUILD_METADATA_SCHEMA_VERSION
+            schema_version
+            not in {
+                LEGACY_BUILD_METADATA_SCHEMA_VERSION,
+                BUILD_METADATA_SCHEMA_VERSION,
+            }
             or value.get("profile") != item["profile"]
             or value.get("key") != item["key"]
             or value.get("purpose") != item["_purpose"]
@@ -2205,6 +2455,11 @@ class Cleanup:
                     raise WorkspaceError("build coordinate source path is invalid")
             except RuntimeError as error:
                 raise WorkspaceError("build coordinate path cannot be resolved") from error
+        if schema_version == BUILD_METADATA_SCHEMA_VERSION:
+            sound = value.get("sound")
+            if sound is not None:
+                from .sound import validate_sound_record
+                validate_sound_record(sound)
         return value
 
     def _build_lock_busy(self, profile: str, key: str) -> tuple[bool, str | None]:
@@ -2316,6 +2571,156 @@ class Cleanup:
             legacy_allowed=False,
         )
 
+    def _sound_caches(
+        self, older_than_days: int, reference_errors: set[str]
+    ) -> list[dict[str, Any]]:
+        checkout = self.manifest.by_checkout.get("sound")
+        if checkout is None:
+            return []
+        invocation = self.paths.repositories / checkout.path
+        if not invocation.exists() and not invocation.is_symlink():
+            return []
+        try:
+            common, records, _primary = self._repository_inventory(
+                checkout.repository, invocation
+            )
+        except (OSError, RuntimeError, WorkspaceError):
+            reference_errors.add("sound_cache_inventory_error")
+            return []
+        items: list[dict[str, Any]] = []
+        seen: set[Path] = set()
+        for row in records:
+            raw = row.get("worktree")
+            if raw is None:
+                continue
+            worktree = Path(raw)
+            build_root = worktree / "build"
+            cache_root = build_root / "atrinik-workspace"
+            try:
+                worktree_identity = _sound_worktree_identity(worktree, common)
+                if (
+                    worktree.is_symlink()
+                    or not worktree.is_dir()
+                    or build_root.is_symlink()
+                    or not build_root.is_dir()
+                    or cache_root.is_symlink()
+                    or not cache_root.is_dir()
+                ):
+                    continue
+                children = sorted(cache_root.iterdir())
+            except (OSError, RuntimeError, WorkspaceError):
+                reference_errors.add("sound_cache_inventory_error")
+                continue
+            try:
+                _producer_path, producer_identity = (
+                    _sound_producer_lock_snapshot(worktree)
+                )
+            except (OSError, RuntimeError, WorkspaceError):
+                producer_identity = None
+            for path in children:
+                if path.name.startswith("."):
+                    continue
+                try:
+                    if path.is_symlink():
+                        raise WorkspaceError("sound cache child is a symlink")
+                    normalized = path.resolve(strict=False)
+                except (OSError, RuntimeError, WorkspaceError):
+                    reference_errors.add("sound_cache_inventory_error")
+                    continue
+                if normalized in seen:
+                    continue
+                seen.add(normalized)
+                item = self._sound_cache_item(path, worktree, older_than_days)
+                item["_worktree_identity"] = worktree_identity
+                item["_git_common"] = str(common)
+                item["_sound_producer_identity"] = producer_identity
+                if producer_identity is None:
+                    item["disposition"] = "skipped"
+                    if item["reasons"] == ["stale_sound_cache"]:
+                        item["reasons"] = []
+                    item["reasons"].append("sound_cleanup_lease_unavailable")
+                items.append(item)
+        return items
+
+    def _sound_cache_item(
+        self,
+        path: Path,
+        worktree: Path,
+        older_than_days: int,
+        *,
+        check_lock: bool = True,
+    ) -> dict[str, Any]:
+        item = _base_item("sound-cache", "sound", "atrinik/sound", path)
+        item["checkout_path"] = str(worktree.resolve(strict=False))
+        inodes, observed, error = _tree_usage(path, [])
+        item["_inodes"] = inodes
+        try:
+            metadata = path.lstat()
+            item["_identity"] = (
+                metadata.st_dev,
+                metadata.st_ino,
+                metadata.st_ctime_ns,
+                stat.S_IFMT(metadata.st_mode),
+                stat.S_IMODE(metadata.st_mode),
+            )
+        except OSError:
+            item["_identity"] = None
+        item["age_basis"] = "tree-mtime" if observed else None
+        item["age_seconds"] = (
+            max(0, int((self.now - observed).total_seconds()))
+            if observed
+            else None
+        )
+        reasons: list[str] = []
+        expected_marker = {
+            "format": "atrinik-sound-playtest-tree",
+            "playtest_only": True,
+            "publishable": False,
+            "schema_version": 1,
+        }
+        try:
+            build_root = worktree / "build"
+            cache_root = build_root / "atrinik-workspace"
+            expected_parent = (
+                cache_root.resolve(strict=False)
+            )
+            marker = path / PLAYTEST_MARKER
+            if (
+                not re.fullmatch(r"[0-9a-f]{20}", path.name)
+                or worktree.is_symlink()
+                or build_root.is_symlink()
+                or cache_root.is_symlink()
+                or path.parent.resolve(strict=False) != expected_parent
+                or path.is_symlink()
+                or not path.is_dir()
+                or marker.is_symlink()
+                or not marker.is_file()
+                or load_json(marker) != expected_marker
+            ):
+                reasons.append("invalid_sound_cache_ownership")
+        except (OSError, RuntimeError, WorkspaceError):
+            reasons.append("invalid_sound_cache_ownership")
+        if check_lock:
+            lock = path.parent / f".{path.name}.build.lock"
+            busy, lock_error = self._lock_busy(lock)
+            if busy:
+                reasons.append("active_build_lock")
+            if lock_error:
+                reasons.append("invalid_build_lock")
+                item["error"] = lock_error
+        if error:
+            reasons.append("filesystem_traversal_error")
+            item["error"] = error
+        if observed is None:
+            reasons.append("age_unknown")
+        elif observed > self.now:
+            reasons.append("future_timestamp")
+        elif (self.now - observed).total_seconds() < older_than_days * 86400:
+            reasons.append("retained_by_age")
+        item["reasons"] = reasons or ["stale_sound_cache"]
+        item["disposition"] = "eligible" if not reasons else "skipped"
+        return item
+
     def _shared_cache(
         self,
         kind: str,
@@ -2386,7 +2791,11 @@ class Cleanup:
                 if (
                     not isinstance(metadata, dict)
                     or set(metadata) != expected_fields
-                    or metadata.get("schema_version") != BUILD_METADATA_SCHEMA_VERSION
+                    or metadata.get("schema_version")
+                    not in {
+                        LEGACY_BUILD_METADATA_SCHEMA_VERSION,
+                        BUILD_METADATA_SCHEMA_VERSION,
+                    }
                     or metadata.get("purpose") != purpose
                     or (
                         kind == "compiler-cache"
@@ -2479,6 +2888,7 @@ class Cleanup:
             "worktree": 1,
             "npm-cache": 2,
             "compiler-cache": 2,
+            "sound-cache": 0,
             "prunable-metadata": 3,
         }
         return order.get(item["kind"], 99), item["path"]
@@ -2596,7 +3006,59 @@ class Cleanup:
                 remove_owned_tree(path)
         elif item["kind"] == "worktree":
             primary = self._repositories[item["owner"]]
-            _command(primary, "worktree", "remove", "--", str(path))
+            if item["owner"] != "sound":
+                _command(primary, "worktree", "remove", "--", str(path))
+            else:
+                common = _git_common_directory(primary)
+                expected_worktree_identity = item.get(
+                    "_sound_worktree_identity"
+                )
+                expected_producer_identity = item.get(
+                    "_sound_producer_identity"
+                )
+                if (
+                    expected_worktree_identity is None
+                    or expected_producer_identity is None
+                    or _sound_worktree_identity(path, common)
+                    != expected_worktree_identity
+                ):
+                    raise WorkspaceError(
+                        "sound worktree identity changed before removal"
+                    )
+                with _exclusive_sound_producer_lease(
+                    path, expected_producer_identity
+                ):
+                    if (
+                        _sound_worktree_identity(path, common)
+                        != expected_worktree_identity
+                    ):
+                        raise WorkspaceError(
+                            "sound worktree identity changed while locking"
+                        )
+                    build_root = path / "build"
+                    cache_root = build_root / "atrinik-workspace"
+                    if cache_root.exists() or cache_root.is_symlink():
+                        if (
+                            build_root.is_symlink()
+                            or cache_root.is_symlink()
+                            or not cache_root.is_dir()
+                        ):
+                            raise WorkspaceError(
+                                "sound cache root changed before worktree removal"
+                            )
+                        for child in sorted(cache_root.iterdir()):
+                            if not re.fullmatch(
+                                r"\.[0-9a-f]{20}\.build\.lock", child.name
+                            ):
+                                raise WorkspaceError(
+                                    "sound cache remains before worktree removal"
+                                )
+                            busy, error = self._lock_busy(child)
+                            if busy or error:
+                                raise WorkspaceError(
+                                    "sound cache lock changed before worktree removal"
+                                )
+                    _command(primary, "worktree", "remove", "--", str(path))
         elif item["kind"] in {"npm-cache", "compiler-cache"}:
             purpose = item["kind"]
             if item.get("legacy_known_cache"):
@@ -2608,6 +3070,36 @@ class Cleanup:
                     {"schema_version": SCHEMA_VERSION, "purpose": purpose},
                 )
             managed_remove(path, self.paths.builds, purpose)
+        elif item["kind"] == "sound-cache":
+            checkout_path = Path(item["checkout_path"])
+            git_common = item.get("_git_common")
+            producer_identity = item.get("_sound_producer_identity")
+            if not isinstance(git_common, str) or (
+                _sound_worktree_identity(checkout_path, Path(git_common))
+                != item.get("_worktree_identity")
+            ) or producer_identity is None:
+                raise WorkspaceError("sound worktree identity changed before removal")
+            expected_parent = (
+                checkout_path / "build" / "atrinik-workspace"
+            ).resolve(strict=False)
+            if path.parent.resolve(strict=False) != expected_parent:
+                raise WorkspaceError("sound cache path changed before removal")
+            lock = path.parent / f".{path.name}.build.lock"
+            with _exclusive_sound_producer_lease(
+                checkout_path, producer_identity
+            ):
+                with exclusive_lock(
+                    lock, f"sound cache {path.name}", nonblocking=True
+                ):
+                    current = self._sound_cache_item(
+                        path, checkout_path, older_than_days, check_lock=False
+                    )
+                    if (
+                        current["disposition"] != "eligible"
+                        or current.get("_identity") != item.get("_identity")
+                    ):
+                        raise WorkspaceError("sound cache changed before removal")
+                    remove_owned_tree(path)
         elif item["kind"] == "prunable-metadata":
             primary = self._repositories[item["owner"]]
             _command(primary, "worktree", "prune", "--expire", "now")

@@ -525,6 +525,17 @@ class ParserTests(unittest.TestCase):
             "copy", "review"
         )
 
+    def test_profile_sound_mode_dispatches_explicit_opt_in(self) -> None:
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            result = main(
+                ["profile", "sound-mode", "audio-review", "local-playtest"]
+            )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.set_profile_sound_mode.assert_called_once_with(
+            "audio-review", "local-playtest"
+        )
+
     def test_path_prints_resolved_component_checkout(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
             workspace_type.return_value.component_path.return_value = Path(

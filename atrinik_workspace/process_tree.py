@@ -15,7 +15,22 @@ def _holds_identity(pid: int, identity: tuple[int, int]) -> bool:
     for descriptor in descriptors:
         try:
             metadata = descriptor.stat()
+            flags_line = next(
+                line
+                for line in (
+                    directory.parent / "fdinfo" / descriptor.name
+                ).read_text().splitlines()
+                if line.startswith("flags:")
+            )
+            flags = int(flags_line.split()[1], 8)
         except OSError:
+            continue
+        except (StopIteration, ValueError):
+            continue
+        # O_PATH descriptors are observers, not inherited process-tree leases.
+        # This lets the controlling `down` process inspect and signal holders
+        # without becoming a target of the supervisor's own descendant cleanup.
+        if flags & getattr(os, "O_PATH", 0):
             continue
         if (metadata.st_dev, metadata.st_ino) == identity:
             return True

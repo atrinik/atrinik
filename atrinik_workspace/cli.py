@@ -166,7 +166,10 @@ def parser() -> argparse.ArgumentParser:
     cleanup.add_argument(
         "--scope",
         action="append",
-        choices=["worktrees", "builds", "npm-cache", "compiler-cache", "all"],
+        choices=[
+            "worktrees", "builds", "npm-cache", "compiler-cache",
+            "sound-cache", "all",
+        ],
         default=[],
     )
     mark(cleanup.add_argument("--older-than", type=int, default=7, metavar="DAYS"), "none")
@@ -190,6 +193,13 @@ def parser() -> argparse.ArgumentParser:
     profile_show = profile_commands.add_parser("show")
     mark(profile_show.add_argument("name", nargs="?", default="default"), "profile")
     profile_show.add_argument("--json", action="store_true")
+    profile_sound = profile_commands.add_parser(
+        "sound-mode", help="select raw source or local Classic playtest sound"
+    )
+    mark(profile_sound.add_argument("name"), "saved_profile")
+    profile_sound.add_argument(
+        "mode", choices=["source", "local-playtest"]
+    )
 
     path = commands.add_parser(
         "path", help="print a resolved logical-component source path"
@@ -586,6 +596,8 @@ def main(arguments: list[str] | None = None) -> int:
                     workspace.set_profile(
                         options.name, options.component, "path", str(options.path)
                     )
+            elif options.profile_command == "sound-mode":
+                workspace.set_profile_sound_mode(options.name, options.mode)
             else:
                 summary = workspace.profile_summary(options.name)
                 if options.json:
@@ -593,6 +605,7 @@ def main(arguments: list[str] | None = None) -> int:
                 else:
                     print(f"profile\t{summary['name']}")
                     print(f"stack\t{summary['stack']}")
+                    print(f"sound-mode\t{summary['sound_mode']}")
                     for row in summary["components"]:
                         if not row["initialized"]:
                             print(
@@ -625,6 +638,8 @@ def main(arguments: list[str] | None = None) -> int:
             else:
                 print(f"profile\t{summary['profile']}")
                 print(f"stack\t{summary['stack']}")
+                sound = summary.get("sound", {"mode": "source"})
+                print(f"sound-mode\t{sound['mode']}")
                 print(f"services\t{','.join(summary['services'])}")
                 print(f"dependencies\t{','.join(summary['dependencies'])}")
                 for role, provider in sorted(summary["providers"].items()):

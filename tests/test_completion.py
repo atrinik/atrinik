@@ -674,7 +674,9 @@ class CompletionTests(unittest.TestCase):
             env=environment,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.splitlines(), ["create", "set", "show"])
+        self.assertEqual(
+            result.stdout.splitlines(), ["create", "set", "show", "sound-mode"]
+        )
 
     def test_bash_adapter_completes_equals_form_paths(self) -> None:
         bash = shutil.which("bash")
@@ -717,7 +719,8 @@ class CompletionTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(
-            result.stdout.splitlines(), ["--", "create", "set", "show"]
+            result.stdout.splitlines(),
+            ["--", "create", "set", "show", "sound-mode"],
         )
 
     def test_zsh_adapter_loads_from_fpath_with_real_compinit(self) -> None:
@@ -743,7 +746,10 @@ class CompletionTests(unittest.TestCase):
             [zsh, "-c", program], text=True, capture_output=True, cwd=ROOT
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.splitlines(), ["--", "create", "set", "show"])
+        self.assertEqual(
+            result.stdout.splitlines(),
+            ["--", "create", "set", "show", "sound-mode"],
+        )
 
     def test_fish_adapter_smoke(self) -> None:
         fish = shutil.which("fish")
@@ -773,7 +779,9 @@ class CompletionTests(unittest.TestCase):
             env=environment,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.splitlines(), ["create", "set", "show"])
+        self.assertEqual(
+            result.stdout.splitlines(), ["create", "set", "show", "sound-mode"]
+        )
 
 
 if __name__ == "__main__":

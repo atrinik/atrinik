@@ -313,7 +313,7 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.assertTrue(source.is_dir())
         self.assertEqual(profile.read_bytes(), before)
 
-    def test_apply_archives_clean_source_and_rewrites_profile_to_schema_v3(self) -> None:
+    def test_apply_archives_clean_source_and_rewrites_profile_to_schema_v4(self) -> None:
         source = self.make_repository("client", "client")
         classic = self.make_classic({"client": source})
         head = command("git", "rev-parse", "HEAD", cwd=source).decode().strip()
@@ -342,7 +342,8 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.assertEqual(self.status_bytes(archive), b"")
         self.assertEqual(self.status_bytes(classic), b"")
         value = json.loads(profile.read_text(encoding="utf-8"))
-        self.assertEqual(value["schema_version"], 3)
+        self.assertEqual(value["schema_version"], 4)
+        self.assertEqual(value["sound_mode"], "source")
         self.assertEqual(value["stack"], "classic")
         self.assertEqual(stat.S_IMODE(profile.stat().st_mode), 0o600)
         self.assertEqual(
@@ -361,6 +362,29 @@ class RepositoryMigrationTests(unittest.TestCase):
         audit = self.migration().execute("audit")
         self.assertEqual(audit["status"], "complete", audit)
         self.assertEqual(self.migration().execute("apply")["status"], "already-applied")
+
+    def test_schema_v3_replacement_profile_is_valid_and_left_unchanged(self) -> None:
+        profile = self.paths.profiles / "replacement.json"
+        value = {
+            "schema_version": 3,
+            "name": "replacement",
+            "stack": "default",
+            "components": {
+                "client": {"kind": "primary", "value": ""},
+                "sound": {"kind": "primary", "value": ""},
+            },
+        }
+        profile.write_text(
+            json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+
+        rewritten, composite = self.migration()._rewrite_profile(
+            profile, value, {}, None
+        )
+
+        self.assertIsNone(rewritten)
+        self.assertIsNone(composite)
+        self.assertEqual(json.loads(profile.read_text(encoding="utf-8")), value)
 
     def test_audit_accepts_manifest_owned_replacement_at_reused_source_path(
         self,

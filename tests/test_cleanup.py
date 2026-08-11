@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 import json
+import fcntl
 import os
 from pathlib import Path
 import shutil
@@ -14,10 +15,12 @@ from atrinik_workspace.cleanup import (
     Cleanup,
     _base_item,
     _command,
+    _exclusive_sound_producer_lease,
     _listed_usage,
     _parse_time,
     _path_relation,
     _tree_usage,
+    _sound_producer_lock_snapshot,
     _worktree_records,
     _workspace_owned,
 )
@@ -117,6 +120,383 @@ class CleanupTests(unittest.TestCase):
         (path / "ignored").mkdir()
         (path / "ignored" / "output.o").write_bytes(b"x" * 4096)
         return path
+
+    def make_sound_cache(self) -> tuple[Path, Path]:
+        sound = self.wrapper / "sound"
+        sound.mkdir()
+        command("git", "init", "-b", "main", cwd=sound)
+        command("git", "config", "user.name", "Tests", cwd=sound)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=sound)
+        (sound / ".gitignore").write_text("/build/\n", encoding="utf-8")
+        command("git", "add", ".gitignore", cwd=sound)
+        command("git", "commit", "-m", "feat: seed", cwd=sound)
+        command(
+            "git", "remote", "add", "origin",
+            "https://github.com/atrinik/sound.git", cwd=sound,
+        )
+        self.write_sound_producer_lease(sound)
+        cache = sound / "build" / "atrinik-workspace" / ("a" * 20)
+        cache.mkdir(parents=True)
+        atomic_json(
+            cache / ".atrinik-playtest-tree.json",
+            {
+                "format": "atrinik-sound-playtest-tree",
+                "playtest_only": True,
+                "publishable": False,
+                "schema_version": 1,
+            },
+        )
+        (cache / "playtest-manifest.json").write_text("{}\n", encoding="utf-8")
+        return sound, cache
+
+    @staticmethod
+    def write_sound_producer_lease(worktree: Path) -> Path:
+        git_directory = Path(
+            command(
+                "git", "rev-parse", "--path-format=absolute", "--git-dir",
+                cwd=worktree,
+            )
+        )
+        lease = git_directory / "atrinik-playtest-builds.lock"
+        lease.write_text("atrinik-sound-playtest-builds-v1\n", encoding="utf-8")
+        return lease
+
+    def test_sound_cache_is_explicit_preview_first_and_lock_protected(self) -> None:
+        _sound, cache = self.make_sound_cache()
+
+        preview = self.workspace.cleanup(["sound-cache"], 0, [], False)
+        item = next(row for row in preview["items"] if row["path"] == str(cache))
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["stale_sound_cache"])
+        self.assertTrue(cache.is_dir())
+
+        lock_path = cache.parent / f".{cache.name}.build.lock"
+        descriptor = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o600)
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            locked = self.workspace.cleanup(["sound-cache"], 0, [], False)
+            locked_item = next(
+                row for row in locked["items"] if row["path"] == str(cache)
+            )
+            self.assertEqual(locked_item["disposition"], "skipped")
+            self.assertIn("active_build_lock", locked_item["reasons"])
+        finally:
+            os.close(descriptor)
+
+        applied = self.workspace.cleanup(["sound-cache"], 0, [], True)
+        removed = next(row for row in applied["items"] if row["path"] == str(cache))
+        self.assertEqual(removed["disposition"], "removed", applied)
+        self.assertFalse(cache.exists())
+
+    def test_sound_cache_apply_preserves_per_output_verifier_reader(self) -> None:
+        _sound, cache = self.make_sound_cache()
+        lock_path = cache.parent / f".{cache.name}.build.lock"
+        descriptor = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o600)
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_SH | fcntl.LOCK_NB)
+            applied = self.workspace.cleanup(["sound-cache"], 0, [], True)
+        finally:
+            os.close(descriptor)
+
+        item = next(row for row in applied["items"] if row["path"] == str(cache))
+        self.assertEqual(item["disposition"], "skipped")
+        self.assertIn("active_build_lock", item["reasons"])
+        self.assertTrue(cache.is_dir())
+
+    def test_sound_cache_apply_preserves_git_admin_verifier_reader(self) -> None:
+        sound, cache = self.make_sound_cache()
+        producer_lock = self.write_sound_producer_lease(sound)
+        descriptor = os.open(producer_lock, os.O_RDWR | os.O_NOFOLLOW)
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_SH | fcntl.LOCK_NB)
+            applied = self.workspace.cleanup(["sound-cache"], 0, [], True)
+        finally:
+            os.close(descriptor)
+
+        item = next(row for row in applied["items"] if row["path"] == str(cache))
+        self.assertNotEqual(item["disposition"], "removed")
+        self.assertTrue(cache.is_dir())
+
+    def test_sound_cache_rejects_stale_worktree_record_replaced_by_directory(self) -> None:
+        sound, _primary_cache = self.make_sound_cache()
+        stale = self.workspace.paths.worktrees / "sound" / "stale"
+        stale.parent.mkdir(parents=True)
+        command(
+            "git", "worktree", "add", "-b", "feat/stale", str(stale),
+            cwd=sound,
+        )
+        shutil.rmtree(stale)
+        cache = stale / "build" / "atrinik-workspace" / ("b" * 20)
+        cache.mkdir(parents=True)
+        atomic_json(
+            cache / ".atrinik-playtest-tree.json",
+            {
+                "format": "atrinik-sound-playtest-tree",
+                "playtest_only": True,
+                "publishable": False,
+                "schema_version": 1,
+            },
+        )
+
+        preview = self.workspace.cleanup(["sound-cache"], 0, [], False)
+
+        self.assertNotIn(str(cache), {row["path"] for row in preview["items"]})
+        self.assertTrue(cache.is_dir())
+
+    def test_sound_cache_symlink_loop_fails_closed_without_mutation(self) -> None:
+        _sound, cache = self.make_sound_cache()
+        loop = cache.parent / "loop"
+        loop.symlink_to(loop)
+
+        preview = self.workspace.cleanup(["sound-cache"], 0, [], False)
+        self.assertIn("sound_cache_inventory_error", preview["inventory_errors"])
+        self.assertTrue(cache.is_dir())
+        self.assertTrue(loop.is_symlink())
+
+        applied = self.workspace.cleanup(["sound-cache"], 0, [], True)
+        self.assertIn("sound_cache_inventory_error", applied["inventory_errors"])
+        self.assertEqual(applied["summary"]["removed_count"], 0)
+        self.assertTrue(cache.is_dir())
+        self.assertTrue(loop.is_symlink())
+
+    def test_sound_cache_rejects_copied_same_repository_worktree_pointer(self) -> None:
+        sound, _primary_cache = self.make_sound_cache()
+        parent = self.workspace.paths.worktrees / "sound"
+        stale = parent / "stale-pointer"
+        donor = parent / "donor"
+        parent.mkdir(parents=True)
+        command(
+            "git", "worktree", "add", "-b", "feat/stale-pointer", str(stale),
+            cwd=sound,
+        )
+        command(
+            "git", "worktree", "add", "-b", "feat/donor", str(donor),
+            cwd=sound,
+        )
+        self.write_sound_producer_lease(donor)
+        shutil.rmtree(stale)
+        stale.mkdir()
+        shutil.copyfile(donor / ".git", stale / ".git")
+        cache = stale / "build" / "atrinik-workspace" / ("e" * 20)
+        cache.mkdir(parents=True)
+        atomic_json(
+            cache / ".atrinik-playtest-tree.json",
+            {
+                "format": "atrinik-sound-playtest-tree",
+                "playtest_only": True,
+                "publishable": False,
+                "schema_version": 1,
+            },
+        )
+
+        preview = self.workspace.cleanup(["sound-cache"], 0, [], False)
+
+        self.assertNotIn(str(cache), {row["path"] for row in preview["items"]})
+        self.assertTrue(cache.is_dir())
+
+        with mock.patch.object(Cleanup, "_github_pulls", return_value=[]):
+            worktrees = self.workspace.cleanup(
+                ["worktrees"], 0, ["sound"], False
+            )
+        stale_item = next(
+            row for row in worktrees["items"] if row["path"] == str(stale)
+        )
+        self.assertEqual(stale_item["disposition"], "protected")
+        self.assertIn(
+            "unexpected_git_worktree_identity", stale_item["reasons"]
+        )
+        with mock.patch.object(Cleanup, "_github_pulls", return_value=[]):
+            applied = self.workspace.cleanup(["all"], 0, ["sound"], True)
+        stale_item = next(
+            row for row in applied["items"] if row["path"] == str(stale)
+        )
+        self.assertNotEqual(stale_item["disposition"], "removed")
+        self.assertTrue(stale.is_dir())
+        self.assertTrue(cache.is_dir())
+
+    def test_sound_cache_accepts_registered_linked_worktree(self) -> None:
+        sound, _primary_cache = self.make_sound_cache()
+        linked = self.workspace.paths.worktrees / "sound" / "linked"
+        linked.parent.mkdir(parents=True)
+        command(
+            "git", "worktree", "add", "-b", "feat/linked", str(linked),
+            cwd=sound,
+        )
+        self.write_sound_producer_lease(linked)
+        cache = linked / "build" / "atrinik-workspace" / ("c" * 20)
+        cache.mkdir(parents=True)
+        atomic_json(
+            cache / ".atrinik-playtest-tree.json",
+            {
+                "format": "atrinik-sound-playtest-tree",
+                "playtest_only": True,
+                "publishable": False,
+                "schema_version": 1,
+            },
+        )
+
+        preview = self.workspace.cleanup(["sound-cache"], 0, [], False)
+        item = next(row for row in preview["items"] if row["path"] == str(cache))
+
+        self.assertEqual(item["disposition"], "eligible")
+
+    def test_sound_cache_apply_order_precedes_its_worktree(self) -> None:
+        cleanup = Cleanup(self.workspace)
+        self.assertLess(
+            cleanup._apply_order({"kind": "sound-cache", "path": "/cache"}),
+            cleanup._apply_order({"kind": "worktree", "path": "/worktree"}),
+        )
+
+    def test_active_sound_producer_lock_protects_its_worktree(self) -> None:
+        sound, _primary_cache = self.make_sound_cache()
+        linked = self.workspace.paths.worktrees / "sound" / "active"
+        linked.parent.mkdir(parents=True)
+        command(
+            "git", "worktree", "add", "-b", "feat/active", str(linked),
+            cwd=sound,
+        )
+        self.write_sound_producer_lease(linked)
+        head = command("git", "rev-parse", "HEAD", cwd=linked)
+        cache = linked / "build" / "atrinik-workspace" / ("d" * 20)
+        cache.mkdir(parents=True)
+        atomic_json(
+            cache / ".atrinik-playtest-tree.json",
+            {
+                "format": "atrinik-sound-playtest-tree",
+                "playtest_only": True,
+                "publishable": False,
+                "schema_version": 1,
+            },
+        )
+        lock = cache.parent / f".{cache.name}.build.lock"
+        descriptor = os.open(lock, os.O_CREAT | os.O_RDWR, 0o600)
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        pull = self.merged_pull(head)
+        try:
+            with mock.patch.object(Cleanup, "_github_pulls", return_value=[pull]):
+                preview = self.workspace.cleanup(
+                    ["worktrees"], 0, ["sound"], False
+                )
+                worktree = next(
+                    row for row in preview["items"] if row["path"] == str(linked)
+                )
+                self.assertEqual(worktree["disposition"], "protected")
+                self.assertIn("active_sound_build", worktree["reasons"])
+
+                applied = self.workspace.cleanup(["all"], 0, ["sound"], True)
+        finally:
+            os.close(descriptor)
+
+        worktree = next(
+            row for row in applied["items"] if row["path"] == str(linked)
+        )
+        self.assertNotEqual(worktree["disposition"], "removed")
+        self.assertTrue(linked.is_dir())
+        self.assertTrue(cache.is_dir())
+
+    def test_nonremovable_sound_caches_protect_owning_worktrees(self) -> None:
+        sound, _primary_cache = self.make_sound_cache()
+        parent = self.workspace.paths.worktrees / "sound"
+        parent.mkdir(parents=True)
+        caches: list[tuple[Path, Path]] = []
+        for label, key in (("young", "f" * 20), ("invalid", "1" * 20)):
+            linked = parent / label
+            command(
+                "git", "worktree", "add", "-b", f"feat/{label}", str(linked),
+                cwd=sound,
+            )
+            self.write_sound_producer_lease(linked)
+            cache = linked / "build" / "atrinik-workspace" / key
+            cache.mkdir(parents=True)
+            atomic_json(
+                cache / ".atrinik-playtest-tree.json",
+                {
+                    "format": "atrinik-sound-playtest-tree",
+                    "playtest_only": True,
+                    "publishable": label != "invalid",
+                    "schema_version": 1,
+                },
+            )
+            caches.append((linked, cache))
+        pulls = [
+            self.merged_pull(command("git", "rev-parse", "HEAD", cwd=linked))
+            for linked, _cache in caches
+        ]
+
+        with mock.patch.object(Cleanup, "_github_pulls", return_value=pulls):
+            applied = self.workspace.cleanup(["all"], 7, ["sound"], True)
+
+        for linked, cache in caches:
+            worktree = next(
+                row for row in applied["items"] if row["path"] == str(linked)
+            )
+            self.assertNotEqual(worktree["disposition"], "removed")
+            self.assertIn("sound_cache_present", worktree["reasons"])
+            self.assertTrue(linked.is_dir())
+            self.assertTrue(cache.is_dir())
+
+    def test_sound_worktree_removal_holds_exclusive_producer_lease(self) -> None:
+        sound, _primary_cache = self.make_sound_cache()
+        linked = self.workspace.paths.worktrees / "sound" / "race"
+        linked.parent.mkdir(parents=True)
+        command(
+            "git", "worktree", "add", "-b", "feat/race", str(linked),
+            cwd=sound,
+        )
+        head = command("git", "rev-parse", "HEAD", cwd=linked)
+        git_directory = Path(
+            command("git", "rev-parse", "--path-format=absolute", "--git-dir", cwd=linked)
+        )
+        producer_lock = git_directory / "atrinik-playtest-builds.lock"
+        with mock.patch.object(
+            Cleanup, "_github_pulls", return_value=self.merged_pull(head)
+        ):
+            uncoordinated = self.workspace.cleanup(
+                ["worktrees"], 0, ["sound"], False
+            )
+        item = next(
+            row for row in uncoordinated["items"] if row["path"] == str(linked)
+        )
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("sound_cleanup_lease_unavailable", item["reasons"])
+        producer_lock.write_text(
+            "atrinik-sound-playtest-builds-v1\n", encoding="utf-8"
+        )
+        observed = False
+
+        def checked_command(path: Path, *arguments: str) -> str:
+            nonlocal observed
+            if arguments[:2] == ("worktree", "remove"):
+                descriptor = os.open(
+                    producer_lock, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600
+                )
+                try:
+                    with self.assertRaises(BlockingIOError):
+                        fcntl.flock(descriptor, fcntl.LOCK_SH | fcntl.LOCK_NB)
+                    observed = True
+                finally:
+                    os.close(descriptor)
+            return _command(path, *arguments)
+
+        with mock.patch.object(
+            Cleanup, "_github_pulls", return_value=self.merged_pull(head)
+        ), mock.patch("atrinik_workspace.cleanup._command", side_effect=checked_command):
+            applied = self.workspace.cleanup(["worktrees"], 0, ["sound"], True)
+
+        item = next(row for row in applied["items"] if row["path"] == str(linked))
+        self.assertTrue(observed)
+        self.assertEqual(item["disposition"], "removed", applied)
+        self.assertFalse(linked.exists())
+
+    def test_sound_producer_lease_inode_replacement_is_rejected(self) -> None:
+        sound, _cache = self.make_sound_cache()
+        lease, identity = _sound_producer_lock_snapshot(sound)
+        lease.unlink()
+        lease.write_text("atrinik-sound-playtest-builds-v1\n", encoding="utf-8")
+
+        with self.assertRaisesRegex(WorkspaceError, "changed identity"):
+            with _exclusive_sound_producer_lease(sound, identity):
+                self.fail("replacement producer lease was accepted")
 
     def add_local_submodule_to_wrapper(self) -> Path:
         source = self.root / "local-submodule"
@@ -2359,7 +2739,10 @@ class CleanupTests(unittest.TestCase):
         cleanup = Cleanup(actual_workspace)
         self.assertEqual(
             cleanup._normalize_scopes(["all"]),
-            ["worktrees", "builds", "npm-cache", "compiler-cache"],
+            [
+                "worktrees", "builds", "npm-cache", "compiler-cache",
+                "sound-cache",
+            ],
         )
         self.assertEqual(cleanup._normalize_names(["atrinik"]), {"atrinik"})
         with self.assertRaisesRegex(WorkspaceError, "unknown components"):

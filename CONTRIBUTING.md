@@ -77,3 +77,10 @@ For CMake/cache changes, also repeat an unchanged build, exercise
 `--force-reconfigure` and `--no-ccache`, inspect `ccache --show-stats` when the
 command is installed, and preview shared-cache retention with
 `./atrinik cleanup --scope compiler-cache --dry-run --json`.
+
+For local-playtest sound staging changes, use a clean sound checkout that owns
+the public playtest-tree builder. Run the focused wrapper sound fixtures, build
+`classic-client` twice from the same Classic-derived local-playtest profile,
+inspect matching build/topology sound records, and run the complete Classic
+supply-chain audit. The generated tree remains ignored, nonpublishable local
+state; never attach, package, upload, or commit it.
