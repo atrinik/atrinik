@@ -2717,21 +2717,34 @@ class WorkspaceTests(unittest.TestCase):
 
     def test_owned_tree_removal_refuses_nested_mount_before_deletion(self) -> None:
         owned = self.root / "owned"
+        first = owned / "a-first"
+        first.mkdir(parents=True)
+        first_payload = first / "payload"
+        first_payload.write_text("preserve first\n", encoding="utf-8")
         nested = owned / "nested"
-        nested.mkdir(parents=True)
+        nested.mkdir()
         nested.chmod(0o755)
         payload = nested / "payload"
         payload.write_text("preserve\n", encoding="utf-8")
+        first.chmod(0o555)
+        owned.chmod(0o555)
+        owned_mode = stat.S_IMODE(owned.stat().st_mode)
+        first_mode = stat.S_IMODE(first.stat().st_mode)
         original_mode = stat.S_IMODE(nested.stat().st_mode)
 
         with mock.patch(
             "atrinik_workspace.workspace._descriptor_mount_id",
-            side_effect=[1, 1, 1, 2],
+            side_effect=[1, 1, 1, 1, 1, 1, 1, 2],
         ):
             with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
                 remove_owned_tree(owned)
 
         self.assertEqual(payload.read_text(encoding="utf-8"), "preserve\n")
+        self.assertEqual(
+            first_payload.read_text(encoding="utf-8"), "preserve first\n"
+        )
+        self.assertEqual(stat.S_IMODE(owned.stat().st_mode), owned_mode)
+        self.assertEqual(stat.S_IMODE(first.stat().st_mode), first_mode)
         self.assertEqual(stat.S_IMODE(nested.stat().st_mode), original_mode)
 
     def test_owned_tree_removal_uses_portable_mount_fallback(self) -> None:
@@ -2925,6 +2938,8 @@ class WorkspaceTests(unittest.TestCase):
         boundary.mkdir()
         boundary_payload = boundary / "payload"
         boundary_payload.write_text("preserve\n", encoding="utf-8")
+        boundary.chmod(0o555)
+        boundary_mode = stat.S_IMODE(boundary.stat().st_mode)
         boundary_identity = boundary_payload.lstat()
         boundary_descriptor = os.open(boundary, os.O_RDONLY | os.O_DIRECTORY)
         try:
@@ -2945,6 +2960,7 @@ class WorkspaceTests(unittest.TestCase):
             ),
             ("preserve\n", boundary_identity.st_ino),
         )
+        self.assertEqual(stat.S_IMODE(boundary.stat().st_mode), boundary_mode)
 
         def changed_device(result: os.stat_result) -> os.stat_result:
             fields = list(result)
@@ -2959,6 +2975,8 @@ class WorkspaceTests(unittest.TestCase):
             root.mkdir()
             child = root / "payload"
             child.write_text("data\n", encoding="utf-8")
+            root.chmod(0o555)
+            root_mode = stat.S_IMODE(root.stat().st_mode)
             descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
             try:
                 root_stat = os.fstat(descriptor)
@@ -2980,6 +2998,7 @@ class WorkspaceTests(unittest.TestCase):
             finally:
                 os.close(descriptor)
             self.assertEqual(child.read_text(encoding="utf-8"), "data\n")
+            self.assertEqual(stat.S_IMODE(root.stat().st_mode), root_mode)
 
         real_open = os.open
         for operation in (
@@ -2991,6 +3010,10 @@ class WorkspaceTests(unittest.TestCase):
             nested.mkdir(parents=True)
             nested_payload = nested / "payload"
             nested_payload.write_text("preserve\n", encoding="utf-8")
+            nested.chmod(0o555)
+            root.chmod(0o555)
+            root_mode = stat.S_IMODE(root.stat().st_mode)
+            nested_mode = stat.S_IMODE(nested.stat().st_mode)
             nested_identity = nested_payload.lstat()
             descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
             root_stat = os.fstat(descriptor)
@@ -3027,6 +3050,8 @@ class WorkspaceTests(unittest.TestCase):
                 ),
                 ("preserve\n", nested_identity.st_ino),
             )
+            self.assertEqual(stat.S_IMODE(root.stat().st_mode), root_mode)
+            self.assertEqual(stat.S_IMODE(nested.stat().st_mode), nested_mode)
 
         for operation in (
             workspace_module._prepare_owned_tree_removal,
@@ -3037,6 +3062,10 @@ class WorkspaceTests(unittest.TestCase):
             nested.mkdir(parents=True)
             nested_payload = nested / "payload"
             nested_payload.write_text("preserve\n", encoding="utf-8")
+            nested.chmod(0o555)
+            root.chmod(0o555)
+            root_mode = stat.S_IMODE(root.stat().st_mode)
+            nested_mode = stat.S_IMODE(nested.stat().st_mode)
             nested_identity = nested_payload.lstat()
             descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
             root_stat = os.fstat(descriptor)
@@ -3066,6 +3095,8 @@ class WorkspaceTests(unittest.TestCase):
                 ),
                 ("preserve\n", nested_identity.st_ino),
             )
+            self.assertEqual(stat.S_IMODE(root.stat().st_mode), root_mode)
+            self.assertEqual(stat.S_IMODE(nested.stat().st_mode), nested_mode)
 
     def test_replaced_directory_recovery_rejects_invalid_states(self) -> None:
         def snapshot(parent: Path) -> dict[str, tuple[object, ...]]:
