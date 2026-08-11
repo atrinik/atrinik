@@ -78,7 +78,14 @@ def terminate(
     process_tree_fd: int | None,
     timeout: float = 10,
 ) -> None:
-    if process_tree_fd is not None:
+    if process_tree_fd is None:
+        for process in processes.values():
+            if process.poll() is None:
+                try:
+                    os.killpg(process.pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+    else:
         signal_holders(
             process_tree_fd, signal.SIGTERM, exclude=(os.getpid(),)
         )
@@ -86,15 +93,36 @@ def terminate(
     while time.monotonic() < deadline:
         for process in processes.values():
             process.poll()
-        if process_tree_fd is None or not holders_exist(
-            process_tree_fd, exclude=(os.getpid(),)
-        ):
+        if process_tree_fd is None:
+            running = any(
+                process.poll() is None for process in processes.values()
+            )
+        else:
+            running = holders_exist(
+                process_tree_fd, exclude=(os.getpid(),)
+            )
+        if not running:
             break
         time.sleep(0.1)
-    if process_tree_fd is not None:
+    if process_tree_fd is None:
+        for process in processes.values():
+            if process.poll() is None:
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+    else:
         signal_holders(
             process_tree_fd, signal.SIGKILL, exclude=(os.getpid(),)
         )
+        kill_deadline = time.monotonic() + 2
+        while time.monotonic() < kill_deadline and holders_exist(
+            process_tree_fd, exclude=(os.getpid(),)
+        ):
+            signal_holders(
+                process_tree_fd, signal.SIGKILL, exclude=(os.getpid(),)
+            )
+            time.sleep(0.05)
     for process in processes.values():
         try:
             process.wait(timeout=2)

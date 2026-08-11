@@ -111,6 +111,21 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                     except ProcessLookupError:
                         pass
 
+    def test_terminate_without_process_tree_lease_uses_group_fallback(self) -> None:
+        process = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(60)"],
+            start_new_session=True,
+        )
+        try:
+            supervisor_module.terminate(
+                {"client": process}, None, timeout=0.1
+            )
+            self.assertIsNotNone(process.poll())
+        finally:
+            if process.poll() is None:
+                process.kill()
+                process.wait(timeout=2)
+
     def test_requires_fingerprint_and_finished_server_startup(self) -> None:
         capture = ServerReadinessCapture()
 

@@ -6142,6 +6142,11 @@ class WorkspaceTests(unittest.TestCase):
             with mock.patch("builtins.print") as output:
                 self.workspace.topology_logs("review", "client", 10, False)
             self.assertIn("client ready", "".join(call.args[0] for call in output.call_args_list))
+            (
+                self.workspace.paths.topologies
+                / "review"
+                / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+            ).unlink()
         finally:
             try:
                 if self.workspace.topology_status("review-two")["supervisor"][
@@ -6412,6 +6417,11 @@ class WorkspaceTests(unittest.TestCase):
                     profile_lock, "profile build default", nonblocking=True
                 ):
                     self.fail("orphaned services released their build-root lock")
+            (
+                self.workspace.paths.topologies
+                / "server-review"
+                / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+            ).unlink()
             recovered = self.workspace.topology_down("server-review", timeout=5)
             self.assertFalse(
                 any(service["running"] for service in recovered["services"].values())
