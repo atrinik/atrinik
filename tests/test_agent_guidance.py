@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from contextlib import redirect_stderr, redirect_stdout
-from datetime import datetime, timezone
 import io
 import json
 from pathlib import Path
@@ -68,15 +67,11 @@ class AgentGuidanceTests(unittest.TestCase):
             with self.subTest(surface="CONTRIBUTING.md", marker=marker):
                 self.assertIn(marker, contributing)
 
-        current_year = datetime.now(timezone.utc).year
         for example in {
-            f"Copyright 2021-{current_year} The Atrinik Project",
-            f"Copyright {current_year} The Atrinik Project",
-            f"Copyright 2024-{current_year} The Atrinik Project",
-            (
-                f"Copyright (C) 2009-{current_year} Zoey Rose and "
-                "Atrinik Development Team"
-            ),
+            "Copyright 2021-2026 The Atrinik Project",
+            "Copyright 2026 The Atrinik Project",
+            "Copyright 2024-2026 The Atrinik Project",
+            "Copyright (C) 2009-2026 Zoey Rose and Atrinik Development Team",
         }:
             with self.subTest(example=example):
                 self.assertIn(example, contributing)
