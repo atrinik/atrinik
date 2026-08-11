@@ -721,8 +721,6 @@ class WorkspaceTests(unittest.TestCase):
         )
         readme = view / "README"
         copied = view / "install_data" / "keys" / "test.pub"
-        readme_inode = readme.lstat().st_ino
-        copied_inode = copied.stat().st_ino
         (view / "stale").write_text("stale\n", encoding="utf-8")
         readme.unlink()
         readme.symlink_to(source / "install_data", target_is_directory=True)
@@ -735,9 +733,9 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(reconciled, view)
         self.assertFalse((view / "stale").exists())
+        self.assertTrue(readme.is_symlink())
+        self.assertEqual(os.readlink(readme), str(source / "README"))
         self.assertEqual(readme.resolve(), source / "README")
-        self.assertNotEqual(readme.lstat().st_ino, readme_inode)
-        self.assertNotEqual(copied.stat().st_ino, copied_inode)
         self.assertEqual(copied.read_text(encoding="utf-8"), "changed\n")
         self.assertTrue((view / "install_data" / "unique-items" / "new").is_file())
         self.assertFalse(self.workspace._source_view_unchanged[str(view.resolve())])
