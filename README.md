@@ -252,7 +252,11 @@ updated without following unsafe symlinks. CMake configuration is skipped only
 when the source-view state and a fingerprint of the generator, CMake/compiler
 toolchain, cache arguments, test mode, and relevant environment still match.
 Ninja may still run CMake's dependency regeneration during the build. Use
-`--force-reconfigure` to run the explicit configure step regardless.
+`--force-reconfigure` to run the explicit configure step regardless. A skip
+also requires the expected CMake cache and Ninja graph to identify the current
+source and generator. Compiler, toolchain-file, or initialization-environment
+changes safely reinitialize only that marker-owned binary tree while retaining
+the shared compiler cache.
 
 When `ccache` is available, native C and C++ builds automatically use the
 marker-owned shared `workspace/build/compiler-cache`, bounded at 5 GiB. Debug

@@ -7,7 +7,6 @@ from contextlib import ExitStack, contextmanager
 from datetime import datetime, timezone
 import fcntl
 import hashlib
-import json
 import os
 from pathlib import Path, PurePosixPath
 import re
@@ -70,7 +69,7 @@ ALL_BUILD_TARGETS = (
 )
 SOURCE_VIEW_METADATA = ".atrinik-source-view.json"
 CONFIGURE_METADATA = ".atrinik-configure.json"
-CONFIGURE_SCHEMA_VERSION = 1
+CONFIGURE_SCHEMA_VERSION = 2
 COMPILER_CACHE_PURPOSE = "compiler-cache"
 COMPILER_CACHE_MAX_SIZE = "5G"
 TOPOLOGY_SERVICES = ("server", "client")
@@ -1574,11 +1573,16 @@ class Workspace:
         purpose = f"source-view:{component}"
         managed_directory(view, self.paths.builds, purpose)
         self._source_view_changed = False
-        exclusions = {*exclusions, MANAGED_MARKER, SOURCE_VIEW_METADATA}
+        exclusions = {
+            *exclusions,
+            ".git",
+            MANAGED_MARKER,
+            SOURCE_VIEW_METADATA,
+        }
         copied_directories = copied_directories or set()
         expected: dict[str, dict[str, Any]] = {}
         for entry in sorted(source.iterdir(), key=lambda path: path.name):
-            if entry.name in exclusions or entry.name == ".git":
+            if entry.name in exclusions:
                 continue
             destination = view / entry.name
             copy_entry = copy_all or entry.name in copied_directories
@@ -1594,7 +1598,12 @@ class Workspace:
                         f"source-view copy input is not a directory: {entry}"
                     )
                 if stat.S_ISDIR(mode):
-                    digest = self._reconcile_source_tree(entry, destination, entry)
+                    digest = self._reconcile_source_tree(
+                        entry,
+                        destination,
+                        entry,
+                        exclusions if copy_all else set(),
+                    )
                 elif stat.S_ISREG(mode):
                     permissions = stat.S_IMODE(mode)
                     value = hashlib.sha256(entry.read_bytes()).hexdigest()
@@ -1665,7 +1674,8 @@ class Workspace:
                 )
             except WorkspaceError:
                 unchanged = False
-        atomic_json(metadata_path, metadata)
+        if not unchanged:
+            atomic_json(metadata_path, metadata)
         self._source_view_unchanged = getattr(self, "_source_view_unchanged", {})
         self._source_view_unchanged[str(view.resolve())] = unchanged
         return view
@@ -1687,7 +1697,12 @@ class Workspace:
             self._source_view_unchanged[str(view.resolve())] = False
         return destination
 
-    def _source_view_directory(self, view: Path, relative: str) -> Path:
+    def _source_view_directory(
+        self,
+        view: Path,
+        relative: str,
+        preserved_entries: set[str] | None = None,
+    ) -> Path:
         destination = view / relative
         if destination.is_symlink() or (
             destination.exists() and not destination.is_dir()
@@ -1696,6 +1711,10 @@ class Workspace:
         if not destination.exists():
             destination.mkdir(parents=True)
             self._source_view_unchanged[str(view.resolve())] = False
+        for entry in sorted(destination.iterdir(), key=lambda path: path.name):
+            if entry.name not in (preserved_entries or set()):
+                self._remove_source_view_entry(entry)
+                self._source_view_unchanged[str(view.resolve())] = False
         return destination
 
     def _remove_source_view_entry(self, path: Path) -> None:
@@ -1717,7 +1736,13 @@ class Workspace:
         if resolved != source and source not in resolved.parents:
             raise WorkspaceError(f"source-view symlink escapes its source root: {path}")
 
-    def _reconcile_source_tree(self, source: Path, destination: Path, root: Path) -> str:
+    def _reconcile_source_tree(
+        self,
+        source: Path,
+        destination: Path,
+        root: Path,
+        exclusions: set[str],
+    ) -> str:
         if destination.is_symlink() or (destination.exists() and not destination.is_dir()):
             self._remove_source_view_entry(destination)
         if not destination.exists():
@@ -1731,6 +1756,8 @@ class Workspace:
         digest.update(f"directory:{source_permissions:o}\0".encode())
         expected: set[str] = set()
         for entry in sorted(source.iterdir(), key=lambda path: path.name):
+            if entry.name in exclusions:
+                continue
             expected.add(entry.name)
             output = destination / entry.name
             relative = entry.relative_to(root).as_posix()
@@ -1741,7 +1768,11 @@ class Workspace:
             digest.update(relative.encode())
             if stat.S_ISDIR(mode):
                 digest.update(b"\0directory\0")
-                digest.update(self._reconcile_source_tree(entry, output, root).encode())
+                digest.update(
+                    self._reconcile_source_tree(
+                        entry, output, root, exclusions
+                    ).encode()
+                )
             elif stat.S_ISREG(mode):
                 permissions = stat.S_IMODE(mode)
                 file_digest = hashlib.sha256()
@@ -1945,7 +1976,7 @@ class Workspace:
         arguments: list[str],
         tests: bool,
     ) -> None:
-        binary.mkdir(parents=True, exist_ok=True)
+        self._prepare_cmake_binary(binary)
         environment = os.environ.copy()
         ccache = shutil.which("ccache") if getattr(self, "_use_ccache", True) else None
         cache_arguments = [
@@ -1987,7 +2018,7 @@ class Workspace:
                 file=sys.stderr,
             )
 
-        prefix_arguments = self._debug_prefix_arguments(source, binary, environment)
+        self._add_debug_prefix_environment(source, binary, environment)
         configure = [
             "cmake",
             "-S",
@@ -1999,7 +2030,6 @@ class Workspace:
             "-DCMAKE_BUILD_TYPE=Debug",
             f"-DBUILD_TESTING={'ON' if tests else 'OFF'}",
             *cache_arguments,
-            *prefix_arguments,
             *arguments,
         ]
         fingerprint = self._configure_fingerprint(
@@ -2012,12 +2042,22 @@ class Workspace:
             for view, unchanged in getattr(self, "_source_view_unchanged", {}).items()
             if Path(view) == source_resolved or source_resolved in Path(view).parents
         )
-        configured = False
+        previous: dict[str, Any] = {}
         if metadata_path.is_file() and not metadata_path.is_symlink():
             try:
-                configured = load_json(metadata_path) == fingerprint
+                loaded = load_json(metadata_path)
+                if isinstance(loaded, dict):
+                    previous = loaded
             except WorkspaceError:
-                configured = False
+                pass
+        configured = previous == fingerprint
+        build_tree_changed = (
+            previous.get("build_tree_identity")
+            != fingerprint["build_tree_identity"]
+        )
+        if build_tree_changed or not self._cmake_state_valid(source, binary):
+            managed_reset(binary, self.paths.builds, "cmake-binary")
+            configured = False
         if (
             getattr(self, "_force_reconfigure", False)
             or not unchanged_view
@@ -2034,21 +2074,96 @@ class Workspace:
                 env=environment,
             )
 
+    def _prepare_cmake_binary(self, binary: Path) -> None:
+        if binary.is_symlink():
+            raise WorkspaceError(f"refusing symlinked CMake binary path: {binary}")
+        resolved_binary = binary.parent.resolve() / binary.name
+        builds = self.paths.builds.resolve()
+        if builds not in resolved_binary.parents:
+            raise WorkspaceError(
+                f"refusing CMake binary path outside workspace builds: {binary}"
+            )
+        marker = binary / MANAGED_MARKER
+        if not binary.exists():
+            managed_directory(binary, self.paths.builds, "cmake-binary")
+            return
+        if not binary.is_dir():
+            raise WorkspaceError(f"CMake binary path is not a directory: {binary}")
+        if marker.exists() or marker.is_symlink():
+            managed_directory(binary, self.paths.builds, "cmake-binary")
+            return
+
+        # Adopt only the exact legacy location inside an already marker-owned
+        # profile build. Older wrapper releases created these CMake trees
+        # without a nested ownership marker.
+        profile_root = binary.parent.parent
+        profile_marker = profile_root / MANAGED_MARKER
+        try:
+            profile_metadata = load_json(profile_marker)
+        except WorkspaceError as error:
+            raise WorkspaceError(
+                f"refusing unmanaged CMake binary path: {binary}"
+            ) from error
+        if (
+            binary.parent.name != "build"
+            or profile_root.is_symlink()
+            or not profile_root.is_dir()
+            or profile_marker.is_symlink()
+            or not isinstance(profile_metadata, dict)
+            or profile_metadata.get("schema_version") != SCHEMA_VERSION
+            or not isinstance(profile_metadata.get("purpose"), str)
+            or not profile_metadata["purpose"].startswith("profile:")
+        ):
+            raise WorkspaceError(f"refusing unmanaged CMake binary path: {binary}")
+        atomic_json(
+            marker,
+            {"schema_version": SCHEMA_VERSION, "purpose": "cmake-binary"},
+        )
+
     @staticmethod
-    def _debug_prefix_arguments(
+    def _cmake_state_valid(source: Path, binary: Path) -> bool:
+        cache = binary / "CMakeCache.txt"
+        ninja = binary / "build.ninja"
+        if (
+            cache.is_symlink()
+            or not cache.is_file()
+            or ninja.is_symlink()
+            or not ninja.is_file()
+        ):
+            return False
+        values: dict[str, str] = {}
+        try:
+            for line in cache.read_text(encoding="utf-8").splitlines():
+                if line.startswith("CMAKE_HOME_DIRECTORY:INTERNAL="):
+                    values["source"] = line.split("=", 1)[1]
+                elif line.startswith("CMAKE_GENERATOR:INTERNAL="):
+                    values["generator"] = line.split("=", 1)[1]
+            cached_source = Path(values["source"]).resolve(strict=True)
+        except (KeyError, OSError, RuntimeError, UnicodeError):
+            return False
+        return cached_source == source.resolve() and values.get("generator") == "Ninja"
+
+    @staticmethod
+    def _add_debug_prefix_environment(
         source: Path, binary: Path, environment: dict[str, str]
-    ) -> list[str]:
+    ) -> None:
         source_path = source.resolve()
         binary_path = binary.resolve()
+        relative_source = os.path.relpath(source_path, binary_path)
         mappings = (
             f"-fdebug-prefix-map={source_path}=/atrinik/source "
             f"-ffile-prefix-map={source_path}=/atrinik/source "
+            f"-fdebug-prefix-map={relative_source}=/atrinik/source "
+            f"-ffile-prefix-map={relative_source}=/atrinik/source "
             f"-fdebug-prefix-map={binary_path}=/atrinik/build "
             f"-ffile-prefix-map={binary_path}=/atrinik/build"
         )
-        c_flags = " ".join(filter(None, (environment.get("CFLAGS", ""), mappings)))
-        cxx_flags = " ".join(filter(None, (environment.get("CXXFLAGS", ""), mappings)))
-        return [f"-DCMAKE_C_FLAGS={c_flags}", f"-DCMAKE_CXX_FLAGS={cxx_flags}"]
+        environment["CFLAGS"] = " ".join(
+            filter(None, (environment.get("CFLAGS", ""), mappings))
+        )
+        environment["CXXFLAGS"] = " ".join(
+            filter(None, (environment.get("CXXFLAGS", ""), mappings))
+        )
 
     @staticmethod
     def _tool_identity(command: str) -> dict[str, str | None]:
@@ -2060,9 +2175,16 @@ class Workspace:
         version = None
         if executable is not None:
             try:
-                version = run(
-                    [executable, "--version"], capture=True, trace=False
-                ).splitlines()[0]
+                output = run(
+                    [executable, *words[1:], "--version"],
+                    capture=True,
+                    trace=False,
+                )
+                version = (
+                    output.splitlines()[0]
+                    if output
+                    else "unavailable: empty --version output"
+                )
             except WorkspaceError as error:
                 version = f"unavailable: {error}"
         return {"command": command, "path": executable, "version": version}
@@ -2077,51 +2199,106 @@ class Workspace:
         ccache: str | None,
     ) -> dict[str, Any]:
         relevant_names = (
+            "ATRINIK_PACKAGE_VERSION",
             "CC",
             "CXX",
             "CPPFLAGS",
             "CFLAGS",
             "CXXFLAGS",
             "LDFLAGS",
+            "PATH",
+            "CPATH",
+            "C_INCLUDE_PATH",
+            "CPLUS_INCLUDE_PATH",
+            "LIBRARY_PATH",
             "CMAKE_PREFIX_PATH",
+            "CMAKE_INCLUDE_PATH",
+            "CMAKE_LIBRARY_PATH",
+            "CMAKE_FRAMEWORK_PATH",
+            "CMAKE_APPBUNDLE_PATH",
+            "CMAKE_PROGRAM_PATH",
+            "CMAKE_IGNORE_PATH",
+            "CMAKE_SYSTEM_IGNORE_PATH",
+            "CMAKE_FIND_ROOT_PATH",
+            "CMAKE_TOOLCHAIN_FILE",
+            "CMAKE_GENERATOR_PLATFORM",
+            "CMAKE_GENERATOR_TOOLSET",
+            "PKG_CONFIG_PATH",
+            "PKG_CONFIG_LIBDIR",
+            "PKG_CONFIG_SYSROOT_DIR",
+            "PKG_CONFIG_SYSTEM_INCLUDE_PATH",
+            "PKG_CONFIG_SYSTEM_LIBRARY_PATH",
+            "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS",
+            "PKG_CONFIG_ALLOW_SYSTEM_LIBS",
+            "SDKROOT",
+            "MACOSX_DEPLOYMENT_TARGET",
+        )
+        identity = self._cmake_source_identity(source)
+        environment_identity = {
+            name: environment[name]
+            for name in relevant_names
+            if name in environment
+        }
+        initialization_names = {
+            "CC",
+            "CXX",
+            "CPPFLAGS",
+            "CFLAGS",
+            "CXXFLAGS",
+            "LDFLAGS",
             "CMAKE_TOOLCHAIN_FILE",
             "CMAKE_GENERATOR_PLATFORM",
             "CMAKE_GENERATOR_TOOLSET",
             "SDKROOT",
             "MACOSX_DEPLOYMENT_TARGET",
+        }
+        initialization_environment = {
+            name: value
+            for name, value in environment_identity.items()
+            if name in initialization_names
+        }
+        generator_tool = self._tool_identity("ninja")
+        cmake_tool = self._tool_identity("cmake")
+        compilers = {
+            "c": self._tool_identity(environment.get("CC", "cc")),
+            "cxx": self._tool_identity(environment.get("CXX", "c++")),
+        }
+        tree_argument_prefixes = (
+            "-DCMAKE_C_COMPILER=",
+            "-DCMAKE_CXX_COMPILER=",
+            "-DCMAKE_TOOLCHAIN_FILE=",
+            "-DCMAKE_GENERATOR_PLATFORM=",
+            "-DCMAKE_GENERATOR_TOOLSET=",
+            "-DCMAKE_SYSROOT=",
         )
-        source_metadata = source / SOURCE_VIEW_METADATA
-        if source_metadata.is_file() and not source_metadata.is_symlink():
-            identity: Any = load_json(source_metadata)
-        else:
-            cmakelists = source / "CMakeLists.txt"
-            identity = {
-                "path": str(source.resolve()),
-                "cmakelists": (
-                    hashlib.sha256(cmakelists.read_bytes()).hexdigest()
-                    if cmakelists.is_file() and not cmakelists.is_symlink()
-                    else None
-                ),
-            }
+        build_tree_identity = {
+            "generator": "Ninja",
+            "generator_tool": generator_tool,
+            "cmake": cmake_tool,
+            "compilers": compilers,
+            "environment": initialization_environment,
+            "arguments": [
+                argument
+                for argument in configure
+                if argument.startswith(tree_argument_prefixes)
+            ],
+            "toolchain_file": self._cmake_toolchain_identity(
+                source, binary, configure, environment
+            ),
+        }
         return {
             "schema_version": CONFIGURE_SCHEMA_VERSION,
             "purpose": "cmake-configure",
             "source": identity,
             "binary": str(binary.resolve()),
             "generator": "Ninja",
-            "generator_tool": self._tool_identity("ninja"),
-            "cmake": self._tool_identity("cmake"),
-            "compilers": {
-                "c": self._tool_identity(environment.get("CC", "cc")),
-                "cxx": self._tool_identity(environment.get("CXX", "c++")),
-            },
+            "generator_tool": generator_tool,
+            "cmake": cmake_tool,
+            "compilers": compilers,
             "configure_arguments": configure[1:],
             "build_testing": tests,
-            "environment": {
-                name: environment[name]
-                for name in relevant_names
-                if name in environment
-            },
+            "environment": environment_identity,
+            "build_tree_identity": build_tree_identity,
             "ccache": (
                 {
                     "path": ccache,
@@ -2129,6 +2306,79 @@ class Workspace:
                     "max_size": COMPILER_CACHE_MAX_SIZE,
                 }
                 if ccache is not None
+                else None
+            ),
+        }
+
+    @staticmethod
+    def _cmake_toolchain_identity(
+        source: Path,
+        binary: Path,
+        configure: list[str],
+        environment: dict[str, str],
+    ) -> dict[str, Any] | None:
+        value = environment.get("CMAKE_TOOLCHAIN_FILE")
+        for argument in configure:
+            for prefix in (
+                "-DCMAKE_TOOLCHAIN_FILE=",
+                "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=",
+            ):
+                if argument.startswith(prefix):
+                    value = argument[len(prefix) :]
+        if not value:
+            return None
+        raw = Path(value)
+        candidates = (
+            (raw,) if raw.is_absolute() else (binary / raw, source / raw)
+        )
+        for candidate in candidates:
+            try:
+                if candidate.is_file() and not candidate.is_symlink():
+                    return {
+                        "value": value,
+                        "path": str(candidate.resolve()),
+                        "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
+                    }
+            except OSError:
+                continue
+        return {"value": value, "path": None, "sha256": None}
+
+    def _cmake_source_identity(self, source: Path) -> dict[str, Any]:
+        source_metadata = source / SOURCE_VIEW_METADATA
+        marker = source / MANAGED_MARKER
+        builds = self.paths.builds.resolve()
+        try:
+            resolved = source.resolve(strict=True)
+            metadata = load_json(source_metadata)
+            ownership = load_json(marker)
+            managed = builds in resolved.parents
+            valid = (
+                managed
+                and not source_metadata.is_symlink()
+                and not marker.is_symlink()
+                and isinstance(metadata, dict)
+                and set(metadata) == {"schema_version", "purpose", "source", "entries"}
+                and metadata.get("schema_version") == 1
+                and isinstance(metadata.get("purpose"), str)
+                and metadata["purpose"].startswith("source-view:")
+                and ownership
+                == {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": metadata["purpose"],
+                }
+                and isinstance(metadata.get("source"), str)
+                and isinstance(metadata.get("entries"), dict)
+            )
+            if valid:
+                return metadata
+        except (OSError, RuntimeError, WorkspaceError):
+            pass
+        cmakelists = source / "CMakeLists.txt"
+        return {
+            "path": str(source.resolve()),
+            "cmakelists": (
+                hashlib.sha256(cmakelists.read_bytes()).hexdigest()
+                if cmakelists.is_file() and not cmakelists.is_symlink()
                 else None
             ),
         }
@@ -2216,7 +2466,7 @@ class Workspace:
             {"install_data"},
             preserved_entries={"runtime", "resources"},
         )
-        runtime = self._source_view_directory(server, "runtime")
+        self._source_view_directory(server, "runtime", {"content"})
         self._source_view_link(
             server,
             "runtime/content",
@@ -2298,7 +2548,7 @@ class Workspace:
             {"install_data"},
             preserved_entries={"runtime", "resources"},
         )
-        runtime = self._source_view_directory(view, "runtime")
+        self._source_view_directory(view, "runtime", {"content"})
         self._source_view_link(
             view,
             "runtime/content",

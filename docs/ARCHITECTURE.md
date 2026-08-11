@@ -392,9 +392,12 @@ Each CMake binary tree stores an atomic configure fingerprint covering the
 source-view identity, Ninja generator, CMake and compiler identities, toolchain
 and cache arguments, `BUILD_TESTING`, and relevant compiler/platform
 environment. The wrapper skips only its explicit configure command when both
-that fingerprint and the reconciled view are unchanged; `cmake --build`
-remains able to invoke CMake/Ninja dependency regeneration. A forced configure
-is available through `--force-reconfigure`.
+that fingerprint and the reconciled view are unchanged and the CMake cache and
+Ninja graph still identify the expected source/generator; `cmake --build`
+remains able to invoke CMake/Ninja dependency regeneration. Compiler,
+toolchain-file, and initialization-environment changes reinitialize only the
+marker-owned CMake binary tree. A forced configure is available through
+`--force-reconfigure` without resetting an otherwise matching tree.
 
 When `ccache` is discoverable, the wrapper sets supported C and C++ CMake
 compiler launchers and a marker-owned shared cache with a fixed 5 GiB maximum.

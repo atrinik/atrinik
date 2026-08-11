@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 from concurrent.futures import ThreadPoolExecutor
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -785,6 +786,55 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "escapes its source root"):
             self.workspace._profile_source_view(root, "content", source, set())
 
+    def test_copied_source_view_recursively_excludes_generated_entries(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        nested = source / "nested"
+        (nested / "kept").mkdir(parents=True)
+        (nested / "kept" / "input").write_text("kept\n", encoding="utf-8")
+        for excluded in (".git", "build", "dist", "node_modules", ".wrangler"):
+            (nested / excluded).mkdir()
+            (nested / excluded / "stale").write_text("excluded\n", encoding="utf-8")
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+
+        view = self.workspace._profile_source_view(
+            root,
+            "worker",
+            source,
+            {"build", "dist", "node_modules", ".wrangler"},
+            copy_all=True,
+        )
+
+        self.assertTrue((view / "nested" / "kept" / "input").is_file())
+        for excluded in (".git", "build", "dist", "node_modules", ".wrangler"):
+            self.assertFalse((view / "nested" / excluded).exists())
+        (view / "nested" / "node_modules").mkdir()
+        self.workspace._profile_source_view(
+            root,
+            "worker",
+            source,
+            {"build", "dist", "node_modules", ".wrangler"},
+            copy_all=True,
+        )
+        self.assertFalse((view / "nested" / "node_modules").exists())
+
+    def test_preserved_source_view_directory_removes_unexpected_children(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        view = self.workspace._profile_source_view(
+            root, "server", source, {"runtime"}, preserved_entries={"runtime"}
+        )
+        runtime = view / "runtime"
+        runtime.mkdir()
+        (runtime / "content").symlink_to(source, target_is_directory=True)
+        (runtime / "stale").write_text("stale\n", encoding="utf-8")
+
+        self.workspace._source_view_directory(view, "runtime", {"content"})
+
+        self.assertTrue((runtime / "content").is_symlink())
+        self.assertFalse((runtime / "stale").exists())
+
     def test_cmake_skips_only_unchanged_fingerprint_and_honors_force(self) -> None:
         source_root = self.workspace.paths.repositories / "content"
         (source_root / "CMakeLists.txt").write_text(
@@ -795,6 +845,16 @@ class WorkspaceTests(unittest.TestCase):
         source = self.workspace._profile_source_view(root, "content", source_root, set())
         binary = root / "build" / "content"
 
+        def configured(command: list[str], **kwargs: object) -> None:
+            if command[:2] != ["cmake", "-S"]:
+                return
+            (binary / "CMakeCache.txt").write_text(
+                f"CMAKE_HOME_DIRECTORY:INTERNAL={source.resolve()}\n"
+                "CMAKE_GENERATOR:INTERNAL=Ninja\n",
+                encoding="utf-8",
+            )
+            (binary / "build.ninja").write_text("# generated\n", encoding="utf-8")
+
         with (
             mock.patch("atrinik_workspace.workspace.shutil.which", return_value=None),
             mock.patch.object(
@@ -802,7 +862,7 @@ class WorkspaceTests(unittest.TestCase):
                 "_tool_identity",
                 return_value={"command": "tool", "path": "/tool", "version": "1"},
             ),
-            mock.patch("atrinik_workspace.workspace.run") as run,
+            mock.patch("atrinik_workspace.workspace.run", side_effect=configured) as run,
         ):
             self.workspace._cmake(source, binary, [], tests=False)
             first_count = run.call_count
@@ -810,6 +870,16 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace._cmake(source, binary, [], tests=False)
             second_commands = [call.args[0] for call in run.call_args_list[first_count:]]
             self.assertEqual(second_commands, [["cmake", "--build", str(binary), "--parallel"]])
+
+            (binary / "build.ninja").unlink()
+            repair_start = run.call_count
+            self.workspace._cmake(source, binary, [], tests=False)
+            repair_commands = [
+                call.args[0] for call in run.call_args_list[repair_start:]
+            ]
+            self.assertTrue(
+                any(command[:2] == ["cmake", "-S"] for command in repair_commands)
+            )
 
             self.workspace._force_reconfigure = True
             self.workspace._cmake(source, binary, [], tests=False)
@@ -840,13 +910,56 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace._cmake(source, binary, [], tests=True)
             with mock.patch.dict(os.environ, {"CFLAGS": "-DCHANGED"}):
                 self.workspace._cmake(source, binary, [], tests=True)
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "ATRINIK_PACKAGE_VERSION": "review",
+                    "PKG_CONFIG_PATH": "/opt/review/pkgconfig",
+                },
+            ):
+                self.workspace._cmake(source, binary, [], tests=True)
             identities["cc"] = {"command": "cc", "path": "/cc", "version": "cc 2"}
             self.workspace._cmake(source, binary, [], tests=True)
 
         configure_calls = [
             call for call in run.call_args_list if call.args[0][:2] == ["cmake", "-S"]
         ]
-        self.assertEqual(len(configure_calls), 4)
+        self.assertEqual(len(configure_calls), 5)
+
+    def test_tool_identity_handles_wrappers_and_empty_version_output(self) -> None:
+        with (
+            mock.patch("atrinik_workspace.workspace.shutil.which", return_value="/tool"),
+            mock.patch("atrinik_workspace.workspace.run", return_value="") as run,
+        ):
+            identity = self.workspace._tool_identity("wrapper --compiler cc")
+
+        run.assert_called_once_with(
+            ["/tool", "--compiler", "cc", "--version"],
+            capture=True,
+            trace=False,
+        )
+        self.assertEqual(identity["version"], "unavailable: empty --version output")
+
+    def test_direct_source_does_not_trust_unowned_source_view_metadata(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        cmakelists = source / "CMakeLists.txt"
+        cmakelists.write_text("project(test C)\n", encoding="utf-8")
+        atomic_json(
+            source / SOURCE_VIEW_METADATA,
+            {
+                "schema_version": 1,
+                "purpose": "source-view:forged",
+                "source": "/forged",
+                "entries": {},
+            },
+        )
+
+        identity = self.workspace._cmake_source_identity(source)
+
+        self.assertEqual(identity["path"], str(source.resolve()))
+        self.assertEqual(
+            identity["cmakelists"], hashlib.sha256(cmakelists.read_bytes()).hexdigest()
+        )
 
     def test_cmake_enables_bounded_marker_owned_ccache_with_normalized_paths(self) -> None:
         source = self.workspace.paths.repositories / "content"
@@ -872,12 +985,142 @@ class WorkspaceTests(unittest.TestCase):
         arguments = configure.args[0]
         environment = configure.kwargs["env"]
         self.assertIn("-DCMAKE_C_COMPILER_LAUNCHER=/usr/bin/ccache", arguments)
-        self.assertIn("-fdebug-prefix-map=", " ".join(arguments))
+        self.assertIn("-fdebug-prefix-map=", environment["CFLAGS"])
+        self.assertIn("-ffile-prefix-map=", environment["CXXFLAGS"])
         self.assertEqual(environment["CCACHE_MAXSIZE"], "5G")
         self.assertEqual(environment["CCACHE_BASEDIR"], str(binary.parent.parent.resolve()))
         cache = self.workspace.paths.builds / "compiler-cache"
         self.assertEqual(load_json(cache / MANAGED_MARKER)["purpose"], "compiler-cache")
         self.assertEqual(load_json(cache / ".atrinik-cache.json")["max_size"], "5G")
+
+    @unittest.skipUnless(
+        all(shutil.which(tool) for tool in ("cc", "cmake", "ninja")),
+        "real CMake toolchain is unavailable",
+    )
+    def test_real_cmake_reinitializes_changed_toolchain_and_preserves_init_flags(
+        self,
+    ) -> None:
+        source = self.root / "cmake-source"
+        source.mkdir()
+        (source / "CMakeLists.txt").write_text(
+            "cmake_minimum_required(VERSION 3.20)\n"
+            "project(wrapper_toolchain C)\n"
+            "add_executable(sample main.c)\n",
+            encoding="utf-8",
+        )
+        (source / "main.c").write_text(
+            "#ifndef TOOLCHAIN_VALUE\n#error missing toolchain flag\n#endif\n"
+            "int main(void) { return 0; }\n",
+            encoding="utf-8",
+        )
+        toolchain = self.root / "toolchain.cmake"
+        toolchain.write_text(
+            'set(CMAKE_C_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} -DTOOLCHAIN_VALUE=1")\n',
+            encoding="utf-8",
+        )
+        binary = self.workspace.paths.builds / "profiles" / "real" / "build" / "sample"
+        self.workspace._use_ccache = False
+
+        self.workspace._cmake(
+            source,
+            binary,
+            [f"-DCMAKE_TOOLCHAIN_FILE={toolchain}"],
+            tests=False,
+        )
+        cache = (binary / "CMakeCache.txt").read_text(encoding="utf-8")
+        self.assertIn("-DTOOLCHAIN_VALUE=1", cache)
+        self.assertIn("-fdebug-prefix-map=", cache)
+        sentinel = binary / "removed-on-toolchain-change"
+        sentinel.write_text("stale\n", encoding="utf-8")
+
+        toolchain.write_text(
+            'set(CMAKE_C_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} -DTOOLCHAIN_VALUE=2")\n',
+            encoding="utf-8",
+        )
+        self.workspace._cmake(
+            source,
+            binary,
+            [f"-DCMAKE_TOOLCHAIN_FILE={toolchain}"],
+            tests=False,
+        )
+
+        self.assertFalse(sentinel.exists())
+        self.assertIn(
+            "-DTOOLCHAIN_VALUE=2",
+            (binary / "CMakeCache.txt").read_text(encoding="utf-8"),
+        )
+
+    @unittest.skipUnless(
+        all(shutil.which(tool) for tool in ("cc", "ccache", "cmake", "ninja")),
+        "real ccache/CMake toolchain is unavailable",
+    )
+    def test_real_cmake_reuses_ccache_across_equivalent_profile_views(self) -> None:
+        checkout = self.root / "shared-cmake-source"
+        checkout.mkdir()
+        (checkout / "CMakeLists.txt").write_text(
+            "cmake_minimum_required(VERSION 3.20)\n"
+            "project(wrapper_ccache C)\n"
+            "add_executable(sample main.c)\n",
+            encoding="utf-8",
+        )
+        (checkout / "main.c").write_text(
+            "const char *source_file = __FILE__;\n"
+            "int main(void) { return source_file[0] == 0; }\n",
+            encoding="utf-8",
+        )
+        roots = [
+            self.workspace.paths.builds / "profiles" / name
+            for name in ("cache-a", "cache-b")
+        ]
+        views: list[Path] = []
+        for root in roots:
+            managed_directory(root, self.workspace.paths.builds, f"profile:{root.name}")
+            views.append(
+                self.workspace._profile_source_view(
+                    root, "sample", checkout, set()
+                )
+            )
+
+        self.workspace._cmake(
+            views[0], roots[0] / "build" / "sample", [], tests=False
+        )
+        cache = self.workspace.paths.builds / "compiler-cache"
+        statistics_environment = os.environ.copy()
+        statistics_environment["CCACHE_DIR"] = str(cache)
+        subprocess.run(
+            ["ccache", "--zero-stats"],
+            check=True,
+            capture_output=True,
+            text=True,
+            env=statistics_environment,
+        )
+        self.workspace._cmake(
+            views[1], roots[1] / "build" / "sample", [], tests=False
+        )
+
+        statistics = subprocess.run(
+            ["ccache", "--print-stats"],
+            check=True,
+            capture_output=True,
+            text=True,
+            env=statistics_environment,
+        ).stdout
+        values = {
+            name: int(value)
+            for name, value in (
+                line.split("\t", 1) for line in statistics.splitlines() if "\t" in line
+            )
+            if value.isdigit()
+        }
+        self.assertGreater(
+            values.get("direct_cache_hit", 0)
+            + values.get("preprocessed_cache_hit", 0),
+            0,
+        )
+        object_file = next((roots[1] / "build" / "sample").rglob("main.c.o"))
+        object_data = object_file.read_bytes()
+        self.assertIn(b"/atrinik/source/main.c", object_data)
+        self.assertNotIn(str(roots[1]).encode(), object_data)
 
     def test_resource_view_reserves_generated_metadata_names(self) -> None:
         source = self.workspace.paths.repositories / "resources"
