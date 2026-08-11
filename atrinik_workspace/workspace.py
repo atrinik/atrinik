@@ -9,7 +9,9 @@ from datetime import datetime, timezone
 import errno
 import fcntl
 import hashlib
+import json
 import os
+import platform
 from pathlib import Path, PurePosixPath
 import re
 import secrets
@@ -106,6 +108,28 @@ SCENARIO_PASSWORD_MAX_SIZE = 128
 BUILD_METADATA = ".atrinik-build.json"
 BUILD_METADATA_SCHEMA_VERSION = 1
 CACHE_METADATA = ".atrinik-cache.json"
+WORKER_DEPENDENCY_METADATA = ".atrinik-worker-dependencies.json"
+WORKER_VIEW_METADATA = ".atrinik-worker-view.json"
+WORKER_DEPENDENCY_SCHEMA_VERSION = 4
+WORKER_VIEW_SCHEMA_VERSION = 2
+WORKER_DEPENDENCY_FILES = ("package.json", "package-lock.json")
+WORKER_SOURCE_EXCLUSIONS = {
+    ".git",
+    MANAGED_MARKER,
+    WORKER_VIEW_METADATA,
+    "build",
+    "dist",
+    "node_modules",
+    ".wrangler",
+}
+WORKER_VIEW_NODE_MODULES_EXCLUSIONS = {".vite", ".vite-temp"}
+WORKER_NPM_FILE_CONFIG_KEYS = {
+    "cafile",
+    "certfile",
+    "globalconfig",
+    "keyfile",
+    "userconfig",
+}
 RUNTIME_INPUT_METADATA = ".atrinik-dependency.json"
 RUNTIME_INPUT_SCHEMA_VERSION = 1
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
@@ -686,19 +710,350 @@ def replace_runtime_directory(
             )
 
 
-def replace_directory(output: Path, staging: Path, backup_prefix: str) -> None:
+def replace_directory(
+    output: Path,
+    staging: Path,
+    backup_prefix: str,
+    backup_parent: Path | None = None,
+    verify_after_install: Callable[[], None] | None = None,
+) -> None:
+    backup: Path | None = None
     if output.exists():
-        backup = Path(tempfile.mkdtemp(prefix=backup_prefix, dir=output.parent))
+        backup = Path(
+            tempfile.mkdtemp(prefix=backup_prefix, dir=backup_parent or output.parent)
+        )
         backup.rmdir()
         output.replace(backup)
         try:
+            # Rename preserves the old tree's timestamps. Refresh the backup
+            # root so cleanup's no-follow tree age measures when this
+            # transaction was created, not when the replaced output last
+            # changed.
+            os.utime(backup, None, follow_symlinks=False)
             staging.replace(output)
         except BaseException:
             backup.replace(output)
             raise
-        shutil.rmtree(backup)
     else:
         staging.replace(output)
+    try:
+        if verify_after_install is not None:
+            verify_after_install()
+    except BaseException:
+        output.replace(staging)
+        if backup is not None:
+            backup.replace(output)
+        raise
+    if backup is not None:
+        try:
+            remove_owned_tree(backup)
+        except (OSError, WorkspaceError) as error:
+            print(
+                f"warning: cannot remove managed replacement backup {backup}: "
+                f"{error}; cleanup will retry after its grace period",
+                file=sys.stderr,
+            )
+
+
+def _file_digest(path: Path, description: str) -> str:
+    descriptor: int | None = None
+    try:
+        descriptor = open_regular_file(path, os.O_RDONLY, description)
+        digest = hashlib.sha256()
+        with os.fdopen(descriptor, "rb") as stream:
+            descriptor = None
+            while chunk := stream.read(1024 * 1024):
+                digest.update(chunk)
+        return digest.hexdigest()
+    except WorkspaceError:
+        raise
+    except OSError as error:
+        raise WorkspaceError(f"cannot read {description} {path}: {error}") from error
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+
+
+def _tree_digest(
+    root: Path,
+    exclusions: set[str],
+    *,
+    bounded_symlinks: bool = False,
+    reject_symlinks: bool = False,
+    copied_metadata: bool = False,
+    ignore_root_mtime: bool = False,
+) -> str:
+    """Hash a tree as framed records without following links."""
+
+    digest = hashlib.sha256()
+    resolved_root = root.resolve()
+
+    def record(*fields: object) -> None:
+        encoded = json.dumps(
+            fields, ensure_ascii=True, separators=(",", ":")
+        ).encode()
+        digest.update(len(encoded).to_bytes(8, "big"))
+        digest.update(encoded)
+
+    def extended_attributes(path: Path) -> tuple[tuple[str, int, str], ...]:
+        if not hasattr(os, "listxattr"):
+            return ()
+        try:
+            values = []
+            for name in sorted(os.listxattr(path, follow_symlinks=False)):
+                value = os.getxattr(path, name, follow_symlinks=False)
+                values.append(
+                    (name, len(value), hashlib.sha256(value).hexdigest())
+                )
+            return tuple(values)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect Worker source metadata {path}: {error}"
+            ) from error
+
+    def visit(directory: Path, relative: PurePosixPath) -> None:
+        try:
+            entries = sorted(directory.iterdir(), key=lambda entry: entry.name)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inventory Worker source {directory}: {error}"
+            ) from error
+        for entry in entries:
+            if not relative.parts and entry.name in exclusions:
+                continue
+            child = relative / entry.name
+            try:
+                status = entry.lstat()
+                mode = stat.S_IMODE(status.st_mode)
+                metadata: tuple[object, ...] = (
+                    (
+                        status.st_mtime_ns,
+                        getattr(status, "st_flags", 0),
+                        extended_attributes(entry),
+                    )
+                    if copied_metadata
+                    else ()
+                )
+                if stat.S_ISDIR(status.st_mode):
+                    record(
+                        "directory",
+                        child.as_posix(),
+                        mode,
+                        *metadata,
+                    )
+                    visit(entry, child)
+                elif stat.S_ISREG(status.st_mode):
+                    record(
+                        "file",
+                        child.as_posix(),
+                        mode,
+                        status.st_size,
+                        _file_digest(entry, "Worker tree file"),
+                        *metadata,
+                    )
+                elif stat.S_ISLNK(status.st_mode):
+                    target = os.readlink(entry)
+                    if reject_symlinks:
+                        raise WorkspaceError(
+                            f"Worker source contains a symbolic link: {entry}"
+                        )
+                    if bounded_symlinks:
+                        if Path(target).is_absolute():
+                            raise WorkspaceError(
+                                f"Worker dependencies contain an absolute link: {entry}"
+                            )
+                        resolved = entry.parent.joinpath(target).resolve(strict=False)
+                        try:
+                            resolved.relative_to(resolved_root)
+                        except ValueError as error:
+                            raise WorkspaceError(
+                                f"Worker dependencies contain an escaping link: {entry}"
+                            ) from error
+                        if not resolved.exists():
+                            raise WorkspaceError(
+                                f"Worker dependencies contain a dangling link: {entry}"
+                            )
+                    record(
+                        "symlink",
+                        child.as_posix(),
+                        mode,
+                        target,
+                        *metadata,
+                    )
+                else:
+                    raise WorkspaceError(
+                        f"Worker source contains an unsupported file type: {entry}"
+                    )
+            except WorkspaceError:
+                raise
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect Worker source {entry}: {error}"
+                ) from error
+
+    if root.is_symlink() or not root.is_dir():
+        raise WorkspaceError(f"Worker source is not a regular directory: {root}")
+    root_status = root.lstat()
+    root_metadata: tuple[object, ...] = (
+        (
+            0 if ignore_root_mtime else root_status.st_mtime_ns,
+            getattr(root_status, "st_flags", 0),
+            extended_attributes(root),
+        )
+        if copied_metadata
+        else ()
+    )
+    record("root", stat.S_IMODE(root_status.st_mode), *root_metadata)
+    visit(root, PurePosixPath())
+    return digest.hexdigest()
+
+
+def _copy_worker_source(
+    source: Path,
+    destination: Path,
+    *,
+    include_npmrc: bool = True,
+) -> None:
+    """Copy Worker source while excluding generated names only at its root."""
+
+    def ignore(directory: str, names: list[str]) -> list[str]:
+        if Path(directory) != source:
+            return []
+        excluded = set(names) & WORKER_SOURCE_EXCLUSIONS
+        if not include_npmrc and Path(directory) == source and ".npmrc" in names:
+            excluded.add(".npmrc")
+        return sorted(excluded)
+
+    shutil.copytree(
+        source,
+        destination,
+        dirs_exist_ok=True,
+        symlinks=True,
+        ignore=ignore,
+    )
+
+
+def _copy_worker_source_metadata(source: Path, destination: Path) -> None:
+    """Reapply copied Worker metadata without copying file contents."""
+
+    def visit(source_directory: Path, destination_directory: Path, root: bool) -> None:
+        for source_entry in sorted(
+            source_directory.iterdir(), key=lambda entry: entry.name
+        ):
+            if root and source_entry.name in WORKER_SOURCE_EXCLUSIONS:
+                continue
+            destination_entry = destination_directory / source_entry.name
+            source_status = source_entry.lstat()
+            destination_status = destination_entry.lstat()
+            if stat.S_IFMT(source_status.st_mode) != stat.S_IFMT(
+                destination_status.st_mode
+            ):
+                raise WorkspaceError(
+                    f"Worker view entry type changed during checks: {destination_entry}"
+                )
+            if stat.S_ISDIR(source_status.st_mode):
+                visit(source_entry, destination_entry, False)
+            elif not stat.S_ISREG(source_status.st_mode):
+                raise WorkspaceError(
+                    f"Worker source contains an unsupported entry: {source_entry}"
+                )
+            shutil.copystat(source_entry, destination_entry, follow_symlinks=False)
+        shutil.copystat(
+            source_directory, destination_directory, follow_symlinks=False
+        )
+
+    visit(source, destination, True)
+
+
+def _copy_regular_file(
+    source: Path,
+    destination: Path,
+    description: str,
+    destination_mode: int | None = None,
+) -> None:
+    """Copy one no-follow regular file without inheriting extended metadata."""
+
+    source_descriptor = open_regular_file(source, os.O_RDONLY, description)
+    destination_descriptor: int | None = None
+    try:
+        source_status = os.fstat(source_descriptor)
+        mode = (
+            stat.S_IMODE(source_status.st_mode)
+            if destination_mode is None
+            else destination_mode
+        )
+        destination_descriptor = os.open(
+            destination,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+            mode,
+        )
+        os.fchmod(destination_descriptor, mode)
+        with os.fdopen(source_descriptor, "rb") as source_stream:
+            source_descriptor = -1
+            with os.fdopen(destination_descriptor, "wb") as destination_stream:
+                destination_descriptor = None
+                shutil.copyfileobj(source_stream, destination_stream)
+        os.utime(
+            destination,
+            ns=(source_status.st_atime_ns, source_status.st_mtime_ns),
+            follow_symlinks=False,
+        )
+    except OSError as error:
+        raise WorkspaceError(f"cannot stage {description} {source}: {error}") from error
+    finally:
+        if source_descriptor >= 0:
+            os.close(source_descriptor)
+        if destination_descriptor is not None:
+            os.close(destination_descriptor)
+
+
+def _normalize_worker_atime(root: Path) -> None:
+    """Give lifecycle staging a deterministic initial access time."""
+
+    paths = [root]
+    for directory, directories, files in os.walk(root, followlinks=False):
+        parent = Path(directory)
+        paths.extend(parent / name for name in (*directories, *files))
+    for path in reversed(paths):
+        try:
+            status = path.lstat()
+            os.utime(
+                path,
+                ns=(0, status.st_mtime_ns),
+                follow_symlinks=False,
+            )
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot normalize Worker lifecycle access time {path}: {error}"
+            ) from error
+
+
+def _tree_references_path(root: Path, referenced: Path) -> bool:
+    """Return whether a no-follow tree stores one absolute path literally."""
+
+    needle = str(referenced).encode()
+    for directory, directories, files in os.walk(root, followlinks=False):
+        parent = Path(directory)
+        for name in (*directories, *files):
+            path = parent / name
+            status = path.lstat()
+            if stat.S_ISLNK(status.st_mode):
+                if needle in os.readlink(path).encode(
+                    "utf-8", "surrogateescape"
+                ):
+                    return True
+            elif stat.S_ISREG(status.st_mode):
+                descriptor = open_regular_file(
+                    path, os.O_RDONLY, "Worker installed file"
+                )
+                with os.fdopen(descriptor, "rb") as stream:
+                    previous = b""
+                    while chunk := stream.read(1024 * 1024):
+                        combined = previous + chunk
+                        if needle in combined:
+                            return True
+                        previous = combined[-max(0, len(needle) - 1) :]
+    return False
 
 
 def _remote_matches(url: str, repository: str) -> bool:
@@ -4084,36 +4439,1022 @@ class Workspace:
         print(f"region maps: generated {output}")
         return output
 
-    def _build_worker(self, root: Path, selected: dict[str, Path]) -> None:
-        view = self._profile_source_view(
-            root,
-            "metaserver-worker",
-            selected["metaserver-worker"],
-            {"build", "dist", "node_modules", ".wrangler"},
-            copy_all=True,
+    @staticmethod
+    def _worker_required_packages(source: Path) -> tuple[str, ...]:
+        try:
+            package = load_json(source / "package.json")
+        except WorkspaceError:
+            raise
+        if not isinstance(package, dict):
+            raise WorkspaceError("Worker package.json root is not an object")
+        names: set[str] = set()
+        for field in ("dependencies", "devDependencies"):
+            value = package.get(field, {})
+            if not isinstance(value, dict) or not all(
+                isinstance(name, str) and isinstance(version, str)
+                for name, version in value.items()
+            ):
+                raise WorkspaceError(f"Worker package.json {field} is invalid")
+            names.update(value)
+        for name in names:
+            if not re.fullmatch(
+                r"(?:@[a-z0-9][a-z0-9._-]*/)?[a-z0-9][a-z0-9._-]*",
+                name,
+            ):
+                raise WorkspaceError(f"Worker package name is unsafe: {name}")
+        return tuple(sorted(names))
+
+    @staticmethod
+    def _worker_environment_digest(environment: dict[str, str]) -> str:
+        # Lifecycle scripts can observe arbitrary environment variables. Hash the
+        # complete install environment, without persisting names or values, so an
+        # unrepresented input fails closed as a cache miss.
+        payload = json.dumps(
+            sorted(environment.items()),
+            ensure_ascii=True,
+            separators=(",", ":"),
         )
-        environment = os.environ.copy()
-        npm_cache = self.paths.builds / "npm-cache"
-        marker = npm_cache / MANAGED_MARKER
-        if npm_cache.exists() and not marker.exists() and not marker.is_symlink():
-            if npm_cache.is_symlink() or not npm_cache.is_dir():
-                raise WorkspaceError(f"npm cache path is invalid: {npm_cache}")
-            atomic_json(
-                marker,
-                {"schema_version": SCHEMA_VERSION, "purpose": "npm-cache"},
+        return hashlib.sha256(payload.encode()).hexdigest()
+
+    @staticmethod
+    def _worker_npm_file_config_digest(
+        source: Path,
+        environment: dict[str, str],
+        config: dict[str, Any],
+    ) -> str:
+        """Hash file-backed effective npm configuration without storing secrets."""
+
+        execution_options = {
+            name: value
+            for name, value in config.items()
+            if name in {"node-options", "script-shell"}
+            or name.rsplit(":", 1)[-1] in {"node-options", "script-shell"}
+        }
+        for name, value in sorted(execution_options.items()):
+            if value is None or value == "":
+                continue
+            if not isinstance(value, str) or "\0" in value:
+                raise WorkspaceError(f"npm configuration {name} path is invalid")
+            raise WorkspaceError(f"custom npm {name} configuration is unsupported")
+
+        records: list[tuple[str, str, str | None]] = []
+        file_values = {
+            name: value
+            for name, value in config.items()
+            if name in WORKER_NPM_FILE_CONFIG_KEYS
+            or name.rsplit(":", 1)[-1] in {"cafile", "certfile", "keyfile"}
+        }
+        for name, value in sorted(file_values.items()):
+            if value is None or value == "":
+                continue
+            if not isinstance(value, str) or "\0" in value:
+                raise WorkspaceError(f"npm configuration {name} path is invalid")
+            if value == "~" or value.startswith("~/"):
+                home = environment.get("HOME")
+                if not home:
+                    raise WorkspaceError(
+                        f"npm configuration {name} requires HOME to resolve"
+                    )
+                path = Path(home) / value.removeprefix("~/")
+            else:
+                path = Path(value)
+            if not path.is_absolute():
+                path = source / path
+            path = Path(os.path.abspath(path))
+            path_digest = hashlib.sha256(str(path).encode()).hexdigest()
+            if path.exists() or path.is_symlink():
+                _file_digest(path, f"npm {name}")
+                raise WorkspaceError(
+                    "external file-backed npm configuration is unsupported; "
+                    "use the project .npmrc"
+                )
+            else:
+                content_digest = None
+            records.append((name, path_digest, content_digest))
+        payload = json.dumps(records, separators=(",", ":"))
+        return hashlib.sha256(payload.encode()).hexdigest()
+
+    def _worker_dependency_inputs(
+        self, source: Path, environment: dict[str, str]
+    ) -> dict[str, Any]:
+        for name in ("NODE_OPTIONS", "npm_config_node_options"):
+            if environment.get(name):
+                raise WorkspaceError(
+                    f"custom Node execution options in {name} are unsupported"
+                )
+        files = {
+            name: _file_digest(source / name, f"Worker {name}")
+            for name in WORKER_DEPENDENCY_FILES
+        }
+        npmrc = source / ".npmrc"
+        files[".npmrc"] = (
+            _file_digest(npmrc, "Worker .npmrc")
+            if npmrc.exists() or npmrc.is_symlink()
+            else None
+        )
+        versions: dict[str, str] = {}
+        for command in ("node", "npm"):
+            value = run(
+                [command, "--version"],
+                cwd=source,
+                capture=True,
+                env=environment,
+                trace=False,
             )
-        managed_directory(npm_cache, self.paths.builds, "npm-cache")
-        atomic_json(
-            npm_cache / CACHE_METADATA,
-            {
-                "schema_version": BUILD_METADATA_SCHEMA_VERSION,
-                "purpose": "npm-cache",
-                "last_used_at": datetime.now(timezone.utc).isoformat(),
-            },
+            if not value or "\n" in value or len(value) > 256:
+                raise WorkspaceError(f"{command} returned an invalid version")
+            versions[command] = value
+        raw_node_runtime = run(
+            [
+                "node",
+                "-p",
+                "JSON.stringify({platform:process.platform,arch:process.arch,"
+                "versions:process.versions})",
+            ],
+            cwd=source,
+            capture=True,
+            env=environment,
+            trace=False,
         )
+        try:
+            node_runtime = json.loads(raw_node_runtime)
+        except json.JSONDecodeError as error:
+            raise WorkspaceError("Node runtime identity is not valid JSON") from error
+        if (
+            not isinstance(node_runtime, dict)
+            or set(node_runtime) != {"platform", "arch", "versions"}
+            or not isinstance(node_runtime.get("platform"), str)
+            or not re.fullmatch(r"[a-z0-9._-]{1,64}", node_runtime["platform"])
+            or not isinstance(node_runtime.get("arch"), str)
+            or not re.fullmatch(r"[a-z0-9._-]{1,64}", node_runtime["arch"])
+            or not isinstance(node_runtime.get("versions"), dict)
+            or not node_runtime["versions"]
+            or not all(
+                isinstance(name, str)
+                and re.fullmatch(r"[a-z0-9._-]{1,64}", name)
+                and isinstance(value, str)
+                and len(value) <= 256
+                and "\n" not in value
+                for name, value in node_runtime["versions"].items()
+            )
+        ):
+            raise WorkspaceError("Node runtime identity is invalid")
+        node_versions_digest = hashlib.sha256(
+            json.dumps(
+                node_runtime["versions"], sort_keys=True, separators=(",", ":")
+            ).encode()
+        ).hexdigest()
+        raw_config = run(
+            ["npm", "config", "list", "--json"],
+            cwd=source,
+            capture=True,
+            env=environment,
+            trace=False,
+        )
+        try:
+            config = json.loads(raw_config)
+        except json.JSONDecodeError as error:
+            raise WorkspaceError("npm configuration is not valid JSON") from error
+        if not isinstance(config, dict):
+            raise WorkspaceError("npm configuration root is not an object")
+        config_digest = hashlib.sha256(
+            json.dumps(config, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        package = load_json(source / "package.json")
+        scripts = package.get("scripts", {}) if isinstance(package, dict) else None
+        if not isinstance(scripts, dict) or not all(
+            isinstance(name, str) and isinstance(value, str)
+            for name, value in scripts.items()
+        ):
+            raise WorkspaceError("Worker package.json scripts are invalid")
+        lifecycle_names = (
+            "preinstall",
+            "install",
+            "postinstall",
+            "prepublish",
+            "preprepare",
+            "prepare",
+            "postprepare",
+        )
+        root_lifecycle = tuple(name for name in lifecycle_names if name in scripts)
+        return {
+            "schema_version": WORKER_DEPENDENCY_SCHEMA_VERSION,
+            "files": files,
+            "node_version": versions["node"],
+            "npm_version": versions["npm"],
+            "node_platform": node_runtime["platform"],
+            "node_architecture": node_runtime["arch"],
+            "node_versions_sha256": node_versions_digest,
+            "os": platform.system(),
+            "architecture": platform.machine(),
+            "python_platform": sys.platform,
+            "npm_config_sha256": config_digest,
+            "npm_file_config_sha256": self._worker_npm_file_config_digest(
+                source, environment, config
+            ),
+            "environment_sha256": self._worker_environment_digest(environment),
+            "install_command": ["npm", "ci"],
+            "lifecycle_scripts": "enabled; complete environment participates in key",
+            "root_lifecycle_scripts": list(root_lifecycle),
+            # Dependency lifecycle scripts can observe INIT_CWD and arbitrary
+            # root files even when package.json has no root hook. Preserve npm's
+            # enabled-script semantics by staging and keying the complete source.
+            "lifecycle_source_sha256": _tree_digest(
+                source,
+                WORKER_SOURCE_EXCLUSIONS,
+                reject_symlinks=True,
+                copied_metadata=True,
+            ),
+            "lifecycle_source_without_npmrc_sha256": _tree_digest(
+                source,
+                WORKER_SOURCE_EXCLUSIONS | {".npmrc"},
+                reject_symlinks=True,
+                copied_metadata=True,
+            ),
+            "install_root_sha256": hashlib.sha256(
+                str(
+                    self.paths.builds
+                    / "worker-dependencies"
+                    / ".transactions"
+                ).encode()
+            ).hexdigest(),
+        }
+
+    @staticmethod
+    def _worker_dependency_key(inputs: dict[str, Any]) -> str:
+        payload = json.dumps(inputs, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(payload.encode()).hexdigest()
+
+    @staticmethod
+    def _validate_worker_node_modules(
+        node_modules: Path,
+        hidden_lock_digest: str,
+        tree_digest: str,
+        required: tuple[str, ...],
+        generated_exclusions: set[str] | None = None,
+    ) -> None:
+        if node_modules.is_symlink() or not node_modules.is_dir():
+            raise WorkspaceError("Worker node_modules is not a regular directory")
+        hidden_lock = node_modules / ".package-lock.json"
+        if _file_digest(hidden_lock, "Worker installed lockfile") != hidden_lock_digest:
+            raise WorkspaceError(
+                "Worker installed lockfile does not match cache metadata"
+            )
+        installed = load_json(hidden_lock)
+        packages = installed.get("packages") if isinstance(installed, dict) else None
+        if not isinstance(packages, dict):
+            raise WorkspaceError("Worker installed lockfile packages are invalid")
+        for relative in packages:
+            if not isinstance(relative, str) or not relative.startswith(
+                "node_modules/"
+            ):
+                raise WorkspaceError("Worker installed package path is invalid")
+            package_path = PurePosixPath(relative)
+            if (
+                package_path.is_absolute()
+                or ".." in package_path.parts
+                or "\\" in relative
+                or len(package_path.parts) < 2
+            ):
+                raise WorkspaceError("Worker installed package path is unsafe")
+            dependency = node_modules.joinpath(*package_path.parts[1:])
+            if dependency.is_symlink() or not dependency.is_dir():
+                raise WorkspaceError(
+                    f"Worker installed package is missing or unsafe: {relative}"
+                )
+        for name in required:
+            dependency = node_modules.joinpath(*name.split("/"))
+            if dependency.is_symlink() or not dependency.is_dir():
+                raise WorkspaceError(f"Worker dependency is missing or unsafe: {name}")
+        if (
+            _tree_digest(
+                node_modules,
+                generated_exclusions or set(),
+                bounded_symlinks=True,
+                copied_metadata=True,
+                ignore_root_mtime=bool(generated_exclusions),
+            )
+            != tree_digest
+        ):
+            raise WorkspaceError("Worker node_modules does not match cache metadata")
+
+    def _worker_dependency_cache_matches(
+        self,
+        entry: Path,
+        key: str,
+        inputs: dict[str, Any],
+        required: tuple[str, ...],
+    ) -> dict[str, Any] | None:
+        marker = entry / MANAGED_MARKER
+        metadata_path = entry / WORKER_DEPENDENCY_METADATA
+        try:
+            if (
+                entry.is_symlink()
+                or not entry.is_dir()
+                or marker.is_symlink()
+                or load_json(marker)
+                != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": f"worker-dependencies:{key}",
+                }
+                or metadata_path.is_symlink()
+                or not metadata_path.is_file()
+            ):
+                return None
+            metadata = load_json(metadata_path)
+            if (
+                not isinstance(metadata, dict)
+                or set(metadata)
+                != {
+                    "schema_version",
+                    "purpose",
+                    "key",
+                    "inputs",
+                    "node_modules_lock_sha256",
+                    "node_modules_sha256",
+                    "node_modules_view_sha256",
+                    "last_used_at",
+                }
+                or metadata.get("schema_version") != WORKER_DEPENDENCY_SCHEMA_VERSION
+                or metadata.get("purpose") != "worker-dependencies"
+                or metadata.get("key") != key
+                or metadata.get("inputs") != inputs
+                or not isinstance(metadata.get("node_modules_lock_sha256"), str)
+                or not re.fullmatch(
+                    r"[0-9a-f]{64}", metadata["node_modules_lock_sha256"]
+                )
+                or not isinstance(metadata.get("node_modules_sha256"), str)
+                or not re.fullmatch(r"[0-9a-f]{64}", metadata["node_modules_sha256"])
+                or not isinstance(metadata.get("node_modules_view_sha256"), str)
+                or not re.fullmatch(
+                    r"[0-9a-f]{64}", metadata["node_modules_view_sha256"]
+                )
+                or not isinstance(metadata.get("last_used_at"), str)
+            ):
+                return None
+            for name, expected in inputs["files"].items():
+                path = entry / name
+                if name == ".npmrc":
+                    if path.exists() or path.is_symlink():
+                        return None
+                    continue
+                if expected is None:
+                    if path.exists() or path.is_symlink():
+                        return None
+                elif _file_digest(path, f"cached Worker {name}") != expected:
+                    return None
+            self._validate_worker_node_modules(
+                entry / "node_modules",
+                metadata["node_modules_lock_sha256"],
+                metadata["node_modules_sha256"],
+                required,
+            )
+            if (
+                _tree_digest(
+                    entry / "node_modules",
+                    WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
+                    bounded_symlinks=True,
+                    copied_metadata=True,
+                    ignore_root_mtime=True,
+                )
+                != metadata["node_modules_view_sha256"]
+            ):
+                return None
+            return metadata
+        except (OSError, WorkspaceError):
+            return None
+
+    def _worker_dependencies(
+        self,
+        source: Path,
+        environment: dict[str, str],
+        consume: Callable[[Path, str, dict[str, Any]], Any] | None = None,
+    ) -> tuple[Path, str, dict[str, Any], bool, float, Any]:
+        npm_cache = self.paths.builds / "npm-cache"
+        npm_cache_lock = self.paths.builds / "locks" / "npm-cache.lock"
+        with exclusive_lock(npm_cache_lock, "npm download cache"):
+            marker = npm_cache / MANAGED_MARKER
+            if npm_cache.exists() and not marker.exists() and not marker.is_symlink():
+                if npm_cache.is_symlink() or not npm_cache.is_dir():
+                    raise WorkspaceError(f"npm cache path is invalid: {npm_cache}")
+                atomic_json(
+                    marker,
+                    {"schema_version": SCHEMA_VERSION, "purpose": "npm-cache"},
+                )
+            managed_directory(npm_cache, self.paths.builds, "npm-cache")
+            atomic_json(
+                npm_cache / CACHE_METADATA,
+                {
+                    "schema_version": BUILD_METADATA_SCHEMA_VERSION,
+                    "purpose": "npm-cache",
+                    "last_used_at": datetime.now(timezone.utc).isoformat(),
+                },
+            )
         environment["npm_config_cache"] = str(npm_cache)
-        run(["npm", "ci"], cwd=view, env=environment)
-        run(["npm", "run", "check"], cwd=view, env=environment)
+        inputs = self._worker_dependency_inputs(source, environment)
+        key = self._worker_dependency_key(inputs)
+        required = self._worker_required_packages(source)
+        cache_root = self.paths.builds / "worker-dependencies"
+        with exclusive_lock(
+            self.paths.builds / "locks" / "worker-dependency-cache.lock",
+            "Worker dependency cache",
+        ):
+            managed_directory(
+                cache_root, self.paths.builds, "worker-dependency-cache"
+            )
+            transactions = cache_root / ".transactions"
+            managed_directory(
+                transactions,
+                self.paths.builds,
+                "worker-dependency-transactions",
+            )
+        entry = cache_root / key
+        lock = self.paths.builds / "locks" / f"worker-dependencies-{key}.lock"
+        started = time.monotonic()
+        with exclusive_lock(lock, f"Worker dependencies {key}"):
+            metadata = self._worker_dependency_cache_matches(
+                entry, key, inputs, required
+            )
+            recoverable: list[Path] = []
+            if metadata is None:
+                for candidate in transactions.iterdir():
+                    if not re.fullmatch(
+                        rf"{key}-(?:staging|backup)-[a-z0-9_]+",
+                        candidate.name,
+                    ):
+                        continue
+                    if self._worker_dependency_cache_matches(
+                        candidate, key, inputs, required
+                    ) is not None:
+                        recoverable.append(candidate)
+            if recoverable:
+                if entry.exists() or entry.is_symlink():
+                    managed_directory(
+                        entry,
+                        self.paths.builds,
+                        f"worker-dependencies:{key}",
+                    )
+                recovered = max(
+                    recoverable,
+                    key=lambda candidate: (
+                        candidate.stat().st_mtime_ns,
+                        candidate.name,
+                    ),
+                )
+                replace_directory(
+                    entry,
+                    recovered,
+                    f"{key}-backup-",
+                    backup_parent=transactions,
+                )
+                metadata = self._worker_dependency_cache_matches(
+                    entry, key, inputs, required
+                )
+            if metadata is not None:
+                metadata["last_used_at"] = datetime.now(timezone.utc).isoformat()
+                atomic_json(entry / WORKER_DEPENDENCY_METADATA, metadata)
+                elapsed = time.monotonic() - started
+                consumed = (
+                    consume(entry / "node_modules", key, metadata)
+                    if consume is not None
+                    else None
+                )
+                return entry / "node_modules", key, metadata, True, elapsed, consumed
+            if entry.is_symlink() or entry.exists() and not entry.is_dir():
+                raise WorkspaceError(f"Worker dependency cache path is unsafe: {entry}")
+            if entry.exists():
+                managed_directory(
+                    entry,
+                    self.paths.builds,
+                    f"worker-dependencies:{key}",
+                )
+            staging = transactions / f"{key}-staging-install"
+            if staging.exists() or staging.is_symlink():
+                marker = staging / MANAGED_MARKER
+                if marker.exists() or marker.is_symlink():
+                    try:
+                        managed_directory(
+                            staging,
+                            self.paths.builds,
+                            f"worker-dependency-transaction:{key}",
+                        )
+                    except WorkspaceError:
+                        managed_directory(
+                            staging,
+                            self.paths.builds,
+                            f"worker-dependencies:{key}",
+                        )
+                elif staging.is_symlink() or not staging.is_dir():
+                    raise WorkspaceError(
+                        f"Worker dependency transaction path is unsafe: {staging}"
+                    )
+                # npm runs without the marker so lifecycle scripts cannot
+                # observe wrapper-created metadata. A crash can therefore
+                # leave this one exact unmarked path behind. Its marker-owned
+                # parent, deterministic key-derived name, and held key lock
+                # provide the ownership proof needed to recover it safely.
+                remove_owned_tree(staging)
+            managed_directory(
+                staging,
+                self.paths.builds,
+                f"worker-dependency-transaction:{key}",
+            )
+            try:
+                # Ownership is proven by the marker-owned transaction parent,
+                # exact per-key name, and held key lock. Keep wrapper metadata
+                # outside the lifecycle-visible input tree while npm runs.
+                (staging / MANAGED_MARKER).unlink()
+                _copy_worker_source(
+                    source,
+                    staging,
+                    include_npmrc=False,
+                )
+                if inputs["files"][".npmrc"] is not None:
+                    _copy_regular_file(
+                        source / ".npmrc",
+                        staging / ".npmrc",
+                        "Worker .npmrc",
+                        0o600,
+                    )
+                shutil.copystat(source, staging, follow_symlinks=False)
+                if (
+                    _tree_digest(
+                        staging,
+                        WORKER_SOURCE_EXCLUSIONS | {".npmrc"},
+                        reject_symlinks=True,
+                        copied_metadata=True,
+                    )
+                    != inputs["lifecycle_source_without_npmrc_sha256"]
+                ):
+                    raise WorkspaceError(
+                        "staged Worker lifecycle source does not match its cache key"
+                    )
+                if (staging / ".npmrc").exists():
+                    (staging / ".npmrc").chmod(0o600)
+                    if (
+                        _file_digest(staging / ".npmrc", "staged Worker .npmrc")
+                        != inputs["files"][".npmrc"]
+                    ):
+                        raise WorkspaceError(
+                            "staged Worker .npmrc does not match its cache key"
+                        )
+                _normalize_worker_atime(staging)
+                run(["npm", "ci"], cwd=staging, env=environment)
+                if (staging / MANAGED_MARKER).exists() or (
+                    staging / MANAGED_MARKER
+                ).is_symlink():
+                    raise WorkspaceError(
+                        "Worker lifecycle created reserved workspace metadata"
+                    )
+                if _tree_references_path(staging / "node_modules", staging):
+                    raise WorkspaceError(
+                        "Worker dependency output embeds its install path"
+                    )
+                final_inputs = self._worker_dependency_inputs(source, environment)
+                if final_inputs != inputs:
+                    raise WorkspaceError(
+                        "Worker dependency inputs changed during installation"
+                    )
+                for child in staging.iterdir():
+                    if child.name == "node_modules":
+                        continue
+                    if child.is_symlink() or not child.is_dir():
+                        child.unlink()
+                    else:
+                        remove_owned_tree(child)
+                for name, expected in inputs["files"].items():
+                    if expected is not None and name != ".npmrc":
+                        shutil.copy2(source / name, staging / name)
+                hidden_digest = _file_digest(
+                    staging / "node_modules" / ".package-lock.json",
+                    "Worker installed lockfile",
+                )
+                modules_digest = _tree_digest(
+                    staging / "node_modules",
+                    set(),
+                    bounded_symlinks=True,
+                    copied_metadata=True,
+                )
+                modules_view_digest = _tree_digest(
+                    staging / "node_modules",
+                    WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
+                    bounded_symlinks=True,
+                    copied_metadata=True,
+                    ignore_root_mtime=True,
+                )
+                self._validate_worker_node_modules(
+                    staging / "node_modules",
+                    hidden_digest,
+                    modules_digest,
+                    required,
+                )
+                metadata = {
+                    "schema_version": WORKER_DEPENDENCY_SCHEMA_VERSION,
+                    "purpose": "worker-dependencies",
+                    "key": key,
+                    "inputs": inputs,
+                    "node_modules_lock_sha256": hidden_digest,
+                    "node_modules_sha256": modules_digest,
+                    "node_modules_view_sha256": modules_view_digest,
+                    "last_used_at": datetime.now(timezone.utc).isoformat(),
+                }
+                atomic_json(
+                    staging / MANAGED_MARKER,
+                    {
+                        "schema_version": SCHEMA_VERSION,
+                        "purpose": f"worker-dependencies:{key}",
+                    },
+                )
+                atomic_json(staging / WORKER_DEPENDENCY_METADATA, metadata)
+
+                def verify_dependency_install() -> None:
+                    installed = self._worker_dependency_cache_matches(
+                        entry, key, inputs, required
+                    )
+                    if installed != metadata:
+                        raise WorkspaceError(
+                            "published Worker dependencies failed validation"
+                        )
+
+                replace_directory(
+                    entry,
+                    staging,
+                    f"{key}-backup-",
+                    backup_parent=transactions,
+                    verify_after_install=verify_dependency_install,
+                )
+            finally:
+                if staging.exists():
+                    remove_owned_tree(staging)
+            elapsed = time.monotonic() - started
+            consumed = (
+                consume(entry / "node_modules", key, metadata)
+                if consume is not None
+                else None
+            )
+        return (
+            entry / "node_modules",
+            key,
+            metadata,
+            False,
+            elapsed,
+            consumed,
+        )
+
+    def _worker_view(
+        self,
+        root: Path,
+        source: Path,
+        dependencies: Path,
+        dependency_key: str,
+        dependency_metadata: dict[str, Any],
+    ) -> tuple[Path, bool, float]:
+        started = time.monotonic()
+        view = root / "sources" / "metaserver-worker"
+        lifecycle_source_digest = _tree_digest(
+            source,
+            WORKER_SOURCE_EXCLUSIONS,
+            reject_symlinks=True,
+            copied_metadata=True,
+        )
+        source_digest = _tree_digest(
+            source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+        )
+        source_view_digest = _tree_digest(
+            source,
+            WORKER_SOURCE_EXCLUSIONS,
+            reject_symlinks=True,
+            copied_metadata=True,
+            ignore_root_mtime=True,
+        )
+        dependency_source_digest = dependency_metadata.get("inputs", {}).get(
+            "lifecycle_source_sha256"
+        )
+        if lifecycle_source_digest != dependency_source_digest:
+            raise WorkspaceError(
+                "Worker source does not match dependency lifecycle inputs"
+            )
+        expected = {
+            "schema_version": WORKER_VIEW_SCHEMA_VERSION,
+            "purpose": "worker-view",
+            "source_sha256": source_digest,
+            "source_view_sha256": source_view_digest,
+            "dependency_key": dependency_key,
+            "node_modules_lock_sha256": dependency_metadata[
+                "node_modules_lock_sha256"
+            ],
+        }
+        marker_path = view / MANAGED_MARKER
+        metadata_path = view / WORKER_VIEW_METADATA
+
+        def validate_installed_view() -> None:
+            if (
+                view.is_symlink()
+                or not view.is_dir()
+                or not marker_path.is_file()
+                or marker_path.is_symlink()
+                or not metadata_path.is_file()
+                or metadata_path.is_symlink()
+                or load_json(marker_path)
+                != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": "source-view:metaserver-worker",
+                }
+                or load_json(metadata_path) != expected
+                or _tree_digest(view, WORKER_SOURCE_EXCLUSIONS) != source_digest
+                or _tree_digest(
+                    view,
+                    WORKER_SOURCE_EXCLUSIONS,
+                    copied_metadata=True,
+                    ignore_root_mtime=True,
+                )
+                != source_view_digest
+            ):
+                raise WorkspaceError("published Worker view failed validation")
+            self._validate_worker_node_modules(
+                view / "node_modules",
+                dependency_metadata["node_modules_lock_sha256"],
+                dependency_metadata["node_modules_view_sha256"],
+                self._worker_required_packages(source),
+                WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
+            )
+
+        try:
+            validate_installed_view()
+            return view, True, time.monotonic() - started
+        except (OSError, WorkspaceError):
+            pass
+        if view.exists() or view.is_symlink():
+            managed_directory(
+                view, self.paths.builds, "source-view:metaserver-worker"
+            )
+        view.parent.mkdir(parents=True, exist_ok=True)
+        staging = Path(
+            tempfile.mkdtemp(prefix=".metaserver-worker-", dir=view.parent)
+        )
+        try:
+            _copy_worker_source(source, staging)
+            if (
+                _tree_digest(
+                    staging,
+                    WORKER_SOURCE_EXCLUSIONS,
+                    reject_symlinks=True,
+                    copied_metadata=True,
+                )
+                != lifecycle_source_digest
+            ):
+                raise WorkspaceError(
+                    "staged Worker view source does not match its fingerprint"
+                )
+            shutil.copytree(dependencies, staging / "node_modules", symlinks=True)
+            if (
+                _tree_digest(
+                    source,
+                    WORKER_SOURCE_EXCLUSIONS,
+                    reject_symlinks=True,
+                    copied_metadata=True,
+                )
+                != lifecycle_source_digest
+            ):
+                raise WorkspaceError("Worker source changed during view preparation")
+            self._validate_worker_node_modules(
+                staging / "node_modules",
+                dependency_metadata["node_modules_lock_sha256"],
+                dependency_metadata["node_modules_view_sha256"],
+                self._worker_required_packages(source),
+                WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
+            )
+            atomic_json(
+                staging / MANAGED_MARKER,
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": "source-view:metaserver-worker",
+                },
+            )
+            atomic_json(staging / WORKER_VIEW_METADATA, expected)
+            replace_directory(
+                view,
+                staging,
+                ".metaserver-worker-previous-",
+                verify_after_install=validate_installed_view,
+            )
+        finally:
+            if staging.exists():
+                remove_owned_tree(staging)
+        return view, False, time.monotonic() - started
+
+    @staticmethod
+    def _reconcile_worker_view_source(
+        source: Path,
+        view: Path,
+        dependency_key: str,
+        dependency_metadata: dict[str, Any],
+    ) -> None:
+        lifecycle_source_digest = dependency_metadata.get("inputs", {}).get(
+            "lifecycle_source_sha256"
+        )
+        source_digest = _tree_digest(
+            source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+        )
+        source_view_digest = _tree_digest(
+            source,
+            WORKER_SOURCE_EXCLUSIONS,
+            reject_symlinks=True,
+            copied_metadata=True,
+            ignore_root_mtime=True,
+        )
+        expected_marker = {
+            "schema_version": SCHEMA_VERSION,
+            "purpose": "source-view:metaserver-worker",
+        }
+        expected_metadata = {
+            "schema_version": WORKER_VIEW_SCHEMA_VERSION,
+            "purpose": "worker-view",
+            "source_sha256": source_digest,
+            "source_view_sha256": source_view_digest,
+            "dependency_key": dependency_key,
+            "node_modules_lock_sha256": dependency_metadata[
+                "node_modules_lock_sha256"
+            ],
+        }
+
+        def validate_controls() -> None:
+            marker_path = view / MANAGED_MARKER
+            metadata_path = view / WORKER_VIEW_METADATA
+            if (
+                not marker_path.is_file()
+                or marker_path.is_symlink()
+                or not metadata_path.is_file()
+                or metadata_path.is_symlink()
+                or load_json(marker_path) != expected_marker
+                or load_json(metadata_path) != expected_metadata
+            ):
+                raise WorkspaceError("Worker view control metadata changed during checks")
+
+        validate_controls()
+        if (
+            _tree_digest(
+                source,
+                WORKER_SOURCE_EXCLUSIONS,
+                reject_symlinks=True,
+                copied_metadata=True,
+            )
+            != lifecycle_source_digest
+            or _tree_digest(
+                view, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+            )
+            != source_digest
+        ):
+            raise WorkspaceError("Worker source changed while running checks")
+        if (
+            _tree_digest(
+                view,
+                WORKER_SOURCE_EXCLUSIONS,
+                reject_symlinks=True,
+                copied_metadata=True,
+                ignore_root_mtime=True,
+            )
+            != source_view_digest
+        ):
+            _copy_worker_source_metadata(source, view)
+        validate_controls()
+        if (
+            _tree_digest(
+                source,
+                WORKER_SOURCE_EXCLUSIONS,
+                reject_symlinks=True,
+                copied_metadata=True,
+            )
+            != lifecycle_source_digest
+            or _tree_digest(
+                view,
+                WORKER_SOURCE_EXCLUSIONS,
+                reject_symlinks=True,
+                copied_metadata=True,
+                ignore_root_mtime=True,
+            )
+            != source_view_digest
+        ):
+            raise WorkspaceError("Worker source changed during view reconciliation")
+
+    @staticmethod
+    def _run_worker_checks(
+        view: Path,
+        environment: dict[str, str],
+        dependency_key: str,
+        dependency_metadata: dict[str, Any],
+    ) -> None:
+        marker_path = view / MANAGED_MARKER
+        metadata_path = view / WORKER_VIEW_METADATA
+        expected_marker = {
+            "schema_version": SCHEMA_VERSION,
+            "purpose": "source-view:metaserver-worker",
+        }
+        descriptor = os.open(
+            view,
+            os.O_RDONLY
+            | getattr(os, "O_DIRECTORY", 0)
+            | getattr(os, "O_NOFOLLOW", 0),
+        )
+        try:
+            opened_status = os.fstat(descriptor)
+            path_status = view.lstat()
+            if (
+                (path_status.st_dev, path_status.st_ino)
+                != (opened_status.st_dev, opened_status.st_ino)
+                or not stat.S_ISDIR(path_status.st_mode)
+                or marker_path.is_symlink()
+                or not marker_path.is_file()
+                or load_json(marker_path) != expected_marker
+                or metadata_path.is_symlink()
+                or not metadata_path.is_file()
+            ):
+                raise WorkspaceError("Worker view controls are invalid before checks")
+            control_metadata = load_json(metadata_path)
+            if (
+                not isinstance(control_metadata, dict)
+                or set(control_metadata)
+                != {
+                    "schema_version",
+                    "purpose",
+                    "source_sha256",
+                    "source_view_sha256",
+                    "dependency_key",
+                    "node_modules_lock_sha256",
+                }
+                or control_metadata.get("schema_version")
+                != WORKER_VIEW_SCHEMA_VERSION
+                or control_metadata.get("purpose") != "worker-view"
+                or control_metadata.get("dependency_key") != dependency_key
+                or control_metadata.get("node_modules_lock_sha256")
+                != dependency_metadata["node_modules_lock_sha256"]
+            ):
+                raise WorkspaceError("Worker view controls are invalid before checks")
+            try:
+                run(["npm", "run", "check"], cwd=view, env=environment)
+            finally:
+                try:
+                    current_status = view.lstat()
+                except OSError:
+                    current_status = None
+                if (
+                    current_status is not None
+                    and not view.is_symlink()
+                    and stat.S_ISDIR(current_status.st_mode)
+                    and (current_status.st_dev, current_status.st_ino)
+                    == (opened_status.st_dev, opened_status.st_ino)
+                ):
+                    for control_path in (marker_path, metadata_path):
+                        if control_path.is_symlink() or not control_path.is_dir():
+                            control_path.unlink(missing_ok=True)
+                        else:
+                            remove_owned_tree(control_path)
+                    atomic_json(marker_path, expected_marker)
+                    atomic_json(metadata_path, control_metadata)
+        finally:
+            os.close(descriptor)
+
+    def _reconcile_worker_view_after_checks(
+        self,
+        source: Path,
+        view: Path,
+        dependency_key: str,
+        dependency_metadata: dict[str, Any],
+    ) -> None:
+        self._reconcile_worker_view_source(
+            source, view, dependency_key, dependency_metadata
+        )
+        self._validate_worker_node_modules(
+            view / "node_modules",
+            dependency_metadata["node_modules_lock_sha256"],
+            dependency_metadata["node_modules_view_sha256"],
+            self._worker_required_packages(source),
+            WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
+        )
+
+    def _build_worker(self, root: Path, selected: dict[str, Path]) -> None:
+        source = selected["metaserver-worker"]
+        environment = os.environ.copy()
+        dependencies, key, metadata, cache_hit, install_seconds, view_result = (
+            self._worker_dependencies(
+                source,
+                environment,
+                lambda dependencies, key, metadata: self._worker_view(
+                    root, source, dependencies, key, metadata
+                ),
+            )
+        )
+        view, view_hit, view_seconds = view_result
+        print(
+            f"worker dependencies: {'cached' if cache_hit else 'installed'} "
+            f"{key} ({install_seconds:.2f}s)"
+        )
+        print(
+            f"worker view: {'reused' if view_hit else 'prepared'} {view} "
+            f"({view_seconds:.2f}s)"
+        )
+        self._run_worker_checks(view, environment, key, metadata)
+        self._reconcile_worker_view_after_checks(source, view, key, metadata)
 
     def state_add(self, name: str, path: Path | None) -> Path:
         self.paths.ensure()
