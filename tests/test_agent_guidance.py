@@ -31,9 +31,54 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("Zoey Rose", registry)
         self.assertIn("Daniel Liptrot", registry)
 
+    def test_copyright_header_contract_is_complete(self) -> None:
+        guide = " ".join(
+            (ROOT / "AGENTS.md").read_text(encoding="utf-8").split()
+        )
+        contributing = " ".join(
+            (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8").split()
+        )
+
+        for marker in {
+            "On touch, refresh existing Atrinik-owned copyright terminal years",
+            "blanket holders",
+            "`CONTRIBUTING.md`",
+            "preserve precise attribution",
+        }:
+            with self.subTest(surface="AGENTS.md", marker=marker):
+                self.assertIn(marker, guide)
+
+        for marker in {
+            "Use `The Atrinik Project` as the exact collective holder",
+            "already predominates in modern MIT source headers",
+            "exact blanket format is `Copyright START[-END] The Atrinik Project`",
+            "Only the surrounding comment delimiters vary by file format",
+            "omit `(C)`, `(c)`, `©`, commas, and trailing punctuation",
+            "migrate prospectively",
+            "each existing Atrinik-owned copyright notice",
+            "retain its original start year",
+            "current calendar year",
+            "Crossfire, Daimonin and other upstream notices",
+            "Leave upstream and third-party notice years unchanged",
+            "SPDX identifiers",
+            "authoritative generator or template",
+            "a separate legal and attribution surface",
+        }:
+            with self.subTest(surface="CONTRIBUTING.md", marker=marker):
+                self.assertIn(marker, contributing)
+
+        for example in {
+            "Copyright 2021-2026 The Atrinik Project",
+            "Copyright 2026 The Atrinik Project",
+            "Copyright 2024-2026 The Atrinik Project",
+            "Copyright (C) 2009-2026 Zoey Rose and Atrinik Development Team",
+        }:
+            with self.subTest(example=example):
+                self.assertIn(example, contributing)
+
     def test_inventory_is_complete_and_within_budget(self) -> None:
         inventory = collect_inventory()
-        self.assertEqual(inventory["summary"]["skill_count"], 9)
+        self.assertEqual(inventory["summary"]["skill_count"], 10)
         self.assertIn(
             "atrinik-guidance-maintenance",
             [skill["name"] for skill in inventory["skills"]],
@@ -94,7 +139,7 @@ class AgentGuidanceTests(unittest.TestCase):
         with redirect_stdout(stdout):
             self.assertEqual(main(["--json"]), 0)
         inventory = json.loads(stdout.getvalue())
-        self.assertEqual(inventory["summary"]["skill_count"], 9)
+        self.assertEqual(inventory["summary"]["skill_count"], 10)
 
         stderr = io.StringIO()
         with mock.patch.object(
@@ -249,6 +294,83 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("cross-repository or cross-line", checklist)
         self.assertIn("Issue-closing path", report)
         self.assertIn("manual post-merge close", checklist)
+
+    def test_program_delivery_is_explicit_and_merge_gated(self) -> None:
+        skill = ROOT / ".agents/skills/atrinik-program-delivery"
+        package = {
+            path.relative_to(skill).as_posix()
+            for path in skill.rglob("*")
+            if path.is_file()
+        }
+        self.assertEqual(
+            package,
+            {
+                "SKILL.md",
+                "agents/openai.yaml",
+                "assets/program-delivery-report.md",
+                "references/program-review-checklist.md",
+            },
+        )
+
+        body = (skill / "SKILL.md").read_text(encoding="utf-8")
+        interface = (skill / "agents/openai.yaml").read_text(encoding="utf-8")
+        report = (skill / "assets/program-delivery-report.md").read_text(
+            encoding="utf-8"
+        )
+        checklist = (
+            skill / "references/program-review-checklist.md"
+        ).read_text(encoding="utf-8")
+        normalized_body = " ".join(body.split())
+
+        self.assertIn("$atrinik-program-delivery", body)
+        self.assertIn(
+            "../atrinik-issue-delivery/SKILL.md",
+            body,
+        )
+        self.assertIn("policy:\n  allow_implicit_invocation: false", interface)
+        self.assertIn("$atrinik-program-delivery", interface)
+        self.assertIn('display_name: "Atrinik Program Delivery"', interface)
+        self.assertIn(
+            'short_description: "Deliver ordered Atrinik programs through merge gates"',
+            interface,
+        )
+        for boundary in {
+            "Do not infer merge authority",
+            "Do not merge or close anything",
+            "If and only if the user explicitly requested `/goal`",
+            "Never create a nested or per-leaf goal",
+            "A merge-ready leaf is progress, not goal completion",
+            "Do not mark a draft ready until both its leaf review",
+            "query GitHub rather than trusting the reported action",
+            "prior green check proves only the old head/base combination",
+            "follow the environment's active/blocked goal lifecycle",
+            "exact ordered count of remaining squash commits",
+            "any missing, extra, reordered, or out-of-allowlist commit",
+            "Never require a commit to contain its own immutable hash",
+            "then repeat the terminal audit",
+            "master is genuinely ready to close",
+        }:
+            with self.subTest(boundary=boundary):
+                self.assertIn(boundary, normalized_body)
+        self.assertIn("references/program-review-checklist.md", body)
+        self.assertIn("assets/program-delivery-report.md", body)
+        self.assertIn("## Ordered stage matrix", report)
+        self.assertIn("## Merge and human gate log", report)
+        self.assertIn("Declared terminal suffix count/order by line", report)
+        self.assertIn("Per-ordinal changed-path allowlists", report)
+        self.assertIn("## Cross-change integration", checklist)
+        self.assertIn("## Validation currency", checklist)
+        self.assertIn("assign `zoeyrose`", body)
+        self.assertIn("**Atrinik work**", body)
+        self.assertIn("destination is ignored before writing", normalized_body)
+
+        leaf_delivery = (
+            ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn(
+            "program-delivery invocation delegates this contract",
+            " ".join(leaf_delivery.split()),
+        )
 
     def test_removed_stale_routes_do_not_return(self) -> None:
         paths = [ROOT / "AGENTS.md"]

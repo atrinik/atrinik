@@ -12,6 +12,13 @@ force-pushes, issue closure, merges, policy bypass, destructive resets, cleanup
 application, self-approval, or unrelated external changes. Track a persistent
 goal only when explicitly asked.
 
+For an ordered master issue with merge-dependent leaves, use the explicitly
+invoked `$atrinik-program-delivery` orchestrator instead of stretching this
+single-issue contract across the whole program.
+An explicit program-delivery invocation delegates this contract to each
+dependency-ready child identified from that master's live graph and counts as
+explicit leaf authorization; do not create a separate goal for the leaf.
+
 Load `atrinik-multi-repo-workspace`, `atrinik-github-governance`, and only the
 applicable implementation skill. Add `atrinik-server-runtime` and
 `atrinik-test-scenario` only when verification needs them. Follow those skills

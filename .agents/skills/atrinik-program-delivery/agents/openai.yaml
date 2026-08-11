@@ -1,0 +1,6 @@
+interface:
+  display_name: "Atrinik Program Delivery"
+  short_description: "Deliver ordered Atrinik programs through merge gates"
+  default_prompt: "Use $atrinik-program-delivery to deliver this Atrinik master issue as one durable objective across ordered child work, iterative leaf and program-wide review/fix cycles, current-base validation, and explicit maintainer merge gates. You may assign and update tracking, push ordinary branches, create missing child issues and draft PRs, mark drafts ready after exit conditions, and post concise comments; do not force-push, merge, close issues, bypass policy, destructively reset, or apply cleanup."
+policy:
+  allow_implicit_invocation: false
