@@ -7331,13 +7331,30 @@ class Workspace:
         arguments: list[str],
         dry_run: bool,
     ) -> Path:
+        self.paths.ensure()
+        with shared_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            return self._run_client(
+                profile_name, state_name, port, arguments, dry_run
+            )
+
+    def _run_client(
+        self,
+        profile_name: str,
+        state_name: str,
+        port: int,
+        arguments: list[str],
+        dry_run: bool,
+    ) -> Path:
         self._validate_run_port(port)
         launch_label = client_launch_label(profile_name)
         self._require_classic_contracts(profile_name, {"client"})
         state = self._state_location(state_name)
         self._validate_state(state)
         fingerprint = self._server_identity_fingerprint(state)
-        root = self.build("client", profile_name, tests=False)
+        root = self._build("client", profile_name, tests=False)
         executable = self._classic_binary_directory(root, "client") / "atrinik"
         working = root / "sources" / "client"
         if not executable.is_file():

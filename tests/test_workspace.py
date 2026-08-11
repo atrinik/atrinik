@@ -18,6 +18,7 @@ import sys
 import tempfile
 import threading
 import time
+from typing import Callable
 import unittest
 from unittest import mock
 
@@ -68,6 +69,12 @@ def synthetic_build_process(
             os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
         ):
             workspace = Workspace(Path(wrapper))
+            real_flock = workspace_module.fcntl.flock
+
+            def observe_flock(lock: object, operation: int) -> None:
+                if operation & workspace_module.fcntl.LOCK_EX:
+                    attempting.set()
+                real_flock(lock, operation)
 
             def pause_build(*_arguments: object) -> None:
                 entered.put(profile)
@@ -93,8 +100,10 @@ def synthetic_build_process(
                     workspace, "_uses_integrated_classic_build", return_value=False
                 ),
                 mock.patch.object(workspace, "_build_client"),
+                mock.patch.object(
+                    workspace_module.fcntl, "flock", side_effect=observe_flock
+                ),
             ):
-                attempting.set()
                 workspace.build("client", profile, False)
         results.put(None)
     except BaseException as error:
@@ -115,21 +124,71 @@ def layout_writer_process(
             os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
         ):
             workspace = Workspace(Path(wrapper))
-            attempting.set()
-            if operation == "sync":
-                with mock.patch.object(
-                    workspace,
-                    "_sync_components",
-                    side_effect=lambda *_: entered.set(),
-                ):
-                    workspace.sync([], "none")
-            else:
-                with mock.patch.object(
-                    workspace,
-                    "_remove_worktree",
-                    side_effect=lambda *_: entered.set(),
-                ):
-                    workspace.remove_worktree("client", "review")
+            real_flock = workspace_module.fcntl.flock
+
+            def observe_flock(lock: object, lock_operation: int) -> None:
+                if lock_operation & workspace_module.fcntl.LOCK_EX:
+                    attempting.set()
+                real_flock(lock, lock_operation)
+
+            with mock.patch.object(
+                workspace_module.fcntl, "flock", side_effect=observe_flock
+            ):
+                if operation == "sync":
+                    with mock.patch.object(
+                        workspace,
+                        "_sync_components",
+                        side_effect=lambda *_: entered.set(),
+                    ):
+                        workspace.sync([], "none")
+                else:
+                    with mock.patch.object(
+                        workspace,
+                        "_remove_worktree",
+                        side_effect=lambda *_: entered.set(),
+                    ):
+                        workspace.remove_worktree("client", "review")
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def synthetic_client_process(
+    wrapper: str,
+    workspace_directory: str,
+    attempting: object,
+    entered: object,
+    release: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            real_flock = workspace_module.fcntl.flock
+
+            def observe_flock(lock: object, operation: int) -> None:
+                if operation & workspace_module.fcntl.LOCK_SH:
+                    attempting.set()
+                real_flock(lock, operation)
+
+            def pause_client(*_arguments: object) -> Path:
+                entered.set()
+                if not release.wait(10):
+                    raise TimeoutError("test client was not released")
+                return Path(wrapper) / "client"
+
+            with (
+                mock.patch.object(
+                    workspace, "_run_client", side_effect=pause_client
+                ),
+                mock.patch.object(
+                    workspace_module.fcntl, "flock", side_effect=observe_flock
+                ),
+            ):
+                workspace.run_client("default", "default", 13327, [], True)
         results.put(None)
     except BaseException as error:
         results.put(f"{type(error).__name__}: {error}")
@@ -5108,6 +5167,16 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(entered.get(timeout=5), "same-root")
             processes[1].start()
             self.assertTrue(attempting[1].wait(timeout=5))
+            build_lock = (
+                self.workspace.paths.builds
+                / "locks"
+                / f"same-root-{'a' * 12}.lock"
+            )
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    build_lock, "profile build same-root", nonblocking=True
+                ):
+                    self.fail("held build-root lock unexpectedly available")
             with self.assertRaises(queue.Empty):
                 entered.get(timeout=0.25)
         finally:
@@ -5163,6 +5232,14 @@ class WorkspaceTests(unittest.TestCase):
                     )
                     writer.start()
                     self.assertTrue(writer_attempting.wait(timeout=5))
+                    with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                        with exclusive_lock(
+                            self.workspace.paths.workspace
+                            / "repository-layout.lock",
+                            "repository layout",
+                            nonblocking=True,
+                        ):
+                            self.fail("held layout lock unexpectedly available")
                     self.assertFalse(writer_entered.wait(timeout=0.25))
                 finally:
                     release.set()
@@ -5230,6 +5307,18 @@ class WorkspaceTests(unittest.TestCase):
                     "default", "review", 13327, [], True
                 ),
             ),
+            (
+                "_run_client",
+                lambda: self.workspace.run_client(
+                    "default", "review", 13327, [], True
+                ),
+            ),
+            (
+                "_run_client",
+                lambda: self.workspace.run_client(
+                    "default", "review", 13327, [], True
+                ),
+            ),
         )
         lock = self.workspace.paths.workspace / "repository-layout.lock"
         for private_name, invoke in operations:
@@ -5276,6 +5365,149 @@ class WorkspaceTests(unittest.TestCase):
                         with ThreadPoolExecutor(max_workers=1) as executor:
                             executor.submit(invoke).result(timeout=2)
                     operation.assert_called_once()
+
+    def test_mixed_layout_readers_preserve_markers_and_coordinates(self) -> None:
+        build_root = self.workspace.paths.builds / "profiles" / "stress-a"
+        managed_directory(
+            build_root, self.workspace.paths.builds, "profile:stress:a"
+        )
+        marker = load_json(build_root / MANAGED_MARKER)
+        topology_root = self.workspace._topology_directory("stress", create=True)
+        checkout = self.workspace.paths.repositories / "server"
+        status = {
+            "schema_version": 1,
+            "name": "stress",
+            "profile": "default",
+            "stack": "default",
+            "providers": {"server": "server"},
+            "dependencies": ["server"],
+            "state": None,
+            "build_root": str(build_root),
+            "resolved": {
+                "server": {
+                    "path": str(checkout),
+                    "checkout_path": str(checkout),
+                    "checkout": "server",
+                    "repository": "atrinik/server",
+                    "branch": "main",
+                    "source": ".",
+                    "head": "a" * 40,
+                    "dirty": False,
+                }
+            },
+            "endpoint": None,
+            "ready": False,
+            "started_at": "2026-08-11T00:00:00+00:00",
+            "stopped_at": None,
+            "supervisor": {"pid": 999, "start_time": "1"},
+            "services": {},
+            "error": "stress fixture",
+        }
+        atomic_json(topology_root / "status.json", status)
+        barrier = threading.Barrier(4)
+
+        def repeat(operation: Callable[[], object]) -> list[object]:
+            barrier.wait(timeout=5)
+            return [operation() for _ in range(20)]
+
+        operations = (
+            lambda: self.workspace.build("client", "stress", False),
+            lambda: self.workspace.topology_up(
+                "stress", "default", "default", ["server"], None
+            ),
+            lambda: self.workspace.topology_status("stress"),
+            lambda: self.workspace.cleanup(["builds"], 7, [], False),
+        )
+        with (
+            mock.patch.object(self.workspace, "_build", return_value=build_root),
+            mock.patch.object(
+                self.workspace, "_topology_up", return_value=copy.deepcopy(status)
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.process_matches", return_value=False
+            ),
+            mock.patch(
+                "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
+                return_value=(set(), None),
+            ),
+            ThreadPoolExecutor(max_workers=4) as executor,
+        ):
+            results = [
+                future.result(timeout=15)
+                for future in [
+                    executor.submit(repeat, operation) for operation in operations
+                ]
+            ]
+
+        self.assertTrue(all(result == build_root for result in results[0]))
+        self.assertTrue(all(result == status for result in results[1]))
+        self.assertTrue(
+            all(
+                result["resolved"] == status["resolved"]
+                and "inert_historical_record" not in result
+                for result in results[2]
+            )
+        )
+        self.assertEqual(
+            [result["inventory_errors"] for result in results[3]],
+            [[] for _ in results[3]],
+        )
+        self.assertEqual(load_json(build_root / MANAGED_MARKER), marker)
+        self.assertEqual(load_json(topology_root / "status.json"), status)
+
+    def test_layout_writer_waits_for_foreground_client_process(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        client_attempting = context.Event()
+        client_entered = context.Event()
+        release = context.Event()
+        client_results = context.Queue()
+        writer_attempting = context.Event()
+        writer_entered = context.Event()
+        writer_results = context.Queue()
+        client = context.Process(
+            target=synthetic_client_process,
+            args=(
+                str(self.wrapper),
+                str(self.workspace_directory),
+                client_attempting,
+                client_entered,
+                release,
+                client_results,
+            ),
+        )
+        writer = context.Process(
+            target=layout_writer_process,
+            args=(
+                str(self.wrapper),
+                str(self.workspace_directory),
+                "remove-worktree",
+                writer_attempting,
+                writer_entered,
+                writer_results,
+            ),
+        )
+        try:
+            client.start()
+            self.assertTrue(client_entered.wait(timeout=5))
+            writer.start()
+            self.assertTrue(writer_attempting.wait(timeout=5))
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    self.workspace.paths.workspace / "repository-layout.lock",
+                    "repository layout",
+                    nonblocking=True,
+                ):
+                    self.fail("held layout lock unexpectedly available")
+            self.assertFalse(writer_entered.wait(timeout=0.25))
+        finally:
+            release.set()
+            client.join(timeout=10)
+            writer.join(timeout=10)
+        self.assertTrue(writer_entered.is_set())
+        self.assertEqual(client.exitcode, 0)
+        self.assertEqual(writer.exitcode, 0)
+        self.assertIsNone(client_results.get(timeout=2))
+        self.assertIsNone(writer_results.get(timeout=2))
 
     def test_server_runtime_paths_are_isolated_by_state(self) -> None:
         source = self.workspace.paths.repositories / "server"
@@ -6096,7 +6328,7 @@ class WorkspaceTests(unittest.TestCase):
         (build_root / "sources" / "client").mkdir(parents=True)
         expected = "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
         with (
-            mock.patch.object(self.workspace, "build", return_value=build_root),
+            mock.patch.object(self.workspace, "_build", return_value=build_root),
             mock.patch("builtins.print") as output,
             mock.patch("atrinik_workspace.workspace.run") as execute,
             mock.patch.object(self.workspace, "_require_client_display"),

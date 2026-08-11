@@ -177,24 +177,24 @@ to reconstruct generated data.
 
 The repository-layout lock is a process-wide read/write boundary. Initialization,
 synchronization, worktree and profile mutation, cleanup apply, and repository
-migration take it exclusively. Builds, topology startup, foreground server runs,
-and scenario create/reset take it in shared mode while they consume selected
-checkout and profile coordinates. Independent build roots can therefore compile
-concurrently, while each root's existing exclusive build lock still serializes
-identical profile/key work. An exclusive writer cannot advance or remove a
-selected checkout until all readers exit. If the platform cannot provide a
-working advisory shared lock, the consuming operation fails closed.
+migration take it exclusively. Builds, topology startup, foreground client and
+server runs, and scenario create/reset take it in shared mode while they consume
+selected checkout and profile coordinates. Independent build roots can therefore
+compile concurrently, while each root's existing exclusive build lock still
+serializes identical profile/key work. An exclusive writer cannot advance or
+remove a selected checkout until all readers exit. If the platform cannot provide
+a working advisory shared lock, the consuming operation fails closed.
 
 The layout lock is always outermost; private helpers never reacquire it. A
-direct build then takes its build-root lock and subordinate cache locks. Topology
-startup takes the topology-operation lock, the server-state lock when needed,
-the build-root lock, and finally the port-allocation lock. Scenario create takes
-the scenario-operation lock, then build-root and state-registry locks; reset
-takes scenario-operation, state, and build-root locks. Foreground server launch
-takes state before build-root. Layout writers take the exclusive layout lock
-before any cleanup build-lock probes or mutation-specific work. Operations use
-only the applicable suffix of these orders and never acquire the layout lock
-from inside a finer-grained lock.
+direct build or foreground client then takes its build-root lock and subordinate
+cache locks. Topology startup takes the topology-operation lock, the server-state
+lock when needed, the build-root lock, and finally the port-allocation lock.
+Scenario create takes the scenario-operation lock, then build-root and
+state-registry locks; reset takes scenario-operation, state, and build-root locks.
+Foreground server launch takes state before build-root. Layout writers take the
+exclusive layout lock before any cleanup build-lock probes or mutation-specific
+work. Operations use only the applicable suffix of these orders and never acquire
+the layout lock from inside a finer-grained lock.
 
 Inventory records are stable-sorted and carry a kind, physical owner and
 repository, exact path, no-follow allocated size, age and age basis,
