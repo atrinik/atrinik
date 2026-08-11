@@ -31,6 +31,7 @@ from typing import Any, Callable, Iterator, TextIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .locking import active_lock_fds, inherit_lock_fds
+from .process_tree import holders_exist, signal_holders
 
 from .model import (
     MANAGED_MARKER,
@@ -82,6 +83,7 @@ CONFIGURE_SCHEMA_VERSION = 2
 COMPILER_CACHE_PURPOSE = "compiler-cache"
 COMPILER_CACHE_MAX_SIZE = "5G"
 TOPOLOGY_SERVICES = ("server", "client")
+TOPOLOGY_PROCESS_TREE_LEASE = "process-tree.lease"
 PRE_MONOREPO_REPOSITORIES = {
     "client": "legacy-client",
     "server": "legacy-server",
@@ -7046,6 +7048,17 @@ class Workspace:
         with exclusive_lock(
             operation_lock, f"topology {name} operation", nonblocking=True
         ):
+            process_tree_path = topology_root / TOPOLOGY_PROCESS_TREE_LEASE
+            process_tree_probe = open_regular_file(
+                process_tree_path,
+                os.O_RDWR | os.O_CREAT,
+                "topology process-tree lease",
+            )
+            try:
+                if holders_exist(process_tree_probe, exclude=(os.getpid(),)):
+                    raise WorkspaceError(f"topology is already running: {name}")
+            finally:
+                os.close(process_tree_probe)
             status_path = topology_root / "status.json"
             startup_error_path = topology_root / "startup-error.json"
             if status_path.is_file():
@@ -7221,6 +7234,11 @@ class Workspace:
                     "ab",
                     buffering=0,
                 )
+                process_tree_fd = open_regular_file(
+                    process_tree_path,
+                    os.O_RDWR,
+                    "topology process-tree lease",
+                )
                 try:
                     command = [
                         sys.executable,
@@ -7243,6 +7261,10 @@ class Workspace:
                         ["--build-lock-fd", str(build_lock.fileno())]
                     )
                     inherited_locks.append(build_lock.fileno())
+                    command.extend(
+                        ["--process-tree-fd", str(process_tree_fd)]
+                    )
+                    inherited_locks.append(process_tree_fd)
                     environment = os.environ.copy()
                     source_root = str(Path(__file__).resolve().parents[1])
                     python_path = environment.get("PYTHONPATH")
@@ -7265,6 +7287,7 @@ class Workspace:
                     raise WorkspaceError(f"cannot start topology supervisor: {error}") from error
                 finally:
                     supervisor_log.close()
+                    os.close(process_tree_fd)
 
                 deadline = time.monotonic() + 45
                 while time.monotonic() < deadline:
@@ -7308,82 +7331,47 @@ class Workspace:
             root / "operation.lock", f"topology {name} operation", nonblocking=True
         ):
             status = self.topology_status(name)
-            supervisor = status["supervisor"]
-            orphaned = [
-                service
-                for service in status["services"].values()
-                if service["running"]
-            ]
-            supervisor_owned = supervisor["running"]
-            targets = [supervisor] if supervisor_owned else orphaned
-            if not targets:
+            process_tree_path = root / TOPOLOGY_PROCESS_TREE_LEASE
+            if not process_tree_path.is_file() or process_tree_path.is_symlink():
                 return status
-            verified: list[tuple[dict[str, Any], int]] = []
+            process_tree_fd = open_regular_file(
+                process_tree_path,
+                os.O_RDWR,
+                "topology process-tree lease",
+            )
             try:
-                for record in targets:
-                    pid = record["pid"]
-                    try:
-                        pidfd = os.pidfd_open(pid)
-                    except ProcessLookupError:
-                        continue
-                    if not process_matches(pid, record["start_time"]):
-                        os.close(pidfd)
-                        continue
-                    verified.append((record, pidfd))
-                    if supervisor_owned:
-                        signal.pidfd_send_signal(pidfd, signal.SIGTERM)
-                    else:
-                        try:
-                            os.killpg(pid, signal.SIGTERM)
-                        except ProcessLookupError:
-                            pass
+                active_holders = holders_exist(
+                    process_tree_fd, exclude=(os.getpid(),)
+                )
+                if not active_holders:
+                    return status
+                signal_holders(
+                    process_tree_fd, signal.SIGTERM, exclude=(os.getpid(),)
+                )
                 deadline = time.monotonic() + timeout
                 while time.monotonic() < deadline:
-                    if supervisor_owned:
-                        running = any(
-                            self._recorded_process_running(record)
-                            for record, _pidfd in verified
-                        )
-                    else:
-                        running = any(
-                            self._process_group_running(record["pid"])
-                            for record, _pidfd in verified
-                        )
-                    if not running:
-                        return self.topology_status(name)
+                    current = self.topology_status(name)
+                    if not holders_exist(
+                        process_tree_fd, exclude=(os.getpid(),)
+                    ) and not current["supervisor"]["running"]:
+                        return current
                     time.sleep(0.1)
-                if not supervisor_owned:
-                    for record, _pidfd in verified:
-                        if not self._process_group_running(record["pid"]):
-                            continue
-                        try:
-                            os.killpg(record["pid"], signal.SIGKILL)
-                        except ProcessLookupError:
-                            pass
-                    kill_deadline = time.monotonic() + min(max(timeout, 0.1), 2.0)
-                    while time.monotonic() < kill_deadline:
-                        if not any(
-                            self._process_group_running(record["pid"])
-                            for record, _pidfd in verified
-                        ):
-                            return self.topology_status(name)
-                        time.sleep(0.05)
+                signal_holders(
+                    process_tree_fd, signal.SIGKILL, exclude=(os.getpid(),)
+                )
+                kill_deadline = time.monotonic() + min(max(timeout, 0.1), 2.0)
+                while time.monotonic() < kill_deadline:
+                    current = self.topology_status(name)
+                    if not holders_exist(
+                        process_tree_fd, exclude=(os.getpid(),)
+                    ) and not current["supervisor"]["running"]:
+                        return current
+                    time.sleep(0.05)
             finally:
-                for _record, pidfd in verified:
-                    os.close(pidfd)
+                os.close(process_tree_fd)
             raise WorkspaceError(
                 f"topology did not stop within {timeout:g} seconds: {name}"
             )
-
-    @staticmethod
-    def _process_group_running(process_group: int) -> bool:
-        try:
-            os.killpg(process_group, 0)
-        except ProcessLookupError:
-            return False
-        except PermissionError:
-            return True
-        return True
 
     def topology_logs(
         self,

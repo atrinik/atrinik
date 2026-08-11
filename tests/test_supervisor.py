@@ -55,11 +55,11 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 mock.patch.object(supervisor_module, "terminate") as terminate,
                 mock.patch.object(supervisor_module.os, "close") as close,
             ):
-                self.assertEqual(supervise(spec_path, None, 7, 8), 1)
+                self.assertEqual(supervise(spec_path, None, 7, 8, None), 1)
 
             terminate.assert_called_once()
             self.assertEqual(terminate.call_args.args[0], {"client": process})
-            self.assertEqual(terminate.call_args.args[1], {})
+            self.assertIsNone(terminate.call_args.args[1])
             self.assertEqual(
                 {call.args[0] for call in close.call_args_list}, {7, 8}
             )
@@ -67,6 +67,8 @@ class ServerReadinessCaptureTests(unittest.TestCase):
     def test_terminate_cleans_group_after_service_leader_exits(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             descendant_path = Path(directory) / "descendant.pid"
+            lease = Path(directory) / "process-tree.lease"
+            lease_fd = os.open(lease, os.O_RDWR | os.O_CREAT, 0o600)
             process = subprocess.Popen(
                 [
                     sys.executable,
@@ -80,8 +82,8 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                     str(descendant_path),
                 ],
                 start_new_session=True,
+                pass_fds=(lease_fd,),
             )
-            pidfd = os.pidfd_open(process.pid)
             descendant = None
             try:
                 process.wait(timeout=5)
@@ -92,9 +94,8 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 self.assertTrue(Path(f"/proc/{descendant}").exists())
 
                 supervisor_module.terminate(
-                    {"client": process}, {"client": pidfd}, timeout=0.1
+                    {"client": process}, lease_fd, timeout=0.1
                 )
-                pidfd = -1
                 deadline = time.monotonic() + 2
                 while (
                     time.monotonic() < deadline
@@ -103,8 +104,7 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                     time.sleep(0.05)
                 self.assertFalse(Path(f"/proc/{descendant}").exists())
             finally:
-                if pidfd >= 0:
-                    os.close(pidfd)
+                os.close(lease_fd)
                 if descendant is not None and Path(f"/proc/{descendant}").exists():
                     try:
                         os.kill(descendant, signal.SIGKILL)

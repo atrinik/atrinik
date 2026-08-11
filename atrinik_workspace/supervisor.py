@@ -16,6 +16,7 @@ import time
 from typing import Any, BinaryIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
+from .process_tree import holders_exist, signal_holders
 
 
 LOG_LIMIT = 10 * 1024 * 1024
@@ -72,47 +73,33 @@ def open_log(path: Path) -> BinaryIO:
     return os.fdopen(descriptor, "ab", buffering=0)
 
 
-def process_group_running(process_group: int) -> bool:
-    try:
-        os.killpg(process_group, 0)
-    except ProcessLookupError:
-        return False
-    except PermissionError:
-        return True
-    return True
-
-
 def terminate(
     processes: dict[str, subprocess.Popen[bytes]],
-    pidfds: dict[str, int],
+    process_tree_fd: int | None,
     timeout: float = 10,
 ) -> None:
-    groups = [processes[name].pid for name in pidfds]
-    for process_group in groups:
-        try:
-            os.killpg(process_group, signal.SIGTERM)
-        except ProcessLookupError:
-            pass
+    if process_tree_fd is not None:
+        signal_holders(
+            process_tree_fd, signal.SIGTERM, exclude=(os.getpid(),)
+        )
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         for process in processes.values():
             process.poll()
-        if not any(process_group_running(process_group) for process_group in groups):
+        if process_tree_fd is None or not holders_exist(
+            process_tree_fd, exclude=(os.getpid(),)
+        ):
             break
         time.sleep(0.1)
-    for process_group in groups:
-        if process_group_running(process_group):
-            try:
-                os.killpg(process_group, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
+    if process_tree_fd is not None:
+        signal_holders(
+            process_tree_fd, signal.SIGKILL, exclude=(os.getpid(),)
+        )
     for process in processes.values():
         try:
             process.wait(timeout=2)
         except subprocess.TimeoutExpired:
             pass
-    for descriptor in pidfds.values():
-        os.close(descriptor)
 
 
 class RotatingLog:
@@ -220,6 +207,7 @@ def supervise(
     lock_fd: int | None,
     layout_lock_fd: int | None,
     build_lock_fd: int | None,
+    process_tree_fd: int | None,
 ) -> int:
     with spec_path.open(encoding="utf-8") as stream:
         spec = json.load(stream)
@@ -238,7 +226,6 @@ def supervise(
         raise RuntimeError("cannot identify topology supervisor process")
     status = _initial_status(spec, supervisor_start_time)
     processes: dict[str, subprocess.Popen[bytes]] = {}
-    pidfds: dict[str, int] = {}
     logs: list[RotatingLog] = []
     pumps: list[threading.Thread] = []
 
@@ -270,6 +257,8 @@ def supervise(
             inherited_locks.append(layout_lock_fd)
         if build_lock_fd is not None:
             inherited_locks.append(build_lock_fd)
+        if process_tree_fd is not None:
+            inherited_locks.append(process_tree_fd)
         process = subprocess.Popen(
             command,
             cwd=service["cwd"],
@@ -281,10 +270,6 @@ def supervise(
             pass_fds=tuple(inherited_locks),
         )
         processes[name] = process
-        try:
-            pidfds[name] = os.pidfd_open(process.pid)
-        except ProcessLookupError as error:
-            raise RuntimeError(f"cannot identify {name} process") from error
         start_time = process_start_time(process.pid)
         if start_time is None:
             raise RuntimeError(f"cannot identify {name} process")
@@ -363,7 +348,7 @@ def supervise(
         atomic_status(status_path, status)
         return 1
     finally:
-        terminate(processes, pidfds)
+        terminate(processes, process_tree_fd)
         for pump in pumps:
             pump.join(timeout=2)
         for name, process in processes.items():
@@ -384,6 +369,8 @@ def supervise(
             os.close(layout_lock_fd)
         if build_lock_fd is not None:
             os.close(build_lock_fd)
+        if process_tree_fd is not None:
+            os.close(process_tree_fd)
     return 0
 
 
@@ -393,6 +380,7 @@ def main() -> int:
     parser.add_argument("--lock-fd", type=int)
     parser.add_argument("--layout-lock-fd", type=int)
     parser.add_argument("--build-lock-fd", type=int)
+    parser.add_argument("--process-tree-fd", type=int)
     parser.add_argument("--daemonize", action="store_true")
     options = parser.parse_args()
     if options.daemonize and os.fork() != 0:
@@ -403,6 +391,7 @@ def main() -> int:
             options.lock_fd,
             options.layout_lock_fd,
             options.build_lock_fd,
+            options.process_tree_fd,
         )
     except BaseException as error:
         message = f"{type(error).__name__}: {error}"
@@ -424,6 +413,11 @@ def main() -> int:
         if options.build_lock_fd is not None:
             try:
                 os.close(options.build_lock_fd)
+            except OSError:
+                pass
+        if options.process_tree_fd is not None:
+            try:
+                os.close(options.process_tree_fd)
             except OSError:
                 pass
         return 1

@@ -5470,8 +5470,7 @@ class WorkspaceTests(unittest.TestCase):
             )
         finally:
             release.set()
-            for process in processes:
-                process.join(timeout=10)
+            join_or_stop_processes(processes, 10)
         self.assertEqual(
             [process.exitcode for process in processes], [0, 0]
         )
@@ -5612,8 +5611,7 @@ class WorkspaceTests(unittest.TestCase):
                 entered.get(timeout=0.25)
         finally:
             release.set()
-            for process in processes:
-                process.join(timeout=10)
+            join_or_stop_processes(processes, 10)
         self.assertEqual(entered.get(timeout=2), "same-root")
         self.assertEqual(
             [process.exitcode for process in processes], [0, 0]
@@ -5674,8 +5672,7 @@ class WorkspaceTests(unittest.TestCase):
                     self.assertFalse(writer_entered.wait(timeout=0.25))
                 finally:
                     release.set()
-                    reader.join(timeout=10)
-                    writer.join(timeout=10)
+                    join_or_stop_processes([reader, writer], 10)
                 self.assertTrue(writer_entered.is_set())
                 self.assertEqual(reader.exitcode, 0)
                 self.assertEqual(writer.exitcode, 0)
@@ -6467,6 +6464,32 @@ class WorkspaceTests(unittest.TestCase):
                 with self.assertRaisesRegex(WorkspaceError, "already in use"):
                     with exclusive_lock(path, description, nonblocking=True):
                         self.fail(f"server-only topology released {description}")
+            descendant_path = Path(
+                server_only["services"]["server"]["cwd"]
+            ) / "descendant.pid"
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline and not descendant_path.is_file():
+                time.sleep(0.05)
+            descendant_pid = int(descendant_path.read_text(encoding="utf-8"))
+            service = server_only["services"]["server"]
+            service_pidfd = os.pidfd_open(service["pid"])
+            try:
+                signal.pidfd_send_signal(service_pidfd, signal.SIGTERM)
+            finally:
+                os.close(service_pidfd)
+            deadline = time.monotonic() + 5
+            while (
+                time.monotonic() < deadline
+                and self.workspace.topology_status("server-lease")["services"][
+                    "server"
+                ]["running"]
+            ):
+                time.sleep(0.05)
+            self.assertTrue(
+                self.workspace.topology_status("server-lease")["supervisor"][
+                    "running"
+                ]
+            )
             supervisor = server_only["supervisor"]
             pidfd = os.pidfd_open(supervisor["pid"])
             try:
@@ -6483,14 +6506,7 @@ class WorkspaceTests(unittest.TestCase):
                 time.sleep(0.05)
             orphaned = self.workspace.topology_status("server-lease")
             self.assertFalse(orphaned["supervisor"]["running"])
-            self.assertTrue(orphaned["services"]["server"]["running"])
-            descendant_path = Path(
-                orphaned["services"]["server"]["cwd"]
-            ) / "descendant.pid"
-            deadline = time.monotonic() + 5
-            while time.monotonic() < deadline and not descendant_path.is_file():
-                time.sleep(0.05)
-            descendant_pid = int(descendant_path.read_text(encoding="utf-8"))
+            self.assertFalse(orphaned["services"]["server"]["running"])
             self.assertTrue(Path(f"/proc/{descendant_pid}").exists())
             for path, description in (
                 (layout_lock, "repository layout"),
@@ -6508,11 +6524,7 @@ class WorkspaceTests(unittest.TestCase):
                 time.sleep(0.05)
             self.assertFalse(Path(f"/proc/{descendant_pid}").exists())
         finally:
-            remaining = self.workspace.topology_status("server-lease")
-            if remaining["supervisor"]["running"] or any(
-                service["running"] for service in remaining["services"].values()
-            ):
-                self.workspace.topology_down("server-lease", timeout=5)
+            self.workspace.topology_down("server-lease", timeout=5)
 
         with exclusive_lock(Path(f"{state}.lock"), "server state", nonblocking=True):
             pass
