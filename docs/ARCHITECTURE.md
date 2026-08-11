@@ -408,10 +408,10 @@ The per-build cache base and compiler prefix-map arguments normalize equivalent
 profile roots to stable `/atrinik/source` and `/atrinik/build` diagnostics
 without sharing mutable CMake binary trees. Prefix-map flags are added only
 after the selected environment compiler proves support; opaque toolchain
-compilers retain their own flag syntax. Compiler, toolchain, test-mode, or
-relevant environment changes invalidate configure state; source dependency
-changes continue through Ninja. `--no-ccache` explicitly opts out and clears
-any cached launcher setting.
+compilers retain their own flag syntax and directory-sensitive cache keys.
+Compiler, toolchain, test-mode, or relevant environment changes invalidate
+configure state; source dependency changes continue through Ninja.
+`--no-ccache` explicitly opts out and clears any cached launcher setting.
 
 After a Classic server build, the coordinator runs the built server's offline
 worldmaker in a temporary runtime assembled from the selected server,

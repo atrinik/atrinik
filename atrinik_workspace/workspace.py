@@ -1609,6 +1609,8 @@ class Workspace:
                         entry,
                         source,
                         exclusions if copy_all else set(),
+                        view,
+                        exclusions,
                     )
                 elif stat.S_ISREG(mode):
                     permissions = stat.S_IMODE(mode)
@@ -1625,13 +1627,16 @@ class Workspace:
                         shutil.copy2(entry, destination, follow_symlinks=False)
                     digest = f"{permissions:o}:{value}"
                 elif stat.S_ISLNK(mode):
-                    self._validate_source_symlink(entry, source)
-                    target = os.readlink(entry)
+                    target, resolved_target = self._copied_source_symlink_target(
+                        entry, destination, source, view, exclusions, exclusions
+                    )
                     if not destination.is_symlink() or os.readlink(destination) != target:
                         self._source_view_changed = True
                         self._remove_source_view_entry(destination)
                         destination.symlink_to(target)
-                    digest = hashlib.sha256(f"symlink:{target}".encode()).hexdigest()
+                    digest = hashlib.sha256(
+                        f"symlink:{os.readlink(entry)}:{resolved_target}".encode()
+                    ).hexdigest()
                 else:
                     raise WorkspaceError(
                         f"source-view copy input is not a regular entry: {entry}"
@@ -1816,6 +1821,8 @@ class Workspace:
         root: Path,
         safety_root: Path,
         exclusions: set[str],
+        view: Path,
+        top_level_exclusions: set[str],
     ) -> str:
         if destination.is_symlink() or (destination.exists() and not destination.is_dir()):
             self._remove_source_view_entry(destination)
@@ -1844,7 +1851,13 @@ class Workspace:
                 digest.update(b"\0directory\0")
                 digest.update(
                     self._reconcile_source_tree(
-                        entry, output, root, safety_root, exclusions
+                        entry,
+                        output,
+                        root,
+                        safety_root,
+                        exclusions,
+                        view,
+                        top_level_exclusions,
                     ).encode()
                 )
             elif stat.S_ISREG(mode):
@@ -1878,10 +1891,18 @@ class Workspace:
                     self._remove_source_view_entry(output)
                     shutil.copy2(entry, output, follow_symlinks=False)
             elif stat.S_ISLNK(mode):
-                self._validate_source_symlink(entry, safety_root)
-                target = os.readlink(entry)
+                target, resolved_target = self._copied_source_symlink_target(
+                    entry,
+                    output,
+                    safety_root,
+                    view,
+                    exclusions,
+                    top_level_exclusions,
+                )
                 digest.update(b"\0symlink\0")
-                digest.update(target.encode())
+                digest.update(os.readlink(entry).encode())
+                digest.update(b"\0resolved\0")
+                digest.update(resolved_target.encode())
                 if not output.is_symlink() or os.readlink(output) != target:
                     self._source_view_changed = True
                     self._remove_source_view_entry(output)
@@ -1892,6 +1913,35 @@ class Workspace:
             if output.name not in expected:
                 self._remove_source_view_entry(output)
         return digest.hexdigest()
+
+    @classmethod
+    def _copied_source_symlink_target(
+        cls,
+        source: Path,
+        destination: Path,
+        safety_root: Path,
+        view: Path,
+        recursive_exclusions: set[str],
+        top_level_exclusions: set[str],
+    ) -> tuple[str, str]:
+        cls._validate_source_symlink(source, safety_root)
+        try:
+            relative = source.resolve(strict=True).relative_to(
+                safety_root.resolve(strict=True)
+            )
+        except (OSError, RuntimeError, ValueError) as error:
+            raise WorkspaceError(
+                f"unsafe copied source-view symlink {source}: {error}"
+            ) from error
+        if (
+            (relative.parts and relative.parts[0] in top_level_exclusions)
+            or any(part in recursive_exclusions for part in relative.parts)
+        ):
+            raise WorkspaceError(
+                f"copied source-view symlink targets an excluded entry: {source}"
+            )
+        mapped = view / relative
+        return os.path.relpath(mapped, destination.parent), relative.as_posix()
 
     def _collect_content(self, root: Path, selected: dict[str, Path]) -> Path:
         output = root / "runtime" / "content"
@@ -2057,6 +2107,9 @@ class Workspace:
             "-DCMAKE_C_COMPILER_LAUNCHER=",
             "-DCMAKE_CXX_COMPILER_LAUNCHER=",
         ]
+        prefix_map_support = self._add_debug_prefix_environment(
+            source, binary, environment, arguments
+        )
         if ccache is not None:
             cache = self.paths.builds / COMPILER_CACHE_PURPOSE
             managed_directory(cache, self.paths.builds, COMPILER_CACHE_PURPOSE)
@@ -2074,9 +2127,14 @@ class Workspace:
                     "CCACHE_DIR": str(cache),
                     "CCACHE_MAXSIZE": COMPILER_CACHE_MAX_SIZE,
                     "CCACHE_BASEDIR": str(binary.parent.parent.resolve()),
-                    "CCACHE_NOHASHDIR": "true",
                 }
             )
+            environment.pop("CCACHE_HASHDIR", None)
+            environment.pop("CCACHE_NOHASHDIR", None)
+            if all(prefix_map_support.values()):
+                environment["CCACHE_NOHASHDIR"] = "true"
+            else:
+                environment["CCACHE_HASHDIR"] = "true"
             cache_arguments = [
                 f"-DCMAKE_C_COMPILER_LAUNCHER={ccache}",
                 f"-DCMAKE_CXX_COMPILER_LAUNCHER={ccache}",
@@ -2092,9 +2150,6 @@ class Workspace:
                 file=sys.stderr,
             )
 
-        self._add_debug_prefix_environment(
-            source, binary, environment, arguments
-        )
         configure = [
             "cmake",
             "-S",
@@ -2142,6 +2197,7 @@ class Workspace:
         if (
             getattr(self, "_force_reconfigure", False)
             or not unchanged_view
+            or not fingerprint["source"].get("configure_skip_safe", True)
             or not configured
         ):
             run(configure, env=environment)
@@ -2249,14 +2305,14 @@ class Workspace:
         binary: Path,
         environment: dict[str, str],
         arguments: list[str],
-    ) -> None:
+    ) -> dict[str, bool]:
         if environment.get("CMAKE_TOOLCHAIN_FILE") or any(
             argument.startswith(
                 ("-DCMAKE_TOOLCHAIN_FILE=", "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=")
             )
             for argument in arguments
         ):
-            return
+            return {"c": False, "cxx": False}
         source_path = source.resolve()
         binary_path = binary.resolve()
         relative_source = os.path.relpath(source_path, binary_path)
@@ -2269,14 +2325,20 @@ class Workspace:
             f"-ffile-prefix-map={binary_path}=/atrinik/build",
         )
         mappings = " ".join(shlex.quote(option) for option in options)
-        for variable, command, language in (
-            ("CFLAGS", environment.get("CC", "cc"), "c"),
-            ("CXXFLAGS", environment.get("CXX", "c++"), "c++"),
-        ):
-            if self._compiler_supports_prefix_maps(command, language):
+        compilers = (
+            ("c", "CFLAGS", environment.get("CC", "cc"), "c"),
+            ("cxx", "CXXFLAGS", environment.get("CXX", "c++"), "c++"),
+        )
+        support = {
+            name: self._compiler_supports_prefix_maps(command, language)
+            for name, _variable, command, language in compilers
+        }
+        for name, variable, _command, _language in compilers:
+            if support[name]:
                 environment[variable] = " ".join(
                     filter(None, (environment.get(variable, ""), mappings))
                 )
+        return support
 
     def _compiler_supports_prefix_maps(self, command: str, language: str) -> bool:
         identity = self._tool_identity(command)
@@ -2685,7 +2747,7 @@ class Workspace:
         except (OSError, RuntimeError, WorkspaceError):
             pass
         cmakelists = source / "CMakeLists.txt"
-        return {
+        identity: dict[str, Any] = {
             "path": str(source.resolve()),
             "cmakelists": (
                 hashlib.sha256(cmakelists.read_bytes()).hexdigest()
@@ -2693,6 +2755,28 @@ class Workspace:
                 else None
             ),
         }
+        try:
+            git_root = Path(
+                git(source, "rev-parse", "--show-toplevel", capture=True, trace=False)
+            ).resolve(strict=True)
+            head = git(source, "rev-parse", "HEAD", capture=True, trace=False)
+            if len(head) != 40 or any(
+                character not in "0123456789abcdef" for character in head
+            ):
+                raise WorkspaceError(
+                    f"invalid Git HEAD for direct CMake source: {source}"
+                )
+            clean = _is_clean(git_root, trace=False)
+            identity["git"] = {
+                "root": str(git_root),
+                "head": head,
+                "clean": clean,
+            }
+            identity["configure_skip_safe"] = clean
+        except (OSError, RuntimeError, WorkspaceError):
+            identity["git"] = None
+            identity["configure_skip_safe"] = False
+        return identity
 
     def _build_protocol(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
         self._cmake(selected["protocol"], root / "build" / "protocol", [], tests)
