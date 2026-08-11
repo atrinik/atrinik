@@ -192,7 +192,9 @@ retain links to selected client and sound checkouts, while server runtimes link
 selected server configuration and tool inputs. Inherited descriptors preserve
 both leases if the supervisor dies; topology shutdown terminates orphaned
 services and releases the last descriptors. A topology-unique inherited
-process-tree lease lets shutdown find and pidfd-signal surviving descendants
+process-tree lease is also held as an advisory generation lock, so a topology
+name cannot restart until its prior process tree releases the lease. Shutdown
+uses the same lease identity to find and pidfd-signal surviving descendants
 without trusting recycled process or process-group numbers. Foreground client
 and server processes inherit the same applicable leases from the wrapper. The
 common command runner also inherits every active advisory-lock descriptor into

@@ -4,6 +4,7 @@ import copy
 from concurrent.futures import ThreadPoolExecutor
 import ctypes
 import errno
+import fcntl
 import hashlib
 import json
 import multiprocessing
@@ -6626,6 +6627,28 @@ class WorkspaceTests(unittest.TestCase):
             )
 
         fallback.assert_called_once_with("empty-lease", status, 0.1)
+
+    def test_topology_up_refuses_locked_process_tree_generation(self) -> None:
+        root = self.workspace._topology_directory("locked-generation", create=True)
+        descriptor = os.open(
+            root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE,
+            os.O_RDWR | os.O_CREAT,
+            0o600,
+        )
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with (
+                mock.patch.object(self.workspace, "_require_classic_contracts"),
+                self.assertRaisesRegex(WorkspaceError, "already running"),
+            ):
+                self.workspace._topology_up(
+                    "locked-generation",
+                    "default",
+                    "default",
+                    ["server"],
+                )
+        finally:
+            os.close(descriptor)
 
     def test_topology_status_makes_pre_coordinate_records_inert(self) -> None:
         root = self.workspace._topology_directory("historical-coordinate", create=True)

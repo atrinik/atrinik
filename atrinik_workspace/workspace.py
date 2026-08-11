@@ -7049,16 +7049,6 @@ class Workspace:
             operation_lock, f"topology {name} operation", nonblocking=True
         ):
             process_tree_path = topology_root / TOPOLOGY_PROCESS_TREE_LEASE
-            process_tree_probe = open_regular_file(
-                process_tree_path,
-                os.O_RDWR | os.O_CREAT,
-                "topology process-tree lease",
-            )
-            try:
-                if holders_exist(process_tree_probe, exclude=(os.getpid(),)):
-                    raise WorkspaceError(f"topology is already running: {name}")
-            finally:
-                os.close(process_tree_probe)
             status_path = topology_root / "status.json"
             startup_error_path = topology_root / "startup-error.json"
             if status_path.is_file():
@@ -7089,6 +7079,27 @@ class Workspace:
             ]
 
             with ExitStack() as stack:
+                process_tree_fd = open_regular_file(
+                    process_tree_path,
+                    os.O_RDWR | os.O_CREAT,
+                    "topology process-tree lease",
+                )
+                stack.callback(os.close, process_tree_fd)
+                try:
+                    fcntl.flock(
+                        process_tree_fd, fcntl.LOCK_EX | fcntl.LOCK_NB
+                    )
+                except BlockingIOError as error:
+                    raise WorkspaceError(
+                        f"topology is already running: {name}"
+                    ) from error
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot lock topology process-tree lease: {error}"
+                    ) from error
+                if holders_exist(process_tree_fd, exclude=(os.getpid(),)):
+                    raise WorkspaceError(f"topology is already running: {name}")
+
                 state_location: Path | None = None
                 state_lock: TextIO | None = None
                 if "server" in selected_services:
@@ -7234,11 +7245,6 @@ class Workspace:
                     "ab",
                     buffering=0,
                 )
-                process_tree_fd = open_regular_file(
-                    process_tree_path,
-                    os.O_RDWR,
-                    "topology process-tree lease",
-                )
                 try:
                     command = [
                         sys.executable,
@@ -7287,7 +7293,6 @@ class Workspace:
                     raise WorkspaceError(f"cannot start topology supervisor: {error}") from error
                 finally:
                     supervisor_log.close()
-                    os.close(process_tree_fd)
 
                 deadline = time.monotonic() + 45
                 while time.monotonic() < deadline:

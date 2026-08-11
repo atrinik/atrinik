@@ -814,7 +814,9 @@ orphaned services and descendants. The server state remains locked for the
 complete supervised lifetime. Each topology also has a persistent isolated
 client configuration/cache root and its own copies of the collected content and
 resource caches, so changing or removing one topology cannot affect another
-topology or the retained build caches. Logs live below `workspace/topologies/`
+topology or the retained build caches. The inherited identity lease atomically
+prevents the same topology name from restarting while any generation remains.
+Logs live below `workspace/topologies/`
 and rotate at 10 MiB with three backups.
 
 ### Use case: run the latest playable classic branches
