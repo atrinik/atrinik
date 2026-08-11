@@ -216,13 +216,29 @@ def timed_layout_lock_process(
         raise
 
 
-def mixed_layout_operation_process(
+def inherited_leases_wrapper_process(
+    layout_path: str,
+    build_path: str,
+    state_path: str,
+    child_script: str,
+    child_pid_path: str,
+) -> None:
+    with (
+        shared_lock(Path(layout_path), "repository layout"),
+        exclusive_lock(Path(build_path), "profile build orphan"),
+        exclusive_lock(Path(state_path), "server state orphan"),
+    ):
+        workspace_run(
+            [sys.executable, child_script, child_pid_path],
+            diagnostics_to_stderr=False,
+        )
+
+
+def compiler_cache_first_use_process(
     wrapper: str,
     workspace_directory: str,
-    operation: str,
-    build_root_value: str,
-    marker: dict[str, object],
-    status: dict[str, object],
+    source_path: str,
+    binary_path: str,
     ready: object,
     start: object,
     results: object,
@@ -232,25 +248,86 @@ def mixed_layout_operation_process(
             os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
         ):
             workspace = Workspace(Path(wrapper))
+            ready.put(binary_path)
+            if not start.wait(5):
+                raise TimeoutError("compiler-cache test did not start")
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.shutil.which",
+                    side_effect=lambda tool: (
+                        "/usr/bin/ccache" if tool == "ccache" else None
+                    ),
+                ),
+                mock.patch.object(
+                    workspace,
+                    "_add_debug_prefix_environment",
+                    return_value={"c": False, "cxx": False},
+                ),
+                mock.patch("atrinik_workspace.workspace.run"),
+            ):
+                workspace._cmake(
+                    Path(source_path), Path(binary_path), [], False
+                )
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def mixed_layout_operation_process(
+    wrapper: str,
+    workspace_directory: str,
+    operation: str,
+    build_root_value: str,
+    marker: dict[str, object],
+    status: dict[str, object],
+    ready: object,
+    start: object,
+    entered: object,
+    release: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
             build_root = Path(build_root_value)
             topology_root = workspace.paths.topologies / "stress"
+            first_entry = True
+            topology_generation = 0
+
+            def rendezvous() -> None:
+                nonlocal first_entry
+                if not first_entry:
+                    return
+                first_entry = False
+                entered.put(operation)
+                if not release.wait(5):
+                    raise TimeoutError("mixed operation was not released")
 
             def refresh_build(*_arguments: object, **_keywords: object) -> Path:
                 with exclusive_lock(
                     workspace.paths.builds / "locks" / "stress-a.lock",
                     "stress build root",
                 ):
+                    rendezvous()
                     atomic_json(build_root / MANAGED_MARKER, marker)
                 return build_root
 
             def refresh_topology(
                 *_arguments: object, **_keywords: object
             ) -> dict[str, object]:
+                nonlocal topology_generation
                 with exclusive_lock(
                     topology_root / "operation.lock", "stress topology"
                 ):
-                    atomic_json(topology_root / "status.json", status)
-                return copy.deepcopy(status)
+                    rendezvous()
+                    current = copy.deepcopy(status)
+                    current["error"] = f"stress generation {topology_generation}"
+                    topology_generation += 1
+                    atomic_json(topology_root / "status.json", current)
+                return current
 
             ready.put(operation)
             if not start.wait(5):
@@ -274,19 +351,23 @@ def mixed_layout_operation_process(
                     "atrinik_workspace.workspace.process_matches",
                     return_value=False,
                 ):
-                    for _ in range(20):
+                    for index in range(20):
                         current = workspace.topology_status("stress")
                         if current["resolved"] != status["resolved"]:
                             raise AssertionError("topology coordinates changed")
+                        if index == 0:
+                            rendezvous()
             else:
                 with mock.patch(
                     "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
                     return_value=(set(), None),
                 ):
-                    for _ in range(20):
+                    for index in range(20):
                         report = workspace.cleanup(["builds"], 7, [], False)
                         if report["inventory_errors"]:
                             raise AssertionError(report["inventory_errors"])
+                        if index == 0:
+                            rendezvous()
         results.put((operation, None))
     except BaseException as error:
         results.put((operation, f"{type(error).__name__}: {error}"))
@@ -2601,6 +2682,60 @@ class WorkspaceTests(unittest.TestCase):
         cache = self.workspace.paths.builds / "compiler-cache"
         self.assertEqual(load_json(cache / MANAGED_MARKER)["purpose"], "compiler-cache")
         self.assertEqual(load_json(cache / ".atrinik-cache.json")["max_size"], "5G")
+
+    def test_compiler_cache_first_use_is_serialized_across_processes(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        ready = context.Queue()
+        start = context.Event()
+        results = context.Queue()
+        source = self.root / "cache-source"
+        source.mkdir()
+        (source / "CMakeLists.txt").write_text(
+            "project(cache_first_use NONE)\n", encoding="utf-8"
+        )
+        processes = [
+            context.Process(
+                target=compiler_cache_first_use_process,
+                args=(
+                    str(self.wrapper),
+                    str(self.workspace_directory),
+                    str(source),
+                    str(
+                        self.workspace.paths.builds
+                        / "profiles"
+                        / f"cache-first-{index}"
+                        / "build"
+                        / "sample"
+                    ),
+                    ready,
+                    start,
+                    results,
+                ),
+            )
+            for index in range(2)
+        ]
+        try:
+            for process in processes:
+                process.start()
+            self.assertEqual(len({ready.get(timeout=5) for _ in processes}), 2)
+            start.set()
+        finally:
+            join_or_stop_processes(processes, 10)
+        self.assertEqual([process.exitcode for process in processes], [0, 0])
+        self.assertEqual(
+            [results.get(timeout=2), results.get(timeout=2)], [None, None]
+        )
+        cache = (
+            self.workspace.paths.builds / workspace_module.COMPILER_CACHE_PURPOSE
+        )
+        self.assertEqual(
+            load_json(cache / MANAGED_MARKER)["purpose"],
+            workspace_module.COMPILER_CACHE_PURPOSE,
+        )
+        self.assertEqual(
+            load_json(cache / workspace_module.CACHE_METADATA)["max_size"],
+            workspace_module.COMPILER_CACHE_MAX_SIZE,
+        )
 
     def test_debug_prefix_flags_require_supported_non_toolchain_compilers(self) -> None:
         source = self.workspace.paths.repositories / "content"
@@ -5256,6 +5391,55 @@ class WorkspaceTests(unittest.TestCase):
             [results.get(timeout=2), results.get(timeout=2)], [None, None]
         )
 
+    def test_independent_build_options_are_thread_local(self) -> None:
+        self.workspace.create_profile("thread-a")
+        self.workspace.create_profile("thread-b")
+        selected = {"client": self.workspace.paths.repositories / "client"}
+        barrier = threading.Barrier(2)
+        observed: dict[str, tuple[bool, bool, set[str]]] = {}
+
+        def inspect_build(
+            root: Path, *_arguments: object, **_keywords: object
+        ) -> None:
+            self.workspace._source_view_unchanged[str(root)] = True
+            barrier.wait(timeout=5)
+            observed[root.name] = (
+                self.workspace._force_reconfigure,
+                self.workspace._use_ccache,
+                set(self.workspace._source_view_unchanged),
+            )
+
+        def build(profile: str, force: bool, ccache: bool) -> Path:
+            return self.workspace._build_resolved(
+                "client",
+                profile,
+                False,
+                ["client"],
+                selected,
+                force_reconfigure=force,
+                use_ccache=ccache,
+            )
+
+        with (
+            mock.patch.object(self.workspace, "_refresh_build_metadata"),
+            mock.patch.object(
+                self.workspace, "_build_client", side_effect=inspect_build
+            ),
+            ThreadPoolExecutor(max_workers=2) as executor,
+        ):
+            futures = (
+                executor.submit(build, "thread-a", True, False),
+                executor.submit(build, "thread-b", False, True),
+            )
+            roots = [future.result(timeout=10) for future in futures]
+
+        self.assertEqual(
+            observed[roots[0].name], (True, False, {str(roots[0])})
+        )
+        self.assertEqual(
+            observed[roots[1].name], (False, True, {str(roots[1])})
+        )
+
     def test_shared_layout_lock_improves_independent_elapsed_time(self) -> None:
         context = multiprocessing.get_context("spawn")
         lock = self.workspace.paths.workspace / "timed-layout.lock"
@@ -5541,7 +5725,7 @@ class WorkspaceTests(unittest.TestCase):
                     "repository": "atrinik/server",
                     "branch": "main",
                     "source": ".",
-                    "head": "a" * 40,
+                    "head": command("git", "rev-parse", "HEAD", cwd=checkout),
                     "dirty": False,
                 }
             },
@@ -5557,6 +5741,8 @@ class WorkspaceTests(unittest.TestCase):
         context = multiprocessing.get_context("spawn")
         ready = context.Queue()
         start = context.Event()
+        entered = context.Queue()
+        release = context.Event()
         results = context.Queue()
         operations = ("build", "topology", "status", "cleanup")
         processes = [
@@ -5571,6 +5757,8 @@ class WorkspaceTests(unittest.TestCase):
                     status,
                     ready,
                     start,
+                    entered,
+                    release,
                     results,
                 ),
             )
@@ -5583,13 +5771,19 @@ class WorkspaceTests(unittest.TestCase):
                 {ready.get(timeout=5) for _ in processes}, set(operations)
             )
             start.set()
+            self.assertEqual(
+                {entered.get(timeout=5) for _ in processes}, set(operations)
+            )
         finally:
+            release.set()
             join_or_stop_processes(processes, 20)
         self.assertEqual([process.exitcode for process in processes], [0] * 4)
         outcomes = dict(results.get(timeout=2) for _ in processes)
         self.assertEqual(outcomes, {operation: None for operation in operations})
         self.assertEqual(load_json(build_root / MANAGED_MARKER), marker)
-        self.assertEqual(load_json(topology_root / "status.json"), status)
+        expected_status = copy.deepcopy(status)
+        expected_status["error"] = "stress generation 19"
+        self.assertEqual(load_json(topology_root / "status.json"), expected_status)
 
     def test_layout_writer_waits_for_foreground_client_process(self) -> None:
         context = multiprocessing.get_context("spawn")
@@ -6732,6 +6926,76 @@ class WorkspaceTests(unittest.TestCase):
                 with self.assertRaisesRegex(WorkspaceError, "already in use"):
                     with exclusive_lock(path, description, nonblocking=True):
                         self.fail(f"subprocess lease did not protect {description}")
+
+    def test_orphaned_operational_subprocess_retains_active_leases(self) -> None:
+        child_script = self.root / "lease-child.py"
+        child_pid_path = self.root / "lease-child.pid"
+        child_script.write_text(
+            "import os, pathlib, sys, time\n"
+            "path = pathlib.Path(sys.argv[1])\n"
+            "path.write_text(str(os.getpid()), encoding='ascii')\n"
+            "while True:\n"
+            "    time.sleep(0.1)\n",
+            encoding="utf-8",
+        )
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        build = self.workspace.paths.builds / "locks" / "orphan-build.lock"
+        state = self.workspace.paths.state / "orphan-state.lock"
+        context = multiprocessing.get_context("spawn")
+        wrapper = context.Process(
+            target=inherited_leases_wrapper_process,
+            args=(
+                str(layout),
+                str(build),
+                str(state),
+                str(child_script),
+                str(child_pid_path),
+            ),
+        )
+        child_pidfd: int | None = None
+        try:
+            wrapper.start()
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline and not child_pid_path.is_file():
+                time.sleep(0.05)
+            self.assertTrue(child_pid_path.is_file())
+            child_pid = int(child_pid_path.read_text(encoding="ascii"))
+            child_pidfd = os.pidfd_open(child_pid)
+            wrapper.kill()
+            wrapper.join(timeout=5)
+            self.assertFalse(wrapper.is_alive())
+            for path, description in (
+                (layout, "repository layout"),
+                (build, "profile build orphan"),
+                (state, "server state orphan"),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_lock(path, description, nonblocking=True):
+                        self.fail(f"orphaned child released {description}")
+        finally:
+            if wrapper.is_alive():
+                wrapper.kill()
+                wrapper.join(timeout=5)
+            if child_pidfd is not None:
+                try:
+                    signal.pidfd_send_signal(child_pidfd, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                os.close(child_pidfd)
+
+        deadline = time.monotonic() + 5
+        while True:
+            try:
+                with (
+                    exclusive_lock(layout, "repository layout", nonblocking=True),
+                    exclusive_lock(build, "profile build orphan", nonblocking=True),
+                    exclusive_lock(state, "server state orphan", nonblocking=True),
+                ):
+                    break
+            except WorkspaceError:
+                if time.monotonic() >= deadline:
+                    self.fail("orphaned child did not release inherited leases")
+                time.sleep(0.05)
 
 
 if __name__ == "__main__":

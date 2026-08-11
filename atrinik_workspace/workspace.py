@@ -25,6 +25,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from typing import Any, Callable, Iterator, TextIO
 
@@ -1197,6 +1198,47 @@ class Workspace:
     def __init__(self, repository: Path):
         self.paths = Paths.discover(repository)
         self.manifest = Manifest.load(self.paths.repository / "components.json")
+        self._build_state = threading.local()
+        self._prefix_map_support: dict[
+            tuple[str, str, str | None, str | None], bool
+        ] = {}
+        self._prefix_map_support_lock = threading.Lock()
+
+    @property
+    def _force_reconfigure(self) -> bool:
+        return getattr(self._build_state, "force_reconfigure", False)
+
+    @_force_reconfigure.setter
+    def _force_reconfigure(self, value: bool) -> None:
+        self._build_state.force_reconfigure = value
+
+    @property
+    def _use_ccache(self) -> bool:
+        return getattr(self._build_state, "use_ccache", True)
+
+    @_use_ccache.setter
+    def _use_ccache(self, value: bool) -> None:
+        self._build_state.use_ccache = value
+
+    @property
+    def _source_view_changed(self) -> bool:
+        return getattr(self._build_state, "source_view_changed", False)
+
+    @_source_view_changed.setter
+    def _source_view_changed(self, value: bool) -> None:
+        self._build_state.source_view_changed = value
+
+    @property
+    def _source_view_unchanged(self) -> dict[str, bool]:
+        current = getattr(self._build_state, "source_view_unchanged", None)
+        if current is None:
+            current = {}
+            self._build_state.source_view_unchanged = current
+        return current
+
+    @_source_view_unchanged.setter
+    def _source_view_unchanged(self, value: dict[str, bool]) -> None:
+        self._build_state.source_view_unchanged = value
 
     def migrate_repositories(self, mode: str) -> dict[str, Any]:
         if mode == "apply":
@@ -2350,6 +2392,7 @@ class Workspace:
         with self._profile_build_lock(root, profile_name):
             self._force_reconfigure = force_reconfigure
             self._use_ccache = use_ccache
+            self._source_view_unchanged = {}
             managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
             self._refresh_build_metadata(root, profile_name, key, selected)
             if "content" in targets or "server" in targets:
@@ -2655,7 +2698,6 @@ class Workspace:
                 unchanged = False
         if not unchanged:
             atomic_json(metadata_path, metadata)
-        self._source_view_unchanged = getattr(self, "_source_view_unchanged", {})
         self._source_view_unchanged[str(view.resolve())] = unchanged
         return view
 
@@ -3418,7 +3460,7 @@ class Workspace:
     ) -> None:
         self._prepare_cmake_binary(binary)
         environment = os.environ.copy()
-        ccache = shutil.which("ccache") if getattr(self, "_use_ccache", True) else None
+        ccache = shutil.which("ccache") if self._use_ccache else None
         cache_arguments = [
             "-DCMAKE_C_COMPILER_LAUNCHER=",
             "-DCMAKE_CXX_COMPILER_LAUNCHER=",
@@ -3428,16 +3470,20 @@ class Workspace:
         )
         if ccache is not None:
             cache = self.paths.builds / COMPILER_CACHE_PURPOSE
-            managed_directory(cache, self.paths.builds, COMPILER_CACHE_PURPOSE)
-            atomic_json(
-                cache / CACHE_METADATA,
-                {
-                    "schema_version": BUILD_METADATA_SCHEMA_VERSION,
-                    "purpose": COMPILER_CACHE_PURPOSE,
-                    "last_used_at": datetime.now(timezone.utc).isoformat(),
-                    "max_size": COMPILER_CACHE_MAX_SIZE,
-                },
-            )
+            with exclusive_lock(
+                self.paths.builds / "locks" / "compiler-cache.lock",
+                "compiler cache initialization",
+            ):
+                managed_directory(cache, self.paths.builds, COMPILER_CACHE_PURPOSE)
+                atomic_json(
+                    cache / CACHE_METADATA,
+                    {
+                        "schema_version": BUILD_METADATA_SCHEMA_VERSION,
+                        "purpose": COMPILER_CACHE_PURPOSE,
+                        "last_used_at": datetime.now(timezone.utc).isoformat(),
+                        "max_size": COMPILER_CACHE_MAX_SIZE,
+                    },
+                )
             environment.update(
                 {
                     "CCACHE_DIR": str(cache),
@@ -3459,7 +3505,7 @@ class Workspace:
                 f"ccache: enabled at {cache} (maximum {COMPILER_CACHE_MAX_SIZE})",
                 file=sys.stderr,
             )
-        elif getattr(self, "_use_ccache", True):
+        elif self._use_ccache:
             print(
                 "ccache: command not found; install ccache or pass --no-ccache "
                 "to disable this diagnostic",
@@ -3486,7 +3532,7 @@ class Workspace:
         source_resolved = source.resolve()
         unchanged_view = all(
             unchanged
-            for view, unchanged in getattr(self, "_source_view_unchanged", {}).items()
+            for view, unchanged in self._source_view_unchanged.items()
             if Path(view) == source_resolved or source_resolved in Path(view).parents
         )
         previous: dict[str, Any] = {}
@@ -3511,7 +3557,7 @@ class Workspace:
             managed_reset(binary, self.paths.builds, "cmake-binary")
             configured = False
         if (
-            getattr(self, "_force_reconfigure", False)
+            self._force_reconfigure
             or not unchanged_view
             or not fingerprint["source"].get("configure_skip_safe", True)
             or not configured
@@ -3659,7 +3705,8 @@ class Workspace:
     def _compiler_supports_prefix_maps(self, command: str, language: str) -> bool:
         identity = self._tool_identity(command)
         key = (command, language, identity.get("resolved_path"), identity.get("sha256"))
-        cached = getattr(self, "_prefix_map_support", {}).get(key)
+        with self._prefix_map_support_lock:
+            cached = self._prefix_map_support.get(key)
         if cached is not None:
             return cached
         try:
@@ -3693,9 +3740,8 @@ class Workspace:
                     supported = output.is_file()
                 except WorkspaceError:
                     supported = False
-        self._prefix_map_support = getattr(self, "_prefix_map_support", {})
-        self._prefix_map_support[key] = supported
-        return supported
+        with self._prefix_map_support_lock:
+            return self._prefix_map_support.setdefault(key, supported)
 
     @staticmethod
     def _tool_identity(command: str) -> dict[str, str | None]:

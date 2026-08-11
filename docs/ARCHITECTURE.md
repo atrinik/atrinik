@@ -202,6 +202,8 @@ cache locks; the foreground process retains that root lease. Topology startup
 takes the topology-operation lock, the server-state lock when needed, the
 build-root lock, and finally the port-allocation lock, and transfers the layout
 and build-root leases into its services.
+Independent CMake roots briefly serialize first-use compiler-cache marker and
+metadata publication, then release that cache lock before compilation.
 Scenario create takes the scenario-operation lock, then build-root and
 state-registry locks; reset takes scenario-operation, state, and build-root locks.
 Foreground server launch takes state before build-root. Layout writers take the
