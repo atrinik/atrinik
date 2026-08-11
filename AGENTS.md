@@ -39,6 +39,9 @@
   `atrinik-guidance-maintenance` for periodic guidance audits or drift updates.
 - Use `atrinik-issue-delivery` only when explicitly invoked for
   issue-to-ready-PR delivery; it stops before merge.
+- Use `atrinik-program-delivery` only when explicitly invoked for an ordered
+  master issue; it composes leaf delivery across human merge gates and stops
+  before merge or issue closure.
 - Never replace or move a dirty primary checkout, remove a dirty worktree, or
   overwrite mutable server data. Preserve recoverable migration inputs.
 - Cleanup is explicit and preview-first: run
