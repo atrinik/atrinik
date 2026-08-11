@@ -258,6 +258,10 @@ scripts can observe root files, the complete non-generated source digest always
 enters the key, the source is staged, and source symlinks fail closed. Installed
 relative links must resolve within `node_modules`; absolute, escaping, dangling,
 or unsupported entries invalidate the installation.
+The per-key staging path is stable within the workspace and its parent identity
+is hashed. A project `.npmrc` is exposed to npm through a temporary link but is
+removed before publication, and installed output containing the staging path is
+rejected as non-relocatable.
 A missing canonical entry recovers the newest structurally valid matching
 backup under the per-key lock before falling back to a new `npm ci`.
 

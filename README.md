@@ -273,7 +273,9 @@ lifecycle-script environment. `npm ci` remains the only installer. A second
 input-identical build reuses that installation and an unchanged profile source
 view. Because enabled dependency lifecycle scripts can observe root files, the
 complete non-generated source digest participates in every dependency key and
-source symlinks fail closed. Every profile gets its own `node_modules` copy, so
+source symlinks fail closed. The install root is stable and hashed, installed
+output that embeds its staging path is rejected, and project `.npmrc` content
+is never published in the shared cache. Every profile gets its own `node_modules` copy, so
 its checks cannot mutate the shared cache. A canonical no-follow digest covers
 the complete installed tree, including modes and bounded relative links. The
 isolated view permits only Vite's profile-local `.vite`/`.vite-temp` outputs

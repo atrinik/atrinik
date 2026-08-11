@@ -299,13 +299,18 @@ def _tree_digest(
     return digest.hexdigest()
 
 
-def _copy_worker_source(source: Path, destination: Path) -> None:
+def _copy_worker_source(
+    source: Path, destination: Path, *, include_npmrc: bool = True
+) -> None:
     """Copy Worker source while excluding generated names only at its root."""
 
     def ignore(directory: str, names: list[str]) -> list[str]:
         if Path(directory) != source:
             return []
-        return sorted(set(names) & WORKER_SOURCE_EXCLUSIONS)
+        excluded = set(names) & WORKER_SOURCE_EXCLUSIONS
+        if not include_npmrc and Path(directory) == source and ".npmrc" in names:
+            excluded.add(".npmrc")
+        return sorted(excluded)
 
     shutil.copytree(
         source,
@@ -314,6 +319,34 @@ def _copy_worker_source(source: Path, destination: Path) -> None:
         symlinks=True,
         ignore=ignore,
     )
+
+
+def _tree_references_path(root: Path, referenced: Path) -> bool:
+    """Return whether a no-follow tree stores one absolute path literally."""
+
+    needle = str(referenced).encode()
+    for directory, directories, files in os.walk(root, followlinks=False):
+        parent = Path(directory)
+        for name in (*directories, *files):
+            path = parent / name
+            status = path.lstat()
+            if stat.S_ISLNK(status.st_mode):
+                if needle in os.readlink(path).encode(
+                    "utf-8", "surrogateescape"
+                ):
+                    return True
+            elif stat.S_ISREG(status.st_mode):
+                descriptor = open_regular_file(
+                    path, os.O_RDONLY, "Worker installed file"
+                )
+                with os.fdopen(descriptor, "rb") as stream:
+                    previous = b""
+                    while chunk := stream.read(1024 * 1024):
+                        combined = previous + chunk
+                        if needle in combined:
+                            return True
+                        previous = combined[-max(0, len(needle) - 1) :]
+    return False
 
 
 def _remote_matches(url: str, repository: str) -> bool:
@@ -2350,6 +2383,13 @@ class Workspace:
             "lifecycle_source_sha256": _tree_digest(
                 source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
             ),
+            "install_root_sha256": hashlib.sha256(
+                str(
+                    self.paths.builds
+                    / "worker-dependencies"
+                    / ".transactions"
+                ).encode()
+            ).hexdigest(),
         }
 
     @staticmethod
@@ -2459,6 +2499,10 @@ class Workspace:
                 return None
             for name, expected in inputs["files"].items():
                 path = entry / name
+                if name == ".npmrc":
+                    if path.exists() or path.is_symlink():
+                        return None
+                    continue
                 if expected is None:
                     if path.exists() or path.is_symlink():
                         return None
@@ -2522,8 +2566,11 @@ class Workspace:
         lock = self.paths.builds / "locks" / f"worker-dependencies-{key}.lock"
         started = time.monotonic()
         with exclusive_lock(lock, f"Worker dependencies {key}"):
-            if not entry.exists() and not entry.is_symlink():
-                recoverable: list[Path] = []
+            metadata = self._worker_dependency_cache_matches(
+                entry, key, inputs, required
+            )
+            recoverable: list[Path] = []
+            if metadata is None:
                 for candidate in transactions.iterdir():
                     if not re.fullmatch(
                         rf"{key}-(?:staging|backup)-[a-z0-9_]+",
@@ -2534,18 +2581,29 @@ class Workspace:
                         candidate, key, inputs, required
                     ) is not None:
                         recoverable.append(candidate)
-                if recoverable:
-                    recovered = max(
-                        recoverable,
-                        key=lambda candidate: (
-                            candidate.stat().st_mtime_ns,
-                            candidate.name,
-                        ),
+            if recoverable:
+                if entry.exists() or entry.is_symlink():
+                    managed_directory(
+                        entry,
+                        self.paths.builds,
+                        f"worker-dependencies:{key}",
                     )
-                    recovered.replace(entry)
-            metadata = self._worker_dependency_cache_matches(
-                entry, key, inputs, required
-            )
+                recovered = max(
+                    recoverable,
+                    key=lambda candidate: (
+                        candidate.stat().st_mtime_ns,
+                        candidate.name,
+                    ),
+                )
+                replace_directory(
+                    entry,
+                    recovered,
+                    f"{key}-backup-",
+                    backup_parent=transactions,
+                )
+                metadata = self._worker_dependency_cache_matches(
+                    entry, key, inputs, required
+                )
             if metadata is not None:
                 metadata["last_used_at"] = datetime.now(timezone.utc).isoformat()
                 atomic_json(entry / WORKER_DEPENDENCY_METADATA, metadata)
@@ -2564,15 +2622,35 @@ class Workspace:
                     self.paths.builds,
                     f"worker-dependencies:{key}",
                 )
-            staging = transactions / f"{key}-staging-{secrets.token_hex(8)}"
+            staging = transactions / f"{key}-staging-install"
+            if staging.exists() or staging.is_symlink():
+                try:
+                    managed_directory(
+                        staging,
+                        self.paths.builds,
+                        f"worker-dependency-transaction:{key}",
+                    )
+                except WorkspaceError:
+                    managed_directory(
+                        staging,
+                        self.paths.builds,
+                        f"worker-dependencies:{key}",
+                    )
+                shutil.rmtree(staging)
             managed_directory(
                 staging,
                 self.paths.builds,
                 f"worker-dependency-transaction:{key}",
             )
             try:
-                _copy_worker_source(source, staging)
+                _copy_worker_source(source, staging, include_npmrc=False)
+                if inputs["files"][".npmrc"] is not None:
+                    (staging / ".npmrc").symlink_to(source / ".npmrc")
                 run(["npm", "ci"], cwd=staging, env=environment)
+                if _tree_references_path(staging / "node_modules", staging):
+                    raise WorkspaceError(
+                        "Worker dependency output embeds its install path"
+                    )
                 final_inputs = self._worker_dependency_inputs(source, environment)
                 if final_inputs != inputs:
                     raise WorkspaceError(
@@ -2586,7 +2664,7 @@ class Workspace:
                     else:
                         shutil.rmtree(child)
                 for name, expected in inputs["files"].items():
-                    if expected is not None:
+                    if expected is not None and name != ".npmrc":
                         shutil.copy2(source / name, staging / name)
                 hidden_digest = _file_digest(
                     staging / "node_modules" / ".package-lock.json",
@@ -2627,6 +2705,7 @@ class Workspace:
             finally:
                 if staging.exists():
                     shutil.rmtree(staging)
+            elapsed = time.monotonic() - started
             consumed = (
                 consume(entry / "node_modules", key, metadata)
                 if consume is not None
@@ -2637,7 +2716,7 @@ class Workspace:
             key,
             metadata,
             False,
-            time.monotonic() - started,
+            elapsed,
             consumed,
         )
 

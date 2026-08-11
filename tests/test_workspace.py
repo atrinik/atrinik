@@ -848,6 +848,7 @@ class WorkspaceTests(unittest.TestCase):
             )
             self.assertNotEqual(config_changed[1], invalidated[1])
             self.assertEqual(len(installs), 5)
+            self.assertFalse((config_changed[0].parent / ".npmrc").exists())
 
             (source / "package-lock.json").write_text(
                 '{"lockfileVersion":3,"changed":true}\n', encoding="utf-8"
@@ -1001,6 +1002,49 @@ class WorkspaceTests(unittest.TestCase):
                 source, {"PATH": "/bin"}, consume
             )
         self.assertEqual(result[5], "consumed")
+
+    def test_worker_dependency_timing_excludes_view_consumption(self) -> None:
+        source = self.make_worker_source()
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        consumed: list[Path] = []
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.run",
+                side_effect=self.fake_worker_run([], versions, threading.Lock()),
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.time.monotonic",
+                side_effect=(10.0, 12.5),
+            ),
+        ):
+            result = self.workspace._worker_dependencies(
+                source,
+                {"PATH": "/bin"},
+                lambda modules, _key, _metadata: consumed.append(modules),
+            )
+        self.assertEqual(result[4], 2.5)
+        self.assertEqual(consumed, [result[0]])
+
+    def test_worker_dependency_rejects_embedded_install_path(self) -> None:
+        source = self.make_worker_source()
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        runner = self.fake_worker_run([], versions, threading.Lock())
+
+        def path_embedding_run(arguments: list[str], **kwargs: object) -> str:
+            result = runner(arguments, **kwargs)
+            if arguments == ["npm", "ci"]:
+                cwd = kwargs["cwd"]
+                assert isinstance(cwd, Path)
+                (cwd / "node_modules" / "alpha" / "embedded").write_text(
+                    str(cwd), encoding="utf-8"
+                )
+            return result
+
+        with mock.patch(
+            "atrinik_workspace.workspace.run", side_effect=path_embedding_run
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "embeds its install path"):
+                self.workspace._worker_dependencies(source, {"PATH": "/bin"})
 
     def test_worker_package_and_tool_metadata_fail_closed(self) -> None:
         source = self.make_worker_source()
