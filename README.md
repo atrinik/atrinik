@@ -610,10 +610,10 @@ The shared `workspace/build/npm-cache` and `workspace/build/compiler-cache`
 are never part of default cleanup. Their explicit scopes require exact
 marker-owned paths, valid last-use metadata, safe fixed containment, age, and
 absence of an active build. Only the npm path admits one legacy known cache
-after the same proof. Unmarked profile roots, invalid Worker cache entries,
-other
-`workspace/build` children, and all remaining mixed top-level `build/`
-entries are report-only `unmanaged-build` items. Deep-review reports, ad hoc
+after the same proof. Invalid entries inside a valid Worker cache root remain
+protected `worker-dependencies` items. Unmarked profile roots, invalid Worker
+cache roots, other `workspace/build` children, and all remaining mixed
+top-level `build/` entries are report-only `unmanaged-build` items. Deep-review reports, ad hoc
 builds, packages, archives, and unregistered siblings are never recursively
 deleted.
 

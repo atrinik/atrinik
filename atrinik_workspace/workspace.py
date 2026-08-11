@@ -4469,6 +4469,24 @@ class Workspace:
         finally:
             os.close(descriptor)
 
+    def _reconcile_worker_view_after_checks(
+        self,
+        source: Path,
+        view: Path,
+        dependency_key: str,
+        dependency_metadata: dict[str, Any],
+    ) -> None:
+        self._reconcile_worker_view_source(
+            source, view, dependency_key, dependency_metadata
+        )
+        self._validate_worker_node_modules(
+            view / "node_modules",
+            dependency_metadata["node_modules_lock_sha256"],
+            dependency_metadata["node_modules_view_sha256"],
+            self._worker_required_packages(source),
+            WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
+        )
+
     def _build_worker(self, root: Path, selected: dict[str, Path]) -> None:
         source = selected["metaserver-worker"]
         environment = os.environ.copy()
@@ -4491,7 +4509,7 @@ class Workspace:
             f"({view_seconds:.2f}s)"
         )
         self._run_worker_checks(view, environment, key, metadata)
-        self._reconcile_worker_view_source(source, view, key, metadata)
+        self._reconcile_worker_view_after_checks(source, view, key, metadata)
 
     def state_add(self, name: str, path: Path | None) -> Path:
         self.paths.ensure()

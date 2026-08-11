@@ -1582,6 +1582,16 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(first[1])
         self.assertTrue(second[1])
         self.assertTrue((second[0] / "src" / "build" / "nested.ts").is_file())
+        self.workspace._reconcile_worker_view_after_checks(
+            source, second[0], "a" * 64, metadata
+        )
+        unexpected_dependency_output = second[0] / "node_modules" / "alpha" / "changed"
+        unexpected_dependency_output.write_text("changed\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "does not match cache metadata"):
+            self.workspace._reconcile_worker_view_after_checks(
+                source, second[0], "a" * 64, metadata
+            )
+        unexpected_dependency_output.unlink()
 
         copied_source = second[0] / "worker.ts"
         copied_status = copied_source.stat()
