@@ -4,7 +4,7 @@ import binascii
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import ExitStack, contextmanager
-from contextvars import ContextVar
+from contextvars import ContextVar, copy_context
 import ctypes
 from datetime import datetime, timezone
 import errno
@@ -1325,7 +1325,9 @@ class Workspace:
                 max_workers=max(1, min(jobs, len(checkouts)))
             ) as executor:
                 futures = {
-                    executor.submit(self._ensure_repository, checkout): checkout
+                    executor.submit(
+                        copy_context().run, self._ensure_repository, checkout
+                    ): checkout
                     for checkout in checkouts
                 }
                 for future in as_completed(futures):

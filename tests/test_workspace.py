@@ -612,6 +612,40 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertTrue((self.workspace.paths.repositories / "client" / ".git").exists())
 
+    def test_initialize_workers_inherit_repository_layout_lease(self) -> None:
+        observed: list[tuple[int, ...]] = []
+        observed_lock = threading.Lock()
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+
+        def run_in_worker(*_arguments: object, **keywords: object) -> object:
+            descriptors = keywords["pass_fds"]
+            with observed_lock:
+                observed.append(descriptors)
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    layout, "repository layout", nonblocking=True
+                ):
+                    self.fail("initialize worker released its layout lease")
+            return mock.MagicMock(stdout="")
+
+        def ensure(_checkout: object) -> None:
+            workspace_run(["tool"])
+
+        with (
+            mock.patch.object(self.workspace, "_validate_primary_checkout"),
+            mock.patch.object(
+                self.workspace, "_ensure_repository", side_effect=ensure
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.subprocess.run",
+                side_effect=run_in_worker,
+            ),
+        ):
+            self.workspace.initialize(["client", "server"], jobs=2)
+
+        self.assertEqual(len(observed), 2)
+        self.assertTrue(all(len(descriptors) == 1 for descriptors in observed))
+
     def test_failed_clone_does_not_strand_destination(self) -> None:
         destination = self.workspace.paths.repositories / "client"
         shutil.rmtree(destination)
@@ -6330,39 +6364,46 @@ class WorkspaceTests(unittest.TestCase):
             server_only = self.workspace.topology_up(
                 "server-lease", "default", "default", ["server"], 17302
             )
-        self.assertTrue(server_only["ready"])
-        for path, description in (
-            (layout_lock, "repository layout"),
-            (profile_lock, "profile build default"),
-        ):
-            with self.assertRaisesRegex(WorkspaceError, "already in use"):
-                with exclusive_lock(path, description, nonblocking=True):
-                    self.fail(f"server-only topology released {description}")
-        supervisor = server_only["supervisor"]
-        pidfd = os.pidfd_open(supervisor["pid"])
         try:
-            signal.pidfd_send_signal(pidfd, signal.SIGKILL)
+            self.assertTrue(server_only["ready"])
+            for path, description in (
+                (layout_lock, "repository layout"),
+                (profile_lock, "profile build default"),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_lock(path, description, nonblocking=True):
+                        self.fail(f"server-only topology released {description}")
+            supervisor = server_only["supervisor"]
+            pidfd = os.pidfd_open(supervisor["pid"])
+            try:
+                signal.pidfd_send_signal(pidfd, signal.SIGKILL)
+            finally:
+                os.close(pidfd)
+            deadline = time.monotonic() + 5
+            while (
+                time.monotonic() < deadline
+                and self.workspace.topology_status("server-lease")["supervisor"][
+                    "running"
+                ]
+            ):
+                time.sleep(0.05)
+            orphaned = self.workspace.topology_status("server-lease")
+            self.assertFalse(orphaned["supervisor"]["running"])
+            self.assertTrue(orphaned["services"]["server"]["running"])
+            for path, description in (
+                (layout_lock, "repository layout"),
+                (profile_lock, "profile build default"),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_lock(path, description, nonblocking=True):
+                        self.fail(f"orphaned server released {description}")
+            self.workspace.topology_down("server-lease", timeout=5)
         finally:
-            os.close(pidfd)
-        deadline = time.monotonic() + 5
-        while (
-            time.monotonic() < deadline
-            and self.workspace.topology_status("server-lease")["supervisor"][
-                "running"
-            ]
-        ):
-            time.sleep(0.05)
-        orphaned = self.workspace.topology_status("server-lease")
-        self.assertFalse(orphaned["supervisor"]["running"])
-        self.assertTrue(orphaned["services"]["server"]["running"])
-        for path, description in (
-            (layout_lock, "repository layout"),
-            (profile_lock, "profile build default"),
-        ):
-            with self.assertRaisesRegex(WorkspaceError, "already in use"):
-                with exclusive_lock(path, description, nonblocking=True):
-                    self.fail(f"orphaned server released {description}")
-        self.workspace.topology_down("server-lease", timeout=5)
+            remaining = self.workspace.topology_status("server-lease")
+            if remaining["supervisor"]["running"] or any(
+                service["running"] for service in remaining["services"].values()
+            ):
+                self.workspace.topology_down("server-lease", timeout=5)
 
         with exclusive_lock(Path(f"{state}.lock"), "server state", nonblocking=True):
             pass
