@@ -407,7 +407,12 @@ class CohortWorkspaceTests(unittest.TestCase):
             tests: bool,
             targets: list[str],
             selected: dict[str, Path],
+            *,
+            force_reconfigure: bool = False,
+            use_ccache: bool = True,
         ) -> Path:
+            self.assertFalse(force_reconfigure)
+            self.assertTrue(use_ccache)
             self.assertEqual(set(selected), expected_roles)
             root = self.workspace.paths.builds / "profiles" / (
                 f"{profile_name}-{self.workspace._profile_build_key(profile_name, selected)}"

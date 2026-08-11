@@ -2254,6 +2254,53 @@ class CleanupTests(unittest.TestCase):
         report = self.workspace.cleanup(["builds"], 0, [], False)
         item = next(row for row in report["items"] if row["path"] == str(invalid))
         self.assertIn("invalid_worker_dependency_cache", item["reasons"])
+    def test_compiler_cache_is_bounded_marker_owned_and_explicitly_reclaimed(
+        self,
+    ) -> None:
+        cache = self.workspace.paths.builds / "compiler-cache"
+        managed_directory(cache, self.workspace.paths.builds, "compiler-cache")
+        atomic_json(
+            cache / ".atrinik-cache.json",
+            {
+                "schema_version": 1,
+                "purpose": "compiler-cache",
+                "last_used_at": "2020-01-01T00:00:00+00:00",
+                "max_size": "5G",
+            },
+        )
+        (cache / "entry").write_text("cached\n", encoding="utf-8")
+
+        self.assertFalse(
+            any(row["kind"] == "compiler-cache" for row in self.plan([])["items"])
+        )
+        report = self.plan(["compiler-cache"])
+        item = next(
+            row for row in report["items"] if row["kind"] == "compiler-cache"
+        )
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["stale_compiler_cache"])
+
+        (cache / ".atrinik-cache.json").unlink()
+        report = self.plan(["compiler-cache"])
+        item = next(
+            row for row in report["items"] if row["kind"] == "compiler-cache"
+        )
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("invalid_cache_metadata", item["reasons"])
+        self.assertIn("cache_age_unavailable", item["reasons"])
+        atomic_json(
+            cache / ".atrinik-cache.json",
+            {
+                "schema_version": 1,
+                "purpose": "compiler-cache",
+                "last_used_at": "2020-01-01T00:00:00+00:00",
+                "max_size": "5G",
+            },
+        )
+
+        removed = self.workspace.cleanup(["compiler-cache"], 0, [], True)
+        self.assertEqual(removed["summary"]["removed_count"], 1)
+        self.assertFalse(cache.exists())
 
     def test_dry_run_does_not_create_an_absent_workspace(self) -> None:
         shutil.rmtree(self.workspace.paths.workspace)
@@ -2268,7 +2315,8 @@ class CleanupTests(unittest.TestCase):
         actual_workspace = Workspace(repository)
         cleanup = Cleanup(actual_workspace)
         self.assertEqual(
-            cleanup._normalize_scopes(["all"]), ["worktrees", "builds", "npm-cache"]
+            cleanup._normalize_scopes(["all"]),
+            ["worktrees", "builds", "npm-cache", "compiler-cache"],
         )
         self.assertEqual(cleanup._normalize_names(["atrinik"]), {"atrinik"})
         with self.assertRaisesRegex(WorkspaceError, "unknown components"):

@@ -28,6 +28,8 @@ from .workspace import (
     CACHE_METADATA,
     WORKER_DEPENDENCY_METADATA,
     WORKER_DEPENDENCY_SCHEMA_VERSION,
+    COMPILER_CACHE_MAX_SIZE,
+    COMPILER_CACHE_PURPOSE,
     _remote_matches,
     exclusive_lock,
 )
@@ -38,7 +40,7 @@ WORKER_DEPENDENCY_CLEANUP_SCHEMA_VERSIONS = frozenset(
     {1, 2, 3, WORKER_DEPENDENCY_SCHEMA_VERSION}
 )
 DEFAULT_SCOPES = ("worktrees", "builds")
-ALL_SCOPES = (*DEFAULT_SCOPES, "npm-cache")
+ALL_SCOPES = (*DEFAULT_SCOPES, "npm-cache", "compiler-cache")
 BUILD_RETENTION_RECORD = "retention.json"
 BUILD_METADATA_KEYS = {
     "schema_version",
@@ -451,6 +453,12 @@ class Cleanup:
             cache = self._npm_cache(older_than_days, references, reference_errors)
             if cache is not None:
                 items.append(cache)
+        if "compiler-cache" in scopes:
+            cache = self._compiler_cache(
+                older_than_days, references, reference_errors
+            )
+            if cache is not None:
+                items.append(cache)
         items.sort(key=lambda item: (item["kind"], item["owner"], item["path"]))
         self._credit_sizes(items)
         for item in items:
@@ -538,8 +546,11 @@ class Cleanup:
                 references,
                 reference_errors,
             )
-        elif kind == "npm-cache":
-            item = self._npm_cache(
+        elif kind in {"npm-cache", "compiler-cache"}:
+            cache_method = (
+                self._npm_cache if kind == "npm-cache" else self._compiler_cache
+            )
+            item = cache_method(
                 older_than_days,
                 references,
                 reference_errors,
@@ -2250,6 +2261,7 @@ class Cleanup:
                         "profiles",
                         "npm-cache",
                         "worker-dependencies",
+                        "compiler-cache",
                     }:
                         continue
                     roots.append((path, []))
@@ -2276,11 +2288,42 @@ class Cleanup:
         references: dict[str, Any],
         reference_errors: set[str],
     ) -> dict[str, Any] | None:
-        path = self.paths.builds / "npm-cache"
+        return self._shared_cache(
+            "npm-cache",
+            "npm-cache",
+            older_than_days,
+            reference_errors,
+            legacy_allowed=True,
+        )
+
+    def _compiler_cache(
+        self,
+        older_than_days: int,
+        references: dict[str, Any],
+        reference_errors: set[str],
+    ) -> dict[str, Any] | None:
+        return self._shared_cache(
+            "compiler-cache",
+            COMPILER_CACHE_PURPOSE,
+            older_than_days,
+            reference_errors,
+            legacy_allowed=False,
+        )
+
+    def _shared_cache(
+        self,
+        kind: str,
+        purpose: str,
+        older_than_days: int,
+        reference_errors: set[str],
+        *,
+        legacy_allowed: bool,
+    ) -> dict[str, Any] | None:
+        path = self.paths.builds / kind
         if not path.exists() and not path.is_symlink():
             return None
-        item = _base_item("npm-cache", "atrinik", "atrinik/atrinik", path)
-        item["_purpose"] = "npm-cache"
+        item = _base_item(kind, "atrinik", "atrinik/atrinik", path)
+        item["_purpose"] = purpose
         if self.paths.builds.is_symlink() or not self.paths.builds.is_dir():
             item["reasons"] = ["invalid_cache_path"]
             item["legacy_known_cache"] = False
@@ -2300,21 +2343,21 @@ class Cleanup:
                 and not path.is_symlink()
                 and path.is_dir()
                 and path.resolve(strict=False)
-                == self.paths.builds.resolve(strict=False) / "npm-cache"
+                == self.paths.builds.resolve(strict=False) / kind
             )
         except (OSError, RuntimeError):
             valid_path = False
         if not valid_path:
             item["reasons"].append("invalid_cache_path")
         marker = path / MANAGED_MARKER
-        legacy = not marker.exists() and not marker.is_symlink()
+        legacy = legacy_allowed and not marker.exists() and not marker.is_symlink()
         if not legacy:
             try:
                 if marker.is_symlink() or load_json(marker) != {
                     "schema_version": SCHEMA_VERSION,
-                    "purpose": "npm-cache",
+                    "purpose": purpose,
                 }:
-                    raise WorkspaceError("npm cache marker is invalid")
+                    raise WorkspaceError(f"{kind} marker is invalid")
             except WorkspaceError as error:
                 item["reasons"].append("invalid_managed_marker")
                 item["error"] = str(error)
@@ -2331,11 +2374,18 @@ class Cleanup:
                 if metadata_path.is_symlink() or not metadata_path.is_file():
                     raise WorkspaceError("cache metadata is not a regular file")
                 metadata = load_json(metadata_path)
+                expected_fields = {"schema_version", "purpose", "last_used_at"}
+                if kind == "compiler-cache":
+                    expected_fields.add("max_size")
                 if (
                     not isinstance(metadata, dict)
-                    or set(metadata) != {"schema_version", "purpose", "last_used_at"}
+                    or set(metadata) != expected_fields
                     or metadata.get("schema_version") != BUILD_METADATA_SCHEMA_VERSION
-                    or metadata.get("purpose") != "npm-cache"
+                    or metadata.get("purpose") != purpose
+                    or (
+                        kind == "compiler-cache"
+                        and metadata.get("max_size") != COMPILER_CACHE_MAX_SIZE
+                    )
                 ):
                     raise WorkspaceError("cache metadata fields are invalid")
                 used_at = _parse_time(metadata["last_used_at"], "cache last_used_at")
@@ -2345,8 +2395,13 @@ class Cleanup:
                 item["error"] = str(error)
                 used_at = None
         else:
-            used_at = observed
-            item["age_basis"] = "legacy-tree-mtime"
+            if legacy_allowed:
+                used_at = observed
+                item["age_basis"] = "legacy-tree-mtime"
+            else:
+                used_at = None
+                item["reasons"].append("invalid_cache_metadata")
+                item["error"] = f"cache metadata is missing: {metadata_path}"
         if used_at is None:
             item["reasons"].append("cache_age_unavailable")
         else:
@@ -2359,7 +2414,7 @@ class Cleanup:
         item["reasons"] = sorted(set(item["reasons"]))
         if not item["reasons"]:
             item["disposition"] = "eligible"
-            item["reasons"] = ["stale_npm_cache"]
+            item["reasons"] = [f"stale_{kind.replace('-', '_')}"]
         return item
 
     def _any_build_lock_busy(self) -> tuple[bool, str | None]:
@@ -2417,6 +2472,7 @@ class Cleanup:
             "worker-dependency-transaction": 0,
             "worktree": 1,
             "npm-cache": 2,
+            "compiler-cache": 2,
             "prunable-metadata": 3,
         }
         return order.get(item["kind"], 99), item["path"]
@@ -2524,16 +2580,17 @@ class Cleanup:
         elif item["kind"] == "worktree":
             primary = self._repositories[item["owner"]]
             _command(primary, "worktree", "remove", "--", str(path))
-        elif item["kind"] == "npm-cache":
+        elif item["kind"] in {"npm-cache", "compiler-cache"}:
+            purpose = item["kind"]
             if item.get("legacy_known_cache"):
                 marker = path / MANAGED_MARKER
                 if marker.exists() or marker.is_symlink():
                     raise WorkspaceError("legacy npm cache marker appeared before removal")
                 atomic_json(
                     marker,
-                    {"schema_version": SCHEMA_VERSION, "purpose": "npm-cache"},
+                    {"schema_version": SCHEMA_VERSION, "purpose": purpose},
                 )
-            managed_remove(path, self.paths.builds, "npm-cache")
+            managed_remove(path, self.paths.builds, purpose)
         elif item["kind"] == "prunable-metadata":
             primary = self._repositories[item["owner"]]
             _command(primary, "worktree", "prune", "--expire", "now")
