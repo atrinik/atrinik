@@ -73,6 +73,23 @@ def open_log(path: Path) -> BinaryIO:
     return os.fdopen(descriptor, "ab", buffering=0)
 
 
+def _peek_exit_code(process: subprocess.Popen[bytes]) -> int | None:
+    """Observe a child exit without reaping its process-group leader."""
+    try:
+        result = os.waitid(
+            os.P_PID,
+            process.pid,
+            os.WEXITED | os.WNOHANG | os.WNOWAIT,
+        )
+    except ChildProcessError:
+        return process.returncode
+    if result is None:
+        return None
+    if result.si_code == os.CLD_EXITED:
+        return result.si_status
+    return -result.si_status
+
+
 def terminate(
     processes: dict[str, subprocess.Popen[bytes]],
     process_tree_fd: int | None,
@@ -346,9 +363,10 @@ def supervise(
             server = start_service("server", capture=capture)
             deadline = time.monotonic() + SERVER_READY_TIMEOUT
             while not capture.event.wait(timeout=0.1):
-                if server.poll() is not None:
+                code = _peek_exit_code(server)
+                if code is not None:
                     raise RuntimeError(
-                        f"server exited before becoming ready with code {server.returncode}"
+                        f"server exited before becoming ready with code {code}"
                     )
                 if stop:
                     raise RuntimeError("topology stopped before the server became ready")
@@ -377,19 +395,21 @@ def supervise(
         status["ready"] = True
         atomic_status(status_path, status)
 
-        while not stop and all(
-            process.poll() is None for process in processes.values()
-        ):
+        while not stop:
             changed = False
+            running = True
             for name, process in processes.items():
-                code = process.poll()
+                code = _peek_exit_code(process)
                 service_status = status["services"][name]
                 if code is not None and service_status["status"] == "running":
                     service_status["status"] = "exited"
                     service_status["exit_code"] = code
                     changed = True
+                    running = False
             if changed:
                 atomic_status(status_path, status)
+            if not running:
+                break
             time.sleep(0.2)
     except BaseException as error:
         status["error"] = f"{type(error).__name__}: {error}"

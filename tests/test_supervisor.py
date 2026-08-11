@@ -111,7 +111,9 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                     except ProcessLookupError:
                         pass
 
-    def test_terminate_cleans_descendant_that_closed_process_tree_lease(self) -> None:
+    def test_terminate_cleans_group_after_leader_exits_and_descendant_closes_lease(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             descendant_path = Path(directory) / "descendant.pid"
             lease_fd = os.open(
@@ -128,7 +130,8 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                     "child == 0 and os.close(int(sys.argv[2])); "
                     "child == 0 and signal.signal(signal.SIGTERM, signal.SIG_IGN); "
                     "child == 0 and pathlib.Path(sys.argv[1]).write_text(str(os.getpid())); "
-                    "time.sleep(60)",
+                    "child == 0 and time.sleep(60); "
+                    "os._exit(0)",
                     str(descendant_path),
                     str(lease_fd),
                 ],
@@ -141,6 +144,14 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 while time.monotonic() < deadline and not descendant_path.is_file():
                     time.sleep(0.05)
                 descendant = int(descendant_path.read_text(encoding="utf-8"))
+                deadline = time.monotonic() + 5
+                while (
+                    time.monotonic() < deadline
+                    and supervisor_module._peek_exit_code(process) is None
+                ):
+                    time.sleep(0.05)
+                self.assertIsNotNone(supervisor_module._peek_exit_code(process))
+                self.assertIsNone(process.returncode)
 
                 supervisor_module.terminate(
                     {"client": process}, lease_fd, timeout=0.1
