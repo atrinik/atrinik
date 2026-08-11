@@ -23,7 +23,8 @@ from .supervisor import process_matches
 
 
 PLAN_SCHEMA_VERSION = 2
-PROFILE_SCHEMA_VERSION = 3
+PROFILE_SCHEMA_VERSION = 4
+LEGACY_PROFILE_SCHEMA_VERSION = 3
 MIGRATION_NAME = "repositories"
 MIGRATION_RECORD = "migrations/repositories.json"
 MIGRATION_PENDING = "migrations/repositories.pending.json"
@@ -1162,9 +1163,25 @@ class RepositoryMigration:
             raise WorkspaceError("profile root must be an object")
         schema = profile.get("schema_version")
         if schema == PROFILE_SCHEMA_VERSION:
+            if (
+                profile.get("sound_mode") == "local-playtest"
+                and profile.get("stack") != "classic"
+            ):
+                raise WorkspaceError(
+                    "local-playtest sound mode requires a Classic-derived profile"
+                )
             if profile.get("stack") == "classic":
                 self._validate_profile_shape(path, profile)
             return None, None
+        if schema == LEGACY_PROFILE_SCHEMA_VERSION:
+            self._validate_legacy_profile_shape(path, profile)
+            if profile["stack"] != "classic":
+                return None, None
+            return {
+                **profile,
+                "schema_version": PROFILE_SCHEMA_VERSION,
+                "sound_mode": "source",
+            }, None
         if schema != 1:
             raise WorkspaceError("unsupported profile schema")
         name = profile.get("name")
@@ -1271,6 +1288,7 @@ class RepositoryMigration:
             "schema_version": PROFILE_SCHEMA_VERSION,
             "name": name,
             "stack": "classic",
+            "sound_mode": "source",
             "components": output,
         }
         self._validate_profile_shape(path, rewritten)
@@ -1341,18 +1359,26 @@ class RepositoryMigration:
         }
 
     def _validate_profile_shape(self, path: Path, profile: dict[str, Any]) -> None:
-        if set(profile) != {"schema_version", "name", "stack", "components"}:
-            raise WorkspaceError("schema-v3 profile has unexpected fields")
+        if set(profile) != {
+            "schema_version",
+            "name",
+            "stack",
+            "sound_mode",
+            "components",
+        }:
+            raise WorkspaceError("schema-v4 profile has unexpected fields")
         if profile["schema_version"] != PROFILE_SCHEMA_VERSION:
-            raise WorkspaceError("profile is not schema v3")
+            raise WorkspaceError("profile is not schema v4")
+        if profile["sound_mode"] not in {"source", "local-playtest"}:
+            raise WorkspaceError("schema-v4 profile sound mode is invalid")
         if profile["name"] != path.stem or profile["stack"] != "classic":
-            raise WorkspaceError("schema-v3 classic profile identity is invalid")
+            raise WorkspaceError("schema-v4 classic profile identity is invalid")
         components = profile["components"]
         if not isinstance(components, dict):
-            raise WorkspaceError("schema-v3 components must be an object")
+            raise WorkspaceError("schema-v4 components must be an object")
         expected = self._classic_profile_component_names()
         if set(components) != expected:
-            raise WorkspaceError("schema-v3 classic profile component closure is invalid")
+            raise WorkspaceError("schema-v4 classic profile component closure is invalid")
         for component_name, selector in components.items():
             self._validate_selector(component_name, selector)
         classic_selectors = {
@@ -1362,8 +1388,34 @@ class RepositoryMigration:
         }
         if len(classic_selectors) != 1:
             raise WorkspaceError(
-                "schema-v3 classic components must select one physical checkout root"
+                "schema-v4 classic components must select one physical checkout root"
             )
+
+    def _validate_legacy_profile_shape(
+        self, path: Path, profile: dict[str, Any]
+    ) -> None:
+        if set(profile) != {"schema_version", "name", "stack", "components"}:
+            raise WorkspaceError("schema-v3 profile has unexpected fields")
+        if (
+            profile["schema_version"] != LEGACY_PROFILE_SCHEMA_VERSION
+            or profile["name"] != path.stem
+            or not isinstance(profile["stack"], str)
+            or not profile["stack"]
+            or not isinstance(profile["components"], dict)
+        ):
+            raise WorkspaceError("schema-v3 profile identity is invalid")
+        for component_name, selector in profile["components"].items():
+            if not isinstance(component_name, str) or not component_name:
+                raise WorkspaceError("schema-v3 profile component is invalid")
+            self._validate_selector(component_name, selector)
+        if profile["stack"] != "classic":
+            return
+        upgraded = {
+            **profile,
+            "schema_version": PROFILE_SCHEMA_VERSION,
+            "sound_mode": "source",
+        }
+        self._validate_profile_shape(path, upgraded)
 
     @staticmethod
     def _validate_selector(component: str, selector: Any) -> dict[str, str]:

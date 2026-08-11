@@ -57,10 +57,22 @@ from .migration import (
     rename_no_replace,
 )
 from .supervisor import process_matches
+from .sound import (
+    PLAYTEST_MODE,
+    SOUND_MODES,
+    SOURCE_MODE,
+    cache_key as sound_cache_key,
+    clean_source_inputs,
+    source_record as sound_source_record,
+    validate_sound_record,
+    verify_playtest_tree,
+)
 
 
-PROFILE_SCHEMA_VERSION = 3
-PROFILE_KEYS = {"schema_version", "name", "stack", "components"}
+PROFILE_SCHEMA_VERSION = 4
+LEGACY_PROFILE_SCHEMA_VERSION = 3
+PROFILE_KEYS = {"schema_version", "name", "stack", "components", "sound_mode"}
+LEGACY_PROFILE_KEYS = {"schema_version", "name", "stack", "components"}
 SELECTOR_KEYS = {"kind", "value"}
 EXPECTED_SERVER_DATA = {
     "files": ("bans", "motd"),
@@ -111,7 +123,7 @@ SCENARIO_SCHEMA_VERSION = 4
 SCENARIO_PRESETS = {"basic-player": {"archetype": "human_male"}}
 SCENARIO_PASSWORD_MAX_SIZE = 128
 BUILD_METADATA = ".atrinik-build.json"
-BUILD_METADATA_SCHEMA_VERSION = 1
+BUILD_METADATA_SCHEMA_VERSION = 2
 CACHE_METADATA = ".atrinik-cache.json"
 WORKER_DEPENDENCY_METADATA = ".atrinik-worker-dependencies.json"
 WORKER_VIEW_METADATA = ".atrinik-worker-view.json"
@@ -1841,6 +1853,7 @@ class Workspace:
             "schema_version": PROFILE_SCHEMA_VERSION,
             "name": name,
             "stack": source_profile["stack"],
+            "sound_mode": source_profile["sound_mode"],
             "components": {
                 component_name: dict(selector)
                 for component_name, selector in source_profile["components"].items()
@@ -1889,6 +1902,27 @@ class Workspace:
         for component in components:
             profile["components"][component.name] = {"kind": kind, "value": value}
         atomic_json(self.paths.profiles / f"{name}.json", profile)
+
+    def set_profile_sound_mode(self, name: str, mode: str) -> None:
+        self.paths.ensure()
+        with exclusive_lock(
+            self.paths.workspace / "repository-layout.lock",
+            "repository layout",
+        ):
+            if name in self.manifest.stacks:
+                raise WorkspaceError(
+                    "sound mode can be changed only on a saved derived profile"
+                )
+            profile = self._load_profile(name, require_file=True)
+            if profile["stack"] != "classic":
+                raise WorkspaceError(
+                    "local-playtest sound mode is available only to Classic-derived profiles"
+                )
+            if mode not in SOUND_MODES:
+                raise WorkspaceError(f"invalid profile sound mode: {mode}")
+            profile["schema_version"] = PROFILE_SCHEMA_VERSION
+            profile["sound_mode"] = mode
+            atomic_json(self.paths.profiles / f"{name}.json", profile)
 
     def _profile_components(
         self, profile: dict[str, Any], component_checkout_or_role: str
@@ -2097,6 +2131,7 @@ class Workspace:
                 "schema_version": PROFILE_SCHEMA_VERSION,
                 "name": name,
                 "stack": name,
+                "sound_mode": SOURCE_MODE,
                 "components": {
                     component.name: {"kind": "primary", "value": ""}
                     for component in stack.components
@@ -2108,15 +2143,23 @@ class Workspace:
         profile = load_json(path)
         if not isinstance(profile, dict):
             raise WorkspaceError(f"profile must be an object: {name}")
-        require_keys(profile, PROFILE_KEYS, f"profile {name}")
-        if (
-            profile["schema_version"] != PROFILE_SCHEMA_VERSION
-            or profile["name"] != name
-        ):
+        schema_version = profile.get("schema_version")
+        if schema_version == LEGACY_PROFILE_SCHEMA_VERSION:
+            require_keys(profile, LEGACY_PROFILE_KEYS, f"profile {name}")
+            profile = {**profile, "schema_version": PROFILE_SCHEMA_VERSION, "sound_mode": SOURCE_MODE}
+        else:
+            require_keys(profile, PROFILE_KEYS, f"profile {name}")
+        if profile["schema_version"] != PROFILE_SCHEMA_VERSION or profile["name"] != name:
             raise WorkspaceError(f"profile identity/schema mismatch: {name}")
+        if profile["sound_mode"] not in SOUND_MODES:
+            raise WorkspaceError(f"profile sound mode is invalid: {name}")
         stack_name = profile["stack"]
         if not isinstance(stack_name, str) or stack_name not in self.manifest.stacks:
             raise WorkspaceError(f"profile stack is invalid: {name}")
+        if profile["sound_mode"] == PLAYTEST_MODE and stack_name != "classic":
+            raise WorkspaceError(
+                f"local-playtest sound mode requires a Classic-derived profile: {name}"
+            )
         stack = self.manifest.stack(stack_name)
         selectors = profile["components"]
         expected = {component.name for component in stack.components}
@@ -2210,7 +2253,12 @@ class Workspace:
                     }
                 )
             rows.append(row)
-        return {"name": name, "stack": stack.name, "components": rows}
+        return {
+            "name": name,
+            "stack": stack.name,
+            "sound_mode": profile["sound_mode"],
+            "components": rows,
+        }
 
     def component_path(self, component_name: str, profile_name: str) -> Path:
         profile = self._load_profile(profile_name, require_file=False)
@@ -2385,7 +2433,20 @@ class Workspace:
             self._use_ccache = use_ccache
             self._source_view_unchanged = {}
             managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
-            self._refresh_build_metadata(root, profile_name, key, selected)
+            sound_root = selected.get("sound")
+            sound_record: dict[str, Any] | None = None
+            if "client" in targets:
+                if sound_root is not None:
+                    sound_root, sound_record = self._prepare_sound(
+                        root, selected, profile_name
+                    )
+            elif sound_root is not None:
+                profile = self._load_profile(profile_name, require_file=False)
+                if profile["sound_mode"] == SOURCE_MODE:
+                    sound_record = sound_source_record(sound_root)
+            self._refresh_build_metadata(
+                root, profile_name, key, selected, sound_record
+            )
             if "content" in targets or "server" in targets:
                 self._collect_content(root, selected, profile_name)
             if "server" in targets:
@@ -2394,14 +2455,20 @@ class Workspace:
                 targets, selected
             )
             if integrated_classic:
-                self._build_integrated_classic(root, selected, tests)
+                if sound_root is None:
+                    raise WorkspaceError(
+                        f"integrated Classic profile {profile_name} has no sound provider"
+                    )
+                self._build_integrated_classic(
+                    root, selected, tests, sound_root=sound_root
+                )
             else:
                 if "protocol" in targets:
                     self._build_protocol(root, selected, tests)
                 if "libatrinik" in targets:
                     self._build_library(root, selected, tests)
                 if "client" in targets:
-                    self._build_client(root, selected, tests)
+                    self._build_client(root, selected, tests, sound_root=sound_root)
                 if "server" in targets:
                     self._build_server(root, selected, tests)
             if "server" in targets:
@@ -2426,6 +2493,7 @@ class Workspace:
         profile_name: str,
         key: str,
         selected: dict[str, Path],
+        sound: dict[str, Any] | None = None,
     ) -> None:
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
@@ -2455,9 +2523,126 @@ class Workspace:
                 "key": key,
                 "purpose": f"profile:{profile_name}:{key}",
                 "coordinates": coordinates,
+                "sound": sound,
                 "last_used_at": datetime.now(timezone.utc).isoformat(),
             },
         )
+
+    def _prepare_sound(
+        self,
+        root: Path,
+        selected: dict[str, Path],
+        profile_name: str,
+    ) -> tuple[Path, dict[str, Any]]:
+        source = selected["sound"]
+        profile = self._load_profile(profile_name, require_file=False)
+        mode = profile["sound_mode"]
+        if mode == SOURCE_MODE:
+            return source, sound_source_record(source)
+        if mode != PLAYTEST_MODE or profile["stack"] != "classic":
+            raise WorkspaceError(
+                f"profile {profile_name} has unsupported sound mode {mode}"
+            )
+        source_identity = "unavailable"
+        try:
+            inputs = clean_source_inputs(source)
+            source_identity = (
+                f"commit {inputs['source_commit']} tree {inputs['source_tree']}"
+            )
+            output = source / "build" / "atrinik-workspace" / sound_cache_key(inputs)
+            builder = source / "tools" / "sound_release.py"
+            if not builder.is_file() or builder.is_symlink():
+                raise WorkspaceError(
+                    "selected sound checkout lacks the public "
+                    "tools/sound_release.py builder"
+                )
+            run(
+                [
+                    sys.executable,
+                    str(builder),
+                    "build-playtest-tree",
+                    str(output),
+                ],
+                cwd=source,
+            )
+            run(
+                [
+                    sys.executable,
+                    str(builder),
+                    "verify-playtest-tree",
+                    str(output),
+                ],
+                cwd=source,
+            )
+            record = verify_playtest_tree(source, output, inputs)
+            if clean_source_inputs(source) != inputs:
+                raise WorkspaceError(
+                    "selected sound inputs changed after playtest-tree generation"
+                )
+            staged = root / "runtime" / "sound-local-playtest"
+            runtime = staged.parent
+            if runtime.exists() or runtime.is_symlink():
+                if runtime.is_symlink() or not runtime.is_dir():
+                    raise WorkspaceError(
+                        "local-playtest handoff parent is not a safe directory"
+                    )
+            else:
+                runtime.mkdir()
+            try:
+                if runtime.resolve() != root.resolve() / "runtime":
+                    raise WorkspaceError(
+                        "local-playtest handoff parent escapes the profile build"
+                    )
+            except RuntimeError as error:
+                raise WorkspaceError(
+                    "local-playtest handoff parent cannot be resolved"
+                ) from error
+
+            def same_tree(left: dict[str, Any], right: dict[str, Any]) -> bool:
+                return {**left, "root": "<verified-root>"} == {
+                    **right,
+                    "root": "<verified-root>",
+                }
+
+            if staged.exists() or staged.is_symlink():
+                staged_record = verify_playtest_tree(source, staged, inputs)
+                if not same_tree(record, staged_record):
+                    raise WorkspaceError(
+                        "cached local-playtest handoff differs from producer verification"
+                    )
+            else:
+                with tempfile.TemporaryDirectory(
+                    prefix=".sound-local-playtest-", dir=staged.parent
+                ) as temporary:
+                    candidate = Path(temporary) / "tree"
+                    shutil.copytree(output, candidate, symlinks=True)
+                    staged_record = verify_playtest_tree(source, candidate, inputs)
+                    if not same_tree(record, staged_record):
+                        raise WorkspaceError(
+                            "local-playtest sound changed while creating the verified handoff"
+                        )
+                    if clean_source_inputs(source) != inputs:
+                        raise WorkspaceError(
+                            "selected sound inputs changed while staging the verified handoff"
+                        )
+                    rename_no_replace(candidate, staged)
+                staged_record = verify_playtest_tree(source, staged, inputs)
+                if not same_tree(record, staged_record):
+                    raise WorkspaceError(
+                        "installed local-playtest handoff differs from producer verification"
+                    )
+            record = staged_record
+            output = staged
+        except (OSError, WorkspaceError) as error:
+            raise WorkspaceError(
+                f"profile {profile_name} mode {mode} sound source {source} "
+                f"({source_identity}) failed contract: {error}"
+            ) from error
+        print(
+            "sound: staged local-playtest tree "
+            f"{record['output_tree_sha256']} at {output}"
+        )
+        return output, record
 
     def _selected_checkout_states(
         self,
@@ -2503,7 +2688,8 @@ class Workspace:
         )
         namespace = (
             f"profile-schema:{PROFILE_SCHEMA_VERSION};stack:{stack.name};"
-            f"generation:{stack.generation};providers:{providers}"
+            f"generation:{stack.generation};sound-mode:{profile['sound_mode']};"
+            f"providers:{providers}"
         )
         return profile_key(selected, namespace=namespace)
 
@@ -4189,7 +4375,12 @@ class Workspace:
         return root / "build" / role
 
     def _build_integrated_classic(
-        self, root: Path, selected: dict[str, Path], tests: bool
+        self,
+        root: Path,
+        selected: dict[str, Path],
+        tests: bool,
+        *,
+        sound_root: Path | None = None,
     ) -> None:
         checkout = selected["client"].parent.resolve()
         view = self._profile_source_view(
@@ -4207,7 +4398,10 @@ class Workspace:
             preserved_entries={"sound"},
         )
         self._source_view_link(
-            client, "sound", selected["sound"], target_is_directory=True
+            client,
+            "sound",
+            sound_root or selected["sound"],
+            target_is_directory=True,
         )
         server = self._profile_source_view(
             root,
@@ -4263,7 +4457,14 @@ class Workspace:
             tests,
         )
 
-    def _build_client(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
+    def _build_client(
+        self,
+        root: Path,
+        selected: dict[str, Path],
+        tests: bool,
+        *,
+        sound_root: Path | None = None,
+    ) -> None:
         view = self._profile_source_view(
             root,
             "client",
@@ -4272,7 +4473,10 @@ class Workspace:
             preserved_entries={"sound"},
         )
         self._source_view_link(
-            view, "sound", selected["sound"], target_is_directory=True
+            view,
+            "sound",
+            sound_root or selected["sound"],
+            target_is_directory=True,
         )
         self._cmake(
             view,
@@ -6056,6 +6260,12 @@ class Workspace:
         return {
             "profile": profile_name,
             "stack": stack.name,
+            "sound": {
+                "mode": profile["sound_mode"],
+                "source_path": str(resolved["sound"])
+                if "sound" in resolved
+                else None,
+            },
             "services": selected_services,
             "dependencies": sorted(required),
             "providers": {
@@ -6629,7 +6839,10 @@ class Workspace:
         return {name: container / name for name in expected}
 
     def _prepare_topology_client_runtime(
-        self, topology_root: Path, selected: dict[str, Path]
+        self,
+        topology_root: Path,
+        selected: dict[str, Path],
+        sound_root: Path | None = None,
     ) -> Path:
         runtime = self._reset_topology_subdirectory(
             topology_root, "client-runtime", "topology-client-runtime"
@@ -6642,7 +6855,7 @@ class Workspace:
                 entry, target_is_directory=entry.is_dir()
             )
         (runtime / "sound").symlink_to(
-            selected["sound"], target_is_directory=True
+            sound_root or selected["sound"], target_is_directory=True
         )
         return runtime
 
@@ -6680,7 +6893,7 @@ class Workspace:
             "supervisor",
             "services",
         }
-        optional = {"stack", "providers"}
+        optional = {"stack", "providers", "sound"}
         historical_record = isinstance(status, dict) and not (
             {"stack", "providers"} & set(status)
         )
@@ -6733,6 +6946,13 @@ class Workspace:
             or "error" in status
             and not isinstance(status.get("error"), str)
         ):
+            raise WorkspaceError(f"topology status is invalid: {name}")
+        if "sound" in status:
+            try:
+                validate_sound_record(status["sound"])
+            except WorkspaceError as error:
+                raise WorkspaceError(f"topology status is invalid: {name}") from error
+        if not historical_record and "client" in status["dependencies"] and "sound" not in status:
             raise WorkspaceError(f"topology status is invalid: {name}")
         if historical_record:
             status["stack"] = "classic"
@@ -7118,6 +7338,12 @@ class Workspace:
                 build_lock = stack.enter_context(
                     self._profile_build_lock(root, profile_name)
                 )
+                build_metadata = load_json(root / BUILD_METADATA)
+                sound_status = (
+                    build_metadata.get("sound")
+                    if isinstance(build_metadata, dict)
+                    else None
+                )
                 endpoint: dict[str, Any] | None = None
                 if "server" in selected_services:
                     stack.enter_context(
@@ -7187,8 +7413,34 @@ class Workspace:
                     executable = (
                         self._classic_binary_directory(root, "client") / "atrinik"
                     )
+                    try:
+                        validated_sound = validate_sound_record(sound_status)
+                    except WorkspaceError as error:
+                        raise WorkspaceError(
+                            f"build sound metadata is invalid for profile {profile_name}"
+                        ) from error
+                    profile = self._load_profile(profile_name, require_file=False)
+                    if validated_sound["mode"] != profile["sound_mode"]:
+                        raise WorkspaceError(
+                            f"profile {profile_name} sound mode does not match build metadata"
+                        )
+                    sound_root = Path(validated_sound["root"])
+                    if validated_sound["mode"] == PLAYTEST_MODE:
+                        inputs = clean_source_inputs(selected["sound"])
+                        verified = verify_playtest_tree(
+                            selected["sound"], sound_root, inputs
+                        )
+                        if verified != validated_sound:
+                            raise WorkspaceError(
+                                f"profile {profile_name} local-playtest sound "
+                                "record changed before topology preparation"
+                            )
+                    elif sound_root.resolve() != selected["sound"].resolve():
+                        raise WorkspaceError(
+                            f"profile {profile_name} source sound root changed before topology preparation"
+                        )
                     working = self._prepare_topology_client_runtime(
-                        topology_root, selected
+                        topology_root, selected, sound_root
                     )
                     if not executable.is_file():
                         raise WorkspaceError(f"client executable is missing: {executable}")
@@ -7214,7 +7466,7 @@ class Workspace:
                 resolved_status = self._topology_resolved_status(
                     profile_name, selected
                 )
-                spec = {
+                spec: dict[str, Any] = {
                     "schema_version": SCHEMA_VERSION,
                     "name": name,
                     "profile": profile_name,
@@ -7230,6 +7482,8 @@ class Workspace:
                     "endpoint": endpoint,
                     "services": service_specs,
                 }
+                if sound_status is not None:
+                    spec["sound"] = sound_status
                 spec_path = topology_root / "spec.json"
                 atomic_json(spec_path, spec)
                 status_path.unlink(missing_ok=True)
@@ -7343,9 +7597,13 @@ class Workspace:
                 )
             if not process_tree_path.is_file():
                 return self._legacy_topology_down(name, status, timeout)
+            if not hasattr(os, "O_PATH"):
+                raise WorkspaceError(
+                    "topology process-tree observation is unavailable on this platform"
+                )
             process_tree_fd = open_regular_file(
                 process_tree_path,
-                os.O_RDWR,
+                os.O_PATH,
                 "topology process-tree lease",
             )
             try:

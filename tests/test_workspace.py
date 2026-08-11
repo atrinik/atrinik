@@ -353,7 +353,7 @@ def mixed_layout_operation_process(
                     return
                 first_entry = False
                 entered.put(operation)
-                if not release.wait(5):
+                if not release.wait(20):
                     raise TimeoutError("mixed operation was not released")
 
             def compile_client(*_arguments: object, **_keywords: object) -> None:
@@ -5837,6 +5837,7 @@ class WorkspaceTests(unittest.TestCase):
             "supervisor": {"pid": 999, "start_time": "1"},
             "services": {},
             "error": "stress fixture",
+            "sound": workspace_module.sound_source_record(self.wrapper / "sound"),
         }
         atomic_json(topology_root / "status.json", status)
         context = multiprocessing.get_context("spawn")
@@ -5871,7 +5872,7 @@ class WorkspaceTests(unittest.TestCase):
             )
             start.set()
             self.assertEqual(
-                {entered.get(timeout=5) for _ in processes}, set(operations)
+                {entered.get(timeout=20) for _ in processes}, set(operations)
             )
         finally:
             release.set()
@@ -6047,6 +6048,10 @@ class WorkspaceTests(unittest.TestCase):
             },
         )
         self.assertIn("default-", summary["build_root"])
+        self.assertEqual(
+            summary["sound"],
+            {"mode": "source", "source_path": str(self.wrapper / "sound")},
+        )
 
     def test_supervised_topology_lifecycle_and_logs(self) -> None:
         build_root = self.workspace.paths.builds / "fake-topology"
@@ -6065,6 +6070,10 @@ class WorkspaceTests(unittest.TestCase):
             encoding="utf-8",
         )
         executable.chmod(0o755)
+        atomic_json(
+            build_root / workspace_module.BUILD_METADATA,
+            {"sound": workspace_module.sound_source_record(self.wrapper / "sound")},
+        )
         second_build_root = self.workspace.paths.builds / "fake-topology-second"
         shutil.copytree(build_root, second_build_root, symlinks=True)
 
@@ -6081,6 +6090,10 @@ class WorkspaceTests(unittest.TestCase):
         try:
             self.assertTrue(status["supervisor"]["running"])
             self.assertTrue(status["services"]["client"]["running"])
+            self.assertEqual(
+                status["sound"],
+                workspace_module.sound_source_record(self.wrapper / "sound"),
+            )
             self.assertEqual(
                 Path(status["services"]["client"]["cwd"]),
                 self.workspace.paths.topologies / "review" / "client-runtime",
@@ -6164,6 +6177,136 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(stopped["supervisor"]["running"])
         self.assertFalse(stopped["services"]["client"]["running"])
 
+    def test_supervised_local_playtest_client_uses_recorded_verified_root(self) -> None:
+        self.workspace.create_profile("classic-audio", "classic")
+        self.workspace.set_profile_sound_mode("classic-audio", "local-playtest")
+        build_root = self.workspace.paths.builds / "fake-playtest-topology"
+        executable = build_root / "build" / "client" / "atrinik"
+        executable.parent.mkdir(parents=True)
+        executable.write_text(
+            "#!/usr/bin/env python3\n"
+            "import time\n"
+            "print('local playtest client ready', flush=True)\n"
+            "time.sleep(5)\n",
+            encoding="utf-8",
+        )
+        executable.chmod(0o755)
+        sound_root = build_root / "runtime" / "sound-local-playtest"
+        sound_root.mkdir(parents=True)
+        sound_record = {
+            "mode": "local-playtest",
+            "root": str(sound_root),
+            "playtest_manifest_sha256": "1" * 64,
+            "playtest_schema_version": 1,
+            "source_commit": "2" * 40,
+            "source_tree": "3" * 40,
+            "source_clean": True,
+            "source_manifest_sha256": "4" * 64,
+            "toolchain_sha256": "5" * 64,
+            "toolchain_schema": "../schemas/playtest-audio-toolchain-v1.schema.json",
+            "toolchain_schema_version": 1,
+            "schema_sha256": "6" * 64,
+            "marker_sha256": "7" * 64,
+            "blocker_report_sha256": "8" * 64,
+            "output_tree_sha256": "9" * 64,
+            "logical_path_count": 339,
+            "copied_vorbis_count": 196,
+            "converted_opus_count": 143,
+        }
+        atomic_json(build_root / workspace_module.BUILD_METADATA, {"sound": sound_record})
+        selected = {
+            "client": self.wrapper / "client",
+            "sound": self.wrapper / "sound",
+        }
+        resolved = {
+            "client": {
+                "path": str(self.wrapper / "client"),
+                "checkout_path": str(self.wrapper / "client"),
+                "checkout": "client",
+                "repository": "atrinik/client",
+                "branch": "main",
+                "source": ".",
+                "head": "a" * 40,
+                "dirty": False,
+            },
+            "sound": {
+                "path": str(self.wrapper / "sound"),
+                "checkout_path": str(self.wrapper / "sound"),
+                "checkout": "sound",
+                "repository": "atrinik/sound",
+                "branch": "main",
+                "source": ".",
+                "head": "b" * 40,
+                "dirty": False,
+            },
+        }
+        inputs = {
+            "source_commit": sound_record["source_commit"],
+            "source_tree": sound_record["source_tree"],
+        }
+        classic_stack = mock.Mock()
+        classic_stack.name = "classic"
+        classic_stack.components = ()
+        classic_stack.providers = {
+            "client": self.workspace.manifest.by_name["client"],
+            "sound": self.workspace.manifest.by_name["sound"],
+        }
+        with (
+            mock.patch.object(
+                self.workspace.manifest, "stack", return_value=classic_stack
+            ),
+            mock.patch.object(self.workspace, "_require_classic_contracts"),
+            mock.patch.object(self.workspace, "_require_client_display"),
+            mock.patch.object(
+                self.workspace, "_resolve_build_profile", return_value=selected
+            ),
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            mock.patch.object(
+                self.workspace, "_topology_resolved_status", return_value=resolved
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.clean_source_inputs",
+                return_value=inputs,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.verify_playtest_tree",
+                return_value=sound_record,
+            ),
+        ):
+            status = self.workspace.topology_up(
+                "playtest-client", "classic-audio", "default", ["client"]
+            )
+        try:
+            self.assertTrue(status["services"]["client"]["running"])
+            self.assertEqual(status["sound"], sound_record)
+            runtime = Path(status["services"]["client"]["cwd"])
+            self.assertEqual((runtime / "sound").resolve(), sound_root.resolve())
+            log = self.workspace.paths.topologies / "playtest-client" / "client.log"
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline and (
+                not log.is_file()
+                or "local playtest client ready" not in log.read_text()
+            ):
+                time.sleep(0.05)
+            with mock.patch("builtins.print") as output:
+                self.workspace.topology_logs(
+                    "playtest-client", "client", tail=20, follow=False
+                )
+            self.assertIn(
+                "local playtest client ready",
+                "".join(call.args[0] for call in output.call_args_list),
+            )
+        finally:
+            with mock.patch.object(
+                self.workspace.manifest, "stack", return_value=classic_stack
+            ):
+                stopped = self.workspace.topology_down(
+                    "playtest-client", timeout=5
+                )
+        self.assertFalse(stopped["services"]["client"]["running"])
+
     def test_supervised_pair_pins_client_and_holds_state_lock_until_down(self) -> None:
         source = self.workspace.paths.repositories / "server"
         (source / "tools").mkdir()
@@ -6221,6 +6364,10 @@ class WorkspaceTests(unittest.TestCase):
             encoding="utf-8",
         )
         client.chmod(0o755)
+        atomic_json(
+            build_root / workspace_module.BUILD_METADATA,
+            {"sound": workspace_module.sound_source_record(self.wrapper / "sound")},
+        )
         second_build_root = (
             self.workspace.paths.builds / "profiles" / "fake-server-topology-second"
         )

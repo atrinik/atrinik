@@ -267,11 +267,16 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 **spec,
                 "stack": "classic",
                 "providers": {"server": "classic-server"},
+                "sound": {"mode": "local-playtest", "root": "/tmp/sound"},
             },
             "123",
         )
         self.assertEqual(current["stack"], "classic")
         self.assertEqual(current["providers"], {"server": "classic-server"})
+        self.assertEqual(
+            current["sound"],
+            {"mode": "local-playtest", "root": "/tmp/sound"},
+        )
 
         with self.assertRaisesRegex(RuntimeError, "identity is incomplete"):
             _initial_status({**spec, "stack": "classic"}, "123")

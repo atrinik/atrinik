@@ -55,26 +55,23 @@ Reclaim review data only through preview-first cleanup:
 
 ```sh
 ./atrinik cleanup --dry-run --json
-./atrinik cleanup --scope worktrees --scope builds CHECKOUT... --older-than 7
-./atrinik cleanup --scope all --older-than 7 --apply
+./atrinik cleanup --scope sound-cache sound --older-than 7 --dry-run --json
+./atrinik cleanup --scope sound-cache sound --older-than 7 --apply
+./atrinik cleanup --scope worktrees sound --older-than 7 --dry-run --json
+./atrinik cleanup --scope worktrees sound --older-than 7 --apply
 ```
 
-Default scope covers worktrees, profile builds, Worker installs, and stale
-transactions; npm/compiler caches are opt-in. Text uses IEC; JSON uses bytes.
-References,
-ambiguous Git,
-and unsafe paths/markers protect targets. Only an `atrinik/atrinik@main`
-worktree directly below `build/worktrees/` has the historical-base exception:
-its PR targets `master` and supplies head, base, and merge SHAs; the merge's
-first parent equals the base, and the merge is ancestral to frozen boundary
-`ee5ba2096c94bce0161629423d4962a966bc61d8`. Proof ignores replace refs and
-rejects `info/grafts`. Under the layout lock, `--apply` reinventories and reruns
-proof plus exact-target safety; uncertainty fails closed. Status uses
-`--ignore-submodules=none`; populated submodule Git data protects. Cleanup
-removes builds first via non-force Git, preserving branch refs, profiles,
-scenarios, states, topology records/logs, migrations, retention records, Git
-objects, review reports, and unmarked paths. Hand off exact fixtures, JSON
-commands, reasons, and preserved records.
+Default cleanup covers worktrees/builds; npm, compiler, and sound caches are
+opt-in. Apply sound-cache before a fresh worktree preview/apply because every
+remaining cache protects its worktree. Sound build/verify shares the exact
+versioned Git-admin lease; removal locks its same inode exclusively. Missing,
+replaced, invalid, or busy leases fail closed. References, ambiguous Git,
+unsafe paths/markers, populated submodules, replace refs, and grafts protect
+targets. The sole historical-base exception is the frozen
+`atrinik/atrinik@main` `build/worktrees/` contract at
+`ee5ba2096c94bce0161629423d4962a966bc61d8`. Apply re-inventories under the
+layout lock and removes only exact proven targets through non-force Git while
+preserving refs, state, records, Git objects, reports, and unmarked paths.
 
 ## Compose coherent sources
 
