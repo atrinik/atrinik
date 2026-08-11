@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import copy
 from concurrent.futures import ThreadPoolExecutor
+import ctypes
+import errno
 import hashlib
 import json
 import os
@@ -10,12 +12,14 @@ import shutil
 import signal
 import stat
 import subprocess
+import sys
 import tempfile
 import threading
 import time
 import unittest
 from unittest import mock
 
+from atrinik_workspace import workspace as workspace_module
 from atrinik_workspace.migration import rename_no_replace as real_rename_no_replace
 from atrinik_workspace.launch_identity import client_launch_label
 from atrinik_workspace.model import (
@@ -31,6 +35,7 @@ from atrinik_workspace.workspace import (
     WORKER_SOURCE_EXCLUSIONS,
     WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
     CONFIGURE_METADATA,
+    RUNTIME_INPUT_METADATA,
     SOURCE_VIEW_METADATA,
     Workspace,
     _copy_regular_file as real_copy_regular_file,
@@ -39,6 +44,8 @@ from atrinik_workspace.workspace import (
     _remote_matches as real_remote_matches,
     display_arguments,
     exclusive_lock,
+    remove_owned_tree,
+    replace_runtime_directory as workspace_replace_directory,
     run as workspace_run,
 )
 
@@ -183,6 +190,33 @@ class WorkspaceTests(unittest.TestCase):
             {"schema_version": 1, "purpose": "region-map-cache"},
         )
         return output
+
+    @staticmethod
+    def make_content_candidate(output: Path, commit: str, payload: str) -> None:
+        (output / "lib").mkdir(parents=True)
+        (output / "maps").mkdir()
+        compatibility = output / "compatibility.json"
+        compatibility.write_text(payload, encoding="utf-8")
+        atomic_json(
+            output / "manifest.json",
+            {
+                "schema_version": 2,
+                "source": {
+                    "repository": "atrinik/content",
+                    "branch": "main",
+                    "commit": commit,
+                },
+                "files": [
+                    {
+                        "path": "compatibility.json",
+                        "sha256": hashlib.sha256(
+                            compatibility.read_bytes()
+                        ).hexdigest(),
+                        "size": compatibility.stat().st_size,
+                    }
+                ],
+            },
+        )
 
     def advance_origin(self, name: str, filename: str) -> str:
         seed = self.seeds[name]
@@ -2845,10 +2879,7 @@ class WorkspaceTests(unittest.TestCase):
         output = self.workspace._stage_resources(root, {"resources": source})
 
         self.assertEqual(load_json(output / MANAGED_MARKER)["purpose"], "resource-view")
-        self.assertEqual(
-            load_json(output / ".atrinik-dependency.json")["workspace_source"],
-            str(source),
-        )
+        self.assertFalse((output / RUNTIME_INPUT_METADATA).exists())
         self.assertEqual(
             (source / ".atrinik-dependency.json").read_text(encoding="utf-8"),
             "component metadata\n",
@@ -2872,6 +2903,20 @@ class WorkspaceTests(unittest.TestCase):
         output = self.workspace._stage_resources(root, {"resources": source})
 
         self.assertFalse((output / "paintings" / "private.txt").exists())
+
+    def test_resource_view_rejects_tracked_generated_metadata_names(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        (source / MANAGED_MARKER).write_text("payload\n", encoding="utf-8")
+        (source / "runtime-paths.txt").write_text(
+            f"{MANAGED_MARKER}\n", encoding="utf-8"
+        )
+        command("git", "add", ".", cwd=source)
+        command("git", "commit", "-m", "test: select reserved resource", cwd=source)
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+
+        with self.assertRaisesRegex(WorkspaceError, "reserved generated paths"):
+            self.workspace._stage_resources(root, {"resources": source})
 
     def test_resource_view_rejects_unsafe_manifest_path(self) -> None:
         source = self.workspace.paths.repositories / "resources"
@@ -2897,6 +2942,240 @@ class WorkspaceTests(unittest.TestCase):
             "resource\n",
         )
 
+    def test_resource_view_reuses_only_exact_clean_valid_inputs(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        copied = 0
+        real_copy = shutil.copy2
+
+        def counting_copy(source_path: Path, destination: Path, **kwargs: object) -> None:
+            nonlocal copied
+            copied += 1
+            real_copy(source_path, destination, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.shutil.copy2", side_effect=counting_copy
+        ):
+            output = self.workspace._stage_resources(root, {"resources": source})
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 1)
+
+            (source / "paintings" / "scene.jpg").write_text(
+                "new commit\n", encoding="utf-8"
+            )
+            command("git", "add", ".", cwd=source)
+            command("git", "commit", "-m", "test: change resource", cwd=source)
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 2)
+
+            dirty = source / "local-only"
+            dirty.write_text("dirty\n", encoding="utf-8")
+            self.workspace._stage_resources(root, {"resources": source})
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 4)
+            self.assertFalse((output / RUNTIME_INPUT_METADATA).exists())
+            dirty.unlink()
+
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 5)
+            (output / RUNTIME_INPUT_METADATA).write_text("{", encoding="utf-8")
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 6)
+
+            (output / MANAGED_MARKER).write_text("{", encoding="utf-8")
+            with self.assertRaisesRegex(WorkspaceError, "cannot read"):
+                self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 6)
+            atomic_json(
+                output / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": "resource-view"},
+            )
+
+            (output / "unexpected").write_text("corrupt\n", encoding="utf-8")
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 7)
+            self.assertFalse((output / "unexpected").exists())
+
+            (output / "paintings" / "scene.jpg").write_text(
+                "bad cache!\n", encoding="utf-8"
+            )
+            self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(copied, 8)
+            self.assertEqual(
+                (output / "paintings" / "scene.jpg").read_text(encoding="utf-8"),
+                "new commit\n",
+            )
+
+    def test_resource_view_race_preserves_previous_cache(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        output = self.workspace._stage_resources(root, {"resources": source})
+        previous = (output / "paintings" / "scene.jpg").read_text(encoding="utf-8")
+
+        (source / "paintings" / "scene.jpg").write_text(
+            "next commit\n", encoding="utf-8"
+        )
+        command("git", "add", ".", cwd=source)
+        command("git", "commit", "-m", "test: advance resource", cwd=source)
+        real_copy = shutil.copy2
+        mutated = False
+
+        def mutate_after_copy(source_path: Path, destination: Path, **kwargs: object) -> None:
+            nonlocal mutated
+            real_copy(source_path, destination, **kwargs)
+            if not mutated:
+                mutated = True
+                (source / "README").write_text("changed during staging\n", encoding="utf-8")
+
+        try:
+            with mock.patch(
+                "atrinik_workspace.workspace.shutil.copy2",
+                side_effect=mutate_after_copy,
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "changed during staging"):
+                    self.workspace._stage_resources(root, {"resources": source})
+        finally:
+            command("git", "checkout", "--", "README", cwd=source)
+
+        self.assertEqual(
+            (output / "paintings" / "scene.jpg").read_text(encoding="utf-8"),
+            previous,
+        )
+
+    def test_resource_install_race_rolls_back_previous_cache(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        output = self.workspace._stage_resources(root, {"resources": source})
+        previous = (output / "paintings" / "scene.jpg").read_text(encoding="utf-8")
+        (source / "paintings" / "scene.jpg").write_text(
+            "next commit\n", encoding="utf-8"
+        )
+        command("git", "add", ".", cwd=source)
+        command("git", "commit", "-m", "test: advance resource", cwd=source)
+        advanced = False
+
+        def replace_then_advance(
+            destination: Path,
+            staging: Path,
+            backup_prefix: str,
+            verify_after_install: object = None,
+        ) -> None:
+            nonlocal advanced
+
+            def advance_and_verify() -> None:
+                nonlocal advanced
+                if not advanced:
+                    advanced = True
+                    (source / "paintings" / "scene.jpg").write_text(
+                        "commit after install\n", encoding="utf-8"
+                    )
+                    command("git", "add", ".", cwd=source)
+                    command(
+                        "git",
+                        "commit",
+                        "-m",
+                        "test: race after install",
+                        cwd=source,
+                    )
+                assert callable(verify_after_install)
+                verify_after_install()
+
+            workspace_replace_directory(
+                destination,
+                staging,
+                backup_prefix,
+                advance_and_verify,
+            )
+
+        with mock.patch(
+            "atrinik_workspace.workspace.replace_runtime_directory",
+            side_effect=replace_then_advance,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed during staging"):
+                self.workspace._stage_resources(root, {"resources": source})
+
+        self.assertEqual(
+            (output / "paintings" / "scene.jpg").read_text(encoding="utf-8"),
+            previous,
+        )
+
+    def test_resource_view_resamples_coordinates_before_staging(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        real_files = self.workspace._resource_runtime_files
+        sampled = False
+
+        def advance_after_first_sample(path: Path) -> tuple[list[str], list[str]]:
+            nonlocal sampled
+            result = real_files(path)
+            if not sampled:
+                sampled = True
+                (source / "catalog").mkdir()
+                (source / "catalog" / "resources.json").write_text(
+                    "new resource\n", encoding="utf-8"
+                )
+                (source / "runtime-paths.txt").write_text(
+                    "catalog\n", encoding="utf-8"
+                )
+                command("git", "add", ".", cwd=source)
+                command(
+                    "git", "commit", "-m", "test: change resource allowlist", cwd=source
+                )
+            return result
+
+        with mock.patch.object(
+            self.workspace,
+            "_resource_runtime_files",
+            side_effect=advance_after_first_sample,
+        ):
+            output = self.workspace._stage_resources(root, {"resources": source})
+
+        self.assertTrue((output / "catalog" / "resources.json").is_file())
+        self.assertFalse((output / "paintings").exists())
+        self.assertEqual(
+            load_json(output / RUNTIME_INPUT_METADATA)["coordinate"]["head"],
+            command("git", "rev-parse", "HEAD", cwd=source),
+        )
+
+    def test_resource_cache_hit_rechecks_source_after_validation(self) -> None:
+        source = self.workspace.paths.repositories / "resources"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        output = self.workspace._stage_resources(root, {"resources": source})
+        real_validate = self.workspace._validate_resource_view
+        mutated = False
+
+        def mutate_after_validation(
+            path: Path,
+            selected_source: Path,
+            tracked: list[str],
+            *,
+            require_metadata: bool = True,
+        ) -> None:
+            nonlocal mutated
+            real_validate(
+                path,
+                selected_source,
+                tracked,
+                require_metadata=require_metadata,
+            )
+            if not mutated:
+                mutated = True
+                (source / "local-race").write_text("dirty\n", encoding="utf-8")
+
+        with mock.patch.object(
+            self.workspace,
+            "_validate_resource_view",
+            side_effect=mutate_after_validation,
+        ):
+            self.workspace._stage_resources(root, {"resources": source})
+
+        self.assertFalse((output / RUNTIME_INPUT_METADATA).exists())
+
     def test_content_collection_failure_preserves_previous_output(self) -> None:
         root = self.workspace.paths.builds / "profiles" / "test"
         managed_directory(root, self.workspace.paths.builds, "test-profile")
@@ -2918,6 +3197,1470 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual((output / "sentinel").read_text(encoding="utf-8"), "last good\n")
 
+    def test_content_collection_reuses_only_exact_clean_valid_inputs(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        collections = 0
+
+        def collect(arguments: list[str], **kwargs: object) -> str:
+            nonlocal collections
+            if arguments[0] != os.sys.executable:
+                return workspace_run(arguments, **kwargs)
+            collections += 1
+            output = Path(arguments[arguments.index("--output") + 1])
+            self.make_content_candidate(
+                output,
+                arguments[arguments.index("--source-commit") + 1],
+                f"collection {collections}\n",
+            )
+            return ""
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=collect):
+            output = self.workspace._collect_content(root, {"content": source})
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 1)
+
+            (source / "README").write_text("new commit\n", encoding="utf-8")
+            command("git", "add", ".", cwd=source)
+            command("git", "commit", "-m", "test: change content", cwd=source)
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 2)
+
+            dirty = source / "local-only"
+            dirty.write_text("dirty\n", encoding="utf-8")
+            self.workspace._collect_content(root, {"content": source})
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 4)
+            self.assertFalse((output / RUNTIME_INPUT_METADATA).exists())
+            dirty.unlink()
+
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 5)
+            (output / RUNTIME_INPUT_METADATA).write_text("{", encoding="utf-8")
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 6)
+            compatibility = output / "compatibility.json"
+            corrupted = compatibility.read_bytes()
+            compatibility.write_bytes(b"X" + corrupted[1:])
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 7)
+            (output / MANAGED_MARKER).write_text("{", encoding="utf-8")
+            with self.assertRaisesRegex(WorkspaceError, "cannot read"):
+                self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 7)
+            atomic_json(
+                output / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": "collected-content"},
+            )
+            (output / "manifest.json").unlink()
+            self.workspace._collect_content(root, {"content": source})
+            self.assertEqual(collections, 8)
+
+    def test_content_collection_race_preserves_previous_cache(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        mutate = False
+
+        def collect(arguments: list[str], **kwargs: object) -> str:
+            if arguments[0] != os.sys.executable:
+                return workspace_run(arguments, **kwargs)
+            output = Path(arguments[arguments.index("--output") + 1])
+            self.make_content_candidate(
+                output,
+                arguments[arguments.index("--source-commit") + 1],
+                "generated\n",
+            )
+            if mutate:
+                (source / "README").write_text(
+                    "changed during collection\n", encoding="utf-8"
+                )
+            return ""
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=collect):
+            output = self.workspace._collect_content(root, {"content": source})
+            previous = (output / "manifest.json").read_text(encoding="utf-8")
+            (source / "README").write_text("next commit\n", encoding="utf-8")
+            command("git", "add", ".", cwd=source)
+            command("git", "commit", "-m", "test: advance content", cwd=source)
+            mutate = True
+            try:
+                with self.assertRaisesRegex(
+                    WorkspaceError, "changed during collection"
+                ):
+                    self.workspace._collect_content(root, {"content": source})
+            finally:
+                command("git", "checkout", "--", "README", cwd=source)
+
+        self.assertEqual(
+            (output / "manifest.json").read_text(encoding="utf-8"), previous
+        )
+
+    def test_content_cache_hit_rechecks_source_after_validation(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+
+        def collect(arguments: list[str], **kwargs: object) -> str:
+            if arguments[0] != os.sys.executable:
+                return workspace_run(arguments, **kwargs)
+            output = Path(arguments[arguments.index("--output") + 1])
+            self.make_content_candidate(
+                output,
+                arguments[arguments.index("--source-commit") + 1],
+                "content\n",
+            )
+            return ""
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=collect):
+            output = self.workspace._collect_content(root, {"content": source})
+            real_validate = self.workspace._validate_collected_content
+            mutated = False
+
+            def mutate_after_validation(
+                path: Path,
+                coordinate: dict[str, str],
+                *,
+                require_metadata: bool = True,
+            ) -> None:
+                nonlocal mutated
+                real_validate(
+                    path, coordinate, require_metadata=require_metadata
+                )
+                if not mutated:
+                    mutated = True
+                    (source / "local-race").write_text("dirty\n", encoding="utf-8")
+
+            with mock.patch.object(
+                self.workspace,
+                "_validate_collected_content",
+                side_effect=mutate_after_validation,
+            ):
+                self.workspace._collect_content(root, {"content": source})
+
+        self.assertFalse((output / RUNTIME_INPUT_METADATA).exists())
+
+    def test_content_install_race_rolls_back_previous_cache(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+
+        def collect(arguments: list[str], **kwargs: object) -> str:
+            if arguments[0] != os.sys.executable:
+                return workspace_run(arguments, **kwargs)
+            output = Path(arguments[arguments.index("--output") + 1])
+            self.make_content_candidate(
+                output,
+                arguments[arguments.index("--source-commit") + 1],
+                "content\n",
+            )
+            return ""
+
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=collect):
+            output = self.workspace._collect_content(root, {"content": source})
+            previous = (output / "manifest.json").read_text(encoding="utf-8")
+            (source / "README").write_text("next commit\n", encoding="utf-8")
+            command("git", "add", ".", cwd=source)
+            command("git", "commit", "-m", "test: advance content", cwd=source)
+            advanced = False
+
+            def advance_after_metadata(path: Path, value: object) -> None:
+                nonlocal advanced
+                atomic_json(path, value)
+                if path.name == RUNTIME_INPUT_METADATA and not advanced:
+                    advanced = True
+                    (source / "README").write_text(
+                        "commit after metadata\n", encoding="utf-8"
+                    )
+                    command("git", "add", ".", cwd=source)
+                    command(
+                        "git",
+                        "commit",
+                        "-m",
+                        "test: race after metadata",
+                        cwd=source,
+                    )
+
+            with mock.patch(
+                "atrinik_workspace.workspace.atomic_json",
+                side_effect=advance_after_metadata,
+            ):
+                with self.assertRaisesRegex(
+                    WorkspaceError, "changed during collection"
+                ):
+                    self.workspace._collect_content(root, {"content": source})
+
+        self.assertEqual(
+            (output / "manifest.json").read_text(encoding="utf-8"), previous
+        )
+
+    def test_topology_runtime_copies_are_independent_from_shared_cache(self) -> None:
+        sources: dict[str, Path] = {}
+        for name, purpose in (
+            ("content", "collected-content"),
+            ("resources", "resource-view"),
+            ("client-maps", "region-map-cache"),
+        ):
+            source = self.root / f"shared-{name}-cache"
+            source.mkdir()
+            (source / "payload").write_text("shared\n", encoding="utf-8")
+            atomic_json(
+                source / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": purpose},
+            )
+            sources[name] = source
+        first_root = self.root / "first-topology"
+        second_root = self.root / "second-topology"
+        first_root.mkdir()
+        second_root.mkdir()
+        specifications = tuple(
+            (name, sources[name], purpose)
+            for name, purpose in (
+                ("content", "collected-content"),
+                ("resources", "resource-view"),
+                ("client-maps", "region-map-cache"),
+            )
+        )
+        first_inputs = self.workspace._copy_topology_runtime_inputs(
+            first_root, specifications
+        )
+        second_inputs = self.workspace._copy_topology_runtime_inputs(
+            second_root, specifications
+        )
+
+        for name in sources:
+            first = first_inputs[name]
+            second = second_inputs[name]
+            (first / "payload").write_text("first changed\n", encoding="utf-8")
+            shutil.rmtree(first)
+
+            self.assertEqual(
+                (sources[name] / "payload").read_text(encoding="utf-8"),
+                "shared\n",
+            )
+            self.assertEqual(
+                (second / "payload").read_text(encoding="utf-8"), "shared\n"
+            )
+
+    def test_topology_runtime_set_copy_failure_preserves_all_snapshots(self) -> None:
+        topology = self.root / "topology"
+        runtime = topology / "runtime"
+        runtime.mkdir(parents=True)
+        sources: list[tuple[str, Path, str]] = []
+        for name, purpose in (
+            ("content", "collected-content"),
+            ("resources", "resource-view"),
+            ("client-maps", "region-map-cache"),
+        ):
+            source = self.root / f"shared-{name}"
+            source.mkdir()
+            (source / "payload").write_text("new\n", encoding="utf-8")
+            atomic_json(
+                source / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": purpose},
+            )
+            destination = runtime / name
+            destination.mkdir()
+            (destination / "payload").write_text("previous\n", encoding="utf-8")
+            atomic_json(
+                destination / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": purpose},
+            )
+            sources.append((name, source, purpose))
+        status = topology / "status.json"
+        status.write_text("previous status\n", encoding="utf-8")
+        real_copy = self.workspace._copy_topology_runtime_tree
+        copied = 0
+
+        def fail_second_copy(
+            source_path: Path, destination: Path
+        ) -> int:
+            nonlocal copied
+            copied += 1
+            if copied == 2:
+                raise OSError("disk full")
+            return real_copy(source_path, destination)
+
+        with mock.patch.object(
+            self.workspace,
+            "_copy_topology_runtime_tree",
+            side_effect=fail_second_copy,
+        ):
+            with self.assertRaisesRegex(OSError, "disk full"):
+                self.workspace._copy_topology_runtime_inputs(
+                    topology, tuple(sources)
+                )
+
+        for name, _source, _purpose in sources:
+            self.assertEqual(
+                (runtime / name / "payload").read_text(encoding="utf-8"),
+                "previous\n",
+            )
+        self.assertEqual(status.read_text(encoding="utf-8"), "previous status\n")
+        self.assertEqual(
+            sorted(entry.name for entry in topology.iterdir()),
+            ["runtime", "status.json"],
+        )
+
+    def test_topology_runtime_set_rejects_internal_links(self) -> None:
+        topology = self.root / "topology"
+        topology.mkdir()
+        source = self.root / "shared-content"
+        source.mkdir()
+        external = self.root / "external"
+        external.write_text("private\n", encoding="utf-8")
+        (source / "payload").symlink_to(external)
+        atomic_json(
+            source / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "collected-content"},
+        )
+
+        with self.assertRaisesRegex(WorkspaceError, "contains a"):
+            self.workspace._copy_topology_runtime_inputs(
+                topology,
+                (("content", source, "collected-content"),),
+            )
+
+        self.assertEqual(list(topology.iterdir()), [])
+
+    def test_topology_runtime_set_rejects_file_changed_to_link_during_copy(
+        self,
+    ) -> None:
+        topology = self.root / "topology"
+        topology.mkdir()
+        source = self.root / "shared-content"
+        source.mkdir()
+        payload = source / "payload"
+        payload.write_text("shared\n", encoding="utf-8")
+        external = self.root / "external"
+        external.write_text("private\n", encoding="utf-8")
+        atomic_json(
+            source / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "collected-content"},
+        )
+        real_stat = os.stat
+        changed = False
+
+        def stat_then_change(
+            path: object, *args: object, **kwargs: object
+        ) -> os.stat_result:
+            nonlocal changed
+            result = real_stat(path, *args, **kwargs)
+            if path == "payload" and kwargs.get("dir_fd") is not None and not changed:
+                changed = True
+                payload.unlink()
+                payload.symlink_to(external)
+            return result
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.stat", side_effect=stat_then_change
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed or contains a link"):
+                self.workspace._copy_topology_runtime_inputs(
+                    topology,
+                    (("content", source, "collected-content"),),
+                )
+
+        self.assertEqual(list(topology.iterdir()), [])
+
+    def test_topology_runtime_set_rejects_destination_directory_link_race(
+        self,
+    ) -> None:
+        topology = self.root / "topology"
+        topology.mkdir()
+        source = self.root / "shared-content"
+        nested = source / "nested"
+        nested.mkdir(parents=True)
+        (nested / "payload").write_text("shared\n", encoding="utf-8")
+        atomic_json(
+            source / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "collected-content"},
+        )
+        external = self.root / "external"
+        external.mkdir()
+        (external / "sentinel").write_text("private\n", encoding="utf-8")
+        real_open = os.open
+        changed = False
+
+        def open_after_change(
+            path: object, flags: int, *args: object, **kwargs: object
+        ) -> int:
+            nonlocal changed
+            directory_fd = kwargs.get("dir_fd")
+            if (
+                path == "nested"
+                and isinstance(directory_fd, int)
+                and flags & os.O_DIRECTORY
+                and not changed
+            ):
+                parent = Path(f"/proc/self/fd/{directory_fd}").resolve()
+                if ".runtime-" in str(parent):
+                    changed = True
+                    (parent / "nested").rmdir()
+                    (parent / "nested").symlink_to(external, target_is_directory=True)
+            return real_open(path, flags, *args, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.open", side_effect=open_after_change
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "staging destination changed"
+            ):
+                self.workspace._copy_topology_runtime_inputs(
+                    topology,
+                    (("content", source, "collected-content"),),
+                )
+
+        self.assertTrue(changed)
+        self.assertEqual(
+            (external / "sentinel").read_text(encoding="utf-8"), "private\n"
+        )
+        self.assertEqual(sorted(path.name for path in external.iterdir()), ["sentinel"])
+        self.assertEqual(list(topology.iterdir()), [])
+
+    def test_topology_runtime_set_copies_read_only_directories(self) -> None:
+        topology = self.root / "topology"
+        topology.mkdir()
+        source = self.root / "shared-content"
+        nested = source / "nested"
+        nested.mkdir(parents=True)
+        (nested / "payload").write_text("shared\n", encoding="utf-8")
+        atomic_json(
+            source / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "collected-content"},
+        )
+        nested.chmod(0o555)
+        source.chmod(0o555)
+
+        copied = self.workspace._copy_topology_runtime_inputs(
+            topology,
+            (("content", source, "collected-content"),),
+        )["content"]
+        copied = self.workspace._copy_topology_runtime_inputs(
+            topology,
+            (("content", source, "collected-content"),),
+        )["content"]
+
+        self.assertEqual(
+            (copied / "nested" / "payload").read_text(encoding="utf-8"),
+            "shared\n",
+        )
+        self.assertEqual(stat.S_IMODE(copied.stat().st_mode), 0o555)
+        self.assertEqual(stat.S_IMODE((copied / "nested").stat().st_mode), 0o555)
+
+    def test_replace_directory_cleanup_failure_keeps_committed_output(self) -> None:
+        output = self.root / "output"
+        output.mkdir()
+        (output / "first").write_text("delete first\n", encoding="utf-8")
+        (output / "payload").write_text("previous\n", encoding="utf-8")
+        staging = self.root / "staging"
+        staging.mkdir()
+        (staging / "payload").write_text("new\n", encoding="utf-8")
+        real_unlink = os.unlink
+
+        def fail_backup_cleanup(
+            path: object, *args: object, **kwargs: object
+        ) -> None:
+            directory_fd = kwargs.get("dir_fd")
+            parent = (
+                Path(f"/proc/self/fd/{directory_fd}").resolve()
+                if isinstance(directory_fd, int)
+                else None
+            )
+            if path == "payload" and parent is not None and parent.name == "previous":
+                raise PermissionError("read only")
+            real_unlink(path, *args, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.unlink",
+            side_effect=fail_backup_cleanup,
+        ):
+            workspace_replace_directory(output, staging, ".previous-")
+
+            next_staging = self.root / "next-staging"
+            next_staging.mkdir()
+            (next_staging / "payload").write_text("next\n", encoding="utf-8")
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot recover replaced-directory transaction"
+            ):
+                workspace_replace_directory(output, next_staging, ".previous-")
+
+        self.assertEqual(
+            (output / "payload").read_text(encoding="utf-8"), "new\n"
+        )
+        self.assertEqual(
+            len(
+                [
+                    path
+                    for path in self.root.iterdir()
+                    if path.name.startswith(".previous-")
+                ]
+            ),
+            2,
+        )
+        self.assertTrue((self.root / ".previous-pending.json").is_file())
+        workspace_replace_directory(output, next_staging, ".previous-")
+        self.assertEqual(
+            (output / "payload").read_text(encoding="utf-8"), "next\n"
+        )
+        self.assertEqual(
+            [
+                path
+                for path in self.root.iterdir()
+                if path.name.startswith(".previous-")
+            ],
+            [],
+        )
+
+    def test_replace_directory_restores_interrupted_pending_output(self) -> None:
+        output = self.root / "output"
+        pending = self.root / ".previous-pending"
+        previous = pending / "previous"
+        previous.mkdir(parents=True)
+        (previous / "payload").write_text("previous\n", encoding="utf-8")
+        atomic_json(
+            self.root / ".previous-pending.json",
+            {
+                "schema_version": 1,
+                "purpose": "replaced-directory-backup",
+                "output": "output",
+                "phase": "prepared",
+            },
+        )
+        missing_staging = self.root / "missing-staging"
+
+        with self.assertRaises(FileNotFoundError):
+            workspace_replace_directory(output, missing_staging, ".previous-")
+
+        self.assertEqual(
+            (output / "payload").read_text(encoding="utf-8"), "previous\n"
+        )
+        self.assertFalse(pending.exists())
+        self.assertFalse((self.root / ".previous-pending.json").exists())
+
+    def test_replace_directory_restores_unverified_installed_output(self) -> None:
+        output = self.root / "output"
+        output.mkdir()
+        (output / "payload").write_text("unverified\n", encoding="utf-8")
+        pending = self.root / ".previous-pending"
+        previous = pending / "previous"
+        previous.mkdir(parents=True)
+        (previous / "payload").write_text("previous\n", encoding="utf-8")
+        atomic_json(
+            self.root / ".previous-pending.json",
+            {
+                "schema_version": 1,
+                "purpose": "replaced-directory-backup",
+                "output": "output",
+                "phase": "prepared",
+            },
+        )
+
+        with self.assertRaises(FileNotFoundError):
+            workspace_replace_directory(
+                output, self.root / "missing-staging", ".previous-"
+            )
+
+        self.assertEqual(
+            (output / "payload").read_text(encoding="utf-8"), "previous\n"
+        )
+        self.assertFalse(pending.exists())
+        self.assertFalse((self.root / ".previous-pending.json").exists())
+
+    def test_owned_tree_removal_refuses_nested_mount_before_deletion(self) -> None:
+        owned = self.root / "owned"
+        first = owned / "a-first"
+        first.mkdir(parents=True)
+        first_payload = first / "payload"
+        first_payload.write_text("preserve first\n", encoding="utf-8")
+        nested = owned / "nested"
+        nested.mkdir()
+        nested.chmod(0o755)
+        payload = nested / "payload"
+        payload.write_text("preserve\n", encoding="utf-8")
+        first.chmod(0o555)
+        owned.chmod(0o555)
+        owned_mode = stat.S_IMODE(owned.stat().st_mode)
+        first_mode = stat.S_IMODE(first.stat().st_mode)
+        original_mode = stat.S_IMODE(nested.stat().st_mode)
+
+        with mock.patch(
+            "atrinik_workspace.workspace._descriptor_mount_id",
+            side_effect=[1] * 9 + [2],
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
+                remove_owned_tree(owned)
+
+        self.assertEqual(payload.read_text(encoding="utf-8"), "preserve\n")
+        self.assertEqual(
+            first_payload.read_text(encoding="utf-8"), "preserve first\n"
+        )
+        self.assertEqual(stat.S_IMODE(owned.stat().st_mode), owned_mode)
+        self.assertEqual(stat.S_IMODE(first.stat().st_mode), first_mode)
+        self.assertEqual(stat.S_IMODE(nested.stat().st_mode), original_mode)
+
+    def test_owned_tree_removal_uses_portable_mount_fallback(self) -> None:
+        owned = self.root / "owned"
+        owned.mkdir()
+        (owned / "payload").write_text("remove\n", encoding="utf-8")
+
+        with (
+            mock.patch("atrinik_workspace.workspace.sys.platform", "darwin"),
+            mock.patch(
+                "atrinik_workspace.workspace._darwin_descriptor_mount_id",
+                return_value=(1, 2),
+            ),
+        ):
+            remove_owned_tree(owned)
+
+        self.assertFalse(owned.exists())
+
+    def test_owned_tree_removal_checks_file_mounts_before_deletion(self) -> None:
+        owned = self.root / "owned"
+        owned.mkdir()
+        first = owned / "a-first"
+        mounted = owned / "z-mounted"
+        first.write_text("preserve first\n", encoding="utf-8")
+        mounted.write_text("preserve mounted\n", encoding="utf-8")
+
+        with mock.patch(
+            "atrinik_workspace.workspace._descriptor_mount_id",
+            side_effect=[1] * 6 + [2],
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
+                remove_owned_tree(owned)
+
+        self.assertEqual(first.read_text(encoding="utf-8"), "preserve first\n")
+        self.assertEqual(
+            mounted.read_text(encoding="utf-8"), "preserve mounted\n"
+        )
+
+    def test_owned_tree_removal_does_not_require_procfs(self) -> None:
+        owned = self.root / "owned"
+        owned.mkdir()
+        (owned / "payload").write_text("remove\n", encoding="utf-8")
+
+        with mock.patch(
+            "atrinik_workspace.workspace.Path.read_text",
+            side_effect=FileNotFoundError("no procfs"),
+        ):
+            remove_owned_tree(owned)
+
+        self.assertFalse(owned.exists())
+
+    @unittest.skipUnless(sys.platform == "linux", "requires Linux O_PATH")
+    def test_owned_tree_removal_handles_unreadable_directories(self) -> None:
+        real_open = os.open
+
+        def deny_initial_read(
+            path: object, flags: int, *args: object, **kwargs: object
+        ) -> int:
+            if path in {"owned", "nested", "unsupported"} and not (
+                flags & os.O_PATH
+            ):
+                raise PermissionError(errno.EACCES, "permission denied")
+            return real_open(path, flags, *args, **kwargs)
+
+        readable = self.root / "readable"
+        readable.mkdir()
+        (readable / "payload").write_text("remove\n", encoding="utf-8")
+        with mock.patch(
+            "atrinik_workspace.workspace._linux_fchmod_path_descriptor",
+            side_effect=WorkspaceError("fchmodat2 unavailable"),
+        ) as fallback:
+            remove_owned_tree(readable)
+        fallback.assert_not_called()
+        self.assertFalse(readable.exists())
+
+        owned = self.root / "owned"
+        nested = owned / "nested"
+        nested.mkdir(parents=True)
+        (nested / "payload").write_text("remove\n", encoding="utf-8")
+        nested.chmod(0)
+        owned.chmod(0)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.open", side_effect=deny_initial_read
+        ):
+            remove_owned_tree(owned)
+
+        self.assertFalse(owned.exists())
+
+        unsupported = self.root / "unsupported"
+        unsupported.mkdir()
+        payload = unsupported / "payload"
+        payload.write_text("preserve\n", encoding="utf-8")
+        unsupported.chmod(0)
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.os.open",
+                    side_effect=deny_initial_read,
+                ),
+                mock.patch(
+                    "atrinik_workspace.workspace._linux_fchmod_path_descriptor",
+                    side_effect=WorkspaceError("fchmodat2 unavailable"),
+                ),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "unavailable"):
+                    remove_owned_tree(unsupported)
+            self.assertEqual(stat.S_IMODE(unsupported.stat().st_mode), 0)
+            unsupported.chmod(0o700)
+            self.assertEqual(payload.read_text(encoding="utf-8"), "preserve\n")
+        finally:
+            unsupported.chmod(0o700)
+
+    def test_owned_tree_removal_rejects_special_nodes_without_opening(self) -> None:
+        owned = self.root / "owned"
+        owned.mkdir()
+        fifo = owned / "fifo"
+        os.mkfifo(fifo)
+
+        with (
+            mock.patch("atrinik_workspace.workspace.sys.platform", "darwin"),
+            mock.patch(
+                "atrinik_workspace.workspace._darwin_descriptor_mount_id",
+                return_value=(1, 2),
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "entry is unsupported"):
+                remove_owned_tree(owned)
+
+        self.assertTrue(fifo.exists())
+
+    def test_mount_identity_probes_fail_closed(self) -> None:
+        class FakeFunction:
+            def __init__(self, result: int, values: tuple[int, int] | None = None):
+                self.result = result
+                self.values = values
+
+            def __call__(self, *arguments: object) -> int:
+                if self.values is not None:
+                    buffer = arguments[-1]._obj  # type: ignore[attr-defined]
+                    ctypes.c_int32.from_buffer(buffer, 48).value = self.values[0]
+                    ctypes.c_int32.from_buffer(buffer, 52).value = self.values[1]
+                return self.result
+
+        class FakeLibrary:
+            def __init__(self, function: FakeFunction):
+                self.fstatfs = function
+                self.statx = function
+
+        with mock.patch(
+            "atrinik_workspace.workspace.ctypes.CDLL",
+            return_value=FakeLibrary(FakeFunction(0, (7, 9))),
+        ):
+            self.assertEqual(workspace_module._darwin_descriptor_mount_id(1), (7, 9))
+
+        ctypes.set_errno(errno.EIO)
+        with mock.patch(
+            "atrinik_workspace.workspace.ctypes.CDLL",
+            return_value=FakeLibrary(FakeFunction(-1)),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "cannot inspect filesystem"):
+                workspace_module._darwin_descriptor_mount_id(1)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.ctypes.CDLL", return_value=object()
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "statx mount identity"):
+                workspace_module._linux_descriptor_mount_id(1)
+
+        ctypes.set_errno(errno.EIO)
+        with mock.patch(
+            "atrinik_workspace.workspace.ctypes.CDLL",
+            return_value=FakeLibrary(FakeFunction(-1)),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "cannot inspect filesystem"):
+                workspace_module._linux_descriptor_mount_id(1)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.ctypes.CDLL",
+            return_value=FakeLibrary(FakeFunction(0)),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "did not return"):
+                workspace_module._linux_descriptor_mount_id(1)
+
+        class SuccessfulStatx(FakeFunction):
+            def __call__(self, *arguments: object) -> int:
+                buffer = arguments[-1]._obj  # type: ignore[attr-defined]
+                ctypes.c_uint32.from_buffer(buffer, 0).value = 0x1000
+                ctypes.c_uint64.from_buffer(buffer, 144).value = 8675309
+                return 0
+
+        with mock.patch(
+            "atrinik_workspace.workspace.ctypes.CDLL",
+            return_value=FakeLibrary(SuccessfulStatx(0)),
+        ):
+            self.assertEqual(
+                workspace_module._linux_descriptor_mount_id(1), 8675309
+            )
+
+        with mock.patch("atrinik_workspace.workspace.sys.platform", "freebsd"):
+            with self.assertRaisesRegex(WorkspaceError, "unavailable on freebsd"):
+                workspace_module._descriptor_mount_id(1)
+
+    def test_owned_tree_removal_detects_descriptor_races(self) -> None:
+        invalid = self.root / "invalid-removal-root"
+        invalid.write_text("file\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "root is invalid"):
+            remove_owned_tree(invalid)
+
+        mounted = self.root / "mounted-removal-root"
+        mounted.mkdir()
+        mounted_payload = mounted / "payload"
+        mounted_payload.write_text("preserve\n", encoding="utf-8")
+        mounted_identity = mounted_payload.lstat()
+        with mock.patch(
+            "atrinik_workspace.workspace._descriptor_mount_id",
+            side_effect=[1, 2],
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "root changed or is mounted"):
+                remove_owned_tree(mounted)
+        self.assertEqual(
+            (mounted_payload.read_text(encoding="utf-8"), mounted_payload.lstat().st_ino),
+            ("preserve\n", mounted_identity.st_ino),
+        )
+
+        probe_root = self.root / "probe-open-race"
+        probe_root.mkdir()
+        probe_file = probe_root / "payload"
+        probe_file.write_text("data\n", encoding="utf-8")
+        probe_identity = probe_file.lstat()
+        probe_descriptor = os.open(probe_root, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            with mock.patch(
+                "atrinik_workspace.workspace.os.open",
+                side_effect=OSError("changed"),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "entry changed"):
+                    workspace_module._probe_owned_tree_entry_mount(
+                        probe_descriptor,
+                        "payload",
+                        probe_file.stat(),
+                        1,
+                        probe_file,
+                    )
+        finally:
+            os.close(probe_descriptor)
+        self.assertEqual(
+            (probe_file.read_text(encoding="utf-8"), probe_file.lstat().st_ino),
+            ("data\n", probe_identity.st_ino),
+        )
+
+        boundary = self.root / "prepare-boundary"
+        boundary.mkdir()
+        boundary_payload = boundary / "payload"
+        boundary_payload.write_text("preserve\n", encoding="utf-8")
+        boundary.chmod(0o555)
+        boundary_mode = stat.S_IMODE(boundary.stat().st_mode)
+        boundary_identity = boundary_payload.lstat()
+        boundary_descriptor = os.open(boundary, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            boundary_stat = os.fstat(boundary_descriptor)
+            with self.assertRaisesRegex(WorkspaceError, "crossed a filesystem"):
+                workspace_module._prepare_owned_tree_removal(
+                    boundary_descriptor,
+                    boundary_stat.st_dev + 1,
+                    1,
+                    boundary,
+                )
+        finally:
+            os.close(boundary_descriptor)
+        self.assertEqual(
+            (
+                boundary_payload.read_text(encoding="utf-8"),
+                boundary_payload.lstat().st_ino,
+            ),
+            ("preserve\n", boundary_identity.st_ino),
+        )
+        self.assertEqual(stat.S_IMODE(boundary.stat().st_mode), boundary_mode)
+
+        def changed_device(result: os.stat_result) -> os.stat_result:
+            fields = list(result)
+            fields[2] += 1
+            return os.stat_result(fields)
+
+        for operation in (
+            workspace_module._prepare_owned_tree_removal,
+            workspace_module._remove_owned_tree_contents,
+        ):
+            root = self.root / f"device-race-{operation.__name__}"
+            root.mkdir()
+            child = root / "payload"
+            child.write_text("data\n", encoding="utf-8")
+            root.chmod(0o555)
+            root_mode = stat.S_IMODE(root.stat().st_mode)
+            descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+            try:
+                root_stat = os.fstat(descriptor)
+                with (
+                    mock.patch(
+                        "atrinik_workspace.workspace._descriptor_mount_id",
+                        return_value=1,
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace._probe_owned_tree_entry_mount"
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace.os.stat",
+                        return_value=changed_device(child.stat()),
+                    ),
+                ):
+                    with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
+                        operation(descriptor, root_stat.st_dev, 1, root)
+            finally:
+                os.close(descriptor)
+            self.assertEqual(child.read_text(encoding="utf-8"), "data\n")
+            self.assertEqual(stat.S_IMODE(root.stat().st_mode), root_mode)
+
+        real_open = os.open
+        for operation in (
+            workspace_module._prepare_owned_tree_removal,
+            workspace_module._remove_owned_tree_contents,
+        ):
+            root = self.root / f"open-race-{operation.__name__}"
+            nested = root / "nested"
+            nested.mkdir(parents=True)
+            nested_payload = nested / "payload"
+            nested_payload.write_text("preserve\n", encoding="utf-8")
+            nested.chmod(0o555)
+            root.chmod(0o555)
+            root_mode = stat.S_IMODE(root.stat().st_mode)
+            nested_mode = stat.S_IMODE(nested.stat().st_mode)
+            nested_identity = nested_payload.lstat()
+            descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+            root_stat = os.fstat(descriptor)
+
+            def fail_nested_open(
+                path: object, flags: int, *args: object, **kwargs: object
+            ) -> int:
+                if path == "nested" and kwargs.get("dir_fd") == descriptor:
+                    raise OSError("changed")
+                return real_open(path, flags, *args, **kwargs)
+
+            try:
+                with (
+                    mock.patch(
+                        "atrinik_workspace.workspace._descriptor_mount_id",
+                        return_value=1,
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace._probe_owned_tree_entry_mount"
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace.os.open",
+                        side_effect=fail_nested_open,
+                    ),
+                ):
+                    with self.assertRaisesRegex(WorkspaceError, "directory changed"):
+                        operation(descriptor, root_stat.st_dev, 1, root)
+            finally:
+                os.close(descriptor)
+            self.assertEqual(
+                (
+                    nested_payload.read_text(encoding="utf-8"),
+                    nested_payload.lstat().st_ino,
+                ),
+                ("preserve\n", nested_identity.st_ino),
+            )
+            self.assertEqual(stat.S_IMODE(root.stat().st_mode), root_mode)
+            self.assertEqual(stat.S_IMODE(nested.stat().st_mode), nested_mode)
+
+        for operation in (
+            workspace_module._prepare_owned_tree_removal,
+            workspace_module._remove_owned_tree_contents,
+        ):
+            root = self.root / f"identity-race-{operation.__name__}"
+            nested = root / "nested"
+            nested.mkdir(parents=True)
+            nested_payload = nested / "payload"
+            nested_payload.write_text("preserve\n", encoding="utf-8")
+            nested.chmod(0o555)
+            root.chmod(0o555)
+            root_mode = stat.S_IMODE(root.stat().st_mode)
+            nested_mode = stat.S_IMODE(nested.stat().st_mode)
+            nested_identity = nested_payload.lstat()
+            descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+            root_stat = os.fstat(descriptor)
+            mount_ids = (
+                [1, 2]
+                if operation is workspace_module._prepare_owned_tree_removal
+                else [2]
+            )
+            try:
+                with (
+                    mock.patch(
+                        "atrinik_workspace.workspace._descriptor_mount_id",
+                        side_effect=mount_ids,
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace._probe_owned_tree_entry_mount"
+                    ),
+                ):
+                    with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
+                        operation(descriptor, root_stat.st_dev, 1, root)
+            finally:
+                os.close(descriptor)
+            self.assertEqual(
+                (
+                    nested_payload.read_text(encoding="utf-8"),
+                    nested_payload.lstat().st_ino,
+                ),
+                ("preserve\n", nested_identity.st_ino),
+            )
+            self.assertEqual(stat.S_IMODE(root.stat().st_mode), root_mode)
+            self.assertEqual(stat.S_IMODE(nested.stat().st_mode), nested_mode)
+
+    def test_replaced_directory_recovery_rejects_invalid_states(self) -> None:
+        def snapshot(parent: Path) -> dict[str, tuple[object, ...]]:
+            result: dict[str, tuple[object, ...]] = {}
+            for directory, dirnames, filenames in os.walk(
+                parent, followlinks=False
+            ):
+                directory_path = Path(directory)
+                for name in sorted([*dirnames, *filenames]):
+                    entry = directory_path / name
+                    relative = entry.relative_to(parent).as_posix()
+                    metadata = entry.lstat()
+                    if entry.is_symlink():
+                        value: object = os.readlink(entry)
+                    elif entry.is_file():
+                        value = entry.read_bytes()
+                    else:
+                        value = None
+                    result[relative] = (
+                        stat.S_IFMT(metadata.st_mode),
+                        stat.S_IMODE(metadata.st_mode),
+                        metadata.st_ino,
+                        value,
+                    )
+            return result
+
+        def prepare(
+            name: str,
+            phase: str,
+            *,
+            output: str = "absent",
+            backup: str = "absent",
+        ) -> tuple[Path, Path, Path]:
+            parent = self.root / name
+            parent.mkdir()
+            target = parent / "output"
+            pending = parent / ".previous-pending"
+            if output == "directory":
+                target.mkdir()
+            elif output == "symlink":
+                external = parent / "external"
+                external.mkdir()
+                target.symlink_to(external, target_is_directory=True)
+            if backup != "absent":
+                pending.mkdir()
+                if backup == "previous":
+                    (pending / "previous").mkdir()
+                elif backup == "previous-symlink":
+                    external = parent / "backup-external"
+                    external.mkdir()
+                    (pending / "previous").symlink_to(
+                        external, target_is_directory=True
+                    )
+                elif backup == "other":
+                    (pending / "other").write_text("unexpected\n", encoding="utf-8")
+            atomic_json(
+                parent / ".previous-pending.json",
+                {
+                    "schema_version": 1,
+                    "purpose": "replaced-directory-backup",
+                    "output": "output",
+                    "phase": phase,
+                },
+            )
+            return target, pending, parent / ".previous-pending.json"
+
+        unmanaged = self.root / "unmanaged"
+        unmanaged.mkdir()
+        (unmanaged / ".previous-pending").mkdir()
+        unmanaged_before = snapshot(unmanaged)
+        with self.assertRaisesRegex(WorkspaceError, "is not managed"):
+            workspace_module.recover_replaced_directory(
+                unmanaged / "output", ".previous-"
+            )
+        self.assertEqual(snapshot(unmanaged), unmanaged_before)
+
+        invalid_link = self.root / "invalid-link"
+        invalid_link.mkdir()
+        link_target = invalid_link / "journal-target"
+        link_target.write_text("{}", encoding="utf-8")
+        (invalid_link / ".previous-pending.json").symlink_to(link_target)
+        invalid_link_before = snapshot(invalid_link)
+        with self.assertRaisesRegex(WorkspaceError, "journal is invalid"):
+            workspace_module.recover_replaced_directory(
+                invalid_link / "output", ".previous-"
+            )
+        self.assertEqual(snapshot(invalid_link), invalid_link_before)
+
+        invalid_json = self.root / "invalid-json"
+        invalid_json.mkdir()
+        atomic_json(invalid_json / ".previous-pending.json", [])
+        invalid_json_before = snapshot(invalid_json)
+        with self.assertRaisesRegex(WorkspaceError, "journal is invalid"):
+            workspace_module.recover_replaced_directory(
+                invalid_json / "output", ".previous-"
+            )
+        self.assertEqual(snapshot(invalid_json), invalid_json_before)
+
+        invalid_phase = self.root / "invalid-phase"
+        invalid_phase.mkdir()
+        atomic_json(
+            invalid_phase / ".previous-pending.json",
+            {
+                "schema_version": 1,
+                "purpose": "replaced-directory-backup",
+                "output": "output",
+                "phase": "unknown",
+            },
+        )
+        invalid_phase_before = snapshot(invalid_phase)
+        with self.assertRaisesRegex(WorkspaceError, "journal is invalid"):
+            workspace_module.recover_replaced_directory(
+                invalid_phase / "output", ".previous-"
+            )
+        self.assertEqual(snapshot(invalid_phase), invalid_phase_before)
+
+        cases = (
+            (
+                "initializing-nonempty",
+                "initializing",
+                "absent",
+                "other",
+                "backup is invalid",
+            ),
+            ("prepared-no-backup", "prepared", "absent", "absent", "backup is invalid"),
+            (
+                "previous-link",
+                "prepared",
+                "absent",
+                "previous-symlink",
+                "payload is invalid",
+            ),
+            (
+                "prepared-output-link",
+                "prepared",
+                "symlink",
+                "previous",
+                "replacement is invalid",
+            ),
+            (
+                "committed-no-output",
+                "committed",
+                "absent",
+                "previous",
+                "replacement is invalid",
+            ),
+            (
+                "committed-empty",
+                "committed",
+                "absent",
+                "empty",
+                "replacement is invalid",
+            ),
+            ("prepared-empty", "prepared", "absent", "empty", "replacement is invalid"),
+            ("unexpected-payload", "prepared", "directory", "other", "not empty"),
+        )
+        for name, phase, output, backup, message in cases:
+            with self.subTest(name=name):
+                target, _pending, _journal = prepare(
+                    name, phase, output=output, backup=backup
+                )
+                before = snapshot(target.parent)
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    workspace_module.recover_replaced_directory(
+                        target, ".previous-"
+                    )
+                self.assertEqual(snapshot(target.parent), before)
+
+        target, pending, journal = prepare(
+            "committed-clean", "committed", output="directory"
+        )
+        workspace_module.recover_replaced_directory(target, ".previous-")
+        self.assertFalse(pending.exists())
+        self.assertFalse(journal.exists())
+
+    def test_content_and_resource_validators_reject_malformed_trees(self) -> None:
+        coordinate = {
+            "repository": "atrinik/content",
+            "branch": "main",
+            "head": "a" * 40,
+        }
+
+        def content(name: str) -> Path:
+            path = self.root / name
+            path.mkdir()
+            self.make_content_candidate(path, coordinate["head"], "content\n")
+            atomic_json(
+                path / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": "collected-content"},
+            )
+            return path
+
+        root_file = self.root / "content-file"
+        root_file.write_text("bad\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace._validate_collected_content(
+                root_file, coordinate, require_metadata=False
+            )
+
+        missing_directory = content("content-missing-directory")
+        shutil.rmtree(missing_directory / "lib")
+        with self.assertRaisesRegex(WorkspaceError, "required directory"):
+            self.workspace._validate_collected_content(
+                missing_directory, coordinate, require_metadata=False
+            )
+
+        invalid_manifest = content("content-invalid-manifest")
+        atomic_json(invalid_manifest / "manifest.json", [])
+        with self.assertRaisesRegex(WorkspaceError, "manifest is invalid"):
+            self.workspace._validate_collected_content(
+                invalid_manifest, coordinate, require_metadata=False
+            )
+
+        invalid_entry = content("content-invalid-entry")
+        manifest = load_json(invalid_entry / "manifest.json")
+        manifest["files"][0]["path"] = "../escape"
+        atomic_json(invalid_entry / "manifest.json", manifest)
+        with self.assertRaisesRegex(WorkspaceError, "file entry is invalid"):
+            self.workspace._validate_collected_content(
+                invalid_entry, coordinate, require_metadata=False
+            )
+
+        linked = content("content-link")
+        (linked / "linked").symlink_to(self.root, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "contains a link"):
+            self.workspace._validate_collected_content(
+                linked, coordinate, require_metadata=False
+            )
+
+        extra = content("content-extra")
+        (extra / "extra").write_text("extra\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "does not match"):
+            self.workspace._validate_collected_content(
+                extra, coordinate, require_metadata=False
+            )
+
+        wrong_size = content("content-size")
+        manifest = load_json(wrong_size / "manifest.json")
+        manifest["files"][0]["size"] += 1
+        atomic_json(wrong_size / "manifest.json", manifest)
+        with self.assertRaisesRegex(WorkspaceError, "size does not match"):
+            self.workspace._validate_collected_content(
+                wrong_size, coordinate, require_metadata=False
+            )
+
+        unreadable = content("content-unreadable")
+        real_lstat = Path.lstat
+        walking = False
+
+        def fail_content_lstat(candidate: Path) -> os.stat_result:
+            if walking and candidate == unreadable / "compatibility.json":
+                raise OSError("changed")
+            return real_lstat(candidate)
+
+        real_walk = os.walk
+
+        def activate_content_walk(
+            *arguments: object, **kwargs: object
+        ) -> object:
+            nonlocal walking
+            walking = True
+            yield from real_walk(*arguments, **kwargs)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.Path.lstat",
+                autospec=True,
+                side_effect=fail_content_lstat,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.os.walk",
+                side_effect=activate_content_walk,
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "cannot inspect collected"):
+                self.workspace._validate_collected_content(
+                    unreadable, coordinate, require_metadata=False
+                )
+
+        special_content = content("content-special")
+        fifo = special_content / "fifo"
+        os.mkfifo(fifo)
+        manifest = load_json(special_content / "manifest.json")
+        manifest["files"].append(
+            {"path": "fifo", "sha256": "0" * 64, "size": 0}
+        )
+        atomic_json(special_content / "manifest.json", manifest)
+        with self.assertRaisesRegex(WorkspaceError, "non-regular file"):
+            self.workspace._validate_collected_content(
+                special_content, coordinate, require_metadata=False
+            )
+
+        source = self.workspace.paths.repositories / "resources"
+
+        def resource(name: str) -> Path:
+            path = self.root / name
+            (path / "paintings").mkdir(parents=True)
+            shutil.copy2(
+                source / "paintings" / "scene.jpg",
+                path / "paintings" / "scene.jpg",
+            )
+            atomic_json(
+                path / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": "resource-view"},
+            )
+            return path
+
+        resource_file = self.root / "resource-file"
+        resource_file.write_text("bad\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace._validate_resource_view(
+                resource_file,
+                source,
+                ["paintings/scene.jpg"],
+                require_metadata=False,
+            )
+
+        resource_link = resource("resource-link")
+        (resource_link / "linked").symlink_to(self.root, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "contains a link"):
+            self.workspace._validate_resource_view(
+                resource_link,
+                source,
+                ["paintings/scene.jpg"],
+                require_metadata=False,
+            )
+
+        resource_extra = resource("resource-extra")
+        (resource_extra / "extra").write_text("extra\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "tracked file set"):
+            self.workspace._validate_resource_view(
+                resource_extra,
+                source,
+                ["paintings/scene.jpg"],
+                require_metadata=False,
+            )
+
+        resource_directory = resource("resource-directory")
+        (resource_directory / "extra").mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "tracked directories"):
+            self.workspace._validate_resource_view(
+                resource_directory,
+                source,
+                ["paintings/scene.jpg"],
+                require_metadata=False,
+            )
+
+        unreadable_resource = resource("resource-unreadable")
+
+        def fail_resource_lstat(candidate: Path) -> os.stat_result:
+            if candidate == unreadable_resource / "paintings" / "scene.jpg":
+                raise OSError("changed")
+            return real_lstat(candidate)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.Path.lstat",
+            autospec=True,
+            side_effect=fail_resource_lstat,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "cannot inspect staged"):
+                self.workspace._validate_resource_view(
+                    unreadable_resource,
+                    source,
+                    ["paintings/scene.jpg"],
+                    require_metadata=False,
+                )
+
+        special_resource = self.root / "resource-special"
+        (special_resource / "paintings").mkdir(parents=True)
+        os.mkfifo(special_resource / "paintings" / "fifo")
+        atomic_json(
+            special_resource / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "resource-view"},
+        )
+        with self.assertRaisesRegex(WorkspaceError, "non-regular file"):
+            self.workspace._validate_resource_view(
+                special_resource,
+                source,
+                ["paintings/fifo"],
+                require_metadata=False,
+            )
+
+    def test_replace_directory_interrupted_journal_publish_is_retryable(
+        self,
+    ) -> None:
+        output = self.root / "output"
+        output.mkdir()
+        (output / "payload").write_text("previous\n", encoding="utf-8")
+        staging = self.root / "staging"
+        staging.mkdir()
+        (staging / "payload").write_text("new\n", encoding="utf-8")
+
+        with mock.patch(
+            "atrinik_workspace.workspace.atomic_json",
+            side_effect=KeyboardInterrupt("interrupted"),
+        ):
+            with self.assertRaises(KeyboardInterrupt):
+                workspace_replace_directory(output, staging, ".previous-")
+
+        self.assertEqual(
+            (output / "payload").read_text(encoding="utf-8"), "previous\n"
+        )
+        self.assertFalse((self.root / ".previous-pending").exists())
+        workspace_replace_directory(output, staging, ".previous-")
+        self.assertEqual(
+            (output / "payload").read_text(encoding="utf-8"), "new\n"
+        )
+
+    def test_topology_runtime_install_rejects_post_copy_replacement(self) -> None:
+        topology = self.root / "topology"
+        topology.mkdir()
+        source = self.root / "shared-content"
+        source.mkdir()
+        (source / "payload").write_text("shared\n", encoding="utf-8")
+        atomic_json(
+            source / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "collected-content"},
+        )
+        external = self.root / "external"
+        external.write_text("private\n", encoding="utf-8")
+        real_copy = self.workspace._copy_topology_runtime_tree
+
+        def copy_then_replace(source_path: Path, destination: Path) -> int:
+            descriptor = real_copy(source_path, destination)
+            destination.replace(destination.with_name("copied-original"))
+            destination.mkdir()
+            (destination / "payload").symlink_to(external)
+            atomic_json(
+                destination / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": "collected-content"},
+            )
+            return descriptor
+
+        with mock.patch.object(
+            self.workspace,
+            "_copy_topology_runtime_tree",
+            side_effect=copy_then_replace,
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "installed topology runtime input changed"
+            ):
+                self.workspace._copy_topology_runtime_inputs(
+                    topology,
+                    (("content", source, "collected-content"),),
+                )
+
+        self.assertEqual(list(topology.iterdir()), [])
+        self.assertEqual(external.read_text(encoding="utf-8"), "private\n")
+
     def test_region_maps_are_atomic_cached_and_keyed_by_clean_inputs(self) -> None:
         source = self.workspace.paths.repositories / "server"
         (source / "tools").mkdir()
@@ -2934,11 +4677,14 @@ class WorkspaceTests(unittest.TestCase):
         executable.write_text(
             "#!/usr/bin/env python3\n"
             "from pathlib import Path\n"
+            "import os\n"
             "import sys\n"
             "binary = Path(__file__).resolve()\n"
             "counter = binary.with_name('worldmaker-count')\n"
             "count = int(counter.read_text()) + 1 if counter.exists() else 1\n"
             "counter.write_text(str(count))\n"
+            "binary.with_name('worldmaker-bytecode').write_text("
+            "os.environ.get('PYTHONDONTWRITEBYTECODE', ''))\n"
             "assets = Path(next(arg.split('=', 1)[1] for arg in sys.argv "
             "if arg.startswith('--assetspath=')))\n"
             "output = assets / 'client-maps'\n"
@@ -2965,6 +4711,7 @@ class WorkspaceTests(unittest.TestCase):
         self.workspace._generate_region_maps(root, "default", selected)
 
         self.assertEqual((binary / "worldmaker-count").read_text(), "1")
+        self.assertEqual((binary / "worldmaker-bytecode").read_text(), "1")
         self.assertTrue((output / "incuna_-1.png").is_file())
         previous = (output / "incuna_-1.def").read_text(encoding="utf-8")
         atomic_json(output / ".atrinik-region-maps.json", {"stale": True})
@@ -3403,6 +5150,12 @@ class WorkspaceTests(unittest.TestCase):
             build_root / "runtime" / "resources",
         ):
             path.mkdir(parents=True, exist_ok=True)
+        (build_root / "runtime" / "content" / "maps" / "map").write_text(
+            "shared content\n", encoding="utf-8"
+        )
+        (build_root / "runtime" / "resources" / "resource").write_text(
+            "shared resource\n", encoding="utf-8"
+        )
         atomic_json(
             build_root / "runtime" / "content" / MANAGED_MARKER,
             {"schema_version": 1, "purpose": "collected-content"},
@@ -3468,6 +5221,12 @@ class WorkspaceTests(unittest.TestCase):
         self.assertTrue(
             (build_root / "runtime" / "client-maps" / "incuna_-1.png").is_file()
         )
+        self.assertTrue(
+            (build_root / "runtime" / "content" / "maps" / "map").is_file()
+        )
+        self.assertTrue(
+            (build_root / "runtime" / "resources" / "resource").is_file()
+        )
         self.assertEqual(
             Path(status["services"]["client"]["cwd"]),
             self.workspace.paths.topologies
@@ -3506,7 +5265,54 @@ class WorkspaceTests(unittest.TestCase):
             client_log.read_text(),
         )
         state = self.workspace._state_location("default")
+        second_state = self.workspace.state_add("second", None)
         try:
+            with (
+                mock.patch.object(
+                    self.workspace, "_build_resolved", return_value=build_root
+                ),
+                mock.patch.object(
+                    self.workspace, "_select_topology_port", return_value=17301
+                ),
+            ):
+                second = self.workspace.topology_up(
+                    "server-review-two", "default", "second", ["server"], 17301
+                )
+            self.assertTrue(second["ready"])
+            self.assertEqual(second["endpoint"]["port"], 17301)
+            for topology in ("server-review", "server-review-two"):
+                snapshot = self.workspace.paths.topologies / topology / "runtime"
+                self.assertEqual(
+                    (snapshot / "content" / "maps" / "map").read_text(),
+                    "shared content\n",
+                )
+                self.assertEqual(
+                    (snapshot / "resources" / "resource").read_text(),
+                    "shared resource\n",
+                )
+            self.workspace.topology_down("server-review-two", timeout=5)
+            second_content = (
+                self.workspace.paths.topologies
+                / "server-review-two"
+                / "runtime"
+                / "content"
+            )
+            shutil.rmtree(second_content)
+            self.assertEqual(
+                (
+                    self.workspace.paths.topologies
+                    / "server-review"
+                    / "runtime"
+                    / "content"
+                    / "maps"
+                    / "map"
+                ).read_text(),
+                "shared content\n",
+            )
+            self.assertEqual(
+                (build_root / "runtime" / "content" / "maps" / "map").read_text(),
+                "shared content\n",
+            )
             with self.assertRaisesRegex(WorkspaceError, "already in use"):
                 with exclusive_lock(
                     Path(f"{state}.lock"), "server state", nonblocking=True
@@ -3545,6 +5351,12 @@ class WorkspaceTests(unittest.TestCase):
                 any(service["running"] for service in recovered["services"].values())
             )
         finally:
+            second_remaining = self.workspace.topology_status("server-review-two")
+            if second_remaining["supervisor"]["running"] or any(
+                service["running"]
+                for service in second_remaining["services"].values()
+            ):
+                self.workspace.topology_down("server-review-two", timeout=5)
             remaining = self.workspace.topology_status("server-review")
             if remaining["supervisor"]["running"] or any(
                 service["running"] for service in remaining["services"].values()
@@ -3552,6 +5364,10 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace.topology_down("server-review", timeout=5)
 
         with exclusive_lock(Path(f"{state}.lock"), "server state", nonblocking=True):
+            pass
+        with exclusive_lock(
+            Path(f"{second_state}.lock"), "server state", nonblocking=True
+        ):
             pass
 
     def test_topology_port_selection_rejects_unavailable_port(self) -> None:

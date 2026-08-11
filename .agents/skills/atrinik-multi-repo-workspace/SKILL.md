@@ -59,9 +59,9 @@ Reclaim review data only through preview-first cleanup:
 ./atrinik cleanup --scope all --older-than 7 --apply
 ```
 
-Default scope covers registered worktrees, profile builds, marker-owned Worker
-installs, and stale transactions; npm/compiler caches are opt-in. Text uses IEC
-sizes; JSON keeps exact bytes. References,
+Default scope covers worktrees, profile builds, Worker installs, and stale
+transactions; npm/compiler caches are opt-in. Text uses IEC; JSON uses bytes.
+References,
 ambiguous Git,
 and unsafe paths/markers protect targets. Only an `atrinik/atrinik@main`
 worktree directly below `build/worktrees/` has the historical-base exception:
@@ -91,8 +91,9 @@ wrapper replacement build/runtime closure yet.
 ./atrinik build COMPONENT --profile REVIEW --test
 ```
 
-Classic selection is checkout-wide; subdirectories are not worktrees. Region
-maps cache only clean matching inputs; runtimes copy snapshots without overlays.
+Classic selection is checkout-wide; subdirectories are not worktrees. Clean
+exact-coordinate content, resource, and region-map caches are reused; runtimes
+copy independent topology-owned snapshots.
 
 Build, scenario, and topology records bind exact immutable coordinates;
 incomplete records are inert. Let the wrapper own generated paths, locks,
