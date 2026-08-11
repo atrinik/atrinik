@@ -69,6 +69,7 @@ ALL_BUILD_TARGETS = (
     "metaserver-worker",
 )
 SOURCE_VIEW_METADATA = ".atrinik-source-view.json"
+SOURCE_VIEW_SCHEMA_VERSION = 2
 CONFIGURE_METADATA = ".atrinik-configure.json"
 CONFIGURE_SCHEMA_VERSION = 2
 COMPILER_CACHE_PURPOSE = "compiler-cache"
@@ -1582,8 +1583,16 @@ class Workspace:
         }
         copied_directories = copied_directories or set()
         try:
+            source_head: str | None = git(
+                source, "rev-parse", "HEAD", capture=True, trace=False
+            )
+            if not isinstance(source_head, str) or len(source_head) != 40 or any(
+                character not in "0123456789abcdef" for character in source_head
+            ):
+                raise WorkspaceError(f"invalid Git HEAD for source view: {source}")
             source_clean: bool | None = _is_clean(source, trace=False)
         except WorkspaceError:
+            source_head = None
             source_clean = None
         expected: dict[str, dict[str, Any]] = {}
         for entry in sorted(source.iterdir(), key=lambda path: path.name):
@@ -1692,9 +1701,10 @@ class Workspace:
             if destination.name not in reserved and destination.name not in expected:
                 self._remove_source_view_entry(destination)
         metadata = {
-            "schema_version": 1,
+            "schema_version": SOURCE_VIEW_SCHEMA_VERSION,
             "purpose": purpose,
             "source": str(source.resolve()),
+            "source_head": source_head,
             "entries": expected,
         }
         metadata_path = view / SOURCE_VIEW_METADATA
@@ -2730,8 +2740,9 @@ class Workspace:
                 and not source_metadata.is_symlink()
                 and not marker.is_symlink()
                 and isinstance(metadata, dict)
-                and set(metadata) == {"schema_version", "purpose", "source", "entries"}
-                and metadata.get("schema_version") == 1
+                and set(metadata)
+                == {"schema_version", "purpose", "source", "source_head", "entries"}
+                and metadata.get("schema_version") == SOURCE_VIEW_SCHEMA_VERSION
                 and isinstance(metadata.get("purpose"), str)
                 and metadata["purpose"].startswith("source-view:")
                 and ownership
@@ -2740,6 +2751,17 @@ class Workspace:
                     "purpose": metadata["purpose"],
                 }
                 and isinstance(metadata.get("source"), str)
+                and (
+                    metadata.get("source_head") is None
+                    or (
+                        isinstance(metadata["source_head"], str)
+                        and len(metadata["source_head"]) == 40
+                        and all(
+                            character in "0123456789abcdef"
+                            for character in metadata["source_head"]
+                        )
+                    )
+                )
                 and isinstance(metadata.get("entries"), dict)
             )
             if valid:

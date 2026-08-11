@@ -2040,8 +2040,13 @@ class Cleanup:
                 item["error"] = str(error)
                 used_at = None
         else:
-            used_at = observed
-            item["age_basis"] = "legacy-tree-mtime"
+            if legacy_allowed:
+                used_at = observed
+                item["age_basis"] = "legacy-tree-mtime"
+            else:
+                used_at = None
+                item["reasons"].append("invalid_cache_metadata")
+                item["error"] = f"cache metadata is missing: {metadata_path}"
         if used_at is None:
             item["reasons"].append("cache_age_unavailable")
         else:

@@ -1865,6 +1865,24 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["disposition"], "eligible")
         self.assertEqual(item["reasons"], ["stale_compiler_cache"])
 
+        (cache / ".atrinik-cache.json").unlink()
+        report = self.plan(["compiler-cache"])
+        item = next(
+            row for row in report["items"] if row["kind"] == "compiler-cache"
+        )
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("invalid_cache_metadata", item["reasons"])
+        self.assertIn("cache_age_unavailable", item["reasons"])
+        atomic_json(
+            cache / ".atrinik-cache.json",
+            {
+                "schema_version": 1,
+                "purpose": "compiler-cache",
+                "last_used_at": "2020-01-01T00:00:00+00:00",
+                "max_size": "5G",
+            },
+        )
+
         removed = self.workspace.cleanup(["compiler-cache"], 0, [], True)
         self.assertEqual(removed["summary"]["removed_count"], 1)
         self.assertFalse(cache.exists())

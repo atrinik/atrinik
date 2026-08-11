@@ -938,12 +938,16 @@ class WorkspaceTests(unittest.TestCase):
         (source_root / "CMakeLists.txt").write_text(
             "project(test C)\n", encoding="utf-8"
         )
+        command("git", "add", "CMakeLists.txt", cwd=source_root)
+        command("git", "commit", "-m", "test: add CMake project", cwd=source_root)
         root = self.workspace.paths.builds / "profiles" / "test"
         managed_directory(root, self.workspace.paths.builds, "test-profile")
         source = self.workspace._profile_source_view(root, "content", source_root, set())
         binary = root / "build" / "content"
 
         def configured(command: list[str], **kwargs: object) -> str | None:
+            if command[0] == "git":
+                return workspace_run(command, **kwargs)
             if command[:2] == ["ninja", "-C"]:
                 return "build.ninja:\n  input: RERUN_CMAKE\n"
             if command[:2] != ["cmake", "-S"]:
@@ -1572,6 +1576,49 @@ class WorkspaceTests(unittest.TestCase):
         (source / "src" / "b.c").write_text("int b;\n", encoding="utf-8")
         self.workspace._cmake(source, binary, [], tests=False)
         self.assertIn("b.c", (binary / "selected.txt").read_text(encoding="utf-8"))
+
+    @unittest.skipUnless(
+        all(shutil.which(tool) for tool in ("git", "cmake", "ninja")),
+        "real Git/CMake toolchain is unavailable",
+    )
+    def test_real_clean_source_commit_reconfigures_despite_older_mtime(self) -> None:
+        source = self.root / "clean-commit-source"
+        source.mkdir()
+        (source / "CMakeLists.txt").write_text(
+            "cmake_minimum_required(VERSION 3.20)\n"
+            "project(clean_commit NONE)\n"
+            "configure_file(value.in generated.txt COPYONLY)\n",
+            encoding="utf-8",
+        )
+        configured_input = source / "value.in"
+        configured_input.write_text("one\n", encoding="utf-8")
+        command("git", "init", "-b", "main", cwd=source)
+        command("git", "config", "user.name", "Tests", cwd=source)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=source)
+        command("git", "add", ".", cwd=source)
+        command("git", "commit", "-m", "test: seed clean source", cwd=source)
+        root = self.workspace.paths.builds / "profiles" / "clean-commit"
+        managed_directory(root, self.workspace.paths.builds, "profile:clean-commit")
+        view = self.workspace._profile_source_view(root, "renamed", source, set())
+        binary = root / "build" / "sample"
+        self.workspace._use_ccache = False
+
+        self.workspace._cmake(view, binary, [], tests=False)
+        self.assertEqual((binary / "generated.txt").read_text(), "one\n")
+        sentinel = binary / "preserve-me"
+        sentinel.write_text("keep\n", encoding="utf-8")
+
+        configured_input.write_text("two\n", encoding="utf-8")
+        command("git", "add", "value.in", cwd=source)
+        command("git", "commit", "-m", "test: change configured input", cwd=source)
+        older = (binary / "build.ninja").stat().st_mtime - 60
+        os.utime(configured_input, (older, older))
+        self.workspace._profile_source_view(root, "renamed", source, set())
+        self.assertFalse(self.workspace._source_view_unchanged[str(view.resolve())])
+        self.workspace._cmake(view, binary, [], tests=False)
+
+        self.assertEqual((binary / "generated.txt").read_text(), "two\n")
+        self.assertTrue(sentinel.is_file())
 
     @unittest.skipUnless(
         all(shutil.which(tool) for tool in ("cc", "ccache", "cmake", "ninja")),
