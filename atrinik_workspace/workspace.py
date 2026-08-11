@@ -101,7 +101,7 @@ BUILD_METADATA_SCHEMA_VERSION = 1
 CACHE_METADATA = ".atrinik-cache.json"
 WORKER_DEPENDENCY_METADATA = ".atrinik-worker-dependencies.json"
 WORKER_VIEW_METADATA = ".atrinik-worker-view.json"
-WORKER_DEPENDENCY_SCHEMA_VERSION = 2
+WORKER_DEPENDENCY_SCHEMA_VERSION = 3
 WORKER_VIEW_SCHEMA_VERSION = 1
 WORKER_DEPENDENCY_FILES = ("package.json", "package-lock.json")
 WORKER_SOURCE_EXCLUSIONS = {
@@ -2815,6 +2815,10 @@ class Workspace:
                 f"worker-dependency-transaction:{key}",
             )
             try:
+                # Ownership is proven by the marker-owned transaction parent,
+                # exact per-key name, and held key lock. Keep wrapper metadata
+                # outside the lifecycle-visible input tree while npm runs.
+                (staging / MANAGED_MARKER).unlink()
                 _copy_worker_source(
                     source,
                     staging,
@@ -2850,6 +2854,12 @@ class Workspace:
                         )
                 _normalize_worker_atime(staging)
                 run(["npm", "ci"], cwd=staging, env=environment)
+                if (staging / MANAGED_MARKER).exists() or (
+                    staging / MANAGED_MARKER
+                ).is_symlink():
+                    raise WorkspaceError(
+                        "Worker lifecycle created reserved workspace metadata"
+                    )
                 if _tree_references_path(staging / "node_modules", staging):
                     raise WorkspaceError(
                         "Worker dependency output embeds its install path"

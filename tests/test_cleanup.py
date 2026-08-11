@@ -29,7 +29,7 @@ from atrinik_workspace.model import (
     managed_directory,
     managed_remove as real_managed_remove,
 )
-from atrinik_workspace.workspace import Workspace
+from atrinik_workspace.workspace import WORKER_DEPENDENCY_SCHEMA_VERSION, Workspace
 
 
 def command(*arguments: str, cwd: Path) -> str:
@@ -1851,7 +1851,7 @@ class CleanupTests(unittest.TestCase):
         atomic_json(
             entry / ".atrinik-worker-dependencies.json",
             {
-                "schema_version": 2,
+                "schema_version": WORKER_DEPENDENCY_SCHEMA_VERSION,
                 "purpose": "worker-dependencies",
                 "key": key,
                 "inputs": {"lock": "exact"},

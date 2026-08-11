@@ -281,7 +281,9 @@ modification times, filesystem flags, and extended metadata participate in the
 key while staging access times are normalized; the lifecycle source
 is authenticated before install; installed output that embeds its staging path
 is rejected; and project `.npmrc` content is provided as a restrictive
-temporary copy and never published in the shared cache. Every profile gets its
+temporary copy and never published in the shared cache. Wrapper transaction
+metadata is hidden while lifecycle scripts run and restored before publication.
+Every profile gets its
 own `node_modules` copy, so its checks cannot mutate the shared cache. A
 canonical no-follow digest covers
 the complete installed tree, including modes and bounded relative links. The

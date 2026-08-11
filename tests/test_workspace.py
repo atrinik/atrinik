@@ -771,6 +771,10 @@ class WorkspaceTests(unittest.TestCase):
                 )
             if arguments == ["npm", "ci"]:
                 assert cwd is not None
+                if (cwd / MANAGED_MARKER).exists() or (
+                    cwd / MANAGED_MARKER
+                ).is_symlink():
+                    raise AssertionError("workspace metadata was exposed to npm")
                 if not (cwd / "worker.ts").is_file():
                     raise AssertionError("npm lifecycle source was not staged")
                 if (cwd / "worker.ts").stat().st_atime_ns != 0:
@@ -1142,6 +1146,25 @@ class WorkspaceTests(unittest.TestCase):
             "atrinik_workspace.workspace.run", side_effect=path_embedding_run
         ):
             with self.assertRaisesRegex(WorkspaceError, "embeds its install path"):
+                self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+
+    def test_worker_dependency_hides_reserved_metadata_from_lifecycle(self) -> None:
+        source = self.make_worker_source()
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        runner = self.fake_worker_run([], versions, threading.Lock())
+
+        def marker_creating_run(arguments: list[str], **kwargs: object) -> str:
+            result = runner(arguments, **kwargs)
+            if arguments == ["npm", "ci"]:
+                cwd = kwargs["cwd"]
+                assert isinstance(cwd, Path)
+                atomic_json(cwd / MANAGED_MARKER, {"lifecycle": "unexpected"})
+            return result
+
+        with mock.patch(
+            "atrinik_workspace.workspace.run", side_effect=marker_creating_run
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "reserved workspace metadata"):
                 self.workspace._worker_dependencies(source, {"PATH": "/bin"})
 
     def test_worker_package_and_tool_metadata_fail_closed(self) -> None:
