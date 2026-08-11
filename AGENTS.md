@@ -52,11 +52,13 @@
   concurrent topologies distinct names, states, ports, and client config.
 - Keep shell completion parser-driven, bounded, local-only, secret-free, and
   ahead of `Workspace` construction.
-- Build/runtime layout readers share the outer lock; layout mutation stays
-  exclusive. Fail closed without shared locking and take finer locks afterward.
-- Persisted records without current immutable coordinates are historical and inert.
-- Historical MIT reuse follows `docs/PROVENANCE.md` and fails closed on
-  incomplete or uncertain evidence. Cite the exact registry revision.
+- Build/runtime readers share the outer layout lock; mutations are exclusive
+  and finer locks follow.
+- Unbound persisted records are historical and inert.
+- On touch, refresh existing copyright terminal years and blanket holders per
+  `CONTRIBUTING.md`; preserve precise attribution.
+- Historical MIT reuse follows `docs/PROVENANCE.md`; incomplete evidence fails
+  closed. Cite its registry revision.
 - Update `supply-chain/inventory.json` when dependency ownership or validation
   changes. Keep Actions/images immutable, add no submodules, and audit a
   complete profile. Only aggregate-root workflows and Dependabot are active.

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import redirect_stderr, redirect_stdout
+from datetime import datetime, timezone
 import io
 import json
 from pathlib import Path
@@ -30,6 +31,49 @@ class AgentGuidanceTests(unittest.TestCase):
         registry = (ROOT / "docs/PROVENANCE.md").read_text(encoding="utf-8")
         self.assertIn("Zoey Rose", registry)
         self.assertIn("Daniel Liptrot", registry)
+
+    def test_copyright_header_contract_is_complete(self) -> None:
+        guide = " ".join(
+            (ROOT / "AGENTS.md").read_text(encoding="utf-8").split()
+        )
+        contributing = " ".join(
+            (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8").split()
+        )
+
+        for marker in {
+            "On touch, refresh existing copyright terminal years",
+            "blanket holders",
+            "`CONTRIBUTING.md`",
+            "preserve precise attribution",
+        }:
+            with self.subTest(surface="AGENTS.md", marker=marker):
+                self.assertIn(marker, guide)
+
+        for marker in {
+            "Use `The Atrinik Project` as the exact collective holder",
+            "migrate prospectively",
+            "retain its original start year",
+            "current calendar year",
+            "Crossfire, Daimonin and other upstream notices",
+            "SPDX identifiers",
+            "authoritative generator or template",
+            "a separate legal and attribution surface",
+        }:
+            with self.subTest(surface="CONTRIBUTING.md", marker=marker):
+                self.assertIn(marker, contributing)
+
+        current_year = datetime.now(timezone.utc).year
+        for example in {
+            f"Copyright 2021-{current_year} The Atrinik Project",
+            f"Copyright {current_year} The Atrinik Project",
+            f"Copyright 2024-{current_year} The Atrinik Project",
+            (
+                f"Copyright (C) 2009-{current_year} Zoey Rose and "
+                "Atrinik Development Team"
+            ),
+        }:
+            with self.subTest(example=example):
+                self.assertIn(example, contributing)
 
     def test_inventory_is_complete_and_within_budget(self) -> None:
         inventory = collect_inventory()
