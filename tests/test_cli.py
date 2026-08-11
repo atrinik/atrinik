@@ -274,6 +274,30 @@ class ParserTests(unittest.TestCase):
             [], "none", include_classic=True
         )
 
+    def test_build_dispatches_cache_controls(self) -> None:
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.build.return_value = Path("/build")
+            result = main(
+                [
+                    "build",
+                    "client",
+                    "--profile",
+                    "review",
+                    "--test",
+                    "--force-reconfigure",
+                    "--no-ccache",
+                ]
+            )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.build.assert_called_once_with(
+            "client",
+            "review",
+            True,
+            force_reconfigure=True,
+            use_ccache=False,
+        )
+
     def test_classic_cohort_option_rejects_abbreviated_spelling(self) -> None:
         for command in ("init", "sync"):
             with self.subTest(command=command):
