@@ -6142,11 +6142,12 @@ class WorkspaceTests(unittest.TestCase):
             with mock.patch("builtins.print") as output:
                 self.workspace.topology_logs("review", "client", 10, False)
             self.assertIn("client ready", "".join(call.args[0] for call in output.call_args_list))
-            (
+            process_tree_path = (
                 self.workspace.paths.topologies
                 / "review"
                 / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
-            ).unlink()
+            )
+            process_tree_path.unlink()
         finally:
             try:
                 if self.workspace.topology_status("review-two")["supervisor"][
@@ -6594,6 +6595,37 @@ class WorkspaceTests(unittest.TestCase):
 
         with self.assertRaisesRegex(WorkspaceError, "supervisor status is invalid"):
             self.workspace.topology_status("invalid")
+
+    def test_topology_down_uses_legacy_fallback_for_empty_process_tree_lease(
+        self,
+    ) -> None:
+        root = self.workspace._topology_directory("empty-lease", create=True)
+        (root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE).touch(mode=0o600)
+        status = {
+            "supervisor": {"running": True},
+            "services": {},
+        }
+        stopped = {
+            "supervisor": {"running": False},
+            "services": {},
+        }
+
+        with (
+            mock.patch.object(
+                self.workspace, "topology_status", return_value=status
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_legacy_topology_down",
+                return_value=stopped,
+            ) as fallback,
+        ):
+            self.assertEqual(
+                self.workspace.topology_down("empty-lease", timeout=0.1),
+                stopped,
+            )
+
+        fallback.assert_called_once_with("empty-lease", status, 0.1)
 
     def test_topology_status_makes_pre_coordinate_records_inert(self) -> None:
         root = self.workspace._topology_directory("historical-coordinate", create=True)

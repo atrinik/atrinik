@@ -78,47 +78,67 @@ def terminate(
     process_tree_fd: int | None,
     timeout: float = 10,
 ) -> None:
-    if process_tree_fd is None:
-        for process in processes.values():
-            if process.poll() is None:
-                try:
-                    os.killpg(process.pid, signal.SIGTERM)
-                except ProcessLookupError:
-                    pass
-    else:
+    # An unreaped session leader pins its numeric process-group identity, so
+    # these groups remain safe to signal until the final waits below. The lease
+    # additionally finds descendants whose recorded leader was already reaped.
+    process_groups = [
+        process.pid
+        for process in processes.values()
+        if process.returncode is None
+    ]
+
+    def signal_groups(signum: signal.Signals) -> None:
+        for process_group in process_groups:
+            try:
+                os.killpg(process_group, signum)
+            except ProcessLookupError:
+                pass
+
+    def groups_exist() -> bool:
+        groups = set(process_groups)
+        try:
+            entries = list(Path("/proc").iterdir())
+        except OSError:
+            entries = []
+        for entry in entries:
+            if not entry.name.isdigit():
+                continue
+            try:
+                fields = (entry / "stat").read_text().rsplit(")", 1)[1].split()
+                state = fields[0]
+                process_group = int(fields[2])
+            except (OSError, IndexError, ValueError):
+                continue
+            if process_group in groups and state != "Z":
+                return True
+        return False
+
+    signal_groups(signal.SIGTERM)
+    if process_tree_fd is not None:
         signal_holders(
             process_tree_fd, signal.SIGTERM, exclude=(os.getpid(),)
         )
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        for process in processes.values():
-            process.poll()
-        if process_tree_fd is None:
-            running = any(
-                process.poll() is None for process in processes.values()
-            )
-        else:
-            running = holders_exist(
+        running = groups_exist()
+        if process_tree_fd is not None:
+            running = running or holders_exist(
                 process_tree_fd, exclude=(os.getpid(),)
             )
         if not running:
             break
         time.sleep(0.1)
-    if process_tree_fd is None:
-        for process in processes.values():
-            if process.poll() is None:
-                try:
-                    os.killpg(process.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-    else:
+    signal_groups(signal.SIGKILL)
+    if process_tree_fd is not None:
         signal_holders(
             process_tree_fd, signal.SIGKILL, exclude=(os.getpid(),)
         )
         kill_deadline = time.monotonic() + 2
-        while time.monotonic() < kill_deadline and holders_exist(
-            process_tree_fd, exclude=(os.getpid(),)
+        while time.monotonic() < kill_deadline and (
+            groups_exist()
+            or holders_exist(process_tree_fd, exclude=(os.getpid(),))
         ):
+            signal_groups(signal.SIGKILL)
             signal_holders(
                 process_tree_fd, signal.SIGKILL, exclude=(os.getpid(),)
             )

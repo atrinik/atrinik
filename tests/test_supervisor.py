@@ -111,17 +111,81 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                     except ProcessLookupError:
                         pass
 
+    def test_terminate_cleans_descendant_that_closed_process_tree_lease(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            descendant_path = Path(directory) / "descendant.pid"
+            lease_fd = os.open(
+                Path(directory) / "process-tree.lease",
+                os.O_RDWR | os.O_CREAT,
+                0o600,
+            )
+            process = subprocess.Popen(
+                [
+                    sys.executable,
+                    "-c",
+                    "import os, pathlib, signal, sys, time; "
+                    "child = os.fork(); "
+                    "child == 0 and os.close(int(sys.argv[2])); "
+                    "child == 0 and signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+                    "child == 0 and pathlib.Path(sys.argv[1]).write_text(str(os.getpid())); "
+                    "time.sleep(60)",
+                    str(descendant_path),
+                    str(lease_fd),
+                ],
+                start_new_session=True,
+                pass_fds=(lease_fd,),
+            )
+            descendant = None
+            try:
+                deadline = time.monotonic() + 5
+                while time.monotonic() < deadline and not descendant_path.is_file():
+                    time.sleep(0.05)
+                descendant = int(descendant_path.read_text(encoding="utf-8"))
+
+                supervisor_module.terminate(
+                    {"client": process}, lease_fd, timeout=0.1
+                )
+                deadline = time.monotonic() + 2
+                while (
+                    time.monotonic() < deadline
+                    and Path(f"/proc/{descendant}").exists()
+                ):
+                    time.sleep(0.05)
+                self.assertFalse(Path(f"/proc/{descendant}").exists())
+            finally:
+                os.close(lease_fd)
+                if process.poll() is None:
+                    process.kill()
+                    process.wait(timeout=2)
+                if descendant is not None and Path(f"/proc/{descendant}").exists():
+                    try:
+                        os.kill(descendant, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+
     def test_terminate_without_process_tree_lease_uses_group_fallback(self) -> None:
         process = subprocess.Popen(
-            [sys.executable, "-c", "import time; time.sleep(60)"],
+            [
+                sys.executable,
+                "-c",
+                "import signal, time; "
+                "signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+                "print('ready', flush=True); "
+                "time.sleep(60)",
+            ],
             start_new_session=True,
+            stdout=subprocess.PIPE,
         )
         try:
+            assert process.stdout is not None
+            self.assertEqual(process.stdout.readline(), b"ready\n")
             supervisor_module.terminate(
                 {"client": process}, None, timeout=0.1
             )
             self.assertIsNotNone(process.poll())
         finally:
+            if process.stdout is not None:
+                process.stdout.close()
             if process.poll() is None:
                 process.kill()
                 process.wait(timeout=2)

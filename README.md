@@ -808,8 +808,9 @@ lease so an orphan cannot outlive its reader protection.
 
 The supervisor records exact source commits, build and state paths, and process
 start identities. `ps` without a name lists every recorded topology; a name
-selects one. It distinguishes a live process from a reused PID, `down` signals
-only the matching supervisor, and the server state remains locked for the
+selects one. It distinguishes a live process from a reused PID, and `down`
+signals only processes holding that topology's identity lease, including
+orphaned services and descendants. The server state remains locked for the
 complete supervised lifetime. Each topology also has a persistent isolated
 client configuration/cache root and its own copies of the collected content and
 resource caches, so changing or removing one topology cannot affect another
