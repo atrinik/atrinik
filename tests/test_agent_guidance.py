@@ -52,6 +52,9 @@ class AgentGuidanceTests(unittest.TestCase):
         for marker in {
             "Use `The Atrinik Project` as the exact collective holder",
             "already predominates in modern MIT source headers",
+            "exact blanket format is `Copyright START[-END] The Atrinik Project`",
+            "Only the surrounding comment delimiters vary by file format",
+            "omit `(C)`, `(c)`, `©`, commas, and trailing punctuation",
             "migrate prospectively",
             "each existing Atrinik-owned copyright notice",
             "retain its original start year",

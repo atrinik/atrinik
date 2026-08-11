@@ -34,6 +34,12 @@ otherwise edited Atrinik-authored file already carries that blanket header.
 MIT source headers; the other forms remain historical inventory, not templates
 for new blanket attribution.
 
+The exact blanket format is `Copyright START[-END] The Atrinik Project`: use a
+single year when `START` is the current year and an ASCII-hyphenated range
+otherwise. Only the surrounding comment delimiters vary by file format. When
+normalizing an existing blanket form, omit `(C)`, `(c)`, `©`, commas, and
+trailing punctuation so the notice matches this form exactly.
+
 Whenever an Atrinik-authored file is edited, update each existing Atrinik-owned
 copyright notice in the same change: retain its original start year and set its
 terminal year to the current calendar year. For example, in 2026:
