@@ -30,6 +30,7 @@ from atrinik_workspace.model import (
 from atrinik_workspace.workspace import (
     WORKER_SOURCE_EXCLUSIONS,
     Workspace,
+    _copy_worker_source as real_copy_worker_source,
     _tree_digest,
     _remote_matches as real_remote_matches,
     display_arguments,
@@ -771,6 +772,15 @@ class WorkspaceTests(unittest.TestCase):
                 assert cwd is not None
                 if not (cwd / "worker.ts").is_file():
                     raise AssertionError("npm lifecycle source was not staged")
+                if (cwd / "worker.ts").stat().st_mtime_ns != 0:
+                    raise AssertionError("lifecycle source metadata was not normalized")
+                npmrc = cwd / ".npmrc"
+                if npmrc.exists():
+                    if (
+                        npmrc.is_symlink()
+                        or stat.S_IMODE(npmrc.stat().st_mode) != 0o600
+                    ):
+                        raise AssertionError("project npm configuration is not isolated")
                 if not (cwd / "src" / "build" / "nested.ts").is_file():
                     raise AssertionError("nested generated-name source was omitted")
                 with install_lock:
@@ -978,6 +988,65 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace._worker_dependency_inputs(
                     source, {"PATH": "/bin", "npm_config_cache": "/cache"}
                 )
+
+    def test_worker_dependency_keys_file_backed_npm_configuration(self) -> None:
+        source = self.make_worker_source()
+        userconfig = self.root / "user.npmrc"
+        userconfig.write_text(
+            "//registry.example/:_authToken=first\n", encoding="utf-8"
+        )
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        runner = self.fake_worker_run([], versions, threading.Lock())
+
+        def configured_run(arguments: list[str], **kwargs: object) -> str:
+            if arguments == ["npm", "config", "list", "--json"]:
+                return json.dumps({"userconfig": str(userconfig)})
+            return runner(arguments, **kwargs)
+
+        environment = {"PATH": "/bin", "npm_config_cache": "/cache"}
+        with mock.patch(
+            "atrinik_workspace.workspace.run", side_effect=configured_run
+        ):
+            first = self.workspace._worker_dependency_inputs(source, environment)
+            userconfig.write_text(
+                "//registry.example/:_authToken=second\n", encoding="utf-8"
+            )
+            second = self.workspace._worker_dependency_inputs(source, environment)
+        self.assertEqual(first["npm_config_sha256"], second["npm_config_sha256"])
+        self.assertNotEqual(
+            first["npm_file_config_sha256"],
+            second["npm_file_config_sha256"],
+        )
+        self.assertNotIn("_authToken", json.dumps(second))
+
+    def test_worker_dependency_authenticates_staged_source_snapshot(self) -> None:
+        source = self.make_worker_source()
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        installs: list[Path] = []
+
+        def corrupt_copy(*args: object, **kwargs: object) -> None:
+            real_copy_worker_source(*args, **kwargs)
+            destination = args[1]
+            assert isinstance(destination, Path)
+            (destination / "worker.ts").write_text(
+                "mixed snapshot\n", encoding="utf-8"
+            )
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.run",
+                side_effect=self.fake_worker_run(
+                    installs, versions, threading.Lock()
+                ),
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace._copy_worker_source",
+                side_effect=corrupt_copy,
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "does not match its cache key"):
+                self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+        self.assertEqual(installs, [])
 
     def test_worker_dependency_consumer_holds_key_lock(self) -> None:
         source = self.make_worker_source()
@@ -1225,6 +1294,25 @@ class WorkspaceTests(unittest.TestCase):
         }
         root = self.workspace.paths.builds / "profiles" / "worker-test"
         managed_directory(root, self.workspace.paths.builds, "worker-test")
+
+        def corrupt_copy(*args: object, **kwargs: object) -> None:
+            real_copy_worker_source(*args, **kwargs)
+            destination = args[1]
+            assert isinstance(destination, Path)
+            (destination / "worker.ts").write_text(
+                "mixed view snapshot\n", encoding="utf-8"
+            )
+
+        with mock.patch(
+            "atrinik_workspace.workspace._copy_worker_source",
+            side_effect=corrupt_copy,
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "does not match its fingerprint"
+            ):
+                self.workspace._worker_view(
+                    root, source, dependencies, "a" * 64, metadata
+                )
 
         first = self.workspace._worker_view(
             root, source, dependencies, "a" * 64, metadata

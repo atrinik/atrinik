@@ -268,15 +268,19 @@ time that topology name is launched.
 
 Building `metaserver-worker` retains a validated dependency installation keyed
 by exact package and lockfile bytes, optional project `.npmrc`, Node/npm and
-platform identity, effective npm configuration, and the complete hashed
-lifecycle-script environment. `npm ci` remains the only installer. A second
+platform identity, effective npm configuration plus its file-backed inputs,
+and the hashed lifecycle-script environment. `npm ci` remains the only
+installer. A second
 input-identical build reuses that installation and an unchanged profile source
 view. Because enabled dependency lifecycle scripts can observe root files, the
 complete non-generated source digest participates in every dependency key and
-source symlinks fail closed. The install root is stable and hashed, installed
-output that embeds its staging path is rejected, and project `.npmrc` content
-is never published in the shared cache. Every profile gets its own `node_modules` copy, so
-its checks cannot mutate the shared cache. A canonical no-follow digest covers
+source symlinks fail closed. The install root is stable and hashed; staged
+timestamps and extended metadata are normalized; the copied lifecycle source
+is authenticated before install; installed output that embeds its staging path
+is rejected; and project `.npmrc` content is provided as a restrictive
+temporary copy and never published in the shared cache. Every profile gets its
+own `node_modules` copy, so its checks cannot mutate the shared cache. A
+canonical no-follow digest covers
 the complete installed tree, including modes and bounded relative links. The
 isolated view permits only Vite's profile-local `.vite`/`.vite-temp` outputs
 outside that immutable snapshot. Build output reports dependency installation/cache time and source-view

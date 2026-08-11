@@ -114,6 +114,13 @@ WORKER_SOURCE_EXCLUSIONS = {
     ".wrangler",
 }
 WORKER_VIEW_NODE_MODULES_EXCLUSIONS = {".vite", ".vite-temp"}
+WORKER_NPM_FILE_CONFIG_KEYS = {
+    "cafile",
+    "certfile",
+    "globalconfig",
+    "keyfile",
+    "userconfig",
+}
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
 REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
@@ -300,7 +307,11 @@ def _tree_digest(
 
 
 def _copy_worker_source(
-    source: Path, destination: Path, *, include_npmrc: bool = True
+    source: Path,
+    destination: Path,
+    *,
+    include_npmrc: bool = True,
+    preserve_metadata: bool = True,
 ) -> None:
     """Copy Worker source while excluding generated names only at its root."""
 
@@ -318,7 +329,54 @@ def _copy_worker_source(
         dirs_exist_ok=True,
         symlinks=True,
         ignore=ignore,
+        copy_function=shutil.copy2 if preserve_metadata else shutil.copy,
     )
+
+
+def _copy_regular_file(source: Path, destination: Path, description: str) -> None:
+    """Copy one no-follow regular file without inheriting extended metadata."""
+
+    source_descriptor = open_regular_file(source, os.O_RDONLY, description)
+    destination_descriptor: int | None = None
+    try:
+        mode = stat.S_IMODE(os.fstat(source_descriptor).st_mode)
+        destination_descriptor = os.open(
+            destination,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+            mode,
+        )
+        os.fchmod(destination_descriptor, mode)
+        with os.fdopen(source_descriptor, "rb") as source_stream:
+            source_descriptor = -1
+            with os.fdopen(destination_descriptor, "wb") as destination_stream:
+                destination_descriptor = None
+                shutil.copyfileobj(source_stream, destination_stream)
+    except OSError as error:
+        raise WorkspaceError(f"cannot stage {description} {source}: {error}") from error
+    finally:
+        if source_descriptor >= 0:
+            os.close(source_descriptor)
+        if destination_descriptor is not None:
+            os.close(destination_descriptor)
+
+
+def _normalize_worker_staging(root: Path) -> None:
+    """Remove unkeyed copied metadata before lifecycle scripts can observe it."""
+
+    paths = [root]
+    for directory, directories, files in os.walk(root, followlinks=False):
+        parent = Path(directory)
+        paths.extend(parent / name for name in (*directories, *files))
+    for path in reversed(paths):
+        try:
+            if hasattr(os, "listxattr"):
+                for attribute in os.listxattr(path, follow_symlinks=False):
+                    os.removexattr(path, attribute, follow_symlinks=False)
+            os.utime(path, ns=(0, 0), follow_symlinks=False)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot normalize Worker lifecycle staging path {path}: {error}"
+            ) from error
 
 
 def _tree_references_path(root: Path, referenced: Path) -> bool:
@@ -2308,6 +2366,47 @@ class Workspace:
         )
         return hashlib.sha256(payload.encode()).hexdigest()
 
+    @staticmethod
+    def _worker_npm_file_config_digest(
+        source: Path,
+        environment: dict[str, str],
+        config: dict[str, Any],
+    ) -> str:
+        """Hash file-backed effective npm configuration without storing secrets."""
+
+        records: list[tuple[str, str, str | None]] = []
+        file_values = {
+            name: value
+            for name, value in config.items()
+            if name in WORKER_NPM_FILE_CONFIG_KEYS
+            or name.rsplit(":", 1)[-1] in {"cafile", "certfile", "keyfile"}
+        }
+        for name, value in sorted(file_values.items()):
+            if value is None or value == "":
+                continue
+            if not isinstance(value, str) or "\0" in value:
+                raise WorkspaceError(f"npm configuration {name} path is invalid")
+            if value == "~" or value.startswith("~/"):
+                home = environment.get("HOME")
+                if not home:
+                    raise WorkspaceError(
+                        f"npm configuration {name} requires HOME to resolve"
+                    )
+                path = Path(home) / value.removeprefix("~/")
+            else:
+                path = Path(value)
+            if not path.is_absolute():
+                path = source / path
+            path = Path(os.path.abspath(path))
+            path_digest = hashlib.sha256(str(path).encode()).hexdigest()
+            if path.exists() or path.is_symlink():
+                content_digest = _file_digest(path, f"npm {name}")
+            else:
+                content_digest = None
+            records.append((name, path_digest, content_digest))
+        payload = json.dumps(records, separators=(",", ":"))
+        return hashlib.sha256(payload.encode()).hexdigest()
+
     def _worker_dependency_inputs(
         self, source: Path, environment: dict[str, str]
     ) -> dict[str, Any]:
@@ -2344,6 +2443,8 @@ class Workspace:
             config = json.loads(raw_config)
         except json.JSONDecodeError as error:
             raise WorkspaceError("npm configuration is not valid JSON") from error
+        if not isinstance(config, dict):
+            raise WorkspaceError("npm configuration root is not an object")
         config_digest = hashlib.sha256(
             json.dumps(config, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()
@@ -2373,6 +2474,9 @@ class Workspace:
             "architecture": platform.machine(),
             "python_platform": sys.platform,
             "npm_config_sha256": config_digest,
+            "npm_file_config_sha256": self._worker_npm_file_config_digest(
+                source, environment, config
+            ),
             "environment_sha256": self._worker_environment_digest(environment),
             "install_command": ["npm", "ci"],
             "lifecycle_scripts": "enabled; complete environment participates in key",
@@ -2643,9 +2747,32 @@ class Workspace:
                 f"worker-dependency-transaction:{key}",
             )
             try:
-                _copy_worker_source(source, staging, include_npmrc=False)
+                _copy_worker_source(
+                    source,
+                    staging,
+                    include_npmrc=False,
+                    preserve_metadata=False,
+                )
                 if inputs["files"][".npmrc"] is not None:
-                    (staging / ".npmrc").symlink_to(source / ".npmrc")
+                    _copy_regular_file(
+                        source / ".npmrc",
+                        staging / ".npmrc",
+                        "Worker .npmrc",
+                    )
+                if (
+                    _tree_digest(
+                        staging,
+                        WORKER_SOURCE_EXCLUSIONS,
+                        reject_symlinks=True,
+                    )
+                    != inputs["lifecycle_source_sha256"]
+                ):
+                    raise WorkspaceError(
+                        "staged Worker lifecycle source does not match its cache key"
+                    )
+                if (staging / ".npmrc").exists():
+                    (staging / ".npmrc").chmod(0o600)
+                _normalize_worker_staging(staging)
                 run(["npm", "ci"], cwd=staging, env=environment)
                 if _tree_references_path(staging / "node_modules", staging):
                     raise WorkspaceError(
@@ -2780,7 +2907,19 @@ class Workspace:
             tempfile.mkdtemp(prefix=".metaserver-worker-", dir=view.parent)
         )
         try:
-            _copy_worker_source(source, staging)
+            _copy_worker_source(source, staging, preserve_metadata=False)
+            if (
+                _tree_digest(
+                    staging,
+                    WORKER_SOURCE_EXCLUSIONS,
+                    reject_symlinks=True,
+                )
+                != source_digest
+            ):
+                raise WorkspaceError(
+                    "staged Worker view source does not match its fingerprint"
+                )
+            _normalize_worker_staging(staging)
             shutil.copytree(dependencies, staging / "node_modules", symlinks=True)
             if (
                 _tree_digest(
