@@ -6925,9 +6925,14 @@ class Workspace:
         with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
-        ):
+        ) as layout_lock:
             return self._topology_up(
-                name, profile_name, state_name, services, port
+                name,
+                profile_name,
+                state_name,
+                services,
+                port,
+                layout_lock=layout_lock,
             )
 
     def _topology_up(
@@ -6937,6 +6942,8 @@ class Workspace:
         state_name: str,
         services: list[str] | None = None,
         port: int | None = None,
+        *,
+        layout_lock: TextIO | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
         if "client" in selected_services:
@@ -7151,10 +7158,15 @@ class Workspace:
                         "--spec",
                         str(spec_path),
                     ]
-                    pass_fds: tuple[int, ...] = ()
+                    inherited_locks: list[int] = []
                     if state_lock is not None:
                         command.extend(["--lock-fd", str(state_lock.fileno())])
-                        pass_fds = (state_lock.fileno(),)
+                        inherited_locks.append(state_lock.fileno())
+                    if "client" in selected_services and layout_lock is not None:
+                        command.extend(
+                            ["--layout-lock-fd", str(layout_lock.fileno())]
+                        )
+                        inherited_locks.append(layout_lock.fileno())
                     environment = os.environ.copy()
                     source_root = str(Path(__file__).resolve().parents[1])
                     python_path = environment.get("PYTHONPATH")
@@ -7171,7 +7183,7 @@ class Workspace:
                         stdout=supervisor_log,
                         stderr=subprocess.STDOUT,
                         start_new_session=True,
-                        pass_fds=pass_fds,
+                        pass_fds=tuple(inherited_locks),
                     )
                 except OSError as error:
                     raise WorkspaceError(f"cannot start topology supervisor: {error}") from error

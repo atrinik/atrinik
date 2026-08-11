@@ -197,7 +197,11 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
     return status
 
 
-def supervise(spec_path: Path, lock_fd: int | None) -> int:
+def supervise(
+    spec_path: Path,
+    lock_fd: int | None,
+    layout_lock_fd: int | None,
+) -> int:
     with spec_path.open(encoding="utf-8") as stream:
         spec = json.load(stream)
     status_path = spec_path.parent / "status.json"
@@ -239,6 +243,11 @@ def supervise(spec_path: Path, lock_fd: int | None) -> int:
             environment[CLIENT_LAUNCH_LABEL_ENV] = client_launch_label(
                 spec["profile"], spec["name"]
             )
+        inherited_locks: list[int] = []
+        if name == "server" and lock_fd is not None:
+            inherited_locks.append(lock_fd)
+        if name == "client" and layout_lock_fd is not None:
+            inherited_locks.append(layout_lock_fd)
         process = subprocess.Popen(
             command,
             cwd=service["cwd"],
@@ -247,7 +256,7 @@ def supervise(spec_path: Path, lock_fd: int | None) -> int:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             start_new_session=True,
-            pass_fds=(lock_fd,) if name == "server" and lock_fd is not None else (),
+            pass_fds=tuple(inherited_locks),
         )
         start_time = process_start_time(process.pid)
         if start_time is None:
@@ -344,6 +353,8 @@ def supervise(spec_path: Path, lock_fd: int | None) -> int:
             output.close()
         if lock_fd is not None:
             os.close(lock_fd)
+        if layout_lock_fd is not None:
+            os.close(layout_lock_fd)
     return 0
 
 
@@ -351,12 +362,13 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", type=Path, required=True)
     parser.add_argument("--lock-fd", type=int)
+    parser.add_argument("--layout-lock-fd", type=int)
     parser.add_argument("--daemonize", action="store_true")
     options = parser.parse_args()
     if options.daemonize and os.fork() != 0:
         return 0
     try:
-        return supervise(options.spec, options.lock_fd)
+        return supervise(options.spec, options.lock_fd, options.layout_lock_fd)
     except BaseException as error:
         message = f"{type(error).__name__}: {error}"
         print(f"topology supervisor failed during startup: {message}", file=sys.stderr)
@@ -367,6 +379,11 @@ def main() -> int:
         if options.lock_fd is not None:
             try:
                 os.close(options.lock_fd)
+            except OSError:
+                pass
+        if options.layout_lock_fd is not None:
+            try:
+                os.close(options.layout_lock_fd)
             except OSError:
                 pass
         return 1

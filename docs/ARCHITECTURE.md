@@ -185,6 +185,13 @@ serializes identical profile/key work. An exclusive writer cannot advance or
 remove a selected checkout until all readers exit. If the platform cannot provide
 a working advisory shared lock, the consuming operation fails closed.
 
+A supervised topology transfers its shared layout-lock descriptor through the
+daemon supervisor into its client process because the client runtime retains
+links to selected client and sound checkouts. This preserves the lease if the
+supervisor dies; topology shutdown terminates the client and releases the last
+descriptor. Server-only topologies release the layout lease after startup
+because they execute from topology-owned runtime snapshots.
+
 The layout lock is always outermost; private helpers never reacquire it. A
 direct build or foreground client then takes its build-root lock and subordinate
 cache locks. Topology startup takes the topology-operation lock, the server-state

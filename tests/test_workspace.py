@@ -195,6 +195,26 @@ def synthetic_client_process(
         raise
 
 
+def timed_layout_lock_process(
+    lock_path: str,
+    mode: str,
+    ready: object,
+    start: object,
+    results: object,
+) -> None:
+    try:
+        ready.put(mode)
+        if not start.wait(5):
+            raise TimeoutError("timed lock test did not start")
+        lock = shared_lock if mode == "shared" else exclusive_lock
+        with lock(Path(lock_path), "timed repository layout"):
+            time.sleep(0.4)
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
 COMPONENTS = (
     ("client", "client"),
     ("server", "server"),
@@ -5141,6 +5161,41 @@ class WorkspaceTests(unittest.TestCase):
             [results.get(timeout=2), results.get(timeout=2)], [None, None]
         )
 
+    def test_shared_layout_lock_improves_independent_elapsed_time(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        lock = self.workspace.paths.workspace / "timed-layout.lock"
+
+        def measure(mode: str) -> float:
+            ready = context.Queue()
+            start = context.Event()
+            results = context.Queue()
+            processes = [
+                context.Process(
+                    target=timed_layout_lock_process,
+                    args=(str(lock), mode, ready, start, results),
+                )
+                for _ in range(2)
+            ]
+            for process in processes:
+                process.start()
+            self.assertEqual(
+                [ready.get(timeout=5), ready.get(timeout=5)], [mode, mode]
+            )
+            began = time.monotonic()
+            start.set()
+            for process in processes:
+                process.join(timeout=5)
+            elapsed = time.monotonic() - began
+            self.assertEqual([process.exitcode for process in processes], [0, 0])
+            self.assertEqual(
+                [results.get(timeout=2), results.get(timeout=2)], [None, None]
+            )
+            return elapsed
+
+        exclusive_elapsed = measure("exclusive")
+        shared_elapsed = measure("shared")
+        self.assertLess(shared_elapsed, exclusive_elapsed * 0.8)
+
     def test_same_build_root_serializes_across_processes(self) -> None:
         context = multiprocessing.get_context("spawn")
         entered = context.Queue()
@@ -5405,6 +5460,20 @@ class WorkspaceTests(unittest.TestCase):
         }
         atomic_json(topology_root / "status.json", status)
         barrier = threading.Barrier(4)
+        build_lock = self.workspace.paths.builds / "locks" / "stress-a.lock"
+        topology_lock = topology_root / "operation.lock"
+
+        def refresh_build(*_arguments: object, **_keywords: object) -> Path:
+            with exclusive_lock(build_lock, "stress build root"):
+                atomic_json(build_root / MANAGED_MARKER, marker)
+            return build_root
+
+        def refresh_topology(
+            *_arguments: object, **_keywords: object
+        ) -> dict[str, object]:
+            with exclusive_lock(topology_lock, "stress topology"):
+                atomic_json(topology_root / "status.json", status)
+            return copy.deepcopy(status)
 
         def repeat(operation: Callable[[], object]) -> list[object]:
             barrier.wait(timeout=5)
@@ -5419,9 +5488,9 @@ class WorkspaceTests(unittest.TestCase):
             lambda: self.workspace.cleanup(["builds"], 7, [], False),
         )
         with (
-            mock.patch.object(self.workspace, "_build", return_value=build_root),
+            mock.patch.object(self.workspace, "_build", side_effect=refresh_build),
             mock.patch.object(
-                self.workspace, "_topology_up", return_value=copy.deepcopy(status)
+                self.workspace, "_topology_up", side_effect=refresh_topology
             ),
             mock.patch(
                 "atrinik_workspace.workspace.process_matches", return_value=False
@@ -5857,6 +5926,7 @@ class WorkspaceTests(unittest.TestCase):
         )
         state = self.workspace._state_location("default")
         second_state = self.workspace.state_add("second", None)
+        layout_lock = self.workspace.paths.workspace / "repository-layout.lock"
         try:
             with (
                 mock.patch.object(
@@ -5909,6 +5979,11 @@ class WorkspaceTests(unittest.TestCase):
                     Path(f"{state}.lock"), "server state", nonblocking=True
                 ):
                     self.fail("supervised state lock unexpectedly became available")
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    layout_lock, "repository layout", nonblocking=True
+                ):
+                    self.fail("supervised client released its layout lock")
 
             supervisor = status["supervisor"]
             pidfd = os.pidfd_open(supervisor["pid"])
@@ -5937,6 +6012,11 @@ class WorkspaceTests(unittest.TestCase):
                     Path(f"{state}.lock"), "server state", nonblocking=True
                 ):
                     self.fail("orphaned server released its state lock")
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    layout_lock, "repository layout", nonblocking=True
+                ):
+                    self.fail("orphaned client released its layout lock")
             recovered = self.workspace.topology_down("server-review", timeout=5)
             self.assertFalse(
                 any(service["running"] for service in recovered["services"].values())
@@ -5959,6 +6039,8 @@ class WorkspaceTests(unittest.TestCase):
         with exclusive_lock(
             Path(f"{second_state}.lock"), "server state", nonblocking=True
         ):
+            pass
+        with exclusive_lock(layout_lock, "repository layout", nonblocking=True):
             pass
 
     def test_topology_port_selection_rejects_unavailable_port(self) -> None:

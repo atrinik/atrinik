@@ -800,7 +800,8 @@ wait until every build or startup reader finishes. Repository migration uses
 the same exclusive mode but reports a busy result instead of waiting. The
 wrapper fails closed when advisory shared locking is unavailable. The layout
 lock is always acquired before topology, scenario, state, build-root, port,
-registry, or cache locks.
+registry, or cache locks. A topology client inherits its shared lease through
+the supervisor and keeps it until the client exits or `down` completes.
 
 The supervisor records exact source commits, build and state paths, and process
 start identities. `ps` without a name lists every recorded topology; a name
