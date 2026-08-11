@@ -29,6 +29,7 @@ from atrinik_workspace.model import (
 )
 from atrinik_workspace.workspace import (
     WORKER_SOURCE_EXCLUSIONS,
+    WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
     Workspace,
     _copy_regular_file as real_copy_regular_file,
     _copy_worker_source as real_copy_worker_source,
@@ -962,6 +963,35 @@ class WorkspaceTests(unittest.TestCase):
             self.assertFalse(rebuilt_link[3])
             self.assertEqual(len(installs), 4)
 
+    def test_worker_dependency_cache_authenticates_copied_metadata(self) -> None:
+        source = self.make_worker_source()
+        installs: list[Path] = []
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        runner = self.fake_worker_run(installs, versions, threading.Lock())
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=runner):
+            first = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+            installed = first[0] / "alpha" / "bin.js"
+            status = installed.stat()
+            os.utime(
+                installed,
+                ns=(status.st_atime_ns, status.st_mtime_ns + 1),
+            )
+            rebuilt = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+            self.assertFalse(rebuilt[3])
+            self.assertEqual(len(installs), 2)
+
+            installed = rebuilt[0] / "alpha" / "bin.js"
+            if hasattr(os, "setxattr"):
+                try:
+                    os.setxattr(installed, "user.atrinik-test", b"changed")
+                except OSError:
+                    return
+                rebuilt_xattr = self.workspace._worker_dependencies(
+                    source, {"PATH": "/bin"}
+                )
+                self.assertFalse(rebuilt_xattr[3])
+                self.assertEqual(len(installs), 3)
+
     def test_worker_dependency_failed_rebuild_preserves_owned_cache(self) -> None:
         source = self.make_worker_source()
         installs: list[Path] = []
@@ -1112,6 +1142,40 @@ class WorkspaceTests(unittest.TestCase):
                     WorkspaceError, "custom npm script-shell"
                 ):
                     self.workspace._worker_dependencies(source, environment)
+        self.assertEqual(installs, [])
+
+    def test_worker_dependency_rejects_external_node_preload_options(self) -> None:
+        source = self.make_worker_source()
+        hook = self.root / "node-hook.cjs"
+        environment = {
+            "PATH": "/bin",
+            "NODE_OPTIONS": f"--require={hook}",
+        }
+        with mock.patch(
+            "atrinik_workspace.workspace.run",
+            side_effect=AssertionError("Node must not run with external preload code"),
+        ):
+            for contents in ("module.exports = 1;\n", "module.exports = 2;\n"):
+                hook.write_text(contents, encoding="utf-8")
+                with self.assertRaisesRegex(
+                    WorkspaceError, "custom Node execution options"
+                ):
+                    self.workspace._worker_dependencies(source, environment)
+
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        installs: list[Path] = []
+        runner = self.fake_worker_run(installs, versions, threading.Lock())
+
+        def configured_run(arguments: list[str], **kwargs: object) -> str:
+            if arguments == ["npm", "config", "list", "--json"]:
+                return json.dumps({"node-options": f"--require={hook}"})
+            return runner(arguments, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.run", side_effect=configured_run
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "custom npm node-options"):
+                self.workspace._worker_dependencies(source, {"PATH": "/bin"})
         self.assertEqual(installs, [])
 
     def test_worker_dependency_authenticates_staged_project_npmrc(self) -> None:
@@ -1448,7 +1512,17 @@ class WorkspaceTests(unittest.TestCase):
         metadata = {
             "node_modules_lock_sha256": hidden_digest,
             "node_modules_sha256": _tree_digest(
-                dependencies, set(), bounded_symlinks=True
+                dependencies,
+                set(),
+                bounded_symlinks=True,
+                copied_metadata=True,
+            ),
+            "node_modules_view_sha256": _tree_digest(
+                dependencies,
+                WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
+                bounded_symlinks=True,
+                copied_metadata=True,
+                ignore_root_mtime=True,
             ),
             "inputs": {
                 "lifecycle_source_sha256": _tree_digest(

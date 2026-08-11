@@ -35,7 +35,7 @@ from .workspace import (
 
 CLEANUP_SCHEMA_VERSION = 1
 WORKER_DEPENDENCY_CLEANUP_SCHEMA_VERSIONS = frozenset(
-    {2, WORKER_DEPENDENCY_SCHEMA_VERSION}
+    {1, 2, 3, WORKER_DEPENDENCY_SCHEMA_VERSION}
 )
 DEFAULT_SCOPES = ("worktrees", "builds")
 ALL_SCOPES = (*DEFAULT_SCOPES, "npm-cache")
@@ -480,6 +480,7 @@ class Cleanup:
         item.pop("_primary", None)
         item.pop("_purpose", None)
         item.pop("_older_than_days", None)
+        item.pop("_identity", None)
 
     def _revalidate_target(
         self,
@@ -548,7 +549,10 @@ class Cleanup:
         else:
             raise WorkspaceError(f"unsupported cleanup target: {kind}")
         if item is not None:
+            filesystem_identity = item.get("_identity")
             self._strip_internal(item)
+            if kind == "worker-dependency-transaction":
+                item["_identity"] = filesystem_identity
         return item
 
     def _revalidate_build_sources(
@@ -1803,14 +1807,30 @@ class Cleanup:
                 )
         return items
 
+    @staticmethod
+    def _worker_dependency_transaction_created_at(path: Path) -> datetime:
+        return datetime.fromtimestamp(path.lstat().st_ctime, timezone.utc)
+
     def _worker_dependency_transaction_item(
-        self, path: Path, older_than_days: int
+        self,
+        path: Path,
+        older_than_days: int,
+        *,
+        check_lock: bool = True,
     ) -> dict[str, Any]:
         item = _base_item(
             "worker-dependency-transaction", "atrinik", "atrinik/atrinik", path
         )
         inodes, observed, walk_error = _tree_usage(path)
         item["_inodes"] = inodes
+        try:
+            path_status = path.lstat()
+            item["_identity"] = (path_status.st_dev, path_status.st_ino)
+            created = self._worker_dependency_transaction_created_at(path)
+            observed = created if observed is None else max(observed, created)
+        except OSError as error:
+            item["reasons"].append("filesystem_traversal_error")
+            item["error"] = str(error)
         match = re.fullmatch(
             r"([0-9a-f]{64})-(staging|backup)-([a-z0-9_]+)", path.name
         )
@@ -1842,16 +1862,17 @@ class Cleanup:
             except (OSError, WorkspaceError) as error:
                 item["reasons"].append("invalid_worker_dependency_transaction")
                 item["error"] = str(error)
-            lock = (
-                self.paths.builds / "locks" / f"worker-dependencies-{key}.lock"
-            )
-            busy, lock_error = self._lock_busy(lock)
-            if lock_error:
-                item["reasons"].append("build_lock_error")
-                item["error"] = lock_error
-            elif busy:
-                item["reasons"].append("build_lock_busy")
-        item["age_basis"] = "tree-mtime" if observed else None
+            if check_lock:
+                lock = (
+                    self.paths.builds / "locks" / f"worker-dependencies-{key}.lock"
+                )
+                busy, lock_error = self._lock_busy(lock)
+                if lock_error:
+                    item["reasons"].append("build_lock_error")
+                    item["error"] = lock_error
+                elif busy:
+                    item["reasons"].append("build_lock_busy")
+        item["age_basis"] = "tree-mtime-or-root-ctime" if observed else None
         if observed is None:
             item["reasons"].append("build_age_unavailable")
         else:
@@ -1906,19 +1927,29 @@ class Cleanup:
                     "Worker dependency metadata is not a regular file"
                 )
             metadata = load_json(metadata_path)
+            schema_version = (
+                metadata.get("schema_version")
+                if isinstance(metadata, dict)
+                else None
+            )
+            metadata_keys = {
+                "schema_version",
+                "purpose",
+                "key",
+                "inputs",
+                "node_modules_lock_sha256",
+                "last_used_at",
+            }
+            if schema_version != 1:
+                metadata_keys.add("node_modules_sha256")
+            if schema_version == WORKER_DEPENDENCY_SCHEMA_VERSION:
+                metadata_keys.add("node_modules_view_sha256")
             if (
                 not isinstance(metadata, dict)
-                or set(metadata)
-                != {
-                    "schema_version",
-                    "purpose",
-                    "key",
-                    "inputs",
-                    "node_modules_lock_sha256",
-                    "node_modules_sha256",
-                    "last_used_at",
-                }
-                or metadata.get("schema_version")
+                or set(metadata) != metadata_keys
+                or not isinstance(schema_version, int)
+                or isinstance(schema_version, bool)
+                or schema_version
                 not in WORKER_DEPENDENCY_CLEANUP_SCHEMA_VERSIONS
                 or metadata.get("purpose") != "worker-dependencies"
                 or metadata.get("key") != key
@@ -1927,8 +1958,20 @@ class Cleanup:
                 or not re.fullmatch(
                     r"[0-9a-f]{64}", metadata["node_modules_lock_sha256"]
                 )
-                or not isinstance(metadata.get("node_modules_sha256"), str)
-                or not re.fullmatch(r"[0-9a-f]{64}", metadata["node_modules_sha256"])
+                or schema_version != 1
+                and (
+                    not isinstance(metadata.get("node_modules_sha256"), str)
+                    or not re.fullmatch(
+                        r"[0-9a-f]{64}", metadata["node_modules_sha256"]
+                    )
+                )
+                or schema_version == WORKER_DEPENDENCY_SCHEMA_VERSION
+                and (
+                    not isinstance(metadata.get("node_modules_view_sha256"), str)
+                    or not re.fullmatch(
+                        r"[0-9a-f]{64}", metadata["node_modules_view_sha256"]
+                    )
+                )
             ):
                 raise WorkspaceError(
                     "Worker dependency metadata fields are invalid"
@@ -2455,6 +2498,18 @@ class Cleanup:
                     )
                     or path.is_symlink()
                     or not path.is_dir()
+                ):
+                    raise WorkspaceError(
+                        f"Worker dependency transaction changed before removal: {path}"
+                    )
+                current = self._worker_dependency_transaction_item(
+                    path,
+                    older_than_days,
+                    check_lock=False,
+                )
+                if (
+                    current.get("_identity") != item.get("_identity")
+                    or current["disposition"] != "eligible"
                 ):
                     raise WorkspaceError(
                         f"Worker dependency transaction changed before removal: {path}"

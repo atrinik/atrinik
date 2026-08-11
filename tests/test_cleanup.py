@@ -1856,18 +1856,19 @@ class CleanupTests(unittest.TestCase):
             self.workspace.paths.builds,
             f"worker-dependencies:{key}",
         )
-        atomic_json(
-            entry / ".atrinik-worker-dependencies.json",
-            {
-                "schema_version": schema_version,
-                "purpose": "worker-dependencies",
-                "key": key,
-                "inputs": {"lock": "exact"},
-                "node_modules_lock_sha256": "b" * 64,
-                "node_modules_sha256": "c" * 64,
-                "last_used_at": self.old.isoformat(),
-            },
-        )
+        metadata = {
+            "schema_version": schema_version,
+            "purpose": "worker-dependencies",
+            "key": key,
+            "inputs": {"lock": "exact"},
+            "node_modules_lock_sha256": "b" * 64,
+            "last_used_at": self.old.isoformat(),
+        }
+        if schema_version != 1:
+            metadata["node_modules_sha256"] = "c" * 64
+        if schema_version == WORKER_DEPENDENCY_SCHEMA_VERSION:
+            metadata["node_modules_view_sha256"] = "d" * 64
+        atomic_json(entry / ".atrinik-worker-dependencies.json", metadata)
         (entry / "node_modules").mkdir()
         return entry
 
@@ -1913,25 +1914,27 @@ class CleanupTests(unittest.TestCase):
         self.assertTrue((self.workspace.paths.builds / "worker-dependencies").exists())
 
     def test_prior_worker_dependency_schema_is_reclaimable(self) -> None:
-        entry = self.make_worker_dependency_cache(schema_version=2)
-        preview = self.workspace.cleanup(["builds"], 7, [], False)
-        item = next(
-            row
-            for row in preview["items"]
-            if row["kind"] == "worker-dependencies"
-        )
-        self.assertEqual(item["disposition"], "eligible")
-        self.assertEqual(item["reasons"], ["stale_worker_dependencies"])
-        self.assertTrue(entry.exists())
+        for schema_version, key in ((1, "1" * 64), (2, "2" * 64), (3, "3" * 64)):
+            with self.subTest(schema_version=schema_version):
+                entry = self.make_worker_dependency_cache(key, schema_version)
+                preview = self.workspace.cleanup(["builds"], 7, [], False)
+                item = next(
+                    row
+                    for row in preview["items"]
+                    if row["path"] == str(entry)
+                )
+                self.assertEqual(item["disposition"], "eligible")
+                self.assertEqual(item["reasons"], ["stale_worker_dependencies"])
+                self.assertTrue(entry.exists())
 
-        applied = self.workspace.cleanup(["builds"], 7, [], True)
-        item = next(
-            row
-            for row in applied["items"]
-            if row["kind"] == "worker-dependencies"
-        )
-        self.assertEqual(item["disposition"], "removed")
-        self.assertFalse(entry.exists())
+                applied = self.workspace.cleanup(["builds"], 7, [], True)
+                item = next(
+                    row
+                    for row in applied["items"]
+                    if row["path"] == str(entry)
+                )
+                self.assertEqual(item["disposition"], "removed")
+                self.assertFalse(entry.exists())
 
     def test_invalid_worker_dependency_cache_is_protected(self) -> None:
         entry = self.make_worker_dependency_cache()
@@ -1991,7 +1994,12 @@ class CleanupTests(unittest.TestCase):
         os.utime(transaction / "partial-package", (old_timestamp, old_timestamp))
         os.utime(transaction, (old_timestamp, old_timestamp))
 
-        preview = self.workspace.cleanup(["builds"], 7, [], False)
+        with mock.patch.object(
+            Cleanup,
+            "_worker_dependency_transaction_created_at",
+            return_value=self.old,
+        ):
+            preview = self.workspace.cleanup(["builds"], 7, [], False)
         item = next(
             row
             for row in preview["items"]
@@ -2001,7 +2009,12 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["reasons"], ["stale_worker_dependency_transaction"])
         self.assertTrue(transaction.exists())
 
-        applied = self.workspace.cleanup(["builds"], 7, [], True)
+        with mock.patch.object(
+            Cleanup,
+            "_worker_dependency_transaction_created_at",
+            return_value=self.old,
+        ):
+            applied = self.workspace.cleanup(["builds"], 7, [], True)
         item = next(
             row
             for row in applied["items"]
@@ -2049,6 +2062,84 @@ class CleanupTests(unittest.TestCase):
         )
         self.assertEqual(backup["disposition"], "protected")
         self.assertIn("younger_than_grace_period", backup["reasons"])
+
+    def test_new_staging_with_old_source_mtimes_gets_a_fresh_grace_period(
+        self,
+    ) -> None:
+        key = "9" * 64
+        root = self.workspace.paths.builds / "worker-dependencies"
+        managed_directory(root, self.workspace.paths.builds, "worker-dependency-cache")
+        transactions = root / ".transactions"
+        managed_directory(
+            transactions,
+            self.workspace.paths.builds,
+            "worker-dependency-transactions",
+        )
+        source = self.root / "old-worker-source"
+        source.mkdir()
+        (source / "worker.ts").write_text("old\n", encoding="utf-8")
+        old_timestamp = self.old.timestamp()
+        os.utime(source / "worker.ts", (old_timestamp, old_timestamp))
+        os.utime(source, (old_timestamp, old_timestamp))
+        staging = transactions / f"{key}-staging-install"
+        managed_directory(
+            staging,
+            self.workspace.paths.builds,
+            f"worker-dependency-transaction:{key}",
+        )
+        (staging / MANAGED_MARKER).unlink()
+        shutil.copy2(source / "worker.ts", staging / "worker.ts")
+        shutil.copystat(source, staging, follow_symlinks=False)
+
+        preview = self.workspace.cleanup(["builds"], 7, [], False)
+        item = next(row for row in preview["items"] if row["path"] == str(staging))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertEqual(item["age_basis"], "tree-mtime-or-root-ctime")
+        self.assertIn("younger_than_grace_period", item["reasons"])
+
+    def test_worker_dependency_transaction_removal_rejects_aba(self) -> None:
+        key = "8" * 64
+        root = self.workspace.paths.builds / "worker-dependencies"
+        managed_directory(root, self.workspace.paths.builds, "worker-dependency-cache")
+        transactions = root / ".transactions"
+        managed_directory(
+            transactions,
+            self.workspace.paths.builds,
+            "worker-dependency-transactions",
+        )
+        transaction = transactions / f"{key}-staging-install"
+        transaction.mkdir()
+        old_timestamp = self.old.timestamp()
+        os.utime(transaction, (old_timestamp, old_timestamp))
+        original_remove = Cleanup._remove
+
+        def replace_before_remove(
+            cleanup: Cleanup, item: dict[str, object], older_than_days: int = 0
+        ) -> None:
+            if item["kind"] == "worker-dependency-transaction":
+                shutil.rmtree(transaction)
+                transaction.mkdir()
+                os.utime(transaction, (old_timestamp, old_timestamp))
+            original_remove(cleanup, item, older_than_days)
+
+        with (
+            mock.patch.object(
+                Cleanup,
+                "_worker_dependency_transaction_created_at",
+                return_value=self.old,
+            ),
+            mock.patch.object(Cleanup, "_remove", new=replace_before_remove),
+        ):
+            applied = self.workspace.cleanup(["builds"], 7, [], True)
+        item = next(
+            row
+            for row in applied["items"]
+            if row["path"] == str(transaction)
+        )
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["removal_failed"])
+        self.assertIn("changed before removal", item["error"])
+        self.assertTrue(transaction.exists())
 
     def test_worker_dependency_transaction_uncertainty_protects_artifacts(self) -> None:
         key = "e" * 64

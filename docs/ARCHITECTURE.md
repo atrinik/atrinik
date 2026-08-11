@@ -250,8 +250,9 @@ recoverable staging and backup artifacts. Each key covers exact `package.json`,
 Node runtime platform, architecture, and ABI identity; host OS and architecture;
 the effective npm configuration; and a digest of the
 complete lifecycle-script environment. Only digests, never configuration or
-environment values, enter metadata. External file-backed npm configuration and
-custom script shells fail closed rather than remaining live during install;
+environment values, enter metadata. External file-backed npm configuration,
+custom script shells, and external Node preload options fail closed rather than
+remaining live during install;
 project `.npmrc` uses an authenticated temporary copy. Each entry has its own
 lock, ownership marker, installed-lockfile digest, canonical complete-tree
 digest, required top-level dependency checks, and atomically refreshed
@@ -272,6 +273,9 @@ publication; installed output containing the staging path is rejected as
 non-relocatable.
 A missing canonical entry recovers the newest structurally valid matching
 backup under the per-key lock before falling back to a new `npm ci`.
+Cleanup ages transaction artifacts from the newer of their no-follow tree
+mtime and root ctime, then repeats inode identity, marker, age, and path checks
+while holding the per-key lock through deletion.
 
 ## Classic monorepo migration
 

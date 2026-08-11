@@ -101,7 +101,7 @@ BUILD_METADATA_SCHEMA_VERSION = 1
 CACHE_METADATA = ".atrinik-cache.json"
 WORKER_DEPENDENCY_METADATA = ".atrinik-worker-dependencies.json"
 WORKER_VIEW_METADATA = ".atrinik-worker-view.json"
-WORKER_DEPENDENCY_SCHEMA_VERSION = 3
+WORKER_DEPENDENCY_SCHEMA_VERSION = 4
 WORKER_VIEW_SCHEMA_VERSION = 1
 WORKER_DEPENDENCY_FILES = ("package.json", "package-lock.json")
 WORKER_SOURCE_EXCLUSIONS = {
@@ -234,6 +234,7 @@ def _tree_digest(
     bounded_symlinks: bool = False,
     reject_symlinks: bool = False,
     copied_metadata: bool = False,
+    ignore_root_mtime: bool = False,
 ) -> str:
     """Hash a tree as framed records without following links."""
 
@@ -348,7 +349,7 @@ def _tree_digest(
     root_status = root.lstat()
     root_metadata: tuple[object, ...] = (
         (
-            root_status.st_mtime_ns,
+            0 if ignore_root_mtime else root_status.st_mtime_ns,
             getattr(root_status, "st_flags", 0),
             extended_attributes(root),
         )
@@ -2434,19 +2435,18 @@ class Workspace:
     ) -> str:
         """Hash file-backed effective npm configuration without storing secrets."""
 
-        script_shells = {
+        execution_options = {
             name: value
             for name, value in config.items()
-            if name == "script-shell" or name.rsplit(":", 1)[-1] == "script-shell"
+            if name in {"node-options", "script-shell"}
+            or name.rsplit(":", 1)[-1] in {"node-options", "script-shell"}
         }
-        for name, value in sorted(script_shells.items()):
+        for name, value in sorted(execution_options.items()):
             if value is None or value == "":
                 continue
             if not isinstance(value, str) or "\0" in value:
                 raise WorkspaceError(f"npm configuration {name} path is invalid")
-            raise WorkspaceError(
-                "custom npm script-shell configuration is unsupported"
-            )
+            raise WorkspaceError(f"custom npm {name} configuration is unsupported")
 
         records: list[tuple[str, str, str | None]] = []
         file_values = {
@@ -2488,6 +2488,11 @@ class Workspace:
     def _worker_dependency_inputs(
         self, source: Path, environment: dict[str, str]
     ) -> dict[str, Any]:
+        for name in ("NODE_OPTIONS", "npm_config_node_options"):
+            if environment.get(name):
+                raise WorkspaceError(
+                    f"custom Node execution options in {name} are unsupported"
+                )
         files = {
             name: _file_digest(source / name, f"Worker {name}")
             for name in WORKER_DEPENDENCY_FILES
@@ -2677,6 +2682,8 @@ class Workspace:
                 node_modules,
                 generated_exclusions or set(),
                 bounded_symlinks=True,
+                copied_metadata=True,
+                ignore_root_mtime=bool(generated_exclusions),
             )
             != tree_digest
         ):
@@ -2716,6 +2723,7 @@ class Workspace:
                     "inputs",
                     "node_modules_lock_sha256",
                     "node_modules_sha256",
+                    "node_modules_view_sha256",
                     "last_used_at",
                 }
                 or metadata.get("schema_version") != WORKER_DEPENDENCY_SCHEMA_VERSION
@@ -2728,6 +2736,10 @@ class Workspace:
                 )
                 or not isinstance(metadata.get("node_modules_sha256"), str)
                 or not re.fullmatch(r"[0-9a-f]{64}", metadata["node_modules_sha256"])
+                or not isinstance(metadata.get("node_modules_view_sha256"), str)
+                or not re.fullmatch(
+                    r"[0-9a-f]{64}", metadata["node_modules_view_sha256"]
+                )
                 or not isinstance(metadata.get("last_used_at"), str)
             ):
                 return None
@@ -2957,7 +2969,17 @@ class Workspace:
                     "Worker installed lockfile",
                 )
                 modules_digest = _tree_digest(
-                    staging / "node_modules", set(), bounded_symlinks=True
+                    staging / "node_modules",
+                    set(),
+                    bounded_symlinks=True,
+                    copied_metadata=True,
+                )
+                modules_view_digest = _tree_digest(
+                    staging / "node_modules",
+                    WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
+                    bounded_symlinks=True,
+                    copied_metadata=True,
+                    ignore_root_mtime=True,
                 )
                 self._validate_worker_node_modules(
                     staging / "node_modules",
@@ -2972,6 +2994,7 @@ class Workspace:
                     "inputs": inputs,
                     "node_modules_lock_sha256": hidden_digest,
                     "node_modules_sha256": modules_digest,
+                    "node_modules_view_sha256": modules_view_digest,
                     "last_used_at": datetime.now(timezone.utc).isoformat(),
                 }
                 atomic_json(
@@ -3056,7 +3079,7 @@ class Workspace:
                 self._validate_worker_node_modules(
                     view / "node_modules",
                     dependency_metadata["node_modules_lock_sha256"],
-                    dependency_metadata["node_modules_sha256"],
+                    dependency_metadata["node_modules_view_sha256"],
                     self._worker_required_packages(source),
                     WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
                 )
@@ -3099,7 +3122,7 @@ class Workspace:
             self._validate_worker_node_modules(
                 staging / "node_modules",
                 dependency_metadata["node_modules_lock_sha256"],
-                dependency_metadata["node_modules_sha256"],
+                dependency_metadata["node_modules_view_sha256"],
                 self._worker_required_packages(source),
                 WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
             )

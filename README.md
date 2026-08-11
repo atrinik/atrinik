@@ -269,7 +269,8 @@ time that topology name is launched.
 Building `metaserver-worker` retains a validated dependency installation keyed
 by exact package and lockfile bytes, optional project `.npmrc`, Node/npm, Node
 runtime and host platform identity, and effective npm configuration. External
-file-backed npm configuration and custom script shells fail closed; project
+file-backed npm configuration, custom script shells, and external Node preload
+options fail closed; project
 `.npmrc` is supported through an authenticated copy. The hashed lifecycle-script
 environment and source
 metadata also participate in the key. `npm ci` remains the only
@@ -576,9 +577,10 @@ and an idle per-key build lock; uncertainty protects the entry. Removing a
 stale entry leaves the marker-owned container and npm download cache intact.
 Recognizable interrupted staging and backup directories live below the
 separately marker-owned `.transactions` container and are reclaimed by the
-same preview-first scope only after their grace period and per-key lock checks.
-A valid matching backup is restored under that lock before another install is
-attempted.
+same preview-first scope only after their conservative tree-mtime/root-ctime
+grace period and per-key lock checks. Apply repeats identity, ownership, and age
+validation while holding that lock through removal. A valid matching backup is
+restored under the lock before another install is attempted.
 
 The shared `workspace/build/npm-cache` is never part of default cleanup. Its
 explicit scope accepts the exact marker-owned path or the one legacy known
