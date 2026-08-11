@@ -802,7 +802,9 @@ wrapper fails closed when advisory shared locking is unavailable. The layout
 lock is always acquired before topology, scenario, state, build-root, port,
 registry, or cache locks. Foreground processes inherit their layout and exact
 build-root leases. Supervised services inherit both leases through the daemon
-and keep them until every service exits or `down` completes.
+and keep them until every service exits or `down` completes. Build and scenario
+subprocesses inherit every active layout, build-root, state, registry, and cache
+lease so an orphan cannot outlive its reader protection.
 
 The supervisor records exact source commits, build and state paths, and process
 start identities. `ps` without a name lists every recorded topology; a name

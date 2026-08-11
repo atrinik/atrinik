@@ -191,7 +191,10 @@ retain links to selected client and sound checkouts, while server runtimes link
 selected server configuration and tool inputs. Inherited descriptors preserve
 both leases if the supervisor dies; topology shutdown terminates orphaned
 services and releases the last descriptors. Foreground client and server
-processes inherit the same applicable leases from the wrapper.
+processes inherit the same applicable leases from the wrapper. The common
+command runner also inherits every active advisory-lock descriptor into build
+and scenario subprocesses, preserving layout, build-root, state, registry, and
+cache protection if their wrapper exits unexpectedly.
 
 The layout lock is always outermost; private helpers never reacquire it. A
 direct build or foreground client then takes its build-root lock and subordinate

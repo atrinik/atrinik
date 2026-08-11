@@ -4,6 +4,7 @@ import binascii
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import ExitStack, contextmanager
+from contextvars import ContextVar
 import ctypes
 from datetime import datetime, timezone
 import errno
@@ -135,6 +136,20 @@ RUNTIME_INPUT_SCHEMA_VERSION = 1
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
 REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
+_INHERITED_LOCK_FDS: ContextVar[tuple[int, ...]] = ContextVar(
+    "atrinik_inherited_lock_fds", default=()
+)
+
+
+@contextmanager
+def _inherit_lock_fds(*leases: TextIO) -> Iterator[None]:
+    descriptors = tuple(lease.fileno() for lease in leases)
+    current = _INHERITED_LOCK_FDS.get()
+    token = _INHERITED_LOCK_FDS.set(tuple(dict.fromkeys((*current, *descriptors))))
+    try:
+        yield
+    finally:
+        _INHERITED_LOCK_FDS.reset(token)
 
 
 def display_arguments(arguments: list[str]) -> str:
@@ -167,6 +182,9 @@ def run(
     if trace:
         print(f"+ {display_arguments(arguments)}", file=sys.stderr)
     try:
+        inherited_fds = tuple(
+            dict.fromkeys((*_INHERITED_LOCK_FDS.get(), *pass_fds))
+        )
         result = subprocess.run(
             arguments,
             cwd=cwd,
@@ -175,7 +193,7 @@ def run(
             capture_output=capture,
             env=env,
             stdout=sys.stderr if diagnostics_to_stderr and not capture else None,
-            pass_fds=pass_fds,
+            pass_fds=inherited_fds,
         )
     except FileNotFoundError as error:
         raise WorkspaceError(f"required command not found: {arguments[0]}") from error
@@ -1134,7 +1152,8 @@ def exclusive_lock(
     with _advisory_lock(
         path, description, fcntl.LOCK_EX, nonblocking=nonblocking
     ) as lock:
-        yield lock
+        with _inherit_lock_fds(lock):
+            yield lock
 
 
 @contextmanager
@@ -1145,7 +1164,8 @@ def shared_lock(path: Path, description: str) -> Iterator[TextIO]:
             f"shared locking is unavailable for {description}; refusing to continue"
         )
     with _advisory_lock(path, description, operation) as lock:
-        yield lock
+        with _inherit_lock_fds(lock):
+            yield lock
 
 
 @contextmanager

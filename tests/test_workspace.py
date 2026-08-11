@@ -293,6 +293,23 @@ def mixed_layout_operation_process(
         raise
 
 
+def join_or_stop_processes(
+    processes: list[multiprocessing.Process], timeout: float
+) -> None:
+    deadline = time.monotonic() + timeout
+    for process in processes:
+        process.join(timeout=max(0.0, deadline - time.monotonic()))
+    for process in processes:
+        if process.is_alive():
+            process.terminate()
+    for process in processes:
+        process.join(timeout=2)
+    for process in processes:
+        if process.is_alive():
+            process.kill()
+            process.join(timeout=2)
+
+
 COMPONENTS = (
     ("client", "client"),
     ("server", "server"),
@@ -5567,8 +5584,7 @@ class WorkspaceTests(unittest.TestCase):
             )
             start.set()
         finally:
-            for process in processes:
-                process.join(timeout=20)
+            join_or_stop_processes(processes, 20)
         self.assertEqual([process.exitcode for process in processes], [0] * 4)
         outcomes = dict(results.get(timeout=2) for _ in processes)
         self.assertEqual(outcomes, {operation: None for operation in operations})
@@ -6535,15 +6551,22 @@ class WorkspaceTests(unittest.TestCase):
         expected = "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
 
         def execute_client(*_arguments: object, **_keywords: object) -> None:
-            with self.assertRaisesRegex(WorkspaceError, "already in use"):
-                with exclusive_lock(
+            self.assertEqual(len(_keywords["pass_fds"]), 2)
+            for path, description in (
+                (
+                    self.workspace.paths.workspace / "repository-layout.lock",
+                    "repository layout",
+                ),
+                (
                     self.workspace.paths.builds
                     / "locks"
                     / "client-build.lock",
                     "profile build default",
-                    nonblocking=True,
-                ):
-                    self.fail("foreground client released its build-root lock")
+                ),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_lock(path, description, nonblocking=True):
+                        self.fail(f"foreground client released {description}")
 
         with (
             mock.patch.object(self.workspace, "_build", return_value=build_root),
@@ -6601,6 +6624,29 @@ class WorkspaceTests(unittest.TestCase):
         executable = runtime / "atrinik-server"
         executable.write_text("server\n", encoding="utf-8")
         selected = {"server": server}
+
+        def execute_server(*_arguments: object, **_keywords: object) -> None:
+            self.assertEqual(len(_keywords["pass_fds"]), 3)
+            for path, description in (
+                (
+                    self.workspace.paths.workspace / "repository-layout.lock",
+                    "repository layout",
+                ),
+                (
+                    self.workspace.paths.builds
+                    / "locks"
+                    / "server-build.lock",
+                    "profile build default",
+                ),
+                (
+                    Path(f"{self.workspace._state_location('default')}.lock"),
+                    "server state",
+                ),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_lock(path, description, nonblocking=True):
+                        self.fail(f"foreground server released {description}")
+
         with (
             mock.patch.object(
                 self.workspace, "_resolve_build_profile", return_value=selected
@@ -6611,6 +6657,9 @@ class WorkspaceTests(unittest.TestCase):
             mock.patch.object(
                 self.workspace, "_prepare_server_runtime", return_value=runtime
             ),
+            mock.patch(
+                "atrinik_workspace.workspace.run", side_effect=execute_server
+            ),
             mock.patch("builtins.print") as output,
         ):
             result = self.workspace.run_server(
@@ -6618,7 +6667,7 @@ class WorkspaceTests(unittest.TestCase):
                 "default",
                 1731,
                 ["--no_console", "--assetspath=/tmp/untrusted"],
-                True,
+                False,
             )
 
         self.assertEqual(result, executable)
@@ -6651,6 +6700,38 @@ class WorkspaceTests(unittest.TestCase):
             workspace_run(["tool"])
 
         self.assertIs(invoke.call_args.kwargs["stdout"], os.sys.stderr)
+
+    def test_operational_subprocess_inherits_active_lock_descriptors(self) -> None:
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        build = self.workspace.paths.builds / "locks" / "inherited-build.lock"
+        state = self.workspace.paths.state / "inherited-state.lock"
+        completed = mock.MagicMock(stdout="")
+        with (
+            shared_lock(layout, "repository layout") as layout_lease,
+            exclusive_lock(build, "profile build inherited") as build_lease,
+            exclusive_lock(state, "server state inherited") as state_lease,
+            mock.patch(
+                "atrinik_workspace.workspace.subprocess.run",
+                return_value=completed,
+            ) as invoke,
+        ):
+            workspace_run(["tool"])
+            self.assertEqual(
+                set(invoke.call_args.kwargs["pass_fds"]),
+                {
+                    layout_lease.fileno(),
+                    build_lease.fileno(),
+                    state_lease.fileno(),
+                },
+            )
+            for path, description in (
+                (layout, "repository layout"),
+                (build, "profile build inherited"),
+                (state, "server state inherited"),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_lock(path, description, nonblocking=True):
+                        self.fail(f"subprocess lease did not protect {description}")
 
 
 if __name__ == "__main__":
