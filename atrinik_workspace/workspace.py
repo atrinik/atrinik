@@ -113,6 +113,7 @@ WORKER_SOURCE_EXCLUSIONS = {
     "node_modules",
     ".wrangler",
 }
+WORKER_VIEW_NODE_MODULES_EXCLUSIONS = {".vite", ".vite-temp"}
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
 REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
@@ -296,6 +297,23 @@ def _tree_digest(
         raise WorkspaceError(f"Worker source is not a regular directory: {root}")
     visit(root, PurePosixPath())
     return digest.hexdigest()
+
+
+def _copy_worker_source(source: Path, destination: Path) -> None:
+    """Copy Worker source while excluding generated names only at its root."""
+
+    def ignore(directory: str, names: list[str]) -> list[str]:
+        if Path(directory) != source:
+            return []
+        return sorted(set(names) & WORKER_SOURCE_EXCLUSIONS)
+
+    shutil.copytree(
+        source,
+        destination,
+        dirs_exist_ok=True,
+        symlinks=True,
+        ignore=ignore,
+    )
 
 
 def _remote_matches(url: str, repository: str) -> bool:
@@ -2345,6 +2363,7 @@ class Workspace:
         hidden_lock_digest: str,
         tree_digest: str,
         required: tuple[str, ...],
+        generated_exclusions: set[str] | None = None,
     ) -> None:
         if node_modules.is_symlink() or not node_modules.is_dir():
             raise WorkspaceError("Worker node_modules is not a regular directory")
@@ -2380,7 +2399,11 @@ class Workspace:
             if dependency.is_symlink() or not dependency.is_dir():
                 raise WorkspaceError(f"Worker dependency is missing or unsafe: {name}")
         if (
-            _tree_digest(node_modules, set(), bounded_symlinks=True)
+            _tree_digest(
+                node_modules,
+                generated_exclusions or set(),
+                bounded_symlinks=True,
+            )
             != tree_digest
         ):
             raise WorkspaceError("Worker node_modules does not match cache metadata")
@@ -2499,6 +2522,27 @@ class Workspace:
         lock = self.paths.builds / "locks" / f"worker-dependencies-{key}.lock"
         started = time.monotonic()
         with exclusive_lock(lock, f"Worker dependencies {key}"):
+            if not entry.exists() and not entry.is_symlink():
+                recoverable: list[Path] = []
+                for candidate in transactions.iterdir():
+                    if not re.fullmatch(
+                        rf"{key}-(?:staging|backup)-[a-z0-9_]+",
+                        candidate.name,
+                    ):
+                        continue
+                    if self._worker_dependency_cache_matches(
+                        candidate, key, inputs, required
+                    ) is not None:
+                        recoverable.append(candidate)
+                if recoverable:
+                    recovered = max(
+                        recoverable,
+                        key=lambda candidate: (
+                            candidate.stat().st_mtime_ns,
+                            candidate.name,
+                        ),
+                    )
+                    recovered.replace(entry)
             metadata = self._worker_dependency_cache_matches(
                 entry, key, inputs, required
             )
@@ -2527,13 +2571,7 @@ class Workspace:
                 f"worker-dependency-transaction:{key}",
             )
             try:
-                shutil.copytree(
-                    source,
-                    staging,
-                    dirs_exist_ok=True,
-                    symlinks=True,
-                    ignore=shutil.ignore_patterns(*WORKER_SOURCE_EXCLUSIONS),
-                )
+                _copy_worker_source(source, staging)
                 run(["npm", "ci"], cwd=staging, env=environment)
                 final_inputs = self._worker_dependency_inputs(source, environment)
                 if final_inputs != inputs:
@@ -2613,7 +2651,16 @@ class Workspace:
     ) -> tuple[Path, bool, float]:
         started = time.monotonic()
         view = root / "sources" / "metaserver-worker"
-        source_digest = _tree_digest(source, WORKER_SOURCE_EXCLUSIONS)
+        source_digest = _tree_digest(
+            source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+        )
+        dependency_source_digest = dependency_metadata.get("inputs", {}).get(
+            "lifecycle_source_sha256"
+        )
+        if source_digest != dependency_source_digest:
+            raise WorkspaceError(
+                "Worker source does not match dependency lifecycle inputs"
+            )
         expected = {
             "schema_version": WORKER_VIEW_SCHEMA_VERSION,
             "purpose": "worker-view",
@@ -2640,6 +2687,7 @@ class Workspace:
                     dependency_metadata["node_modules_lock_sha256"],
                     dependency_metadata["node_modules_sha256"],
                     self._worker_required_packages(source),
+                    WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
                 )
                 return view, True, time.monotonic() - started
         except (OSError, WorkspaceError):
@@ -2653,21 +2701,21 @@ class Workspace:
             tempfile.mkdtemp(prefix=".metaserver-worker-", dir=view.parent)
         )
         try:
-            shutil.copytree(
-                source,
-                staging,
-                dirs_exist_ok=True,
-                symlinks=True,
-                ignore=shutil.ignore_patterns(*WORKER_SOURCE_EXCLUSIONS),
-            )
+            _copy_worker_source(source, staging)
             shutil.copytree(dependencies, staging / "node_modules", symlinks=True)
-            if _tree_digest(source, WORKER_SOURCE_EXCLUSIONS) != source_digest:
+            if (
+                _tree_digest(
+                    source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+                )
+                != source_digest
+            ):
                 raise WorkspaceError("Worker source changed during view preparation")
             self._validate_worker_node_modules(
                 staging / "node_modules",
                 dependency_metadata["node_modules_lock_sha256"],
                 dependency_metadata["node_modules_sha256"],
                 self._worker_required_packages(source),
+                WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
             )
             atomic_json(
                 staging / MANAGED_MARKER,

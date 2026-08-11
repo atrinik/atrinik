@@ -258,6 +258,8 @@ scripts can observe root files, the complete non-generated source digest always
 enters the key, the source is staged, and source symlinks fail closed. Installed
 relative links must resolve within `node_modules`; absolute, escaping, dangling,
 or unsupported entries invalidate the installation.
+A missing canonical entry recovers the newest structurally valid matching
+backup under the per-key lock before falling back to a new `npm ci`.
 
 ## Classic monorepo migration
 
@@ -401,6 +403,8 @@ both the view and dependency key because dependency lifecycle scripts remain
 enabled; package or project npm configuration edits do the same. The profile
 receives a real, revalidated copy of cached `node_modules`, never a link or
 shared inode contract, so its checks cannot mutate the shared installation.
+View reuse excludes only Vite's profile-local `.vite` and `.vite-temp` outputs
+from the immutable dependency digest.
 Collected
 content and resource dependency metadata identify the selected path and commit.
 The resources repository's `runtime-paths.txt` is the distribution boundary:

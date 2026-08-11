@@ -28,6 +28,7 @@ from atrinik_workspace.model import (
     profile_key,
 )
 from atrinik_workspace.workspace import (
+    WORKER_SOURCE_EXCLUSIONS,
     Workspace,
     _tree_digest,
     _remote_matches as real_remote_matches,
@@ -737,6 +738,10 @@ class WorkspaceTests(unittest.TestCase):
             encoding="utf-8",
         )
         (source / "worker.ts").write_text("export const value = 1;\n", encoding="utf-8")
+        (source / "src" / "build").mkdir(parents=True)
+        (source / "src" / "build" / "nested.ts").write_text(
+            "export const nested = true;\n", encoding="utf-8"
+        )
         return source
 
     @staticmethod
@@ -766,6 +771,8 @@ class WorkspaceTests(unittest.TestCase):
                 assert cwd is not None
                 if not (cwd / "worker.ts").is_file():
                     raise AssertionError("npm lifecycle source was not staged")
+                if not (cwd / "src" / "build" / "nested.ts").is_file():
+                    raise AssertionError("nested generated-name source was omitted")
                 with install_lock:
                     installs.append(cwd)
                 modules = cwd / "node_modules"
@@ -925,6 +932,26 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(
             damaged.read_text(encoding="utf-8"), "valuable-corrupt-state\n"
         )
+
+    def test_worker_dependency_recovers_interrupted_atomic_backup(self) -> None:
+        source = self.make_worker_source()
+        installs: list[Path] = []
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        runner = self.fake_worker_run(installs, versions, threading.Lock())
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=runner):
+            first = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+            entry = first[0].parent
+            transaction = (
+                entry.parent
+                / ".transactions"
+                / f"{first[1]}-backup-_interrupted"
+            )
+            entry.rename(transaction)
+            recovered = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+        self.assertTrue(recovered[3])
+        self.assertEqual(len(installs), 1)
+        self.assertTrue(entry.is_dir())
+        self.assertFalse(transaction.exists())
 
     def test_worker_tree_digest_is_canonical_and_lifecycle_rejects_links(self) -> None:
         first = self.root / "tree-first"
@@ -1146,6 +1173,11 @@ class WorkspaceTests(unittest.TestCase):
             "node_modules_sha256": _tree_digest(
                 dependencies, set(), bounded_symlinks=True
             ),
+            "inputs": {
+                "lifecycle_source_sha256": _tree_digest(
+                    source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+                )
+            },
         }
         root = self.workspace.paths.builds / "profiles" / "worker-test"
         managed_directory(root, self.workspace.paths.builds, "worker-test")
@@ -1153,11 +1185,16 @@ class WorkspaceTests(unittest.TestCase):
         first = self.workspace._worker_view(
             root, source, dependencies, "a" * 64, metadata
         )
+        (first[0] / "node_modules" / ".vite").mkdir()
+        (first[0] / "node_modules" / ".vite" / "cache").write_text(
+            "profile generated\n", encoding="utf-8"
+        )
         second = self.workspace._worker_view(
             root, source, dependencies, "a" * 64, metadata
         )
         self.assertFalse(first[1])
         self.assertTrue(second[1])
+        self.assertTrue((second[0] / "src" / "build" / "nested.ts").is_file())
         (second[0] / "node_modules" / "alpha" / "local").write_text(
             "profile only\n", encoding="utf-8"
         )
@@ -1166,8 +1203,15 @@ class WorkspaceTests(unittest.TestCase):
         (source / "worker.ts").write_text(
             "export const value = 2;\n", encoding="utf-8"
         )
+        with self.assertRaisesRegex(WorkspaceError, "lifecycle inputs"):
+            self.workspace._worker_view(
+                root, source, dependencies, "a" * 64, metadata
+            )
+        metadata["inputs"]["lifecycle_source_sha256"] = _tree_digest(
+            source, WORKER_SOURCE_EXCLUSIONS, reject_symlinks=True
+        )
         changed = self.workspace._worker_view(
-            root, source, dependencies, "a" * 64, metadata
+            root, source, dependencies, "b" * 64, metadata
         )
         self.assertFalse(changed[1])
         self.assertEqual(

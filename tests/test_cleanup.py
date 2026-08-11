@@ -1955,7 +1955,7 @@ class CleanupTests(unittest.TestCase):
             self.workspace.paths.builds,
             "worker-dependency-transactions",
         )
-        transaction = transactions / f"{key}-staging-deadbeef"
+        transaction = transactions / f"{key}-backup-_n056r1s"
         transaction.mkdir()
         (transaction / "partial-package").write_text("partial\n", encoding="utf-8")
         old_timestamp = self.old.timestamp()

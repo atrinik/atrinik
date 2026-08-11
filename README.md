@@ -275,8 +275,9 @@ view. Because enabled dependency lifecycle scripts can observe root files, the
 complete non-generated source digest participates in every dependency key and
 source symlinks fail closed. Every profile gets its own `node_modules` copy, so
 its checks cannot mutate the shared cache. A canonical no-follow digest covers
-the complete installed tree, including modes and bounded relative links. Build
-output reports dependency installation/cache time and source-view
+the complete installed tree, including modes and bounded relative links. The
+isolated view permits only Vite's profile-local `.vite`/`.vite-temp` outputs
+outside that immutable snapshot. Build output reports dependency installation/cache time and source-view
 preparation/reuse time.
 
 `--with classic` has one exact meaning: add the complete classic initialization
@@ -564,6 +565,8 @@ stale entry leaves the marker-owned container and npm download cache intact.
 Recognizable interrupted staging and backup directories live below the
 separately marker-owned `.transactions` container and are reclaimed by the
 same preview-first scope only after their grace period and per-key lock checks.
+A valid matching backup is restored under that lock before another install is
+attempted.
 
 The shared `workspace/build/npm-cache` is never part of default cleanup. Its
 explicit scope accepts the exact marker-owned path or the one legacy known

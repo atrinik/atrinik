@@ -1809,7 +1809,7 @@ class Cleanup:
         inodes, observed, walk_error = _tree_usage(path)
         item["_inodes"] = inodes
         match = re.fullmatch(
-            r"([0-9a-f]{64})-(staging|backup)-([0-9a-f]+)", path.name
+            r"([0-9a-f]{64})-(staging|backup)-([a-z0-9_]+)", path.name
         )
         if walk_error:
             item["reasons"].append("filesystem_traversal_error")
@@ -2448,7 +2448,7 @@ class Cleanup:
                     or path.parent.resolve(strict=False)
                     != transaction_root.resolve(strict=False)
                     or not re.fullmatch(
-                        rf"{key}-(?:staging|backup)-[0-9a-f]+", path.name
+                        rf"{key}-(?:staging|backup)-[a-z0-9_]+", path.name
                     )
                     or path.is_symlink()
                     or not path.is_dir()
