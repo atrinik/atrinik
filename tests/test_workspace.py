@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import copy
 from concurrent.futures import ThreadPoolExecutor
+import ctypes
+import errno
 import hashlib
 import json
 import os
@@ -15,6 +17,7 @@ import time
 import unittest
 from unittest import mock
 
+from atrinik_workspace import workspace as workspace_module
 from atrinik_workspace.migration import rename_no_replace as real_rename_no_replace
 from atrinik_workspace.launch_identity import client_launch_label
 from atrinik_workspace.model import (
@@ -2797,6 +2800,653 @@ class WorkspaceTests(unittest.TestCase):
                 remove_owned_tree(owned)
 
         self.assertTrue(fifo.exists())
+
+    def test_mount_identity_probes_fail_closed(self) -> None:
+        class FakeFunction:
+            def __init__(self, result: int, values: tuple[int, int] | None = None):
+                self.result = result
+                self.values = values
+
+            def __call__(self, *arguments: object) -> int:
+                if self.values is not None:
+                    buffer = arguments[-1]._obj  # type: ignore[attr-defined]
+                    ctypes.c_int32.from_buffer(buffer, 48).value = self.values[0]
+                    ctypes.c_int32.from_buffer(buffer, 52).value = self.values[1]
+                return self.result
+
+        class FakeLibrary:
+            def __init__(self, function: FakeFunction):
+                self.fstatfs = function
+                self.statx = function
+
+        with mock.patch(
+            "atrinik_workspace.workspace.ctypes.CDLL",
+            return_value=FakeLibrary(FakeFunction(0, (7, 9))),
+        ):
+            self.assertEqual(workspace_module._darwin_descriptor_mount_id(1), (7, 9))
+
+        ctypes.set_errno(errno.EIO)
+        with mock.patch(
+            "atrinik_workspace.workspace.ctypes.CDLL",
+            return_value=FakeLibrary(FakeFunction(-1)),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "cannot inspect filesystem"):
+                workspace_module._darwin_descriptor_mount_id(1)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.ctypes.CDLL", return_value=object()
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "statx mount identity"):
+                workspace_module._linux_descriptor_mount_id(1)
+
+        ctypes.set_errno(errno.EIO)
+        with mock.patch(
+            "atrinik_workspace.workspace.ctypes.CDLL",
+            return_value=FakeLibrary(FakeFunction(-1)),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "cannot inspect filesystem"):
+                workspace_module._linux_descriptor_mount_id(1)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.ctypes.CDLL",
+            return_value=FakeLibrary(FakeFunction(0)),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "did not return"):
+                workspace_module._linux_descriptor_mount_id(1)
+
+        class SuccessfulStatx(FakeFunction):
+            def __call__(self, *arguments: object) -> int:
+                buffer = arguments[-1]._obj  # type: ignore[attr-defined]
+                ctypes.c_uint32.from_buffer(buffer, 0).value = 0x1000
+                ctypes.c_uint64.from_buffer(buffer, 144).value = 8675309
+                return 0
+
+        with mock.patch(
+            "atrinik_workspace.workspace.ctypes.CDLL",
+            return_value=FakeLibrary(SuccessfulStatx(0)),
+        ):
+            self.assertEqual(
+                workspace_module._linux_descriptor_mount_id(1), 8675309
+            )
+
+        with mock.patch("atrinik_workspace.workspace.sys.platform", "freebsd"):
+            with self.assertRaisesRegex(WorkspaceError, "unavailable on freebsd"):
+                workspace_module._descriptor_mount_id(1)
+
+    def test_owned_tree_removal_detects_descriptor_races(self) -> None:
+        invalid = self.root / "invalid-removal-root"
+        invalid.write_text("file\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "root is invalid"):
+            remove_owned_tree(invalid)
+
+        mounted = self.root / "mounted-removal-root"
+        mounted.mkdir()
+        mounted_payload = mounted / "payload"
+        mounted_payload.write_text("preserve\n", encoding="utf-8")
+        mounted_identity = mounted_payload.lstat()
+        with mock.patch(
+            "atrinik_workspace.workspace._descriptor_mount_id",
+            side_effect=[1, 2],
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "root changed or is mounted"):
+                remove_owned_tree(mounted)
+        self.assertEqual(
+            (mounted_payload.read_text(encoding="utf-8"), mounted_payload.lstat().st_ino),
+            ("preserve\n", mounted_identity.st_ino),
+        )
+
+        probe_root = self.root / "probe-open-race"
+        probe_root.mkdir()
+        probe_file = probe_root / "payload"
+        probe_file.write_text("data\n", encoding="utf-8")
+        probe_identity = probe_file.lstat()
+        probe_descriptor = os.open(probe_root, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            with mock.patch(
+                "atrinik_workspace.workspace.os.open",
+                side_effect=OSError("changed"),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "entry changed"):
+                    workspace_module._probe_owned_tree_entry_mount(
+                        probe_descriptor,
+                        "payload",
+                        probe_file.stat(),
+                        1,
+                        probe_file,
+                    )
+        finally:
+            os.close(probe_descriptor)
+        self.assertEqual(
+            (probe_file.read_text(encoding="utf-8"), probe_file.lstat().st_ino),
+            ("data\n", probe_identity.st_ino),
+        )
+
+        boundary = self.root / "prepare-boundary"
+        boundary.mkdir()
+        boundary_payload = boundary / "payload"
+        boundary_payload.write_text("preserve\n", encoding="utf-8")
+        boundary_identity = boundary_payload.lstat()
+        boundary_descriptor = os.open(boundary, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            boundary_stat = os.fstat(boundary_descriptor)
+            with self.assertRaisesRegex(WorkspaceError, "crossed a filesystem"):
+                workspace_module._prepare_owned_tree_removal(
+                    boundary_descriptor,
+                    boundary_stat.st_dev + 1,
+                    1,
+                    boundary,
+                )
+        finally:
+            os.close(boundary_descriptor)
+        self.assertEqual(
+            (
+                boundary_payload.read_text(encoding="utf-8"),
+                boundary_payload.lstat().st_ino,
+            ),
+            ("preserve\n", boundary_identity.st_ino),
+        )
+
+        def changed_device(result: os.stat_result) -> os.stat_result:
+            fields = list(result)
+            fields[2] += 1
+            return os.stat_result(fields)
+
+        for operation in (
+            workspace_module._prepare_owned_tree_removal,
+            workspace_module._remove_owned_tree_contents,
+        ):
+            root = self.root / f"device-race-{operation.__name__}"
+            root.mkdir()
+            child = root / "payload"
+            child.write_text("data\n", encoding="utf-8")
+            descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+            try:
+                root_stat = os.fstat(descriptor)
+                with (
+                    mock.patch(
+                        "atrinik_workspace.workspace._descriptor_mount_id",
+                        return_value=1,
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace._probe_owned_tree_entry_mount"
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace.os.stat",
+                        return_value=changed_device(child.stat()),
+                    ),
+                ):
+                    with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
+                        operation(descriptor, root_stat.st_dev, 1, root)
+            finally:
+                os.close(descriptor)
+            self.assertEqual(child.read_text(encoding="utf-8"), "data\n")
+
+        real_open = os.open
+        for operation in (
+            workspace_module._prepare_owned_tree_removal,
+            workspace_module._remove_owned_tree_contents,
+        ):
+            root = self.root / f"open-race-{operation.__name__}"
+            nested = root / "nested"
+            nested.mkdir(parents=True)
+            nested_payload = nested / "payload"
+            nested_payload.write_text("preserve\n", encoding="utf-8")
+            nested_identity = nested_payload.lstat()
+            descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+            root_stat = os.fstat(descriptor)
+
+            def fail_nested_open(
+                path: object, flags: int, *args: object, **kwargs: object
+            ) -> int:
+                if path == "nested" and kwargs.get("dir_fd") == descriptor:
+                    raise OSError("changed")
+                return real_open(path, flags, *args, **kwargs)
+
+            try:
+                with (
+                    mock.patch(
+                        "atrinik_workspace.workspace._descriptor_mount_id",
+                        return_value=1,
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace._probe_owned_tree_entry_mount"
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace.os.open",
+                        side_effect=fail_nested_open,
+                    ),
+                ):
+                    with self.assertRaisesRegex(WorkspaceError, "directory changed"):
+                        operation(descriptor, root_stat.st_dev, 1, root)
+            finally:
+                os.close(descriptor)
+            self.assertEqual(
+                (
+                    nested_payload.read_text(encoding="utf-8"),
+                    nested_payload.lstat().st_ino,
+                ),
+                ("preserve\n", nested_identity.st_ino),
+            )
+
+        for operation in (
+            workspace_module._prepare_owned_tree_removal,
+            workspace_module._remove_owned_tree_contents,
+        ):
+            root = self.root / f"identity-race-{operation.__name__}"
+            nested = root / "nested"
+            nested.mkdir(parents=True)
+            nested_payload = nested / "payload"
+            nested_payload.write_text("preserve\n", encoding="utf-8")
+            nested_identity = nested_payload.lstat()
+            descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+            root_stat = os.fstat(descriptor)
+            mount_ids = (
+                [1, 2]
+                if operation is workspace_module._prepare_owned_tree_removal
+                else [2]
+            )
+            try:
+                with (
+                    mock.patch(
+                        "atrinik_workspace.workspace._descriptor_mount_id",
+                        side_effect=mount_ids,
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace._probe_owned_tree_entry_mount"
+                    ),
+                ):
+                    with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
+                        operation(descriptor, root_stat.st_dev, 1, root)
+            finally:
+                os.close(descriptor)
+            self.assertEqual(
+                (
+                    nested_payload.read_text(encoding="utf-8"),
+                    nested_payload.lstat().st_ino,
+                ),
+                ("preserve\n", nested_identity.st_ino),
+            )
+
+    def test_replaced_directory_recovery_rejects_invalid_states(self) -> None:
+        def snapshot(parent: Path) -> dict[str, tuple[object, ...]]:
+            result: dict[str, tuple[object, ...]] = {}
+            for directory, dirnames, filenames in os.walk(
+                parent, followlinks=False
+            ):
+                directory_path = Path(directory)
+                for name in sorted([*dirnames, *filenames]):
+                    entry = directory_path / name
+                    relative = entry.relative_to(parent).as_posix()
+                    metadata = entry.lstat()
+                    if entry.is_symlink():
+                        value: object = os.readlink(entry)
+                    elif entry.is_file():
+                        value = entry.read_bytes()
+                    else:
+                        value = None
+                    result[relative] = (
+                        stat.S_IFMT(metadata.st_mode),
+                        stat.S_IMODE(metadata.st_mode),
+                        metadata.st_ino,
+                        value,
+                    )
+            return result
+
+        def prepare(
+            name: str,
+            phase: str,
+            *,
+            output: str = "absent",
+            backup: str = "absent",
+        ) -> tuple[Path, Path, Path]:
+            parent = self.root / name
+            parent.mkdir()
+            target = parent / "output"
+            pending = parent / ".previous-pending"
+            if output == "directory":
+                target.mkdir()
+            elif output == "symlink":
+                external = parent / "external"
+                external.mkdir()
+                target.symlink_to(external, target_is_directory=True)
+            if backup != "absent":
+                pending.mkdir()
+                if backup == "previous":
+                    (pending / "previous").mkdir()
+                elif backup == "previous-symlink":
+                    external = parent / "backup-external"
+                    external.mkdir()
+                    (pending / "previous").symlink_to(
+                        external, target_is_directory=True
+                    )
+                elif backup == "other":
+                    (pending / "other").write_text("unexpected\n", encoding="utf-8")
+            atomic_json(
+                parent / ".previous-pending.json",
+                {
+                    "schema_version": 1,
+                    "purpose": "replaced-directory-backup",
+                    "output": "output",
+                    "phase": phase,
+                },
+            )
+            return target, pending, parent / ".previous-pending.json"
+
+        unmanaged = self.root / "unmanaged"
+        unmanaged.mkdir()
+        (unmanaged / ".previous-pending").mkdir()
+        unmanaged_before = snapshot(unmanaged)
+        with self.assertRaisesRegex(WorkspaceError, "is not managed"):
+            workspace_module.recover_replaced_directory(
+                unmanaged / "output", ".previous-"
+            )
+        self.assertEqual(snapshot(unmanaged), unmanaged_before)
+
+        invalid_link = self.root / "invalid-link"
+        invalid_link.mkdir()
+        link_target = invalid_link / "journal-target"
+        link_target.write_text("{}", encoding="utf-8")
+        (invalid_link / ".previous-pending.json").symlink_to(link_target)
+        invalid_link_before = snapshot(invalid_link)
+        with self.assertRaisesRegex(WorkspaceError, "journal is invalid"):
+            workspace_module.recover_replaced_directory(
+                invalid_link / "output", ".previous-"
+            )
+        self.assertEqual(snapshot(invalid_link), invalid_link_before)
+
+        invalid_json = self.root / "invalid-json"
+        invalid_json.mkdir()
+        atomic_json(invalid_json / ".previous-pending.json", [])
+        invalid_json_before = snapshot(invalid_json)
+        with self.assertRaisesRegex(WorkspaceError, "journal is invalid"):
+            workspace_module.recover_replaced_directory(
+                invalid_json / "output", ".previous-"
+            )
+        self.assertEqual(snapshot(invalid_json), invalid_json_before)
+
+        invalid_phase = self.root / "invalid-phase"
+        invalid_phase.mkdir()
+        atomic_json(
+            invalid_phase / ".previous-pending.json",
+            {
+                "schema_version": 1,
+                "purpose": "replaced-directory-backup",
+                "output": "output",
+                "phase": "unknown",
+            },
+        )
+        invalid_phase_before = snapshot(invalid_phase)
+        with self.assertRaisesRegex(WorkspaceError, "journal is invalid"):
+            workspace_module.recover_replaced_directory(
+                invalid_phase / "output", ".previous-"
+            )
+        self.assertEqual(snapshot(invalid_phase), invalid_phase_before)
+
+        cases = (
+            (
+                "initializing-nonempty",
+                "initializing",
+                "absent",
+                "other",
+                "backup is invalid",
+            ),
+            ("prepared-no-backup", "prepared", "absent", "absent", "backup is invalid"),
+            (
+                "previous-link",
+                "prepared",
+                "absent",
+                "previous-symlink",
+                "payload is invalid",
+            ),
+            (
+                "prepared-output-link",
+                "prepared",
+                "symlink",
+                "previous",
+                "replacement is invalid",
+            ),
+            (
+                "committed-no-output",
+                "committed",
+                "absent",
+                "previous",
+                "replacement is invalid",
+            ),
+            (
+                "committed-empty",
+                "committed",
+                "absent",
+                "empty",
+                "replacement is invalid",
+            ),
+            ("prepared-empty", "prepared", "absent", "empty", "replacement is invalid"),
+            ("unexpected-payload", "prepared", "directory", "other", "not empty"),
+        )
+        for name, phase, output, backup, message in cases:
+            with self.subTest(name=name):
+                target, _pending, _journal = prepare(
+                    name, phase, output=output, backup=backup
+                )
+                before = snapshot(target.parent)
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    workspace_module.recover_replaced_directory(
+                        target, ".previous-"
+                    )
+                self.assertEqual(snapshot(target.parent), before)
+
+        target, pending, journal = prepare(
+            "committed-clean", "committed", output="directory"
+        )
+        workspace_module.recover_replaced_directory(target, ".previous-")
+        self.assertFalse(pending.exists())
+        self.assertFalse(journal.exists())
+
+    def test_content_and_resource_validators_reject_malformed_trees(self) -> None:
+        coordinate = {
+            "repository": "atrinik/content",
+            "branch": "main",
+            "head": "a" * 40,
+        }
+
+        def content(name: str) -> Path:
+            path = self.root / name
+            path.mkdir()
+            self.make_content_candidate(path, coordinate["head"], "content\n")
+            atomic_json(
+                path / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": "collected-content"},
+            )
+            return path
+
+        root_file = self.root / "content-file"
+        root_file.write_text("bad\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace._validate_collected_content(
+                root_file, coordinate, require_metadata=False
+            )
+
+        missing_directory = content("content-missing-directory")
+        shutil.rmtree(missing_directory / "lib")
+        with self.assertRaisesRegex(WorkspaceError, "required directory"):
+            self.workspace._validate_collected_content(
+                missing_directory, coordinate, require_metadata=False
+            )
+
+        invalid_manifest = content("content-invalid-manifest")
+        atomic_json(invalid_manifest / "manifest.json", [])
+        with self.assertRaisesRegex(WorkspaceError, "manifest is invalid"):
+            self.workspace._validate_collected_content(
+                invalid_manifest, coordinate, require_metadata=False
+            )
+
+        invalid_entry = content("content-invalid-entry")
+        manifest = load_json(invalid_entry / "manifest.json")
+        manifest["files"][0]["path"] = "../escape"
+        atomic_json(invalid_entry / "manifest.json", manifest)
+        with self.assertRaisesRegex(WorkspaceError, "file entry is invalid"):
+            self.workspace._validate_collected_content(
+                invalid_entry, coordinate, require_metadata=False
+            )
+
+        linked = content("content-link")
+        (linked / "linked").symlink_to(self.root, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "contains a link"):
+            self.workspace._validate_collected_content(
+                linked, coordinate, require_metadata=False
+            )
+
+        extra = content("content-extra")
+        (extra / "extra").write_text("extra\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "does not match"):
+            self.workspace._validate_collected_content(
+                extra, coordinate, require_metadata=False
+            )
+
+        wrong_size = content("content-size")
+        manifest = load_json(wrong_size / "manifest.json")
+        manifest["files"][0]["size"] += 1
+        atomic_json(wrong_size / "manifest.json", manifest)
+        with self.assertRaisesRegex(WorkspaceError, "size does not match"):
+            self.workspace._validate_collected_content(
+                wrong_size, coordinate, require_metadata=False
+            )
+
+        unreadable = content("content-unreadable")
+        real_lstat = Path.lstat
+        walking = False
+
+        def fail_content_lstat(candidate: Path) -> os.stat_result:
+            if walking and candidate == unreadable / "compatibility.json":
+                raise OSError("changed")
+            return real_lstat(candidate)
+
+        real_walk = os.walk
+
+        def activate_content_walk(
+            *arguments: object, **kwargs: object
+        ) -> object:
+            nonlocal walking
+            walking = True
+            yield from real_walk(*arguments, **kwargs)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.Path.lstat",
+                autospec=True,
+                side_effect=fail_content_lstat,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.os.walk",
+                side_effect=activate_content_walk,
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "cannot inspect collected"):
+                self.workspace._validate_collected_content(
+                    unreadable, coordinate, require_metadata=False
+                )
+
+        special_content = content("content-special")
+        fifo = special_content / "fifo"
+        os.mkfifo(fifo)
+        manifest = load_json(special_content / "manifest.json")
+        manifest["files"].append(
+            {"path": "fifo", "sha256": "0" * 64, "size": 0}
+        )
+        atomic_json(special_content / "manifest.json", manifest)
+        with self.assertRaisesRegex(WorkspaceError, "non-regular file"):
+            self.workspace._validate_collected_content(
+                special_content, coordinate, require_metadata=False
+            )
+
+        source = self.workspace.paths.repositories / "resources"
+
+        def resource(name: str) -> Path:
+            path = self.root / name
+            (path / "paintings").mkdir(parents=True)
+            shutil.copy2(
+                source / "paintings" / "scene.jpg",
+                path / "paintings" / "scene.jpg",
+            )
+            atomic_json(
+                path / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": "resource-view"},
+            )
+            return path
+
+        resource_file = self.root / "resource-file"
+        resource_file.write_text("bad\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace._validate_resource_view(
+                resource_file,
+                source,
+                ["paintings/scene.jpg"],
+                require_metadata=False,
+            )
+
+        resource_link = resource("resource-link")
+        (resource_link / "linked").symlink_to(self.root, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "contains a link"):
+            self.workspace._validate_resource_view(
+                resource_link,
+                source,
+                ["paintings/scene.jpg"],
+                require_metadata=False,
+            )
+
+        resource_extra = resource("resource-extra")
+        (resource_extra / "extra").write_text("extra\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "tracked file set"):
+            self.workspace._validate_resource_view(
+                resource_extra,
+                source,
+                ["paintings/scene.jpg"],
+                require_metadata=False,
+            )
+
+        resource_directory = resource("resource-directory")
+        (resource_directory / "extra").mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "tracked directories"):
+            self.workspace._validate_resource_view(
+                resource_directory,
+                source,
+                ["paintings/scene.jpg"],
+                require_metadata=False,
+            )
+
+        unreadable_resource = resource("resource-unreadable")
+
+        def fail_resource_lstat(candidate: Path) -> os.stat_result:
+            if candidate == unreadable_resource / "paintings" / "scene.jpg":
+                raise OSError("changed")
+            return real_lstat(candidate)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.Path.lstat",
+            autospec=True,
+            side_effect=fail_resource_lstat,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "cannot inspect staged"):
+                self.workspace._validate_resource_view(
+                    unreadable_resource,
+                    source,
+                    ["paintings/scene.jpg"],
+                    require_metadata=False,
+                )
+
+        special_resource = self.root / "resource-special"
+        (special_resource / "paintings").mkdir(parents=True)
+        os.mkfifo(special_resource / "paintings" / "fifo")
+        atomic_json(
+            special_resource / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "resource-view"},
+        )
+        with self.assertRaisesRegex(WorkspaceError, "non-regular file"):
+            self.workspace._validate_resource_view(
+                special_resource,
+                source,
+                ["paintings/fifo"],
+                require_metadata=False,
+            )
 
     def test_replace_directory_interrupted_journal_publish_is_retryable(
         self,
