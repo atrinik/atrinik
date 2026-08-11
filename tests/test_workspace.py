@@ -818,6 +818,60 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertFalse((view / "nested" / "node_modules").exists())
 
+    def test_copied_source_view_allows_only_repository_internal_symlinks(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        left = source / "left"
+        right = source / "right"
+        left.mkdir()
+        right.mkdir()
+        (right / "value").write_text("safe\n", encoding="utf-8")
+        (left / "value-link").symlink_to(Path("../right/value"))
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+
+        view = self.workspace._profile_source_view(
+            root, "worker", source, set(), copy_all=True
+        )
+
+        self.assertTrue((view / "left" / "value-link").is_symlink())
+        self.assertEqual(
+            (view / "left" / "value-link").resolve(), view / "right" / "value"
+        )
+        outside = self.root / "outside-copy-root"
+        outside.write_text("unsafe\n", encoding="utf-8")
+        (left / "escape-link").symlink_to(outside)
+        with self.assertRaisesRegex(WorkspaceError, "escapes its source root"):
+            self.workspace._profile_source_view(
+                root, "worker", source, set(), copy_all=True
+            )
+
+    def test_profile_views_and_cmake_reject_intermediate_symlink_aliases(self) -> None:
+        builds = self.workspace.paths.builds
+        profile_a = builds / "profiles" / "a"
+        profile_z = builds / "profiles" / "z"
+        managed_directory(profile_a, builds, "profile:a")
+        managed_directory(profile_z, builds, "profile:z")
+        source = self.workspace.paths.repositories / "content"
+        target_view = self.workspace._profile_source_view(
+            profile_z, "content", source, set()
+        )
+        (profile_a / "sources").symlink_to(
+            profile_z / "sources", target_is_directory=True
+        )
+
+        with self.assertRaisesRegex(WorkspaceError, "symlinked managed build path"):
+            self.workspace._profile_source_view(profile_a, "content", source, set())
+        self.assertEqual((target_view / "README").resolve(), source / "README")
+
+        target_binary = profile_z / "build" / "sample"
+        managed_directory(target_binary, builds, "cmake-binary")
+        (profile_a / "build").symlink_to(
+            profile_z / "build", target_is_directory=True
+        )
+        with self.assertRaisesRegex(WorkspaceError, "symlinked managed build path"):
+            self.workspace._prepare_cmake_binary(profile_a / "build" / "sample")
+        self.assertTrue(target_binary.is_dir())
+
     def test_preserved_source_view_directory_removes_unexpected_children(self) -> None:
         source = self.workspace.paths.repositories / "server"
         root = self.workspace.paths.builds / "profiles" / "test"
@@ -845,7 +899,9 @@ class WorkspaceTests(unittest.TestCase):
         source = self.workspace._profile_source_view(root, "content", source_root, set())
         binary = root / "build" / "content"
 
-        def configured(command: list[str], **kwargs: object) -> None:
+        def configured(command: list[str], **kwargs: object) -> str | None:
+            if command[:2] == ["ninja", "-C"]:
+                return "build.ninja:\n  input: RERUN_CMAKE\n"
             if command[:2] != ["cmake", "-S"]:
                 return
             (binary / "CMakeCache.txt").write_text(
@@ -869,7 +925,13 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace._profile_source_view(root, "content", source_root, set())
             self.workspace._cmake(source, binary, [], tests=False)
             second_commands = [call.args[0] for call in run.call_args_list[first_count:]]
-            self.assertEqual(second_commands, [["cmake", "--build", str(binary), "--parallel"]])
+            self.assertEqual(
+                second_commands,
+                [
+                    ["ninja", "-C", str(binary), "-t", "query", "build.ninja"],
+                    ["cmake", "--build", str(binary), "--parallel"],
+                ],
+            )
 
             (binary / "build.ninja").unlink()
             repair_start = run.call_count
@@ -1013,11 +1075,21 @@ class WorkspaceTests(unittest.TestCase):
             "int main(void) { return 0; }\n",
             encoding="utf-8",
         )
-        toolchain = self.root / "toolchain.cmake"
-        toolchain.write_text(
+        compiler = self.root / "compiler-wrapper"
+        compiler.write_text("#!/bin/sh\nexec /usr/bin/cc \"$@\"\n", encoding="utf-8")
+        compiler.chmod(0o755)
+        fragment = self.root / "toolchain-flags.cmake"
+        fragment.write_text(
             'set(CMAKE_C_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} -DTOOLCHAIN_VALUE=1")\n',
             encoding="utf-8",
         )
+        toolchain_target = self.root / "toolchain-real.cmake"
+        toolchain_target.write_text(
+            f'include("{fragment}")\nset(CMAKE_C_COMPILER "{compiler}")\n',
+            encoding="utf-8",
+        )
+        toolchain = self.root / "toolchain.cmake"
+        toolchain.symlink_to(toolchain_target)
         binary = self.workspace.paths.builds / "profiles" / "real" / "build" / "sample"
         self.workspace._use_ccache = False
 
@@ -1033,7 +1105,7 @@ class WorkspaceTests(unittest.TestCase):
         sentinel = binary / "removed-on-toolchain-change"
         sentinel.write_text("stale\n", encoding="utf-8")
 
-        toolchain.write_text(
+        fragment.write_text(
             'set(CMAKE_C_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} -DTOOLCHAIN_VALUE=2")\n',
             encoding="utf-8",
         )
@@ -1049,13 +1121,70 @@ class WorkspaceTests(unittest.TestCase):
             "-DTOOLCHAIN_VALUE=2",
             (binary / "CMakeCache.txt").read_text(encoding="utf-8"),
         )
+        compiler_sentinel = binary / "removed-on-compiler-change"
+        compiler_sentinel.write_text("stale\n", encoding="utf-8")
+        compiler.write_text(
+            "#!/bin/sh\n# updated wrapper\nexec /usr/bin/cc \"$@\"\n",
+            encoding="utf-8",
+        )
+        compiler.chmod(0o755)
+
+        self.workspace._cmake(
+            source,
+            binary,
+            [f"-DCMAKE_TOOLCHAIN_FILE={toolchain}"],
+            tests=False,
+        )
+
+        self.assertFalse(compiler_sentinel.exists())
+        link_sentinel = binary / "removed-on-toolchain-link-change"
+        link_sentinel.write_text("stale\n", encoding="utf-8")
+        second_target = self.root / "toolchain-second.cmake"
+        second_target.write_text(
+            f'include("{fragment}")\nset(CMAKE_C_COMPILER "{compiler}")\n'
+            "# second toolchain target\n",
+            encoding="utf-8",
+        )
+        toolchain.unlink()
+        toolchain.symlink_to(second_target)
+
+        self.workspace._cmake(
+            source,
+            binary,
+            [f"-DCMAKE_TOOLCHAIN_FILE={toolchain}"],
+            tests=False,
+        )
+
+        self.assertFalse(link_sentinel.exists())
+        (binary / "build.ninja").write_text("corrupt graph\n", encoding="utf-8")
+        self.workspace._cmake(
+            source,
+            binary,
+            [f"-DCMAKE_TOOLCHAIN_FILE={toolchain}"],
+            tests=False,
+        )
+        self.assertIn(
+            "RERUN_CMAKE",
+            subprocess.run(
+                ["ninja", "-C", str(binary), "-t", "query", "build.ninja"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout,
+        )
 
     @unittest.skipUnless(
         all(shutil.which(tool) for tool in ("cc", "ccache", "cmake", "ninja")),
         "real ccache/CMake toolchain is unavailable",
     )
     def test_real_cmake_reuses_ccache_across_equivalent_profile_views(self) -> None:
-        checkout = self.root / "shared-cmake-source"
+        with mock.patch.dict(
+            os.environ,
+            {"ATRINIK_WORKSPACE_DIR": str(self.root / "workspace with spaces")},
+        ):
+            workspace = Workspace(self.wrapper)
+            workspace.paths.ensure()
+        checkout = self.root / "shared cmake source"
         checkout.mkdir()
         (checkout / "CMakeLists.txt").write_text(
             "cmake_minimum_required(VERSION 3.20)\n"
@@ -1069,22 +1198,22 @@ class WorkspaceTests(unittest.TestCase):
             encoding="utf-8",
         )
         roots = [
-            self.workspace.paths.builds / "profiles" / name
+            workspace.paths.builds / "profiles" / name
             for name in ("cache-a", "cache-b")
         ]
         views: list[Path] = []
         for root in roots:
-            managed_directory(root, self.workspace.paths.builds, f"profile:{root.name}")
+            managed_directory(root, workspace.paths.builds, f"profile:{root.name}")
             views.append(
-                self.workspace._profile_source_view(
+                workspace._profile_source_view(
                     root, "sample", checkout, set()
                 )
             )
 
-        self.workspace._cmake(
+        workspace._cmake(
             views[0], roots[0] / "build" / "sample", [], tests=False
         )
-        cache = self.workspace.paths.builds / "compiler-cache"
+        cache = workspace.paths.builds / "compiler-cache"
         statistics_environment = os.environ.copy()
         statistics_environment["CCACHE_DIR"] = str(cache)
         subprocess.run(
@@ -1094,7 +1223,7 @@ class WorkspaceTests(unittest.TestCase):
             text=True,
             env=statistics_environment,
         )
-        self.workspace._cmake(
+        workspace._cmake(
             views[1], roots[1] / "build" / "sample", [], tests=False
         )
 
