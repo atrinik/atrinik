@@ -9,7 +9,9 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
+from atrinik_workspace import sound as sound_module
 from atrinik_workspace.model import WorkspaceError
 from atrinik_workspace.sound import (
     PLAYTEST_BLOCKERS,
@@ -202,6 +204,289 @@ class PlaytestSoundTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "fields are invalid"):
             validate_sound_record(incomplete)
 
+    def test_sound_record_validation_rejects_each_invalid_identity(self) -> None:
+        record = verify_playtest_tree(self.source, self.output, self.inputs)
+        cases: list[tuple[str, object, str]] = [
+            ("not-object", [], "not an object"),
+            ("unknown-mode", {**record, "mode": "released"}, "fields are invalid"),
+            ("relative-root", {**record, "root": "relative"}, "root is invalid"),
+            ("bad-commit", {**record, "source_commit": "bad"}, "identity is invalid"),
+            ("bad-tree", {**record, "source_tree": "bad"}, "identity is invalid"),
+            ("unclean", {**record, "source_clean": False}, "provenance is invalid"),
+            (
+                "bad-manifest-hash",
+                {**record, "playtest_manifest_sha256": "bad"},
+                "provenance is invalid",
+            ),
+            (
+                "bad-playtest-schema",
+                {**record, "playtest_schema_version": 2},
+                "provenance is invalid",
+            ),
+            (
+                "bad-toolchain-schema-version",
+                {**record, "toolchain_schema_version": 2},
+                "provenance is invalid",
+            ),
+            (
+                "bad-toolchain-schema",
+                {**record, "toolchain_schema": "schema.json"},
+                "provenance is invalid",
+            ),
+            (
+                "bad-path-count",
+                {**record, "logical_path_count": 338},
+                "provenance is invalid",
+            ),
+            (
+                "boolean-copy-count",
+                {**record, "copied_vorbis_count": True},
+                "provenance is invalid",
+            ),
+            (
+                "negative-copy-count",
+                {**record, "copied_vorbis_count": -1},
+                "provenance is invalid",
+            ),
+            (
+                "boolean-converted-count",
+                {**record, "converted_opus_count": True},
+                "provenance is invalid",
+            ),
+            (
+                "negative-converted-count",
+                {**record, "converted_opus_count": -1},
+                "provenance is invalid",
+            ),
+            (
+                "incomplete-count",
+                {**record, "converted_opus_count": 142},
+                "provenance is invalid",
+            ),
+        ]
+        for description, value, error in cases:
+            with self.subTest(description=description):
+                with self.assertRaisesRegex(WorkspaceError, error):
+                    validate_sound_record(value)
+
+    def test_manifest_identity_and_mapping_mutations_fail_closed(self) -> None:
+        def set_asset(value: dict[str, object], key: str, replacement: object) -> None:
+            assets = value["assets"]
+            assert isinstance(assets, list) and isinstance(assets[0], dict)
+            assets[0][key] = replacement
+
+        def set_output(value: dict[str, object], key: str, replacement: object) -> None:
+            assets = value["assets"]
+            assert isinstance(assets, list) and isinstance(assets[0], dict)
+            output = assets[0]["output"]
+            assert isinstance(output, dict)
+            output[key] = replacement
+
+        cases = [
+            (
+                "schema",
+                lambda value: value.__setitem__("schema_version", 2),
+                "must use schema 1",
+            ),
+            (
+                "stale-source",
+                lambda value: value.__setitem__("source_commit", "d" * 40),
+                "stale or tampered source_commit",
+            ),
+            (
+                "tool-versions",
+                lambda value: value.__setitem__("tool_versions", {}),
+                "toolchain versions are invalid",
+            ),
+            (
+                "assets-type",
+                lambda value: value.__setitem__("assets", {}),
+                "assets must be an array",
+            ),
+            (
+                "unsafe-path",
+                lambda value: set_asset(value, "logical_path", "../unsafe.ogg"),
+                "unsafe or duplicate path",
+            ),
+            (
+                "extra-path",
+                lambda value: set_asset(value, "logical_path", "effects/extra.ogg"),
+                "extra logical path",
+            ),
+            (
+                "source-path",
+                lambda value: set_asset(value, "source_path", "effects/other.ogg"),
+                "mapping is invalid",
+            ),
+            (
+                "channels",
+                lambda value: set_output(value, "channels", 3),
+                "mapping is invalid",
+            ),
+            (
+                "missing-path",
+                lambda value: value["assets"].pop(),
+                "missing logical path",
+            ),
+            (
+                "counts",
+                lambda value: value.__setitem__("copied_vorbis_count", 195),
+                "counts do not match",
+            ),
+            (
+                "tree-digest",
+                lambda value: value.__setitem__("output_tree_sha256", "f" * 64),
+                "output-tree digest mismatch",
+            ),
+        ]
+        for description, mutate, error in cases:
+            with self.subTest(description=description):
+                value = copy.deepcopy(self.manifest)
+                mutate(value)
+                self.rewrite_manifest(value)
+                try:
+                    with self.assertRaisesRegex(WorkspaceError, error):
+                        verify_playtest_tree(self.source, self.output, self.inputs)
+                finally:
+                    self.rewrite_manifest(self.manifest)
+
+    def test_auxiliary_contract_mutations_fail_closed(self) -> None:
+        manifest_path = self.output / PLAYTEST_MANIFEST
+        blocker_path = self.output / PLAYTEST_BLOCKERS
+        schema_path = self.output / PLAYTEST_SCHEMA
+        toolchain_path = self.source / "manifests" / "playtest-audio-toolchain.json"
+        source_manifest_path = self.source / "manifests" / "source-assets.json"
+        originals = {
+            path: path.read_bytes()
+            for path in (
+                manifest_path,
+                blocker_path,
+                schema_path,
+                toolchain_path,
+                source_manifest_path,
+            )
+        }
+
+        def reject(description: str, error: str, mutate: object) -> None:
+            with self.subTest(description=description):
+                try:
+                    assert callable(mutate)
+                    mutate()
+                    with self.assertRaisesRegex(WorkspaceError, error):
+                        verify_playtest_tree(self.source, self.output, self.inputs)
+                finally:
+                    for path, payload in originals.items():
+                        path.write_bytes(payload)
+
+        reject(
+            "manifest-json",
+            "manifest is invalid JSON",
+            lambda: manifest_path.write_bytes(b"{"),
+        )
+        reject(
+            "manifest-canonical",
+            "manifest is not canonical JSON",
+            lambda: manifest_path.write_text(json.dumps(self.manifest), encoding="utf-8"),
+        )
+        reject(
+            "toolchain-schema",
+            "toolchain schema is invalid",
+            lambda: toolchain_path.write_bytes(canonical({"schema_version": 2})),
+        )
+        reject(
+            "packaged-schema",
+            "packaged schema is missing or tampered",
+            lambda: schema_path.write_bytes(b"changed\n"),
+        )
+        reject(
+            "blocker-hash",
+            "blocker report is missing or tampered",
+            lambda: blocker_path.write_bytes(b"changed\n"),
+        )
+
+        def invalid_blocker_json() -> None:
+            blocker_path.write_bytes(b"{")
+            value = copy.deepcopy(self.manifest)
+            value["blocker_report_sha256"] = digest(blocker_path)
+            self.rewrite_manifest(value)
+
+        reject("blocker-json", "blocker report is invalid JSON", invalid_blocker_json)
+
+        def invalid_blocker_contract() -> None:
+            blocker = json.loads(originals[blocker_path])
+            blocker["source_count"] = 338
+            blocker_path.write_bytes(canonical(blocker))
+            value = copy.deepcopy(self.manifest)
+            value["blocker_report_sha256"] = digest(blocker_path)
+            self.rewrite_manifest(value)
+
+        reject(
+            "blocker-contract",
+            "blocker report contract is invalid",
+            invalid_blocker_contract,
+        )
+        reject(
+            "source-manifest",
+            "source manifest is invalid",
+            lambda: source_manifest_path.write_bytes(canonical({"assets": {}})),
+        )
+
+        def invalid_source_asset() -> None:
+            source_manifest = json.loads(originals[source_manifest_path])
+            source_manifest["assets"][0] = []
+            source_manifest_path.write_bytes(canonical(source_manifest))
+
+        reject(
+            "source-asset",
+            "source manifest assets are invalid",
+            invalid_source_asset,
+        )
+
+        def invalid_expected_source() -> None:
+            source_manifest = json.loads(originals[source_manifest_path])
+            source_manifest["assets"][0]["source"] = []
+            source_manifest_path.write_bytes(canonical(source_manifest))
+
+        reject(
+            "source-asset-identity",
+            "source manifest asset is invalid",
+            invalid_expected_source,
+        )
+
+        def duplicate_source_asset() -> None:
+            source_manifest = json.loads(originals[source_manifest_path])
+            source_manifest["assets"][1]["logical_path"] = source_manifest["assets"][0][
+                "logical_path"
+            ]
+            source_manifest_path.write_bytes(canonical(source_manifest))
+
+        reject(
+            "duplicate-source-asset",
+            "duplicate logical paths",
+            duplicate_source_asset,
+        )
+
+    def test_vorbis_copy_must_match_the_source_hash(self) -> None:
+        logical_path = "effects/copy-000.ogg"
+        payload_path = self.output / logical_path
+        original_payload = payload_path.read_bytes()
+        replacement = b"OggS\x00fixture\x01vorbisreplacement"
+        payload_path.write_bytes(replacement)
+        value = copy.deepcopy(self.manifest)
+        asset = value["assets"][0]
+        assert isinstance(asset, dict)
+        output = asset["output"]
+        assert isinstance(output, dict)
+        output["sha256"] = digest(payload_path)
+        output["size_bytes"] = len(replacement)
+        self.rewrite_manifest(value)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "copy differs from source"):
+                verify_playtest_tree(self.source, self.output, self.inputs)
+        finally:
+            payload_path.write_bytes(original_payload)
+            self.rewrite_manifest(self.manifest)
+
     def test_payload_corruption_and_legacy_raw_bytes_are_rejected(self) -> None:
         payload = self.output / "background" / "convert-196.mid"
         payload.write_bytes(b"MThd" + b"\0" * 20)
@@ -278,6 +563,112 @@ class PlaytestSoundTests(unittest.TestCase):
         (tools / "sound_release.py").write_text("# dirty\n", encoding="utf-8")
         with self.assertRaisesRegex(WorkspaceError, "requires a clean"):
             clean_source_inputs(self.source)
+
+    def test_low_level_sound_inputs_fail_closed(self) -> None:
+        missing = self.root / "missing"
+        directory = self.root / "directory"
+        directory.mkdir()
+        for description, invoke in (
+            (
+                "missing read",
+                lambda: sound_module._read_regular(missing, "fixture"),
+            ),
+            (
+                "directory read",
+                lambda: sound_module._read_regular(directory, "fixture"),
+            ),
+            (
+                "missing hash",
+                lambda: sound_module._hash_regular(missing, "fixture"),
+            ),
+            (
+                "directory hash",
+                lambda: sound_module._hash_regular(directory, "fixture"),
+            ),
+            (
+                "git failure",
+                lambda: sound_module._git(missing, "rev-parse", "HEAD"),
+            ),
+            (
+                "non-object contract",
+                lambda: sound_module._require_dict([], set(), "fixture"),
+            ),
+            (
+                "wrong codec",
+                lambda: sound_module._validate_payload_codec(
+                    "fixture.ogg", "opus", b"OggS\x00\x01vorbis"
+                ),
+            ),
+            (
+                "missing playtest root",
+                lambda: verify_playtest_tree(self.source, missing, self.inputs),
+            ),
+        ):
+            with self.subTest(description=description):
+                with self.assertRaises(WorkspaceError):
+                    invoke()
+
+    def test_tree_closure_rejects_symlinks_and_nonregular_entries(self) -> None:
+        closure = self.root / "closure"
+        closure.mkdir()
+        real_directory = closure / "real"
+        real_directory.mkdir()
+        (closure / "linked-directory").symlink_to(real_directory, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "non-directory or symlink"):
+            sound_module._tree_files(closure)
+
+        (closure / "linked-directory").unlink()
+        payload = closure / "payload"
+        payload.write_bytes(b"payload")
+        (closure / "linked-file").symlink_to(payload)
+        with self.assertRaisesRegex(WorkspaceError, "not a readable regular file"):
+            sound_module._tree_files(closure)
+
+        (closure / "linked-file").unlink()
+        with (
+            mock.patch.object(sound_module.os, "open", return_value=17),
+            mock.patch.object(
+                sound_module.os,
+                "fstat",
+                return_value=mock.Mock(st_mode=0),
+            ),
+            mock.patch.object(sound_module.os, "close"),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "not a regular file"):
+                sound_module._tree_files(closure)
+
+    def test_clean_source_identity_rejects_races_and_invalid_coordinates(self) -> None:
+        coordinates = "a" * 40
+        tree = "b" * 40
+        with (
+            mock.patch.object(
+                sound_module,
+                "_hash_regular",
+                return_value=("c" * 64, 1, b"x"),
+            ),
+            mock.patch.object(
+                sound_module,
+                "_git",
+                side_effect=["", coordinates, tree, "", "d" * 40],
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed while reading"):
+                clean_source_inputs(self.source)
+
+        with (
+            mock.patch.object(
+                sound_module,
+                "_hash_regular",
+                return_value=("c" * 64, 1, b"x"),
+            ),
+            mock.patch.object(
+                sound_module,
+                "_git",
+                side_effect=["", "invalid", tree, "", "invalid"],
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "invalid Git coordinates"):
+                clean_source_inputs(self.source)
 
     def test_wrapper_reuses_offline_tree_and_topology_prepares_same_root(self) -> None:
         tools = self.source / "tools"

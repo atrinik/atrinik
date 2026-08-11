@@ -386,6 +386,101 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.assertIsNone(composite)
         self.assertEqual(json.loads(profile.read_text(encoding="utf-8")), value)
 
+    def test_schema_v3_classic_profile_upgrades_to_source_sound(self) -> None:
+        migration = self.migration()
+        profile = self.paths.profiles / "classic.json"
+        selector = {"kind": "primary", "value": ""}
+        value = {
+            "schema_version": 3,
+            "name": "classic",
+            "stack": "classic",
+            "components": {
+                name: dict(selector)
+                for name in migration._classic_profile_component_names()
+            },
+        }
+
+        rewritten, composite = migration._rewrite_profile(profile, value, {}, None)
+
+        self.assertIsNone(composite)
+        self.assertEqual(
+            rewritten,
+            {
+                **value,
+                "schema_version": 4,
+                "sound_mode": "source",
+            },
+        )
+
+    def test_current_and_legacy_profile_shapes_fail_closed(self) -> None:
+        migration = self.migration()
+        profile = self.paths.profiles / "classic.json"
+        components = {
+            name: {"kind": "primary", "value": ""}
+            for name in migration._classic_profile_component_names()
+        }
+        current = {
+            "schema_version": 4,
+            "name": "classic",
+            "stack": "classic",
+            "sound_mode": "source",
+            "components": components,
+        }
+        current_mutations = {
+            "unexpected field": {**current, "unexpected": True},
+            "wrong schema": {**current, "schema_version": 3},
+            "invalid sound mode": {**current, "sound_mode": "released"},
+            "wrong identity": {**current, "name": "other"},
+            "non-object components": {**current, "components": []},
+            "incomplete closure": {
+                **current,
+                "components": dict(list(components.items())[1:]),
+            },
+            "split classic checkout": {
+                **current,
+                "components": {
+                    **components,
+                    "classic-client": {"kind": "worktree", "value": "split"},
+                },
+            },
+        }
+        for label, malformed in current_mutations.items():
+            with self.subTest(schema="current", case=label):
+                with self.assertRaises(WorkspaceError):
+                    migration._validate_profile_shape(profile, malformed)
+
+        legacy = {
+            "schema_version": 3,
+            "name": "classic",
+            "stack": "classic",
+            "components": components,
+        }
+        legacy_mutations = {
+            "unexpected field": {**legacy, "unexpected": True},
+            "invalid identity": {**legacy, "stack": ""},
+            "invalid component": {
+                **legacy,
+                "components": {"": {"kind": "primary", "value": ""}},
+            },
+        }
+        for label, malformed in legacy_mutations.items():
+            with self.subTest(schema="legacy", case=label):
+                with self.assertRaises(WorkspaceError):
+                    migration._validate_legacy_profile_shape(profile, malformed)
+
+    def test_replacement_profile_cannot_enable_local_playtest_sound(self) -> None:
+        profile = self.paths.profiles / "replacement.json"
+        value = {
+            "schema_version": 4,
+            "name": "replacement",
+            "stack": "default",
+            "sound_mode": "local-playtest",
+            "components": {},
+        }
+
+        with self.assertRaisesRegex(WorkspaceError, "Classic-derived"):
+            self.migration()._rewrite_profile(profile, value, {}, None)
+
     def test_audit_accepts_manifest_owned_replacement_at_reused_source_path(
         self,
     ) -> None:
