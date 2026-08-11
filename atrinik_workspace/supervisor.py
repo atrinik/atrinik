@@ -72,22 +72,38 @@ def open_log(path: Path) -> BinaryIO:
     return os.fdopen(descriptor, "ab", buffering=0)
 
 
-def terminate(processes: dict[str, subprocess.Popen[bytes]]) -> None:
-    for process in processes.values():
-        if process.poll() is None:
-            try:
-                os.killpg(process.pid, signal.SIGTERM)
-            except ProcessLookupError:
-                pass
-    deadline = time.monotonic() + 10
-    while time.monotonic() < deadline and any(
-        process.poll() is None for process in processes.values()
-    ):
+def process_group_running(process_group: int) -> bool:
+    try:
+        os.killpg(process_group, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def terminate(
+    processes: dict[str, subprocess.Popen[bytes]],
+    pidfds: dict[str, int],
+    timeout: float = 10,
+) -> None:
+    groups = [processes[name].pid for name in pidfds]
+    for process_group in groups:
+        try:
+            os.killpg(process_group, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        for process in processes.values():
+            process.poll()
+        if not any(process_group_running(process_group) for process_group in groups):
+            break
         time.sleep(0.1)
-    for process in processes.values():
-        if process.poll() is None:
+    for process_group in groups:
+        if process_group_running(process_group):
             try:
-                os.killpg(process.pid, signal.SIGKILL)
+                os.killpg(process_group, signal.SIGKILL)
             except ProcessLookupError:
                 pass
     for process in processes.values():
@@ -95,6 +111,8 @@ def terminate(processes: dict[str, subprocess.Popen[bytes]]) -> None:
             process.wait(timeout=2)
         except subprocess.TimeoutExpired:
             pass
+    for descriptor in pidfds.values():
+        os.close(descriptor)
 
 
 class RotatingLog:
@@ -220,6 +238,7 @@ def supervise(
         raise RuntimeError("cannot identify topology supervisor process")
     status = _initial_status(spec, supervisor_start_time)
     processes: dict[str, subprocess.Popen[bytes]] = {}
+    pidfds: dict[str, int] = {}
     logs: list[RotatingLog] = []
     pumps: list[threading.Thread] = []
 
@@ -262,6 +281,10 @@ def supervise(
             pass_fds=tuple(inherited_locks),
         )
         processes[name] = process
+        try:
+            pidfds[name] = os.pidfd_open(process.pid)
+        except ProcessLookupError as error:
+            raise RuntimeError(f"cannot identify {name} process") from error
         start_time = process_start_time(process.pid)
         if start_time is None:
             raise RuntimeError(f"cannot identify {name} process")
@@ -340,7 +363,7 @@ def supervise(
         atomic_status(status_path, status)
         return 1
     finally:
-        terminate(processes)
+        terminate(processes, pidfds)
         for pump in pumps:
             pump.join(timeout=2)
         for name, process in processes.items():

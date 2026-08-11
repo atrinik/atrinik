@@ -7318,55 +7318,59 @@ class Workspace:
             targets = [supervisor] if supervisor_owned else orphaned
             if not targets:
                 return status
-            for record in targets:
-                pid = record["pid"]
-                start_time = record["start_time"]
-                try:
-                    pidfd = os.pidfd_open(pid)
-                except ProcessLookupError:
-                    continue
-                try:
-                    if process_matches(pid, start_time):
-                        if supervisor_owned:
-                            signal.pidfd_send_signal(pidfd, signal.SIGTERM)
-                        else:
-                            try:
-                                os.killpg(pid, signal.SIGTERM)
-                            except ProcessLookupError:
-                                pass
-                finally:
-                    os.close(pidfd)
-            deadline = time.monotonic() + timeout
-            while time.monotonic() < deadline:
-                if supervisor_owned:
-                    running = any(
-                        self._recorded_process_running(record) for record in targets
-                    )
-                else:
-                    running = any(
-                        self._process_group_running(record["pid"])
-                        for record in targets
-                    )
-                if not running:
-                    status = self.topology_status(name)
-                    return status
-                time.sleep(0.1)
-            if not supervisor_owned:
+            verified: list[tuple[dict[str, Any], int]] = []
+            try:
                 for record in targets:
-                    if not self._process_group_running(record["pid"]):
-                        continue
+                    pid = record["pid"]
                     try:
-                        os.killpg(record["pid"], signal.SIGKILL)
+                        pidfd = os.pidfd_open(pid)
                     except ProcessLookupError:
-                        pass
-                kill_deadline = time.monotonic() + min(max(timeout, 0.1), 2.0)
-                while time.monotonic() < kill_deadline:
-                    if not any(
-                        self._process_group_running(record["pid"])
-                        for record in targets
-                    ):
+                        continue
+                    if not process_matches(pid, record["start_time"]):
+                        os.close(pidfd)
+                        continue
+                    verified.append((record, pidfd))
+                    if supervisor_owned:
+                        signal.pidfd_send_signal(pidfd, signal.SIGTERM)
+                    else:
+                        try:
+                            os.killpg(pid, signal.SIGTERM)
+                        except ProcessLookupError:
+                            pass
+                deadline = time.monotonic() + timeout
+                while time.monotonic() < deadline:
+                    if supervisor_owned:
+                        running = any(
+                            self._recorded_process_running(record)
+                            for record, _pidfd in verified
+                        )
+                    else:
+                        running = any(
+                            self._process_group_running(record["pid"])
+                            for record, _pidfd in verified
+                        )
+                    if not running:
                         return self.topology_status(name)
-                    time.sleep(0.05)
+                    time.sleep(0.1)
+                if not supervisor_owned:
+                    for record, _pidfd in verified:
+                        if not self._process_group_running(record["pid"]):
+                            continue
+                        try:
+                            os.killpg(record["pid"], signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                    kill_deadline = time.monotonic() + min(max(timeout, 0.1), 2.0)
+                    while time.monotonic() < kill_deadline:
+                        if not any(
+                            self._process_group_running(record["pid"])
+                            for record, _pidfd in verified
+                        ):
+                            return self.topology_status(name)
+                        time.sleep(0.05)
+            finally:
+                for _record, pidfd in verified:
+                    os.close(pidfd)
             raise WorkspaceError(
                 f"topology did not stop within {timeout:g} seconds: {name}"
             )

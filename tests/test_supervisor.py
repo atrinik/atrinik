@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
+import signal
+import subprocess
+import sys
 import tempfile
+import time
 import unittest
 from unittest import mock
 
@@ -54,9 +59,57 @@ class ServerReadinessCaptureTests(unittest.TestCase):
 
             terminate.assert_called_once()
             self.assertEqual(terminate.call_args.args[0], {"client": process})
+            self.assertEqual(terminate.call_args.args[1], {})
             self.assertEqual(
                 {call.args[0] for call in close.call_args_list}, {7, 8}
             )
+
+    def test_terminate_cleans_group_after_service_leader_exits(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            descendant_path = Path(directory) / "descendant.pid"
+            process = subprocess.Popen(
+                [
+                    sys.executable,
+                    "-c",
+                    "import os, pathlib, signal, sys, time; "
+                    "child = os.fork(); "
+                    "child == 0 and signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+                    "child == 0 and pathlib.Path(sys.argv[1]).write_text(str(os.getpid())); "
+                    "child == 0 and time.sleep(60); "
+                    "os._exit(0)",
+                    str(descendant_path),
+                ],
+                start_new_session=True,
+            )
+            pidfd = os.pidfd_open(process.pid)
+            descendant = None
+            try:
+                process.wait(timeout=5)
+                deadline = time.monotonic() + 5
+                while time.monotonic() < deadline and not descendant_path.is_file():
+                    time.sleep(0.05)
+                descendant = int(descendant_path.read_text(encoding="utf-8"))
+                self.assertTrue(Path(f"/proc/{descendant}").exists())
+
+                supervisor_module.terminate(
+                    {"client": process}, {"client": pidfd}, timeout=0.1
+                )
+                pidfd = -1
+                deadline = time.monotonic() + 2
+                while (
+                    time.monotonic() < deadline
+                    and Path(f"/proc/{descendant}").exists()
+                ):
+                    time.sleep(0.05)
+                self.assertFalse(Path(f"/proc/{descendant}").exists())
+            finally:
+                if pidfd >= 0:
+                    os.close(pidfd)
+                if descendant is not None and Path(f"/proc/{descendant}").exists():
+                    try:
+                        os.kill(descendant, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
 
     def test_requires_fingerprint_and_finished_server_startup(self) -> None:
         capture = ServerReadinessCapture()
