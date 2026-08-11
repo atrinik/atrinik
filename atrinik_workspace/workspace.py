@@ -2796,18 +2796,29 @@ class Workspace:
                 )
             staging = transactions / f"{key}-staging-install"
             if staging.exists() or staging.is_symlink():
-                try:
-                    managed_directory(
-                        staging,
-                        self.paths.builds,
-                        f"worker-dependency-transaction:{key}",
+                marker = staging / MANAGED_MARKER
+                if marker.exists() or marker.is_symlink():
+                    try:
+                        managed_directory(
+                            staging,
+                            self.paths.builds,
+                            f"worker-dependency-transaction:{key}",
+                        )
+                    except WorkspaceError:
+                        managed_directory(
+                            staging,
+                            self.paths.builds,
+                            f"worker-dependencies:{key}",
+                        )
+                elif staging.is_symlink() or not staging.is_dir():
+                    raise WorkspaceError(
+                        f"Worker dependency transaction path is unsafe: {staging}"
                     )
-                except WorkspaceError:
-                    managed_directory(
-                        staging,
-                        self.paths.builds,
-                        f"worker-dependencies:{key}",
-                    )
+                # npm runs without the marker so lifecycle scripts cannot
+                # observe wrapper-created metadata. A crash can therefore
+                # leave this one exact unmarked path behind. Its marker-owned
+                # parent, deterministic key-derived name, and held key lock
+                # provide the ownership proof needed to recover it safely.
                 shutil.rmtree(staging)
             managed_directory(
                 staging,

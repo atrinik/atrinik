@@ -971,6 +971,32 @@ class WorkspaceTests(unittest.TestCase):
         self.assertTrue(entry.is_dir())
         self.assertFalse(transaction.exists())
 
+    def test_worker_dependency_recovers_unmarked_install_staging(self) -> None:
+        source = self.make_worker_source()
+        installs: list[Path] = []
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        runner = self.fake_worker_run(installs, versions, threading.Lock())
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=runner):
+            first = self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+            entry = first[0].parent
+            staging = (
+                entry.parent
+                / ".transactions"
+                / f"{first[1]}-staging-install"
+            )
+            shutil.rmtree(entry)
+            staging.mkdir()
+            (staging / "partial-install").write_text(
+                "interrupted\n", encoding="utf-8"
+            )
+            recovered = self.workspace._worker_dependencies(
+                source, {"PATH": "/bin"}
+            )
+        self.assertFalse(recovered[3])
+        self.assertEqual(len(installs), 2)
+        self.assertTrue(entry.is_dir())
+        self.assertFalse(staging.exists())
+
     def test_worker_tree_digest_is_canonical_and_lifecycle_rejects_links(self) -> None:
         first = self.root / "tree-first"
         second = self.root / "tree-second"

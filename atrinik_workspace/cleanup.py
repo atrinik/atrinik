@@ -34,6 +34,9 @@ from .workspace import (
 
 
 CLEANUP_SCHEMA_VERSION = 1
+WORKER_DEPENDENCY_CLEANUP_SCHEMA_VERSIONS = frozenset(
+    {2, WORKER_DEPENDENCY_SCHEMA_VERSION}
+)
 DEFAULT_SCOPES = ("worktrees", "builds")
 ALL_SCOPES = (*DEFAULT_SCOPES, "npm-cache")
 BUILD_RETENTION_RECORD = "retention.json"
@@ -1916,7 +1919,7 @@ class Cleanup:
                     "last_used_at",
                 }
                 or metadata.get("schema_version")
-                != WORKER_DEPENDENCY_SCHEMA_VERSION
+                not in WORKER_DEPENDENCY_CLEANUP_SCHEMA_VERSIONS
                 or metadata.get("purpose") != "worker-dependencies"
                 or metadata.get("key") != key
                 or not isinstance(metadata.get("inputs"), dict)

@@ -1839,7 +1839,11 @@ class CleanupTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "unsupported cleanup target"):
             cleanup._remove({"kind": "unknown", "path": str(cache)})
 
-    def make_worker_dependency_cache(self, key: str = "a" * 64) -> Path:
+    def make_worker_dependency_cache(
+        self,
+        key: str = "a" * 64,
+        schema_version: int = WORKER_DEPENDENCY_SCHEMA_VERSION,
+    ) -> Path:
         root = self.workspace.paths.builds / "worker-dependencies"
         managed_directory(root, self.workspace.paths.builds, "worker-dependency-cache")
         entry = root / key
@@ -1851,7 +1855,7 @@ class CleanupTests(unittest.TestCase):
         atomic_json(
             entry / ".atrinik-worker-dependencies.json",
             {
-                "schema_version": WORKER_DEPENDENCY_SCHEMA_VERSION,
+                "schema_version": schema_version,
                 "purpose": "worker-dependencies",
                 "key": key,
                 "inputs": {"lock": "exact"},
@@ -1903,6 +1907,27 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["disposition"], "removed")
         self.assertFalse(entry.exists())
         self.assertTrue((self.workspace.paths.builds / "worker-dependencies").exists())
+
+    def test_prior_worker_dependency_schema_is_reclaimable(self) -> None:
+        entry = self.make_worker_dependency_cache(schema_version=2)
+        preview = self.workspace.cleanup(["builds"], 7, [], False)
+        item = next(
+            row
+            for row in preview["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["stale_worker_dependencies"])
+        self.assertTrue(entry.exists())
+
+        applied = self.workspace.cleanup(["builds"], 7, [], True)
+        item = next(
+            row
+            for row in applied["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertEqual(item["disposition"], "removed")
+        self.assertFalse(entry.exists())
 
     def test_invalid_worker_dependency_cache_is_protected(self) -> None:
         entry = self.make_worker_dependency_cache()
