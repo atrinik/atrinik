@@ -393,6 +393,38 @@ def _copy_worker_source(
     )
 
 
+def _copy_worker_source_metadata(source: Path, destination: Path) -> None:
+    """Reapply copied Worker metadata without copying file contents."""
+
+    def visit(source_directory: Path, destination_directory: Path, root: bool) -> None:
+        for source_entry in sorted(
+            source_directory.iterdir(), key=lambda entry: entry.name
+        ):
+            if root and source_entry.name in WORKER_SOURCE_EXCLUSIONS:
+                continue
+            destination_entry = destination_directory / source_entry.name
+            source_status = source_entry.lstat()
+            destination_status = destination_entry.lstat()
+            if stat.S_IFMT(source_status.st_mode) != stat.S_IFMT(
+                destination_status.st_mode
+            ):
+                raise WorkspaceError(
+                    f"Worker view entry type changed during checks: {destination_entry}"
+                )
+            if stat.S_ISDIR(source_status.st_mode):
+                visit(source_entry, destination_entry, False)
+            elif not stat.S_ISREG(source_status.st_mode):
+                raise WorkspaceError(
+                    f"Worker source contains an unsupported entry: {source_entry}"
+                )
+            shutil.copystat(source_entry, destination_entry, follow_symlinks=False)
+        shutil.copystat(
+            source_directory, destination_directory, follow_symlinks=False
+        )
+
+    visit(source, destination, True)
+
+
 def _copy_regular_file(source: Path, destination: Path, description: str) -> None:
     """Copy one no-follow regular file without inheriting extended metadata."""
 
@@ -3854,6 +3886,17 @@ class Workspace:
                 metadata["node_modules_sha256"],
                 required,
             )
+            if (
+                _tree_digest(
+                    entry / "node_modules",
+                    WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
+                    bounded_symlinks=True,
+                    copied_metadata=True,
+                    ignore_root_mtime=True,
+                )
+                != metadata["node_modules_view_sha256"]
+            ):
+                return None
             return metadata
         except (OSError, WorkspaceError):
             return None
@@ -4318,7 +4361,17 @@ class Workspace:
             != source_digest
         ):
             raise WorkspaceError("Worker source changed while running checks")
-        _copy_worker_source(source, view)
+        if (
+            _tree_digest(
+                view,
+                WORKER_SOURCE_EXCLUSIONS,
+                reject_symlinks=True,
+                copied_metadata=True,
+                ignore_root_mtime=True,
+            )
+            != source_view_digest
+        ):
+            _copy_worker_source_metadata(source, view)
         validate_controls()
         if (
             _tree_digest(
@@ -4406,6 +4459,11 @@ class Workspace:
                     and (current_status.st_dev, current_status.st_ino)
                     == (opened_status.st_dev, opened_status.st_ino)
                 ):
+                    for control_path in (marker_path, metadata_path):
+                        if control_path.is_symlink() or not control_path.is_dir():
+                            control_path.unlink(missing_ok=True)
+                        else:
+                            shutil.rmtree(control_path)
                     atomic_json(marker_path, expected_marker)
                     atomic_json(metadata_path, control_metadata)
         finally:

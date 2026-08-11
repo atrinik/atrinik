@@ -951,19 +951,31 @@ class WorkspaceTests(unittest.TestCase):
             self.assertFalse(rebuilt_content[3])
             self.assertEqual(len(installs), 2)
 
+            entry_metadata_path = (
+                rebuilt_content[0].parent / ".atrinik-worker-dependencies.json"
+            )
+            entry_metadata = load_json(entry_metadata_path)
+            entry_metadata["node_modules_view_sha256"] = "0" * 64
+            atomic_json(entry_metadata_path, entry_metadata)
+            rebuilt_view_digest = self.workspace._worker_dependencies(
+                source, {"PATH": "/bin"}
+            )
+            self.assertFalse(rebuilt_view_digest[3])
+            self.assertEqual(len(installs), 3)
+
             (modules / "unexpected.txt").write_text("unexpected\n", encoding="utf-8")
             rebuilt_addition = self.workspace._worker_dependencies(
                 source, {"PATH": "/bin"}
             )
             self.assertFalse(rebuilt_addition[3])
-            self.assertEqual(len(installs), 3)
+            self.assertEqual(len(installs), 4)
 
             (modules / "escape").symlink_to("../../outside")
             rebuilt_link = self.workspace._worker_dependencies(
                 source, {"PATH": "/bin"}
             )
             self.assertFalse(rebuilt_link[3])
-            self.assertEqual(len(installs), 4)
+            self.assertEqual(len(installs), 5)
 
     def test_worker_dependency_cache_authenticates_copied_metadata(self) -> None:
         source = self.make_worker_source()
@@ -1619,9 +1631,13 @@ class WorkspaceTests(unittest.TestCase):
             copied_source,
             ns=(copied_status.st_atime_ns, copied_status.st_mtime_ns + 1),
         )
-        self.workspace._reconcile_worker_view_source(
-            source, reconciled_control[0], "a" * 64, metadata
-        )
+        with mock.patch(
+            "atrinik_workspace.workspace._copy_worker_source",
+            side_effect=AssertionError("post-check reconciliation copied source bytes"),
+        ):
+            self.workspace._reconcile_worker_view_source(
+                source, reconciled_control[0], "a" * 64, metadata
+            )
         reconciled_after_check = self.workspace._worker_view(
             root, source, dependencies, "a" * 64, metadata
         )
@@ -1656,6 +1672,30 @@ class WorkspaceTests(unittest.TestCase):
             },
         )
         self.assertFalse(view_metadata.is_symlink())
+
+        def fail_after_replacing_controls_with_directories(
+            *args: object, **kwargs: object
+        ) -> None:
+            marker.unlink()
+            marker.mkdir()
+            (marker / "nested").write_text("corrupt\n", encoding="utf-8")
+            view_metadata.unlink()
+            view_metadata.mkdir()
+            (view_metadata / "nested").write_text("corrupt\n", encoding="utf-8")
+            raise subprocess.CalledProcessError(1, ["npm", "run", "check"])
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.run",
+                side_effect=fail_after_replacing_controls_with_directories,
+            ),
+            self.assertRaises(subprocess.CalledProcessError),
+        ):
+            self.workspace._run_worker_checks(
+                reconciled_after_check[0], {}, "a" * 64, metadata
+            )
+        self.assertTrue(marker.is_file())
+        self.assertTrue(view_metadata.is_file())
 
         atomic_json(marker, {"schema_version": 1, "purpose": "wrong"})
         with self.assertRaisesRegex(WorkspaceError, "control metadata"):
