@@ -20,6 +20,29 @@ from atrinik_workspace.supervisor import (
 
 
 class ServerReadinessCaptureTests(unittest.TestCase):
+    def test_peek_exit_code_observes_without_reaping(self) -> None:
+        process = mock.Mock(pid=1234, returncode=7)
+        with mock.patch.object(supervisor_module.os, "waitid", return_value=None):
+            self.assertIsNone(supervisor_module._peek_exit_code(process))
+        with mock.patch.object(
+            supervisor_module.os,
+            "waitid",
+            return_value=mock.Mock(si_code=os.CLD_EXITED, si_status=3),
+        ):
+            self.assertEqual(supervisor_module._peek_exit_code(process), 3)
+        with mock.patch.object(
+            supervisor_module.os,
+            "waitid",
+            return_value=mock.Mock(si_code=os.CLD_KILLED, si_status=signal.SIGTERM),
+        ):
+            self.assertEqual(
+                supervisor_module._peek_exit_code(process), -signal.SIGTERM
+            )
+        with mock.patch.object(
+            supervisor_module.os, "waitid", side_effect=ChildProcessError
+        ):
+            self.assertEqual(supervisor_module._peek_exit_code(process), 7)
+
     def test_unidentified_service_is_registered_for_bounded_cleanup(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
