@@ -166,7 +166,7 @@ def parser() -> argparse.ArgumentParser:
     cleanup.add_argument(
         "--scope",
         action="append",
-        choices=["worktrees", "builds", "npm-cache", "all"],
+        choices=["worktrees", "builds", "npm-cache", "compiler-cache", "all"],
         default=[],
     )
     mark(cleanup.add_argument("--older-than", type=int, default=7, metavar="DAYS"), "none")
@@ -201,6 +201,16 @@ def parser() -> argparse.ArgumentParser:
     mark(build.add_argument("target", help="all or a component name"), "build_target")
     mark(build.add_argument("--profile", default="default"), "profile")
     build.add_argument("--test", action="store_true")
+    build.add_argument(
+        "--force-reconfigure",
+        action="store_true",
+        help="run CMake configure even when its managed fingerprint is unchanged",
+    )
+    build.add_argument(
+        "--no-ccache",
+        action="store_true",
+        help="disable automatic C/C++ compiler caching",
+    )
 
     topology = commands.add_parser(
         "topology", help="inspect a resolved multi-component topology"
@@ -597,7 +607,15 @@ def main(arguments: list[str] | None = None) -> int:
         elif options.command == "path":
             print(workspace.component_path(options.component, options.profile))
         elif options.command == "build":
-            print(workspace.build(options.target, options.profile, options.test))
+            print(
+                workspace.build(
+                    options.target,
+                    options.profile,
+                    options.test,
+                    force_reconfigure=options.force_reconfigure,
+                    use_ccache=not options.no_ccache,
+                )
+            )
         elif options.command == "topology":
             summary = workspace.topology_summary(
                 options.profile, options.state, options.service

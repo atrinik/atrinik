@@ -7,6 +7,7 @@ from contextlib import ExitStack, contextmanager
 from datetime import datetime, timezone
 import fcntl
 import hashlib
+import json
 import os
 from pathlib import Path, PurePosixPath
 import re
@@ -67,6 +68,11 @@ ALL_BUILD_TARGETS = (
     "server",
     "metaserver-worker",
 )
+SOURCE_VIEW_METADATA = ".atrinik-source-view.json"
+CONFIGURE_METADATA = ".atrinik-configure.json"
+CONFIGURE_SCHEMA_VERSION = 1
+COMPILER_CACHE_PURPOSE = "compiler-cache"
+COMPILER_CACHE_MAX_SIZE = "5G"
 TOPOLOGY_SERVICES = ("server", "client")
 PRE_MONOREPO_REPOSITORIES = {
     "client": "legacy-client",
@@ -1355,19 +1361,49 @@ class Workspace:
         }
         return {role: paths[stack.providers[role].name] for role in roles}
 
-    def build(self, target: str, profile_name: str, tests: bool) -> Path:
+    def build(
+        self,
+        target: str,
+        profile_name: str,
+        tests: bool,
+        *,
+        force_reconfigure: bool = False,
+        use_ccache: bool = True,
+    ) -> Path:
         self.paths.ensure()
         with exclusive_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
-            return self._build(target, profile_name, tests)
+            return self._build(
+                target,
+                profile_name,
+                tests,
+                force_reconfigure=force_reconfigure,
+                use_ccache=use_ccache,
+            )
 
-    def _build(self, target: str, profile_name: str, tests: bool) -> Path:
+    def _build(
+        self,
+        target: str,
+        profile_name: str,
+        tests: bool,
+        *,
+        force_reconfigure: bool = False,
+        use_ccache: bool = True,
+    ) -> Path:
         targets = self._expand_build_target(target, profile_name)
         required = set(targets)
         selected = self._resolve_build_profile(profile_name, required)
-        return self._build_resolved(target, profile_name, tests, targets, selected)
+        return self._build_resolved(
+            target,
+            profile_name,
+            tests,
+            targets,
+            selected,
+            force_reconfigure=force_reconfigure,
+            use_ccache=use_ccache,
+        )
 
     def _build_resolved(
         self,
@@ -1376,11 +1412,16 @@ class Workspace:
         tests: bool,
         targets: list[str],
         selected: dict[str, Path],
+        *,
+        force_reconfigure: bool = False,
+        use_ccache: bool = True,
     ) -> Path:
         key = self._profile_build_key(profile_name, selected)
         root = self.paths.builds / "profiles" / f"{profile_name}-{key}"
         lock = self.paths.builds / "locks" / f"{profile_name}-{key}.lock"
         with exclusive_lock(lock, f"profile build {profile_name}"):
+            self._force_reconfigure = force_reconfigure
+            self._use_ccache = use_ccache
             managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
             self._refresh_build_metadata(root, profile_name, key, selected)
             if "content" in targets or "server" in targets:
@@ -1527,33 +1568,225 @@ class Workspace:
         exclusions: set[str],
         copied_directories: set[str] | None = None,
         copy_all: bool = False,
+        preserved_entries: set[str] | None = None,
     ) -> Path:
         view = root / "sources" / component
-        managed_reset(view, self.paths.builds, f"source-view:{component}")
-        exclusions = {*exclusions, MANAGED_MARKER}
-        if copy_all:
-            shutil.copytree(
-                source,
-                view,
-                dirs_exist_ok=True,
-                symlinks=True,
-                ignore=shutil.ignore_patterns(".git", *exclusions),
-            )
-            return view
+        purpose = f"source-view:{component}"
+        managed_directory(view, self.paths.builds, purpose)
+        self._source_view_changed = False
+        exclusions = {*exclusions, MANAGED_MARKER, SOURCE_VIEW_METADATA}
         copied_directories = copied_directories or set()
-        for entry in source.iterdir():
+        expected: dict[str, dict[str, Any]] = {}
+        for entry in sorted(source.iterdir(), key=lambda path: path.name):
             if entry.name in exclusions or entry.name == ".git":
                 continue
             destination = view / entry.name
-            if entry.name in copied_directories:
-                if not entry.is_dir():
+            copy_entry = copy_all or entry.name in copied_directories
+            if copy_entry:
+                try:
+                    mode = entry.lstat().st_mode
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot inspect source-view input {entry}: {error}"
+                    ) from error
+                if not stat.S_ISDIR(mode) and not copy_all:
                     raise WorkspaceError(
                         f"source-view copy input is not a directory: {entry}"
                     )
-                shutil.copytree(entry, destination, symlinks=True)
+                if stat.S_ISDIR(mode):
+                    digest = self._reconcile_source_tree(entry, destination, entry)
+                elif stat.S_ISREG(mode):
+                    permissions = stat.S_IMODE(mode)
+                    value = hashlib.sha256(entry.read_bytes()).hexdigest()
+                    same = (
+                        destination.is_file()
+                        and not destination.is_symlink()
+                        and hashlib.sha256(destination.read_bytes()).hexdigest() == value
+                        and stat.S_IMODE(destination.lstat().st_mode) == permissions
+                    )
+                    if not same:
+                        self._source_view_changed = True
+                        self._remove_source_view_entry(destination)
+                        shutil.copy2(entry, destination, follow_symlinks=False)
+                    digest = f"{permissions:o}:{value}"
+                elif stat.S_ISLNK(mode):
+                    self._validate_source_symlink(entry, source)
+                    target = os.readlink(entry)
+                    if not destination.is_symlink() or os.readlink(destination) != target:
+                        self._source_view_changed = True
+                        self._remove_source_view_entry(destination)
+                        destination.symlink_to(target)
+                    digest = hashlib.sha256(f"symlink:{target}".encode()).hexdigest()
+                else:
+                    raise WorkspaceError(
+                        f"source-view copy input is not a regular entry: {entry}"
+                    )
+                expected[entry.name] = {"kind": "copy", "digest": digest}
             else:
-                destination.symlink_to(entry, target_is_directory=entry.is_dir())
+                try:
+                    mode = entry.lstat().st_mode
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot inspect source-view input {entry}: {error}"
+                    ) from error
+                if stat.S_ISLNK(mode):
+                    self._validate_source_symlink(entry, source)
+                elif not (stat.S_ISREG(mode) or stat.S_ISDIR(mode)):
+                    raise WorkspaceError(
+                        f"source-view input is not a file or directory: {entry}"
+                    )
+                target = str(entry)
+                if not destination.is_symlink() or os.readlink(destination) != target:
+                    self._source_view_changed = True
+                    self._remove_source_view_entry(destination)
+                    destination.symlink_to(target, target_is_directory=stat.S_ISDIR(mode))
+                expected[entry.name] = {"kind": "link", "target": target}
+        reserved = {
+            MANAGED_MARKER,
+            SOURCE_VIEW_METADATA,
+            *(preserved_entries or set()),
+        }
+        for destination in sorted(view.iterdir(), key=lambda path: path.name):
+            if destination.name not in reserved and destination.name not in expected:
+                self._remove_source_view_entry(destination)
+        metadata = {
+            "schema_version": 1,
+            "purpose": purpose,
+            "source": str(source.resolve()),
+            "entries": expected,
+        }
+        metadata_path = view / SOURCE_VIEW_METADATA
+        unchanged = False
+        if metadata_path.is_file() and not metadata_path.is_symlink():
+            try:
+                unchanged = (
+                    load_json(metadata_path) == metadata
+                    and not self._source_view_changed
+                )
+            except WorkspaceError:
+                unchanged = False
+        atomic_json(metadata_path, metadata)
+        self._source_view_unchanged = getattr(self, "_source_view_unchanged", {})
+        self._source_view_unchanged[str(view.resolve())] = unchanged
         return view
+
+    def _source_view_link(
+        self,
+        view: Path,
+        relative: str,
+        target: Path,
+        *,
+        target_is_directory: bool,
+    ) -> Path:
+        destination = view / relative
+        expected = str(target)
+        if not destination.is_symlink() or os.readlink(destination) != expected:
+            self._remove_source_view_entry(destination)
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.symlink_to(expected, target_is_directory=target_is_directory)
+            self._source_view_unchanged[str(view.resolve())] = False
+        return destination
+
+    def _source_view_directory(self, view: Path, relative: str) -> Path:
+        destination = view / relative
+        if destination.is_symlink() or (
+            destination.exists() and not destination.is_dir()
+        ):
+            self._remove_source_view_entry(destination)
+        if not destination.exists():
+            destination.mkdir(parents=True)
+            self._source_view_unchanged[str(view.resolve())] = False
+        return destination
+
+    def _remove_source_view_entry(self, path: Path) -> None:
+        if not path.exists() and not path.is_symlink():
+            return
+        self._source_view_changed = True
+        if path.is_symlink() or not path.is_dir():
+            path.unlink()
+        else:
+            shutil.rmtree(path)
+
+    @staticmethod
+    def _validate_source_symlink(path: Path, root: Path) -> None:
+        try:
+            resolved = path.resolve(strict=True)
+            source = root.resolve(strict=True)
+        except (OSError, RuntimeError) as error:
+            raise WorkspaceError(f"unsafe source-view symlink {path}: {error}") from error
+        if resolved != source and source not in resolved.parents:
+            raise WorkspaceError(f"source-view symlink escapes its source root: {path}")
+
+    def _reconcile_source_tree(self, source: Path, destination: Path, root: Path) -> str:
+        if destination.is_symlink() or (destination.exists() and not destination.is_dir()):
+            self._remove_source_view_entry(destination)
+        if not destination.exists():
+            self._source_view_changed = True
+        destination.mkdir(parents=True, exist_ok=True)
+        source_permissions = stat.S_IMODE(source.lstat().st_mode)
+        if stat.S_IMODE(destination.lstat().st_mode) != source_permissions:
+            destination.chmod(source_permissions)
+            self._source_view_changed = True
+        digest = hashlib.sha256()
+        digest.update(f"directory:{source_permissions:o}\0".encode())
+        expected: set[str] = set()
+        for entry in sorted(source.iterdir(), key=lambda path: path.name):
+            expected.add(entry.name)
+            output = destination / entry.name
+            relative = entry.relative_to(root).as_posix()
+            try:
+                mode = entry.lstat().st_mode
+            except OSError as error:
+                raise WorkspaceError(f"cannot inspect copied source {entry}: {error}") from error
+            digest.update(relative.encode())
+            if stat.S_ISDIR(mode):
+                digest.update(b"\0directory\0")
+                digest.update(self._reconcile_source_tree(entry, output, root).encode())
+            elif stat.S_ISREG(mode):
+                permissions = stat.S_IMODE(mode)
+                file_digest = hashlib.sha256()
+                try:
+                    with entry.open("rb") as stream:
+                        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                            file_digest.update(chunk)
+                except OSError as error:
+                    raise WorkspaceError(f"cannot read copied source {entry}: {error}") from error
+                value = file_digest.hexdigest()
+                digest.update(b"\0file\0")
+                digest.update(f"{permissions:o}\0".encode())
+                digest.update(value.encode())
+                same = False
+                if output.is_file() and not output.is_symlink():
+                    existing = hashlib.sha256()
+                    try:
+                        with output.open("rb") as stream:
+                            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                                existing.update(chunk)
+                        same = (
+                            existing.hexdigest() == value
+                            and stat.S_IMODE(output.lstat().st_mode) == permissions
+                        )
+                    except OSError:
+                        same = False
+                if not same:
+                    self._source_view_changed = True
+                    self._remove_source_view_entry(output)
+                    shutil.copy2(entry, output, follow_symlinks=False)
+            elif stat.S_ISLNK(mode):
+                self._validate_source_symlink(entry, root)
+                target = os.readlink(entry)
+                digest.update(b"\0symlink\0")
+                digest.update(target.encode())
+                if not output.is_symlink() or os.readlink(output) != target:
+                    self._source_view_changed = True
+                    self._remove_source_view_entry(output)
+                    output.symlink_to(target)
+            else:
+                raise WorkspaceError(f"copied source is not a regular entry: {entry}")
+        for output in sorted(destination.iterdir(), key=lambda path: path.name):
+            if output.name not in expected:
+                self._remove_source_view_entry(output)
+        return digest.hexdigest()
 
     def _collect_content(self, root: Path, selected: dict[str, Path]) -> Path:
         output = root / "runtime" / "content"
@@ -1713,23 +1946,192 @@ class Workspace:
         tests: bool,
     ) -> None:
         binary.mkdir(parents=True, exist_ok=True)
-        run(
-            [
-                "cmake",
-                "-S",
-                str(source),
-                "-B",
-                str(binary),
-                "-G",
-                "Ninja",
-                "-DCMAKE_BUILD_TYPE=Debug",
-                f"-DBUILD_TESTING={'ON' if tests else 'OFF'}",
-                *arguments,
+        environment = os.environ.copy()
+        ccache = shutil.which("ccache") if getattr(self, "_use_ccache", True) else None
+        cache_arguments = [
+            "-DCMAKE_C_COMPILER_LAUNCHER=",
+            "-DCMAKE_CXX_COMPILER_LAUNCHER=",
+        ]
+        if ccache is not None:
+            cache = self.paths.builds / COMPILER_CACHE_PURPOSE
+            managed_directory(cache, self.paths.builds, COMPILER_CACHE_PURPOSE)
+            atomic_json(
+                cache / CACHE_METADATA,
+                {
+                    "schema_version": BUILD_METADATA_SCHEMA_VERSION,
+                    "purpose": COMPILER_CACHE_PURPOSE,
+                    "last_used_at": datetime.now(timezone.utc).isoformat(),
+                    "max_size": COMPILER_CACHE_MAX_SIZE,
+                },
+            )
+            environment.update(
+                {
+                    "CCACHE_DIR": str(cache),
+                    "CCACHE_MAXSIZE": COMPILER_CACHE_MAX_SIZE,
+                    "CCACHE_BASEDIR": str(binary.parent.parent.resolve()),
+                    "CCACHE_NOHASHDIR": "true",
+                }
+            )
+            cache_arguments = [
+                f"-DCMAKE_C_COMPILER_LAUNCHER={ccache}",
+                f"-DCMAKE_CXX_COMPILER_LAUNCHER={ccache}",
             ]
+            print(
+                f"ccache: enabled at {cache} (maximum {COMPILER_CACHE_MAX_SIZE})",
+                file=sys.stderr,
+            )
+        elif getattr(self, "_use_ccache", True):
+            print(
+                "ccache: command not found; install ccache or pass --no-ccache "
+                "to disable this diagnostic",
+                file=sys.stderr,
+            )
+
+        prefix_arguments = self._debug_prefix_arguments(source, binary, environment)
+        configure = [
+            "cmake",
+            "-S",
+            str(source),
+            "-B",
+            str(binary),
+            "-G",
+            "Ninja",
+            "-DCMAKE_BUILD_TYPE=Debug",
+            f"-DBUILD_TESTING={'ON' if tests else 'OFF'}",
+            *cache_arguments,
+            *prefix_arguments,
+            *arguments,
+        ]
+        fingerprint = self._configure_fingerprint(
+            source, binary, configure, tests, environment, ccache
         )
-        run(["cmake", "--build", str(binary), "--parallel"])
+        metadata_path = binary / CONFIGURE_METADATA
+        source_resolved = source.resolve()
+        unchanged_view = all(
+            unchanged
+            for view, unchanged in getattr(self, "_source_view_unchanged", {}).items()
+            if Path(view) == source_resolved or source_resolved in Path(view).parents
+        )
+        configured = False
+        if metadata_path.is_file() and not metadata_path.is_symlink():
+            try:
+                configured = load_json(metadata_path) == fingerprint
+            except WorkspaceError:
+                configured = False
+        if (
+            getattr(self, "_force_reconfigure", False)
+            or not unchanged_view
+            or not configured
+        ):
+            run(configure, env=environment)
+            atomic_json(metadata_path, fingerprint)
+        else:
+            print(f"cmake: configure unchanged for {binary}; skipping", file=sys.stderr)
+        run(["cmake", "--build", str(binary), "--parallel"], env=environment)
         if tests:
-            run(["ctest", "--test-dir", str(binary), "--output-on-failure"])
+            run(
+                ["ctest", "--test-dir", str(binary), "--output-on-failure"],
+                env=environment,
+            )
+
+    @staticmethod
+    def _debug_prefix_arguments(
+        source: Path, binary: Path, environment: dict[str, str]
+    ) -> list[str]:
+        source_path = source.resolve()
+        binary_path = binary.resolve()
+        mappings = (
+            f"-fdebug-prefix-map={source_path}=/atrinik/source "
+            f"-ffile-prefix-map={source_path}=/atrinik/source "
+            f"-fdebug-prefix-map={binary_path}=/atrinik/build "
+            f"-ffile-prefix-map={binary_path}=/atrinik/build"
+        )
+        c_flags = " ".join(filter(None, (environment.get("CFLAGS", ""), mappings)))
+        cxx_flags = " ".join(filter(None, (environment.get("CXXFLAGS", ""), mappings)))
+        return [f"-DCMAKE_C_FLAGS={c_flags}", f"-DCMAKE_CXX_FLAGS={cxx_flags}"]
+
+    @staticmethod
+    def _tool_identity(command: str) -> dict[str, str | None]:
+        try:
+            words = shlex.split(command)
+        except ValueError:
+            words = [command]
+        executable = shutil.which(words[0]) if words else None
+        version = None
+        if executable is not None:
+            try:
+                version = run(
+                    [executable, "--version"], capture=True, trace=False
+                ).splitlines()[0]
+            except WorkspaceError as error:
+                version = f"unavailable: {error}"
+        return {"command": command, "path": executable, "version": version}
+
+    def _configure_fingerprint(
+        self,
+        source: Path,
+        binary: Path,
+        configure: list[str],
+        tests: bool,
+        environment: dict[str, str],
+        ccache: str | None,
+    ) -> dict[str, Any]:
+        relevant_names = (
+            "CC",
+            "CXX",
+            "CPPFLAGS",
+            "CFLAGS",
+            "CXXFLAGS",
+            "LDFLAGS",
+            "CMAKE_PREFIX_PATH",
+            "CMAKE_TOOLCHAIN_FILE",
+            "CMAKE_GENERATOR_PLATFORM",
+            "CMAKE_GENERATOR_TOOLSET",
+            "SDKROOT",
+            "MACOSX_DEPLOYMENT_TARGET",
+        )
+        source_metadata = source / SOURCE_VIEW_METADATA
+        if source_metadata.is_file() and not source_metadata.is_symlink():
+            identity: Any = load_json(source_metadata)
+        else:
+            cmakelists = source / "CMakeLists.txt"
+            identity = {
+                "path": str(source.resolve()),
+                "cmakelists": (
+                    hashlib.sha256(cmakelists.read_bytes()).hexdigest()
+                    if cmakelists.is_file() and not cmakelists.is_symlink()
+                    else None
+                ),
+            }
+        return {
+            "schema_version": CONFIGURE_SCHEMA_VERSION,
+            "purpose": "cmake-configure",
+            "source": identity,
+            "binary": str(binary.resolve()),
+            "generator": "Ninja",
+            "generator_tool": self._tool_identity("ninja"),
+            "cmake": self._tool_identity("cmake"),
+            "compilers": {
+                "c": self._tool_identity(environment.get("CC", "cc")),
+                "cxx": self._tool_identity(environment.get("CXX", "c++")),
+            },
+            "configure_arguments": configure[1:],
+            "build_testing": tests,
+            "environment": {
+                name: environment[name]
+                for name in relevant_names
+                if name in environment
+            },
+            "ccache": (
+                {
+                    "path": ccache,
+                    "version": self._tool_identity(ccache)["version"],
+                    "max_size": COMPILER_CACHE_MAX_SIZE,
+                }
+                if ccache is not None
+                else None
+            ),
+        }
 
     def _build_protocol(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
         self._cmake(selected["protocol"], root / "build" / "protocol", [], tests)
@@ -1780,15 +2182,22 @@ class Workspace:
     ) -> None:
         checkout = selected["client"].parent.resolve()
         view = self._profile_source_view(
-            root, "integrated", checkout, {"build", "client", "server"}
+            root,
+            "integrated",
+            checkout,
+            {"build", "client", "server"},
+            preserved_entries={"client", "server"},
         )
         client = self._profile_source_view(
             root,
             "integrated/client",
             selected["client"],
             {"build", "sound"},
+            preserved_entries={"sound"},
         )
-        (client / "sound").symlink_to(selected["sound"], target_is_directory=True)
+        self._source_view_link(
+            client, "sound", selected["sound"], target_is_directory=True
+        )
         server = self._profile_source_view(
             root,
             "integrated/server",
@@ -1805,14 +2214,20 @@ class Workspace:
                 "libplugin_python.so",
             },
             {"install_data"},
+            preserved_entries={"runtime", "resources"},
         )
-        runtime = server / "runtime"
-        runtime.mkdir()
-        (runtime / "content").symlink_to(
-            root / "runtime" / "content", target_is_directory=True
+        runtime = self._source_view_directory(server, "runtime")
+        self._source_view_link(
+            server,
+            "runtime/content",
+            root / "runtime" / "content",
+            target_is_directory=True,
         )
-        (server / "resources").symlink_to(
-            root / "runtime" / "resources", target_is_directory=True
+        self._source_view_link(
+            server,
+            "resources",
+            root / "runtime" / "resources",
+            target_is_directory=True,
         )
         self._cmake(
             view,
@@ -1839,9 +2254,15 @@ class Workspace:
 
     def _build_client(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
         view = self._profile_source_view(
-            root, "client", selected["client"], {"build", "sound"}
+            root,
+            "client",
+            selected["client"],
+            {"build", "sound"},
+            preserved_entries={"sound"},
         )
-        (view / "sound").symlink_to(selected["sound"], target_is_directory=True)
+        self._source_view_link(
+            view, "sound", selected["sound"], target_is_directory=True
+        )
         self._cmake(
             view,
             root / "build" / "client",
@@ -1875,14 +2296,20 @@ class Workspace:
             # CMake treats a top-level directory symlink as the object to copy,
             # which conflicts with the destination directory it just created.
             {"install_data"},
+            preserved_entries={"runtime", "resources"},
         )
-        runtime = view / "runtime"
-        runtime.mkdir()
-        (runtime / "content").symlink_to(
-            root / "runtime" / "content", target_is_directory=True
+        runtime = self._source_view_directory(view, "runtime")
+        self._source_view_link(
+            view,
+            "runtime/content",
+            root / "runtime" / "content",
+            target_is_directory=True,
         )
-        (view / "resources").symlink_to(
-            root / "runtime" / "resources", target_is_directory=True
+        self._source_view_link(
+            view,
+            "resources",
+            root / "runtime" / "resources",
+            target_is_directory=True,
         )
         self._cmake(
             view,

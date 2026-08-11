@@ -26,6 +26,8 @@ from atrinik_workspace.model import (
     profile_key,
 )
 from atrinik_workspace.workspace import (
+    CONFIGURE_METADATA,
+    SOURCE_VIEW_METADATA,
     Workspace,
     _remote_matches as real_remote_matches,
     display_arguments,
@@ -706,6 +708,178 @@ class WorkspaceTests(unittest.TestCase):
         )
         (copied / "README").write_text("changed in view\n", encoding="utf-8")
         self.assertEqual((source / "README").read_text(encoding="utf-8"), "content\n")
+
+    def test_source_view_reconciles_links_copies_and_stale_entries_in_place(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        copied_source = source / "install_data"
+        copied_file = copied_source / "keys" / "test.pub"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+
+        view = self.workspace._profile_source_view(
+            root, "server", source, set(), {"install_data"}
+        )
+        readme = view / "README"
+        copied = view / "install_data" / "keys" / "test.pub"
+        readme_inode = readme.lstat().st_ino
+        copied_inode = copied.stat().st_ino
+        (view / "stale").write_text("stale\n", encoding="utf-8")
+        readme.unlink()
+        readme.symlink_to(source / "install_data", target_is_directory=True)
+        copied_file.write_text("changed\n", encoding="utf-8")
+        (copied_source / "unique-items" / "new").write_text("new\n", encoding="utf-8")
+
+        reconciled = self.workspace._profile_source_view(
+            root, "server", source, set(), {"install_data"}
+        )
+
+        self.assertEqual(reconciled, view)
+        self.assertFalse((view / "stale").exists())
+        self.assertEqual(readme.resolve(), source / "README")
+        self.assertNotEqual(readme.lstat().st_ino, readme_inode)
+        self.assertNotEqual(copied.stat().st_ino, copied_inode)
+        self.assertEqual(copied.read_text(encoding="utf-8"), "changed\n")
+        self.assertTrue((view / "install_data" / "unique-items" / "new").is_file())
+        self.assertFalse(self.workspace._source_view_unchanged[str(view.resolve())])
+        metadata = load_json(view / SOURCE_VIEW_METADATA)
+        self.assertEqual(metadata["purpose"], "source-view:server")
+
+        copied_file.chmod(0o700)
+        self.workspace._profile_source_view(
+            root, "server", source, set(), {"install_data"}
+        )
+        self.assertEqual(copied.stat().st_mode & 0o777, 0o700)
+        self.assertFalse(self.workspace._source_view_unchanged[str(view.resolve())])
+
+        (source / "README").unlink()
+        self.workspace._profile_source_view(
+            root, "server", source, set(), {"install_data"}
+        )
+        self.assertFalse(readme.exists())
+
+    def test_source_view_retains_unchanged_entries_and_rejects_escaping_symlink(
+        self,
+    ) -> None:
+        source = self.workspace.paths.repositories / "content"
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        view = self.workspace._profile_source_view(root, "content", source, set())
+        inode = (view / "README").lstat().st_ino
+
+        self.workspace._profile_source_view(root, "content", source, set())
+        self.assertEqual((view / "README").lstat().st_ino, inode)
+        self.assertTrue(self.workspace._source_view_unchanged[str(view.resolve())])
+
+        outside_directory = self.root / "outside-directory"
+        outside_directory.mkdir()
+        sentinel = outside_directory / "sentinel"
+        sentinel.write_text("preserved\n", encoding="utf-8")
+        (view / "README").unlink()
+        (view / "README").symlink_to(outside_directory, target_is_directory=True)
+        self.workspace._profile_source_view(root, "content", source, set())
+        self.assertTrue(sentinel.is_file())
+        self.assertEqual((view / "README").resolve(), source / "README")
+        self.assertFalse(self.workspace._source_view_unchanged[str(view.resolve())])
+
+        outside = self.root / "outside"
+        outside.write_text("outside\n", encoding="utf-8")
+        (source / "escape").symlink_to(outside)
+        with self.assertRaisesRegex(WorkspaceError, "escapes its source root"):
+            self.workspace._profile_source_view(root, "content", source, set())
+
+    def test_cmake_skips_only_unchanged_fingerprint_and_honors_force(self) -> None:
+        source_root = self.workspace.paths.repositories / "content"
+        (source_root / "CMakeLists.txt").write_text(
+            "project(test C)\n", encoding="utf-8"
+        )
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        source = self.workspace._profile_source_view(root, "content", source_root, set())
+        binary = root / "build" / "content"
+
+        with (
+            mock.patch("atrinik_workspace.workspace.shutil.which", return_value=None),
+            mock.patch.object(
+                self.workspace,
+                "_tool_identity",
+                return_value={"command": "tool", "path": "/tool", "version": "1"},
+            ),
+            mock.patch("atrinik_workspace.workspace.run") as run,
+        ):
+            self.workspace._cmake(source, binary, [], tests=False)
+            first_count = run.call_count
+            self.workspace._profile_source_view(root, "content", source_root, set())
+            self.workspace._cmake(source, binary, [], tests=False)
+            second_commands = [call.args[0] for call in run.call_args_list[first_count:]]
+            self.assertEqual(second_commands, [["cmake", "--build", str(binary), "--parallel"]])
+
+            self.workspace._force_reconfigure = True
+            self.workspace._cmake(source, binary, [], tests=False)
+            self.assertTrue(any(command[:2] == ["cmake", "-S"] for command in [
+                call.args[0] for call in run.call_args_list[first_count + 1 :]
+            ]))
+
+        self.assertTrue((binary / CONFIGURE_METADATA).is_file())
+
+    def test_cmake_fingerprint_invalidates_for_tests_environment_and_toolchain(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        (source / "CMakeLists.txt").write_text("project(test C)\n", encoding="utf-8")
+        binary = self.workspace.paths.builds / "profiles" / "test" / "build" / "content"
+        identities = {
+            "cmake": {"command": "cmake", "path": "/cmake", "version": "cmake 1"},
+            "ninja": {"command": "ninja", "path": "/ninja", "version": "ninja 1"},
+            "cc": {"command": "cc", "path": "/cc", "version": "cc 1"},
+            "c++": {"command": "c++", "path": "/c++", "version": "c++ 1"},
+        }
+        with (
+            mock.patch("atrinik_workspace.workspace.shutil.which", return_value=None),
+            mock.patch.object(
+                self.workspace, "_tool_identity", side_effect=lambda tool: identities[tool]
+            ),
+            mock.patch("atrinik_workspace.workspace.run") as run,
+        ):
+            self.workspace._cmake(source, binary, [], tests=False)
+            self.workspace._cmake(source, binary, [], tests=True)
+            with mock.patch.dict(os.environ, {"CFLAGS": "-DCHANGED"}):
+                self.workspace._cmake(source, binary, [], tests=True)
+            identities["cc"] = {"command": "cc", "path": "/cc", "version": "cc 2"}
+            self.workspace._cmake(source, binary, [], tests=True)
+
+        configure_calls = [
+            call for call in run.call_args_list if call.args[0][:2] == ["cmake", "-S"]
+        ]
+        self.assertEqual(len(configure_calls), 4)
+
+    def test_cmake_enables_bounded_marker_owned_ccache_with_normalized_paths(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        (source / "CMakeLists.txt").write_text("project(test CXX)\n", encoding="utf-8")
+        binary = self.workspace.paths.builds / "profiles" / "test" / "build" / "content"
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.shutil.which",
+                side_effect=lambda tool: "/usr/bin/ccache" if tool == "ccache" else f"/usr/bin/{tool}",
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_tool_identity",
+                return_value={"command": "tool", "path": "/tool", "version": "1"},
+            ),
+            mock.patch("atrinik_workspace.workspace.run") as run,
+        ):
+            self.workspace._cmake(source, binary, [], tests=False)
+
+        configure = next(
+            call for call in run.call_args_list if call.args[0][:2] == ["cmake", "-S"]
+        )
+        arguments = configure.args[0]
+        environment = configure.kwargs["env"]
+        self.assertIn("-DCMAKE_C_COMPILER_LAUNCHER=/usr/bin/ccache", arguments)
+        self.assertIn("-fdebug-prefix-map=", " ".join(arguments))
+        self.assertEqual(environment["CCACHE_MAXSIZE"], "5G")
+        self.assertEqual(environment["CCACHE_BASEDIR"], str(binary.parent.parent.resolve()))
+        cache = self.workspace.paths.builds / "compiler-cache"
+        self.assertEqual(load_json(cache / MANAGED_MARKER)["purpose"], "compiler-cache")
+        self.assertEqual(load_json(cache / ".atrinik-cache.json")["max_size"], "5G")
 
     def test_resource_view_reserves_generated_metadata_names(self) -> None:
         source = self.workspace.paths.repositories / "resources"
