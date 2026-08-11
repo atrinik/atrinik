@@ -10,6 +10,7 @@ import unittest
 from unittest import mock
 
 from atrinik_workspace.model import WorkspaceError, atomic_json, load_json
+from atrinik_workspace.sound import cache_key as sound_cache_key
 from atrinik_workspace.workspace import Workspace
 
 
@@ -907,6 +908,165 @@ class CohortWorkspaceTests(unittest.TestCase):
             self.workspace.set_profile(
                 "classic-review", "renderer", "primary"
             )
+
+    def test_local_playtest_sound_requires_saved_classic_profile(self) -> None:
+        self.workspace.create_profile("classic-audio", "classic")
+        self.assertEqual(
+            self.workspace.profile_summary("classic-audio")["sound_mode"],
+            "source",
+        )
+
+        self.workspace.set_profile_sound_mode("classic-audio", "local-playtest")
+        self.assertEqual(
+            self.workspace.profile_summary("classic-audio")["sound_mode"],
+            "local-playtest",
+        )
+        with self.assertRaisesRegex(WorkspaceError, "saved derived profile"):
+            self.workspace.set_profile_sound_mode("classic", "local-playtest")
+        self.workspace.create_profile("replacement-audio", "default")
+        with self.assertRaisesRegex(WorkspaceError, "Classic-derived"):
+            self.workspace.set_profile_sound_mode(
+                "replacement-audio", "local-playtest"
+            )
+
+        replacement = self.workspace.paths.profiles / "replacement-audio.json"
+        malformed = load_json(replacement)
+        malformed["sound_mode"] = "local-playtest"
+        atomic_json(replacement, malformed)
+        with self.assertRaisesRegex(WorkspaceError, "Classic-derived"):
+            self.workspace.profile_summary("replacement-audio")
+
+    def test_local_playtest_staging_invokes_builder_and_rechecks_inputs(self) -> None:
+        self.workspace.create_profile("classic-audio", "classic")
+        self.workspace.set_profile_sound_mode("classic-audio", "local-playtest")
+        source = self.wrapper / "sound-fixture"
+        builder = source / "tools" / "sound_release.py"
+        builder.parent.mkdir(parents=True)
+        builder.write_text("# fixture\n", encoding="utf-8")
+        inputs = {
+            "source_commit": "a" * 40,
+            "source_tree": "b" * 40,
+            "source_manifest_sha256": "c" * 64,
+            "toolchain_sha256": "d" * 64,
+            "schema_sha256": "e" * 64,
+            "builder_sha256": "f" * 64,
+        }
+        record = {
+            "mode": "local-playtest",
+            "root": "unused",
+            "output_tree_sha256": "1" * 64,
+        }
+        (
+            source
+            / "build"
+            / "atrinik-workspace"
+            / sound_cache_key(inputs)
+        ).mkdir(parents=True)
+        (self.root / "build").mkdir()
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.clean_source_inputs",
+                side_effect=[inputs, inputs, inputs],
+            ) as inspect,
+            mock.patch("atrinik_workspace.workspace.run") as invoke,
+            mock.patch(
+                "atrinik_workspace.workspace.verify_playtest_tree",
+                return_value=record,
+            ) as verify,
+        ):
+            output, actual = self.workspace._prepare_sound(
+                self.root / "build", {"sound": source}, "classic-audio"
+            )
+
+        self.assertEqual(actual, record)
+        self.assertEqual(output, self.root / "build" / "runtime" / "sound-local-playtest")
+        self.assertEqual(inspect.call_count, 3)
+        self.assertEqual(invoke.call_count, 2)
+        self.assertEqual(
+            [call.args[0][2] for call in invoke.call_args_list],
+            ["build-playtest-tree", "verify-playtest-tree"],
+        )
+        self.assertEqual(verify.call_count, 3)
+
+        changed = {**inputs, "source_commit": "2" * 40}
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.clean_source_inputs",
+                side_effect=[inputs, changed],
+            ),
+            mock.patch("atrinik_workspace.workspace.run"),
+            mock.patch(
+                "atrinik_workspace.workspace.verify_playtest_tree",
+                return_value=record,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "changed after"),
+        ):
+            self.workspace._prepare_sound(
+                self.root / "build", {"sound": source}, "classic-audio"
+            )
+
+    def test_local_playtest_handoff_binds_complete_producer_record(self) -> None:
+        self.workspace.create_profile("classic-audio", "classic")
+        self.workspace.set_profile_sound_mode("classic-audio", "local-playtest")
+        source = self.wrapper / "sound-fixture"
+        builder = source / "tools" / "sound_release.py"
+        builder.parent.mkdir(parents=True)
+        builder.write_text("# fixture\n", encoding="utf-8")
+        inputs = {
+            "source_commit": "a" * 40,
+            "source_tree": "b" * 40,
+            "source_manifest_sha256": "c" * 64,
+            "toolchain_sha256": "d" * 64,
+            "schema_sha256": "e" * 64,
+            "builder_sha256": "f" * 64,
+        }
+        producer = {
+            "root": "/producer",
+            "output_tree_sha256": "1" * 64,
+            "playtest_manifest_sha256": "2" * 64,
+        }
+        tampered = {
+            **producer,
+            "root": "/handoff",
+            "playtest_manifest_sha256": "3" * 64,
+        }
+        output = (
+            source / "build" / "atrinik-workspace" / sound_cache_key(inputs)
+        )
+        output.mkdir(parents=True)
+        root = self.root / "build"
+        (root / "runtime" / "sound-local-playtest").mkdir(parents=True)
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.clean_source_inputs",
+                side_effect=[inputs, inputs],
+            ),
+            mock.patch("atrinik_workspace.workspace.run"),
+            mock.patch(
+                "atrinik_workspace.workspace.verify_playtest_tree",
+                side_effect=[producer, tampered],
+            ),
+            self.assertRaisesRegex(WorkspaceError, "differs from producer"),
+        ):
+            self.workspace._prepare_sound(root, {"sound": source}, "classic-audio")
+
+        shutil.rmtree(root / "runtime")
+        outside = self.root / "outside"
+        outside.mkdir()
+        (root / "runtime").symlink_to(outside, target_is_directory=True)
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.clean_source_inputs",
+                side_effect=[inputs, inputs],
+            ),
+            mock.patch("atrinik_workspace.workspace.run"),
+            mock.patch(
+                "atrinik_workspace.workspace.verify_playtest_tree",
+                return_value=producer,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "not a safe directory"),
+        ):
+            self.workspace._prepare_sound(root, {"sound": source}, "classic-audio")
 
     def test_fresh_seed_runtime_fails_before_resolving_checkouts(self) -> None:
         with mock.patch.object(self.workspace, "resolve_profile") as resolve:

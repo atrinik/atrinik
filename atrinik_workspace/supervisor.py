@@ -264,6 +264,8 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
             raise RuntimeError("topology spec stack/provider identity is incomplete")
         status["stack"] = spec["stack"]
         status["providers"] = spec["providers"]
+    if "sound" in spec:
+        status["sound"] = spec["sound"]
     return status
 
 

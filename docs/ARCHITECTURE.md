@@ -129,6 +129,18 @@ workspace/
   states.json                        named external-state registry
 ~~~
 
+Selected sound repositories may also contain producer-owned
+`build/atrinik-workspace/<20-hex-key>/` playtest trees. They remain outside the
+wrapper build root but are inventoried only by the explicit preview-first
+`cleanup --scope sound-cache` path, which proves the Git worktree, exact
+nonpublishing marker, age, containment, and idle producer lock again on apply.
+Their public build and verify operations share a lease in the exact Git
+worktree admin directory with wrapper cleanup. Any remaining cache protects
+the containing worktree; final worktree removal holds the exclusive lease so
+new generation cannot enter after revalidation. The exact versioned lease
+marker proves that the producer participates; older or malformed producers
+keep the worktree protected.
+
 `ATRINIK_WORKSPACE_DIR` relocates the `workspace/` layout but never the primary
 physical repositories beside the wrapper. Manifest checkout destinations and
 clone-staging directories are ignored by the wrapper repository. Existing
@@ -435,6 +447,9 @@ full Classic closure -> integrated source view -> one protocol/libatrinik graph
                                              +-> server targets -> CMake/Ninja
 component-only client/server request -> standalone source view -> CMake/Ninja
 selected Classic + content + resources ---> offline worldmaker -> region-map cache
+clean selected sound + local-playtest mode -> sound-owned builder/verifier
+                                             -> nonpublishing compatibility tree
+                                             -> client source view + topology
 selected Worker -> keyed npm ci cache -> isolated reconciled view -> npm run check
 ~~~
 
@@ -474,6 +489,28 @@ The resources repository's `runtime-paths.txt` is the distribution boundary:
 only tracked regular files below those paths enter the runtime view. This keeps
 repository metadata, local untracked files, and symlinks out of the asset
 protocol.
+
+Sound composition has two explicit profile states. `source` preserves the
+historical raw-checkout link. `local-playtest` is accepted only on a saved
+Classic-derived profile and never changes the built-in profile or a replacement
+stack. It invokes the public builder and full-decoder verifier in the clean,
+profile-selected sound checkout. The builder alone owns media transformation
+policy and atomically installs the generated tree below ignored sound `build/`
+state. Its cache key binds the clean commit/tree plus builder, source-manifest,
+toolchain, and schema hashes; a changed or racing input cannot replace an
+existing key.
+
+Before exposure, the wrapper independently checks canonical schema-1 JSON,
+`playtest_only: true`, `publishable: false`, source/toolchain/schema/marker and
+blocker-report hashes, exact safe/unique logical paths, regular-file closure,
+all per-payload hashes and codec signatures, the fixed 339-path and
+source-manifest-derived mapping counts, and the producer's complete
+logical-tree digest. Raw MIDI or tracker
+bytes cannot pass even at legacy `.mid`, `.mod`, `.s3m`, or `.xm` paths. Build
+and topology metadata carry this evidence, and the same verified directory is
+linked into both the client source view and supervised client working tree.
+There is no archive, upload, installer, container-layer, release, or raw-source
+fallback path for this mode.
 
 Each CMake binary tree stores an atomic configure fingerprint covering the
 source-view identity, Ninja generator, CMake and compiler identities, toolchain
@@ -636,7 +673,8 @@ possible.
 ## Trust and command execution
 
 Selected checkout worktrees and component source roots are executable source:
-CMake, Python collection, npm, and runtime commands execute code from the
+CMake, Python collection, sound-tree generation, npm, and runtime commands
+execute code from the
 selected profile. Review a pull request before selecting its worktree.
 Profiles do not provide a security sandbox.
 

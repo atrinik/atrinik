@@ -534,13 +534,15 @@ without changing the filesystem:
 ./atrinik cleanup --dry-run --json
 ./atrinik cleanup --scope worktrees classic-server --older-than 14
 ./atrinik cleanup --scope builds --scope npm-cache --scope compiler-cache --older-than 0
+./atrinik cleanup --scope sound-cache --older-than 7 --dry-run --json
 ./atrinik cleanup --scope all --older-than 7 --apply
 ~~~
 
 `--dry-run` is the explicit spelling of the default mode; only `--apply`
 mutates. Repeated `--scope` options combine `worktrees`, `builds`, and the
-opt-in `npm-cache` and `compiler-cache`; `all` selects all four. Positional checkout or logical
-component names narrow only the worktree inventory and still deduplicate
+opt-in `npm-cache`, `compiler-cache`, and `sound-cache`; `all` selects all five.
+Positional checkout or logical component names narrow worktree and sound-cache
+inventory and still deduplicate
 aliases to one physical checkout. The special `atrinik` filter selects wrapper
 worktrees. JSON output is stable schema-versioned data and keeps Git/GitHub
 diagnostics off stdout; its byte fields remain exact integers. Text output uses
@@ -617,12 +619,27 @@ top-level `build/` entries are report-only `unmanaged-build` items. Deep-review 
 builds, packages, archives, and unregistered siblings are never recursively
 deleted.
 
+The explicit `sound-cache` scope inventories only 20-hex exact-input trees
+below `build/atrinik-workspace/` in registered `atrinik/sound` primary and
+linked worktrees. It requires the exact nonpublishing playtest marker, safe
+Git-proven containment, conservative tree age, and an idle producer build
+lock. Apply repeats those proofs under that lock before removing one tree;
+invalid, active, young, unregistered, or uncertain entries remain protected.
+Every remaining producer cache, plus any busy or invalid per-output lock,
+protects its containing sound worktree from ordinary worktree cleanup,
+including `--scope all`. Run the sound-cache apply first and preview worktrees
+again afterward. Producer build/verify commands hold a shared Git-admin lease;
+worktree removal holds its exclusive side from final proof through Git removal,
+so a producer cannot start in the removal window. A sound worktree without the
+versioned producer lease marker is not reclaimable by wrapper cleanup.
+
 Apply holds the repository-layout lock and performs one complete inventory and
 size recomputation. Immediately before each removal it freshly revalidates the
 target's safety dependencies without rescanning unrelated report-only payloads.
-Any new uncertainty fails closed. It removes eligible builds first, exact Git
-worktrees second, and the explicitly selected cache or safely shared prunable
-Git metadata last. A pre-mutation race aborts without deletion; after the first
+Any new uncertainty fails closed. It removes eligible profile builds and
+explicit sound-cache entries first, exact Git worktrees second, other explicit
+caches next, and safely shared prunable Git metadata last. A pre-mutation race
+aborts without deletion; after the first
 successful mutation, the deterministic policy stops on the first error and
 reports exactly what was reclaimed without claiming rollback.
 
@@ -649,9 +666,10 @@ component, or one of its roles updates all five classic selectors together.
 The `classic-server` alias above has the same checkout-wide effect as naming
 `classic`: every classic logical component comes from `socket-review`.
 Resolution then returns the appropriate `server/`, `client/`, `editor/`,
-`libatrinik/`, or `protocol/` source root for each component. Profile schema 3
+`libatrinik/`, or `protocol/` source root for each component. Profile schema 4
 rejects different selectors for logical components that share one physical
-checkout.
+checkout and records the selected sound mode. Existing schema-3 profiles load
+as `source` mode and are upgraded when next changed.
 
 Clone an existing profile when starting a related combination instead of
 repeating every selector:
@@ -708,10 +726,41 @@ valid. Dirty inputs rebuild every time and do not receive reusable metadata;
 inputs are checked again after generation so a concurrent checkout change
 cannot replace the previous valid cache. Only tracked files below the resource
 repository's `runtime-paths.txt` allowlist are staged; development metadata and
-untracked files cannot become server assets. Client builds similarly expose the
-selected sound checkout. These operations never write generated files into a
-component checkout. The caches remain under the marker-owned profile build, so
-ordinary build retention and preview-first cleanup cover them.
+untracked files cannot become server assets. Client builds expose the selected
+sound checkout by default. A saved profile derived from `classic` may instead
+opt into the complete local-only compatibility tree supplied by the selected
+sound checkout:
+
+~~~sh
+./atrinik profile create classic-audio --from classic
+./atrinik profile set classic-audio sound --worktree issue-27-playtest-tree
+./atrinik profile sound-mode classic-audio local-playtest
+./atrinik profile show classic-audio --json
+./atrinik build classic-client --profile classic-audio --test
+./atrinik topology show classic-audio --service client --json
+~~~
+
+The built-in `classic` profile and every replacement profile remain in `source`
+mode. Local-playtest mode requires a clean selected sound checkout with the
+public `tools/sound_release.py build-playtest-tree` command. That repository
+owns conversion and full decoder verification; it writes only to its ignored
+`build/atrinik-workspace/` state. The wrapper independently requires the
+version-1 nonpublishing marker and schema, exact 339-key closure, every
+source-manifest-derived byte-preserved Vorbis or rendered Opus mapping
+(including payloads stored at legacy extensions), every payload/hash/count,
+immutable input hashes, and the complete tree digest. It never falls back to
+the raw mixed-format checkout.
+
+Exact clean inputs reuse the same verified local output without network access.
+The profile build and supervised client runtime link that one root, and their
+JSON records include its mode, source commit/tree, clean-state result,
+manifest/toolchain/schema/marker/blocker hashes, counts, and output digest.
+The tree is not an archive or released-runtime input and cannot enter the
+wrapper's `PACKAGE_TYPE=none` Classic build path as a package. A changed input
+gets a distinct cache key; failed or racing generation leaves existing output
+untouched. Wrapper-owned profile builds remain covered by ordinary retention.
+Sound-owned ignored outputs are preserved by default and are reclaimed only
+through the explicit preview-first `sound-cache` cleanup scope described above.
 
 ## Deterministic test scenarios
 
