@@ -7001,6 +7001,30 @@ class Workspace:
                 layout_lock=layout_lock,
             )
 
+    def _topology_resolved_status(
+        self, profile_name: str, selected: dict[str, Path]
+    ) -> dict[str, dict[str, Any]]:
+        profile = self._load_profile(profile_name, require_file=False)
+        stack = self.manifest.stack(profile["stack"])
+        checkout_states = self._selected_checkout_states(
+            profile, selected, include_dirty=True
+        )
+        return {
+            stack.providers[role].name: {
+                "path": str(path),
+                "checkout_path": str(
+                    checkout_states[stack.providers[role].checkout_name]["path"]
+                ),
+                "checkout": stack.providers[role].checkout_name,
+                "repository": stack.providers[role].repository,
+                "branch": stack.providers[role].branch,
+                "source": stack.providers[role].source,
+                "head": checkout_states[stack.providers[role].checkout_name]["head"],
+                "dirty": checkout_states[stack.providers[role].checkout_name]["dirty"],
+            }
+            for role, path in sorted(selected.items())
+        }
+
     def _topology_up(
         self,
         name: str,
@@ -7163,30 +7187,9 @@ class Workspace:
 
                 profile = self._load_profile(profile_name, require_file=False)
                 selected_stack = self.manifest.stack(profile["stack"])
-                checkout_states = self._selected_checkout_states(
-                    profile, selected, include_dirty=True
+                resolved_status = self._topology_resolved_status(
+                    profile_name, selected
                 )
-                resolved_status = {
-                    selected_stack.providers[role].name: {
-                        "path": str(path),
-                        "checkout_path": str(
-                            checkout_states[
-                                selected_stack.providers[role].checkout_name
-                            ]["path"]
-                        ),
-                        "checkout": selected_stack.providers[role].checkout_name,
-                        "repository": selected_stack.providers[role].repository,
-                        "branch": selected_stack.providers[role].branch,
-                        "source": selected_stack.providers[role].source,
-                        "head": checkout_states[
-                            selected_stack.providers[role].checkout_name
-                        ]["head"],
-                        "dirty": checkout_states[
-                            selected_stack.providers[role].checkout_name
-                        ]["dirty"],
-                    }
-                    for role, path in sorted(selected.items())
-                }
                 spec = {
                     "schema_version": SCHEMA_VERSION,
                     "name": name,
@@ -7311,7 +7314,8 @@ class Workspace:
                 for service in status["services"].values()
                 if service["running"]
             ]
-            targets = [supervisor] if supervisor["running"] else orphaned
+            supervisor_owned = supervisor["running"]
+            targets = [supervisor] if supervisor_owned else orphaned
             if not targets:
                 return status
             for record in targets:
@@ -7323,18 +7327,59 @@ class Workspace:
                     continue
                 try:
                     if process_matches(pid, start_time):
-                        signal.pidfd_send_signal(pidfd, signal.SIGTERM)
+                        if supervisor_owned:
+                            signal.pidfd_send_signal(pidfd, signal.SIGTERM)
+                        else:
+                            try:
+                                os.killpg(pid, signal.SIGTERM)
+                            except ProcessLookupError:
+                                pass
                 finally:
                     os.close(pidfd)
             deadline = time.monotonic() + timeout
             while time.monotonic() < deadline:
-                if not any(self._recorded_process_running(record) for record in targets):
+                if supervisor_owned:
+                    running = any(
+                        self._recorded_process_running(record) for record in targets
+                    )
+                else:
+                    running = any(
+                        self._process_group_running(record["pid"])
+                        for record in targets
+                    )
+                if not running:
                     status = self.topology_status(name)
                     return status
                 time.sleep(0.1)
+            if not supervisor_owned:
+                for record in targets:
+                    if not self._process_group_running(record["pid"]):
+                        continue
+                    try:
+                        os.killpg(record["pid"], signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                kill_deadline = time.monotonic() + min(max(timeout, 0.1), 2.0)
+                while time.monotonic() < kill_deadline:
+                    if not any(
+                        self._process_group_running(record["pid"])
+                        for record in targets
+                    ):
+                        return self.topology_status(name)
+                    time.sleep(0.05)
             raise WorkspaceError(
                 f"topology did not stop within {timeout:g} seconds: {name}"
             )
+
+    @staticmethod
+    def _process_group_running(process_group: int) -> bool:
+        try:
+            os.killpg(process_group, 0)
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            return True
+        return True
 
     def topology_logs(
         self,

@@ -21,6 +21,7 @@ from atrinik_workspace.cleanup import (
     _worktree_records,
     _workspace_owned,
 )
+from atrinik_workspace.locking import active_lock_fds, inherit_lock_fds
 from atrinik_workspace.model import (
     MANAGED_MARKER,
     SCHEMA_VERSION,
@@ -260,6 +261,30 @@ class CleanupTests(unittest.TestCase):
 
         with mock.patch.object(Cleanup, "_github_pulls", side_effect=pulls):
             return self.workspace.cleanup(scopes, older, [], False)
+
+    def test_github_workers_inherit_active_layout_descriptor(self) -> None:
+        observed: list[tuple[int, ...]] = []
+        cleanup = Cleanup(self.workspace)
+        item = {
+            "kind": "worktree",
+            "disposition": "skipped",
+            "reasons": ["github_pending"],
+            "repository": "atrinik/client",
+            "head": "a" * 40,
+            "base_branch": "main",
+        }
+
+        def inspect(_repository: str, _head: str) -> list[dict[str, object]]:
+            observed.append(active_lock_fds())
+            raise WorkspaceError("offline")
+
+        with (
+            tempfile.TemporaryFile(mode="w+") as lease,
+            inherit_lock_fds(lease),
+            mock.patch.object(Cleanup, "_github_pulls", side_effect=inspect),
+        ):
+            cleanup._resolve_github([item], 7)
+            self.assertEqual(observed, [(lease.fileno(),)])
 
     def test_low_level_inventory_helpers_report_invalid_inputs(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "zero or greater"):

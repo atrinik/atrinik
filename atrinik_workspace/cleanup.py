@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextvars import copy_context
 from datetime import datetime, timezone
 import fcntl
 import json
@@ -1373,7 +1374,9 @@ class Cleanup:
         keys = sorted({(item["repository"], item["head"]) for item in pending})
         with ThreadPoolExecutor(max_workers=min(8, max(1, len(keys)))) as executor:
             futures = {
-                executor.submit(self._github_pulls, repository, head): (repository, head)
+                executor.submit(
+                    copy_context().run, self._github_pulls, repository, head
+                ): (repository, head)
                 for repository, head in keys
             }
             for future in as_completed(futures):

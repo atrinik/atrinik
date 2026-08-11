@@ -175,15 +175,16 @@ come last. A race before the first mutation aborts the plan. A later failure
 stops the ordered sequence and reports completed reclamation without attempting
 to reconstruct generated data.
 
-The repository-layout lock is a process-wide read/write boundary. Initialization,
-synchronization, worktree and profile mutation, cleanup apply, and repository
-migration take it exclusively. Builds, topology startup, foreground client and
-server runs, and scenario create/reset take it in shared mode while they consume
-selected checkout and profile coordinates. Independent build roots can therefore
-compile concurrently, while each root's existing exclusive build lock still
-serializes identical profile/key work. An exclusive writer cannot advance or
-remove a selected checkout until all readers exit. If the platform cannot provide
-a working advisory shared lock, the consuming operation fails closed.
+The repository-layout lock is a workspace-wide interprocess read/write boundary.
+Initialization, synchronization, worktree and profile mutation, cleanup apply,
+and repository migration take it exclusively. Builds, topology startup,
+foreground client and server runs, and scenario create/reset take it in shared
+mode while they consume selected checkout and profile coordinates. Independent
+build roots can therefore compile concurrently, while each root's existing
+exclusive build lock still serializes identical profile/key work. An exclusive
+writer cannot advance or remove a selected checkout until all readers exit. If
+the platform cannot provide a working advisory shared lock, the consuming
+operation fails closed.
 
 A supervised topology transfers its shared layout and exact build-root lock
 descriptors through the daemon supervisor into every service. Client runtimes

@@ -330,8 +330,6 @@ def mixed_layout_operation_process(
     wrapper: str,
     workspace_directory: str,
     operation: str,
-    build_root_value: str,
-    marker: dict[str, object],
     status: dict[str, object],
     ready: object,
     start: object,
@@ -344,7 +342,6 @@ def mixed_layout_operation_process(
             os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
         ):
             workspace = Workspace(Path(wrapper))
-            build_root = Path(build_root_value)
             topology_root = workspace.paths.topologies / "stress"
             first_entry = True
             topology_generation = 0
@@ -358,35 +355,36 @@ def mixed_layout_operation_process(
                 if not release.wait(5):
                     raise TimeoutError("mixed operation was not released")
 
-            def refresh_build(*_arguments: object, **_keywords: object) -> Path:
-                with exclusive_lock(
-                    workspace.paths.builds / "locks" / "stress-a.lock",
-                    "stress build root",
-                ):
-                    rendezvous()
-                    atomic_json(build_root / MANAGED_MARKER, marker)
-                return build_root
+            def compile_client(*_arguments: object, **_keywords: object) -> None:
+                rendezvous()
 
             def refresh_topology(
                 *_arguments: object, **_keywords: object
             ) -> dict[str, object]:
                 nonlocal topology_generation
-                with exclusive_lock(
-                    topology_root / "operation.lock", "stress topology"
-                ):
-                    rendezvous()
-                    current = copy.deepcopy(status)
-                    current["error"] = f"stress generation {topology_generation}"
-                    topology_generation += 1
-                    atomic_json(topology_root / "status.json", current)
+                selected = workspace._resolve_build_profile("default", {"server"})
+                rendezvous()
+                current = copy.deepcopy(status)
+                current["resolved"] = workspace._topology_resolved_status(
+                    "default", selected
+                )
+                current["dependencies"] = sorted(selected)
+                current["error"] = f"stress generation {topology_generation}"
+                topology_generation += 1
+                atomic_json(topology_root / "status.json", current)
                 return current
 
             ready.put(operation)
             if not start.wait(5):
                 raise TimeoutError("mixed operation test did not start")
             if operation == "build":
-                with mock.patch.object(
-                    workspace, "_build", side_effect=refresh_build
+                with (
+                    mock.patch.object(
+                        workspace, "_expand_build_target", return_value=["client"]
+                    ),
+                    mock.patch.object(
+                        workspace, "_build_client", side_effect=compile_client
+                    ),
                 ):
                     for _ in range(20):
                         workspace.build("client", "stress", False)
@@ -405,8 +403,12 @@ def mixed_layout_operation_process(
                 ):
                     for index in range(20):
                         current = workspace.topology_status("stress")
-                        if current["resolved"] != status["resolved"]:
-                            raise AssertionError("topology coordinates changed")
+                        for coordinate in current["resolved"].values():
+                            checkout = Path(coordinate["checkout_path"])
+                            if coordinate["head"] != command(
+                                "git", "rev-parse", "HEAD", cwd=checkout
+                            ):
+                                raise AssertionError("topology coordinates changed")
                         if index == 0:
                             rendezvous()
             else:
@@ -5796,34 +5798,40 @@ class WorkspaceTests(unittest.TestCase):
                     operation.assert_called_once()
 
     def test_mixed_layout_readers_preserve_markers_and_coordinates(self) -> None:
-        build_root = self.workspace.paths.builds / "profiles" / "stress-a"
+        self.workspace.create_profile("stress")
+        selected_build = self.workspace._resolve_build_profile(
+            "stress", {"client"}
+        )
+        build_key = self.workspace._profile_build_key("stress", selected_build)
+        build_root = (
+            self.workspace.paths.builds / "profiles" / f"stress-{build_key}"
+        )
         managed_directory(
-            build_root, self.workspace.paths.builds, "profile:stress:a"
+            build_root,
+            self.workspace.paths.builds,
+            f"profile:stress:{build_key}",
         )
         marker = load_json(build_root / MANAGED_MARKER)
         topology_root = self.workspace._topology_directory("stress", create=True)
-        checkout = self.workspace.paths.repositories / "server"
+        selected_topology = self.workspace._resolve_build_profile(
+            "default", {"server"}
+        )
+        resolved = self.workspace._topology_resolved_status(
+            "default", selected_topology
+        )
         status = {
             "schema_version": 1,
             "name": "stress",
             "profile": "default",
             "stack": "default",
-            "providers": {"server": "server"},
-            "dependencies": ["server"],
+            "providers": {
+                role: self.workspace.manifest.stack("default").providers[role].name
+                for role in sorted(selected_topology)
+            },
+            "dependencies": sorted(selected_topology),
             "state": None,
             "build_root": str(build_root),
-            "resolved": {
-                "server": {
-                    "path": str(checkout),
-                    "checkout_path": str(checkout),
-                    "checkout": "server",
-                    "repository": "atrinik/server",
-                    "branch": "main",
-                    "source": ".",
-                    "head": command("git", "rev-parse", "HEAD", cwd=checkout),
-                    "dirty": False,
-                }
-            },
+            "resolved": resolved,
             "endpoint": None,
             "ready": False,
             "started_at": "2026-08-11T00:00:00+00:00",
@@ -5847,8 +5855,6 @@ class WorkspaceTests(unittest.TestCase):
                     str(self.wrapper),
                     str(self.workspace_directory),
                     operation,
-                    str(build_root),
-                    marker,
                     status,
                     ready,
                     start,
@@ -5876,6 +5882,18 @@ class WorkspaceTests(unittest.TestCase):
         outcomes = dict(results.get(timeout=2) for _ in processes)
         self.assertEqual(outcomes, {operation: None for operation in operations})
         self.assertEqual(load_json(build_root / MANAGED_MARKER), marker)
+        metadata = load_json(build_root / workspace_module.BUILD_METADATA)
+        self.assertEqual(metadata["profile"], "stress")
+        self.assertEqual(metadata["key"], build_key)
+        for role, coordinate in metadata["coordinates"].items():
+            self.assertEqual(
+                Path(coordinate["source_path"]), selected_build[role].resolve()
+            )
+            checkout_path = Path(coordinate["checkout_path"])
+            self.assertEqual(
+                coordinate["head"],
+                command("git", "rev-parse", "HEAD", cwd=checkout_path),
+            )
         expected_status = copy.deepcopy(status)
         expected_status["error"] = "stress generation 19"
         self.assertEqual(load_json(topology_root / "status.json"), expected_status)
@@ -6422,6 +6440,21 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace, "_select_topology_port", return_value=17302
             ),
         ):
+            executable.write_text(
+                "#!/usr/bin/env python3\n"
+                "import os, signal, time\n"
+                "child = os.fork()\n"
+                "if child == 0:\n"
+                "    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
+                "    while True:\n"
+                "        time.sleep(0.1)\n"
+                "open('descendant.pid', 'w', encoding='utf-8').write(str(child))\n"
+                f"print('QUIC certificate SHA-256: {'a' * 64}', flush=True)\n"
+                "print('Server ready. Waiting for connections...', flush=True)\n"
+                "while True:\n"
+                "    time.sleep(0.1)\n",
+                encoding="utf-8",
+            )
             server_only = self.workspace.topology_up(
                 "server-lease", "default", "default", ["server"], 17302
             )
@@ -6451,6 +6484,14 @@ class WorkspaceTests(unittest.TestCase):
             orphaned = self.workspace.topology_status("server-lease")
             self.assertFalse(orphaned["supervisor"]["running"])
             self.assertTrue(orphaned["services"]["server"]["running"])
+            descendant_path = Path(
+                orphaned["services"]["server"]["cwd"]
+            ) / "descendant.pid"
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline and not descendant_path.is_file():
+                time.sleep(0.05)
+            descendant_pid = int(descendant_path.read_text(encoding="utf-8"))
+            self.assertTrue(Path(f"/proc/{descendant_pid}").exists())
             for path, description in (
                 (layout_lock, "repository layout"),
                 (profile_lock, "profile build default"),
@@ -6458,7 +6499,14 @@ class WorkspaceTests(unittest.TestCase):
                 with self.assertRaisesRegex(WorkspaceError, "already in use"):
                     with exclusive_lock(path, description, nonblocking=True):
                         self.fail(f"orphaned server released {description}")
-            self.workspace.topology_down("server-lease", timeout=5)
+            self.workspace.topology_down("server-lease", timeout=0.5)
+            deadline = time.monotonic() + 2
+            while (
+                time.monotonic() < deadline
+                and Path(f"/proc/{descendant_pid}").exists()
+            ):
+                time.sleep(0.05)
+            self.assertFalse(Path(f"/proc/{descendant_pid}").exists())
         finally:
             remaining = self.workspace.topology_status("server-lease")
             if remaining["supervisor"]["running"] or any(
