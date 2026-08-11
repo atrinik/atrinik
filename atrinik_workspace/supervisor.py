@@ -201,6 +201,7 @@ def supervise(
     spec_path: Path,
     lock_fd: int | None,
     layout_lock_fd: int | None,
+    build_lock_fd: int | None,
 ) -> int:
     with spec_path.open(encoding="utf-8") as stream:
         spec = json.load(stream)
@@ -246,8 +247,10 @@ def supervise(
         inherited_locks: list[int] = []
         if name == "server" and lock_fd is not None:
             inherited_locks.append(lock_fd)
-        if name == "client" and layout_lock_fd is not None:
+        if layout_lock_fd is not None:
             inherited_locks.append(layout_lock_fd)
+        if build_lock_fd is not None:
+            inherited_locks.append(build_lock_fd)
         process = subprocess.Popen(
             command,
             cwd=service["cwd"],
@@ -258,11 +261,10 @@ def supervise(
             start_new_session=True,
             pass_fds=tuple(inherited_locks),
         )
+        processes[name] = process
         start_time = process_start_time(process.pid)
         if start_time is None:
-            process.terminate()
             raise RuntimeError(f"cannot identify {name} process")
-        processes[name] = process
         pump = threading.Thread(
             target=pump_output,
             args=(process, output, capture),
@@ -343,7 +345,9 @@ def supervise(
             pump.join(timeout=2)
         for name, process in processes.items():
             code = process.poll()
-            service_status = status["services"][name]
+            service_status = status["services"].get(name)
+            if service_status is None:
+                continue
             service_status["status"] = "exited"
             service_status["exit_code"] = code
         status["stopped_at"] = datetime.now(timezone.utc).isoformat()
@@ -355,6 +359,8 @@ def supervise(
             os.close(lock_fd)
         if layout_lock_fd is not None:
             os.close(layout_lock_fd)
+        if build_lock_fd is not None:
+            os.close(build_lock_fd)
     return 0
 
 
@@ -363,12 +369,18 @@ def main() -> int:
     parser.add_argument("--spec", type=Path, required=True)
     parser.add_argument("--lock-fd", type=int)
     parser.add_argument("--layout-lock-fd", type=int)
+    parser.add_argument("--build-lock-fd", type=int)
     parser.add_argument("--daemonize", action="store_true")
     options = parser.parse_args()
     if options.daemonize and os.fork() != 0:
         return 0
     try:
-        return supervise(options.spec, options.lock_fd, options.layout_lock_fd)
+        return supervise(
+            options.spec,
+            options.lock_fd,
+            options.layout_lock_fd,
+            options.build_lock_fd,
+        )
     except BaseException as error:
         message = f"{type(error).__name__}: {error}"
         print(f"topology supervisor failed during startup: {message}", file=sys.stderr)
@@ -384,6 +396,11 @@ def main() -> int:
         if options.layout_lock_fd is not None:
             try:
                 os.close(options.layout_lock_fd)
+            except OSError:
+                pass
+        if options.build_lock_fd is not None:
+            try:
+                os.close(options.build_lock_fd)
             except OSError:
                 pass
         return 1

@@ -185,17 +185,20 @@ serializes identical profile/key work. An exclusive writer cannot advance or
 remove a selected checkout until all readers exit. If the platform cannot provide
 a working advisory shared lock, the consuming operation fails closed.
 
-A supervised topology transfers its shared layout-lock descriptor through the
-daemon supervisor into its client process because the client runtime retains
-links to selected client and sound checkouts. This preserves the lease if the
-supervisor dies; topology shutdown terminates the client and releases the last
-descriptor. Server-only topologies release the layout lease after startup
-because they execute from topology-owned runtime snapshots.
+A supervised topology transfers its shared layout and exact build-root lock
+descriptors through the daemon supervisor into every service. Client runtimes
+retain links to selected client and sound checkouts, while server runtimes link
+selected server configuration and tool inputs. Inherited descriptors preserve
+both leases if the supervisor dies; topology shutdown terminates orphaned
+services and releases the last descriptors. Foreground client and server
+processes inherit the same applicable leases from the wrapper.
 
 The layout lock is always outermost; private helpers never reacquire it. A
 direct build or foreground client then takes its build-root lock and subordinate
-cache locks. Topology startup takes the topology-operation lock, the server-state
-lock when needed, the build-root lock, and finally the port-allocation lock.
+cache locks; the foreground process retains that root lease. Topology startup
+takes the topology-operation lock, the server-state lock when needed, the
+build-root lock, and finally the port-allocation lock, and transfers the layout
+and build-root leases into its services.
 Scenario create takes the scenario-operation lock, then build-root and
 state-registry locks; reset takes scenario-operation, state, and build-root locks.
 Foreground server launch takes state before build-root. Layout writers take the

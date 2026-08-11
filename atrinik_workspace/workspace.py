@@ -162,6 +162,7 @@ def run(
     env: dict[str, str] | None = None,
     trace: bool = True,
     diagnostics_to_stderr: bool = True,
+    pass_fds: tuple[int, ...] = (),
 ) -> str:
     if trace:
         print(f"+ {display_arguments(arguments)}", file=sys.stderr)
@@ -174,6 +175,7 @@ def run(
             capture_output=capture,
             env=env,
             stdout=sys.stderr if diagnostics_to_stderr and not capture else None,
+            pass_fds=pass_fds,
         )
     except FileNotFoundError as error:
         raise WorkspaceError(f"required command not found: {arguments[0]}") from error
@@ -2325,8 +2327,7 @@ class Workspace:
     ) -> Path:
         key = self._profile_build_key(profile_name, selected)
         root = self.paths.builds / "profiles" / f"{profile_name}-{key}"
-        lock = self.paths.builds / "locks" / f"{profile_name}-{key}.lock"
-        with exclusive_lock(lock, f"profile build {profile_name}"):
+        with self._profile_build_lock(root, profile_name):
             self._force_reconfigure = force_reconfigure
             self._use_ccache = use_ccache
             managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
@@ -2356,6 +2357,14 @@ class Workspace:
             if target in {"sound", "resources"}:
                 print(f"{target}: selected {selected[target]}")
         return root
+
+    @contextmanager
+    def _profile_build_lock(
+        self, root: Path, profile_name: str
+    ) -> Iterator[TextIO]:
+        lock = self.paths.builds / "locks" / f"{root.name}.lock"
+        with exclusive_lock(lock, f"profile build {profile_name}") as lease:
+            yield lease
 
     def _refresh_build_metadata(
         self,
@@ -5703,22 +5712,23 @@ class Workspace:
         root = self._build_resolved(
             "server", metadata["profile"], False, ["server"], selected
         )
-        runtime = self._prepare_server_runtime(
-            root, selected, state, metadata["state"]
-        )
-        executable = runtime / "atrinik-server"
-        run(
-            [
-                str(executable),
-                "--provision_scenario",
-                f"--provision_account={metadata['account']}",
-                f"--provision_character={metadata['character']}",
-                f"--provision_archetype={metadata['archetype']}",
-                f"--provision_password_file={password_file}",
-                f"--assetspath={runtime / 'assets'}",
-            ],
-            cwd=runtime,
-        )
+        with self._profile_build_lock(root, metadata["profile"]):
+            runtime = self._prepare_server_runtime(
+                root, selected, state, metadata["state"]
+            )
+            executable = runtime / "atrinik-server"
+            run(
+                [
+                    str(executable),
+                    "--provision_scenario",
+                    f"--provision_account={metadata['account']}",
+                    f"--provision_character={metadata['character']}",
+                    f"--provision_archetype={metadata['archetype']}",
+                    f"--provision_password_file={password_file}",
+                    f"--assetspath={runtime / 'assets'}",
+                ],
+                cwd=runtime,
+            )
         profile = self._load_profile(metadata["profile"], require_file=False)
         stack = self.manifest.stack(profile["stack"])
         audited = {role: selected[role] for role in required}
@@ -7001,6 +7011,9 @@ class Workspace:
                 root = self._build_resolved(
                     "topology", profile_name, False, targets, selected
                 )
+                build_lock = stack.enter_context(
+                    self._profile_build_lock(root, profile_name)
+                )
                 endpoint: dict[str, Any] | None = None
                 if "server" in selected_services:
                     stack.enter_context(
@@ -7162,11 +7175,15 @@ class Workspace:
                     if state_lock is not None:
                         command.extend(["--lock-fd", str(state_lock.fileno())])
                         inherited_locks.append(state_lock.fileno())
-                    if "client" in selected_services and layout_lock is not None:
+                    if layout_lock is not None:
                         command.extend(
                             ["--layout-lock-fd", str(layout_lock.fileno())]
                         )
                         inherited_locks.append(layout_lock.fileno())
+                    command.extend(
+                        ["--build-lock-fd", str(build_lock.fileno())]
+                    )
+                    inherited_locks.append(build_lock.fileno())
                     environment = os.environ.copy()
                     source_root = str(Path(__file__).resolve().parents[1])
                     python_path = environment.get("PYTHONPATH")
@@ -7347,9 +7364,14 @@ class Workspace:
         with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
-        ):
+        ) as layout_lock:
             return self._run_client(
-                profile_name, state_name, port, arguments, dry_run
+                profile_name,
+                state_name,
+                port,
+                arguments,
+                dry_run,
+                layout_lock=layout_lock,
             )
 
     def _run_client(
@@ -7359,6 +7381,8 @@ class Workspace:
         port: int,
         arguments: list[str],
         dry_run: bool,
+        *,
+        layout_lock: TextIO | None = None,
     ) -> Path:
         self._validate_run_port(port)
         launch_label = client_launch_label(profile_name)
@@ -7367,32 +7391,38 @@ class Workspace:
         self._validate_state(state)
         fingerprint = self._server_identity_fingerprint(state)
         root = self._build("client", profile_name, tests=False)
-        executable = self._classic_binary_directory(root, "client") / "atrinik"
-        working = root / "sources" / "client"
-        if not executable.is_file():
-            raise WorkspaceError(f"client executable is missing: {executable}")
-        command = [
-            str(executable),
-            f"--server=127.0.0.1 {port} {fingerprint}",
-            "--stun_server=off",
-            "--nometa",
-            *arguments,
-        ]
-        print(f"state: {state}")
-        print(f"cwd: {working}")
-        print(f"launch label: {launch_label}")
-        print(f"command: {display_arguments(command)}")
-        if not dry_run:
-            self._require_client_display()
-            environment = os.environ.copy()
-            environment[CLIENT_LAUNCH_LABEL_ENV] = launch_label
-            run(
-                command,
-                cwd=working,
-                env=environment,
-                diagnostics_to_stderr=False,
-            )
-        return executable
+        with self._profile_build_lock(root, profile_name) as build_lock:
+            executable = self._classic_binary_directory(root, "client") / "atrinik"
+            working = root / "sources" / "client"
+            if not executable.is_file():
+                raise WorkspaceError(f"client executable is missing: {executable}")
+            command = [
+                str(executable),
+                f"--server=127.0.0.1 {port} {fingerprint}",
+                "--stun_server=off",
+                "--nometa",
+                *arguments,
+            ]
+            print(f"state: {state}")
+            print(f"cwd: {working}")
+            print(f"launch label: {launch_label}")
+            print(f"command: {display_arguments(command)}")
+            if not dry_run:
+                self._require_client_display()
+                environment = os.environ.copy()
+                environment[CLIENT_LAUNCH_LABEL_ENV] = launch_label
+                run(
+                    command,
+                    cwd=working,
+                    env=environment,
+                    diagnostics_to_stderr=False,
+                    pass_fds=tuple(
+                        lease.fileno()
+                        for lease in (layout_lock, build_lock)
+                        if lease is not None
+                    ),
+                )
+            return executable
 
     def run_server(
         self,
@@ -7406,9 +7436,14 @@ class Workspace:
         with shared_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
-        ):
+        ) as layout_lock:
             return self._run_server(
-                profile_name, state_name, port, arguments, dry_run
+                profile_name,
+                state_name,
+                port,
+                arguments,
+                dry_run,
+                layout_lock=layout_lock,
             )
 
     def _run_server(
@@ -7418,6 +7453,8 @@ class Workspace:
         port: int,
         arguments: list[str],
         dry_run: bool,
+        *,
+        layout_lock: TextIO | None = None,
     ) -> Path:
         self._validate_run_port(port)
         self._require_classic_contracts(profile_name, {"server"})
@@ -7425,29 +7462,43 @@ class Workspace:
         selected = self._resolve_build_profile(profile_name, {"server"})
         state_location = self._state_location(state_name)
         lock_path = Path(f"{state_location}.lock")
-        with exclusive_lock(lock_path, f"server state {state_location}", nonblocking=True):
+        with exclusive_lock(
+            lock_path, f"server state {state_location}", nonblocking=True
+        ) as state_lock:
             root = self._build_resolved(
                 "server", profile_name, False, targets, selected
             )
-            state = self.state_path(
-                state_name, selected["server"], resolved_path=state_location
-            )
-            runtime = self._prepare_server_runtime(root, selected, state, state_name)
-            executable = runtime / "atrinik-server"
-            command = [
-                str(executable),
-                f"--port_quic={port}",
-                "--port_mapping=off",
-                "--stun_server=off",
-                *arguments,
-                f"--assetspath={runtime / 'assets'}",
-            ]
-            print(f"state: {state}")
-            print(f"cwd: {runtime}")
-            print(f"command: {display_arguments(command)}")
-            if not dry_run:
-                run(command, cwd=runtime, diagnostics_to_stderr=False)
-            return executable
+            with self._profile_build_lock(root, profile_name) as build_lock:
+                state = self.state_path(
+                    state_name, selected["server"], resolved_path=state_location
+                )
+                runtime = self._prepare_server_runtime(
+                    root, selected, state, state_name
+                )
+                executable = runtime / "atrinik-server"
+                command = [
+                    str(executable),
+                    f"--port_quic={port}",
+                    "--port_mapping=off",
+                    "--stun_server=off",
+                    *arguments,
+                    f"--assetspath={runtime / 'assets'}",
+                ]
+                print(f"state: {state}")
+                print(f"cwd: {runtime}")
+                print(f"command: {display_arguments(command)}")
+                if not dry_run:
+                    run(
+                        command,
+                        cwd=runtime,
+                        diagnostics_to_stderr=False,
+                        pass_fds=tuple(
+                            lease.fileno()
+                            for lease in (layout_lock, state_lock, build_lock)
+                            if lease is not None
+                        ),
+                    )
+                return executable
 
     @staticmethod
     def _validate_run_port(port: int) -> None:

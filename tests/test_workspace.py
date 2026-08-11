@@ -18,7 +18,6 @@ import sys
 import tempfile
 import threading
 import time
-from typing import Callable
 import unittest
 from unittest import mock
 
@@ -174,7 +173,9 @@ def synthetic_client_process(
                     attempting.set()
                 real_flock(lock, operation)
 
-            def pause_client(*_arguments: object) -> Path:
+            def pause_client(
+                *_arguments: object, **_keywords: object
+            ) -> Path:
                 entered.set()
                 if not release.wait(10):
                     raise TimeoutError("test client was not released")
@@ -212,6 +213,83 @@ def timed_layout_lock_process(
         results.put(None)
     except BaseException as error:
         results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def mixed_layout_operation_process(
+    wrapper: str,
+    workspace_directory: str,
+    operation: str,
+    build_root_value: str,
+    marker: dict[str, object],
+    status: dict[str, object],
+    ready: object,
+    start: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            build_root = Path(build_root_value)
+            topology_root = workspace.paths.topologies / "stress"
+
+            def refresh_build(*_arguments: object, **_keywords: object) -> Path:
+                with exclusive_lock(
+                    workspace.paths.builds / "locks" / "stress-a.lock",
+                    "stress build root",
+                ):
+                    atomic_json(build_root / MANAGED_MARKER, marker)
+                return build_root
+
+            def refresh_topology(
+                *_arguments: object, **_keywords: object
+            ) -> dict[str, object]:
+                with exclusive_lock(
+                    topology_root / "operation.lock", "stress topology"
+                ):
+                    atomic_json(topology_root / "status.json", status)
+                return copy.deepcopy(status)
+
+            ready.put(operation)
+            if not start.wait(5):
+                raise TimeoutError("mixed operation test did not start")
+            if operation == "build":
+                with mock.patch.object(
+                    workspace, "_build", side_effect=refresh_build
+                ):
+                    for _ in range(20):
+                        workspace.build("client", "stress", False)
+            elif operation == "topology":
+                with mock.patch.object(
+                    workspace, "_topology_up", side_effect=refresh_topology
+                ):
+                    for _ in range(20):
+                        workspace.topology_up(
+                            "stress", "default", "default", ["server"], None
+                        )
+            elif operation == "status":
+                with mock.patch(
+                    "atrinik_workspace.workspace.process_matches",
+                    return_value=False,
+                ):
+                    for _ in range(20):
+                        current = workspace.topology_status("stress")
+                        if current["resolved"] != status["resolved"]:
+                            raise AssertionError("topology coordinates changed")
+            else:
+                with mock.patch(
+                    "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
+                    return_value=(set(), None),
+                ):
+                    for _ in range(20):
+                        report = workspace.cleanup(["builds"], 7, [], False)
+                        if report["inventory_errors"]:
+                            raise AssertionError(report["inventory_errors"])
+        results.put((operation, None))
+    except BaseException as error:
+        results.put((operation, f"{type(error).__name__}: {error}"))
         raise
 
 
@@ -5459,68 +5537,41 @@ class WorkspaceTests(unittest.TestCase):
             "error": "stress fixture",
         }
         atomic_json(topology_root / "status.json", status)
-        barrier = threading.Barrier(4)
-        build_lock = self.workspace.paths.builds / "locks" / "stress-a.lock"
-        topology_lock = topology_root / "operation.lock"
-
-        def refresh_build(*_arguments: object, **_keywords: object) -> Path:
-            with exclusive_lock(build_lock, "stress build root"):
-                atomic_json(build_root / MANAGED_MARKER, marker)
-            return build_root
-
-        def refresh_topology(
-            *_arguments: object, **_keywords: object
-        ) -> dict[str, object]:
-            with exclusive_lock(topology_lock, "stress topology"):
-                atomic_json(topology_root / "status.json", status)
-            return copy.deepcopy(status)
-
-        def repeat(operation: Callable[[], object]) -> list[object]:
-            barrier.wait(timeout=5)
-            return [operation() for _ in range(20)]
-
-        operations = (
-            lambda: self.workspace.build("client", "stress", False),
-            lambda: self.workspace.topology_up(
-                "stress", "default", "default", ["server"], None
-            ),
-            lambda: self.workspace.topology_status("stress"),
-            lambda: self.workspace.cleanup(["builds"], 7, [], False),
-        )
-        with (
-            mock.patch.object(self.workspace, "_build", side_effect=refresh_build),
-            mock.patch.object(
-                self.workspace, "_topology_up", side_effect=refresh_topology
-            ),
-            mock.patch(
-                "atrinik_workspace.workspace.process_matches", return_value=False
-            ),
-            mock.patch(
-                "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
-                return_value=(set(), None),
-            ),
-            ThreadPoolExecutor(max_workers=4) as executor,
-        ):
-            results = [
-                future.result(timeout=15)
-                for future in [
-                    executor.submit(repeat, operation) for operation in operations
-                ]
-            ]
-
-        self.assertTrue(all(result == build_root for result in results[0]))
-        self.assertTrue(all(result == status for result in results[1]))
-        self.assertTrue(
-            all(
-                result["resolved"] == status["resolved"]
-                and "inert_historical_record" not in result
-                for result in results[2]
+        context = multiprocessing.get_context("spawn")
+        ready = context.Queue()
+        start = context.Event()
+        results = context.Queue()
+        operations = ("build", "topology", "status", "cleanup")
+        processes = [
+            context.Process(
+                target=mixed_layout_operation_process,
+                args=(
+                    str(self.wrapper),
+                    str(self.workspace_directory),
+                    operation,
+                    str(build_root),
+                    marker,
+                    status,
+                    ready,
+                    start,
+                    results,
+                ),
             )
-        )
-        self.assertEqual(
-            [result["inventory_errors"] for result in results[3]],
-            [[] for _ in results[3]],
-        )
+            for operation in operations
+        ]
+        try:
+            for process in processes:
+                process.start()
+            self.assertEqual(
+                {ready.get(timeout=5) for _ in processes}, set(operations)
+            )
+            start.set()
+        finally:
+            for process in processes:
+                process.join(timeout=20)
+        self.assertEqual([process.exitcode for process in processes], [0] * 4)
+        outcomes = dict(results.get(timeout=2) for _ in processes)
+        self.assertEqual(outcomes, {operation: None for operation in operations})
         self.assertEqual(load_json(build_root / MANAGED_MARKER), marker)
         self.assertEqual(load_json(topology_root / "status.json"), status)
 
@@ -5693,6 +5744,8 @@ class WorkspaceTests(unittest.TestCase):
             encoding="utf-8",
         )
         executable.chmod(0o755)
+        second_build_root = self.workspace.paths.builds / "fake-topology-second"
+        shutil.copytree(build_root, second_build_root, symlinks=True)
 
         with (
             mock.patch.object(
@@ -5713,7 +5766,9 @@ class WorkspaceTests(unittest.TestCase):
             )
             with (
                 mock.patch.object(
-                    self.workspace, "_build_resolved", return_value=build_root
+                    self.workspace,
+                    "_build_resolved",
+                    return_value=second_build_root,
                 ),
                 mock.patch.object(self.workspace, "_require_client_display"),
             ):
@@ -5839,6 +5894,11 @@ class WorkspaceTests(unittest.TestCase):
             encoding="utf-8",
         )
         client.chmod(0o755)
+        second_build_root = (
+            self.workspace.paths.builds / "profiles" / "fake-server-topology-second"
+        )
+        second_build_root.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(build_root, second_build_root, symlinks=True)
 
         with (
             mock.patch.object(
@@ -5927,10 +5987,15 @@ class WorkspaceTests(unittest.TestCase):
         state = self.workspace._state_location("default")
         second_state = self.workspace.state_add("second", None)
         layout_lock = self.workspace.paths.workspace / "repository-layout.lock"
+        profile_lock = (
+            self.workspace.paths.builds / "locks" / f"{build_root.name}.lock"
+        )
         try:
             with (
                 mock.patch.object(
-                    self.workspace, "_build_resolved", return_value=build_root
+                    self.workspace,
+                    "_build_resolved",
+                    return_value=second_build_root,
                 ),
                 mock.patch.object(
                     self.workspace, "_select_topology_port", return_value=17301
@@ -5984,6 +6049,11 @@ class WorkspaceTests(unittest.TestCase):
                     layout_lock, "repository layout", nonblocking=True
                 ):
                     self.fail("supervised client released its layout lock")
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    profile_lock, "profile build default", nonblocking=True
+                ):
+                    self.fail("supervised services released their build-root lock")
 
             supervisor = status["supervisor"]
             pidfd = os.pidfd_open(supervisor["pid"])
@@ -6017,6 +6087,11 @@ class WorkspaceTests(unittest.TestCase):
                     layout_lock, "repository layout", nonblocking=True
                 ):
                     self.fail("orphaned client released its layout lock")
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    profile_lock, "profile build default", nonblocking=True
+                ):
+                    self.fail("orphaned services released their build-root lock")
             recovered = self.workspace.topology_down("server-review", timeout=5)
             self.assertFalse(
                 any(service["running"] for service in recovered["services"].values())
@@ -6034,6 +6109,51 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 self.workspace.topology_down("server-review", timeout=5)
 
+        with (
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            mock.patch.object(
+                self.workspace, "_select_topology_port", return_value=17302
+            ),
+        ):
+            server_only = self.workspace.topology_up(
+                "server-lease", "default", "default", ["server"], 17302
+            )
+        self.assertTrue(server_only["ready"])
+        for path, description in (
+            (layout_lock, "repository layout"),
+            (profile_lock, "profile build default"),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(path, description, nonblocking=True):
+                    self.fail(f"server-only topology released {description}")
+        supervisor = server_only["supervisor"]
+        pidfd = os.pidfd_open(supervisor["pid"])
+        try:
+            signal.pidfd_send_signal(pidfd, signal.SIGKILL)
+        finally:
+            os.close(pidfd)
+        deadline = time.monotonic() + 5
+        while (
+            time.monotonic() < deadline
+            and self.workspace.topology_status("server-lease")["supervisor"][
+                "running"
+            ]
+        ):
+            time.sleep(0.05)
+        orphaned = self.workspace.topology_status("server-lease")
+        self.assertFalse(orphaned["supervisor"]["running"])
+        self.assertTrue(orphaned["services"]["server"]["running"])
+        for path, description in (
+            (layout_lock, "repository layout"),
+            (profile_lock, "profile build default"),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(path, description, nonblocking=True):
+                    self.fail(f"orphaned server released {description}")
+        self.workspace.topology_down("server-lease", timeout=5)
+
         with exclusive_lock(Path(f"{state}.lock"), "server state", nonblocking=True):
             pass
         with exclusive_lock(
@@ -6041,6 +6161,10 @@ class WorkspaceTests(unittest.TestCase):
         ):
             pass
         with exclusive_lock(layout_lock, "repository layout", nonblocking=True):
+            pass
+        with exclusive_lock(
+            profile_lock, "profile build default", nonblocking=True
+        ):
             pass
 
     def test_topology_port_selection_rejects_unavailable_port(self) -> None:
@@ -6409,10 +6533,24 @@ class WorkspaceTests(unittest.TestCase):
         executable.write_text("client\n", encoding="utf-8")
         (build_root / "sources" / "client").mkdir(parents=True)
         expected = "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
+
+        def execute_client(*_arguments: object, **_keywords: object) -> None:
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    self.workspace.paths.builds
+                    / "locks"
+                    / "client-build.lock",
+                    "profile build default",
+                    nonblocking=True,
+                ):
+                    self.fail("foreground client released its build-root lock")
+
         with (
             mock.patch.object(self.workspace, "_build", return_value=build_root),
             mock.patch("builtins.print") as output,
-            mock.patch("atrinik_workspace.workspace.run") as execute,
+            mock.patch(
+                "atrinik_workspace.workspace.run", side_effect=execute_client
+            ) as execute,
             mock.patch.object(self.workspace, "_require_client_display"),
         ):
             result = self.workspace.run_client(
