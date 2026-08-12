@@ -592,25 +592,63 @@ class WorkspaceTests(unittest.TestCase):
         (output / "lib").mkdir(parents=True)
         (output / "maps").mkdir()
         compatibility = output / "compatibility.json"
-        compatibility.write_text(payload, encoding="utf-8")
+        atomic_json(
+            compatibility,
+            {
+                "schema_version": 1,
+                "target": "classic",
+                "component": "content",
+                "repository": "atrinik/content",
+                "branch": "main",
+                "content_format": "classic-ads-v1",
+                "artifact_format": "atrinik-classic-runtime-content-v1",
+                "compatible_classic_releases": ">=5.10.1 <6.0.0",
+                "consumers": [
+                    "classic/client",
+                    "classic/editor",
+                    "classic/server",
+                ],
+                "replacement_ready": False,
+                "replacement_toolkit_package": False,
+            },
+        )
+        payload_file = output / "maps" / "payload"
+        payload_file.write_text(payload, encoding="utf-8")
+        license_file = output / "attribution" / "maps" / "COPYING"
+        license_file.parent.mkdir(parents=True)
+        license_file.write_text("fixture license\n", encoding="utf-8")
+        files = []
+        for candidate in (compatibility, license_file, payload_file):
+            files.append(
+                {
+                    "path": candidate.relative_to(output).as_posix(),
+                    "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
+                    "size": candidate.stat().st_size,
+                }
+            )
         atomic_json(
             output / "manifest.json",
             {
                 "schema_version": 2,
+                "target": "classic",
                 "source": {
                     "repository": "atrinik/content",
                     "branch": "main",
                     "commit": commit,
                 },
-                "files": [
-                    {
-                        "path": "compatibility.json",
-                        "sha256": hashlib.sha256(
-                            compatibility.read_bytes()
-                        ).hexdigest(),
-                        "size": compatibility.stat().st_size,
-                    }
+                "release_version": "unreleased",
+                "content_format": "classic-ads-v1",
+                "artifact_format": "atrinik-classic-runtime-content-v1",
+                "compatible_classic_releases": ">=5.10.1 <6.0.0",
+                "consumers": [
+                    "classic/client",
+                    "classic/editor",
+                    "classic/server",
                 ],
+                "replacement_ready": False,
+                "replacement_toolkit_package": False,
+                "license_files": [files[1]],
+                "files": files,
             },
         )
 
@@ -3894,12 +3932,16 @@ class WorkspaceTests(unittest.TestCase):
             def mutate_after_validation(
                 path: Path,
                 coordinate: dict[str, str],
+                adapter: str,
                 *,
                 require_metadata: bool = True,
             ) -> None:
                 nonlocal mutated
                 real_validate(
-                    path, coordinate, require_metadata=require_metadata
+                    path,
+                    coordinate,
+                    adapter,
+                    require_metadata=require_metadata,
                 )
                 if not mutated:
                     mutated = True
@@ -4981,21 +5023,21 @@ class WorkspaceTests(unittest.TestCase):
         root_file.write_text("bad\n", encoding="utf-8")
         with self.assertRaisesRegex(WorkspaceError, "not a directory"):
             self.workspace._validate_collected_content(
-                root_file, coordinate, require_metadata=False
+                root_file, coordinate, "classic-content", require_metadata=False
             )
 
         missing_directory = content("content-missing-directory")
         shutil.rmtree(missing_directory / "lib")
         with self.assertRaisesRegex(WorkspaceError, "required directory"):
             self.workspace._validate_collected_content(
-                missing_directory, coordinate, require_metadata=False
+                missing_directory, coordinate, "classic-content", require_metadata=False
             )
 
         invalid_manifest = content("content-invalid-manifest")
         atomic_json(invalid_manifest / "manifest.json", [])
         with self.assertRaisesRegex(WorkspaceError, "manifest is invalid"):
             self.workspace._validate_collected_content(
-                invalid_manifest, coordinate, require_metadata=False
+                invalid_manifest, coordinate, "classic-content", require_metadata=False
             )
 
         invalid_entry = content("content-invalid-entry")
@@ -5004,21 +5046,21 @@ class WorkspaceTests(unittest.TestCase):
         atomic_json(invalid_entry / "manifest.json", manifest)
         with self.assertRaisesRegex(WorkspaceError, "file entry is invalid"):
             self.workspace._validate_collected_content(
-                invalid_entry, coordinate, require_metadata=False
+                invalid_entry, coordinate, "classic-content", require_metadata=False
             )
 
         linked = content("content-link")
         (linked / "linked").symlink_to(self.root, target_is_directory=True)
         with self.assertRaisesRegex(WorkspaceError, "contains a link"):
             self.workspace._validate_collected_content(
-                linked, coordinate, require_metadata=False
+                linked, coordinate, "classic-content", require_metadata=False
             )
 
         extra = content("content-extra")
         (extra / "extra").write_text("extra\n", encoding="utf-8")
         with self.assertRaisesRegex(WorkspaceError, "does not match"):
             self.workspace._validate_collected_content(
-                extra, coordinate, require_metadata=False
+                extra, coordinate, "classic-content", require_metadata=False
             )
 
         wrong_size = content("content-size")
@@ -5027,7 +5069,7 @@ class WorkspaceTests(unittest.TestCase):
         atomic_json(wrong_size / "manifest.json", manifest)
         with self.assertRaisesRegex(WorkspaceError, "size does not match"):
             self.workspace._validate_collected_content(
-                wrong_size, coordinate, require_metadata=False
+                wrong_size, coordinate, "classic-content", require_metadata=False
             )
 
         unreadable = content("content-unreadable")
@@ -5061,7 +5103,7 @@ class WorkspaceTests(unittest.TestCase):
         ):
             with self.assertRaisesRegex(WorkspaceError, "cannot inspect collected"):
                 self.workspace._validate_collected_content(
-                    unreadable, coordinate, require_metadata=False
+                    unreadable, coordinate, "classic-content", require_metadata=False
                 )
 
         special_content = content("content-special")
@@ -5074,7 +5116,7 @@ class WorkspaceTests(unittest.TestCase):
         atomic_json(special_content / "manifest.json", manifest)
         with self.assertRaisesRegex(WorkspaceError, "non-regular file"):
             self.workspace._validate_collected_content(
-                special_content, coordinate, require_metadata=False
+                special_content, coordinate, "classic-content", require_metadata=False
             )
 
         source = self.workspace.paths.repositories / "resources"
@@ -5166,6 +5208,109 @@ class WorkspaceTests(unittest.TestCase):
                 ["paintings/fifo"],
                 require_metadata=False,
             )
+
+    def test_default_content_validator_accepts_only_schema_one_source_commit(self) -> None:
+        coordinate = {
+            "repository": "atrinik/content",
+            "branch": "main",
+            "head": "a" * 40,
+        }
+        candidate = self.root / "default-content"
+        (candidate / "lib").mkdir(parents=True)
+        (candidate / "maps").mkdir()
+        atomic_json(
+            candidate / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "collected-content"},
+        )
+        atomic_json(
+            candidate / "manifest.json",
+            {
+                "schema_version": 1,
+                "source_commit": coordinate["head"],
+                "files": [],
+            },
+        )
+
+        self.workspace._validate_collected_content(
+            candidate, coordinate, "none", require_metadata=False
+        )
+        manifest = load_json(candidate / "manifest.json")
+        manifest["source_commit"] = "b" * 40
+        atomic_json(candidate / "manifest.json", manifest)
+        with self.assertRaisesRegex(WorkspaceError, "default content manifest"):
+            self.workspace._validate_collected_content(
+                candidate, coordinate, "none", require_metadata=False
+            )
+
+    def test_stack_selects_only_its_content_publisher_target(self) -> None:
+        wrapper = self.root / "actual-wrapper"
+        wrapper.mkdir()
+        shutil.copy2(
+            Path(__file__).resolve().parents[1] / "components.json",
+            wrapper / "components.json",
+        )
+        workspace = Workspace(wrapper)
+        workspace.paths.ensure()
+        source = self.workspace.paths.repositories / "content"
+        commit = command("git", "rev-parse", "HEAD", cwd=source)
+        inputs = {
+            "schema_version": 1,
+            "cacheable": False,
+            "coordinate": {
+                "component": "content",
+                "repository": "atrinik/content",
+                "branch": "main",
+                "checkout": "content",
+                "source": ".",
+                "checkout_path": str(source),
+                "source_path": str(source),
+                "head": commit,
+            },
+        }
+
+        for stack_name, expected_target in (("default", False), ("classic", True)):
+            with self.subTest(stack=stack_name):
+                root = workspace.paths.builds / "profiles" / f"target-{stack_name}"
+                managed_directory(root, workspace.paths.builds, "test-profile")
+
+                def collect(arguments: list[str], **kwargs: object) -> str:
+                    self.assertEqual("--target" in arguments, expected_target)
+                    if expected_target:
+                        self.assertEqual(arguments[-2:], ["--target", "classic"])
+                    output = Path(arguments[arguments.index("--output") + 1])
+                    if expected_target:
+                        self.make_content_candidate(output, commit, "classic\n")
+                    else:
+                        (output / "lib").mkdir(parents=True)
+                        (output / "maps").mkdir()
+                        atomic_json(
+                            output / "manifest.json",
+                            {
+                                "schema_version": 1,
+                                "source_commit": commit,
+                                "files": [],
+                            },
+                        )
+                    return ""
+
+                with (
+                    mock.patch.object(
+                        workspace,
+                        "_runtime_input_coordinates",
+                        return_value=(inputs, False),
+                    ),
+                    mock.patch.object(
+                        workspace,
+                        "_load_profile",
+                        return_value={"stack": stack_name},
+                    ),
+                    mock.patch("atrinik_workspace.workspace.run", side_effect=collect),
+                ):
+                    output = workspace._collect_content(
+                        root, {"content": source}, stack_name
+                    )
+
+                self.assertTrue((output / "manifest.json").is_file())
 
     def test_replace_directory_interrupted_journal_publish_is_retryable(
         self,

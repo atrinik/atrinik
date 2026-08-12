@@ -344,6 +344,89 @@ class ParserTests(unittest.TestCase):
 
         self.assertEqual(result, 1)
 
+    def test_content_migration_json_dispatches_each_selected_mode(self) -> None:
+        for flag, mode in (
+            ("--dry-run", "dry-run"),
+            ("--apply", "apply"),
+            ("--audit", "audit"),
+            ("--restore", "restore"),
+        ):
+            with self.subTest(flag=flag):
+                plan = {
+                    "migration": "content",
+                    "status": "complete" if mode == "audit" else "ready",
+                    "refusals": [],
+                }
+                with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+                    workspace_type.return_value.migrate_content.return_value = plan
+                    with mock.patch("builtins.print") as output:
+                        result = main(["migrate", "content", flag, "--json"])
+
+                self.assertEqual(result, 0)
+                workspace_type.return_value.migrate_content.assert_called_once_with(mode)
+                self.assertEqual(json.loads(output.call_args.args[0]), plan)
+
+    def test_content_migration_refusal_returns_failure(self) -> None:
+        plan = {
+            "migration": "content",
+            "status": "refused",
+            "refusals": [
+                {
+                    "code": "legacy_content_unproven",
+                    "message": "legacy content is dirty",
+                    "recovery": "preserve the checkout",
+                }
+            ],
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.migrate_content.return_value = plan
+            with mock.patch("builtins.print"):
+                result = main(["migrate", "content", "--apply"])
+
+        self.assertEqual(result, 1)
+
+    def test_content_migration_text_reports_profiles_and_worktree_moves(self) -> None:
+        plan = {
+            "migration": "content",
+            "status": "ready",
+            "profiles": [
+                {
+                    "status": "rewrite",
+                    "name": "classic-review",
+                    "path": "/workspace/profiles/classic-review.json",
+                }
+            ],
+            "worktree_moves": [
+                {
+                    "profile": "classic-review",
+                    "source": "/workspace/worktrees/content-1x/maps",
+                    "destination": "/workspace/worktrees/content/maps",
+                }
+            ],
+            "refusals": [],
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.migrate_content.return_value = plan
+            with mock.patch("builtins.print") as output:
+                result = main(["migrate", "content", "--dry-run"])
+
+        self.assertEqual(result, 0)
+        self.assertIn(
+            mock.call(
+                "profile\trewrite\tclassic-review\t"
+                "/workspace/profiles/classic-review.json"
+            ),
+            output.call_args_list,
+        )
+        self.assertIn(
+            mock.call(
+                "worktree\tmove\tclassic-review\t"
+                "/workspace/worktrees/content-1x/maps\t"
+                "/workspace/worktrees/content/maps"
+            ),
+            output.call_args_list,
+        )
+
     def test_repository_migration_text_reports_action_statuses(self) -> None:
         plan = {
             "migration": "repositories",

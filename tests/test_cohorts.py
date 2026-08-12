@@ -88,7 +88,10 @@ class CohortWorkspaceTests(unittest.TestCase):
             for component in self.workspace.manifest.cohort(cohort)
         }
         self.assertEqual(selected, expected)
-        self.assertIn("content-1x", selected)
+        self.assertEqual(
+            [call.args[0].name for call in ensure.call_args_list].count("content"),
+            1,
+        )
         self.assertIn("playtester", selected)
         self.assertIn("tools", selected)
 
@@ -259,7 +262,7 @@ class CohortWorkspaceTests(unittest.TestCase):
                 "client": "classic-client",
                 "protocol": "classic-protocol",
                 "libatrinik": "classic-libatrinik",
-                "content": "content-1x",
+                "content": "content",
             },
         )
         self.assertEqual(
@@ -267,10 +270,10 @@ class CohortWorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(default["components"]["content"]["branch"], "main")
         self.assertEqual(
-            classic["components"]["content-1x"]["repository"],
+            classic["components"]["content"]["repository"],
             "atrinik/content",
         )
-        self.assertEqual(classic["components"]["content-1x"]["branch"], "1.x")
+        self.assertEqual(classic["components"]["content"]["branch"], "main")
 
     def test_concurrent_first_initialization_claims_workspace_once(self) -> None:
         workspaces = [Workspace(self.wrapper) for _ in range(8)]
@@ -488,7 +491,7 @@ class CohortWorkspaceTests(unittest.TestCase):
         self.assertEqual(validate.call_count, 30)
         expected_checkouts = {
             "classic",
-            "content-1x",
+            "content",
             "sound",
             "resources",
             "metaserver-worker",
@@ -514,7 +517,10 @@ class CohortWorkspaceTests(unittest.TestCase):
             {
                 role
                 for role, component in stack.providers.items()
-                if component.build != "none"
+                if self.workspace.manifest.effective_build(
+                    stack.name, component
+                )
+                != "none"
             },
         )
         requested = self.workspace._dependency_roles(profile, {"client"})
@@ -661,8 +667,8 @@ class CohortWorkspaceTests(unittest.TestCase):
                 self.workspace.manifest.by_name["classic-server"], checkout
             )
 
-    def test_content_1x_clone_is_branch_qualified(self) -> None:
-        component = self.workspace.manifest.by_name["content-1x"]
+    def test_shared_content_clone_is_main_branch_qualified(self) -> None:
+        component = self.workspace.manifest.by_name["content"]
         with (
             mock.patch("atrinik_workspace.workspace.run") as run,
             mock.patch.object(
@@ -671,9 +677,9 @@ class CohortWorkspaceTests(unittest.TestCase):
         ):
             destination = self.workspace._ensure_repository(component)
 
-        self.assertEqual(destination, self.wrapper / "content-1x")
+        self.assertEqual(destination, self.wrapper / "content")
         clone = run.call_args.args[0]
-        self.assertEqual(clone[:5], ["git", "clone", "--branch", "1.x", "--single-branch"])
+        self.assertEqual(clone[:5], ["git", "clone", "--branch", "main", "--single-branch"])
 
     def test_default_sync_skips_uninitialized_components_without_cloning(self) -> None:
         with mock.patch.object(self.workspace, "_ensure_repository") as ensure:
@@ -698,15 +704,17 @@ class CohortWorkspaceTests(unittest.TestCase):
 
         self.assertEqual(git.call_count, 2)
 
-    def test_duplicate_repository_profile_paths_require_correct_primary(self) -> None:
+    def test_external_content_profile_requires_canonical_repository(self) -> None:
         selected = self.wrapper / "external-content-review"
         selected.mkdir()
-        content_1x = self.workspace.manifest.by_name["content-1x"]
-        primary = self.wrapper / "content-1x"
+        content_1x = self.workspace.manifest.by_name["content"]
+        primary = self.wrapper / "content"
         primary.mkdir()
         with (
             mock.patch.object(
-                self.workspace, "_validate_checkout", return_value="origin"
+                self.workspace,
+                "_validate_checkout",
+                side_effect=WorkspaceError("checkout cannot be proven"),
             ),
             mock.patch.object(
                 self.workspace, "_validate_primary_checkout", return_value="origin"
@@ -720,9 +728,7 @@ class CohortWorkspaceTests(unittest.TestCase):
                 side_effect=[self.wrapper / ".git-main", self.wrapper / ".git-1x"],
             ),
         ):
-            with self.assertRaisesRegex(
-                WorkspaceError, "cannot be proven to belong to content-1x@1.x"
-            ):
+            with self.assertRaisesRegex(WorkspaceError, "checkout cannot be proven"):
                 self.workspace._validate_selected_checkout(
                     content_1x, selected, "path"
                 )
@@ -750,10 +756,10 @@ class CohortWorkspaceTests(unittest.TestCase):
                 "origin",
             )
 
-    def test_migrated_content_worktree_requires_old_managed_lineage(self) -> None:
+    def test_retired_migrated_selector_is_rejected_by_current_profiles(self) -> None:
         selected = self.workspace.paths.worktrees / "content" / "maps-review"
         selected.mkdir(parents=True)
-        content_1x = self.workspace.manifest.by_name["content-1x"]
+        content_1x = self.workspace.manifest.by_name["content"]
         content = self.workspace.manifest.by_name["content"]
         primary = self.wrapper / "content"
         primary.mkdir()
@@ -769,15 +775,12 @@ class CohortWorkspaceTests(unittest.TestCase):
                 self.workspace, "_git_common_directory", return_value=common
             ),
         ):
-            self.assertEqual(
+            with self.assertRaisesRegex(
+                WorkspaceError, "valid only for content-1x"
+            ):
                 self.workspace._validate_selected_checkout(
                     content_1x, selected, "migrated-worktree"
-                ),
-                "origin",
-            )
-        validate_primary.assert_called_once_with(
-            self.workspace.manifest.by_checkout["content"], primary, trace=True
-        )
+                )
 
         outside = self.wrapper / "external-content-review"
         outside.mkdir()
@@ -785,13 +788,13 @@ class CohortWorkspaceTests(unittest.TestCase):
             self.workspace, "_validate_checkout", return_value="origin"
         ):
             with self.assertRaisesRegex(
-                WorkspaceError, "must remain directly below"
+                WorkspaceError, "valid only for content-1x"
             ):
                 self.workspace._validate_selected_checkout(
                     content_1x, outside, "migrated-worktree"
                 )
 
-    def test_migration_only_selector_is_restricted_when_loading_profiles(self) -> None:
+    def test_legacy_migration_selector_requires_dedicated_migration(self) -> None:
         self.workspace.paths.ensure()
         profile = self.workspace._load_profile("classic", require_file=False)
         profile["name"] = "migrated-content"
@@ -803,24 +806,7 @@ class CohortWorkspaceTests(unittest.TestCase):
         }
         path = self.workspace.paths.profiles / "migrated-content.json"
         atomic_json(path, profile)
-        loaded = self.workspace._load_profile(
-            "migrated-content", require_file=True
-        )
-        self.assertEqual(
-            loaded["components"]["content-1x"]["kind"],
-            "migrated-worktree",
-        )
-
-        loaded["components"]["classic-server"] = {
-            "kind": "migrated-worktree",
-            "value": str(
-                (self.workspace.paths.worktrees / "content" / "maps").resolve()
-            ),
-        }
-        atomic_json(path, loaded)
-        with self.assertRaisesRegex(
-            WorkspaceError, "invalid migrated content worktree selector"
-        ):
+        with self.assertRaisesRegex(WorkspaceError, "component set does not match"):
             self.workspace._load_profile("migrated-content", require_file=True)
 
     def test_content_sync_protects_profile_owned_migrated_worktree(self) -> None:
@@ -843,6 +829,9 @@ class CohortWorkspaceTests(unittest.TestCase):
                 self.workspace, "_validate_selected_checkout", return_value="origin"
             ),
             mock.patch.object(
+                self.workspace, "_validate_checkout", return_value="origin"
+            ),
+            mock.patch.object(
                 self.workspace, "_validate_primary_checkout", return_value="origin"
             ),
             mock.patch.object(
@@ -855,6 +844,11 @@ class CohortWorkspaceTests(unittest.TestCase):
                 return_value=([], [selected.resolve()]),
             ) as worktrees,
             mock.patch("atrinik_workspace.workspace.git"),
+            mock.patch.object(
+                self.workspace,
+                "_git_common_directory",
+                return_value=self.wrapper / ".git-content",
+            ),
         ):
             self.workspace.sync(["content"], "merge")
 
@@ -884,7 +878,7 @@ class CohortWorkspaceTests(unittest.TestCase):
                 "classic-editor",
             ],
         )
-        self.assertEqual(by_name["content-1x"]["default_branch"], "1.x")
+        self.assertEqual(by_name["content"]["default_branch"], "main")
 
     def test_builtin_profiles_retain_coherent_stack_identity(self) -> None:
         default = self.workspace._load_profile("default", require_file=False)
@@ -898,7 +892,7 @@ class CohortWorkspaceTests(unittest.TestCase):
         self.assertNotIn("server", classic["components"])
         self.assertEqual(
             self.workspace.manifest.provider("classic", "content").name,
-            "content-1x",
+            "content",
         )
 
     def test_profile_override_cannot_cross_stacks(self) -> None:

@@ -14,6 +14,7 @@ import subprocess
 from typing import Any, Iterable, Iterator
 
 from .locking import active_lock_fds
+from .content_migration import CONTENT_MIGRATION_PENDING, CONTENT_MIGRATION_RECORD
 from .migration import MIGRATION_PENDING, MIGRATION_RECORD, OPERATION_PATHS
 from .model import (
     MANAGED_MARKER,
@@ -969,17 +970,39 @@ class Cleanup:
             try:
                 if path.is_symlink():
                     raise WorkspaceError("profile is a symlink")
-                profile = self.workspace._load_profile(path.stem, require_file=True)
-                for component_name, selector in profile["components"].items():
-                    if component_name not in self.manifest.by_name or not isinstance(
-                        selector, dict
+                try:
+                    profile = self.workspace._load_profile(
+                        path.stem, require_file=True
+                    )
+                except WorkspaceError:
+                    profile = load_json(path)
+                    if (
+                        not isinstance(profile, dict)
+                        or profile.get("name") != path.stem
+                        or profile.get("stack") != "classic"
+                        or not isinstance(profile.get("components"), dict)
+                        or "content-1x" not in profile["components"]
+                        or "content" in profile["components"]
+                        or set(profile["components"])
+                        - set(self.manifest.by_name)
+                        != {"content-1x"}
                     ):
+                        raise
+                for component_name, selector in profile["components"].items():
+                    if (
+                        component_name not in self.manifest.by_name
+                        and component_name != "content-1x"
+                    ) or not isinstance(selector, dict):
                         raise WorkspaceError("profile selector is invalid")
                     if set(selector) != {"kind", "value"} or not isinstance(
                         selector.get("value"), str
                     ):
                         raise WorkspaceError("profile selector is invalid")
-                    checkout = self.manifest.by_name[component_name].checkout_name
+                    checkout = (
+                        "content-1x"
+                        if component_name == "content-1x"
+                        else self.manifest.by_name[component_name].checkout_name
+                    )
                     kind = selector.get("kind")
                     if kind == "worktree":
                         selected = self.paths.worktrees / checkout / selector["value"]
@@ -1175,7 +1198,12 @@ class Cleanup:
                 errors.add("topology_inventory_error")
 
     def _migration_references(self, references: dict[str, Any], errors: set[str]) -> None:
-        for relative in (MIGRATION_RECORD, MIGRATION_PENDING):
+        for relative in (
+            MIGRATION_RECORD,
+            MIGRATION_PENDING,
+            CONTENT_MIGRATION_RECORD,
+            CONTENT_MIGRATION_PENDING,
+        ):
             path = self.paths.workspace / relative
             if not path.exists() and not path.is_symlink():
                 continue
@@ -1199,8 +1227,10 @@ class Cleanup:
         sections = (
             ("sources", ("source", "archive", "path")),
             ("worktree_migrations", ("path", "destination")),
+            ("worktree_moves", ("source", "destination")),
             ("composite_worktrees", ("destination",)),
             ("worktrees", ("destination",)),
+            ("profiles", ("path",)),
         )
         for section, keys in sections:
             rows = value.get(section, [])
@@ -1230,6 +1260,36 @@ class Cleanup:
                 raise WorkspaceError("migration classic.path is invalid")
         elif classic is not None:
             raise WorkspaceError("migration classic path is invalid")
+        for section in ("canonical", "legacy"):
+            row = value.get(section)
+            if row is None:
+                continue
+            if not isinstance(row, dict):
+                raise WorkspaceError(f"migration {section} is invalid")
+            raw = row.get("path")
+            if not isinstance(raw, str) or not Path(raw).is_absolute():
+                raise WorkspaceError(f"migration {section}.path is invalid")
+            yield f"{section}.path", Path(raw)
+        resources = value.get("resources")
+        if resources is not None:
+            if not isinstance(resources, dict):
+                raise WorkspaceError("migration resources are invalid")
+            for category, rows in resources.items():
+                if not isinstance(category, str) or not isinstance(rows, list):
+                    raise WorkspaceError("migration resource category is invalid")
+                for index, row in enumerate(rows):
+                    if not isinstance(row, dict):
+                        raise WorkspaceError(
+                            f"migration resources.{category}[{index}] is invalid"
+                        )
+                    raw = row.get("path")
+                    if raw is None:
+                        continue
+                    if not isinstance(raw, str) or not Path(raw).is_absolute():
+                        raise WorkspaceError(
+                            f"migration resources.{category}[{index}].path is invalid"
+                        )
+                    yield f"resources.{category}[{index}].path", Path(raw)
 
     def _retention_references(self, references: dict[str, Any], errors: set[str]) -> None:
         path = self.paths.builds / BUILD_RETENTION_RECORD

@@ -191,32 +191,11 @@
         "content"
       ],
       "stacks": [
+        "classic",
         "default"
       ],
       "supported": true,
       "checkout": "content",
-      "source": "."
-    },
-    {
-      "audit_ready": true,
-      "audit_mode": "full",
-      "branch": "1.x",
-      "cohorts": [
-        "classic"
-      ],
-      "license": "LicenseRef-Atrinik-Content",
-      "commit": null,
-      "name": "content-1x",
-      "repository": "atrinik/content",
-      "role": "Classic authored world content release line",
-      "roles": [
-        "content"
-      ],
-      "stacks": [
-        "classic"
-      ],
-      "supported": true,
-      "checkout": "content-1x",
       "source": "."
     },
     {
@@ -602,7 +581,6 @@
         "classic",
         "client",
         "content",
-        "content-1x",
         "content-toolkit",
         "devcontainer",
         "editor",
@@ -827,7 +805,6 @@
         "classic",
         "client",
         "content",
-        "content-1x",
         "content-toolkit",
         "devcontainer",
         "editor",
@@ -875,11 +852,6 @@
         },
         {
           "repository": "content",
-          "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
-        },
-        {
-          "repository": "content-1x",
           "path": ".github/workflows/release.yml",
           "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
         },
@@ -953,8 +925,7 @@
       "scope": [
         "atrinik",
         "classic",
-        "content",
-        "content-1x"
+        "content"
       ],
       "required": true,
       "version": "v7.0.0",
@@ -1671,8 +1642,7 @@
       "kind": "external-tool",
       "owner": "content",
       "scope": [
-        "content",
-        "content-1x"
+        "content"
       ],
       "required": true,
       "version": "per-file",
@@ -1692,11 +1662,6 @@
       "evidence": [
         {
           "repository": "content",
-          "path": "arch/license_check.py",
-          "contains": "LICENSE"
-        },
-        {
-          "repository": "content-1x",
           "path": "arch/license_check.py",
           "contains": "LICENSE"
         }
@@ -2509,7 +2474,7 @@
       "id": "source/atrinik-content-playtester",
       "name": "Atrinik content source for playtester world planning",
       "kind": "source-archive",
-      "owner": "content-1x",
+      "owner": "content",
       "scope": [
         "playtester"
       ],
@@ -4170,7 +4135,6 @@
         "classic",
         "client",
         "content",
-        "content-1x",
         "content-toolkit",
         "devcontainer",
         "editor",
@@ -4218,11 +4182,6 @@
         },
         {
           "repository": "content",
-          "path": ".github/workflows/check.yml",
-          "contains": "runs-on: ubuntu-24.04"
-        },
-        {
-          "repository": "content-1x",
           "path": ".github/workflows/check.yml",
           "contains": "runs-on: ubuntu-24.04"
         },
@@ -4334,7 +4293,7 @@
       "name": "GitHub-hosted Windows 2025 runner",
       "kind": "toolchain",
       "owner": "github-settings",
-      "scope": ["classic", "client", "content", "content-1x", "devcontainer", "editor", "server", "website"],
+      "scope": ["classic", "client", "content", "devcontainer", "editor", "server", "website"],
       "required": true,
       "version": "windows-2025",
       "version_source": "Explicit GitHub Actions runner label and generated version report",
@@ -4354,7 +4313,6 @@
         {"repository":"classic","path":".github/workflows/check.yml","contains":"runs-on: windows-2025"},
         {"repository":"client","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
         {"repository":"content","path":".github/workflows/check.yml","contains":"- windows-2025"},
-        {"repository":"content-1x","path":".github/workflows/check.yml","contains":"- windows-2025"},
         {"repository":"devcontainer","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
         {"repository":"editor","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
         {"repository":"server","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
@@ -4397,7 +4355,6 @@
         "classic",
         "client",
         "content",
-        "content-1x",
         "content-toolkit",
         "devcontainer",
         "editor",
@@ -4448,11 +4405,6 @@
         },
         {
           "repository": "content",
-          "path": ".github/workflows/release.yml",
-          "contains": "node-version: 24.18.1"
-        },
-        {
-          "repository": "content-1x",
           "path": ".github/workflows/release.yml",
           "contains": "node-version: 24.18.1"
         },
@@ -4539,7 +4491,6 @@
         "classic-protocol",
         "classic-server",
         "content",
-        "content-1x",
         "devcontainer",
         "playtester",
         "tools"

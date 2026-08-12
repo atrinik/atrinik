@@ -61,7 +61,6 @@ REQUIRED_COHORT_CHECKOUTS = {
     },
     "classic": {
         "classic",
-        "content-1x",
         "playtester",
         "tools",
     },
@@ -88,7 +87,7 @@ REQUIRED_STACK_PROVIDERS = {
         "protocol": "classic-protocol",
         "libatrinik": "classic-libatrinik",
         "editor": "classic-editor",
-        "content": "content-1x",
+        "content": "content",
         "playtester": "playtester",
         "tools": "tools",
         "sound": "sound",
@@ -226,6 +225,7 @@ class Component:
     branch: str
     checkout: str
     build: str
+    build_by_stack: tuple[tuple[str, str], ...]
     generation: str
     provides: tuple[str, ...]
     requires: tuple[str, ...]
@@ -356,6 +356,7 @@ class Manifest:
                     branch=branch,
                     checkout=name,
                     build=V1_BUILD_KINDS[build],
+                    build_by_stack=(),
                     generation="shared",
                     provides=(name,),
                     requires=(),
@@ -516,7 +517,7 @@ class Manifest:
         components: list[Component] = []
         names: set[str] = set()
         sources: dict[str, list[tuple[str, PurePosixPath]]] = {}
-        expected = {
+        required = {
             "name",
             "checkout",
             "source",
@@ -526,11 +527,21 @@ class Manifest:
             "requires",
             "license",
         }
+        allowed = required | {"build_by_stack"}
         for index, raw in enumerate(raw_components):
             context = f"component {index}"
             if not isinstance(raw, dict):
                 raise WorkspaceError(f"{context} must be an object")
-            require_keys(raw, expected, context)
+            actual_keys = set(raw)
+            if not required <= actual_keys or not actual_keys <= allowed:
+                missing = sorted(required - actual_keys)
+                extra = sorted(actual_keys - allowed)
+                detail: list[str] = []
+                if missing:
+                    detail.append(f"missing {', '.join(missing)}")
+                if extra:
+                    detail.append(f"unexpected {', '.join(extra)}")
+                raise WorkspaceError(f"{context}: {'; '.join(detail)}")
             name = validate_name(raw["name"], f"{context}.name")
             checkout_name = validate_name(raw["checkout"], f"{context}.checkout")
             if checkout_name not in by_checkout:
@@ -538,10 +549,31 @@ class Manifest:
             checkout = by_checkout[checkout_name]
             source = _validate_source(raw["source"], f"{context}.source")
             build = raw["build"]
+            raw_build_by_stack = raw.get("build_by_stack", {})
             generation = raw["generation"]
             license_name = _validate_license(raw["license"], f"{context}.license")
             if not isinstance(build, str) or build not in BUILD_KINDS:
                 raise WorkspaceError(f"{context}.build is invalid")
+            if not isinstance(raw_build_by_stack, dict):
+                raise WorkspaceError(f"{context}.build_by_stack must be an object")
+            build_by_stack: dict[str, str] = {}
+            for raw_stack, raw_adapter in raw_build_by_stack.items():
+                stack_name = validate_name(
+                    raw_stack, f"{context}.build_by_stack stack"
+                )
+                if stack_name not in STACK_NAMES:
+                    raise WorkspaceError(
+                        f"{context}.build_by_stack names unknown stack {stack_name}"
+                    )
+                if not isinstance(raw_adapter, str) or raw_adapter not in BUILD_KINDS:
+                    raise WorkspaceError(
+                        f"{context}.build_by_stack.{stack_name} is invalid"
+                    )
+                if raw_adapter == build:
+                    raise WorkspaceError(
+                        f"{context}.build_by_stack.{stack_name} redundantly repeats build"
+                    )
+                build_by_stack[stack_name] = raw_adapter
             if not isinstance(generation, str) or generation not in GENERATIONS:
                 raise WorkspaceError(f"{context}.generation is invalid")
             if generation != checkout.generation:
@@ -566,7 +598,13 @@ class Manifest:
                     f"{context} claims incompatible implementation roles: "
                     f"{', '.join(sorted(claimed_implementations))}"
                 )
-            if generation == "shared" and claimed_implementations:
+            shared_content = (
+                generation == "shared"
+                and name == "content"
+                and checkout_name == "content"
+                and claimed_implementations == {"content"}
+            )
+            if generation == "shared" and claimed_implementations and not shared_content:
                 raise WorkspaceError(
                     f"{context} shared component claims implementation role: "
                     f"{', '.join(sorted(claimed_implementations))}"
@@ -600,6 +638,7 @@ class Manifest:
                     branch=checkout.branch,
                     checkout=checkout.path,
                     build=build,
+                    build_by_stack=tuple(sorted(build_by_stack.items())),
                     generation=generation,
                     provides=provides,
                     requires=requires,
@@ -706,6 +745,36 @@ class Manifest:
             actual_providers: dict[str, str] = {}
             for component_name in stack.components:
                 component = by_name[component_name]
+                build_by_stack = dict(component.build_by_stack)
+                effective_build = build_by_stack.get(stack_name, component.build)
+                unused_overrides = sorted(set(build_by_stack) - {
+                    candidate
+                    for candidate, candidate_stack in stacks.items()
+                    if component_name in candidate_stack.components
+                })
+                if unused_overrides:
+                    raise WorkspaceError(
+                        f"component {component_name}.build_by_stack targets stacks where "
+                        f"the component is absent: {', '.join(unused_overrides)}"
+                    )
+                effective_generation = (
+                    "replacement" if stack_name == "default" else "classic"
+                )
+                if (
+                    stack_name in build_by_stack
+                    and effective_build
+                    not in GENERATION_BUILD_KINDS[effective_generation]
+                ):
+                    raise WorkspaceError(
+                        f"component {component_name} effective build {effective_build} "
+                        f"is incompatible with {stack_name} stack"
+                    )
+                adapter_role = CLASSIC_BUILD_ROLES.get(effective_build)
+                if adapter_role is not None and adapter_role not in component.provides:
+                    raise WorkspaceError(
+                        f"component {component_name} effective build {effective_build} "
+                        f"requires provided role {adapter_role}"
+                    )
                 if component.generation not in {stack.generation, "shared"}:
                     raise WorkspaceError(
                         f"{context} mixes {component.generation} component {component_name} "
@@ -774,6 +843,17 @@ class Manifest:
         if role not in selected.providers:
             raise WorkspaceError(f"stack {stack} has no provider for role {role}")
         return selected.providers[role]
+
+    def effective_build(self, stack: str, component: Component | str) -> str:
+        """Return the one validated build adapter for a component in a stack."""
+
+        selected = self.stack(stack)
+        value = self.by_name[component] if isinstance(component, str) else component
+        if value.name not in {candidate.name for candidate in selected.components}:
+            raise WorkspaceError(
+                f"component {value.name} is not part of {selected.name} stack"
+            )
+        return dict(value.build_by_stack).get(selected.name, value.build)
 
     def component_cohorts(self, name: str) -> tuple[str, ...]:
         if name not in self.by_name:

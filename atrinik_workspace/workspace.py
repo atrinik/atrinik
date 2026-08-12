@@ -30,6 +30,7 @@ import time
 from typing import Any, Callable, Iterator, TextIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
+from .content_migration import ContentMigration
 from .locking import active_lock_fds, inherit_lock_fds
 from .process_tree import holders_exist, signal_holders
 
@@ -1248,6 +1249,13 @@ class Workspace:
             self.paths.repository, self.paths, self.manifest
         ).execute(mode)
 
+    def migrate_content(self, mode: str) -> dict[str, Any]:
+        if mode in {"apply", "restore"}:
+            self.paths.ensure()
+        return ContentMigration(
+            self.paths.repository, self.paths, self.manifest
+        ).execute(mode)
+
     def cleanup(
         self,
         scopes: list[str],
@@ -1673,22 +1681,42 @@ class Workspace:
 
         if not self.paths.profiles.is_dir():
             return set()
-        component = self.manifest.by_name.get("content-1x")
+        component = self.manifest.by_name.get("content")
         if component is None:
             return set()
         protected: set[Path] = set()
         for path in sorted(self.paths.profiles.glob("*.json")):
-            profile = self._load_profile(path.stem, require_file=True)
+            try:
+                profile = load_json(path)
+            except WorkspaceError:
+                continue
+            if not isinstance(profile, dict) or not isinstance(
+                profile.get("components"), dict
+            ):
+                continue
             selector = profile["components"].get("content-1x")
-            if selector is None or selector["kind"] != MIGRATED_CONTENT_WORKTREE_KIND:
+            if (
+                not isinstance(selector, dict)
+                or set(selector) != {"kind", "value"}
+                or selector.get("kind") != MIGRATED_CONTENT_WORKTREE_KIND
+                or not isinstance(selector.get("value"), str)
+            ):
                 continue
             selected = Path(selector["value"]).resolve()
-            self._validate_selected_checkout(
-                component,
-                selected,
-                MIGRATED_CONTENT_WORKTREE_KIND,
-                trace=False,
-            )
+            expected_parent = (self.paths.worktrees / "content").resolve()
+            if selected.parent != expected_parent:
+                raise WorkspaceError(
+                    f"invalid migration-only content worktree path: {selected}"
+                )
+            self._validate_checkout(component, selected, trace=False)
+            primary = self._primary_path(component)
+            self._validate_primary_checkout(component, primary, trace=False)
+            if self._git_common_directory(selected, trace=False) != self._git_common_directory(
+                primary, trace=False
+            ):
+                raise WorkspaceError(
+                    f"migration-only content worktree lost canonical lineage: {selected}"
+                )
             protected.add(selected)
         return protected
 
@@ -2224,6 +2252,7 @@ class Workspace:
                 "repository": component.repository,
                 "branch": component.branch,
                 "source": component.source,
+                "build": self.manifest.effective_build(stack.name, component),
                 "roles": sorted(component.provides),
                 "path": str(path),
                 "checkout_path": str(checkout_root),
@@ -2267,15 +2296,16 @@ class Workspace:
             profile_name, {component.name}, trace=False
         )[component.name]
 
-    @staticmethod
-    def _classic_requires(component: Component) -> tuple[str, ...]:
+    def _classic_requires(
+        self, component: Component, stack_name: str
+    ) -> tuple[str, ...]:
         if component.requires:
             return component.requires
         return {
             "classic-client": ("sound", "libatrinik", "protocol"),
             "classic-server": ("content", "resources", "libatrinik", "protocol"),
             "classic-library": ("protocol",),
-        }.get(component.build, ())
+        }.get(self.manifest.effective_build(stack_name, component), ())
 
     def _dependency_roles(
         self, profile: dict[str, Any], requested: set[str]
@@ -2294,7 +2324,7 @@ class Workspace:
                 continue
             resolved.add(role)
             component = stack.providers[role]
-            for requirement in self._classic_requires(component):
+            for requirement in self._classic_requires(component, stack.name):
                 if requirement not in stack.providers:
                     raise WorkspaceError(
                         f"{component.name} requires role {requirement}, which has no "
@@ -2320,7 +2350,10 @@ class Workspace:
                 raise WorkspaceError(
                     f"{stack.name} stack has no provider for runtime role {role}"
                 )
-            if adapter is not None and component.build != adapter:
+            if (
+                adapter is not None
+                and self.manifest.effective_build(stack.name, component) != adapter
+            ):
                 raise WorkspaceError(
                     f"{component.name} has no wrapper build/runtime contract yet "
                     f"for the {stack.name} stack"
@@ -2335,7 +2368,7 @@ class Workspace:
         build_targets = {
             role
             for role, component in stack.providers.items()
-            if component.build != "none"
+            if self.manifest.effective_build(stack.name, component) != "none"
         }
         common_roles = self._dependency_roles(profile, build_targets)
         common_components = {
@@ -2709,7 +2742,7 @@ class Workspace:
             ]
         for role in targets:
             component = stack.providers[role]
-            if component.build == "none":
+            if self.manifest.effective_build(stack.name, component) == "none":
                 raise WorkspaceError(
                     f"{component.name} has no wrapper build/runtime contract yet "
                     f"for the {stack.name} stack"
@@ -3146,6 +3179,7 @@ class Workspace:
     def _validate_collected_content(
         path: Path,
         coordinate: dict[str, str],
+        adapter: str,
         *,
         require_metadata: bool = True,
     ) -> None:
@@ -3157,25 +3191,91 @@ class Workspace:
                 raise WorkspaceError(
                     f"collected content lacks required directory: {required}"
                 )
-        for name in ("compatibility.json", "manifest.json"):
+        required_files = ["manifest.json"]
+        if adapter == "classic-content":
+            required_files.append("compatibility.json")
+        for name in required_files:
             required = path / name
             if not required.is_file() or required.is_symlink():
                 raise WorkspaceError(
                     f"collected content lacks required file: {required}"
                 )
         manifest = load_json(path / "manifest.json")
-        if (
-            not isinstance(manifest, dict)
-            or manifest.get("schema_version") != 2
-            or manifest.get("source")
-            != {
-                "repository": coordinate["repository"],
-                "branch": coordinate["branch"],
-                "commit": coordinate["head"],
-            }
-            or not isinstance(manifest.get("files"), list)
-        ):
+        if not isinstance(manifest, dict):
             raise WorkspaceError("collected content manifest is invalid")
+        if adapter == "classic-content":
+            expected_contract = {
+                "schema_version": 1,
+                "target": "classic",
+                "component": "content",
+                "repository": "atrinik/content",
+                "branch": "main",
+                "content_format": "classic-ads-v1",
+                "artifact_format": "atrinik-classic-runtime-content-v1",
+                "compatible_classic_releases": ">=5.10.1 <6.0.0",
+                "consumers": [
+                    "classic/client",
+                    "classic/editor",
+                    "classic/server",
+                ],
+                "replacement_ready": False,
+                "replacement_toolkit_package": False,
+            }
+            compatibility = load_json(path / "compatibility.json")
+            if compatibility != expected_contract:
+                raise WorkspaceError(
+                    "collected Classic content compatibility contract is invalid"
+                )
+            if (
+                set(manifest)
+                != {
+                    "schema_version",
+                    "target",
+                    "source",
+                    "release_version",
+                    "content_format",
+                    "artifact_format",
+                    "compatible_classic_releases",
+                    "consumers",
+                    "replacement_ready",
+                    "replacement_toolkit_package",
+                    "license_files",
+                    "files",
+                }
+                or manifest.get("schema_version") != 2
+                or manifest.get("target") != "classic"
+                or manifest.get("source")
+                != {
+                    "repository": coordinate["repository"],
+                    "branch": coordinate["branch"],
+                    "commit": coordinate["head"],
+                }
+                or manifest.get("release_version") != "unreleased"
+                or any(
+                    manifest.get(key) != expected_contract[key]
+                    for key in (
+                        "content_format",
+                        "artifact_format",
+                        "compatible_classic_releases",
+                        "consumers",
+                        "replacement_ready",
+                        "replacement_toolkit_package",
+                    )
+                )
+                or not isinstance(manifest.get("license_files"), list)
+                or not isinstance(manifest.get("files"), list)
+            ):
+                raise WorkspaceError("collected Classic content manifest is invalid")
+        elif adapter in {"none", "content"}:
+            if (
+                set(manifest) != {"schema_version", "source_commit", "files"}
+                or manifest.get("schema_version") != 1
+                or manifest.get("source_commit") != coordinate["head"]
+                or not isinstance(manifest.get("files"), list)
+            ):
+                raise WorkspaceError("collected default content manifest is invalid")
+        else:
+            raise WorkspaceError(f"unsupported content build adapter: {adapter}")
         expected = {MANAGED_MARKER, "manifest.json"}
         if require_metadata:
             expected.add(RUNTIME_INPUT_METADATA)
@@ -3222,6 +3322,28 @@ class Workspace:
         if actual != expected:
             raise WorkspaceError("collected content does not match its manifest")
         entries = {entry["path"]: entry for entry in manifest["files"]}
+        if len(entries) != len(manifest["files"]):
+            raise WorkspaceError("collected content manifest contains duplicate paths")
+        if adapter == "classic-content":
+            licenses = manifest["license_files"]
+            license_entries: dict[str, dict[str, Any]] = {}
+            for entry in licenses:
+                if (
+                    not isinstance(entry, dict)
+                    or set(entry) != {"path", "sha256", "size"}
+                    or not isinstance(entry.get("path"), str)
+                    or not entry["path"].startswith("attribution/")
+                    or PurePosixPath(entry["path"]).name not in {"COPYING", "LICENSE"}
+                    or entries.get(entry["path"]) != entry
+                ):
+                    raise WorkspaceError(
+                        "collected Classic content license entry is invalid"
+                    )
+                license_entries[entry["path"]] = entry
+            if len(license_entries) != len(licenses) or not license_entries:
+                raise WorkspaceError(
+                    "collected Classic content license inventory is invalid"
+                )
         for relative, entry in entries.items():
             candidate = path.joinpath(*PurePosixPath(relative).parts)
             digest = hashlib.sha256()
@@ -3419,13 +3541,16 @@ class Workspace:
         inputs, cacheable = self._runtime_input_coordinates(
             profile_name, selected, "content"
         )
+        profile = self._load_profile(profile_name, require_file=False)
+        component = self.manifest.provider(profile["stack"], "content")
+        adapter = self.manifest.effective_build(profile["stack"], component)
         matched = self._runtime_input_cache_matches(
             output,
             "collected-content",
             inputs,
             cacheable,
             lambda path: self._validate_collected_content(
-                path, inputs["coordinate"]
+                path, inputs["coordinate"], adapter
             ),
         )
         validated_inputs, validated_cacheable = self._runtime_input_coordinates(
@@ -3446,24 +3571,28 @@ class Workspace:
         source = selected["content"]
         commit = inputs["coordinate"]["head"]
         try:
-            run(
-                [
-                    sys.executable,
-                    str(source / "tools" / "build_runtime.py"),
-                    "--source",
-                    str(source),
-                    "--output",
-                    str(staging),
-                    "--source-commit",
-                    commit,
-                ]
-            )
+            command = [
+                sys.executable,
+                str(source / "tools" / "build_runtime.py"),
+                "--source",
+                str(source),
+                "--output",
+                str(staging),
+                "--source-commit",
+                commit,
+            ]
+            if adapter == "classic-content":
+                command.extend(("--target", "classic"))
+            run(command)
             atomic_json(
                 staging / MANAGED_MARKER,
                 {"schema_version": SCHEMA_VERSION, "purpose": "collected-content"},
             )
             self._validate_collected_content(
-                staging, inputs["coordinate"], require_metadata=False
+                staging,
+                inputs["coordinate"],
+                adapter,
+                require_metadata=False,
             )
             final_inputs, final_cacheable = self._runtime_input_coordinates(
                 profile_name, selected, "content"
@@ -6916,6 +7045,18 @@ class Workspace:
                 for record in status["resolved"].values()
             )
         )
+        retired_content_record = (
+            isinstance(status, dict)
+            and not historical_record
+            and isinstance(status.get("providers"), dict)
+            and status["providers"].get("content") == "content-1x"
+            and isinstance(status.get("resolved"), dict)
+            and isinstance(status["resolved"].get("content-1x"), dict)
+            and status["resolved"]["content-1x"].get("repository")
+            == "atrinik/content"
+            and status["resolved"]["content-1x"].get("branch") == "1.x"
+            and status["resolved"]["content-1x"].get("checkout") == "content-1x"
+        )
         if (
             not isinstance(status, dict)
             or status.get("schema_version") != SCHEMA_VERSION
@@ -6967,7 +7108,7 @@ class Workspace:
                 for role in status["dependencies"]
             }
             status["inert_historical_record"] = True
-        elif coordinate_historical_record:
+        elif coordinate_historical_record or retired_content_record:
             stack_name = status.get("stack")
             providers = status.get("providers")
             if (
@@ -7050,7 +7191,11 @@ class Workspace:
                 or not isinstance(resolved.get("dirty"), bool)
             ):
                 raise WorkspaceError(f"topology resolution status is invalid: {name}")
-            if not historical_record and not coordinate_historical_record:
+            if (
+                not historical_record
+                and not coordinate_historical_record
+                and not (retired_content_record and component == "content-1x")
+            ):
                 provider = self.manifest.by_name[component]
                 checkout_path = Path(resolved["checkout_path"]).resolve(
                     strict=False

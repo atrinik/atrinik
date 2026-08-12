@@ -1,17 +1,15 @@
 ---
 name: atrinik-content-change
-description: Change authored content on `main` or `1.x`, including maps, archetypes, media, and scripts.
+description: Change authored content on `main`, including maps, archetypes, media, and scripts.
 ---
 
 # Atrinik content change
 
-For issue fixes, assess both `content@main` and `content-1x@1.x`. Shared
-authored changes normally need separate worktrees, validation, commits, and
-linked PRs on both lines; record an evidence-backed format, consumer, runtime,
-or provenance reason for any single-line exception. Never merge lines wholesale
-or share generated output. Use `main` for replacement forward authoring and
-`1.x` for Classic maintenance; add `atrinik-multi-repo-workspace` for cross-line
-work.
+`content@main` is the sole authored source for replacement and Classic targets.
+Use a `content` worktree and select the target-specific publisher during
+validation; never edit or create a PR against the retired `1.x` line. Retained
+`content-1x` checkouts, artifacts, and records are immutable migration or
+release evidence. Add `atrinik-multi-repo-workspace` for cross-repository work.
 
 ## Establish the contract
 

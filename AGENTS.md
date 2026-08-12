@@ -25,10 +25,9 @@
   so root `git status` omits them.
 - Resolve ownership through `components.json` and the checkout's nearest
   `AGENTS.md`; keep implementation, tests, packages, and releases there.
-- `classic/` provides five `classic-*` components. `content/` is
-  `atrinik/content@main`; `content-1x/` its `1.x` checkout. `playtester/` is
-  classic-only `atrinik/playtester` with wrapper `build: none` and
-  repository-owned validation.
+- `classic/` provides five `classic-*` components. Both stacks share
+  `content@main`; Classic selects its publisher adapter. Retained `content-1x/`
+  is historical only. `playtester/` is classic-only with wrapper `build: none`.
   `.devcontainer/` owns wrapper composition and `devcontainer/` reusable images.
 
 ## Core behaviors and patterns

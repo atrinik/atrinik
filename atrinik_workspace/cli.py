@@ -137,6 +137,15 @@ def parser() -> argparse.ArgumentParser:
     migrate_mode.add_argument("--apply", action="store_true")
     migrate_mode.add_argument("--audit", action="store_true")
     migrate_repositories.add_argument("--json", action="store_true")
+    migrate_content = migrate_commands.add_parser(
+        "content", help="cut persisted Classic profiles over to content@main"
+    )
+    migrate_content_mode = migrate_content.add_mutually_exclusive_group(required=True)
+    migrate_content_mode.add_argument("--dry-run", action="store_true")
+    migrate_content_mode.add_argument("--apply", action="store_true")
+    migrate_content_mode.add_argument("--audit", action="store_true")
+    migrate_content_mode.add_argument("--restore", action="store_true")
+    migrate_content.add_argument("--json", action="store_true")
 
     worktree = commands.add_parser(
         "worktree", help="manage physical-checkout worktrees"
@@ -455,8 +464,20 @@ def main(arguments: list[str] | None = None) -> int:
                         f"cohorts={','.join(row['cohorts'])}\t{row['path']}"
                     )
         elif options.command == "migrate":
-            mode = "apply" if options.apply else "audit" if options.audit else "dry-run"
-            result = workspace.migrate_repositories(mode)
+            mode = (
+                "apply"
+                if options.apply
+                else "audit"
+                if options.audit
+                else "restore"
+                if getattr(options, "restore", False)
+                else "dry-run"
+            )
+            result = (
+                workspace.migrate_content(mode)
+                if options.migrate_command == "content"
+                else workspace.migrate_repositories(mode)
+            )
             if options.json:
                 print(json.dumps(result, indent=2, sort_keys=True))
             else:
@@ -489,6 +510,16 @@ def main(arguments: list[str] | None = None) -> int:
                     print(
                         f"profile\t{profile['status']}\t{profile['name']}\t"
                         f"{profile['path']}"
+                    )
+                for profile in result.get("profiles", []):
+                    print(
+                        f"profile\t{profile['status']}\t{profile['name']}\t"
+                        f"{profile['path']}"
+                    )
+                for worktree in result.get("worktree_moves", []):
+                    print(
+                        f"worktree\tmove\t{worktree['profile']}\t"
+                        f"{worktree['source']}\t{worktree['destination']}"
                     )
                 for topology in result.get("topologies", []):
                     print(
