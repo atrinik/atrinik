@@ -20,7 +20,7 @@ Use authenticated `gh` through the environment's required access path. Send
 every Stacks or asynchronous-merge REST request. Never print authentication
 material.
 
-1. Normalize `OWNER/REPOSITORY` and either the native PR-stack number or top pull
+1. Normalize `OWNER/REPOSITORY` and either the native PR stack number or top pull
    request. Verify repository identity, visibility, default branch, merge
    policy, rulesets, and merge-queue state.
 2. If given a pull request, query
@@ -29,15 +29,18 @@ material.
    `GET /repos/{owner}/{repo}/stacks/{stack_number}` for the canonical stack
    object. Never infer membership from branch names, PR prose, issue links,
    timing, or local metadata.
-3. Query every member PR. Record PR-stack ID/number, trunk, ordered position and
+3. Query every member PR. Record PR stack ID/number, trunk, ordered position and
    size, PR URL/number, author, base and head repositories/branches/SHAs, state,
    draft status, reviews, unresolved conversations, checks, mergeability,
    linked issues, and any known asynchronous-merge UUID and its live result.
 4. Reject absent or duplicate positions; size/membership disagreement; an
    unexpected trunk; a fork or repository mismatch; a closed-but-unmerged
-   selected layer; and any ambiguous scope. Position 1 must target the trunk.
-   Every later base branch and SHA must equal the preceding head at the reviewed
-   coordinates.
+   selected layer; and any ambiguous scope. With no merged prefix, position 1
+   must target the frozen current trunk branch/SHA and every later selected base
+   must equal the preceding selected head. With a merged prefix, verify it from
+   merge-result ancestry; require the first active-suffix PR to target the
+   frozen current trunk branch/SHA and only each later active PR to base on the
+   preceding active head.
 
 Define the selected portion as every position through the named top PR. An
 entire PR stack selection ends at the highest position. It may begin with a

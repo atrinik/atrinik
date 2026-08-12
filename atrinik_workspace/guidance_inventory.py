@@ -17,7 +17,7 @@ MAX_CATALOG_BYTES = 2_000
 MAX_STARTUP_BYTES = 8_000
 MAX_MULTI_SELECTED_BYTES = 14_500
 # The tenth skill adds explicit program delivery while large review contracts
-# stay progressively disclosed. The measured PR-stack total is 37,378 bytes;
+# stay progressively disclosed. The measured PR stack total is 37,378 bytes;
 # 37,500 is the smallest 250-byte ceiling retaining a strict guard.
 MAX_ALL_SKILL_BYTES = 37_500
 

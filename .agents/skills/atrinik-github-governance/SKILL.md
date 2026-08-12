@@ -7,7 +7,7 @@ description: Publish Atrinik PRs, govern GitHub policy, or review and explicitly
 
 ## Route and review the task
 
-1. For native PR-stack review or an explicitly authorized merge, read and
+1. For native PR stack review or an explicitly authorized merge, read and
    follow [the stack contract](references/pr-stack-review-and-merge.md) in
    full. Review-only work is read-only; never infer merge authority.
 2. For PR-only work, read its repository's `AGENTS.md`, use **Publish pull

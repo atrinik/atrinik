@@ -430,6 +430,11 @@ class AgentGuidanceTests(unittest.TestCase):
             "Reverify each prefix member's `merged_at`",
             "closed, reordered, missing, or inconsistent prefix",
             "The active suffix is the mutation scope",
+            "With no merged prefix",
+            "position 1 must target the frozen current trunk branch/SHA",
+            "With a merged prefix, verify it from merge-result ancestry",
+            "first active-suffix PR to target the frozen current trunk branch/SHA",
+            "only each later active PR to base on the preceding active head",
             "cannot list unknown requests",
             "parent-to-head incremental diff",
             "trunk-to-selected-top cumulative diff",
@@ -476,6 +481,17 @@ class AgentGuidanceTests(unittest.TestCase):
             normalized,
         )
         self.assertNotIn("stacked pull request", reference.lower())
+        terminology = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in {
+                ROOT / "AGENTS.md",
+                skill / "SKILL.md",
+                skill / "agents/openai.yaml",
+                skill / "references/pr-stack-review-and-merge.md",
+                ROOT / "atrinik_workspace/guidance_inventory.py",
+            }
+        )
+        self.assertNotIn("PR-stack", terminology)
         self.assertIn(
             "For review-only work, keep this evidence in memory and the response",
             normalized,
