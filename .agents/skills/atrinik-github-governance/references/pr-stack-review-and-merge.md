@@ -142,7 +142,7 @@ For the current pinned toolchain, submit the exact selected top PR through the
 native asynchronous endpoint with authenticated `gh api` outside the sandbox:
 
 ```sh
-gh api --method PUT \
+gh api --include --method PUT \
   -H 'X-GitHub-Api-Version: 2026-03-10' \
   repos/OWNER/REPOSITORY/pulls/TOP_PR/merge-async \
   -f sha=REVIEWED_TOP_HEAD_SHA \
@@ -150,7 +150,9 @@ gh api --method PUT \
   -f merge_action=direct_merge
 ```
 
-Persist the HTTP status and response body, then classify the submission:
+Capture the included response status line/headers and JSON body in memory,
+separate the HTTP status from the body status, and retain both in the response;
+never expose authentication material. Then classify the submission:
 
 - `202 pending`: require a returned UUID, `expected_head_sha` equal to the
   selected head, `merge_method: squash`, and `merge_action: direct_merge`, then
@@ -169,10 +171,14 @@ For `202 pending`, poll no faster than once per second with a fixed upper bound,
 for example 180 attempts:
 
 ```sh
-gh api \
+gh api --include \
   -H 'X-GitHub-Api-Version: 2026-03-10' \
   repos/OWNER/REPOSITORY/pulls/TOP_PR/merge-async/UUID
 ```
+
+For every poll, likewise separate and retain the included HTTP status and JSON
+body in memory so `202 pending` at submission cannot be confused with a
+body-level `pending` returned under polling HTTP `200`.
 
 Treat `merged` and `failed` as terminal. `enqueued` is terminal for the request
 but not proof of a merge; it is unexpected under the no-queue preflight and

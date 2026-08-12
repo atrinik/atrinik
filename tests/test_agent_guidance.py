@@ -455,6 +455,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "`github/gh-stack` v0.1.0",
             "does not send the asynchronous API's `sha` field",
             "repos/OWNER/REPOSITORY/pulls/TOP_PR/merge-async",
+            "gh api --include --method PUT",
             "-f sha=REVIEWED_TOP_HEAD_SHA",
             "-f merge_method=squash",
             "-f merge_action=direct_merge",
@@ -467,7 +468,11 @@ class AgentGuidanceTests(unittest.TestCase):
             "`403`, `404`, or `422`",
             "Do not resubmit without renewed authority, review, and preflight",
             "fixed upper bound",
+            "gh api --include",
             "repos/OWNER/REPOSITORY/pulls/TOP_PR/merge-async/UUID",
+            "separate the HTTP status from the body status",
+            "For every poll, likewise separate and retain the included HTTP status",
+            "body-level `pending` returned under polling HTTP `200`",
             "A timeout, transport loss, malformed response",
             "polling `403`, `404`, an expired result",
             "any unexpected non-`200` polling response",
@@ -491,6 +496,8 @@ class AgentGuidanceTests(unittest.TestCase):
         }:
             with self.subTest(marker=marker):
                 self.assertIn(marker, normalized)
+
+        self.assertEqual(reference.count("gh api --include"), 2)
 
         for prohibited in {
             "Never force-push",
