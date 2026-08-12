@@ -325,6 +325,66 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertEqual(result["status"], "refused")
         self.assertEqual(profile.read_bytes(), original)
         self.assertTrue(source.is_dir())
+
+    def test_managed_worktree_paths_reject_every_unsafe_namespace_shape(self) -> None:
+        migration = self.migration()
+        canonical = migration._inspect()["canonical"]
+        root = self.workspace.paths.worktrees
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "worktree label is invalid"
+        ):
+            migration._managed_worktree_paths("../escape")
+
+        shutil.rmtree(root)
+        external = self.root / "external-worktrees"
+        external.mkdir()
+        root.symlink_to(external, target_is_directory=True)
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "root is not a normal directory"
+        ):
+            migration._managed_worktree_paths("maps")
+        root.unlink()
+        root.write_text("unsafe\n", encoding="utf-8")
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "root is not a normal directory"
+        ):
+            migration._managed_worktree_paths("maps")
+        root.unlink()
+        root.mkdir()
+
+        source_parent = root / "content-1x"
+        source_parent.write_text("unsafe\n", encoding="utf-8")
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "worktree namespace is unsafe"
+        ):
+            migration._managed_worktree_paths("maps")
+
+        selected_file = self.root / "selected-file"
+        selected_file.write_text("unsafe\n", encoding="utf-8")
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "not a normal directory"
+        ):
+            migration._prove_main_worktree(selected_file, canonical)
+        selected_link = self.root / "selected-link"
+        selected_link.symlink_to(self.main, target_is_directory=True)
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "not a normal directory"
+        ):
+            migration._prove_main_worktree(selected_link, canonical)
+
+        nested = self.main / "nested"
+        nested.mkdir()
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "not a Git worktree root"
+        ):
+            migration._prove_main_worktree(nested, canonical)
+        source_parent.unlink()
+        destination_parent = root / "content"
+        destination_parent.symlink_to(external, target_is_directory=True)
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "worktree namespace is unsafe"
+        ):
+            migration._managed_worktree_paths("maps")
         self.assertEqual(list(external.iterdir()), [])
 
     def test_historical_build_scenario_and_stopped_topology_are_inventoried(self) -> None:
