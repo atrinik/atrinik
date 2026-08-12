@@ -13,6 +13,15 @@ Native PR stacks are same-repository linear dependency chains. Keep
 cross-repository or release-line programs under `atrinik-program-delivery`, and
 keep independent pull requests independent.
 
+## Contents
+
+- [Establish the exact native PR stack](#establish-the-exact-native-pr-stack)
+- [Freeze and review both views](#freeze-and-review-both-views)
+- [Require exact merge authority and current preflight](#require-exact-merge-authority-and-current-preflight)
+- [Execute the guarded native atomic operation](#execute-the-guarded-native-atomic-operation)
+- [Verify the result and preserve remaining work](#verify-the-result-and-preserve-remaining-work)
+- [Read-only forward fixture](#read-only-forward-fixture)
+
 ## Establish the exact native PR stack
 
 Use authenticated `gh` through the environment's required access path. Send
@@ -76,7 +85,10 @@ that workflow's existing ignored report or a new ignored review report.
   [deep-review checklist](../../atrinik-issue-delivery/references/deep-review-checklist.md)
   to implementation layers and the program-delivery
   [integration checklist](../../atrinik-program-delivery/references/program-review-checklist.md)
-  to the cumulative result. For non-trivial work, use independent
+  to the cumulative result. For review-only work, reuse only their review
+  categories and prompts: this contract overrides the deep-review checklist's
+  report-instantiation and evidence-persistence prerequisites. Keep that
+  evidence in memory and the response. For non-trivial work, use independent
   fresh-context passes from raw issues and diffs.
 - Report findings without mutation for review-only requests. When separately
   authorized to fix, fix every actionable finding through its owning delivery
@@ -150,13 +162,16 @@ gh api \
 Treat `merged` and `failed` as terminal. `enqueued` is terminal for the request
 but not proof of a merge; it is unexpected under the no-queue preflight and
 requires a recovery handoff. A timeout, transport loss, malformed response,
-or `409` is unknown state, never permission to submit another merge. Preserve
-the UUID when available and query that request plus the stack, selected PRs,
-and target branch. If a lost submission response left no UUID, refresh all
-coordinates first; only an identical SHA-guarded request may be used to recover
-the existing UUID from `409`, and its stored method, action, and expected head
-must match before polling. Never emulate atomic merge with sequential
-`gh pr merge`, the synchronous REST merge endpoint, or GraphQL merge mutations.
+polling `404` or expired result, or `409` is unknown state, never permission to
+submit another merge. Preserve the UUID when available and query that request
+plus the stack, every selected and remaining PR, target ref/history, and issue.
+After an expired result, prohibit resubmission unless exact reconstructed state
+proves no mutation and the full authority, review, and preflight contract is
+refreshed. If a lost submission response left no UUID, refresh all coordinates
+first; only an identical SHA-guarded request may recover the existing UUID from
+`409`, whose stored method, action, and expected head must match before polling.
+Never emulate atomic merge with sequential `gh pr merge`, the synchronous REST
+merge endpoint, or GraphQL merge mutations.
 
 ## Verify the result and preserve remaining work
 
@@ -169,6 +184,12 @@ branch, issue state, reviews/checks, and branch refs. Verify that:
   order, and the target contains the reviewed cumulative result;
 - expected server-side head deletion is distinguished from an error; and
 - issue closure matches the single declared closing path.
+
+For every terminal operation, record in the handoff its async UUID, status,
+method, action, and expected head; stack number and trunk; every selected PR's
+reviewed base/head and resulting squash SHA when merged; final target branch
+and tip; and issue state. This exact result record is required for both whole
+and partial selections.
 
 For a partial-stack merge, record GitHub's new bases, heads, retargeting, and
 rebases for every remaining layer. Invalidate and repeat incremental and

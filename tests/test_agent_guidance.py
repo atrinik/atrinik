@@ -424,6 +424,12 @@ class AgentGuidanceTests(unittest.TestCase):
             "Never infer membership from branch names",
             "same-repository linear dependency chains",
             "keep independent pull requests independent",
+            "[Establish the exact native PR stack](#establish-the-exact-native-pr-stack)",
+            "[Freeze and review both views](#freeze-and-review-both-views)",
+            "[Require exact merge authority and current preflight](#require-exact-merge-authority-and-current-preflight)",
+            "[Execute the guarded native atomic operation](#execute-the-guarded-native-atomic-operation)",
+            "[Verify the result and preserve remaining work](#verify-the-result-and-preserve-remaining-work)",
+            "[Read-only forward fixture](#read-only-forward-fixture)",
             "Define the selected portion as every position through the named top PR",
             "contiguous already-merged lower prefix",
             "every later selected layer must be open",
@@ -454,12 +460,19 @@ class AgentGuidanceTests(unittest.TestCase):
             "-f merge_action=direct_merge",
             "fixed upper bound",
             "repos/OWNER/REPOSITORY/pulls/TOP_PR/merge-async/UUID",
-            "A timeout, transport loss, malformed response, or `409` is unknown state",
+            "A timeout, transport loss, malformed response",
+            "polling `404` or expired result",
+            "every selected and remaining PR, target ref/history, and issue",
+            "full authority, review, and preflight contract is refreshed",
             "Never emulate atomic merge with sequential `gh pr merge`",
             "For a partial-stack merge",
             "the previously merged prefix remains unchanged",
             "exactly the active suffix merged",
             "no unselected upper layer merged",
+            "For every terminal operation, record in the handoff",
+            "stack number and trunk",
+            "every selected PR's reviewed base/head and resulting squash SHA",
+            "final target branch and tip",
             "Never call a merge endpoint in a forward test",
         }:
             with self.subTest(marker=marker):
@@ -498,6 +511,11 @@ class AgentGuidanceTests(unittest.TestCase):
         )
         self.assertIn("do not create or update any report or other file", normalized)
         self.assertIn("Only a separately write-authorized delivery", normalized)
+        self.assertIn(
+            "this contract overrides the deep-review checklist's report-instantiation",
+            normalized,
+        )
+        self.assertIn("Keep that evidence in memory and the response", normalized)
         issue_delivery = (
             ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"
         ).read_text(encoding="utf-8")
