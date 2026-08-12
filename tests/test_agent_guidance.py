@@ -412,6 +412,8 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("review and explicitly merge native PR stacks", description)
         self.assertIn("references/pr-stack-review-and-merge.md", body)
         self.assertIn("Review-only work is read-only", body)
+        self.assertIn("skip steps 3–6", body)
+        self.assertNotIn("skip steps 2–5", body)
         self.assertIn("review a native PR stack", interface)
         self.assertIn("explicit user authority", interface)
 
@@ -423,6 +425,11 @@ class AgentGuidanceTests(unittest.TestCase):
             "same-repository linear dependency chains",
             "keep independent pull requests independent",
             "Define the selected portion as every position through the named top PR",
+            "contiguous already-merged lower prefix",
+            "every later selected layer must be open",
+            "Reverify each prefix member's `merged_at`",
+            "closed, reordered, missing, or inconsistent prefix",
+            "The active suffix is the mutation scope",
             "cannot list unknown requests",
             "parent-to-head incremental diff",
             "trunk-to-selected-top cumulative diff",
@@ -445,6 +452,8 @@ class AgentGuidanceTests(unittest.TestCase):
             "A timeout, transport loss, malformed response, or `409` is unknown state",
             "Never emulate atomic merge with sequential `gh pr merge`",
             "For a partial-stack merge",
+            "the previously merged prefix remains unchanged",
+            "exactly the active suffix merged",
             "no unselected upper layer merged",
             "Never call a merge endpoint in a forward test",
         }:
@@ -467,6 +476,12 @@ class AgentGuidanceTests(unittest.TestCase):
             normalized,
         )
         self.assertNotIn("stacked pull request", reference.lower())
+        self.assertIn(
+            "For review-only work, keep this evidence in memory and the response",
+            normalized,
+        )
+        self.assertIn("do not create or update any report or other file", normalized)
+        self.assertIn("Only a separately write-authorized delivery", normalized)
         issue_delivery = (
             ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"
         ).read_text(encoding="utf-8")

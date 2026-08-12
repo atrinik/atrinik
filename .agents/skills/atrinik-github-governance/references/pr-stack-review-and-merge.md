@@ -34,15 +34,23 @@ material.
    draft status, reviews, unresolved conversations, checks, mergeability,
    linked issues, and any known asynchronous-merge UUID and its live result.
 4. Reject absent or duplicate positions; size/membership disagreement; an
-   unexpected trunk; a fork or repository mismatch; a closed, draft, or
-   unmergeable selected layer; and any ambiguous scope. Position 1 must target
-   the trunk. Every later base branch and SHA must equal the preceding head.
+   unexpected trunk; a fork or repository mismatch; a closed-but-unmerged
+   selected layer; and any ambiguous scope. Position 1 must target the trunk.
+   Every later base branch and SHA must equal the preceding head at the reviewed
+   coordinates.
 
 Define the selected portion as every position through the named top PR. An
-entire PR stack selection ends at the highest position. Read-only discovery can
-query a recorded asynchronous-merge UUID but cannot list unknown requests; the
-first authorized SHA-guarded submission detects one as `409` and must adopt its
-matching UUID rather than create another request.
+entire PR stack selection ends at the highest position. It may begin with a
+contiguous already-merged lower prefix, but every later selected layer must be
+open and form one contiguous active suffix through the named top PR. Reverify
+each prefix member's `merged_at`, resulting squash SHA, target-branch ancestry,
+dependency order, and contribution to the cumulative tree; reject a merely
+closed, reordered, missing, or inconsistent prefix. The active suffix is the
+mutation scope, and the endpoint must not newly merge anything outside it.
+
+Read-only discovery can query a recorded asynchronous-merge UUID but cannot
+list unknown requests; the first authorized SHA-guarded submission detects one
+as `409` and must adopt its matching UUID rather than create another request.
 
 For review of a historical fixture, closed layers are allowed only when no
 mutation is proposed and the recorded merge results are part of the evidence.
@@ -51,8 +59,10 @@ mutation is proposed and the recorded merge results are part of the evidence.
 
 Before reviewing, freeze the repository and stack numbers, selected portion,
 trunk SHA, ordered base/head branches and SHAs, merge bases, changed paths, and
-the resulting cumulative tree. Store the evidence in the existing ignored
-delivery report when one exists; otherwise use an ignored review report.
+the resulting cumulative tree. For review-only work, keep this evidence in
+memory and the response; do not create or update any report or other file.
+Only a separately write-authorized delivery or fix workflow may persist it in
+that workflow's existing ignored report or a new ignored review report.
 
 - Review each layer's exact parent-to-head incremental diff against that PR's
   issue, requirements, tests, generated consumers, and closing behavior.
@@ -81,8 +91,8 @@ member. Compare them field-for-field with the reviewed snapshot and require:
 
 - the selected repository, stack, portion, trunk, order, bases, and heads are
   unchanged;
-- every selected PR is open, non-draft, ready, mergeable, and still at its
-  reviewed head;
+- the verified merged prefix is unchanged, and every PR in the active suffix is
+  open, non-draft, ready, mergeable, and still at its reviewed head;
 - every required and applicable check exists and passes for the current
   head/base combination;
 - required human approvals exist, no self-approval is used, and every
@@ -150,7 +160,8 @@ must match before polling. Never emulate atomic merge with sequential
 After a terminal result, re-query the canonical stack, every member PR, target
 branch, issue state, reviews/checks, and branch refs. Verify that:
 
-- exactly the selected PRs merged and no unselected upper layer merged;
+- the previously merged prefix remains unchanged, exactly the active suffix
+  merged, and no unselected upper layer merged;
 - each resulting squash commit occurs on the target branch in dependency
   order, and the target contains the reviewed cumulative result;
 - expected server-side head deletion is distinguished from an error; and

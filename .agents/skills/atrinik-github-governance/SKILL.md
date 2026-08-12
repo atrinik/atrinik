@@ -11,7 +11,7 @@ description: Publish Atrinik PRs, govern GitHub policy, or review and explicitly
    follow [the stack contract](references/pr-stack-review-and-merge.md) in
    full. Review-only work is read-only; never infer merge authority.
 2. For PR-only work, read its repository's `AGENTS.md`, use **Publish pull
-   requests**, and skip steps 2–5.
+   requests**, and skip steps 3–6.
 3. For policy, settings, Actions, checks, or release governance, read the
    workspace and `github-settings/AGENTS.md` guides.
 4. Compare relevant configuration, publisher, workflows, and history with the
