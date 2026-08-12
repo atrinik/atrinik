@@ -5042,6 +5042,38 @@ class WorkspaceTests(unittest.TestCase):
                 invalid_manifest, coordinate, "classic-content", require_metadata=False
             )
 
+        invalid_compatibility = content("content-invalid-compatibility")
+        compatibility = load_json(invalid_compatibility / "compatibility.json")
+        compatibility["branch"] = "1.x"
+        atomic_json(invalid_compatibility / "compatibility.json", compatibility)
+        with self.assertRaisesRegex(WorkspaceError, "compatibility contract is invalid"):
+            self.workspace._validate_collected_content(
+                invalid_compatibility,
+                coordinate,
+                "classic-content",
+                require_metadata=False,
+            )
+
+        invalid_classic_manifest = content("content-invalid-classic-manifest")
+        manifest = load_json(invalid_classic_manifest / "manifest.json")
+        manifest["source"]["branch"] = "1.x"
+        atomic_json(invalid_classic_manifest / "manifest.json", manifest)
+        with self.assertRaisesRegex(WorkspaceError, "Classic content manifest is invalid"):
+            self.workspace._validate_collected_content(
+                invalid_classic_manifest,
+                coordinate,
+                "classic-content",
+                require_metadata=False,
+            )
+
+        with self.assertRaisesRegex(WorkspaceError, "unsupported content build adapter"):
+            self.workspace._validate_collected_content(
+                content("content-unsupported-adapter"),
+                coordinate,
+                "future-content",
+                require_metadata=False,
+            )
+
         invalid_entry = content("content-invalid-entry")
         manifest = load_json(invalid_entry / "manifest.json")
         manifest["files"][0]["path"] = "../escape"
@@ -5128,6 +5160,18 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "license inventory"):
             self.workspace._validate_collected_content(
                 missing_license,
+                coordinate,
+                "classic-content",
+                require_metadata=False,
+            )
+
+        invalid_license = content("content-invalid-license-binding")
+        manifest = load_json(invalid_license / "manifest.json")
+        manifest["license_files"][0]["path"] = "maps/COPYING"
+        atomic_json(invalid_license / "manifest.json", manifest)
+        with self.assertRaisesRegex(WorkspaceError, "license entry is invalid"):
+            self.workspace._validate_collected_content(
+                invalid_license,
                 coordinate,
                 "classic-content",
                 require_metadata=False,

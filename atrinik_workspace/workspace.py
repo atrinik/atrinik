@@ -3322,8 +3322,6 @@ class Workspace:
         if actual != expected:
             raise WorkspaceError("collected content does not match its manifest")
         entries = {entry["path"]: entry for entry in manifest["files"]}
-        if len(entries) != len(manifest["files"]):
-            raise WorkspaceError("collected content manifest contains duplicate paths")
         if adapter == "classic-content":
             licenses = manifest["license_files"]
             license_entries: dict[str, dict[str, Any]] = {}

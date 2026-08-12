@@ -1357,6 +1357,28 @@ class CleanupTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "classic path"):
             list(Cleanup._migration_paths({"classic": 7}))
 
+    def test_migration_path_inventory_rejects_every_malformed_extension(self) -> None:
+        cases = (
+            ({"canonical": []}, "migration canonical is invalid"),
+            ({"legacy": {"path": "relative"}}, "migration legacy.path is invalid"),
+            ({"resources": []}, "migration resources are invalid"),
+            ({"resources": {7: []}}, "migration resource category is invalid"),
+            ({"resources": {"states": [7]}}, r"resources.states\[0\] is invalid"),
+            (
+                {"resources": {"states": [{"path": "relative"}]}},
+                r"resources.states\[0\].path is invalid",
+            ),
+        )
+        for value, message in cases:
+            with self.subTest(message=message):
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    list(Cleanup._migration_paths(value))
+
+        self.assertEqual(
+            list(Cleanup._migration_paths({"resources": {"states": [{}]}})),
+            [],
+        )
+
     def test_apply_revalidates_then_removes_without_deleting_branch(self) -> None:
         worktree = self.make_wrapper_worktree()
         branch = command("git", "branch", "--show-current", cwd=worktree)

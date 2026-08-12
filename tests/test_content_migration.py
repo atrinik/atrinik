@@ -216,6 +216,13 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertEqual(selector, {"kind": "worktree", "value": "maps"})
         self.assertEqual(self.migration().execute("audit")["status"], "complete")
 
+        restored = self.migration().execute("restore")
+
+        self.assertEqual(restored["status"], "restored")
+        self.assertTrue(source.is_dir())
+        self.assertFalse(destination.exists())
+        self.assertEqual(self.migration().execute("audit")["status"], "restored")
+
     def test_detached_external_worktree_refuses_without_repointing(self) -> None:
         selected = self.root / "detached-content"
         subprocess.run(
@@ -689,6 +696,38 @@ class ContentMigrationTests(unittest.TestCase):
             if item["name"] == "replacement"
         )
         self.assertEqual(row["status"], "inert")
+
+    def test_profile_inventory_fails_closed_on_unsafe_storage_shapes(self) -> None:
+        profiles = self.workspace.paths.profiles
+        shutil.rmtree(profiles)
+        self.assertEqual(self.migration().execute("dry-run")["profiles"], [])
+
+        actual = self.root / "external-profiles"
+        actual.mkdir()
+        profiles.symlink_to(actual, target_is_directory=True)
+        result = self.migration().execute("dry-run")
+        self.assertIn(
+            "invalid_profiles_directory",
+            {row["code"] for row in result["refusals"]},
+        )
+        profiles.unlink()
+        profiles.mkdir()
+
+        linked_profile = profiles / "linked.json"
+        linked_profile.symlink_to(self.root / "missing-profile.json")
+        result = self.migration().execute("dry-run")
+        linked = next(row for row in result["profiles"] if row["name"] == "linked")
+        self.assertEqual(linked["status"], "blocked")
+        linked_profile.unlink()
+
+        profile, original = self._legacy_profile(name="oversized")
+        with mock.patch.object(migration_module, "PROFILE_MAX_BYTES", 1):
+            result = self.migration().execute("dry-run")
+        oversized = next(
+            row for row in result["profiles"] if row["name"] == "oversized"
+        )
+        self.assertEqual(oversized["status"], "blocked")
+        self.assertEqual(profile.read_bytes(), original)
 
     def test_current_profile_selector_validation_rejects_each_unsafe_kind(self) -> None:
         components = self.workspace._load_profile("classic", require_file=False)[

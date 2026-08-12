@@ -380,6 +380,33 @@ class ManifestTests(unittest.TestCase):
             ):
                 Manifest.load(path)
 
+    def test_v3_rejects_malformed_component_shape_and_stack_builds(self) -> None:
+        cases = (
+            ("shape", None, "missing source; unexpected extra"),
+            ("builds", [], "build_by_stack must be an object"),
+            ("adapter", {"classic": []}, "build_by_stack.classic is invalid"),
+        )
+        for name, value, message in cases:
+            with self.subTest(name=name):
+                manifest = self.valid_v3_manifest()
+                component = manifest["components"][0]  # type: ignore[index]
+                if name == "shape":
+                    component.pop("source")
+                    component["extra"] = True
+                else:
+                    component["build_by_stack"] = value
+                with tempfile.TemporaryDirectory() as temporary:
+                    path = self.write_manifest(Path(temporary), manifest)
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        Manifest.load(path)
+
+    def test_effective_build_rejects_component_outside_selected_stack(self) -> None:
+        manifest = Manifest.load(ROOT / "components.json")
+        with self.assertRaisesRegex(
+            WorkspaceError, "component classic-client is not part of default stack"
+        ):
+            manifest.effective_build("default", "classic-client")
+
     def test_v3_rejects_unknown_redundant_and_unused_stack_build_overrides(self) -> None:
         for override, message, component_name in (
             ({"future": "assets"}, "unknown stack future", "content"),
