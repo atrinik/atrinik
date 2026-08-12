@@ -374,6 +374,175 @@ class AgentGuidanceTests(unittest.TestCase):
             with self.subTest(stale=stale):
                 self.assertNotIn(stale, corpus)
 
+    def test_native_pr_stack_governance_is_guarded_and_complete(self) -> None:
+        skill = ROOT / ".agents/skills/atrinik-github-governance"
+        package = {
+            path.relative_to(skill).as_posix()
+            for path in skill.rglob("*")
+            if path.is_file()
+        }
+        self.assertEqual(
+            package,
+            {
+                "SKILL.md",
+                "agents/openai.yaml",
+                "references/pr-stack-review-and-merge.md",
+            },
+        )
+
+        body = (skill / "SKILL.md").read_text(encoding="utf-8")
+        interface = (skill / "agents/openai.yaml").read_text(encoding="utf-8")
+        reference = (
+            skill / "references/pr-stack-review-and-merge.md"
+        ).read_text(encoding="utf-8")
+        normalized = " ".join(reference.split())
+
+        _, description = skill_frontmatter(skill / "SKILL.md")
+        self.assertIn("review and explicitly merge native PR stacks", description)
+        self.assertIn("references/pr-stack-review-and-merge.md", body)
+        self.assertIn("Review-only work is read-only", body)
+        self.assertIn("skip steps 3–6", body)
+        self.assertNotIn("skip steps 2–5", body)
+        self.assertIn("review a native PR stack", interface)
+        self.assertIn("explicit user authority", interface)
+
+        for marker in {
+            "X-GitHub-Api-Version: 2026-03-10",
+            "GET /repos/{owner}/{repo}/stacks?pull_request={number}",
+            "GET /repos/{owner}/{repo}/stacks/{stack_number}",
+            "Never infer membership from branch names",
+            "same-repository linear dependency chains",
+            "keep independent pull requests independent",
+            "[Establish the exact native PR stack](#establish-the-exact-native-pr-stack)",
+            "[Freeze and review both views](#freeze-and-review-both-views)",
+            "[Require exact merge authority and current preflight](#require-exact-merge-authority-and-current-preflight)",
+            "[Execute the guarded native atomic operation](#execute-the-guarded-native-atomic-operation)",
+            "[Verify the result and preserve remaining work](#verify-the-result-and-preserve-remaining-work)",
+            "[Read-only forward fixture](#read-only-forward-fixture)",
+            "Define the selected portion as every position through the named top PR",
+            "contiguous already-merged lower prefix",
+            "every later selected layer must be open",
+            "Reverify each prefix member's `merged_at`",
+            "closed, reordered, missing, or inconsistent prefix",
+            "The active suffix is the mutation scope",
+            "With no merged prefix",
+            "position 1 must target the frozen current trunk branch/SHA",
+            "With a merged prefix, verify it from merge-result ancestry",
+            "first active-suffix PR to target the frozen current trunk branch/SHA",
+            "only each later active PR to base on the preceding active head",
+            "cannot list unknown requests",
+            "parent-to-head incremental diff",
+            "trunk-to-selected-top cumulative diff",
+            "deep-review checklist",
+            "integration checklist",
+            "Any push, rebase, retarget, membership change, lower-layer merge",
+            "every required and applicable check exists and passes",
+            "no self-approval is used",
+            "actionable review conversation is resolved",
+            "skipped-but-required",
+            "GitHub CLI 2.97.0",
+            "`github/gh-stack` v0.1.0",
+            "does not send the asynchronous API's `sha` field",
+            "repos/OWNER/REPOSITORY/pulls/TOP_PR/merge-async",
+            "gh api --include --method PUT",
+            "-f sha=REVIEWED_TOP_HEAD_SHA",
+            "-f merge_method=squash",
+            "-f merge_action=direct_merge",
+            "`202 pending`",
+            "`409` existing request",
+            "Immediate `200 merged` or `200 enqueued`, or `400 failed`",
+            "requested method/action/head",
+            "Explicitly record a UUID as unavailable",
+            "never invent absent response fields",
+            "`403`, `404`, or `422`",
+            "Do not resubmit without renewed authority, review, and preflight",
+            "fixed upper bound",
+            "gh api --include",
+            "repos/OWNER/REPOSITORY/pulls/TOP_PR/merge-async/UUID",
+            "separate the HTTP status from the body status",
+            "For every poll, likewise separate and retain the included HTTP status",
+            "body-level `pending` returned under polling HTTP `200`",
+            "A timeout, transport loss, malformed response",
+            "polling `403`, `404`, an expired result",
+            "any unexpected non-`200` polling response",
+            "whatever stack, selected and remaining PR, target ref/history",
+            "stop with the UUID and exact response in a recovery handoff",
+            "any later mutation requires refreshed authority, review, and preflight",
+            "full authority, review, and preflight contract is refreshed",
+            "Never emulate atomic merge with sequential `gh pr merge`",
+            "For a partial-stack merge",
+            "the previously merged prefix remains unchanged",
+            "exactly the active suffix merged",
+            "no unselected upper layer merged",
+            "For every attempted operation, record in the handoff its HTTP status",
+            "returned UUID or option fields only when supplied",
+            "explicitly mark absent server fields unavailable",
+            "For every terminal operation also record stack number and trunk",
+            "stack number and trunk",
+            "every selected PR's reviewed base/head and resulting squash SHA",
+            "final target branch and tip",
+            "Never call a merge endpoint in a forward test",
+        }:
+            with self.subTest(marker=marker):
+                self.assertIn(marker, normalized)
+
+        self.assertEqual(reference.count("gh api --include"), 2)
+
+        for prohibited in {
+            "Never force-push",
+            "bypass or relax rules",
+            "enable auto-merge",
+            "close issues manually",
+            "apply cleanup",
+            "blindly resubmit",
+        }:
+            with self.subTest(prohibited=prohibited):
+                self.assertIn(prohibited, normalized)
+
+        self.assertIn(
+            "Merge-ready handoffs from issue or program delivery are inputs",
+            normalized,
+        )
+        self.assertNotIn("stacked pull request", reference.lower())
+        terminology = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in {
+                ROOT / "AGENTS.md",
+                skill / "SKILL.md",
+                skill / "agents/openai.yaml",
+                skill / "references/pr-stack-review-and-merge.md",
+                ROOT / "atrinik_workspace/guidance_inventory.py",
+            }
+        )
+        self.assertNotIn("PR-stack", terminology)
+        self.assertIn(
+            "During every standalone PR stack review phase",
+            normalized,
+        )
+        self.assertIn("including review under an explicit merge request", normalized)
+        self.assertIn("do not create or update any report or other file", normalized)
+        self.assertIn("Only a separately write-authorized delivery", normalized)
+        self.assertIn(
+            "In every standalone PR stack review phase, reuse only their review",
+            normalized,
+        )
+        self.assertIn(
+            "this contract overrides the deep-review checklist's report-instantiation",
+            normalized,
+        )
+        self.assertIn("Keep that evidence in memory and the response", normalized)
+        issue_delivery = (
+            ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"
+        ).read_text(encoding="utf-8")
+        program_delivery = (
+            ROOT / ".agents/skills/atrinik-program-delivery/SKILL.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("It does not authorize", issue_delivery)
+        self.assertIn("merges", issue_delivery)
+        self.assertIn("Do not infer merge authority", program_delivery)
+        self.assertNotIn("merge-async", issue_delivery)
+        self.assertNotIn("merge-async", program_delivery)
+
     def test_pull_request_publication_contract_is_synchronized(self) -> None:
         root_guide = ROOT / "AGENTS.md"
         contributing = ROOT / "CONTRIBUTING.md"
