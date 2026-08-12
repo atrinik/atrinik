@@ -156,6 +156,44 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertEqual(profile.read_bytes(), original)
         self.assertTrue((self.one_x / "local-commit.txt").is_file())
 
+    def test_duplicate_legacy_profile_keys_refuse_without_normalization(self) -> None:
+        profile, original = self._legacy_profile()
+        duplicated = b'{"name":"ambiguous",' + original[1:]
+        profile.write_bytes(duplicated)
+
+        result = self.migration().execute("apply")
+
+        self.assertEqual(result["status"], "refused")
+        self.assertIn("profile_unproven", {row["code"] for row in result["refusals"]})
+        self.assertEqual(profile.read_bytes(), duplicated)
+
+    def test_incoherent_legacy_checkout_selectors_refuse_without_rewrite(self) -> None:
+        profile, _ = self._legacy_profile()
+        value = json.loads(profile.read_text(encoding="utf-8"))
+        value["components"]["classic-client"] = {
+            "kind": "worktree",
+            "value": "client-only",
+        }
+        original = json.dumps(value, indent=2, sort_keys=True).encode() + b"\n"
+        profile.write_bytes(original)
+
+        result = self.migration().execute("apply")
+
+        self.assertEqual(result["status"], "refused")
+        self.assertEqual(profile.read_bytes(), original)
+
+    def test_malformed_current_profile_prevents_not_needed_audit(self) -> None:
+        current = self.workspace._load_profile("classic", require_file=False)
+        current["name"] = "current-invalid"
+        current["components"]["content"] = {"kind": "primary", "value": "bad"}
+        path = self.workspace.paths.profiles / "current-invalid.json"
+        path.write_text(json.dumps(current), encoding="utf-8")
+
+        result = self.migration().execute("audit")
+
+        self.assertEqual(result["status"], "incomplete")
+        self.assertIn("profile_unproven", {row["code"] for row in result["refusals"]})
+
     def test_proven_managed_main_worktree_moves_to_shared_namespace(self) -> None:
         source = self.workspace.paths.worktrees / "content-1x" / "maps"
         source.parent.mkdir(parents=True)
@@ -349,6 +387,20 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertEqual(audit["status"], "incomplete")
         self.assertEqual(restore["status"], "incomplete")
         self.assertEqual(external.read_text(encoding="utf-8"), "preserve\n")
+
+    def test_duplicate_migration_record_keys_refuse_audit(self) -> None:
+        self._legacy_profile()
+        self.assertEqual(self.migration().execute("apply")["status"], "complete")
+        record = self.migration().record_path
+        original = record.read_bytes()
+        record.write_bytes(b'{"migration":"ambiguous",' + original[1:])
+
+        result = self.migration().execute("audit")
+
+        self.assertEqual(result["status"], "incomplete")
+        self.assertIn(
+            "invalid_migration_record", {row["code"] for row in result["refusals"]}
+        )
 
     def test_pending_and_unsafe_record_paths_fail_closed(self) -> None:
         profile, original = self._legacy_profile()

@@ -27,6 +27,8 @@ CONTENT_MIGRATION_SCHEMA_VERSION = 1
 CERTIFIED_MAIN_COMMIT = "7dde0c0afe8840fc95dd26f404310e77d9c82621"
 CERTIFIED_1X_COMMIT = "566bd25f78b80b08d5f75f4b02017ab2429204db"
 PROFILE_MAX_BYTES = 1024 * 1024
+RESOURCE_RECORD_MAX_BYTES = 4 * 1024 * 1024
+MIGRATION_RECORD_MAX_BYTES = 64 * 1024 * 1024
 PROFILE_KEYS = {"schema_version", "name", "stack", "components", "sound_mode"}
 LEGACY_PROFILE_KEYS = {"schema_version", "name", "stack", "components"}
 NAME_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
@@ -104,6 +106,15 @@ def _remote_matches(url: str) -> bool:
 
 def _digest(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise WorkspaceError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
 
 
 def _atomic_bytes(path: Path, value: bytes) -> None:
@@ -414,10 +425,12 @@ class ContentMigration:
             try:
                 if path.is_symlink() or not path.is_file():
                     raise WorkspaceError("profile is not a regular file")
+                if path.stat().st_size > PROFILE_MAX_BYTES:
+                    raise WorkspaceError("profile exceeds the bounded migration size")
                 original = path.read_bytes()
                 if len(original) > PROFILE_MAX_BYTES:
                     raise WorkspaceError("profile exceeds the bounded migration size")
-                value = json.loads(original)
+                value = json.loads(original, object_pairs_hook=_reject_duplicate_keys)
                 if not isinstance(value, dict) or value.get("name") != path.stem:
                     raise WorkspaceError("profile identity is invalid")
                 schema_version = value.get("schema_version")
@@ -445,6 +458,7 @@ class ContentMigration:
                 if not isinstance(components, dict):
                     raise WorkspaceError("profile components are invalid")
                 if set(components) == new_components:
+                    self._validate_current_profile_components(components)
                     rows.append(
                         {
                             "name": path.stem,
@@ -466,6 +480,7 @@ class ContentMigration:
                 rewritten_components = dict(components)
                 rewritten_components.pop("content-1x")
                 rewritten_components["content"] = replacement
+                self._validate_current_profile_components(rewritten_components)
                 rewritten["components"] = rewritten_components
                 replacement_bytes = (
                     json.dumps(rewritten, indent=2, sort_keys=True).encode("utf-8")
@@ -487,7 +502,13 @@ class ContentMigration:
                 if move is not None:
                     move["profile"] = path.stem
                     moves.append(move)
-            except (OSError, UnicodeError, json.JSONDecodeError, WorkspaceError) as error:
+            except (
+                OSError,
+                UnicodeError,
+                json.JSONDecodeError,
+                RecursionError,
+                WorkspaceError,
+            ) as error:
                 rows.append(
                     {
                         "name": path.stem,
@@ -516,6 +537,41 @@ class ContentMigration:
                     )
                 )
         return rows, moves, refusals
+
+    def _validate_current_profile_components(
+        self, components: dict[str, Any]
+    ) -> None:
+        checkout_selectors: dict[str, dict[str, str]] = {}
+        for component_name, selector in components.items():
+            if (
+                component_name not in self.manifest.by_name
+                or not isinstance(selector, dict)
+                or set(selector) != {"kind", "value"}
+                or not isinstance(selector.get("kind"), str)
+                or not isinstance(selector.get("value"), str)
+            ):
+                raise WorkspaceError("profile selector is invalid")
+            kind = selector["kind"]
+            value = selector["value"]
+            if kind == "primary":
+                if value:
+                    raise WorkspaceError("primary selector has a value")
+            elif kind == "worktree":
+                if not NAME_PATTERN.fullmatch(value):
+                    raise WorkspaceError("managed worktree selector is invalid")
+            elif kind == "path":
+                if not Path(value).is_absolute():
+                    raise WorkspaceError("external path selector is not absolute")
+            else:
+                raise WorkspaceError(
+                    f"selector kind is not valid after content migration: {kind}"
+                )
+            checkout = self.manifest.by_name[component_name].checkout_name
+            previous = checkout_selectors.setdefault(checkout, selector)
+            if previous != selector:
+                raise WorkspaceError(
+                    f"profile selectors disagree for shared checkout {checkout}"
+                )
 
     def _migrate_selector(
         self,
@@ -681,8 +737,10 @@ class ContentMigration:
                     )
                     continue
                 try:
+                    if path.stat().st_size > RESOURCE_RECORD_MAX_BYTES:
+                        raise WorkspaceError("record exceeds the bounded inventory size")
                     raw = path.read_bytes()
-                except OSError as error:
+                except (OSError, RecursionError, WorkspaceError) as error:
                     refusals.append(
                         _refusal(
                             f"unobservable_{root_name}_record",
@@ -726,6 +784,8 @@ class ContentMigration:
                 try:
                     if status_path.is_symlink() or not status_path.is_file():
                         raise WorkspaceError("status is not a regular file")
+                    if status_path.stat().st_size > RESOURCE_RECORD_MAX_BYTES:
+                        raise WorkspaceError("status exceeds the bounded inventory size")
                     value = load_json(status_path)
                     if not isinstance(value, dict) or not isinstance(value.get("services"), dict):
                         raise WorkspaceError("unsupported topology status")
@@ -767,7 +827,7 @@ class ContentMigration:
                                 f"run ./atrinik down {directory.name} before migration",
                             )
                         )
-                except (OSError, WorkspaceError) as error:
+                except (OSError, RecursionError, WorkspaceError) as error:
                     refusals.append(
                         _refusal(
                             "unobservable_topology",
@@ -780,9 +840,39 @@ class ContentMigration:
             Path(self.paths.builds) / "locks",
         ]
         for root in lock_roots:
-            paths = [root] if root.is_file() else sorted(root.glob("*")) if root.is_dir() else []
+            if root.is_symlink() or root.exists() and not (
+                root.is_file() or root.is_dir()
+            ):
+                resources["locks"].append(
+                    {"path": str(root), "active": True, "status": "unsafe"}
+                )
+                refusals.append(
+                    _refusal(
+                        "invalid_lock_path",
+                        f"lock inventory path is unsafe: {root}",
+                        "preserve the path and restore a regular lock file or directory",
+                    )
+                )
+                continue
+            paths = (
+                [root]
+                if root.is_file()
+                else sorted(root.glob("*"))
+                if root.is_dir()
+                else []
+            )
             for path in paths:
                 if path.is_symlink() or not path.is_file():
+                    resources["locks"].append(
+                        {"path": str(path), "active": True, "status": "unsafe"}
+                    )
+                    refusals.append(
+                        _refusal(
+                            "invalid_lock_path",
+                            f"lock inventory entry is unsafe: {path}",
+                            "preserve the path and restore a regular lock file",
+                        )
+                    )
                     continue
                 descriptor: int | None = None
                 try:
@@ -900,7 +990,17 @@ class ContentMigration:
         return errors
 
     def _load_record(self) -> dict[str, Any]:
-        record = load_json(self.record_path)
+        try:
+            if self.record_path.stat().st_size > MIGRATION_RECORD_MAX_BYTES:
+                raise WorkspaceError("record exceeds the bounded migration size")
+            raw = self.record_path.read_bytes()
+            if len(raw) > MIGRATION_RECORD_MAX_BYTES:
+                raise WorkspaceError("record exceeds the bounded migration size")
+            record = json.loads(raw, object_pairs_hook=_reject_duplicate_keys)
+        except (UnicodeError, json.JSONDecodeError, RecursionError) as error:
+            raise WorkspaceError(f"cannot parse migration record: {error}") from error
+        except OSError as error:
+            raise WorkspaceError(f"cannot inspect migration record: {error}") from error
         if (
             not isinstance(record, dict)
             or record.get("migration") != CONTENT_MIGRATION_NAME
@@ -938,7 +1038,7 @@ class ContentMigration:
             if (
                 name in rewrite_names
                 or not isinstance(raw_path, str)
-                or Path(raw_path).resolve(strict=False) != expected_path
+                or raw_path != str(expected_path)
             ):
                 raise WorkspaceError("record profile path is invalid")
             rewrite_names.add(name)
@@ -972,14 +1072,10 @@ class ContentMigration:
                 or not isinstance(destination, str)
             ):
                 raise WorkspaceError("record worktree move identity is invalid")
-            source_path = Path(source).resolve(strict=False)
-            destination_path = Path(destination).resolve(strict=False)
-            source_parent = (Path(self.paths.worktrees) / "content-1x").resolve(
-                strict=False
-            )
-            destination_parent = (Path(self.paths.worktrees) / "content").resolve(
-                strict=False
-            )
+            source_path = Path(source)
+            destination_path = Path(destination)
+            source_parent = Path(self.paths.worktrees) / "content-1x"
+            destination_parent = Path(self.paths.worktrees) / "content"
             if (
                 source_path.parent != source_parent
                 or destination_path.parent != destination_parent
@@ -1043,7 +1139,7 @@ class ContentMigration:
             }
         try:
             record = self._load_record()
-        except WorkspaceError as error:
+        except (WorkspaceError, RecursionError) as error:
             return {
                 "migration": CONTENT_MIGRATION_NAME,
                 "schema_version": CONTENT_MIGRATION_SCHEMA_VERSION,
