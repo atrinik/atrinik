@@ -38,8 +38,8 @@ Open this wrapper repository in VS Code and choose **Dev Containers: Reopen in
 Container** to use the pinned Linux build environment. On first creation, the
 container runs `./atrinik init`; it clones only missing replacement/default
 repositories and validates existing checkouts without updating or replacing
-them. It never adds classic repositories, `content@1.x`, the MIT playtester,
-or GPL tools implicitly. The Windows cross-build configuration is available at
+them. It never adds classic repositories, the MIT playtester, or GPL tools
+implicitly, and never touches a retained historical `content@1.x` path. The Windows cross-build configuration is available at
 `.devcontainer/windows-cross/devcontainer.json` after the required component
 checkouts have been initialized.
 
@@ -179,10 +179,10 @@ be preceded in the same workflow by an immutable `setup-node` action.
 When auditing review code, initialize the complete profile beside that wrapper
 checkout and use repeated absolute `--repository NAME=PATH` overrides only for
 the components under review. The command verifies each override's GitHub
-repository and branch identity before reading it. For duplicate coordinates, a
-review branch is accepted only when its linked worktree shares the expected
-checkout primary's common Git directory, so `content` and `content-1x` cannot
-be exchanged.
+repository and branch identity before reading it. A review branch is accepted
+only when its linked worktree shares the expected checkout primary's common Git
+directory, so an unrelated or historical checkout cannot impersonate
+`content@main`.
 
 ### Historical MIT provenance grants
 
@@ -220,8 +220,8 @@ initialization cohort. That includes the replacement MIT `server`, `client`,
 `editor`, `protocol`, `renderer`, `content-toolkit`, and `website` repositories;
 `content` from `atrinik/content@main`; compatible shared resources, sound, and
 metaserver code; and required development infrastructure. It does not clone
-`atrinik/classic`, `atrinik/content@1.x`, `atrinik/playtester`, or the GPL
-`tools` repository.
+`atrinik/classic`, `atrinik/playtester`, or the GPL `tools` repository, and
+does not touch a retained historical `atrinik/content@1.x` checkout.
 The replacement repositories have independently validated M1 build, package,
 provenance, and dependency contracts. Their wrapper manifest build/runtime
 adapters and complete service integration have not landed, so `default` is
@@ -272,7 +272,7 @@ command is reported with the same opt-out guidance.
 
 Building the Classic server also runs its offline worldmaker and stages the
 generated region-map `.png`/`.def` pairs in the profile build. Generation uses
-the selected Classic, `content-1x`, and resource views, so it requires the same
+the selected Classic, shared `content@main`, and resource views, so it requires the same
 native build dependencies as the server. A marker-owned cache is reused only
 while every selected checkout is clean and its recorded commit still matches;
 dirty inputs regenerate on every build. Missing `incuna_-1` output, incomplete
@@ -319,9 +319,9 @@ preparation/reuse time.
 
 `--with classic` has one exact meaning: add the complete classic initialization
 cohort to the replacement/default cohort. It is not a classic-only mode. The
-cohort consists of one `atrinik/classic` checkout, a distinct `content-1x`
-checkout of `atrinik/content@1.x`, the MIT `atrinik/playtester` checkout, and
-the retained GPL `tools` repository.
+cohort consists of one `atrinik/classic` checkout, the MIT
+`atrinik/playtester` checkout, and the retained GPL `tools` repository. The
+union initializes the shared `atrinik/content@main` checkout exactly once.
 The classic monorepo supplies logical `classic-server`, `classic-client`,
 `classic-editor`, `classic-libatrinik`, and `classic-protocol` components from
 its `server/`, `client/`, `editor/`, `libatrinik/`, and `protocol/` source
@@ -336,11 +336,11 @@ identity are coordinated here, while installation and tests remain owned by
 `atrinik/playtester`.
 
 Checkout entries have explicit local destinations; normally these are direct
-children of the wrapper root such as `./client`, `./classic`, `./content`, and
-`./content-1x`. Logical components name their owning checkout and a safe source
-root within it. `content` and `content-1x` deliberately name the same GitHub
-repository but use different branches, destinations, cohort memberships, and
-logical roles.
+children of the wrapper root such as `./client`, `./classic`, and `./content`.
+Logical components name their owning checkout and a safe source root within
+it. Both stacks map role `content` to that one shared checkout. A local
+`./content-1x` directory may remain as preserved migration history, but it is
+not initialized or selected as an active component.
 
 Initialization follows the GitHub transport of the wrapper's `origin` (then
 `upstream`): an SSH wrapper clone produces SSH component clones, while an HTTPS
@@ -415,6 +415,35 @@ Pre-split scenario records that lack immutable stack and provider identities
 remain on disk but are deliberately inert; recreate one before using it rather
 than allowing its old `default` profile name to acquire replacement providers.
 
+## Migrating persisted content selectors
+
+Workspaces created before the content consolidation can retain profiles that
+name `content-1x`, historical build/scenario/topology records, or worktrees in
+the former namespace. Keep all of that state in place and run the dedicated
+checked migration:
+
+~~~sh
+./atrinik migrate content --dry-run --json
+./atrinik migrate content --apply
+./atrinik migrate content --audit --json
+~~~
+
+The dry run proves the canonical `content@main` consolidation commit and
+inventories every legacy selector and affected resource. Apply refuses dirty,
+detached, locked, live, colliding, in-progress, or unproven inputs. A simple
+certified primary selector becomes `content@main`; a managed worktree moves to
+the shared namespace only when its repository, common Git directory,
+commit/tree ancestry, destination, and cleanliness all match. An old `1.x`
+worktree or arbitrary external path is never silently repointed.
+
+Original profile bytes are journaled and updated atomically. Audit is
+read-only. Before any later remote branch retirement, the exact bytes and
+proven worktree paths can be restored with
+`./atrinik migrate content --restore --json`. The old `./content-1x` checkout,
+stopped records, states, logs, and historical coordinates remain preserved and
+inert; this migration never deletes them. Cleanup continues to inventory those
+references and remains a separate preview-first operation.
+
 The current classic client command opens a graphical application. Verify that
 the devcontainer display forwarding socket is live before launching it. Use
 `--dry-run` to build and print either launch command without starting the
@@ -484,10 +513,9 @@ feature worktree from a newly synchronized primary branch only when intended:
 `sync --with classic` considers initialized default and classic checkouts; it
 does not turn an optional missing checkout into a clone. The command stops
 instead of changing a dirty checkout. Worktree merge or rebase conflicts are
-left in that worktree for normal Git resolution. A migration-retained classic
-content worktree is explicitly excluded from `content@main` worktree sync,
-even when dirty, and is reported as skipped. Create an ordinary `content-1x`
-worktree for ongoing classic content changes.
+left in that worktree for normal Git resolution. Historical `content-1x`
+paths and records are inert and are never treated as `content@main`. Create new
+content review worktrees from the shared `content` checkout.
 
 ## Checkout worktrees
 
@@ -505,7 +533,7 @@ Choose another start point or attach an existing local branch:
 ~~~sh
 ./atrinik worktree create classic release-fix \
   --branch fix/release --from origin/main
-./atrinik worktree create content-1x maps-pr \
+./atrinik worktree create content maps-pr \
   --branch review/maps-pr --existing
 ~~~
 
@@ -514,7 +542,7 @@ List or remove managed worktrees:
 ~~~sh
 ./atrinik worktree list
 ./atrinik worktree list --json
-./atrinik worktree remove content-1x maps-pr
+./atrinik worktree remove content maps-pr
 ~~~
 
 Removal refuses dirty worktrees. Each worktree is a full Git worktree of its
@@ -657,7 +685,7 @@ component, or one of its roles updates all five classic selectors together.
 
 ~~~sh
 ./atrinik profile create maps-review --from classic
-./atrinik profile set maps-review content-1x --worktree maps-pr
+./atrinik profile set maps-review content --worktree maps-pr
 ./atrinik profile set maps-review classic-server --worktree socket-review
 ./atrinik profile show maps-review
 ./atrinik build all --profile maps-review --test
@@ -695,14 +723,10 @@ different combinations of distinct physical checkouts—cannot overwrite one
 another. Scenario and topology records retain those same coordinates; older
 records without them are inert.
 
-Migration may retain a proven classic content worktree using an internal
-`migrated-worktree` selector. `profile set` cannot create that selector (while
-cloning an already migrated profile preserves it): resolution accepts it only
-for `content-1x`, only at its original managed
-`workspace/worktrees/content/<label>` path, and only while it remains attached
-to the canonical content Git directory. New worktrees use ordinary
-`content-1x` selectors. Normal `content@main` worktree synchronization always
-skips these migration-only paths.
+The content migration reader accepts the old internal `migrated-worktree`
+selector only as recovery input. Current profiles use normal `content`
+primary, worktree, or proven absolute-path selectors. Historical `1.x`
+selectors remain truthful and inert instead of being relabeled as `main`.
 
 Print an exact selected logical source path for use with `cd`, editors, or
 other tools. Read-only profile, worktree, and state listings also support
@@ -933,16 +957,16 @@ pull-request numbers:
 ~~~sh
 git -C classic fetch origin pull/CLIENT_PR/head:review/client-ui
 git -C classic fetch origin pull/SERVER_PR/head:review/server-combat
-git -C content-1x fetch origin pull/CONTENT_PR/head:review/content-maps
+git -C content fetch origin pull/CONTENT_PR/head:review/content-maps
 
 ./atrinik worktree create classic combined-classic \
   --branch review/combined-classic --from review/server-combat
-./atrinik worktree create content-1x maps-review \
+./atrinik worktree create content maps-review \
   --branch review/content-maps --existing
 
 ./atrinik profile create combined-review --from classic
 ./atrinik profile set combined-review classic --worktree combined-classic
-./atrinik profile set combined-review content-1x --worktree maps-review
+./atrinik profile set combined-review content --worktree maps-review
 
 CLASSIC_SOURCE="$(./atrinik path classic-server --profile combined-review)"
 git -C "$CLASSIC_SOURCE" merge --no-edit review/client-ui
@@ -965,11 +989,11 @@ checkout/source bill of materials for review notes or agent automation.
 ### Use case: review new maps with unchanged binaries
 
 Keep the classic client and server on their synchronized primary checkouts and
-select only the `content-1x` worktree:
+select only the shared `content@main` worktree:
 
 ~~~sh
 ./atrinik profile create map-check --from classic
-./atrinik profile set map-check content-1x --worktree maps-review
+./atrinik profile set map-check content --worktree maps-review
 ./atrinik topology show map-check
 ./atrinik state add map-check
 ./atrinik up --name map-check --profile map-check --state map-check
@@ -1084,11 +1108,11 @@ worktrees, so commit, stash, or otherwise preserve intentional edits first:
 ~~~sh
 ./atrinik down combined-review
 ./atrinik profile set combined-review classic --primary
-./atrinik profile set combined-review content-1x --primary
+./atrinik profile set combined-review content --primary
 ./atrinik cleanup --scope worktrees --scope builds \
-  classic content-1x --older-than 7 --dry-run
+  classic content --older-than 7 --dry-run
 ./atrinik cleanup --scope worktrees --scope builds \
-  classic content-1x --older-than 7 --apply
+  classic content --older-than 7 --apply
 ~~~
 
 The saved `combined-review` profile protects both selected worktrees until the

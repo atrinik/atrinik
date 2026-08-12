@@ -21,9 +21,9 @@ Run from the `atrinik/atrinik` wrapper root.
    keep only orchestration, composition, manifest, and wrapper docs here.
 
 Checkouts are independent ignored repositories. A `classic` worktree contains
-all five `classic-*` components; `content@main` and `content-1x@1.x` stay
-separate. Keep wrapper composition in `.devcontainer/` and reusable images in
-the `devcontainer` checkout.
+all five `classic-*` components. Both stacks share `content@main`; Classic
+selects its publisher adapter, and retained `content-1x` paths are historical.
+Keep wrapper composition in `.devcontainer/` and reusable images in its owner.
 
 ## Prepare safe worktrees
 

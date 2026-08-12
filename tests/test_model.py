@@ -48,11 +48,10 @@ class ManifestTests(unittest.TestCase):
         by_name = {component["name"]: component for component in value["components"]}
         value["components"] = [
             by_name["content"],
-            by_name["content-1x"],
             *(
                 component
                 for component in value["components"]
-                if component["name"] not in {"content", "content-1x"}
+                if component["name"] != "content"
             ),
         ]
         return value
@@ -68,21 +67,21 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(manifest.by_name["server"].checkout, "server")
             self.assertEqual(manifest.cohorts["default"][0], "client")
 
-    def test_loads_v3_manifest_with_two_branches_of_content(self) -> None:
+    def test_loads_v3_manifest_with_one_shared_content_checkout(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = self.write_manifest(Path(temporary), self.valid_v3_manifest())
             manifest = Manifest.load(path)
 
-            self.assertIn("content-1x", manifest.cohorts["classic"])
+            self.assertNotIn("content-1x", manifest.by_checkout)
             self.assertEqual(manifest.component_cohorts("content"), ("default",))
             self.assertEqual(
-                manifest.component_stacks("content-1x"), ("classic",)
+                manifest.component_stacks("content"), ("default", "classic")
             )
             self.assertEqual(
-                manifest.provider("classic", "content").checkout, "content-1x"
+                manifest.provider("classic", "content").checkout, "content"
             )
             self.assertIn(
-                "content-1x",
+                "content",
                 tuple(
                     component.name
                     for component in manifest.stack("classic").components
@@ -90,7 +89,7 @@ class ManifestTests(unittest.TestCase):
             )
             self.assertEqual(
                 manifest.stack("classic").providers["content"].name,
-                "content-1x",
+                "content",
             )
             self.assertEqual(
                 manifest.by_name["classic-server"].checkout_name, "classic"
@@ -103,7 +102,7 @@ class ManifestTests(unittest.TestCase):
             )
             self.assertEqual(
                 {checkout.name for checkout in manifest.cohort("classic")},
-                {"classic", "content-1x", "playtester", "tools"},
+                {"classic", "playtester", "tools"},
             )
             self.assertIn(
                 "content",
@@ -134,10 +133,11 @@ class ManifestTests(unittest.TestCase):
         manifest = self.valid_v3_manifest()
         checkouts = manifest["checkouts"]
         self.assertIsInstance(checkouts, list)
-        content_1x = next(
-            checkout for checkout in checkouts if checkout["name"] == "content-1x"
+        duplicate = copy.deepcopy(
+            next(checkout for checkout in checkouts if checkout["name"] == "content")
         )
-        content_1x["branch"] = "main"
+        duplicate.update({"name": "content-copy", "path": "content-copy"})
+        checkouts.append(duplicate)
         with tempfile.TemporaryDirectory() as temporary:
             path = self.write_manifest(Path(temporary), manifest)
             with self.assertRaisesRegex(
@@ -149,10 +149,16 @@ class ManifestTests(unittest.TestCase):
         manifest = self.valid_v3_manifest()
         checkouts = manifest["checkouts"]
         self.assertIsInstance(checkouts, list)
-        content_1x = next(
-            checkout for checkout in checkouts if checkout["name"] == "content-1x"
+        duplicate = copy.deepcopy(
+            next(checkout for checkout in checkouts if checkout["name"] == "content")
         )
-        content_1x["path"] = "content"
+        duplicate.update(
+            {
+                "name": "content-copy",
+                "repository": "atrinik/content-copy",
+            }
+        )
+        checkouts.append(duplicate)
         with tempfile.TemporaryDirectory() as temporary:
             path = self.write_manifest(Path(temporary), manifest)
             with self.assertRaisesRegex(WorkspaceError, "duplicate checkout path"):
@@ -168,49 +174,29 @@ class ManifestTests(unittest.TestCase):
         self.assertIsInstance(components, list)
         self.assertIsInstance(cohorts, dict)
         self.assertIsInstance(stacks, dict)
-        content_1x = next(
-            component for component in components if component["name"] == "content-1x"
-        )
-        content_1x_checkout = next(
-            checkout for checkout in checkouts if checkout["name"] == "content-1x"
-        )
-        content_1x_checkout["generation"] = "replacement"
-        content_1x["generation"] = "replacement"
-        content_1x["build"] = "none"
-        content_1x["provides"] = ["sound"]
-        content_1x["requires"] = []
-        cohorts["classic"].remove("content-1x")  # type: ignore[index, union-attr]
-        cohorts["default"].append("content-1x")  # type: ignore[union-attr]
-        stacks["classic"]["components"].remove("content-1x")  # type: ignore[index, union-attr]
         checkouts.append(  # type: ignore[union-attr]
             {
-                "name": "classic-content-provider",
-                "repository": "atrinik/classic-content-provider",
-                "branch": "main",
-                "path": "classic-content-provider",
-                "generation": "classic",
-                "license": "MIT",
+                "name": "content-1x",
+                "repository": "atrinik/content",
+                "branch": "1.x",
+                "path": "content-1x",
+                "generation": "shared",
+                "license": "LicenseRef-Atrinik-Content",
             }
         )
         components.append(  # type: ignore[union-attr]
             {
-                "name": "classic-content-provider",
-                "checkout": "classic-content-provider",
+                "name": "content-1x",
+                "checkout": "content-1x",
                 "source": ".",
-                "build": "classic-content",
-                "generation": "classic",
-                "provides": ["content"],
+                "build": "none",
+                "generation": "shared",
+                "provides": ["resources"],
                 "requires": [],
-                "license": "MIT",
+                "license": "LicenseRef-Atrinik-Content",
             }
         )
-        cohorts["classic"].append("classic-content-provider")  # type: ignore[union-attr]
-        stacks["classic"]["components"].append(  # type: ignore[index, union-attr]
-            "classic-content-provider"
-        )
-        stacks["classic"]["providers"]["content"] = (  # type: ignore[index]
-            "classic-content-provider"
-        )
+        cohorts["default"].append("content-1x")  # type: ignore[union-attr]
         with tempfile.TemporaryDirectory() as temporary:
             path = self.write_manifest(Path(temporary), manifest)
             with self.assertRaisesRegex(
@@ -266,6 +252,8 @@ class ManifestTests(unittest.TestCase):
                 "name": "other-content",
                 "checkout": "other-content",
                 "source": ".",
+                "generation": "replacement",
+                "build_by_stack": {},
             }
         )
         checkouts.append(  # type: ignore[union-attr]
@@ -383,12 +371,73 @@ class ManifestTests(unittest.TestCase):
         manifest = self.valid_v3_manifest()
         components = manifest["components"]
         self.assertIsInstance(components, list)
-        components[0]["build"] = "classic-server"  # type: ignore[index]
+        components[0]["build_by_stack"] = {"default": "classic-server"}  # type: ignore[index]
         with tempfile.TemporaryDirectory() as temporary:
             path = self.write_manifest(Path(temporary), manifest)
             with self.assertRaisesRegex(
                 WorkspaceError,
-                "classic-server is incompatible with replacement generation",
+                "effective build classic-server is incompatible with default stack",
+            ):
+                Manifest.load(path)
+
+    def test_v3_rejects_malformed_component_shape_and_stack_builds(self) -> None:
+        cases = (
+            ("shape", None, "missing source; unexpected extra"),
+            ("builds", [], "build_by_stack must be an object"),
+            ("adapter", {"classic": []}, "build_by_stack.classic is invalid"),
+        )
+        for name, value, message in cases:
+            with self.subTest(name=name):
+                manifest = self.valid_v3_manifest()
+                component = manifest["components"][0]  # type: ignore[index]
+                if name == "shape":
+                    component.pop("source")
+                    component["extra"] = True
+                else:
+                    component["build_by_stack"] = value
+                with tempfile.TemporaryDirectory() as temporary:
+                    path = self.write_manifest(Path(temporary), manifest)
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        Manifest.load(path)
+
+    def test_effective_build_rejects_component_outside_selected_stack(self) -> None:
+        manifest = Manifest.load(ROOT / "components.json")
+        with self.assertRaisesRegex(
+            WorkspaceError, "component classic-client is not part of default stack"
+        ):
+            manifest.effective_build("default", "classic-client")
+
+    def test_v3_rejects_unknown_redundant_and_unused_stack_build_overrides(self) -> None:
+        for override, message, component_name in (
+            ({"future": "assets"}, "unknown stack future", "content"),
+            ({"default": "none"}, "redundantly repeats build", "content"),
+            ({"default": "assets"}, "targets stacks where the component is absent", "classic-client"),
+        ):
+            with self.subTest(override=override):
+                manifest = self.valid_v3_manifest()
+                component = next(
+                    row
+                    for row in manifest["components"]  # type: ignore[index]
+                    if row["name"] == component_name
+                )
+                component["build_by_stack"] = override
+                with tempfile.TemporaryDirectory() as temporary:
+                    path = self.write_manifest(Path(temporary), manifest)
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        Manifest.load(path)
+
+    def test_v3_rejects_stack_adapter_for_an_unprovided_role(self) -> None:
+        manifest = self.valid_v3_manifest()
+        content = next(
+            row
+            for row in manifest["components"]  # type: ignore[index]
+            if row["name"] == "content"
+        )
+        content["build_by_stack"] = {"classic": "classic-server"}
+        with tempfile.TemporaryDirectory() as temporary:
+            path = self.write_manifest(Path(temporary), manifest)
+            with self.assertRaisesRegex(
+                WorkspaceError, "requires provided role server"
             ):
                 Manifest.load(path)
 
@@ -396,10 +445,10 @@ class ManifestTests(unittest.TestCase):
         manifest = self.valid_v3_manifest()
         stacks = manifest["stacks"]
         self.assertIsInstance(stacks, dict)
-        stacks["default"]["components"].append("content-1x")  # type: ignore[index, union-attr]
+        stacks["default"]["components"].append("classic-client")  # type: ignore[index, union-attr]
         with tempfile.TemporaryDirectory() as temporary:
             path = self.write_manifest(Path(temporary), manifest)
-            with self.assertRaisesRegex(WorkspaceError, "mixes classic component content-1x"):
+            with self.assertRaisesRegex(WorkspaceError, "mixes classic component classic-client"):
                 Manifest.load(path)
 
     def test_v3_rejects_dependency_cycles(self) -> None:
@@ -537,13 +586,15 @@ class ReleaseConfigurationTests(unittest.TestCase):
             set(manifest.cohorts["classic"]),
             {
                 "classic",
-                "content-1x",
                 "playtester",
                 "tools",
             },
         )
         self.assertEqual(manifest.by_name["content"].branch, "main")
-        self.assertEqual(manifest.by_name["content-1x"].branch, "1.x")
+        self.assertEqual(manifest.effective_build("default", "content"), "none")
+        self.assertEqual(
+            manifest.effective_build("classic", "content"), "classic-content"
+        )
         self.assertEqual(
             manifest.stack("classic").providers["libatrinik"].name,
             "classic-libatrinik",
@@ -578,7 +629,7 @@ class ReleaseConfigurationTests(unittest.TestCase):
                 "server": "classic-server",
                 "protocol": "classic-protocol",
                 "libatrinik": "classic-libatrinik",
-                "content": "content-1x",
+                "content": "content",
             },
         )
         self.assertFalse(

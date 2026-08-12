@@ -297,19 +297,21 @@ def _dynamic_candidates(
             *(
                 ["all"]
                 if all(
-                    stack.providers[role].build != "none" for role in all_roles
+                    manifest.effective_build(stack_name, stack.providers[role])
+                    != "none"
+                    for role in all_roles
                 )
                 else []
             ),
             *(
                 role
                 for role, component in stack.providers.items()
-                if component.build != "none"
+                if manifest.effective_build(stack_name, component) != "none"
             ),
             *(
                 component.name
                 for component in stack.components
-                if component.build != "none"
+                if manifest.effective_build(stack_name, component) != "none"
             ),
         ]
     if kind == "profile":

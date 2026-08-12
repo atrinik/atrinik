@@ -18,9 +18,10 @@ implementation skill for coordinated consumers.
   `classic/protocol/schema/game-commands.json`; packet payloads may be owned by
   classic client/server producers and consumers. Use a classic-derived profile
   and the monorepo's `classic-protocol-change` skill.
-- ADS/authored schemas live with their exact `content@main` or
-  `content-1x@1.x` format; `metaserver-worker` owns discovery implementation
-  and state rather than the shared contracts.
+- ADS/authored schemas live in `content@main`; select the replacement or
+  Classic publisher target and validate every affected consumer.
+  `metaserver-worker` owns discovery implementation and state rather than the
+  shared contracts. Retained `1.x` artifacts are immutable evidence.
 
 Resolve paths rather than assuming the wrapper CWD:
 

@@ -180,13 +180,10 @@ class InventoryTests(unittest.TestCase):
         self.assertGreaterEqual(len(inventory.dependencies), 60)
         self.assertIn("nawerhals", inventory.repositories_by_name)
         self.assertFalse(inventory.repositories_by_name["nawerhals"].supported)
+        self.assertNotIn("content-1x", inventory.repositories_by_name)
         self.assertEqual(
-            inventory.repositories_by_name["content"].repository,
-            inventory.repositories_by_name["content-1x"].repository,
-        )
-        self.assertNotEqual(
-            inventory.repositories_by_name["content"].branch,
-            inventory.repositories_by_name["content-1x"].branch,
+            inventory.repositories_by_name["content"].stacks,
+            ("classic", "default"),
         )
         classic = [
             inventory.repositories_by_name[name]
@@ -237,7 +234,7 @@ class InventoryTests(unittest.TestCase):
         playtester_content = inventory.dependencies_by_id[
             "source/atrinik-content-playtester"
         ]
-        self.assertEqual(playtester_content.owner, "content-1x")
+        self.assertEqual(playtester_content.owner, "content")
         self.assertEqual(playtester_content.scope, ("playtester",))
         self.assertEqual(playtester_content.version, "v1.8.0")
         self.assertEqual(
@@ -1003,30 +1000,30 @@ class InventoryTests(unittest.TestCase):
         content = next(
             component
             for component in cyclonedx["components"]
-            if component["bom-ref"] == "atrinik:component:content-1x"
+            if component["bom-ref"] == "atrinik:component:content"
         )
         properties = {
             property_["name"]: property_["value"]
             for property_ in content["properties"]
         }
-        self.assertEqual(properties["atrinik:branch"], "1.x")
+        self.assertEqual(properties["atrinik:branch"], "main")
         self.assertEqual(properties["atrinik:commit"], "unavailable")
         self.assertEqual(content["version"], "unavailable")
-        self.assertEqual(properties["atrinik:stacks"], "classic")
+        self.assertEqual(properties["atrinik:stacks"], "classic,default")
         self.assertEqual(properties["atrinik:roles"], "content")
         spdx_content = next(
             package
             for package in spdx["packages"]
-            if package["name"] == "content-1x"
+            if package["name"] == "content"
         )
         self.assertIn("repository: atrinik/content", spdx_content["packageComment"])
-        self.assertIn("branch: 1.x", spdx_content["packageComment"])
-        self.assertIn("stacks: classic", spdx_content["packageComment"])
+        self.assertIn("branch: main", spdx_content["packageComment"])
+        self.assertIn("stacks: classic,default", spdx_content["packageComment"])
         self.assertIn("commit: unavailable", spdx_content["packageComment"])
         self.assertIn("| Dependency | Version |", inventory.report("licenses"))
         self.assertIn("| Component | Repository | Branch |", inventory.report("licenses"))
 
-    def test_reports_resolve_profile_commits_without_conflating_content_branches(self) -> None:
+    def test_reports_resolve_one_content_commit_for_both_stacks(self) -> None:
         inventory = self.load_inventory()
         default_commit = "a" * 40
         classic_commit = "b" * 40
@@ -1041,7 +1038,7 @@ class InventoryTests(unittest.TestCase):
         classic = json.loads(
             inventory.report(
                 "cyclonedx",
-                {"atrinik": root_commit, "content-1x": classic_commit},
+                {"atrinik": root_commit, "content": classic_commit},
                 "classic",
             )
         )
@@ -1057,27 +1054,21 @@ class InventoryTests(unittest.TestCase):
             }
 
         default_content = properties(default, "content")
-        default_classic_content = properties(default, "content-1x")
-        classic_content = properties(classic, "content-1x")
-        classic_default_content = properties(classic, "content")
+        classic_content = properties(classic, "content")
         self.assertEqual(default_content["atrinik:commit"], default_commit)
         self.assertEqual(default_content["atrinik:selected"], "true")
-        self.assertEqual(default_classic_content["atrinik:commit"], "unavailable")
-        self.assertEqual(default_classic_content["atrinik:selected"], "false")
         self.assertEqual(classic_content["atrinik:commit"], classic_commit)
         self.assertEqual(classic_content["atrinik:selected"], "true")
-        self.assertEqual(classic_default_content["atrinik:commit"], "unavailable")
-        self.assertEqual(classic_default_content["atrinik:selected"], "false")
 
         spdx = json.loads(
             inventory.report(
                 "spdx",
-                {"atrinik": root_commit, "content-1x": classic_commit},
+                {"atrinik": root_commit, "content": classic_commit},
                 "classic",
             )
         )
         content_package = next(
-            package for package in spdx["packages"] if package["name"] == "content-1x"
+            package for package in spdx["packages"] if package["name"] == "content"
         )
         self.assertEqual(content_package["versionInfo"], classic_commit)
         self.assertEqual(
@@ -1087,9 +1078,9 @@ class InventoryTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "unknown first-party"):
             inventory.report("spdx", {"unknown": root_commit}, "classic")
         with self.assertRaisesRegex(WorkspaceError, "outside the selected stack"):
-            inventory.report("spdx", {"content": default_commit}, "classic")
+            inventory.report("spdx", {"client": default_commit}, "classic")
         with self.assertRaisesRegex(WorkspaceError, "full lowercase Git commit"):
-            inventory.report("spdx", {"content-1x": "short"}, "classic")
+            inventory.report("spdx", {"content": "short"}, "classic")
         with self.assertRaisesRegex(WorkspaceError, "unknown.*report stack"):
             inventory.report("spdx", {}, "mixed")
 
@@ -1681,7 +1672,7 @@ jobs:
                 ),
             ):
                 with self.assertRaisesRegex(
-                    WorkspaceError, "cannot prove content@main lineage"
+                    WorkspaceError, "is not based on atrinik/content@main"
                 ):
                     repository_roots(
                         ROOT,
@@ -1803,7 +1794,7 @@ jobs:
         ):
             repository_roots(ROOT, workspace, "classic-review")
 
-    def test_repository_roots_fail_closed_when_content_1x_is_missing(self) -> None:
+    def test_repository_roots_fail_closed_when_shared_content_is_missing(self) -> None:
         workspace = mock.Mock()
         document = json.loads(
             (ROOT / "components.json").read_text(encoding="utf-8")
@@ -1815,7 +1806,7 @@ jobs:
             "components": [
                 {
                     "component": name,
-                    "initialized": name != "content-1x",
+                    "initialized": name != "content",
                     "path": f"/workspace/classic/{name}",
                 }
                 for name in classic_components
@@ -1825,7 +1816,7 @@ jobs:
         with self.assertRaisesRegex(
             WorkspaceError,
             r"profile classic is incomplete.*./atrinik init --with classic.*"
-            r"content-1x \(content-1x\)",
+            r"content \(content\)",
         ):
             repository_roots(ROOT, workspace, "classic")
 
@@ -2001,15 +1992,15 @@ jobs:
         classic_components = json.loads(
             (ROOT / "components.json").read_text(encoding="utf-8")
         )["stacks"]["classic"]["components"]
-        content_path = "/workspace/classic-review/content-1x"
+        content_path = "/workspace/classic-review/content"
         workspace.profile_summary.return_value = {
             "name": "classic-review",
             "stack": "classic",
             "components": [
                 {
                     "component": name,
-                    "initialized": name == "content-1x",
-                    "path": content_path if name == "content-1x" else f"/missing/{name}",
+                    "initialized": name == "content",
+                    "path": content_path if name == "content" else f"/missing/{name}",
                 }
                 for name in classic_components
             ],
@@ -2026,10 +2017,9 @@ jobs:
 
         self.assertEqual(stack, "classic")
         self.assertEqual(commits["atrinik"], root_commit)
-        self.assertEqual(commits["content-1x"], content_commit)
+        self.assertEqual(commits["content"], content_commit)
         self.assertIsNone(commits["classic-server"])
         self.assertIsNone(commits["classic"])
-        self.assertNotIn("content", commits)
         self.assertEqual(git_head.call_count, 2)
         git_head.assert_any_call(Path(content_path))
 
