@@ -244,7 +244,7 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("## Scale and performance", checklist)
         self.assertIn("## Safety, security, and supply chain", checklist)
 
-    def test_content_issue_delivery_covers_both_release_lines(self) -> None:
+    def test_content_issue_delivery_uses_main_as_sole_authored_source(self) -> None:
         content = " ".join(
             (
                 ROOT / ".agents/skills/atrinik-content-change/SKILL.md"
@@ -264,28 +264,17 @@ class AgentGuidanceTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
 
         for marker in {
-            "For issue fixes, assess both `content@main` and `content-1x@1.x`",
-            (
-                "Shared authored changes normally need separate worktrees, "
-                "validation, commits, and linked PRs on both lines"
-            ),
-            (
-                "record an evidence-backed format, consumer, runtime, or "
-                "provenance reason for any single-line exception"
-            ),
+            "`content@main` is the sole authored source",
+            "select the target-specific publisher",
+            "never edit or create a PR against the retired `1.x` line",
         }:
             with self.subTest(surface="content", marker=marker):
                 self.assertIn(marker, content)
         for marker in {
-            "assess `main` and `1.x`",
-            "separate bases",
-            "final-head checks",
-            "Paired: only the default-branch PR closes; companions link",
-            "companions link",
-            (
-                "A sole `main` PR closes. A sole `1.x` PR links without a "
-                "closing keyword; close its issue manually after merge"
-            ),
+            "author only on `main`",
+            "validate every affected target and consumer",
+            "never publish a new `1.x` PR",
+            "A content `main` PR may close its issue",
             "per-target bases",
         }:
             with self.subTest(surface="delivery", marker=marker):

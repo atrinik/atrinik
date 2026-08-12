@@ -1292,10 +1292,24 @@ class CleanupTests(unittest.TestCase):
                 "composite_worktrees": [{"destination": str(worktree)}],
             },
         )
+        atomic_json(
+            migrations / "content.json",
+            {
+                "canonical": {"path": str(self.wrapper / "content")},
+                "legacy": {"path": str(self.wrapper / "content-1x")},
+                "worktree_moves": [
+                    {"source": str(worktree), "destination": str(worktree)}
+                ],
+                "profiles": [{"path": str(self.workspace.paths.profiles / "old.json")}],
+                "resources": {
+                    "historical_paths": [{"path": str(worktree)}]
+                },
+            },
+        )
         report = self.workspace.cleanup(["worktrees"], 0, ["client"], False)
         item = next(row for row in report["items"] if row["path"] == str(worktree))
         self.assertIn("migration_reference", item["reasons"])
-        self.assertGreaterEqual(len(item["references"]["migration"]), 3)
+        self.assertGreaterEqual(len(item["references"]["migration"]), 6)
 
     def test_migration_path_inventory_covers_every_current_record_shape(self) -> None:
         paths = list(
@@ -1318,10 +1332,22 @@ class CleanupTests(unittest.TestCase):
                     ],
                     "worktrees": [{"destination": str(self.root / "worktree")}],
                     "classic": {"path": str(self.root / "classic")},
+                    "canonical": {"path": str(self.root / "content")},
+                    "legacy": {"path": str(self.root / "content-1x")},
+                    "worktree_moves": [
+                        {
+                            "source": str(self.root / "content-old-worktree"),
+                            "destination": str(self.root / "content-worktree"),
+                        }
+                    ],
+                    "profiles": [{"path": str(self.root / "profile.json")}],
+                    "resources": {
+                        "scenarios": [{"path": str(self.root / "scenario.json")}]
+                    },
                 }
             )
         )
-        self.assertEqual(len(paths), 7)
+        self.assertEqual(len(paths), 13)
         self.assertIn(("classic.path", self.root / "classic"), paths)
 
         with self.assertRaisesRegex(WorkspaceError, "is not a list"):
@@ -1330,6 +1356,28 @@ class CleanupTests(unittest.TestCase):
             list(Cleanup._migration_paths({"sources": ["invalid"]}))
         with self.assertRaisesRegex(WorkspaceError, "classic path"):
             list(Cleanup._migration_paths({"classic": 7}))
+
+    def test_migration_path_inventory_rejects_every_malformed_extension(self) -> None:
+        cases = (
+            ({"canonical": []}, "migration canonical is invalid"),
+            ({"legacy": {"path": "relative"}}, "migration legacy.path is invalid"),
+            ({"resources": []}, "migration resources are invalid"),
+            ({"resources": {7: []}}, "migration resource category is invalid"),
+            ({"resources": {"states": [7]}}, r"resources.states\[0\] is invalid"),
+            (
+                {"resources": {"states": [{"path": "relative"}]}},
+                r"resources.states\[0\].path is invalid",
+            ),
+        )
+        for value, message in cases:
+            with self.subTest(message=message):
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    list(Cleanup._migration_paths(value))
+
+        self.assertEqual(
+            list(Cleanup._migration_paths({"resources": {"states": [{}]}})),
+            [],
+        )
 
     def test_apply_revalidates_then_removes_without_deleting_branch(self) -> None:
         worktree = self.make_wrapper_worktree()
@@ -2753,10 +2801,9 @@ class CleanupTests(unittest.TestCase):
             ),
             {"classic"},
         )
-        self.assertEqual(
-            cleanup._normalize_names(["content", "content-1x"]),
-            {"content", "content-1x"},
-        )
+        self.assertEqual(cleanup._normalize_names(["content"]), {"content"})
+        with self.assertRaisesRegex(WorkspaceError, "unknown components"):
+            cleanup._normalize_names(["content-1x"])
 
         head = "a" * 40
         pulls = self.merged_pull(head, base="main")
@@ -2772,6 +2819,7 @@ class CleanupTests(unittest.TestCase):
             "kind": "migrated-worktree",
             "value": str(migrated),
         }
+        profile["components"].pop("content")
         atomic_json(actual_workspace.paths.profiles / "migrated.json", profile)
         references: dict[str, object] = {"profiles": {}}
         errors: set[str] = set()

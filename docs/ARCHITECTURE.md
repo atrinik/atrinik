@@ -30,9 +30,10 @@ rather than aliases for every manifest entry.
 The `atrinik/classic@main` checkout at `./classic` provides five logical
 components: `classic-client` from `client/`, `classic-server` from `server/`,
 `classic-editor` from `editor/`, `classic-libatrinik` from `libatrinik/`, and
-`classic-protocol` from `protocol/`. `content` remains
-`atrinik/content@main` at `./content` for the replacement stack, while
-`content-1x` is `atrinik/content@1.x` at `./content-1x` for the classic stack.
+`classic-protocol` from `protocol/`. One shared `content` component remains
+`atrinik/content@main` at `./content` for both stacks. Its global build is
+`none`; the narrowly validated `build_by_stack.classic` override selects the
+`classic-content` publisher only for Classic.
 The classic-only `playtester` component occupies `atrinik/playtester@main` at
 `./playtester`, provides the `playtester` role, and requires the classic stack's
 `content`, `libatrinik`, and `protocol` providers. Its `build: none` contract
@@ -90,18 +91,16 @@ source audits exclude imported nested copies while continuing to audit their
 dependency inputs. A named profile audit refuses to run unless every
 audit-ready component in the stack is initialized or explicitly overridden;
 absence cannot degrade a complete audit into a partial report. Explicit
-worktree overrides are
-absolute and must match the expected repository and branch identity. A review
-branch for a repeated coordinate must share the expected checkout primary's
-common Git directory, preventing `content` and `content-1x` from being
-interchanged. Deterministic
+worktree overrides are absolute and must match the expected repository and
+branch identity. A review branch must share the expected checkout primary's
+common Git directory, preventing historical or unrelated content from
+impersonating `content@main`. Deterministic
 license, CycloneDX, SPDX, and local version reports are generated only below
 the ignored build directory; report generation resolves full commit IDs through
 `--profile PROFILE`. The scheduled audit delegates checkout composition to
-`./atrinik init --with classic`, audits both complete stacks including both
-content release lines, and publishes stack-separated reports; regression tests
-bind that initialization ordering, the fail-closed profile contract, and the
-`content@1.x` workflow-runner policy.
+`./atrinik init --with classic`, audits both complete stacks against the one
+active content source, and publishes stack-separated reports; regression tests
+bind that initialization ordering and fail-closed profile contract.
 
 Read-only inspection commands keep structured data on stdout and suppress Git
 traces so callers can safely consume `status --json`, `worktree list --json`,
@@ -158,8 +157,8 @@ public HTTPS is the fallback when the wrapper has no recognized GitHub remote.
 With no explicit arguments, initialization resolves only the
 replacement/default cohort. `init --with classic` resolves the union of the
 default and classic cohorts; the option is additive and has no classic-only
-alias. The `classic` monorepo, GPL `tools`, MIT `playtester`, and
-`content-1x@1.x` are absent from ordinary initialization. Explicit checkout or
+alias. The `classic` monorepo, GPL `tools`, and MIT `playtester` are absent from
+ordinary initialization. The shared content checkout is cloned once. Explicit checkout or
 logical-component initialization remains available for partial workspaces.
 Aliases that own one physical checkout are deduplicated. Initialization is
 idempotent, stages clones away from their destination, and does not update or
@@ -374,13 +373,24 @@ Scenario metadata records its stack and exact checkout/component/source
 providers. An old scenario without that immutable identity is kept as an inert
 record and cannot inherit the current meaning of a reused profile name.
 
+Content selector retirement has its own preview/apply/audit transaction. Its
+certified anchors bind the merged consolidation commits on `main` and the final
+immutable `1.x` release. Preflight inventories legacy profile selectors,
+managed and external worktrees, builds, scenarios, topology records, locks,
+and live processes. Apply holds the repository-layout lock, journals exact
+original profile bytes, uses atomic replacements, and rolls back exact changes
+on failure. Restore holds the same lock and is available only while journaled
+replacement bytes and worktree identities remain unchanged. Historical
+coordinates are preserved as inert facts, and neither migration nor cleanup
+deletes the old checkout or records.
+
 ## Profile resolution and build flow
 
 A profile records a stack and maps each logical component in that stack to its
 primary checkout root, a managed physical-checkout worktree label, or an
 absolute external checkout root. The built-in `default` profile chooses
 replacement providers; the built-in `classic` profile chooses the five
-`classic-*` providers from `atrinik/classic` plus `content-1x`. Cloning a
+`classic-*` providers from `atrinik/classic` plus shared `content@main`. Cloning a
 built-in or saved profile with `profile create --from` retains that stack
 identity. Resolution verifies that every selected root is a Git worktree whose
 `origin` or `upstream` and checkout identity match the manifest. Primary
@@ -399,13 +409,12 @@ Separate module branches must first be combined into one monorepo branch and
 worktree. Resolution then appends each logical component's own source without
 treating a subdirectory as an independent Git worktree.
 
-An exact historical schema-1 or schema-2 classic profile may be migrated with
-an internal `migrated-worktree` selector for an existing content worktree. This exception
-is restricted to `content-1x`, the old managed content-worktree namespace, and
-the `content@main` Git common directory; normal selectors retain the exact
-branch/common-directory rules. Profile-aware sync treats every such path as a
-classic migration artifact and excludes it before checking or updating
-`content@main` worktrees.
+Legacy profile schemas are read by the dedicated content migration before the
+current manifest component set is required. An internal
+`migrated-worktree` selector is accepted only as recovery input. The migration
+normalizes a worktree into the shared namespace only after proving repository
+identity, common Git directory, commit/tree ancestry, destination, and
+cleanliness; old `1.x` or arbitrary external paths remain inert.
 
 The role graph is resolved before component source paths or commands. Each required role
 has exactly one provider in the selected stack, and the transitive service
@@ -440,7 +449,7 @@ CMake inputs cannot remain hidden behind a warm graph.
 The currently playable classic build flow is:
 
 ~~~text
-selected content-1x -> build_runtime.py -> isolated content/lib + content/maps
+selected content@main -> build_runtime.py --target classic -> isolated content/lib + content/maps
 selected tracked resource allowlist -> isolated resource view
 full Classic closure -> integrated source view -> one protocol/libatrinik graph
                                              +-> client targets -> CMake/Ninja
@@ -558,7 +567,7 @@ match; dirty inputs deliberately regenerate.
 
 For the currently runnable classic profile, server launch preparation assembles
 a disposable working directory with links to the selected build, plugins,
-collected `content-1x`, resources, configuration, GPL tools, and named
+collected Classic-target `content@main`, resources, configuration, GPL tools, and named
 persistent state. GPL tools are not part of the replacement/default role graph.
 First use initializes a state atomically from the selected server's
 `install_data`; an existing directory is validated and never overlaid. State

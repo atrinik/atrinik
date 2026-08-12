@@ -31,10 +31,10 @@ imports that exact local commit; never recreate or depend on a retired
 `history/*` namespace.
 
 Classic profile rewrites are atomic and select one complete monorepo root for
-all five logical components. The internal `migrated-worktree` selector is
-provenance for an exact historical `content-1x` worktree only; `profile set`
-must never create it. New classic content work uses a normal `content-1x`
-worktree.
+all five logical components. Content selector retirement is a distinct checked
+workflow: run `./atrinik migrate content --dry-run --json`, then explicit
+apply and audit. New Classic content work uses the shared `content@main`
+checkout and its target-specific publisher.
 
 Migration does not initialize other repositories or move/reinterpret content,
 states, builds, runtimes, scenarios, topologies, or logs. After a successful

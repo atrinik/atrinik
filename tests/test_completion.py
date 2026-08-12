@@ -160,7 +160,7 @@ class CompletionTests(unittest.TestCase):
         self.assertEqual(values.count("classic"), 1)
         self.assertIn("classic-client", values)
         self.assertIn("content", values)
-        self.assertIn("content-1x", values)
+        self.assertNotIn("content-1x", values)
 
         mode, values = self.candidates("build", "--profile", "classic", "")
         self.assertEqual(mode, "candidates")
@@ -221,21 +221,21 @@ class CompletionTests(unittest.TestCase):
 
     def test_worktree_labels_are_filtered_by_selected_physical_checkout(self) -> None:
         (self.workspace / "worktrees" / "content" / "main-maps").mkdir(parents=True)
-        (self.workspace / "worktrees" / "content-1x" / "classic-maps").mkdir(
+        (self.workspace / "worktrees" / "content" / "classic-maps").mkdir(
             parents=True
         )
         (self.workspace / "worktrees" / "content" / "main-maps" / ".git").write_text(
             "gitdir: /tmp/main-maps\n", encoding="utf-8"
         )
         (
-            self.workspace / "worktrees" / "content-1x" / "classic-maps" / ".git"
+            self.workspace / "worktrees" / "content" / "classic-maps" / ".git"
         ).write_text("gitdir: /tmp/classic-maps\n", encoding="utf-8")
         _, main_values = self.candidates("worktree", "remove", "content", "")
         _, classic_values = self.candidates(
-            "worktree", "remove", "content-1x", ""
+            "worktree", "remove", "content", ""
         )
-        self.assertEqual(main_values, ["main-maps"])
-        self.assertEqual(classic_values, ["classic-maps"])
+        self.assertEqual(main_values, ["classic-maps", "main-maps"])
+        self.assertEqual(classic_values, ["classic-maps", "main-maps"])
 
     def test_profile_role_selects_owning_checkout_for_worktrees(self) -> None:
         stack = parser()  # Ensure a fresh parser does not retain process state.
