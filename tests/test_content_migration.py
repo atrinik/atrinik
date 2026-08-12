@@ -514,6 +514,426 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertEqual(result["status"], "not-needed")
         self.assertEqual(result["refusals"], [])
 
+    def test_helper_failures_are_bounded_and_actionable(self) -> None:
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "unsupported content migration mode"
+        ):
+            self.migration().execute("erase")
+        for url in (
+            "git@github.com:atrinik/content.git",
+            "ssh://git@github.com/atrinik/content.git",
+            "https://github.com/atrinik/content.git",
+        ):
+            with self.subTest(url=url):
+                self.assertTrue(migration_module._remote_matches(url))
+        self.assertFalse(migration_module._remote_matches("file:///tmp/content"))
+
+        missing = mock.Mock(side_effect=FileNotFoundError())
+        with mock.patch.object(migration_module.subprocess, "run", missing):
+            with self.assertRaisesRegex(
+                migration_module.WorkspaceError, "required command not found"
+            ):
+                migration_module._git(self.main, "status")
+            with self.assertRaisesRegex(
+                migration_module.WorkspaceError, "required command not found"
+            ):
+                migration_module._git_succeeds(self.main, "status")
+
+        failed = subprocess.CalledProcessError(
+            1, ["git"], output="", stderr="fixture failure"
+        )
+        with mock.patch.object(migration_module.subprocess, "run", side_effect=failed):
+            with self.assertRaisesRegex(
+                migration_module.WorkspaceError, "fixture failure"
+            ):
+                migration_module._git(self.main, "status")
+
+        target = self.root / "atomic" / "profile.json"
+        with mock.patch.object(migration_module.os, "replace", side_effect=OSError("race")):
+            with self.assertRaisesRegex(OSError, "race"):
+                migration_module._atomic_bytes(target, b"preserve\n")
+        self.assertFalse(target.exists())
+        self.assertEqual(list(target.parent.iterdir()), [])
+
+    def test_layout_lock_rejects_unsafe_path_and_apply_contention(self) -> None:
+        unsafe = self.root / "unsafe-lock"
+        unsafe.mkdir()
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "cannot open repository layout lock"
+        ):
+            migration_module._open_layout_lock(unsafe)
+
+        self._legacy_profile()
+        lock_path = self.workspace.paths.workspace / "repository-layout.lock"
+        descriptor = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            result = self.migration().execute("apply")
+        finally:
+            os.close(descriptor)
+        self.assertEqual(result["status"], "refused")
+        self.assertEqual(result["refusals"][-1]["code"], "repository_layout_busy")
+
+    def test_apply_is_idempotent_only_before_explicit_restore(self) -> None:
+        self._legacy_profile()
+        self.assertEqual(self.migration().execute("apply")["status"], "complete")
+        self.assertEqual(self.migration().execute("apply")["status"], "already-applied")
+
+    def test_apply_reports_not_needed_without_legacy_profiles(self) -> None:
+        result = self.migration().execute("apply")
+
+        self.assertEqual(result["status"], "not-needed")
+        self.assertFalse(self.migration().record_path.exists())
+
+    def test_canonical_checkout_identity_failures_refuse_migration(self) -> None:
+        cases = ("symlink", "remote", "branch", "ancestry", "dirty")
+        for condition in cases:
+            with self.subTest(condition=condition):
+                with tempfile.TemporaryDirectory() as temporary:
+                    root = Path(temporary)
+                    wrapper = root / "wrapper"
+                    wrapper.mkdir()
+                    shutil.copy2(ROOT / "components.json", wrapper / "components.json")
+                    with mock.patch.dict(
+                        os.environ, {"ATRINIK_WORKSPACE_DIR": str(root / "workspace")}
+                    ):
+                        workspace = Workspace(wrapper)
+                        workspace.paths.ensure()
+                        main = self._repository(wrapper / "content", "main", "main\n")
+                        one_x = self._repository(
+                            wrapper / "content-1x", "1.x", "frozen\n"
+                        )
+                        main_anchor = self._git(main, "rev-parse", "HEAD")
+                        one_x_anchor = self._git(one_x, "rev-parse", "HEAD")
+                        current = workspace._load_profile("classic", require_file=False)
+                        components = dict(current["components"])
+                        components["content-1x"] = {"kind": "primary", "value": ""}
+                        components.pop("content")
+                        current.update(name="legacy", components=components)
+                        (workspace.paths.profiles / "legacy.json").write_text(
+                            json.dumps(current), encoding="utf-8"
+                        )
+                        if condition == "symlink":
+                            actual = wrapper / "actual-content"
+                            main.rename(actual)
+                            main.symlink_to(actual, target_is_directory=True)
+                        elif condition == "remote":
+                            subprocess.run(
+                                [
+                                    "git",
+                                    "remote",
+                                    "set-url",
+                                    "origin",
+                                    "https://example.invalid/content.git",
+                                ],
+                                cwd=main,
+                                check=True,
+                            )
+                        elif condition == "branch":
+                            subprocess.run(
+                                ["git", "branch", "-m", "other"],
+                                cwd=main,
+                                check=True,
+                            )
+                        elif condition == "dirty":
+                            (main / "dirty.txt").write_text(
+                                "preserve\n", encoding="utf-8"
+                            )
+                        anchor = "0" * 40 if condition == "ancestry" else main_anchor
+                        with mock.patch.multiple(
+                            migration_module,
+                            CERTIFIED_MAIN_COMMIT=anchor,
+                            CERTIFIED_1X_COMMIT=one_x_anchor,
+                        ):
+                            result = ContentMigration(
+                                workspace.paths.repository,
+                                workspace.paths,
+                                workspace.manifest,
+                            ).execute("dry-run")
+                        self.assertEqual(result["status"], "refused")
+                        self.assertIn(
+                            "canonical_content_unproven",
+                            {row["code"] for row in result["refusals"]},
+                        )
+
+    def test_profile_schema_and_selector_failures_preserve_exact_bytes(self) -> None:
+        current = self.workspace._load_profile("classic", require_file=False)
+        cases: dict[str, object] = {
+            "not-object": [],
+            "wrong-name": {**current, "name": "elsewhere"},
+            "schema": {**current, "schema_version": 99},
+            "sound": {**current, "sound_mode": "surround"},
+            "components": {**current, "components": []},
+            "component-set": {
+                **current,
+                "components": {"content": {"kind": "primary", "value": ""}},
+            },
+        }
+        for name, value in cases.items():
+            with self.subTest(name=name):
+                path = self.workspace.paths.profiles / f"{name}.json"
+                raw = json.dumps(value).encode()
+                path.write_bytes(raw)
+                result = self.migration().execute("dry-run")
+                row = next(item for item in result["profiles"] if item["name"] == name)
+                self.assertEqual(row["status"], "blocked")
+                self.assertEqual(path.read_bytes(), raw)
+                path.unlink()
+
+        inert = {**current, "name": "replacement", "stack": "default"}
+        path = self.workspace.paths.profiles / "replacement.json"
+        path.write_text(json.dumps(inert), encoding="utf-8")
+        row = next(
+            item
+            for item in self.migration().execute("dry-run")["profiles"]
+            if item["name"] == "replacement"
+        )
+        self.assertEqual(row["status"], "inert")
+
+    def test_current_profile_selector_validation_rejects_each_unsafe_kind(self) -> None:
+        components = self.workspace._load_profile("classic", require_file=False)[
+            "components"
+        ]
+        cases = (
+            ("unknown", {**components, "unknown": {"kind": "primary", "value": ""}}),
+            ("shape", {**components, "content": []}),
+            ("primary", {**components, "content": {"kind": "primary", "value": "bad"}}),
+            ("worktree", {**components, "content": {"kind": "worktree", "value": "../bad"}}),
+            ("path", {**components, "content": {"kind": "path", "value": "relative"}}),
+            ("kind", {**components, "content": {"kind": "migrated-worktree", "value": "/tmp/x"}}),
+        )
+        migration = self.migration()
+        for name, value in cases:
+            with self.subTest(name=name):
+                with self.assertRaises(migration_module.WorkspaceError):
+                    migration._validate_current_profile_components(value)
+
+    def test_legacy_selector_validation_covers_supported_boundaries(self) -> None:
+        migration = self.migration()
+        inspection = migration._inspect()
+        canonical = inspection["canonical"]
+        legacy = inspection["legacy"]
+        cases: tuple[object, ...] = (
+            [],
+            {"kind": 1, "value": ""},
+            {"kind": "primary", "value": "unexpected"},
+            {"kind": "worktree", "value": "../bad"},
+            {"kind": "path", "value": "relative"},
+            {"kind": "migrated-worktree", "value": "relative"},
+            {"kind": "unknown", "value": "value"},
+        )
+        for selector in cases:
+            with self.subTest(selector=selector):
+                with self.assertRaises(migration_module.WorkspaceError):
+                    migration._migrate_selector("profile", selector, canonical, legacy)
+        replacement, move = migration._migrate_selector(
+            "profile",
+            {"kind": "path", "value": str(self.main)},
+            canonical,
+            legacy,
+        )
+        self.assertEqual(replacement, {"kind": "primary", "value": ""})
+        self.assertIsNone(move)
+
+    def test_resource_inventory_rejects_unsafe_and_malformed_records(self) -> None:
+        builds = self.workspace.paths.builds
+        shutil.rmtree(builds)
+        external = self.root / "external-builds"
+        external.mkdir()
+        builds.symlink_to(external, target_is_directory=True)
+        topologies = self.workspace.paths.topologies
+        shutil.rmtree(topologies)
+        topologies.write_text("unsafe\n", encoding="utf-8")
+        locks = self.workspace.paths.workspace / "repository-layout.lock"
+        locks.symlink_to(self.root / "missing-lock")
+
+        resources, refusals = self.migration()._resource_inventory(set())
+
+        codes = {row["code"] for row in refusals}
+        self.assertIn("invalid_builds_directory", codes)
+        self.assertIn("invalid_topologies_directory", codes)
+        self.assertIn("invalid_lock_path", codes)
+        self.assertEqual(resources["locks"][0]["status"], "unsafe")
+
+    def test_resource_inventory_rejects_bad_entries_and_process_records(self) -> None:
+        build = self.workspace.paths.builds / "bad"
+        build.mkdir(parents=True)
+        (build / ".atrinik-build.json").symlink_to(self.root / "missing-build")
+        lock_directory = self.workspace.paths.builds / "locks"
+        lock_directory.mkdir()
+        (lock_directory / "bad").mkdir()
+        topology_link = self.workspace.paths.topologies / "linked"
+        topology_link.symlink_to(self.root, target_is_directory=True)
+        topology = self.workspace.paths.topologies / "malformed"
+        topology.mkdir()
+        (topology / "status.json").write_text(
+            json.dumps({"supervisor": None, "services": {"server": None}}),
+            encoding="utf-8",
+        )
+
+        resources, refusals = self.migration()._resource_inventory(set())
+
+        codes = [row["code"] for row in refusals]
+        self.assertIn("unobservable_builds_record", codes)
+        self.assertIn("unobservable_topology", codes)
+        self.assertIn("invalid_lock_path", codes)
+        self.assertTrue(any(row["status"] == "unsafe" for row in resources["locks"]))
+
+    def test_resource_inventory_bounds_records_and_observes_lock_failures(self) -> None:
+        build = self.workspace.paths.builds / "large"
+        build.mkdir(parents=True)
+        record = build / ".atrinik-build.json"
+        record.write_bytes(b"1234")
+        lock_directory = self.workspace.paths.builds / "locks"
+        lock_directory.mkdir()
+        lock = lock_directory / "busy.lock"
+        lock.write_text("lock\n", encoding="utf-8")
+        with (
+            mock.patch.object(migration_module, "RESOURCE_RECORD_MAX_BYTES", 1),
+            mock.patch.object(
+                migration_module,
+                "holders_exist",
+                side_effect=migration_module.WorkspaceError("unobservable"),
+            ),
+        ):
+            resources, refusals = self.migration()._resource_inventory(set())
+        self.assertIn(
+            "unobservable_builds_record", {row["code"] for row in refusals}
+        )
+        observed = next(row for row in resources["locks"] if row["path"] == str(lock))
+        self.assertTrue(observed["active"])
+
+    def test_apply_rolls_back_when_profile_changes_after_preflight(self) -> None:
+        profile, original = self._legacy_profile()
+        migration = self.migration()
+        plan = migration.execute("dry-run")
+        profile.write_bytes(original + b" ")
+
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "profile changed during migration"
+        ):
+            migration._apply(plan)
+
+        self.assertFalse(migration.pending_path.exists())
+        self.assertFalse(migration.record_path.exists())
+        self.assertEqual(profile.read_bytes(), original + b" ")
+
+    def test_apply_rolls_back_profiles_when_record_publication_fails(self) -> None:
+        profile, original = self._legacy_profile()
+        migration = self.migration()
+        plan = migration.execute("dry-run")
+        real_atomic_json = migration_module.atomic_json
+        calls = 0
+
+        def fail_record(path: Path, value: object) -> None:
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                raise OSError("record publication failed")
+            real_atomic_json(path, value)
+
+        with mock.patch.object(migration_module, "atomic_json", side_effect=fail_record):
+            with self.assertRaisesRegex(
+                migration_module.WorkspaceError, "record publication failed"
+            ):
+                migration._apply(plan)
+
+        self.assertEqual(profile.read_bytes(), original)
+        self.assertFalse(migration.pending_path.exists())
+        self.assertFalse(migration.record_path.exists())
+
+    def test_apply_reports_retained_pending_journal_after_commit(self) -> None:
+        self._legacy_profile()
+        migration = self.migration()
+        plan = migration.execute("dry-run")
+        real_unlink = Path.unlink
+
+        def fail_pending(path: Path, *args: object, **kwargs: object) -> None:
+            if path == migration.pending_path:
+                raise OSError("retain journal")
+            real_unlink(path, *args, **kwargs)
+
+        with mock.patch.object(Path, "unlink", fail_pending):
+            result = migration._apply(plan)
+
+        self.assertEqual(result["status"], "complete")
+        self.assertEqual(result["pending_journal_retained"], str(migration.pending_path))
+        self.assertTrue(migration.record_path.is_file())
+        self.assertTrue(migration.pending_path.is_file())
+
+    def test_journal_shape_and_digest_tampering_fail_closed(self) -> None:
+        self._legacy_profile()
+        migration = self.migration()
+        self.assertEqual(migration.execute("apply")["status"], "complete")
+        original = json.loads(migration.record_path.read_text(encoding="utf-8"))
+        rewrite_index = next(
+            index
+            for index, row in enumerate(original["profiles"])
+            if row["status"] == "rewrite"
+        )
+        cases = {
+            "shape": lambda value: value.update(migration="other"),
+            "profile-row": lambda value: value["profiles"].append([]),
+            "profile-name": lambda value: value["profiles"][rewrite_index].update(
+                name="../bad"
+            ),
+            "profile-path": lambda value: value["profiles"][rewrite_index].update(
+                path="/tmp/redirect"
+            ),
+            "profile-bytes": lambda value: value["profiles"][rewrite_index].update(
+                original_base64="!"
+            ),
+            "profile-digest": lambda value: value["profiles"][rewrite_index].update(
+                original_sha256="0" * 64
+            ),
+            "move-row": lambda value: value["worktree_moves"].append([]),
+        }
+        for name, mutate in cases.items():
+            with self.subTest(name=name):
+                value = json.loads(json.dumps(original))
+                mutate(value)
+                migration.record_path.write_text(json.dumps(value), encoding="utf-8")
+                result = migration.execute("audit")
+                self.assertEqual(result["status"], "incomplete")
+                self.assertEqual(
+                    result["refusals"][0]["code"], "invalid_migration_record"
+                )
+
+    def test_audit_detects_profile_and_worktree_drift(self) -> None:
+        source = self.workspace.paths.worktrees / "content-1x" / "audit-drift"
+        source.parent.mkdir(parents=True)
+        subprocess.run(
+            ["git", "worktree", "add", "-q", "-b", "review/audit-drift", str(source)],
+            cwd=self.main,
+            check=True,
+        )
+        profile, _ = self._legacy_profile(
+            selector={"kind": "worktree", "value": "audit-drift"}
+        )
+        migration = self.migration()
+        self.assertEqual(migration.execute("apply")["status"], "complete")
+        profile.write_text("changed\n", encoding="utf-8")
+        source.mkdir(parents=True)
+
+        audit = migration.execute("audit")
+
+        codes = {row["code"] for row in audit["refusals"]}
+        self.assertIn("profile_audit_failed", codes)
+        self.assertIn("worktree_audit_failed", codes)
+
+    def test_restore_refuses_new_unsafe_resources_after_a_clean_audit(self) -> None:
+        self._legacy_profile()
+        migration = self.migration()
+        self.assertEqual(migration.execute("apply")["status"], "complete")
+        lock_directory = self.workspace.paths.builds / "locks"
+        lock_directory.mkdir(parents=True)
+        (lock_directory / "unsafe").mkdir()
+
+        restored = migration.execute("restore")
+
+        self.assertEqual(restored["status"], "refused")
+        self.assertIn("invalid_lock_path", {row["code"] for row in restored["refusals"]})
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -175,11 +175,8 @@ class ContentMigration:
             return self._audit()
         if mode == "restore":
             return self._locked_restore()
-        inspection = self._inspect()
-        if mode == "dry-run" or inspection["refusals"]:
-            return inspection
-        if inspection["status"] == "not-needed":
-            return inspection
+        if mode == "dry-run":
+            return self._inspect()
         return self._locked_apply()
 
     def _locked_apply(self) -> dict[str, Any]:
