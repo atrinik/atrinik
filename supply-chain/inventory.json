@@ -2545,16 +2545,16 @@
         "classic-server"
       ],
       "required": true,
-      "version": "v1.2.0",
+      "version": "v1.8.13",
       "version_source": "classic/server/dependencies.lock.json",
       "license": "LicenseRef-Atrinik-Asset-Per-File",
-      "source_url": "https://github.com/atrinik/content/releases/tag/v1.2.0",
-      "locator": "pkg:github/atrinik/content@v1.2.0",
-      "commit": "766cb6e67aa03dd86b1c333c607885df31c3aca5",
-      "checksum": "sha256:06dd946dbd121429d4a2b8b5ac1de02e7561b723916f6400b3e87134364ac4c2",
+      "source_url": "https://github.com/atrinik/content/releases/tag/v1.8.13",
+      "locator": "pkg:github/atrinik/content@v1.8.13",
+      "commit": "7179e684adbc0716db334425de16d788ddc0c87e",
+      "checksum": "sha256:19161c9dc4a528740cd59a1460cbe3f1e8a48cf7a1ec8f4d4e8ff04f1be78de4",
       "acquisition": "Classic server dependency tool downloads and safely extracts the release archive",
       "update_cadence_days": 30,
-      "update_mechanism": "Weekly lock drift audit and reviewed release consumption",
+      "update_mechanism": "Daily fail-closed GitHub App proposal and reviewed Classic lock pull request",
       "eol_response": "Update the lock to a supported content release or stop packaging the classic server",
       "validation": "Lock validation, checksum, safe extraction, collection, and classic server runtime tests",
       "disposition": "isolate",
@@ -2563,7 +2563,7 @@
         {
           "repository": "classic-server",
           "path": "dependencies.lock.json",
-          "contains": "atrinik-content-1.2.0-runtime.tar.gz"
+          "contains": "atrinik-content-1.8.13-runtime.tar.gz"
         }
       ]
     },
@@ -2662,43 +2662,6 @@
           "repository": "classic-server",
           "path": "cmake/dependencies.lock.json",
           "contains": "libatrinik-1.1.5.tar.gz"
-        }
-      ]
-    },
-    {
-      "id": "source/atrinik-protocol-client-server",
-      "name": "Atrinik classic protocol release source for the classic client and server",
-      "kind": "source-archive",
-      "owner": "classic-protocol",
-      "scope": [
-        "classic-client",
-        "classic-server"
-      ],
-      "required": true,
-      "version": "v1.0.1",
-      "version_source": "classic/client and classic/server CMake dependency locks",
-      "license": "MIT",
-      "source_url": "https://github.com/atrinik/legacy-protocol/releases/tag/v1.0.1",
-      "locator": "pkg:github/atrinik/legacy-protocol@v1.0.1",
-      "commit": "7e10ecaa279489fcdb843ecbe020fc9befeba4fd",
-      "checksum": "sha256:d8e113210a395913d27446e5764f212f6f1de028c9945ae9f0479588474b3137",
-      "acquisition": "CMake FetchContent downloads the checksum-pinned release archive",
-      "update_cadence_days": 30,
-      "update_mechanism": "Weekly lock drift audit and coordinated endpoint update",
-      "eol_response": "Release and consume a supported protocol version across both endpoints",
-      "validation": "Lock validation, generated bindings, native endpoint tests, and MinGW builds",
-      "disposition": "isolate",
-      "packages": [],
-      "evidence": [
-        {
-          "repository": "classic-client",
-          "path": "cmake/dependencies.lock.json",
-          "contains": "atrinik-protocol-1.0.1.tar.gz"
-        },
-        {
-          "repository": "classic-server",
-          "path": "cmake/dependencies.lock.json",
-          "contains": "atrinik-protocol-1.0.1.tar.gz"
         }
       ]
     },
