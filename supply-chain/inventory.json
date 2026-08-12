@@ -1497,25 +1497,25 @@
         "atrinik"
       ],
       "required": true,
-      "version": "1.2.0",
+      "version": "1.3.0",
       "version_source": "Immutable semantic-release image tag",
       "license": "LicenseRef-Atrinik-Image-Contents",
       "source_url": "https://github.com/atrinik/devcontainer/pkgs/container/linux-build",
       "locator": "ghcr.io/atrinik/linux-build",
-      "commit": "66b8508434044ca50822558172c5cef47a888762",
-      "checksum": "sha256:1231b39d40161c1199fd3e45e99e3d826dde02dade79729c030cc0ce3710898f",
+      "commit": "b4df04bf5b47a8f5d24e0783efd2c16c5e809f38",
+      "checksum": "sha256:260658d2709e993b41148a9d8f724c2d2f7f1fd93543a139b00d139b10e7f31a",
       "acquisition": "Dev Containers pulls the release tag and immutable manifest digest",
       "update_cadence_days": 30,
       "update_mechanism": "Weekly audit plus reviewed devcontainer release update",
       "eol_response": "Publish a supported replacement image and update the wrapper atomically",
-      "validation": "Devcontainer configuration tests and complete native build",
+      "validation": "Anonymous manifest and provenance inspection, whole-image SBOM, exact non-root gh-stack smoke, devcontainer configuration tests, and complete native build",
       "disposition": "retain",
       "packages": [],
       "evidence": [
         {
           "repository": "atrinik",
           "path": ".devcontainer/devcontainer.json",
-          "contains": "ghcr.io/atrinik/linux-build:1.2.0@sha256:1231b39d40161c1199fd3e45e99e3d826dde02dade79729c030cc0ce3710898f"
+          "contains": "ghcr.io/atrinik/linux-build:1.3.0@sha256:260658d2709e993b41148a9d8f724c2d2f7f1fd93543a139b00d139b10e7f31a"
         }
       ]
     },
@@ -4157,6 +4157,70 @@
           "repository": "devcontainer",
           "path": "linux/Dockerfile",
           "contains": "DEVCONTAINER_CLI_VERSION=0.88.0"
+        }
+      ]
+    },
+    {
+      "id": "toolchain/gh-stack",
+      "name": "GitHub PR stack extension",
+      "kind": "toolchain",
+      "owner": "devcontainer",
+      "scope": [
+        "atrinik",
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "0.1.0",
+      "version_source": "linux/Dockerfile checksum and pinned extension manifest",
+      "license": "MIT",
+      "source_url": "https://github.com/github/gh-stack/releases/tag/v0.1.0",
+      "locator": "pkg:github/github/gh-stack@v0.1.0",
+      "commit": "a1b4a3d4d0bcde9ec3a78ab99b2d63af121857a9",
+      "checksum": "sha256:358552dd7dce0a46ce153fe196270cec482b84f080947890aad4061a8d44bc0b",
+      "acquisition": "The Linux image installs the v0.1.0 extension for ubuntu and verifies its attested binary digest",
+      "update_cadence_days": 30,
+      "update_mechanism": "Reviewed version, source, checksum, license, and release-attestation update in the devcontainer image",
+      "eol_response": "Replace the extension before its command contract becomes unsupported",
+      "validation": "Pinned manifest, non-root discovery and dispatch, exact version and checksum, and attestation constrained to github/gh-stack, .github/workflows/release.yml, refs/tags/v0.1.0, and the source commit",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "linux/Dockerfile",
+          "contains": "GH_STACK_SHA256_AMD64=358552dd7dce0a46ce153fe196270cec482b84f080947890aad4061a8d44bc0b"
+        }
+      ]
+    },
+    {
+      "id": "toolchain/github-cli",
+      "name": "GitHub CLI",
+      "kind": "toolchain",
+      "owner": "devcontainer",
+      "scope": [
+        "atrinik",
+        "devcontainer"
+      ],
+      "required": true,
+      "version": "2.97.0",
+      "version_source": "linux/Dockerfile",
+      "license": "MIT",
+      "source_url": "https://github.com/cli/cli/releases/tag/v2.97.0",
+      "locator": "pkg:github/cli/cli@v2.97.0",
+      "commit": "55dbb4dc6b7edb10b48e3d7fc5bccd32318d1b55",
+      "checksum": "sha256:a2c9b8497e1f85b1ad0dfcb78b5a622e098801b8e461e459e88e1ee12f018112",
+      "acquisition": "The Linux image downloads the checksum-pinned official linux-amd64 release archive",
+      "update_cadence_days": 30,
+      "update_mechanism": "Scheduled upstream release review with a reviewed version and checksum update",
+      "eol_response": "Upgrade before the supported GitHub CLI line loses required PR stack behavior",
+      "validation": "Sole executable path, exact non-root version, archive checksum, license, and whole-image SBOM",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "devcontainer",
+          "path": "linux/Dockerfile",
+          "contains": "GH_SHA256=a2c9b8497e1f85b1ad0dfcb78b5a622e098801b8e461e459e88e1ee12f018112"
         }
       ]
     },

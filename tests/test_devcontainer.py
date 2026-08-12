@@ -20,8 +20,8 @@ class DevcontainerTests(unittest.TestCase):
         self.assertEqual(config["postCreateCommand"], "./atrinik init")
         self.assertEqual(
             config["image"],
-            "ghcr.io/atrinik/linux-build:1.2.0@sha256:"
-            "1231b39d40161c1199fd3e45e99e3d826dde02dade79729c030cc0ce3710898f",
+            "ghcr.io/atrinik/linux-build:1.3.0@sha256:"
+            "260658d2709e993b41148a9d8f724c2d2f7f1fd93543a139b00d139b10e7f31a",
         )
 
     def test_windows_configuration_validates_component_manifest(self) -> None:
