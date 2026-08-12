@@ -69,7 +69,8 @@
   bodies require renderable GitHub-Flavored Markdown and actual line breaks,
   never visible literal `\n` separators. Feed multi-section bodies by file or
   stdin; after create/edit, verify remote rendering. Use
-  `atrinik-github-governance` for publication and policy. Semantic-release owns
+  `atrinik-github-governance` for publication, policy, or native PR stacks.
+  Semantic-release owns
   tags/assets; keep confidential or unreleased work off public surfaces.
 
 ## Working agreements and commands

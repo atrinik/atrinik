@@ -1,21 +1,24 @@
 ---
 name: atrinik-github-governance
-description: Publish Atrinik PRs or change GitHub policy, settings, Actions, required checks, or release governance.
+description: Publish Atrinik PRs, govern GitHub policy, or review and explicitly merge native PR stacks.
 ---
 
 # Atrinik GitHub Governance
 
 ## Route and review the task
 
-1. For PR-only work, read its repository's `AGENTS.md`, use **Publish pull
+1. For native PR-stack review or an explicitly authorized merge, read and
+   follow [the stack contract](references/pr-stack-review-and-merge.md) in
+   full. Review-only work is read-only; never infer merge authority.
+2. For PR-only work, read its repository's `AGENTS.md`, use **Publish pull
    requests**, and skip steps 2–5.
-2. For policy, settings, Actions, checks, or release governance, read the
+3. For policy, settings, Actions, checks, or release governance, read the
    workspace and `github-settings/AGENTS.md` guides.
-3. Compare relevant configuration, publisher, workflows, and history with the
+4. Compare relevant configuration, publisher, workflows, and history with the
    live GitHub API; inspect desired and live state.
-4. Run the publisher plan before `--apply`; external changes and workflow
+5. Run the publisher plan before `--apply`; external changes and workflow
    dispatch need explicit authorization.
-5. Keep controls Team-plan compatible; document and review Enterprise-only
+6. Keep controls Team-plan compatible; document and review Enterprise-only
    migrations.
 
 ## Change policy coherently
