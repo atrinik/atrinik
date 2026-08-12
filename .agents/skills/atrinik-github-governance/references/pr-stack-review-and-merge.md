@@ -71,10 +71,11 @@ mutation is proposed and the recorded merge results are part of the evidence.
 
 Before reviewing, freeze the repository and stack numbers, selected portion,
 trunk SHA, ordered base/head branches and SHAs, merge bases, changed paths, and
-the resulting cumulative tree. For review-only work, keep this evidence in
-memory and the response; do not create or update any report or other file.
-Only a separately write-authorized delivery or fix workflow may persist it in
-that workflow's existing ignored report or a new ignored review report.
+the resulting cumulative tree. During every standalone PR stack review phase,
+including review under an explicit merge request, keep this evidence in memory
+and the response; do not create or update any report or other file. Only a
+separately write-authorized delivery or fix workflow may persist it in that
+workflow's existing ignored report or a new ignored review report.
 
 - Review each layer's exact parent-to-head incremental diff against that PR's
   issue, requirements, tests, generated consumers, and closing behavior.
@@ -85,11 +86,12 @@ that workflow's existing ignored report or a new ignored review report.
   [deep-review checklist](../../atrinik-issue-delivery/references/deep-review-checklist.md)
   to implementation layers and the program-delivery
   [integration checklist](../../atrinik-program-delivery/references/program-review-checklist.md)
-  to the cumulative result. For review-only work, reuse only their review
-  categories and prompts: this contract overrides the deep-review checklist's
-  report-instantiation and evidence-persistence prerequisites. Keep that
-  evidence in memory and the response. For non-trivial work, use independent
-  fresh-context passes from raw issues and diffs.
+  to the cumulative result. In every standalone PR stack review phase, reuse
+  only their review categories and prompts: this contract overrides the
+  deep-review checklist's report-instantiation and evidence-persistence
+  prerequisites. Keep that evidence in memory and the response. For
+  non-trivial work, use independent fresh-context passes from raw issues and
+  diffs.
 - Report findings without mutation for review-only requests. When separately
   authorized to fix, fix every actionable finding through its owning delivery
   workflow, validate, and repeat both incremental and cumulative review at the
@@ -175,9 +177,12 @@ gh api \
 Treat `merged` and `failed` as terminal. `enqueued` is terminal for the request
 but not proof of a merge; it is unexpected under the no-queue preflight and
 requires a recovery handoff. A timeout, transport loss, malformed response,
-polling `404` or expired result, or `409` is unknown state, never permission to
-submit another merge. Preserve the UUID when available and query that request
-plus the stack, every selected and remaining PR, target ref/history, and issue.
+polling `403`, `404`, an expired result, any unexpected non-`200` polling
+response, or `409` is unknown state, never permission to submit another merge.
+Preserve the UUID and query the request plus whatever stack, selected and
+remaining PR, target ref/history, and issue state is accessible. If access
+cannot be restored, stop with the UUID and exact response in a recovery
+handoff; any later mutation requires refreshed authority, review, and preflight.
 After an expired result, prohibit resubmission unless exact reconstructed state
 proves no mutation and the full authority, review, and preflight contract is
 refreshed. If a lost submission response left no UUID, refresh all coordinates

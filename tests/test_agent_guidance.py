@@ -469,8 +469,11 @@ class AgentGuidanceTests(unittest.TestCase):
             "fixed upper bound",
             "repos/OWNER/REPOSITORY/pulls/TOP_PR/merge-async/UUID",
             "A timeout, transport loss, malformed response",
-            "polling `404` or expired result",
-            "every selected and remaining PR, target ref/history, and issue",
+            "polling `403`, `404`, an expired result",
+            "any unexpected non-`200` polling response",
+            "whatever stack, selected and remaining PR, target ref/history",
+            "stop with the UUID and exact response in a recovery handoff",
+            "any later mutation requires refreshed authority, review, and preflight",
             "full authority, review, and preflight contract is refreshed",
             "Never emulate atomic merge with sequential `gh pr merge`",
             "For a partial-stack merge",
@@ -517,11 +520,16 @@ class AgentGuidanceTests(unittest.TestCase):
         )
         self.assertNotIn("PR-stack", terminology)
         self.assertIn(
-            "For review-only work, keep this evidence in memory and the response",
+            "During every standalone PR stack review phase",
             normalized,
         )
+        self.assertIn("including review under an explicit merge request", normalized)
         self.assertIn("do not create or update any report or other file", normalized)
         self.assertIn("Only a separately write-authorized delivery", normalized)
+        self.assertIn(
+            "In every standalone PR stack review phase, reuse only their review",
+            normalized,
+        )
         self.assertIn(
             "this contract overrides the deep-review checklist's report-instantiation",
             normalized,
