@@ -148,10 +148,23 @@ gh api --method PUT \
   -f merge_action=direct_merge
 ```
 
-Persist the response before polling. A `pending` result must include a UUID,
-`expected_head_sha` equal to the selected head, `merge_method: squash`, and
-`merge_action: direct_merge`. Poll no faster than once per second with a fixed
-upper bound, for example 180 attempts:
+Persist the HTTP status and response body, then classify the submission:
+
+- `202 pending`: require a returned UUID, `expected_head_sha` equal to the
+  selected head, `merge_method: squash`, and `merge_action: direct_merge`, then
+  poll.
+- `409` existing request: adopt its returned UUID only when its stored method,
+  action, and expected head match; otherwise stop in unknown state.
+- Immediate `200 merged` or `200 enqueued`, or `400 failed`: record the exact
+  HTTP status, response status/details, and requested method/action/head.
+  Explicitly record a UUID as unavailable unless the response supplies one;
+  never invent absent response fields. Reconstruct the live stack, every PR,
+  target ref/history, and issue before applying terminal verification.
+- `403`, `404`, or `422`: stop, record the exact response, and refresh all live
+  state. Do not resubmit without renewed authority, review, and preflight.
+
+For `202 pending`, poll no faster than once per second with a fixed upper bound,
+for example 180 attempts:
 
 ```sh
 gh api \
@@ -169,7 +182,7 @@ After an expired result, prohibit resubmission unless exact reconstructed state
 proves no mutation and the full authority, review, and preflight contract is
 refreshed. If a lost submission response left no UUID, refresh all coordinates
 first; only an identical SHA-guarded request may recover the existing UUID from
-`409`, whose stored method, action, and expected head must match before polling.
+`409`, subject to the same matching check before polling.
 Never emulate atomic merge with sequential `gh pr merge`, the synchronous REST
 merge endpoint, or GraphQL merge mutations.
 
@@ -185,8 +198,10 @@ branch, issue state, reviews/checks, and branch refs. Verify that:
 - expected server-side head deletion is distinguished from an error; and
 - issue closure matches the single declared closing path.
 
-For every terminal operation, record in the handoff its async UUID, status,
-method, action, and expected head; stack number and trunk; every selected PR's
+For every attempted operation, record in the handoff its HTTP status, response
+status/details, requested method/action/head, and returned UUID or option fields
+only when supplied; explicitly mark absent server fields unavailable. For every
+terminal operation also record stack number and trunk; every selected PR's
 reviewed base/head and resulting squash SHA when merged; final target branch
 and tip; and issue state. This exact result record is required for both whole
 and partial selections.
