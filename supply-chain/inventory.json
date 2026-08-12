@@ -2510,13 +2510,13 @@
         "classic-server"
       ],
       "required": true,
-      "version": "v1.8.13",
+      "version": "v2.14.0",
       "version_source": "classic/server/dependencies.lock.json",
       "license": "LicenseRef-Atrinik-Asset-Per-File",
-      "source_url": "https://github.com/atrinik/content/releases/tag/v1.8.13",
-      "locator": "pkg:github/atrinik/content@v1.8.13",
-      "commit": "7179e684adbc0716db334425de16d788ddc0c87e",
-      "checksum": "sha256:19161c9dc4a528740cd59a1460cbe3f1e8a48cf7a1ec8f4d4e8ff04f1be78de4",
+      "source_url": "https://github.com/atrinik/content/releases/tag/v2.14.0",
+      "locator": "pkg:github/atrinik/content@v2.14.0",
+      "commit": "7dde0c0afe8840fc95dd26f404310e77d9c82621",
+      "checksum": "sha256:f4ad326e20e221869897c72f7e33b533c408ce6654038dbfc4352da1c3391261",
       "acquisition": "Classic server dependency tool downloads and safely extracts the release archive",
       "update_cadence_days": 30,
       "update_mechanism": "Daily fail-closed GitHub App proposal and reviewed Classic lock pull request",
@@ -2528,7 +2528,7 @@
         {
           "repository": "classic-server",
           "path": "dependencies.lock.json",
-          "contains": "atrinik-content-1.8.13-runtime.tar.gz"
+          "contains": "atrinik-content-2.14.0-classic-runtime.tar.gz"
         }
       ]
     },
