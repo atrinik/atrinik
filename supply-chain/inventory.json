@@ -691,6 +691,37 @@
       ]
     },
     {
+      "id": "action/actions-create-github-app-token",
+      "name": "actions/create-github-app-token",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "classic"
+      ],
+      "required": true,
+      "version": "v3.2.0",
+      "version_source": "Reviewed signed upstream release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/create-github-app-token",
+      "locator": "actions/create-github-app-token",
+      "commit": "bcd2ba49218906704ab6c1aa796996da409d3eb1",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade the Classic dependency updater after App-token workflow review or disable its mutation job",
+      "validation": "Actionlint, Classic workflow contract tests, and a manual disposable App-authored lock pull request",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/update-content.yml",
+          "contains": "actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0"
+        }
+      ]
+    },
+    {
       "id": "action/actions-download-artifact",
       "name": "actions/download-artifact",
       "kind": "github-action",
