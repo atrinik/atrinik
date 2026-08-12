@@ -300,6 +300,36 @@ class InventoryTests(unittest.TestCase):
         cmake = inventory.dependencies_by_id["toolchain/cmake"]
         self.assertIn("playtester", cmake.scope)
         self.assertNotIn("tools", cmake.scope)
+        linux_image = inventory.dependencies_by_id["container/linux-build"]
+        self.assertEqual(linux_image.version, "1.3.0")
+        self.assertEqual(
+            linux_image.commit,
+            "b4df04bf5b47a8f5d24e0783efd2c16c5e809f38",
+        )
+        self.assertEqual(
+            linux_image.checksum,
+            "sha256:260658d2709e993b41148a9d8f724c2d2f7f1fd93543a139b00d139b10e7f31a",
+        )
+        github_cli = inventory.dependencies_by_id["toolchain/github-cli"]
+        self.assertEqual(github_cli.owner, "devcontainer")
+        self.assertEqual(github_cli.scope, ("atrinik", "devcontainer"))
+        self.assertEqual(github_cli.version, "2.97.0")
+        self.assertEqual(
+            github_cli.checksum,
+            "sha256:a2c9b8497e1f85b1ad0dfcb78b5a622e098801b8e461e459e88e1ee12f018112",
+        )
+        gh_stack = inventory.dependencies_by_id["toolchain/gh-stack"]
+        self.assertEqual(gh_stack.owner, "devcontainer")
+        self.assertEqual(gh_stack.scope, ("atrinik", "devcontainer"))
+        self.assertEqual(gh_stack.version, "0.1.0")
+        self.assertEqual(
+            gh_stack.commit,
+            "a1b4a3d4d0bcde9ec3a78ab99b2d63af121857a9",
+        )
+        self.assertEqual(
+            gh_stack.checksum,
+            "sha256:358552dd7dce0a46ce153fe196270cec482b84f080947890aad4061a8d44bc0b",
+        )
         self.assertTrue(
             all(
                 repository.commit is None
