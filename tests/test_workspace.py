@@ -614,11 +614,13 @@ class WorkspaceTests(unittest.TestCase):
         )
         payload_file = output / "maps" / "payload"
         payload_file.write_text(payload, encoding="utf-8")
+        library_file = output / "lib" / "payload"
+        library_file.write_text(payload, encoding="utf-8")
         license_file = output / "attribution" / "maps" / "COPYING"
         license_file.parent.mkdir(parents=True)
         license_file.write_text("fixture license\n", encoding="utf-8")
         files = []
-        for candidate in (compatibility, license_file, payload_file):
+        for candidate in (compatibility, license_file, library_file, payload_file):
             files.append(
                 {
                     "path": candidate.relative_to(output).as_posix(),
@@ -5119,6 +5121,33 @@ class WorkspaceTests(unittest.TestCase):
                 special_content, coordinate, "classic-content", require_metadata=False
             )
 
+        missing_license = content("content-missing-license-binding")
+        manifest = load_json(missing_license / "manifest.json")
+        manifest["license_files"] = []
+        atomic_json(missing_license / "manifest.json", manifest)
+        with self.assertRaisesRegex(WorkspaceError, "license inventory"):
+            self.workspace._validate_collected_content(
+                missing_license,
+                coordinate,
+                "classic-content",
+                require_metadata=False,
+            )
+
+        incomplete_payload = content("content-incomplete-payload")
+        (incomplete_payload / "lib" / "payload").unlink()
+        manifest = load_json(incomplete_payload / "manifest.json")
+        manifest["files"] = [
+            entry for entry in manifest["files"] if entry["path"] != "lib/payload"
+        ]
+        atomic_json(incomplete_payload / "manifest.json", manifest)
+        with self.assertRaisesRegex(WorkspaceError, "payload is incomplete"):
+            self.workspace._validate_collected_content(
+                incomplete_payload,
+                coordinate,
+                "classic-content",
+                require_metadata=False,
+            )
+
         source = self.workspace.paths.repositories / "resources"
 
         def resource(name: str) -> Path:
@@ -6988,6 +7017,51 @@ class WorkspaceTests(unittest.TestCase):
         atomic_json(root / "status.json", current)
         with self.assertRaisesRegex(WorkspaceError, "component identity is invalid"):
             self.workspace.topology_status("historical-coordinate")
+
+    def test_topology_status_recognizes_only_exact_retired_content_coordinate(self) -> None:
+        root = self.workspace._topology_directory("retired-content", create=True)
+        checkout = self.root / "content-1x"
+        record = {
+            "schema_version": 1,
+            "name": "retired-content",
+            "profile": "classic-review",
+            "stack": "classic",
+            "providers": {"content": "content-1x"},
+            "dependencies": ["content"],
+            "state": "/tmp/state",
+            "build_root": "/tmp/build",
+            "resolved": {
+                "content-1x": {
+                    "path": str(checkout),
+                    "checkout_path": str(checkout),
+                    "checkout": "content-1x",
+                    "repository": "atrinik/content",
+                    "branch": "1.x",
+                    "source": ".",
+                    "head": "a" * 40,
+                    "dirty": False,
+                }
+            },
+            "endpoint": None,
+            "ready": False,
+            "started_at": "2026-08-08T00:00:00+00:00",
+            "stopped_at": "2026-08-08T01:00:00+00:00",
+            "supervisor": {"pid": 999, "start_time": "1"},
+            "services": {},
+            "error": "historical fixture",
+        }
+        atomic_json(root / "status.json", record)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.process_matches", return_value=False
+        ):
+            historical = self.workspace.topology_status("retired-content")
+
+        self.assertTrue(historical["inert_historical_record"])
+        record["resolved"]["content-1x"]["source"] = "maps"
+        atomic_json(root / "status.json", record)
+        with self.assertRaisesRegex(WorkspaceError, "no provider"):
+            self.workspace.topology_status("retired-content")
 
     def test_client_only_topology_rejects_server_port(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "requires the server"):

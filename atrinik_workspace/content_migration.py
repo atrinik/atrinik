@@ -191,7 +191,30 @@ class ContentMigration:
                 result = self._audit()
                 if result["status"] == "complete":
                     result["status"] = "already-applied"
+                elif result["status"] == "restored":
+                    result["status"] = "refused"
+                    result["refusals"] = [
+                        _refusal(
+                            "migration_already_restored",
+                            "the recorded content migration was explicitly restored",
+                            "preserve the record; a new apply requires a separately "
+                            "reviewed migration transaction",
+                        )
+                    ]
                 return result
+            if self.record_path.exists() or self.record_path.is_symlink():
+                return {
+                    "migration": CONTENT_MIGRATION_NAME,
+                    "schema_version": CONTENT_MIGRATION_SCHEMA_VERSION,
+                    "status": "refused",
+                    "refusals": [
+                        _refusal(
+                            "invalid_migration_record",
+                            f"content migration record is unsafe: {self.record_path}",
+                            "preserve the path and restore the exact regular migration record",
+                        )
+                    ],
+                }
             if self.pending_path.exists() or self.pending_path.is_symlink():
                 return {
                     "migration": CONTENT_MIGRATION_NAME,
@@ -511,14 +534,17 @@ class ContentMigration:
         if kind == "primary":
             if value:
                 raise WorkspaceError("primary selector has a value")
-            if not legacy.get("proven") or not legacy.get("clean"):
+            if (
+                not legacy.get("proven")
+                or not legacy.get("clean")
+                or legacy.get("head") != CERTIFIED_1X_COMMIT
+            ):
                 raise WorkspaceError("legacy primary is not clean and certified")
             return {"kind": "primary", "value": ""}, None
         if kind == "worktree":
             if not NAME_PATTERN.fullmatch(value):
                 raise WorkspaceError("managed worktree label is invalid")
-            source = Path(self.paths.worktrees) / "content-1x" / value
-            destination = Path(self.paths.worktrees) / "content" / value
+            source, destination = self._managed_worktree_paths(value)
             proof = self._prove_main_worktree(source, canonical)
             if destination.exists() or destination.is_symlink():
                 raise WorkspaceError(
@@ -538,6 +564,23 @@ class ContentMigration:
             self._prove_main_worktree(selected, canonical)
             return {"kind": "path", "value": str(selected.resolve())}, None
         raise WorkspaceError(f"unsupported selector kind {kind}")
+
+    def _managed_worktree_paths(self, label: str) -> tuple[Path, Path]:
+        if not NAME_PATTERN.fullmatch(label):
+            raise WorkspaceError("managed worktree label is invalid")
+        root = Path(self.paths.worktrees)
+        if root.is_symlink() or not root.is_dir():
+            raise WorkspaceError(
+                f"managed worktree root is not a normal directory: {root}"
+            )
+        source_parent = root / "content-1x"
+        destination_parent = root / "content"
+        for parent in (source_parent, destination_parent):
+            if parent.is_symlink() or parent.exists() and not parent.is_dir():
+                raise WorkspaceError(
+                    f"managed content worktree namespace is unsafe: {parent}"
+                )
+        return source_parent / label, destination_parent / label
 
     def _prove_main_worktree(
         self, path: Path, canonical: dict[str, Any]
@@ -767,8 +810,11 @@ class ContentMigration:
         published = False
         try:
             for move in inspection["worktree_moves"]:
-                source = Path(move["source"])
-                destination = Path(move["destination"])
+                source, destination = self._managed_worktree_paths(
+                    Path(move["source"]).name
+                )
+                if str(source) != move["source"] or str(destination) != move["destination"]:
+                    raise WorkspaceError("worktree migration paths changed after preflight")
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 self._prove_main_worktree(source, inspection["canonical"])
                 if destination.exists() or destination.is_symlink():
@@ -841,11 +887,13 @@ class ContentMigration:
             except BaseException as error:
                 errors.append(str(error))
         for move in reversed(moves):
-            source = Path(move["source"])
-            destination = Path(move["destination"])
             try:
+                source, destination = self._managed_worktree_paths(
+                    Path(move["source"]).name
+                )
                 if source.exists() or source.is_symlink():
                     raise WorkspaceError(f"original worktree path is occupied: {source}")
+                source.parent.mkdir(parents=True, exist_ok=True)
                 _git(self.canonical, "worktree", "move", str(destination), str(source))
             except BaseException as error:
                 errors.append(str(error))
@@ -951,6 +999,35 @@ class ContentMigration:
 
     def _audit(self) -> dict[str, Any]:
         refusals: list[dict[str, str]] = []
+        if not self.record_path.exists() and not self.record_path.is_symlink():
+            if self.pending_path.exists() or self.pending_path.is_symlink():
+                return {
+                    "migration": CONTENT_MIGRATION_NAME,
+                    "schema_version": CONTENT_MIGRATION_SCHEMA_VERSION,
+                    "status": "incomplete",
+                    "refusals": [
+                        _refusal(
+                            "pending_migration",
+                            f"an interrupted migration journal exists: {self.pending_path}",
+                            "preserve it and recover only its exact recorded bytes and paths",
+                        )
+                    ],
+                }
+            inspection = self._inspect()
+            if inspection["status"] == "not-needed":
+                return inspection
+            return {
+                **inspection,
+                "status": "incomplete",
+                "refusals": [
+                    *inspection["refusals"],
+                    _refusal(
+                        "migration_record_missing",
+                        f"content migration record is missing: {self.record_path}",
+                        "run the dry run and apply before auditing",
+                    ),
+                ],
+            }
         if self.record_path.is_symlink() or not self.record_path.is_file():
             return {
                 "migration": CONTENT_MIGRATION_NAME,
@@ -958,9 +1035,9 @@ class ContentMigration:
                 "status": "incomplete",
                 "refusals": [
                     _refusal(
-                        "migration_record_missing",
-                        f"content migration record is missing: {self.record_path}",
-                        "run the dry run and apply before auditing",
+                        "invalid_migration_record",
+                        f"content migration record is unsafe: {self.record_path}",
+                        "preserve the path and restore the exact regular migration record",
                     )
                 ],
             }
@@ -1021,8 +1098,14 @@ class ContentMigration:
         if record["status"] == "complete":
             for move in record["worktree_moves"]:
                 try:
-                    source = Path(move["source"])
-                    destination = Path(move["destination"])
+                    source, destination = self._managed_worktree_paths(
+                        Path(move["source"]).name
+                    )
+                    if (
+                        str(source) != move["source"]
+                        or str(destination) != move["destination"]
+                    ):
+                        raise WorkspaceError("journaled worktree paths changed")
                     if source.exists() or source.is_symlink():
                         raise WorkspaceError("original worktree path was recreated")
                     proof = self._prove_main_worktree(destination, record["canonical"])
@@ -1039,8 +1122,14 @@ class ContentMigration:
         else:
             for move in record["worktree_moves"]:
                 try:
-                    source = Path(move["source"])
-                    destination = Path(move["destination"])
+                    source, destination = self._managed_worktree_paths(
+                        Path(move["source"]).name
+                    )
+                    if (
+                        str(source) != move["source"]
+                        or str(destination) != move["destination"]
+                    ):
+                        raise WorkspaceError("journaled worktree paths changed")
                     if destination.exists() or destination.is_symlink():
                         raise WorkspaceError("migration destination was recreated")
                     proof = self._prove_main_worktree(source, record["canonical"])
@@ -1084,10 +1173,14 @@ class ContentMigration:
                 )
                 restored_profiles.append(row)
             for move in reversed(audit["worktree_moves"]):
-                source = Path(move["source"])
-                destination = Path(move["destination"])
+                source, destination = self._managed_worktree_paths(
+                    Path(move["source"]).name
+                )
+                if str(source) != move["source"] or str(destination) != move["destination"]:
+                    raise WorkspaceError("worktree restore paths changed after audit")
                 if source.exists() or source.is_symlink():
                     raise WorkspaceError(f"original worktree path is occupied: {source}")
+                source.parent.mkdir(parents=True, exist_ok=True)
                 _git(self.canonical, "worktree", "move", str(destination), str(source))
                 restored_moves.append(move)
             restored = {
@@ -1118,9 +1211,10 @@ class ContentMigration:
     ) -> list[str]:
         errors: list[str] = []
         for move in reversed(moves):
-            source = Path(move["source"])
-            destination = Path(move["destination"])
             try:
+                source, destination = self._managed_worktree_paths(
+                    Path(move["source"]).name
+                )
                 self._prove_main_worktree(source, canonical)
                 if destination.exists() or destination.is_symlink():
                     raise WorkspaceError(

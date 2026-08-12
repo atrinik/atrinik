@@ -123,6 +123,11 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertEqual(restored["status"], "restored")
         self.assertEqual(profile.read_bytes(), original)
         self.assertEqual(self.migration().execute("audit")["status"], "restored")
+        reapplied = self.migration().execute("apply")
+        self.assertEqual(reapplied["status"], "refused")
+        self.assertEqual(
+            reapplied["refusals"][0]["code"], "migration_already_restored"
+        )
 
     def test_dirty_legacy_primary_refuses_without_rewriting_profile(self) -> None:
         profile, original = self._legacy_profile()
@@ -134,6 +139,22 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertIn("profile_unproven", {row["code"] for row in result["refusals"]})
         self.assertEqual(profile.read_bytes(), original)
         self.assertTrue((self.one_x / "untracked.txt").is_file())
+
+    def test_clean_legacy_primary_ahead_of_frozen_commit_refuses(self) -> None:
+        profile, original = self._legacy_profile()
+        (self.one_x / "local-commit.txt").write_text("preserve\n", encoding="utf-8")
+        subprocess.run(["git", "add", "local-commit.txt"], cwd=self.one_x, check=True)
+        subprocess.run(
+            ["git", "commit", "-q", "-m", "local preserved change"],
+            cwd=self.one_x,
+            check=True,
+        )
+
+        result = self.migration().execute("apply")
+
+        self.assertEqual(result["status"], "refused")
+        self.assertEqual(profile.read_bytes(), original)
+        self.assertTrue((self.one_x / "local-commit.txt").is_file())
 
     def test_proven_managed_main_worktree_moves_to_shared_namespace(self) -> None:
         source = self.workspace.paths.worktrees / "content-1x" / "maps"
@@ -237,6 +258,30 @@ class ContentMigrationTests(unittest.TestCase):
                         check=True,
                     )
 
+    def test_symlinked_managed_namespace_refuses_without_moving_worktree(self) -> None:
+        source = self.workspace.paths.worktrees / "content-1x" / "linked"
+        source.parent.mkdir(parents=True)
+        subprocess.run(
+            ["git", "worktree", "add", "-q", "-b", "review/linked", str(source)],
+            cwd=self.main,
+            check=True,
+        )
+        external = self.root / "external-worktrees"
+        external.mkdir()
+        (self.workspace.paths.worktrees / "content").symlink_to(
+            external, target_is_directory=True
+        )
+        profile, original = self._legacy_profile(
+            selector={"kind": "worktree", "value": "linked"}
+        )
+
+        result = self.migration().execute("apply")
+
+        self.assertEqual(result["status"], "refused")
+        self.assertEqual(profile.read_bytes(), original)
+        self.assertTrue(source.is_dir())
+        self.assertEqual(list(external.iterdir()), [])
+
     def test_historical_build_scenario_and_stopped_topology_are_inventoried(self) -> None:
         self._legacy_profile()
         build = self.workspace.paths.builds / "profiles" / "legacy"
@@ -303,6 +348,27 @@ class ContentMigrationTests(unittest.TestCase):
 
         self.assertEqual(audit["status"], "incomplete")
         self.assertEqual(restore["status"], "incomplete")
+        self.assertEqual(external.read_text(encoding="utf-8"), "preserve\n")
+
+    def test_pending_and_unsafe_record_paths_fail_closed(self) -> None:
+        profile, original = self._legacy_profile()
+        self.migration().pending_path.parent.mkdir(parents=True, exist_ok=True)
+        self.migration().pending_path.write_text("{}\n", encoding="utf-8")
+
+        audit = self.migration().execute("audit")
+
+        self.assertEqual(audit["status"], "incomplete")
+        self.assertEqual(audit["refusals"][0]["code"], "pending_migration")
+        self.migration().pending_path.unlink()
+        external = self.root / "external-record.json"
+        external.write_text("preserve\n", encoding="utf-8")
+        self.migration().record_path.symlink_to(external)
+
+        applied = self.migration().execute("apply")
+
+        self.assertEqual(applied["status"], "refused")
+        self.assertEqual(applied["refusals"][0]["code"], "invalid_migration_record")
+        self.assertEqual(profile.read_bytes(), original)
         self.assertEqual(external.read_text(encoding="utf-8"), "preserve\n")
 
     def test_failed_restore_rolls_profiles_forward_to_complete_state(self) -> None:
@@ -389,6 +455,12 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertIn(
             "canonical_content_missing", {row["code"] for row in result["refusals"]}
         )
+
+    def test_fresh_workspace_audit_reports_no_migration_needed(self) -> None:
+        result = self.migration().execute("audit")
+
+        self.assertEqual(result["status"], "not-needed")
+        self.assertEqual(result["refusals"], [])
 
 
 if __name__ == "__main__":

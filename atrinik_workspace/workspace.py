@@ -3266,7 +3266,7 @@ class Workspace:
                 or not isinstance(manifest.get("files"), list)
             ):
                 raise WorkspaceError("collected Classic content manifest is invalid")
-        elif adapter in {"none", "content"}:
+        elif adapter == "none":
             if (
                 set(manifest) != {"schema_version", "source_commit", "files"}
                 or manifest.get("schema_version") != 1
@@ -3338,11 +3338,30 @@ class Workspace:
                 ):
                     raise WorkspaceError(
                         "collected Classic content license entry is invalid"
-                    )
+                )
                 license_entries[entry["path"]] = entry
-            if len(license_entries) != len(licenses) or not license_entries:
+            expected_license_paths = {
+                relative
+                for relative in entries
+                if relative.startswith("attribution/")
+                and PurePosixPath(relative).name in {"COPYING", "LICENSE"}
+            }
+            if (
+                len(license_entries) != len(licenses)
+                or set(license_entries) != expected_license_paths
+                or not license_entries
+            ):
                 raise WorkspaceError(
                     "collected Classic content license inventory is invalid"
+                )
+            payload_roots = {
+                PurePosixPath(relative).parts[0]
+                for relative in entries
+                if PurePosixPath(relative).parts
+            }
+            if not {"lib", "maps"} <= payload_roots:
+                raise WorkspaceError(
+                    "collected Classic content payload is incomplete"
                 )
         for relative, entry in entries.items():
             candidate = path.joinpath(*PurePosixPath(relative).parts)
@@ -7048,6 +7067,7 @@ class Workspace:
         retired_content_record = (
             isinstance(status, dict)
             and not historical_record
+            and status.get("stack") == "classic"
             and isinstance(status.get("providers"), dict)
             and status["providers"].get("content") == "content-1x"
             and isinstance(status.get("resolved"), dict)
@@ -7056,6 +7076,19 @@ class Workspace:
             == "atrinik/content"
             and status["resolved"]["content-1x"].get("branch") == "1.x"
             and status["resolved"]["content-1x"].get("checkout") == "content-1x"
+            and status["resolved"]["content-1x"].get("source") == "."
+            and isinstance(
+                status["resolved"]["content-1x"].get("path"), str
+            )
+            and isinstance(
+                status["resolved"]["content-1x"].get("checkout_path"), str
+            )
+            and Path(
+                status["resolved"]["content-1x"]["path"]
+            ).resolve(strict=False)
+            == Path(
+                status["resolved"]["content-1x"]["checkout_path"]
+            ).resolve(strict=False)
         )
         if (
             not isinstance(status, dict)
