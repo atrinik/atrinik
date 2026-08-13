@@ -16,7 +16,12 @@ from atrinik_workspace.provenance_identity import (
     _git_blob,
     _git_environment,
     _git_output,
+    _exact_keys,
+    _iso_date,
     _load_bytes,
+    _private_file_opener,
+    _repository_path,
+    _string_array,
     _validate_repository_trust,
     load_document,
     record_digest,
@@ -254,6 +259,40 @@ class ProvenanceIdentityTests(unittest.TestCase):
             path.write_text('{"schema_version": 1, "schema_version": 1}\n')
             with self.assertRaisesRegex(WorkspaceError, "duplicate JSON key"):
                 load_document(path)
+
+    def test_primitive_contract_helpers_reject_ambiguous_inputs(self) -> None:
+        with self.assertRaisesRegex(WorkspaceError, "missing wanted; unexpected extra"):
+            _exact_keys({"extra": True}, {"wanted"}, "fixture")
+        for value in (None, "", " untrimmed"):
+            with self.subTest(text=value), self.assertRaisesRegex(
+                WorkspaceError, "non-empty trimmed text"
+            ):
+                _iso_date(value, "fixture date")
+        for value in ("not-a-date", "2026-8-3"):
+            with self.subTest(date=value), self.assertRaisesRegex(
+                WorkspaceError, "ISO date|canonical YYYY-MM-DD"
+            ):
+                _iso_date(value, "fixture date")
+        for value in (None, [], ["beta", "alpha"], ["same", "same"]):
+            with self.subTest(array=value), self.assertRaises(WorkspaceError):
+                _string_array(value, "fixture array")
+        for value in ("/absolute", "parent/../escape", "windows\\path"):
+            with self.subTest(path=value), self.assertRaisesRegex(
+                WorkspaceError, "safe repository-relative path"
+            ):
+                _repository_path(value, "fixture path")
+        for value in (b"not-json", b"[]"):
+            with self.subTest(document=value), self.assertRaisesRegex(
+                WorkspaceError, "invalid JSON|root must be an object"
+            ):
+                _load_bytes(value, "fixture document")
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "private"
+            descriptor = _private_file_opener(
+                str(path), os.O_WRONLY | os.O_CREAT | os.O_EXCL
+            )
+            os.close(descriptor)
+            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
 
     def test_duplicate_record_identifiers_fail_closed(self) -> None:
         value = registry()
