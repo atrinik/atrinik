@@ -16,6 +16,7 @@ from atrinik_workspace.locking import (
     exclusive_layout_lock,
     exclusive_lock,
     layout_writer_intent_path,
+    layout_writer_pending_path,
 )
 from atrinik_workspace.workspace import Workspace
 
@@ -892,6 +893,8 @@ class ContentMigrationTests(unittest.TestCase):
         topologies.write_text("unsafe\n", encoding="utf-8")
         locks = self.workspace.paths.workspace / "repository-layout.lock"
         locks.symlink_to(self.root / "missing-lock")
+        layout_writer_intent_path(locks).mkdir()
+        layout_writer_pending_path(locks).symlink_to(self.root / "missing-pending")
 
         resources, refusals = self.migration()._resource_inventory(set())
 
@@ -899,7 +902,17 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertIn("invalid_builds_directory", codes)
         self.assertIn("invalid_topologies_directory", codes)
         self.assertIn("invalid_lock_path", codes)
-        self.assertEqual(resources["locks"][0]["status"], "unsafe")
+        unsafe_locks = {
+            row["path"] for row in resources["locks"] if row["status"] == "unsafe"
+        }
+        self.assertEqual(
+            unsafe_locks,
+            {
+                str(locks),
+                str(layout_writer_intent_path(locks)),
+                str(layout_writer_pending_path(locks)),
+            },
+        )
 
     def test_resource_inventory_rejects_bad_entries_and_process_records(self) -> None:
         build = self.workspace.paths.builds / "bad"
@@ -934,6 +947,14 @@ class ContentMigrationTests(unittest.TestCase):
         lock_directory.mkdir()
         lock = lock_directory / "busy.lock"
         lock.write_text("lock\n", encoding="utf-8")
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        coordination_locks = (
+            layout,
+            layout_writer_intent_path(layout),
+            layout_writer_pending_path(layout),
+        )
+        for coordination_lock in coordination_locks:
+            coordination_lock.write_text("lock\n", encoding="utf-8")
         with (
             mock.patch.object(migration_module, "RESOURCE_RECORD_MAX_BYTES", 1),
             mock.patch.object(
@@ -948,6 +969,10 @@ class ContentMigrationTests(unittest.TestCase):
         )
         observed = next(row for row in resources["locks"] if row["path"] == str(lock))
         self.assertTrue(observed["active"])
+        observed_paths = {
+            row["path"] for row in resources["locks"] if row["active"]
+        }
+        self.assertTrue({str(path) for path in coordination_locks} <= observed_paths)
 
     def test_apply_rolls_back_when_profile_changes_after_preflight(self) -> None:
         profile, original = self._legacy_profile()

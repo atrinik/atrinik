@@ -13,7 +13,13 @@ import subprocess
 import tempfile
 from typing import Any
 
-from .locking import LockBusyError, active_lock_fds, exclusive_layout_lock
+from .locking import (
+    LockBusyError,
+    active_lock_fds,
+    exclusive_layout_lock,
+    layout_writer_intent_path,
+    layout_writer_pending_path,
+)
 from .model import WorkspaceError, atomic_json, load_json
 from .process_tree import holders_exist
 from .supervisor import process_matches
@@ -829,13 +835,16 @@ class ContentMigration:
                             "stop or repair the topology before migration",
                         )
                     )
+        layout_lock = self.workspace / "repository-layout.lock"
         lock_roots = [
-            self.workspace / "repository-layout.lock",
-            Path(self.paths.builds) / "locks",
+            (layout_lock, False),
+            (layout_writer_intent_path(layout_lock), False),
+            (layout_writer_pending_path(layout_lock), False),
+            (Path(self.paths.builds) / "locks", True),
         ]
-        for root in lock_roots:
+        for root, allow_directory in lock_roots:
             if root.is_symlink() or root.exists() and not (
-                root.is_file() or root.is_dir()
+                root.is_file() or allow_directory and root.is_dir()
             ):
                 resources["locks"].append(
                     {"path": str(root), "active": True, "status": "unsafe"}
@@ -852,7 +861,7 @@ class ContentMigration:
                 [root]
                 if root.is_file()
                 else sorted(root.glob("*"))
-                if root.is_dir()
+                if allow_directory and root.is_dir()
                 else []
             )
             for path in paths:

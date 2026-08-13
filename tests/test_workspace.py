@@ -5845,6 +5845,45 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(active_lock_fds(), (lease.fileno(),))
         self.assertEqual(active_lock_fds(), ())
 
+    def test_layout_writer_partial_failures_release_earlier_leases(self) -> None:
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        intent = workspace_module._layout_writer_intent_path(layout)
+        pending = locking_module.layout_writer_pending_path(layout)
+
+        for blocker in (intent, layout):
+            with exclusive_lock(blocker, "staged acquisition blocker"):
+                with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                    with exclusive_layout_lock(
+                        layout, "repository layout", nonblocking=True
+                    ):
+                        self.fail("partially blocked writer unexpectedly entered")
+            self.assertEqual(active_lock_fds(), ())
+            for path in (pending, intent, layout):
+                with exclusive_lock(path, "released writer stage", nonblocking=True):
+                    pass
+
+    def test_delayed_layout_readers_drain_after_writer(self) -> None:
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        entered = 0
+        entered_lock = threading.Lock()
+
+        def read_layout() -> None:
+            nonlocal entered
+            with shared_layout_lock(layout, "repository layout"):
+                with entered_lock:
+                    entered += 1
+
+        with exclusive_layout_lock(layout, "repository layout"):
+            readers = [threading.Thread(target=read_layout) for _ in range(16)]
+            for reader in readers:
+                reader.start()
+            time.sleep(0.1)
+            self.assertEqual(entered, 0)
+        for reader in readers:
+            reader.join(2)
+        self.assertTrue(all(not reader.is_alive() for reader in readers))
+        self.assertEqual(entered, len(readers))
+
     def test_layout_writer_reports_once_across_sequential_waits(self) -> None:
         layout = self.workspace.paths.workspace / "repository-layout.lock"
         intent = workspace_module._layout_writer_intent_path(layout)
