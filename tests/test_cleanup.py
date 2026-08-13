@@ -206,6 +206,7 @@ class CleanupTests(unittest.TestCase):
         process_tree_lease: str = "released",
         control: str = "unreachable",
         stopped_at: str | None = "2026-07-01T00:00:00+00:00",
+        repository_layout_lease_owner: str | None = None,
     ) -> dict[str, object]:
         return {
             "supervisor": {"liveness": liveness},
@@ -217,7 +218,7 @@ class CleanupTests(unittest.TestCase):
                 "process_tree_lease": process_tree_lease,
                 "runtime_bundle_lease": "released",
                 "port_reservation": None,
-                "repository_layout_lease_owner": None,
+                "repository_layout_lease_owner": repository_layout_lease_owner,
             },
         }
 
@@ -431,20 +432,38 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(items["invalid-lease"]["disposition"], "protected")
         self.assertEqual(items["unowned"]["disposition"], "protected")
 
-    def test_topology_preview_reports_a_retained_repository_layout_lease(self) -> None:
+    def test_topology_preview_reports_a_retained_legacy_layout_lease(self) -> None:
         root = self.make_topology_record("layout-reader")
-        layout = self.workspace.paths.workspace / "repository-layout.lock"
-        descriptor = os.open(layout, os.O_RDWR | os.O_CREAT, 0o600)
-        try:
-            fcntl.flock(descriptor, fcntl.LOCK_SH | fcntl.LOCK_NB)
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            return_value=self.topology_observation(
+                "exited", repository_layout_lease_owner="layout-reader"
+            ),
+        ):
             report = self.workspace.cleanup(["topologies"], 7, [], False)
-        finally:
-            os.close(descriptor)
 
         item = next(row for row in report["items"] if row["path"] == str(root))
         self.assertEqual(item["repository_layout_lease"], "retained")
         self.assertIn("repository_layout_lease_retained", item["reasons"])
         self.assertEqual(item["disposition"], "protected")
+
+    def test_topology_apply_skips_a_busy_exact_topology_lease(self) -> None:
+        root = self.make_topology_record("busy-coordinate")
+        request = self.workspace._lease_request(
+            "topology",
+            "busy-coordinate",
+            "shared",
+            "inspect topology busy-coordinate",
+        )
+
+        with self.workspace._resource_locks([request]):
+            report = self.workspace.cleanup(["topologies"], 7, [], True)
+
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "skipped")
+        self.assertEqual(item["reasons"], ["resource_busy"])
+        self.assertTrue(root.is_dir())
 
     def test_topology_apply_rejects_a_post_revalidation_restart_race(self) -> None:
         root = self.make_topology_record("restart-race")

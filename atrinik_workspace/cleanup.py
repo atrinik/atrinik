@@ -897,12 +897,7 @@ class Cleanup:
                 self._sound_caches(older_than_days, reference_errors)
             )
         if "topologies" in scopes:
-            items.extend(
-                self._topologies(
-                    older_than_days,
-                    check_layout=mode == "dry-run",
-                )
-            )
+            items.extend(self._topologies(older_than_days))
         items.sort(key=lambda item: (item["kind"], item["owner"], item["path"]))
         self._credit_sizes(items)
         for item in items:
@@ -954,7 +949,6 @@ class Cleanup:
             item = self._topology_item(
                 path,
                 older_than_days,
-                check_layout=False,
             )
             if not self._same_topology_snapshot(target, item):
                 raise WorkspaceError(
@@ -1047,9 +1041,7 @@ class Cleanup:
                 item["_sound_producer_identity"] = sound_producer_identity
         return item
 
-    def _topologies(
-        self, older_than_days: int, *, check_layout: bool
-    ) -> list[dict[str, Any]]:
+    def _topologies(self, older_than_days: int) -> list[dict[str, Any]]:
         root = self.paths.topologies
         if not root.exists() and not root.is_symlink():
             return []
@@ -1059,7 +1051,7 @@ class Cleanup:
             return [item]
         infrastructure = {"port-reservations", "ports.lock"}
         return [
-            self._topology_item(path, older_than_days, check_layout=check_layout)
+            self._topology_item(path, older_than_days)
             for path in sorted(root.iterdir())
             if path.name not in infrastructure
         ]
@@ -1089,7 +1081,6 @@ class Cleanup:
         path: Path,
         older_than_days: int,
         *,
-        check_layout: bool,
         check_operation: bool = True,
     ) -> dict[str, Any]:
         item = self._base_topology_item(path)
@@ -3539,7 +3530,6 @@ class Cleanup:
                 current = self._topology_item(
                     path,
                     older_than_days,
-                    check_layout=False,
                     check_operation=False,
                 )
                 if not self._same_topology_snapshot(item, current):

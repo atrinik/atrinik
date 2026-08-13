@@ -49,12 +49,11 @@
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.
-- Use wrapper path/topology commands; never reconstruct managed paths. Give concurrent
-  topologies distinct names, states, ports, and client config.
-- Keep shell completion parser-driven, bounded, local-only, secret-free, and
-  ahead of `Workspace` construction.
-- Lease resources in order. Writers gate same-coordinate readers. Operations
-  share the migration barrier.
+- Use wrapper commands; never reconstruct paths. Isolate concurrent topology
+  names, states, ports, and config.
+- Keep completion bounded, local, parser-driven, secret-free, and before
+  `Workspace` construction.
+- Lease in order; gate same-coordinate readers; share the migration barrier.
 - Unbound persisted records are historical and inert.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket
   holders per `CONTRIBUTING.md`; preserve precise attribution.
