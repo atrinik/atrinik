@@ -1054,7 +1054,7 @@ class Cleanup:
         if not root.exists() and not root.is_symlink():
             return []
         if root.is_symlink() or not root.is_dir():
-            item = _base_item("topology", "atrinik", "atrinik/atrinik", root)
+            item = self._base_topology_item(root)
             item["reasons"] = ["invalid_topology_container"]
             return [item]
         infrastructure = {"port-reservations", "ports.lock"}
@@ -1064,14 +1064,8 @@ class Cleanup:
             if path.name not in infrastructure
         ]
 
-    def _topology_item(
-        self,
-        path: Path,
-        older_than_days: int,
-        *,
-        check_layout: bool,
-        check_operation: bool = True,
-    ) -> dict[str, Any]:
+    @staticmethod
+    def _base_topology_item(path: Path) -> dict[str, Any]:
         item = _base_item("topology", "atrinik", "atrinik/atrinik", path)
         item.update(
             {
@@ -1088,6 +1082,17 @@ class Cleanup:
                 "tree_identity": None,
             }
         )
+        return item
+
+    def _topology_item(
+        self,
+        path: Path,
+        older_than_days: int,
+        *,
+        check_layout: bool,
+        check_operation: bool = True,
+    ) -> dict[str, Any]:
+        item = self._base_topology_item(path)
         reasons: list[str] = []
         try:
             if not self._owned_direct_child(path, self.paths.topologies):

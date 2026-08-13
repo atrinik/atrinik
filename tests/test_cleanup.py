@@ -250,6 +250,19 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(report["items"], [])
         self.assertEqual(report["summary"]["error_count"], 0)
 
+    def test_invalid_topology_container_has_a_complete_protected_record(self) -> None:
+        self.workspace.paths.topologies.rmdir()
+        self.workspace.paths.topologies.symlink_to(self.root)
+
+        report = self.workspace.cleanup(["topologies"], 7, [], False)
+
+        self.assertEqual(len(report["items"]), 1)
+        item = report["items"][0]
+        self.assertEqual(item["disposition"], "protected")
+        self.assertEqual(item["reasons"], ["invalid_topology_container"])
+        self.assertEqual(item["liveness"], "unverifiable")
+        self.assertEqual(item["deletion_paths"], [])
+
     def test_topology_only_scope_does_not_inventory_unrelated_resources(self) -> None:
         root = self.make_topology_record("isolated-history")
 
