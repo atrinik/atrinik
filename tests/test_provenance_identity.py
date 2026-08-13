@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 from unittest import mock
@@ -417,13 +418,63 @@ class ProvenanceIdentityTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "reviewer signature is invalid"):
             validate_registry(value, schema(), reviewers(), as_of=AS_OF)
 
-    def test_squash_internal_anchor_requires_explicit_non_authorizing_ref(self) -> None:
-        revision = _git_output(
-            ROOT, ["rev-parse", "HEAD"], "cannot resolve test HEAD"
-        ).decode().strip()
-        with self.assertRaisesRegex(WorkspaceError, "not reachable from trusted ref"):
-            _validate_repository_trust(ROOT, revision, "main")
-        _validate_repository_trust(ROOT, revision, revision)
+    def test_branch_only_anchor_requires_explicit_non_authorizing_ref(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            checkout = root / "checkout"
+            subprocess.run(
+                ["git", "init", "-b", "main", checkout],
+                check=True,
+                capture_output=True,
+            )
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    checkout,
+                    "remote",
+                    "add",
+                    "origin",
+                    "https://github.com/atrinik/atrinik.git",
+                ],
+                check=True,
+            )
+            environment = {
+                **os.environ,
+                "GIT_AUTHOR_NAME": "Test",
+                "GIT_AUTHOR_EMAIL": "test@example.invalid",
+                "GIT_COMMITTER_NAME": "Test",
+                "GIT_COMMITTER_EMAIL": "test@example.invalid",
+            }
+            (checkout / "fixture").write_text("main\n", encoding="utf-8")
+            subprocess.run(["git", "-C", checkout, "add", "fixture"], check=True)
+            subprocess.run(
+                ["git", "-C", checkout, "commit", "-m", "main"],
+                check=True,
+                env=environment,
+                capture_output=True,
+            )
+            subprocess.run(["git", "-C", checkout, "branch", "audit"], check=True)
+            subprocess.run(
+                ["git", "-C", checkout, "checkout", "audit"],
+                check=True,
+                capture_output=True,
+            )
+            (checkout / "fixture").write_text("audit\n", encoding="utf-8")
+            subprocess.run(
+                ["git", "-C", checkout, "commit", "-am", "audit"],
+                check=True,
+                env=environment,
+                capture_output=True,
+            )
+            revision = _git_output(
+                checkout, ["rev-parse", "HEAD"], "cannot resolve audit HEAD"
+            ).decode().strip()
+            with self.assertRaisesRegex(
+                WorkspaceError, "not reachable from trusted ref"
+            ):
+                _validate_repository_trust(checkout, revision, "main")
+            _validate_repository_trust(checkout, revision, revision)
 
     def test_repository_trust_accepts_github_actions_canonical_origin(self) -> None:
         outputs = [b"false\n", b"/tmp/coordinator.git\n", b"https://github.com/atrinik/atrinik\n", b""]
