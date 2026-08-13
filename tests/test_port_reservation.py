@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import errno
 import fcntl
 import json
 import os
@@ -15,14 +16,19 @@ from unittest import mock
 from atrinik_workspace.model import WorkspaceError, atomic_json
 from atrinik_workspace.locking import exclusive_lock
 from atrinik_workspace.port_reservation import (
+    MAX_RECORD_SIZE,
     PORT_RESERVATION_DIRECTORY,
     PortReservationError,
+    _decode_record,
+    _rename_no_replace,
     active_owner,
     create_lease,
     open_directory,
     open_transaction,
+    read_record,
     reservation_locked,
     try_lock,
+    validate_record,
     validate_held,
     validate_transaction,
 )
@@ -44,6 +50,149 @@ class PortReservationTests(unittest.TestCase):
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as candidate:
             candidate.bind(("0.0.0.0", 0))
             return int(candidate.getsockname()[1])
+
+    def valid_record(self) -> dict[str, object]:
+        generation = "1" * 64
+        return {
+            "schema_version": 1,
+            "port": 17300,
+            "topology": "validation-owner",
+            "generation": generation,
+            "path": str(
+                self.topologies
+                / PORT_RESERVATION_DIRECTORY
+                / f"17300-{generation}.lease"
+            ),
+            "directory": {"device": 1, "inode": 2},
+            "lease": {"device": 3, "inode": 4},
+            "token": "2" * 64,
+        }
+
+    def test_record_validation_rejects_malformed_evidence(self) -> None:
+        valid = self.valid_record()
+        malformed: list[tuple[str, object]] = [
+            ("record", {}),
+            ("schema", {**valid, "schema_version": False}),
+            ("port", {**valid, "port": 0}),
+            ("owner", {**valid, "topology": "Invalid Owner"}),
+            ("generation", {**valid, "generation": "not-a-generation"}),
+            ("path", {**valid, "path": "relative.lease"}),
+            ("owner path", {**valid, "path": "/tmp/wrong.lease"}),
+            ("directory", {**valid, "directory": {"device": True, "inode": 2}}),
+            ("lease", {**valid, "lease": {"device": 3}}),
+            ("token", {**valid, "token": "not-a-token"}),
+        ]
+        for description, record in malformed:
+            with self.subTest(description=description):
+                with self.assertRaises(PortReservationError):
+                    validate_record(record)
+        with self.assertRaisesRegex(PortReservationError, "expected lease"):
+            validate_record(valid, expected_path=Path("/tmp/unexpected.lease"))
+
+    def test_record_decoding_rejects_oversize_duplicate_and_invalid_json(self) -> None:
+        path = Path(str(self.valid_record()["path"]))
+        cases = [
+            b"x" * (MAX_RECORD_SIZE + 1),
+            b'{"schema_version": 1, "schema_version": 1}',
+            b"\xff",
+        ]
+        for content in cases:
+            with self.subTest(content=content[:20]):
+                with self.assertRaises(PortReservationError):
+                    _decode_record(content, path)
+
+    def test_atomic_publication_reports_each_kernel_failure(self) -> None:
+        class FailedRename:
+            argtypes: object
+            restype: object
+
+            def __call__(self, *_args: object) -> int:
+                return -1
+
+        with (
+            mock.patch(
+                "atrinik_workspace.port_reservation.ctypes.CDLL",
+                return_value=SimpleNamespace(),
+            ),
+            self.assertRaisesRegex(PortReservationError, "unsupported"),
+        ):
+            _rename_no_replace(1, "source", "destination")
+
+        failures = [
+            (errno.EEXIST, "already exists"),
+            (errno.ENOSYS, "unsupported"),
+            (errno.EPERM, "cannot publish"),
+        ]
+        for error_number, message in failures:
+            with (
+                self.subTest(error_number=error_number),
+                mock.patch(
+                    "atrinik_workspace.port_reservation.ctypes.CDLL",
+                    return_value=SimpleNamespace(renameat2=FailedRename()),
+                ),
+                mock.patch(
+                    "atrinik_workspace.port_reservation.ctypes.get_errno",
+                    return_value=error_number,
+                ),
+                self.assertRaisesRegex(PortReservationError, message),
+            ):
+                _rename_no_replace(1, "source", "destination")
+
+    def test_directory_and_descriptor_errors_fail_closed(self) -> None:
+        with (
+            mock.patch(
+                "atrinik_workspace.port_reservation.os.open",
+                side_effect=PermissionError("denied"),
+            ),
+            self.assertRaisesRegex(PortReservationError, "cannot open"),
+        ):
+            open_directory(self.topologies)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.port_reservation.os.fstat",
+                side_effect=OSError("fstat failed"),
+            ),
+            self.assertRaisesRegex(PortReservationError, "cannot open"),
+        ):
+            open_directory(self.topologies)
+
+        directory = self.topologies / PORT_RESERVATION_DIRECTORY
+        directory.chmod(0o755)
+        with self.assertRaisesRegex(PortReservationError, "directory is invalid"):
+            open_directory(self.topologies)
+
+    def test_lock_list_and_read_errors_fail_closed(self) -> None:
+        with (
+            mock.patch(
+                "atrinik_workspace.port_reservation.fcntl.flock",
+                side_effect=OSError("lock failed"),
+            ),
+            self.assertRaisesRegex(PortReservationError, "cannot lock"),
+        ):
+            try_lock(1)
+
+        directory_fd, directory, _identity = open_directory(self.topologies)
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.port_reservation.os.listdir",
+                    side_effect=OSError("list failed"),
+                ),
+                self.assertRaisesRegex(PortReservationError, "cannot list"),
+            ):
+                active_owner(directory_fd, directory, 17300)
+        finally:
+            os.close(directory_fd)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.port_reservation.os.lseek",
+                side_effect=OSError("seek failed"),
+            ),
+            self.assertRaisesRegex(PortReservationError, "cannot read"),
+        ):
+            read_record(1, Path(str(self.valid_record()["path"])))
 
     def test_distinct_explicit_ports_do_not_share_a_reservation_lock(self) -> None:
         ports = [self.free_port(), self.free_port()]
