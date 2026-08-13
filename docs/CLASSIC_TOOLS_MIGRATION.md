@@ -26,12 +26,16 @@ direct supervision and steering. Zoey directs its MIT distribution and grants
 under MIT any rights she holds in that code, so its destination owner is
 `atrinik/playtester`. That direction does not relicense the separately fetched
 GPL libatrinik source or any combined binary; those obligations remain explicit
-in the supply-chain inventory. Other replacement owners may use behavior and
-fixtures as public compatibility evidence, but may not translate mixed GPL
-implementation. A provenance grant is considered only after the full root
-process in
-[`REPLACEMENT_FOUNDATIONS.md`](REPLACEMENT_FOUNDATIONS.md) proves a separable
-candidate.
+in the supply-chain inventory. Replacement owners may use documented observable
+behavior as compatibility evidence. Existing fixtures may be copied only when
+their license is compatible with the intended destination or an exact grant
+record permits it; otherwise create synthetic or black-box fixtures without
+translating GPL implementation. Exact, independently separable implementation
+proven to fall within an applicable
+approved historical grant may be inspected as source reference, copied,
+migrated or ported, translated or adapted, or MIT-relicensed when the full root
+process in [`REPLACEMENT_FOUNDATIONS.md`](REPLACEMENT_FOUNDATIONS.md) passes.
+Later or uncovered implementation remains excluded.
 
 The final tools support gate is zero unowned entry points, passing replacement
 parity/safety fixtures, migrated user documentation, and preservation of the

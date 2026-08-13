@@ -27,9 +27,23 @@ LINK = re.compile(r"\[[^]]+\]\(([^)]+)\)")
 
 class AgentGuidanceTests(unittest.TestCase):
     def test_current_provenance_registry_is_complete(self) -> None:
-        registry = (ROOT / "docs/PROVENANCE.md").read_text(encoding="utf-8")
+        registry = " ".join(
+            (ROOT / "docs/PROVENANCE.md").read_text(encoding="utf-8").split()
+        )
         self.assertIn("Zoey Rose", registry)
         self.assertIn("Daniel Liptrot", registry)
+        for marker in {
+            "affirmative permissions",
+            "used as implementation reference",
+            "clean-room isolation is not required",
+            "original past Atrinik contributions",
+            "not a prospective grant",
+            "cannot be combined to cover a jointly authored contribution",
+            "not relicensed by these historical grants",
+            "does not by itself place agent-generated output",
+        }:
+            with self.subTest(marker=marker):
+                self.assertIn(marker, registry)
 
     def test_copyright_header_contract_is_complete(self) -> None:
         guide = " ".join(
