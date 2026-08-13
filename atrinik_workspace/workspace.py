@@ -138,6 +138,10 @@ WORKER_SOURCE_EXCLUSIONS = {
     "build",
     "dist",
     "node_modules",
+    "publisher-worker-configuration.d.ts",
+    "rendezvous-worker-configuration.d.ts",
+    "worker-configuration.d.ts",
+    "worker-runtime.d.ts",
     ".wrangler",
 }
 WORKER_VIEW_NODE_MODULES_EXCLUSIONS = {".vite", ".vite-temp"}

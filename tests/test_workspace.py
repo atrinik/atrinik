@@ -2137,9 +2137,26 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(first[1])
         self.assertTrue(second[1])
         self.assertTrue((second[0] / "src" / "build" / "nested.ts").is_file())
+        generated_type_declarations = (
+            "publisher-worker-configuration.d.ts",
+            "rendezvous-worker-configuration.d.ts",
+            "worker-configuration.d.ts",
+            "worker-runtime.d.ts",
+        )
+        for name in generated_type_declarations:
+            (second[0] / name).write_text("generated\n", encoding="utf-8")
         self.workspace._reconcile_worker_view_after_checks(
             source, second[0], "a" * 64, metadata
         )
+        for name in generated_type_declarations:
+            self.assertTrue((second[0] / name).is_file())
+        nested_generated_type = second[0] / "src" / "worker-runtime.d.ts"
+        nested_generated_type.write_text("unexpected\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "source changed"):
+            self.workspace._reconcile_worker_view_after_checks(
+                source, second[0], "a" * 64, metadata
+            )
+        nested_generated_type.unlink()
         unexpected_dependency_output = second[0] / "node_modules" / "alpha" / "changed"
         unexpected_dependency_output.write_text("changed\n", encoding="utf-8")
         with self.assertRaisesRegex(WorkspaceError, "does not match cache metadata"):
