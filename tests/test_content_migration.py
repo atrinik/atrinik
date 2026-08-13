@@ -18,6 +18,7 @@ from atrinik_workspace.locking import (
     layout_writer_intent_path,
     layout_writer_pending_path,
 )
+from atrinik_workspace.process_tree import initialize_lease
 from atrinik_workspace.workspace import Workspace
 
 
@@ -560,22 +561,46 @@ class ContentMigrationTests(unittest.TestCase):
         self._legacy_profile()
         topology = self.workspace.paths.topologies / "live-classic"
         topology.mkdir()
+        lease_fd = os.open(
+            topology / "process-tree.lease", os.O_RDWR | os.O_CREAT, 0o600
+        )
+        fcntl.flock(lease_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        generation = "a" * 64
+        lease = initialize_lease(lease_fd, generation)
         (topology / "status.json").write_text(
             json.dumps(
                 {
                     "stack": "classic",
                     "profile": "classic-review",
-                    "supervisor": {"pid": 100, "start_time": "1"},
+                    "control": {
+                        "socket": str((topology / "control.sock").resolve()),
+                        "generation": generation,
+                        "lease": lease,
+                    },
+                    "supervisor": {
+                        "pid": 100,
+                        "start_time": "1",
+                        "generation": generation,
+                    },
                     "services": {
-                        "server": {"pid": 101, "start_time": "2"}
+                        "server": {
+                            "pid": 101,
+                            "start_time": "2",
+                            "generation": generation,
+                        }
                     },
                 }
             ),
             encoding="utf-8",
         )
 
-        with mock.patch.object(migration_module, "process_matches", return_value=True):
-            result = self.migration().execute("apply")
+        try:
+            with mock.patch.object(
+                migration_module, "process_matches", return_value=False
+            ):
+                result = self.migration().execute("apply")
+        finally:
+            os.close(lease_fd)
 
         self.assertEqual(result["status"], "refused")
         self.assertIn("live_topology", {row["code"] for row in result["refusals"]})

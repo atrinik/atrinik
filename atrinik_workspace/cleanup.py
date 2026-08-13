@@ -24,7 +24,7 @@ from .model import (
     load_json,
     managed_remove,
 )
-from .process_tree import lease_locked
+from .process_tree import bound_lease_locked, lease_locked
 from .supervisor import process_matches
 from .sound import PLAYTEST_MARKER
 from .workspace import (
@@ -1106,7 +1106,24 @@ class Cleanup:
                 lease_path = root / "process-tree.lease"
                 if lease_path.is_symlink():
                     raise WorkspaceError("topology process-tree lease is invalid")
-                live = lease_path.is_file() and lease_locked(lease_path)
+                control = status_value.get("control")
+                if control is not None:
+                    if (
+                        not isinstance(control, dict)
+                        or set(control) != {"socket", "generation", "lease"}
+                        or control.get("socket")
+                        != str((root / "control.sock").resolve())
+                        or not isinstance(control.get("generation"), str)
+                        or re.fullmatch(r"[0-9a-f]{64}", control["generation"])
+                        is None
+                        or not isinstance(control.get("lease"), dict)
+                    ):
+                        raise WorkspaceError("topology control identity is invalid")
+                    live = bound_lease_locked(
+                        lease_path, control["generation"], control["lease"]
+                    )
+                else:
+                    live = lease_path.is_file() and lease_locked(lease_path)
                 for record in process_records:
                     if not isinstance(record, dict):
                         raise WorkspaceError("topology process status is invalid")

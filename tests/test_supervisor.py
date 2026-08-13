@@ -40,11 +40,33 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 "control": {
                     "socket": str(root.parent / "unowned.sock"),
                     "generation": "a" * 64,
+                    "lease": {"device": 1, "inode": 2},
                 }
             }
 
             with self.assertRaisesRegex(RuntimeError, "identity is invalid"):
                 _open_control(spec, root)
+
+    def test_control_endpoint_supports_long_managed_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / ("managed-" + "x" * 110)
+            root.mkdir()
+            control = root / "control.sock"
+            spec = {
+                "control": {
+                    "socket": str(control.resolve()),
+                    "generation": "a" * 64,
+                    "lease": {"device": 1, "inode": 2},
+                }
+            }
+
+            endpoint = _open_control(spec, root)
+            try:
+                self.assertTrue(control.is_socket())
+            finally:
+                assert endpoint is not None
+                endpoint.close()
+                control.unlink()
 
     def test_peek_exit_code_observes_without_reaping(self) -> None:
         process = mock.Mock(pid=1234, returncode=7)

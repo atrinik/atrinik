@@ -40,7 +40,13 @@ from .locking import (
     shared_layout_lock,
     shared_lock,
 )
-from .process_tree import holders_exist, lease_locked, signal_holders
+from .process_tree import (
+    bound_lease_locked,
+    holders_exist,
+    initialize_lease,
+    lease_locked,
+    signal_holders,
+)
 
 from .model import (
     MANAGED_MARKER,
@@ -7014,19 +7020,24 @@ class Workspace:
                 or metadata.st_uid != os.geteuid()
             ):
                 return False
-            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
-                client.settimeout(0.5)
-                client.connect(str(endpoint))
-                client.sendall(json.dumps(request, sort_keys=True).encode())
-                client.shutdown(socket.SHUT_WR)
-                payload = bytearray()
-                while len(payload) <= 4096:
-                    chunk = client.recv(4097 - len(payload))
-                    if not chunk:
-                        break
-                    payload.extend(chunk)
-                    if b"\n" in chunk:
-                        break
+            directory_fd = os.open(endpoint.parent, os.O_RDONLY | os.O_CLOEXEC)
+            try:
+                address = f"/proc/self/fd/{directory_fd}/{endpoint.name}"
+                with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+                    client.settimeout(0.5)
+                    client.connect(address)
+                    client.sendall(json.dumps(request, sort_keys=True).encode())
+                    client.shutdown(socket.SHUT_WR)
+                    payload = bytearray()
+                    while len(payload) <= 4096:
+                        chunk = client.recv(4097 - len(payload))
+                        if not chunk:
+                            break
+                        payload.extend(chunk)
+                        if b"\n" in chunk:
+                            break
+            finally:
+                os.close(directory_fd)
             if len(payload) > 4096:
                 return False
             response = json.loads(payload)
@@ -7041,11 +7052,17 @@ class Workspace:
         )
 
     @staticmethod
-    def _topology_process_tree_active(root: Path) -> bool:
+    def _topology_process_tree_active(
+        root: Path, control: dict[str, Any] | None = None
+    ) -> bool:
         path = root / TOPOLOGY_PROCESS_TREE_LEASE
-        if path.is_symlink() or not path.is_file():
+        if control is None and (path.is_symlink() or not path.is_file()):
             return False
         try:
+            if control is not None:
+                return bound_lease_locked(
+                    path, control["generation"], control["lease"]
+                )
             return lease_locked(path)
         except OSError as error:
             raise WorkspaceError(
@@ -7288,11 +7305,19 @@ class Workspace:
         current_control = control is not None
         if current_control and (
             not isinstance(control, dict)
-            or set(control) != {"socket", "generation"}
+            or set(control) != {"socket", "generation", "lease"}
             or control.get("socket")
             != str((root / TOPOLOGY_CONTROL_SOCKET).resolve())
             or not isinstance(control.get("generation"), str)
             or not re.fullmatch(r"[0-9a-f]{64}", control["generation"])
+            or not isinstance(control.get("lease"), dict)
+            or set(control["lease"]) != {"device", "inode"}
+            or not all(
+                isinstance(value, int)
+                and not isinstance(value, bool)
+                and value >= 0
+                for value in control["lease"].values()
+            )
         ):
             raise WorkspaceError(f"topology control identity is invalid: {name}")
         process_keys = (
@@ -7316,7 +7341,9 @@ class Workspace:
             current_control
             and self._topology_control_request(name, control, "status")
         )
-        process_tree_active = self._topology_process_tree_active(root)
+        process_tree_active = self._topology_process_tree_active(
+            root, control if current_control else None
+        )
         supervisor_local = self._recorded_process_running(supervisor)
         if control_reachable or supervisor_local:
             supervisor_liveness = "live"
@@ -7438,11 +7465,15 @@ class Workspace:
 
     def topology_statuses(self) -> list[dict[str, Any]]:
         self.paths.ensure()
-        statuses: list[dict[str, Any]] = []
-        for path in sorted(self.paths.topologies.iterdir()):
-            if path.is_dir() and not path.is_symlink() and (path / "status.json").is_file():
-                statuses.append(self.topology_status(path.name))
-        return statuses
+        names = [
+            path.name
+            for path in sorted(self.paths.topologies.iterdir())
+            if path.is_dir()
+            and not path.is_symlink()
+            and (path / "status.json").is_file()
+        ]
+        with ThreadPoolExecutor(max_workers=min(8, len(names) or 1)) as executor:
+            return list(executor.map(self.topology_status, names))
 
     @staticmethod
     def _select_topology_port(requested: int | None) -> int:
@@ -7599,6 +7630,8 @@ class Workspace:
                     ) from error
                 if holders_exist(process_tree_fd, exclude=(os.getpid(),)):
                     raise WorkspaceError(f"topology is already running: {name}")
+                generation = secrets.token_hex(32)
+                lease_identity = initialize_lease(process_tree_fd, generation)
 
                 state_location: Path | None = None
                 state_lock: TextIO | None = None
@@ -7764,7 +7797,8 @@ class Workspace:
                         "socket": str(
                             (topology_root / TOPOLOGY_CONTROL_SOCKET).resolve()
                         ),
-                        "generation": secrets.token_hex(32),
+                        "generation": generation,
+                        "lease": lease_identity,
                     },
                     "services": service_specs,
                 }
@@ -7967,7 +8001,7 @@ class Workspace:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             current = self.topology_status(name)
-            active = self._topology_process_tree_active(root)
+            active = self._topology_process_tree_active(root, control)
             if not active and not current["supervisor"]["running"] and not any(
                 service["running"] for service in current["services"].values()
             ):

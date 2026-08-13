@@ -347,22 +347,35 @@ def _open_control(spec: dict[str, Any], topology_root: Path) -> socket.socket | 
         return None
     if (
         not isinstance(control, dict)
-        or set(control) != {"socket", "generation"}
+        or set(control) != {"socket", "generation", "lease"}
         or not isinstance(control.get("socket"), str)
         or control["socket"] != str((topology_root / "control.sock").resolve())
         or not isinstance(control.get("generation"), str)
         or not re.fullmatch(r"[0-9a-f]{64}", control["generation"])
+        or not isinstance(control.get("lease"), dict)
+        or set(control["lease"]) != {"device", "inode"}
+        or not all(
+            isinstance(value, int)
+            and not isinstance(value, bool)
+            and value >= 0
+            for value in control["lease"].values()
+        )
     ):
         raise RuntimeError("topology control identity is invalid")
     endpoint = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    directory_fd: int | None = None
     try:
-        endpoint.bind(control["socket"])
+        directory_fd = os.open(topology_root, os.O_RDONLY | os.O_CLOEXEC)
+        endpoint.bind(f"/proc/self/fd/{directory_fd}/control.sock")
         os.chmod(control["socket"], 0o600)
         endpoint.listen(4)
         endpoint.setblocking(False)
     except BaseException:
         endpoint.close()
         raise
+    finally:
+        if directory_fd is not None:
+            os.close(directory_fd)
     return endpoint
 
 

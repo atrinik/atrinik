@@ -19,7 +19,7 @@ from typing import Any, Iterable
 
 from .locking import LockBusyError, active_lock_fds, exclusive_layout_lock
 from .model import WorkspaceError, atomic_json, load_json
-from .process_tree import lease_locked
+from .process_tree import bound_lease_locked, lease_locked
 from .supervisor import process_matches
 
 
@@ -2921,7 +2921,21 @@ class RepositoryMigration:
                 )
                 running_records: list[str] = []
                 control = status_value.get("control")
-                generation = control.get("generation") if isinstance(control, dict) else None
+                if control is not None and (
+                    not isinstance(control, dict)
+                    or set(control) != {"socket", "generation", "lease"}
+                    or control.get("socket")
+                    != str((directory / "control.sock").resolve())
+                    or not isinstance(control.get("generation"), str)
+                    or re.fullmatch(r"[0-9a-f]{64}", control["generation"])
+                    is None
+                    or not isinstance(control.get("lease"), dict)
+                    or set(control["lease"]) != {"device", "inode"}
+                ):
+                    raise WorkspaceError("topology control identity is invalid")
+                generation = (
+                    control["generation"] if control is not None else None
+                )
                 process_keys = (
                     {"pid", "start_time", "generation"}
                     if control is not None
@@ -2962,11 +2976,14 @@ class RepositoryMigration:
                 lease_path = directory / "process-tree.lease"
                 if lease_path.is_symlink():
                     raise WorkspaceError("topology process-tree lease is invalid")
-                if (
-                    lease_path.is_file()
-                    and lease_locked(lease_path)
-                    and not running_records
-                ):
+                lease_active = (
+                    bound_lease_locked(
+                        lease_path, control["generation"], control["lease"]
+                    )
+                    if control is not None
+                    else lease_path.is_file() and lease_locked(lease_path)
+                )
+                if lease_active and not running_records:
                     running_records.append("namespace-independent process tree")
             except (OSError, WorkspaceError) as error:
                 refusals.append(

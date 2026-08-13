@@ -372,6 +372,34 @@ class CompletionTests(unittest.TestCase):
 
         status_path = self.workspace / "topologies" / "completion-review" / "status.json"
         status = json.loads(status_path.read_text(encoding="utf-8"))
+        generation = "d" * 64
+        status["control"] = {
+            "socket": str(
+                self.workspace
+                / "topologies"
+                / "completion-review"
+                / "control.sock"
+            ),
+            "generation": generation,
+            "lease": {"device": 1, "inode": 2},
+        }
+        status["supervisor"]["generation"] = generation
+        status["services"]["server"]["generation"] = generation
+        self.write_json(status_path, status)
+        self.assertEqual(
+            self.candidates("logs", ""),
+            ("candidates", ["completion-review"]),
+        )
+        status["control"]["socket"] = "/tmp/external/control.sock"
+        self.write_json(status_path, status)
+        self.assertEqual(self.candidates("logs", ""), ("candidates", []))
+        status["control"]["socket"] = str(
+            self.workspace
+            / "topologies"
+            / "completion-review"
+            / "control.sock"
+        )
+
         status["profile"] = "deleted-profile"
         self.write_json(status_path, status)
         self.assertEqual(

@@ -680,7 +680,12 @@ def _topology_names(manifest: Manifest | None, paths: Paths | None) -> list[str]
                 status = _json_at(record, "status.json", _MAX_RECORD_BYTES)
                 if (
                     marker == {"schema_version": 1, "purpose": f"topology:{name}"}
-                    and _valid_topology(manifest, name, status)
+                    and _valid_topology(
+                        manifest,
+                        name,
+                        status,
+                        paths.topologies / name,
+                    )
                 ):
                     names.append(name)
             finally:
@@ -692,7 +697,7 @@ def _topology_names(manifest: Manifest | None, paths: Paths | None) -> list[str]
 
 
 def _valid_topology(
-    manifest: Manifest, name: str, status: Any
+    manifest: Manifest, name: str, status: Any, topology_root: Path
 ) -> bool:
     required = {
         "schema_version", "name", "profile", "stack", "providers",
@@ -755,12 +760,19 @@ def _valid_topology(
     control = status.get("control")
     if control is not None and (
         not isinstance(control, dict)
-        or set(control) != {"socket", "generation"}
+        or set(control) != {"socket", "generation", "lease"}
         or not isinstance(control.get("socket"), str)
-        or not Path(control["socket"]).is_absolute()
-        or Path(control["socket"]).name != "control.sock"
+        or control["socket"] != str((topology_root / "control.sock").resolve())
         or not isinstance(control.get("generation"), str)
         or re.fullmatch(r"[0-9a-f]{64}", control["generation"]) is None
+        or not isinstance(control.get("lease"), dict)
+        or set(control["lease"]) != {"device", "inode"}
+        or not all(
+            isinstance(value, int)
+            and not isinstance(value, bool)
+            and value >= 0
+            for value in control["lease"].values()
+        )
     ):
         return False
     process_keys = (

@@ -6685,18 +6685,6 @@ class WorkspaceTests(unittest.TestCase):
                 service["generation"] = "b" * 64
             atomic_json(status_path, reused)
             try:
-                with mock.patch(
-                    "atrinik_workspace.workspace.process_matches",
-                    return_value=False,
-                ):
-                    mismatched = self.workspace.topology_status("review")
-                self.assertEqual(
-                    mismatched["supervisor"]["liveness"], "unreachable"
-                )
-                self.assertEqual(
-                    mismatched["services"]["client"]["liveness"],
-                    "unreachable",
-                )
                 with (
                     mock.patch(
                         "atrinik_workspace.workspace.process_matches",
@@ -6706,19 +6694,13 @@ class WorkspaceTests(unittest.TestCase):
                         "atrinik_workspace.workspace.signal_holders"
                     ) as signaled,
                     self.assertRaisesRegex(
-                        WorkspaceError, "control endpoint is unreachable"
+                        WorkspaceError, "lease generation changed"
                     ),
                 ):
                     self.workspace.topology_down("review", timeout=0.1)
                 signaled.assert_not_called()
             finally:
                 atomic_json(status_path, persisted_status)
-            process_tree_path = (
-                self.workspace.paths.topologies
-                / "review"
-                / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
-            )
-            process_tree_path.unlink()
         finally:
             try:
                 if self.workspace.topology_status("review-two")["supervisor"][
@@ -6733,6 +6715,28 @@ class WorkspaceTests(unittest.TestCase):
         stopped = self.workspace.topology_status("review")
         self.assertFalse(stopped["supervisor"]["running"])
         self.assertFalse(stopped["services"]["client"]["running"])
+
+    def test_topology_status_inventory_probes_with_bounded_concurrency(self) -> None:
+        for index in range(24):
+            root = self.workspace.paths.topologies / f"probe-{index}"
+            root.mkdir()
+            (root / "status.json").write_text("{}\n", encoding="utf-8")
+
+        def delayed(name: str) -> dict[str, str]:
+            time.sleep(0.05)
+            return {"name": name}
+
+        started = time.monotonic()
+        with mock.patch.object(
+            self.workspace, "topology_status", side_effect=delayed
+        ):
+            statuses = self.workspace.topology_statuses()
+
+        self.assertLess(time.monotonic() - started, 0.5)
+        self.assertEqual(
+            [status["name"] for status in statuses],
+            [f"probe-{index}" for index in sorted(range(24), key=str)],
+        )
 
     def test_supervised_local_playtest_client_uses_recorded_verified_root(self) -> None:
         self.workspace.create_profile("classic-audio", "classic")
@@ -7111,6 +7115,23 @@ class WorkspaceTests(unittest.TestCase):
             self.assertFalse(
                 any(service["running"] for service in recovered["services"].values())
             )
+            with (
+                mock.patch.object(
+                    self.workspace, "_build_resolved", return_value=build_root
+                ),
+                mock.patch.object(
+                    self.workspace, "_select_topology_port", return_value=17300
+                ),
+                mock.patch.object(self.workspace, "_require_client_display"),
+            ):
+                restarted = self.workspace.topology_up(
+                    "server-review", "default", "default", None, 17300
+                )
+            self.assertNotEqual(
+                restarted["control"]["generation"],
+                recovered["control"]["generation"],
+            )
+            self.workspace.topology_down("server-review", timeout=5)
         finally:
             second_remaining = self.workspace.topology_status("server-review-two")
             if second_remaining["supervisor"]["running"] or any(

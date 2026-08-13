@@ -33,6 +33,7 @@ from atrinik_workspace.model import (
     managed_directory,
     managed_remove as real_managed_remove,
 )
+from atrinik_workspace.process_tree import initialize_lease
 from atrinik_workspace.workspace import (
     WORKER_DEPENDENCY_SCHEMA_VERSION,
     Workspace,
@@ -2132,6 +2133,12 @@ class CleanupTests(unittest.TestCase):
         worktree = self.make_component_worktree()
         topology = self.workspace.paths.topologies / "live-current"
         topology.mkdir()
+        lease_fd = os.open(
+            topology / "process-tree.lease", os.O_RDWR | os.O_CREAT, 0o600
+        )
+        fcntl.flock(lease_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        generation = "a" * 64
+        lease = initialize_lease(lease_fd, generation)
         atomic_json(
             topology / MANAGED_MARKER,
             {"schema_version": SCHEMA_VERSION, "purpose": "topology:live-current"},
@@ -2144,7 +2151,16 @@ class CleanupTests(unittest.TestCase):
                 "stack": "default",
                 "providers": {"client": "client"},
                 "dependencies": ["client"],
-                "supervisor": {"pid": 123, "start_time": "1"},
+                "control": {
+                    "socket": str((topology / "control.sock").resolve()),
+                    "generation": generation,
+                    "lease": lease,
+                },
+                "supervisor": {
+                    "pid": 123,
+                    "start_time": "1",
+                    "generation": generation,
+                },
                 "services": {},
                 "build_root": str(self.workspace.paths.builds / "profiles" / "live"),
                 "resolved": {
@@ -2162,10 +2178,15 @@ class CleanupTests(unittest.TestCase):
             },
         )
 
-        with mock.patch(
-            "atrinik_workspace.cleanup.process_matches", return_value=True
-        ), mock.patch.object(Cleanup, "_github_pulls") as pulls:
-            report = self.workspace.cleanup(["worktrees"], 0, ["client"], False)
+        try:
+            with mock.patch(
+                "atrinik_workspace.cleanup.process_matches", return_value=False
+            ), mock.patch.object(Cleanup, "_github_pulls") as pulls:
+                report = self.workspace.cleanup(
+                    ["worktrees"], 0, ["client"], False
+                )
+        finally:
+            os.close(lease_fd)
 
         item = next(row for row in report["items"] if row["path"] == str(worktree))
         self.assertIn("topology_reference", item["reasons"])

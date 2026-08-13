@@ -635,9 +635,12 @@ PID/start-tick coordinates to one random topology generation and mode-0600
 filesystem Unix control endpoint. `ps` probes that name/generation endpoint,
 so another supported sandbox sharing the workspace can distinguish `live`,
 `exited`, `stale`, and fail-closed `unreachable` processes without resolving
-their PID namespace. The independently observable process-tree generation
-lease identifies the exact topology retaining the repository-layout lease and
-keeps an unreachable process tree active rather than mislabeled stale.
+their PID namespace. Bind and connect use a bounded descriptor-relative socket
+address, so the canonical managed endpoint remains usable below arbitrarily
+deep supported worktree paths. The independently observable process-tree lease
+is bound to the status generation and exact file identity. Missing, replaced,
+or malformed current leases fail closed instead of allowing topology-name
+reuse while holders of an unlinked lease remain alive.
 
 `down` requests shutdown only through an exact matching current-generation
 endpoint; it never signals a namespace-local, recycled, or unrelated PID.

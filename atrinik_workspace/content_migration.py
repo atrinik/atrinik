@@ -21,7 +21,7 @@ from .locking import (
     layout_writer_pending_path,
 )
 from .model import WorkspaceError, atomic_json, load_json
-from .process_tree import holders_exist, lease_locked
+from .process_tree import bound_lease_locked, holders_exist, lease_locked
 from .supervisor import process_matches
 
 
@@ -808,7 +808,33 @@ class ContentMigration:
                     lease_path = directory / "process-tree.lease"
                     if lease_path.is_symlink():
                         raise WorkspaceError("invalid topology process-tree lease")
-                    lease_active = lease_path.is_file() and lease_locked(lease_path)
+                    control = value.get("control")
+                    if control is not None:
+                        if (
+                            not isinstance(control, dict)
+                            or set(control)
+                            != {"socket", "generation", "lease"}
+                            or control.get("socket")
+                            != str((directory / "control.sock").resolve())
+                            or not isinstance(control.get("generation"), str)
+                            or re.fullmatch(
+                                r"[0-9a-f]{64}", control["generation"]
+                            )
+                            is None
+                            or not isinstance(control.get("lease"), dict)
+                        ):
+                            raise WorkspaceError(
+                                "invalid topology control identity"
+                            )
+                        lease_active = bound_lease_locked(
+                            lease_path,
+                            control["generation"],
+                            control["lease"],
+                        )
+                    else:
+                        lease_active = (
+                            lease_path.is_file() and lease_locked(lease_path)
+                        )
                     affected = (
                         value.get("profile") in changed_profiles
                         or "content-1x" in json.dumps(value, sort_keys=True)

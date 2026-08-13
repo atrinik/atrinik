@@ -23,6 +23,41 @@ class ProcessTreeIdentityTests(unittest.TestCase):
             finally:
                 os.close(descriptor)
 
+    def test_bound_lease_rejects_replacement_and_generation_reuse(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "process-tree.lease"
+            descriptor = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                identity = process_tree.initialize_lease(descriptor, "a" * 64)
+                self.assertTrue(
+                    process_tree.bound_lease_locked(path, "a" * 64, identity)
+                )
+                path.unlink()
+                path.write_text("a" * 64 + "\n", encoding="utf-8")
+                with self.assertRaisesRegex(OSError, "identity changed"):
+                    process_tree.bound_lease_locked(path, "a" * 64, identity)
+            finally:
+                os.close(descriptor)
+
+    def test_bound_lease_rejects_missing_symlink_and_changed_generation(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "process-tree.lease"
+            descriptor = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
+            identity = process_tree.initialize_lease(descriptor, "a" * 64)
+            os.close(descriptor)
+            with self.assertRaisesRegex(OSError, "generation changed"):
+                process_tree.bound_lease_locked(path, "b" * 64, identity)
+            path.unlink()
+            with self.assertRaises(FileNotFoundError):
+                process_tree.bound_lease_locked(path, "a" * 64, identity)
+            target = root / "target"
+            target.write_text("a" * 64 + "\n", encoding="utf-8")
+            path.symlink_to(target)
+            with self.assertRaises(OSError):
+                process_tree.bound_lease_locked(path, "a" * 64, identity)
+
     def test_malformed_fdinfo_is_ignored(self) -> None:
         descriptor = mock.Mock()
         descriptor.name = "7"
