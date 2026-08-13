@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import ctypes
+import errno
 import fcntl
 import json
 import os
@@ -199,6 +201,49 @@ def _open_child(
     return descriptor
 
 
+def _rename_no_replace(
+    directory_descriptor: int, source: str, destination: str
+) -> None:
+    try:
+        renameat2 = ctypes.CDLL(None, use_errno=True).renameat2
+    except AttributeError as error:
+        raise PortReservationError(
+            "atomic no-replace reservation publication is unsupported"
+        ) from error
+    renameat2.argtypes = [
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_uint,
+    ]
+    renameat2.restype = ctypes.c_int
+    if (
+        renameat2(
+            directory_descriptor,
+            os.fsencode(source),
+            directory_descriptor,
+            os.fsencode(destination),
+            1,
+        )
+        == 0
+    ):
+        return
+    error_number = ctypes.get_errno()
+    if error_number == errno.EEXIST:
+        raise PortReservationError(
+            f"topology port reservation generation already exists: {destination}"
+        )
+    if error_number in {errno.ENOSYS, errno.EINVAL}:
+        raise PortReservationError(
+            "atomic no-replace reservation publication is unsupported"
+        )
+    raise PortReservationError(
+        f"cannot publish topology port reservation {destination}: "
+        f"{os.strerror(error_number)}"
+    )
+
+
 def open_transaction(
     topologies: Path, port: int
 ) -> tuple[int, int, Path, dict[str, int]]:
@@ -304,12 +349,13 @@ def create_lease(
     generation: str,
 ) -> tuple[int, dict[str, Any]]:
     path = directory / f"{port}-{generation}.lease"
+    staging_name = f".staging-{port}-{generation}-{secrets.token_hex(16)}"
     descriptor = _open_child(
-        directory_descriptor, path.name, os.O_RDWR, exclusive=True
+        directory_descriptor, staging_name, os.O_RDWR, exclusive=True
     )
     try:
         fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        metadata = _validate_child(descriptor, directory_descriptor, path.name)
+        metadata = _validate_child(descriptor, directory_descriptor, staging_name)
         token = secrets.token_hex(32)
         try:
             os.setxattr(descriptor, "user.atrinik.port-reservation", token.encode())
@@ -338,21 +384,13 @@ def create_lease(
                 raise OSError("short write")
             view = view[written:]
         os.fsync(descriptor)
+        _validate_child(descriptor, directory_descriptor, staging_name)
+        _validate_directory_path(directory, directory_identity)
+        _rename_no_replace(directory_descriptor, staging_name, path.name)
         _validate_child(descriptor, directory_descriptor, path.name)
         _validate_directory_path(directory, directory_identity)
         return descriptor, record
     except BaseException:
-        try:
-            created = os.fstat(descriptor)
-            current = os.stat(
-                path.name,
-                dir_fd=directory_descriptor,
-                follow_symlinks=False,
-            )
-            if (created.st_dev, created.st_ino) == (current.st_dev, current.st_ino):
-                os.unlink(path.name, dir_fd=directory_descriptor)
-        except OSError:
-            pass
         os.close(descriptor)
         raise
 

@@ -442,20 +442,19 @@ class PortReservationTests(unittest.TestCase):
         valuable.chmod(0o600)
         generation = "5" * 64
         lease = directory / f"17382-{generation}.lease"
-        real_fsync = os.fsync
-
-        def replace_before_validation(descriptor: int) -> None:
-            real_fsync(descriptor)
-            lease.unlink()
+        def race_publication(
+            _directory_descriptor: int, _source: str, _destination: str
+        ) -> None:
             valuable.rename(lease)
+            raise PortReservationError("simulated no-replace publication race")
 
         try:
             with (
                 mock.patch(
-                    "atrinik_workspace.port_reservation.os.fsync",
-                    side_effect=replace_before_validation,
+                    "atrinik_workspace.port_reservation._rename_no_replace",
+                    side_effect=race_publication,
                 ),
-                self.assertRaisesRegex(PortReservationError, "identity is invalid"),
+                self.assertRaisesRegex(PortReservationError, "publication race"),
             ):
                 create_lease(
                     directory_fd,
@@ -466,6 +465,9 @@ class PortReservationTests(unittest.TestCase):
                     generation=generation,
                 )
             self.assertEqual(lease.read_text(encoding="utf-8"), "valuable\n")
+            self.assertEqual(
+                len(list(directory.glob(".staging-17382-*"))), 1
+            )
         finally:
             os.close(directory_fd)
 
