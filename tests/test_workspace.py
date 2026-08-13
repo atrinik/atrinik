@@ -259,11 +259,14 @@ def timed_public_build_process(
 def fair_layout_reader_process(
     layout_path: str,
     name: str,
+    attempting: object | None,
     entered: object,
     release: object | None,
     results: object,
 ) -> None:
     try:
+        if attempting is not None:
+            attempting.set()
         with shared_layout_lock(Path(layout_path), "repository layout"):
             entered.put(name)
             if release is not None and not release.wait(10):
@@ -5726,6 +5729,13 @@ class WorkspaceTests(unittest.TestCase):
                 with shared_lock(lock, "test resource"):
                     self.fail("unsupported shared lock unexpectedly succeeded")
 
+        with mock.patch.object(locking_module.fcntl, "LOCK_SH", None):
+            with self.assertRaisesRegex(
+                WorkspaceError, "shared locking is unavailable"
+            ):
+                with shared_layout_lock(lock, "repository layout"):
+                    self.fail("unsupported shared layout lock unexpectedly succeeded")
+
     def test_layout_writer_precedes_continuing_reader_arrivals(self) -> None:
         context = multiprocessing.get_context("spawn")
         layout = self.workspace.paths.workspace / "repository-layout.lock"
@@ -5740,6 +5750,7 @@ class WorkspaceTests(unittest.TestCase):
             args=(
                 str(layout),
                 "initial",
+                None,
                 entered,
                 release_initial,
                 results,
@@ -5749,10 +5760,18 @@ class WorkspaceTests(unittest.TestCase):
             target=fair_layout_writer_process,
             args=(str(layout), entered, release_writer, results),
         )
+        arrival_attempts = [context.Event() for _ in range(8)]
         arrivals = [
             context.Process(
                 target=fair_layout_reader_process,
-                args=(str(layout), f"reader-{index}", entered, None, results),
+                args=(
+                    str(layout),
+                    f"reader-{index}",
+                    arrival_attempts[index],
+                    entered,
+                    None,
+                    results,
+                ),
             )
             for index in range(8)
         ]
@@ -5783,7 +5802,9 @@ class WorkspaceTests(unittest.TestCase):
                 for arrival in arrivals:
                     arrival.start()
                     started.append(arrival)
-                    time.sleep(0.01)
+                self.assertTrue(
+                    all(attempt.wait(5) for attempt in arrival_attempts)
+                )
                 with self.assertRaises(queue.Empty):
                     entered.get(timeout=0.1)
 
@@ -5866,18 +5887,23 @@ class WorkspaceTests(unittest.TestCase):
         layout = self.workspace.paths.workspace / "repository-layout.lock"
         entered = 0
         entered_lock = threading.Lock()
+        attempts = [threading.Event() for _ in range(16)]
 
-        def read_layout() -> None:
+        def read_layout(attempt: threading.Event) -> None:
             nonlocal entered
+            attempt.set()
             with shared_layout_lock(layout, "repository layout"):
                 with entered_lock:
                     entered += 1
 
         with exclusive_layout_lock(layout, "repository layout"):
-            readers = [threading.Thread(target=read_layout) for _ in range(16)]
+            readers = [
+                threading.Thread(target=read_layout, args=(attempt,))
+                for attempt in attempts
+            ]
             for reader in readers:
                 reader.start()
-            time.sleep(0.1)
+            self.assertTrue(all(attempt.wait(2) for attempt in attempts))
             self.assertEqual(entered, 0)
         for reader in readers:
             reader.join(2)

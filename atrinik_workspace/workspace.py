@@ -32,7 +32,6 @@ from typing import Any, Callable, Iterator, TextIO
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
 from .locking import (
-    LOCK_WAIT_DIAGNOSTIC_SECONDS,
     active_lock_fds,
     exclusive_layout_lock,
     exclusive_lock,

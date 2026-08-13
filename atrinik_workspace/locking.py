@@ -65,7 +65,6 @@ def _advisory_lock(
     operation: int,
     *,
     nonblocking: bool = False,
-    diagnose_wait: bool = False,
 ) -> Iterator[TextIO]:
     path.parent.mkdir(parents=True, exist_ok=True)
     with _open_lock(path, description) as lock:
@@ -74,35 +73,12 @@ def _advisory_lock(
         except BlockingIOError as error:
             if nonblocking:
                 raise LockBusyError(f"{description} is already in use") from error
-            acquired = threading.Event()
-            warning: threading.Thread | None = None
-            if diagnose_wait:
-
-                def warn_about_wait() -> None:
-                    if acquired.wait(LOCK_WAIT_DIAGNOSTIC_SECONDS):
-                        return
-                    print(
-                        f"waiting more than {LOCK_WAIT_DIAGNOSTIC_SECONDS:g}s "
-                        f"for {description} lock at {path}; inspect "
-                        "`./atrinik ps --json` and "
-                        "`./atrinik worktree list --json`; do not bypass the "
-                        "wrapper or stop unrelated processes",
-                        file=sys.stderr,
-                    )
-
-                warning = threading.Thread(target=warn_about_wait, daemon=True)
-                warning.start()
             try:
-                try:
-                    fcntl.flock(lock, operation)
-                except OSError as wait_error:
-                    raise WorkspaceError(
-                        f"cannot acquire {description} lock: {wait_error}"
-                    ) from wait_error
-            finally:
-                acquired.set()
-                if warning is not None:
-                    warning.join(timeout=0.1)
+                fcntl.flock(lock, operation)
+            except OSError as wait_error:
+                raise WorkspaceError(
+                    f"cannot acquire {description} lock: {wait_error}"
+                ) from wait_error
         except OSError as error:
             raise WorkspaceError(
                 f"cannot acquire {description} lock: {error}"
@@ -140,15 +116,12 @@ def exclusive_lock(
     path: Path,
     description: str,
     nonblocking: bool = False,
-    *,
-    diagnose_wait: bool = False,
 ) -> Iterator[TextIO]:
     with _advisory_lock(
         path,
         description,
         fcntl.LOCK_EX,
         nonblocking=nonblocking,
-        diagnose_wait=diagnose_wait,
     ) as lock:
         with inherit_lock_fds(lock):
             yield lock
@@ -159,8 +132,6 @@ def shared_lock(
     path: Path,
     description: str,
     nonblocking: bool = False,
-    *,
-    diagnose_wait: bool = False,
 ) -> Iterator[TextIO]:
     operation = getattr(fcntl, "LOCK_SH", None)
     if not isinstance(operation, int):
@@ -172,7 +143,6 @@ def shared_lock(
         description,
         operation,
         nonblocking=nonblocking,
-        diagnose_wait=diagnose_wait,
     ) as lock:
         with inherit_lock_fds(lock):
             yield lock
@@ -228,6 +198,11 @@ def shared_layout_lock(path: Path, description: str) -> Iterator[TextIO]:
             f"exclusive locking is unavailable for {description} writer intent; "
             "refusing to continue"
         )
+    shared_operation = getattr(fcntl, "LOCK_SH", None)
+    if not isinstance(shared_operation, int):
+        raise WorkspaceError(
+            f"shared locking is unavailable for {description}; refusing to continue"
+        )
     with ExitStack() as layout_stack:
         with _diagnose_layout_wait(path, description):
             pending_busy = False
@@ -255,7 +230,7 @@ def shared_layout_lock(path: Path, description: str) -> Iterator[TextIO]:
                             _advisory_lock(
                                 path,
                                 description,
-                                fcntl.LOCK_SH,
+                                shared_operation,
                             )
                         )
             if pending_busy:
@@ -273,7 +248,7 @@ def shared_layout_lock(path: Path, description: str) -> Iterator[TextIO]:
                             _advisory_lock(
                                 path,
                                 description,
-                                fcntl.LOCK_SH,
+                                shared_operation,
                             )
                         )
         with inherit_lock_fds(lock):
