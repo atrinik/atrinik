@@ -7221,6 +7221,7 @@ class WorkspaceTests(unittest.TestCase):
             if "--provision_scenario" not in arguments:
                 return workspace_run(arguments, cwd=cwd, **kwargs)
             assert cwd is not None
+            self.assertIn("--provision_preset=lighting-radiance-day", arguments)
             assetspath = Path(
                 next(
                     argument.split("=", 1)[1]
@@ -7252,7 +7253,7 @@ class WorkspaceTests(unittest.TestCase):
             mock.patch("atrinik_workspace.workspace.run", side_effect=provision),
         ):
             created = self.workspace.scenario_create(
-                "fresh-assets", "default", "basic-player"
+                "fresh-assets", "default", "lighting-radiance-day"
             )
             self.assertEqual(
                 self.workspace.scenario_show("fresh-assets")["state"],

@@ -834,7 +834,14 @@ Reset refuses a running or otherwise locked state and validates the ownership
 marker, state registration, state shape, and credential permissions before it
 replaces anything. External and shared states are never scenario reset targets.
 Do not create static account or player fixtures; add a tested server-owned
-preset if a future reproduction needs more than `basic-player`.
+preset if a future reproduction needs more than `basic-player`. The Classic
+server also owns `lighting-radiance-day`, `lighting-radiance-dawn`, and
+`lighting-radiance-night`: each places an unapplied mithril lamp in a character
+at the Greyton lighting-review map and initializes the isolated world clock to
+the named period. `lighting-radiance-inside` places the character beside the
+same map's interior fireplace at night so ownership-gated roof and interior
+rendering can be reviewed. These presets are reserved for repeatable renderer
+reviews whose ordinary world progression would dominate the test.
 
 ## Supervised topologies and practical workflows
 
