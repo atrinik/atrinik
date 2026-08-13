@@ -1867,6 +1867,69 @@ class CleanupTests(unittest.TestCase):
             [{"kind": "worktree", "path": str(removable)}],
         )
 
+    def test_apply_skips_worktree_during_relocated_reference_backfill(self) -> None:
+        target = self.make_component_worktree("backfill-race", component="client")
+        alternate_root = self.root / "alternate-backfill-workspace"
+        scenario = alternate_root / "scenarios" / "cleanup-race"
+        scenario.mkdir(parents=True)
+        atomic_json(
+            scenario / "scenario.json",
+            {
+                "resolved": {
+                    "client": {
+                        "checkout": "retired-client-owner",
+                        "checkout_path": str(target),
+                    }
+                }
+            },
+        )
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
+        ):
+            alternate = Workspace(self.wrapper, backfill_references=False)
+        entered = threading.Event()
+        release = threading.Event()
+        publish = alternate._publish_scenario_references
+
+        def pause_publication(name: str, metadata: dict[str, object]) -> None:
+            entered.set()
+            self.assertTrue(release.wait(5))
+            publish(name, metadata)
+
+        try:
+            with (
+                mock.patch.object(
+                    alternate,
+                    "_publish_scenario_references",
+                    side_effect=pause_publication,
+                ),
+                mock.patch.object(
+                    Cleanup,
+                    "_github_pulls",
+                    side_effect=lambda _repository, head: self.merged_pull(head),
+                ),
+                ThreadPoolExecutor(max_workers=1) as executor,
+            ):
+                backfill = executor.submit(alternate._backfill_physical_references)
+                self.assertTrue(entered.wait(5))
+                report = self.workspace.cleanup(["worktrees"], 7, ["client"], True)
+                item = next(
+                    row for row in report["items"] if row["path"] == str(target)
+                )
+                self.assertEqual(item["disposition"], "skipped")
+                self.assertEqual(item["reasons"], ["resource_busy"])
+                self.assertIn(
+                    "registry physical-references is already in use by shared "
+                    "backfill physical references",
+                    item["error"],
+                )
+                self.assertTrue(target.is_dir())
+                release.set()
+                backfill.result(timeout=5)
+        finally:
+            release.set()
+            alternate.close()
+
     def test_apply_skips_wrapper_worktree_running_public_operation(self) -> None:
         busy = self.make_wrapper_worktree("active-wrapper")
         with mock.patch.dict(

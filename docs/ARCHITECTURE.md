@@ -213,6 +213,22 @@ identity. Build preparation persists that snapshot and never rereads a mutable
 profile generation. Publication and removal share the same source coordinate.
 Physical profile/scenario reference records make completed publications visible
 to cleanup and explicit removal from every relocated state root.
+Initial registry backfill publishes absent source paths as conservative
+historical references while holding the authored-record and exact source
+leases. It then marks that state root classified without rewriting or removing
+the profile or scenario. A later source at the same path remains protected
+across relocated roots. Exact lease contention propagates its coordinate,
+operation, owner metadata and recovery action; a record that changes between
+read and confirmation fails separately and leaves the backfill marker absent.
+Because an inert scenario can retain a pre-migration checkout name, a common-Git
+physical-reference registry lease spans the complete one-time classification;
+worktree removal and cleanup take it exclusively, so they cannot reach an
+unprocessed path under any current owner between publications. Backfill
+publishes each scenario's complete conservative path set once, keeping
+descriptor use and durable I/O bounded. An exclusive per-state-root registry
+lease serializes first-use backfills, and every waiter rechecks the completion
+marker before publishing, so a lagging constructor cannot regress a completed
+record.
 
 The common-Git `repository-layout.lock` is only the maintenance barrier for
 schema/layout migration apply or restore. Ordinary operations share it while
