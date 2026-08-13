@@ -13,6 +13,7 @@ from atrinik_workspace.model import (
     Paths,
     WorkspaceError,
     atomic_json,
+    load_json,
     managed_directory,
     managed_remove,
     managed_reset,
@@ -500,6 +501,14 @@ class ManifestTests(unittest.TestCase):
             )
             with self.assertRaisesRegex(WorkspaceError, "duplicate JSON key"):
                 Manifest.load(path)
+
+    def test_load_json_rejects_non_utf8_input(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "invalid-utf8.json"
+            path.write_bytes(b"\xff")
+
+            with self.assertRaisesRegex(WorkspaceError, "cannot read"):
+                load_json(path)
 
     def test_rejects_unknown_fields(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

@@ -5978,7 +5978,11 @@ class Workspace:
             raise WorkspaceError(f"scenario password file is invalid: {path}")
         return password
 
-    def _load_scenario(self, name: str) -> dict[str, Any]:
+    def _load_scenario(
+        self,
+        name: str,
+        registered_states: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
         self.paths.ensure()
         root = self._scenario_directory(name)
         if not root.is_dir() or root.is_symlink():
@@ -6031,7 +6035,8 @@ class Workspace:
         if (
             metadata.get("name") != name
             or not isinstance(metadata.get("profile"), str)
-            or metadata.get("preset") not in SCENARIO_PRESETS
+            or not isinstance(metadata.get("preset"), str)
+            or metadata["preset"] not in SCENARIO_PRESETS
             or metadata.get("state") != f"scenario-{name}"
             or not isinstance(metadata.get("account"), str)
             or not isinstance(metadata.get("character"), str)
@@ -6094,7 +6099,10 @@ class Workspace:
         if state.is_symlink():
             raise WorkspaceError(f"scenario state is invalid: {name}")
         self._validate_state(state)
-        registered = self._load_states().get(metadata["state"])
+        states = (
+            self._load_states() if registered_states is None else registered_states
+        )
+        registered = states.get(metadata["state"])
         if registered is None or Path(registered).resolve(strict=False) != state.resolve():
             raise WorkspaceError(f"scenario state registration is invalid: {name}")
         os.close(self._open_scenario_password(root / "password"))
@@ -6238,11 +6246,13 @@ class Workspace:
 
     def scenario_list(self) -> list[dict[str, Any]]:
         self.paths.ensure()
+        registered_states = self._load_states()
         scenarios: list[dict[str, Any]] = []
         for path in sorted(self.paths.scenarios.iterdir()):
             if path.is_dir() and not path.name.startswith("."):
                 try:
-                    scenarios.append(self.scenario_show(path.name))
+                    metadata = self._load_scenario(path.name, registered_states)
+                    scenarios.append({**metadata, "path": str(path)})
                 except _InertScenarioError as error:
                     scenarios.append(
                         {

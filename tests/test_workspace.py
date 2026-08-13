@@ -7643,6 +7643,77 @@ class WorkspaceTests(unittest.TestCase):
             ],
         )
 
+    def test_scenario_list_isolates_unhashable_metadata_fields(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+            self.workspace.scenario_create("malformed", "default")
+
+        metadata_path = (
+            self.workspace.paths.scenarios / "malformed" / "scenario.json"
+        )
+        metadata = load_json(metadata_path)
+        metadata["preset"] = {"invalid": "object"}
+        atomic_json(metadata_path, metadata)
+
+        summaries = self.workspace.scenario_list()
+
+        self.assertEqual(
+            [summary["name"] for summary in summaries],
+            ["current", "malformed"],
+        )
+        self.assertEqual(summaries[0]["profile"], "default")
+        self.assertEqual(summaries[1]["inert_reason"], "invalid_record")
+
+    def test_scenario_list_isolates_non_utf8_scenario_and_profile(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        self.workspace.create_profile("invalid-profile")
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+            self.workspace.scenario_create("invalid-metadata", "default")
+            self.workspace.scenario_create("invalid-profile", "invalid-profile")
+
+        metadata_path = (
+            self.workspace.paths.scenarios / "invalid-metadata" / "scenario.json"
+        )
+        profile_path = self.workspace.paths.profiles / "invalid-profile.json"
+        metadata_path.write_bytes(b"\xff")
+        profile_path.write_bytes(b"\xff")
+        metadata_before = metadata_path.read_bytes()
+        profile_before = profile_path.read_bytes()
+
+        summaries = self.workspace.scenario_list()
+
+        self.assertEqual(
+            [summary["name"] for summary in summaries],
+            ["current", "invalid-metadata", "invalid-profile"],
+        )
+        self.assertEqual(summaries[0]["profile"], "default")
+        self.assertEqual(summaries[1]["inert_reason"], "invalid_record")
+        self.assertEqual(summaries[2]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(metadata_path.read_bytes(), metadata_before)
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+
+    def test_scenario_list_fails_closed_for_invalid_shared_state_registry(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+
+        states = load_json(self.workspace.paths.states_file)
+        states["schema_version"] = 999
+        atomic_json(self.workspace.paths.states_file, states)
+
+        with self.assertRaisesRegex(
+            WorkspaceError, "states registry schema is invalid"
+        ):
+            self.workspace.scenario_list()
+
     def test_scenario_audit_records_only_server_dependency_closure(self) -> None:
         required = {"server", "content", "resources", "libatrinik", "protocol"}
         selected = {
