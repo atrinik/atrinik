@@ -6879,6 +6879,18 @@ class WorkspaceTests(unittest.TestCase):
 
         topology_a_root = client_build_root("profile-a")
         topology_c_root = client_build_root("profile-c")
+
+        def stop_topology_a() -> None:
+            status_path = (
+                self.workspace.paths.topologies / "topology-a" / "status.json"
+            )
+            if status_path.is_file():
+                try:
+                    self.workspace.topology_down("topology-a", timeout=5)
+                except WorkspaceError:
+                    pass
+
+        self.addCleanup(stop_topology_a)
         with (
             mock.patch.object(
                 self.workspace, "_build_resolved", return_value=topology_a_root
@@ -6888,19 +6900,6 @@ class WorkspaceTests(unittest.TestCase):
             topology_a = self.workspace.topology_up(
                 "topology-a", "profile-a", "default", ["client"]
             )
-
-        def stop_topology_a() -> None:
-            status_path = (
-                self.workspace.paths.topologies / "topology-a" / "status.json"
-            )
-            if status_path.is_file():
-                try:
-                    if self.workspace.topology_status("topology-a")["ready"]:
-                        self.workspace.topology_down("topology-a", timeout=5)
-                except WorkspaceError:
-                    pass
-
-        self.addCleanup(stop_topology_a)
         self.assertTrue(topology_a["ready"])
         generation_root = Path(topology_a["runtime"]["path"])
         generation_digest = _tree_digest(
