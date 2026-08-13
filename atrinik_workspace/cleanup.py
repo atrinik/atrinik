@@ -1013,12 +1013,16 @@ class Cleanup:
             item["error"] = tree_error
 
         if check_operation:
-            busy, lock_error = self._lock_busy(path / "operation.lock")
-            if busy:
-                reasons.append("active_topology_operation")
-            if lock_error:
-                reasons.append("invalid_topology_operation_lock")
-                item["error"] = lock_error
+            operation_lock = path / "operation.lock"
+            if not operation_lock.exists() and not operation_lock.is_symlink():
+                reasons.append("topology_operation_lock_unavailable")
+            else:
+                busy, lock_error = self._lock_busy(operation_lock)
+                if busy:
+                    reasons.append("active_topology_operation")
+                if lock_error:
+                    reasons.append("invalid_topology_operation_lock")
+                    item["error"] = lock_error
 
         if check_layout:
             busy, lock_error = self._lock_busy(

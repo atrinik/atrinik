@@ -358,6 +358,8 @@ class CleanupTests(unittest.TestCase):
         retained = self.make_topology_record("retained")
         linked = self.make_topology_record("linked")
         (linked / "unsafe-link").symlink_to(self.root)
+        missing_lock = self.make_topology_record("missing-operation-lock")
+        (missing_lock / "operation.lock").unlink()
         active = self.make_topology_record("active-operation")
         descriptor = os.open(active / "operation.lock", os.O_RDWR)
         fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -384,6 +386,10 @@ class CleanupTests(unittest.TestCase):
         self.assertIn("unreachable_topology", items["unreachable"]["reasons"])
         self.assertIn("process_tree_lease_retained", items["retained"]["reasons"])
         self.assertIn("invalid_topology_tree", items["linked"]["reasons"])
+        self.assertIn(
+            "topology_operation_lock_unavailable",
+            items["missing-operation-lock"]["reasons"],
+        )
         self.assertIn("active_topology_operation", items["active-operation"]["reasons"])
         self.assertTrue(all(row["disposition"] == "protected" for row in items.values()))
 
