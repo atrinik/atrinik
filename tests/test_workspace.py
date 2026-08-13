@@ -4543,6 +4543,19 @@ class WorkspaceTests(unittest.TestCase):
                 self.root / "missing-runtime-source", destination
             )
 
+        source = self.root / "runtime-source"
+        source.mkdir()
+        with (
+            mock.patch("atrinik_workspace.workspace.os.close") as close,
+            self.assertRaisesRegex(
+                WorkspaceError, "cannot open runtime publication directory"
+            ),
+        ):
+            self.workspace._copy_runtime_directory_contents(
+                source, self.root / "missing-runtime-destination"
+            )
+        close.assert_called_once()
+
     def test_topology_runtime_set_rejects_file_changed_to_link_during_copy(
         self,
     ) -> None:
