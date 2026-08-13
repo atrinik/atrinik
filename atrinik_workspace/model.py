@@ -164,7 +164,7 @@ def load_json(path: Path) -> Any:
     try:
         with path.open(encoding="utf-8") as stream:
             return json.load(stream, object_pairs_hook=_reject_duplicate_keys)
-    except (OSError, json.JSONDecodeError) as error:
+    except (OSError, UnicodeError, ValueError, RecursionError) as error:
         raise WorkspaceError(f"cannot read {path}: {error}") from error
 
 

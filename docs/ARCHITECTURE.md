@@ -399,7 +399,12 @@ state directories, build trees, collected runtimes, scenario data, topology
 records, or logs. Typed state ownership is a separate migration boundary.
 Scenario metadata records its stack and exact checkout/component/source
 providers. An old scenario without that immutable identity is kept as an inert
-record and cannot inherit the current meaning of a reused profile name.
+record and cannot inherit the current meaning of a reused profile name. Global
+scenario inventory isolates resolution and validation failures per record and
+emits only a stable inert-reason code; it never rewrites the scenario, profile,
+state, worktree, or mutable data while listing. Shared workspace registries are
+validated once and still fail the complete inventory closed. Exact scenario
+operations validate the complete record and fail closed.
 
 Content selector retirement has its own preview/apply/audit transaction. Its
 certified anchors bind the merged consolidation commits on `main` and the final

@@ -870,6 +870,79 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(result, 0)
         self.assertEqual(json.loads(output.call_args.args[0]), summary)
 
+    def test_scenario_list_human_output_identifies_inert_records(self) -> None:
+        summaries = [
+            {
+                "name": "current",
+                "profile": "default",
+                "preset": "basic-player",
+                "state": "scenario-current",
+            },
+            {
+                "name": "historical",
+                "path": "/workspace/scenarios/historical",
+                "inert": True,
+                "inert_reason": "profile_unresolvable",
+            },
+        ]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_list.return_value = summaries
+            with mock.patch("builtins.print") as output:
+                result = main(["scenario", "list"])
+
+        self.assertEqual(result, 0)
+        self.assertEqual(
+            [call.args[0] for call in output.call_args_list],
+            [
+                "current\tdefault\tbasic-player\tscenario-current",
+                "historical\tinert\tprofile_unresolvable\t"
+                "/workspace/scenarios/historical",
+            ],
+        )
+
+    def test_scenario_list_json_preserves_valid_and_inert_records(self) -> None:
+        summaries = [
+            {
+                "name": "current",
+                "profile": "default",
+                "preset": "basic-player",
+                "state": "scenario-current",
+            },
+            {
+                "name": "historical",
+                "path": "/workspace/scenarios/historical",
+                "inert": True,
+                "inert_reason": "profile_unresolvable",
+            },
+        ]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_list.return_value = summaries
+            with mock.patch("builtins.print") as output:
+                result = main(["scenario", "list", "--json"])
+
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.call_args.args[0]), summaries)
+
+    def test_scenario_list_human_output_escapes_inert_control_characters(self) -> None:
+        summaries = [
+            {
+                "name": "unsafe\nname",
+                "path": "/workspace/scenarios/unsafe\tname",
+                "inert": True,
+                "inert_reason": "invalid_record",
+            }
+        ]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_list.return_value = summaries
+            with mock.patch("builtins.print") as output:
+                result = main(["scenario", "list"])
+
+        self.assertEqual(result, 0)
+        output.assert_called_once_with(
+            "unsafe\\nname\tinert\tinvalid_record\t"
+            "/workspace/scenarios/unsafe\\tname"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

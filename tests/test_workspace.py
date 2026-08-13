@@ -7583,6 +7583,328 @@ class WorkspaceTests(unittest.TestCase):
         ):
             self.workspace.scenario_show("historical-coordinate")
 
+    def test_scenario_list_preserves_inert_record_and_continues_inventory(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        self.workspace.create_profile("stale-profile")
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+            self.workspace.scenario_create("historical", "stale-profile")
+
+        profile_path = self.workspace.paths.profiles / "stale-profile.json"
+        profile = load_json(profile_path)
+        profile["components"].pop("content")
+        atomic_json(profile_path, profile)
+        scenario_path = (
+            self.workspace.paths.scenarios / "historical" / "scenario.json"
+        )
+        profile_before = profile_path.read_bytes()
+        scenario_before = scenario_path.read_bytes()
+        states_before = self.workspace.paths.states_file.read_bytes()
+
+        summaries = self.workspace.scenario_list()
+
+        self.assertEqual(
+            [summary["name"] for summary in summaries],
+            ["current", "historical"],
+        )
+        self.assertEqual(summaries[0]["profile"], "default")
+        self.assertEqual(
+            summaries[1],
+            {
+                "name": "historical",
+                "path": str(self.workspace.paths.scenarios / "historical"),
+                "inert": True,
+                "inert_reason": "profile_unresolvable",
+            },
+        )
+        with self.assertRaisesRegex(
+            WorkspaceError, "profile component set does not match manifest"
+        ):
+            self.workspace.scenario_show("historical")
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+        self.assertEqual(scenario_path.read_bytes(), scenario_before)
+        self.assertEqual(self.workspace.paths.states_file.read_bytes(), states_before)
+
+    def test_scenario_list_preserves_resolved_path_for_symlinked_container(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+
+        scenarios = self.workspace.paths.scenarios
+        external = self.root / "external-scenarios"
+        scenarios.rename(external)
+        scenarios.symlink_to(external, target_is_directory=True)
+        invalid = scenarios / "invalid\nname"
+        invalid.mkdir()
+        outside = self.root / "outside-scenario"
+        outside.mkdir()
+        escaped = scenarios / "escaped"
+        escaped.symlink_to(outside, target_is_directory=True)
+
+        summaries = {row["name"]: row for row in self.workspace.scenario_list()}
+        self.assertEqual(
+            summaries["current"]["path"],
+            self.workspace.scenario_show("current")["path"],
+        )
+        self.assertEqual(
+            summaries["invalid\nname"],
+            {
+                "name": "invalid\nname",
+                "path": str(invalid),
+                "inert": True,
+                "inert_reason": "invalid_record",
+            },
+        )
+        self.assertEqual(
+            summaries["escaped"],
+            {
+                "name": "escaped",
+                "path": str(escaped),
+                "inert": True,
+                "inert_reason": "invalid_record",
+            },
+        )
+
+    def test_scenario_list_reports_invalid_record_without_error_detail(self) -> None:
+        root = self.workspace.paths.scenarios / "malformed"
+        root.mkdir(parents=True)
+        invalid_name = self.workspace.paths.scenarios / "invalid\nname"
+        invalid_name.mkdir()
+
+        self.assertEqual(
+            self.workspace.scenario_list(),
+            [
+                {
+                    "name": "invalid\nname",
+                    "path": str(invalid_name),
+                    "inert": True,
+                    "inert_reason": "invalid_record",
+                },
+                {
+                    "name": "malformed",
+                    "path": str(root),
+                    "inert": True,
+                    "inert_reason": "invalid_record",
+                }
+            ],
+        )
+
+    def test_scenario_list_isolates_unhashable_metadata_fields(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+            self.workspace.scenario_create("malformed", "default")
+
+        metadata_path = (
+            self.workspace.paths.scenarios / "malformed" / "scenario.json"
+        )
+        metadata = load_json(metadata_path)
+        metadata["preset"] = {"invalid": "object"}
+        atomic_json(metadata_path, metadata)
+
+        summaries = self.workspace.scenario_list()
+
+        self.assertEqual(
+            [summary["name"] for summary in summaries],
+            ["current", "malformed"],
+        )
+        self.assertEqual(summaries[0]["profile"], "default")
+        self.assertEqual(summaries[1]["inert_reason"], "invalid_record")
+
+    def test_scenario_list_isolates_non_utf8_scenario_and_profile(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        self.workspace.create_profile("invalid-nesting")
+        self.workspace.create_profile("invalid-profile")
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+            self.workspace.scenario_create("invalid-integer", "default")
+            self.workspace.scenario_create("invalid-metadata", "default")
+            self.workspace.scenario_create("invalid-nesting", "invalid-nesting")
+            self.workspace.scenario_create("invalid-profile", "invalid-profile")
+
+        metadata_path = (
+            self.workspace.paths.scenarios / "invalid-metadata" / "scenario.json"
+        )
+        profile_path = self.workspace.paths.profiles / "invalid-profile.json"
+        integer_path = (
+            self.workspace.paths.scenarios / "invalid-integer" / "scenario.json"
+        )
+        nesting_path = self.workspace.paths.profiles / "invalid-nesting.json"
+        integer_path.write_bytes(b"1" * 5000)
+        metadata_path.write_bytes(b"\xff")
+        nesting_path.write_bytes(
+            b"[" * 100_000 + b"0" + b"]" * 100_000
+        )
+        profile_path.write_bytes(b"\xff")
+        integer_before = integer_path.read_bytes()
+        metadata_before = metadata_path.read_bytes()
+        nesting_before = nesting_path.read_bytes()
+        profile_before = profile_path.read_bytes()
+
+        previous_limit = sys.get_int_max_str_digits()
+        try:
+            sys.set_int_max_str_digits(4300)
+            summaries = self.workspace.scenario_list()
+        finally:
+            sys.set_int_max_str_digits(previous_limit)
+
+        self.assertEqual(
+            [summary["name"] for summary in summaries],
+            [
+                "current",
+                "invalid-integer",
+                "invalid-metadata",
+                "invalid-nesting",
+                "invalid-profile",
+            ],
+        )
+        self.assertEqual(summaries[0]["profile"], "default")
+        self.assertEqual(summaries[1]["inert_reason"], "invalid_record")
+        self.assertEqual(summaries[2]["inert_reason"], "invalid_record")
+        self.assertEqual(summaries[3]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(summaries[4]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(integer_path.read_bytes(), integer_before)
+        self.assertEqual(metadata_path.read_bytes(), metadata_before)
+        self.assertEqual(nesting_path.read_bytes(), nesting_before)
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+
+    def test_scenario_list_isolates_invalid_profile_fields(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        self.workspace.create_profile("invalid-path")
+        self.workspace.create_profile("relative-path")
+        self.workspace.create_profile("invalid-sound-mode")
+        self.workspace.create_profile("invalid-selector-kind")
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+            self.workspace.scenario_create("invalid-path", "invalid-path")
+            self.workspace.scenario_create("relative-path", "relative-path")
+            self.workspace.scenario_create(
+                "invalid-sound-mode", "invalid-sound-mode"
+            )
+            self.workspace.scenario_create(
+                "invalid-selector-kind", "invalid-selector-kind"
+            )
+
+        sound_path = self.workspace.paths.profiles / "invalid-sound-mode.json"
+        sound_profile = load_json(sound_path)
+        sound_profile["sound_mode"] = {"invalid": "object"}
+        atomic_json(sound_path, sound_profile)
+        selector_path = (
+            self.workspace.paths.profiles / "invalid-selector-kind.json"
+        )
+        selector_profile = load_json(selector_path)
+        selector_profile["components"]["content"]["kind"] = ["invalid"]
+        atomic_json(selector_path, selector_profile)
+        path_profile_path = self.workspace.paths.profiles / "invalid-path.json"
+        path_profile = load_json(path_profile_path)
+        path_profile["components"]["content"] = {
+            "kind": "path",
+            "value": "/tmp/\0invalid",
+        }
+        atomic_json(path_profile_path, path_profile)
+        relative_path = self.workspace.paths.profiles / "relative-path.json"
+        relative_profile = load_json(relative_path)
+        relative_profile["components"]["content"] = {
+            "kind": "path",
+            "value": "relative/content",
+        }
+        atomic_json(relative_path, relative_profile)
+        path_profile_before = path_profile_path.read_bytes()
+
+        summaries = self.workspace.scenario_list()
+
+        self.assertEqual(
+            [summary["name"] for summary in summaries],
+            [
+                "current",
+                "invalid-path",
+                "invalid-selector-kind",
+                "invalid-sound-mode",
+                "relative-path",
+            ],
+        )
+        self.assertEqual(summaries[0]["profile"], "default")
+        self.assertEqual(summaries[1]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(summaries[2]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(summaries[3]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(summaries[4]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(path_profile_path.read_bytes(), path_profile_before)
+        with self.assertRaisesRegex(WorkspaceError, "invalid profile selector"):
+            self.workspace.scenario_show("invalid-path")
+
+    def test_scenario_list_fails_closed_for_invalid_shared_state_registry(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+
+        states = load_json(self.workspace.paths.states_file)
+        states["schema_version"] = 999
+        atomic_json(self.workspace.paths.states_file, states)
+
+        with self.assertRaisesRegex(
+            WorkspaceError, "states registry schema is invalid"
+        ):
+            self.workspace.scenario_list()
+
+    def test_scenario_list_isolates_invalid_resolved_paths(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+            self.workspace.scenario_create("invalid-component-path", "default")
+            self.workspace.scenario_create("invalid-state-path", "default")
+            self.workspace.scenario_create("unregistered-state", "default")
+
+        metadata_path = (
+            self.workspace.paths.scenarios
+            / "invalid-component-path"
+            / "scenario.json"
+        )
+        metadata = load_json(metadata_path)
+        metadata["resolved"]["server"]["checkout_path"] = "/tmp/\0invalid"
+        atomic_json(metadata_path, metadata)
+        states = load_json(self.workspace.paths.states_file)
+        states["states"]["scenario-invalid-state-path"] = "/tmp/\0invalid"
+        states["states"].pop("scenario-unregistered-state")
+        atomic_json(self.workspace.paths.states_file, states)
+        metadata_before = metadata_path.read_bytes()
+        states_before = self.workspace.paths.states_file.read_bytes()
+
+        summaries = self.workspace.scenario_list()
+
+        self.assertEqual(
+            [summary["name"] for summary in summaries],
+            [
+                "current",
+                "invalid-component-path",
+                "invalid-state-path",
+                "unregistered-state",
+            ],
+        )
+        self.assertEqual(summaries[0]["profile"], "default")
+        self.assertEqual(summaries[1]["inert_reason"], "invalid_record")
+        self.assertEqual(summaries[2]["inert_reason"], "invalid_record")
+        self.assertEqual(summaries[3]["inert_reason"], "invalid_record")
+        self.assertEqual(metadata_path.read_bytes(), metadata_before)
+        self.assertEqual(self.workspace.paths.states_file.read_bytes(), states_before)
+        with self.assertRaisesRegex(
+            WorkspaceError, "scenario component metadata is invalid"
+        ):
+            self.workspace.scenario_show("invalid-component-path")
+
     def test_scenario_audit_records_only_server_dependency_closure(self) -> None:
         required = {"server", "content", "resources", "libatrinik", "protocol"}
         selected = {
