@@ -925,7 +925,8 @@
       "scope": [
         "atrinik",
         "classic",
-        "content"
+        "content",
+        "playtester"
       ],
       "required": true,
       "version": "v7.0.0",
@@ -951,6 +952,11 @@
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
+          "contains": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0"
+        },
+        {
+          "repository": "playtester",
+          "path": ".github/workflows/validate.yml",
           "contains": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0"
         }
       ]
@@ -2479,25 +2485,25 @@
         "playtester"
       ],
       "required": true,
-      "version": "v1.8.0",
-      "version_source": "dependencies.lock.json content input",
+      "version": "v2.14.0",
+      "version_source": "dependencies.lock.json content source input",
       "license": "LicenseRef-Atrinik-Content",
-      "source_url": "https://github.com/atrinik/content/releases/tag/v1.8.0",
-      "locator": "pkg:github/atrinik/content@v1.8.0",
-      "commit": "96073eeff1854fc29347fdafd32e622394f24c07",
-      "checksum": null,
-      "acquisition": "The playtester verifies the exact content release commit before compiling world and runtime inputs",
+      "source_url": "https://github.com/atrinik/content/releases/tag/v2.14.0",
+      "locator": "pkg:github/atrinik/content@v2.14.0",
+      "commit": "7dde0c0afe8840fc95dd26f404310e77d9c82621",
+      "checksum": "sha256:bd5aa9acb8dd17c07e16913cb36c58644f7910f28f47e3b0739d00d91936a9e6",
+      "acquisition": "The playtester downloads the bounded source archive, verifies its exact digest and layout, and publishes it in a read-only atomic cache generation",
       "update_cadence_days": 30,
       "update_mechanism": "Reviewed content compatibility update with complete playtester regression validation",
       "eol_response": "Advance to a supported content release before removing the pinned compatibility baseline",
-      "validation": "Content identity verification, world-graph compilation, runtime asset loading, and playtester regression tests",
+      "validation": "Lock validation, checksum, safe extraction, atomic/offline cache tests, world-graph compilation, and complete playtester regressions",
       "disposition": "isolate",
       "packages": [],
       "evidence": [
         {
           "repository": "playtester",
           "path": "dependencies.lock.json",
-          "contains": "96073eeff1854fc29347fdafd32e622394f24c07"
+          "contains": "bd5aa9acb8dd17c07e16913cb36c58644f7910f28f47e3b0739d00d91936a9e6"
         }
       ]
     },
@@ -2507,21 +2513,22 @@
       "kind": "source-archive",
       "owner": "content",
       "scope": [
-        "classic-server"
+        "classic-server",
+        "playtester"
       ],
       "required": true,
       "version": "v2.14.0",
-      "version_source": "classic/server/dependencies.lock.json",
+      "version_source": "Classic server and playtester dependencies.lock.json files",
       "license": "LicenseRef-Atrinik-Asset-Per-File",
       "source_url": "https://github.com/atrinik/content/releases/tag/v2.14.0",
       "locator": "pkg:github/atrinik/content@v2.14.0",
       "commit": "7dde0c0afe8840fc95dd26f404310e77d9c82621",
       "checksum": "sha256:f4ad326e20e221869897c72f7e33b533c408ce6654038dbfc4352da1c3391261",
-      "acquisition": "Classic server dependency tool downloads and safely extracts the release archive",
+      "acquisition": "Classic server and playtester dependency tools download, checksum, safely extract, and atomically publish the release archive",
       "update_cadence_days": 30,
-      "update_mechanism": "Daily fail-closed GitHub App proposal and reviewed Classic lock pull request",
+      "update_mechanism": "Daily fail-closed GitHub App proposal plus reviewed Classic and playtester compatibility updates",
       "eol_response": "Update the lock to a supported content release or stop packaging the classic server",
-      "validation": "Lock validation, checksum, safe extraction, collection, and classic server runtime tests",
+      "validation": "Lock validation, checksum, safe extraction, collection, Classic runtime tests, and playtester atomic/offline cache regressions",
       "disposition": "isolate",
       "packages": [],
       "evidence": [
@@ -2529,6 +2536,11 @@
           "repository": "classic-server",
           "path": "dependencies.lock.json",
           "contains": "atrinik-content-2.14.0-classic-runtime.tar.gz"
+        },
+        {
+          "repository": "playtester",
+          "path": "dependencies.lock.json",
+          "contains": "f4ad326e20e221869897c72f7e33b533c408ce6654038dbfc4352da1c3391261"
         }
       ]
     },
@@ -2573,7 +2585,7 @@
       ],
       "required": true,
       "version": "v1.1.5",
-      "version_source": "CMakeLists.txt FetchContent declaration",
+      "version_source": "dependencies.lock.json pathfinding input consumed by CMake",
       "license": "GPL-2.0-or-later",
       "source_url": "https://github.com/atrinik/legacy-libatrinik/releases/tag/v1.1.5",
       "locator": "pkg:github/atrinik/legacy-libatrinik@v1.1.5",
@@ -2589,13 +2601,13 @@
       "evidence": [
         {
           "repository": "playtester",
-          "path": "CMakeLists.txt",
-          "contains": "libatrinik-1.1.5.tar.gz"
+          "path": "dependencies.lock.json",
+          "contains": "3c07b178cc236881f52272df6e38bc2d4186943b782e4cee34b2e733da9c8f9a"
         },
         {
           "repository": "playtester",
           "path": "dependencies.lock.json",
-          "contains": "3c07b178cc236881f52272df6e38bc2d4186943b782e4cee34b2e733da9c8f9a"
+          "contains": "libatrinik-1.1.5.tar.gz"
         }
       ]
     },
