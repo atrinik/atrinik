@@ -7635,10 +7635,6 @@ class Workspace:
                     ) from error
                 if holders_exist(process_tree_fd, exclude=(os.getpid(),)):
                     raise WorkspaceError(f"topology is already running: {name}")
-                # The operation lock serializes lifecycle mutation. Retire the
-                # stopped generation before rebinding its lease inode so status
-                # readers never compare old identity with new lease contents.
-                status_path.unlink(missing_ok=True)
                 for _attempt in range(16):
                     generation = secrets.token_hex(32)
                     control_path = control_socket_path(topology_root, generation)
@@ -7648,7 +7644,6 @@ class Workspace:
                     raise WorkspaceError(
                         "cannot allocate a unique topology control endpoint"
                     )
-                lease_identity = initialize_lease(process_tree_fd, generation)
                 control_directory = control_path.parent
                 control_directory.mkdir(mode=0o700, exist_ok=True)
                 control_metadata = control_directory.lstat()
@@ -7807,6 +7802,11 @@ class Workspace:
                 resolved_status = self._topology_resolved_status(
                     profile_name, selected
                 )
+                # All fallible preparation is complete. Retire the stopped
+                # record and bind/publish the new generation without exposing
+                # old status against rewritten lease contents.
+                status_path.unlink(missing_ok=True)
+                lease_identity = initialize_lease(process_tree_fd, generation)
                 spec: dict[str, Any] = {
                     "schema_version": SCHEMA_VERSION,
                     "name": name,

@@ -287,32 +287,59 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
     return status
 
 
-def _guardian(read_fd: int, process_tree_fd: int) -> None:
+def _guardian(read_fd: int, process_tree_fd: int, orderly_fd: int) -> None:
     """Release one orphaned topology tree after its supervisor disappears."""
     registrations = bytearray()
+    process_groups: set[int] = set()
     try:
         while chunk := os.read(read_fd, 4096):
             if len(registrations) + len(chunk) > 4096:
                 registrations.clear()
                 break
             registrations.extend(chunk)
+            while b"\n" in registrations:
+                value, _, remainder = registrations.partition(b"\n")
+                registrations = bytearray(remainder)
+                if value.isdigit() and int(value) > 0:
+                    process_group = int(value)
+                    process_groups.add(process_group)
     except OSError:
         pass
     finally:
         os.close(read_fd)
 
-    process_groups = {
-        int(value)
-        for value in registrations.splitlines()
-        if value.isdigit() and int(value) > 0
-    }
+    try:
+        orderly = os.read(orderly_fd, 1) == b"1"
+    except OSError:
+        orderly = False
+    finally:
+        os.close(orderly_fd)
 
     def signal_groups(signum: signal.Signals) -> None:
-        for process_group in process_groups:
+        try:
+            entries = list(Path("/proc").iterdir())
+        except OSError:
+            return
+        for entry in entries:
+            if not entry.name.isdigit():
+                continue
             try:
-                os.killpg(process_group, signum)
-            except ProcessLookupError:
-                pass
+                fields = (entry / "stat").read_text().rsplit(")", 1)[1].split()
+                if fields[0] == "Z" or int(fields[2]) not in process_groups:
+                    continue
+                pidfd = os.pidfd_open(int(entry.name))
+            except (OSError, IndexError, ValueError):
+                continue
+            try:
+                # Revalidate the exact process through its pinned descriptor;
+                # never signal a bare, potentially reused PID or group.
+                current = (entry / "stat").read_text().rsplit(")", 1)[1].split()
+                if current[0] != "Z" and int(current[2]) in process_groups:
+                    signal.pidfd_send_signal(pidfd, signum)
+            except (ProcessLookupError, OSError, IndexError, ValueError):
+                continue
+            finally:
+                os.close(pidfd)
 
     def groups_exist() -> bool:
         try:
@@ -333,38 +360,50 @@ def _guardian(read_fd: int, process_tree_fd: int) -> None:
     # Pipe EOF proves the supervisor is gone. Do not exclude its bare numeric
     # PID: it may already have been reused by an exact lease-holding descendant.
     excluded = (os.getpid(),)
-    signal_groups(signal.SIGTERM)
+    if not orderly:
+        signal_groups(signal.SIGTERM)
     signal_holders(process_tree_fd, signal.SIGTERM, exclude=excluded)
     deadline = time.monotonic() + 10
     while time.monotonic() < deadline and (
-        groups_exist() or holders_exist(process_tree_fd, exclude=excluded)
+        (not orderly and groups_exist())
+        or holders_exist(process_tree_fd, exclude=excluded)
     ):
         time.sleep(0.1)
-    signal_groups(signal.SIGKILL)
+    if not orderly:
+        signal_groups(signal.SIGKILL)
     signal_holders(process_tree_fd, signal.SIGKILL, exclude=excluded)
     deadline = time.monotonic() + 2
     while time.monotonic() < deadline and (
-        groups_exist() or holders_exist(process_tree_fd, exclude=excluded)
+        (not orderly and groups_exist())
+        or holders_exist(process_tree_fd, exclude=excluded)
     ):
-        signal_groups(signal.SIGKILL)
+        if not orderly:
+            signal_groups(signal.SIGKILL)
         signal_holders(process_tree_fd, signal.SIGKILL, exclude=excluded)
         time.sleep(0.05)
+    while (not orderly and groups_exist()) or holders_exist(
+        process_tree_fd, exclude=excluded
+    ):
+        time.sleep(0.5)
     os.close(process_tree_fd)
 
 
 def _start_guardian(
     process_tree_fd: int | None,
     *unneeded_fds: int | None,
-) -> tuple[int | None, int | None]:
+) -> tuple[int | None, int | None, int | None]:
     if process_tree_fd is None:
-        return None, None
+        return None, None, None
     read_fd, write_fd = os.pipe2(os.O_CLOEXEC)
+    orderly_read_fd, orderly_write_fd = os.pipe2(os.O_CLOEXEC)
     guardian_pid = os.fork()
     if guardian_pid:
         os.close(read_fd)
-        return guardian_pid, write_fd
+        os.close(orderly_read_fd)
+        return guardian_pid, write_fd, orderly_write_fd
 
     os.close(write_fd)
+    os.close(orderly_write_fd)
     for descriptor in unneeded_fds:
         if descriptor is not None and descriptor != process_tree_fd:
             try:
@@ -374,7 +413,7 @@ def _start_guardian(
     try:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
-        _guardian(read_fd, process_tree_fd)
+        _guardian(read_fd, process_tree_fd, orderly_read_fd)
     finally:
         os._exit(0)
 
@@ -435,13 +474,17 @@ def _serve_control(
     if endpoint is None:
         return False
     stop = False
-    while True:
+    deadline = time.monotonic() + 0.2
+    for _request_index in range(32):
         try:
             connection, _address = endpoint.accept()
         except BlockingIOError:
             return stop
         with connection:
-            connection.settimeout(0.5)
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return stop
+            connection.settimeout(min(0.05, remaining))
             try:
                 request = _receive_control(connection)
                 control = spec["control"]
@@ -463,6 +506,7 @@ def _serve_control(
                 stop = stop or bool(valid and request["action"] == "stop")
             except (OSError, TimeoutError, ValueError, json.JSONDecodeError):
                 continue
+    return stop
 
 
 def supervise(
@@ -479,6 +523,7 @@ def supervise(
     control_socket: socket.socket | None = None
     guardian_pid: int | None = None
     guardian_write_fd: int | None = None
+    guardian_orderly_fd: int | None = None
 
     def request_stop(_signum: int, _frame: object) -> None:
         nonlocal stop
@@ -566,7 +611,7 @@ def supervise(
         return process
 
     try:
-        guardian_pid, guardian_write_fd = _start_guardian(
+        guardian_pid, guardian_write_fd, guardian_orderly_fd = _start_guardian(
             process_tree_fd, lock_fd, layout_lock_fd, build_lock_fd
         )
         control_socket = _open_control(spec, spec_path.parent)
@@ -660,6 +705,10 @@ def supervise(
             os.close(process_tree_fd)
             process_tree_fd = None
         if guardian_write_fd is not None:
+            if guardian_orderly_fd is not None:
+                os.write(guardian_orderly_fd, b"1")
+                os.close(guardian_orderly_fd)
+                guardian_orderly_fd = None
             os.close(guardian_write_fd)
         if guardian_pid is not None:
             try:
@@ -672,6 +721,8 @@ def supervise(
             os.close(layout_lock_fd)
         if build_lock_fd is not None:
             os.close(build_lock_fd)
+        if guardian_orderly_fd is not None:
+            os.close(guardian_orderly_fd)
     return 0
 
 

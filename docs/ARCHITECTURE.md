@@ -646,8 +646,10 @@ reuse while holders of an unlinked lease remain alive.
 endpoint; it never signals a namespace-local, recycled, or unrelated PID.
 Legacy records retain the PID/start-tick fallback. A same-namespace guardian
 holds the process-tree generation until every inherited descendant is gone. If
-the supervisor dies, pipe closure makes the guardian terminate only holders of
-that exact lease, then release it within a bounded interval; another namespace
+the supervisor dies, pipe closure makes the guardian terminate exact lease
+holders and pidfd-revalidated members of registered service groups, including
+descendants that closed the lease. It retains the generation until absence is
+proven; another namespace
 waits or fails closed with the owning topology and recovery action. Normal
 shutdown asks the supervisor to gracefully stop children before releasing
 state. For a paired topology it starts the server

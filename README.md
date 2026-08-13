@@ -526,8 +526,10 @@ identity; never replace,
 unlink, or repair it by hand because an invalid current lease fails closed.
 
 If a supervisor is killed rather than shut down, its same-namespace guardian
-terminates the exact inherited process-tree lease holders and releases their
-layout, build-root, and state leases within a bounded interval. During that
+terminates exact lease holders and pidfd-revalidated members of registered
+service groups, including descendants that closed the lease. It retains the
+generation until absence is proven and releases inherited layout, build-root,
+and state leases after recovery. During that
 interval another session reports `unreachable` and fails closed: wait, retry
 `./atrinik ps TOPOLOGY --json`, then retry `./atrinik down TOPOLOGY`. If the
 lease remains retained and control remains unreachable, run `down` from the
