@@ -4,6 +4,7 @@ import copy
 import json
 import os
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -513,13 +514,22 @@ class ManifestTests(unittest.TestCase):
     def test_load_json_rejects_decoder_resource_errors(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "invalid-resource.json"
-            for payload in (
-                b"1" * 5000,
-                b"[" * 100_000 + b"0" + b"]" * 100_000,
-            ):
-                path.write_bytes(payload)
-                with self.assertRaisesRegex(WorkspaceError, "cannot read"):
-                    load_json(path)
+            previous_limit = sys.get_int_max_str_digits()
+            try:
+                sys.set_int_max_str_digits(4300)
+                for name, payload in (
+                    ("integer", b"1" * 5000),
+                    (
+                        "nesting",
+                        b"[" * 100_000 + b"0" + b"]" * 100_000,
+                    ),
+                ):
+                    with self.subTest(name=name):
+                        path.write_bytes(payload)
+                        with self.assertRaisesRegex(WorkspaceError, "cannot read"):
+                            load_json(path)
+            finally:
+                sys.set_int_max_str_digits(previous_limit)
 
     def test_rejects_unknown_fields(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

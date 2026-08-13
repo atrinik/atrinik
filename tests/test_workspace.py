@@ -7699,7 +7699,12 @@ class WorkspaceTests(unittest.TestCase):
         nesting_before = nesting_path.read_bytes()
         profile_before = profile_path.read_bytes()
 
-        summaries = self.workspace.scenario_list()
+        previous_limit = sys.get_int_max_str_digits()
+        try:
+            sys.set_int_max_str_digits(4300)
+            summaries = self.workspace.scenario_list()
+        finally:
+            sys.set_int_max_str_digits(previous_limit)
 
         self.assertEqual(
             [summary["name"] for summary in summaries],
