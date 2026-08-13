@@ -794,6 +794,69 @@ class ParserTests(unittest.TestCase):
         )
         output.assert_called_once_with("topology review: started at 127.0.0.1:17300")
 
+    def test_topology_state_policy_options_are_mutually_exclusive(self) -> None:
+        temporary = parser().parse_args(
+            ["up", "--profile", "review", "--temporary-state"]
+        )
+        explicit_default = parser().parse_args(
+            ["topology", "show", "review", "--default-state"]
+        )
+        self.assertIsNone(temporary.state)
+        self.assertEqual(explicit_default.state, "default")
+        with self.assertRaises(SystemExit):
+            parser().parse_args(
+                ["up", "--temporary-state", "--state", "shared"]
+            )
+
+    def test_temporary_state_start_retain_and_promotion_dispatch(self) -> None:
+        status = {
+            "supervisor": {"running": True},
+            "endpoint": None,
+            "state_policy": {
+                "mode": "temporary",
+                "lifecycle": "disposable",
+                "path": "/workspace/topologies/review/temporary-states/abc",
+            },
+        }
+        promoted = {
+            "topology": "review",
+            "name": "saved-review",
+            "path": status["state_policy"]["path"],
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace = workspace_type.return_value
+            workspace.topology_up.return_value = status
+            workspace.state_promote.return_value = promoted
+            with mock.patch("builtins.print"):
+                self.assertEqual(
+                    main(
+                        [
+                            "up",
+                            "--name",
+                            "review",
+                            "--profile",
+                            "review",
+                            "--temporary-state",
+                            "--service",
+                            "server",
+                        ]
+                    ),
+                    0,
+                )
+                self.assertEqual(main(["down", "review", "--retain-state"]), 0)
+                self.assertEqual(
+                    main(["state", "promote", "review", "saved-review"]), 0
+                )
+        workspace.topology_up.assert_called_once_with(
+            "review", "review", None, ["server"], None
+        )
+        workspace.topology_down.assert_called_once_with(
+            "review", retain_state=True
+        )
+        workspace.state_promote.assert_called_once_with(
+            "review", "saved-review"
+        )
+
     def test_topology_show_supports_json(self) -> None:
         summary = {
             "profile": "review",

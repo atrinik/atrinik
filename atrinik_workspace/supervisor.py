@@ -257,6 +257,11 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
         "profile": spec["profile"],
         "dependencies": spec["dependencies"],
         "state": spec["state"],
+        **(
+            {"state_policy": spec["state_policy"]}
+            if "state_policy" in spec
+            else {}
+        ),
         "build_root": spec["build_root"],
         "resolved": spec["resolved"],
         "endpoint": (
@@ -491,7 +496,7 @@ def supervise(
 ) -> int:
     with spec_path.open(encoding="utf-8") as stream:
         spec = json.load(stream)
-    if spec.get("schema_version") == 2:
+    if spec.get("schema_version") in {2, 3}:
         for descriptor in (layout_lock_fd, build_lock_fd):
             if descriptor is not None:
                 os.close(descriptor)
@@ -584,7 +589,7 @@ def supervise(
     try:
         retained_fds = (
             (port_reservation_fd, lock_fd, runtime_lock_fd)
-            if spec.get("schema_version") == 2
+            if spec.get("schema_version") in {2, 3}
             else (
                 lock_fd,
                 layout_lock_fd,

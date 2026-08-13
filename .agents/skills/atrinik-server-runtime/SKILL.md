@@ -17,21 +17,31 @@ HTTP(S) origin; never restore a bundled HTTP listener.
 
 1. Read the workspace and selected server/content/resource guides.
 2. Inspect a coherent classic-derived profile and topology.
-3. Give concurrent topologies distinct registered states. Never replace source,
-   share live state, or edit managed runtime files.
+3. Give isolated automation generation-owned temporary state. Use a distinct
+   named state or explicit default state only when persistence is required.
+   Never replace source, share live state, or edit managed runtime files.
 
 ```sh
 ./atrinik build server --profile PROFILE --test
-./atrinik topology show PROFILE --state STATE --json
-./atrinik up --name NAME --profile PROFILE --state STATE
+./atrinik topology show PROFILE --temporary-state --json
+./atrinik up --name NAME --profile PROFILE --temporary-state
 ./atrinik ps NAME --json
 ./atrinik logs NAME server --follow
 ./atrinik down NAME
 ```
 
+`--state NAME` selects a registered persistent state; `--default-state`
+explicitly selects the legacy managed default. The three selectors are
+mutually exclusive. A confirmed clean `down` removes temporary state only
+after exact process/state lease release. Use `down NAME --retain-state` and
+`state promote NAME SAVED_NAME` to preserve it without overwrite. Crash,
+unreachable, malformed, linked, busy, or uncertain state remains for diagnosis;
+inventory it with `cleanup --scope temporary-states --dry-run --json` and never
+apply cleanup without the matching preview.
+
 `ps --json` reports generation-bound `live`, `exited`, `stale`, or
-`unreachable` liveness and exact runtime-generation, process-tree, state, and
-port observations. A ready topology retains no repository-layout or mutable
+`unreachable` liveness and exact runtime-generation, process-tree, state-policy
+owner/path/lifecycle, and port observations. A ready topology retains no repository-layout or mutable
 build-root lease. Cross-session `down` uses the matching filesystem
 control endpoint, never a PID from the caller's namespace. For `unreachable`,
 follow the reported safe action: wait for bounded guardian recovery and retry

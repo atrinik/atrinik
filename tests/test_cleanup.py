@@ -245,6 +245,25 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["liveness"], "exited")
         self.assertEqual(item["age_basis"], "stopped-at")
 
+    def test_topology_cleanup_preserves_generation_owned_state(self) -> None:
+        root = self.make_topology_record("stateful-history")
+        container = root / "temporary-states"
+        container.mkdir()
+        atomic_json(
+            container / MANAGED_MARKER,
+            {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": "topology-temporary-states",
+            },
+        )
+        (container / ("a" * 64)).mkdir()
+
+        report = self.workspace.cleanup(["topologies"], 7, [], False)
+
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("temporary_states_present", item["reasons"])
+
     def test_missing_topology_container_is_an_empty_inventory(self) -> None:
         self.workspace.paths.topologies.rmdir()
 
@@ -3481,7 +3500,11 @@ class CleanupTests(unittest.TestCase):
             self.assertEqual(
                 cleanup._normalize_scopes(["all"]),
                 [
-                    "worktrees", "builds", "npm-cache", "compiler-cache",
+                    "worktrees",
+                    "builds",
+                    "temporary-states",
+                    "npm-cache",
+                    "compiler-cache",
                     "sound-cache",
                 ],
             )

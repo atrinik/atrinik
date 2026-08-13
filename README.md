@@ -276,7 +276,7 @@ Add the complete currently playable classic stack explicitly:
 ./atrinik status --json
 ./atrinik profile show classic
 ./atrinik build all --profile classic --test
-./atrinik up --name classic-local --profile classic --state default
+./atrinik up --name classic-local --profile classic --temporary-state
 ./atrinik ps classic-local --json
 ./atrinik logs classic-local server --follow
 # Press Ctrl-C to stop following logs; the services keep running.
@@ -495,15 +495,15 @@ process.
 
 Change handoffs should end with a copy-pasteable verification recipe that uses
 the thin wrapper instead of internal build paths or direct component binaries.
-Use the actual profile, topology, and state names for the change. A runtime
+Use the actual profile, topology, and state policy for the change. A runtime
 client/server review normally follows this shape; until replacement runtime
 contracts land, `PROFILE` must be `classic` or derived from it:
 
 ~~~sh
 ./atrinik profile show PROFILE
 ./atrinik build COMPONENT --profile PROFILE --test
-./atrinik topology show PROFILE --json
-./atrinik up --name TOPOLOGY --profile PROFILE --state STATE
+./atrinik topology show PROFILE --temporary-state --json
+./atrinik up --name TOPOLOGY --profile PROFILE --temporary-state
 ./atrinik ps TOPOLOGY --json
 ./atrinik logs TOPOLOGY client --follow
 # Perform the feature-specific checks described in the handoff.
@@ -515,9 +515,9 @@ filesystem control endpoint. `ps` and `down` therefore work from another
 supported devcontainer or sandbox that shares the workspace even when its PID
 namespace cannot see the namespace-local process numbers. JSON status reports
 `live`, `exited`, `stale`, or fail-closed `unreachable` liveness plus exact
-runtime-generation, process-tree, server-state, and port observations and the
-safe next action. Text status prints the retained generation identity and
-action. A control response must match both the topology name and generation;
+runtime-generation, process-tree, state-policy owner/path/lifecycle, and port
+observations and the safe next action. Text status prints the retained
+generation identity and action. A control response must match both the topology name and generation;
 `down` never falls back to signaling a mismatched or recycled PID.
 The runtime places the socket under a short generation-derived name in the
 shared workspace, avoiding ordinary managed-worktree and topology-name path
@@ -632,17 +632,19 @@ without changing the filesystem:
 ./atrinik cleanup --scope sound-cache --older-than 7 --dry-run --json
 ./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
 ./atrinik cleanup --scope topologies --older-than 7 --apply
+./atrinik cleanup --scope temporary-states --older-than 7 --dry-run --json
 ./atrinik cleanup --scope all --older-than 7 --apply
 ~~~
 
 `--dry-run` is the explicit spelling of the default mode; only `--apply`
 mutates. Repeated `--scope` options combine `worktrees`, `builds`, and the
-opt-in `npm-cache`, `compiler-cache`, and `sound-cache`; `all` selects all five.
+opt-in `temporary-states`, `npm-cache`, `compiler-cache`, and `sound-cache`;
+`all` selects all six.
 Topology history is a separate opt-in `topologies` scope and is deliberately
 excluded from both the default and `all`, so a broad cache/worktree cleanup
 cannot silently expand to runtime history.
 Positional checkout or logical component names narrow worktree and sound-cache
-inventory and still deduplicate
+inventory, exclude topology-owned temporary state, and still deduplicate
 aliases to one physical checkout. The special `atrinik` filter selects wrapper
 worktrees. JSON output is stable schema-versioned data and keeps Git/GitHub
 diagnostics off stdout; its byte fields remain exact integers. Text output uses
@@ -744,7 +746,17 @@ linked, malformed, unowned, or unverifiable records remain protected. Apply
 takes the exact topology coordinate lease and operation lock, repeats
 identity/generation/lease/age/tree validation, and removes only that topology
 directory. It never invokes `down`, signals processes, reuses a name, removes
-build roots, or changes profiles, scenarios, source, or persistent state.
+build roots, or changes profiles, scenarios, source, or persistent state. A
+topology containing any generation-owned temporary state remains protected;
+reclaim eligible disposable state with the separate scope first.
+
+The explicit `temporary-states` scope inventories generation-named states
+below marker-owned topology records. An old disposable state becomes eligible
+only when its topology/generation metadata, directory identity, registry
+absence, and released exact lease all validate. Retained, promoted, live,
+unreachable, busy, linked, malformed, registered, or uncertain state remains
+protected. Apply holds the topology operation and state locks while repeating
+the proof and never stops a topology.
 
 Apply performs one complete inventory and size recomputation, then acquires the
 exact target/reference leases and freshly revalidates each stable-sorted
@@ -933,11 +945,42 @@ commands turn that selection into a Compose-like native development stack:
 
 ~~~sh
 ./atrinik topology show PROFILE
-./atrinik up --name TOPOLOGY --profile PROFILE --state STATE [--port UDP_PORT]
+./atrinik up --name TOPOLOGY --profile PROFILE --temporary-state [--port UDP_PORT]
 ./atrinik ps [TOPOLOGY]
 ./atrinik logs TOPOLOGY [server|client] [--follow]
 ./atrinik down TOPOLOGY
 ~~~
+
+Server topologies choose exactly one state policy: `--temporary-state` creates
+a fresh generation-owned state for isolated automation, `--state NAME` selects
+an existing registered persistent state, and `--default-state` explicitly
+selects the legacy managed persistent default. Omitting all three remains
+backward compatible with `--state default`. `topology show`, `up`, and
+`ps --json` report the policy, exact owner, path identity, and lifecycle.
+Temporary state is never entered in `state list`; a confirmed clean `down`
+removes it after its process and state leases are released. A crash,
+unreachable supervisor, malformed record, or uncertain lease retains it for
+diagnosis.
+
+Retain a clean temporary state deliberately, then promote it without replacing
+an existing name:
+
+~~~sh
+./atrinik down TOPOLOGY --retain-state
+./atrinik state promote TOPOLOGY SAVED_NAME --json
+~~~
+
+Promotion registers the exact stopped directory in place. Retained and
+promoted states are protected. Abandoned disposable states participate only in
+the explicit preview-first cleanup scope:
+
+~~~sh
+./atrinik cleanup --scope temporary-states --older-than 7 --dry-run --json
+./atrinik cleanup --scope temporary-states --older-than 7 --apply --json
+~~~
+
+Cleanup never stops a topology and never removes a live, busy, linked,
+malformed, registered, retained, promoted, or otherwise uncertain state.
 
 For a complete Classic profile, `up`, scenarios, and individual builds resolve
 one manifest-derived build-root selection across the `client`, `server`,
@@ -1061,7 +1104,7 @@ cd ~/atrinik
 ./atrinik init --with classic
 ./atrinik sync --with classic
 ./atrinik topology show classic
-./atrinik up --name classic-main --profile classic --state default
+./atrinik up --name classic-main --profile classic --default-state
 ./atrinik ps classic-main
 ./atrinik logs classic-main server --follow
 # Press Ctrl-C to stop following logs; the services keep running.
@@ -1280,9 +1323,11 @@ explicit `profile set` commands repoint it. Do that only when the retained
 review selection and stopped topology history are no longer useful, then
 preview each cleanup scope. Only the explicit `topologies` scope removes
 eligible topology records and logs. Cleanup never removes profiles, scenarios,
-state, migration evidence, commits, or branches.
+registered or scenario state, migration evidence, commits, or branches. Only the explicit
+`temporary-states` scope can reclaim an abandoned, unregistered, disposable
+generation state after exact revalidation.
 
-## Persistent server state
+## Server state policies
 
 The built-in state named `default` is initialized once at
 `workspace/state/server/default` and then reused by every profile. Register a
@@ -1301,6 +1346,12 @@ useful:
 State contains player, key, unique-item, and other mutable runtime data. It is
 never regenerated over an existing directory. A nonblocking lock prevents two
 coordinator-launched servers from using the same state simultaneously.
+Managed default, named, scenario, and temporary state records preserve their
+distinct policy and owner identities; an optional implementation marker causes
+future Classic/replacement mismatches to fail closed instead of sharing an
+incompatible directory. Registered external paths remain outside wrapper
+deletion ownership. Scenario state remains registered, scenario-owned, and
+resettable only through `scenario reset`; it is not temporary topology state.
 Repository migration never moves, rewrites, or retags an existing state; state
 ownership evolution is a separate migration contract.
 

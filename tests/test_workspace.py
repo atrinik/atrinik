@@ -9340,7 +9340,7 @@ class WorkspaceTests(unittest.TestCase):
                 candidate.bind(("0.0.0.0", 0))
                 return int(candidate.getsockname()[1])
 
-        for mode in ("explicit", "automatic"):
+        for mode in ("explicit", "automatic", "temporary"):
             with self.subTest(mode=mode):
                 rendezvous = self.root / f"{mode}-port-rendezvous"
                 rendezvous.mkdir()
@@ -9352,9 +9352,14 @@ class WorkspaceTests(unittest.TestCase):
                     self.make_rendezvous_server_build(
                         root, rendezvous, f"{index}.bound"
                     )
-                states = [f"{mode}-state-{index}" for index in range(2)]
+                states: list[str | None] = (
+                    [None, None]
+                    if mode == "temporary"
+                    else [f"{mode}-state-{index}" for index in range(2)]
+                )
                 for state in states:
-                    self.workspace.state_add(state, None)
+                    if state is not None:
+                        self.workspace.state_add(state, None)
                 names = [f"{mode}-topology-{index}" for index in range(2)]
                 if mode == "explicit":
                     ports: list[int | None] = [free_port(), free_port()]
@@ -9393,6 +9398,16 @@ class WorkspaceTests(unittest.TestCase):
                         {path.name for path in rendezvous.glob("*.bound")},
                         {"0.bound", "1.bound"},
                     )
+                    if mode == "temporary":
+                        state_paths = {
+                            status["state_policy"]["path"] for status in statuses
+                        }
+                        self.assertEqual(len(state_paths), 2)
+                        self.assertTrue(
+                            all(Path(path).is_dir() for path in state_paths)
+                        )
+                        registered = set(self.workspace._load_states().values())
+                        self.assertTrue(state_paths.isdisjoint(registered))
                     observer = Workspace(self.wrapper)
                     for index, name in enumerate(names):
                         observed = observer.topology_status(name)
@@ -9637,6 +9652,8 @@ class WorkspaceTests(unittest.TestCase):
             ["client", "server"],
         )
         self.assertTrue(status["ready"])
+        self.assertEqual(status["state_policy"]["mode"], "default")
+        self.assertEqual(status["state_policy"]["lifecycle"], "persistent")
         self.assertEqual(status["endpoint"]["port"], 17300)
         self.assertEqual(status["port_reservation"]["port"], 17300)
         self.assertEqual(status["port_reservation"]["topology"], "server-review")
@@ -9784,6 +9801,7 @@ class WorkspaceTests(unittest.TestCase):
                     "server-review-two", "default", "second", ["server"], 17301
                 )
             self.assertTrue(second["ready"])
+            self.assertEqual(second["state_policy"]["mode"], "named")
             self.assertEqual(second["endpoint"]["port"], 17301)
             self.assertIn("client", second["dependencies"])
             self.assertNotIn("client", second["services"])
@@ -10007,6 +10025,149 @@ class WorkspaceTests(unittest.TestCase):
         ):
             pass
 
+    def test_temporary_topology_state_clean_retain_and_promote_lifecycle(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "temporary-state-rendezvous"
+        rendezvous.mkdir()
+        build_root = self.workspace.paths.builds / "temporary-state-server"
+        self.make_rendezvous_server_build(
+            build_root, rendezvous, "temporary.bound", peers=1
+        )
+
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            first = self.workspace.topology_up(
+                "temporary-clean", "default", None, ["server"], 0
+            )
+        first_path = Path(first["state_policy"]["path"])
+        self.assertEqual(first["state_policy"]["mode"], "temporary")
+        self.assertEqual(first["state_policy"]["lifecycle"], "disposable")
+        self.assertEqual(first["state"], str(first_path))
+        self.assertTrue(first_path.is_dir())
+        self.assertNotIn(str(first_path), self.workspace._load_states().values())
+        stopped = self.workspace.topology_down("temporary-clean", timeout=5)
+        self.assertEqual(stopped["state_policy"]["lifecycle"], "removed")
+        self.assertFalse(first_path.exists())
+
+        (rendezvous / "temporary.bound").unlink()
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            retained = self.workspace.topology_up(
+                "temporary-retained", "default", None, ["server"], 0
+            )
+        retained_path = Path(retained["state_policy"]["path"])
+        stopped = self.workspace.topology_down(
+            "temporary-retained", timeout=5, retain_state=True
+        )
+        self.assertEqual(stopped["state_policy"]["lifecycle"], "retained")
+        self.assertTrue(retained_path.is_dir())
+        self.assertEqual(
+            self.workspace.topology_down("temporary-retained", timeout=5)[
+                "state_policy"
+            ]["lifecycle"],
+            "retained",
+        )
+        retained_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        retained_item = next(
+            item
+            for item in retained_preview["items"]
+            if item["path"] == str(retained_path)
+        )
+        self.assertEqual(retained_item["disposition"], "protected")
+        self.assertIn("temporary_state_retained", retained_item["reasons"])
+        sessions = [Workspace(self.wrapper), Workspace(self.wrapper)]
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            futures = [
+                executor.submit(
+                    sessions[index].state_promote,
+                    "temporary-retained",
+                    f"promoted-review-{index}",
+                )
+                for index in range(2)
+            ]
+            outcomes: list[dict[str, object] | WorkspaceError] = []
+            for future in futures:
+                try:
+                    outcomes.append(future.result(timeout=10))
+                except WorkspaceError as error:
+                    outcomes.append(error)
+        successes = [value for value in outcomes if isinstance(value, dict)]
+        failures = [value for value in outcomes if isinstance(value, WorkspaceError)]
+        self.assertEqual(len(successes), 1)
+        self.assertEqual(len(failures), 1)
+        promoted = successes[0]
+        self.assertEqual(promoted["path"], str(retained_path))
+        self.assertEqual(
+            promoted["state_policy"]["lifecycle"], "promoted"
+        )
+        self.assertEqual(
+            self.workspace._state_location(str(promoted["name"])), retained_path
+        )
+        self.assertEqual(
+            self.workspace.state_promote(
+                "temporary-retained", str(promoted["name"])
+            ),
+            promoted,
+        )
+
+    def test_temporary_topology_state_is_retained_after_supervisor_crash(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "temporary-crash-rendezvous"
+        rendezvous.mkdir()
+        build_root = self.workspace.paths.builds / "temporary-crash-server"
+        self.make_rendezvous_server_build(
+            build_root, rendezvous, "temporary.bound", peers=1
+        )
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            status = self.workspace.topology_up(
+                "temporary-crash", "default", None, ["server"], 0
+            )
+        state = Path(status["state_policy"]["path"])
+        supervisor = status["supervisor"]
+        pidfd = os.pidfd_open(supervisor["pid"])
+        try:
+            signal.pidfd_send_signal(pidfd, signal.SIGKILL)
+        finally:
+            os.close(pidfd)
+        deadline = time.monotonic() + 15
+        while time.monotonic() < deadline:
+            crashed = self.workspace.topology_status("temporary-crash")
+            if crashed["observation"]["process_tree_lease"] == "released":
+                break
+            time.sleep(0.05)
+        self.assertEqual(crashed["state_policy"]["lifecycle"], "disposable")
+        self.assertTrue(state.is_dir())
+        recovered = self.workspace.topology_down("temporary-crash", timeout=5)
+        self.assertEqual(recovered["state_policy"]["lifecycle"], "disposable")
+        self.assertTrue(state.is_dir())
+        preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        candidate = next(
+            item for item in preview["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(candidate["disposition"], "eligible")
+        applied = self.workspace.cleanup(
+            ["temporary-states"], 0, [], True
+        )
+        removed = next(
+            item for item in applied["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(removed["disposition"], "removed", applied)
+        self.assertFalse(state.exists())
+
     def test_topology_port_selection_rejects_unavailable_port(self) -> None:
         candidate = mock.MagicMock()
         candidate.__enter__.return_value = candidate
@@ -10219,6 +10380,63 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "lacks required file"):
             self.workspace.state_add("bad", malformed)
         self.assertEqual((malformed / "unrelated").read_text(), "keep\n")
+
+    def test_state_paths_reject_links_and_incompatible_implementation_markers(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        state = self.workspace.state_path("default", server)
+        atomic_json(
+            state / workspace_module.STATE_IMPLEMENTATION_MARKER,
+            {
+                "schema_version": 1,
+                "stack": "replacement",
+                "provider": "server",
+                "repository": "atrinik/server",
+            },
+        )
+        with self.assertRaisesRegex(
+            WorkspaceError, "does not match the selected server"
+        ):
+            self.workspace.state_path(
+                "default",
+                server,
+                implementation={
+                    "stack": "classic",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+            )
+
+        linked = self.root / "linked-state"
+        linked.symlink_to(state, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "contains a symlink"):
+            self.workspace.state_add("linked", linked)
+
+    def test_temporary_state_publication_interruption_leaves_no_partial_state(self) -> None:
+        topology = self.workspace._topology_directory("interrupted", create=True)
+        generation = "a" * 64
+        server = self.workspace.paths.repositories / "server"
+        coordinate = self.scenario_resolved_fixture()["server"]
+        with mock.patch(
+            "atrinik_workspace.workspace.rename_no_replace",
+            side_effect=WorkspaceError("simulated interruption"),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "simulated interruption"):
+                self.workspace._create_temporary_state(
+                    topology,
+                    "interrupted",
+                    generation,
+                    server,
+                    {
+                        "stack": "default",
+                        "provider": "server",
+                        "repository": "atrinik/server",
+                    },
+                    coordinate,
+                )
+        container = topology / "temporary-states"
+        self.assertEqual(
+            {path.name for path in container.iterdir()}, {MANAGED_MARKER}
+        )
 
     def test_scenario_lifecycle_owns_isolated_state_and_credentials(self) -> None:
         resolved = self.scenario_resolved_fixture()

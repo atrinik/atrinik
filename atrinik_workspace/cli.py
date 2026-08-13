@@ -183,8 +183,8 @@ def parser() -> argparse.ArgumentParser:
         "--scope",
         action="append",
         choices=[
-            "worktrees", "builds", "npm-cache", "compiler-cache",
-            "sound-cache", "topologies", "all",
+            "worktrees", "builds", "temporary-states", "npm-cache",
+            "compiler-cache", "sound-cache", "topologies", "all",
         ],
         default=[],
     )
@@ -246,7 +246,25 @@ def parser() -> argparse.ArgumentParser:
     )
     topology_show = topology_commands.add_parser("show")
     mark(topology_show.add_argument("profile", nargs="?", default="default"), "profile")
-    mark(topology_show.add_argument("--state", default="default"), "state")
+    topology_state = topology_show.add_mutually_exclusive_group()
+    mark(
+        topology_state.add_argument("--state", default="default"),
+        "state",
+    )
+    topology_state.add_argument(
+        "--temporary-state",
+        dest="state",
+        action="store_const",
+        const=None,
+        help="use a fresh disposable state owned by the topology generation",
+    )
+    topology_state.add_argument(
+        "--default-state",
+        dest="state",
+        action="store_const",
+        const="default",
+        help="use the legacy managed persistent default state explicitly",
+    )
     topology_show.add_argument(
         "--service", choices=["server", "client"], action="append"
     )
@@ -255,7 +273,22 @@ def parser() -> argparse.ArgumentParser:
     up = commands.add_parser("up", help="build and start a supervised topology")
     mark(up.add_argument("--name"), "none")
     mark(up.add_argument("--profile", default="default"), "profile")
-    mark(up.add_argument("--state", default="default"), "state")
+    up_state = up.add_mutually_exclusive_group()
+    mark(up_state.add_argument("--state", default="default"), "state")
+    up_state.add_argument(
+        "--temporary-state",
+        dest="state",
+        action="store_const",
+        const=None,
+        help="use a fresh disposable state owned by this topology generation",
+    )
+    up_state.add_argument(
+        "--default-state",
+        dest="state",
+        action="store_const",
+        const="default",
+        help="use the legacy managed persistent default state explicitly",
+    )
     mark(up.add_argument(
         "--port",
         type=int,
@@ -276,6 +309,11 @@ def parser() -> argparse.ArgumentParser:
 
     down = commands.add_parser("down", help="stop a supervised topology")
     mark(down.add_argument("name", nargs="?", default="default"), "topology")
+    down.add_argument(
+        "--retain-state",
+        action="store_true",
+        help="retain a cleanly stopped temporary state for later promotion",
+    )
     down.add_argument("--json", action="store_true")
 
     state = commands.add_parser("state", help="register persistent server state")
@@ -285,6 +323,12 @@ def parser() -> argparse.ArgumentParser:
     mark(state_add.add_argument("--path", type=Path), "path")
     state_list = state_commands.add_parser("list")
     state_list.add_argument("--json", action="store_true")
+    state_promote = state_commands.add_parser(
+        "promote", help="promote a stopped retained temporary topology state"
+    )
+    mark(state_promote.add_argument("topology"), "topology")
+    mark(state_promote.add_argument("name"), "none")
+    state_promote.add_argument("--json", action="store_true")
 
     scenario = commands.add_parser(
         "scenario", help="manage deterministic local test scenarios"
@@ -783,6 +827,13 @@ def main(arguments: list[str] | None = None) -> int:
                 for role, provider in sorted(summary["providers"].items()):
                     print(f"provider\t{role}\t{provider}")
                 print(f"state\t{summary['state'] or '-'}")
+                state_policy = summary.get("state_policy")
+                if isinstance(state_policy, dict):
+                    print(
+                        "state-policy\t"
+                        f"{state_policy['mode']}\t{state_policy['lifecycle']}\t"
+                        f"{state_policy.get('path') or 'allocated-on-start'}"
+                    )
                 print(f"build\t{summary['build_root']}")
                 for component, row in summary["components"].items():
                     cleanliness = "dirty" if row["dirty"] else "clean"
@@ -805,6 +856,13 @@ def main(arguments: list[str] | None = None) -> int:
                     else ""
                 )
                 print(f"topology {name}: started{suffix}")
+                state_policy = status.get("state_policy")
+                if isinstance(state_policy, dict):
+                    print(
+                        "state-policy\t"
+                        f"{state_policy['mode']}\t{state_policy['lifecycle']}\t"
+                        f"{state_policy['path']}"
+                    )
         elif options.command == "ps":
             statuses = (
                 [workspace.topology_status(options.name)]
@@ -835,6 +893,19 @@ def main(arguments: list[str] | None = None) -> int:
                             f"endpoint\t{endpoint['host']}:{endpoint['port']}\t"
                             f"{endpoint['fingerprint']}"
                         )
+                    state_policy = status.get("state_policy")
+                    if isinstance(state_policy, dict):
+                        owner = state_policy.get("owner", {})
+                        owner_kind = (
+                            owner.get("kind", "unknown")
+                            if isinstance(owner, dict)
+                            else "unknown"
+                        )
+                        print(
+                            "state-policy\t"
+                            f"{state_policy['mode']}\t{owner_kind}\t"
+                            f"{state_policy['lifecycle']}\t{state_policy['path']}"
+                        )
                     for service, row in status["services"].items():
                         print(
                             f"{service}\t{row.get('liveness', row['status'])}\t"
@@ -864,7 +935,11 @@ def main(arguments: list[str] | None = None) -> int:
                 options.name, options.service, options.tail, options.follow
             )
         elif options.command == "down":
-            status = workspace.topology_down(options.name)
+            status = (
+                workspace.topology_down(options.name, retain_state=True)
+                if options.retain_state
+                else workspace.topology_down(options.name)
+            )
             if options.json:
                 print(json.dumps(status, indent=2, sort_keys=True))
             else:
@@ -872,7 +947,7 @@ def main(arguments: list[str] | None = None) -> int:
         elif options.command == "state":
             if options.state_command == "add":
                 workspace.state_add(options.name, options.path)
-            else:
+            elif options.state_command == "list":
                 states = workspace.list_states()
                 if options.json:
                     print(
@@ -885,6 +960,17 @@ def main(arguments: list[str] | None = None) -> int:
                 else:
                     for name, path in sorted(states.items()):
                         print(f"{name}\t{path}")
+            else:
+                promoted = workspace.state_promote(
+                    options.topology, options.name
+                )
+                if options.json:
+                    print(json.dumps(promoted, indent=2, sort_keys=True))
+                else:
+                    print(
+                        f"state {options.name}: promoted from topology "
+                        f"{options.topology} at {promoted['path']}"
+                    )
         elif options.command == "scenario":
             if options.scenario_command == "create":
                 summary = workspace.scenario_create(

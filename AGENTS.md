@@ -19,9 +19,8 @@
   guidance in `docs/`, `README.md`, and `CONTRIBUTING.md`.
 - Workflows live in `.agents/skills/`, composition in `.devcontainer/`,
   CI/release in `.github/`, and helpers in `scripts/`.
-- Manifest destinations (`client/`, `server/`, `classic/`) are independent
-  ignored repositories; `workspace/` and `build/` are ignored generated state,
-  so root `git status` omits them.
+- Manifest destinations are independent ignored repositories; `workspace/`
+  and `build/` are ignored generated state, so root status omits them.
 - Resolve ownership through `components.json` and the checkout's nearest
   `AGENTS.md`; keep implementation, tests, packages, and releases there.
 - `classic/` provides five `classic-*` components. Both stacks share
@@ -49,11 +48,12 @@
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.
-- Use wrapper commands; never reconstruct paths. Isolate concurrent topology
-  names, states, ports, and config.
-- Keep completion bounded, local, parser-driven, secret-free, and before
-  `Workspace` construction.
-- Lease in order; gate same-coordinate readers; share the migration barrier.
+- Use wrapper commands; never reconstruct paths. Give concurrent topologies distinct names, ports, client
+  config, and preferably generation-owned temporary state.
+- Keep shell completion parser-driven, bounded, local-only, secret-free, and
+  ahead of `Workspace` construction.
+- Lease resources in order. Writers gate same-coordinate readers. Operations
+  share the migration barrier.
 - Unbound persisted records are historical and inert.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket
   holders per `CONTRIBUTING.md`; preserve precise attribution.
@@ -88,7 +88,7 @@ interactive log session):
 ```sh
 ./atrinik profile show classic --json
 ./atrinik build all --profile classic --test
-./atrinik up --name classic-local --profile classic --state default
+./atrinik up --name classic-local --profile classic --temporary-state
 ./atrinik ps classic-local --json
 ./atrinik logs classic-local server --tail 100
 ./atrinik down classic-local

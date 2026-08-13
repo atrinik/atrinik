@@ -38,6 +38,8 @@ from .workspace import (
     WORKER_DEPENDENCY_SCHEMA_VERSION,
     COMPILER_CACHE_MAX_SIZE,
     COMPILER_CACHE_PURPOSE,
+    TEMPORARY_STATE_METADATA,
+    TEMPORARY_STATE_SCHEMA_VERSION,
     _remote_matches,
     exclusive_lock,
     remove_owned_tree,
@@ -49,7 +51,13 @@ WORKER_DEPENDENCY_CLEANUP_SCHEMA_VERSIONS = frozenset(
     {1, 2, 3, WORKER_DEPENDENCY_SCHEMA_VERSION}
 )
 DEFAULT_SCOPES = ("worktrees", "builds")
-ALL_SCOPES = (*DEFAULT_SCOPES, "npm-cache", "compiler-cache", "sound-cache")
+ALL_SCOPES = (
+    *DEFAULT_SCOPES,
+    "temporary-states",
+    "npm-cache",
+    "compiler-cache",
+    "sound-cache",
+)
 SUPPORTED_SCOPES = (*ALL_SCOPES, "topologies")
 BUILD_RETENTION_RECORD = "retention.json"
 LEGACY_BUILD_METADATA_SCHEMA_VERSION = 1
@@ -854,8 +862,11 @@ class Cleanup:
         mode: str,
     ) -> dict[str, Any]:
         self._reset_inventory()
-        topology_only = set(scopes) == {"topologies"}
-        if topology_only:
+        runtime_only = bool(scopes) and set(scopes) <= {
+            "topologies",
+            "temporary-states",
+        }
+        if runtime_only:
             references = {
                 "profiles": {},
                 "scenarios": {},
@@ -869,7 +880,7 @@ class Cleanup:
             references, reference_errors = self._references()
         items: list[dict[str, Any]] = []
         registered: set[Path] = set()
-        if not topology_only:
+        if not runtime_only:
             registered, registered_error = self._registered_worktree_paths()
             if registered_error:
                 reference_errors.add("worktree_inventory_error")
@@ -898,6 +909,8 @@ class Cleanup:
                 )
             )
             items.extend(self._unmanaged_builds(registered))
+        if "temporary-states" in scopes and names is None:
+            items.extend(self._temporary_states(older_than_days))
         if "npm-cache" in scopes:
             cache = self._npm_cache(older_than_days, references, reference_errors)
             if cache is not None:
@@ -970,6 +983,12 @@ class Cleanup:
                 raise WorkspaceError(
                     f"topology changed during apply revalidation: {target['name']}"
                 )
+            return item
+        if kind == "temporary-state":
+            item = self._temporary_state_item(path, older_than_days)
+            filesystem_identity = item.get("_identity")
+            self._strip_internal(item)
+            item["_identity"] = filesystem_identity
             return item
         references, reference_errors = self._references()
         registered, registered_error = self._registered_worktree_paths()
@@ -1046,7 +1065,11 @@ class Cleanup:
             sound_worktree_identity = item.get("_sound_worktree_identity")
             sound_producer_identity = item.get("_sound_producer_identity")
             self._strip_internal(item)
-            if kind in {"worker-dependency-transaction", "sound-cache"}:
+            if kind in {
+                "worker-dependency-transaction",
+                "sound-cache",
+                "temporary-state",
+            }:
                 item["_identity"] = filesystem_identity
             if kind == "sound-cache":
                 item["_worktree_identity"] = worktree_identity
@@ -1135,6 +1158,20 @@ class Cleanup:
         if tree_error is not None:
             reasons.append("invalid_topology_tree")
             item["error"] = tree_error
+
+        temporary_container = path / "temporary-states"
+        if temporary_container.exists() or temporary_container.is_symlink():
+            try:
+                if temporary_container.is_symlink() or not temporary_container.is_dir():
+                    raise WorkspaceError("temporary state container is invalid")
+                if any(
+                    child.name != MANAGED_MARKER
+                    for child in temporary_container.iterdir()
+                ):
+                    reasons.append("temporary_states_present")
+            except (OSError, WorkspaceError) as error:
+                reasons.append("temporary_state_inventory_unverifiable")
+                item["error"] = str(error)
 
         if check_operation:
             operation_lock = path / "operation.lock"
@@ -1685,7 +1722,7 @@ class Cleanup:
                 build_root = status_value.get("build_root")
                 resolved = status_value.get("resolved")
                 if (
-                    status_value.get("schema_version") != SCHEMA_VERSION
+                    status_value.get("schema_version") not in {SCHEMA_VERSION, 2, 3}
                     or status_value.get("name") != root.name
                     or not isinstance(build_root, str)
                     or not Path(build_root).is_absolute()
@@ -3461,6 +3498,206 @@ class Cleanup:
             item["reasons"] = [f"stale_{kind.replace('-', '_')}"]
         return item
 
+    def _temporary_states(self, older_than_days: int) -> list[dict[str, Any]]:
+        if self.paths.topologies.is_symlink() or not self.paths.topologies.is_dir():
+            return []
+        items: list[dict[str, Any]] = []
+        try:
+            topologies = sorted(self.paths.topologies.iterdir())
+        except OSError:
+            return []
+        for topology in topologies:
+            container = topology / "temporary-states"
+            if not container.exists() and not container.is_symlink():
+                continue
+            if container.is_symlink() or not container.is_dir():
+                item = _base_item(
+                    "temporary-state", "atrinik", "atrinik/atrinik", container
+                )
+                item["reasons"] = ["invalid_temporary_state_container"]
+                items.append(item)
+                continue
+            try:
+                children = sorted(container.iterdir())
+            except OSError as error:
+                item = _base_item(
+                    "temporary-state", "atrinik", "atrinik/atrinik", container
+                )
+                item["reasons"] = ["temporary_state_inventory_error"]
+                item["error"] = str(error)
+                items.append(item)
+                continue
+            for path in children:
+                if path.name == MANAGED_MARKER or path.name.endswith(".lock"):
+                    continue
+                items.append(self._temporary_state_item(path, older_than_days))
+        return items
+
+    def _temporary_state_item(
+        self,
+        path: Path,
+        older_than_days: int,
+        *,
+        check_lock: bool = True,
+    ) -> dict[str, Any]:
+        item = _base_item(
+            "temporary-state", "atrinik", "atrinik/atrinik", path
+        )
+        inodes, observed, walk_error = _tree_usage(path)
+        item["_inodes"] = inodes
+        if walk_error:
+            item["reasons"].append("filesystem_traversal_error")
+            item["error"] = walk_error
+        try:
+            metadata = path.lstat()
+            item["_identity"] = (
+                metadata.st_dev,
+                metadata.st_ino,
+                metadata.st_ctime_ns,
+                stat.S_IFMT(metadata.st_mode),
+            )
+            if path.is_symlink() or not stat.S_ISDIR(metadata.st_mode):
+                raise WorkspaceError("temporary state is not a normal directory")
+            container = path.parent
+            topology = container.parent
+            topology_name = topology.name
+            generation = path.name
+            if (
+                not re.fullmatch(r"[0-9a-f]{64}", generation)
+                or container.name != "temporary-states"
+                or topology.parent.resolve(strict=False)
+                != self.paths.topologies.resolve(strict=False)
+            ):
+                raise WorkspaceError("temporary state path identity is invalid")
+            if load_json(container / MANAGED_MARKER) != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": "topology-temporary-states",
+            }:
+                raise WorkspaceError("temporary state container marker is invalid")
+            if load_json(topology / MANAGED_MARKER) != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": f"topology:{topology_name}",
+            }:
+                raise WorkspaceError("temporary state topology marker is invalid")
+            if load_json(path / MANAGED_MARKER) != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": "temporary-topology-state",
+                "topology": topology_name,
+                "generation": generation,
+            }:
+                raise WorkspaceError("temporary state ownership marker is invalid")
+            record = load_json(path / TEMPORARY_STATE_METADATA)
+            policy = record.get("state_policy") if isinstance(record, dict) else None
+            if (
+                not isinstance(record, dict)
+                or record.get("schema_version") != TEMPORARY_STATE_SCHEMA_VERSION
+                or not isinstance(policy, dict)
+                or policy.get("mode") != "temporary"
+                or policy.get("path") != str(path)
+                or policy.get("owner")
+                != {
+                    "kind": "topology-generation",
+                    "topology": topology_name,
+                    "generation": generation,
+                }
+                or policy.get("identity")
+                != {"device": metadata.st_dev, "inode": metadata.st_ino}
+            ):
+                raise WorkspaceError("temporary state metadata is invalid")
+            item["topology"] = topology_name
+            item["generation"] = generation
+            item["state_policy"] = policy
+            lifecycle = policy.get("lifecycle")
+            if lifecycle in {"retained", "promotion-pending", "promoted"}:
+                item["reasons"].append(f"temporary_state_{lifecycle.replace('-', '_')}")
+            elif lifecycle != "disposable":
+                item["reasons"].append("invalid_temporary_state_lifecycle")
+            registered = {
+                self.workspace._canonical_state_path(Path(value))
+                for value in self.workspace._load_states().values()
+            }
+            if path in registered:
+                item["reasons"].append("registered_state")
+            if check_lock:
+                busy, lock_error = self._lock_busy(Path(f"{path}.lock"))
+                if lock_error:
+                    item["reasons"].append("state_lease_error")
+                    item["error"] = lock_error
+                elif busy:
+                    item["reasons"].append("active_state_lease")
+            status_path = topology / "status.json"
+            if status_path.exists() or status_path.is_symlink():
+                try:
+                    if status_path.is_symlink() or not status_path.is_file():
+                        raise WorkspaceError("topology status is invalid")
+                    status = load_json(status_path)
+                    control = status.get("control") if isinstance(status, dict) else None
+                    current_generation = (
+                        control.get("generation")
+                        if isinstance(control, dict)
+                        else None
+                    )
+                    if (
+                        isinstance(status, dict)
+                        and current_generation == generation
+                        and status.get("state_policy") != policy
+                    ):
+                        item["reasons"].append("topology_state_record_mismatch")
+                except (OSError, WorkspaceError) as error:
+                    item["reasons"].append("topology_status_uncertain")
+                    item["error"] = str(error)
+            created = _parse_time(policy.get("created_at"), "temporary state created_at")
+            age = max(0, int((self.now - created).total_seconds()))
+            item["age_seconds"] = age
+            item["age_basis"] = "created-at"
+            if created > self.now:
+                item["reasons"].append("future_creation_time")
+            elif age < older_than_days * 86400:
+                item["reasons"].append("younger_than_grace_period")
+        except (OSError, RuntimeError, WorkspaceError) as error:
+            item["reasons"].append("invalid_temporary_state")
+            item["error"] = str(error)
+            if item["age_seconds"] is None and observed is not None:
+                item["age_seconds"] = max(
+                    0, int((self.now - observed).total_seconds())
+                )
+                item["age_basis"] = "tree-mtime"
+        item["reasons"] = sorted(set(item["reasons"]))
+        if not item["reasons"]:
+            item["disposition"] = "eligible"
+            item["reasons"] = ["stale_abandoned_temporary_state"]
+        return item
+
+    def _remove_temporary_state(
+        self, item: dict[str, Any], older_than_days: int
+    ) -> None:
+        path = Path(item["path"])
+        topology = item.get("topology")
+        if not isinstance(topology, str):
+            raise WorkspaceError("temporary state topology identity is missing")
+        root = self.workspace._topology_directory(topology)
+        with exclusive_lock(
+            root / "operation.lock",
+            f"topology {topology} operation",
+            nonblocking=True,
+        ):
+            with exclusive_lock(
+                Path(f"{path}.lock"),
+                f"temporary topology state {path}",
+                nonblocking=True,
+            ):
+                current = self._temporary_state_item(
+                    path, older_than_days, check_lock=False
+                )
+                if (
+                    current.get("_identity") != item.get("_identity")
+                    or current["disposition"] != "eligible"
+                ):
+                    raise WorkspaceError(
+                        f"temporary state changed before removal: {path}"
+                    )
+                remove_owned_tree(path)
+
     def _any_build_lock_busy(self) -> tuple[bool, str | None]:
         locks = self.paths.builds / "locks"
         if not locks.exists() and not locks.is_symlink():
@@ -3519,6 +3756,7 @@ class Cleanup:
             "npm-cache": 2,
             "compiler-cache": 2,
             "sound-cache": 0,
+            "temporary-state": 0,
             "prunable-metadata": 3,
         }
         return order.get(item["kind"], 99), item["path"]
@@ -3754,6 +3992,8 @@ class Cleanup:
                     ):
                         raise WorkspaceError("sound cache changed before removal")
                     remove_owned_tree(path)
+        elif item["kind"] == "temporary-state":
+            self._remove_temporary_state(item, older_than_days)
         elif item["kind"] == "prunable-metadata":
             primary = self._repositories[item["owner"]]
             _command(primary, "worktree", "prune", "--expire", "now")
