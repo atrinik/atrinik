@@ -2198,15 +2198,26 @@ class Workspace:
                 raise WorkspaceError(f"primary selector must not have a value: {component_name}")
             if kind == "worktree":
                 validate_name(value, f"profile selector {component_name}")
-            if kind == "path" and not Path(value).is_absolute():
-                raise WorkspaceError(f"profile path must be absolute: {component_name}")
+            selected_path: Path | None = None
+            if kind in {"path", MIGRATED_CONTENT_WORKTREE_KIND}:
+                selected_path = Path(value)
+                if kind == "path" and not selected_path.is_absolute():
+                    raise WorkspaceError(
+                        f"profile path must be absolute: {component_name}"
+                    )
+                try:
+                    selected_path = selected_path.resolve(strict=False)
+                except (OSError, RuntimeError, ValueError) as error:
+                    raise WorkspaceError(
+                        f"invalid profile selector: {component_name}"
+                    ) from error
             if kind == MIGRATED_CONTENT_WORKTREE_KIND:
-                migrated = Path(value)
                 expected_parent = (self.paths.worktrees / "content").resolve()
                 if (
                     component_name != "content-1x"
-                    or not migrated.is_absolute()
-                    or migrated.resolve(strict=False).parent != expected_parent
+                    or selected_path is None
+                    or not Path(value).is_absolute()
+                    or selected_path.parent != expected_parent
                 ):
                     raise WorkspaceError(
                         "invalid migrated content worktree selector: "

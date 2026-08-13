@@ -7700,12 +7700,14 @@ class WorkspaceTests(unittest.TestCase):
 
     def test_scenario_list_isolates_unhashable_profile_fields(self) -> None:
         resolved = self.scenario_resolved_fixture()
+        self.workspace.create_profile("invalid-path")
         self.workspace.create_profile("invalid-sound-mode")
         self.workspace.create_profile("invalid-selector-kind")
         with mock.patch.object(
             self.workspace, "_scenario_provision_state", return_value=resolved
         ):
             self.workspace.scenario_create("current", "default")
+            self.workspace.scenario_create("invalid-path", "invalid-path")
             self.workspace.scenario_create(
                 "invalid-sound-mode", "invalid-sound-mode"
             )
@@ -7723,16 +7725,33 @@ class WorkspaceTests(unittest.TestCase):
         selector_profile = load_json(selector_path)
         selector_profile["components"]["content"]["kind"] = ["invalid"]
         atomic_json(selector_path, selector_profile)
+        path_profile_path = self.workspace.paths.profiles / "invalid-path.json"
+        path_profile = load_json(path_profile_path)
+        path_profile["components"]["content"] = {
+            "kind": "path",
+            "value": "/tmp/\0invalid",
+        }
+        atomic_json(path_profile_path, path_profile)
+        path_profile_before = path_profile_path.read_bytes()
 
         summaries = self.workspace.scenario_list()
 
         self.assertEqual(
             [summary["name"] for summary in summaries],
-            ["current", "invalid-selector-kind", "invalid-sound-mode"],
+            [
+                "current",
+                "invalid-path",
+                "invalid-selector-kind",
+                "invalid-sound-mode",
+            ],
         )
         self.assertEqual(summaries[0]["profile"], "default")
         self.assertEqual(summaries[1]["inert_reason"], "profile_unresolvable")
         self.assertEqual(summaries[2]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(summaries[3]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(path_profile_path.read_bytes(), path_profile_before)
+        with self.assertRaisesRegex(WorkspaceError, "invalid profile selector"):
+            self.workspace.scenario_show("invalid-path")
 
     def test_scenario_list_fails_closed_for_invalid_shared_state_registry(self) -> None:
         resolved = self.scenario_resolved_fixture()
