@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import gzip
 import hashlib
 import http.client
 import io
@@ -1148,6 +1149,81 @@ class ReleasedSoundTests(unittest.TestCase):
                 solaris_archive, self.root / "solaris", self.coordinates
             )
 
+    def test_archive_envelope_and_layout_failures_are_bounded(self) -> None:
+        def compressed(name: str, payload: bytes) -> Path:
+            path = self.root / name
+            with gzip.open(path, "wb") as stream:
+                stream.write(payload)
+            return path
+
+        for name, payload, message in (
+            ("empty.tar.gz", b"", "truncated"),
+            ("short-header.tar.gz", b"x" * 100, "truncated header"),
+            (
+                "invalid-trailer.tar.gz",
+                tarfile.NUL * tarfile.BLOCKSIZE + b"x" * tarfile.BLOCKSIZE,
+                "invalid trailer",
+            ),
+            ("invalid-header.tar.gz", b"x" * tarfile.BLOCKSIZE, "header is invalid"),
+        ):
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    sound_module._prescan_release_archive(
+                        compressed(name, payload)
+                    )
+
+        with mock.patch.object(sound_module, "MAX_RELEASE_MEMBERS", 0):
+            with self.assertRaisesRegex(WorkspaceError, "member count"):
+                sound_module._prescan_release_archive(self.archive)
+        with mock.patch.object(sound_module, "MAX_RELEASE_MEMBER_BYTES", 0):
+            with self.assertRaisesRegex(WorkspaceError, "member exceeds"):
+                sound_module._prescan_release_archive(self.archive)
+        with mock.patch.object(sound_module, "MAX_RELEASE_TAR_BYTES", 1):
+            with self.assertRaisesRegex(WorkspaceError, "extraction limit"):
+                sound_module._prescan_release_archive(self.archive)
+
+        existing = self.root / "existing-destination"
+        existing.mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "already exists"):
+            extract_release_archive(self.archive, existing, self.coordinates)
+        with mock.patch.object(sound_module, "MAX_RELEASE_ARCHIVE_BYTES", 1):
+            with self.assertRaisesRegex(WorkspaceError, "extraction input limit"):
+                extract_release_archive(
+                    self.archive, self.root / "input-too-large", self.coordinates
+                )
+
+        empty = self.root / "empty-members.tar.gz"
+        with tarfile.open(empty, "w:gz", format=tarfile.USTAR_FORMAT):
+            pass
+        with self.assertRaisesRegex(WorkspaceError, "member count"):
+            extract_release_archive(empty, self.root / "empty-members", self.coordinates)
+
+        wrong_prefix = self.root / "wrong-prefix.tar.gz"
+        with tarfile.open(wrong_prefix, "w:gz", format=tarfile.USTAR_FORMAT) as archive:
+            root = tarfile.TarInfo("wrong-product-1.4.0")
+            root.type = tarfile.DIRTYPE
+            archive.addfile(root)
+        with self.assertRaisesRegex(WorkspaceError, "wrong product prefix"):
+            extract_release_archive(
+                wrong_prefix, self.root / "wrong-prefix", self.coordinates
+            )
+
+        missing_directory = self.root / "missing-directory.tar.gz"
+        prefix = f"{RELEASE_PRODUCT}-1.4.0"
+        with tarfile.open(
+            missing_directory, "w:gz", format=tarfile.USTAR_FORMAT
+        ) as archive:
+            root = tarfile.TarInfo(prefix)
+            root.type = tarfile.DIRTYPE
+            archive.addfile(root)
+            member = tarfile.TarInfo(f"{prefix}/nested/file")
+            member.size = 1
+            archive.addfile(member, io.BytesIO(b"x"))
+        with self.assertRaisesRegex(WorkspaceError, "directories"):
+            extract_release_archive(
+                missing_directory, self.root / "missing-directory", self.coordinates
+            )
+
     def test_interrupted_download_is_a_workspace_error(self) -> None:
         response = mock.Mock()
         response.headers = {}
@@ -1232,6 +1308,80 @@ class ReleasedSoundTests(unittest.TestCase):
         self.rewrite_checksums()
         with self.assertRaisesRegex(WorkspaceError, "counts.*339-path"):
             verify_release_tree(self.tree, self.coordinates)
+
+    def test_manifest_and_schema_envelope_failures_are_distinguished(self) -> None:
+        manifest_path = self.tree / RELEASE_MANIFEST
+        schema_path = self.tree / RELEASE_SCHEMA
+        original_manifest = canonical(self.manifest)
+        original_schema = schema_path.read_bytes()
+        original_coordinates = dict(self.coordinates)
+
+        def restore() -> None:
+            self.manifest = json.loads(original_manifest)
+            manifest_path.write_bytes(original_manifest)
+            schema_path.write_bytes(original_schema)
+            self.coordinates.clear()
+            self.coordinates.update(original_coordinates)
+            self.rewrite_checksums()
+
+        try:
+            for name, payload, message in (
+                ("invalid-json", b"{\n", "invalid JSON"),
+                (
+                    "noncanonical-json",
+                    json.dumps(self.manifest, indent=2).encode() + b"\n",
+                    "not canonical JSON",
+                ),
+            ):
+                with self.subTest(name=name):
+                    manifest_path.write_bytes(payload)
+                    self.coordinates["release_manifest_sha256"] = hashlib.sha256(
+                        payload
+                    ).hexdigest()
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        verify_release_tree(self.tree, self.coordinates)
+                    restore()
+
+            del self.manifest["assets"]
+            manifest_path.write_bytes(canonical(self.manifest))
+            self.coordinates["release_manifest_sha256"] = digest(manifest_path)
+            with self.assertRaisesRegex(WorkspaceError, "manifest fields"):
+                verify_release_tree(self.tree, self.coordinates)
+            restore()
+
+            self.manifest["product"] = "wrong-product"
+            manifest_path.write_bytes(canonical(self.manifest))
+            self.coordinates["release_manifest_sha256"] = digest(manifest_path)
+            with self.assertRaisesRegex(WorkspaceError, "manifest identity"):
+                verify_release_tree(self.tree, self.coordinates)
+            restore()
+
+            with mock.patch.object(
+                sound_module, "MAX_RELEASE_SCHEMA_BYTES", len(original_schema) - 1
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "schema exceeds"):
+                    verify_release_tree(self.tree, self.coordinates)
+            restore()
+
+            wrong_hash = "e" * 64
+            self.coordinates["schema_sha256"] = wrong_hash
+            self.manifest["schema_sha256"] = wrong_hash
+            manifest_path.write_bytes(canonical(self.manifest))
+            self.coordinates["release_manifest_sha256"] = digest(manifest_path)
+            with self.assertRaisesRegex(WorkspaceError, "schema.*tampered"):
+                verify_release_tree(self.tree, self.coordinates)
+            restore()
+
+            schema_path.write_bytes(b"{\n")
+            self.coordinates["schema_sha256"] = digest(schema_path)
+            self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+            manifest_path.write_bytes(canonical(self.manifest))
+            self.coordinates["release_manifest_sha256"] = digest(manifest_path)
+            self.rewrite_checksums()
+            with self.assertRaisesRegex(WorkspaceError, "schema is invalid JSON"):
+                verify_release_tree(self.tree, self.coordinates)
+        finally:
+            restore()
 
     def test_exact_source_codec_split_and_finite_metadata_are_required(self) -> None:
         for asset in self.manifest["assets"]:
