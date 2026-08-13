@@ -7697,25 +7697,28 @@ class Workspace:
                     self.paths.topologies, port
                 )
                 if not try_lock_port_reservation(descriptor):
-                    try:
-                        deadline = time.monotonic() + 1
-                        while True:
-                            try:
-                                owner = read_port_reservation(descriptor, path)
-                                break
-                            except PortReservationError:
-                                if time.monotonic() >= deadline:
-                                    raise WorkspaceError(
-                                        f"topology UDP port {port} is reserved but "
-                                        "its owner record is not yet valid; preserve "
-                                        "the lease and retry"
-                                    )
-                                time.sleep(0.01)
-                    finally:
+                    if automatic:
                         os.close(descriptor)
-                    if not automatic:
-                        conflict(owner)
-                    return None
+                        return None
+                    deadline = time.monotonic() + 1
+                    owner: dict[str, Any] | None = None
+                    while True:
+                        try:
+                            owner = read_port_reservation(descriptor, path)
+                        except PortReservationError:
+                            owner = None
+                        if time.monotonic() >= deadline:
+                            os.close(descriptor)
+                            if owner is None:
+                                raise WorkspaceError(
+                                    f"topology UDP port {port} is reserved but "
+                                    "its owner record is not yet valid; preserve "
+                                    "the lease and retry"
+                                )
+                            conflict(owner)
+                        time.sleep(0.01)
+                        if try_lock_port_reservation(descriptor):
+                            break
                 try:
                     self._select_topology_port(port)
                     record = bind_port_reservation(

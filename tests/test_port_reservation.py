@@ -8,6 +8,7 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest import mock
 
 from atrinik_workspace.model import WorkspaceError, atomic_json
 from atrinik_workspace.locking import exclusive_lock
@@ -16,6 +17,7 @@ from atrinik_workspace.port_reservation import (
     PortReservationError,
     bind_record,
     open_lease,
+    read_record,
     reservation_locked,
     try_lock,
     validate_held,
@@ -313,6 +315,51 @@ class PortReservationTests(unittest.TestCase):
             self.assertTrue(reservation_locked(current_record))
         finally:
             os.close(replacement)
+
+    def test_explicit_claim_retries_a_stale_status_probe_lock(self) -> None:
+        port = self.free_port()
+        descriptor, record = self.workspace._reserve_topology_port(
+            port, "stopped-probe", "1" * 64
+        )
+        owner = self.topologies / "stopped-probe"
+        owner.mkdir()
+        atomic_json(owner / TOPOLOGY_PORT_RESERVATION_RECORD, record)
+        os.close(descriptor)
+
+        probe, _path = open_lease(self.topologies, port)
+        self.assertTrue(try_lock(probe))
+        entered = threading.Event()
+        result: list[tuple[int, dict[str, object]]] = []
+        errors: list[BaseException] = []
+
+        def observe_read(current_descriptor: int, path: Path) -> dict[str, object]:
+            entered.set()
+            return read_record(current_descriptor, path)
+
+        def reserve() -> None:
+            try:
+                result.append(
+                    self.workspace._reserve_topology_port(
+                        port, "after-probe", "2" * 64
+                    )
+                )
+            except BaseException as error:
+                errors.append(error)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.read_port_reservation",
+            side_effect=observe_read,
+        ):
+            thread = threading.Thread(target=reserve)
+            thread.start()
+            self.assertTrue(entered.wait(timeout=2))
+            os.close(probe)
+            thread.join(timeout=2)
+
+        self.assertFalse(thread.is_alive())
+        self.assertEqual(errors, [])
+        self.assertEqual(result[0][1]["topology"], "after-probe")
+        os.close(result[0][0])
 
 
 if __name__ == "__main__":
