@@ -137,9 +137,9 @@ operations.
   changes require `supply-chain/inventory.json` and a
   complete-profile audit; overrides stay mandatory and only aggregate roots own
   workflows/Dependabot.
-- Apply historical MIT grants only under
-  [`docs/PROVENANCE.md`](../../../docs/PROVENANCE.md); fail closed and record
-  complete evidence in the destination.
+- Follow [`docs/PROVENANCE.md`](../../../docs/PROVENANCE.md) for grant-proven
+  Classic source reference, copy, migration/port, translation/adaptation, or
+  MIT relicensing. Fail temporal, authorship, or separability uncertainty closed.
 
 ## Maintain guidance
 

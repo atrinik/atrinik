@@ -67,10 +67,16 @@ input.
 
 Source provenance is also a cross-repository contract.
 [`PROVENANCE.md`](PROVENANCE.md) is the single exhaustive historical MIT
-grantor registry and evidence procedure. Reuse fails closed unless complete,
-rename-aware history proves sole original authorship and identity, separates
-eligible material, excludes conflicting embedded work, and records the exact
-source, destination, transformation, review, and wrapper registry revision.
+grantor registry and evidence procedure. Exact independently separable Classic
+material proven to fall within an applicable approved historical grant,
+including its temporal and sole-original-authorship scope, may be inspected as
+source reference, copied, migrated or ported, translated or adapted, and
+MIT-relicensed; this provenance-approved reuse does not require clean-room
+isolation. Complete, rename-aware history must prove authorship and identity,
+separate eligible material, exclude conflicting embedded work, and record the
+exact source, destination, transformation, review, and registry revision. The
+Classic source remains GPL as distributed; later or uncovered contributions,
+dependencies, assets, and surrounding work receive no permission by association.
 
 The `supply-chain` command resolves component inputs through the same profile
 selectors as builds, then reads Git-indexed files without mutating a checkout.
