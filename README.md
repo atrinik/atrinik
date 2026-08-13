@@ -728,15 +728,15 @@ worktree removal holds its exclusive side from final proof through Git removal,
 so a producer cannot start in the removal window. A sound worktree without the
 versioned producer lease marker is not reclaimable by wrapper cleanup.
 
-Apply holds the repository-layout lock and performs one complete inventory and
-size recomputation. Immediately before each removal it freshly revalidates the
-target's safety dependencies without rescanning unrelated report-only payloads.
-Any new uncertainty fails closed. It removes eligible profile builds and
-explicit sound-cache entries first, exact Git worktrees second, other explicit
-caches next, and safely shared prunable Git metadata last. A pre-mutation race
-aborts without deletion; after the first
-successful mutation, the deterministic policy stops on the first error and
-reports exactly what was reclaimed without claiming rollback.
+Apply performs one complete inventory and size recomputation, then acquires the
+exact target/reference leases and freshly revalidates each stable-sorted
+candidate without rescanning unrelated report-only payloads. Any new uncertainty
+fails closed. Busy targets are skipped so they do not convoy unrelated cleanup.
+Eligible profile builds and explicit sound-cache entries come first, exact Git
+worktrees second, other explicit caches next, and safely shared prunable Git
+metadata last. `workspace/cleanup-journals/` records the ordered targets and is
+atomically refreshed after every completed action; an unexpected interruption
+therefore preserves exact progress without claiming rollback.
 
 ## Composing coherent component sources
 
@@ -954,33 +954,52 @@ declaring the topology ready. Use
 `--service server` or `--service client` for a single service. Client startup
 requires a live forwarded display socket.
 
-Build and runtime-publication preparation hold a shared repository-layout lock.
-Different profile build roots may compile concurrently; an exclusive per-root
-lock still serializes the same root. Initialization, synchronization, worktree
-or profile changes, and cleanup apply take the layout lock exclusively, so they
-wait until every build or runtime reader finishes. A mutation first announces
-itself with a shared `repository-layout.writer-pending.lock`, then holds the
-exclusive `repository-layout.writer-intent.lock` admission gate. New readers
-briefly take the admission gate and proceed only when they can exclusively
-probe the pending lock; otherwise they release admission, wait for the announced
-writers, and retry. Readers admitted before a mutation finish normally while
-later arrivals cannot bypass it, and admitted readers continue to overlap.
-Repository migration uses the same
-exclusive layout mode but reports a busy result instead of waiting. The wrapper
-fails closed when advisory shared locking is unavailable. A wait longer than 10
-seconds emits one diagnostic naming safe `ps` and worktree inventories; it does
-not interrupt a reader, topology, build, or mutation. The pending announcement,
-writer-intent gate, and layout lock are always acquired before topology,
-scenario, port allocator/per-port reservation, state, build-root, registry, or
-cache locks. The allocator is released before state/build/runtime preparation;
-the exact generation reservation remains held. Foreground processes run from
-temporary immutable generations after releasing layout/build leases.
-Supervised services likewise run from topology-owned generations and retain
-only exact runtime-generation/process-tree resources plus server state and the
-selected port reservation when applicable. Mutation
-subprocesses inherit all three writer leases. Build and scenario
-subprocesses inherit every active layout, build-root, state, registry, and cache
-lease so an orphan cannot outlive its protection.
+Ordinary wrapper operations coordinate through fair, exact-resource leases,
+not the workspace-global layout lock. Workspace-local coordinates live under
+`workspace/leases/`; physical-checkout Git administration and source
+coordinates live under the wrapper's common-Git `atrinik-resource-leases/`
+namespace so wrapper worktrees or relocated state roots cannot split
+coordination. Every operation also retains its own wrapper-worktree source
+coordinate, preventing cleanup from removing the code and ignored component
+checkouts beneath an active wrapper view. Saved non-primary profile references
+are also registered in this physical namespace, so cleanup from a relocated
+state root observes references published by another root. Profile names, topology
+names, scenarios, states, build roots, and cache keys remain workspace-local.
+Requests acquire that deterministic order. A writer queued for one coordinate
+precedes later readers of that coordinate, while unrelated resources continue:
+two builds on different worktrees of one repository overlap, and init/sync for
+distinct checkouts do not convoy.
+Multi-source writers use all-or-none retry, so waiting for one busy source does
+not retain earlier disjoint source coordinates. Distinct explicit topology
+ports use exact startup locks; only automatic port selection briefly uses the
+allocator mutex.
+
+A build holds its profile-name lease while resolving, then locks the selected
+sources, revalidates them, and captures one immutable generation containing the
+stack/providers, exact roots, Git identities, HEADs, and dirty observations.
+The build persists that generation in `.atrinik-profile-resolution.json` and
+does not reread a mutable profile by name. Profile or topology publication and
+worktree removal share the target source lease, so cleanup cannot race a newly
+published exact reference. Cleanup apply locks and revalidates one stable-sorted
+candidate at a time, skips busy candidates, and journals completed actions in
+`workspace/cleanup-journals/`.
+
+Waits longer than 10 seconds report the resource kind, stable coordinate, known
+owner operation, and supported recovery command without relying on a
+namespace-local PID. The wrapper fails closed when advisory shared locking or
+resource identity is unavailable. Active preparation leases are inherited by
+subprocesses. Build and startup hold profile, source, and build-root leases only
+until a sealed runtime generation is published. Foreground processes then
+retain the runtime-generation lease plus server state when applicable;
+supervisors and guardians retain only runtime-generation, process-tree,
+server-state, and generation-specific port-reservation leases.
+
+The common-Git `repository-layout.lock` is the bounded maintenance barrier for
+schema/layout migration apply or restore. Ordinary exact-lease operations share
+the barrier, so they overlap one another but cannot race an exclusive migration;
+subprocesses inherit it only while they retain their exact operation leases.
+Migration entry points require or derive this physical barrier rather than
+falling back to the state-root-local legacy lock.
 
 The supervisor records exact source commits/trees, build metadata, runtime
 digests, state paths, and process start identities. `ps` without a name lists every recorded topology; a name

@@ -21,9 +21,8 @@ Run from the `atrinik/atrinik` wrapper root.
    keep only orchestration, composition, manifest, and wrapper docs here.
 
 Checkouts are independent ignored repositories. A `classic` worktree contains
-all five `classic-*` components. Both stacks share `content@main`; Classic
-selects its publisher adapter, and retained `content-1x` paths are historical.
-Keep wrapper composition in `.devcontainer/` and reusable images in its owner.
+all five `classic-*` components. Both stacks share `content@main`; retained
+`content-1x` paths are historical. Keep composition in `.devcontainer/`.
 
 ## Prepare safe worktrees
 
@@ -42,7 +41,6 @@ clones.
 ./atrinik init [COMPONENT...]
 ./atrinik init --with classic
 ./atrinik sync [COMPONENT...]
-./atrinik sync --with classic
 ./atrinik worktree create COMPONENT LABEL --branch TYPE/TOPIC
 ```
 
@@ -58,20 +56,18 @@ Reclaim review data only through preview-first cleanup:
 ./atrinik cleanup --scope sound-cache sound --older-than 7 --dry-run --json
 ./atrinik cleanup --scope sound-cache sound --older-than 7 --apply
 ./atrinik cleanup --scope worktrees sound --older-than 7 --dry-run --json
-./atrinik cleanup --scope worktrees sound --older-than 7 --apply
 ```
 
-Default cleanup covers worktrees/builds; npm, compiler, and sound caches are
-opt-in. Apply sound-cache before a fresh worktree preview/apply because every
-remaining cache protects its worktree. Sound build/verify shares the exact
-versioned Git-admin lease; removal locks its same inode exclusively. Missing,
-replaced, invalid, or busy leases fail closed. References, ambiguous Git,
-unsafe paths/markers, populated submodules, replace refs, and grafts protect
-targets. The sole historical-base exception is the frozen
+Default cleanup covers worktrees/builds; caches are opt-in. Apply sound-cache
+before a fresh worktree preview because each cache protects its worktree. Sound
+build/verify shares the versioned Git-admin lease; removal locks its inode.
+Missing, replaced, invalid, busy, referenced, or unsafe targets fail closed.
+The sole historical-base exception is the frozen
 `atrinik/atrinik@main` `build/worktrees/` contract at
-`ee5ba2096c94bce0161629423d4962a966bc61d8`. Apply re-inventories under the
-layout lock and removes only exact proven targets through non-force Git while
-preserving refs, state, records, Git objects, reports, and unmarked paths.
+`ee5ba2096c94bce0161629423d4962a966bc61d8`. Apply locks and revalidates each
+exact target with its reference-publication coordinates, journals completed
+actions, skips busy targets, and uses non-force Git while preserving refs,
+state, records, objects, reports, and unmarked paths.
 
 ## Compose coherent sources
 
@@ -92,8 +88,11 @@ Classic selection is checkout-wide; subdirectories are not worktrees. Clean
 exact-coordinate content, resource, and region-map caches are reused; runtimes
 copy independent topology-owned snapshots.
 
-Readers share the layout lock. Writers announce, gate, then lock; all leases
-precede finer locks and diagnose 10-second waits. Fail closed without sharing.
+Lease order is registry, profile, Git-admin, source, topology/scenario, state,
+build, cache. Writers gate matching coordinates; physical leases span state
+roots and multi-source writers retry all-or-none. Only migration takes the
+barrier exclusively. Published runtimes retain sealed generation, process-tree,
+state, and port leases, not preparation leases. Fail closed without sharing.
 Incomplete coordinates are inert; wrapper owns paths, locks, state, PIDs, logs,
 content/resources and cleanup. Completion is bounded, local, read-only,
 secret-free and parser-driven before `Workspace`; stops at `--` or a `run`

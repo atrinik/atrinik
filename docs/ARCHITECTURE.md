@@ -190,37 +190,35 @@ side effect.
 
 `cleanup` is an explicit garbage-collection boundary, never an implicit step
 of initialization, synchronization, build, or startup. Default and explicit
-`--dry-run` modes are read-only. `--apply` first takes the exclusive mode of the
-repository-layout lock, then performs one complete inventory and size
-recomputation. Immediately before each removal it freshly revalidates that
-target's safety dependencies without rescanning unrelated report-only
-payloads; any new ambiguity fails closed. Build roots are removed before Git
-worktrees; the explicitly selected npm cache and safe prunable Git metadata
-come last. A race before the first mutation aborts the plan. A later failure
-stops the ordered sequence and reports completed reclamation without attempting
-to reconstruct generated data.
+`--dry-run` modes are read-only. `--apply` inventories once, then takes only the
+exact candidate leases and freshly revalidates that target immediately before
+removal. Busy or newly ambiguous candidates are preserved; completed removals
+are journaled before the ordered sequence continues.
 
-The repository-layout lock is a workspace-wide interprocess read/write boundary.
-Initialization, synchronization, worktree and profile mutation, cleanup apply,
-and repository migration take it exclusively. Builds, topology startup,
-foreground client and server runs, and scenario create/reset take it in shared
-mode while they consume selected checkout and profile coordinates. Independent
-build roots can therefore compile concurrently, while each root's existing
-exclusive build lock still serializes identical profile/key work. An exclusive
-writer cannot advance or remove a selected checkout until all readers exit.
-Waiting mutations first announce themselves with a shared
-`repository-layout.writer-pending.lock`, then hold the exclusive
-`repository-layout.writer-intent.lock` admission gate. A new reader briefly
-takes the admission gate and proceeds only if its exclusive pending-lock probe
-finds no announced writer; otherwise it releases admission, waits, and retries.
-Existing readers complete normally but later readers cannot repeatedly bypass
-a writer that has announced itself. The writer holds the pending, intent, and
-layout locks through the mutation, and its subprocesses inherit all three
-descriptors. A wait longer than 10 seconds emits one diagnostic
-with the supported process and worktree inventories, but does not time out or
-interrupt the holder. The diagnostic is emitted at most once per acquisition.
-If the platform cannot provide a working advisory shared lock, the consuming
-operation fails closed.
+Ordinary operations use fair exact-coordinate leases. Workspace-local
+coordinates live below `workspace/leases/`; physical Git-administration,
+source, port, and persistent-reference coordination lives below the wrapper's
+common-Git `atrinik-resource-leases/`, so linked wrapper worktrees and relocated
+state roots cannot split exclusion. Profile, Git-admin, source, topology,
+scenario, state, build-root, and cache requests are deduplicated and sorted.
+Multi-source writers retry all-or-none, releasing earlier coordinates before
+waiting on a busy later source. A queued writer precedes later readers only for
+that coordinate, and waits longer than 10 seconds report its owner operation
+and supported recovery action.
+
+Profile consumers lock the profile, derive candidate source coordinates,
+acquire the exact sources, revalidate, and capture immutable profile bytes,
+provider selections, Git identities, paths, HEADs, dirtiness, and filesystem
+identity. Build preparation persists that snapshot and never rereads a mutable
+profile generation. Publication and removal share the same source coordinate.
+Physical profile/scenario reference records make completed publications visible
+to cleanup and explicit removal from every relocated state root.
+
+The common-Git `repository-layout.lock` is only the maintenance barrier for
+schema/layout migration apply or restore. Ordinary operations share it while
+active; an exclusive migration waits for them to drain. Migration publication
+keeps old and new profile sources conservatively referenced until the durable
+transition commits or rolls back.
 
 A supervised topology stages its complete executable closure below a random
 topology-owned generation directory before publishing schema-2 spec/status.
@@ -246,27 +244,18 @@ The common command runner still inherits active advisory-lock descriptors into
 build and scenario subprocesses so an interrupted wrapper cannot strand an
 unprotected mutation.
 
-The writer-pending announcement precedes the writer-intent gate and layout lock,
-which remain
-outermost relative to all operational locks; private helpers never reacquire
-either boundary. A direct build or foreground client then takes its build-root
-lock and subordinate cache locks; the foreground process retains that root
-lease only through publication, while the long-lived process retains the
-immutable generation lease instead. Topology startup takes the
-topology-operation/process-tree lock, the automatic allocator when applicable,
-the per-port transaction and immutable generation lease, the server-state lock
-when needed, and finally the build-root lock. It releases the layout/build
-boundaries after atomic runtime publication
-and transfers only the exact state, runtime, process-tree, and port leases into
-the supervisor/guardian rather than services.
+Lease order is maintenance (migration only), registry, profile, Git admin,
+source, topology, scenario, state, build root, then cache. Runtime publication
+releases profile/source/build preparation leases after sealing the generation.
+Topology startup transfers only exact state, runtime-generation, process-tree,
+and generation-specific port leases into the supervisor/guardian; foreground
+processes retain only their runtime generation and server state when applicable.
 Independent CMake roots briefly serialize first-use compiler-cache marker and
 metadata publication, then release that cache lock before compilation.
-Scenario create takes the scenario-operation lock, then build-root and
-state-registry locks; reset takes scenario-operation, state, and build-root locks.
-Foreground server launch takes state before build-root. Layout writers take the
-exclusive layout lock before any cleanup build-lock probes or mutation-specific
-work. Operations use only the applicable suffix of these orders and never acquire
-the layout lock from inside a finer-grained lock.
+Scenario create/reset use a per-scenario operation coordinate rather than one
+global scenario lock. Foreground server launch takes state before build-root.
+Operations use only the applicable ordered suffix and never acquire a broader
+resource from inside a finer one.
 
 Inventory records are stable-sorted and carry a kind, physical owner and
 repository, exact path, no-follow allocated size, age and age basis,

@@ -152,7 +152,13 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def migration(self) -> RepositoryMigration:
-        return RepositoryMigration(self.wrapper, self.paths, self.manifest)
+        return RepositoryMigration(
+            self.wrapper,
+            self.paths,
+            self.manifest,
+            self.paths.workspace / "physical-repository-layout.lock",
+            lambda _transitions=None: None,
+        )
 
     def test_classic_profile_fallback_includes_playtester(self) -> None:
         migration = self.migration()
@@ -384,6 +390,69 @@ class RepositoryMigrationTests(unittest.TestCase):
         audit = self.migration().execute("audit")
         self.assertEqual(audit["status"], "complete", audit)
         self.assertEqual(self.migration().execute("apply")["status"], "already-applied")
+
+    def test_record_fsync_uncertainty_does_not_rollback_committed_layout(self) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        profile = self.write_profile(
+            "review",
+            {
+                "client": {"kind": "primary", "value": ""},
+                "content": {"kind": "primary", "value": ""},
+            },
+        )
+        migration = self.migration()
+        real_publish = migration._durable_atomic_json
+
+        def uncertain(path: Path, value: object) -> None:
+            real_publish(path, value)
+            if path == migration.record_path:
+                raise migration_module.AtomicJsonCommitUncertain(
+                    "simulated record durability uncertainty"
+                )
+
+        with (
+            mock.patch.object(migration, "_durable_atomic_json", side_effect=uncertain),
+            self.assertRaisesRegex(WorkspaceError, "migration committed"),
+        ):
+            migration.execute("apply")
+
+        self.assertTrue(migration.record_path.is_file())
+        self.assertFalse(source.exists())
+        self.assertNotEqual(json.loads(profile.read_text())["schema_version"], 1)
+
+    def test_already_applied_retry_rejects_symlinked_pending_journal(self) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        self.write_profile(
+            "review",
+            {
+                "client": {"kind": "primary", "value": ""},
+                "content": {"kind": "primary", "value": ""},
+            },
+        )
+        migration = self.migration()
+        real_unlink = migration_module.unlink_validated_json
+
+        def retain_pending(path: Path, validator: object) -> None:
+            if path == migration.pending_path:
+                raise WorkspaceError("retain journal")
+            real_unlink(path, validator)
+
+        with mock.patch.object(
+            migration_module,
+            "unlink_validated_json",
+            side_effect=retain_pending,
+        ):
+            self.assertEqual(migration.execute("apply")["status"], "applied")
+        external = self.root / "external-pending.json"
+        migration.pending_path.rename(external)
+        migration.pending_path.symlink_to(external)
+
+        with self.assertRaisesRegex(WorkspaceError, "cannot consume"):
+            migration.execute("apply")
+
+        self.assertTrue(external.is_file())
 
     def test_schema_v3_replacement_profile_is_valid_and_left_unchanged(self) -> None:
         profile = self.paths.profiles / "replacement.json"
@@ -1235,7 +1304,13 @@ class RepositoryMigrationTests(unittest.TestCase):
                                 / "client"
                             )
                             conflict.mkdir(parents=True)
-                        result = RepositoryMigration(wrapper, paths, self.manifest).execute("apply")
+                        result = RepositoryMigration(
+                            wrapper,
+                            paths,
+                            self.manifest,
+                            paths.workspace / "physical-repository-layout.lock",
+                            lambda _transitions=None: None,
+                        ).execute("apply")
                         self.assertEqual(result["status"], "refused")
                         self.assertTrue(result["refusals"])
                         self.assertTrue(source.is_dir())

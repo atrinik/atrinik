@@ -95,9 +95,12 @@ def _directory_identity(metadata: os.stat_result) -> dict[str, int]:
 
 
 def _validate_directory_path(directory: Path, identity: dict[str, int]) -> None:
+    descriptor: int | None = None
     try:
         metadata = directory.lstat()
     except OSError as error:
+        if descriptor is not None:
+            os.close(descriptor)
         raise PortReservationError(
             f"cannot inspect topology port reservation directory {directory}: {error}"
         ) from error
@@ -110,31 +113,57 @@ def _validate_directory_path(directory: Path, identity: dict[str, int]) -> None:
         )
 
 
-def open_directory(topologies: Path) -> tuple[int, Path, dict[str, int]]:
+def open_directory(
+    topologies: Path, *, root_identity: tuple[int, int] | None = None
+) -> tuple[int, Path, dict[str, int]]:
     directory = topologies / PORT_RESERVATION_DIRECTORY
-    try:
-        directory.mkdir(mode=0o700)
-    except FileExistsError:
-        pass
     flags = os.O_RDONLY | os.O_CLOEXEC
     if hasattr(os, "O_DIRECTORY"):
         flags |= os.O_DIRECTORY
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
     try:
-        descriptor = os.open(directory, flags)
+        root_descriptor = os.open(topologies, flags)
     except OSError as error:
         raise PortReservationError(
-            f"cannot open topology port reservation directory {directory}: {error}"
+            f"cannot open topology port reservation root {topologies}: {error}"
         ) from error
+    descriptor: int | None = None
     try:
+        root_metadata = os.fstat(root_descriptor)
+        visible_root = topologies.lstat()
+        if (
+            not stat.S_ISDIR(root_metadata.st_mode)
+            or not stat.S_ISDIR(visible_root.st_mode)
+            or (root_metadata.st_dev, root_metadata.st_ino)
+            != (visible_root.st_dev, visible_root.st_ino)
+            or (
+                root_identity is not None
+                and (root_metadata.st_dev, root_metadata.st_ino) != root_identity
+            )
+        ):
+            raise PortReservationError(
+                f"topology port reservation root was replaced: {topologies}"
+            )
+        try:
+            os.mkdir(PORT_RESERVATION_DIRECTORY, mode=0o700, dir_fd=root_descriptor)
+        except FileExistsError:
+            pass
+        descriptor = os.open(
+            PORT_RESERVATION_DIRECTORY, flags, dir_fd=root_descriptor
+        )
         metadata = os.fstat(descriptor)
         path_metadata = directory.lstat()
+        visible_root = topologies.lstat()
     except OSError as error:
-        os.close(descriptor)
+        if descriptor is not None:
+            os.close(descriptor)
         raise PortReservationError(
             f"cannot open topology port reservation directory {directory}: {error}"
         ) from error
+    finally:
+        os.close(root_descriptor)
+    assert descriptor is not None
     if (
         not stat.S_ISDIR(metadata.st_mode)
         or stat.S_IMODE(metadata.st_mode) != 0o700
@@ -142,6 +171,8 @@ def open_directory(topologies: Path) -> tuple[int, Path, dict[str, int]]:
         or not stat.S_ISDIR(path_metadata.st_mode)
         or (path_metadata.st_dev, path_metadata.st_ino)
         != (metadata.st_dev, metadata.st_ino)
+        or (visible_root.st_dev, visible_root.st_ino)
+        != (root_metadata.st_dev, root_metadata.st_ino)
     ):
         os.close(descriptor)
         raise PortReservationError(
@@ -245,10 +276,15 @@ def _rename_no_replace(
 
 
 def open_transaction(
-    topologies: Path, port: int
+    topologies: Path,
+    port: int,
+    *,
+    root_identity: tuple[int, int] | None = None,
 ) -> tuple[int, int, Path, dict[str, int]]:
     port = _validate_port(port)
-    directory_fd, directory, identity = open_directory(topologies)
+    directory_fd, directory, identity = open_directory(
+        topologies, root_identity=root_identity
+    )
     try:
         descriptor = _open_child(
             directory_fd, f"{port}.lock", os.O_RDWR | os.O_CREAT

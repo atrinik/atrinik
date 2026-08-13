@@ -7,10 +7,10 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
+import secrets
 import stat
-import tempfile
 import time
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 
 SCHEMA_VERSION = 1
@@ -151,6 +151,14 @@ class WorkspaceError(RuntimeError):
     """A workspace operation cannot be completed safely."""
 
 
+class AtomicJsonCommitUncertain(WorkspaceError):
+    """The JSON replacement is visible but directory durability was not proven."""
+
+
+class JsonUnlinkCommitUncertain(WorkspaceError):
+    """The JSON record is absent but directory durability was not proven."""
+
+
 def _reject_duplicate_keys(pairs: Iterable[tuple[str, Any]]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in pairs:
@@ -168,21 +176,170 @@ def load_json(path: Path) -> Any:
         raise WorkspaceError(f"cannot read {path}: {error}") from error
 
 
-def atomic_json(path: Path, value: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary_name = tempfile.mkstemp(
-        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
-    )
-    temporary = Path(temporary_name)
+def unlink_validated_json(path: Path, validate: Callable[[Any], None]) -> None:
+    """Validate and unlink the same no-follow JSON inode through a parent dirfd."""
+
+    directory_flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+    directory_flags |= getattr(os, "O_NOFOLLOW", 0)
+    file_flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_NOFOLLOW", 0)
+    directory: int | None = None
+    descriptor: int | None = None
     try:
+        directory = _open_directory_nofollow(path.parent, directory_flags)
+        parent_opened = os.fstat(directory)
+        parent_visible = path.parent.stat(follow_symlinks=False)
+        if (
+            not stat.S_ISDIR(parent_opened.st_mode)
+            or (parent_opened.st_dev, parent_opened.st_ino)
+            != (parent_visible.st_dev, parent_visible.st_ino)
+        ):
+            raise WorkspaceError(f"JSON parent directory was replaced: {path.parent}")
+        descriptor = os.open(path.name, file_flags, dir_fd=directory)
+        opened = os.fstat(descriptor)
+        visible = os.stat(path.name, dir_fd=directory, follow_symlinks=False)
+        if (
+            not stat.S_ISREG(opened.st_mode)
+            or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+        ):
+            raise WorkspaceError(f"JSON record identity is unsafe: {path}")
+        with os.fdopen(descriptor, encoding="utf-8", closefd=False) as stream:
+            value = json.load(stream, object_pairs_hook=_reject_duplicate_keys)
+        validate(value)
+        parent_visible = path.parent.stat(follow_symlinks=False)
+        if (parent_opened.st_dev, parent_opened.st_ino) != (
+            parent_visible.st_dev,
+            parent_visible.st_ino,
+        ):
+            raise WorkspaceError(f"JSON parent directory was replaced: {path.parent}")
+        visible = os.stat(path.name, dir_fd=directory, follow_symlinks=False)
+        if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+            raise WorkspaceError(f"JSON record was replaced: {path}")
+        os.unlink(path.name, dir_fd=directory)
+        try:
+            os.fsync(directory)
+        except OSError as error:
+            raise JsonUnlinkCommitUncertain(
+                "JSON record is absent but its directory durability is uncertain: "
+                f"{path}: {error}"
+            ) from error
+    except (OSError, UnicodeError, ValueError, RecursionError) as error:
+        raise WorkspaceError(f"cannot consume {path}: {error}") from error
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+        if directory is not None:
+            os.close(directory)
+
+
+def atomic_json(path: Path, value: Any) -> None:
+    _atomic_json(path, value, durable=False)
+
+
+def durable_atomic_json(path: Path, value: Any) -> None:
+    """Replace JSON and prove the containing directory persisted the rename."""
+
+    _atomic_json(path, value, durable=True)
+
+
+def _atomic_json(path: Path, value: Any, *, durable: bool) -> None:
+    directory_flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+    directory_flags |= getattr(os, "O_NOFOLLOW", 0)
+    directory = _open_directory_nofollow(
+        path.parent, directory_flags, create=True
+    )
+    temporary = f".{path.name}.{secrets.token_hex(12)}.tmp"
+    descriptor: int | None = None
+    try:
+        opened_parent = os.fstat(directory)
+        visible_parent = path.parent.stat(follow_symlinks=False)
+        if (
+            not stat.S_ISDIR(opened_parent.st_mode)
+            or (opened_parent.st_dev, opened_parent.st_ino)
+            != (visible_parent.st_dev, visible_parent.st_ino)
+        ):
+            raise WorkspaceError(f"JSON parent directory was replaced: {path.parent}")
+        descriptor = os.open(
+            temporary,
+            os.O_WRONLY
+            | os.O_CREAT
+            | os.O_EXCL
+            | os.O_CLOEXEC
+            | getattr(os, "O_NOFOLLOW", 0),
+            0o600,
+            dir_fd=directory,
+        )
         with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            descriptor = None
             json.dump(value, stream, indent=2, sort_keys=True)
             stream.write("\n")
             stream.flush()
             os.fsync(stream.fileno())
-        temporary.replace(path)
+        visible_parent = path.parent.stat(follow_symlinks=False)
+        if (opened_parent.st_dev, opened_parent.st_ino) != (
+            visible_parent.st_dev,
+            visible_parent.st_ino,
+        ):
+            raise WorkspaceError(f"JSON parent directory was replaced: {path.parent}")
+        os.rename(
+            temporary,
+            path.name,
+            src_dir_fd=directory,
+            dst_dir_fd=directory,
+        )
+        if durable:
+            try:
+                os.fsync(directory)
+            except OSError as error:
+                raise AtomicJsonCommitUncertain(
+                    "JSON replacement is visible but its directory durability is "
+                    f"uncertain: {path}: {error}"
+                ) from error
     except BaseException:
-        temporary.unlink(missing_ok=True)
+        try:
+            os.unlink(temporary, dir_fd=directory)
+        except FileNotFoundError:
+            pass
+        raise
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+        os.close(directory)
+
+
+def _open_directory_nofollow(
+    path: Path, flags: int, *, create: bool = False
+) -> int:
+    """Open every component of a directory path without following symlinks."""
+
+    absolute = Path(os.path.abspath(path))
+    descriptor = os.open("/", flags)
+    try:
+        for part in absolute.parts[1:]:
+            try:
+                next_descriptor = os.open(part, flags, dir_fd=descriptor)
+            except FileNotFoundError:
+                if not create:
+                    raise
+                try:
+                    os.mkdir(part, 0o777, dir_fd=descriptor)
+                except FileExistsError:
+                    # Another publisher may have created the same safe
+                    # directory after our failed open. Reopen it no-follow
+                    # below and prove its parent directory entry durable.
+                    pass
+                try:
+                    os.fsync(descriptor)
+                except OSError as error:
+                    raise AtomicJsonCommitUncertain(
+                        "JSON ancestor directory is visible but its parent "
+                        f"durability is uncertain: {absolute}: {error}"
+                    ) from error
+                next_descriptor = os.open(part, flags, dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = next_descriptor
+        return descriptor
+    except BaseException:
+        os.close(descriptor)
         raise
 
 

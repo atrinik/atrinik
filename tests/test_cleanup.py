@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 import json
 import fcntl
@@ -8,6 +9,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import threading
 import unittest
 from unittest import mock
 
@@ -24,7 +26,12 @@ from atrinik_workspace.cleanup import (
     _worktree_records,
     _workspace_owned,
 )
-from atrinik_workspace.locking import active_lock_fds, inherit_lock_fds
+from atrinik_workspace.locking import (
+    LeaseRequest,
+    active_lock_fds,
+    inherit_lock_fds,
+    resource_locks,
+)
 from atrinik_workspace.model import (
     MANAGED_MARKER,
     SCHEMA_VERSION,
@@ -1393,9 +1400,154 @@ class CleanupTests(unittest.TestCase):
         item = next(row for row in report["items"] if row["path"] == str(worktree))
         self.assertEqual(item["disposition"], "removed")
         self.assertFalse(worktree.exists())
+        journal = json.loads(Path(report["journal"]).read_text(encoding="utf-8"))
+        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(
+            journal["completed"],
+            [{"kind": "worktree", "path": str(worktree)}],
+        )
         self.assertEqual(
             command("git", "branch", "--list", branch, cwd=self.wrapper).strip(),
             f"{branch}",
+        )
+
+    def test_apply_skips_busy_target_and_continues_with_disjoint_target(self) -> None:
+        busy = self.make_wrapper_worktree("busy")
+        removable = self.make_wrapper_worktree("removable")
+        request = LeaseRequest(
+            "source",
+            self.workspace._source_coordinate("atrinik", busy),
+            "shared",
+            "build busy worktree",
+            "wait for the build to finish",
+        )
+
+        with resource_locks(
+            self.workspace._lease_root, [request]
+        ), mock.patch.object(
+            Cleanup,
+            "_github_pulls",
+            side_effect=lambda _repository, head: self.merged_pull(head),
+        ):
+            report = self.workspace.cleanup(["worktrees"], 7, [], True)
+
+        by_path = {row["path"]: row for row in report["items"]}
+        self.assertEqual(by_path[str(busy)]["reasons"], ["resource_busy"])
+        self.assertTrue(busy.is_dir())
+        self.assertEqual(by_path[str(removable)]["disposition"], "removed")
+        self.assertFalse(removable.exists())
+        journal = json.loads(Path(report["journal"]).read_text(encoding="utf-8"))
+        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(
+            journal["completed"],
+            [{"kind": "worktree", "path": str(removable)}],
+        )
+
+    def test_apply_skips_wrapper_worktree_running_public_operation(self) -> None:
+        busy = self.make_wrapper_worktree("active-wrapper")
+        with mock.patch.dict(
+            os.environ,
+            {"ATRINIK_WORKSPACE_DIR": str(self.root / "active-workspace")},
+        ):
+            active_workspace = Workspace(busy)
+            active_workspace.paths.ensure()
+        entered = threading.Event()
+        release = threading.Event()
+
+        def hold_create(*_arguments: object) -> Path:
+            entered.set()
+            self.assertTrue(release.wait(5))
+            return active_workspace.paths.profiles / "active.json"
+
+        with (
+            mock.patch.object(
+                active_workspace, "_create_profile", side_effect=hold_create
+            ),
+            mock.patch.object(
+                Cleanup,
+                "_github_pulls",
+                side_effect=lambda _repository, head: self.merged_pull(head),
+            ),
+            ThreadPoolExecutor(max_workers=1) as executor,
+        ):
+            operation = executor.submit(active_workspace.create_profile, "active")
+            if not entered.wait(2):
+                operation.result(timeout=1)
+                self.fail("wrapper operation did not acquire its source lease")
+            report = self.workspace.cleanup(["worktrees"], 7, [], True)
+            item = next(row for row in report["items"] if row["path"] == str(busy))
+            self.assertEqual(item["reasons"], ["resource_busy"])
+            self.assertTrue(busy.is_dir())
+            release.set()
+            operation.result(timeout=5)
+
+    def test_apply_from_wrapper_worktree_preserves_invoking_view(self) -> None:
+        current = self.make_wrapper_worktree("invoking-wrapper")
+        with mock.patch.dict(
+            os.environ,
+            {"ATRINIK_WORKSPACE_DIR": str(self.root / "invoking-workspace")},
+        ):
+            workspace = Workspace(current)
+            workspace.paths.ensure()
+            with mock.patch.object(
+                Cleanup,
+                "_github_pulls",
+                side_effect=lambda _repository, head: self.merged_pull(head),
+            ):
+                report = workspace.cleanup(["worktrees"], 7, [], True)
+
+        item = next(row for row in report["items"] if row["path"] == str(current))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("active_wrapper_view", item["reasons"])
+        self.assertTrue(current.is_dir())
+
+    def test_profile_reference_in_other_state_root_protects_worktree(self) -> None:
+        target = self.make_component_worktree("cross-state", component="client")
+        with mock.patch.dict(
+            os.environ,
+            {"ATRINIK_WORKSPACE_DIR": str(self.root / "other-workspace")},
+        ):
+            other = Workspace(self.wrapper)
+            other.paths.ensure()
+            other.create_profile("cross-state")
+            other.set_profile("cross-state", "client", "path", str(target))
+
+        with mock.patch.object(
+            Cleanup,
+            "_github_pulls",
+            side_effect=lambda _repository, head: self.merged_pull(head),
+        ):
+            report = self.workspace.cleanup(["worktrees"], 7, [], True)
+
+        item = next(row for row in report["items"] if row["path"] == str(target))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("profile_reference", item["reasons"])
+        self.assertTrue(target.is_dir())
+
+    def test_apply_removes_worktrees_from_two_physical_owners(self) -> None:
+        client = self.make_component_worktree("client-review", component="client")
+        server = self.make_component_worktree("server-review", component="server")
+
+        with mock.patch.object(
+            Cleanup,
+            "_github_pulls",
+            side_effect=lambda _repository, head: self.merged_pull(head),
+        ):
+            report = self.workspace.cleanup(["worktrees"], 7, [], True)
+
+        by_path = {row["path"]: row for row in report["items"]}
+        self.assertEqual(by_path[str(client)]["disposition"], "removed")
+        self.assertEqual(by_path[str(server)]["disposition"], "removed")
+        self.assertFalse(client.exists())
+        self.assertFalse(server.exists())
+        journal = json.loads(Path(report["journal"]).read_text(encoding="utf-8"))
+        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(
+            journal["completed"],
+            [
+                {"kind": "worktree", "path": str(client)},
+                {"kind": "worktree", "path": str(server)},
+            ],
         )
 
     def test_populated_submodule_worktree_is_protected_in_preview_and_apply(
@@ -1888,6 +2040,35 @@ class CleanupTests(unittest.TestCase):
         self.assertFalse(first.exists())
         self.assertTrue(second.exists())
         self.assertTrue(report["aborted"])
+
+    def test_apply_reports_progress_journal_failure_after_removal(self) -> None:
+        first = self.make_build("first", "a" * 12)
+        second = self.make_build("second", "b" * 12)
+        real_atomic_json = atomic_json
+        publications = 0
+
+        def publish(path: Path, value: object) -> None:
+            nonlocal publications
+            publications += 1
+            if publications > 1:
+                raise WorkspaceError("injected journal failure")
+            real_atomic_json(path, value)
+
+        with mock.patch(
+            "atrinik_workspace.cleanup.durable_atomic_json", side_effect=publish
+        ):
+            report = self.workspace.cleanup(["builds"], 7, [], True)
+
+        by_path = {row["path"]: row for row in report["items"]}
+        self.assertEqual(by_path[str(first)]["disposition"], "removed")
+        self.assertFalse(first.exists())
+        self.assertTrue(second.exists())
+        self.assertEqual(
+            report["completed_actions"],
+            [{"kind": "profile-build", "path": str(first)}],
+        )
+        self.assertTrue(report["aborted"])
+        self.assertIn("journal failure", report["journal_error"])
 
     def test_apply_reports_revalidation_error_after_a_completed_mutation(self) -> None:
         first = self.make_build("first", "a" * 12)
@@ -2803,50 +2984,56 @@ class CleanupTests(unittest.TestCase):
     def test_physical_aliases_deduplicate_and_content_branches_stay_distinct(
         self,
     ) -> None:
-        repository = Path(__file__).resolve().parents[1]
+        repository = self.root / "full-wrapper"
+        repository.mkdir()
+        shutil.copy2(Path(__file__).resolve().parents[1] / "components.json", repository)
+        command("git", "init", "-b", "main", cwd=repository)
         actual_workspace = Workspace(repository)
-        cleanup = Cleanup(actual_workspace)
-        self.assertEqual(
-            cleanup._normalize_scopes(["all"]),
-            [
-                "worktrees", "builds", "npm-cache", "compiler-cache",
-                "sound-cache",
-            ],
-        )
-        self.assertEqual(cleanup._normalize_names(["atrinik"]), {"atrinik"})
-        with self.assertRaisesRegex(WorkspaceError, "unknown components"):
-            cleanup._normalize_names(["not-a-component"])
-        self.assertEqual(
-            cleanup._normalize_names(
-                ["classic", "classic-client", "classic-server", "classic-protocol"]
-            ),
-            {"classic"},
-        )
-        self.assertEqual(cleanup._normalize_names(["content"]), {"content"})
-        with self.assertRaisesRegex(WorkspaceError, "unknown components"):
-            cleanup._normalize_names(["content-1x"])
+        try:
+            cleanup = Cleanup(actual_workspace)
+            self.assertEqual(
+                cleanup._normalize_scopes(["all"]),
+                [
+                    "worktrees", "builds", "npm-cache", "compiler-cache",
+                    "sound-cache",
+                ],
+            )
+            self.assertEqual(cleanup._normalize_names(["atrinik"]), {"atrinik"})
+            with self.assertRaisesRegex(WorkspaceError, "unknown components"):
+                cleanup._normalize_names(["not-a-component"])
+            self.assertEqual(
+                cleanup._normalize_names(
+                    ["classic", "classic-client", "classic-server", "classic-protocol"]
+                ),
+                {"classic"},
+            )
+            self.assertEqual(cleanup._normalize_names(["content"]), {"content"})
+            with self.assertRaisesRegex(WorkspaceError, "unknown components"):
+                cleanup._normalize_names(["content-1x"])
 
-        head = "a" * 40
-        pulls = self.merged_pull(head, base="main")
-        reason, _, _ = Cleanup._pull_evidence(pulls, head, "main")
-        self.assertIsNone(reason)
-        reason, _, _ = Cleanup._pull_evidence(pulls, head, "1.x")
-        self.assertEqual(reason, "wrong_base_branch")
+            head = "a" * 40
+            pulls = self.merged_pull(head, base="main")
+            reason, _, _ = Cleanup._pull_evidence(pulls, head, "main")
+            self.assertIsNone(reason)
+            reason, _, _ = Cleanup._pull_evidence(pulls, head, "1.x")
+            self.assertEqual(reason, "wrong_base_branch")
 
-        profile = actual_workspace._load_profile("classic", require_file=False)
-        migrated = actual_workspace.paths.worktrees / "content" / "classic-maps"
-        profile["name"] = "migrated"
-        profile["components"]["content-1x"] = {
-            "kind": "migrated-worktree",
-            "value": str(migrated),
-        }
-        profile["components"].pop("content")
-        atomic_json(actual_workspace.paths.profiles / "migrated.json", profile)
-        references: dict[str, object] = {"profiles": {}}
-        errors: set[str] = set()
-        cleanup._profile_references(references, errors)
-        self.assertEqual(errors, set())
-        self.assertEqual(references["profiles"], {migrated: ["migrated"]})
+            profile = actual_workspace._load_profile("classic", require_file=False)
+            migrated = actual_workspace.paths.worktrees / "content" / "classic-maps"
+            profile["name"] = "migrated"
+            profile["components"]["content-1x"] = {
+                "kind": "migrated-worktree",
+                "value": str(migrated),
+            }
+            profile["components"].pop("content")
+            atomic_json(actual_workspace.paths.profiles / "migrated.json", profile)
+            references: dict[str, object] = {"profiles": {}}
+            errors: set[str] = set()
+            cleanup._profile_references(references, errors)
+            self.assertEqual(errors, set())
+            self.assertEqual(references["profiles"], {migrated: ["migrated"]})
+        finally:
+            actual_workspace.close()
 
     def test_allocated_size_credit_deduplicates_shared_inodes(self) -> None:
         first = _base_item("worktree", "atrinik", "atrinik/atrinik", self.root / "a")
