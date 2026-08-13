@@ -137,6 +137,9 @@ SCENARIO_PRESETS = {
     "lighting-radiance-inside": {"archetype": "human_male"},
 }
 SCENARIO_PASSWORD_MAX_SIZE = 128
+SCENARIO_INERT_HISTORICAL_IDENTITY = "historical_identity"
+SCENARIO_INERT_PROFILE_UNRESOLVABLE = "profile_unresolvable"
+SCENARIO_INERT_INVALID_RECORD = "invalid_record"
 BUILD_METADATA = ".atrinik-build.json"
 BUILD_METADATA_SCHEMA_VERSION = 2
 CACHE_METADATA = ".atrinik-cache.json"
@@ -171,6 +174,12 @@ RUNTIME_INPUT_SCHEMA_VERSION = 1
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
 REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
+
+
+class _InertScenarioError(WorkspaceError):
+    def __init__(self, reason: str, message: str) -> None:
+        super().__init__(message)
+        self.reason = reason
 
 
 def display_arguments(arguments: list[str]) -> str:
@@ -2149,7 +2158,10 @@ class Workspace:
             require_keys(profile, PROFILE_KEYS, f"profile {name}")
         if profile["schema_version"] != PROFILE_SCHEMA_VERSION or profile["name"] != name:
             raise WorkspaceError(f"profile identity/schema mismatch: {name}")
-        if profile["sound_mode"] not in SOUND_MODES:
+        if (
+            not isinstance(profile["sound_mode"], str)
+            or profile["sound_mode"] not in SOUND_MODES
+        ):
             raise WorkspaceError(f"profile sound mode is invalid: {name}")
         stack_name = profile["stack"]
         if not isinstance(stack_name, str) or stack_name not in self.manifest.stacks:
@@ -2170,26 +2182,42 @@ class Workspace:
             require_keys(selector, SELECTOR_KEYS, f"profile selector {component_name}")
             kind = selector["kind"]
             value = selector["value"]
-            if kind not in {
-                "primary",
-                "worktree",
-                "path",
-                MIGRATED_CONTENT_WORKTREE_KIND,
-            } or not isinstance(value, str):
+            if (
+                not isinstance(kind, str)
+                or kind
+                not in {
+                    "primary",
+                    "worktree",
+                    "path",
+                    MIGRATED_CONTENT_WORKTREE_KIND,
+                }
+                or not isinstance(value, str)
+            ):
                 raise WorkspaceError(f"invalid profile selector: {component_name}")
             if kind == "primary" and value:
                 raise WorkspaceError(f"primary selector must not have a value: {component_name}")
             if kind == "worktree":
                 validate_name(value, f"profile selector {component_name}")
-            if kind == "path" and not Path(value).is_absolute():
-                raise WorkspaceError(f"profile path must be absolute: {component_name}")
+            selected_path: Path | None = None
+            if kind in {"path", MIGRATED_CONTENT_WORKTREE_KIND}:
+                selected_path = Path(value)
+                if kind == "path" and not selected_path.is_absolute():
+                    raise WorkspaceError(
+                        f"profile path must be absolute: {component_name}"
+                    )
+                try:
+                    selected_path = selected_path.resolve(strict=False)
+                except (OSError, RuntimeError, ValueError) as error:
+                    raise WorkspaceError(
+                        f"invalid profile selector: {component_name}"
+                    ) from error
             if kind == MIGRATED_CONTENT_WORKTREE_KIND:
-                migrated = Path(value)
                 expected_parent = (self.paths.worktrees / "content").resolve()
                 if (
                     component_name != "content-1x"
-                    or not migrated.is_absolute()
-                    or migrated.resolve(strict=False).parent != expected_parent
+                    or selected_path is None
+                    or not Path(value).is_absolute()
+                    or selected_path.parent != expected_parent
                 ):
                     raise WorkspaceError(
                         "invalid migrated content worktree selector: "
@@ -5969,7 +5997,11 @@ class Workspace:
             raise WorkspaceError(f"scenario password file is invalid: {path}")
         return password
 
-    def _load_scenario(self, name: str) -> dict[str, Any]:
+    def _load_scenario(
+        self,
+        name: str,
+        registered_states: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
         self.paths.ensure()
         root = self._scenario_directory(name)
         if not root.is_dir() or root.is_symlink():
@@ -5992,19 +6024,28 @@ class Workspace:
             actual_keys == historical_keys
             and metadata.get("schema_version") == SCHEMA_VERSION
         ):
-            raise WorkspaceError(
+            raise _InertScenarioError(
+                SCENARIO_INERT_HISTORICAL_IDENTITY,
                 "historical scenario lacks immutable stack/provider identity and is "
                 f"inert; recreate it explicitly: {name}"
             )
         if actual_keys != SCENARIO_KEYS:
             raise WorkspaceError(f"scenario fields are invalid: {name}")
         if metadata.get("schema_version") != SCENARIO_SCHEMA_VERSION:
-            raise WorkspaceError(
+            raise _InertScenarioError(
+                SCENARIO_INERT_HISTORICAL_IDENTITY,
                 "historical scenario lacks immutable repository/branch identity and "
                 f"is inert; recreate it explicitly: {name}"
             )
         resolved = metadata.get("resolved")
-        profile = self._load_profile(metadata.get("profile", ""), require_file=False)
+        try:
+            profile = self._load_profile(
+                metadata.get("profile", ""), require_file=False
+            )
+        except WorkspaceError as error:
+            raise _InertScenarioError(
+                SCENARIO_INERT_PROFILE_UNRESOLVABLE, str(error)
+            ) from error
         stack = self.manifest.stack(profile["stack"])
         required = self._dependency_roles(profile, {"server"})
         expected_providers = {
@@ -6013,7 +6054,8 @@ class Workspace:
         if (
             metadata.get("name") != name
             or not isinstance(metadata.get("profile"), str)
-            or metadata.get("preset") not in SCENARIO_PRESETS
+            or not isinstance(metadata.get("preset"), str)
+            or metadata["preset"] not in SCENARIO_PRESETS
             or metadata.get("state") != f"scenario-{name}"
             or not isinstance(metadata.get("account"), str)
             or not isinstance(metadata.get("character"), str)
@@ -6056,18 +6098,26 @@ class Workspace:
                     f"scenario component metadata is invalid: {name}/{component}"
                 )
             provider = stack.providers[component]
-            checkout_path = Path(record["checkout_path"]).resolve(strict=False)
-            expected_path = (
-                checkout_path
-                if provider.source == "."
-                else checkout_path.joinpath(*PurePosixPath(provider.source).parts)
-            ).resolve(strict=False)
+            try:
+                checkout_path = Path(record["checkout_path"]).resolve(strict=False)
+                expected_path = (
+                    checkout_path
+                    if provider.source == "."
+                    else checkout_path.joinpath(
+                        *PurePosixPath(provider.source).parts
+                    )
+                ).resolve(strict=False)
+                resolved_path = Path(record["path"]).resolve(strict=False)
+            except (OSError, RuntimeError, ValueError) as error:
+                raise WorkspaceError(
+                    f"scenario component metadata is invalid: {name}/{component}"
+                ) from error
             if (
                 record["checkout"] != provider.checkout_name
                 or record["repository"] != provider.repository
                 or record["branch"] != provider.branch
                 or record["source"] != provider.source
-                or Path(record["path"]).resolve(strict=False) != expected_path
+                or resolved_path != expected_path
             ):
                 raise WorkspaceError(
                     f"scenario component identity is invalid: {name}/{component}"
@@ -6076,8 +6126,21 @@ class Workspace:
         if state.is_symlink():
             raise WorkspaceError(f"scenario state is invalid: {name}")
         self._validate_state(state)
-        registered = self._load_states().get(metadata["state"])
-        if registered is None or Path(registered).resolve(strict=False) != state.resolve():
+        states = (
+            self._load_states() if registered_states is None else registered_states
+        )
+        registered = states.get(metadata["state"])
+        try:
+            registered_path = (
+                None
+                if registered is None
+                else Path(registered).resolve(strict=False)
+            )
+        except (OSError, RuntimeError, ValueError) as error:
+            raise WorkspaceError(
+                f"scenario state registration is invalid: {name}"
+            ) from error
+        if registered_path is None or registered_path != state.resolve():
             raise WorkspaceError(f"scenario state registration is invalid: {name}")
         os.close(self._open_scenario_password(root / "password"))
         return metadata
@@ -6220,10 +6283,33 @@ class Workspace:
 
     def scenario_list(self) -> list[dict[str, Any]]:
         self.paths.ensure()
+        registered_states = self._load_states()
         scenarios: list[dict[str, Any]] = []
         for path in sorted(self.paths.scenarios.iterdir()):
             if path.is_dir() and not path.name.startswith("."):
-                scenarios.append(self.scenario_show(path.name))
+                scenario_path = path
+                try:
+                    scenario_path = self._scenario_directory(path.name)
+                    metadata = self._load_scenario(path.name, registered_states)
+                    scenarios.append({**metadata, "path": str(scenario_path)})
+                except _InertScenarioError as error:
+                    scenarios.append(
+                        {
+                            "name": path.name,
+                            "path": str(scenario_path),
+                            "inert": True,
+                            "inert_reason": error.reason,
+                        }
+                    )
+                except WorkspaceError:
+                    scenarios.append(
+                        {
+                            "name": path.name,
+                            "path": str(scenario_path),
+                            "inert": True,
+                            "inert_reason": SCENARIO_INERT_INVALID_RECORD,
+                        }
+                    )
         return scenarios
 
     def scenario_credentials(self, name: str) -> dict[str, str]:
