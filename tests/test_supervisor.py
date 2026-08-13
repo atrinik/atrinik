@@ -191,6 +191,62 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 {call.args[0] for call in close.call_args_list}, {7, 8}
             )
 
+    def test_current_supervisor_releases_broad_leases_and_retains_runtime(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            runtime = {
+                "schema_version": 1,
+                "generation": "a" * 64,
+                "root": str(root / "runtime"),
+                "lease": {"device": 1, "inode": 2},
+            }
+            spec = {
+                "schema_version": 2,
+                "name": "cleanup",
+                "profile": "default",
+                "dependencies": ["client"],
+                "state": None,
+                "build_root": "/tmp/build",
+                "resolved": {},
+                "endpoint": None,
+                "runtime": runtime,
+                "services": {
+                    "client": {
+                        "command": ["client"],
+                        "cwd": str(root),
+                        "log": str(root / "client.log"),
+                    }
+                },
+            }
+            spec_path = root / "spec.json"
+            spec_path.write_text(json.dumps(spec), encoding="utf-8")
+            process = mock.MagicMock(pid=1234)
+
+            with (
+                mock.patch.object(
+                    supervisor_module,
+                    "process_start_time",
+                    side_effect=["1", None],
+                ),
+                mock.patch.object(
+                    supervisor_module.subprocess, "Popen", return_value=process
+                ),
+                mock.patch.object(supervisor_module, "terminate") as terminate,
+                mock.patch.object(supervisor_module.os, "close") as close,
+            ):
+                self.assertEqual(
+                    supervise(spec_path, None, 7, 8, None, None, 9), 1
+                )
+
+            terminate.assert_called_once()
+            self.assertEqual(
+                {call.args[0] for call in close.call_args_list}, {7, 8, 9}
+            )
+            status = json.loads(
+                (root / "status.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(status["runtime"], runtime)
+
     def test_terminate_cleans_group_after_service_leader_exits(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             descendant_path = Path(directory) / "descendant.pid"

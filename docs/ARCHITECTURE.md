@@ -251,11 +251,12 @@ which remain
 outermost relative to all operational locks; private helpers never reacquire
 either boundary. A direct build or foreground client then takes its build-root
 lock and subordinate cache locks; the foreground process retains that root
-lease only through publication; the long-lived process retains the immutable
-generation lease instead. Topology startup takes the topology-operation/process-tree lock, the
-automatic allocator when applicable, the per-port transaction and immutable
-generation lease, the server-state lock when needed, and finally the build-root
-lock. It releases the layout/build boundaries after atomic runtime publication
+lease only through publication, while the long-lived process retains the
+immutable generation lease instead. Topology startup takes the
+topology-operation/process-tree lock, the automatic allocator when applicable,
+the per-port transaction and immutable generation lease, the server-state lock
+when needed, and finally the build-root lock. It releases the layout/build
+boundaries after atomic runtime publication
 and transfers only the exact state, runtime, process-tree, and port leases into
 the supervisor/guardian rather than services.
 Independent CMake roots briefly serialize first-use compiler-cache marker and

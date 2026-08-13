@@ -997,9 +997,9 @@ into the manifest, while other served inputs remain sealed inside the runtime
 generation. The inherited identity lease atomically
 prevents the same topology name from restarting while any generation remains.
 Server services do not inherit allocator, transaction, or generation
-reservation descriptors;
-the supervisor and same-generation guardian retain the exact reservation and
-release it after orderly shutdown or exact process-tree recovery. `ps --json`
+reservation descriptors; the supervisor and same-generation guardian retain
+the exact reservation and release it after orderly shutdown or exact
+process-tree recovery. `ps --json`
 exposes its port, owner, generation, and retained/released observation without
 credentials. Reservation records are never reclaimed from recorded PIDs.
 Logs live below `workspace/topologies/`
