@@ -1511,7 +1511,7 @@ class Workspace:
     def _lease_root(self, request: LeaseRequest) -> Path:
         """Route physical and workspace-local coordinates to stable namespaces."""
 
-        if request.kind in {"git-admin", "source"}:
+        if request.kind in {"registry", "git-admin", "source"}:
             return self._lease_namespace
         return self.paths.workspace
 
@@ -2974,6 +2974,37 @@ class Workspace:
             str(self.paths.workspace.resolve()).encode()
         ).hexdigest()
         marker_reference = f"__backfill__:{state_identity}"
+        if self._physical_backfill_complete(state_identity, marker_reference):
+            return
+        registry_request = self._lease_request(
+            "registry",
+            f"physical-reference-backfill:{state_identity}",
+            "exclusive",
+            "backfill physical references",
+        )
+        with shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
+        ):
+            with self._resource_locks([registry_request]):
+                if self._physical_backfill_complete(
+                    state_identity, marker_reference
+                ):
+                    return
+                self._backfill_profile_references()
+                self._backfill_scenario_references()
+                self._atomic_physical_reference(
+                    f"{state_identity}.json",
+                    {
+                        "schema_version": 1,
+                        "kind": "profiles",
+                        "reference": marker_reference,
+                        "sources": [],
+                    },
+                )
+
+    def _physical_backfill_complete(
+        self, state_identity: str, marker_reference: str
+    ) -> bool:
         for marker in self._physical_reference_records(
             only=f"{state_identity}.json"
         ):
@@ -2987,22 +3018,9 @@ class Workspace:
                 and marker.get("reference") == marker_reference
                 and marker.get("sources") == []
             ):
-                return
+                return True
             raise WorkspaceError("physical reference backfill marker is invalid")
-        with shared_maintenance_lock(
-            self._lease_namespace / "repository-layout.lock"
-        ):
-            self._backfill_profile_references()
-            self._backfill_scenario_references()
-            self._atomic_physical_reference(
-                f"{state_identity}.json",
-                {
-                    "schema_version": 1,
-                    "kind": "profiles",
-                    "reference": marker_reference,
-                    "sources": [],
-                },
-            )
+        return False
 
     def _atomic_physical_reference(
         self, name: str, value: dict[str, Any]

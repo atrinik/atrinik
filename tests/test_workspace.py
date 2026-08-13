@@ -7440,6 +7440,57 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "backfill marker is invalid"):
             self.workspace._backfill_physical_references()
 
+    def test_concurrent_backfill_rechecks_marker_after_serialization(self) -> None:
+        registry = self.workspace._lease_namespace / "profile-references"
+        state_identity = hashlib.sha256(
+            str(self.workspace.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        (registry / f"{state_identity}.json").unlink()
+        first = Workspace(self.wrapper, backfill_references=False)
+        second = Workspace(self.wrapper, backfill_references=False)
+        entered = threading.Event()
+        release = threading.Event()
+        second_started_work = threading.Event()
+        first_backfill = first._backfill_scenario_references
+
+        def pause_first_backfill() -> None:
+            entered.set()
+            self.assertTrue(release.wait(5))
+            first_backfill()
+
+        def observe_second_work() -> None:
+            second_started_work.set()
+
+        try:
+            with (
+                mock.patch.object(
+                    first,
+                    "_backfill_scenario_references",
+                    side_effect=pause_first_backfill,
+                ),
+                mock.patch.object(
+                    second,
+                    "_backfill_profile_references",
+                    side_effect=observe_second_work,
+                ),
+                ThreadPoolExecutor(max_workers=2) as executor,
+            ):
+                first_result = executor.submit(first._backfill_physical_references)
+                self.assertTrue(entered.wait(5))
+                second_result = executor.submit(second._backfill_physical_references)
+                time.sleep(0.05)
+                self.assertFalse(second_result.done())
+                self.assertFalse(second_started_work.is_set())
+                release.set()
+                first_result.result(timeout=5)
+                second_result.result(timeout=5)
+            self.assertFalse(second_started_work.is_set())
+            self.assertTrue((registry / f"{state_identity}.json").is_file())
+        finally:
+            release.set()
+            first.close()
+            second.close()
+
     def test_profile_json_rejects_duplicate_keys_without_following_links(self) -> None:
         path = self.workspace.paths.profiles / "duplicate.json"
         path.write_text(

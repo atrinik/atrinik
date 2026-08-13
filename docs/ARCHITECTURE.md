@@ -225,7 +225,9 @@ backfill and removal also share an owner-independent exact-path coordinate.
 Backfill processes one path at a time and durably accumulates its conservative
 record, so descriptor use stays bounded and interruption can only leave a safe
 partial record plus an absent marker. Current-owner cleanup therefore cannot
-race publication under a stale name.
+race publication under a stale name. An exclusive per-state-root registry lease
+serializes first-use backfills, and every waiter rechecks the completion marker
+before publishing, so a lagging constructor cannot regress a completed record.
 
 The common-Git `repository-layout.lock` is only the maintenance barrier for
 schema/layout migration apply or restore. Ordinary operations share it while
