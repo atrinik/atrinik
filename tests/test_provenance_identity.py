@@ -301,6 +301,22 @@ class ProvenanceIdentityTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "duplicate record identifier"):
             validate_registry(value, schema(), reviewers(), as_of=AS_OF)
 
+    def test_registry_container_contract_fails_closed(self) -> None:
+        mutations = (
+            lambda value: value.update(schema="unexpected.json"),
+            lambda value: value.update(reviewers="unexpected.json"),
+            lambda value: value.update(records=None),
+            lambda value: value.update(records=[None]),
+            lambda value: value["records"][0].update(record_type="unknown"),
+            lambda value: value.update(records=list(reversed(value["records"]))),
+        )
+        for index, mutate in enumerate(mutations):
+            with self.subTest(mutation=index):
+                value = registry()
+                mutate(value)
+                with self.assertRaises(WorkspaceError):
+                    validate_registry(value, schema(), reviewers(), as_of=AS_OF)
+
     def test_duplicate_restricted_integrity_fails_closed(self) -> None:
         value = registry()
         value["records"][1]["restricted_evidence"]["integrity"] = value["records"][0][
