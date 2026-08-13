@@ -90,6 +90,27 @@ class McpContractTests(unittest.TestCase):
         self.assertFalse(replacement["expected"]["fallback_to_classic"])
         self.assertEqual(len(replacement["expected"]["coordinates"]), 3)
 
+    def test_coordinate_and_fixture_parsing_fail_closed(self) -> None:
+        valid = self.coordinate.json()
+        invalid = [
+            ({key: value for key, value in valid.items() if key != "repository"}, "incomplete"),
+            ({**valid, "repository": "not-a-repository"}, "repository"),
+            ({**valid, "repository": 7}, "must be a string"),
+            ({**valid, "commit": "a" * 39}, "full commit"),
+            ({**valid, "branch": "bad\nbranch"}, "branch identity"),
+            ({**valid, "dirty_fingerprint": "b" * 63}, "dirty fingerprint"),
+        ]
+        for raw, message in invalid:
+            with self.subTest(raw=raw, message=message):
+                with self.assertRaisesRegex(ContractError, message):
+                    Coordinate.from_mapping(raw)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            duplicate = Path(temporary) / "duplicate.json"
+            duplicate.write_text('{"key": 1, "key": 2}', encoding="utf-8")
+            with self.assertRaisesRegex(ContractError, "INVALID_FIXTURE"):
+                load_json(duplicate)
+
     def test_content_fixture_binds_classic_artifact_to_same_main_commit(self) -> None:
         content = next(
             case for case in self.workloads["cases"] if case["domain"] == "content"
@@ -576,6 +597,37 @@ class McpContractTests(unittest.TestCase):
         ), redirect_stderr(stderr):
             self.assertEqual(main(["validate"]), 1)
         self.assertIn("INVALID_FIXTURE", stderr.getvalue())
+
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "nested" / "benchmark.json"
+            stdout = io.StringIO()
+            with mock.patch.object(
+                mcp_contract, "benchmark", return_value={"result": "ok"}
+            ), redirect_stdout(stdout):
+                self.assertEqual(
+                    main(
+                        [
+                            "benchmark",
+                            "--iterations",
+                            "2",
+                            "--output",
+                            str(output),
+                        ]
+                    ),
+                    0,
+                )
+            self.assertEqual(json.loads(output.read_text()), {"result": "ok"})
+            self.assertEqual(json.loads(stdout.getvalue()), {"result": "ok"})
+
+    def test_command_measurement_reports_process_failure_without_output(self) -> None:
+        with mock.patch.object(mcp_contract.subprocess, "run", side_effect=OSError):
+            result = mcp_contract._measure_command(
+                "missing", ["missing"], cwd=ROOT, network=False, repetitions=2
+            )
+        self.assertEqual(result["return_code"], 124)
+        self.assertEqual(result["returned_bytes_max"], 0)
+        self.assertEqual(result["calls"], 2)
+        self.assertEqual(mcp_contract._percentile([], 0.5), 0)
 
 
 if __name__ == "__main__":
