@@ -7726,9 +7726,10 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(nesting_path.read_bytes(), nesting_before)
         self.assertEqual(profile_path.read_bytes(), profile_before)
 
-    def test_scenario_list_isolates_unhashable_profile_fields(self) -> None:
+    def test_scenario_list_isolates_invalid_profile_fields(self) -> None:
         resolved = self.scenario_resolved_fixture()
         self.workspace.create_profile("invalid-path")
+        self.workspace.create_profile("relative-path")
         self.workspace.create_profile("invalid-sound-mode")
         self.workspace.create_profile("invalid-selector-kind")
         with mock.patch.object(
@@ -7736,6 +7737,7 @@ class WorkspaceTests(unittest.TestCase):
         ):
             self.workspace.scenario_create("current", "default")
             self.workspace.scenario_create("invalid-path", "invalid-path")
+            self.workspace.scenario_create("relative-path", "relative-path")
             self.workspace.scenario_create(
                 "invalid-sound-mode", "invalid-sound-mode"
             )
@@ -7760,6 +7762,13 @@ class WorkspaceTests(unittest.TestCase):
             "value": "/tmp/\0invalid",
         }
         atomic_json(path_profile_path, path_profile)
+        relative_path = self.workspace.paths.profiles / "relative-path.json"
+        relative_profile = load_json(relative_path)
+        relative_profile["components"]["content"] = {
+            "kind": "path",
+            "value": "relative/content",
+        }
+        atomic_json(relative_path, relative_profile)
         path_profile_before = path_profile_path.read_bytes()
 
         summaries = self.workspace.scenario_list()
@@ -7771,12 +7780,14 @@ class WorkspaceTests(unittest.TestCase):
                 "invalid-path",
                 "invalid-selector-kind",
                 "invalid-sound-mode",
+                "relative-path",
             ],
         )
         self.assertEqual(summaries[0]["profile"], "default")
         self.assertEqual(summaries[1]["inert_reason"], "profile_unresolvable")
         self.assertEqual(summaries[2]["inert_reason"], "profile_unresolvable")
         self.assertEqual(summaries[3]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(summaries[4]["inert_reason"], "profile_unresolvable")
         self.assertEqual(path_profile_path.read_bytes(), path_profile_before)
         with self.assertRaisesRegex(WorkspaceError, "invalid profile selector"):
             self.workspace.scenario_show("invalid-path")
@@ -7805,6 +7816,7 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace.scenario_create("current", "default")
             self.workspace.scenario_create("invalid-component-path", "default")
             self.workspace.scenario_create("invalid-state-path", "default")
+            self.workspace.scenario_create("unregistered-state", "default")
 
         metadata_path = (
             self.workspace.paths.scenarios
@@ -7816,6 +7828,7 @@ class WorkspaceTests(unittest.TestCase):
         atomic_json(metadata_path, metadata)
         states = load_json(self.workspace.paths.states_file)
         states["states"]["scenario-invalid-state-path"] = "/tmp/\0invalid"
+        states["states"].pop("scenario-unregistered-state")
         atomic_json(self.workspace.paths.states_file, states)
         metadata_before = metadata_path.read_bytes()
         states_before = self.workspace.paths.states_file.read_bytes()
@@ -7824,11 +7837,17 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(
             [summary["name"] for summary in summaries],
-            ["current", "invalid-component-path", "invalid-state-path"],
+            [
+                "current",
+                "invalid-component-path",
+                "invalid-state-path",
+                "unregistered-state",
+            ],
         )
         self.assertEqual(summaries[0]["profile"], "default")
         self.assertEqual(summaries[1]["inert_reason"], "invalid_record")
         self.assertEqual(summaries[2]["inert_reason"], "invalid_record")
+        self.assertEqual(summaries[3]["inert_reason"], "invalid_record")
         self.assertEqual(metadata_path.read_bytes(), metadata_before)
         self.assertEqual(self.workspace.paths.states_file.read_bytes(), states_before)
         with self.assertRaisesRegex(
