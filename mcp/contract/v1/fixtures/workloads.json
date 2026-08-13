@@ -1,0 +1,258 @@
+{
+  "cases": [
+    {
+      "domain": "classic",
+      "expected": {
+        "coordinates": [
+          {
+            "branch": "main",
+            "commit": "ca71ad3f6b374ed8d7f82f7ec75f7f17beaf0438",
+            "dirty_fingerprint": null,
+            "repository": "atrinik/classic",
+            "worktree": "primary"
+          }
+        ],
+        "guidance": [
+          "AGENTS.md",
+          "classic/AGENTS.md",
+          "classic/libatrinik/AGENTS.md"
+        ],
+        "logical_component": "classic-libatrinik",
+        "physical_checkout": "classic",
+        "source_paths": [
+          "classic/libatrinik/packet.c",
+          "classic/libatrinik/packet.h"
+        ],
+        "tests": [
+          "classic/server/src/tests/unit/toolkit/packet.c"
+        ],
+        "validation": [
+          "./atrinik build all --profile classic --test",
+          "git diff --check"
+        ]
+      },
+      "id": "classic-packet-owner",
+      "request": {
+        "operation": "inspect",
+        "query": "resolve Packet ownership, tests, and validation",
+        "selector": "classic-libatrinik"
+      }
+    },
+    {
+      "domain": "replacement",
+      "expected": {
+        "coordinates": [
+          {
+            "branch": "main",
+            "commit": "c8242676d1b90deeca7c215cf26aba4102b784a5",
+            "dirty_fingerprint": null,
+            "repository": "atrinik/protocol",
+            "worktree": "primary"
+          },
+          {
+            "branch": "main",
+            "commit": "9377804a93dc27cfa95f4c71b6e7d5fc36a550c9",
+            "dirty_fingerprint": null,
+            "repository": "atrinik/server",
+            "worktree": "primary"
+          },
+          {
+            "branch": "main",
+            "commit": "ef234a1f70ed8a89207d0b3a6553af82355cff57",
+            "dirty_fingerprint": null,
+            "repository": "atrinik/client",
+            "worktree": "primary"
+          }
+        ],
+        "consumer_paths": [
+          "protocol/proto/atrinik/metaserver/v1/directory.proto",
+          "protocol/gen/go/atrinik/metaserver/v1/directory.pb.go",
+          "server/internal/publisher/client.go",
+          "client/crates/atrinik-protocol-adapter/src/directory.rs"
+        ],
+        "fallback_to_classic": false,
+        "owners": [
+          "atrinik/protocol",
+          "atrinik/server",
+          "atrinik/client"
+        ],
+        "validation": [
+          "protocol/tools/validate.sh",
+          "server/tools/validate.sh",
+          "client/tools/validate.sh"
+        ]
+      },
+      "id": "replacement-directory-contract",
+      "request": {
+        "operation": "search",
+        "query": "trace DirectorySnapshot across Protobuf, Go, and Rust",
+        "selector": "protocol"
+      }
+    },
+    {
+      "domain": "website",
+      "expected": {
+        "coordinates": [
+          {
+            "branch": "main",
+            "commit": "7d8a960e959214da3f5d055eff75d693f2d263f8",
+            "dirty_fingerprint": null,
+            "repository": "atrinik/website",
+            "worktree": "primary"
+          }
+        ],
+        "data_assets": [
+          "website/src/data/downloads.json",
+          "website/src/data/media.json",
+          "website/src/styles/global.css"
+        ],
+        "page": "website/src/pages/downloads.astro",
+        "preview_boundary": "repository-owned Astro build; no wrapper runtime adapter",
+        "validation": [
+          "npm ci",
+          "npm run check",
+          "npm run build",
+          "git diff --check"
+        ]
+      },
+      "id": "website-download-page",
+      "request": {
+        "operation": "inspect",
+        "query": "resolve the downloads Astro page and owned validation",
+        "selector": "website"
+      }
+    },
+    {
+      "domain": "content",
+      "expected": {
+        "classic_artifact": {
+          "format": "classic-ads-v1",
+          "source_branch": "main",
+          "source_commit": "65a88167d3a2bedcc2dc21508d94d7ca009a76d2",
+          "source_repository": "atrinik/content",
+          "target": "classic"
+        },
+        "coordinates": [
+          {
+            "branch": "main",
+            "commit": "65a88167d3a2bedcc2dc21508d94d7ca009a76d2",
+            "dirty_fingerprint": null,
+            "repository": "atrinik/content",
+            "worktree": "primary"
+          }
+        ],
+        "relations": {
+          "archetype": "content/arch/connect/switch_wall/switch_wall.arc",
+          "asset": "content/arch/connect/switch_wall/switch_wall.111.png",
+          "dialogue": "content/maps/interfaces/quests/clearhaven_mine/quest.xml",
+          "lore": "content/maps/books.art",
+          "map": "content/maps/shattered_islands/eld_woods_island/clearhaven/mine/mine_unique",
+          "provenance": "content/provenance/m1/materials.json",
+          "quest": "content/maps/interfaces/quests/clearhaven_mine/quest.xml"
+        },
+        "source_policy": "content@main only",
+        "validation": [
+          "python3 content/tools/validate.py",
+          "python3 content/tools/build_runtime.py --target classic"
+        ]
+      },
+      "id": "content-clearhaven-reference-graph",
+      "request": {
+        "operation": "inspect",
+        "query": "resolve map, archetype, quest, dialogue, lore, asset, and provenance",
+        "selector": "content"
+      }
+    },
+    {
+      "domain": "github",
+      "expected": {
+        "coordinates": [
+          {
+            "branch": "main",
+            "commit": "f0d1225791da7484e9456b39104cc30b0c77fe52",
+            "dirty_fingerprint": null,
+            "repository": "atrinik/atrinik",
+            "worktree": "primary"
+          }
+        ],
+        "issue": "atrinik/atrinik#350",
+        "mutation_count": 0,
+        "parent": "atrinik/atrinik#349",
+        "project": "Atrinik work",
+        "related_pull_requests": [],
+        "required_views": [
+          "parent/sub-issues",
+          "Project status",
+          "related PRs",
+          "reviews",
+          "checks"
+        ],
+        "status_at_fixture_capture": "In progress",
+        "subsequent_blocked_issues": [
+          "atrinik/atrinik#351",
+          "atrinik/atrinik#352",
+          "atrinik/atrinik#353",
+          "atrinik/atrinik#354",
+          "atrinik/atrinik#355",
+          "atrinik/content-toolkit#20"
+        ]
+      },
+      "id": "github-planning-read",
+      "request": {
+        "operation": "inspect",
+        "query": "read hierarchy, planning, PR, review, and check state without mutation",
+        "selector": "atrinik/atrinik#350"
+      }
+    },
+    {
+      "domain": "runtime",
+      "expected": {
+        "bounded_view": {
+          "profile": "issue-350-fixture",
+          "scenario": "issue-350-basic-player",
+          "services": [
+            "server",
+            "client"
+          ],
+          "state": "issue-350-fixture",
+          "topology": "issue-350-observe"
+        },
+        "coordinates": [
+          {
+            "branch": "main",
+            "commit": "f0d1225791da7484e9456b39104cc30b0c77fe52",
+            "dirty_fingerprint": null,
+            "repository": "atrinik/atrinik",
+            "worktree": "primary"
+          }
+        ],
+        "credentials_in_result": false,
+        "mutation_count": 0,
+        "supported_contracts": [
+          "./atrinik profile show issue-350-fixture --json",
+          "./atrinik topology show issue-350-fixture --state issue-350-fixture --json",
+          "./atrinik ps issue-350-observe --json",
+          "./atrinik logs issue-350-observe server --tail 100"
+        ]
+      },
+      "id": "runtime-bounded-observation",
+      "request": {
+        "operation": "inspect",
+        "query": "resolve exact registered runtime identities and bounded view",
+        "selector": "issue-350-observe"
+      }
+    }
+  ],
+  "fixture_heads_verified_at": "2026-08-13T08:00:00Z",
+  "schema_version": "atrinik.mcp.workloads/v1",
+  "synthetic_worktree_records": 300,
+  "variants": [
+    "head-movement",
+    "dirty-edit",
+    "worktree-change",
+    "manifest-change",
+    "authorization-change",
+    "malformed-history",
+    "offline-failure"
+  ]
+}

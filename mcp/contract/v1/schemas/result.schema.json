@@ -1,0 +1,234 @@
+{
+  "$defs": {
+    "coordinate": {
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": "string"
+        },
+        "dirty_fingerprint": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repository": {
+          "pattern": "^[a-z0-9][a-z0-9_.-]*/[a-z0-9][a-z0-9_.-]*$",
+          "type": "string"
+        },
+        "worktree": {
+          "description": "Stable configured worktree identity, not a host path.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "repository",
+        "branch",
+        "commit",
+        "worktree",
+        "dirty_fingerprint"
+      ],
+      "type": "object"
+    },
+    "failure": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "CANCELLED",
+            "CONTEXT_BUDGET_EXCEEDED",
+            "FORBIDDEN",
+            "INCOMPLETE",
+            "INTERNAL",
+            "INVALID_ARGUMENT",
+            "INVALID_FIXTURE",
+            "LIMIT_EXCEEDED",
+            "NOT_FOUND",
+            "OFFLINE",
+            "STALE_COORDINATE",
+            "STALE_CURSOR",
+            "TIMEOUT",
+            "UNAUTHORIZED",
+            "UNSUPPORTED_OPERATION"
+          ]
+        },
+        "message": {
+          "maxLength": 256,
+          "type": "string"
+        },
+        "record_id": {
+          "maxLength": 256,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable"
+      ],
+      "type": "object"
+    },
+    "resource": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes": {
+          "maximum": 262144,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "identity": {
+          "maxLength": 512,
+          "type": "string"
+        },
+        "mime_type": {
+          "maxLength": 128,
+          "type": "string"
+        },
+        "uri": {
+          "pattern": "^atrinik://[a-z0-9_.-]+/[a-z0-9_.-]+/[0-9a-f]{40}/",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri",
+        "identity",
+        "mime_type",
+        "bytes"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://atrinik.org/schemas/mcp/result-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "coordinate": {
+      "$ref": "#/$defs/coordinate"
+    },
+    "failures": {
+      "items": {
+        "$ref": "#/$defs/failure"
+      },
+      "maxItems": 100,
+      "type": "array"
+    },
+    "freshness": {
+      "additionalProperties": false,
+      "properties": {
+        "observed_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "clean",
+            "dirty",
+            "incomplete",
+            "stale"
+          ]
+        }
+      },
+      "required": [
+        "state",
+        "observed_at"
+      ],
+      "type": "object"
+    },
+    "incomplete": {
+      "type": "boolean"
+    },
+    "items": {
+      "maxItems": 100,
+      "type": "array"
+    },
+    "pagination": {
+      "additionalProperties": false,
+      "properties": {
+        "limit": {
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "next_cursor": {
+          "maxLength": 2048,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "returned_records": {
+          "maximum": 50,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "snapshot": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "limit",
+        "returned_records",
+        "next_cursor",
+        "snapshot"
+      ],
+      "type": "object"
+    },
+    "resources": {
+      "items": {
+        "$ref": "#/$defs/resource"
+      },
+      "maxItems": 16,
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "atrinik.mcp.result/v1"
+    },
+    "truncation": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes": {
+          "type": "boolean"
+        },
+        "graph": {
+          "type": "boolean"
+        },
+        "records": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "bytes",
+        "graph",
+        "records"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "coordinate",
+    "freshness",
+    "items",
+    "pagination",
+    "truncation",
+    "incomplete",
+    "failures",
+    "resources"
+  ],
+  "title": "Atrinik MCP bounded result v1",
+  "type": "object"
+}
