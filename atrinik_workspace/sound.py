@@ -362,7 +362,7 @@ def verify_playtest_tree(
     if not isinstance(assets, list):
         raise WorkspaceError("local-playtest manifest assets must be an array")
     actual_by_path: dict[str, dict[str, Any]] = {}
-    tree_digest = hashlib.sha256()
+    tree_entries: list[tuple[str, str]] = []
     copied = 0
     converted = 0
     for value in assets:
@@ -441,7 +441,7 @@ def verify_playtest_tree(
         _validate_payload_codec(logical_path, expected_codec, payload_prefix)
         copied += expected_mapping == "copy"
         converted += expected_mapping == "render-opus"
-        tree_digest.update(f"{payload_hash}  {logical_path}\n".encode("ascii"))
+        tree_entries.append((logical_path, payload_hash))
 
     if set(actual_by_path) != set(expected_by_path):
         missing = sorted(set(expected_by_path) - set(actual_by_path))
@@ -465,6 +465,9 @@ def verify_playtest_tree(
     }
     if _tree_files(root) != allowed:
         raise WorkspaceError("local-playtest tree has missing or unexpected files")
+    tree_digest = hashlib.sha256()
+    for logical_path, payload_hash in sorted(tree_entries):
+        tree_digest.update(f"{payload_hash}  {logical_path}\n".encode("ascii"))
     digest = tree_digest.hexdigest()
     if manifest.get("output_tree_sha256") != digest:
         raise WorkspaceError("local-playtest output-tree digest mismatch")
