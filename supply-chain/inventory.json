@@ -940,7 +940,7 @@
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade the action and supported Python matrix together",
-      "validation": "Actionlint plus Python generation, content, and workspace tests",
+      "validation": "Actionlint plus Python generation, content, Playtester, and workspace tests",
       "disposition": "retain",
       "packages": [],
       "evidence": [
@@ -2527,7 +2527,7 @@
       "acquisition": "Classic server and playtester dependency tools download, checksum, safely extract, and atomically publish the release archive",
       "update_cadence_days": 30,
       "update_mechanism": "Daily fail-closed GitHub App proposal plus reviewed Classic and playtester compatibility updates",
-      "eol_response": "Update the lock to a supported content release or stop packaging the classic server",
+      "eol_response": "Update both locks to a supported content release or stop Classic packaging and Playtester operation",
       "validation": "Lock validation, checksum, safe extraction, collection, Classic runtime tests, and playtester atomic/offline cache regressions",
       "disposition": "isolate",
       "packages": [],
