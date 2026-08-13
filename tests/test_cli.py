@@ -10,6 +10,10 @@ from atrinik_workspace.model import WorkspaceError
 
 
 class ParserTests(unittest.TestCase):
+    def test_cleanup_accepts_the_explicit_topologies_scope(self) -> None:
+        options = parser().parse_args(["cleanup", "--scope", "topologies"])
+        self.assertEqual(options.scope, ["topologies"])
+
     def test_human_bytes_uses_compact_iec_units_and_promotes_rounding(self) -> None:
         self.assertEqual(
             [_human_bytes(value) for value in (0, 1023, 1024, 1536)],
@@ -172,6 +176,60 @@ class ParserTests(unittest.TestCase):
             "summary\tcandidates=1 candidate_bytes=4KiB protected=0 "
             "protected_bytes=0B removed=0 removed_bytes=0B errors=0",
             lines,
+        )
+
+    def test_cleanup_text_report_includes_topology_observation_and_paths(self) -> None:
+        report = {
+            "items": [
+                {
+                    "disposition": "eligible",
+                    "kind": "topology",
+                    "allocated_bytes": 512,
+                    "age_seconds": 8 * 86400,
+                    "path": "/workspace/topologies/old",
+                    "reasons": ["inactive_topology"],
+                    "name": "old",
+                    "liveness": "exited",
+                    "control_observation": "legacy",
+                    "generation": None,
+                    "process_tree_lease": "released",
+                    "runtime_bundle_lease": "historical",
+                    "port_reservation_lease": "released",
+                    "repository_layout_lease": "released",
+                    "age_basis": "stopped-at",
+                    "age_observed_at": "2026-08-01T00:00:00+00:00",
+                    "deletion_paths": [
+                        "/workspace/topologies/old",
+                        "/workspace/topologies/old/status.json",
+                    ],
+                }
+            ],
+            "summary": {
+                "candidate_count": 1,
+                "candidate_bytes": 512,
+                "protected_count": 0,
+                "protected_bytes": 0,
+                "removed_count": 0,
+                "removed_bytes": 0,
+                "error_count": 0,
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.cleanup.return_value = report
+            with mock.patch("builtins.print") as output:
+                result = main(["cleanup", "--scope", "topologies"])
+
+        lines = [call.args[0] for call in output.call_args_list]
+        self.assertEqual(result, 0)
+        self.assertIn(
+            "topology-observation\told\tliveness=exited\tcontrol=legacy\t"
+            "generation=-\tprocess-tree=released\truntime-bundle=historical\t"
+            "port-reservation=released\trepository-layout=released\t"
+            "age-basis=stopped-at\tage-observed-at=2026-08-01T00:00:00+00:00",
+            lines,
+        )
+        self.assertIn(
+            "delete\told\t/workspace/topologies/old/status.json", lines
         )
 
     def test_cleanup_text_report_uses_concise_iec_byte_units(self) -> None:
