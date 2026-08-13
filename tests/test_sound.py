@@ -1290,6 +1290,9 @@ class ReleasedSoundTests(unittest.TestCase):
             {"type": "bogus"},
             {"required": "invalid"},
             {"maxItems": -1},
+            {"additionalProperties": "invalid"},
+            {"pattern": "["},
+            {"items": "invalid"},
         )):
             with self.subTest(invalid=invalid):
                 schema_path = self.tree / RELEASE_SCHEMA

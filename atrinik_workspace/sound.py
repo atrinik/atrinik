@@ -889,6 +889,99 @@ class _ReleaseSchemaMismatch(WorkspaceError):
     """The instance does not match an otherwise structurally valid schema."""
 
 
+def _validate_release_schema_structure(
+    schema: object, *, budget: list[int] | None = None, depth: int = 0
+) -> None:
+    """Validate every schema node independently of instance applicability."""
+
+    if budget is None:
+        budget = [100_000]
+    budget[0] -= 1
+    if budget[0] < 0 or depth > 128:
+        raise WorkspaceError("released sound packaged schema exceeds evaluation limits")
+    if isinstance(schema, bool):
+        return
+    if not isinstance(schema, dict):
+        raise WorkspaceError("released sound packaged schema node is invalid")
+    supported = {
+        "$defs", "$id", "$ref", "$schema", "additionalProperties", "allOf",
+        "anyOf", "const", "default", "description", "enum", "examples", "format",
+        "items", "maxItems", "maxLength", "maxProperties", "maximum", "minItems",
+        "minLength", "minProperties", "minimum", "oneOf", "pattern", "properties",
+        "required", "title", "type", "uniqueItems",
+    }
+    if set(schema) - supported:
+        raise WorkspaceError("released sound packaged schema uses unsupported keywords")
+    for keyword in (
+        "maxItems", "maxLength", "maxProperties", "minItems", "minLength",
+        "minProperties",
+    ):
+        value = schema.get(keyword)
+        if value is not None and (
+            not isinstance(value, int) or isinstance(value, bool) or value < 0
+        ):
+            raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
+    for keyword in ("maximum", "minimum"):
+        value = schema.get(keyword)
+        if value is not None and (
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not math.isfinite(value)
+        ):
+            raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
+    if "enum" in schema and (
+        not isinstance(schema["enum"], list) or not schema["enum"]
+    ):
+        raise WorkspaceError("released sound packaged schema enum is invalid")
+    required = schema.get("required")
+    if required is not None and (
+        not isinstance(required, list)
+        or any(not isinstance(name, str) for name in required)
+    ):
+        raise WorkspaceError("released sound packaged schema required is invalid")
+    type_name = schema.get("type")
+    allowed_types = {
+        "object", "array", "string", "integer", "number", "boolean", "null"
+    }
+    if type_name is not None:
+        values = [type_name] if isinstance(type_name, str) else type_name
+        if (
+            not isinstance(values, list)
+            or not values
+            or any(value not in allowed_types for value in values)
+        ):
+            raise WorkspaceError("released sound packaged schema type is invalid")
+    if "uniqueItems" in schema and not isinstance(schema["uniqueItems"], bool):
+        raise WorkspaceError("released sound packaged schema uniqueItems is invalid")
+    pattern = schema.get("pattern")
+    if pattern is not None:
+        if not isinstance(pattern, str):
+            raise WorkspaceError("released sound packaged schema pattern is invalid")
+        try:
+            re.compile(pattern)
+        except re.error as error:
+            raise WorkspaceError("released sound packaged schema pattern is invalid") from error
+    properties = schema.get("properties", {})
+    definitions = schema.get("$defs", {})
+    if not isinstance(properties, dict) or not isinstance(definitions, dict):
+        raise WorkspaceError("released sound packaged schema properties are invalid")
+    for child in [*properties.values(), *definitions.values()]:
+        _validate_release_schema_structure(child, budget=budget, depth=depth + 1)
+    for keyword in ("items", "additionalProperties"):
+        if keyword in schema:
+            _validate_release_schema_structure(
+                schema[keyword], budget=budget, depth=depth + 1
+            )
+    for keyword in ("allOf", "anyOf", "oneOf"):
+        branches = schema.get(keyword)
+        if branches is None:
+            continue
+        if not isinstance(branches, list) or not branches:
+            raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
+        for branch in branches:
+            _validate_release_schema_structure(branch, budget=budget, depth=depth + 1)
+
+
 def _validate_release_schema_instance(
     instance: object,
     schema: object,
@@ -1261,6 +1354,7 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
         raise WorkspaceError("released sound packaged schema is invalid JSON") from error
     if not isinstance(schema, dict):
         raise WorkspaceError("released sound packaged schema contract is invalid")
+    _validate_release_schema_structure(schema)
     required = schema.get("required")
     properties = schema.get("properties")
     if (
