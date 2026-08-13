@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import subprocess
 from typing import Any
@@ -77,7 +77,7 @@ def load_document(path: Path) -> dict[str, Any]:
 
 
 def canonical_bytes(value: object) -> bytes:
-    """Serialize the deliberately integer-free public contract deterministically."""
+    """Serialize the deliberately floating-point-free contract deterministically."""
 
     return json.dumps(
         value,
@@ -133,6 +133,19 @@ def _string_array(value: object, context: str) -> list[str]:
     if result != sorted(set(result)):
         raise WorkspaceError(f"{context}: must be sorted and unique")
     return result
+
+
+def _repository_path(value: object, context: str) -> str:
+    text = _text(value, context)
+    path = PurePosixPath(text)
+    if (
+        text.startswith("/")
+        or "\\" in text
+        or path.as_posix() != text
+        or any(part in {"", ".", ".."} for part in path.parts)
+    ):
+        raise WorkspaceError(f"{context}: must be a safe repository-relative path")
+    return text
 
 
 def _validate_schema(schema: dict[str, Any]) -> None:
@@ -245,6 +258,8 @@ def _validate_confidential_record(record: dict[str, Any], context: str, as_of: d
     if fields != sorted(record):
         raise WorkspaceError(f"{context}.publication_review: must cover every public field")
     _validate_common_record(record, context, as_of)
+    if set(record["claims"]) != KNOWN_CLAIMS:
+        raise WorkspaceError(f"{context}.claims: confidential review must prove all claims")
 
 
 def _validate_public_alias_record(record: dict[str, Any], context: str, as_of: date) -> None:
@@ -279,7 +294,12 @@ def _validate_public_alias_record(record: dict[str, Any], context: str, as_of: d
         {"authorized_on", "fields", "restricted_record_id"},
         f"{context}.publication_authorization",
     )
-    _iso_date(authorization["authorized_on"], f"{context}.publication_authorization.authorized_on")
+    authorized = _iso_date(
+        authorization["authorized_on"],
+        f"{context}.publication_authorization.authorized_on",
+    )
+    if authorized > _iso_date(record["reviewed_on"], f"{context}.reviewed_on"):
+        raise WorkspaceError(f"{context}.publication_authorization: cannot postdate review")
     if _string_array(authorization["fields"], f"{context}.publication_authorization.fields") != [
         "aliases",
         "display_name",
@@ -391,10 +411,19 @@ def validate_component_reference(
         _exact_keys(coordinate, required, f"component provenance record {key}")
         if not re.fullmatch(r"atrinik/[a-z0-9][a-z0-9._-]*", str(coordinate["repository"])):
             raise WorkspaceError(f"component provenance record {key}.repository is invalid")
-        _text(coordinate["path"], f"component provenance record {key}.path")
-        if key == "source" and not _text(coordinate["revision"], "source.revision"):
-            raise AssertionError("unreachable")
+        _repository_path(coordinate["path"], f"component provenance record {key}.path")
+        if key == "source":
+            source_revision = _text(coordinate["revision"], "source.revision")
+            if not re.fullmatch(
+                r"[0-9a-f]{40}(?:\.\.[0-9a-f]{40})?", source_revision
+            ):
+                raise WorkspaceError(
+                    "component provenance source.revision must be a full Git SHA or exact SHA range"
+                )
     _text(reference["transformation"], "component provenance record transformation")
+    binding = reference["scope_binding"]
+    if not isinstance(binding, str) or not SCOPE_BINDING_PATTERN.fullmatch(binding):
+        raise WorkspaceError("component provenance scope_binding is invalid")
     evidence = reference["evidence_reference"]
     if not isinstance(evidence, dict):
         raise WorkspaceError("component provenance evidence_reference must be an object")

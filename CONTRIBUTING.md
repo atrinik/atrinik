@@ -114,6 +114,7 @@ python3 -m coverage report --show-missing
 python3 -m compileall -q atrinik atrinik_workspace tests
 python3 -m atrinik_workspace.guidance_inventory --check
 ./atrinik manifest validate
+./atrinik provenance validate
 ./atrinik supply-chain validate
 git diff --check
 ~~~

@@ -21,6 +21,40 @@ material receives additional MIT permission in the recorded destination; no
 surrounding file, dependency, asset, subtree, binary, or repository is
 relicensed.
 
+## Identity evidence gates
+
+Historical identity reconciliation may use the privacy-preserving attestation
+path in [`PROVENANCE_IDENTITIES.md`](PROVENANCE_IDENTITIES.md), but an
+attestation does not replace the material and rights review below. Accept it
+only when all of these gates pass:
+
+1. The restricted store, custodian/reviewer separation, access ledger, key
+   custody, retention, correction, and incident controls are operational. If
+   they are not, confidential reconciliation fails closed.
+2. The public record is active, fresh, schema/policy-version compatible,
+   canonical-digest valid, and reviewed by an authorized reviewer for identity,
+   sole authorship, temporal scope, and rights grant. A public alias also has
+   explicit restricted authorization for every published identity field.
+3. A complete public-record and diff review finds no subject identifier and no
+   practical re-identification path through identifiers, dates, reviewers,
+   grant names, source scopes, hashes, ordering, or correlated metadata.
+4. The destination record contains the exact source, destination,
+   transformation, and matching opaque scope binding, plus a full-commit GitHub
+   permalink and exact registry/schema digests. The pinned coordinator commit
+   is on the default branch or belongs to an approved immutable release.
+5. `./atrinik provenance validate --reference PATH` succeeds at the review
+   date from a bounded non-shallow coordinator checkout. Revoked, superseded,
+   stale, unknown-version, malformed, movable, missing, or digest-mismatched
+   evidence fails closed.
+
+The canonical public registry and schema exist only in
+`governance/provenance-identities/` in `atrinik/atrinik`. Component repositories
+must not copy aliases or canonical identity records. Restricted mappings,
+contact data, raw statements, keys, and private review notes must not enter
+public Git, GitHub discussion, CI logs, artifacts, or review reports. The two
+current registry entries and component fixtures are synthetic demonstrations;
+they confer no rights over real material.
+
 “Past” is temporal: each row covers only contributions completed before that
 row was recorded. Zoey Rose's row was first recorded in
 `d2af1c9fba462e5c18782d3c8206dbc5cfd74bb0`; Daniel Liptrot's row was first
@@ -47,10 +81,12 @@ Before applying a grant:
    authored contribution, generated output, or inseparable mixed work. Do not
    copy a mixed-authorship file merely because some surviving lines qualify.
 5. Record the source repository/path/revision, destination repository/path,
-   complete history and identity evidence, transformation, third-party review,
-   applicable grantor and grant, and required notices in the destination pull
-   request or a committed provenance manifest. Cite the exact
-   `atrinik/atrinik` revision containing this registry as the grant evidence.
+   complete history and approved identity-evidence reference, transformation,
+   third-party review, applicable grant and required notices in the destination
+   pull request or a committed provenance manifest. For confidential identity
+   evidence, cite only the opaque record and scope binding described above; do
+   not publish the grantor mapping. Cite the exact `atrinik/atrinik` revision
+   containing both this grant registry and the identity registry used.
 
 Use of an agent or other tool neither proves nor defeats permission to reuse
 the exact material. A listed person's prompting, direction, selection, receipt

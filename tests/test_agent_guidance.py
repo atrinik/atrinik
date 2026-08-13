@@ -45,6 +45,45 @@ class AgentGuidanceTests(unittest.TestCase):
             with self.subTest(marker=marker):
                 self.assertIn(marker, registry)
 
+        identity_policy = " ".join(
+            (ROOT / "docs/PROVENANCE_IDENTITIES.md")
+            .read_text(encoding="utf-8")
+            .split()
+        )
+        for marker in {
+            "Prior public appearance is not authorization",
+            "Removing an `alias` field alone does not prevent re-identification",
+            "provenance-custodians",
+            "provenance-reviewers",
+            "seven years after the last reliance is withdrawn",
+            "Suspected disclosure freezes new attestations",
+            "Key compromise rotates recipients and HMAC keys",
+            "Unkeyed hashes of names, aliases, emails, commits, or ranges are forbidden",
+            "full 40-character coordinator commit reachable from its default branch",
+            "Current named grants in `docs/PROVENANCE.md` are not silently converted",
+        }:
+            with self.subTest(marker=marker):
+                self.assertIn(marker, identity_policy)
+
+        schema = json.loads(
+            (ROOT / "governance/provenance-identities/schema-v1.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        public_registry = json.loads(
+            (ROOT / "governance/provenance-identities/registry.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(schema["properties"]["schema_version"]["const"], 1)
+        self.assertTrue(public_registry["records"])
+        self.assertTrue(
+            all(record["synthetic"] for record in public_registry["records"])
+        )
+        fixtures = ROOT / "tests/fixtures/provenance-identities"
+        self.assertEqual(len(list((fixtures / "positive").glob("*.json"))), 2)
+        self.assertTrue(list((fixtures / "negative").glob("*.json")))
+
     def test_copyright_header_contract_is_complete(self) -> None:
         guide = " ".join(
             (ROOT / "AGENTS.md").read_text(encoding="utf-8").split()

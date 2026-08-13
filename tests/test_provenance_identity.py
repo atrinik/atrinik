@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -20,6 +21,7 @@ from atrinik_workspace.provenance_identity import (
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "governance/provenance-identities/registry.json"
 SCHEMA = ROOT / "governance/provenance-identities/schema-v1.json"
+FIXTURES = ROOT / "tests/fixtures/provenance-identities"
 AS_OF = date(2026, 8, 13)
 
 
@@ -125,6 +127,46 @@ class ProvenanceIdentityTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(WorkspaceError, "canonical immutable permalink"):
             validate_component_reference(value, repository_root=ROOT, as_of=AS_OF)
+
+    def test_two_synthetic_component_references_validate_offline(self) -> None:
+        for name in ("synthetic-alpha.json", "synthetic-beta.json"):
+            with self.subTest(name=name):
+                validate_component_reference(
+                    load_document(FIXTURES / "positive" / name),
+                    repository_root=ROOT,
+                    as_of=AS_OF,
+                )
+
+    def test_broken_immutable_reference_fixture_fails_closed(self) -> None:
+        with self.assertRaisesRegex(WorkspaceError, "registry digest does not match"):
+            validate_component_reference(
+                load_document(FIXTURES / "negative" / "broken-reference.json"),
+                repository_root=ROOT,
+                as_of=AS_OF,
+            )
+
+    def test_reference_to_revoked_attestation_fails_closed(self) -> None:
+        reference = load_document(FIXTURES / "positive" / "synthetic-alpha.json")
+        registry_blob = json.loads(
+            REGISTRY.read_text(encoding="utf-8")
+        )
+        registry_blob["records"][0]["status"] = "revoked"
+        refresh_digest(registry_blob["records"][0])
+        encoded_registry = (json.dumps(registry_blob) + "\n").encode()
+        reference["evidence_reference"]["registry_sha256"] = hashlib.sha256(
+            encoded_registry
+        ).hexdigest()
+
+        def blob(_root: Path, _revision: str, path: str) -> bytes:
+            if path.endswith("registry.json"):
+                return encoded_registry
+            return SCHEMA.read_bytes()
+
+        with mock.patch(
+            "atrinik_workspace.provenance_identity._git_blob", side_effect=blob
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "record is not active"):
+                validate_component_reference(reference, repository_root=ROOT, as_of=AS_OF)
 
 
 if __name__ == "__main__":

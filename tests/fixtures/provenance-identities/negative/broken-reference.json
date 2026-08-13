@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "source": {
+    "repository": "atrinik/synthetic-history",
+    "path": "engine/alpha.c",
+    "revision": "1111111111111111111111111111111111111111"
+  },
+  "destination": {
+    "repository": "atrinik/synthetic-alpha",
+    "path": "src/alpha.rs"
+  },
+  "transformation": "Synthetic negative fixture.",
+  "scope_binding": "psb-11111111111111111111111111111111",
+  "evidence_reference": {
+    "repository": "atrinik/atrinik",
+    "revision": "a700f92274f98476bae84beda7017cf81c6311d8",
+    "record_id": "pir-synthetic-alpha-0001",
+    "registry_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "schema_sha256": "681f0cffad6f7e767b005902beef3c71f1747936b8d2b0f2a3b54da32e9d5774",
+    "url": "https://github.com/atrinik/atrinik/blob/a700f92274f98476bae84beda7017cf81c6311d8/governance/provenance-identities/registry.json#pir-synthetic-alpha-0001"
+  }
+}
