@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import fcntl
+import json
 import os
 from pathlib import Path
 import socket
@@ -374,6 +375,38 @@ class PortReservationTests(unittest.TestCase):
             self.assertIsNone(active_owner(directory_fd, directory, port))
         finally:
             os.close(transaction)
+            os.close(directory_fd)
+
+    def test_creation_token_rejects_identity_matching_replacement(self) -> None:
+        directory_fd, directory, identity = open_directory(self.topologies)
+        descriptor, record = create_lease(
+            directory_fd,
+            directory,
+            identity,
+            port=17380,
+            topology="token-owner",
+            generation="4" * 64,
+        )
+        path = Path(record["path"])
+        path.unlink()
+        path.write_text("{}\n", encoding="utf-8")
+        path.chmod(0o600)
+        replacement = os.open(path, os.O_RDWR | os.O_CLOEXEC)
+        forged = dict(record)
+        replacement_metadata = os.fstat(replacement)
+        forged["lease"] = {
+            "device": replacement_metadata.st_dev,
+            "inode": replacement_metadata.st_ino,
+        }
+        payload = (json.dumps(forged, indent=2, sort_keys=True) + "\n").encode()
+        os.ftruncate(replacement, 0)
+        os.write(replacement, payload)
+        try:
+            with self.assertRaisesRegex(PortReservationError, "creation identity"):
+                validate_held(replacement, forged)
+        finally:
+            os.close(replacement)
+            os.close(descriptor)
             os.close(directory_fd)
 
 
