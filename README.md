@@ -939,11 +939,13 @@ supervisor. A server gets an available UDP port by default; `--port 0` has the
 same automatic-allocation meaning, while `--port 1` through `--port 65535`
 requests that exact port. Automatic selection briefly holds the workspace
 allocator only while it chooses and publishes a unique generation-bound
-reservation. Every server then retains its own mode-0600 per-port lease through
+reservation. Every port uses a short mode-0600 transaction file, and every
+server retains its own immutable mode-0600 generation lease through
 supervisor and guardian recovery, so startup preparation and readiness waits
 for different ports overlap. An exact-port conflict fails without waiting for
 an unrelated port and names the owning topology and generation plus the safe
-`ps`/`down` action. The supervisor rechecks kernel availability immediately
+retry action; once startup has published supervisor status, `ps` and `down`
+are available. The supervisor rechecks kernel availability immediately
 before launching the server; an external process that wins the bind race
 produces a bounded startup error without changing another topology's
 reservation. The supervisor waits for both the QUIC certificate fingerprint and
@@ -974,7 +976,7 @@ not interrupt a reader, topology, build, or mutation. The pending announcement,
 writer-intent gate, and layout lock are always acquired before topology,
 scenario, port allocator/per-port reservation, state, build-root, registry, or
 cache locks. The allocator is released before state/build/runtime preparation;
-the exact per-port reservation remains held. Foreground
+the exact generation reservation remains held. Foreground
 processes inherit their layout and exact build-root leases. Supervised services
 inherit both leases through the daemon and keep them until every service exits
 or `down` completes. Mutation
@@ -992,7 +994,8 @@ client configuration/cache root and its own copies of the collected content and
 resource caches, so changing or removing one topology cannot affect another
 topology or the retained build caches. The inherited identity lease atomically
 prevents the same topology name from restarting while any generation remains.
-Server services do not inherit allocator or per-port reservation descriptors;
+Server services do not inherit allocator, transaction, or generation
+reservation descriptors;
 the supervisor and same-generation guardian retain the exact reservation and
 release it after orderly shutdown or exact process-tree recovery. `ps --json`
 exposes its port, owner, generation, and retained/released observation without

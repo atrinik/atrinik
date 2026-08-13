@@ -51,9 +51,9 @@ from .process_tree import (
 from .port_reservation import (
     PORT_RESERVATION_DIRECTORY,
     PortReservationError,
-    bind_record as bind_port_reservation,
-    open_lease as open_port_reservation,
-    read_record as read_port_reservation,
+    active_owner as active_port_reservation,
+    create_lease as create_port_reservation,
+    open_transaction as open_port_transaction,
     reservation_locked as port_reservation_locked,
     try_lock as try_lock_port_reservation,
     validate_record as validate_port_reservation,
@@ -7481,7 +7481,7 @@ class Workspace:
                     expected_path=(
                         self.paths.topologies
                         / PORT_RESERVATION_DIRECTORY
-                        / f"{reservation_port}.lease"
+                        / f"{reservation_port}-{port_reservation.get('generation')}.lease"
                     ),
                 )
                 reservation_retained = port_reservation_locked(port_reservation)
@@ -7650,16 +7650,11 @@ class Workspace:
             raise WorkspaceError(
                 f"topology UDP port {owner['port']} is reserved by topology "
                 f"{owner['topology']} generation {owner['generation']}; "
-                f"inspect ./atrinik ps {owner['topology']} --json and "
-                f"run ./atrinik down {owner['topology']} only when safe"
+                "retry after its startup transaction completes; if contention "
+                f"persists inspect ./atrinik ps {owner['topology']} --json"
             )
 
         def validate_known_evidence(port: int) -> None:
-            expected_path = (
-                self.paths.topologies
-                / PORT_RESERVATION_DIRECTORY
-                / f"{port}.lease"
-            )
             for root in sorted(self.paths.topologies.iterdir()):
                 record_path = root / TOPOLOGY_PORT_RESERVATION_RECORD
                 if not record_path.exists() and not record_path.is_symlink():
@@ -7672,9 +7667,15 @@ class Workspace:
                 if not isinstance(value, dict) or value.get("port") != port:
                     continue
                 try:
-                    owner = validate_port_reservation(
-                        value, expected_path=expected_path
+                    owner = validate_port_reservation(value)
+                    if owner["port"] != port:
+                        continue
+                    expected_path = (
+                        self.paths.topologies
+                        / PORT_RESERVATION_DIRECTORY
+                        / f"{port}-{owner['generation']}.lease"
                     )
+                    validate_port_reservation(owner, expected_path=expected_path)
                 except PortReservationError as error:
                     raise WorkspaceError(
                         f"topology port reservation evidence is invalid: {record_path}"
@@ -7689,48 +7690,47 @@ class Workspace:
 
         def claim(port: int) -> tuple[int, dict[str, Any]] | None:
             try:
-                # Historical pending evidence authenticates the lease inode, but
-                # its owner fields can be stale after an unlocked inode is reused.
-                # The locked lease record below is the authoritative current owner.
                 validate_known_evidence(port)
-                descriptor, path = open_port_reservation(
+                transaction, directory_fd, directory, directory_identity = (
+                    open_port_transaction(
                     self.paths.topologies, port
+                    )
                 )
-                if not try_lock_port_reservation(descriptor):
+                if not try_lock_port_reservation(transaction):
                     if automatic:
-                        os.close(descriptor)
+                        os.close(transaction)
+                        os.close(directory_fd)
                         return None
                     deadline = time.monotonic() + 1
-                    owner: dict[str, Any] | None = None
-                    while True:
-                        try:
-                            owner = read_port_reservation(descriptor, path)
-                        except PortReservationError:
-                            owner = None
+                    while not try_lock_port_reservation(transaction):
                         if time.monotonic() >= deadline:
-                            os.close(descriptor)
-                            if owner is None:
-                                raise WorkspaceError(
-                                    f"topology UDP port {port} is reserved but "
-                                    "its owner record is not yet valid; preserve "
-                                    "the lease and retry"
-                                )
-                            conflict(owner)
+                            os.close(transaction)
+                            os.close(directory_fd)
+                            raise WorkspaceError(
+                                f"topology UDP port {port} reservation transaction "
+                                "is busy; retry"
+                            )
                         time.sleep(0.01)
-                        if try_lock_port_reservation(descriptor):
-                            break
                 try:
+                    owner = active_port_reservation(directory_fd, directory, port)
+                    if owner is not None:
+                        if automatic:
+                            return None
+                        conflict(owner)
                     self._select_topology_port(port)
-                    record = bind_port_reservation(
-                        descriptor,
-                        path,
+                    descriptor, record = create_port_reservation(
+                        directory_fd,
+                        directory,
+                        directory_identity,
                         port=port,
                         topology=topology,
                         generation=generation,
                     )
                 except BaseException:
-                    os.close(descriptor)
                     raise
+                finally:
+                    os.close(transaction)
+                    os.close(directory_fd)
                 return descriptor, record
             except PortReservationError as error:
                 raise WorkspaceError(str(error)) from error

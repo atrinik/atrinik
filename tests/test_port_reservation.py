@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import fcntl
 import os
 from pathlib import Path
 import socket
@@ -8,16 +9,16 @@ import tempfile
 import threading
 import time
 import unittest
-from unittest import mock
 
 from atrinik_workspace.model import WorkspaceError, atomic_json
 from atrinik_workspace.locking import exclusive_lock
 from atrinik_workspace.port_reservation import (
     PORT_RESERVATION_DIRECTORY,
     PortReservationError,
-    bind_record,
-    open_lease,
-    read_record,
+    active_owner,
+    create_lease,
+    open_directory,
+    open_transaction,
     reservation_locked,
     try_lock,
     validate_held,
@@ -207,26 +208,28 @@ class PortReservationTests(unittest.TestCase):
         target = directory / "target"
         target.write_text("valuable\n", encoding="utf-8")
         target.chmod(0o600)
-        symlink = directory / "17300.lease"
+        symlink = directory / "17300.lock"
         symlink.symlink_to(target)
         with self.assertRaisesRegex(PortReservationError, "cannot open"):
-            open_lease(self.topologies, 17300)
+            open_transaction(self.topologies, 17300)
         symlink.unlink()
-        hardlink = directory / "17301.lease"
+        hardlink = directory / "17301.lock"
         os.link(target, hardlink)
         with self.assertRaisesRegex(PortReservationError, "identity is invalid"):
-            open_lease(self.topologies, 17301)
+            open_transaction(self.topologies, 17301)
 
         port = self.free_port()
-        descriptor, path = open_lease(self.topologies, port)
-        self.assertTrue(try_lock(descriptor))
-        record = bind_record(
-            descriptor,
-            path,
+        directory_fd, directory, identity = open_directory(self.topologies)
+        descriptor, record = create_lease(
+            directory_fd,
+            directory,
+            identity,
             port=port,
             topology="replacement-test",
             generation="4" * 64,
         )
+        os.close(directory_fd)
+        path = Path(record["path"])
         path.unlink()
         path.write_text("{}\n", encoding="utf-8")
         path.chmod(0o600)
@@ -301,7 +304,7 @@ class PortReservationTests(unittest.TestCase):
         finally:
             os.close(replacement)
 
-    def test_reused_locked_inode_is_retained_only_for_current_record(self) -> None:
+    def test_immutable_generations_are_observed_independently(self) -> None:
         port = self.free_port()
         descriptor, old_record = self.workspace._reserve_topology_port(
             port, "old-status", "e" * 64
@@ -316,50 +319,62 @@ class PortReservationTests(unittest.TestCase):
         finally:
             os.close(replacement)
 
-    def test_explicit_claim_retries_a_stale_status_probe_lock(self) -> None:
+    def test_concurrent_status_observers_do_not_impersonate_owner(self) -> None:
         port = self.free_port()
         descriptor, record = self.workspace._reserve_topology_port(
             port, "stopped-probe", "1" * 64
         )
-        owner = self.topologies / "stopped-probe"
-        owner.mkdir()
-        atomic_json(owner / TOPOLOGY_PORT_RESERVATION_RECORD, record)
         os.close(descriptor)
-
-        probe, _path = open_lease(self.topologies, port)
-        self.assertTrue(try_lock(probe))
-        entered = threading.Event()
-        result: list[tuple[int, dict[str, object]]] = []
-        errors: list[BaseException] = []
-
-        def observe_read(current_descriptor: int, path: Path) -> dict[str, object]:
-            entered.set()
-            return read_record(current_descriptor, path)
-
-        def reserve() -> None:
+        path = Path(record["path"])
+        probe = os.open(path, os.O_RDONLY | os.O_CLOEXEC)
+        try:
+            fcntl.flock(probe, fcntl.LOCK_SH | fcntl.LOCK_NB)
+            self.assertFalse(reservation_locked(record))
+            replacement, replacement_record = self.workspace._reserve_topology_port(
+                port, "after-probe", "2" * 64
+            )
             try:
-                result.append(
-                    self.workspace._reserve_topology_port(
-                        port, "after-probe", "2" * 64
-                    )
-                )
-            except BaseException as error:
-                errors.append(error)
-
-        with mock.patch(
-            "atrinik_workspace.workspace.read_port_reservation",
-            side_effect=observe_read,
-        ):
-            thread = threading.Thread(target=reserve)
-            thread.start()
-            self.assertTrue(entered.wait(timeout=2))
+                self.assertEqual(replacement_record["topology"], "after-probe")
+            finally:
+                os.close(replacement)
+        finally:
             os.close(probe)
-            thread.join(timeout=2)
 
-        self.assertFalse(thread.is_alive())
-        self.assertEqual(errors, [])
-        self.assertEqual(result[0][1]["topology"], "after-probe")
-        os.close(result[0][0])
+    def test_directory_substitution_cannot_redirect_child_open(self) -> None:
+        directory_fd, directory, identity = open_directory(self.topologies)
+        moved = self.topologies / "original-reservations"
+        directory.rename(moved)
+        attacker = self.topologies / "attacker"
+        attacker.mkdir(mode=0o700)
+        valuable = attacker / "valuable"
+        valuable.write_text("valuable\n", encoding="utf-8")
+        valuable.chmod(0o600)
+        directory.symlink_to(attacker, target_is_directory=True)
+        try:
+            with self.assertRaisesRegex(PortReservationError, "was replaced"):
+                create_lease(
+                    directory_fd,
+                    directory,
+                    identity,
+                    port=17300,
+                    topology="safe-owner",
+                    generation="3" * 64,
+                )
+            self.assertEqual(valuable.read_text(encoding="utf-8"), "valuable\n")
+        finally:
+            os.close(directory_fd)
+
+    def test_prepublication_owner_is_not_visible_until_immutable_record_exists(self) -> None:
+        port = 17379
+        transaction, directory_fd, directory, _identity = open_transaction(
+            self.topologies, port
+        )
+        try:
+            self.assertTrue(try_lock(transaction))
+            self.assertIsNone(active_owner(directory_fd, directory, port))
+        finally:
+            os.close(transaction)
+            os.close(directory_fd)
 
 
 if __name__ == "__main__":

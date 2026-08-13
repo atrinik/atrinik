@@ -317,7 +317,7 @@ def _validate_port_reservation(
         or Path(validated["path"])
         != topology_root.parent
         / PORT_RESERVATION_DIRECTORY
-        / f"{validated['port']}.lease"
+        / f"{validated['port']}-{validated['generation']}.lease"
     ):
         raise RuntimeError("topology port reservation does not match the topology")
 
