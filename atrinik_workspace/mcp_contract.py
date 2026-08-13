@@ -36,7 +36,7 @@ _CURSOR_VERSION = 1
 _CURSOR_DOMAIN = b"atrinik-mcp-contract-v1\0"
 _SECRET_PATTERN = re.compile(
     r"(?i)(?:password|passwd|secret|token|authorization|api[_-]?key)"
-    r"(?:\s*[:=]\s*|%3[dD])[^\s,;]+"
+    r"(?:\s*[:=]\s*|%3[dD])(?:bearer\s+)?[^\s,;]+"
 )
 
 
@@ -45,8 +45,8 @@ class ContractError(ValueError):
 
     def __init__(self, code: str, message: str) -> None:
         self.code = code
-        self.safe_message = message
-        super().__init__(f"{code}: {message}")
+        self.safe_message = redact(message)[:256]
+        super().__init__(f"{code}: {self.safe_message}")
 
 
 @dataclass(frozen=True)
@@ -383,6 +383,14 @@ def _b64decode(value: str) -> bytes:
 
 
 def decode_cursor(cursor: str, snapshot_identity: Mapping[str, object]) -> int:
+    if not isinstance(cursor, str):
+        raise ContractError("STALE_CURSOR", "cursor is invalid")
+    try:
+        cursor_bytes = cursor.encode("utf-8")
+    except UnicodeError as error:
+        raise ContractError("STALE_CURSOR", "cursor is invalid") from error
+    if len(cursor_bytes) > 2048:
+        raise ContractError("STALE_CURSOR", "cursor is invalid")
     try:
         envelope = json.loads(_b64decode(cursor), object_pairs_hook=_unique_object)
         payload = _b64decode(envelope["payload"])
@@ -414,7 +422,12 @@ def paginate(
     limits = load_json(CONTRACT_PATH)["limits"]
     if page_size < 1 or page_size > limits["page_records"]:
         raise ContractError("LIMIT_EXCEEDED", "page size is outside the allowed bound")
-    ordered = sorted((dict(record) for record in records), key=canonical_json)
+    materialized: list[dict[str, object]] = []
+    for record in records:
+        if len(materialized) >= limits["pagination_source_records"]:
+            raise ContractError("LIMIT_EXCEEDED", "pagination snapshot is too large")
+        materialized.append(dict(record))
+    ordered = sorted(materialized, key=canonical_json)
     offset = decode_cursor(cursor, snapshot_identity) if cursor else 0
     if offset > len(ordered):
         raise ContractError("STALE_CURSOR", "cursor offset is outside the snapshot")

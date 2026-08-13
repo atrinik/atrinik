@@ -65,6 +65,7 @@
     "graph_depth": 8,
     "graph_edges": 1000,
     "page_records": 50,
+    "pagination_source_records": 1000,
     "query_characters": 1024,
     "records": 100,
     "request_bytes": 16384,

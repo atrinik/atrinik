@@ -140,6 +140,16 @@ class McpContractTests(unittest.TestCase):
             decode_cursor(cursor, {**snapshot, "authorization": "reader-b"})
         with self.assertRaisesRegex(ContractError, "LIMIT_EXCEEDED"):
             paginate([], page_size=51, snapshot_identity=snapshot)
+        with self.assertRaisesRegex(ContractError, "STALE_CURSOR"):
+            decode_cursor("x" * 2049, snapshot)
+        with self.assertRaisesRegex(ContractError, "STALE_CURSOR"):
+            decode_cursor("\ud800", snapshot)
+        with self.assertRaisesRegex(ContractError, "LIMIT_EXCEEDED"):
+            paginate(
+                ({"id": index} for index in range(1001)),
+                page_size=50,
+                snapshot_identity=snapshot,
+            )
 
     def test_cache_key_isolates_every_required_identity(self) -> None:
         base = {
@@ -449,12 +459,14 @@ class McpContractTests(unittest.TestCase):
 
     def test_secret_redaction_does_not_echo_values(self) -> None:
         original = (
-            "password=hunter2 token:abc123 authorization=Bearer-deadbeef "
+            "password=hunter2 token:abc123 authorization: Bearer deadbeef "
             "query=packet"
         )
+        failure = ContractError("INTERNAL", original)
         sanitized = redact(original)
-        for secret in {"hunter2", "abc123", "Bearer-deadbeef"}:
+        for secret in {"hunter2", "abc123", "deadbeef"}:
             self.assertNotIn(secret, sanitized)
+            self.assertNotIn(secret, str(failure))
         self.assertIn("query=packet", sanitized)
 
     def test_capability_matrix_records_decisions_and_deferred_sdk(self) -> None:

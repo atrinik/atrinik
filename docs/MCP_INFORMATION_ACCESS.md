@@ -55,6 +55,7 @@ without a new measured contract revision.
 | Query text | 1,024 characters |
 | Records per result | 100 |
 | Records per page | 50 |
+| Records scanned per pagination snapshot | 1,000 |
 | Structured result | 64 KiB hard, 32 KiB routine |
 | On-demand resource read | 256 KiB |
 | Graph | depth 8 / 1,000 edges |
