@@ -207,8 +207,19 @@ foreground client and server runs, and scenario create/reset take it in shared
 mode while they consume selected checkout and profile coordinates. Independent
 build roots can therefore compile concurrently, while each root's existing
 exclusive build lock still serializes identical profile/key work. An exclusive
-writer cannot advance or remove a selected checkout until all readers exit. If
-the platform cannot provide a working advisory shared lock, the consuming
+writer cannot advance or remove a selected checkout until all readers exit.
+Waiting mutations first announce themselves with a shared
+`repository-layout.writer-pending.lock`, then hold the exclusive
+`repository-layout.writer-intent.lock` admission gate. A new reader briefly
+takes the admission gate and proceeds only if its exclusive pending-lock probe
+finds no announced writer; otherwise it releases admission, waits, and retries.
+Existing readers complete normally but later readers cannot repeatedly bypass
+a writer that has announced itself. The writer holds the pending, intent, and
+layout locks through the mutation, and its subprocesses inherit all three
+descriptors. A wait longer than 10 seconds emits one diagnostic
+with the supported process and worktree inventories, but does not time out or
+interrupt the holder. The diagnostic is emitted at most once per acquisition.
+If the platform cannot provide a working advisory shared lock, the consuming
 operation fails closed.
 
 A supervised topology transfers its shared layout and exact build-root lock
@@ -226,9 +237,12 @@ common command runner also inherits every active advisory-lock descriptor into
 build and scenario subprocesses, preserving layout, build-root, state,
 registry, and cache protection if their wrapper exits unexpectedly.
 
-The layout lock is always outermost; private helpers never reacquire it. A
-direct build or foreground client then takes its build-root lock and subordinate
-cache locks; the foreground process retains that root lease. Topology startup
+The writer-pending announcement precedes the writer-intent gate and layout lock,
+which remain
+outermost relative to all operational locks; private helpers never reacquire
+either boundary. A direct build or foreground client then takes its build-root
+lock and subordinate cache locks; the foreground process retains that root
+lease. Topology startup
 takes the topology-operation lock, the server-state lock when needed, the
 build-root lock, and finally the port-allocation lock, and transfers the layout
 and build-root leases into its services.

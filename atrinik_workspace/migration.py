@@ -3,9 +3,9 @@ from __future__ import annotations
 import base64
 import copy
 import ctypes
+from contextlib import ExitStack
 from dataclasses import dataclass
 import errno
-import fcntl
 import hashlib
 import json
 import os
@@ -17,7 +17,7 @@ import subprocess
 import tempfile
 from typing import Any, Iterable
 
-from .locking import active_lock_fds, inherit_lock_fds
+from .locking import LockBusyError, active_lock_fds, exclusive_layout_lock
 from .model import WorkspaceError, atomic_json, load_json
 from .process_tree import lease_locked
 from .supervisor import process_matches
@@ -407,28 +407,22 @@ class RepositoryMigration:
             )
 
         lock_path = self.workspace / "repository-layout.lock"
-        flags = os.O_RDWR | os.O_CREAT | os.O_CLOEXEC
-        if hasattr(os, "O_NOFOLLOW"):
-            flags |= os.O_NOFOLLOW
+        lock_stack = ExitStack()
         try:
-            descriptor = os.open(lock_path, flags, 0o600)
-        except OSError as error:
-            raise WorkspaceError(f"cannot open repository migration lock: {error}") from error
-        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
-            os.close(descriptor)
-            raise WorkspaceError(
-                f"repository migration lock is not a regular file: {lock_path}"
-            )
-        with os.fdopen(descriptor, "a+") as lock, inherit_lock_fds(lock):
-            try:
-                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except BlockingIOError:
-                return self._with_refusal(
-                    inspection.plan,
-                    "repository_layout_busy",
-                    "the repository layout is in use by another wrapper operation",
-                    "wait for the active wrapper operation to finish, then rerun",
+            lock_stack.enter_context(
+                exclusive_layout_lock(
+                    lock_path, "repository layout", nonblocking=True
                 )
+            )
+        except LockBusyError:
+            lock_stack.close()
+            return self._with_refusal(
+                inspection.plan,
+                "repository_layout_busy",
+                "the repository layout is in use by another wrapper operation",
+                "wait for the active wrapper operation to finish, then rerun",
+            )
+        with lock_stack:
             if self.record_path.is_file() and not self.record_path.is_symlink():
                 audited = self._audit()
                 if audited["status"] == "complete":

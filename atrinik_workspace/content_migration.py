@@ -2,19 +2,24 @@ from __future__ import annotations
 
 import base64
 import binascii
+from contextlib import ExitStack
 from datetime import datetime, timezone
-import fcntl
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
-import stat
 import subprocess
 import tempfile
-from typing import Any, TextIO
+from typing import Any
 
-from .locking import inherit_lock_fds
+from .locking import (
+    LockBusyError,
+    active_lock_fds,
+    exclusive_layout_lock,
+    layout_writer_intent_path,
+    layout_writer_pending_path,
+)
 from .model import WorkspaceError, atomic_json, load_json
 from .process_tree import holders_exist, lease_locked
 from .supervisor import process_matches
@@ -65,7 +70,7 @@ def _git(path: Path, *arguments: str, check: bool = True) -> str:
             check=check,
             capture_output=True,
             text=True,
-            pass_fds=(),
+            pass_fds=active_lock_fds(),
         )
     except FileNotFoundError as error:
         raise WorkspaceError("required command not found: git") from error
@@ -85,7 +90,7 @@ def _git_succeeds(path: Path, *arguments: str) -> bool:
             check=False,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            pass_fds=(),
+            pass_fds=active_lock_fds(),
         ).returncode == 0
     except FileNotFoundError as error:
         raise WorkspaceError("required command not found: git") from error
@@ -141,20 +146,6 @@ def _atomic_bytes(path: Path, value: bytes) -> None:
         raise
 
 
-def _open_layout_lock(path: Path) -> TextIO:
-    flags = os.O_RDWR | os.O_CREAT | os.O_CLOEXEC
-    if hasattr(os, "O_NOFOLLOW"):
-        flags |= os.O_NOFOLLOW
-    try:
-        descriptor = os.open(path, flags, 0o600)
-    except OSError as error:
-        raise WorkspaceError(f"cannot open repository layout lock {path}: {error}") from error
-    if not stat.S_ISREG(os.fstat(descriptor).st_mode):
-        os.close(descriptor)
-        raise WorkspaceError(f"repository layout lock is not a regular file: {path}")
-    return os.fdopen(descriptor, "a+")
-
-
 class ContentMigration:
     """Retire active ``content-1x`` selectors without rewriting history."""
 
@@ -181,20 +172,26 @@ class ContentMigration:
 
     def _locked_apply(self) -> dict[str, Any]:
         lock_path = self.workspace / "repository-layout.lock"
-        with _open_layout_lock(lock_path) as lock, inherit_lock_fds(lock):
-            try:
-                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except BlockingIOError:
-                plan = self._inspect()
-                plan["refusals"].append(
-                    _refusal(
-                        "repository_layout_busy",
-                        "the repository layout is in use by another wrapper operation",
-                        "wait for that operation to finish and rerun the migration",
-                    )
+        lock_stack = ExitStack()
+        try:
+            lock_stack.enter_context(
+                exclusive_layout_lock(
+                    lock_path, "repository layout", nonblocking=True
                 )
-                plan["status"] = "refused"
-                return plan
+            )
+        except LockBusyError:
+            lock_stack.close()
+            plan = self._inspect()
+            plan["refusals"].append(
+                _refusal(
+                    "repository_layout_busy",
+                    "the repository layout is in use by another wrapper operation",
+                    "wait for that operation to finish and rerun the migration",
+                )
+            )
+            plan["status"] = "refused"
+            return plan
+        with lock_stack:
             if self.record_path.is_file() and not self.record_path.is_symlink():
                 result = self._audit()
                 if result["status"] == "complete":
@@ -244,22 +241,28 @@ class ContentMigration:
 
     def _locked_restore(self) -> dict[str, Any]:
         lock_path = self.workspace / "repository-layout.lock"
-        with _open_layout_lock(lock_path) as lock, inherit_lock_fds(lock):
-            try:
-                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except BlockingIOError:
-                return {
-                    "migration": CONTENT_MIGRATION_NAME,
-                    "schema_version": CONTENT_MIGRATION_SCHEMA_VERSION,
-                    "status": "refused",
-                    "refusals": [
-                        _refusal(
-                            "repository_layout_busy",
-                            "the repository layout is in use by another wrapper operation",
-                            "wait for that operation to finish and rerun the restore",
-                        )
-                    ],
-                }
+        lock_stack = ExitStack()
+        try:
+            lock_stack.enter_context(
+                exclusive_layout_lock(
+                    lock_path, "repository layout", nonblocking=True
+                )
+            )
+        except LockBusyError:
+            lock_stack.close()
+            return {
+                "migration": CONTENT_MIGRATION_NAME,
+                "schema_version": CONTENT_MIGRATION_SCHEMA_VERSION,
+                "status": "refused",
+                "refusals": [
+                    _refusal(
+                        "repository_layout_busy",
+                        "the repository layout is in use by another wrapper operation",
+                        "wait for that operation to finish and rerun the restore",
+                    )
+                ],
+            }
+        with lock_stack:
             return self._restore()
 
     def _inspect(self) -> dict[str, Any]:
@@ -836,13 +839,16 @@ class ContentMigration:
                             "stop or repair the topology before migration",
                         )
                     )
+        layout_lock = self.workspace / "repository-layout.lock"
         lock_roots = [
-            self.workspace / "repository-layout.lock",
-            Path(self.paths.builds) / "locks",
+            (layout_lock, False),
+            (layout_writer_intent_path(layout_lock), False),
+            (layout_writer_pending_path(layout_lock), False),
+            (Path(self.paths.builds) / "locks", True),
         ]
-        for root in lock_roots:
+        for root, allow_directory in lock_roots:
             if root.is_symlink() or root.exists() and not (
-                root.is_file() or root.is_dir()
+                root.is_file() or allow_directory and root.is_dir()
             ):
                 resources["locks"].append(
                     {"path": str(root), "active": True, "status": "unsafe"}
@@ -859,7 +865,7 @@ class ContentMigration:
                 [root]
                 if root.is_file()
                 else sorted(root.glob("*"))
-                if root.is_dir()
+                if allow_directory and root.is_dir()
                 else []
             )
             for path in paths:

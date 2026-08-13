@@ -31,7 +31,15 @@ from typing import Any, Callable, Iterator, TextIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
-from .locking import active_lock_fds, inherit_lock_fds
+from .locking import (
+    active_lock_fds,
+    exclusive_layout_lock,
+    exclusive_lock,
+    inherit_lock_fds,
+    layout_writer_intent_path as _layout_writer_intent_path,
+    shared_layout_lock,
+    shared_lock,
+)
 from .process_tree import holders_exist, lease_locked, signal_holders
 
 from .model import (
@@ -1159,54 +1167,6 @@ def open_regular_file(
         raise WorkspaceError(f"cannot open {description} {path}: {error}") from error
 
 
-@contextmanager
-def exclusive_lock(
-    path: Path, description: str, nonblocking: bool = False
-) -> Iterator[TextIO]:
-    with _advisory_lock(
-        path, description, fcntl.LOCK_EX, nonblocking=nonblocking
-    ) as lock:
-        with inherit_lock_fds(lock):
-            yield lock
-
-
-@contextmanager
-def shared_lock(path: Path, description: str) -> Iterator[TextIO]:
-    operation = getattr(fcntl, "LOCK_SH", None)
-    if not isinstance(operation, int):
-        raise WorkspaceError(
-            f"shared locking is unavailable for {description}; refusing to continue"
-        )
-    with _advisory_lock(path, description, operation) as lock:
-        with inherit_lock_fds(lock):
-            yield lock
-
-
-@contextmanager
-def _advisory_lock(
-    path: Path,
-    description: str,
-    operation: int,
-    *,
-    nonblocking: bool = False,
-) -> Iterator[TextIO]:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor = open_regular_file(
-        path, os.O_RDWR | os.O_CREAT, f"{description} lock"
-    )
-    with os.fdopen(descriptor, "a+") as lock:
-        operation |= fcntl.LOCK_NB if nonblocking else 0
-        try:
-            fcntl.flock(lock, operation)
-        except BlockingIOError as error:
-            raise WorkspaceError(f"{description} is already in use") from error
-        except OSError as error:
-            raise WorkspaceError(
-                f"cannot acquire {description} lock: {error}"
-            ) from error
-        yield lock
-
-
 class Workspace:
     def __init__(self, repository: Path):
         self.paths = Paths.discover(repository)
@@ -1329,7 +1289,7 @@ class Workspace:
         self.paths.ensure()
         checkouts = self._operation_checkouts(names, include_classic)
         failures: list[str] = []
-        with exclusive_lock(
+        with exclusive_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -1623,7 +1583,7 @@ class Workspace:
         if worktree_strategy not in {"none", "merge", "rebase"}:
             raise WorkspaceError(f"unknown worktree strategy: {worktree_strategy}")
         checkouts = self._operation_checkouts(names, include_classic)
-        with exclusive_lock(
+        with exclusive_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -1769,7 +1729,7 @@ class Workspace:
         existing: bool,
     ) -> Path:
         self.paths.ensure()
-        with exclusive_lock(
+        with exclusive_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -1826,7 +1786,7 @@ class Workspace:
 
     def remove_worktree(self, component_name: str, label: str) -> None:
         self.paths.ensure()
-        with exclusive_lock(
+        with exclusive_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -1873,7 +1833,7 @@ class Workspace:
 
     def create_profile(self, name: str, source: str = "default") -> Path:
         self.paths.ensure()
-        with exclusive_lock(
+        with exclusive_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -1906,7 +1866,7 @@ class Workspace:
         self, name: str, component_name: str, kind: str, value: str = ""
     ) -> None:
         self.paths.ensure()
-        with exclusive_lock(
+        with exclusive_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -1944,7 +1904,7 @@ class Workspace:
 
     def set_profile_sound_mode(self, name: str, mode: str) -> None:
         self.paths.ensure()
-        with exclusive_lock(
+        with exclusive_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -2425,7 +2385,7 @@ class Workspace:
         use_ccache: bool = True,
     ) -> Path:
         self.paths.ensure()
-        with shared_lock(
+        with shared_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -6181,7 +6141,7 @@ class Workspace:
         self, name: str, profile: str, preset: str = "basic-player"
     ) -> dict[str, Any]:
         self.paths.ensure()
-        with shared_lock(
+        with shared_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -6279,7 +6239,7 @@ class Workspace:
 
     def scenario_reset(self, name: str) -> dict[str, Any]:
         self.paths.ensure()
-        with shared_lock(
+        with shared_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):
@@ -7530,7 +7490,7 @@ class Workspace:
         port: int | None = None,
     ) -> dict[str, Any]:
         self.paths.ensure()
-        with shared_lock(
+        with shared_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ) as layout_lock:
@@ -8180,7 +8140,7 @@ class Workspace:
         dry_run: bool,
     ) -> Path:
         self.paths.ensure()
-        with shared_lock(
+        with shared_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ) as layout_lock:
@@ -8252,7 +8212,7 @@ class Workspace:
         dry_run: bool,
     ) -> Path:
         self.paths.ensure()
-        with shared_lock(
+        with shared_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ) as layout_lock:

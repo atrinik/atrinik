@@ -130,7 +130,7 @@ class PlaytestSoundTests(unittest.TestCase):
         }
         (self.output / PLAYTEST_BLOCKERS).write_bytes(canonical(blockers))
         tree_hash = hashlib.sha256()
-        for asset in playtest_assets:
+        for asset in sorted(playtest_assets, key=lambda value: str(value["logical_path"])):
             logical = str(asset["logical_path"])
             tree_hash.update(f"{digest(self.output / logical)}  {logical}\n".encode())
         self.inputs = {
@@ -203,6 +203,16 @@ class PlaytestSoundTests(unittest.TestCase):
         incomplete.pop("blocker_report_sha256")
         with self.assertRaisesRegex(WorkspaceError, "fields are invalid"):
             validate_sound_record(incomplete)
+
+    def test_output_tree_digest_is_independent_of_manifest_asset_order(self) -> None:
+        self.manifest["assets"] = list(reversed(self.manifest["assets"]))
+        self.rewrite_manifest(self.manifest)
+
+        record = verify_playtest_tree(self.source, self.output, self.inputs)
+
+        self.assertEqual(
+            record["output_tree_sha256"], self.manifest["output_tree_sha256"]
+        )
 
     def test_sound_record_validation_rejects_each_invalid_identity(self) -> None:
         record = verify_playtest_tree(self.source, self.output, self.inputs)
