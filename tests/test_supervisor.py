@@ -451,6 +451,41 @@ class ServerReadinessCaptureTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "identity is incomplete"):
             _initial_status({**spec, "stack": "classic"}, "123")
 
+    def test_main_closes_runtime_lease_after_startup_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            spec_path = Path(directory) / "spec.json"
+            with (
+                mock.patch.object(
+                    sys,
+                    "argv",
+                    [
+                        "atrinik-supervisor",
+                        "--spec",
+                        str(spec_path),
+                        "--runtime-lock-fd",
+                        "9",
+                    ],
+                ),
+                mock.patch.object(
+                    supervisor_module,
+                    "supervise",
+                    side_effect=RuntimeError("invalid runtime"),
+                ) as supervise_call,
+                mock.patch.object(supervisor_module, "atomic_status") as status,
+                mock.patch.object(supervisor_module.os, "close") as close,
+                mock.patch.object(sys, "stderr"),
+            ):
+                self.assertEqual(supervisor_module.main(), 1)
+
+        supervise_call.assert_called_once_with(
+            spec_path, None, None, None, None, None, 9
+        )
+        status.assert_called_once_with(
+            spec_path.parent / "startup-error.json",
+            {"error": "RuntimeError: invalid runtime"},
+        )
+        close.assert_called_once_with(9)
+
 
 if __name__ == "__main__":
     unittest.main()
