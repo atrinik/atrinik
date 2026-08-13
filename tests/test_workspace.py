@@ -7258,7 +7258,13 @@ class WorkspaceTests(unittest.TestCase):
 
     def test_relocated_scenario_backfill_blocks_removal_until_complete(self) -> None:
         sources = [
-            self.workspace.paths.worktrees / "server" / f"retired-scenario-{index}"
+            self.workspace.create_worktree(
+                "content",
+                f"retired-scenario-{index}",
+                f"feat/retired-scenario-{index}",
+                None,
+                False,
+            )
             for index in range(2)
         ]
         alternate_root = self.root / "alternate-scenario-workspace"
@@ -7277,29 +7283,18 @@ class WorkspaceTests(unittest.TestCase):
                 }
             },
         )
-        removal = self.workspace._lease_request(
-            "registry",
-            "physical-references",
-            "exclusive",
-            "remove selected source",
-        )
         with mock.patch.dict(
             os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
         ):
             fresh = Workspace(self.wrapper, backfill_references=False)
         entered = threading.Event()
         release = threading.Event()
-        removal_entered = threading.Event()
         publish = fresh._publish_scenario_reference_sources
 
         def pause_publication(name: str, values: list[str] | set[str]) -> None:
             entered.set()
             self.assertTrue(release.wait(5))
             publish(name, values)
-
-        def attempt_removal() -> None:
-            with resource_locks(fresh._lease_root, [removal]):
-                removal_entered.set()
 
         try:
             with (
@@ -7312,13 +7307,22 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 backfill = executor.submit(fresh._backfill_physical_references)
                 self.assertTrue(entered.wait(5))
-                removing = executor.submit(attempt_removal)
+                removing = executor.submit(
+                    self.workspace.remove_worktree,
+                    "content",
+                    "retired-scenario-1",
+                )
                 time.sleep(0.05)
-                self.assertFalse(removal_entered.is_set())
+                self.assertFalse(removing.done())
                 release.set()
                 backfill.result(timeout=5)
-                removing.result(timeout=5)
-            self.assertTrue(removal_entered.is_set())
+                with self.assertRaisesRegex(
+                    WorkspaceError,
+                    r"refusing to remove referenced worktree .*: "
+                    r"scenario:retired-scenario$",
+                ):
+                    removing.result(timeout=5)
+            self.assertTrue(sources[1].is_dir())
             reference = load_json(
                 fresh._lease_namespace
                 / "profile-references"
