@@ -4532,6 +4532,17 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(list(topology.iterdir()), [])
 
+    def test_runtime_directory_copy_reports_unopenable_source(self) -> None:
+        destination = self.root / "runtime-destination"
+        destination.mkdir()
+
+        with self.assertRaisesRegex(
+            WorkspaceError, "cannot open runtime publication directory"
+        ):
+            self.workspace._copy_runtime_directory_contents(
+                self.root / "missing-runtime-source", destination
+            )
+
     def test_topology_runtime_set_rejects_file_changed_to_link_during_copy(
         self,
     ) -> None:
