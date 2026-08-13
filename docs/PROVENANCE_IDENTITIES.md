@@ -102,11 +102,16 @@ keys, no insignificant whitespace, JSON string escaping, and no floating-point
 values. A record's public SHA-256 covers every field except `integrity`. The
 restricted HMAC uses a separately held key and covers the canonical decrypted
 evidence plus the exact scope binding. Public aliases additionally require a
-restricted authorization naming every public identity field.
+restricted authorization naming every public identity field. Every public
+record and exact component-scope statement carries an Ed25519 SSH signature
+from a key in the versioned `reviewers.json` roster. The validator checks the
+key's identity, role boundary, effective dates and current revocation status;
+plain SHA-256 integrity is never treated as authorization.
 
-Records expire and must be re-reviewed before use. `revoked` records are
-invalid immediately; `superseded` records direct operators to a separately
-published replacement without mutating history. Schema or policy changes use a
+Reviews expire within 366 days and must be re-reviewed before use. `revoked`
+records carry an effective date and privacy-safe reason and are invalid
+immediately; `superseded` records carry an effective date and active replacement
+pointer without mutating history. Schema or policy changes use a
 new version and require explicit migration review. The validator rejects
 unknown versions, duplicate IDs/bindings, stale active records, unsafe fields,
 digest drift, and references to non-active records.
@@ -118,29 +123,34 @@ revision; destination repository and path; transformation; and the opaque scope
 binding. Its `evidence_reference` has exactly:
 
 - `repository: atrinik/atrinik`;
-- a full 40-character coordinator commit reachable from its default branch, or
-  the commit named by an immutable signed release artifact;
+- a full 40-character coordinator commit reachable from canonical `origin/main`;
 - the opaque record ID;
 - SHA-256 digests of the registry and schema bytes; and
 - the canonical GitHub `blob/<commit>/.../registry.json#<record-id>` permalink.
 
 Online review opens that permalink and verifies that the commit is on the
 coordinator default branch or covered by the cited release. Bounded offline
-review uses an existing non-shallow coordinator checkout containing the pinned
-commit; `git show` reads only the two pinned blobs, each limited to 1 MiB. It
-does not fetch, search history, follow a branch, or consult a local alias copy.
+review uses an existing non-shallow canonical coordinator checkout containing
+the pinned commit. It disables replace objects, rejects grafts, proves ancestry
+from `origin/main`, sizes each object before reading at most 1 MiB, and reads
+only the pinned registry, schema and reviewer roster. It does not fetch, search
+history, or consult a local alias copy. A signed-release mode is not implemented
+in schema v1 and therefore fails closed.
 
 The synthetic two-component fixtures exercise both paths:
 
 ```sh
-./atrinik provenance validate --as-of 2026-08-13 \
+./atrinik provenance validate \
   --reference tests/fixtures/provenance-identities/positive/synthetic-alpha.json \
   --reference tests/fixtures/provenance-identities/positive/synthetic-beta.json
 ```
 
-Their pinned URLs become online after this branch is pushed. They are synthetic
-test evidence, not permission for real material. Production consumers must pin
-a revision that has landed on the default branch or an approved release.
+Their pinned URLs become online after this branch is pushed. Before merge they
+may be exercised only with `--non-authorizing-audit-ref
+origin/feat/privacy-preserving-provenance-registry`; that mode is visibly not an
+approval for reuse. They are synthetic test evidence, not permission for real
+material. Production validation accepts only a revision that has landed on the
+default branch.
 
 ## Migration and review
 

@@ -1,7 +1,8 @@
 # Provenance identity registry
 
-`registry.json` is the only public Atrinik provenance identity registry and
-`schema-v1.json` is its canonical schema. The operating, privacy, custody,
+`registry.json` is the only public Atrinik provenance identity registry,
+`schema-v1.json` is its canonical schema, and `reviewers.json` is the versioned
+authorized signing-key roster. The operating, privacy, custody,
 attestation, reference, and migration rules are in
 [`docs/PROVENANCE_IDENTITIES.md`](../../docs/PROVENANCE_IDENTITIES.md).
 

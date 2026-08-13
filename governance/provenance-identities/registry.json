@@ -2,16 +2,18 @@
   "schema_version": 1,
   "policy_version": 1,
   "schema": "governance/provenance-identities/schema-v1.json",
+  "reviewers": "governance/provenance-identities/reviewers.json",
   "records": [
     {
-      "record_id": "pir-synthetic-alpha-0001",
+      "record_id": "pir-c-11111111111111111111111111111111",
       "record_type": "confidential-attestation",
       "status": "active",
+      "status_detail": {"effective_on": "2026-08-13"},
       "synthetic": true,
       "policy_version": 1,
       "reviewer": "github:synthetic-reviewer",
       "reviewed_on": "2026-08-13",
-      "expires_on": "2099-12-31",
+      "expires_on": "2027-08-13",
       "claims": ["authorship", "identity", "rights-grant", "temporal-scope"],
       "scope_binding": "psb-11111111111111111111111111111111",
       "restricted_evidence": {
@@ -20,23 +22,28 @@
       },
       "publication_review": {
         "correlation_risk": "approved",
-        "fields_reviewed": ["claims", "expires_on", "integrity", "policy_version", "publication_review", "record_id", "record_type", "restricted_evidence", "reviewed_on", "reviewer", "scope_binding", "status", "synthetic"]
+        "fields_reviewed": ["approval", "claims", "expires_on", "integrity", "policy_version", "publication_review", "record_id", "record_type", "restricted_evidence", "reviewed_on", "reviewer", "scope_binding", "status", "status_detail", "synthetic"]
+      },
+      "approval": {
+        "key_id": "synthetic-reviewer-2026",
+        "signature": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgBruVWBv4FEuaHvyX1z13qRO9BU\nTXED0DGAjTaWDx1NAAAAAVYXRyaW5pay1wcm92ZW5hbmNlLXYxAAAAAAAAAAZzaGE1MTIA\nAABTAAAAC3NzaC1lZDI1NTE5AAAAQFlpemJx/lO0N7nc3wISkYE6s0iYmq6G1NHeYAkUq6\nu1+1ESy5P0kgHlHE3CgniQGcHgQroTFryHERDinM9C8wE=\n-----END SSH SIGNATURE-----"
       },
       "integrity": {
         "algorithm": "sha256",
         "canonicalization": "atrinik-json-v1",
-        "digest": "9d4107ebde6e6a84228b9ea553441ec2a0f85294d4bab9305644da17fa6c4250"
+        "digest": "1d855bba5809b77c72600b0a88b0455b33b92537417fcc1527533ebe2a7ac623"
       }
     },
     {
-      "record_id": "pir-synthetic-beta-00001",
+      "record_id": "pir-c-22222222222222222222222222222222",
       "record_type": "confidential-attestation",
       "status": "active",
+      "status_detail": {"effective_on": "2026-08-13"},
       "synthetic": true,
       "policy_version": 1,
       "reviewer": "github:synthetic-reviewer",
       "reviewed_on": "2026-08-13",
-      "expires_on": "2099-12-31",
+      "expires_on": "2027-08-13",
       "claims": ["authorship", "identity", "rights-grant", "temporal-scope"],
       "scope_binding": "psb-22222222222222222222222222222222",
       "restricted_evidence": {
@@ -45,12 +52,16 @@
       },
       "publication_review": {
         "correlation_risk": "approved",
-        "fields_reviewed": ["claims", "expires_on", "integrity", "policy_version", "publication_review", "record_id", "record_type", "restricted_evidence", "reviewed_on", "reviewer", "scope_binding", "status", "synthetic"]
+        "fields_reviewed": ["approval", "claims", "expires_on", "integrity", "policy_version", "publication_review", "record_id", "record_type", "restricted_evidence", "reviewed_on", "reviewer", "scope_binding", "status", "status_detail", "synthetic"]
+      },
+      "approval": {
+        "key_id": "synthetic-reviewer-2026",
+        "signature": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgBruVWBv4FEuaHvyX1z13qRO9BU\nTXED0DGAjTaWDx1NAAAAAVYXRyaW5pay1wcm92ZW5hbmNlLXYxAAAAAAAAAAZzaGE1MTIA\nAABTAAAAC3NzaC1lZDI1NTE5AAAAQPIBMAsVhr/MbFu1hEon8X3pix+6HzkVYN5JXUF6Df\nHQygoLAOLKnspOHb1rFzt37B7m9XiJ9sExwTpXOaBgUAw=\n-----END SSH SIGNATURE-----"
       },
       "integrity": {
         "algorithm": "sha256",
         "canonicalization": "atrinik-json-v1",
-        "digest": "f085481974eb70bbc9e27c9666fcee7d1b75b054e3cc0802b69cef9493695219"
+        "digest": "3bd239072c59c4cb381c839e4fd7ddb5dc69d52d5f72189be5ee1f6c8ad76cec"
       }
     }
   ]

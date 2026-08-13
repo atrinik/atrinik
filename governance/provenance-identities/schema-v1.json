@@ -5,11 +5,12 @@
   "description": "Public aliases with explicit authorization and privacy-preserving attestations backed by restricted evidence.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "policy_version", "schema", "records"],
+  "required": ["schema_version", "policy_version", "schema", "reviewers", "records"],
   "properties": {
     "schema_version": {"const": 1},
     "policy_version": {"const": 1},
     "schema": {"const": "governance/provenance-identities/schema-v1.json"},
+    "reviewers": {"const": "governance/provenance-identities/reviewers.json"},
     "records": {
       "type": "array",
       "items": {"oneOf": [
@@ -19,7 +20,7 @@
     }
   },
   "$defs": {
-    "recordId": {"type": "string", "pattern": "^pir-[a-z0-9][a-z0-9-]{15,63}$"},
+    "recordId": {"type": "string", "pattern": "^pir-[cp]-[0-9a-f]{32}$"},
     "reviewer": {"type": "string", "pattern": "^github:[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$"},
     "date": {"type": "string", "format": "date"},
     "claims": {
@@ -38,14 +39,33 @@
         "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
       }
     },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key_id", "signature"],
+      "properties": {
+        "key_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{7,63}$"},
+        "signature": {"type": "string", "pattern": "^-----BEGIN SSH SIGNATURE-----\\n[A-Za-z0-9+/=\\n]+\\n-----END SSH SIGNATURE-----$"}
+      }
+    },
+    "statusDetail": {
+      "type": "object",
+      "required": ["effective_on"],
+      "properties": {
+        "effective_on": {"$ref": "#/$defs/date"},
+        "reason": {"enum": ["compromise", "correction", "dispute", "withdrawal"]},
+        "superseded_by": {"$ref": "#/$defs/recordId"}
+      }
+    },
     "publicAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["record_id", "record_type", "status", "synthetic", "policy_version", "reviewer", "reviewed_on", "expires_on", "claims", "display_name", "aliases", "publication_authorization", "integrity"],
+      "required": ["record_id", "record_type", "status", "status_detail", "synthetic", "policy_version", "reviewer", "reviewed_on", "expires_on", "claims", "display_name", "aliases", "publication_authorization", "approval", "integrity"],
       "properties": {
         "record_id": {"$ref": "#/$defs/recordId"},
         "record_type": {"const": "public-alias"},
         "status": {"enum": ["active", "revoked", "superseded"]},
+        "status_detail": {"$ref": "#/$defs/statusDetail"},
         "synthetic": {"type": "boolean"},
         "policy_version": {"const": 1},
         "reviewer": {"$ref": "#/$defs/reviewer"},
@@ -64,17 +84,19 @@
             "restricted_record_id": {"type": "string", "pattern": "^restricted-[0-9a-f]{32}$"}
           }
         },
+        "approval": {"$ref": "#/$defs/approval"},
         "integrity": {"$ref": "#/$defs/integrity"}
       }
     },
     "confidentialAttestation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["record_id", "record_type", "status", "synthetic", "policy_version", "reviewer", "reviewed_on", "expires_on", "claims", "scope_binding", "restricted_evidence", "publication_review", "integrity"],
+      "required": ["record_id", "record_type", "status", "status_detail", "synthetic", "policy_version", "reviewer", "reviewed_on", "expires_on", "claims", "scope_binding", "restricted_evidence", "publication_review", "approval", "integrity"],
       "properties": {
         "record_id": {"$ref": "#/$defs/recordId"},
         "record_type": {"const": "confidential-attestation"},
         "status": {"enum": ["active", "revoked", "superseded"]},
+        "status_detail": {"$ref": "#/$defs/statusDetail"},
         "synthetic": {"type": "boolean"},
         "policy_version": {"const": 1},
         "reviewer": {"$ref": "#/$defs/reviewer"},
@@ -100,6 +122,7 @@
             "fields_reviewed": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}}
           }
         },
+        "approval": {"$ref": "#/$defs/approval"},
         "integrity": {"$ref": "#/$defs/integrity"}
       }
     }

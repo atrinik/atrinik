@@ -3,9 +3,11 @@ from __future__ import annotations
 from datetime import date
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath
 import re
 import subprocess
+import tempfile
 from typing import Any
 
 from .model import WorkspaceError
@@ -14,15 +16,21 @@ from .model import WorkspaceError
 SCHEMA_VERSION = 1
 POLICY_VERSION = 1
 MAX_DOCUMENT_BYTES = 1024 * 1024
+MAX_REVIEW_DAYS = 366
 CANONICALIZATION = "atrinik-json-v1"
 REGISTRY_PATH = Path("governance/provenance-identities/registry.json")
 SCHEMA_PATH = Path("governance/provenance-identities/schema-v1.json")
-RECORD_ID_PATTERN = re.compile(r"^pir-[a-z0-9][a-z0-9-]{15,63}$")
+REVIEWERS_PATH = Path("governance/provenance-identities/reviewers.json")
+TRUSTED_SCHEMA_CANONICAL_SHA256 = "2f52bcf87957ffc909cc99cb57ad8f0f1809dc02dfa4111d32e5ad24a4a3cb05"
+CONFIDENTIAL_RECORD_ID_PATTERN = re.compile(r"^pir-c-[0-9a-f]{32}$")
+PUBLIC_RECORD_ID_PATTERN = re.compile(r"^pir-p-[0-9a-f]{32}$")
+RECORD_ID_PATTERN = re.compile(r"^pir-[cp]-[0-9a-f]{32}$")
 SCOPE_BINDING_PATTERN = re.compile(r"^psb-[0-9a-f]{32}$")
 RESTRICTED_ID_PATTERN = re.compile(r"^restricted-[0-9a-f]{32}$")
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 REVISION_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 REVIEWER_PATTERN = re.compile(r"^github:[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$")
+KEY_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{7,63}$")
 KNOWN_CLAIMS = {
     "authorship",
     "identity",
@@ -149,6 +157,8 @@ def _repository_path(value: object, context: str) -> str:
 
 
 def _validate_schema(schema: dict[str, Any]) -> None:
+    if sha256(canonical_bytes(schema)) != TRUSTED_SCHEMA_CANONICAL_SHA256:
+        raise WorkspaceError("provenance identity schema differs from the trusted version")
     if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
         raise WorkspaceError("provenance identity schema must use draft 2020-12")
     if schema.get("$id") != "https://atrinik.org/schema/provenance-identities-v1.json":
@@ -156,8 +166,122 @@ def _validate_schema(schema: dict[str, Any]) -> None:
     if schema.get("type") != "object" or schema.get("additionalProperties") is not False:
         raise WorkspaceError("provenance identity schema must reject non-object or extra fields")
     version = schema.get("properties", {}).get("schema_version", {}).get("const")
-    if version != SCHEMA_VERSION:
+    if type(version) is not int or version != SCHEMA_VERSION:
         raise WorkspaceError("provenance identity schema has an unsupported version")
+
+
+def validate_reviewers(value: dict[str, Any], *, as_of: date) -> dict[str, dict[str, Any]]:
+    _exact_keys(value, {"reviewers", "schema_version"}, "provenance reviewer registry")
+    if type(value["schema_version"]) is not int or value["schema_version"] != 1:
+        raise WorkspaceError("provenance reviewer registry has an unsupported version")
+    raw = value["reviewers"]
+    if not isinstance(raw, list) or not raw:
+        raise WorkspaceError("provenance reviewer registry must contain reviewers")
+    result: dict[str, dict[str, Any]] = {}
+    for index, reviewer in enumerate(raw):
+        context = f"provenance reviewer {index}"
+        if not isinstance(reviewer, dict):
+            raise WorkspaceError(f"{context}: must be an object")
+        _exact_keys(
+            reviewer,
+            {"effective_on", "expires_on", "identity", "key_id", "public_key", "status", "synthetic"},
+            context,
+        )
+        identity = reviewer["identity"]
+        if not isinstance(identity, str) or not REVIEWER_PATTERN.fullmatch(identity):
+            raise WorkspaceError(f"{context}.identity: invalid GitHub identity")
+        key_id = reviewer["key_id"]
+        if not isinstance(key_id, str) or not KEY_ID_PATTERN.fullmatch(key_id):
+            raise WorkspaceError(f"{context}.key_id: invalid key identifier")
+        if key_id in result:
+            raise WorkspaceError(f"{context}: duplicate key identifier")
+        if reviewer["status"] not in {"active", "revoked"}:
+            raise WorkspaceError(f"{context}.status: invalid status")
+        if not isinstance(reviewer["synthetic"], bool):
+            raise WorkspaceError(f"{context}.synthetic: must be a boolean")
+        effective = _iso_date(reviewer["effective_on"], f"{context}.effective_on")
+        expires = _iso_date(reviewer["expires_on"], f"{context}.expires_on")
+        if effective > expires:
+            raise WorkspaceError(f"{context}: invalid effective interval")
+        public_key = _text(reviewer["public_key"], f"{context}.public_key")
+        if not re.fullmatch(r"ssh-ed25519 [A-Za-z0-9+/]+={0,2}", public_key):
+            raise WorkspaceError(f"{context}.public_key: must be an Ed25519 SSH key")
+        result[key_id] = reviewer
+    if list(result) != sorted(result):
+        raise WorkspaceError("provenance reviewers must be sorted by key_id")
+    return result
+
+
+def _approval_payload(record: dict[str, Any]) -> bytes:
+    return canonical_bytes(
+        {key: value for key, value in record.items() if key not in {"approval", "integrity"}}
+    )
+
+
+def _verify_approval(
+    approval: object,
+    payload: bytes,
+    *,
+    reviewer_identity: str,
+    reviewed_on: date,
+    reviewers: dict[str, dict[str, Any]],
+    synthetic: bool,
+    context: str,
+) -> None:
+    if not isinstance(approval, dict):
+        raise WorkspaceError(f"{context}: must be an object")
+    _exact_keys(approval, {"key_id", "signature"}, context)
+    key_id = approval["key_id"]
+    if key_id not in reviewers:
+        raise WorkspaceError(f"{context}.key_id: reviewer key is not authorized")
+    reviewer = reviewers[key_id]
+    if reviewer["identity"] != reviewer_identity:
+        raise WorkspaceError(f"{context}: key does not belong to the named reviewer")
+    if reviewer["status"] != "active":
+        raise WorkspaceError(f"{context}: reviewer key is revoked")
+    if reviewer["synthetic"] != synthetic:
+        raise WorkspaceError(f"{context}: synthetic reviewer boundary mismatch")
+    if not (
+        _iso_date(reviewer["effective_on"], f"{context}.effective_on")
+        <= reviewed_on
+        <= _iso_date(reviewer["expires_on"], f"{context}.expires_on")
+    ):
+        raise WorkspaceError(f"{context}: reviewer key was not effective at review")
+    signature = _text(approval["signature"], f"{context}.signature")
+    if not signature.startswith("-----BEGIN SSH SIGNATURE-----\n") or not signature.endswith(
+        "\n-----END SSH SIGNATURE-----"
+    ):
+        raise WorkspaceError(f"{context}.signature: invalid SSH signature envelope")
+    try:
+        with tempfile.TemporaryDirectory(prefix="atrinik-provenance-signature-") as temporary:
+            allowed = Path(temporary) / "allowed_signers"
+            signature_path = Path(temporary) / "signature"
+            allowed.write_text(
+                f"{reviewer_identity} {reviewer['public_key']}\n", encoding="utf-8"
+            )
+            signature_path.write_text(signature + "\n", encoding="utf-8")
+            result = subprocess.run(
+                [
+                    "ssh-keygen",
+                    "-Y",
+                    "verify",
+                    "-f",
+                    str(allowed),
+                    "-I",
+                    reviewer_identity,
+                    "-n",
+                    "atrinik-provenance-v1",
+                    "-s",
+                    str(signature_path),
+                ],
+                input=payload,
+                capture_output=True,
+                timeout=10,
+            )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise WorkspaceError(f"{context}: cannot verify reviewer signature") from exc
+    if result.returncode != 0:
+        raise WorkspaceError(f"{context}: reviewer signature is invalid")
 
 
 def _walk_confidential_keys(value: object, context: str) -> None:
@@ -191,11 +315,16 @@ def _validate_integrity(record: dict[str, Any], context: str) -> None:
         raise WorkspaceError(f"{context}.integrity.digest: does not match canonical record")
 
 
-def _validate_common_record(record: dict[str, Any], context: str, as_of: date) -> None:
+def _validate_common_record(
+    record: dict[str, Any],
+    context: str,
+    as_of: date,
+    reviewers: dict[str, dict[str, Any]],
+) -> None:
     identifier = record.get("record_id")
     if not isinstance(identifier, str) or not RECORD_ID_PATTERN.fullmatch(identifier):
         raise WorkspaceError(f"{context}.record_id: must be an opaque pir identifier")
-    if record.get("policy_version") != POLICY_VERSION:
+    if type(record.get("policy_version")) is not int or record["policy_version"] != POLICY_VERSION:
         raise WorkspaceError(f"{context}.policy_version: unsupported policy version")
     if record.get("status") not in {"active", "revoked", "superseded"}:
         raise WorkspaceError(f"{context}.status: unsupported status")
@@ -204,7 +333,9 @@ def _validate_common_record(record: dict[str, Any], context: str, as_of: date) -
         raise WorkspaceError(f"{context}.reviewer: must be a public GitHub reviewer identity")
     reviewed = _iso_date(record.get("reviewed_on"), f"{context}.reviewed_on")
     expires = _iso_date(record.get("expires_on"), f"{context}.expires_on")
-    if expires <= reviewed:
+    if reviewed > as_of:
+        raise WorkspaceError(f"{context}: review date is in the future")
+    if expires <= reviewed or (expires - reviewed).days > MAX_REVIEW_DAYS:
         raise WorkspaceError(f"{context}: expires_on must be after reviewed_on")
     if record.get("status") == "active" and expires < as_of:
         raise WorkspaceError(f"{context}: active attestation is stale")
@@ -212,14 +343,26 @@ def _validate_common_record(record: dict[str, Any], context: str, as_of: date) -
     if not set(claims) <= KNOWN_CLAIMS:
         raise WorkspaceError(f"{context}.claims: contains an unknown claim")
     _validate_integrity(record, context)
+    _verify_approval(
+        record.get("approval"),
+        _approval_payload(record),
+        reviewer_identity=reviewer,
+        reviewed_on=reviewed,
+        reviewers=reviewers,
+        synthetic=record["synthetic"],
+        context=f"{context}.approval",
+    )
 
 
-def _validate_confidential_record(record: dict[str, Any], context: str, as_of: date) -> None:
+def _validate_confidential_record(
+    record: dict[str, Any], context: str, as_of: date, reviewers: dict[str, dict[str, Any]]
+) -> None:
     _walk_confidential_keys(record, context)
     _exact_keys(
         record,
         {
             "claims",
+            "approval",
             "expires_on",
             "integrity",
             "policy_version",
@@ -231,6 +374,7 @@ def _validate_confidential_record(record: dict[str, Any], context: str, as_of: d
             "reviewer",
             "scope_binding",
             "status",
+            "status_detail",
             "synthetic",
         },
         context,
@@ -257,16 +401,21 @@ def _validate_confidential_record(record: dict[str, Any], context: str, as_of: d
     fields = _string_array(review["fields_reviewed"], f"{context}.publication_review.fields_reviewed")
     if fields != sorted(record):
         raise WorkspaceError(f"{context}.publication_review: must cover every public field")
-    _validate_common_record(record, context, as_of)
+    if not CONFIDENTIAL_RECORD_ID_PATTERN.fullmatch(record["record_id"]):
+        raise WorkspaceError(f"{context}.record_id: confidential identifiers must be random hex")
+    _validate_common_record(record, context, as_of, reviewers)
     if set(record["claims"]) != KNOWN_CLAIMS:
         raise WorkspaceError(f"{context}.claims: confidential review must prove all claims")
 
 
-def _validate_public_alias_record(record: dict[str, Any], context: str, as_of: date) -> None:
+def _validate_public_alias_record(
+    record: dict[str, Any], context: str, as_of: date, reviewers: dict[str, dict[str, Any]]
+) -> None:
     _exact_keys(
         record,
         {
             "aliases",
+            "approval",
             "claims",
             "display_name",
             "expires_on",
@@ -278,6 +427,7 @@ def _validate_public_alias_record(record: dict[str, Any], context: str, as_of: d
             "reviewed_on",
             "reviewer",
             "status",
+            "status_detail",
             "synthetic",
         },
         context,
@@ -307,24 +457,33 @@ def _validate_public_alias_record(record: dict[str, Any], context: str, as_of: d
         raise WorkspaceError(f"{context}.publication_authorization: must explicitly cover all identity fields")
     if not RESTRICTED_ID_PATTERN.fullmatch(str(authorization["restricted_record_id"])):
         raise WorkspaceError(f"{context}.publication_authorization.restricted_record_id: invalid identifier")
-    _validate_common_record(record, context, as_of)
+    if not PUBLIC_RECORD_ID_PATTERN.fullmatch(record["record_id"]):
+        raise WorkspaceError(f"{context}.record_id: public identifiers must be random hex")
+    _validate_common_record(record, context, as_of, reviewers)
 
 
 def validate_registry(
-    registry: dict[str, Any], schema: dict[str, Any], *, as_of: date
+    registry: dict[str, Any],
+    schema: dict[str, Any],
+    reviewers_value: dict[str, Any],
+    *,
+    as_of: date,
 ) -> dict[str, dict[str, Any]]:
     _validate_schema(schema)
+    reviewers = validate_reviewers(reviewers_value, as_of=as_of)
     _exact_keys(
         registry,
-        {"policy_version", "records", "schema", "schema_version"},
+        {"policy_version", "records", "reviewers", "schema", "schema_version"},
         "provenance identity registry",
     )
-    if registry["schema_version"] != SCHEMA_VERSION:
+    if type(registry["schema_version"]) is not int or registry["schema_version"] != SCHEMA_VERSION:
         raise WorkspaceError("provenance identity registry has an unsupported schema version")
-    if registry["policy_version"] != POLICY_VERSION:
+    if type(registry["policy_version"]) is not int or registry["policy_version"] != POLICY_VERSION:
         raise WorkspaceError("provenance identity registry has an unsupported policy version")
     if registry["schema"] != SCHEMA_PATH.as_posix():
         raise WorkspaceError("provenance identity registry names an unexpected schema")
+    if registry["reviewers"] != REVIEWERS_PATH.as_posix():
+        raise WorkspaceError("provenance identity registry names unexpected reviewers")
     records = registry["records"]
     if not isinstance(records, list):
         raise WorkspaceError("provenance identity registry records must be an array")
@@ -340,7 +499,7 @@ def validate_registry(
             raise WorkspaceError(f"{context}: duplicate record identifier {identifier}")
         record_type = record.get("record_type")
         if record_type == "confidential-attestation":
-            _validate_confidential_record(record, context, as_of)
+            _validate_confidential_record(record, context, as_of, reviewers)
             binding = record["scope_binding"]
             restricted_id = record["restricted_evidence"]["record_id"]
             if binding in bindings:
@@ -350,30 +509,109 @@ def validate_registry(
             bindings.add(binding)
             restricted_ids.add(restricted_id)
         elif record_type == "public-alias":
-            _validate_public_alias_record(record, context, as_of)
+            _validate_public_alias_record(record, context, as_of, reviewers)
         else:
             raise WorkspaceError(f"{context}.record_type: unsupported record type")
         identifier = record["record_id"]
         result[identifier] = record
     if list(result) != sorted(result):
         raise WorkspaceError("provenance identity registry records must be sorted by record_id")
+    for identifier, record in result.items():
+        detail = record["status_detail"]
+        if not isinstance(detail, dict):
+            raise WorkspaceError(f"record {identifier}.status_detail: must be an object")
+        effective = _iso_date(detail.get("effective_on"), f"record {identifier}.status_detail.effective_on")
+        if effective < _iso_date(record["reviewed_on"], f"record {identifier}.reviewed_on"):
+            raise WorkspaceError(f"record {identifier}: status predates review")
+        if record["status"] == "active":
+            _exact_keys(detail, {"effective_on"}, f"record {identifier}.status_detail")
+        elif record["status"] == "revoked":
+            _exact_keys(detail, {"effective_on", "reason"}, f"record {identifier}.status_detail")
+            if detail["reason"] not in {"compromise", "correction", "dispute", "withdrawal"}:
+                raise WorkspaceError(f"record {identifier}: invalid revocation reason")
+        else:
+            _exact_keys(detail, {"effective_on", "superseded_by"}, f"record {identifier}.status_detail")
+            target = detail["superseded_by"]
+            if target == identifier or target not in result:
+                raise WorkspaceError(f"record {identifier}: invalid supersession target")
+            if result[target]["status"] != "active":
+                raise WorkspaceError(f"record {identifier}: supersession target is not active")
     return result
 
 
-def _git_blob(repository_root: Path, revision: str, path: str) -> bytes:
+def _git_environment() -> dict[str, str]:
+    return {**os.environ, "GIT_NO_REPLACE_OBJECTS": "1"}
+
+
+def _git_output(repository_root: Path, arguments: list[str], context: str) -> bytes:
     try:
         result = subprocess.run(
-            ["git", "show", f"{revision}:{path}"],
+            ["git", *arguments],
             cwd=repository_root,
             check=True,
             capture_output=True,
             timeout=10,
+            env=_git_environment(),
         )
     except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
-        raise WorkspaceError(f"immutable reference cannot resolve {revision}:{path}") from exc
-    if len(result.stdout) > MAX_DOCUMENT_BYTES:
-        raise WorkspaceError("immutable reference document exceeds the size limit")
+        raise WorkspaceError(context) from exc
     return result.stdout
+
+
+def _validate_repository_trust(
+    repository_root: Path, revision: str, trusted_ref: str
+) -> None:
+    if _git_output(
+        repository_root,
+        ["rev-parse", "--is-shallow-repository"],
+        "cannot inspect coordinator checkout depth",
+    ).strip() != b"false":
+        raise WorkspaceError("coordinator checkout must be non-shallow")
+    common = _git_output(
+        repository_root,
+        ["rev-parse", "--path-format=absolute", "--git-common-dir"],
+        "cannot resolve coordinator Git directory",
+    ).decode().strip()
+    if (Path(common) / "info" / "grafts").exists():
+        raise WorkspaceError("coordinator checkout has legacy grafts")
+    origin = _git_output(
+        repository_root,
+        ["remote", "get-url", "origin"],
+        "coordinator checkout requires origin",
+    ).decode().strip()
+    if origin not in {
+        "https://github.com/atrinik/atrinik.git",
+        "git@github.com:atrinik/atrinik.git",
+    }:
+        raise WorkspaceError("coordinator origin is not atrinik/atrinik")
+    _git_output(
+        repository_root,
+        ["merge-base", "--is-ancestor", revision, trusted_ref],
+        f"coordinator revision is not reachable from trusted ref {trusted_ref}",
+    )
+
+
+def _git_blob(repository_root: Path, revision: str, path: str) -> bytes:
+    object_name = f"{revision}:{path}"
+    raw_size = _git_output(
+        repository_root,
+        ["cat-file", "-s", object_name],
+        f"immutable reference cannot size {object_name}",
+    )
+    try:
+        size = int(raw_size)
+    except ValueError as exc:
+        raise WorkspaceError(f"immutable reference returned invalid size for {object_name}") from exc
+    if size > MAX_DOCUMENT_BYTES:
+        raise WorkspaceError("immutable reference document exceeds the size limit")
+    result = _git_output(
+        repository_root,
+        ["cat-file", "blob", object_name],
+        f"immutable reference cannot resolve {object_name}",
+    )
+    if len(result) != size:
+        raise WorkspaceError("immutable reference blob size changed during read")
+    return result
 
 
 def _load_bytes(value: bytes, context: str) -> dict[str, Any]:
@@ -387,7 +625,13 @@ def _load_bytes(value: bytes, context: str) -> dict[str, Any]:
 
 
 def validate_component_reference(
-    reference: dict[str, Any], *, repository_root: Path, as_of: date
+    reference: dict[str, Any],
+    *,
+    repository_root: Path,
+    as_of: date,
+    trusted_ref: str,
+    current_records: dict[str, dict[str, Any]],
+    current_reviewers: dict[str, dict[str, Any]],
 ) -> None:
     _exact_keys(
         reference,
@@ -395,13 +639,14 @@ def validate_component_reference(
             "destination",
             "evidence_reference",
             "schema_version",
+            "scope_approval",
             "scope_binding",
             "source",
             "transformation",
         },
         "component provenance record",
     )
-    if reference["schema_version"] != SCHEMA_VERSION:
+    if type(reference["schema_version"]) is not int or reference["schema_version"] != SCHEMA_VERSION:
         raise WorkspaceError("component provenance record has an unsupported schema version")
     for key in ("source", "destination"):
         coordinate = reference[key]
@@ -446,6 +691,7 @@ def validate_component_reference(
     )
     if evidence["url"] != expected_url:
         raise WorkspaceError("component provenance reference URL is not the canonical immutable permalink")
+    _validate_repository_trust(repository_root, revision, trusted_ref)
     for key in ("registry_sha256", "schema_sha256"):
         if not isinstance(evidence[key], str) or not SHA256_PATTERN.fullmatch(evidence[key]):
             raise WorkspaceError(f"component provenance reference {key} is invalid")
@@ -458,6 +704,10 @@ def validate_component_reference(
     records = validate_registry(
         _load_bytes(registry_blob, "referenced registry"),
         _load_bytes(schema_blob, "referenced schema"),
+        _load_bytes(
+            _git_blob(repository_root, revision, REVIEWERS_PATH.as_posix()),
+            "referenced reviewers",
+        ),
         as_of=as_of,
     )
     if record_id not in records:
@@ -469,6 +719,23 @@ def validate_component_reference(
         raise WorkspaceError("component provenance reference must select a confidential attestation")
     if record["scope_binding"] != reference["scope_binding"]:
         raise WorkspaceError("component provenance scope binding does not match the attestation")
+    current = current_records.get(record_id)
+    if current is None or current["status"] != "active":
+        raise WorkspaceError("component provenance record is not active in the current registry")
+    if current["scope_binding"] != reference["scope_binding"]:
+        raise WorkspaceError("current provenance scope binding differs from the pinned record")
+    scope_payload = canonical_bytes(
+        {key: value for key, value in reference.items() if key != "scope_approval"}
+    )
+    _verify_approval(
+        reference["scope_approval"],
+        scope_payload,
+        reviewer_identity=record["reviewer"],
+        reviewed_on=_iso_date(record["reviewed_on"], "referenced record reviewed_on"),
+        reviewers=current_reviewers,
+        synthetic=record["synthetic"],
+        context="component provenance scope_approval",
+    )
     if record["synthetic"] and not str(reference["destination"]["repository"]).startswith("atrinik/synthetic-"):
         raise WorkspaceError("synthetic attestations may only be used by synthetic component fixtures")
 
@@ -478,10 +745,26 @@ def validate_paths(
     *,
     registry_path: Path,
     schema_path: Path,
+    reviewers_path: Path,
     reference_paths: list[Path],
     as_of: date,
+    trusted_ref: str,
 ) -> int:
-    records = validate_registry(load_document(registry_path), load_document(schema_path), as_of=as_of)
+    reviewers_value = load_document(reviewers_path)
+    reviewers = validate_reviewers(reviewers_value, as_of=as_of)
+    records = validate_registry(
+        load_document(registry_path),
+        load_document(schema_path),
+        reviewers_value,
+        as_of=as_of,
+    )
     for path in reference_paths:
-        validate_component_reference(load_document(path), repository_root=root, as_of=as_of)
+        validate_component_reference(
+            load_document(path),
+            repository_root=root,
+            as_of=as_of,
+            trusted_ref=trusted_ref,
+            current_records=records,
+            current_reviewers=reviewers,
+        )
     return len(records)

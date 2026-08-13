@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-from datetime import date
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 import sys
@@ -362,17 +362,23 @@ def parser() -> argparse.ArgumentParser:
     )
     mark(
         provenance_validate.add_argument(
+            "--reviewers",
+            type=Path,
+            default=ROOT / "governance/provenance-identities/reviewers.json",
+        ),
+        "path",
+    )
+    mark(
+        provenance_validate.add_argument(
             "--reference", type=Path, action="append", default=[]
         ),
         "path",
     )
     mark(
         provenance_validate.add_argument(
-            "--as-of",
-            type=date.fromisoformat,
-            default=date.today(),
-            metavar="YYYY-MM-DD",
-            help="freshness evaluation date (default: today)",
+            "--non-authorizing-audit-ref",
+            metavar="REF",
+            help="audit a pre-merge ref; output is not approval for production reuse",
         ),
         "none",
     )
@@ -445,11 +451,18 @@ def main(arguments: list[str] | None = None) -> int:
                 ROOT,
                 registry_path=options.registry,
                 schema_path=options.schema,
+                reviewers_path=options.reviewers,
                 reference_paths=options.reference,
-                as_of=options.as_of,
+                as_of=datetime.now(timezone.utc).date(),
+                trusted_ref=options.non_authorizing_audit_ref or "origin/main",
+            )
+            prefix = (
+                "NON-AUTHORIZING AUDIT: "
+                if options.non_authorizing_audit_ref
+                else ""
             )
             print(
-                "governance/provenance-identities/registry.json: valid "
+                prefix + "governance/provenance-identities/registry.json: valid "
                 f"({count} records, {len(options.reference)} references)"
             )
             return 0

@@ -42,7 +42,7 @@ only when all of these gates pass:
    transformation, and matching opaque scope binding, plus a full-commit GitHub
    permalink and exact registry/schema digests. The pinned coordinator commit
    is on the default branch or belongs to an approved immutable release.
-5. `./atrinik provenance validate --reference PATH` succeeds at the review
+5. `./atrinik provenance validate --reference PATH` succeeds on the current UTC
    date from a bounded non-shallow coordinator checkout. Revoked, superseded,
    stale, unknown-version, malformed, movable, missing, or digest-mismatched
    evidence fails closed.
