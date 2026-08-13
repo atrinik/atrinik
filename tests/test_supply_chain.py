@@ -388,6 +388,23 @@ class InventoryTests(unittest.TestCase):
                 document[field] = value
                 self.assert_invalid_document(document, expected)
 
+        license_reference_mutations = [
+            ([], "license_references must be an object"),
+            ({"MIT": "not a reference"}, "keys must be LicenseRef identifiers"),
+            (
+                {
+                    "LicenseRef-Z": "last",
+                    "LicenseRef-A": "first",
+                },
+                "must be sorted by identifier",
+            ),
+        ]
+        for value, expected in license_reference_mutations:
+            with self.subTest(license_references=value):
+                document = self.inventory_document()
+                document["license_references"] = value
+                self.assert_invalid_document(document, expected)
+
         document = self.inventory_document()
         document["repositories"][0] = "client"
         self.assert_invalid_document(document, "repository 0 must be an object")
