@@ -768,6 +768,48 @@ class ParserTests(unittest.TestCase):
         workspace_type.return_value.topology_statuses.assert_called_once_with()
         self.assertEqual(json.loads(output.call_args.args[0]), statuses)
 
+    def test_ps_reports_current_and_historical_retained_leases(self) -> None:
+        common = {
+            "profile": "review",
+            "endpoint": None,
+            "services": {},
+            "supervisor": {"running": True, "pid": 1234},
+        }
+        statuses = [
+            {
+                **common,
+                "name": "current",
+                "observation": {
+                    "process_tree_lease": "retained",
+                    "runtime_bundle_lease": "retained",
+                    "runtime_generation": "a" * 64,
+                    "safe_action": "run ./atrinik down current",
+                },
+            },
+            {
+                **common,
+                "name": "historical",
+                "observation": {
+                    "process_tree_lease": "retained",
+                    "repository_layout_lease_owner": "supervisor 1234",
+                    "safe_action": "run ./atrinik down historical",
+                },
+            },
+        ]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.topology_statuses.return_value = statuses
+            with mock.patch("builtins.print") as output:
+                result = main(["ps"])
+
+        self.assertEqual(result, 0)
+        rendered = "\n".join(
+            str(call.args[0]) if call.args else "" for call in output.call_args_list
+        )
+        self.assertIn(f"runtime-generation\tretained\t{'a' * 64}", rendered)
+        self.assertIn(
+            "repository-layout-lease\tretained\tsupervisor 1234", rendered
+        )
+
     def test_relative_external_profile_path_is_not_silently_absolutized(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
             workspace_type.return_value.set_profile.side_effect = WorkspaceError(
