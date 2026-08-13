@@ -12,6 +12,7 @@ import subprocess
 import tarfile
 import tempfile
 import unittest
+import urllib.error
 from unittest import mock
 
 from atrinik_workspace import sound as sound_module
@@ -1158,6 +1159,52 @@ class ReleasedSoundTests(unittest.TestCase):
                 )
         response.close.assert_called_once()
 
+    def test_download_headers_limits_and_completion_fail_closed(self) -> None:
+        with mock.patch(
+            "urllib.request.urlopen", side_effect=urllib.error.URLError("offline")
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "cannot download"):
+                sound_module.download_release_archive(
+                    self.coordinates["asset_url"], self.root / "offline.tar.gz"
+                )
+        for index, (length, chunks, message) in enumerate((
+            ("invalid", [b""], "invalid Content-Length"),
+            ("0", [b""], "download limit"),
+            ("2", [b"x", b""], "incomplete"),
+            (None, [b""], "incomplete"),
+        )):
+            response = mock.Mock()
+            response.headers = {} if length is None else {"Content-Length": length}
+            response.read.side_effect = chunks
+            with self.subTest(length=length):
+                with mock.patch("urllib.request.urlopen", return_value=response):
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        sound_module.download_release_archive(
+                            self.coordinates["asset_url"],
+                            self.root / f"download-{index}.tar.gz",
+                        )
+            response.close.assert_called_once()
+        response = mock.Mock()
+        response.headers = {"Content-Length": "3"}
+        response.read.side_effect = [b"abc", b""]
+        response.close.side_effect = OSError("close failed")
+        with mock.patch("urllib.request.urlopen", return_value=response):
+            sound_module.download_release_archive(
+                self.coordinates["asset_url"], self.root / "complete.tar.gz"
+            )
+        self.assertEqual((self.root / "complete.tar.gz").read_bytes(), b"abc")
+        response = mock.Mock()
+        response.headers = {}
+        response.read.side_effect = [b"abc", b""]
+        with (
+            mock.patch("urllib.request.urlopen", return_value=response),
+            mock.patch.object(sound_module, "MAX_RELEASE_ARCHIVE_BYTES", 2),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "download limit"):
+                sound_module.download_release_archive(
+                    self.coordinates["asset_url"], self.root / "too-large.tar.gz"
+                )
+
     def test_marker_tampering_fails_closed(self) -> None:
         (self.tree / RELEASE_MARKER).write_text("{}\n", encoding="utf-8")
         self.rewrite_checksums()
@@ -1360,6 +1407,19 @@ class ReleasedSoundTests(unittest.TestCase):
             validate("value", {}, {}, budget=[0])
         with self.assertRaisesRegex(WorkspaceError, "unsupported"):
             validate("value", {"unknown": True}, {})
+        for schema, message in (
+            ({"maxItems": -1}, "maxItems"),
+            ({"maximum": float("inf")}, "maximum"),
+            ({"enum": []}, "enum"),
+            ({"required": "invalid"}, "required"),
+            ({"properties": []}, "properties"),
+            ({"pattern": 1}, "pattern"),
+            ({"uniqueItems": 1}, "uniqueItems"),
+            ({"type": "invalid"}, "type"),
+        ):
+            with self.subTest(instance_schema=schema):
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    validate("value", schema, {})
         with self.assertRaisesRegex(WorkspaceError, "reference is invalid"):
             validate("value", {"$ref": "invalid"}, {})
         with self.assertRaisesRegex(WorkspaceError, "reference is unresolved"):
