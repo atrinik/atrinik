@@ -191,6 +191,68 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 {call.args[0] for call in close.call_args_list}, {7, 8}
             )
 
+    def test_current_supervisor_releases_broad_leases_and_retains_runtime(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            runtime = {
+                "schema_version": 1,
+                "generation": "a" * 64,
+                "root": str(root / "runtime"),
+                "lease": {"device": 1, "inode": 2},
+            }
+            spec = {
+                "schema_version": 2,
+                "name": "cleanup",
+                "profile": "default",
+                "dependencies": ["client"],
+                "state": None,
+                "build_root": "/tmp/build",
+                "resolved": {},
+                "endpoint": None,
+                "runtime": runtime,
+                "services": {
+                    "client": {
+                        "command": ["client"],
+                        "cwd": str(root),
+                        "log": str(root / "client.log"),
+                    }
+                },
+            }
+            spec_path = root / "spec.json"
+            spec_path.write_text(json.dumps(spec), encoding="utf-8")
+            process = mock.MagicMock(pid=1234)
+
+            with (
+                mock.patch.object(
+                    supervisor_module,
+                    "process_start_time",
+                    side_effect=["1", None],
+                ),
+                mock.patch.object(
+                    supervisor_module.subprocess, "Popen", return_value=process
+                ),
+                mock.patch.object(
+                    supervisor_module,
+                    "_start_guardian",
+                    wraps=supervisor_module._start_guardian,
+                ) as start_guardian,
+                mock.patch.object(supervisor_module, "terminate") as terminate,
+                mock.patch.object(supervisor_module.os, "close") as close,
+            ):
+                self.assertEqual(
+                    supervise(spec_path, 6, 7, 8, None, None, 9), 1
+                )
+
+            start_guardian.assert_called_once_with(None, None, 6, 9)
+            terminate.assert_called_once()
+            self.assertEqual(
+                {call.args[0] for call in close.call_args_list}, {6, 7, 8, 9}
+            )
+            status = json.loads(
+                (root / "status.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(status["runtime"], runtime)
+
     def test_terminate_cleans_group_after_service_leader_exits(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             descendant_path = Path(directory) / "descendant.pid"
@@ -202,8 +264,10 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                     "-c",
                     "import os, pathlib, signal, sys, time; "
                     "child = os.fork(); "
+                    "path = pathlib.Path(sys.argv[1]); "
                     "child == 0 and signal.signal(signal.SIGTERM, signal.SIG_IGN); "
-                    "child == 0 and pathlib.Path(sys.argv[1]).write_text(str(os.getpid())); "
+                    "child == 0 and path.with_suffix('.tmp').write_text(str(os.getpid())); "
+                    "child == 0 and path.with_suffix('.tmp').replace(path); "
                     "child == 0 and time.sleep(60); "
                     "os._exit(0)",
                     str(descendant_path),
@@ -254,9 +318,11 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                     "-c",
                     "import os, pathlib, signal, sys, time; "
                     "child = os.fork(); "
+                    "path = pathlib.Path(sys.argv[1]); "
                     "child == 0 and os.close(int(sys.argv[2])); "
                     "child == 0 and signal.signal(signal.SIGTERM, signal.SIG_IGN); "
-                    "child == 0 and pathlib.Path(sys.argv[1]).write_text(str(os.getpid())); "
+                    "child == 0 and path.with_suffix('.tmp').write_text(str(os.getpid())); "
+                    "child == 0 and path.with_suffix('.tmp').replace(path); "
                     "child == 0 and time.sleep(60); "
                     "os._exit(0)",
                     str(descendant_path),
@@ -384,6 +450,120 @@ class ServerReadinessCaptureTests(unittest.TestCase):
 
         with self.assertRaisesRegex(RuntimeError, "identity is incomplete"):
             _initial_status({**spec, "stack": "classic"}, "123")
+
+    def test_main_closes_runtime_lease_after_startup_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            spec_path = Path(directory) / "spec.json"
+            with (
+                mock.patch.object(
+                    sys,
+                    "argv",
+                    [
+                        "atrinik-supervisor",
+                        "--spec",
+                        str(spec_path),
+                        "--runtime-lock-fd",
+                        "9",
+                    ],
+                ),
+                mock.patch.object(
+                    supervisor_module,
+                    "supervise",
+                    side_effect=RuntimeError("invalid runtime"),
+                ) as supervise_call,
+                mock.patch.object(supervisor_module, "atomic_status") as status,
+                mock.patch.object(supervisor_module.os, "close") as close,
+                mock.patch.object(sys, "stderr"),
+            ):
+                self.assertEqual(supervisor_module.main(), 1)
+
+        supervise_call.assert_called_once_with(
+            spec_path, None, None, None, None, None, 9
+        )
+        status.assert_called_once_with(
+            spec_path.parent / "startup-error.json",
+            {"error": "RuntimeError: invalid runtime"},
+        )
+        close.assert_called_once_with(9)
+
+    def test_current_supervisor_orderly_stop_closes_exact_leases(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            spec_path = root / "spec.json"
+            spec_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 2,
+                        "name": "orderly",
+                        "profile": "default",
+                        "dependencies": [],
+                        "state": None,
+                        "build_root": "/tmp/build",
+                        "resolved": {},
+                        "endpoint": None,
+                        "runtime": {"generation": "a" * 64},
+                        "services": {},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with (
+                mock.patch.object(
+                    supervisor_module, "process_start_time", return_value="1"
+                ),
+                mock.patch.object(
+                    supervisor_module, "_validate_port_reservation"
+                ),
+                mock.patch.object(
+                    supervisor_module, "_serve_control", return_value=True
+                ),
+                mock.patch.object(supervisor_module, "terminate"),
+                mock.patch.object(supervisor_module.os, "close") as close,
+            ):
+                self.assertEqual(
+                    supervise(spec_path, None, None, None, None, 8, 9), 0
+                )
+
+        self.assertEqual(
+            {call.args[0] for call in close.call_args_list}, {8, 9}
+        )
+
+    def test_main_daemon_parent_returns_without_supervising(self) -> None:
+        with (
+            mock.patch.object(
+                sys,
+                "argv",
+                ["atrinik-supervisor", "--spec", "/tmp/spec.json", "--daemonize"],
+            ),
+            mock.patch.object(supervisor_module.os, "fork", return_value=1234),
+            mock.patch.object(supervisor_module, "supervise") as supervise_call,
+        ):
+            self.assertEqual(supervisor_module.main(), 0)
+        supervise_call.assert_not_called()
+
+    def test_main_tolerates_runtime_lease_already_closed_on_failure(self) -> None:
+        with (
+            mock.patch.object(
+                sys,
+                "argv",
+                [
+                    "atrinik-supervisor",
+                    "--spec",
+                    "/tmp/spec.json",
+                    "--runtime-lock-fd",
+                    "9",
+                ],
+            ),
+            mock.patch.object(
+                supervisor_module,
+                "supervise",
+                side_effect=RuntimeError("invalid runtime"),
+            ),
+            mock.patch.object(supervisor_module, "atomic_status"),
+            mock.patch.object(supervisor_module.os, "close", side_effect=OSError),
+            mock.patch.object(sys, "stderr"),
+        ):
+            self.assertEqual(supervisor_module.main(), 1)
 
 
 if __name__ == "__main__":

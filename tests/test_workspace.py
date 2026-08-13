@@ -455,12 +455,7 @@ def synthetic_server_start_process(
                 ):
                     reserved_port.close()
 
-            runtime_inputs = {
-                key: root / key
-                for key in ("content", "resources", "client-maps")
-            }
-            for path in runtime_inputs.values():
-                path.mkdir(parents=True, exist_ok=True)
+            state.mkdir(parents=True, exist_ok=True)
 
             reservation_received.set()
             if not release_reservation.wait(10):
@@ -481,14 +476,6 @@ def synthetic_server_start_process(
                 mock.patch.object(workspace, "state_path", return_value=state),
                 mock.patch.object(
                     workspace, "_build_resolved", return_value=root
-                ),
-                mock.patch.object(
-                    workspace,
-                    "_copy_topology_runtime_inputs",
-                    return_value=runtime_inputs,
-                ),
-                mock.patch.object(
-                    workspace, "_prepare_server_runtime", return_value=root
                 ),
             ):
                 try:
@@ -4423,6 +4410,47 @@ class WorkspaceTests(unittest.TestCase):
                 (second / "payload").read_text(encoding="utf-8"), "shared\n"
             )
 
+    def test_runtime_generation_staging_change_publishes_nothing(self) -> None:
+        owner = self.root / "runtime-owner"
+        owner.mkdir()
+        client = self.root / "runtime-client"
+        sound = self.root / "runtime-sound"
+        binary = self.root / "runtime-client-binary"
+        for path in (client, sound, binary):
+            path.mkdir()
+        (client / "data").write_text("client\n", encoding="utf-8")
+        (sound / "sound").write_text("sound\n", encoding="utf-8")
+        executable = binary / "atrinik"
+        executable.write_text("client\n", encoding="utf-8")
+        executable.chmod(0o755)
+
+        with (
+            mock.patch.object(
+                self.workspace, "_classic_binary_directory", return_value=binary
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_runtime_publication_input_digests",
+                side_effect=({"client": "before"}, {"client": "after"}),
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "inputs changed during staging"
+            ),
+        ):
+            self.workspace._publish_runtime_generation(
+                owner,
+                "a" * 64,
+                "default",
+                self.root / "build",
+                {"client": client, "sound": sound},
+                {},
+                ["client"],
+                identity={"kind": "test"},
+                sound_root=sound,
+            )
+
+        self.assertEqual(list((owner / "generations").iterdir()), [])
+
     def test_topology_runtime_set_copy_failure_preserves_all_snapshots(self) -> None:
         topology = self.root / "topology"
         runtime = topology / "runtime"
@@ -4503,6 +4531,30 @@ class WorkspaceTests(unittest.TestCase):
             )
 
         self.assertEqual(list(topology.iterdir()), [])
+
+    def test_runtime_directory_copy_reports_unopenable_source(self) -> None:
+        destination = self.root / "runtime-destination"
+        destination.mkdir()
+
+        with self.assertRaisesRegex(
+            WorkspaceError, "cannot open runtime publication directory"
+        ):
+            self.workspace._copy_runtime_directory_contents(
+                self.root / "missing-runtime-source", destination
+            )
+
+        source = self.root / "runtime-source"
+        source.mkdir()
+        with (
+            mock.patch("atrinik_workspace.workspace.os.close") as close,
+            self.assertRaisesRegex(
+                WorkspaceError, "cannot open runtime publication directory"
+            ),
+        ):
+            self.workspace._copy_runtime_directory_contents(
+                source, self.root / "missing-runtime-destination"
+            )
+        close.assert_called_once()
 
     def test_topology_runtime_set_rejects_file_changed_to_link_during_copy(
         self,
@@ -6118,7 +6170,7 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual([process.exitcode for process in processes], [0] * 10)
         self.assertEqual([results.get(timeout=2) for _ in processes], [None] * 10)
 
-    def test_p0_harness_reproduces_current_lifecycle_layout_convoy(self) -> None:
+    def test_p0_harness_allows_lifecycle_progress_while_topology_runs(self) -> None:
         context = multiprocessing.get_context("spawn")
         for label in ("source-a", "source-b", "source-c"):
             self.workspace.create_worktree(
@@ -6216,30 +6268,23 @@ class WorkspaceTests(unittest.TestCase):
             wait_for_process_event(
                 writer_pending, "profile B mutation queue", results
             )
-            self.assertFalse(writer_entered.is_set())
+            wait_for_process_event(
+                writer_entered, "profile B mutation entry", results
+            )
 
             for reader in readers:
                 reader.start()
                 started.append(reader)
-            for index, blocked in enumerate(readers_blocked):
-                wait_for_process_event(
-                    blocked, f"C reader {index} confirmed lock block", results
-                )
-            self.assertFalse(writer_entered.is_set())
-            self.assertTrue(all(not entered.is_set() for entered in readers_entered))
-
-            # This records the current global A-topology/B-writer/C-reader
-            # convoy through positive lock-contention rendezvous. The #399
-            # cutover will replace this lock-specific expectation with scoped
-            # admission assertions for the same public operations.
-            self.workspace.topology_down("topology-a", timeout=5)
-            wait_for_process_event(
-                writer_entered, "profile B mutation entry", results
-            )
             for index, entered in enumerate(readers_entered):
                 wait_for_process_event(
                     entered, f"C reader {index} completion", results
                 )
+            self.assertTrue(self.workspace.topology_status("topology-a")["ready"])
+
+            # The topology retains only its immutable runtime generation and
+            # exact process/state leases after publication. Unrelated layout
+            # mutation and readers therefore progress while it remains live.
+            self.workspace.topology_down("topology-a", timeout=5)
         finally:
             status_path = (
                 self.workspace.paths.topologies / "topology-a" / "status.json"
@@ -6277,12 +6322,18 @@ class WorkspaceTests(unittest.TestCase):
             ("server-b", "state-b", "build-b", reservations[1].getsockname()[1]),
         )
         self.assertNotEqual(coordinates[0][3], coordinates[1][3])
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / name).write_text("test\n", encoding="utf-8")
         for index, (name, _state, build, _port) in enumerate(coordinates):
             self.workspace.create_profile(name)
             root = self.workspace.paths.builds / "profiles" / build
             root.mkdir(parents=True)
             atomic_json(root / workspace_module.BUILD_METADATA, {})
-            executable = root / "atrinik-server"
+            binary = root / "build" / "server"
+            binary.mkdir(parents=True)
+            executable = binary / "atrinik-server"
             executable.write_text(
                 "#!/usr/bin/env python3\n"
                 "from pathlib import Path\n"
@@ -6302,6 +6353,15 @@ class WorkspaceTests(unittest.TestCase):
                 encoding="utf-8",
             )
             executable.chmod(0o755)
+            for library in ("libplugin_arena.so", "libplugin_python.so"):
+                (binary / library).write_text("test\n", encoding="utf-8")
+            for path in (
+                root / "runtime" / "content" / "lib",
+                root / "runtime" / "content" / "maps",
+                root / "runtime" / "resources",
+            ):
+                path.mkdir(parents=True, exist_ok=True)
+            self.make_region_map_cache(root)
         processes = [
             context.Process(
                 target=synthetic_server_start_process,
@@ -7141,7 +7201,7 @@ class WorkspaceTests(unittest.TestCase):
             )
             self.assertEqual(
                 Path(status["services"]["client"]["cwd"]),
-                self.workspace.paths.topologies / "review" / "client-runtime",
+                Path(status["runtime"]["path"]) / "client",
             )
             with (
                 mock.patch.object(
@@ -7218,7 +7278,11 @@ class WorkspaceTests(unittest.TestCase):
                 cross_namespace["observation"][
                     "repository_layout_lease_owner"
                 ],
-                "review",
+                None,
+            )
+            self.assertEqual(
+                cross_namespace["observation"]["runtime_bundle_lease"],
+                "retained",
             )
             status_path = (
                 self.workspace.paths.topologies / "review" / "status.json"
@@ -7280,6 +7344,26 @@ class WorkspaceTests(unittest.TestCase):
             reused_local_pid = self.workspace.topology_status("review")
         self.assertEqual(reused_local_pid["supervisor"]["liveness"], "exited")
         self.assertFalse(reused_local_pid["services"]["client"]["running"])
+
+        invalid_root = self.workspace._topology_directory(
+            "invalid-config", create=True
+        )
+        (invalid_root / "client-config").write_text(
+            "not a directory\n", encoding="utf-8"
+        )
+        with (
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            mock.patch.object(self.workspace, "_require_client_display"),
+            self.assertRaisesRegex(
+                WorkspaceError, "client configuration path is invalid"
+            ),
+        ):
+            self.workspace.topology_up(
+                "invalid-config", "default", "default", ["client"]
+            )
+        self.assertEqual(list((invalid_root / "generations").iterdir()), [])
 
     def test_topology_status_inventory_probes_with_bounded_concurrency(self) -> None:
         for index in range(24):
@@ -7400,6 +7484,9 @@ class WorkspaceTests(unittest.TestCase):
                 "atrinik_workspace.workspace.verify_playtest_tree",
                 return_value=sound_record,
             ),
+            mock.patch(
+                "atrinik_workspace.workspace.git", return_value="c" * 40
+            ),
         ):
             status = self.workspace.topology_up(
                 "playtest-client", "classic-audio", "default", ["client"]
@@ -7408,7 +7495,8 @@ class WorkspaceTests(unittest.TestCase):
             self.assertTrue(status["services"]["client"]["running"])
             self.assertEqual(status["sound"], sound_record)
             runtime = Path(status["services"]["client"]["cwd"])
-            self.assertEqual((runtime / "sound").resolve(), sound_root.resolve())
+            self.assertFalse((runtime / "sound").is_symlink())
+            self.assertNotEqual((runtime / "sound").resolve(), sound_root.resolve())
             log = self.workspace.paths.topologies / "playtest-client" / "client.log"
             deadline = time.monotonic() + 5
             while time.monotonic() < deadline and (
@@ -7652,7 +7740,7 @@ class WorkspaceTests(unittest.TestCase):
         executable = binary / "atrinik-server"
         executable.write_text(
             "#!/usr/bin/env python3\n"
-            "import os, sys, time\n"
+            "import os, pathlib, sys, time\n"
             "for descriptor in os.listdir('/proc/self/fd'):\n"
             "    try:\n"
             "        target = os.readlink('/proc/self/fd/' + descriptor)\n"
@@ -7660,6 +7748,14 @@ class WorkspaceTests(unittest.TestCase):
             "        continue\n"
             "    assert not target.endswith('/ports.lock'), target\n"
             "    assert '/port-reservations/' not in target, target\n"
+            "assetspath = next(\n"
+            "    value.split('=', 1)[1]\n"
+            "    for value in sys.argv[1:]\n"
+            "    if value.startswith('--assetspath=')\n"
+            ")\n"
+            "data = pathlib.Path(assetspath) / 'data'\n"
+            "data.mkdir(exist_ok=True)\n"
+            "(data / 'listing.txt').write_text('generated\\n')\n"
             f"print('QUIC certificate SHA-256: {'a' * 64}', flush=True)\n"
             "print('Server ready. Waiting for connections...', flush=True)\n"
             "print(repr(sys.argv[1:]), flush=True)\n"
@@ -7741,22 +7837,65 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(status["endpoint"]["fingerprint"], "a" * 64)
         server_runtime = Path(status["services"]["server"]["cwd"])
+        generation_root = Path(status["runtime"]["path"])
+        mutable_asset_output = Path(
+            status["runtime"]["mutable_state_outputs"][0]
+        )
+        self.assertFalse((server_runtime / "assets").exists())
+        self.assertTrue((mutable_asset_output / "data").is_dir())
+        self.assertFalse((mutable_asset_output / "data").is_symlink())
         self.assertEqual(
-            (server_runtime / "maps").resolve(),
-            self.workspace.paths.topologies
-            / "server-review"
-            / "runtime"
-            / "content"
-            / "maps",
+            (mutable_asset_output / "data" / "listing.txt").read_text(),
+            "generated\n",
         )
-        topology_maps = (
-            self.workspace.paths.topologies
-            / "server-review"
-            / "runtime"
-            / "client-maps"
+        self.assertTrue(
+            (mutable_asset_output / "client-maps" / "incuna_-1.png").is_file()
         )
-        self.assertTrue((topology_maps / "incuna_-1.png").is_file())
-        staged_maps = server_runtime / "assets" / "client-maps"
+        self.assertTrue(
+            mutable_asset_output.is_relative_to(
+                self.workspace._state_location("default")
+            )
+        )
+        manifest_path = generation_root / workspace_module.RUNTIME_GENERATION_MANIFEST
+        status_path = (
+            self.workspace.paths.topologies / "server-review" / "status.json"
+        )
+        manifest_record = load_json(manifest_path)
+        status_record = load_json(status_path)
+        generation_mode = stat.S_IMODE(generation_root.stat().st_mode)
+        manifest_mode = stat.S_IMODE(manifest_path.stat().st_mode)
+        try:
+            generation_root.chmod(0o700)
+            manifest_path.chmod(0o600)
+            invalid_manifest = dict(manifest_record)
+            invalid_manifest["identity"] = {
+                **invalid_manifest["identity"],
+                "name": "different-topology",
+            }
+            atomic_json(manifest_path, invalid_manifest)
+            invalid_status = dict(status_record)
+            invalid_status["runtime"] = dict(invalid_status["runtime"])
+            invalid_status["runtime"]["manifest_sha256"] = (
+                workspace_module._file_digest(
+                    manifest_path, "runtime generation manifest"
+                )
+            )
+            atomic_json(status_path, invalid_status)
+            with self.assertRaisesRegex(
+                WorkspaceError, "runtime manifest identity is invalid"
+            ):
+                self.workspace.topology_status("server-review")
+        finally:
+            atomic_json(manifest_path, manifest_record)
+            manifest_path.chmod(manifest_mode)
+            generation_root.chmod(generation_mode)
+            atomic_json(status_path, status_record)
+        self.assertEqual(server_runtime, generation_root / "server")
+        self.assertFalse((server_runtime / "maps").is_symlink())
+        self.assertEqual(
+            (server_runtime / "maps" / "map").read_text(), "shared content\n"
+        )
+        staged_maps = mutable_asset_output / "client-maps"
         self.assertTrue((staged_maps / "incuna_-1.png").is_file())
         self.assertFalse(staged_maps.is_symlink())
         self.assertTrue(
@@ -7770,9 +7909,7 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(
             Path(status["services"]["client"]["cwd"]),
-            self.workspace.paths.topologies
-            / "server-review"
-            / "client-runtime",
+            generation_root / "client",
         )
         client_log = self.workspace.paths.topologies / "server-review" / "client.log"
         server_log = self.workspace.paths.topologies / "server-review" / "server.log"
@@ -7785,7 +7922,7 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("'--port_mapping=off'", server_log.read_text())
         self.assertIn("'--stun_server=off'", server_log.read_text())
         self.assertIn(
-            f"'--assetspath={server_runtime / 'assets'}'", server_log.read_text()
+            f"'--assetspath={mutable_asset_output}'", server_log.read_text()
         )
         self.assertIn(
             f"'--server=127.0.0.1 17300 {'a' * 64}'", client_log.read_text()
@@ -7830,10 +7967,10 @@ class WorkspaceTests(unittest.TestCase):
             self.assertIn("client", second["dependencies"])
             self.assertNotIn("client", second["services"])
             self.assertNotIn("sound", second)
-            for topology in ("server-review", "server-review-two"):
-                snapshot = self.workspace.paths.topologies / topology / "runtime"
+            for topology_status in (status, second):
+                snapshot = Path(topology_status["runtime"]["path"]) / "server"
                 self.assertEqual(
-                    (snapshot / "content" / "maps" / "map").read_text(),
+                    (snapshot / "maps" / "map").read_text(),
                     "shared content\n",
                 )
                 self.assertEqual(
@@ -7841,43 +7978,42 @@ class WorkspaceTests(unittest.TestCase):
                     "shared resource\n",
                 )
             self.workspace.topology_down("server-review-two", timeout=5)
-            second_content = (
-                self.workspace.paths.topologies
-                / "server-review-two"
-                / "runtime"
-                / "content"
+            (build_root / "runtime" / "content" / "maps" / "map").write_text(
+                "rebuilt content\n", encoding="utf-8"
             )
-            shutil.rmtree(second_content)
             self.assertEqual(
-                (
-                    self.workspace.paths.topologies
-                    / "server-review"
-                    / "runtime"
-                    / "content"
-                    / "maps"
-                    / "map"
-                ).read_text(),
+                (generation_root / "server" / "maps" / "map").read_text(),
                 "shared content\n",
             )
             self.assertEqual(
                 (build_root / "runtime" / "content" / "maps" / "map").read_text(),
-                "shared content\n",
+                "rebuilt content\n",
             )
             with self.assertRaisesRegex(WorkspaceError, "already in use"):
                 with exclusive_lock(
                     Path(f"{state}.lock"), "server state", nonblocking=True
                 ):
                     self.fail("supervised state lock unexpectedly became available")
+            with exclusive_lock(
+                layout_lock, "repository layout", nonblocking=True
+            ):
+                pass
+            with exclusive_lock(
+                profile_lock, "profile build default", nonblocking=True
+            ):
+                pass
             with self.assertRaisesRegex(WorkspaceError, "already in use"):
                 with exclusive_lock(
-                    layout_lock, "repository layout", nonblocking=True
+                    generation_root / workspace_module.RUNTIME_GENERATION_LEASE,
+                    "runtime generation",
+                    nonblocking=True,
                 ):
-                    self.fail("supervised client released its layout lock")
-            with self.assertRaisesRegex(WorkspaceError, "already in use"):
-                with exclusive_lock(
-                    profile_lock, "profile build default", nonblocking=True
-                ):
-                    self.fail("supervised services released their build-root lock")
+                    self.fail("live topology released its runtime generation lease")
+            self.assertIsNone(
+                self.workspace.topology_status("server-review")["observation"][
+                    "repository_layout_lease_owner"
+                ]
+            )
 
             supervisor = status["supervisor"]
             pidfd = os.pidfd_open(supervisor["pid"])
@@ -7957,7 +8093,7 @@ class WorkspaceTests(unittest.TestCase):
                 "    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
                 "    while True:\n"
                 "        time.sleep(0.1)\n"
-                "open('descendant.pid', 'w', encoding='utf-8').write(str(child))\n"
+                "open('data/tmp/descendant.pid', 'w', encoding='utf-8').write(str(child))\n"
                 f"print('QUIC certificate SHA-256: {'a' * 64}', flush=True)\n"
                 "print('Server ready. Waiting for connections...', flush=True)\n"
                 "while True:\n"
@@ -7973,12 +8109,11 @@ class WorkspaceTests(unittest.TestCase):
                 (layout_lock, "repository layout"),
                 (profile_lock, "profile build default"),
             ):
-                with self.assertRaisesRegex(WorkspaceError, "already in use"):
-                    with exclusive_lock(path, description, nonblocking=True):
-                        self.fail(f"server-only topology released {description}")
+                with exclusive_lock(path, description, nonblocking=True):
+                    pass
             descendant_path = Path(
                 server_only["services"]["server"]["cwd"]
-            ) / "descendant.pid"
+            ) / "data" / "tmp" / "descendant.pid"
             deadline = time.monotonic() + 5
             while time.monotonic() < deadline and not descendant_path.is_file():
                 time.sleep(0.05)
@@ -8839,10 +8974,14 @@ class WorkspaceTests(unittest.TestCase):
         executable.parent.mkdir(parents=True)
         executable.write_text("client\n", encoding="utf-8")
         (build_root / "sources" / "client").mkdir(parents=True)
+        atomic_json(
+            build_root / workspace_module.BUILD_METADATA,
+            {"sound": workspace_module.sound_source_record(self.wrapper / "sound")},
+        )
         expected = "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81"
 
         def execute_client(*_arguments: object, **_keywords: object) -> None:
-            self.assertEqual(len(_keywords["pass_fds"]), 2)
+            self.assertEqual(len(_keywords["pass_fds"]), 1)
             for path, description in (
                 (
                     self.workspace.paths.workspace / "repository-layout.lock",
@@ -8855,12 +8994,32 @@ class WorkspaceTests(unittest.TestCase):
                     "profile build default",
                 ),
             ):
-                with self.assertRaisesRegex(WorkspaceError, "already in use"):
-                    with exclusive_lock(path, description, nonblocking=True):
-                        self.fail(f"foreground client released {description}")
+                with exclusive_lock(path, description, nonblocking=True):
+                    pass
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    Path(_keywords["cwd"]).parent
+                    / workspace_module.RUNTIME_GENERATION_LEASE,
+                    "foreground runtime generation",
+                    nonblocking=True,
+                ):
+                    self.fail("foreground client released its runtime generation")
 
         with (
-            mock.patch.object(self.workspace, "_build", return_value=build_root),
+            mock.patch.object(
+                self.workspace,
+                "_resolve_build_profile",
+                return_value={
+                    "client": self.wrapper / "client",
+                    "sound": self.wrapper / "sound",
+                },
+            ),
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            mock.patch.object(
+                self.workspace, "_topology_resolved_status", return_value={}
+            ),
             mock.patch("builtins.print") as output,
             mock.patch(
                 "atrinik_workspace.workspace.run", side_effect=execute_client
@@ -8871,7 +9030,8 @@ class WorkspaceTests(unittest.TestCase):
                 "default", "default", 1731, ["--fullscreen"], False
             )
 
-        self.assertEqual(result, executable)
+        self.assertEqual(result.name, "atrinik")
+        self.assertFalse(result.exists())
         rendered = "\n".join(str(call.args[0]) for call in output.call_args_list)
         self.assertIn(f"--server=127.0.0.1 1731 {expected}", rendered)
         self.assertIn("--stun_server=off", rendered)
@@ -8916,8 +9076,32 @@ class WorkspaceTests(unittest.TestCase):
         executable.write_text("server\n", encoding="utf-8")
         selected = {"server": server}
 
+        def publish_server(*_arguments: object, **_keywords: object) -> tuple[Path, int, dict[str, object]]:
+            generation_root = self.root / "foreground-server-generation"
+            server_runtime = generation_root / "server"
+            server_runtime.mkdir(parents=True)
+            generated_executable = server_runtime / "atrinik-server"
+            generated_executable.write_text("server\n", encoding="utf-8")
+            (server_runtime / "assets").mkdir()
+            lease = generation_root / workspace_module.RUNTIME_GENERATION_LEASE
+            descriptor = os.open(lease, os.O_RDWR | os.O_CREAT, 0o600)
+            workspace_module.initialize_lease(descriptor, "a" * 64)
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            state_output = self.root / "foreground-server-state-output"
+            state_output.mkdir()
+            atomic_json(
+                state_output / MANAGED_MARKER,
+                {
+                    "schema_version": 1,
+                    "purpose": "runtime-state-output:foreground-server-generation",
+                },
+            )
+            return generation_root, descriptor, {
+                "mutable_state_outputs": [str(state_output)],
+            }
+
         def execute_server(*_arguments: object, **_keywords: object) -> None:
-            self.assertEqual(len(_keywords["pass_fds"]), 3)
+            self.assertEqual(len(_keywords["pass_fds"]), 2)
             for path, description in (
                 (
                     self.workspace.paths.workspace / "repository-layout.lock",
@@ -8929,14 +9113,24 @@ class WorkspaceTests(unittest.TestCase):
                     / "server-build.lock",
                     "profile build default",
                 ),
-                (
+            ):
+                with exclusive_lock(path, description, nonblocking=True):
+                    pass
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
                     Path(f"{self.workspace._state_location('default')}.lock"),
                     "server state",
-                ),
-            ):
-                with self.assertRaisesRegex(WorkspaceError, "already in use"):
-                    with exclusive_lock(path, description, nonblocking=True):
-                        self.fail(f"foreground server released {description}")
+                    nonblocking=True,
+                ):
+                    self.fail("foreground server released its state")
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                with exclusive_lock(
+                    Path(_keywords["cwd"]).parent
+                    / workspace_module.RUNTIME_GENERATION_LEASE,
+                    "foreground runtime generation",
+                    nonblocking=True,
+                ):
+                    self.fail("foreground server released its runtime generation")
 
         with (
             mock.patch.object(
@@ -8946,7 +9140,12 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace, "_build_resolved", return_value=build_root
             ),
             mock.patch.object(
-                self.workspace, "_prepare_server_runtime", return_value=runtime
+                self.workspace, "_topology_resolved_status", return_value={}
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_publish_runtime_generation",
+                side_effect=publish_server,
             ),
             mock.patch(
                 "atrinik_workspace.workspace.run", side_effect=execute_server
@@ -8961,7 +9160,8 @@ class WorkspaceTests(unittest.TestCase):
                 False,
             )
 
-        self.assertEqual(result, executable)
+        self.assertEqual(result.name, "atrinik-server")
+        self.assertFalse(result.exists())
         rendered = "\n".join(str(call.args[0]) for call in output.call_args_list)
         self.assertIn("--port_quic=1731", rendered)
         self.assertIn("--port_mapping=off", rendered)
@@ -8969,7 +9169,9 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("--no_console", rendered)
         self.assertLess(
             rendered.index("--assetspath=/tmp/untrusted"),
-            rendered.index(f"--assetspath={runtime / 'assets'}"),
+            rendered.index(
+                f"--assetspath={self.root / 'foreground-server-state-output'}"
+            ),
         )
 
     def test_foreground_launch_rejects_invalid_port(self) -> None:

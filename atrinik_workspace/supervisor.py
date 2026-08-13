@@ -256,7 +256,7 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
     control = spec.get("control")
     generation = control.get("generation") if isinstance(control, dict) else None
     status: dict[str, Any] = {
-        "schema_version": 1,
+        "schema_version": spec.get("schema_version", 1),
         "name": spec["name"],
         "profile": spec["profile"],
         "dependencies": spec["dependencies"],
@@ -280,6 +280,8 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
     }
     if control is not None:
         status["control"] = control
+    if "runtime" in spec:
+        status["runtime"] = spec["runtime"]
     if "stack" in spec or "providers" in spec:
         if not isinstance(spec.get("stack"), str) or not isinstance(
             spec.get("providers"), dict
@@ -493,9 +495,16 @@ def supervise(
     build_lock_fd: int | None,
     process_tree_fd: int | None,
     port_reservation_fd: int | None,
+    runtime_lock_fd: int | None = None,
 ) -> int:
     with spec_path.open(encoding="utf-8") as stream:
         spec = json.load(stream)
+    if spec.get("schema_version") == 2:
+        for descriptor in (layout_lock_fd, build_lock_fd):
+            if descriptor is not None:
+                os.close(descriptor)
+        layout_lock_fd = None
+        build_lock_fd = None
     status_path = spec_path.parent / "status.json"
     stop = False
     control_socket: socket.socket | None = None
@@ -581,12 +590,18 @@ def supervise(
         return process
 
     try:
+        retained_fds = (
+            (port_reservation_fd, lock_fd, runtime_lock_fd)
+            if spec.get("schema_version") == 2
+            else (
+                lock_fd,
+                layout_lock_fd,
+                build_lock_fd,
+                port_reservation_fd,
+            )
+        )
         guardian_pid, guardian_write_fd = _start_guardian(
-            process_tree_fd,
-            lock_fd,
-            layout_lock_fd,
-            build_lock_fd,
-            port_reservation_fd,
+            process_tree_fd, *retained_fds
         )
         control_socket = _open_control(spec, spec_path.parent)
         if "server" in spec["services"]:
@@ -694,6 +709,8 @@ def supervise(
             os.close(build_lock_fd)
         if port_reservation_fd is not None:
             os.close(port_reservation_fd)
+        if runtime_lock_fd is not None:
+            os.close(runtime_lock_fd)
     return 0
 
 
@@ -705,6 +722,7 @@ def main() -> int:
     parser.add_argument("--build-lock-fd", type=int)
     parser.add_argument("--process-tree-fd", type=int)
     parser.add_argument("--port-reservation-fd", type=int)
+    parser.add_argument("--runtime-lock-fd", type=int)
     parser.add_argument("--daemonize", action="store_true")
     options = parser.parse_args()
     if options.daemonize and os.fork() != 0:
@@ -717,6 +735,7 @@ def main() -> int:
             options.build_lock_fd,
             options.process_tree_fd,
             options.port_reservation_fd,
+            options.runtime_lock_fd,
         )
     except BaseException as error:
         message = f"{type(error).__name__}: {error}"
@@ -748,6 +767,11 @@ def main() -> int:
         if options.port_reservation_fd is not None:
             try:
                 os.close(options.port_reservation_fd)
+            except OSError:
+                pass
+        if options.runtime_lock_fd is not None:
+            try:
+                os.close(options.runtime_lock_fd)
             except OSError:
                 pass
         return 1

@@ -812,11 +812,19 @@ def main(arguments: list[str] | None = None) -> int:
                         isinstance(observation, dict)
                         and observation.get("process_tree_lease") == "retained"
                     ):
-                        print(
-                            "repository-layout-lease\tretained\t"
-                            f"{observation['repository_layout_lease_owner']}\t"
-                            f"{observation['safe_action']}"
-                        )
+                        if observation.get("runtime_generation") is not None:
+                            print(
+                                "runtime-generation\t"
+                                f"{observation['runtime_bundle_lease']}\t"
+                                f"{observation['runtime_generation']}\t"
+                                f"{observation['safe_action']}"
+                            )
+                        else:
+                            print(
+                                "repository-layout-lease\tretained\t"
+                                f"{observation['repository_layout_lease_owner']}\t"
+                                f"{observation['safe_action']}"
+                            )
         elif options.command == "logs":
             workspace.topology_logs(
                 options.name, options.service, options.tail, options.follow

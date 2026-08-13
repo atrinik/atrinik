@@ -8,10 +8,12 @@ description: Run or diagnose isolated classic servers and supervised topologies 
 The wrapper owns builds, collection, state locks, supervision, logs, and
 cleanup. Never reconstruct its paths or invoke generated binaries.
 
-Classic preparation owns disposable `assets` staging. Generated `data/*`,
-exact-profile `client-maps/*`, and resources use authenticated QUIC by default;
-`http_url` only names an optional external HTTP(S) origin. Never stage assets in
-state or restore a bundled HTTP listener.
+Classic preparation owns disposable `assets` staging. Immutable
+exact-profile `client-maps/*` and resources use authenticated QUIC by default;
+server-generated `data/*` transport files live only in the generation-named
+runtime-output directory below the exclusively leased state. Do not place
+copied asset inputs in state. `http_url` only names an optional external
+HTTP(S) origin; never restore a bundled HTTP listener.
 
 1. Read the workspace and selected server/content/resource guides.
 2. Inspect a coherent classic-derived profile and topology.
@@ -28,17 +30,21 @@ state or restore a bundled HTTP listener.
 ```
 
 `ps --json` reports generation-bound `live`, `exited`, `stale`, or
-`unreachable` liveness and an `observation` naming any topology that retains
-the repository-layout lease. Cross-session `down` uses the matching filesystem
+`unreachable` liveness and exact runtime-generation, process-tree, state, and
+port observations. A ready topology retains no repository-layout or mutable
+build-root lease. Cross-session `down` uses the matching filesystem
 control endpoint, never a PID from the caller's namespace. For `unreachable`,
 follow the reported safe action: wait for bounded guardian recovery and retry
 `ps` and `down`; preserve an exact retained lease for operator diagnosis.
 Never inspect `/proc`, signal the recorded PIDs, unlink control or lease files,
 or reuse the name as recovery.
 The wrapper uses a short generation-derived endpoint in the shared workspace
-and binds the process-tree lease to its generation and file identity.
-Missing, replaced, linked, or malformed current lease files are unsafe and
-must remain untouched for fail-closed diagnosis.
+and binds both process-tree and immutable runtime-bundle leases to the exact
+generation and file identities. Missing, replaced, linked, or malformed
+current generations, manifests, or lease files are unsafe and must remain
+untouched for fail-closed diagnosis. Never edit a published generation; rebuild
+the profile while it is live only to verify that its recorded manifest digest
+and runtime bytes remain unchanged.
 
 Let `up` allocate a port unless a distinct fixed port is required. Diagnose
 build, state, plugin, network, and gameplay failures separately. Use
