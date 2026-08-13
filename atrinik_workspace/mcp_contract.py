@@ -124,12 +124,16 @@ def load_json(path: Path) -> Any:
 
 
 def canonical_json(value: object) -> bytes:
-    return json.dumps(
-        value,
-        ensure_ascii=True,
-        separators=(",", ":"),
-        sort_keys=True,
-    ).encode("utf-8")
+    try:
+        return json.dumps(
+            value,
+            allow_nan=False,
+            ensure_ascii=True,
+            separators=(",", ":"),
+            sort_keys=True,
+        ).encode("utf-8")
+    except (TypeError, ValueError, RecursionError) as error:
+        raise ContractError("INVALID_ARGUMENT", "value is not canonical JSON") from error
 
 
 def redact(value: str) -> str:
@@ -228,7 +232,13 @@ def enforce_shape_limits(
 
 
 def validate_selector(selector: str, forbidden_segments: set[str]) -> PurePosixPath:
-    if not selector or len(selector.encode("utf-8")) > 1024:
+    if not isinstance(selector, str) or not selector:
+        raise ContractError("INVALID_ARGUMENT", "selector is invalid")
+    try:
+        selector_bytes = selector.encode("utf-8")
+    except UnicodeError as error:
+        raise ContractError("INVALID_ARGUMENT", "selector is invalid") from error
+    if len(selector_bytes) > 1024:
         raise ContractError("INVALID_ARGUMENT", "selector is invalid")
     if any(not character.isprintable() for character in selector):
         raise ContractError("INVALID_ARGUMENT", "selector contains a control character")
@@ -248,13 +258,20 @@ def read_regular(root: Path, selector: str, max_bytes: int) -> bytes:
 
     contract = load_json(CONTRACT_PATH)
     relative = validate_selector(selector, set(contract["forbidden_path_segments"]))
+    if not isinstance(max_bytes, int) or isinstance(max_bytes, bool):
+        raise ContractError("INVALID_ARGUMENT", "resource byte limit is invalid")
     if max_bytes < 0 or max_bytes > contract["limits"]["resource_bytes"]:
         raise ContractError("LIMIT_EXCEEDED", "resource byte limit is invalid")
 
-    directory_flags = os.O_RDONLY | os.O_CLOEXEC
-    directory_flags |= getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
-    file_flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_NONBLOCK", 0)
-    file_flags |= getattr(os, "O_NOFOLLOW", 0)
+    nofollow = getattr(os, "O_NOFOLLOW", 0)
+    directory_only = getattr(os, "O_DIRECTORY", 0)
+    nonblocking = getattr(os, "O_NONBLOCK", 0)
+    if not all((nofollow, directory_only, nonblocking)) or os.open not in os.supports_dir_fd:
+        raise ContractError(
+            "UNSUPPORTED_OPERATION", "safe descriptor-relative reads are unavailable"
+        )
+    directory_flags = os.O_RDONLY | os.O_CLOEXEC | directory_only | nofollow
+    file_flags = os.O_RDONLY | os.O_CLOEXEC | nonblocking | nofollow
     descriptors: list[int] = []
     try:
         try:
@@ -318,8 +335,16 @@ def cache_key(
     schema_version: str,
     provider_version: str,
 ) -> str:
+    if not isinstance(parameters, Mapping):
+        raise ContractError("INVALID_ARGUMENT", "parameters must be an object")
+    if not isinstance(authorization_identity, str):
+        raise ContractError("INVALID_ARGUMENT", "authorization identity is invalid")
     if not authorization_identity:
         raise ContractError("UNAUTHORIZED", "authorization identity is required")
+    if not isinstance(schema_version, str) or not schema_version:
+        raise ContractError("INVALID_ARGUMENT", "schema version is invalid")
+    if not isinstance(provider_version, str) or not provider_version:
+        raise ContractError("INVALID_ARGUMENT", "provider version is invalid")
     authorization_digest = hashlib.sha256(
         authorization_identity.encode("utf-8")
     ).hexdigest()
@@ -357,7 +382,7 @@ def _cursor_signature(payload: bytes) -> str:
 
 
 def encode_cursor(offset: int, snapshot_identity: Mapping[str, object]) -> str:
-    if offset < 0:
+    if not isinstance(offset, int) or isinstance(offset, bool) or offset < 0:
         raise ContractError("INVALID_ARGUMENT", "cursor offset is invalid")
     payload = canonical_json(
         {
@@ -420,6 +445,8 @@ def paginate(
     cursor: str | None = None,
 ) -> dict[str, object]:
     limits = load_json(CONTRACT_PATH)["limits"]
+    if not isinstance(page_size, int) or isinstance(page_size, bool):
+        raise ContractError("INVALID_ARGUMENT", "page size is invalid")
     if page_size < 1 or page_size > limits["page_records"]:
         raise ContractError("LIMIT_EXCEEDED", "page size is outside the allowed bound")
     materialized: list[dict[str, object]] = []

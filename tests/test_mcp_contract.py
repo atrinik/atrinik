@@ -4,6 +4,7 @@ from collections.abc import Callable
 from contextlib import redirect_stderr, redirect_stdout
 import io
 import json
+import math
 import os
 from pathlib import Path
 import tempfile
@@ -140,6 +141,10 @@ class McpContractTests(unittest.TestCase):
             decode_cursor(cursor, {**snapshot, "authorization": "reader-b"})
         with self.assertRaisesRegex(ContractError, "LIMIT_EXCEEDED"):
             paginate([], page_size=51, snapshot_identity=snapshot)
+        with self.assertRaisesRegex(ContractError, "INVALID_ARGUMENT"):
+            paginate([], page_size=True, snapshot_identity=snapshot)
+        with self.assertRaisesRegex(ContractError, "INVALID_ARGUMENT"):
+            encode_cursor(True, snapshot)
         with self.assertRaisesRegex(ContractError, "STALE_CURSOR"):
             decode_cursor("x" * 2049, snapshot)
         with self.assertRaisesRegex(ContractError, "STALE_CURSOR"):
@@ -198,6 +203,12 @@ class McpContractTests(unittest.TestCase):
         ]
         keys = {cache_key(**variant) for variant in variants}
         self.assertEqual(len(keys), len(variants))
+        with self.assertRaisesRegex(ContractError, "INVALID_ARGUMENT"):
+            cache_key(**{**base, "parameters": {"query": math.nan}})
+        with self.assertRaisesRegex(ContractError, "INVALID_ARGUMENT"):
+            cache_key(**{**base, "authorization_identity": 7})
+        with self.assertRaisesRegex(ContractError, "INVALID_ARGUMENT"):
+            cache_key(**{**base, "schema_version": ""})
 
     def test_dirty_fingerprint_binds_status_and_tracked_content(self) -> None:
         status = b" M README.md\0"
@@ -416,6 +427,10 @@ class McpContractTests(unittest.TestCase):
             (root / "safe").mkdir()
             (root / "safe" / "fixture.txt").write_text("fixture", encoding="utf-8")
             self.assertEqual(read_regular(root, "safe/fixture.txt", 16), b"fixture")
+            with self.assertRaisesRegex(ContractError, "INVALID_ARGUMENT"):
+                read_regular(root, "safe/fixture.txt", True)
+            with self.assertRaisesRegex(ContractError, "INVALID_ARGUMENT"):
+                read_regular(root, "\ud800", 16)
             with self.assertRaisesRegex(ContractError, "LIMIT_EXCEEDED"):
                 read_regular(root, "safe/fixture.txt", 3)
 
@@ -432,6 +447,9 @@ class McpContractTests(unittest.TestCase):
                 os.mkfifo(root / "pipe")
                 with self.assertRaisesRegex(ContractError, "FORBIDDEN"):
                     read_regular(root, "pipe", 16)
+            with mock.patch.object(mcp_contract.os, "O_NOFOLLOW", 0):
+                with self.assertRaisesRegex(ContractError, "UNSUPPORTED_OPERATION"):
+                    read_regular(root, "safe/fixture.txt", 16)
 
     def test_regular_read_detects_toctou_identity_change(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
