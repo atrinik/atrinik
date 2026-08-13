@@ -449,6 +449,11 @@ def synthetic_server_start_process(
                         else:
                             real_flock(probe, fcntl.LOCK_UN)
                 real_flock(lock, operation)
+                if (
+                    operation & fcntl.LOCK_EX
+                    and descriptor_path == ports_path
+                ):
+                    reserved_port.close()
 
             runtime_inputs = {
                 key: root / key
@@ -460,7 +465,6 @@ def synthetic_server_start_process(
             reservation_received.set()
             if not release_reservation.wait(10):
                 raise TimeoutError("port reservation was not released")
-            reserved_port.close()
 
             with (
                 mock.patch.object(
@@ -495,6 +499,7 @@ def synthetic_server_start_process(
                         workspace.topology_down(name, timeout=5)
         results.put(None)
     except BaseException as error:
+        reserved_port.close()
         results.put(f"{type(error).__name__}: {error}")
         raise
 
@@ -6146,7 +6151,7 @@ class WorkspaceTests(unittest.TestCase):
             writer.start()
             started.append(writer)
             wait_for_process_event(
-                writer_pending, "profile A mutation queue", results
+                writer_pending, "profile B mutation queue", results
             )
             self.assertFalse(writer_entered.is_set())
 
@@ -6170,7 +6175,7 @@ class WorkspaceTests(unittest.TestCase):
             )
             for index, entered in enumerate(readers_entered):
                 wait_for_process_event(
-                    entered, f"B reader {index} completion", results
+                    entered, f"C reader {index} completion", results
                 )
         finally:
             status_path = (
@@ -6200,7 +6205,7 @@ class WorkspaceTests(unittest.TestCase):
 
         def reserved_port() -> socket.socket:
             candidate = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            candidate.bind(("127.0.0.1", 0))
+            candidate.bind(("0.0.0.0", 0))
             return candidate
 
         reservations = [reserved_port(), reserved_port()]
