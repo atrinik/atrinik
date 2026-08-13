@@ -3306,26 +3306,28 @@ class Workspace:
                     raise WorkspaceError(
                         f"scenario resolved references are invalid: {root.name}"
                     )
-                sources = {
-                    Path(value["checkout_path"]).resolve(strict=False)
+                historical_sources = {
+                    (
+                        value["checkout"],
+                        Path(value["checkout_path"]).resolve(strict=False),
+                    )
                     for value in resolved.values()
                     if isinstance(value, dict)
                     and isinstance(value.get("checkout"), str)
                     and isinstance(value.get("checkout_path"), str)
                 }
+                sources = {source for _checkout, source in historical_sources}
                 # Historical scenario checkout identities are not authoritative:
                 # a repository split or manifest migration can give cleanup a
                 # different current owner for the same exact path. Cover every
                 # manifest owner coordinate during this one-time backfill so no
                 # current worktree remover can race publication under a stale
                 # scenario-provided name.
-                checkout_names = set(self.manifest.by_checkout)
-                checkout_names.update(
-                    value["checkout"]
-                    for value in resolved.values()
-                    if isinstance(value, dict)
-                    and isinstance(value.get("checkout"), str)
-                )
+                source_coordinates = historical_sources | {
+                    (checkout, source)
+                    for checkout in self.manifest.by_checkout
+                    for source in sources
+                }
                 requests = [
                     self._lease_request(
                         "scenario", root.name, "shared", "backfill scenario reference"
@@ -3337,8 +3339,10 @@ class Workspace:
                             "shared",
                             "backfill scenario reference",
                         )
-                        for checkout in sorted(checkout_names)
-                        for source in sorted(sources, key=str)
+                        for checkout, source in sorted(
+                            source_coordinates,
+                            key=lambda item: (item[0], str(item[1])),
+                        )
                     ],
                 ]
                 with resource_locks(self._lease_root, requests, nonblocking=True):

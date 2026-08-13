@@ -7307,6 +7307,47 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace._source_references(source),
             )
 
+    def test_scenario_backfill_does_not_cross_product_historical_owners(self) -> None:
+        root = self.workspace.paths.scenarios / "bounded-historical"
+        root.mkdir()
+        historical_count = 20
+        atomic_json(
+            root / "scenario.json",
+            {
+                "resolved": {
+                    f"role-{index}": {
+                        "checkout": f"retired-owner-{index}",
+                        "checkout_path": str(self.root / f"missing-{index}"),
+                    }
+                    for index in range(historical_count)
+                }
+            },
+        )
+        state_identity = hashlib.sha256(
+            str(self.workspace.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        registry = self.workspace._lease_namespace / "profile-references"
+        (registry / f"{state_identity}.json").unlink()
+        observed: list[int] = []
+        real_locks = workspace_module.resource_locks
+
+        def record_requests(*args: object, **kwargs: object) -> object:
+            requests = args[1]
+            if any(request.kind == "scenario" for request in requests):
+                observed.append(len(requests))
+            return real_locks(*args, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.resource_locks",
+            side_effect=record_requests,
+        ):
+            self.workspace._backfill_physical_references()
+
+        self.assertEqual(
+            observed,
+            [1 + historical_count * (1 + len(self.workspace.manifest.by_checkout))],
+        )
+
     def test_backfill_preserves_missing_scenario_as_historical_reference(self) -> None:
         root = self.workspace.paths.scenarios / "missing-scenario"
         root.mkdir()
