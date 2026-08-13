@@ -323,7 +323,7 @@ def profile_mutation_process(
             with mock.patch.object(
                 locking_module.fcntl, "flock", side_effect=observe_flock
             ):
-                workspace.set_profile("profile-a", "client", "primary")
+                workspace.set_profile("profile-b", "client", "primary")
             entered.set()
         results.put(None)
     except BaseException as error:
@@ -336,7 +336,7 @@ def public_lifecycle_reader_process(
     workspace_directory: str,
     operation: str,
     build_root: str,
-    attempting: object,
+    blocked: object,
     entered: object,
     results: object,
 ) -> None:
@@ -345,33 +345,62 @@ def public_lifecycle_reader_process(
             os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
         ):
             workspace = Workspace(Path(wrapper))
-            attempting.set()
-            if operation == "build-b":
-                workspace.build("sound", "profile-b", False)
-            else:
-                with (
-                    mock.patch.object(workspace, "_require_client_display"),
-                    mock.patch.object(
-                        workspace,
-                        "_build_resolved",
-                        return_value=Path(build_root),
-                    ),
+            pending_path = locking_module.layout_writer_pending_path(
+                workspace.paths.workspace / "repository-layout.lock"
+            ).resolve()
+            intent_path = locking_module.layout_writer_intent_path(
+                workspace.paths.workspace / "repository-layout.lock"
+            ).resolve()
+            real_flock = locking_module.fcntl.flock
+
+            def observe_flock(lock: object, operation: int) -> None:
+                descriptor = lock if isinstance(lock, int) else lock.fileno()
+                descriptor_path = Path(
+                    os.readlink(f"/proc/self/fd/{descriptor}")
+                )
+                if (
+                    operation & fcntl.LOCK_EX
+                    and not operation & fcntl.LOCK_NB
+                    and descriptor_path in {pending_path, intent_path}
                 ):
-                    try:
-                        workspace.topology_up(
-                            "topology-b",
-                            "profile-b",
-                            "default",
-                            ["client"],
-                        )
-                    finally:
-                        status_path = (
-                            workspace.paths.topologies
-                            / "topology-b"
-                            / "status.json"
-                        )
-                        if status_path.is_file():
-                            workspace.topology_down("topology-b", timeout=5)
+                    with descriptor_path.open("a+", encoding="utf-8") as probe:
+                        try:
+                            real_flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        except BlockingIOError:
+                            blocked.set()
+                        else:
+                            real_flock(probe, fcntl.LOCK_UN)
+                real_flock(lock, operation)
+
+            with mock.patch.object(
+                locking_module.fcntl, "flock", side_effect=observe_flock
+            ):
+                if operation == "build-c":
+                    workspace.build("sound", "profile-c", False)
+                else:
+                    with (
+                        mock.patch.object(workspace, "_require_client_display"),
+                        mock.patch.object(
+                            workspace,
+                            "_build_resolved",
+                            return_value=Path(build_root),
+                        ),
+                    ):
+                        try:
+                            workspace.topology_up(
+                                "topology-c",
+                                "profile-c",
+                                "default",
+                                ["client"],
+                            )
+                        finally:
+                            status_path = (
+                                workspace.paths.topologies
+                                / "topology-c"
+                                / "status.json"
+                            )
+                            if status_path.is_file():
+                                workspace.topology_down("topology-c", timeout=5)
             entered.set()
         results.put(None)
     except BaseException as error:
@@ -386,7 +415,10 @@ def synthetic_server_start_process(
     state_path: str,
     build_root: str,
     port: int,
-    port_attempting: object,
+    reserved_port: socket.socket,
+    reservation_received: object,
+    release_reservation: object,
+    port_blocked: object,
     results: object,
 ) -> None:
     try:
@@ -404,8 +436,18 @@ def synthetic_server_start_process(
                 descriptor_path = Path(
                     os.readlink(f"/proc/self/fd/{descriptor}")
                 )
-                if operation & fcntl.LOCK_EX and descriptor_path == ports_path:
-                    port_attempting.set()
+                if (
+                    operation & fcntl.LOCK_EX
+                    and not operation & fcntl.LOCK_NB
+                    and descriptor_path == ports_path
+                ):
+                    with ports_path.open("a+", encoding="utf-8") as probe:
+                        try:
+                            real_flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        except BlockingIOError:
+                            port_blocked.set()
+                        else:
+                            real_flock(probe, fcntl.LOCK_UN)
                 real_flock(lock, operation)
 
             runtime_inputs = {
@@ -414,6 +456,11 @@ def synthetic_server_start_process(
             }
             for path in runtime_inputs.values():
                 path.mkdir(parents=True, exist_ok=True)
+
+            reservation_received.set()
+            if not release_reservation.wait(10):
+                raise TimeoutError("port reservation was not released")
+            reserved_port.close()
 
             with (
                 mock.patch.object(
@@ -6005,14 +6052,14 @@ class WorkspaceTests(unittest.TestCase):
 
     def test_p0_harness_reproduces_current_lifecycle_layout_convoy(self) -> None:
         context = multiprocessing.get_context("spawn")
-        for label in ("source-a", "source-b"):
+        for label in ("source-a", "source-b", "source-c"):
             self.workspace.create_worktree(
                 "client", label, f"test/{label}", None, False
             )
         self.workspace.create_worktree(
-            "sound", "source-b", "test/sound-source-b", None, False
+            "sound", "source-c", "test/sound-source-c", None, False
         )
-        for profile in ("profile-a", "profile-b"):
+        for profile in ("profile-a", "profile-b", "profile-c"):
             self.workspace.create_profile(profile)
         self.workspace.set_profile(
             "profile-a", "client", "worktree", "source-a"
@@ -6021,7 +6068,10 @@ class WorkspaceTests(unittest.TestCase):
             "profile-b", "client", "worktree", "source-b"
         )
         self.workspace.set_profile(
-            "profile-b", "sound", "worktree", "source-b"
+            "profile-c", "client", "worktree", "source-c"
+        )
+        self.workspace.set_profile(
+            "profile-c", "sound", "worktree", "source-c"
         )
 
         def client_build_root(profile: str) -> Path:
@@ -6048,7 +6098,7 @@ class WorkspaceTests(unittest.TestCase):
             return root
 
         topology_a_root = client_build_root("profile-a")
-        topology_b_root = client_build_root("profile-b")
+        topology_c_root = client_build_root("profile-c")
         with (
             mock.patch.object(
                 self.workspace, "_build_resolved", return_value=topology_a_root
@@ -6062,7 +6112,7 @@ class WorkspaceTests(unittest.TestCase):
 
         writer_pending = context.Event()
         writer_entered = context.Event()
-        reader_attempting = [context.Event(), context.Event()]
+        readers_blocked = [context.Event(), context.Event()]
         readers_entered = [context.Event(), context.Event()]
         results = context.Queue()
         writer = context.Process(
@@ -6082,13 +6132,13 @@ class WorkspaceTests(unittest.TestCase):
                     str(self.wrapper),
                     str(self.workspace_directory),
                     operation,
-                    str(topology_b_root),
-                    reader_attempting[index],
+                    str(topology_c_root),
+                    readers_blocked[index],
                     readers_entered[index],
                     results,
                 ),
             )
-            for index, operation in enumerate(("build-b", "topology-b"))
+            for index, operation in enumerate(("build-c", "topology-c"))
         ]
         processes = [writer, *readers]
         started: list[multiprocessing.Process] = []
@@ -6103,18 +6153,20 @@ class WorkspaceTests(unittest.TestCase):
             for reader in readers:
                 reader.start()
                 started.append(reader)
-            for index, attempt in enumerate(reader_attempting):
+            for index, blocked in enumerate(readers_blocked):
                 wait_for_process_event(
-                    attempt, f"B reader {index} attempt", results
+                    blocked, f"C reader {index} confirmed lock block", results
                 )
             self.assertFalse(writer_entered.is_set())
             self.assertTrue(all(not entered.is_set() for entered in readers_entered))
 
-            # This is the P0 current-behavior assertion. The #399 cutover will
-            # invert it: disjoint B readers must enter while A's writer waits.
+            # This records the current global A-topology/B-writer/C-reader
+            # convoy through positive lock-contention rendezvous. The #399
+            # cutover will replace this lock-specific expectation with scoped
+            # admission assertions for the same public operations.
             self.workspace.topology_down("topology-a", timeout=5)
             wait_for_process_event(
-                writer_entered, "profile A mutation entry", results
+                writer_entered, "profile B mutation entry", results
             )
             for index, entered in enumerate(readers_entered):
                 wait_for_process_event(
@@ -6140,18 +6192,21 @@ class WorkspaceTests(unittest.TestCase):
     ) -> None:
         context = multiprocessing.get_context("spawn")
         results = context.Queue()
-        attempting = [context.Event(), context.Event()]
+        reservation_received = [context.Event(), context.Event()]
+        release_reservation = [context.Event(), context.Event()]
+        port_blocked = [context.Event(), context.Event()]
         pre_ready = [self.root / "pre-ready-a", self.root / "pre-ready-b"]
         releases = [self.root / "release-a", self.root / "release-b"]
 
-        def available_port() -> int:
-            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as candidate:
-                candidate.bind(("127.0.0.1", 0))
-                return candidate.getsockname()[1]
+        def reserved_port() -> socket.socket:
+            candidate = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            candidate.bind(("127.0.0.1", 0))
+            return candidate
 
+        reservations = [reserved_port(), reserved_port()]
         coordinates = (
-            ("server-a", "state-a", "build-a", available_port()),
-            ("server-b", "state-b", "build-b", available_port()),
+            ("server-a", "state-a", "build-a", reservations[0].getsockname()[1]),
+            ("server-b", "state-b", "build-b", reservations[1].getsockname()[1]),
         )
         self.assertNotEqual(coordinates[0][3], coordinates[1][3])
         for index, (name, _state, build, _port) in enumerate(coordinates):
@@ -6189,7 +6244,10 @@ class WorkspaceTests(unittest.TestCase):
                     str(self.workspace.paths.state / state),
                     str(self.workspace.paths.builds / "profiles" / build),
                     port,
-                    attempting[index],
+                    reservations[index],
+                    reservation_received[index],
+                    release_reservation[index],
+                    port_blocked[index],
                     results,
                 ),
             )
@@ -6215,25 +6273,41 @@ class WorkspaceTests(unittest.TestCase):
             processes[0].start()
             started.append(processes[0])
             wait_for_process_event(
-                attempting[0], "server A port-lock attempt", results
+                reservation_received[0],
+                "server A port reservation transfer",
+                results,
             )
+            reservations[0].close()
+            release_reservation[0].set()
             wait_for_path(pre_ready[0], "server A pre-ready barrier")
 
             processes[1].start()
             started.append(processes[1])
             wait_for_process_event(
-                attempting[1], "server B port-lock attempt", results
+                reservation_received[1],
+                "server B port reservation transfer",
+                results,
+            )
+            reservations[1].close()
+            release_reservation[1].set()
+            wait_for_process_event(
+                port_blocked[1], "server B confirmed port-lock block", results
             )
             self.assertFalse(pre_ready[1].exists())
 
             # Both starts use distinct topology, profile/build, state, and
-            # explicit-port coordinates. P0 records that the global allocator
-            # lease still serializes B until A leaves its pre-ready stage; #401
-            # will flip this assertion to require concurrent rendezvous entry.
+            # explicit-port coordinates. P0 positively records that the global
+            # allocator lease serializes B until A leaves its pre-ready stage.
+            # The #401 cutover will replace this lock-specific expectation with
+            # per-port ownership and concurrent pre-ready rendezvous assertions.
             releases[0].write_text("release\n", encoding="utf-8")
             wait_for_path(pre_ready[1], "server B pre-ready barrier")
             releases[1].write_text("release\n", encoding="utf-8")
         finally:
+            for reservation in reservations:
+                reservation.close()
+            for event in release_reservation:
+                event.set()
             for release in releases:
                 release.write_text("release\n", encoding="utf-8")
             join_or_stop_processes(started, 10)
