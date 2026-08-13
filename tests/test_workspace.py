@@ -15,6 +15,7 @@ from pathlib import Path
 import queue
 import shutil
 import signal
+import socket
 import stat
 import subprocess
 import sys
@@ -294,6 +295,215 @@ def fair_layout_writer_process(
         raise
 
 
+def profile_mutation_process(
+    wrapper: str,
+    workspace_directory: str,
+    pending_acquired: object,
+    entered: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            pending_path = locking_module.layout_writer_pending_path(
+                workspace.paths.workspace / "repository-layout.lock"
+            ).resolve()
+            real_flock = locking_module.fcntl.flock
+
+            def observe_flock(lock: object, operation: int) -> None:
+                real_flock(lock, operation)
+                descriptor_path = Path(
+                    os.readlink(f"/proc/self/fd/{lock.fileno()}")
+                )
+                if operation & fcntl.LOCK_SH and descriptor_path == pending_path:
+                    pending_acquired.set()
+
+            with mock.patch.object(
+                locking_module.fcntl, "flock", side_effect=observe_flock
+            ):
+                workspace.set_profile("profile-b", "client", "primary")
+            entered.set()
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def public_lifecycle_reader_process(
+    wrapper: str,
+    workspace_directory: str,
+    operation: str,
+    build_root: str,
+    blocked: object,
+    entered: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            pending_path = locking_module.layout_writer_pending_path(
+                workspace.paths.workspace / "repository-layout.lock"
+            ).resolve()
+            intent_path = locking_module.layout_writer_intent_path(
+                workspace.paths.workspace / "repository-layout.lock"
+            ).resolve()
+            real_flock = locking_module.fcntl.flock
+
+            def observe_flock(lock: object, operation: int) -> None:
+                descriptor = lock if isinstance(lock, int) else lock.fileno()
+                descriptor_path = Path(
+                    os.readlink(f"/proc/self/fd/{descriptor}")
+                )
+                if (
+                    operation & fcntl.LOCK_EX
+                    and not operation & fcntl.LOCK_NB
+                    and descriptor_path in {pending_path, intent_path}
+                ):
+                    with descriptor_path.open("a+", encoding="utf-8") as probe:
+                        try:
+                            real_flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        except BlockingIOError:
+                            blocked.set()
+                        else:
+                            real_flock(probe, fcntl.LOCK_UN)
+                real_flock(lock, operation)
+
+            with mock.patch.object(
+                locking_module.fcntl, "flock", side_effect=observe_flock
+            ):
+                if operation == "build-c":
+                    workspace.build("sound", "profile-c", False)
+                else:
+                    with (
+                        mock.patch.object(workspace, "_require_client_display"),
+                        mock.patch.object(
+                            workspace,
+                            "_build_resolved",
+                            return_value=Path(build_root),
+                        ),
+                    ):
+                        try:
+                            workspace.topology_up(
+                                "topology-c",
+                                "profile-c",
+                                "default",
+                                ["client"],
+                            )
+                        finally:
+                            status_path = (
+                                workspace.paths.topologies
+                                / "topology-c"
+                                / "status.json"
+                            )
+                            if status_path.is_file():
+                                workspace.topology_down("topology-c", timeout=5)
+            entered.set()
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def synthetic_server_start_process(
+    wrapper: str,
+    workspace_directory: str,
+    name: str,
+    state_path: str,
+    build_root: str,
+    port: int,
+    reserved_port: socket.socket,
+    reservation_received: object,
+    release_reservation: object,
+    port_blocked: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            ports_path = (workspace.paths.topologies / "ports.lock").resolve()
+            state = Path(state_path)
+            root = Path(build_root)
+            real_flock = locking_module.fcntl.flock
+
+            def observe_flock(lock: object, operation: int) -> None:
+                descriptor = lock if isinstance(lock, int) else lock.fileno()
+                descriptor_path = Path(
+                    os.readlink(f"/proc/self/fd/{descriptor}")
+                )
+                if (
+                    operation & fcntl.LOCK_EX
+                    and not operation & fcntl.LOCK_NB
+                    and descriptor_path == ports_path
+                ):
+                    with ports_path.open("a+", encoding="utf-8") as probe:
+                        try:
+                            real_flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        except BlockingIOError:
+                            port_blocked.set()
+                        else:
+                            real_flock(probe, fcntl.LOCK_UN)
+                real_flock(lock, operation)
+                if (
+                    operation & fcntl.LOCK_EX
+                    and descriptor_path == ports_path
+                ):
+                    reserved_port.close()
+
+            runtime_inputs = {
+                key: root / key
+                for key in ("content", "resources", "client-maps")
+            }
+            for path in runtime_inputs.values():
+                path.mkdir(parents=True, exist_ok=True)
+
+            reservation_received.set()
+            if not release_reservation.wait(10):
+                raise TimeoutError("port reservation was not released")
+
+            with (
+                mock.patch.object(
+                    locking_module.fcntl, "flock", side_effect=observe_flock
+                ),
+                mock.patch.object(workspace, "_require_classic_contracts"),
+                mock.patch.object(
+                    workspace, "_state_location", return_value=state
+                ),
+                mock.patch.object(workspace, "state_path", return_value=state),
+                mock.patch.object(
+                    workspace, "_build_resolved", return_value=root
+                ),
+                mock.patch.object(
+                    workspace,
+                    "_copy_topology_runtime_inputs",
+                    return_value=runtime_inputs,
+                ),
+                mock.patch.object(
+                    workspace, "_prepare_server_runtime", return_value=root
+                ),
+            ):
+                try:
+                    status = workspace.topology_up(
+                        name, name, name, ["server"], port
+                    )
+                    if status["endpoint"]["port"] != port:
+                        raise AssertionError("topology published the wrong port")
+                finally:
+                    status_path = workspace.paths.topologies / name / "status.json"
+                    if status_path.is_file():
+                        workspace.topology_down(name, timeout=5)
+        results.put(None)
+    except BaseException as error:
+        reserved_port.close()
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
 def inherited_leases_wrapper_process(
     layout_path: str,
     build_path: str,
@@ -488,6 +698,26 @@ def join_or_stop_processes(
         if process.is_alive():
             process.kill()
             process.join(timeout=2)
+
+
+def wait_for_process_event(
+    event: object,
+    description: str,
+    results: object,
+    timeout: float = 5,
+) -> None:
+    if event.wait(timeout):
+        return
+    child_results = []
+    while True:
+        try:
+            child_results.append(results.get_nowait())
+        except queue.Empty:
+            break
+    raise AssertionError(
+        f"{description} was not reached within {timeout:g}s; "
+        f"child results: {child_results or 'none'}"
+    )
 
 
 COMPONENTS = (
@@ -5824,6 +6054,271 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(started, processes)
         self.assertEqual([process.exitcode for process in processes], [0] * 10)
         self.assertEqual([results.get(timeout=2) for _ in processes], [None] * 10)
+
+    def test_p0_harness_reproduces_current_lifecycle_layout_convoy(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        for label in ("source-a", "source-b", "source-c"):
+            self.workspace.create_worktree(
+                "client", label, f"test/{label}", None, False
+            )
+        self.workspace.create_worktree(
+            "sound", "source-c", "test/sound-source-c", None, False
+        )
+        for profile in ("profile-a", "profile-b", "profile-c"):
+            self.workspace.create_profile(profile)
+        self.workspace.set_profile(
+            "profile-a", "client", "worktree", "source-a"
+        )
+        self.workspace.set_profile(
+            "profile-b", "client", "worktree", "source-b"
+        )
+        self.workspace.set_profile(
+            "profile-c", "client", "worktree", "source-c"
+        )
+        self.workspace.set_profile(
+            "profile-c", "sound", "worktree", "source-c"
+        )
+
+        def client_build_root(profile: str) -> Path:
+            root = self.workspace.paths.builds / "profiles" / profile
+            executable = root / "build" / "client" / "atrinik"
+            executable.parent.mkdir(parents=True)
+            (root / "sources" / "client").mkdir(parents=True)
+            executable.write_text(
+                "#!/usr/bin/env python3\n"
+                "import time\n"
+                "print('client ready', flush=True)\n"
+                "while True:\n"
+                "    time.sleep(0.1)\n",
+                encoding="utf-8",
+            )
+            executable.chmod(0o755)
+            selected_sound = self.workspace.resolve_profile(
+                profile, {"sound"}
+            )["sound"]
+            atomic_json(
+                root / workspace_module.BUILD_METADATA,
+                {"sound": workspace_module.sound_source_record(selected_sound)},
+            )
+            return root
+
+        topology_a_root = client_build_root("profile-a")
+        topology_c_root = client_build_root("profile-c")
+        with (
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=topology_a_root
+            ),
+            mock.patch.object(self.workspace, "_require_client_display"),
+        ):
+            topology_a = self.workspace.topology_up(
+                "topology-a", "profile-a", "default", ["client"]
+            )
+        self.assertTrue(topology_a["ready"])
+
+        writer_pending = context.Event()
+        writer_entered = context.Event()
+        readers_blocked = [context.Event(), context.Event()]
+        readers_entered = [context.Event(), context.Event()]
+        results = context.Queue()
+        writer = context.Process(
+            target=profile_mutation_process,
+            args=(
+                str(self.wrapper),
+                str(self.workspace_directory),
+                writer_pending,
+                writer_entered,
+                results,
+            ),
+        )
+        readers = [
+            context.Process(
+                target=public_lifecycle_reader_process,
+                args=(
+                    str(self.wrapper),
+                    str(self.workspace_directory),
+                    operation,
+                    str(topology_c_root),
+                    readers_blocked[index],
+                    readers_entered[index],
+                    results,
+                ),
+            )
+            for index, operation in enumerate(("build-c", "topology-c"))
+        ]
+        processes = [writer, *readers]
+        started: list[multiprocessing.Process] = []
+        try:
+            writer.start()
+            started.append(writer)
+            wait_for_process_event(
+                writer_pending, "profile B mutation queue", results
+            )
+            self.assertFalse(writer_entered.is_set())
+
+            for reader in readers:
+                reader.start()
+                started.append(reader)
+            for index, blocked in enumerate(readers_blocked):
+                wait_for_process_event(
+                    blocked, f"C reader {index} confirmed lock block", results
+                )
+            self.assertFalse(writer_entered.is_set())
+            self.assertTrue(all(not entered.is_set() for entered in readers_entered))
+
+            # This records the current global A-topology/B-writer/C-reader
+            # convoy through positive lock-contention rendezvous. The #399
+            # cutover will replace this lock-specific expectation with scoped
+            # admission assertions for the same public operations.
+            self.workspace.topology_down("topology-a", timeout=5)
+            wait_for_process_event(
+                writer_entered, "profile B mutation entry", results
+            )
+            for index, entered in enumerate(readers_entered):
+                wait_for_process_event(
+                    entered, f"C reader {index} completion", results
+                )
+        finally:
+            status_path = (
+                self.workspace.paths.topologies / "topology-a" / "status.json"
+            )
+            if status_path.is_file():
+                try:
+                    if self.workspace.topology_status("topology-a")["ready"]:
+                        self.workspace.topology_down("topology-a", timeout=5)
+                except WorkspaceError:
+                    pass
+            join_or_stop_processes(started, 10)
+        self.assertEqual(started, processes)
+        self.assertEqual([process.exitcode for process in processes], [0] * 3)
+        self.assertEqual([results.get(timeout=2) for _ in processes], [None] * 3)
+
+    def test_p0_harness_reproduces_current_server_startup_port_convoy(
+        self,
+    ) -> None:
+        context = multiprocessing.get_context("spawn")
+        results = context.Queue()
+        reservation_received = [context.Event(), context.Event()]
+        release_reservation = [context.Event(), context.Event()]
+        port_blocked = [context.Event(), context.Event()]
+        pre_ready = [self.root / "pre-ready-a", self.root / "pre-ready-b"]
+        releases = [self.root / "release-a", self.root / "release-b"]
+
+        def reserved_port() -> socket.socket:
+            candidate = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            candidate.bind(("0.0.0.0", 0))
+            return candidate
+
+        reservations = [reserved_port(), reserved_port()]
+        coordinates = (
+            ("server-a", "state-a", "build-a", reservations[0].getsockname()[1]),
+            ("server-b", "state-b", "build-b", reservations[1].getsockname()[1]),
+        )
+        self.assertNotEqual(coordinates[0][3], coordinates[1][3])
+        for index, (name, _state, build, _port) in enumerate(coordinates):
+            self.workspace.create_profile(name)
+            root = self.workspace.paths.builds / "profiles" / build
+            root.mkdir(parents=True)
+            atomic_json(root / workspace_module.BUILD_METADATA, {})
+            executable = root / "atrinik-server"
+            executable.write_text(
+                "#!/usr/bin/env python3\n"
+                "from pathlib import Path\n"
+                "import socket, sys, time\n"
+                "port = int(next(value.split('=', 1)[1] for value in sys.argv "
+                "if value.startswith('--port_quic=')))\n"
+                "server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)\n"
+                "server.bind(('127.0.0.1', port))\n"
+                f"Path({str(pre_ready[index])!r}).write_text('ready\\n')\n"
+                f"release = Path({str(releases[index])!r})\n"
+                "while not release.exists():\n"
+                "    time.sleep(0.01)\n"
+                "print('QUIC certificate SHA-256: ' + 'a' * 64, flush=True)\n"
+                "print('Server ready. Waiting for connections...', flush=True)\n"
+                "while True:\n"
+                "    time.sleep(0.1)\n",
+                encoding="utf-8",
+            )
+            executable.chmod(0o755)
+        processes = [
+            context.Process(
+                target=synthetic_server_start_process,
+                args=(
+                    str(self.wrapper),
+                    str(self.workspace_directory),
+                    name,
+                    str(self.workspace.paths.state / state),
+                    str(self.workspace.paths.builds / "profiles" / build),
+                    port,
+                    reservations[index],
+                    reservation_received[index],
+                    release_reservation[index],
+                    port_blocked[index],
+                    results,
+                ),
+            )
+            for index, (name, state, build, port) in enumerate(coordinates)
+        ]
+        started: list[multiprocessing.Process] = []
+
+        def wait_for_path(path: Path, description: str) -> None:
+            deadline = time.monotonic() + 10
+            while time.monotonic() < deadline:
+                if path.is_file():
+                    return
+                time.sleep(0.01)
+            child_errors = []
+            while True:
+                try:
+                    child_errors.append(results.get_nowait())
+                except queue.Empty:
+                    break
+            self.fail(f"{description} was not reached; children={child_errors}")
+
+        try:
+            processes[0].start()
+            started.append(processes[0])
+            wait_for_process_event(
+                reservation_received[0],
+                "server A port reservation transfer",
+                results,
+            )
+            reservations[0].close()
+            release_reservation[0].set()
+            wait_for_path(pre_ready[0], "server A pre-ready barrier")
+
+            processes[1].start()
+            started.append(processes[1])
+            wait_for_process_event(
+                reservation_received[1],
+                "server B port reservation transfer",
+                results,
+            )
+            reservations[1].close()
+            release_reservation[1].set()
+            wait_for_process_event(
+                port_blocked[1], "server B confirmed port-lock block", results
+            )
+            self.assertFalse(pre_ready[1].exists())
+
+            # Both starts use distinct topology, profile/build, state, and
+            # explicit-port coordinates. P0 positively records that the global
+            # allocator lease serializes B until A leaves its pre-ready stage.
+            # The #401 cutover will replace this lock-specific expectation with
+            # per-port ownership and concurrent pre-ready rendezvous assertions.
+            releases[0].write_text("release\n", encoding="utf-8")
+            wait_for_path(pre_ready[1], "server B pre-ready barrier")
+            releases[1].write_text("release\n", encoding="utf-8")
+        finally:
+            for reservation in reservations:
+                reservation.close()
+            for event in release_reservation:
+                event.set()
+            for release in releases:
+                release.write_text("release\n", encoding="utf-8")
+            join_or_stop_processes(started, 10)
+        self.assertEqual(started, processes)
+        self.assertEqual([process.exitcode for process in processes], [0, 0])
+        self.assertEqual([results.get(timeout=2) for _ in processes], [None, None])
 
     def test_layout_lock_reports_one_actionable_prolonged_wait(self) -> None:
         layout = self.workspace.paths.workspace / "repository-layout.lock"
