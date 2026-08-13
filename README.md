@@ -114,6 +114,29 @@ top-level candidate query measured 63 ms cold and 61 ms warm median. The
 protocol is internal to the generated adapters; scripts should be obtained
 through `completion bash|zsh|fish` rather than hand-written against it.
 
+### MCP information-access contract
+
+[`mcp/contract/v1`](mcp/contract/v1/README.md) defines the common, versioned
+safety and measurement gates for future Atrinik MCP servers and evaluated
+connectors. It pins exact coordinates, stable failures, pagination, cache
+identity, hard record/byte/time/context limits, six known-answer domains, an
+adversarial corpus, and build/configure/defer/reject decisions. This repository
+does not yet ship or configure a production MCP server; direct wrapper,
+repository CLI, `rg`, Git, `gh`, and browser workflows remain authoritative.
+
+Validate or benchmark the contract without installing an MCP SDK:
+
+~~~sh
+python3 -m atrinik_workspace.mcp_contract validate
+python3 -m atrinik_workspace.mcp_contract benchmark \
+  --iterations 30 --output build/mcp/benchmark.json
+~~~
+
+The benchmark defaults offline and writes sanitized evidence under ignored
+`build/`. See [the safety and measurement contract](docs/MCP_INFORMATION_ACCESS.md)
+for bounds, threat coverage, capability ownership, optional live-GitHub
+measurement, and downstream consumer gates.
+
 ## Dependency and supply-chain ownership
 
 `supply-chain/inventory.json` records every supported repository and the owned

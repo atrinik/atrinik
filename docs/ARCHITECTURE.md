@@ -693,6 +693,25 @@ execute code from the
 selected profile. Review a pull request before selecting its worktree.
 Profiles do not provide a security sandbox.
 
+MCP information access has a separate versioned contract under
+`mcp/contract/v1`; no production server is enabled by that contract alone.
+Future local adapters receive an explicit configured root and resolve only
+manifest or wrapper-registry identities. MCP Roots, implicit CWD, caller paths,
+tool annotations, prompts, and confirmation UI are not authorization. Every
+result is revision/worktree/dirty/authorization-qualified, schema-validated,
+deterministically paginated, and hard-capped. Reads use descriptor-relative
+no-follow regular-file inspection, and initial caches are bounded memory whose
+keys include every effective parameter and identity. Source, guidance, authored
+content, issues, comments, logs, and tool metadata remain untrusted data.
+
+The contract admits read-only compare, inspect, list, read, search, and validate
+operations. It excludes arbitrary paths, credentials, mutable state, ignored or
+generated state, command execution, Git/workspace/runtime/GitHub mutation,
+source upload, and persistent cross-worktree indexes. It checks distinct tool
+catalog, schema, instruction, routine-result, and hard output ceilings while
+continuing to enforce the separate guidance-inventory budget. Direct CLI, `rg`,
+Git, `gh`, and browser paths are the offline fallback and source of truth.
+
 Shell completion is a separate read-only path ahead of `Workspace`
 construction and normal command dispatch. One bounded line-oriented protocol
 walks the same `argparse` metadata as execution and supplies all three generated
