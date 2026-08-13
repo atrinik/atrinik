@@ -6720,6 +6720,14 @@ class WorkspaceTests(unittest.TestCase):
         stopped = self.workspace.topology_status("review")
         self.assertFalse(stopped["supervisor"]["running"])
         self.assertFalse(stopped["services"]["client"]["running"])
+        status_path = self.workspace.paths.topologies / "review" / "status.json"
+        missing_sound = load_json(status_path)
+        sound = missing_sound.pop("sound")
+        atomic_json(status_path, missing_sound)
+        with self.assertRaisesRegex(WorkspaceError, "topology status is invalid"):
+            self.workspace.topology_status("review")
+        missing_sound["sound"] = sound
+        atomic_json(status_path, missing_sound)
         with mock.patch(
             "atrinik_workspace.workspace.process_matches", return_value=True
         ):
@@ -6945,6 +6953,7 @@ class WorkspaceTests(unittest.TestCase):
         )
         second_build_root.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(build_root, second_build_root, symlinks=True)
+        atomic_json(second_build_root / workspace_module.BUILD_METADATA, {})
 
         with (
             mock.patch.object(
@@ -7052,6 +7061,9 @@ class WorkspaceTests(unittest.TestCase):
                 )
             self.assertTrue(second["ready"])
             self.assertEqual(second["endpoint"]["port"], 17301)
+            self.assertIn("client", second["dependencies"])
+            self.assertNotIn("client", second["services"])
+            self.assertNotIn("sound", second)
             for topology in ("server-review", "server-review-two"):
                 snapshot = self.workspace.paths.topologies / topology / "runtime"
                 self.assertEqual(
