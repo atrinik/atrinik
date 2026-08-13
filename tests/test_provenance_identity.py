@@ -506,6 +506,9 @@ class ProvenanceIdentityTests(unittest.TestCase):
                 mutate(value)
                 with mock.patch(
                     "atrinik_workspace.provenance_identity._validate_repository_trust"
+                ), mock.patch(
+                    "atrinik_workspace.provenance_identity._git_blob",
+                    side_effect=AssertionError("unexpected blob read"),
                 ), self.assertRaises(WorkspaceError):
                     validate_component_reference(
                         value,
