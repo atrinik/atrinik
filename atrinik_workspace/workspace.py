@@ -31,7 +31,16 @@ from typing import Any, Callable, Iterator, TextIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
-from .locking import active_lock_fds, inherit_lock_fds
+from .locking import (
+    LOCK_WAIT_DIAGNOSTIC_SECONDS,
+    active_lock_fds,
+    exclusive_layout_lock,
+    exclusive_lock,
+    inherit_lock_fds,
+    layout_writer_intent_path as _layout_writer_intent_path,
+    shared_layout_lock,
+    shared_lock,
+)
 from .process_tree import holders_exist, signal_holders
 
 from .model import (
@@ -89,8 +98,6 @@ ALL_BUILD_TARGETS = (
     "server",
     "metaserver-worker",
 )
-LAYOUT_WRITER_INTENT_SUFFIX = ".writer-intent"
-LOCK_WAIT_DIAGNOSTIC_SECONDS = 10.0
 SOURCE_VIEW_METADATA = ".atrinik-source-view.json"
 SOURCE_VIEW_SCHEMA_VERSION = 2
 CONFIGURE_METADATA = ".atrinik-configure.json"
@@ -1158,136 +1165,6 @@ def open_regular_file(
         return descriptor
     except OSError as error:
         raise WorkspaceError(f"cannot open {description} {path}: {error}") from error
-
-
-@contextmanager
-def exclusive_lock(
-    path: Path,
-    description: str,
-    nonblocking: bool = False,
-    *,
-    diagnose_wait: bool = False,
-) -> Iterator[TextIO]:
-    with _advisory_lock(
-        path,
-        description,
-        fcntl.LOCK_EX,
-        nonblocking=nonblocking,
-        diagnose_wait=diagnose_wait,
-    ) as lock:
-        with inherit_lock_fds(lock):
-            yield lock
-
-
-@contextmanager
-def shared_lock(
-    path: Path, description: str, *, diagnose_wait: bool = False
-) -> Iterator[TextIO]:
-    operation = getattr(fcntl, "LOCK_SH", None)
-    if not isinstance(operation, int):
-        raise WorkspaceError(
-            f"shared locking is unavailable for {description}; refusing to continue"
-        )
-    with _advisory_lock(
-        path, description, operation, diagnose_wait=diagnose_wait
-    ) as lock:
-        with inherit_lock_fds(lock):
-            yield lock
-
-
-def _layout_writer_intent_path(path: Path) -> Path:
-    return path.with_name(
-        f"{path.stem}{LAYOUT_WRITER_INTENT_SUFFIX}{path.suffix}"
-    )
-
-
-@contextmanager
-def exclusive_layout_lock(
-    path: Path, description: str, nonblocking: bool = False
-) -> Iterator[TextIO]:
-    with exclusive_lock(
-        _layout_writer_intent_path(path),
-        f"{description} writer intent",
-        nonblocking,
-        diagnose_wait=True,
-    ):
-        with exclusive_lock(
-            path,
-            description,
-            nonblocking,
-            diagnose_wait=True,
-        ) as lock:
-            yield lock
-
-
-@contextmanager
-def shared_layout_lock(path: Path, description: str) -> Iterator[TextIO]:
-    layout = ExitStack()
-    with exclusive_lock(
-        _layout_writer_intent_path(path),
-        f"{description} writer intent",
-        diagnose_wait=True,
-    ):
-        lock = layout.enter_context(
-            shared_lock(path, description, diagnose_wait=True)
-        )
-    with layout:
-        yield lock
-
-
-@contextmanager
-def _advisory_lock(
-    path: Path,
-    description: str,
-    operation: int,
-    *,
-    nonblocking: bool = False,
-    diagnose_wait: bool = False,
-) -> Iterator[TextIO]:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor = open_regular_file(
-        path, os.O_RDWR | os.O_CREAT, f"{description} lock"
-    )
-    with os.fdopen(descriptor, "a+") as lock:
-        try:
-            fcntl.flock(lock, operation | fcntl.LOCK_NB)
-        except BlockingIOError as error:
-            if nonblocking:
-                raise WorkspaceError(f"{description} is already in use") from error
-            acquired = threading.Event()
-            warning: threading.Thread | None = None
-            if diagnose_wait:
-
-                def warn_about_wait() -> None:
-                    if acquired.wait(LOCK_WAIT_DIAGNOSTIC_SECONDS):
-                        return
-                    print(
-                        f"waiting more than {LOCK_WAIT_DIAGNOSTIC_SECONDS:g}s "
-                        f"for {description} lock at {path}; inspect "
-                        "`./atrinik ps --json` and "
-                        "`./atrinik worktree list --json`; do not bypass the "
-                        "wrapper or stop unrelated processes",
-                        file=sys.stderr,
-                    )
-
-                warning = threading.Thread(target=warn_about_wait, daemon=True)
-                warning.start()
-            try:
-                try:
-                    fcntl.flock(lock, operation)
-                except OSError as wait_error:
-                    raise WorkspaceError(
-                        f"cannot acquire {description} lock: {wait_error}"
-                    ) from wait_error
-            finally:
-                acquired.set()
-                if warning is not None:
-                    warning.join(timeout=0.1)
-        except OSError as error:
-            raise WorkspaceError(
-                f"cannot acquire {description} lock: {error}"
-            ) from error
-        yield lock
 
 
 class Workspace:

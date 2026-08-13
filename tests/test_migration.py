@@ -13,7 +13,12 @@ import unittest
 from unittest import mock
 
 from atrinik_workspace import migration as migration_module
-from atrinik_workspace.locking import inherit_lock_fds
+from atrinik_workspace.locking import (
+    exclusive_layout_lock,
+    exclusive_lock,
+    inherit_lock_fds,
+    layout_writer_intent_path,
+)
 from atrinik_workspace.migration import RepositoryMigration
 from atrinik_workspace.model import Paths, WorkspaceError
 
@@ -56,6 +61,22 @@ SHARED = (
 
 
 class RepositoryMigrationTests(unittest.TestCase):
+    def test_git_helpers_inherit_all_exclusive_layout_descriptors(self) -> None:
+        completed = mock.MagicMock(returncode=0, stdout=b"", stderr=b"")
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            exclusive_layout_lock(
+                Path(directory) / "repository-layout.lock", "repository layout"
+            ),
+            mock.patch(
+                "atrinik_workspace.migration.subprocess.run",
+                return_value=completed,
+            ) as invoke,
+        ):
+            RepositoryMigration._git_process(Path("/tmp/repository"), "status")
+
+        self.assertEqual(len(invoke.call_args.kwargs["pass_fds"]), 3)
+
     def test_git_helpers_inherit_active_layout_descriptor(self) -> None:
         completed = mock.MagicMock(returncode=0, stdout=b"", stderr=b"")
         with (
@@ -1368,6 +1389,23 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.assertIn(
             "repository_layout_busy",
             {row["code"] for row in locked["refusals"]},
+        )
+        self.assertTrue(source.is_dir())
+
+    def test_apply_refuses_when_writer_admission_is_held(self) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        layout = self.workspace / "repository-layout.lock"
+
+        with exclusive_lock(
+            layout_writer_intent_path(layout), "competing writer admission"
+        ):
+            result = self.migration().execute("apply")
+
+        self.assertEqual(result["status"], "refused")
+        self.assertIn(
+            "repository_layout_busy",
+            {row["code"] for row in result["refusals"]},
         )
         self.assertTrue(source.is_dir())
 

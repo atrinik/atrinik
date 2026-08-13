@@ -12,6 +12,11 @@ from unittest import mock
 
 from atrinik_workspace import content_migration as migration_module
 from atrinik_workspace.content_migration import ContentMigration
+from atrinik_workspace.locking import (
+    exclusive_layout_lock,
+    exclusive_lock,
+    layout_writer_intent_path,
+)
 from atrinik_workspace.workspace import Workspace
 
 
@@ -19,6 +24,21 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ContentMigrationTests(unittest.TestCase):
+    def test_git_helper_inherits_all_exclusive_layout_descriptors(self) -> None:
+        completed = mock.MagicMock(returncode=0, stdout="", stderr="")
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            exclusive_layout_lock(
+                Path(directory) / "repository-layout.lock", "repository layout"
+            ),
+            mock.patch.object(
+                migration_module.subprocess, "run", return_value=completed
+            ) as invoke,
+        ):
+            migration_module._git(Path("/tmp/repository"), "status")
+
+        self.assertEqual(len(invoke.call_args.kwargs["pass_fds"]), 3)
+
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
@@ -436,6 +456,19 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertEqual(result["status"], "refused")
         self.assertEqual(result["refusals"][0]["code"], "repository_layout_busy")
 
+    def test_restore_refuses_when_writer_admission_is_held(self) -> None:
+        self._legacy_profile()
+        self.assertEqual(self.migration().execute("apply")["status"], "complete")
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+
+        with exclusive_lock(
+            layout_writer_intent_path(layout), "competing writer admission"
+        ):
+            result = self.migration().execute("restore")
+
+        self.assertEqual(result["status"], "refused")
+        self.assertEqual(result["refusals"][0]["code"], "repository_layout_busy")
+
     def test_tampered_journal_cannot_redirect_profile_restore(self) -> None:
         self._legacy_profile()
         self.assertEqual(self.migration().execute("apply")["status"], "complete")
@@ -626,9 +659,10 @@ class ContentMigrationTests(unittest.TestCase):
         unsafe = self.root / "unsafe-lock"
         unsafe.mkdir()
         with self.assertRaisesRegex(
-            migration_module.WorkspaceError, "cannot open repository layout lock"
+            migration_module.WorkspaceError, "repository layout lock"
         ):
-            migration_module._open_layout_lock(unsafe)
+            with exclusive_layout_lock(unsafe, "repository layout"):
+                self.fail("unsafe layout lock unexpectedly succeeded")
 
         self._legacy_profile()
         lock_path = self.workspace.paths.workspace / "repository-layout.lock"
@@ -640,6 +674,19 @@ class ContentMigrationTests(unittest.TestCase):
             os.close(descriptor)
         self.assertEqual(result["status"], "refused")
         self.assertEqual(result["refusals"][-1]["code"], "repository_layout_busy")
+
+    def test_apply_refuses_when_writer_admission_is_held(self) -> None:
+        self._legacy_profile()
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+
+        with exclusive_lock(
+            layout_writer_intent_path(layout), "competing writer admission"
+        ):
+            result = self.migration().execute("apply")
+
+        self.assertEqual(result["status"], "refused")
+        self.assertEqual(result["refusals"][-1]["code"], "repository_layout_busy")
+        self.assertFalse(self.migration().record_path.exists())
 
     def test_apply_is_idempotent_only_before_explicit_restore(self) -> None:
         self._legacy_profile()

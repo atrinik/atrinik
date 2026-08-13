@@ -54,7 +54,7 @@
   concurrent topologies distinct names, states, ports, and client config.
 - Keep shell completion parser-driven, bounded, local-only, secret-free, and
   ahead of `Workspace` construction.
-- Layout writers gate readers; both locks precede finer locks and diagnose
+- Layout writers announce, gate, lock; they precede finer locks and diagnose
   10-second waits.
 - Unbound persisted records are historical and inert.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket

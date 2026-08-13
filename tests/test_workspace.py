@@ -25,6 +25,8 @@ import unittest
 from unittest import mock
 
 from atrinik_workspace import workspace as workspace_module
+from atrinik_workspace import locking as locking_module
+from atrinik_workspace.locking import active_lock_fds
 from atrinik_workspace.migration import rename_no_replace as real_rename_no_replace
 from atrinik_workspace.launch_identity import client_launch_label
 from atrinik_workspace.model import (
@@ -778,7 +780,7 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace.initialize(["client", "server"], jobs=2)
 
         self.assertEqual(len(observed), 2)
-        self.assertTrue(all(len(descriptors) == 2 for descriptors in observed))
+        self.assertTrue(all(len(descriptors) == 3 for descriptors in observed))
 
     def test_failed_clone_does_not_strand_destination(self) -> None:
         destination = self.workspace.paths.repositories / "client"
@@ -5728,6 +5730,7 @@ class WorkspaceTests(unittest.TestCase):
         context = multiprocessing.get_context("spawn")
         layout = self.workspace.paths.workspace / "repository-layout.lock"
         intent = workspace_module._layout_writer_intent_path(layout)
+        pending = locking_module.layout_writer_pending_path(layout)
         entered = context.Queue()
         results = context.Queue()
         release_initial = context.Event()
@@ -5759,29 +5762,30 @@ class WorkspaceTests(unittest.TestCase):
             initial.start()
             started.append(initial)
             self.assertEqual(entered.get(timeout=5), "initial")
-            writer.start()
-            started.append(writer)
-            deadline = time.monotonic() + 2
-            while time.monotonic() < deadline:
-                try:
-                    with exclusive_lock(
-                        intent,
-                        "repository layout writer intent",
-                        nonblocking=True,
-                    ):
-                        pass
-                except WorkspaceError:
-                    break
-                time.sleep(0.005)
-            else:
-                self.fail("writer did not establish intent")
+            with exclusive_lock(intent, "held reader admission"):
+                writer.start()
+                started.append(writer)
+                deadline = time.monotonic() + 2
+                while time.monotonic() < deadline:
+                    try:
+                        with exclusive_lock(
+                            pending,
+                            "repository layout writer pending",
+                            nonblocking=True,
+                        ):
+                            pass
+                    except WorkspaceError:
+                        break
+                    time.sleep(0.005)
+                else:
+                    self.fail("writer did not publish its pending state")
 
-            for arrival in arrivals:
-                arrival.start()
-                started.append(arrival)
-                time.sleep(0.01)
-            with self.assertRaises(queue.Empty):
-                entered.get(timeout=0.1)
+                for arrival in arrivals:
+                    arrival.start()
+                    started.append(arrival)
+                    time.sleep(0.01)
+                with self.assertRaises(queue.Empty):
+                    entered.get(timeout=0.1)
 
             release_initial.set()
             self.assertEqual(entered.get(timeout=5), "writer")
@@ -5811,7 +5815,7 @@ class WorkspaceTests(unittest.TestCase):
         output = io.StringIO()
         with (
             mock.patch.object(
-                workspace_module, "LOCK_WAIT_DIAGNOSTIC_SECONDS", 0.05
+                locking_module, "LOCK_WAIT_DIAGNOSTIC_SECONDS", 0.05
             ),
             redirect_stderr(output),
             exclusive_layout_lock(layout, "repository layout"),
@@ -5828,6 +5832,14 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("./atrinik ps --json", diagnostic)
         self.assertIn("./atrinik worktree list --json", diagnostic)
         self.assertIn("do not bypass the wrapper", diagnostic)
+
+    def test_shared_layout_lock_registers_only_live_layout_lease(self) -> None:
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+
+        self.assertEqual(active_lock_fds(), ())
+        with shared_layout_lock(layout, "repository layout") as lease:
+            self.assertEqual(active_lock_fds(), (lease.fileno(),))
+        self.assertEqual(active_lock_fds(), ())
 
     def test_independent_build_roots_overlap_across_processes(self) -> None:
         context = multiprocessing.get_context("spawn")

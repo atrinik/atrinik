@@ -92,9 +92,8 @@ Classic selection is checkout-wide; subdirectories are not worktrees. Clean
 exact-coordinate content, resource, and region-map caches are reused; runtimes
 copy independent topology-owned snapshots.
 
-Readers share the layout lock. Mutations gate readers before taking it;
-both precede finer locks, and waits diagnose after 10 seconds. Fail closed
-without sharing.
+Readers share the layout lock. Writers announce, gate, then lock; all leases
+precede finer locks and diagnose 10-second waits. Fail closed without sharing.
 Incomplete coordinates are inert; wrapper owns paths, locks, state, PIDs, logs,
 content/resources and cleanup. Completion is bounded, local, read-only,
 secret-free and parser-driven before `Workspace`; stops at `--` or a `run`
