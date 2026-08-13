@@ -6719,16 +6719,9 @@ class WorkspaceTests(unittest.TestCase):
 
     def test_exact_resource_matrix_scopes_conflicts_to_coordinates(self) -> None:
         context = multiprocessing.get_context("spawn")
-        for kind in (
-            "registry",
-            "profile",
-            "git-admin",
-            "source",
-            "topology",
-            "scenario",
-            "state",
-            "build-root",
-            "cache",
+        for kind in sorted(
+            locking_module.RESOURCE_KIND_ORDER,
+            key=locking_module.RESOURCE_KIND_ORDER.__getitem__,
         ):
             with self.subTest(kind=kind):
                 entered = context.Queue()
@@ -6880,17 +6873,22 @@ class WorkspaceTests(unittest.TestCase):
         topology_a_root = client_build_root("profile-a")
         topology_c_root = client_build_root("profile-c")
 
-        def stop_topology_a() -> None:
-            status_path = (
-                self.workspace.paths.topologies / "topology-a" / "status.json"
-            )
-            if status_path.is_file():
+        def stop_test_topologies() -> None:
+            failures = []
+            for name in ("topology-a", "topology-c"):
+                status_path = (
+                    self.workspace.paths.topologies / name / "status.json"
+                )
+                if not status_path.is_file():
+                    continue
                 try:
-                    self.workspace.topology_down("topology-a", timeout=5)
-                except WorkspaceError:
-                    pass
+                    self.workspace.topology_down(name, timeout=5)
+                except WorkspaceError as error:
+                    failures.append(f"{name}: {error}")
+            if failures:
+                self.fail("cannot stop test topologies: " + "; ".join(failures))
 
-        self.addCleanup(stop_topology_a)
+        self.addCleanup(stop_test_topologies)
         with (
             mock.patch.object(
                 self.workspace, "_build_resolved", return_value=topology_a_root
@@ -7041,8 +7039,8 @@ class WorkspaceTests(unittest.TestCase):
             release_initial.set()
             release_writer.set()
             release_late_reader.set()
-            stop_topology_a()
             join_or_stop_processes(started, 10)
+            stop_test_topologies()
         self.assertEqual(started, processes)
         self.assertEqual([process.exitcode for process in processes], [0] * 5)
         self.assertEqual([results.get(timeout=2) for _ in processes], [None] * 5)
