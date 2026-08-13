@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "policy_version": 1,
+  "schema": "governance/provenance-identities/schema-v1.json",
+  "records": [
+    {
+      "record_id": "pir-synthetic-alpha-0001",
+      "record_type": "confidential-attestation",
+      "status": "active",
+      "synthetic": true,
+      "policy_version": 1,
+      "reviewer": "github:synthetic-reviewer",
+      "reviewed_on": "2026-08-13",
+      "expires_on": "2099-12-31",
+      "claims": ["authorship", "identity", "rights-grant", "temporal-scope"],
+      "scope_binding": "psb-11111111111111111111111111111111",
+      "restricted_evidence": {
+        "record_id": "restricted-11111111111111111111111111111111",
+        "integrity": "hmac-sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "publication_review": {
+        "correlation_risk": "approved",
+        "fields_reviewed": ["claims", "expires_on", "integrity", "policy_version", "publication_review", "record_id", "record_type", "restricted_evidence", "reviewed_on", "reviewer", "scope_binding", "status", "synthetic"]
+      },
+      "integrity": {
+        "algorithm": "sha256",
+        "canonicalization": "atrinik-json-v1",
+        "digest": "9d4107ebde6e6a84228b9ea553441ec2a0f85294d4bab9305644da17fa6c4250"
+      }
+    },
+    {
+      "record_id": "pir-synthetic-beta-00001",
+      "record_type": "confidential-attestation",
+      "status": "active",
+      "synthetic": true,
+      "policy_version": 1,
+      "reviewer": "github:synthetic-reviewer",
+      "reviewed_on": "2026-08-13",
+      "expires_on": "2099-12-31",
+      "claims": ["authorship", "identity", "rights-grant", "temporal-scope"],
+      "scope_binding": "psb-22222222222222222222222222222222",
+      "restricted_evidence": {
+        "record_id": "restricted-22222222222222222222222222222222",
+        "integrity": "hmac-sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "publication_review": {
+        "correlation_risk": "approved",
+        "fields_reviewed": ["claims", "expires_on", "integrity", "policy_version", "publication_review", "record_id", "record_type", "restricted_evidence", "reviewed_on", "reviewer", "scope_binding", "status", "synthetic"]
+      },
+      "integrity": {
+        "algorithm": "sha256",
+        "canonicalization": "atrinik-json-v1",
+        "digest": "f085481974eb70bbc9e27c9666fcee7d1b75b054e3cc0802b69cef9493695219"
+      }
+    }
+  ]
+}

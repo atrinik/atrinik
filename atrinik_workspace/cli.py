@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import date
 import json
 from pathlib import Path
 import sys
@@ -43,6 +44,12 @@ def version_report(*arguments: object, **keywords: object) -> object:
 
 def write_generated(*arguments: object, **keywords: object) -> object:
     from .supply_chain import write_generated as implementation
+
+    return implementation(*arguments, **keywords)
+
+
+def validate_provenance_identity(*arguments: object, **keywords: object) -> object:
+    from .provenance_identity import validate_paths as implementation
 
     return implementation(*arguments, **keywords)
 
@@ -330,6 +337,46 @@ def parser() -> argparse.ArgumentParser:
     supply_chain_versions = supply_chain_commands.add_parser("versions")
     mark(supply_chain_versions.add_argument("--output", type=Path), "path")
 
+    provenance = commands.add_parser(
+        "provenance", help="validate the canonical public identity registry"
+    )
+    provenance_commands = provenance.add_subparsers(
+        dest="provenance_command", required=True
+    )
+    provenance_validate = provenance_commands.add_parser("validate")
+    mark(
+        provenance_validate.add_argument(
+            "--registry",
+            type=Path,
+            default=ROOT / "governance/provenance-identities/registry.json",
+        ),
+        "path",
+    )
+    mark(
+        provenance_validate.add_argument(
+            "--schema",
+            type=Path,
+            default=ROOT / "governance/provenance-identities/schema-v1.json",
+        ),
+        "path",
+    )
+    mark(
+        provenance_validate.add_argument(
+            "--reference", type=Path, action="append", default=[]
+        ),
+        "path",
+    )
+    mark(
+        provenance_validate.add_argument(
+            "--as-of",
+            type=date.fromisoformat,
+            default=date.today(),
+            metavar="YYYY-MM-DD",
+            help="freshness evaluation date (default: today)",
+        ),
+        "none",
+    )
+
     launch = commands.add_parser("run", help="build and run client or server")
     launch_commands = launch.add_subparsers(dest="target", required=True)
     for target in ("client", "server"):
@@ -392,6 +439,19 @@ def main(arguments: list[str] | None = None) -> int:
         if options.command == "manifest":
             manifest = Manifest.load(ROOT / "components.json")
             print(f"components.json: valid ({len(manifest.components)} components)")
+            return 0
+        if options.command == "provenance":
+            count = validate_provenance_identity(
+                ROOT,
+                registry_path=options.registry,
+                schema_path=options.schema,
+                reference_paths=options.reference,
+                as_of=options.as_of,
+            )
+            print(
+                "governance/provenance-identities/registry.json: valid "
+                f"({count} records, {len(options.reference)} references)"
+            )
             return 0
 
         workspace_type = Workspace
