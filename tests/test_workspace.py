@@ -7043,6 +7043,22 @@ class WorkspaceTests(unittest.TestCase):
                         crashed["observation"]["port_reservation"]["lease"],
                         "released",
                     )
+                    reassigned_fd, reassigned = observer._reserve_topology_port(
+                        crashed["endpoint"]["port"],
+                        f"{mode}-replacement",
+                        "f" * 64,
+                    )
+                    try:
+                        self.assertTrue(
+                            workspace_module.port_reservation_locked(reassigned)
+                        )
+                        self.assertEqual(
+                            observer.topology_status(names[0])["observation"]
+                            ["port_reservation"]["lease"],
+                            "released",
+                        )
+                    finally:
+                        os.close(reassigned_fd)
                 finally:
                     observer = Workspace(self.wrapper)
                     for name in names:

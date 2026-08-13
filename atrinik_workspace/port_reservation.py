@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import stat
+import time
 from typing import Any
 
 
@@ -252,7 +253,19 @@ def reservation_locked(record: Any) -> bool:
         try:
             fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
-            return True
+            # A normal later owner rewrites the same lease inode. Attribute a
+            # conflicting lock only when the record currently protected by it
+            # still names this exact topology generation.
+            deadline = time.monotonic() + 1
+            while True:
+                try:
+                    current = read_record(descriptor, path)
+                    validate_held(descriptor, current)
+                    return current == validated
+                except PortReservationError:
+                    if time.monotonic() >= deadline:
+                        raise
+                    time.sleep(0.01)
         except OSError as error:
             raise PortReservationError(
                 f"cannot inspect topology port reservation lock {path}: {error}"

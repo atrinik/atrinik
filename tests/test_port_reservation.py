@@ -16,6 +16,7 @@ from atrinik_workspace.port_reservation import (
     PortReservationError,
     bind_record,
     open_lease,
+    reservation_locked,
     try_lock,
     validate_held,
 )
@@ -295,6 +296,21 @@ class PortReservationTests(unittest.TestCase):
             self.assertIn("topology current-owner", message)
             self.assertIn(str(replacement_record["generation"]), message)
             self.assertNotIn("topology stale-owner", message)
+        finally:
+            os.close(replacement)
+
+    def test_reused_locked_inode_is_retained_only_for_current_record(self) -> None:
+        port = self.free_port()
+        descriptor, old_record = self.workspace._reserve_topology_port(
+            port, "old-status", "e" * 64
+        )
+        os.close(descriptor)
+        replacement, current_record = self.workspace._reserve_topology_port(
+            port, "new-status", "f" * 64
+        )
+        try:
+            self.assertFalse(reservation_locked(old_record))
+            self.assertTrue(reservation_locked(current_record))
         finally:
             os.close(replacement)
 
