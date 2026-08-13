@@ -1,5 +1,6 @@
 {
   "schema_version": 1,
+  "synthetic": true,
   "source": {
     "repository": "atrinik/synthetic-history",
     "path": "engine/alpha.c",

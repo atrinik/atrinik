@@ -642,19 +642,27 @@ def validate_component_reference(
             "scope_approval",
             "scope_binding",
             "source",
+            "synthetic",
             "transformation",
         },
         "component provenance record",
     )
-    if type(reference["schema_version"]) is not int or reference["schema_version"] != SCHEMA_VERSION:
+    if (
+        type(reference["schema_version"]) is not int
+        or reference["schema_version"] != SCHEMA_VERSION
+    ):
         raise WorkspaceError("component provenance record has an unsupported schema version")
+    if not isinstance(reference["synthetic"], bool):
+        raise WorkspaceError("component provenance record synthetic must be a boolean")
     for key in ("source", "destination"):
         coordinate = reference[key]
         if not isinstance(coordinate, dict):
             raise WorkspaceError(f"component provenance record {key} must be an object")
         required = {"path", "repository", "revision"} if key == "source" else {"path", "repository"}
         _exact_keys(coordinate, required, f"component provenance record {key}")
-        if not re.fullmatch(r"atrinik/[a-z0-9][a-z0-9._-]*", str(coordinate["repository"])):
+        if not re.fullmatch(
+            r"atrinik/[a-z0-9][a-z0-9._-]*", str(coordinate["repository"])
+        ):
             raise WorkspaceError(f"component provenance record {key}.repository is invalid")
         _repository_path(coordinate["path"], f"component provenance record {key}.path")
         if key == "source":
@@ -674,7 +682,15 @@ def validate_component_reference(
         raise WorkspaceError("component provenance evidence_reference must be an object")
     _exact_keys(
         evidence,
-        {"record_id", "registry_sha256", "repository", "reviewers_sha256", "revision", "schema_sha256", "url"},
+        {
+            "record_id",
+            "registry_sha256",
+            "repository",
+            "reviewers_sha256",
+            "revision",
+            "schema_sha256",
+            "url",
+        },
         "component provenance evidence_reference",
     )
     if evidence["repository"] != "atrinik/atrinik":
@@ -690,10 +706,14 @@ def validate_component_reference(
         f"{REGISTRY_PATH.as_posix()}#{record_id}"
     )
     if evidence["url"] != expected_url:
-        raise WorkspaceError("component provenance reference URL is not the canonical immutable permalink")
+        raise WorkspaceError(
+            "component provenance reference URL is not the canonical immutable permalink"
+        )
     _validate_repository_trust(repository_root, revision, trusted_ref)
     for key in ("registry_sha256", "reviewers_sha256", "schema_sha256"):
-        if not isinstance(evidence[key], str) or not SHA256_PATTERN.fullmatch(evidence[key]):
+        if not isinstance(evidence[key], str) or not SHA256_PATTERN.fullmatch(
+            evidence[key]
+        ):
             raise WorkspaceError(f"component provenance reference {key} is invalid")
     registry_blob = _git_blob(repository_root, revision, REGISTRY_PATH.as_posix())
     schema_blob = _git_blob(repository_root, revision, SCHEMA_PATH.as_posix())
@@ -716,12 +736,16 @@ def validate_component_reference(
     if record["status"] != "active":
         raise WorkspaceError("component provenance reference record is not active")
     if record["record_type"] != "confidential-attestation":
-        raise WorkspaceError("component provenance reference must select a confidential attestation")
+        raise WorkspaceError(
+            "component provenance reference must select a confidential attestation"
+        )
     if record["scope_binding"] != reference["scope_binding"]:
         raise WorkspaceError("component provenance scope binding does not match the attestation")
     current = current_records.get(record_id)
     if current is None or current["status"] != "active":
-        raise WorkspaceError("component provenance record is not active in the current registry")
+        raise WorkspaceError(
+            "component provenance record is not active in the current registry"
+        )
     if current["scope_binding"] != reference["scope_binding"]:
         raise WorkspaceError("current provenance scope binding differs from the pinned record")
     scope_payload = canonical_bytes(
@@ -736,8 +760,10 @@ def validate_component_reference(
         synthetic=record["synthetic"],
         context="component provenance scope_approval",
     )
-    if record["synthetic"] and not str(reference["destination"]["repository"]).startswith("atrinik/synthetic-"):
-        raise WorkspaceError("synthetic attestations may only be used by synthetic component fixtures")
+    if record["synthetic"] != reference["synthetic"]:
+        raise WorkspaceError(
+            "component provenance synthetic boundary does not match the attestation"
+        )
 
 
 def validate_paths(

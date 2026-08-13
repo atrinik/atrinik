@@ -164,6 +164,7 @@ class ProvenanceIdentityTests(unittest.TestCase):
     def test_reference_rejects_noncanonical_url_without_git_access(self) -> None:
         value = {
             "schema_version": 1,
+            "synthetic": True,
             "source": {
                 "repository": "atrinik/synthetic-source",
                 "path": "src/example.c",
@@ -280,6 +281,20 @@ class ProvenanceIdentityTests(unittest.TestCase):
     def test_scope_replay_invalidates_reviewer_signature(self) -> None:
         reference = load_document(FIXTURES / "positive" / "synthetic-alpha.json")
         reference["source"]["path"] = "engine/unapproved.c"
+        records, reviewer_keys = current()
+        with self.assertRaisesRegex(WorkspaceError, "reviewer signature is invalid"):
+            validate_component_reference(
+                reference,
+                repository_root=ROOT,
+                as_of=AS_OF,
+                trusted_ref="HEAD",
+                current_records=records,
+                current_reviewers=reviewer_keys,
+            )
+
+    def test_component_reference_cannot_cross_the_synthetic_boundary(self) -> None:
+        reference = load_document(FIXTURES / "positive" / "synthetic-alpha.json")
+        reference["synthetic"] = False
         records, reviewer_keys = current()
         with self.assertRaisesRegex(WorkspaceError, "reviewer signature is invalid"):
             validate_component_reference(

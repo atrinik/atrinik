@@ -1,19 +1,20 @@
 {
   "schema_version": 1,
+  "synthetic": true,
   "source": {
     "repository": "atrinik/synthetic-history",
     "path": "engine/beta.c",
     "revision": "2222222222222222222222222222222222222222"
   },
   "destination": {
-    "repository": "atrinik/synthetic-beta",
-    "path": "src/beta.go"
+    "repository": "atrinik/server",
+    "path": "internal/kernel/kernel.go"
   },
   "transformation": "Synthetic port used only to verify the reference contract.",
   "scope_binding": "psb-22222222222222222222222222222222",
   "scope_approval": {
     "key_id": "synthetic-reviewer-2026",
-    "signature": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgBruVWBv4FEuaHvyX1z13qRO9BU\nTXED0DGAjTaWDx1NAAAAAVYXRyaW5pay1wcm92ZW5hbmNlLXYxAAAAAAAAAAZzaGE1MTIA\nAABTAAAAC3NzaC1lZDI1NTE5AAAAQNlkEKILZFIae4QwqXhqHyv6mBJz1jMZFdUbOZZskZ\nNqqP6ucgD/AotcFPdoRBICDaecUK0Qe3V8J+6VGmxfHgA=\n-----END SSH SIGNATURE-----"
+    "signature": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgBruVWBv4FEuaHvyX1z13qRO9BU\nTXED0DGAjTaWDx1NAAAAAVYXRyaW5pay1wcm92ZW5hbmNlLXYxAAAAAAAAAAZzaGE1MTIA\nAABTAAAAC3NzaC1lZDI1NTE5AAAAQGcyoaKoDFIcb6bogMTJmFpDJZhY3ro3N+OoeHalXc\nb0OI8EcGvJehLZy1beFGd8P5TKdASQD0lP+uvR2rKkQgw=\n-----END SSH SIGNATURE-----"
   },
   "evidence_reference": {
     "repository": "atrinik/atrinik",

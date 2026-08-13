@@ -137,7 +137,10 @@ only the pinned registry, schema and reviewer roster. It does not fetch, search
 history, or consult a local alias copy. A signed-release mode is not implemented
 in schema v1 and therefore fails closed.
 
-The synthetic two-component fixtures exercise both paths:
+The synthetic component-owned records for `atrinik/client` and
+`atrinik/server` exercise both paths. The copies in this repository are test
+fixtures; each component keeps its own identical reference record and validates
+it without copying the canonical registry, schema, or reviewer roster:
 
 ```sh
 ./atrinik provenance validate \
@@ -148,9 +151,9 @@ The synthetic two-component fixtures exercise both paths:
 Their pinned URLs become online after this branch is pushed. Before merge they
 may be exercised only with `--non-authorizing-audit-ref
 origin/feat/privacy-preserving-provenance-registry`; that mode is visibly not an
-approval for reuse. They are synthetic test evidence, not permission for real
-material. Production validation accepts only a revision that has landed on the
-default branch.
+approval for reuse. They carry an authenticated `synthetic: true` boundary and
+are test evidence, not permission for real material. Production validation
+accepts only a revision that has landed on the default branch.
 
 ## Migration and review
 
