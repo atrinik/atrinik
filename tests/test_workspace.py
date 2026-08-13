@@ -13,6 +13,7 @@ import multiprocessing
 import os
 from pathlib import Path
 import queue
+import re
 import shutil
 import signal
 import socket
@@ -7159,7 +7160,12 @@ class WorkspaceTests(unittest.TestCase):
             "remove selected source",
         )
         with resource_locks(self.workspace._lease_root, [source_request]):
-            with self.assertRaisesRegex(WorkspaceError, "backfill is busy"):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                rf"source content:{re.escape(str(source))} is already in use by "
+                r"exclusive remove selected source by .*; "
+                r"inspect `\./atrinik worktree list --json` and retry",
+            ):
                 self.workspace._backfill_physical_references()
         self.assertFalse((registry / f"{profile_identity}.json").exists())
         self.assertFalse((registry / f"{state_identity}.json").exists())
@@ -7167,6 +7173,323 @@ class WorkspaceTests(unittest.TestCase):
         self.workspace._backfill_physical_references()
         self.assertTrue((registry / f"{profile_identity}.json").is_file())
         self.assertTrue((registry / f"{state_identity}.json").is_file())
+
+    def test_backfill_preserves_missing_profile_as_historical_reference(self) -> None:
+        source = self.workspace.create_worktree(
+            "content", "missing-profile", "feat/missing-profile", None, False
+        )
+        profile = self.workspace.create_profile("missing-profile")
+        self.workspace.set_profile("missing-profile", "content", "path", str(source))
+        authored = profile.read_bytes()
+        registry = self.workspace._lease_namespace / "profile-references"
+        profile_identity = hashlib.sha256(str(profile.resolve()).encode()).hexdigest()
+        state_identity = hashlib.sha256(
+            str(self.workspace.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        (registry / f"{profile_identity}.json").unlink()
+        (registry / f"{state_identity}.json").unlink()
+        shutil.rmtree(source)
+
+        fresh = Workspace(self.wrapper)
+        try:
+            self.assertTrue(fresh.repository_status(["content"]))
+            fresh.sync(["content"], "none")
+            self.assertEqual(profile.read_bytes(), authored)
+            record = load_json(registry / f"{profile_identity}.json")
+            self.assertEqual(record["sources"], [str(source.resolve())])
+            self.assertTrue((registry / f"{state_identity}.json").is_file())
+        finally:
+            fresh.close()
+
+    def test_relocated_backfill_and_removal_share_missing_source_coordinate(
+        self,
+    ) -> None:
+        source = self.workspace.create_worktree(
+            "content", "relocated-missing", "feat/relocated-missing", None, False
+        )
+        alternate_root = self.root / "alternate-workspace"
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
+        ):
+            alternate = Workspace(self.wrapper)
+            alternate.paths.ensure()
+            profile = alternate.create_profile("relocated-missing")
+            alternate.set_profile(
+                "relocated-missing", "content", "path", str(source)
+            )
+            alternate.close()
+
+        registry = self.workspace._lease_namespace / "profile-references"
+        profile_identity = hashlib.sha256(str(profile.resolve()).encode()).hexdigest()
+        state_identity = hashlib.sha256(str(alternate_root.resolve()).encode()).hexdigest()
+        (registry / f"{profile_identity}.json").unlink()
+        (registry / f"{state_identity}.json").unlink()
+        shutil.rmtree(source)
+        removal = self.workspace._lease_request(
+            "source",
+            self.workspace._source_coordinate("content", source),
+            "exclusive",
+            "remove selected source",
+        )
+        with resource_locks(self.workspace._lease_root, [removal]):
+            with (
+                mock.patch.dict(
+                    os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError,
+                    rf"source content:{re.escape(str(source))} is already in use by "
+                    r"exclusive remove selected source by",
+                ),
+            ):
+                Workspace(self.wrapper)
+
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
+        ):
+            fresh = Workspace(self.wrapper)
+            fresh.close()
+        source.mkdir(parents=True)
+        with resource_locks(self.workspace._lease_root, [removal]):
+            self.assertIn(
+                "profile:relocated-missing",
+                self.workspace._source_references(source),
+            )
+
+    def test_relocated_scenario_backfill_blocks_removal_until_complete(self) -> None:
+        sources = [
+            self.workspace.create_worktree(
+                "content",
+                f"retired-scenario-{index}",
+                f"feat/retired-scenario-{index}",
+                None,
+                False,
+            )
+            for index in range(2)
+        ]
+        alternate_root = self.root / "alternate-scenario-workspace"
+        scenario = alternate_root / "scenarios" / "retired-scenario"
+        scenario.mkdir(parents=True)
+        record = scenario / "scenario.json"
+        atomic_json(
+            record,
+            {
+                "resolved": {
+                    f"server-{index}": {
+                        "checkout": "retired-server-owner",
+                        "checkout_path": str(source),
+                    }
+                    for index, source in enumerate(sources)
+                }
+            },
+        )
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
+        ):
+            fresh = Workspace(self.wrapper, backfill_references=False)
+        entered = threading.Event()
+        release = threading.Event()
+        removal_reached_fence = threading.Event()
+        publish = fresh._publish_scenario_references
+        lock_resources = self.workspace._resource_locks
+
+        def pause_publication(name: str, metadata: dict[str, object]) -> None:
+            entered.set()
+            self.assertTrue(release.wait(5))
+            publish(name, metadata)
+
+        def observe_removal_fence(
+            requests: list[LeaseRequest], *args: object, **kwargs: object
+        ) -> object:
+            if any(
+                request.kind == "registry"
+                and request.coordinate == "physical-references"
+                and request.mode == "exclusive"
+                for request in requests
+            ):
+                removal_reached_fence.set()
+            return lock_resources(requests, *args, **kwargs)
+
+        try:
+            with (
+                mock.patch.object(
+                    fresh,
+                    "_publish_scenario_references",
+                    side_effect=pause_publication,
+                ),
+                mock.patch.object(
+                    self.workspace,
+                    "_resource_locks",
+                    side_effect=observe_removal_fence,
+                ),
+                ThreadPoolExecutor(max_workers=2) as executor,
+            ):
+                backfill = executor.submit(fresh._backfill_physical_references)
+                self.assertTrue(entered.wait(5))
+                removing = executor.submit(
+                    self.workspace.remove_worktree,
+                    "content",
+                    "retired-scenario-1",
+                )
+                self.assertTrue(removal_reached_fence.wait(5))
+                self.assertFalse(removing.done())
+                release.set()
+                backfill.result(timeout=5)
+                with self.assertRaisesRegex(
+                    WorkspaceError,
+                    r"refusing to remove referenced worktree .*: "
+                    r"scenario:retired-scenario$",
+                ):
+                    removing.result(timeout=5)
+            self.assertTrue(sources[1].is_dir())
+            reference = load_json(
+                fresh._lease_namespace
+                / "profile-references"
+                / f"{hashlib.sha256(str(record.resolve()).encode()).hexdigest()}.json"
+            )
+            self.assertEqual(reference["sources"], sorted(map(str, sources)))
+        finally:
+            release.set()
+            fresh.close()
+
+    def test_scenario_backfill_does_not_cross_product_historical_owners(self) -> None:
+        root = self.workspace.paths.scenarios / "bounded-historical"
+        root.mkdir()
+        historical_count = 341
+        atomic_json(
+            root / "scenario.json",
+            {
+                "resolved": {
+                    f"role-{index}": {
+                        "checkout": f"retired-owner-{index}",
+                        "checkout_path": str(self.root / f"missing-{index}"),
+                    }
+                    for index in range(historical_count)
+                }
+            },
+        )
+        state_identity = hashlib.sha256(
+            str(self.workspace.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        registry = self.workspace._lease_namespace / "profile-references"
+        (registry / f"{state_identity}.json").unlink()
+        observed: list[int] = []
+        real_locks = workspace_module.resource_locks
+
+        def record_requests(*args: object, **kwargs: object) -> object:
+            requests = args[1]
+            if any(request.kind == "scenario" for request in requests):
+                observed.append(len(requests))
+            return real_locks(*args, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.resource_locks",
+            side_effect=record_requests,
+        ):
+            self.workspace._backfill_physical_references()
+
+        self.assertEqual(
+            observed,
+            [1],
+        )
+
+    def test_backfill_preserves_missing_scenario_as_historical_reference(self) -> None:
+        root = self.workspace.paths.scenarios / "missing-scenario"
+        root.mkdir()
+        missing = self.workspace.paths.worktrees / "server" / "missing-scenario"
+        record = root / "scenario.json"
+        atomic_json(
+            record,
+            {
+                "resolved": {
+                    "server": {
+                        "checkout": "server",
+                        "checkout_path": str(missing),
+                    }
+                }
+            },
+        )
+        authored = record.read_bytes()
+        registry = self.workspace._lease_namespace / "profile-references"
+        scenario_identity = hashlib.sha256(str(record.resolve()).encode()).hexdigest()
+        state_identity = hashlib.sha256(
+            str(self.workspace.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        (registry / f"{state_identity}.json").unlink()
+
+        fresh = Workspace(self.wrapper)
+        try:
+            self.assertEqual(record.read_bytes(), authored)
+            reference = load_json(registry / f"{scenario_identity}.json")
+            self.assertEqual(reference["sources"], [str(missing.resolve())])
+            self.assertTrue((registry / f"{state_identity}.json").is_file())
+        finally:
+            fresh.close()
+
+    def test_backfill_rejects_malformed_scenario_without_marker(self) -> None:
+        root = self.workspace.paths.scenarios / "malformed-backfill"
+        root.mkdir()
+        atomic_json(
+            root / "scenario.json",
+            {
+                "resolved": {
+                    "server": {
+                        "checkout": "server",
+                        "checkout_path": str(self.root / "retained-server"),
+                    },
+                    "invalid": {"checkout": "retired-owner"},
+                }
+            },
+        )
+        state_identity = hashlib.sha256(
+            str(self.workspace.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        registry = self.workspace._lease_namespace / "profile-references"
+        (registry / f"{state_identity}.json").unlink()
+
+        with self.assertRaisesRegex(
+            WorkspaceError,
+            "scenario resolved references are invalid: malformed-backfill",
+        ):
+            self.workspace._backfill_physical_references()
+
+        self.assertFalse((registry / f"{state_identity}.json").exists())
+
+    def test_backfill_reports_authored_record_change_separately(self) -> None:
+        profile = self.workspace.create_profile("changing-backfill")
+        registry = self.workspace._lease_namespace / "profile-references"
+        profile_identity = hashlib.sha256(str(profile.resolve()).encode()).hexdigest()
+        state_identity = hashlib.sha256(
+            str(self.workspace.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        (registry / f"{profile_identity}.json").unlink()
+        (registry / f"{state_identity}.json").unlink()
+        real_load = workspace_module.load_regular_json
+        reads = 0
+
+        def changed_on_confirmation(path: Path, description: str) -> object:
+            nonlocal reads
+            value = real_load(path, description)
+            if path == profile:
+                reads += 1
+                if reads == 2:
+                    return {**value, "name": "changed-directly"}
+            return value
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.load_regular_json",
+                side_effect=changed_on_confirmation,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError,
+                "profile changed during physical reference backfill: "
+                "changing-backfill; stop editing that profile and retry",
+            ),
+        ):
+            self.workspace._backfill_physical_references()
+        self.assertFalse((registry / f"{profile_identity}.json").exists())
+        self.assertFalse((registry / f"{state_identity}.json").exists())
 
     def test_backfill_rejects_inexact_marker_schema(self) -> None:
         state_identity = hashlib.sha256(
@@ -7189,6 +7512,57 @@ class WorkspaceTests(unittest.TestCase):
 
         with self.assertRaisesRegex(WorkspaceError, "backfill marker is invalid"):
             self.workspace._backfill_physical_references()
+
+    def test_concurrent_backfill_rechecks_marker_after_serialization(self) -> None:
+        registry = self.workspace._lease_namespace / "profile-references"
+        state_identity = hashlib.sha256(
+            str(self.workspace.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        (registry / f"{state_identity}.json").unlink()
+        first = Workspace(self.wrapper, backfill_references=False)
+        second = Workspace(self.wrapper, backfill_references=False)
+        entered = threading.Event()
+        release = threading.Event()
+        second_started_work = threading.Event()
+        first_backfill = first._backfill_scenario_references
+
+        def pause_first_backfill() -> None:
+            entered.set()
+            self.assertTrue(release.wait(5))
+            first_backfill()
+
+        def observe_second_work() -> None:
+            second_started_work.set()
+
+        try:
+            with (
+                mock.patch.object(
+                    first,
+                    "_backfill_scenario_references",
+                    side_effect=pause_first_backfill,
+                ),
+                mock.patch.object(
+                    second,
+                    "_backfill_profile_references",
+                    side_effect=observe_second_work,
+                ),
+                ThreadPoolExecutor(max_workers=2) as executor,
+            ):
+                first_result = executor.submit(first._backfill_physical_references)
+                self.assertTrue(entered.wait(5))
+                second_result = executor.submit(second._backfill_physical_references)
+                time.sleep(0.05)
+                self.assertFalse(second_result.done())
+                self.assertFalse(second_started_work.is_set())
+                release.set()
+                first_result.result(timeout=5)
+                second_result.result(timeout=5)
+            self.assertFalse(second_started_work.is_set())
+            self.assertTrue((registry / f"{state_identity}.json").is_file())
+        finally:
+            release.set()
+            first.close()
+            second.close()
 
     def test_profile_json_rejects_duplicate_keys_without_following_links(self) -> None:
         path = self.workspace.paths.profiles / "duplicate.json"
