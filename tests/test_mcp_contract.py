@@ -7,6 +7,7 @@ import json
 import math
 import os
 from pathlib import Path
+import subprocess
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -528,6 +529,15 @@ class McpContractTests(unittest.TestCase):
         self.assertFalse(result["privacy"]["host_paths_recorded"])
         rendered = json.dumps(result)
         self.assertNotIn(str(ROOT), rendered)
+
+    def test_benchmark_records_an_explicit_detached_head_identity(self) -> None:
+        head = "d" * 40
+        with mock.patch.object(
+            mcp_contract,
+            "_git_capture",
+            side_effect=subprocess.CalledProcessError(128, ["git", "symbolic-ref"]),
+        ):
+            self.assertEqual(mcp_contract._git_branch(ROOT, head), f"detached@{head}")
 
     def test_documented_contract_preserves_authority_and_consumer_boundaries(self) -> None:
         documentation = " ".join(

@@ -703,6 +703,15 @@ def _git_capture(workspace_root: Path, *arguments: str) -> bytes:
     ).stdout
 
 
+def _git_branch(workspace_root: Path, head: str) -> str:
+    try:
+        branch = _git_capture(workspace_root, "symbolic-ref", "--short", "HEAD")
+    except subprocess.CalledProcessError:
+        return f"detached@{head}"
+    decoded = branch.decode().strip()
+    return decoded or f"detached@{head}"
+
+
 def benchmark(
     *,
     workspace_root: Path,
@@ -836,9 +845,7 @@ def benchmark(
         )
 
     head = _git_capture(workspace_root, "rev-parse", "HEAD").decode().strip()
-    branch = _git_capture(
-        workspace_root, "symbolic-ref", "--short", "HEAD"
-    ).decode().strip()
+    branch = _git_branch(workspace_root, head)
     dirty_status = _git_capture(
         workspace_root, "status", "--porcelain=v1", "-z", "--untracked-files=all"
     )
