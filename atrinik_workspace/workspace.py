@@ -2432,6 +2432,12 @@ class Workspace:
             "exclusive",
             f"remove worktree {checkout.name}/{label}",
         )
+        registry_request = self._lease_request(
+            "registry",
+            "physical-references",
+            "exclusive",
+            f"remove worktree {checkout.name}/{label}",
+        )
         with self._open_managed_worktree(destination) as (
             stable_destination,
             physical_destination,
@@ -2449,7 +2455,9 @@ class Workspace:
                 f"remove worktree {checkout.name}/{label}",
             )
             while True:
-                with self._resource_locks([source_request, physical_request]):
+                with self._resource_locks(
+                    [registry_request, source_request, physical_request]
+                ):
                     try:
                         with self._resource_locks(
                             [admin_request], nonblocking=True
@@ -2982,10 +2990,19 @@ class Workspace:
             "exclusive",
             "backfill physical references",
         )
+        publication_request = self._lease_request(
+            "registry",
+            "physical-references",
+            "shared",
+            "backfill physical references",
+        )
         with shared_maintenance_lock(
             self._lease_namespace / "repository-layout.lock"
         ):
-            with self._resource_locks([registry_request]):
+            with resource_locks(
+                self._lease_root,
+                [publication_request, registry_request],
+            ):
                 if self._physical_backfill_complete(
                     state_identity, marker_reference
                 ):
@@ -3358,54 +3375,12 @@ class Workspace:
                             "scenario changed during physical reference backfill: "
                             f"{root.name}; stop editing that scenario and retry"
                         )
-                    identity = hashlib.sha256(
-                        str(record.resolve()).encode()
-                    ).hexdigest()
-                    existing = self._physical_reference_records(
-                        only=f"{identity}.json"
+                    # The caller holds the common physical-reference registry
+                    # barrier against removal, so the complete source set can be
+                    # published once without retaining one descriptor per path.
+                    self._publish_scenario_reference_sources(
+                        root.name, {str(source) for source in sources}
                     )
-                    retained: set[str] = set()
-                    if existing:
-                        previous = existing[0]
-                        if (
-                            not isinstance(previous, dict)
-                            or set(previous)
-                            != {"schema_version", "kind", "reference", "sources"}
-                            or previous.get("schema_version") != 1
-                            or previous.get("kind") != "scenarios"
-                            or previous.get("reference") != root.name
-                            or not isinstance(previous.get("sources"), list)
-                            or any(
-                                not isinstance(source, str)
-                                or not Path(source).is_absolute()
-                                for source in previous["sources"]
-                            )
-                        ):
-                            raise WorkspaceError(
-                                "cannot prove physical reference record"
-                            )
-                        retained.update(previous["sources"])
-                    if not sources:
-                        self._publish_scenario_reference_sources(root.name, retained)
-                for source in sorted(sources, key=str):
-                    physical_request = self._lease_request(
-                        "source",
-                        self._physical_source_coordinate(source),
-                        "shared",
-                        "backfill scenario reference",
-                    )
-                    with resource_locks(
-                        self._lease_root,
-                        [physical_request, scenario_request],
-                        nonblocking=True,
-                    ):
-                        if load_regular_json(record, "scenario metadata") != metadata:
-                            raise WorkspaceError(
-                                "scenario changed during physical reference backfill: "
-                                f"{root.name}; stop editing that scenario and retry"
-                            )
-                        retained.add(str(source))
-                        self._publish_scenario_reference_sources(root.name, retained)
 
     def _set_profile(
         self, name: str, component_name: str, kind: str, value: str = ""

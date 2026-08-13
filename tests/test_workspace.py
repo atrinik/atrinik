@@ -7256,9 +7256,11 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace._source_references(source),
             )
 
-    def test_relocated_scenario_backfill_covers_current_checkout_owner(self) -> None:
-        source = self.workspace.paths.worktrees / "server" / "retired-scenario"
-        source.mkdir(parents=True)
+    def test_relocated_scenario_backfill_blocks_removal_until_complete(self) -> None:
+        sources = [
+            self.workspace.paths.worktrees / "server" / f"retired-scenario-{index}"
+            for index in range(2)
+        ]
         alternate_root = self.root / "alternate-scenario-workspace"
         scenario = alternate_root / "scenarios" / "retired-scenario"
         scenario.mkdir(parents=True)
@@ -7267,46 +7269,65 @@ class WorkspaceTests(unittest.TestCase):
             record,
             {
                 "resolved": {
-                    "server": {
+                    f"server-{index}": {
                         "checkout": "retired-server-owner",
                         "checkout_path": str(source),
                     }
+                    for index, source in enumerate(sources)
                 }
             },
         )
-        source.rmdir()
         removal = self.workspace._lease_request(
-            "source",
-            self.workspace._physical_source_coordinate(source),
+            "registry",
+            "physical-references",
             "exclusive",
             "remove selected source",
         )
-
-        with resource_locks(self.workspace._lease_root, [removal]):
-            with (
-                mock.patch.dict(
-                    os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
-                ),
-                self.assertRaisesRegex(
-                    WorkspaceError,
-                    rf"source physical\-path:{re.escape(str(source))} "
-                    r"is already in use by "
-                    r"exclusive remove selected source by",
-                ),
-            ):
-                Workspace(self.wrapper)
-
         with mock.patch.dict(
             os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
         ):
-            fresh = Workspace(self.wrapper)
-            fresh.close()
-        source.mkdir(parents=True)
-        with resource_locks(self.workspace._lease_root, [removal]):
-            self.assertIn(
-                "scenario:retired-scenario",
-                self.workspace._source_references(source),
+            fresh = Workspace(self.wrapper, backfill_references=False)
+        entered = threading.Event()
+        release = threading.Event()
+        removal_entered = threading.Event()
+        publish = fresh._publish_scenario_reference_sources
+
+        def pause_publication(name: str, values: list[str] | set[str]) -> None:
+            entered.set()
+            self.assertTrue(release.wait(5))
+            publish(name, values)
+
+        def attempt_removal() -> None:
+            with resource_locks(fresh._lease_root, [removal]):
+                removal_entered.set()
+
+        try:
+            with (
+                mock.patch.object(
+                    fresh,
+                    "_publish_scenario_reference_sources",
+                    side_effect=pause_publication,
+                ),
+                ThreadPoolExecutor(max_workers=2) as executor,
+            ):
+                backfill = executor.submit(fresh._backfill_physical_references)
+                self.assertTrue(entered.wait(5))
+                removing = executor.submit(attempt_removal)
+                time.sleep(0.05)
+                self.assertFalse(removal_entered.is_set())
+                release.set()
+                backfill.result(timeout=5)
+                removing.result(timeout=5)
+            self.assertTrue(removal_entered.is_set())
+            reference = load_json(
+                fresh._lease_namespace
+                / "profile-references"
+                / f"{hashlib.sha256(str(record.resolve()).encode()).hexdigest()}.json"
             )
+            self.assertEqual(reference["sources"], sorted(map(str, sources)))
+        finally:
+            release.set()
+            fresh.close()
 
     def test_scenario_backfill_does_not_cross_product_historical_owners(self) -> None:
         root = self.workspace.paths.scenarios / "bounded-historical"
@@ -7346,7 +7367,7 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(
             observed,
-            [1] + [2] * historical_count,
+            [1],
         )
 
     def test_backfill_preserves_missing_scenario_as_historical_reference(self) -> None:

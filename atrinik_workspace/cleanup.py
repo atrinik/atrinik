@@ -524,6 +524,12 @@ class Cleanup:
                         requests.extend(
                             [
                                 self.workspace._lease_request(
+                                    "registry",
+                                    "physical-references",
+                                    "exclusive",
+                                    f"cleanup worktree {target['path']}",
+                                ),
+                                self.workspace._lease_request(
                                     "source",
                                     self.workspace._source_coordinate(
                                         owner, Path(target["path"])
