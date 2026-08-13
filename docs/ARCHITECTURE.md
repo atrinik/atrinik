@@ -648,9 +648,10 @@ Legacy records retain the PID/start-tick fallback. A same-namespace guardian
 holds the process-tree generation until every inherited descendant is gone. If
 the supervisor dies, pipe closure makes the guardian terminate exact lease
 holders and retain the generation until their absence is proven. Layout,
-build, and state leases remain supervisor-owned rather than service-inherited,
-so a descendant that closes its process-tree identity cannot retain those
-workspace leases. Another namespace
+build, and state leases remain held by the supervisor and guardian rather than
+service-inherited, so a descendant that closes its process-tree identity cannot
+retain those workspace leases. The guardian releases them only after exact
+process-tree recovery completes. Another namespace
 waits or fails closed with the owning topology and recovery action. Normal
 shutdown asks the supervisor to gracefully stop children before releasing
 state. For a paired topology it starts the server

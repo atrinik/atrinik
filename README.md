@@ -527,9 +527,10 @@ unlink, or repair it by hand because an invalid current lease fails closed.
 
 If a supervisor is killed rather than shut down, its same-namespace guardian
 terminates exact process-tree lease holders and retains the generation until
-their absence is proven. Layout, build-root, and state leases are held only by
-the supervisor, so a descendant that closes its process-tree identity cannot
-retain those workspace leases. During that
+their absence is proven. Layout, build-root, and state leases are held by the
+supervisor and guardian, not services, so a descendant that closes its
+process-tree identity cannot retain those workspace leases; the guardian
+releases them after recovery. During that
 interval another session reports `unreachable` and fails closed: wait, retry
 `./atrinik ps TOPOLOGY --json`, then retry `./atrinik down TOPOLOGY`. If the
 lease remains retained and control remains unreachable, preserve the exact

@@ -287,7 +287,11 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
     return status
 
 
-def _guardian(read_fd: int, process_tree_fd: int) -> None:
+def _guardian(
+    read_fd: int,
+    process_tree_fd: int,
+    retained_fds: tuple[int | None, ...],
+) -> None:
     """Release one orphaned topology tree after its supervisor disappears."""
     try:
         while os.read(read_fd, 4096):
@@ -316,11 +320,14 @@ def _guardian(read_fd: int, process_tree_fd: int) -> None:
     while holders_exist(process_tree_fd, exclude=excluded):
         time.sleep(0.5)
     os.close(process_tree_fd)
+    for descriptor in retained_fds:
+        if descriptor is not None:
+            os.close(descriptor)
 
 
 def _start_guardian(
     process_tree_fd: int | None,
-    *unneeded_fds: int | None,
+    *retained_fds: int | None,
 ) -> tuple[int | None, int | None]:
     if process_tree_fd is None:
         return None, None
@@ -331,16 +338,10 @@ def _start_guardian(
         return guardian_pid, write_fd
 
     os.close(write_fd)
-    for descriptor in unneeded_fds:
-        if descriptor is not None and descriptor != process_tree_fd:
-            try:
-                os.close(descriptor)
-            except OSError:
-                pass
     try:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
-        _guardian(read_fd, process_tree_fd)
+        _guardian(read_fd, process_tree_fd, retained_fds)
     finally:
         os._exit(0)
 
