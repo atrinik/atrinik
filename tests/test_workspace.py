@@ -455,12 +455,7 @@ def synthetic_server_start_process(
                 ):
                     reserved_port.close()
 
-            runtime_inputs = {
-                key: root / key
-                for key in ("content", "resources", "client-maps")
-            }
-            for path in runtime_inputs.values():
-                path.mkdir(parents=True, exist_ok=True)
+            state.mkdir(parents=True, exist_ok=True)
 
             reservation_received.set()
             if not release_reservation.wait(10):
@@ -481,14 +476,6 @@ def synthetic_server_start_process(
                 mock.patch.object(workspace, "state_path", return_value=state),
                 mock.patch.object(
                     workspace, "_build_resolved", return_value=root
-                ),
-                mock.patch.object(
-                    workspace,
-                    "_copy_topology_runtime_inputs",
-                    return_value=runtime_inputs,
-                ),
-                mock.patch.object(
-                    workspace, "_prepare_server_runtime", return_value=root
                 ),
             ):
                 try:
@@ -6159,7 +6146,7 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual([process.exitcode for process in processes], [0] * 10)
         self.assertEqual([results.get(timeout=2) for _ in processes], [None] * 10)
 
-    def test_p0_harness_reproduces_current_lifecycle_layout_convoy(self) -> None:
+    def test_p0_harness_allows_lifecycle_progress_while_topology_runs(self) -> None:
         context = multiprocessing.get_context("spawn")
         for label in ("source-a", "source-b", "source-c"):
             self.workspace.create_worktree(
@@ -6257,30 +6244,23 @@ class WorkspaceTests(unittest.TestCase):
             wait_for_process_event(
                 writer_pending, "profile B mutation queue", results
             )
-            self.assertFalse(writer_entered.is_set())
+            wait_for_process_event(
+                writer_entered, "profile B mutation entry", results
+            )
 
             for reader in readers:
                 reader.start()
                 started.append(reader)
-            for index, blocked in enumerate(readers_blocked):
-                wait_for_process_event(
-                    blocked, f"C reader {index} confirmed lock block", results
-                )
-            self.assertFalse(writer_entered.is_set())
-            self.assertTrue(all(not entered.is_set() for entered in readers_entered))
-
-            # This records the current global A-topology/B-writer/C-reader
-            # convoy through positive lock-contention rendezvous. The #399
-            # cutover will replace this lock-specific expectation with scoped
-            # admission assertions for the same public operations.
-            self.workspace.topology_down("topology-a", timeout=5)
-            wait_for_process_event(
-                writer_entered, "profile B mutation entry", results
-            )
             for index, entered in enumerate(readers_entered):
                 wait_for_process_event(
                     entered, f"C reader {index} completion", results
                 )
+            self.assertTrue(self.workspace.topology_status("topology-a")["ready"])
+
+            # The topology retains only its immutable runtime generation and
+            # exact process/state leases after publication. Unrelated layout
+            # mutation and readers therefore progress while it remains live.
+            self.workspace.topology_down("topology-a", timeout=5)
         finally:
             status_path = (
                 self.workspace.paths.topologies / "topology-a" / "status.json"
@@ -6318,12 +6298,18 @@ class WorkspaceTests(unittest.TestCase):
             ("server-b", "state-b", "build-b", reservations[1].getsockname()[1]),
         )
         self.assertNotEqual(coordinates[0][3], coordinates[1][3])
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / name).write_text("test\n", encoding="utf-8")
         for index, (name, _state, build, _port) in enumerate(coordinates):
             self.workspace.create_profile(name)
             root = self.workspace.paths.builds / "profiles" / build
             root.mkdir(parents=True)
             atomic_json(root / workspace_module.BUILD_METADATA, {})
-            executable = root / "atrinik-server"
+            binary = root / "build" / "server"
+            binary.mkdir(parents=True)
+            executable = binary / "atrinik-server"
             executable.write_text(
                 "#!/usr/bin/env python3\n"
                 "from pathlib import Path\n"
@@ -6343,6 +6329,15 @@ class WorkspaceTests(unittest.TestCase):
                 encoding="utf-8",
             )
             executable.chmod(0o755)
+            for library in ("libplugin_arena.so", "libplugin_python.so"):
+                (binary / library).write_text("test\n", encoding="utf-8")
+            for path in (
+                root / "runtime" / "content" / "lib",
+                root / "runtime" / "content" / "maps",
+                root / "runtime" / "resources",
+            ):
+                path.mkdir(parents=True, exist_ok=True)
+            self.make_region_map_cache(root)
         processes = [
             context.Process(
                 target=synthetic_server_start_process,
