@@ -6720,6 +6720,12 @@ class WorkspaceTests(unittest.TestCase):
         stopped = self.workspace.topology_status("review")
         self.assertFalse(stopped["supervisor"]["running"])
         self.assertFalse(stopped["services"]["client"]["running"])
+        with mock.patch(
+            "atrinik_workspace.workspace.process_matches", return_value=True
+        ):
+            reused_local_pid = self.workspace.topology_status("review")
+        self.assertEqual(reused_local_pid["supervisor"]["liveness"], "exited")
+        self.assertFalse(reused_local_pid["services"]["client"]["running"])
 
     def test_topology_status_inventory_probes_with_bounded_concurrency(self) -> None:
         for index in range(24):
@@ -7163,6 +7169,13 @@ class WorkspaceTests(unittest.TestCase):
                 "import os, signal, time\n"
                 "child = os.fork()\n"
                 "if child == 0:\n"
+                "    for fd in os.listdir('/proc/self/fd'):\n"
+                "        try:\n"
+                "            target = os.readlink('/proc/self/fd/' + fd)\n"
+                "            if target.endswith('/process-tree.lease'):\n"
+                "                os.close(int(fd))\n"
+                "        except OSError:\n"
+                "            pass\n"
                 "    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
                 "    while True:\n"
                 "        time.sleep(0.1)\n"

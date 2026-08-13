@@ -1386,7 +1386,7 @@ class RepositoryMigrationTests(unittest.TestCase):
 
         try:
             with mock.patch.object(
-                migration_module, "process_matches", return_value=False
+                migration_module, "process_matches", return_value=True
             ):
                 result = self.migration().execute("apply")
         finally:

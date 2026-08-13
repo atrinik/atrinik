@@ -1134,7 +1134,8 @@ class Cleanup:
                         or not isinstance(start_time, str)
                     ):
                         raise WorkspaceError("topology process identity is invalid")
-                    live = live or process_matches(pid, start_time)
+                    if control is None:
+                        live = live or process_matches(pid, start_time)
                 if not live:
                     continue
                 build_root = status_value.get("build_root")

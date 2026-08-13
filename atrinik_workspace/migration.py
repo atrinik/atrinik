@@ -2971,7 +2971,9 @@ class RepositoryMigration:
                         and record.get("generation") != generation
                     ):
                         raise WorkspaceError("topology supervisor status is invalid")
-                    if process_matches(record["pid"], record["start_time"]):
+                    if control is None and process_matches(
+                        record["pid"], record["start_time"]
+                    ):
                         running_records.append(label)
                 lease_path = directory / "process-tree.lease"
                 if lease_path.is_symlink():

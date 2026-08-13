@@ -7339,7 +7339,9 @@ class Workspace:
         process_tree_active = self._topology_process_tree_active(
             root, control if current_control else None
         )
-        supervisor_local = self._recorded_process_running(supervisor)
+        supervisor_local = bool(
+            not current_control and self._recorded_process_running(supervisor)
+        )
         if control_reachable or supervisor_local:
             supervisor_liveness = "live"
         elif process_tree_active:
@@ -7404,7 +7406,9 @@ class Workspace:
                 and service.get("generation") != control["generation"]
             ):
                 raise WorkspaceError(f"topology service status is invalid: {name}")
-            service_local = self._recorded_process_running(service)
+            service_local = bool(
+                not current_control and self._recorded_process_running(service)
+            )
             if service.get("status") == "exited":
                 service_liveness = "exited"
             elif control_reachable or service_local:
@@ -7631,6 +7635,10 @@ class Workspace:
                     ) from error
                 if holders_exist(process_tree_fd, exclude=(os.getpid(),)):
                     raise WorkspaceError(f"topology is already running: {name}")
+                # The operation lock serializes lifecycle mutation. Retire the
+                # stopped generation before rebinding its lease inode so status
+                # readers never compare old identity with new lease contents.
+                status_path.unlink(missing_ok=True)
                 for _attempt in range(16):
                     generation = secrets.token_hex(32)
                     control_path = control_socket_path(topology_root, generation)
@@ -7832,7 +7840,6 @@ class Workspace:
                         f"topology control endpoint already exists: {control_path}"
                     )
                 atomic_json(spec_path, spec)
-                status_path.unlink(missing_ok=True)
                 startup_error_path.unlink(missing_ok=True)
 
                 supervisor_log_path = topology_root / "supervisor.log"

@@ -808,7 +808,7 @@ class ContentMigration:
                             or not start.isdigit()
                         ):
                             raise WorkspaceError("invalid topology process identity")
-                        if process_matches(pid, start):
+                        if value.get("control") is None and process_matches(pid, start):
                             running.append(pid)
                     lease_path = directory / "process-tree.lease"
                     if lease_path.is_symlink():

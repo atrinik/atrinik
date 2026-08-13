@@ -2180,7 +2180,7 @@ class CleanupTests(unittest.TestCase):
 
         try:
             with mock.patch(
-                "atrinik_workspace.cleanup.process_matches", return_value=False
+                "atrinik_workspace.cleanup.process_matches", return_value=True
             ), mock.patch.object(Cleanup, "_github_pulls") as pulls:
                 report = self.workspace.cleanup(
                     ["worktrees"], 0, ["client"], False

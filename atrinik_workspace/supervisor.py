@@ -289,28 +289,64 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
 
 def _guardian(read_fd: int, process_tree_fd: int) -> None:
     """Release one orphaned topology tree after its supervisor disappears."""
+    registrations = bytearray()
     try:
-        while os.read(read_fd, 4096):
-            pass
+        while chunk := os.read(read_fd, 4096):
+            if len(registrations) + len(chunk) > 4096:
+                registrations.clear()
+                break
+            registrations.extend(chunk)
     except OSError:
         pass
     finally:
         os.close(read_fd)
 
+    process_groups = {
+        int(value)
+        for value in registrations.splitlines()
+        if value.isdigit() and int(value) > 0
+    }
+
+    def signal_groups(signum: signal.Signals) -> None:
+        for process_group in process_groups:
+            try:
+                os.killpg(process_group, signum)
+            except ProcessLookupError:
+                pass
+
+    def groups_exist() -> bool:
+        try:
+            entries = list(Path("/proc").iterdir())
+        except OSError:
+            return True
+        for entry in entries:
+            if not entry.name.isdigit():
+                continue
+            try:
+                fields = (entry / "stat").read_text().rsplit(")", 1)[1].split()
+                if fields[0] != "Z" and int(fields[2]) in process_groups:
+                    return True
+            except (OSError, IndexError, ValueError):
+                continue
+        return False
+
     # Pipe EOF proves the supervisor is gone. Do not exclude its bare numeric
     # PID: it may already have been reused by an exact lease-holding descendant.
     excluded = (os.getpid(),)
+    signal_groups(signal.SIGTERM)
     signal_holders(process_tree_fd, signal.SIGTERM, exclude=excluded)
     deadline = time.monotonic() + 10
-    while time.monotonic() < deadline and holders_exist(
-        process_tree_fd, exclude=excluded
+    while time.monotonic() < deadline and (
+        groups_exist() or holders_exist(process_tree_fd, exclude=excluded)
     ):
         time.sleep(0.1)
+    signal_groups(signal.SIGKILL)
     signal_holders(process_tree_fd, signal.SIGKILL, exclude=excluded)
     deadline = time.monotonic() + 2
-    while time.monotonic() < deadline and holders_exist(
-        process_tree_fd, exclude=excluded
+    while time.monotonic() < deadline and (
+        groups_exist() or holders_exist(process_tree_fd, exclude=excluded)
     ):
+        signal_groups(signal.SIGKILL)
         signal_holders(process_tree_fd, signal.SIGKILL, exclude=excluded)
         time.sleep(0.05)
     os.close(process_tree_fd)
@@ -499,6 +535,8 @@ def supervise(
             start_new_session=True,
             pass_fds=tuple(inherited_locks),
         )
+        if guardian_write_fd is not None:
+            os.write(guardian_write_fd, f"{process.pid}\n".encode())
         processes[name] = process
         start_time = process_start_time(process.pid)
         if start_time is None:
