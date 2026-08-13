@@ -674,7 +674,7 @@ def validate_component_reference(
         raise WorkspaceError("component provenance evidence_reference must be an object")
     _exact_keys(
         evidence,
-        {"record_id", "registry_sha256", "repository", "revision", "schema_sha256", "url"},
+        {"record_id", "registry_sha256", "repository", "reviewers_sha256", "revision", "schema_sha256", "url"},
         "component provenance evidence_reference",
     )
     if evidence["repository"] != "atrinik/atrinik":
@@ -692,22 +692,22 @@ def validate_component_reference(
     if evidence["url"] != expected_url:
         raise WorkspaceError("component provenance reference URL is not the canonical immutable permalink")
     _validate_repository_trust(repository_root, revision, trusted_ref)
-    for key in ("registry_sha256", "schema_sha256"):
+    for key in ("registry_sha256", "reviewers_sha256", "schema_sha256"):
         if not isinstance(evidence[key], str) or not SHA256_PATTERN.fullmatch(evidence[key]):
             raise WorkspaceError(f"component provenance reference {key} is invalid")
     registry_blob = _git_blob(repository_root, revision, REGISTRY_PATH.as_posix())
     schema_blob = _git_blob(repository_root, revision, SCHEMA_PATH.as_posix())
+    reviewers_blob = _git_blob(repository_root, revision, REVIEWERS_PATH.as_posix())
     if sha256(registry_blob) != evidence["registry_sha256"]:
         raise WorkspaceError("component provenance reference registry digest does not match")
     if sha256(schema_blob) != evidence["schema_sha256"]:
         raise WorkspaceError("component provenance reference schema digest does not match")
+    if sha256(reviewers_blob) != evidence["reviewers_sha256"]:
+        raise WorkspaceError("component provenance reference reviewers digest does not match")
     records = validate_registry(
         _load_bytes(registry_blob, "referenced registry"),
         _load_bytes(schema_blob, "referenced schema"),
-        _load_bytes(
-            _git_blob(repository_root, revision, REVIEWERS_PATH.as_posix()),
-            "referenced reviewers",
-        ),
+        _load_bytes(reviewers_blob, "referenced reviewers"),
         as_of=as_of,
     )
     if record_id not in records:

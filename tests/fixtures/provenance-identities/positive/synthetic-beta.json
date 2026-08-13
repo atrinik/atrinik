@@ -11,12 +11,17 @@
   },
   "transformation": "Synthetic port used only to verify the reference contract.",
   "scope_binding": "psb-22222222222222222222222222222222",
+  "scope_approval": {
+    "key_id": "synthetic-reviewer-2026",
+    "signature": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgBruVWBv4FEuaHvyX1z13qRO9BU\nTXED0DGAjTaWDx1NAAAAAVYXRyaW5pay1wcm92ZW5hbmNlLXYxAAAAAAAAAAZzaGE1MTIA\nAABTAAAAC3NzaC1lZDI1NTE5AAAAQNlkEKILZFIae4QwqXhqHyv6mBJz1jMZFdUbOZZskZ\nNqqP6ucgD/AotcFPdoRBICDaecUK0Qe3V8J+6VGmxfHgA=\n-----END SSH SIGNATURE-----"
+  },
   "evidence_reference": {
     "repository": "atrinik/atrinik",
-    "revision": "a700f92274f98476bae84beda7017cf81c6311d8",
-    "record_id": "pir-synthetic-beta-00001",
-    "registry_sha256": "a21d130eedc1dcb381098723f1d67ed87b10c72860756289116b2f30c4d44b92",
-    "schema_sha256": "681f0cffad6f7e767b005902beef3c71f1747936b8d2b0f2a3b54da32e9d5774",
-    "url": "https://github.com/atrinik/atrinik/blob/a700f92274f98476bae84beda7017cf81c6311d8/governance/provenance-identities/registry.json#pir-synthetic-beta-00001"
+    "revision": "98ff80ef66a71d8b7c48e7d0c71029abd5c90227",
+    "record_id": "pir-c-22222222222222222222222222222222",
+    "registry_sha256": "0a04fcadccb37e64f6c1209bc0b7e8d5762639ce4c5521c3bba028d9eba037bd",
+    "schema_sha256": "34ab398af4f166b8b65ac68500b547b9ade4955bd0b73770eeda1337bf5dcf47",
+    "reviewers_sha256": "b7a44ad27cec663a9092b924a0f6a9c95bf95a2ce74cf75ba8873e7938782240",
+    "url": "https://github.com/atrinik/atrinik/blob/98ff80ef66a71d8b7c48e7d0c71029abd5c90227/governance/provenance-identities/registry.json#pir-c-22222222222222222222222222222222"
   }
 }

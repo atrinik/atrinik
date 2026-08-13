@@ -59,7 +59,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "Suspected disclosure freezes new attestations",
             "Key compromise rotates recipients and HMAC keys",
             "Unkeyed hashes of names, aliases, emails, commits, or ranges are forbidden",
-            "full 40-character coordinator commit reachable from its default branch",
+            "full 40-character coordinator commit reachable from canonical `origin/main`",
             "Current named grants in `docs/PROVENANCE.md` are not silently converted",
         }:
             with self.subTest(marker=marker):
