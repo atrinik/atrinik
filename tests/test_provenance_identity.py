@@ -362,11 +362,11 @@ class ProvenanceIdentityTests(unittest.TestCase):
     def test_unmerged_anchor_requires_explicit_non_authorizing_ref(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "not reachable from trusted ref"):
             _validate_repository_trust(
-                ROOT, "89fc98b95f23c0f0f068c5254ffb72c62f173119", "main"
+                ROOT, "51aa7ac9d5ae9c0ff0b2a24a46b5d3e97739bbe0", "main"
             )
         _validate_repository_trust(
             ROOT,
-            "89fc98b95f23c0f0f068c5254ffb72c62f173119",
+            "51aa7ac9d5ae9c0ff0b2a24a46b5d3e97739bbe0",
             "HEAD",
         )
 
