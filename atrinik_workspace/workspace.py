@@ -138,9 +138,13 @@ WORKER_SOURCE_EXCLUSIONS = {
     "build",
     "dist",
     "node_modules",
+    "publisher-worker-configuration.d.ts",
+    "rendezvous-worker-configuration.d.ts",
+    "worker-configuration.d.ts",
+    "worker-runtime.d.ts",
     ".wrangler",
 }
-WORKER_VIEW_NODE_MODULES_EXCLUSIONS = {".vite", ".vite-temp"}
+WORKER_VIEW_NODE_MODULES_EXCLUSIONS = {".mf", ".vite", ".vite-temp"}
 WORKER_NPM_FILE_CONFIG_KEYS = {
     "cafile",
     "certfile",
@@ -5837,7 +5841,11 @@ class Workspace:
             ):
                 raise WorkspaceError("Worker view controls are invalid before checks")
             try:
-                run(["npm", "run", "check"], cwd=view, env=environment)
+                run(
+                    ["npm", "run", "check"],
+                    cwd=view,
+                    env={**environment, "PYTHONDONTWRITEBYTECODE": "1"},
+                )
             finally:
                 try:
                     current_status = view.lstat()
