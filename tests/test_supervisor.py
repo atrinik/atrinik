@@ -15,11 +15,37 @@ from atrinik_workspace import supervisor as supervisor_module
 from atrinik_workspace.supervisor import (
     ServerReadinessCapture,
     _initial_status,
+    _open_control,
+    _receive_control,
     supervise,
 )
 
 
 class ServerReadinessCaptureTests(unittest.TestCase):
+    def test_control_messages_are_bounded_and_may_arrive_in_chunks(self) -> None:
+        connection = mock.Mock()
+        connection.recv.side_effect = [b'{"action": "sta', b'tus"}\n']
+
+        self.assertEqual(_receive_control(connection), {"action": "status"})
+
+        oversized = mock.Mock()
+        oversized.recv.return_value = b"x" * 4097
+        with self.assertRaisesRegex(ValueError, "too large"):
+            _receive_control(oversized)
+
+    def test_control_endpoint_is_fixed_below_topology_root(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            spec = {
+                "control": {
+                    "socket": str(root.parent / "unowned.sock"),
+                    "generation": "a" * 64,
+                }
+            }
+
+            with self.assertRaisesRegex(RuntimeError, "identity is invalid"):
+                _open_control(spec, root)
+
     def test_peek_exit_code_observes_without_reaping(self) -> None:
         process = mock.Mock(pid=1234, returncode=7)
         with mock.patch.object(supervisor_module.os, "waitid", return_value=None):

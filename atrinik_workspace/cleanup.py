@@ -24,6 +24,7 @@ from .model import (
     load_json,
     managed_remove,
 )
+from .process_tree import lease_locked
 from .supervisor import process_matches
 from .sound import PLAYTEST_MARKER
 from .workspace import (
@@ -1101,7 +1102,10 @@ class Cleanup:
                 if not isinstance(services, dict):
                     raise WorkspaceError("topology service status is invalid")
                 process_records.extend(services.values())
-                live = False
+                lease_path = root / "process-tree.lease"
+                if lease_path.is_symlink():
+                    raise WorkspaceError("topology process-tree lease is invalid")
+                live = lease_path.is_file() and lease_locked(lease_path)
                 for record in process_records:
                     if not isinstance(record, dict):
                         raise WorkspaceError("topology process status is invalid")

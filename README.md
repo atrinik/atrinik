@@ -510,6 +510,25 @@ contracts land, `PROFILE` must be `classic` or derived from it:
 ./atrinik down TOPOLOGY
 ~~~
 
+Each current topology persists a random generation identity and a mode-0600
+filesystem control endpoint. `ps` and `down` therefore work from another
+supported devcontainer or sandbox that shares the workspace even when its PID
+namespace cannot see the namespace-local process numbers. JSON status reports
+`live`, `exited`, `stale`, or fail-closed `unreachable` liveness plus an
+`observation` naming the topology that retains the repository-layout lease and
+the safe next action. Text status prints the same retained-lease owner and
+action. A control response must match both the topology name and generation;
+`down` never falls back to signaling a mismatched or recycled PID.
+
+If a supervisor is killed rather than shut down, its same-namespace guardian
+terminates the exact inherited process-tree lease holders and releases their
+layout, build-root, and state leases within a bounded interval. During that
+interval another session reports `unreachable` and fails closed: wait, retry
+`./atrinik ps TOPOLOGY --json`, then retry `./atrinik down TOPOLOGY`. If the
+lease remains retained and control remains unreachable, run `down` from the
+session that started the topology; do not scan `/proc`, signal recorded PIDs,
+remove lease files, or reuse the topology name.
+
 The handoff should name any display or runtime prerequisite, list the exact
 manual actions and expected results, and include `down` for cleanup. When no
 runtime check applies, it should say so and still provide the relevant wrapper

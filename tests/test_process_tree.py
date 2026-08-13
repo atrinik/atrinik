@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import fcntl
 import os
 from pathlib import Path
+import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest import mock
@@ -10,6 +12,17 @@ from atrinik_workspace import process_tree
 
 
 class ProcessTreeIdentityTests(unittest.TestCase):
+    def test_lease_lock_is_namespace_independent_liveness_coordinate(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "process-tree.lease"
+            descriptor = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
+            try:
+                self.assertFalse(process_tree.lease_locked(path))
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                self.assertTrue(process_tree.lease_locked(path))
+            finally:
+                os.close(descriptor)
+
     def test_malformed_fdinfo_is_ignored(self) -> None:
         descriptor = mock.Mock()
         descriptor.name = "7"

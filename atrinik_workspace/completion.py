@@ -701,7 +701,7 @@ def _valid_topology(
     }
     if (
         not isinstance(status, dict)
-        or not required <= set(status) <= required | {"error"}
+        or not required <= set(status) <= required | {"error", "sound", "control"}
         or "error" in status
         and not isinstance(status["error"], str)
     ):
@@ -752,9 +752,27 @@ def _valid_topology(
         if not _valid_resolution(provider, resolved.get(component_name)):
             return False
     supervisor = status.get("supervisor")
+    control = status.get("control")
+    if control is not None and (
+        not isinstance(control, dict)
+        or set(control) != {"socket", "generation"}
+        or not isinstance(control.get("socket"), str)
+        or not Path(control["socket"]).is_absolute()
+        or Path(control["socket"]).name != "control.sock"
+        or not isinstance(control.get("generation"), str)
+        or re.fullmatch(r"[0-9a-f]{64}", control["generation"]) is None
+    ):
+        return False
+    process_keys = (
+        {"pid", "start_time", "generation"}
+        if control is not None
+        else {"pid", "start_time"}
+    )
     if (
         not _valid_process(supervisor)
-        or set(supervisor) != {"pid", "start_time"}
+        or set(supervisor) != process_keys
+        or control is not None
+        and supervisor.get("generation") != control["generation"]
     ):
         return False
     endpoint = status.get("endpoint")
@@ -783,7 +801,7 @@ def _valid_topology(
         if (
             not _valid_process(service)
             or set(service)
-            != {"pid", "start_time", "status", "exit_code", "log", "cwd"}
+            != process_keys | {"status", "exit_code", "log", "cwd"}
             or service.get("status") not in {"starting", "running", "exited"}
             or service.get("exit_code") is not None
             and (
@@ -794,6 +812,8 @@ def _valid_topology(
             or not Path(service["log"]).is_absolute()
             or not isinstance(service.get("cwd"), str)
             or not Path(service["cwd"]).is_absolute()
+            or control is not None
+            and service.get("generation") != control["generation"]
         ):
             return False
     return (

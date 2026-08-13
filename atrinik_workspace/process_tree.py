@@ -1,9 +1,30 @@
 from __future__ import annotations
 
+import fcntl
 import os
 from pathlib import Path
 import signal
+import stat
 from typing import Iterable
+
+
+def lease_locked(path: Path) -> bool:
+    """Observe one inherited lease without depending on visible process IDs."""
+    flags = os.O_RDONLY | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags)
+    try:
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            raise OSError(f"process-tree lease is not a regular file: {path}")
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return True
+        fcntl.flock(descriptor, fcntl.LOCK_UN)
+        return False
+    finally:
+        os.close(descriptor)
 
 
 def _holds_identity(pid: int, identity: tuple[int, int]) -> bool:

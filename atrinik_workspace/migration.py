@@ -19,6 +19,7 @@ from typing import Any, Iterable
 
 from .locking import active_lock_fds, inherit_lock_fds
 from .model import WorkspaceError, atomic_json, load_json
+from .process_tree import lease_locked
 from .supervisor import process_matches
 
 
@@ -2904,7 +2905,7 @@ class RepositoryMigration:
                     or status_value.get("name") != directory.name
                     or not required <= set(status_value)
                     or not set(status_value)
-                    <= required | {"stack", "providers", "error"}
+                    <= required | {"stack", "providers", "sound", "control", "error"}
                     or not isinstance(status_value.get("profile"), str)
                     or not isinstance(status_value.get("dependencies"), list)
                     or not isinstance(status_value.get("resolved"), dict)
@@ -2925,6 +2926,13 @@ class RepositoryMigration:
                     for name, value in status_value["services"].items()
                 )
                 running_records: list[str] = []
+                control = status_value.get("control")
+                generation = control.get("generation") if isinstance(control, dict) else None
+                process_keys = (
+                    {"pid", "start_time", "generation"}
+                    if control is not None
+                    else {"pid", "start_time"}
+                )
                 for label, record in records:
                     if (
                         not isinstance(record, dict)
@@ -2939,18 +2947,33 @@ class RepositoryMigration:
                         )
                     if label != "supervisor" and (
                         set(record)
-                        != {"pid", "start_time", "status", "exit_code", "log", "cwd"}
+                        != process_keys | {"status", "exit_code", "log", "cwd"}
                         or record.get("status") not in {"starting", "running", "exited"}
                         or not isinstance(record.get("log"), str)
                         or not Path(record["log"]).is_absolute()
                         or not isinstance(record.get("cwd"), str)
                         or not Path(record["cwd"]).is_absolute()
+                        or control is not None
+                        and record.get("generation") != generation
                     ):
                         raise WorkspaceError(f"topology {label} status is invalid")
-                    if label == "supervisor" and set(record) != {"pid", "start_time"}:
+                    if label == "supervisor" and (
+                        set(record) != process_keys
+                        or control is not None
+                        and record.get("generation") != generation
+                    ):
                         raise WorkspaceError("topology supervisor status is invalid")
                     if process_matches(record["pid"], record["start_time"]):
                         running_records.append(label)
+                lease_path = directory / "process-tree.lease"
+                if lease_path.is_symlink():
+                    raise WorkspaceError("topology process-tree lease is invalid")
+                if (
+                    lease_path.is_file()
+                    and lease_locked(lease_path)
+                    and not running_records
+                ):
+                    running_records.append("namespace-independent process tree")
             except (OSError, WorkspaceError) as error:
                 refusals.append(
                     self._refusal(

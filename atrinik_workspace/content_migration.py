@@ -16,7 +16,7 @@ from typing import Any, TextIO
 
 from .locking import inherit_lock_fds
 from .model import WorkspaceError, atomic_json, load_json
-from .process_tree import holders_exist
+from .process_tree import holders_exist, lease_locked
 from .supervisor import process_matches
 
 
@@ -802,6 +802,10 @@ class ContentMigration:
                             raise WorkspaceError("invalid topology process identity")
                         if process_matches(pid, start):
                             running.append(pid)
+                    lease_path = directory / "process-tree.lease"
+                    if lease_path.is_symlink():
+                        raise WorkspaceError("invalid topology process-tree lease")
+                    lease_active = lease_path.is_file() and lease_locked(lease_path)
                     affected = (
                         value.get("profile") in changed_profiles
                         or "content-1x" in json.dumps(value, sort_keys=True)
@@ -813,10 +817,10 @@ class ContentMigration:
                             "profile": value.get("profile"),
                             "affected": affected,
                             "running_pids": running,
-                            "status": "blocked" if affected and running else "historical-inert",
+                            "status": "blocked" if affected and (running or lease_active) else "historical-inert",
                         }
                     )
-                    if affected and running:
+                    if affected and (running or lease_active):
                         refusals.append(
                             _refusal(
                                 "live_topology",

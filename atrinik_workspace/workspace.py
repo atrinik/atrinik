@@ -32,7 +32,7 @@ from typing import Any, Callable, Iterator, TextIO
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
 from .locking import active_lock_fds, inherit_lock_fds
-from .process_tree import holders_exist, signal_holders
+from .process_tree import holders_exist, lease_locked, signal_holders
 
 from .model import (
     MANAGED_MARKER,
@@ -97,6 +97,7 @@ COMPILER_CACHE_PURPOSE = "compiler-cache"
 COMPILER_CACHE_MAX_SIZE = "5G"
 TOPOLOGY_SERVICES = ("server", "client")
 TOPOLOGY_PROCESS_TREE_LEASE = "process-tree.lease"
+TOPOLOGY_CONTROL_SOCKET = "control.sock"
 PRE_MONOREPO_REPOSITORIES = {
     "client": "legacy-client",
     "server": "legacy-server",
@@ -7033,6 +7034,64 @@ class Workspace:
             and process_matches(pid, start_time)
         )
 
+    @staticmethod
+    def _topology_control_request(
+        name: str,
+        control: dict[str, str],
+        action: str,
+    ) -> bool:
+        request = {
+            "action": action,
+            "name": name,
+            "generation": control["generation"],
+        }
+        try:
+            endpoint = Path(control["socket"])
+            metadata = endpoint.lstat()
+            if (
+                not stat.S_ISSOCK(metadata.st_mode)
+                or stat.S_IMODE(metadata.st_mode) != 0o600
+                or metadata.st_uid != os.geteuid()
+            ):
+                return False
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+                client.settimeout(0.5)
+                client.connect(str(endpoint))
+                client.sendall(json.dumps(request, sort_keys=True).encode())
+                client.shutdown(socket.SHUT_WR)
+                payload = bytearray()
+                while len(payload) <= 4096:
+                    chunk = client.recv(4097 - len(payload))
+                    if not chunk:
+                        break
+                    payload.extend(chunk)
+                    if b"\n" in chunk:
+                        break
+            if len(payload) > 4096:
+                return False
+            response = json.loads(payload)
+        except (FileNotFoundError, OSError, TimeoutError, json.JSONDecodeError):
+            return False
+        return bool(
+            isinstance(response, dict)
+            and set(response) == {"generation", "name", "ok"}
+            and response.get("ok") is True
+            and response.get("name") == name
+            and response.get("generation") == control["generation"]
+        )
+
+    @staticmethod
+    def _topology_process_tree_active(root: Path) -> bool:
+        path = root / TOPOLOGY_PROCESS_TREE_LEASE
+        if path.is_symlink() or not path.is_file():
+            return False
+        try:
+            return lease_locked(path)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect topology process-tree lease {path}: {error}"
+            ) from error
+
     def topology_status(self, name: str) -> dict[str, Any]:
         root = self._topology_directory(name)
         status_path = root / "status.json"
@@ -7054,7 +7113,7 @@ class Workspace:
             "supervisor",
             "services",
         }
-        optional = {"stack", "providers", "sound"}
+        optional = {"stack", "providers", "sound", "control"}
         historical_record = isinstance(status, dict) and not (
             {"stack", "providers"} & set(status)
         )
@@ -7265,18 +7324,51 @@ class Workspace:
                         f"topology component identity is invalid: {name}/{component}"
                     )
         supervisor = status.get("supervisor")
+        control = status.get("control")
+        current_control = control is not None
+        if current_control and (
+            not isinstance(control, dict)
+            or set(control) != {"socket", "generation"}
+            or control.get("socket")
+            != str((root / TOPOLOGY_CONTROL_SOCKET).resolve())
+            or not isinstance(control.get("generation"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", control["generation"])
+        ):
+            raise WorkspaceError(f"topology control identity is invalid: {name}")
+        process_keys = (
+            {"pid", "start_time", "generation"}
+            if current_control
+            else {"pid", "start_time"}
+        )
         if (
             not isinstance(supervisor, dict)
-            or set(supervisor) != {"pid", "start_time"}
+            or set(supervisor) != process_keys
             or not isinstance(supervisor.get("pid"), int)
             or isinstance(supervisor.get("pid"), bool)
             or supervisor["pid"] <= 0
             or not isinstance(supervisor.get("start_time"), str)
             or not supervisor["start_time"].isdigit()
+            or current_control
+            and supervisor.get("generation") != control["generation"]
         ):
             raise WorkspaceError(f"topology supervisor status is invalid: {name}")
-        supervisor_running = self._recorded_process_running(supervisor)
+        control_reachable = bool(
+            current_control
+            and self._topology_control_request(name, control, "status")
+        )
+        process_tree_active = self._topology_process_tree_active(root)
+        supervisor_local = self._recorded_process_running(supervisor)
+        if control_reachable or supervisor_local:
+            supervisor_liveness = "live"
+        elif process_tree_active:
+            supervisor_liveness = "unreachable"
+        elif status.get("stopped_at") is not None:
+            supervisor_liveness = "exited"
+        else:
+            supervisor_liveness = "stale"
+        supervisor_running = supervisor_liveness in {"live", "unreachable"}
         supervisor["running"] = supervisor_running
+        supervisor["liveness"] = supervisor_liveness
         endpoint = status.get("endpoint")
         if endpoint is not None:
             fingerprint = endpoint.get("fingerprint") if isinstance(endpoint, dict) else None
@@ -7308,7 +7400,7 @@ class Workspace:
             if (
                 not isinstance(service, dict)
                 or set(service)
-                != {"pid", "start_time", "status", "exit_code", "log", "cwd"}
+                != process_keys | {"status", "exit_code", "log", "cwd"}
                 or not isinstance(service.get("pid"), int)
                 or isinstance(service.get("pid"), bool)
                 or service["pid"] <= 0
@@ -7326,14 +7418,28 @@ class Workspace:
                 or not Path(service["log"]).is_absolute()
                 or not isinstance(service.get("cwd"), str)
                 or not Path(service["cwd"]).is_absolute()
+                or current_control
+                and service.get("generation") != control["generation"]
             ):
                 raise WorkspaceError(f"topology service status is invalid: {name}")
-            service["running"] = self._recorded_process_running(service)
+            service_local = self._recorded_process_running(service)
+            if service.get("status") == "exited":
+                service_liveness = "exited"
+            elif control_reachable or service_local:
+                service_liveness = "live"
+            elif process_tree_active:
+                service_liveness = "unreachable"
+            elif status.get("stopped_at") is not None:
+                service_liveness = "exited"
+            else:
+                service_liveness = "stale"
+            service["liveness"] = service_liveness
+            service["running"] = service_liveness in {"live", "unreachable"}
             if (
                 service.get("status") in {"starting", "running"}
-                and not service["running"]
+                and service_liveness in {"stale", "exited"}
             ):
-                service["status"] = "stale"
+                service["status"] = service_liveness
         if (
             ("server" in services) != (endpoint is not None)
             or (
@@ -7345,6 +7451,29 @@ class Workspace:
             raise WorkspaceError(f"topology endpoint status is invalid: {name}")
         if not supervisor_running:
             status["ready"] = False
+        retained = process_tree_active or supervisor_running or any(
+            service["running"] for service in services.values()
+        )
+        if control_reachable:
+            safe_action = f"run ./atrinik down {name} from any supported session"
+        elif process_tree_active:
+            safe_action = (
+                "wait for bounded orphan recovery, then retry; if the control "
+                "endpoint remains unreachable, use the starting session"
+            )
+        else:
+            safe_action = f"restart topology {name} or retain its historical record"
+        status["observation"] = {
+            "control": (
+                "reachable" if control_reachable else "unreachable"
+                if current_control
+                else "legacy"
+            ),
+            "generation": control["generation"] if current_control else None,
+            "process_tree_lease": "retained" if retained else "released",
+            "repository_layout_lease_owner": name if retained else None,
+            "safe_action": safe_action,
+        }
         return status
 
     def topology_statuses(self) -> list[dict[str, Any]]:
@@ -7671,11 +7800,28 @@ class Workspace:
                     "build_root": str(root),
                     "resolved": resolved_status,
                     "endpoint": endpoint,
+                    "control": {
+                        "socket": str(
+                            (topology_root / TOPOLOGY_CONTROL_SOCKET).resolve()
+                        ),
+                        "generation": secrets.token_hex(32),
+                    },
                     "services": service_specs,
                 }
                 if sound_status is not None:
                     spec["sound"] = sound_status
                 spec_path = topology_root / "spec.json"
+                control_path = topology_root / TOPOLOGY_CONTROL_SOCKET
+                try:
+                    control_mode = control_path.lstat().st_mode
+                except FileNotFoundError:
+                    pass
+                else:
+                    if not stat.S_ISSOCK(control_mode):
+                        raise WorkspaceError(
+                            f"topology control endpoint is invalid: {name}"
+                        )
+                    control_path.unlink()
                 atomic_json(spec_path, spec)
                 status_path.unlink(missing_ok=True)
                 startup_error_path.unlink(missing_ok=True)
@@ -7781,6 +7927,8 @@ class Workspace:
             root / "operation.lock", f"topology {name} operation", nonblocking=True
         ):
             status = self.topology_status(name)
+            if "control" in status:
+                return self._controlled_topology_down(name, status, timeout)
             process_tree_path = root / TOPOLOGY_PROCESS_TREE_LEASE
             if process_tree_path.is_symlink():
                 raise WorkspaceError(
@@ -7849,6 +7997,31 @@ class Workspace:
             raise WorkspaceError(
                 f"topology did not stop within {timeout:g} seconds: {name}"
             )
+
+    def _controlled_topology_down(
+        self, name: str, status: dict[str, Any], timeout: float
+    ) -> dict[str, Any]:
+        root = self._topology_directory(name)
+        control = status["control"]
+        requested = self._topology_control_request(name, control, "stop")
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            current = self.topology_status(name)
+            active = self._topology_process_tree_active(root)
+            if not active and not current["supervisor"]["running"] and not any(
+                service["running"] for service in current["services"].values()
+            ):
+                return current
+            time.sleep(0.1)
+        if not requested:
+            raise WorkspaceError(
+                f"topology {name} retains the repository-layout lease but its "
+                "supervisor control endpoint is unreachable; wait for bounded "
+                "orphan recovery and retry, or run down from the starting session"
+            )
+        raise WorkspaceError(
+            f"topology did not stop within {timeout:g} seconds: {name}"
+        )
 
     def _legacy_topology_down(
         self, name: str, status: dict[str, Any], timeout: float

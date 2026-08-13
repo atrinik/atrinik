@@ -787,8 +787,9 @@ def main(arguments: list[str] | None = None) -> int:
                             print()
                         print(f"==> {status['name']} <==")
                     supervisor = status["supervisor"]
-                    supervisor_state = (
-                        "running" if supervisor["running"] else "stopped"
+                    supervisor_state = supervisor.get(
+                        "liveness",
+                        "running" if supervisor["running"] else "stopped",
                     )
                     print(
                         f"supervisor\t{supervisor_state}\t{supervisor['pid']}\t"
@@ -802,8 +803,19 @@ def main(arguments: list[str] | None = None) -> int:
                         )
                     for service, row in status["services"].items():
                         print(
-                            f"{service}\t{row['status']}\t{row['pid']}\t"
+                            f"{service}\t{row.get('liveness', row['status'])}\t"
+                            f"{row['pid']}\t"
                             f"{row['log']}"
+                        )
+                    observation = status.get("observation")
+                    if (
+                        isinstance(observation, dict)
+                        and observation.get("process_tree_lease") == "retained"
+                    ):
+                        print(
+                            "repository-layout-lease\tretained\t"
+                            f"{observation['repository_layout_lease_owner']}\t"
+                            f"{observation['safe_action']}"
                         )
         elif options.command == "logs":
             workspace.topology_logs(

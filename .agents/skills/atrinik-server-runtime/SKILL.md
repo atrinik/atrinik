@@ -27,6 +27,15 @@ state or restore a bundled HTTP listener.
 ./atrinik down NAME
 ```
 
+`ps --json` reports generation-bound `live`, `exited`, `stale`, or
+`unreachable` liveness and an `observation` naming any topology that retains
+the repository-layout lease. Cross-session `down` uses the matching filesystem
+control endpoint, never a PID from the caller's namespace. For `unreachable`,
+follow the reported safe action: wait for bounded guardian recovery and retry
+`ps` and `down`; if the exact lease remains retained, use the starting session.
+Never inspect `/proc`, signal the recorded PIDs, unlink control or lease files,
+or reuse the name as recovery.
+
 Let `up` allocate a port unless a distinct fixed port is required. Diagnose
 build, state, plugin, network, and gameplay failures separately. Use
 `atrinik-test-scenario` for accounts; never handcraft saves. Record actions and
