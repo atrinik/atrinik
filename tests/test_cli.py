@@ -900,6 +900,29 @@ class ParserTests(unittest.TestCase):
             ],
         )
 
+    def test_scenario_list_json_preserves_valid_and_inert_records(self) -> None:
+        summaries = [
+            {
+                "name": "current",
+                "profile": "default",
+                "preset": "basic-player",
+                "state": "scenario-current",
+            },
+            {
+                "name": "historical",
+                "path": "/workspace/scenarios/historical",
+                "inert": True,
+                "inert_reason": "profile_unresolvable",
+            },
+        ]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_list.return_value = summaries
+            with mock.patch("builtins.print") as output:
+                result = main(["scenario", "list", "--json"])
+
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.call_args.args[0]), summaries)
+
     def test_scenario_list_human_output_escapes_inert_control_characters(self) -> None:
         summaries = [
             {
