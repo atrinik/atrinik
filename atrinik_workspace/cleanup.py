@@ -5,6 +5,7 @@ from contextlib import ExitStack, contextmanager
 from contextvars import copy_context
 from datetime import datetime, timezone
 import fcntl
+import hashlib
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -49,6 +50,7 @@ WORKER_DEPENDENCY_CLEANUP_SCHEMA_VERSIONS = frozenset(
 )
 DEFAULT_SCOPES = ("worktrees", "builds")
 ALL_SCOPES = (*DEFAULT_SCOPES, "npm-cache", "compiler-cache", "sound-cache")
+SUPPORTED_SCOPES = (*ALL_SCOPES, "topologies")
 BUILD_RETENTION_RECORD = "retention.json"
 LEGACY_BUILD_METADATA_SCHEMA_VERSION = 1
 LEGACY_BUILD_METADATA_KEYS = {
@@ -377,6 +379,153 @@ def _tree_usage(
     return sizes, observed, None
 
 
+def _topology_tree_snapshot(
+    root: Path,
+) -> tuple[
+    str | None,
+    list[str],
+    datetime | None,
+    dict[tuple[int, int], int],
+    str | None,
+]:
+    """Snapshot one topology tree without following links or special files."""
+
+    rows: list[tuple[Any, ...]] = []
+    paths: list[str] = []
+    sizes: dict[tuple[int, int], int] = {}
+    maximum: float | None = None
+    parent_descriptor: int | None = None
+    root_descriptor: int | None = None
+
+    def record(metadata: os.stat_result, relative: str, display: Path) -> None:
+        nonlocal maximum
+        if metadata.st_dev != root_device:
+            raise WorkspaceError(f"topology tree contains a mount: {display}")
+        if not (
+            stat.S_ISDIR(metadata.st_mode) or stat.S_ISREG(metadata.st_mode)
+        ):
+            raise WorkspaceError(f"topology tree contains a special file: {display}")
+        if stat.S_ISREG(metadata.st_mode) and metadata.st_nlink != 1:
+            raise WorkspaceError(f"topology tree contains a linked file: {display}")
+        rows.append(
+            (
+                relative,
+                metadata.st_dev,
+                metadata.st_ino,
+                stat.S_IFMT(metadata.st_mode),
+                stat.S_IMODE(metadata.st_mode),
+                metadata.st_nlink,
+                metadata.st_size,
+                metadata.st_blocks,
+                metadata.st_mtime_ns,
+                metadata.st_ctime_ns,
+            )
+        )
+        paths.append(str(display))
+        sizes.setdefault(
+            (metadata.st_dev, metadata.st_ino), metadata.st_blocks * 512
+        )
+        maximum = (
+            metadata.st_mtime
+            if maximum is None
+            else max(maximum, metadata.st_mtime)
+        )
+
+    def walk(descriptor: int, relative: str, display: Path) -> None:
+        record(os.fstat(descriptor), relative, display)
+        for name in sorted(os.listdir(descriptor)):
+            child_display = display / name
+            child_relative = name if relative == "." else f"{relative}/{name}"
+            metadata = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+            if stat.S_ISLNK(metadata.st_mode):
+                raise WorkspaceError(
+                    f"topology tree contains a symbolic link: {child_display}"
+                )
+            if stat.S_ISDIR(metadata.st_mode):
+                child_descriptor = os.open(
+                    name,
+                    os.O_RDONLY
+                    | os.O_DIRECTORY
+                    | os.O_CLOEXEC
+                    | getattr(os, "O_NOFOLLOW", 0),
+                    dir_fd=descriptor,
+                )
+                try:
+                    opened = os.fstat(child_descriptor)
+                    if (opened.st_dev, opened.st_ino) != (
+                        metadata.st_dev,
+                        metadata.st_ino,
+                    ):
+                        raise WorkspaceError(
+                            f"topology tree changed during inventory: {child_display}"
+                        )
+                    walk(child_descriptor, child_relative, child_display)
+                finally:
+                    os.close(child_descriptor)
+            else:
+                record(metadata, child_relative, child_display)
+
+    try:
+        parent_descriptor = os.open(
+            root.parent,
+            os.O_RDONLY
+            | os.O_DIRECTORY
+            | os.O_CLOEXEC
+            | getattr(os, "O_NOFOLLOW", 0),
+        )
+        root_metadata = os.stat(
+            root.name, dir_fd=parent_descriptor, follow_symlinks=False
+        )
+        if not stat.S_ISDIR(root_metadata.st_mode) or stat.S_ISLNK(
+            root_metadata.st_mode
+        ):
+            raise WorkspaceError("topology root is not a regular directory")
+        root_device = root_metadata.st_dev
+        root_descriptor = os.open(
+            root.name,
+            os.O_RDONLY
+            | os.O_DIRECTORY
+            | os.O_CLOEXEC
+            | getattr(os, "O_NOFOLLOW", 0),
+            dir_fd=parent_descriptor,
+        )
+        opened = os.fstat(root_descriptor)
+        if (opened.st_dev, opened.st_ino) != (
+            root_metadata.st_dev,
+            root_metadata.st_ino,
+        ):
+            raise WorkspaceError(f"topology root changed during inventory: {root}")
+        walk(root_descriptor, ".", root)
+        retained = os.stat(
+            root.name, dir_fd=parent_descriptor, follow_symlinks=False
+        )
+        if (retained.st_dev, retained.st_ino) != (
+            opened.st_dev,
+            opened.st_ino,
+        ):
+            raise WorkspaceError(f"topology root changed during inventory: {root}")
+        payload = json.dumps(rows, separators=(",", ":"), ensure_ascii=True)
+        observed = (
+            datetime.fromtimestamp(maximum, timezone.utc)
+            if maximum is not None
+            else None
+        )
+        return (
+            hashlib.sha256(payload.encode()).hexdigest(),
+            sorted(paths),
+            observed,
+            sizes,
+            None,
+        )
+    except (OSError, RuntimeError, WorkspaceError) as error:
+        return None, sorted(paths), None, {}, str(error)
+    finally:
+        if root_descriptor is not None:
+            os.close(root_descriptor)
+        if parent_descriptor is not None:
+            os.close(parent_descriptor)
+
+
 def _listed_usage(root: Path, relative_paths: Iterable[str]) -> dict[tuple[int, int], int]:
     """Account for Git-listed paths without resolving and rewalking every file."""
 
@@ -543,6 +692,26 @@ class Cleanup:
                         target["reasons"] = ["resource_busy"]
                         target["error"] = str(error)
                         continue
+                elif target["kind"] == "topology":
+                    try:
+                        target_stack.enter_context(
+                            self.workspace._resource_locks(
+                                [
+                                    self.workspace._lease_request(
+                                        "topology",
+                                        target["name"],
+                                        "exclusive",
+                                        f"cleanup topology {target['name']}",
+                                    )
+                                ],
+                                nonblocking=True,
+                            )
+                        )
+                    except LockBusyError as error:
+                        target["disposition"] = "skipped"
+                        target["reasons"] = ["resource_busy"]
+                        target["error"] = str(error)
+                        continue
                 identity = (target["kind"], target["path"])
                 if identity in completed:
                     continue
@@ -638,8 +807,8 @@ class Cleanup:
     def _normalize_scopes(scopes: list[str]) -> list[str]:
         requested = scopes or list(DEFAULT_SCOPES)
         if "all" in requested:
-            requested = list(ALL_SCOPES)
-        return [scope for scope in ALL_SCOPES if scope in set(requested)]
+            requested = [*requested, *ALL_SCOPES]
+        return [scope for scope in SUPPORTED_SCOPES if scope in set(requested)]
 
     def _normalize_names(self, names: list[str]) -> set[str] | None:
         if not names:
@@ -669,11 +838,25 @@ class Cleanup:
         mode: str,
     ) -> dict[str, Any]:
         self._reset_inventory()
-        references, reference_errors = self._references()
+        topology_only = set(scopes) == {"topologies"}
+        if topology_only:
+            references = {
+                "profiles": {},
+                "scenarios": {},
+                "topologies": {},
+                "live_builds": {},
+                "migration": {},
+                "retention": {},
+            }
+            reference_errors: set[str] = set()
+        else:
+            references, reference_errors = self._references()
         items: list[dict[str, Any]] = []
-        registered, registered_error = self._registered_worktree_paths()
-        if registered_error:
-            reference_errors.add("worktree_inventory_error")
+        registered: set[Path] = set()
+        if not topology_only:
+            registered, registered_error = self._registered_worktree_paths()
+            if registered_error:
+                reference_errors.add("worktree_inventory_error")
         if "worktrees" in scopes:
             worktrees, _ = self._worktrees(names, references, reference_errors)
             items.extend(worktrees)
@@ -712,6 +895,13 @@ class Cleanup:
         if "sound-cache" in scopes and (names is None or "sound" in names):
             items.extend(
                 self._sound_caches(older_than_days, reference_errors)
+            )
+        if "topologies" in scopes:
+            items.extend(
+                self._topologies(
+                    older_than_days,
+                    check_layout=mode == "dry-run",
+                )
             )
         items.sort(key=lambda item: (item["kind"], item["owner"], item["path"]))
         self._credit_sizes(items)
@@ -758,12 +948,23 @@ class Cleanup:
         """Refresh one target's safety predicates without rebuilding report payloads."""
 
         self._reset_inventory()
+        path = Path(target["path"])
+        kind = target["kind"]
+        if kind == "topology":
+            item = self._topology_item(
+                path,
+                older_than_days,
+                check_layout=False,
+            )
+            if not self._same_topology_snapshot(target, item):
+                raise WorkspaceError(
+                    f"topology changed during apply revalidation: {target['name']}"
+                )
+            return item
         references, reference_errors = self._references()
         registered, registered_error = self._registered_worktree_paths()
         if registered_error:
             reference_errors.add("worktree_inventory_error")
-        path = Path(target["path"])
-        kind = target["kind"]
         if kind == "profile-build":
             removable_worktrees = (
                 self._revalidate_build_sources(
@@ -845,6 +1046,193 @@ class Cleanup:
                 item["_sound_worktree_identity"] = sound_worktree_identity
                 item["_sound_producer_identity"] = sound_producer_identity
         return item
+
+    def _topologies(
+        self, older_than_days: int, *, check_layout: bool
+    ) -> list[dict[str, Any]]:
+        root = self.paths.topologies
+        if not root.exists() and not root.is_symlink():
+            return []
+        if root.is_symlink() or not root.is_dir():
+            item = _base_item("topology", "atrinik", "atrinik/atrinik", root)
+            item["reasons"] = ["invalid_topology_container"]
+            return [item]
+        infrastructure = {"port-reservations", "ports.lock"}
+        return [
+            self._topology_item(path, older_than_days, check_layout=check_layout)
+            for path in sorted(root.iterdir())
+            if path.name not in infrastructure
+        ]
+
+    def _topology_item(
+        self,
+        path: Path,
+        older_than_days: int,
+        *,
+        check_layout: bool,
+        check_operation: bool = True,
+    ) -> dict[str, Any]:
+        item = _base_item("topology", "atrinik", "atrinik/atrinik", path)
+        item.update(
+            {
+                "name": path.name,
+                "liveness": "unverifiable",
+                "control_observation": "unverifiable",
+                "generation": None,
+                "process_tree_lease": "unverifiable",
+                "runtime_bundle_lease": "unverifiable",
+                "port_reservation_lease": "unverifiable",
+                "repository_layout_lease": "unverifiable",
+                "age_observed_at": None,
+                "deletion_paths": [],
+                "tree_identity": None,
+            }
+        )
+        reasons: list[str] = []
+        try:
+            if not self._owned_direct_child(path, self.paths.topologies):
+                raise WorkspaceError("topology is not a direct managed child")
+            marker = path / MANAGED_MARKER
+            if (
+                path.is_symlink()
+                or not path.is_dir()
+                or marker.is_symlink()
+                or not marker.is_file()
+                or load_json(marker)
+                != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": f"topology:{path.name}",
+                }
+            ):
+                raise WorkspaceError("topology ownership marker is invalid")
+        except (OSError, RuntimeError, WorkspaceError) as error:
+            item["reasons"] = ["invalid_topology_ownership"]
+            item["error"] = str(error)
+            return item
+
+        (
+            identity,
+            deletion_paths,
+            tree_time,
+            inodes,
+            tree_error,
+        ) = _topology_tree_snapshot(path)
+        item["tree_identity"] = identity
+        item["deletion_paths"] = deletion_paths
+        item["_inodes"] = inodes
+        if tree_error is not None:
+            reasons.append("invalid_topology_tree")
+            item["error"] = tree_error
+
+        if check_operation:
+            busy, lock_error = self._lock_busy(path / "operation.lock")
+            if busy:
+                reasons.append("active_topology_operation")
+            if lock_error:
+                reasons.append("invalid_topology_operation_lock")
+                item["error"] = lock_error
+
+        try:
+            status = self.workspace.topology_status(path.name)
+            supervisor = status["supervisor"]
+            services = status["services"].values()
+            observed = [supervisor["liveness"], *(row["liveness"] for row in services)]
+            if "live" in observed:
+                liveness = "live"
+            elif "unreachable" in observed:
+                liveness = "unreachable"
+            elif "stale" in observed:
+                liveness = "stale"
+            else:
+                liveness = "exited"
+            observation = status["observation"]
+            item["liveness"] = liveness
+            item["control_observation"] = observation["control"]
+            item["generation"] = observation["generation"]
+            item["process_tree_lease"] = observation["process_tree_lease"]
+            item["runtime_bundle_lease"] = observation.get(
+                "runtime_bundle_lease", "unverifiable"
+            )
+            if liveness == "live":
+                reasons.append("live_topology")
+            elif liveness == "unreachable":
+                reasons.append("unreachable_topology")
+            if observation["control"] == "reachable":
+                reasons.append("reachable_topology_control")
+            if observation["process_tree_lease"] == "retained":
+                reasons.append("process_tree_lease_retained")
+            elif observation["process_tree_lease"] != "released":
+                reasons.append("process_tree_lease_unverifiable")
+            if item["runtime_bundle_lease"] == "retained":
+                reasons.append("runtime_bundle_lease_retained")
+            elif item["runtime_bundle_lease"] not in {"released", "historical"}:
+                reasons.append("runtime_bundle_lease_unverifiable")
+            port = observation.get("port_reservation")
+            if port is None:
+                item["port_reservation_lease"] = "released"
+            elif isinstance(port, dict) and port.get("lease") in {
+                "released",
+                "retained",
+            }:
+                item["port_reservation_lease"] = port["lease"]
+            if item["port_reservation_lease"] == "retained":
+                reasons.append("port_reservation_lease_retained")
+            elif item["port_reservation_lease"] != "released":
+                reasons.append("port_reservation_lease_unverifiable")
+            if observation.get("repository_layout_lease_owner") is not None:
+                reasons.append("repository_layout_lease_retained")
+                item["repository_layout_lease"] = "retained"
+            else:
+                item["repository_layout_lease"] = "released"
+
+            stopped_at = status.get("stopped_at")
+            if stopped_at is not None:
+                age_time = _parse_time(stopped_at, "topology stopped_at")
+                item["age_basis"] = "stopped-at"
+            elif liveness == "stale":
+                age_time = tree_time
+                item["age_basis"] = "legacy-tree-mtime" if tree_time else None
+            else:
+                age_time = None
+                item["age_basis"] = None
+                reasons.append("topology_stopped_at_unavailable")
+            if age_time is None:
+                reasons.append("topology_age_unavailable")
+            else:
+                item["age_observed_at"] = age_time.isoformat()
+                age_seconds = int((self.now - age_time).total_seconds())
+                item["age_seconds"] = max(0, age_seconds)
+                if age_time > self.now:
+                    reasons.append("future_topology_timestamp")
+                elif age_seconds < older_than_days * 86400:
+                    reasons.append("topology_younger_than_grace_period")
+        except (OSError, RuntimeError, KeyError, WorkspaceError) as error:
+            reasons.append("topology_status_unverifiable")
+            item["error"] = str(error)
+
+        item["reasons"] = sorted(set(reasons)) or ["inactive_topology"]
+        item["disposition"] = "eligible" if not reasons else "protected"
+        return item
+
+    @staticmethod
+    def _same_topology_snapshot(
+        expected: dict[str, Any], current: dict[str, Any]
+    ) -> bool:
+        keys = (
+            "disposition",
+            "liveness",
+            "control_observation",
+            "generation",
+            "process_tree_lease",
+            "runtime_bundle_lease",
+            "port_reservation_lease",
+            "repository_layout_lease",
+            "age_basis",
+            "age_observed_at",
+            "tree_identity",
+            "deletion_paths",
+        )
+        return all(current.get(key) == expected.get(key) for key in keys)
 
     def _revalidate_build_sources(
         self,
@@ -3088,6 +3476,7 @@ class Cleanup:
     @staticmethod
     def _apply_order(item: dict[str, Any]) -> tuple[int, str]:
         order = {
+            "topology": -1,
             "profile-build": 0,
             "worker-dependencies": 0,
             "worker-dependency-transaction": 0,
@@ -3113,6 +3502,31 @@ class Cleanup:
                     self.paths.builds,
                     f"profile:{item['profile']}:{item['key']}",
                 )
+        elif item["kind"] == "topology":
+            with exclusive_lock(
+                path / "operation.lock",
+                f"topology {item['name']} operation",
+                nonblocking=True,
+            ):
+                current = self._topology_item(
+                    path,
+                    older_than_days,
+                    check_layout=False,
+                    check_operation=False,
+                )
+                if not self._same_topology_snapshot(item, current):
+                    raise WorkspaceError(
+                        f"topology changed before removal: {item['name']}"
+                    )
+                marker = path / MANAGED_MARKER
+                if load_json(marker) != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": f"topology:{item['name']}",
+                }:
+                    raise WorkspaceError(
+                        f"topology ownership changed before removal: {item['name']}"
+                    )
+                remove_owned_tree(path)
         elif item["kind"] == "worker-dependencies":
             lock = (
                 self.paths.builds
