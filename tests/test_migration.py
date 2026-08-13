@@ -21,6 +21,7 @@ from atrinik_workspace.locking import (
 )
 from atrinik_workspace.migration import RepositoryMigration
 from atrinik_workspace.model import Paths, WorkspaceError
+from atrinik_workspace.process_tree import control_socket_path, initialize_lease
 
 
 def command(
@@ -1346,6 +1347,12 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.make_classic({"client": source})
         topology = self.paths.topologies / "live"
         topology.mkdir(parents=True)
+        lease_fd = os.open(
+            topology / "process-tree.lease", os.O_RDWR | os.O_CREAT, 0o600
+        )
+        fcntl.flock(lease_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        generation = "a" * 64
+        lease = initialize_lease(lease_fd, generation)
         (topology / "status.json").write_text(
             json.dumps(
                 {
@@ -1360,7 +1367,16 @@ class RepositoryMigrationTests(unittest.TestCase):
                     "ready": False,
                     "started_at": "now",
                     "stopped_at": None,
-                    "supervisor": {"pid": 123, "start_time": "1"},
+                    "control": {
+                        "socket": str(control_socket_path(topology, generation)),
+                        "generation": generation,
+                        "lease": lease,
+                    },
+                    "supervisor": {
+                        "pid": 123,
+                        "start_time": "1",
+                        "generation": generation,
+                    },
                     "services": {},
                 }
             )
@@ -1368,8 +1384,13 @@ class RepositoryMigrationTests(unittest.TestCase):
             encoding="utf-8",
         )
 
-        with mock.patch.object(migration_module, "process_matches", return_value=True):
-            result = self.migration().execute("apply")
+        try:
+            with mock.patch.object(
+                migration_module, "process_matches", return_value=True
+            ):
+                result = self.migration().execute("apply")
+        finally:
+            os.close(lease_fd)
 
         self.assertEqual(result["status"], "refused")
         self.assertIn("live_topology", {row["code"] for row in result["refusals"]})

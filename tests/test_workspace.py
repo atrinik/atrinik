@@ -6655,12 +6655,57 @@ class WorkspaceTests(unittest.TestCase):
             with mock.patch("builtins.print") as output:
                 self.workspace.topology_logs("review", "client", 10, False)
             self.assertIn("client ready", "".join(call.args[0] for call in output.call_args_list))
-            process_tree_path = (
-                self.workspace.paths.topologies
-                / "review"
-                / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+            with mock.patch(
+                "atrinik_workspace.workspace.process_matches", return_value=False
+            ):
+                cross_namespace = self.workspace.topology_status("review")
+            self.assertEqual(
+                cross_namespace["supervisor"]["liveness"], "live"
             )
-            process_tree_path.unlink()
+            self.assertEqual(
+                cross_namespace["services"]["client"]["liveness"], "live"
+            )
+            self.assertEqual(
+                cross_namespace["observation"]["control"], "reachable"
+            )
+            self.assertEqual(
+                cross_namespace["observation"][
+                    "repository_layout_lease_owner"
+                ],
+                "review",
+            )
+            status_path = (
+                self.workspace.paths.topologies / "review" / "status.json"
+            )
+            persisted_status = load_json(status_path)
+            reused = copy.deepcopy(persisted_status)
+            reused["control"]["generation"] = "b" * 64
+            reused["control"]["socket"] = str(
+                workspace_module.control_socket_path(
+                    self.workspace.paths.topologies / "review", "b" * 64
+                )
+            )
+            reused["supervisor"]["generation"] = "b" * 64
+            for service in reused["services"].values():
+                service["generation"] = "b" * 64
+            atomic_json(status_path, reused)
+            try:
+                with (
+                    mock.patch(
+                        "atrinik_workspace.workspace.process_matches",
+                        return_value=False,
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace.signal_holders"
+                    ) as signaled,
+                    self.assertRaisesRegex(
+                        WorkspaceError, "lease generation changed"
+                    ),
+                ):
+                    self.workspace.topology_down("review", timeout=0.1)
+                signaled.assert_not_called()
+            finally:
+                atomic_json(status_path, persisted_status)
         finally:
             try:
                 if self.workspace.topology_status("review-two")["supervisor"][
@@ -6675,6 +6720,34 @@ class WorkspaceTests(unittest.TestCase):
         stopped = self.workspace.topology_status("review")
         self.assertFalse(stopped["supervisor"]["running"])
         self.assertFalse(stopped["services"]["client"]["running"])
+        with mock.patch(
+            "atrinik_workspace.workspace.process_matches", return_value=True
+        ):
+            reused_local_pid = self.workspace.topology_status("review")
+        self.assertEqual(reused_local_pid["supervisor"]["liveness"], "exited")
+        self.assertFalse(reused_local_pid["services"]["client"]["running"])
+
+    def test_topology_status_inventory_probes_with_bounded_concurrency(self) -> None:
+        for index in range(24):
+            root = self.workspace.paths.topologies / f"probe-{index}"
+            root.mkdir()
+            (root / "status.json").write_text("{}\n", encoding="utf-8")
+
+        def delayed(name: str) -> dict[str, str]:
+            time.sleep(0.05)
+            return {"name": name}
+
+        started = time.monotonic()
+        with mock.patch.object(
+            self.workspace, "topology_status", side_effect=delayed
+        ):
+            statuses = self.workspace.topology_statuses()
+
+        self.assertLess(time.monotonic() - started, 0.5)
+        self.assertEqual(
+            [status["name"] for status in statuses],
+            [f"probe-{index}" for index in sorted(range(24), key=str)],
+        )
 
     def test_supervised_local_playtest_client_uses_recorded_verified_root(self) -> None:
         self.workspace.create_profile("classic-audio", "classic")
@@ -7034,46 +7107,42 @@ class WorkspaceTests(unittest.TestCase):
                 signal.pidfd_send_signal(pidfd, signal.SIGKILL)
             finally:
                 os.close(pidfd)
-            deadline = time.monotonic() + 5
-            while (
-                time.monotonic() < deadline
-                and self.workspace.topology_status("server-review")["supervisor"][
-                    "running"
+            deadline = time.monotonic() + 15
+            while time.monotonic() < deadline and (
+                self.workspace.topology_status("server-review")["observation"][
+                    "process_tree_lease"
                 ]
+                == "retained"
             ):
                 time.sleep(0.05)
             orphaned = self.workspace.topology_status("server-review")
             self.assertFalse(orphaned["supervisor"]["running"])
             self.assertFalse(orphaned["ready"])
-            self.assertTrue(orphaned["services"]["server"]["running"])
-            with self.assertRaisesRegex(WorkspaceError, "already running"):
-                self.workspace.topology_up(
-                    "server-review", "default", "default", None, 17300
-                )
-            with self.assertRaisesRegex(WorkspaceError, "already in use"):
-                with exclusive_lock(
-                    Path(f"{state}.lock"), "server state", nonblocking=True
-                ):
-                    self.fail("orphaned server released its state lock")
-            with self.assertRaisesRegex(WorkspaceError, "already in use"):
-                with exclusive_lock(
-                    layout_lock, "repository layout", nonblocking=True
-                ):
-                    self.fail("orphaned client released its layout lock")
-            with self.assertRaisesRegex(WorkspaceError, "already in use"):
-                with exclusive_lock(
-                    profile_lock, "profile build default", nonblocking=True
-                ):
-                    self.fail("orphaned services released their build-root lock")
-            (
-                self.workspace.paths.topologies
-                / "server-review"
-                / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
-            ).unlink()
+            self.assertFalse(orphaned["services"]["server"]["running"])
+            self.assertEqual(
+                orphaned["observation"]["process_tree_lease"], "released"
+            )
             recovered = self.workspace.topology_down("server-review", timeout=5)
             self.assertFalse(
                 any(service["running"] for service in recovered["services"].values())
             )
+            with (
+                mock.patch.object(
+                    self.workspace, "_build_resolved", return_value=build_root
+                ),
+                mock.patch.object(
+                    self.workspace, "_select_topology_port", return_value=17300
+                ),
+                mock.patch.object(self.workspace, "_require_client_display"),
+            ):
+                restarted = self.workspace.topology_up(
+                    "server-review", "default", "default", None, 17300
+                )
+            self.assertNotEqual(
+                restarted["control"]["generation"],
+                recovered["control"]["generation"],
+            )
+            self.workspace.topology_down("server-review", timeout=5)
         finally:
             second_remaining = self.workspace.topology_status("server-review-two")
             if second_remaining["supervisor"]["running"] or any(
@@ -7100,6 +7169,13 @@ class WorkspaceTests(unittest.TestCase):
                 "import os, signal, time\n"
                 "child = os.fork()\n"
                 "if child == 0:\n"
+                "    for fd in os.listdir('/proc/self/fd'):\n"
+                "        try:\n"
+                "            target = os.readlink('/proc/self/fd/' + fd)\n"
+                "            if target.endswith('/process-tree.lease'):\n"
+                "                os.close(int(fd))\n"
+                "        except OSError:\n"
+                "            pass\n"
                 "    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
                 "    while True:\n"
                 "        time.sleep(0.1)\n"
@@ -7154,34 +7230,36 @@ class WorkspaceTests(unittest.TestCase):
                 signal.pidfd_send_signal(pidfd, signal.SIGKILL)
             finally:
                 os.close(pidfd)
-            deadline = time.monotonic() + 5
-            while (
-                time.monotonic() < deadline
-                and self.workspace.topology_status("server-lease")["supervisor"][
-                    "running"
+            deadline = time.monotonic() + 15
+            while time.monotonic() < deadline and (
+                self.workspace.topology_status("server-lease")["observation"][
+                    "process_tree_lease"
                 ]
+                == "retained"
             ):
                 time.sleep(0.05)
             orphaned = self.workspace.topology_status("server-lease")
             self.assertFalse(orphaned["supervisor"]["running"])
             self.assertFalse(orphaned["services"]["server"]["running"])
             self.assertTrue(Path(f"/proc/{descendant_pid}").exists())
+            self.assertEqual(
+                orphaned["observation"]["process_tree_lease"], "released"
+            )
             for path, description in (
                 (layout_lock, "repository layout"),
                 (profile_lock, "profile build default"),
             ):
-                with self.assertRaisesRegex(WorkspaceError, "already in use"):
-                    with exclusive_lock(path, description, nonblocking=True):
-                        self.fail(f"orphaned server released {description}")
+                with exclusive_lock(path, description, nonblocking=True):
+                    pass
             self.workspace.topology_down("server-lease", timeout=0.5)
-            deadline = time.monotonic() + 2
-            while (
-                time.monotonic() < deadline
-                and Path(f"/proc/{descendant_pid}").exists()
-            ):
-                time.sleep(0.05)
-            self.assertFalse(Path(f"/proc/{descendant_pid}").exists())
         finally:
+            if "descendant_pid" in locals() and Path(
+                f"/proc/{descendant_pid}"
+            ).exists():
+                try:
+                    os.kill(descendant_pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
             self.workspace.topology_down("server-lease", timeout=5)
 
         with exclusive_lock(Path(f"{state}.lock"), "server state", nonblocking=True):

@@ -1,9 +1,89 @@
 from __future__ import annotations
 
+import fcntl
 import os
 from pathlib import Path
 import signal
+import stat
 from typing import Iterable
+
+
+def control_socket_path(topology_root: Path, generation: str) -> Path:
+    """Return the bounded workspace-shared endpoint for one topology generation."""
+    workspace = topology_root.parent.parent
+    path = workspace / "c" / generation[:12]
+    if len(os.fsencode(path)) > 107:
+        raise OSError(f"workspace path is too long for topology control: {workspace}")
+    return path
+
+
+def initialize_lease(descriptor: int, generation: str) -> dict[str, int]:
+    """Bind a locked lease inode to one topology generation."""
+    payload = f"{generation}\n".encode()
+    os.ftruncate(descriptor, 0)
+    os.lseek(descriptor, 0, os.SEEK_SET)
+    if os.write(descriptor, payload) != len(payload):
+        raise OSError("short write while initializing process-tree lease")
+    os.fsync(descriptor)
+    metadata = os.fstat(descriptor)
+    return {"device": metadata.st_dev, "inode": metadata.st_ino}
+
+
+def bound_lease_locked(
+    path: Path, generation: str, identity: dict[str, int]
+) -> bool:
+    """Observe the exact generation-bound lease named by a status record."""
+    if (
+        set(identity) != {"device", "inode"}
+        or not all(
+            isinstance(value, int) and not isinstance(value, bool) and value >= 0
+            for value in identity.values()
+        )
+    ):
+        raise OSError("process-tree lease identity is invalid")
+    flags = os.O_RDONLY | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags)
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise OSError(f"process-tree lease is not a regular file: {path}")
+        if (metadata.st_dev, metadata.st_ino) != (
+            identity["device"],
+            identity["inode"],
+        ):
+            raise OSError(f"process-tree lease identity changed: {path}")
+        os.lseek(descriptor, 0, os.SEEK_SET)
+        if os.read(descriptor, 66) != f"{generation}\n".encode():
+            raise OSError(f"process-tree lease generation changed: {path}")
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return True
+        fcntl.flock(descriptor, fcntl.LOCK_UN)
+        return False
+    finally:
+        os.close(descriptor)
+
+
+def lease_locked(path: Path) -> bool:
+    """Observe one inherited lease without depending on visible process IDs."""
+    flags = os.O_RDONLY | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags)
+    try:
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            raise OSError(f"process-tree lease is not a regular file: {path}")
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return True
+        fcntl.flock(descriptor, fcntl.LOCK_UN)
+        return False
+    finally:
+        os.close(descriptor)
 
 
 def _holds_identity(pid: int, identity: tuple[int, int]) -> bool:
@@ -31,6 +111,10 @@ def _holds_identity(pid: int, identity: tuple[int, int]) -> bool:
         # This lets the controlling `down` process inspect and signal holders
         # without becoming a target of the supervisor's own descendant cleanup.
         if flags & getattr(os, "O_PATH", 0):
+            continue
+        # Services inherit the topology's read/write open-file description.
+        # Read-only liveness observers must never become cleanup targets.
+        if flags & os.O_ACCMODE != os.O_RDWR:
             continue
         if (metadata.st_dev, metadata.st_ino) == identity:
             return True
