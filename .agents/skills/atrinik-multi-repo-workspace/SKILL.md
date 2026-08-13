@@ -54,13 +54,14 @@ Reclaim review data only through preview-first cleanup:
 ```sh
 ./atrinik cleanup --dry-run --json
 ./atrinik cleanup --scope sound-cache sound --older-than 7 --dry-run --json
-./atrinik cleanup --scope sound-cache sound --older-than 7 --apply
 ./atrinik cleanup --scope worktrees sound --older-than 7 --dry-run --json
+./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
 ```
 
-Default cleanup covers worktrees/builds; caches are opt-in. Apply sound-cache
-before a fresh worktree preview because each cache protects its worktree. Sound
-build/verify shares the versioned Git-admin lease; removal locks its inode.
+Repeat a scoped command with `--apply` after review. Defaults cover
+worktrees/builds; caches and topology history are opt-in, and topologies are
+excluded from `all`. Reclaim only stopped, released, marker-owned records.
+Apply sound-cache before worktrees because each cache protects its worktree.
 Missing, replaced, invalid, busy, referenced, or unsafe targets fail closed.
 The sole historical-base exception is the frozen
 `atrinik/atrinik@main` `build/worktrees/` contract at

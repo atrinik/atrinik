@@ -630,12 +630,17 @@ without changing the filesystem:
 ./atrinik cleanup --scope worktrees classic-server --older-than 14
 ./atrinik cleanup --scope builds --scope npm-cache --scope compiler-cache --older-than 0
 ./atrinik cleanup --scope sound-cache --older-than 7 --dry-run --json
+./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
+./atrinik cleanup --scope topologies --older-than 7 --apply
 ./atrinik cleanup --scope all --older-than 7 --apply
 ~~~
 
 `--dry-run` is the explicit spelling of the default mode; only `--apply`
 mutates. Repeated `--scope` options combine `worktrees`, `builds`, and the
 opt-in `npm-cache`, `compiler-cache`, and `sound-cache`; `all` selects all five.
+Topology history is a separate opt-in `topologies` scope and is deliberately
+excluded from both the default and `all`, so a broad cache/worktree cleanup
+cannot silently expand to runtime history.
 Positional checkout or logical component names narrow worktree and sound-cache
 inventory and still deduplicate
 aliases to one physical checkout. The special `atrinik` filter selects wrapper
@@ -728,14 +733,27 @@ worktree removal holds its exclusive side from final proof through Git removal,
 so a producer cannot start in the removal window. A sound worktree without the
 versioned producer lease marker is not reclaimable by wrapper cleanup.
 
+The explicit `topologies` scope inventories direct marker-owned directories
+below `workspace/topologies/`. It reports liveness, control generation,
+process-tree, runtime, port, and legacy repository-layout lease state,
+conservative age, and every path apply would remove. Only old `exited` or
+legacy `stale` records with unreachable controls and released leases are
+eligible. Orderly records age from `stopped_at`; legacy stale records without
+it use the newest no-follow tree mtime. Live, unreachable, young, locked,
+linked, malformed, unowned, or unverifiable records remain protected. Apply
+takes the exact topology coordinate lease and operation lock, repeats
+identity/generation/lease/age/tree validation, and removes only that topology
+directory. It never invokes `down`, signals processes, reuses a name, removes
+build roots, or changes profiles, scenarios, source, or persistent state.
+
 Apply performs one complete inventory and size recomputation, then acquires the
 exact target/reference leases and freshly revalidates each stable-sorted
 candidate without rescanning unrelated report-only payloads. Any new uncertainty
 fails closed. Busy targets are skipped so they do not convoy unrelated cleanup.
-Eligible profile builds and explicit sound-cache entries come first, exact Git
-worktrees second, other explicit caches next, and safely shared prunable Git
-metadata last. `workspace/cleanup-journals/` records the ordered targets and is
-atomically refreshed after every completed action; an unexpected interruption
+Eligible topology records come first, then profile builds and explicit
+sound-cache entries, exact Git worktrees, other explicit caches, and safely
+shared prunable Git metadata. `workspace/cleanup-journals/` records the ordered
+targets and is atomically refreshed after every completed action; interruption
 therefore preserves exact progress without claiming rollback.
 
 ## Composing coherent component sources
@@ -1247,6 +1265,8 @@ worktrees, so commit, stash, or otherwise preserve intentional edits first:
 
 ~~~sh
 ./atrinik down combined-review
+./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
+./atrinik cleanup --scope topologies --older-than 7 --apply
 ./atrinik profile set combined-review classic --primary
 ./atrinik profile set combined-review content --primary
 ./atrinik cleanup --scope worktrees --scope builds \
@@ -1257,9 +1277,10 @@ worktrees, so commit, stash, or otherwise preserve intentional edits first:
 
 The saved `combined-review` profile protects both selected worktrees until the
 explicit `profile set` commands repoint it. Do that only when the retained
-review selection is no longer useful, then preview cleanup. Cleanup never removes profiles,
-scenarios, topology records/logs, state, migration evidence, commits, or
-branches.
+review selection and stopped topology history are no longer useful, then
+preview each cleanup scope. Only the explicit `topologies` scope removes
+eligible topology records and logs. Cleanup never removes profiles, scenarios,
+state, migration evidence, commits, or branches.
 
 ## Persistent server state
 
