@@ -56,18 +56,18 @@ Reclaim review data only through preview-first cleanup:
 ```sh
 ./atrinik cleanup --dry-run --json
 ./atrinik cleanup --scope sound-cache sound --older-than 7 --dry-run --json
-./atrinik cleanup --scope sound-cache sound --older-than 7 --apply
 ./atrinik cleanup --scope worktrees sound --older-than 7 --dry-run --json
-./atrinik cleanup --scope worktrees sound --older-than 7 --apply
+./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
 ```
 
-Default cleanup covers worktrees/builds; npm, compiler, and sound caches are
-opt-in. Apply sound-cache before a fresh worktree preview/apply because every
-remaining cache protects its worktree. Sound build/verify shares the exact
-versioned Git-admin lease; removal locks its same inode exclusively. Missing,
-replaced, invalid, or busy leases fail closed. References, ambiguous Git,
-unsafe paths/markers, populated submodules, replace refs, and grafts protect
-targets. The sole historical-base exception is the frozen
+Repeat a scoped command with `--apply` after review. Defaults cover
+worktrees/builds; npm, compiler, sound, and topology history are opt-in, with
+topologies also excluded from `all`. Reclaim only stopped, released,
+marker-owned topology records. Apply sound-cache before worktrees because each
+remaining cache protects its worktree. Producer and removal share the exact
+versioned Git-admin lease; missing, replaced, invalid, or busy leases fail
+closed. References, ambiguous Git, unsafe paths/markers, populated submodules,
+replace refs, and grafts protect targets. The historical-base exception is the frozen
 `atrinik/atrinik@main` `build/worktrees/` contract at
 `ee5ba2096c94bce0161629423d4962a966bc61d8`. Apply re-inventories under the
 layout lock and removes only exact proven targets through non-force Git while

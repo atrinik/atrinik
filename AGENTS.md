@@ -2,8 +2,7 @@
 
 ## Overview
 
-- This MIT Python 3.11+ repository coordinates Atrinik repositories, not
-  component source.
+- This MIT Python 3.11+ repository coordinates Atrinik repositories, not source.
   `./atrinik` and `components.json` manage profiles, worktrees, builds, runtimes,
   cleanup, migration, and supply-chain reports.
 - `default` selects the MIT replacement stack (Rust, Go, Protobuf, and Astro).
@@ -50,13 +49,12 @@
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.
-- Use wrapper path/topology commands; never reconstruct managed paths. Give
-  concurrent topologies distinct names, states, ports, and client config.
-- Keep shell completion parser-driven, bounded, local-only, secret-free, and
-  ahead of `Workspace` construction.
+- Use wrapper path/topology commands; never reconstruct paths. Isolate
+  concurrent topology names, states, ports, and client config.
+- Keep completion parser-driven, bounded, local, secret-free, and ahead of
+  `Workspace` construction.
 - Layout writers announce, gate, lock; they precede finer locks and diagnose
   10-second waits.
-- Unbound persisted records are historical and inert.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket
   holders per `CONTRIBUTING.md`; preserve precise attribution.
 - MIT reuse follows `docs/PROVENANCE.md` and its canonical identity registry;
@@ -113,6 +111,7 @@ For cleanup changes also run:
 
 ```sh
 ./atrinik cleanup --scope all --older-than 7 --dry-run --json
+./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
 ```
 
 Run ShellCheck for shell changes, actionlint for workflows, and
