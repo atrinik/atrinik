@@ -9,6 +9,7 @@ import stat
 from typing import Any, Iterable
 
 from .model import MANAGED_MARKER, Manifest, Paths, WorkspaceError, validate_name
+from .process_tree import control_socket_path
 
 
 _PROTOCOL_COMMAND = "__complete"
@@ -762,9 +763,10 @@ def _valid_topology(
         not isinstance(control, dict)
         or set(control) != {"socket", "generation", "lease"}
         or not isinstance(control.get("socket"), str)
-        or control["socket"] != str((topology_root / "control.sock").resolve())
         or not isinstance(control.get("generation"), str)
         or re.fullmatch(r"[0-9a-f]{64}", control["generation"]) is None
+        or control["socket"]
+        != str(control_socket_path(topology_root, control["generation"]))
         or not isinstance(control.get("lease"), dict)
         or set(control["lease"]) != {"device", "inode"}
         or not all(

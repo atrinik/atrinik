@@ -519,9 +519,10 @@ namespace cannot see the namespace-local process numbers. JSON status reports
 the safe next action. Text status prints the same retained-lease owner and
 action. A control response must match both the topology name and generation;
 `down` never falls back to signaling a mismatched or recycled PID.
-The canonical socket may live beneath a deep managed worktree: the runtime
-addresses it through a bounded topology-directory descriptor. The process-tree
-lease is tied to both the generation and exact file identity; never replace,
+The runtime places the socket under a short generation-derived name in the
+shared workspace, avoiding ordinary managed-worktree and topology-name path
+growth. The process-tree lease is tied to both the generation and exact file
+identity; never replace,
 unlink, or repair it by hand because an invalid current lease fails closed.
 
 If a supervisor is killed rather than shut down, its same-namespace guardian

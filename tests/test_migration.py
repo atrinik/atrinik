@@ -21,7 +21,7 @@ from atrinik_workspace.locking import (
 )
 from atrinik_workspace.migration import RepositoryMigration
 from atrinik_workspace.model import Paths, WorkspaceError
-from atrinik_workspace.process_tree import initialize_lease
+from atrinik_workspace.process_tree import control_socket_path, initialize_lease
 
 
 def command(
@@ -1368,7 +1368,7 @@ class RepositoryMigrationTests(unittest.TestCase):
                     "started_at": "now",
                     "stopped_at": None,
                     "control": {
-                        "socket": str((topology / "control.sock").resolve()),
+                        "socket": str(control_socket_path(topology, generation)),
                         "generation": generation,
                         "lease": lease,
                     },

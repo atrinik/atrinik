@@ -88,9 +88,17 @@ class ProcessTreeIdentityTests(unittest.TestCase):
 
         with (
             mock.patch.object(Path, "iterdir", return_value=[descriptor]),
-            mock.patch.object(Path, "read_text", return_value="flags:\t0\n"),
+            mock.patch.object(
+                Path, "read_text", return_value=f"flags:\t{os.O_RDWR:o}\n"
+            ),
         ):
             self.assertTrue(process_tree._holds_identity(123, (11, 22)))
+
+        with (
+            mock.patch.object(Path, "iterdir", return_value=[descriptor]),
+            mock.patch.object(Path, "read_text", return_value="flags:\t0\n"),
+        ):
+            self.assertFalse(process_tree._holds_identity(123, (11, 22)))
 
 
 if __name__ == "__main__":

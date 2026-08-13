@@ -17,7 +17,7 @@ import time
 from typing import Any, BinaryIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
-from .process_tree import holders_exist, signal_holders
+from .process_tree import control_socket_path, holders_exist, signal_holders
 
 
 LOG_LIMIT = 10 * 1024 * 1024
@@ -287,7 +287,7 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
     return status
 
 
-def _guardian(read_fd: int, process_tree_fd: int, supervisor_pid: int) -> None:
+def _guardian(read_fd: int, process_tree_fd: int) -> None:
     """Release one orphaned topology tree after its supervisor disappears."""
     try:
         while os.read(read_fd, 4096):
@@ -297,7 +297,9 @@ def _guardian(read_fd: int, process_tree_fd: int, supervisor_pid: int) -> None:
     finally:
         os.close(read_fd)
 
-    excluded = (os.getpid(), supervisor_pid)
+    # Pipe EOF proves the supervisor is gone. Do not exclude its bare numeric
+    # PID: it may already have been reused by an exact lease-holding descendant.
+    excluded = (os.getpid(),)
     signal_holders(process_tree_fd, signal.SIGTERM, exclude=excluded)
     deadline = time.monotonic() + 10
     while time.monotonic() < deadline and holders_exist(
@@ -336,7 +338,7 @@ def _start_guardian(
     try:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
-        _guardian(read_fd, process_tree_fd, os.getppid())
+        _guardian(read_fd, process_tree_fd)
     finally:
         os._exit(0)
 
@@ -349,9 +351,10 @@ def _open_control(spec: dict[str, Any], topology_root: Path) -> socket.socket | 
         not isinstance(control, dict)
         or set(control) != {"socket", "generation", "lease"}
         or not isinstance(control.get("socket"), str)
-        or control["socket"] != str((topology_root / "control.sock").resolve())
         or not isinstance(control.get("generation"), str)
         or not re.fullmatch(r"[0-9a-f]{64}", control["generation"])
+        or control["socket"]
+        != str(control_socket_path(topology_root, control["generation"]))
         or not isinstance(control.get("lease"), dict)
         or set(control["lease"]) != {"device", "inode"}
         or not all(
@@ -363,19 +366,14 @@ def _open_control(spec: dict[str, Any], topology_root: Path) -> socket.socket | 
     ):
         raise RuntimeError("topology control identity is invalid")
     endpoint = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    directory_fd: int | None = None
     try:
-        directory_fd = os.open(topology_root, os.O_RDONLY | os.O_CLOEXEC)
-        endpoint.bind(f"/proc/self/fd/{directory_fd}/control.sock")
+        endpoint.bind(control["socket"])
         os.chmod(control["socket"], 0o600)
-        endpoint.listen(4)
+        endpoint.listen(32)
         endpoint.setblocking(False)
     except BaseException:
         endpoint.close()
         raise
-    finally:
-        if directory_fd is not None:
-            os.close(directory_fd)
     return endpoint
 
 
@@ -400,31 +398,35 @@ def _serve_control(
     """Serve at most one bounded request and return whether shutdown was asked."""
     if endpoint is None:
         return False
-    try:
-        connection, _address = endpoint.accept()
-    except BlockingIOError:
-        return False
-    with connection:
-        connection.settimeout(0.5)
+    stop = False
+    while True:
         try:
-            request = _receive_control(connection)
-            control = spec["control"]
-            valid = (
-                isinstance(request, dict)
-                and set(request) == {"action", "name", "generation"}
-                and request.get("action") in {"status", "stop"}
-                and request.get("name") == spec["name"]
-                and request.get("generation") == control["generation"]
-            )
-            response = {
-                "ok": valid,
-                "name": spec["name"],
-                "generation": control["generation"],
-            }
-            connection.sendall(json.dumps(response, sort_keys=True).encode() + b"\n")
-            return bool(valid and request["action"] == "stop")
-        except (OSError, TimeoutError, ValueError, json.JSONDecodeError):
-            return False
+            connection, _address = endpoint.accept()
+        except BlockingIOError:
+            return stop
+        with connection:
+            connection.settimeout(0.5)
+            try:
+                request = _receive_control(connection)
+                control = spec["control"]
+                valid = (
+                    isinstance(request, dict)
+                    and set(request) == {"action", "name", "generation"}
+                    and request.get("action") in {"status", "stop"}
+                    and request.get("name") == spec["name"]
+                    and request.get("generation") == control["generation"]
+                )
+                response = {
+                    "ok": valid,
+                    "name": spec["name"],
+                    "generation": control["generation"],
+                }
+                connection.sendall(
+                    json.dumps(response, sort_keys=True).encode() + b"\n"
+                )
+                stop = stop or bool(valid and request["action"] == "stop")
+            except (OSError, TimeoutError, ValueError, json.JSONDecodeError):
+                continue
 
 
 def supervise(
@@ -613,6 +615,12 @@ def supervise(
                     control_path.unlink()
             except FileNotFoundError:
                 pass
+        # On orderly shutdown stop being a lease holder before telling the
+        # guardian to perform its final exact-holder sweep. On a crash the
+        # kernel closes this descriptor before pipe EOF instead.
+        if process_tree_fd is not None:
+            os.close(process_tree_fd)
+            process_tree_fd = None
         if guardian_write_fd is not None:
             os.close(guardian_write_fd)
         if guardian_pid is not None:
@@ -626,8 +634,6 @@ def supervise(
             os.close(layout_lock_fd)
         if build_lock_fd is not None:
             os.close(build_lock_fd)
-        if process_tree_fd is not None:
-            os.close(process_tree_fd)
     return 0
 
 

@@ -16,6 +16,7 @@ from unittest import mock
 
 from atrinik_workspace.cli import main, parser
 from atrinik_workspace import completion
+from atrinik_workspace.process_tree import control_socket_path
 from atrinik_workspace.completion import classified_actions, complete, shell_script
 from atrinik_workspace.model import Manifest
 
@@ -375,10 +376,10 @@ class CompletionTests(unittest.TestCase):
         generation = "d" * 64
         status["control"] = {
             "socket": str(
-                self.workspace
-                / "topologies"
-                / "completion-review"
-                / "control.sock"
+                control_socket_path(
+                    self.workspace / "topologies" / "completion-review",
+                    generation,
+                )
             ),
             "generation": generation,
             "lease": {"device": 1, "inode": 2},
@@ -394,10 +395,10 @@ class CompletionTests(unittest.TestCase):
         self.write_json(status_path, status)
         self.assertEqual(self.candidates("logs", ""), ("candidates", []))
         status["control"]["socket"] = str(
-            self.workspace
-            / "topologies"
-            / "completion-review"
-            / "control.sock"
+            control_socket_path(
+                self.workspace / "topologies" / "completion-review",
+                generation,
+            )
         )
 
         status["profile"] = "deleted-profile"

@@ -18,7 +18,7 @@ from atrinik_workspace.locking import (
     layout_writer_intent_path,
     layout_writer_pending_path,
 )
-from atrinik_workspace.process_tree import initialize_lease
+from atrinik_workspace.process_tree import control_socket_path, initialize_lease
 from atrinik_workspace.workspace import Workspace
 
 
@@ -573,7 +573,7 @@ class ContentMigrationTests(unittest.TestCase):
                     "stack": "classic",
                     "profile": "classic-review",
                     "control": {
-                        "socket": str((topology / "control.sock").resolve()),
+                        "socket": str(control_socket_path(topology, generation)),
                         "generation": generation,
                         "lease": lease,
                     },

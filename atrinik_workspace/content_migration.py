@@ -21,7 +21,12 @@ from .locking import (
     layout_writer_pending_path,
 )
 from .model import WorkspaceError, atomic_json, load_json
-from .process_tree import bound_lease_locked, holders_exist, lease_locked
+from .process_tree import (
+    bound_lease_locked,
+    control_socket_path,
+    holders_exist,
+    lease_locked,
+)
 from .supervisor import process_matches
 
 
@@ -814,13 +819,17 @@ class ContentMigration:
                             not isinstance(control, dict)
                             or set(control)
                             != {"socket", "generation", "lease"}
-                            or control.get("socket")
-                            != str((directory / "control.sock").resolve())
                             or not isinstance(control.get("generation"), str)
                             or re.fullmatch(
                                 r"[0-9a-f]{64}", control["generation"]
                             )
                             is None
+                            or control.get("socket")
+                            != str(
+                                control_socket_path(
+                                    directory, control["generation"]
+                                )
+                            )
                             or not isinstance(control.get("lease"), dict)
                         ):
                             raise WorkspaceError(

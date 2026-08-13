@@ -33,7 +33,7 @@ from atrinik_workspace.model import (
     managed_directory,
     managed_remove as real_managed_remove,
 )
-from atrinik_workspace.process_tree import initialize_lease
+from atrinik_workspace.process_tree import control_socket_path, initialize_lease
 from atrinik_workspace.workspace import (
     WORKER_DEPENDENCY_SCHEMA_VERSION,
     Workspace,
@@ -2152,7 +2152,7 @@ class CleanupTests(unittest.TestCase):
                 "providers": {"client": "client"},
                 "dependencies": ["client"],
                 "control": {
-                    "socket": str((topology / "control.sock").resolve()),
+                    "socket": str(control_socket_path(topology, generation)),
                     "generation": generation,
                     "lease": lease,
                 },

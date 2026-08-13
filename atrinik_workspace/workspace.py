@@ -42,6 +42,7 @@ from .locking import (
 )
 from .process_tree import (
     bound_lease_locked,
+    control_socket_path,
     holders_exist,
     initialize_lease,
     lease_locked,
@@ -111,7 +112,6 @@ COMPILER_CACHE_PURPOSE = "compiler-cache"
 COMPILER_CACHE_MAX_SIZE = "5G"
 TOPOLOGY_SERVICES = ("server", "client")
 TOPOLOGY_PROCESS_TREE_LEASE = "process-tree.lease"
-TOPOLOGY_CONTROL_SOCKET = "control.sock"
 PRE_MONOREPO_REPOSITORIES = {
     "client": "legacy-client",
     "server": "legacy-server",
@@ -7020,24 +7020,19 @@ class Workspace:
                 or metadata.st_uid != os.geteuid()
             ):
                 return False
-            directory_fd = os.open(endpoint.parent, os.O_RDONLY | os.O_CLOEXEC)
-            try:
-                address = f"/proc/self/fd/{directory_fd}/{endpoint.name}"
-                with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
-                    client.settimeout(0.5)
-                    client.connect(address)
-                    client.sendall(json.dumps(request, sort_keys=True).encode())
-                    client.shutdown(socket.SHUT_WR)
-                    payload = bytearray()
-                    while len(payload) <= 4096:
-                        chunk = client.recv(4097 - len(payload))
-                        if not chunk:
-                            break
-                        payload.extend(chunk)
-                        if b"\n" in chunk:
-                            break
-            finally:
-                os.close(directory_fd)
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+                client.settimeout(0.5)
+                client.connect(str(endpoint))
+                client.sendall(json.dumps(request, sort_keys=True).encode())
+                client.shutdown(socket.SHUT_WR)
+                payload = bytearray()
+                while len(payload) <= 4096:
+                    chunk = client.recv(4097 - len(payload))
+                    if not chunk:
+                        break
+                    payload.extend(chunk)
+                    if b"\n" in chunk:
+                        break
             if len(payload) > 4096:
                 return False
             response = json.loads(payload)
@@ -7306,10 +7301,10 @@ class Workspace:
         if current_control and (
             not isinstance(control, dict)
             or set(control) != {"socket", "generation", "lease"}
-            or control.get("socket")
-            != str((root / TOPOLOGY_CONTROL_SOCKET).resolve())
             or not isinstance(control.get("generation"), str)
             or not re.fullmatch(r"[0-9a-f]{64}", control["generation"])
+            or control.get("socket")
+            != str(control_socket_path(root, control["generation"]))
             or not isinstance(control.get("lease"), dict)
             or set(control["lease"]) != {"device", "inode"}
             or not all(
@@ -7428,7 +7423,8 @@ class Workspace:
             ):
                 service["status"] = service_liveness
         if (
-            ("server" in services) != (endpoint is not None)
+            not status.get("error")
+            and ("server" in services) != (endpoint is not None)
             or (
                 status["ready"]
                 and endpoint is not None
@@ -7615,7 +7611,12 @@ class Workspace:
                     os.O_RDWR | os.O_CREAT,
                     "topology process-tree lease",
                 )
-                stack.callback(os.close, process_tree_fd)
+                process_tree_owner = [process_tree_fd]
+                stack.callback(
+                    lambda: os.close(process_tree_owner.pop())
+                    if process_tree_owner
+                    else None
+                )
                 try:
                     fcntl.flock(
                         process_tree_fd, fcntl.LOCK_EX | fcntl.LOCK_NB
@@ -7630,8 +7631,27 @@ class Workspace:
                     ) from error
                 if holders_exist(process_tree_fd, exclude=(os.getpid(),)):
                     raise WorkspaceError(f"topology is already running: {name}")
-                generation = secrets.token_hex(32)
+                for _attempt in range(16):
+                    generation = secrets.token_hex(32)
+                    control_path = control_socket_path(topology_root, generation)
+                    if not control_path.exists() and not control_path.is_symlink():
+                        break
+                else:
+                    raise WorkspaceError(
+                        "cannot allocate a unique topology control endpoint"
+                    )
                 lease_identity = initialize_lease(process_tree_fd, generation)
+                control_directory = control_path.parent
+                control_directory.mkdir(mode=0o700, exist_ok=True)
+                control_metadata = control_directory.lstat()
+                if (
+                    not stat.S_ISDIR(control_metadata.st_mode)
+                    or stat.S_IMODE(control_metadata.st_mode) != 0o700
+                    or control_metadata.st_uid != os.geteuid()
+                ):
+                    raise WorkspaceError(
+                        f"topology control directory is invalid: {control_directory}"
+                    )
 
                 state_location: Path | None = None
                 state_lock: TextIO | None = None
@@ -7794,9 +7814,7 @@ class Workspace:
                     "resolved": resolved_status,
                     "endpoint": endpoint,
                     "control": {
-                        "socket": str(
-                            (topology_root / TOPOLOGY_CONTROL_SOCKET).resolve()
-                        ),
+                        "socket": str(control_path),
                         "generation": generation,
                         "lease": lease_identity,
                     },
@@ -7805,17 +7823,14 @@ class Workspace:
                 if sound_status is not None:
                     spec["sound"] = sound_status
                 spec_path = topology_root / "spec.json"
-                control_path = topology_root / TOPOLOGY_CONTROL_SOCKET
                 try:
                     control_mode = control_path.lstat().st_mode
                 except FileNotFoundError:
                     pass
                 else:
-                    if not stat.S_ISSOCK(control_mode):
-                        raise WorkspaceError(
-                            f"topology control endpoint is invalid: {name}"
-                        )
-                    control_path.unlink()
+                    raise WorkspaceError(
+                        f"topology control endpoint already exists: {control_path}"
+                    )
                 atomic_json(spec_path, spec)
                 status_path.unlink(missing_ok=True)
                 startup_error_path.unlink(missing_ok=True)
@@ -7874,6 +7889,7 @@ class Workspace:
                         start_new_session=True,
                         pass_fds=tuple(inherited_locks),
                     )
+                    os.close(process_tree_owner.pop())
                 except OSError as error:
                     raise WorkspaceError(f"cannot start topology supervisor: {error}") from error
                 finally:

@@ -35,8 +35,8 @@ follow the reported safe action: wait for bounded guardian recovery and retry
 `ps` and `down`; if the exact lease remains retained, use the starting session.
 Never inspect `/proc`, signal the recorded PIDs, unlink control or lease files,
 or reuse the name as recovery.
-The wrapper uses a bounded descriptor-relative address for deep managed socket
-paths and binds the process-tree lease to its generation and file identity.
+The wrapper uses a short generation-derived endpoint in the shared workspace
+and binds the process-tree lease to its generation and file identity.
 Missing, replaced, linked, or malformed current lease files are unsafe and
 must remain untouched for fail-closed diagnosis.
 

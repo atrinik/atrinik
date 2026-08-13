@@ -6680,6 +6680,11 @@ class WorkspaceTests(unittest.TestCase):
             persisted_status = load_json(status_path)
             reused = copy.deepcopy(persisted_status)
             reused["control"]["generation"] = "b" * 64
+            reused["control"]["socket"] = str(
+                workspace_module.control_socket_path(
+                    self.workspace.paths.topologies / "review", "b" * 64
+                )
+            )
             reused["supervisor"]["generation"] = "b" * 64
             for service in reused["services"].values():
                 service["generation"] = "b" * 64

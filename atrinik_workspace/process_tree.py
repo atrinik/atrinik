@@ -8,6 +8,15 @@ import stat
 from typing import Iterable
 
 
+def control_socket_path(topology_root: Path, generation: str) -> Path:
+    """Return the bounded workspace-shared endpoint for one topology generation."""
+    workspace = topology_root.parent.parent
+    path = workspace / "c" / generation[:12]
+    if len(os.fsencode(path)) > 107:
+        raise OSError(f"workspace path is too long for topology control: {workspace}")
+    return path
+
+
 def initialize_lease(descriptor: int, generation: str) -> dict[str, int]:
     """Bind a locked lease inode to one topology generation."""
     payload = f"{generation}\n".encode()
@@ -102,6 +111,10 @@ def _holds_identity(pid: int, identity: tuple[int, int]) -> bool:
         # This lets the controlling `down` process inspect and signal holders
         # without becoming a target of the supervisor's own descendant cleanup.
         if flags & getattr(os, "O_PATH", 0):
+            continue
+        # Services inherit the topology's read/write open-file description.
+        # Read-only liveness observers must never become cleanup targets.
+        if flags & os.O_ACCMODE != os.O_RDWR:
             continue
         if (metadata.st_dev, metadata.st_ino) == identity:
             return True
