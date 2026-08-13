@@ -580,6 +580,7 @@ def _validate_repository_trust(
         "coordinator checkout requires origin",
     ).decode().strip()
     if origin not in {
+        "https://github.com/atrinik/atrinik",
         "https://github.com/atrinik/atrinik.git",
         "git@github.com:atrinik/atrinik.git",
     }:

@@ -155,6 +155,14 @@ class ProvenanceIdentityTests(unittest.TestCase):
             "HEAD",
         )
 
+    def test_repository_trust_accepts_github_actions_canonical_origin(self) -> None:
+        outputs = [b"false\n", b"/tmp/coordinator.git\n", b"https://github.com/atrinik/atrinik\n", b""]
+        with mock.patch(
+            "atrinik_workspace.provenance_identity._git_output",
+            side_effect=outputs,
+        ), mock.patch("pathlib.Path.exists", return_value=False):
+            _validate_repository_trust(ROOT, "1" * 40, "origin/main")
+
     def test_record_digest_detects_mutation(self) -> None:
         value = registry()
         value["records"][0]["claims"].remove("authorship")
