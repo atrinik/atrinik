@@ -10,6 +10,7 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest import mock
 
 from atrinik_workspace.model import WorkspaceError, atomic_json
 from atrinik_workspace.locking import exclusive_lock
@@ -23,6 +24,7 @@ from atrinik_workspace.port_reservation import (
     reservation_locked,
     try_lock,
     validate_held,
+    validate_transaction,
 )
 from atrinik_workspace.supervisor import _require_server_port_available
 from atrinik_workspace.workspace import TOPOLOGY_PORT_RESERVATION_RECORD, Workspace
@@ -407,6 +409,64 @@ class PortReservationTests(unittest.TestCase):
         finally:
             os.close(replacement)
             os.close(descriptor)
+            os.close(directory_fd)
+
+    def test_replaced_transaction_cannot_publish_two_owners(self) -> None:
+        port = 17381
+        first, first_directory, _directory, _identity = open_transaction(
+            self.topologies, port
+        )
+        self.assertTrue(try_lock(first))
+        transaction_path = (
+            self.topologies / PORT_RESERVATION_DIRECTORY / f"{port}.lock"
+        )
+        transaction_path.unlink()
+        second, second_directory, _directory, _identity = open_transaction(
+            self.topologies, port
+        )
+        try:
+            self.assertTrue(try_lock(second))
+            with self.assertRaisesRegex(PortReservationError, "identity is invalid"):
+                validate_transaction(first, first_directory, port)
+            validate_transaction(second, second_directory, port)
+        finally:
+            os.close(first)
+            os.close(first_directory)
+            os.close(second)
+            os.close(second_directory)
+
+    def test_failed_publication_preserves_replacement_path(self) -> None:
+        directory_fd, directory, identity = open_directory(self.topologies)
+        valuable = directory / "valuable"
+        valuable.write_text("valuable\n", encoding="utf-8")
+        valuable.chmod(0o600)
+        generation = "5" * 64
+        lease = directory / f"17382-{generation}.lease"
+        real_fsync = os.fsync
+
+        def replace_before_validation(descriptor: int) -> None:
+            real_fsync(descriptor)
+            lease.unlink()
+            valuable.rename(lease)
+
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.port_reservation.os.fsync",
+                    side_effect=replace_before_validation,
+                ),
+                self.assertRaisesRegex(PortReservationError, "identity is invalid"),
+            ):
+                create_lease(
+                    directory_fd,
+                    directory,
+                    identity,
+                    port=17382,
+                    topology="cleanup-owner",
+                    generation=generation,
+                )
+            self.assertEqual(lease.read_text(encoding="utf-8"), "valuable\n")
+        finally:
             os.close(directory_fd)
 
 

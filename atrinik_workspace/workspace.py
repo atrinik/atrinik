@@ -56,6 +56,7 @@ from .port_reservation import (
     open_transaction as open_port_transaction,
     reservation_locked as port_reservation_locked,
     try_lock as try_lock_port_reservation,
+    validate_transaction as validate_port_transaction,
     validate_record as validate_port_reservation,
 )
 
@@ -7693,25 +7694,22 @@ class Workspace:
                 validate_known_evidence(port)
                 transaction, directory_fd, directory, directory_identity = (
                     open_port_transaction(
-                    self.paths.topologies, port
+                        self.paths.topologies, port
                     )
                 )
-                if not try_lock_port_reservation(transaction):
-                    if automatic:
-                        os.close(transaction)
-                        os.close(directory_fd)
-                        return None
-                    deadline = time.monotonic() + 1
-                    while not try_lock_port_reservation(transaction):
-                        if time.monotonic() >= deadline:
-                            os.close(transaction)
-                            os.close(directory_fd)
-                            raise WorkspaceError(
-                                f"topology UDP port {port} reservation transaction "
-                                "is busy; retry"
-                            )
-                        time.sleep(0.01)
                 try:
+                    if not try_lock_port_reservation(transaction):
+                        if automatic:
+                            return None
+                        deadline = time.monotonic() + 1
+                        while not try_lock_port_reservation(transaction):
+                            if time.monotonic() >= deadline:
+                                raise WorkspaceError(
+                                    f"topology UDP port {port} reservation "
+                                    "transaction is busy; retry"
+                                )
+                            time.sleep(0.01)
+                    validate_port_transaction(transaction, directory_fd, port)
                     owner = active_port_reservation(directory_fd, directory, port)
                     if owner is not None:
                         if automatic:
@@ -7726,8 +7724,11 @@ class Workspace:
                         topology=topology,
                         generation=generation,
                     )
-                except BaseException:
-                    raise
+                    try:
+                        validate_port_transaction(transaction, directory_fd, port)
+                    except BaseException:
+                        os.close(descriptor)
+                        raise
                 finally:
                     os.close(transaction)
                     os.close(directory_fd)

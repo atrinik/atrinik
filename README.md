@@ -978,8 +978,9 @@ scenario, port allocator/per-port reservation, state, build-root, registry, or
 cache locks. The allocator is released before state/build/runtime preparation;
 the exact generation reservation remains held. Foreground
 processes inherit their layout and exact build-root leases. Supervised services
-inherit both leases through the daemon and keep them until every service exits
-or `down` completes. Mutation
+inherit only the process-tree identity through the daemon. The supervisor and
+same-generation guardian keep layout, build-root, state, and generation
+reservation leases until every service exits or `down` completes. Mutation
 subprocesses inherit all three writer leases. Build and scenario
 subprocesses inherit every active layout, build-root, state, registry, and cache
 lease so an orphan cannot outlive its protection.

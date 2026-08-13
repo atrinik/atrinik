@@ -121,9 +121,15 @@ def open_directory(topologies: Path) -> tuple[int, Path, dict[str, int]]:
         flags |= os.O_NOFOLLOW
     try:
         descriptor = os.open(directory, flags)
+    except OSError as error:
+        raise PortReservationError(
+            f"cannot open topology port reservation directory {directory}: {error}"
+        ) from error
+    try:
         metadata = os.fstat(descriptor)
         path_metadata = directory.lstat()
     except OSError as error:
+        os.close(descriptor)
         raise PortReservationError(
             f"cannot open topology port reservation directory {directory}: {error}"
         ) from error
@@ -218,6 +224,12 @@ def try_lock(descriptor: int) -> bool:
         raise PortReservationError(
             f"cannot lock topology port reservation lease: {error}"
         ) from error
+
+
+def validate_transaction(
+    descriptor: int, directory_descriptor: int, port: int
+) -> None:
+    _validate_child(descriptor, directory_descriptor, f"{_validate_port(port)}.lock")
 
 
 def _decode_record(content: bytes, path: Path) -> dict[str, Any]:
@@ -330,11 +342,18 @@ def create_lease(
         _validate_directory_path(directory, directory_identity)
         return descriptor, record
     except BaseException:
-        os.close(descriptor)
         try:
-            os.unlink(path.name, dir_fd=directory_descriptor)
+            created = os.fstat(descriptor)
+            current = os.stat(
+                path.name,
+                dir_fd=directory_descriptor,
+                follow_symlinks=False,
+            )
+            if (created.st_dev, created.st_ino) == (current.st_dev, current.st_ino):
+                os.unlink(path.name, dir_fd=directory_descriptor)
         except OSError:
             pass
+        os.close(descriptor)
         raise
 
 

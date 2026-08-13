@@ -222,12 +222,15 @@ interrupt the holder. The diagnostic is emitted at most once per acquisition.
 If the platform cannot provide a working advisory shared lock, the consuming
 operation fails closed.
 
-A supervised topology transfers its shared layout and exact build-root lock
-descriptors through the daemon supervisor into every service. Client runtimes
+A supervised topology transfers its shared layout, exact build-root, state,
+process-tree, and generation-reservation descriptors through the daemon
+supervisor. The supervisor and its same-generation guardian retain the
+workspace/state/reservation leases; services inherit only the process-tree
+identity needed for exact descendant recovery. Client runtimes
 retain links to selected client and sound checkouts, while server runtimes link
 selected server configuration and tool inputs. Inherited descriptors preserve
-both leases if the supervisor dies; topology shutdown terminates orphaned
-services and releases the last descriptors. A topology-unique inherited
+the leases if the supervisor dies; topology shutdown terminates orphaned
+services before the guardian releases the last descriptors. A topology-unique inherited
 process-tree lease is also held as an advisory generation lock, so a topology
 name cannot restart until its prior process tree releases the lease. Shutdown
 uses the same lease identity to find and pidfd-signal surviving descendants
@@ -242,10 +245,11 @@ which remain
 outermost relative to all operational locks; private helpers never reacquire
 either boundary. A direct build or foreground client then takes its build-root
 lock and subordinate cache locks; the foreground process retains that root
-lease. Topology startup
-takes the topology-operation lock, the server-state lock when needed, the
-build-root lock, and finally the port-allocation lock, and transfers the layout
-and build-root leases into its services.
+lease. Topology startup takes the topology-operation/process-tree lock, the
+automatic allocator when applicable, the per-port transaction and immutable
+generation lease, the server-state lock when needed, and finally the build-root
+lock. It transfers workspace leases into the supervisor/guardian rather than
+services.
 Independent CMake roots briefly serialize first-use compiler-cache marker and
 metadata publication, then release that cache lock before compilation.
 Scenario create takes the scenario-operation lock, then build-root and
