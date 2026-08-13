@@ -477,6 +477,45 @@ class ProvenanceIdentityTests(unittest.TestCase):
                 current_reviewers=reviewer_keys,
             )
 
+    def test_component_reference_shape_fails_closed_before_blob_reads(self) -> None:
+        baseline = load_document(FIXTURES / "positive" / "synthetic-alpha.json")
+        records, reviewer_keys = current()
+        mutations = (
+            lambda value: value.update(schema_version=True),
+            lambda value: value.update(synthetic="yes"),
+            lambda value: value.update(source=None),
+            lambda value: value["destination"].update(extra=True),
+            lambda value: value["source"].update(repository="outside/project"),
+            lambda value: value["destination"].update(path="/absolute"),
+            lambda value: value["source"].update(revision="short"),
+            lambda value: value.update(transformation=""),
+            lambda value: value.update(scope_binding="readable"),
+            lambda value: value.update(evidence_reference=None),
+            lambda value: value["evidence_reference"].update(extra=True),
+            lambda value: value["evidence_reference"].update(repository="outside/project"),
+            lambda value: value["evidence_reference"].update(revision="short"),
+            lambda value: value["evidence_reference"].update(record_id="readable"),
+            lambda value: value["evidence_reference"].update(url="https://example.invalid"),
+            lambda value: value["evidence_reference"].update(registry_sha256="invalid"),
+            lambda value: value["evidence_reference"].update(reviewers_sha256=True),
+            lambda value: value["evidence_reference"].update(schema_sha256="A" * 64),
+        )
+        for index, mutate in enumerate(mutations):
+            with self.subTest(mutation=index):
+                value = json.loads(json.dumps(baseline))
+                mutate(value)
+                with mock.patch(
+                    "atrinik_workspace.provenance_identity._validate_repository_trust"
+                ), self.assertRaises(WorkspaceError):
+                    validate_component_reference(
+                        value,
+                        repository_root=ROOT,
+                        as_of=AS_OF,
+                        trusted_ref="HEAD",
+                        current_records=records,
+                        current_reviewers=reviewer_keys,
+                    )
+
     def test_two_synthetic_component_references_validate_offline(self) -> None:
         records, reviewer_keys = current()
         for name in ("synthetic-alpha.json", "synthetic-beta.json"):
