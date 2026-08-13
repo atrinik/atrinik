@@ -7445,8 +7445,8 @@ class Workspace:
             safe_action = f"run ./atrinik down {name} from any supported session"
         elif process_tree_active:
             safe_action = (
-                "wait for bounded orphan recovery, then retry; if the control "
-                "endpoint remains unreachable, use the starting session"
+                "wait for bounded orphan recovery, then retry; if the exact "
+                "lease remains retained, preserve it for operator diagnosis"
             )
         else:
             safe_action = f"restart topology {name} or retain its historical record"
@@ -8034,7 +8034,8 @@ class Workspace:
             raise WorkspaceError(
                 f"topology {name} retains the repository-layout lease but its "
                 "supervisor control endpoint is unreachable; wait for bounded "
-                "orphan recovery and retry, or run down from the starting session"
+                "orphan recovery and retry; preserve a retained exact lease "
+                "for operator diagnosis"
             )
         raise WorkspaceError(
             f"topology did not stop within {timeout:g} seconds: {name}"

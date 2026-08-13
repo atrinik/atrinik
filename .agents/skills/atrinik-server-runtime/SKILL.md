@@ -32,7 +32,7 @@ state or restore a bundled HTTP listener.
 the repository-layout lease. Cross-session `down` uses the matching filesystem
 control endpoint, never a PID from the caller's namespace. For `unreachable`,
 follow the reported safe action: wait for bounded guardian recovery and retry
-`ps` and `down`; if the exact lease remains retained, use the starting session.
+`ps` and `down`; preserve an exact retained lease for operator diagnosis.
 Never inspect `/proc`, signal the recorded PIDs, unlink control or lease files,
 or reuse the name as recovery.
 The wrapper uses a short generation-derived endpoint in the shared workspace

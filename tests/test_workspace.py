@@ -7241,12 +7241,25 @@ class WorkspaceTests(unittest.TestCase):
             orphaned = self.workspace.topology_status("server-lease")
             self.assertFalse(orphaned["supervisor"]["running"])
             self.assertFalse(orphaned["services"]["server"]["running"])
-            self.assertFalse(Path(f"/proc/{descendant_pid}").exists())
+            self.assertTrue(Path(f"/proc/{descendant_pid}").exists())
             self.assertEqual(
                 orphaned["observation"]["process_tree_lease"], "released"
             )
+            for path, description in (
+                (layout_lock, "repository layout"),
+                (profile_lock, "profile build default"),
+            ):
+                with exclusive_lock(path, description, nonblocking=True):
+                    pass
             self.workspace.topology_down("server-lease", timeout=0.5)
         finally:
+            if "descendant_pid" in locals() and Path(
+                f"/proc/{descendant_pid}"
+            ).exists():
+                try:
+                    os.kill(descendant_pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
             self.workspace.topology_down("server-lease", timeout=5)
 
         with exclusive_lock(Path(f"{state}.lock"), "server state", nonblocking=True):
