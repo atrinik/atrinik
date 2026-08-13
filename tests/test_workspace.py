@@ -333,6 +333,7 @@ def resource_lease_process(
     entered: object,
     release: object | None,
     results: object,
+    attempting: object | None = None,
 ) -> None:
     try:
         request = LeaseRequest(
@@ -342,31 +343,12 @@ def resource_lease_process(
             name,
             "wait for the exact test operation",
         )
+        if attempting is not None:
+            attempting.set()
         with resource_locks(Path(workspace_directory), [request]):
             entered.put(name)
             if release is not None and not release.wait(10):
                 raise TimeoutError(f"{name} was not released")
-        results.put(None)
-    except BaseException as error:
-        results.put(f"{type(error).__name__}: {error}")
-        raise
-
-
-def profile_mutation_process(
-    wrapper: str,
-    workspace_directory: str,
-    pending_acquired: object,
-    entered: object,
-    results: object,
-) -> None:
-    try:
-        with mock.patch.dict(
-            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
-        ):
-            workspace = Workspace(Path(wrapper))
-            pending_acquired.set()
-            workspace.set_profile("profile-b", "client", "primary")
-            entered.set()
         results.put(None)
     except BaseException as error:
         results.put(f"{type(error).__name__}: {error}")
@@ -6696,22 +6678,126 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual([process.exitcode for process in processes], [0] * 10)
         self.assertEqual([results.get(timeout=2) for _ in processes], [None] * 10)
 
-    def test_p0_harness_allows_lifecycle_progress_while_topology_runs(self) -> None:
+    def test_exact_resource_matrix_scopes_conflicts_to_coordinates(self) -> None:
         context = multiprocessing.get_context("spawn")
-        for label in ("source-a", "source-b", "source-c"):
+        for kind in (
+            "registry",
+            "profile",
+            "git-admin",
+            "source",
+            "topology",
+            "scenario",
+            "state",
+            "build-root",
+            "cache",
+        ):
+            with self.subTest(kind=kind):
+                entered = context.Queue()
+                results = context.Queue()
+                release_reader = context.Event()
+                release_writers = context.Event()
+                writer_attempting = context.Event()
+                coordinate_a = f"{kind}:a"
+                coordinate_b = f"{kind}:b"
+                reader = context.Process(
+                    target=resource_lease_process,
+                    args=(
+                        str(self.workspace_directory),
+                        kind,
+                        coordinate_a,
+                        "shared",
+                        "reader-a",
+                        entered,
+                        release_reader,
+                        results,
+                    ),
+                )
+                writer_a = context.Process(
+                    target=resource_lease_process,
+                    args=(
+                        str(self.workspace_directory),
+                        kind,
+                        coordinate_a,
+                        "exclusive",
+                        "writer-a",
+                        entered,
+                        release_writers,
+                        results,
+                        writer_attempting,
+                    ),
+                )
+                writer_b = context.Process(
+                    target=resource_lease_process,
+                    args=(
+                        str(self.workspace_directory),
+                        kind,
+                        coordinate_b,
+                        "exclusive",
+                        "writer-b",
+                        entered,
+                        release_writers,
+                        results,
+                    ),
+                )
+                processes = [reader, writer_a, writer_b]
+                started: list[multiprocessing.Process] = []
+                try:
+                    reader.start()
+                    started.append(reader)
+                    self.assertEqual(entered.get(timeout=5), "reader-a")
+                    writer_a.start()
+                    started.append(writer_a)
+                    self.assertTrue(writer_attempting.wait(5))
+                    pending = locking_module.layout_writer_pending_path(
+                        resource_lock_path(
+                            self.workspace_directory, kind, coordinate_a
+                        )
+                    )
+                    deadline = time.monotonic() + 5
+                    while time.monotonic() < deadline:
+                        try:
+                            with exclusive_lock(
+                                pending,
+                                f"{kind} writer pending observation",
+                                nonblocking=True,
+                            ):
+                                pass
+                        except locking_module.LockBusyError:
+                            break
+                        time.sleep(0.005)
+                    else:
+                        self.fail(f"{kind} writer did not publish pending state")
+
+                    writer_b.start()
+                    started.append(writer_b)
+                    self.assertEqual(entered.get(timeout=5), "writer-b")
+                    release_reader.set()
+                    self.assertEqual(entered.get(timeout=5), "writer-a")
+                finally:
+                    release_reader.set()
+                    release_writers.set()
+                    join_or_stop_processes(started, 10)
+                self.assertEqual(started, processes)
+                self.assertEqual(
+                    [process.exitcode for process in processes], [0, 0, 0]
+                )
+                self.assertEqual(
+                    [results.get(timeout=2) for _ in processes], [None] * 3
+                )
+
+    def test_incremental_harness_isolates_live_topology_conflicts(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        for label in ("source-a", "source-c"):
             self.workspace.create_worktree(
                 "client", label, f"test/{label}", None, False
             )
         self.workspace.create_worktree(
             "sound", "source-c", "test/sound-source-c", None, False
         )
-        for profile in ("profile-a", "profile-b", "profile-c"):
+        for profile in ("profile-a", "profile-c"):
             self.workspace.create_profile(profile)
         self.workspace.set_profile(
             "profile-a", "client", "worktree", "source-a"
-        )
-        self.workspace.set_profile(
-            "profile-b", "client", "worktree", "source-b"
         )
         self.workspace.set_profile(
             "profile-c", "client", "worktree", "source-c"
@@ -6755,20 +6841,72 @@ class WorkspaceTests(unittest.TestCase):
                 "topology-a", "profile-a", "default", ["client"]
             )
         self.assertTrue(topology_a["ready"])
+        generation_root = Path(topology_a["runtime"]["path"])
+        generation_digest = _tree_digest(
+            generation_root, frozenset(), reject_symlinks=True
+        )
+        source_a = self.workspace.paths.worktrees / "client" / "source-a"
+        (source_a / "post-publication.txt").write_text(
+            "changed source\n", encoding="utf-8"
+        )
+        (topology_a_root / "build" / "client" / "atrinik").write_text(
+            "#!/bin/sh\nexit 1\n", encoding="utf-8"
+        )
+        self.assertEqual(
+            _tree_digest(generation_root, frozenset(), reject_symlinks=True),
+            generation_digest,
+        )
+        self.assertTrue(self.workspace.topology_status("topology-a")["ready"])
 
-        writer_pending = context.Event()
-        writer_entered = context.Event()
+        coordinate_a = self.workspace._source_coordinate("client", source_a)
+        exact_entered = context.Queue()
+        release_initial = context.Event()
+        release_writer = context.Event()
+        release_late_reader = context.Event()
+        writer_attempting = context.Event()
+        late_reader_attempting = context.Event()
         readers_blocked = [context.Event(), context.Event()]
         readers_entered = [context.Event(), context.Event()]
         results = context.Queue()
-        writer = context.Process(
-            target=profile_mutation_process,
+        initial_reader = context.Process(
+            target=resource_lease_process,
             args=(
-                str(self.wrapper),
-                str(self.workspace_directory),
-                writer_pending,
-                writer_entered,
+                str(self.workspace._lease_namespace),
+                "source",
+                coordinate_a,
+                "shared",
+                "initial-reader-a",
+                exact_entered,
+                release_initial,
                 results,
+            ),
+        )
+        writer = context.Process(
+            target=resource_lease_process,
+            args=(
+                str(self.workspace._lease_namespace),
+                "source",
+                coordinate_a,
+                "exclusive",
+                "writer-a",
+                exact_entered,
+                release_writer,
+                results,
+                writer_attempting,
+            ),
+        )
+        late_reader = context.Process(
+            target=resource_lease_process,
+            args=(
+                str(self.workspace._lease_namespace),
+                "source",
+                coordinate_a,
+                "shared",
+                "late-reader-a",
+                exact_entered,
+                release_late_reader,
+                results,
+                late_reader_attempting,
             ),
         )
         readers = [
@@ -6786,17 +6924,38 @@ class WorkspaceTests(unittest.TestCase):
             )
             for index, operation in enumerate(("build-c", "topology-c"))
         ]
-        processes = [writer, *readers]
+        processes = [initial_reader, writer, late_reader, *readers]
         started: list[multiprocessing.Process] = []
         try:
+            initial_reader.start()
+            started.append(initial_reader)
+            self.assertEqual(exact_entered.get(timeout=5), "initial-reader-a")
             writer.start()
             started.append(writer)
-            wait_for_process_event(
-                writer_pending, "profile B mutation attempt", results
+            self.assertTrue(writer_attempting.wait(5))
+            pending = locking_module.layout_writer_pending_path(
+                resource_lock_path(
+                    self.workspace._lease_namespace, "source", coordinate_a
+                )
             )
-            wait_for_process_event(
-                writer_entered, "profile B mutation entry", results
-            )
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline:
+                try:
+                    with exclusive_lock(
+                        pending,
+                        "source A writer pending observation",
+                        nonblocking=True,
+                    ):
+                        pass
+                except locking_module.LockBusyError:
+                    break
+                time.sleep(0.005)
+            else:
+                self.fail("source A writer did not publish pending state")
+
+            late_reader.start()
+            started.append(late_reader)
+            self.assertTrue(late_reader_attempting.wait(5))
 
             for reader in readers:
                 reader.start()
@@ -6806,12 +6965,19 @@ class WorkspaceTests(unittest.TestCase):
                     entered, f"disjoint C reader {index} completion", results, 10
                 )
             self.assertTrue(self.workspace.topology_status("topology-a")["ready"])
+            release_initial.set()
+            self.assertEqual(exact_entered.get(timeout=5), "writer-a")
+            release_writer.set()
+            self.assertEqual(exact_entered.get(timeout=5), "late-reader-a")
+            release_late_reader.set()
 
-            # The topology retains only its immutable runtime generation and
-            # exact process/state leases after publication. Unrelated layout
-            # mutation and readers therefore progress while it remains live.
+            # The immutable topology remains live while fairness gates only
+            # source A and disjoint build/topology C operations complete.
             self.workspace.topology_down("topology-a", timeout=5)
         finally:
+            release_initial.set()
+            release_writer.set()
+            release_late_reader.set()
             status_path = (
                 self.workspace.paths.topologies / "topology-a" / "status.json"
             )
@@ -6823,8 +6989,8 @@ class WorkspaceTests(unittest.TestCase):
                     pass
             join_or_stop_processes(started, 10)
         self.assertEqual(started, processes)
-        self.assertEqual([process.exitcode for process in processes], [0] * 3)
-        self.assertEqual([results.get(timeout=2) for _ in processes], [None] * 3)
+        self.assertEqual([process.exitcode for process in processes], [0] * 5)
+        self.assertEqual([results.get(timeout=2) for _ in processes], [None] * 5)
 
     def test_distinct_server_ports_reach_pre_ready_concurrently(
         self,
