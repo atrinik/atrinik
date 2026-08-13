@@ -3024,7 +3024,7 @@
       ],
       "required": true,
       "version": "866d283da99f5e98eecff702a8df63e2ae57ffca",
-      "version_source": "classic/server/cmake/pcpnatpmp.cmake",
+      "version_source": "classic/server/cmake/immutable_sources.lock.json",
       "license": "BSD-3-Clause",
       "source_url": "https://github.com/libpcpnatpmp/libpcpnatpmp",
       "locator": "pkg:github/libpcpnatpmp/libpcpnatpmp@866d283da99f5e98eecff702a8df63e2ae57ffca",
@@ -3040,8 +3040,18 @@
       "evidence": [
         {
           "repository": "classic-server",
-          "path": "cmake/pcpnatpmp.cmake",
+          "path": "cmake/immutable_source_cache.cmake",
+          "contains": "atrinik_extract_immutable_source"
+        },
+        {
+          "repository": "classic-server",
+          "path": "cmake/immutable_sources.lock.json",
           "contains": "866d283da99f5e98eecff702a8df63e2ae57ffca"
+        },
+        {
+          "repository": "classic-server",
+          "path": "cmake/pcpnatpmp.cmake",
+          "contains": "immutable_sources.lock.json"
         }
       ]
     },
