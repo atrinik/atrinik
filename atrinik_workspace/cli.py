@@ -184,7 +184,7 @@ def parser() -> argparse.ArgumentParser:
         action="append",
         choices=[
             "worktrees", "builds", "npm-cache", "compiler-cache",
-            "sound-cache", "all",
+            "sound-cache", "topologies", "all",
         ],
         default=[],
     )
@@ -691,6 +691,22 @@ def main(arguments: list[str] | None = None) -> int:
                         f"{size_fields}\t{age}\t{item['path']}\t"
                         f"{reasons}"
                     )
+                    if item["kind"] == "topology":
+                        generation = item["generation"] or "-"
+                        print(
+                            f"topology-observation\t{item['name']}\t"
+                            f"liveness={item['liveness']}\t"
+                            f"control={item['control_observation']}\t"
+                            f"generation={generation}\t"
+                            f"process-tree={item['process_tree_lease']}\t"
+                            f"runtime-bundle={item['runtime_bundle_lease']}\t"
+                            f"port-reservation={item['port_reservation_lease']}\t"
+                            f"repository-layout={item['repository_layout_lease']}\t"
+                            f"age-basis={item['age_basis'] or '-'}\t"
+                            f"age-observed-at={item['age_observed_at'] or '-'}"
+                        )
+                        for deletion_path in item["deletion_paths"]:
+                            print(f"delete\t{item['name']}\t{deletion_path}")
                 summary = report["summary"]
                 print(
                     "summary\t"

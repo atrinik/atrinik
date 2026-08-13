@@ -323,8 +323,25 @@ adopts the marker before calling the common removal helper. No other unmarked
 path receives that exception. Unmarked profile roots, unknown
 `workspace/build` children, and the mixed top-level `build/` tree remain
 visible report-only `unmanaged-build` records. Cleanup never targets profiles,
-scenarios, state, topology records/logs, migration archives/evidence, branches,
-Git objects, or arbitrary unmarked paths.
+scenarios, state, migration archives/evidence, branches, Git objects, or
+arbitrary unmarked paths. Topology records and logs belong only to the separate
+opt-in `topologies` scope, which is excluded from the default and `all`
+expansion.
+
+Topology cleanup inventories only direct marker-owned children of
+`workspace/topologies/` and uses the runtime status validator as the authority
+for control generation, liveness, process-tree/runtime/port leases, and legacy
+identity. It reports a no-follow metadata identity and the complete set of
+paths in the topology directory. Orderly records use `stopped_at`; legacy stale
+records without it use the newest tree mtime. Only old `exited` or `stale`
+records with unreachable controls and every applicable lease released are
+eligible. Apply takes the exact topology coordinate lease and then the topology
+operation lock, and repeats ownership, generation, lease, timestamp, and
+tree-identity validation before descriptor-bounded removal. This makes a
+concurrent `up`, `down`, `ps`, replacement, link, or file change fail closed.
+The removal boundary is exactly the topology directory, including its transient
+runtime snapshots. External persistent state, profiles, scenarios, source, and
+build roots are not cleanup targets.
 
 Worker dependency entries are direct key children of the marker-owned
 `worker-dependencies` container; its reserved `.transactions` child owns
