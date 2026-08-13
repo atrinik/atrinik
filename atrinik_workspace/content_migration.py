@@ -443,11 +443,11 @@ class ContentMigration:
                 }.get(schema_version)
                 if expected_keys is None or set(value) != expected_keys:
                     raise WorkspaceError("profile schema is unsupported")
-                if schema_version in {4, 5} and value.get("sound_mode") not in {
-                    "source",
-                    "local-playtest",
-                    "released",
-                }:
+                allowed_sound_modes = {
+                    4: {"source", "local-playtest"},
+                    5: {"source", "local-playtest", "released"},
+                }.get(schema_version)
+                if allowed_sound_modes is not None and value.get("sound_mode") not in allowed_sound_modes:
                     raise WorkspaceError("profile sound mode is invalid")
                 if schema_version == 5:
                     release = value.get("sound_release")

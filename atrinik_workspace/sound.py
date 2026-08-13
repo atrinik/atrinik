@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+import gzip
+import http.client
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -52,6 +54,12 @@ MAX_RELEASE_ARCHIVE_BYTES = 1024 * 1024 * 1024
 MAX_RELEASE_EXTRACTED_BYTES = 4 * 1024 * 1024 * 1024
 MAX_RELEASE_MEMBER_BYTES = 256 * 1024 * 1024
 MAX_RELEASE_MEMBERS = 4096
+MAX_RELEASE_TAR_BYTES = MAX_RELEASE_EXTRACTED_BYTES + MAX_RELEASE_MEMBERS * 1024
+MAX_RELEASE_MANIFEST_BYTES = 8 * 1024 * 1024
+MAX_RELEASE_CHECKSUM_BYTES = 256 * 1024
+MAX_RELEASE_MARKER_BYTES = 4096
+MAX_RELEASE_SCHEMA_BYTES = 1024 * 1024
+MAX_RELEASE_METADATA_BYTES = 64 * 1024
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 OBJECT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 LOGICAL_PATH_PATTERN = re.compile(
@@ -76,7 +84,9 @@ def _hash_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
-def _read_regular(path: Path, description: str) -> bytes:
+def _read_regular(
+    path: Path, description: str, *, maximum_bytes: int | None = None
+) -> bytes:
     try:
         descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
     except OSError as error:
@@ -85,8 +95,14 @@ def _read_regular(path: Path, description: str) -> bytes:
         metadata = os.fstat(descriptor)
         if not stat.S_ISREG(metadata.st_mode):
             raise WorkspaceError(f"{description} is not a regular file: {path}")
+        if maximum_bytes is not None and metadata.st_size > maximum_bytes:
+            raise WorkspaceError(f"{description} exceeds its size limit")
         chunks: list[bytes] = []
+        size = 0
         while chunk := os.read(descriptor, 1024 * 1024):
+            size += len(chunk)
+            if maximum_bytes is not None and size > maximum_bytes:
+                raise WorkspaceError(f"{description} exceeds its size limit")
             chunks.append(chunk)
         return b"".join(chunks)
     finally:
@@ -281,16 +297,86 @@ def download_release_archive(url: str, destination: Path) -> None:
                 output.write(chunk)
         if size < 1 or length is not None and size != declared:
             raise WorkspaceError("released sound download is incomplete")
+    except WorkspaceError:
+        raise
+    except (OSError, urllib.error.URLError, http.client.HTTPException) as error:
+        raise WorkspaceError("released sound download was interrupted") from error
     finally:
-        response.close()
+        try:
+            response.close()
+        except (OSError, http.client.HTTPException):
+            pass
 
 
-def extract_release_archive(
+def _prescan_release_archive(archive_path: Path) -> None:
+    """Bound raw tar expansion and reject metadata parsed eagerly by tarfile."""
+
+    consumed = 0
+    members = 0
+    try:
+        with gzip.open(archive_path, "rb") as stream:
+            while True:
+                header = stream.read(tarfile.BLOCKSIZE)
+                consumed += len(header)
+                if consumed > MAX_RELEASE_TAR_BYTES:
+                    raise WorkspaceError("released sound archive exceeds the extraction limit")
+                if not header:
+                    raise WorkspaceError("released sound archive is truncated")
+                if len(header) != tarfile.BLOCKSIZE:
+                    raise WorkspaceError("released sound archive has a truncated header")
+                if header == tarfile.NUL * tarfile.BLOCKSIZE:
+                    trailer = stream.read(tarfile.BLOCKSIZE)
+                    consumed += len(trailer)
+                    if trailer != tarfile.NUL * tarfile.BLOCKSIZE:
+                        raise WorkspaceError("released sound archive has an invalid trailer")
+                    while chunk := stream.read(1024 * 1024):
+                        consumed += len(chunk)
+                        if consumed > MAX_RELEASE_TAR_BYTES or any(chunk):
+                            raise WorkspaceError("released sound archive has invalid trailing data")
+                    return
+                try:
+                    member = tarfile.TarInfo.frombuf(
+                        header, encoding="utf-8", errors="surrogateescape"
+                    )
+                except tarfile.HeaderError as error:
+                    raise WorkspaceError("released sound archive header is invalid") from error
+                members += 1
+                if members > MAX_RELEASE_MEMBERS:
+                    raise WorkspaceError("released sound archive member count is invalid")
+                if member.type in {
+                    tarfile.XHDTYPE,
+                    tarfile.XGLTYPE,
+                    tarfile.GNUTYPE_LONGNAME,
+                    tarfile.GNUTYPE_LONGLINK,
+                } and member.size > MAX_RELEASE_METADATA_BYTES:
+                    raise WorkspaceError(
+                        "released sound archive extended metadata exceeds the size limit"
+                    )
+                if member.size < 0 or member.size > MAX_RELEASE_MEMBER_BYTES:
+                    raise WorkspaceError("released sound archive member exceeds the size limit")
+                padded = (member.size + tarfile.BLOCKSIZE - 1) // tarfile.BLOCKSIZE
+                remaining = padded * tarfile.BLOCKSIZE
+                consumed += remaining
+                if consumed > MAX_RELEASE_TAR_BYTES:
+                    raise WorkspaceError("released sound archive exceeds the extraction limit")
+                while remaining:
+                    chunk = stream.read(min(1024 * 1024, remaining))
+                    if not chunk:
+                        raise WorkspaceError("released sound archive member is truncated")
+                    remaining -= len(chunk)
+    except WorkspaceError:
+        raise
+    except (OSError, EOFError, gzip.BadGzipFile) as error:
+        raise WorkspaceError("released sound archive is invalid or corrupt") from error
+
+
+def _extract_release_archive(
     archive_path: Path, destination: Path, coordinates: dict[str, Any]
 ) -> Path:
     """Safely extract a bounded single-prefix release archive."""
 
     expected = validate_release_coordinates(coordinates)
+    _prescan_release_archive(archive_path)
     if destination.exists() or destination.is_symlink():
         raise WorkspaceError("released sound extraction destination already exists")
     _archive_hash, archive_size, _archive_prefix = _hash_regular(
@@ -319,6 +405,7 @@ def extract_release_archive(
                 path.is_absolute()
                 or not path.parts
                 or any(part in {"", ".", ".."} for part in path.parts)
+                or "\\" in member.name
                 or member.name.endswith("/") and not member.isdir()
             ):
                 raise WorkspaceError("released sound archive contains an unsafe path")
@@ -397,6 +484,19 @@ def extract_release_archive(
             shutil.rmtree(destination, ignore_errors=True)
             raise
     return destination
+
+
+def extract_release_archive(
+    archive_path: Path, destination: Path, coordinates: dict[str, Any]
+) -> Path:
+    """Extract a verified release archive with privacy-safe failure diagnostics."""
+
+    try:
+        return _extract_release_archive(archive_path, destination, coordinates)
+    except WorkspaceError:
+        raise
+    except (OSError, EOFError, tarfile.TarError) as error:
+        raise WorkspaceError("released sound archive is invalid or corrupt") from error
 
 
 def source_record(source: Path) -> dict[str, Any]:
@@ -479,8 +579,11 @@ def verify_playtest_tree(
         raise WorkspaceError(f"local-playtest sound root is not a regular directory: {root}")
     manifest_payload = _read_regular(root / PLAYTEST_MANIFEST, "playtest manifest")
     try:
-        manifest_value = json.loads(manifest_payload)
-    except json.JSONDecodeError as error:
+        manifest_value = json.loads(
+            manifest_payload,
+            parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)),
+        )
+    except (json.JSONDecodeError, ValueError) as error:
         raise WorkspaceError("local-playtest manifest is invalid JSON") from error
     if manifest_payload != _canonical_json(manifest_value):
         raise WorkspaceError("local-playtest manifest is not canonical JSON")
@@ -773,7 +876,11 @@ def _safe_release_path(value: object, description: str) -> str:
 
 
 def _release_checksums(root: Path) -> dict[str, str]:
-    payload = _read_regular(root / RELEASE_CHECKSUMS, "released sound checksums")
+    payload = _read_regular(
+        root / RELEASE_CHECKSUMS,
+        "released sound checksums",
+        maximum_bytes=MAX_RELEASE_CHECKSUM_BYTES,
+    )
     try:
         text = payload.decode("ascii")
     except UnicodeDecodeError as error:
@@ -808,7 +915,9 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
     if root.is_symlink() or not root.is_dir():
         raise WorkspaceError(f"released sound root is not a regular directory: {root}")
     manifest_payload = _read_regular(
-        root / RELEASE_MANIFEST, "released sound manifest"
+        root / RELEASE_MANIFEST,
+        "released sound manifest",
+        maximum_bytes=MAX_RELEASE_MANIFEST_BYTES,
     )
     if _hash_bytes(manifest_payload) != expected["release_manifest_sha256"]:
         raise WorkspaceError("released sound manifest hash does not match the profile")
@@ -866,7 +975,11 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
         )
     ):
         raise WorkspaceError("released sound manifest identity does not match the profile")
-    marker_payload = _read_regular(root / RELEASE_MARKER, "released sound marker")
+    marker_payload = _read_regular(
+        root / RELEASE_MARKER,
+        "released sound marker",
+        maximum_bytes=MAX_RELEASE_MARKER_BYTES,
+    )
     expected_marker = _canonical_json(
         {
             "format": RELEASE_PRODUCT,
@@ -884,8 +997,33 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
     schema_hash, _schema_size, _schema_prefix = _hash_regular(
         root / RELEASE_SCHEMA, "released sound packaged schema"
     )
+    if _schema_size > MAX_RELEASE_SCHEMA_BYTES:
+        raise WorkspaceError("released sound packaged schema exceeds its size limit")
     if schema_hash != expected["schema_sha256"]:
         raise WorkspaceError("released sound packaged schema is missing or tampered")
+    schema_payload = _read_regular(
+        root / RELEASE_SCHEMA,
+        "released sound packaged schema",
+        maximum_bytes=MAX_RELEASE_SCHEMA_BYTES,
+    )
+    try:
+        schema = json.loads(
+            schema_payload,
+            parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)),
+        )
+    except (json.JSONDecodeError, ValueError) as error:
+        raise WorkspaceError("released sound packaged schema is invalid JSON") from error
+    if (
+        not isinstance(schema, dict)
+        or schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema"
+        or schema.get("$id") != f"https://atrinik.org/{RELEASE_SCHEMA}"
+        or schema.get("type") != "object"
+        or schema.get("additionalProperties") is not False
+        or set(schema.get("required", [])) != manifest_keys
+        or not isinstance(schema.get("properties"), dict)
+        or set(schema["properties"]) != manifest_keys
+    ):
+        raise WorkspaceError("released sound packaged schema contract is invalid")
 
     notices = manifest.get("notices")
     if not isinstance(notices, list) or not notices:

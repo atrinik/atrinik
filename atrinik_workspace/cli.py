@@ -447,10 +447,19 @@ def main(arguments: list[str] | None = None) -> int:
                 stack, commits = report_component_commits(
                     ROOT, workspace, options.profile
                 )
+                summary = workspace.profile_summary(options.profile)
+                release = (
+                    summary.get("sound_release")
+                    if summary.get("sound_mode") == "released"
+                    else None
+                )
+                report_arguments = [options.format, commits, stack]
+                if isinstance(release, dict):
+                    report_arguments.append(release)
                 write_generated(
                     ROOT,
                     options.output,
-                    inventory.report(options.format, commits, stack),
+                    inventory.report(*report_arguments),
                 )
             else:
                 write_generated(ROOT, options.output, version_report(inventory))

@@ -829,7 +829,9 @@ The verified archive and tree live below the coordinate-keyed profile build;
 unchanged inputs reuse them offline. Build and topology records retain all
 coordinates and verification results. A changed coordinate produces a distinct
 build key, while incomplete or mismatched caches fail closed and remain covered
-by normal preview-first build cleanup.
+by normal preview-first build cleanup. Supply-chain audit output identifies the
+selected archive, source commit/tree, and logical tree; license, CycloneDX, and
+SPDX reports for that profile also carry the complete immutable coordinate set.
 
 ## Deterministic test scenarios
 

@@ -2731,6 +2731,38 @@
       ]
     },
     {
+      "id": "source/atrinik-sound-classic-runtime",
+      "name": "Profile-selected Atrinik Classic sound runtime",
+      "kind": "source-archive",
+      "owner": "sound",
+      "scope": [
+        "atrinik",
+        "classic-client"
+      ],
+      "required": false,
+      "version": "profile-selected",
+      "version_source": "Atrinik profile sound_release immutable coordinates",
+      "license": "LicenseRef-Atrinik-Asset-Per-File",
+      "source_url": "https://github.com/atrinik/sound/releases",
+      "locator": "pkg:github/atrinik/sound@profile-selected?product=classic-runtime",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Atrinik wrapper downloads a profile-pinned release asset into a profile-build-owned verified cache",
+      "update_cadence_days": 30,
+      "update_mechanism": "Set reviewed immutable profile coordinates from an atrinik/sound release",
+      "eol_response": "Select a supported publishable runtime release or return the profile to source mode",
+      "validation": "Exact URL and archive checksum, bounded safe extraction, internal checksums, schema and manifest identity, 339-path codec contract, and logical tree checksum",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": "atrinik_workspace/sound.py",
+          "contains": "atrinik-sound-classic-runtime"
+        }
+      ]
+    },
+    {
       "id": "source/atrinik-sound-runtime",
       "name": "Atrinik sound archive",
       "kind": "source-archive",

@@ -725,11 +725,21 @@ class ContentMigrationTests(unittest.TestCase):
 
     def test_profile_schema_and_selector_failures_preserve_exact_bytes(self) -> None:
         current = self.workspace._load_profile("classic", require_file=False)
+        legacy_released = {
+            key: value
+            for key, value in {
+                **current,
+                "schema_version": 4,
+                "sound_mode": "released",
+            }.items()
+            if key != "sound_release"
+        }
         cases: dict[str, object] = {
             "not-object": [],
             "wrong-name": {**current, "name": "elsewhere"},
             "schema": {**current, "schema_version": 99},
             "sound": {**current, "sound_mode": "surround"},
+            "legacy-released": legacy_released,
             "components": {**current, "components": []},
             "component-set": {
                 **current,

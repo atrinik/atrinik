@@ -59,6 +59,9 @@ from .migration import (
 )
 from .supervisor import process_matches
 from .sound import (
+    EXPECTED_CONVERTED_OPUS,
+    EXPECTED_COPIED_VORBIS,
+    EXPECTED_PATHS,
     PLAYTEST_MODE,
     RELEASED_MODE,
     RELEASE_PRODUCT,
@@ -2648,18 +2651,21 @@ class Workspace:
                 f"profile {profile_name} has unsupported sound mode {mode}"
             )
         if mode == RELEASED_MODE:
-            coordinates = validate_release_coordinates(profile["sound_release"])
-            identity = (
-                f"{coordinates['repository']} {coordinates['tag']} "
-                f"commit {coordinates['source_commit']} tree {coordinates['source_tree']} "
-                f"archive sha256 {coordinates['archive_sha256']}"
-            )
-            runtime = root / "runtime"
-            archive_path = runtime / (
-                f"sound-released-{release_cache_key(coordinates)}.tar.gz"
-            )
-            staged = runtime / "sound-released"
+            identity = "invalid or incomplete"
             try:
+                coordinates = validate_release_coordinates(profile["sound_release"])
+                identity = json.dumps(
+                    coordinates, sort_keys=True, separators=(",", ":")
+                )
+                contract = (
+                    f"product={RELEASE_PRODUCT}; paths={EXPECTED_PATHS}; "
+                    f"vorbis={EXPECTED_COPIED_VORBIS}; opus={EXPECTED_CONVERTED_OPUS}"
+                )
+                runtime = root / "runtime"
+                archive_path = runtime / (
+                    f"sound-released-{release_cache_key(coordinates)}.tar.gz"
+                )
+                staged = runtime / "sound-released"
                 if runtime.exists() or runtime.is_symlink():
                     if runtime.is_symlink() or not runtime.is_dir():
                         raise WorkspaceError(
@@ -2739,7 +2745,8 @@ class Workspace:
             except (OSError, WorkspaceError) as error:
                 raise WorkspaceError(
                     f"profile {profile_name} mode {mode} coordinates ({identity}) "
-                    f"failed contract: {error}"
+                    f"expected contract ({contract if 'contract' in locals() else RELEASE_PRODUCT}) "
+                    f"failed check: {error}"
                 ) from error
             print(
                 "sound: staged released tree "

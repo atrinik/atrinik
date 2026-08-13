@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import http.client
+import io
 import json
 import os
 from pathlib import Path
@@ -872,7 +874,22 @@ class ReleasedSoundTests(unittest.TestCase):
         self.tree.mkdir()
         schema = self.tree / RELEASE_SCHEMA
         schema.parent.mkdir()
-        schema.write_bytes(b"{}\n")
+        schema_fields = [
+            "$schema", "assets", "converted_opus_count",
+            "copied_vorbis_count", "logical_path_count", "marker_sha256",
+            "notices", "output_tree_sha256", "playtest_only", "product",
+            "product_version", "publishable", "release_tag", "repository",
+            "schema_sha256", "schema_version", "source_commit",
+            "source_manifest_sha256", "source_tree", "toolchain_sha256",
+        ]
+        schema.write_bytes(canonical({
+            "$id": f"https://atrinik.org/{RELEASE_SCHEMA}",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "additionalProperties": False,
+            "properties": {name: {} for name in schema_fields},
+            "required": schema_fields,
+            "type": "object",
+        }))
         marker = {
             "format": RELEASE_PRODUCT,
             "playtest_only": False,
@@ -1067,6 +1084,139 @@ class ReleasedSoundTests(unittest.TestCase):
             archive.addfile(member)
         with self.assertRaisesRegex(WorkspaceError, "unsafe path"):
             extract_release_archive(unsafe, self.root / "unsafe", self.coordinates)
+
+    def test_archive_member_and_stream_failures_are_bounded_and_safe(self) -> None:
+        prefix = f"{RELEASE_PRODUCT}-1.4.0"
+
+        def archive_with(name: str, members: list[tarfile.TarInfo]) -> Path:
+            path = self.root / f"{name}.tar.gz"
+            with tarfile.open(path, "w:gz") as archive:
+                root = tarfile.TarInfo(prefix)
+                root.type = tarfile.DIRTYPE
+                archive.addfile(root)
+                for member in members:
+                    payload = b"x" * member.size
+                    archive.addfile(member, io.BytesIO(payload) if member.size else None)
+            return path
+
+        cases: list[tuple[str, list[tarfile.TarInfo], str]] = []
+        for name in (f"{prefix}/..\\escape", "/absolute"):
+            member = tarfile.TarInfo(name)
+            cases.append((name.replace("/", "-").replace("\\", "-"), [member], "unsafe path"))
+        first = tarfile.TarInfo(f"{prefix}/sound.ogg")
+        second = tarfile.TarInfo(f"{prefix}/SOUND.ogg")
+        cases.append(("case-collision", [first, second], "case-colliding"))
+        link = tarfile.TarInfo(f"{prefix}/escape")
+        link.type = tarfile.SYMTYPE
+        link.linkname = "../../escape"
+        cases.append(("symlink", [link], "special member"))
+        device = tarfile.TarInfo(f"{prefix}/device")
+        device.type = tarfile.CHRTYPE
+        cases.append(("device", [device], "special member"))
+        other = tarfile.TarInfo("other-product/file")
+        cases.append(("multiple-prefixes", [other], "one directory prefix"))
+        for index, (name, members, message) in enumerate(cases):
+            with self.subTest(name=name):
+                archive = archive_with(f"unsafe-{index}", members)
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    extract_release_archive(
+                        archive, self.root / f"destination-{index}", self.coordinates
+                    )
+
+        truncated = self.root / "truncated.tar.gz"
+        truncated.write_bytes(self.archive.read_bytes()[:128])
+        with self.assertRaisesRegex(WorkspaceError, "invalid|truncated|corrupt"):
+            extract_release_archive(truncated, self.root / "truncated", self.coordinates)
+
+        extended = tarfile.TarInfo(f"{prefix}/file")
+        extended.pax_headers = {"comment": "x" * (sound_module.MAX_RELEASE_METADATA_BYTES + 1)}
+        oversized = archive_with("oversized-pax", [extended])
+        with self.assertRaisesRegex(WorkspaceError, "extended metadata"):
+            extract_release_archive(oversized, self.root / "oversized", self.coordinates)
+
+    def test_interrupted_download_is_a_workspace_error(self) -> None:
+        response = mock.Mock()
+        response.headers = {}
+        response.read.side_effect = http.client.IncompleteRead(b"partial", 100)
+        with mock.patch("urllib.request.urlopen", return_value=response):
+            with self.assertRaisesRegex(WorkspaceError, "interrupted"):
+                sound_module.download_release_archive(
+                    self.coordinates["asset_url"], self.root / "partial.tar.gz"
+                )
+        response.close.assert_called_once()
+
+    def test_marker_tampering_fails_closed(self) -> None:
+        (self.tree / RELEASE_MARKER).write_text("{}\n", encoding="utf-8")
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "marker"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_notice_tampering_fails_closed(self) -> None:
+        notice = self.tree / "background/LICENSE"
+        notice.write_text("tampered\n", encoding="utf-8")
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "notice"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_missing_checksums_fail_closed(self) -> None:
+        (self.tree / RELEASE_CHECKSUMS).unlink()
+        with self.assertRaisesRegex(WorkspaceError, "checksums"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_manifest_counts_and_schema_contract_fail_closed(self) -> None:
+        self.manifest["logical_path_count"] = 338
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "counts.*339-path"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_packaged_schema_must_be_valid_and_applicable(self) -> None:
+        schema = self.tree / RELEASE_SCHEMA
+        schema.write_text("{}\n", encoding="utf-8")
+        self.coordinates["schema_sha256"] = digest(schema)
+        self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "schema contract"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_racing_cache_install_leaves_no_partial_runtime(self) -> None:
+        wrapper = self.root / "race-wrapper"
+        wrapper.mkdir()
+        shutil.copy2(Path(__file__).resolve().parents[1] / "components.json", wrapper)
+        workspace = Workspace(wrapper)
+        build = self.root / "race-build"
+        build.mkdir()
+        profile = {
+            "stack": "classic",
+            "sound_mode": "released",
+            "sound_release": self.coordinates,
+        }
+        with (
+            mock.patch.object(workspace, "_load_profile", return_value=profile),
+            mock.patch(
+                "atrinik_workspace.workspace.download_release_archive",
+                side_effect=lambda _url, destination: shutil.copy2(
+                    self.archive, destination
+                ),
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace",
+                side_effect=FileExistsError("raced install"),
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "raced install"):
+                workspace._prepare_sound(
+                    build, {"sound": self.root / "unused-source"}, "classic-release"
+                )
+        runtime = build / "runtime"
+        self.assertEqual(list(runtime.iterdir()), [])
 
 
 if __name__ == "__main__":
