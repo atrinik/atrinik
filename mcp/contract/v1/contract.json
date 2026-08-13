@@ -1,0 +1,106 @@
+{
+  "allowed_actions": [
+    "compare",
+    "inspect",
+    "list",
+    "read",
+    "search",
+    "validate"
+  ],
+  "allowed_data_classifications": [
+    "operational-metadata",
+    "public-source",
+    "unreleased-source"
+  ],
+  "cache": {
+    "key_fields": [
+      "parameters",
+      "authorization_identity",
+      "repository",
+      "commit",
+      "branch",
+      "worktree",
+      "dirty_fingerprint",
+      "schema_version",
+      "provider_version"
+    ],
+    "max_bytes": 8388608,
+    "max_entries": 128,
+    "mutable_ttl_ms": 0,
+    "storage": "bounded-memory"
+  },
+  "context_ceilings": {
+    "catalog_schema_bytes": 32768,
+    "routine_result_bytes": 32768,
+    "server_instruction_bytes": 2048,
+    "visible_tools": 12
+  },
+  "error_codes": [
+    "CANCELLED",
+    "CONTEXT_BUDGET_EXCEEDED",
+    "FORBIDDEN",
+    "INCOMPLETE",
+    "INTERNAL",
+    "INVALID_ARGUMENT",
+    "INVALID_FIXTURE",
+    "LIMIT_EXCEEDED",
+    "NOT_FOUND",
+    "OFFLINE",
+    "STALE_COORDINATE",
+    "STALE_CURSOR",
+    "TIMEOUT",
+    "UNAUTHORIZED",
+    "UNSUPPORTED_OPERATION"
+  ],
+  "forbidden_path_segments": [
+    ".env",
+    ".git",
+    "build",
+    "credentials",
+    "password",
+    "secrets",
+    "workspace"
+  ],
+  "limits": {
+    "graph_depth": 8,
+    "graph_edges": 1000,
+    "page_records": 50,
+    "pagination_source_records": 1000,
+    "query_characters": 1024,
+    "records": 100,
+    "request_bytes": 16384,
+    "resource_bytes": 262144,
+    "result_bytes": 65536,
+    "schema_depth": 32,
+    "timeout_ms": 5000
+  },
+  "protocol": {
+    "json_schema": "2020-12",
+    "reference_commit": "5f5440bb26a62e2cf3440b92da5a667efa03b267",
+    "reference_url": "https://modelcontextprotocol.io/specification/2026-07-28",
+    "revision": "2026-07-28",
+    "roots": "deprecated-not-security-boundary",
+    "transport_default": "stdio"
+  },
+  "schema_version": "atrinik.mcp.contract/v1",
+  "threats": [
+    "authorization-change",
+    "cross-coordinate-cache",
+    "dependency-replacement",
+    "external-outage",
+    "fifo-device",
+    "ignored-generated-state",
+    "malformed-history",
+    "malicious-description",
+    "oversized-graph",
+    "oversized-query",
+    "prompt-injection-data",
+    "secret-bearing-error",
+    "stale-coordinate",
+    "symlink-escape",
+    "timeout-cancellation",
+    "toctou",
+    "traversal",
+    "unsupported-mutation"
+  ]
+}
