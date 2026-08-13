@@ -572,6 +572,68 @@
       ]
     },
     {
+      "id": "action/actions-cache-restore",
+      "name": "actions/cache/restore",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "classic"
+      ],
+      "required": true,
+      "version": "v6",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/cache",
+      "locator": "actions/cache/restore",
+      "commit": "55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade all cache consumers together or remove the explicit restore step",
+      "validation": "Actionlint plus complete-key verified dependency cache restore coverage",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/check.yml",
+          "contains": "actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6"
+        }
+      ]
+    },
+    {
+      "id": "action/actions-cache-save",
+      "name": "actions/cache/save",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "classic"
+      ],
+      "required": true,
+      "version": "v6",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/cache",
+      "locator": "actions/cache/save",
+      "commit": "55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade all cache consumers together or remove the explicit save step",
+      "validation": "Actionlint plus repaired-generation-only verified dependency cache save coverage",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/check.yml",
+          "contains": "actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6"
+        }
+      ]
+    },
+    {
       "id": "action/actions-checkout",
       "name": "actions/checkout",
       "kind": "github-action",
@@ -1294,18 +1356,18 @@
         "classic-server"
       ],
       "required": true,
-      "version": "materials-38c0eebad746c7af0f3fdc8a11c1e6a829b44eafd23e4e48faf797cbba4de85a",
+      "version": "materials-428265fcc11e9e3f7fc534659b55008cd26e9da6c74da054074279b7bc4af2e9",
       "version_source": "Classic dependencies.bundle.json material digest",
       "license": "LicenseRef-Atrinik-Image-Contents",
       "source_url": "https://github.com/atrinik/classic/pkgs/container/classic-dependencies",
-      "locator": "ghcr.io/atrinik/classic-dependencies@sha256:56d80341bfdec0fe1c2d9b297a3099b67af9b99d17c7c4fc120d1b63d440dae7",
+      "locator": "ghcr.io/atrinik/classic-dependencies@sha256:ffe1fa8d28a323d502d01400e2260b7b5eec37842e762c439b88bd9ee823923e",
       "commit": null,
-      "checksum": "sha256:56d80341bfdec0fe1c2d9b297a3099b67af9b99d17c7c4fc120d1b63d440dae7",
+      "checksum": "sha256:ffe1fa8d28a323d502d01400e2260b7b5eec37842e762c439b88bd9ee823923e",
       "acquisition": "A trusted current-main workflow builds the deterministic OCI layout through the authoritative Classic fetcher and publishes its exact manifest digest",
       "update_cadence_days": 30,
       "update_mechanism": "Reviewed Classic lock or acquisition-contract update with a regenerated material and OCI descriptor",
       "eol_response": "Retain every digest referenced by a supported release; publish and pin a verified replacement before retiring a bundle",
-      "validation": "Outer OCI digest, closed manifest, provenance, source-lock/material digests, exact archive set, sizes, inner SHA-256 values, offline release rehearsal, and negative corruption tests",
+      "validation": "GitHub-signed OCI attestation, outer OCI digest, closed manifest and materials statement, source-lock/material digests, exact archive set, sizes, inner SHA-256 values, offline consumer isolation contracts, and negative corruption tests",
       "disposition": "isolate",
       "packages": [],
       "evidence": [
@@ -1317,7 +1379,7 @@
         {
           "repository": "classic",
           "path": "dependencies.bundle.json",
-          "contains": "sha256:56d80341bfdec0fe1c2d9b297a3099b67af9b99d17c7c4fc120d1b63d440dae7"
+          "contains": "sha256:ffe1fa8d28a323d502d01400e2260b7b5eec37842e762c439b88bd9ee823923e"
         },
         {
           "repository": "classic",
