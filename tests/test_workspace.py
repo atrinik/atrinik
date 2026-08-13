@@ -2131,6 +2131,10 @@ class WorkspaceTests(unittest.TestCase):
         (first[0] / "node_modules" / ".vite" / "cache").write_text(
             "profile generated\n", encoding="utf-8"
         )
+        (first[0] / "node_modules" / ".mf").mkdir()
+        (first[0] / "node_modules" / ".mf" / "cache").write_text(
+            "profile generated\n", encoding="utf-8"
+        )
         second = self.workspace._worker_view(
             root, source, dependencies, "a" * 64, metadata
         )
@@ -2231,11 +2235,15 @@ class WorkspaceTests(unittest.TestCase):
         view_metadata = reconciled_after_check[0] / ".atrinik-worker-view.json"
 
         def fail_after_corrupting_controls(*args: object, **kwargs: object) -> None:
+            check_environment = kwargs.get("env")
+            assert isinstance(check_environment, dict)
+            self.assertEqual(check_environment.get("PYTHONDONTWRITEBYTECODE"), "1")
             marker.unlink()
             view_metadata.unlink()
             view_metadata.symlink_to(external_metadata)
             raise subprocess.CalledProcessError(1, ["npm", "run", "check"])
 
+        worker_environment: dict[str, str] = {}
         with (
             mock.patch(
                 "atrinik_workspace.workspace.run",
@@ -2244,8 +2252,9 @@ class WorkspaceTests(unittest.TestCase):
             self.assertRaises(subprocess.CalledProcessError),
         ):
             self.workspace._run_worker_checks(
-                reconciled_after_check[0], {}, "a" * 64, metadata
+                reconciled_after_check[0], worker_environment, "a" * 64, metadata
             )
+        self.assertNotIn("PYTHONDONTWRITEBYTECODE", worker_environment)
         self.assertEqual(
             load_json(marker),
             {
