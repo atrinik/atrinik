@@ -36,6 +36,7 @@ from .workspace import (
     COMPILER_CACHE_PURPOSE,
     _remote_matches,
     exclusive_lock,
+    exclusive_layout_lock,
     remove_owned_tree,
 )
 
@@ -458,7 +459,7 @@ class Cleanup:
             raise WorkspaceError(
                 f"workspace ownership marker is invalid: {self.paths.marker}"
             )
-        with exclusive_lock(
+        with exclusive_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
         ):

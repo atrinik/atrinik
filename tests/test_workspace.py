@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import copy
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import redirect_stderr
 import ctypes
 import errno
 import fcntl
 import hashlib
+import io
 import json
 import multiprocessing
 import os
@@ -47,7 +49,9 @@ from atrinik_workspace.workspace import (
     _remote_matches as real_remote_matches,
     display_arguments,
     exclusive_lock,
+    exclusive_layout_lock,
     shared_lock,
+    shared_layout_lock,
     remove_owned_tree,
     replace_directory as worker_replace_directory,
     replace_runtime_directory as workspace_replace_directory,
@@ -244,6 +248,41 @@ def timed_public_build_process(
                         "legacy repository layout",
                     ):
                         workspace._build("client", profile, False)
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def fair_layout_reader_process(
+    layout_path: str,
+    name: str,
+    entered: object,
+    release: object | None,
+    results: object,
+) -> None:
+    try:
+        with shared_layout_lock(Path(layout_path), "repository layout"):
+            entered.put(name)
+            if release is not None and not release.wait(10):
+                raise TimeoutError(f"{name} reader was not released")
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def fair_layout_writer_process(
+    layout_path: str,
+    entered: object,
+    release: object,
+    results: object,
+) -> None:
+    try:
+        with exclusive_layout_lock(Path(layout_path), "repository layout"):
+            entered.put("writer")
+            if not release.wait(10):
+                raise TimeoutError("writer was not released")
         results.put(None)
     except BaseException as error:
         results.put(f"{type(error).__name__}: {error}")
@@ -739,7 +778,7 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace.initialize(["client", "server"], jobs=2)
 
         self.assertEqual(len(observed), 2)
-        self.assertTrue(all(len(descriptors) == 1 for descriptors in observed))
+        self.assertTrue(all(len(descriptors) == 2 for descriptors in observed))
 
     def test_failed_clone_does_not_strand_destination(self) -> None:
         destination = self.workspace.paths.repositories / "client"
@@ -5684,6 +5723,111 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 with shared_lock(lock, "test resource"):
                     self.fail("unsupported shared lock unexpectedly succeeded")
+
+    def test_layout_writer_precedes_continuing_reader_arrivals(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        intent = workspace_module._layout_writer_intent_path(layout)
+        entered = context.Queue()
+        results = context.Queue()
+        release_initial = context.Event()
+        release_writer = context.Event()
+        initial = context.Process(
+            target=fair_layout_reader_process,
+            args=(
+                str(layout),
+                "initial",
+                entered,
+                release_initial,
+                results,
+            )
+        )
+        writer = context.Process(
+            target=fair_layout_writer_process,
+            args=(str(layout), entered, release_writer, results),
+        )
+        arrivals = [
+            context.Process(
+                target=fair_layout_reader_process,
+                args=(str(layout), f"reader-{index}", entered, None, results),
+            )
+            for index in range(8)
+        ]
+        processes = [initial, writer, *arrivals]
+        started: list[multiprocessing.Process] = []
+        try:
+            initial.start()
+            started.append(initial)
+            self.assertEqual(entered.get(timeout=5), "initial")
+            writer.start()
+            started.append(writer)
+            deadline = time.monotonic() + 2
+            while time.monotonic() < deadline:
+                try:
+                    with exclusive_lock(
+                        intent,
+                        "repository layout writer intent",
+                        nonblocking=True,
+                    ):
+                        pass
+                except WorkspaceError:
+                    break
+                time.sleep(0.005)
+            else:
+                self.fail("writer did not establish intent")
+
+            for arrival in arrivals:
+                arrival.start()
+                started.append(arrival)
+                time.sleep(0.01)
+            with self.assertRaises(queue.Empty):
+                entered.get(timeout=0.1)
+
+            release_initial.set()
+            self.assertEqual(entered.get(timeout=5), "writer")
+            with self.assertRaises(queue.Empty):
+                entered.get(timeout=0.1)
+            release_writer.set()
+            self.assertEqual(
+                {entered.get(timeout=5) for _ in arrivals},
+                {f"reader-{index}" for index in range(8)},
+            )
+        finally:
+            release_initial.set()
+            release_writer.set()
+            join_or_stop_processes(started, 10)
+        self.assertEqual(started, processes)
+        self.assertEqual([process.exitcode for process in processes], [0] * 10)
+        self.assertEqual([results.get(timeout=2) for _ in processes], [None] * 10)
+
+    def test_layout_lock_reports_one_actionable_prolonged_wait(self) -> None:
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        waiter_entered = threading.Event()
+
+        def wait_for_reader_lease() -> None:
+            with shared_layout_lock(layout, "repository layout"):
+                waiter_entered.set()
+
+        output = io.StringIO()
+        with (
+            mock.patch.object(
+                workspace_module, "LOCK_WAIT_DIAGNOSTIC_SECONDS", 0.05
+            ),
+            redirect_stderr(output),
+            exclusive_layout_lock(layout, "repository layout"),
+        ):
+            waiter = threading.Thread(target=wait_for_reader_lease)
+            waiter.start()
+            time.sleep(0.12)
+            self.assertFalse(waiter_entered.is_set())
+        waiter.join(2)
+        self.assertFalse(waiter.is_alive())
+        self.assertTrue(waiter_entered.is_set())
+        diagnostic = output.getvalue()
+        self.assertEqual(diagnostic.count("waiting more than"), 1)
+        self.assertIn("./atrinik ps --json", diagnostic)
+        self.assertIn("./atrinik worktree list --json", diagnostic)
+        self.assertIn("do not bypass the wrapper", diagnostic)
 
     def test_independent_build_roots_overlap_across_processes(self) -> None:
         context = multiprocessing.get_context("spawn")

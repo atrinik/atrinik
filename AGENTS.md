@@ -54,8 +54,8 @@
   concurrent topologies distinct names, states, ports, and client config.
 - Keep shell completion parser-driven, bounded, local-only, secret-free, and
   ahead of `Workspace` construction.
-- Build/runtime readers share the outer layout lock; mutations are exclusive
-  then finer locks.
+- Layout writers gate readers; both locks precede finer locks and diagnose
+  10-second waits.
 - Unbound persisted records are historical and inert.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket
   holders per `CONTRIBUTING.md`; preserve precise attribution.

@@ -895,15 +895,23 @@ repository-layout lock.
 Different profile build roots may compile concurrently; an exclusive per-root
 lock still serializes the same root. Initialization, synchronization, worktree
 or profile changes, and cleanup apply take the layout lock exclusively, so they
-wait until every build or runtime reader finishes. Repository migration uses
-the same exclusive mode but reports a busy result instead of waiting. The
-wrapper fails closed when advisory shared locking is unavailable. The layout
-lock is always acquired before topology, scenario, state, build-root, port,
-registry, or cache locks. Foreground processes inherit their layout and exact
-build-root leases. Supervised services inherit both leases through the daemon
-and keep them until every service exits or `down` completes. Build and scenario
+wait until every build or runtime reader finishes. A blocking mutation first
+holds the exclusive `repository-layout.writer-intent.lock` admission gate. New readers
+briefly pass through that same exclusive gate before taking their shared layout
+lease, so readers admitted before the mutation finish normally while later
+arrivals cannot bypass the queued writer. Readers release the gate immediately
+after admission and continue to overlap. Repository migration uses the same
+exclusive layout mode but reports a busy result instead of waiting. The wrapper
+fails closed when advisory shared locking is unavailable. A wait longer than 10
+seconds emits one diagnostic naming safe `ps` and worktree inventories; it does
+not interrupt a reader, topology, build, or mutation. The writer-intent gate and
+layout lock are always acquired before topology, scenario, state, build-root,
+port, registry, or cache locks. Foreground processes inherit their layout and
+exact build-root leases. Supervised services inherit both leases through the
+daemon and keep them until every service exits or `down` completes. Mutation
+subprocesses inherit the intent and layout leases. Build and scenario
 subprocesses inherit every active layout, build-root, state, registry, and cache
-lease so an orphan cannot outlive its reader protection.
+lease so an orphan cannot outlive its protection.
 
 The supervisor records exact source commits, build and state paths, and process
 start identities. `ps` without a name lists every recorded topology; a name
