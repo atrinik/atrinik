@@ -11,10 +11,15 @@ from unittest import mock
 from atrinik_workspace.cli import main, parser
 from atrinik_workspace.model import WorkspaceError
 from atrinik_workspace.provenance_identity import (
+    MAX_DOCUMENT_BYTES,
+    _git_blob,
+    _git_output,
+    _load_bytes,
     _validate_repository_trust,
     load_document,
     record_digest,
     validate_component_reference,
+    validate_paths,
     validate_registry,
     validate_reviewers,
 )
@@ -52,6 +57,176 @@ def refresh_digest(record: dict[str, object]) -> None:
 
 
 class ProvenanceIdentityTests(unittest.TestCase):
+    def test_bounded_document_and_json_helpers_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            oversized = root / "oversized.json"
+            oversized.write_bytes(b" " * (MAX_DOCUMENT_BYTES + 1))
+            with self.assertRaisesRegex(WorkspaceError, "exceeds"):
+                load_document(oversized)
+            with self.assertRaisesRegex(WorkspaceError, "cannot load JSON"):
+                load_document(root / "missing.json")
+            array = root / "array.json"
+            array.write_text("[]")
+            with self.assertRaisesRegex(WorkspaceError, "root must be an object"):
+                load_document(array)
+        with self.assertRaisesRegex(WorkspaceError, "invalid JSON"):
+            _load_bytes(b"not-json", "fixture")
+        with self.assertRaisesRegex(WorkspaceError, "root must be an object"):
+            _load_bytes(b"[]", "fixture")
+
+    def test_reviewer_registry_rejects_malformed_authorities(self) -> None:
+        mutations = (
+            (lambda value: value.update(schema_version=True), "unsupported version"),
+            (lambda value: value.update(reviewers=[]), "contain reviewers"),
+            (lambda value: value["reviewers"].__setitem__(0, "bad"), "must be an object"),
+            (lambda value: value["reviewers"][0].update(identity="invalid"), "invalid GitHub"),
+            (lambda value: value["reviewers"][0].update(key_id="short"), "invalid key"),
+            (lambda value: value["reviewers"][0].update(status="unknown"), "invalid status"),
+            (lambda value: value["reviewers"][0].update(synthetic="yes"), "must be a boolean"),
+            (lambda value: value["reviewers"][0].update(effective_on="2028-01-01"), "invalid effective"),
+            (lambda value: value["reviewers"][0].update(public_key="ssh-rsa bad"), "Ed25519"),
+        )
+        for mutate, message in mutations:
+            with self.subTest(message=message):
+                value = reviewers()
+                mutate(value)
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    validate_reviewers(value, as_of=AS_OF)
+        value = reviewers()
+        duplicate = json.loads(json.dumps(value["reviewers"][0]))
+        value["reviewers"].append(duplicate)
+        with self.assertRaisesRegex(WorkspaceError, "duplicate key"):
+            validate_reviewers(value, as_of=AS_OF)
+
+    def test_public_alias_and_status_transitions_validate(self) -> None:
+        alias = {
+            "record_id": "pir-p-33333333333333333333333333333333",
+            "record_type": "public-alias",
+            "status": "active",
+            "status_detail": {"effective_on": "2026-08-13"},
+            "synthetic": True,
+            "policy_version": 1,
+            "reviewer": "github:synthetic-reviewer",
+            "reviewed_on": "2026-08-13",
+            "expires_on": "2027-08-13",
+            "claims": ["identity"],
+            "display_name": "Synthetic Contributor",
+            "aliases": ["synthetic-contributor"],
+            "publication_authorization": {
+                "authorized_on": "2026-08-13",
+                "fields": ["aliases", "display_name"],
+                "restricted_record_id": "restricted-33333333333333333333333333333333",
+            },
+            "approval": {"key_id": "synthetic-reviewer-2026", "signature": "synthetic"},
+            "integrity": {
+                "algorithm": "sha256",
+                "canonicalization": "atrinik-json-v1",
+                "digest": "",
+            },
+        }
+        refresh_digest(alias)
+        value = registry()
+        value["records"] = [alias]
+        with mock.patch("atrinik_workspace.provenance_identity._verify_approval"):
+            self.assertIn(alias["record_id"], validate_registry(value, schema(), reviewers(), as_of=AS_OF))
+
+            value = registry()
+            value["records"][0]["status"] = "revoked"
+            value["records"][0]["status_detail"] = {
+                "effective_on": "2026-08-13",
+                "reason": "withdrawal",
+            }
+            refresh_digest(value["records"][0])
+            validate_registry(value, schema(), reviewers(), as_of=AS_OF)
+
+            value = registry()
+            value["records"][0]["status"] = "superseded"
+            value["records"][0]["status_detail"] = {
+                "effective_on": "2026-08-13",
+                "superseded_by": value["records"][1]["record_id"],
+            }
+            refresh_digest(value["records"][0])
+            validate_registry(value, schema(), reviewers(), as_of=AS_OF)
+
+    def test_future_status_effective_date_fails_closed(self) -> None:
+        value = registry()
+        value["records"][0]["status_detail"]["effective_on"] = "2026-08-14"
+        refresh_digest(value["records"][0])
+        with mock.patch(
+            "atrinik_workspace.provenance_identity._verify_approval"
+        ), self.assertRaisesRegex(WorkspaceError, "effective date is in the future"):
+            validate_registry(value, schema(), reviewers(), as_of=AS_OF)
+
+    def test_git_trust_and_blob_bounds_fail_closed(self) -> None:
+        with mock.patch(
+            "atrinik_workspace.provenance_identity._git_output", return_value=b"true\n"
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "non-shallow"):
+                _validate_repository_trust(ROOT, "1" * 40, "origin/main")
+        outputs = [b"false\n", b"/tmp/coordinator.git\n", b"https://example.invalid/repo\n"]
+        with mock.patch(
+            "atrinik_workspace.provenance_identity._git_output", side_effect=outputs
+        ), mock.patch("pathlib.Path.exists", return_value=False):
+            with self.assertRaisesRegex(WorkspaceError, "origin is not"):
+                _validate_repository_trust(ROOT, "1" * 40, "origin/main")
+        with mock.patch("subprocess.run", side_effect=OSError("missing git")):
+            with self.assertRaisesRegex(WorkspaceError, "cannot run git"):
+                _git_output(ROOT, ["status"], "cannot run git")
+        with mock.patch(
+            "atrinik_workspace.provenance_identity._git_output", return_value=b"invalid"
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "invalid size"):
+                _git_blob(ROOT, "1" * 40, "registry.json")
+
+    def test_reference_validation_uses_current_state_from_trusted_ref(self) -> None:
+        reference = FIXTURES / "positive" / "synthetic-alpha.json"
+        pinned_registry = REGISTRY.read_bytes()
+        revoked = registry()
+        revoked["records"][0]["status"] = "revoked"
+        revoked["records"][0]["status_detail"] = {
+            "effective_on": "2026-08-13",
+            "reason": "withdrawal",
+        }
+        refresh_digest(revoked["records"][0])
+        trusted_registry = (json.dumps(revoked) + "\n").encode()
+
+        def blob(_root: Path, revision: str, path: str) -> bytes:
+            if path == "governance/provenance-identities/registry.json":
+                return trusted_registry if revision == "trusted" else pinned_registry
+            if path.endswith("schema-v1.json"):
+                return SCHEMA.read_bytes()
+            return REVIEWERS.read_bytes()
+
+        with mock.patch(
+            "atrinik_workspace.provenance_identity._validate_repository_trust"
+        ), mock.patch(
+            "atrinik_workspace.provenance_identity._git_blob", side_effect=blob
+        ), mock.patch(
+            "atrinik_workspace.provenance_identity._verify_approval"
+        ), self.assertRaisesRegex(WorkspaceError, "current registry"):
+            validate_paths(
+                ROOT,
+                registry_path=REGISTRY,
+                schema_path=SCHEMA,
+                reviewers_path=REVIEWERS,
+                reference_paths=[reference],
+                as_of=AS_OF,
+                trusted_ref="trusted",
+            )
+        with mock.patch(
+            "atrinik_workspace.provenance_identity._git_output",
+            return_value=str(MAX_DOCUMENT_BYTES + 1).encode(),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "exceeds"):
+                _git_blob(ROOT, "1" * 40, "registry.json")
+        with mock.patch(
+            "atrinik_workspace.provenance_identity._git_output",
+            side_effect=[b"2", b"x"],
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "size changed"):
+                _git_blob(ROOT, "1" * 40, "registry.json")
+
     def test_canonical_registry_and_schema_are_valid(self) -> None:
         records = validate_registry(registry(), schema(), reviewers(), as_of=AS_OF)
         self.assertEqual(
@@ -83,6 +258,17 @@ class ProvenanceIdentityTests(unittest.TestCase):
         duplicate = json.loads(json.dumps(value["records"][0]))
         value["records"].append(duplicate)
         with self.assertRaisesRegex(WorkspaceError, "duplicate record identifier"):
+            validate_registry(value, schema(), reviewers(), as_of=AS_OF)
+
+    def test_duplicate_restricted_integrity_fails_closed(self) -> None:
+        value = registry()
+        value["records"][1]["restricted_evidence"]["integrity"] = value["records"][0][
+            "restricted_evidence"
+        ]["integrity"]
+        refresh_digest(value["records"][1])
+        with mock.patch(
+            "atrinik_workspace.provenance_identity._verify_approval"
+        ), self.assertRaisesRegex(WorkspaceError, "duplicate restricted evidence integrity"):
             validate_registry(value, schema(), reviewers(), as_of=AS_OF)
 
     def test_confidential_subject_fields_fail_closed(self) -> None:

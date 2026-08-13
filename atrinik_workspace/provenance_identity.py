@@ -21,7 +21,7 @@ CANONICALIZATION = "atrinik-json-v1"
 REGISTRY_PATH = Path("governance/provenance-identities/registry.json")
 SCHEMA_PATH = Path("governance/provenance-identities/schema-v1.json")
 REVIEWERS_PATH = Path("governance/provenance-identities/reviewers.json")
-TRUSTED_SCHEMA_CANONICAL_SHA256 = "2f52bcf87957ffc909cc99cb57ad8f0f1809dc02dfa4111d32e5ad24a4a3cb05"
+TRUSTED_SCHEMA_CANONICAL_SHA256 = "e04b15c8c79690c4f04752676a54febd95d1473fab7d968ad1cf4b6cedc35704"
 CONFIDENTIAL_RECORD_ID_PATTERN = re.compile(r"^pir-c-[0-9a-f]{32}$")
 PUBLIC_RECORD_ID_PATTERN = re.compile(r"^pir-p-[0-9a-f]{32}$")
 RECORD_ID_PATTERN = re.compile(r"^pir-[cp]-[0-9a-f]{32}$")
@@ -490,6 +490,7 @@ def validate_registry(
     result: dict[str, dict[str, Any]] = {}
     bindings: set[str] = set()
     restricted_ids: set[str] = set()
+    restricted_integrities: set[str] = set()
     for index, record in enumerate(records):
         context = f"provenance identity record {index}"
         if not isinstance(record, dict):
@@ -502,12 +503,16 @@ def validate_registry(
             _validate_confidential_record(record, context, as_of, reviewers)
             binding = record["scope_binding"]
             restricted_id = record["restricted_evidence"]["record_id"]
+            restricted_integrity = record["restricted_evidence"]["integrity"]
             if binding in bindings:
                 raise WorkspaceError(f"{context}: duplicate scope binding")
             if restricted_id in restricted_ids:
                 raise WorkspaceError(f"{context}: duplicate restricted evidence identifier")
+            if restricted_integrity in restricted_integrities:
+                raise WorkspaceError(f"{context}: duplicate restricted evidence integrity")
             bindings.add(binding)
             restricted_ids.add(restricted_id)
+            restricted_integrities.add(restricted_integrity)
         elif record_type == "public-alias":
             _validate_public_alias_record(record, context, as_of, reviewers)
         else:
@@ -523,6 +528,8 @@ def validate_registry(
         effective = _iso_date(detail.get("effective_on"), f"record {identifier}.status_detail.effective_on")
         if effective < _iso_date(record["reviewed_on"], f"record {identifier}.reviewed_on"):
             raise WorkspaceError(f"record {identifier}: status predates review")
+        if effective > as_of:
+            raise WorkspaceError(f"record {identifier}: status effective date is in the future")
         if record["status"] == "active":
             _exact_keys(detail, {"effective_on"}, f"record {identifier}.status_detail")
         elif record["status"] == "revoked":
@@ -787,6 +794,27 @@ def validate_paths(
         reviewers_value,
         as_of=as_of,
     )
+    if reference_paths:
+        _validate_repository_trust(root, trusted_ref, trusted_ref)
+        trusted_registry = _load_bytes(
+            _git_blob(root, trusted_ref, REGISTRY_PATH.as_posix()),
+            "trusted current registry",
+        )
+        trusted_schema = _load_bytes(
+            _git_blob(root, trusted_ref, SCHEMA_PATH.as_posix()),
+            "trusted current schema",
+        )
+        trusted_reviewers_value = _load_bytes(
+            _git_blob(root, trusted_ref, REVIEWERS_PATH.as_posix()),
+            "trusted current reviewers",
+        )
+        records = validate_registry(
+            trusted_registry,
+            trusted_schema,
+            trusted_reviewers_value,
+            as_of=as_of,
+        )
+        reviewers = validate_reviewers(trusted_reviewers_value, as_of=as_of)
     for path in reference_paths:
         validate_component_reference(
             load_document(path),
