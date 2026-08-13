@@ -475,6 +475,23 @@ class CleanupTests(unittest.TestCase):
         self.assertIn("changed during apply revalidation", item["error"])
         self.assertTrue(root.is_dir())
 
+    def test_topology_preview_protects_a_change_during_inventory(self) -> None:
+        root = self.make_topology_record("inventory-race")
+
+        def change_during_status(_name: str) -> dict[str, object]:
+            (root / "late-log").write_text("changed\n", encoding="utf-8")
+            return self.topology_observation("exited")
+
+        with mock.patch.object(
+            self.workspace, "topology_status", side_effect=change_during_status
+        ):
+            report = self.workspace.cleanup(["topologies"], 7, [], False)
+
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("topology_changed_during_inventory", item["reasons"])
+        self.assertIsNone(item["tree_identity"])
+
     def test_topology_cleanup_preserves_an_interrupted_record_for_retry(self) -> None:
         root = self.make_topology_record("interrupted-removal")
 

@@ -1111,6 +1111,25 @@ class Cleanup:
             reasons.append("topology_status_unverifiable")
             item["error"] = str(error)
 
+        if tree_error is None:
+            (
+                rechecked_identity,
+                rechecked_paths,
+                _rechecked_time,
+                _rechecked_inodes,
+                rechecked_error,
+            ) = _topology_tree_snapshot(path)
+            if (
+                rechecked_error is not None
+                or rechecked_identity != identity
+                or rechecked_paths != deletion_paths
+            ):
+                reasons.append("topology_changed_during_inventory")
+                item["error"] = rechecked_error or (
+                    f"topology tree changed during inventory: {path.name}"
+                )
+                item["tree_identity"] = None
+
         item["reasons"] = sorted(set(reasons)) or ["inactive_topology"]
         item["disposition"] = "eligible" if not reasons else "protected"
         return item
