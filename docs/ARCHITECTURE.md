@@ -67,7 +67,15 @@ input.
 
 Source provenance is also a cross-repository contract.
 [`PROVENANCE.md`](PROVENANCE.md) is the single exhaustive historical MIT
-grantor registry and evidence procedure. Exact independently separable Classic
+grantor registry and rights procedure. The coordinator also owns the only
+versioned public identity registry and schema under
+`governance/provenance-identities/`; components hold exact material scope and a
+full-commit reference rather than copied identities. Restricted mappings stay
+outside public Git while opaque, digest-bound attestations join an approved
+identity review to a destination record. The bounded validator resolves only
+size-limited blobs from the pinned local Git revision and fails closed on
+unsafe fields, stale/revoked records, version drift, or broken integrity.
+Exact independently separable Classic
 material proven to fall within an applicable approved historical grant,
 including its temporal and sole-original-authorship scope, may be inspected as
 source reference, copied, migrated or ported, translated or adapted, and
