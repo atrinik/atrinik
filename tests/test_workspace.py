@@ -7277,7 +7277,7 @@ class WorkspaceTests(unittest.TestCase):
         source.rmdir()
         removal = self.workspace._lease_request(
             "source",
-            self.workspace._source_coordinate("server", source),
+            self.workspace._physical_source_coordinate(source),
             "exclusive",
             "remove selected source",
         )
@@ -7289,7 +7289,8 @@ class WorkspaceTests(unittest.TestCase):
                 ),
                 self.assertRaisesRegex(
                     WorkspaceError,
-                    rf"source server:{re.escape(str(source))} is already in use by "
+                    rf"source physical\-path:{re.escape(str(source))} "
+                    r"is already in use by "
                     r"exclusive remove selected source by",
                 ),
             ):
@@ -7310,7 +7311,7 @@ class WorkspaceTests(unittest.TestCase):
     def test_scenario_backfill_does_not_cross_product_historical_owners(self) -> None:
         root = self.workspace.paths.scenarios / "bounded-historical"
         root.mkdir()
-        historical_count = 20
+        historical_count = 341
         atomic_json(
             root / "scenario.json",
             {
@@ -7345,7 +7346,7 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(
             observed,
-            [1 + historical_count * (1 + len(self.workspace.manifest.by_checkout))],
+            [1] + [2] * historical_count,
         )
 
     def test_backfill_preserves_missing_scenario_as_historical_reference(self) -> None:

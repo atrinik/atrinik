@@ -521,15 +521,25 @@ class Cleanup:
                         )
                     ]
                     if target["kind"] == "worktree":
-                        requests.append(
-                            self.workspace._lease_request(
-                                "source",
-                                self.workspace._source_coordinate(
-                                    owner, Path(target["path"])
+                        requests.extend(
+                            [
+                                self.workspace._lease_request(
+                                    "source",
+                                    self.workspace._source_coordinate(
+                                        owner, Path(target["path"])
+                                    ),
+                                    "exclusive",
+                                    f"cleanup worktree {target['path']}",
                                 ),
-                                "exclusive",
-                                f"cleanup worktree {target['path']}",
-                            )
+                                self.workspace._lease_request(
+                                    "source",
+                                    self.workspace._physical_source_coordinate(
+                                        Path(target["path"])
+                                    ),
+                                    "exclusive",
+                                    f"cleanup worktree {target['path']}",
+                                ),
+                            ]
                         )
                     try:
                         target_stack.enter_context(

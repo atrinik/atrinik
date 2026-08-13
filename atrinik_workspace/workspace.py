@@ -1403,6 +1403,10 @@ class Workspace:
     def _source_coordinate(checkout_name: str, root: Path) -> str:
         return f"{checkout_name}:{Path(os.path.abspath(root))}"
 
+    @staticmethod
+    def _physical_source_coordinate(root: Path) -> str:
+        return f"physical-path:{Path(os.path.abspath(root))}"
+
     @property
     def _lease_namespace(self) -> Path:
         """Return the common-Git namespace shared by physical wrapper views."""
@@ -2438,8 +2442,14 @@ class Workspace:
                 "exclusive",
                 f"remove worktree {checkout.name}/{label}",
             )
+            physical_request = self._lease_request(
+                "source",
+                self._physical_source_coordinate(physical_destination),
+                "exclusive",
+                f"remove worktree {checkout.name}/{label}",
+            )
             while True:
-                with self._resource_locks([source_request]):
+                with self._resource_locks([source_request, physical_request]):
                     try:
                         with self._resource_locks(
                             [admin_request], nonblocking=True
@@ -3282,6 +3292,11 @@ class Workspace:
             }
             | (retained_sources or set())
         )
+        self._publish_scenario_reference_sources(name, sources)
+
+    def _publish_scenario_reference_sources(
+        self, name: str, sources: list[str] | set[str]
+    ) -> None:
         record = (self.paths.scenarios / name / "scenario.json").resolve()
         identity = hashlib.sha256(str(record).encode()).hexdigest()
         self._atomic_physical_reference(
@@ -3290,7 +3305,7 @@ class Workspace:
                 "schema_version": 1,
                 "kind": "scenarios",
                 "reference": name,
-                "sources": sources,
+                "sources": sorted(sources),
             },
         )
 
@@ -3306,56 +3321,73 @@ class Workspace:
                     raise WorkspaceError(
                         f"scenario resolved references are invalid: {root.name}"
                     )
-                historical_sources = {
-                    (
-                        value["checkout"],
-                        Path(value["checkout_path"]).resolve(strict=False),
-                    )
+                sources = {
+                    Path(value["checkout_path"]).resolve(strict=False)
                     for value in resolved.values()
                     if isinstance(value, dict)
                     and isinstance(value.get("checkout"), str)
                     and isinstance(value.get("checkout_path"), str)
                 }
-                sources = {source for _checkout, source in historical_sources}
-                # Historical scenario checkout identities are not authoritative:
-                # a repository split or manifest migration can give cleanup a
-                # different current owner for the same exact path. Cover every
-                # manifest owner coordinate during this one-time backfill so no
-                # current worktree remover can race publication under a stale
-                # scenario-provided name.
-                source_coordinates = historical_sources | {
-                    (checkout, source)
-                    for checkout in self.manifest.by_checkout
-                    for source in sources
-                }
-                requests = [
-                    self._lease_request(
-                        "scenario", root.name, "shared", "backfill scenario reference"
-                    ),
-                    *[
-                        self._lease_request(
-                            "source",
-                            self._source_coordinate(checkout, source),
-                            "shared",
-                            "backfill scenario reference",
-                        )
-                        for checkout, source in sorted(
-                            source_coordinates,
-                            key=lambda item: (item[0], str(item[1])),
-                        )
-                    ],
-                ]
-                with resource_locks(self._lease_root, requests, nonblocking=True):
+                scenario_request = self._lease_request(
+                    "scenario", root.name, "shared", "backfill scenario reference"
+                )
+                with resource_locks(
+                    self._lease_root, [scenario_request], nonblocking=True
+                ):
                     confirmed = load_regular_json(record, "scenario metadata")
                     if confirmed != metadata:
                         raise WorkspaceError(
                             "scenario changed during physical reference backfill: "
                             f"{root.name}; stop editing that scenario and retry"
                         )
-                    # As with profiles, retain missing historical source paths in
-                    # the common registry so another workspace root cannot later
-                    # reclaim a source that the authored scenario still names.
-                    self._publish_scenario_references(root.name, confirmed)
+                    identity = hashlib.sha256(
+                        str(record.resolve()).encode()
+                    ).hexdigest()
+                    existing = self._physical_reference_records(
+                        only=f"{identity}.json"
+                    )
+                    retained: set[str] = set()
+                    if existing:
+                        previous = existing[0]
+                        if (
+                            not isinstance(previous, dict)
+                            or set(previous)
+                            != {"schema_version", "kind", "reference", "sources"}
+                            or previous.get("schema_version") != 1
+                            or previous.get("kind") != "scenarios"
+                            or previous.get("reference") != root.name
+                            or not isinstance(previous.get("sources"), list)
+                            or any(
+                                not isinstance(source, str)
+                                or not Path(source).is_absolute()
+                                for source in previous["sources"]
+                            )
+                        ):
+                            raise WorkspaceError(
+                                "cannot prove physical reference record"
+                            )
+                        retained.update(previous["sources"])
+                    if not sources:
+                        self._publish_scenario_reference_sources(root.name, retained)
+                for source in sorted(sources, key=str):
+                    physical_request = self._lease_request(
+                        "source",
+                        self._physical_source_coordinate(source),
+                        "shared",
+                        "backfill scenario reference",
+                    )
+                    with resource_locks(
+                        self._lease_root,
+                        [physical_request, scenario_request],
+                        nonblocking=True,
+                    ):
+                        if load_regular_json(record, "scenario metadata") != metadata:
+                            raise WorkspaceError(
+                                "scenario changed during physical reference backfill: "
+                                f"{root.name}; stop editing that scenario and retry"
+                            )
+                        retained.add(str(source))
+                        self._publish_scenario_reference_sources(root.name, retained)
 
     def _set_profile(
         self, name: str, component_name: str, kind: str, value: str = ""
