@@ -874,7 +874,12 @@ the selected server, creates the dedicated `scenario-issue-42` state, stores a
 generated password in a mode-0600 ignored file, and prints exact
 `topology show`/`up`/`ps`/`logs`/`down` commands. `show` and `list` never reveal
 the password; request it explicitly with `credentials` immediately before
-login.
+login. `scenario list` keeps the global inventory usable when a retained
+scenario can no longer resolve its profile or fails current validation. JSON
+output represents that entry with its `name`, `path`, `inert: true`, and a
+stable `inert_reason`; bounded human output labels the same entry `inert`.
+Control characters in inert names and paths are escaped. Exact `show`,
+credential, and reset operations continue to fail closed.
 
 Scenarios live below ignored `workspace/scenarios/`. Their metadata records the
 profile plus every resolved provisioning dependency's checkout, source root,

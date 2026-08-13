@@ -859,10 +859,18 @@ def main(arguments: list[str] | None = None) -> int:
                     print(json.dumps(summaries, indent=2, sort_keys=True))
                 else:
                     for summary in summaries:
-                        print(
-                            f"{summary['name']}\t{summary['profile']}\t"
-                            f"{summary['preset']}\t{summary['state']}"
-                        )
+                        if summary.get("inert"):
+                            name = json.dumps(str(summary["name"]))[1:-1]
+                            path = json.dumps(str(summary["path"]))[1:-1]
+                            print(
+                                f"{name}\tinert\t"
+                                f"{summary['inert_reason']}\t{path}"
+                            )
+                        else:
+                            print(
+                                f"{summary['name']}\t{summary['profile']}\t"
+                                f"{summary['preset']}\t{summary['state']}"
+                            )
             elif options.scenario_command == "show":
                 summary = workspace.scenario_show(options.name)
                 if options.json:
