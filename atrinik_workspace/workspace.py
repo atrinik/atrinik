@@ -3307,15 +3307,25 @@ class Workspace:
                         f"scenario resolved references are invalid: {root.name}"
                     )
                 sources = {
-                    (
-                        value["checkout"],
-                        Path(value["checkout_path"]).resolve(strict=False),
-                    )
+                    Path(value["checkout_path"]).resolve(strict=False)
                     for value in resolved.values()
                     if isinstance(value, dict)
                     and isinstance(value.get("checkout"), str)
                     and isinstance(value.get("checkout_path"), str)
                 }
+                # Historical scenario checkout identities are not authoritative:
+                # a repository split or manifest migration can give cleanup a
+                # different current owner for the same exact path. Cover every
+                # manifest owner coordinate during this one-time backfill so no
+                # current worktree remover can race publication under a stale
+                # scenario-provided name.
+                checkout_names = set(self.manifest.by_checkout)
+                checkout_names.update(
+                    value["checkout"]
+                    for value in resolved.values()
+                    if isinstance(value, dict)
+                    and isinstance(value.get("checkout"), str)
+                )
                 requests = [
                     self._lease_request(
                         "scenario", root.name, "shared", "backfill scenario reference"
@@ -3327,7 +3337,8 @@ class Workspace:
                             "shared",
                             "backfill scenario reference",
                         )
-                        for checkout, source in sorted(sources, key=lambda item: (item[0], str(item[1])))
+                        for checkout in sorted(checkout_names)
+                        for source in sorted(sources, key=str)
                     ],
                 ]
                 with resource_locks(self._lease_root, requests, nonblocking=True):

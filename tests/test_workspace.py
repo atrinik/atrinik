@@ -7256,6 +7256,57 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace._source_references(source),
             )
 
+    def test_relocated_scenario_backfill_covers_current_checkout_owner(self) -> None:
+        source = self.workspace.paths.worktrees / "server" / "retired-scenario"
+        source.mkdir(parents=True)
+        alternate_root = self.root / "alternate-scenario-workspace"
+        scenario = alternate_root / "scenarios" / "retired-scenario"
+        scenario.mkdir(parents=True)
+        record = scenario / "scenario.json"
+        atomic_json(
+            record,
+            {
+                "resolved": {
+                    "server": {
+                        "checkout": "retired-server-owner",
+                        "checkout_path": str(source),
+                    }
+                }
+            },
+        )
+        source.rmdir()
+        removal = self.workspace._lease_request(
+            "source",
+            self.workspace._source_coordinate("server", source),
+            "exclusive",
+            "remove selected source",
+        )
+
+        with resource_locks(self.workspace._lease_root, [removal]):
+            with (
+                mock.patch.dict(
+                    os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError,
+                    rf"source server:{re.escape(str(source))} is already in use by "
+                    r"exclusive remove selected source by",
+                ),
+            ):
+                Workspace(self.wrapper)
+
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
+        ):
+            fresh = Workspace(self.wrapper)
+            fresh.close()
+        source.mkdir(parents=True)
+        with resource_locks(self.workspace._lease_root, [removal]):
+            self.assertIn(
+                "scenario:retired-scenario",
+                self.workspace._source_references(source),
+            )
+
     def test_backfill_preserves_missing_scenario_as_historical_reference(self) -> None:
         root = self.workspace.paths.scenarios / "missing-scenario"
         root.mkdir()

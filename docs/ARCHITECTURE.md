@@ -220,6 +220,10 @@ the profile or scenario. A later source at the same path remains protected
 across relocated roots. Exact lease contention propagates its coordinate,
 operation, owner metadata and recovery action; a record that changes between
 read and confirmation fails separately and leaves the backfill marker absent.
+Because an inert scenario can retain a pre-migration checkout name, its
+one-time backfill covers every current manifest checkout owner coordinate for
+each exact path; current-owner cleanup therefore cannot race publication under
+the stale name.
 
 The common-Git `repository-layout.lock` is only the maintenance barrier for
 schema/layout migration apply or restore. Ordinary operations share it while
