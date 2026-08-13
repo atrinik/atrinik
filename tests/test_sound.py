@@ -1284,6 +1284,28 @@ class ReleasedSoundTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "schema reference"):
             verify_release_tree(self.tree, self.coordinates)
 
+    def test_combinators_do_not_swallow_malformed_keyword_values(self) -> None:
+        for index, invalid in enumerate((
+            {"enum": "invalid"},
+            {"type": "bogus"},
+            {"required": "invalid"},
+            {"maxItems": -1},
+        )):
+            with self.subTest(invalid=invalid):
+                schema_path = self.tree / RELEASE_SCHEMA
+                schema = json.loads(schema_path.read_text())
+                schema["properties"]["assets"] = {"anyOf": [True, invalid]}
+                schema_path.write_bytes(canonical(schema))
+                self.coordinates["schema_sha256"] = digest(schema_path)
+                self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+                (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+                self.coordinates["release_manifest_sha256"] = digest(
+                    self.tree / RELEASE_MANIFEST
+                )
+                self.rewrite_checksums()
+                with self.assertRaisesRegex(WorkspaceError, "packaged schema"):
+                    verify_release_tree(self.tree, self.coordinates)
+
     def test_build_metadata_and_supervised_topology_reuse_verified_root(self) -> None:
         wrapper = self.root / "topology-wrapper"
         wrapper.mkdir()

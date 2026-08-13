@@ -885,6 +885,10 @@ def _safe_release_path(value: object, description: str) -> str:
     return path.as_posix()
 
 
+class _ReleaseSchemaMismatch(WorkspaceError):
+    """The instance does not match an otherwise structurally valid schema."""
+
+
 def _validate_release_schema_instance(
     instance: object,
     schema: object,
@@ -904,8 +908,12 @@ def _validate_release_schema_instance(
         raise WorkspaceError("released sound packaged schema exceeds evaluation limits")
     if schema is True:
         return
-    if schema is False or not isinstance(schema, dict):
-        raise WorkspaceError(f"released sound manifest violates its schema at {location}")
+    if schema is False:
+        raise _ReleaseSchemaMismatch(
+            f"released sound manifest violates its schema at {location}"
+        )
+    if not isinstance(schema, dict):
+        raise WorkspaceError("released sound packaged schema node is invalid")
     supported = {
         "$defs", "$id", "$ref", "$schema", "additionalProperties", "allOf",
         "anyOf", "const", "default", "description", "enum", "examples", "format",
@@ -915,6 +923,39 @@ def _validate_release_schema_instance(
     }
     if set(schema) - supported:
         raise WorkspaceError("released sound packaged schema uses unsupported keywords")
+    for keyword in (
+        "maxItems", "maxLength", "maxProperties", "minItems", "minLength",
+        "minProperties",
+    ):
+        limit = schema.get(keyword)
+        if limit is not None and (
+            not isinstance(limit, int) or isinstance(limit, bool) or limit < 0
+        ):
+            raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
+    for keyword in ("maximum", "minimum"):
+        limit = schema.get(keyword)
+        if limit is not None and (
+            not isinstance(limit, (int, float))
+            or isinstance(limit, bool)
+            or not math.isfinite(limit)
+        ):
+            raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
+    if "enum" in schema and (
+        not isinstance(schema["enum"], list) or not schema["enum"]
+    ):
+        raise WorkspaceError("released sound packaged schema enum is invalid")
+    required_value = schema.get("required")
+    if required_value is not None and (
+        not isinstance(required_value, list)
+        or any(not isinstance(name, str) for name in required_value)
+    ):
+        raise WorkspaceError("released sound packaged schema required is invalid")
+    if "properties" in schema and not isinstance(schema["properties"], dict):
+        raise WorkspaceError("released sound packaged schema properties is invalid")
+    if "pattern" in schema and not isinstance(schema["pattern"], str):
+        raise WorkspaceError("released sound packaged schema pattern is invalid")
+    if "uniqueItems" in schema and not isinstance(schema["uniqueItems"], bool):
+        raise WorkspaceError("released sound packaged schema uniqueItems is invalid")
     reference = schema.get("$ref")
     if reference is not None:
         if not isinstance(reference, str) or not reference.startswith("#/$defs/"):
@@ -954,9 +995,7 @@ def _validate_release_schema_instance(
                     budget=budget,
                     depth=depth + 1,
                 )
-            except WorkspaceError as error:
-                if not str(error).startswith("released sound manifest"):
-                    raise
+            except _ReleaseSchemaMismatch:
                 continue
             matches += 1
         if (
@@ -964,13 +1003,21 @@ def _validate_release_schema_instance(
             or keyword == "anyOf" and matches < 1
             or keyword == "oneOf" and matches != 1
         ):
-            raise WorkspaceError(f"released sound manifest violates {keyword} at {location}")
+            raise _ReleaseSchemaMismatch(
+                f"released sound manifest violates {keyword} at {location}"
+            )
     if "const" in schema and instance != schema["const"]:
-        raise WorkspaceError(f"released sound manifest violates const at {location}")
+        raise _ReleaseSchemaMismatch(
+            f"released sound manifest violates const at {location}"
+        )
     if "enum" in schema:
         enum = schema["enum"]
-        if not isinstance(enum, list) or instance not in enum:
-            raise WorkspaceError(f"released sound manifest violates enum at {location}")
+        if not isinstance(enum, list) or not enum:
+            raise WorkspaceError("released sound packaged schema enum is invalid")
+        if instance not in enum:
+            raise _ReleaseSchemaMismatch(
+                f"released sound manifest violates enum at {location}"
+            )
     type_name = schema.get("type")
     type_checks = {
         "object": lambda value: isinstance(value, dict),
@@ -983,13 +1030,14 @@ def _validate_release_schema_instance(
     }
     if type_name is not None:
         allowed = [type_name] if isinstance(type_name, str) else type_name
-        if (
-            not isinstance(allowed, list)
-            or not allowed
-            or any(name not in type_checks for name in allowed)
-            or not any(type_checks[name](instance) for name in allowed)
+        if not isinstance(allowed, list) or not allowed or any(
+            name not in type_checks for name in allowed
         ):
-            raise WorkspaceError(f"released sound manifest has wrong type at {location}")
+            raise WorkspaceError("released sound packaged schema type is invalid")
+        if not any(type_checks[name](instance) for name in allowed):
+            raise _ReleaseSchemaMismatch(
+                f"released sound manifest has wrong type at {location}"
+            )
     if isinstance(instance, dict):
         required = schema.get("required", [])
         properties = schema.get("properties", {})
@@ -997,9 +1045,12 @@ def _validate_release_schema_instance(
             not isinstance(required, list)
             or any(not isinstance(name, str) for name in required)
             or not isinstance(properties, dict)
-            or any(name not in instance for name in required)
         ):
-            raise WorkspaceError(f"released sound manifest object is invalid at {location}")
+            raise WorkspaceError("released sound packaged schema object keywords are invalid")
+        if any(name not in instance for name in required):
+            raise _ReleaseSchemaMismatch(
+                f"released sound manifest object is invalid at {location}"
+            )
         additional = schema.get("additionalProperties", True)
         if not isinstance(additional, (bool, dict)):
             raise WorkspaceError("released sound packaged schema additionalProperties is invalid")
@@ -1016,8 +1067,10 @@ def _validate_release_schema_instance(
             )
         for keyword, comparison in (("minProperties", lambda a, b: a >= b), ("maxProperties", lambda a, b: a <= b)):
             limit = schema.get(keyword)
-            if limit is not None and (not isinstance(limit, int) or isinstance(limit, bool) or not comparison(len(instance), limit)):
-                raise WorkspaceError(f"released sound manifest violates {keyword} at {location}")
+            if limit is not None and (not isinstance(limit, int) or isinstance(limit, bool) or limit < 0):
+                raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
+            if limit is not None and not comparison(len(instance), limit):
+                raise _ReleaseSchemaMismatch(f"released sound manifest violates {keyword} at {location}")
     if isinstance(instance, list):
         item_schema = schema.get("items", True)
         for index, value in enumerate(instance):
@@ -1032,15 +1085,22 @@ def _validate_release_schema_instance(
             )
         for keyword, comparison in (("minItems", lambda a, b: a >= b), ("maxItems", lambda a, b: a <= b)):
             limit = schema.get(keyword)
-            if limit is not None and (not isinstance(limit, int) or isinstance(limit, bool) or not comparison(len(instance), limit)):
-                raise WorkspaceError(f"released sound manifest violates {keyword} at {location}")
-        if schema.get("uniqueItems") is True and len({_canonical_json(value) for value in instance}) != len(instance):
-            raise WorkspaceError(f"released sound manifest items are not unique at {location}")
+            if limit is not None and (not isinstance(limit, int) or isinstance(limit, bool) or limit < 0):
+                raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
+            if limit is not None and not comparison(len(instance), limit):
+                raise _ReleaseSchemaMismatch(f"released sound manifest violates {keyword} at {location}")
+        unique_items = schema.get("uniqueItems")
+        if unique_items is not None and not isinstance(unique_items, bool):
+            raise WorkspaceError("released sound packaged schema uniqueItems is invalid")
+        if unique_items is True and len({_canonical_json(value) for value in instance}) != len(instance):
+            raise _ReleaseSchemaMismatch(f"released sound manifest items are not unique at {location}")
     if isinstance(instance, str):
         for keyword, comparison in (("minLength", lambda a, b: a >= b), ("maxLength", lambda a, b: a <= b)):
             limit = schema.get(keyword)
-            if limit is not None and (not isinstance(limit, int) or isinstance(limit, bool) or not comparison(len(instance), limit)):
-                raise WorkspaceError(f"released sound manifest violates {keyword} at {location}")
+            if limit is not None and (not isinstance(limit, int) or isinstance(limit, bool) or limit < 0):
+                raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
+            if limit is not None and not comparison(len(instance), limit):
+                raise _ReleaseSchemaMismatch(f"released sound manifest violates {keyword} at {location}")
         pattern = schema.get("pattern")
         if pattern is not None:
             try:
@@ -1048,12 +1108,14 @@ def _validate_release_schema_instance(
             except re.error as error:
                 raise WorkspaceError("released sound packaged schema pattern is invalid") from error
             if not matches:
-                raise WorkspaceError(f"released sound manifest violates pattern at {location}")
+                raise _ReleaseSchemaMismatch(f"released sound manifest violates pattern at {location}")
     if isinstance(instance, (int, float)) and not isinstance(instance, bool):
         for keyword, comparison in (("minimum", lambda a, b: a >= b), ("maximum", lambda a, b: a <= b)):
             limit = schema.get(keyword)
-            if limit is not None and (not isinstance(limit, (int, float)) or isinstance(limit, bool) or not comparison(instance, limit)):
-                raise WorkspaceError(f"released sound manifest violates {keyword} at {location}")
+            if limit is not None and (not isinstance(limit, (int, float)) or isinstance(limit, bool) or not math.isfinite(limit)):
+                raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
+            if limit is not None and not comparison(instance, limit):
+                raise _ReleaseSchemaMismatch(f"released sound manifest violates {keyword} at {location}")
 
 
 def _release_checksums(root: Path) -> dict[str, str]:
