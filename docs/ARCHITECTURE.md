@@ -634,11 +634,32 @@ descriptor through a short forking bootstrap to a detached native supervisor
 and its server child. The lock remains held for the server lifetime without a
 long-lived invoking CLI process.
 
-The supervisor owns child lifetimes and size-bounded rotating logs. Status
-records include Linux process start ticks in addition to PIDs; `ps` and `down`
-require both to match, preventing an old status file from targeting an
-unrelated reused PID. Shutdown signals the supervisor, which gracefully stops
-children before releasing state. For a paired topology it starts the server
+The supervisor owns child lifetimes and size-bounded rotating logs. Each
+current status record binds the namespace-local supervisor and service
+PID/start-tick coordinates to one random topology generation and mode-0600
+filesystem Unix control endpoint. `ps` probes that name/generation endpoint,
+so another supported sandbox sharing the workspace can distinguish `live`,
+`exited`, `stale`, and fail-closed `unreachable` processes without resolving
+their PID namespace. The endpoint uses a short generation-derived name in the
+shared workspace, avoiding topology-name and ordinary managed-worktree path
+growth. The independently observable process-tree lease
+is bound to the status generation and exact file identity. Missing, replaced,
+or malformed current leases fail closed instead of allowing topology-name
+reuse while holders of an unlinked lease remain alive.
+
+`down` requests shutdown only through an exact matching current-generation
+endpoint; it never signals a namespace-local, recycled, or unrelated PID.
+Legacy records retain the PID/start-tick fallback. A same-namespace guardian
+holds the process-tree generation until every inherited descendant is gone. If
+the supervisor dies, pipe closure makes the guardian terminate exact lease
+holders and retain the generation until their absence is proven. Layout,
+build, and state leases remain held by the supervisor and guardian rather than
+service-inherited, so a descendant that closes its process-tree identity cannot
+retain those workspace leases. The guardian releases them only after exact
+process-tree recovery completes. Another namespace
+waits or fails closed with the owning topology and recovery action. Normal
+shutdown asks the supervisor to gracefully stop children before releasing
+state. For a paired topology it starts the server
 first, waits for its fingerprint and final ready signal, and then pins the
 client to that authenticated loopback endpoint. Available UDP ports are
 allocated under a workspace-wide lock, or callers may request an explicit

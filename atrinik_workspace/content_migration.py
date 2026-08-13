@@ -21,7 +21,12 @@ from .locking import (
     layout_writer_pending_path,
 )
 from .model import WorkspaceError, atomic_json, load_json
-from .process_tree import holders_exist
+from .process_tree import (
+    bound_lease_locked,
+    control_socket_path,
+    holders_exist,
+    lease_locked,
+)
 from .supervisor import process_matches
 
 
@@ -803,8 +808,42 @@ class ContentMigration:
                             or not start.isdigit()
                         ):
                             raise WorkspaceError("invalid topology process identity")
-                        if process_matches(pid, start):
+                        if value.get("control") is None and process_matches(pid, start):
                             running.append(pid)
+                    lease_path = directory / "process-tree.lease"
+                    if lease_path.is_symlink():
+                        raise WorkspaceError("invalid topology process-tree lease")
+                    control = value.get("control")
+                    if control is not None:
+                        if (
+                            not isinstance(control, dict)
+                            or set(control)
+                            != {"socket", "generation", "lease"}
+                            or not isinstance(control.get("generation"), str)
+                            or re.fullmatch(
+                                r"[0-9a-f]{64}", control["generation"]
+                            )
+                            is None
+                            or control.get("socket")
+                            != str(
+                                control_socket_path(
+                                    directory, control["generation"]
+                                )
+                            )
+                            or not isinstance(control.get("lease"), dict)
+                        ):
+                            raise WorkspaceError(
+                                "invalid topology control identity"
+                            )
+                        lease_active = bound_lease_locked(
+                            lease_path,
+                            control["generation"],
+                            control["lease"],
+                        )
+                    else:
+                        lease_active = (
+                            lease_path.is_file() and lease_locked(lease_path)
+                        )
                     affected = (
                         value.get("profile") in changed_profiles
                         or "content-1x" in json.dumps(value, sort_keys=True)
@@ -816,10 +855,10 @@ class ContentMigration:
                             "profile": value.get("profile"),
                             "affected": affected,
                             "running_pids": running,
-                            "status": "blocked" if affected and running else "historical-inert",
+                            "status": "blocked" if affected and (running or lease_active) else "historical-inert",
                         }
                     )
-                    if affected and running:
+                    if affected and (running or lease_active):
                         refusals.append(
                             _refusal(
                                 "live_topology",

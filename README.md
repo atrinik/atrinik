@@ -510,6 +510,33 @@ contracts land, `PROFILE` must be `classic` or derived from it:
 ./atrinik down TOPOLOGY
 ~~~
 
+Each current topology persists a random generation identity and a mode-0600
+filesystem control endpoint. `ps` and `down` therefore work from another
+supported devcontainer or sandbox that shares the workspace even when its PID
+namespace cannot see the namespace-local process numbers. JSON status reports
+`live`, `exited`, `stale`, or fail-closed `unreachable` liveness plus an
+`observation` naming the topology that retains the repository-layout lease and
+the safe next action. Text status prints the same retained-lease owner and
+action. A control response must match both the topology name and generation;
+`down` never falls back to signaling a mismatched or recycled PID.
+The runtime places the socket under a short generation-derived name in the
+shared workspace, avoiding ordinary managed-worktree and topology-name path
+growth. The process-tree lease is tied to both the generation and exact file
+identity; never replace,
+unlink, or repair it by hand because an invalid current lease fails closed.
+
+If a supervisor is killed rather than shut down, its same-namespace guardian
+terminates exact process-tree lease holders and retains the generation until
+their absence is proven. Layout, build-root, and state leases are held by the
+supervisor and guardian, not services, so a descendant that closes its
+process-tree identity cannot retain those workspace leases; the guardian
+releases them after recovery. During that
+interval another session reports `unreachable` and fails closed: wait, retry
+`./atrinik ps TOPOLOGY --json`, then retry `./atrinik down TOPOLOGY`. If the
+lease remains retained and control remains unreachable, preserve the exact
+record and lease for operator diagnosis; do not scan `/proc`, signal recorded
+PIDs, remove lease files, or reuse the topology name.
+
 The handoff should name any display or runtime prerequisite, list the exact
 manual actions and expected results, and include `down` for cleanup. When no
 runtime check applies, it should say so and still provide the relevant wrapper
