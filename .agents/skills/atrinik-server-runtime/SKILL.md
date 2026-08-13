@@ -38,6 +38,18 @@ follow the reported safe action: wait for bounded guardian recovery and retry
 `ps` and `down`; preserve an exact retained lease for operator diagnosis.
 Never inspect `/proc`, signal the recorded PIDs, unlink control or lease files,
 or reuse the name as recovery.
+After `down`, retain the record for diagnosis or reclaim it only through the
+separate preview-first lifecycle:
+
+```sh
+./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
+./atrinik cleanup --scope topologies --older-than 7 --apply
+```
+
+This scope is excluded from defaults and `all`. It accepts only old `exited` or
+legacy `stale` marker-owned records with unreachable controls and released
+leases; it never acts as `down` or touches persistent state, scenarios, builds,
+profiles, or source.
 The wrapper uses a short generation-derived endpoint in the shared workspace
 and binds both process-tree and immutable runtime-bundle leases to the exact
 generation and file identities. Missing, replaced, linked, or malformed
