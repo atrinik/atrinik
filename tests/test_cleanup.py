@@ -204,8 +204,10 @@ class CleanupTests(unittest.TestCase):
         *,
         generation: str | None = None,
         process_tree_lease: str = "released",
+        runtime_bundle_lease: str = "released",
         control: str = "unreachable",
         stopped_at: str | None = "2026-07-01T00:00:00+00:00",
+        port_reservation: object = None,
         repository_layout_lease_owner: str | None = None,
     ) -> dict[str, object]:
         return {
@@ -216,8 +218,8 @@ class CleanupTests(unittest.TestCase):
                 "control": control,
                 "generation": generation,
                 "process_tree_lease": process_tree_lease,
-                "runtime_bundle_lease": "released",
-                "port_reservation": None,
+                "runtime_bundle_lease": runtime_bundle_lease,
+                "port_reservation": port_reservation,
                 "repository_layout_lease_owner": repository_layout_lease_owner,
             },
         }
@@ -400,6 +402,42 @@ class CleanupTests(unittest.TestCase):
         )
         self.assertIn("active_topology_operation", items["active-operation"]["reasons"])
         self.assertTrue(all(row["disposition"] == "protected" for row in items.values()))
+
+    def test_topology_cleanup_rejects_special_and_hard_linked_files(self) -> None:
+        special = self.make_topology_record("special-file")
+        os.mkfifo(special / "unsafe-fifo")
+        linked = self.make_topology_record("hard-linked")
+        os.link(linked / "server.log", linked / "server-copy.log")
+
+        report = self.workspace.cleanup(["topologies"], 7, [], False)
+        items = {row["name"]: row for row in report["items"]}
+
+        self.assertIn("invalid_topology_tree", items["special-file"]["reasons"])
+        self.assertIn("special file", items["special-file"]["error"])
+        self.assertIn("invalid_topology_tree", items["hard-linked"]["reasons"])
+        self.assertIn("linked file", items["hard-linked"]["error"])
+
+    def test_topology_cleanup_protects_unverifiable_runtime_and_port_leases(self) -> None:
+        runtime = self.make_topology_record("runtime-unknown")
+        port = self.make_topology_record("port-unknown")
+
+        def status(name: str) -> dict[str, object]:
+            if name == runtime.name:
+                return self.topology_observation(
+                    "exited", runtime_bundle_lease="unverifiable"
+                )
+            return self.topology_observation("exited", port_reservation={})
+
+        with mock.patch.object(self.workspace, "topology_status", side_effect=status):
+            report = self.workspace.cleanup(["topologies"], 7, [], False)
+        items = {row["name"]: row for row in report["items"]}
+
+        self.assertIn(
+            "runtime_bundle_lease_unverifiable", items[runtime.name]["reasons"]
+        )
+        self.assertIn(
+            "port_reservation_lease_unverifiable", items[port.name]["reasons"]
+        )
 
     def test_current_generation_and_invalid_records_are_reported_fail_closed(self) -> None:
         self.make_topology_record("current-generation")
