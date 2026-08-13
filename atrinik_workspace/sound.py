@@ -920,7 +920,7 @@ def _validate_release_schema_structure(
     if set(schema) - supported:
         raise WorkspaceError("released sound packaged schema uses unsupported keywords")
     reference = schema.get("$ref")
-    if reference is not None:
+    if "$ref" in schema:
         if not isinstance(reference, str) or not reference.startswith("#/$defs/"):
             raise WorkspaceError("released sound packaged schema reference is invalid")
         name = reference.removeprefix("#/$defs/")
@@ -943,13 +943,13 @@ def _validate_release_schema_structure(
         "minProperties",
     ):
         value = schema.get(keyword)
-        if value is not None and (
+        if keyword in schema and (
             not isinstance(value, int) or isinstance(value, bool) or value < 0
         ):
             raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
     for keyword in ("maximum", "minimum"):
         value = schema.get(keyword)
-        if value is not None and (
+        if keyword in schema and (
             not isinstance(value, (int, float))
             or isinstance(value, bool)
             or not math.isfinite(value)
@@ -960,27 +960,30 @@ def _validate_release_schema_structure(
     ):
         raise WorkspaceError("released sound packaged schema enum is invalid")
     required = schema.get("required")
-    if required is not None and (
+    if "required" in schema and (
         not isinstance(required, list)
         or any(not isinstance(name, str) for name in required)
+        or len(set(required)) != len(required)
     ):
         raise WorkspaceError("released sound packaged schema required is invalid")
     type_name = schema.get("type")
     allowed_types = {
         "object", "array", "string", "integer", "number", "boolean", "null"
     }
-    if type_name is not None:
+    if "type" in schema:
         values = [type_name] if isinstance(type_name, str) else type_name
         if (
             not isinstance(values, list)
             or not values
+            or any(not isinstance(value, str) for value in values)
             or any(value not in allowed_types for value in values)
+            or len(set(values)) != len(values)
         ):
             raise WorkspaceError("released sound packaged schema type is invalid")
     if "uniqueItems" in schema and not isinstance(schema["uniqueItems"], bool):
         raise WorkspaceError("released sound packaged schema uniqueItems is invalid")
     pattern = schema.get("pattern")
-    if pattern is not None:
+    if "pattern" in schema:
         if not isinstance(pattern, str):
             raise WorkspaceError("released sound packaged schema pattern is invalid")
         try:
@@ -1005,7 +1008,7 @@ def _validate_release_schema_structure(
             )
     for keyword in ("allOf", "anyOf", "oneOf"):
         branches = schema.get(keyword)
-        if branches is None:
+        if keyword not in schema:
             continue
         if not isinstance(branches, list) or not branches:
             raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
@@ -1083,7 +1086,7 @@ def _validate_release_schema_instance(
     if "uniqueItems" in schema and not isinstance(schema["uniqueItems"], bool):
         raise WorkspaceError("released sound packaged schema uniqueItems is invalid")
     reference = schema.get("$ref")
-    if reference is not None:
+    if "$ref" in schema:
         if not isinstance(reference, str) or not reference.startswith("#/$defs/"):
             raise WorkspaceError("released sound packaged schema reference is invalid")
         name = reference.removeprefix("#/$defs/")

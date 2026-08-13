@@ -1294,6 +1294,10 @@ class ReleasedSoundTests(unittest.TestCase):
             {"pattern": "["},
             {"items": "invalid"},
             {"properties": {"absent": {"$ref": "invalid"}}},
+            {"anyOf": None},
+            {"maxItems": None},
+            {"type": None},
+            {"type": [{}]},
         )):
             with self.subTest(invalid=invalid):
                 schema_path = self.tree / RELEASE_SCHEMA
