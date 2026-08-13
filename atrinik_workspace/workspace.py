@@ -121,7 +121,13 @@ SCENARIO_KEYS = {
     "provisioned_at",
 }
 SCENARIO_SCHEMA_VERSION = 4
-SCENARIO_PRESETS = {"basic-player": {"archetype": "human_male"}}
+SCENARIO_PRESETS = {
+    "basic-player": {"archetype": "human_male"},
+    "lighting-radiance-day": {"archetype": "human_male"},
+    "lighting-radiance-dawn": {"archetype": "human_male"},
+    "lighting-radiance-night": {"archetype": "human_male"},
+    "lighting-radiance-inside": {"archetype": "human_male"},
+}
 SCENARIO_PASSWORD_MAX_SIZE = 128
 BUILD_METADATA = ".atrinik-build.json"
 BUILD_METADATA_SCHEMA_VERSION = 2
@@ -6133,18 +6139,19 @@ class Workspace:
                 root, selected, state, metadata["state"]
             )
             executable = runtime / "atrinik-server"
-            run(
-                [
-                    str(executable),
-                    "--provision_scenario",
-                    f"--provision_account={metadata['account']}",
-                    f"--provision_character={metadata['character']}",
-                    f"--provision_archetype={metadata['archetype']}",
-                    f"--provision_password_file={password_file}",
-                    f"--assetspath={runtime / 'assets'}",
-                ],
-                cwd=runtime,
-            )
+            arguments = [
+                str(executable),
+                "--provision_scenario",
+                f"--provision_account={metadata['account']}",
+                f"--provision_character={metadata['character']}",
+                f"--provision_archetype={metadata['archetype']}",
+                f"--provision_password_file={password_file}",
+                f"--assetspath={runtime / 'assets'}",
+            ]
+            preset = metadata.get("preset", "basic-player")
+            if preset != "basic-player":
+                arguments.append(f"--provision_preset={preset}")
+            run(arguments, cwd=runtime)
         profile = self._load_profile(metadata["profile"], require_file=False)
         stack = self.manifest.stack(profile["stack"])
         audited = {role: selected[role] for role in required}

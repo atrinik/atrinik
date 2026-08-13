@@ -34,6 +34,15 @@ _SCENARIO_KEYS = {
     "resolved",
     "provisioned_at",
 }
+_SCENARIO_PRESETS = frozenset(
+    {
+        "basic-player",
+        "lighting-radiance-day",
+        "lighting-radiance-dawn",
+        "lighting-radiance-night",
+        "lighting-radiance-inside",
+    }
+)
 
 
 def mark(action: argparse.Action, kind: str) -> argparse.Action:
@@ -589,7 +598,7 @@ def _valid_scenario(
         or value.get("name") != name
         or value.get("stack") != stack_name
         or value.get("state") != state_name
-        or value.get("preset") != "basic-player"
+        or value.get("preset") not in _SCENARIO_PRESETS
         or any(
             not isinstance(value.get(field), str) or not value[field]
             for field in ("account", "character", "archetype", "provisioned_at")
