@@ -12,6 +12,12 @@ from unittest import mock
 
 from atrinik_workspace import content_migration as migration_module
 from atrinik_workspace.content_migration import ContentMigration
+from atrinik_workspace.locking import (
+    exclusive_layout_lock,
+    exclusive_lock,
+    layout_writer_intent_path,
+    layout_writer_pending_path,
+)
 from atrinik_workspace.workspace import Workspace
 
 
@@ -19,6 +25,21 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ContentMigrationTests(unittest.TestCase):
+    def test_git_helper_inherits_all_exclusive_layout_descriptors(self) -> None:
+        completed = mock.MagicMock(returncode=0, stdout="", stderr="")
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            exclusive_layout_lock(
+                Path(directory) / "repository-layout.lock", "repository layout"
+            ),
+            mock.patch.object(
+                migration_module.subprocess, "run", return_value=completed
+            ) as invoke,
+        ):
+            migration_module._git(Path("/tmp/repository"), "status")
+
+        self.assertEqual(len(invoke.call_args.kwargs["pass_fds"]), 3)
+
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
@@ -436,6 +457,19 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertEqual(result["status"], "refused")
         self.assertEqual(result["refusals"][0]["code"], "repository_layout_busy")
 
+    def test_restore_refuses_when_writer_admission_is_held(self) -> None:
+        self._legacy_profile()
+        self.assertEqual(self.migration().execute("apply")["status"], "complete")
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+
+        with exclusive_lock(
+            layout_writer_intent_path(layout), "competing writer admission"
+        ):
+            result = self.migration().execute("restore")
+
+        self.assertEqual(result["status"], "refused")
+        self.assertEqual(result["refusals"][0]["code"], "repository_layout_busy")
+
     def test_tampered_journal_cannot_redirect_profile_restore(self) -> None:
         self._legacy_profile()
         self.assertEqual(self.migration().execute("apply")["status"], "complete")
@@ -626,9 +660,10 @@ class ContentMigrationTests(unittest.TestCase):
         unsafe = self.root / "unsafe-lock"
         unsafe.mkdir()
         with self.assertRaisesRegex(
-            migration_module.WorkspaceError, "cannot open repository layout lock"
+            migration_module.WorkspaceError, "repository layout lock"
         ):
-            migration_module._open_layout_lock(unsafe)
+            with exclusive_layout_lock(unsafe, "repository layout"):
+                self.fail("unsafe layout lock unexpectedly succeeded")
 
         self._legacy_profile()
         lock_path = self.workspace.paths.workspace / "repository-layout.lock"
@@ -640,6 +675,19 @@ class ContentMigrationTests(unittest.TestCase):
             os.close(descriptor)
         self.assertEqual(result["status"], "refused")
         self.assertEqual(result["refusals"][-1]["code"], "repository_layout_busy")
+
+    def test_apply_refuses_when_writer_admission_is_held(self) -> None:
+        self._legacy_profile()
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+
+        with exclusive_lock(
+            layout_writer_intent_path(layout), "competing writer admission"
+        ):
+            result = self.migration().execute("apply")
+
+        self.assertEqual(result["status"], "refused")
+        self.assertEqual(result["refusals"][-1]["code"], "repository_layout_busy")
+        self.assertFalse(self.migration().record_path.exists())
 
     def test_apply_is_idempotent_only_before_explicit_restore(self) -> None:
         self._legacy_profile()
@@ -845,6 +893,8 @@ class ContentMigrationTests(unittest.TestCase):
         topologies.write_text("unsafe\n", encoding="utf-8")
         locks = self.workspace.paths.workspace / "repository-layout.lock"
         locks.symlink_to(self.root / "missing-lock")
+        layout_writer_intent_path(locks).mkdir()
+        layout_writer_pending_path(locks).symlink_to(self.root / "missing-pending")
 
         resources, refusals = self.migration()._resource_inventory(set())
 
@@ -852,7 +902,17 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertIn("invalid_builds_directory", codes)
         self.assertIn("invalid_topologies_directory", codes)
         self.assertIn("invalid_lock_path", codes)
-        self.assertEqual(resources["locks"][0]["status"], "unsafe")
+        unsafe_locks = {
+            row["path"] for row in resources["locks"] if row["status"] == "unsafe"
+        }
+        self.assertEqual(
+            unsafe_locks,
+            {
+                str(locks),
+                str(layout_writer_intent_path(locks)),
+                str(layout_writer_pending_path(locks)),
+            },
+        )
 
     def test_resource_inventory_rejects_bad_entries_and_process_records(self) -> None:
         build = self.workspace.paths.builds / "bad"
@@ -887,6 +947,14 @@ class ContentMigrationTests(unittest.TestCase):
         lock_directory.mkdir()
         lock = lock_directory / "busy.lock"
         lock.write_text("lock\n", encoding="utf-8")
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        coordination_locks = (
+            layout,
+            layout_writer_intent_path(layout),
+            layout_writer_pending_path(layout),
+        )
+        for coordination_lock in coordination_locks:
+            coordination_lock.write_text("lock\n", encoding="utf-8")
         with (
             mock.patch.object(migration_module, "RESOURCE_RECORD_MAX_BYTES", 1),
             mock.patch.object(
@@ -901,6 +969,10 @@ class ContentMigrationTests(unittest.TestCase):
         )
         observed = next(row for row in resources["locks"] if row["path"] == str(lock))
         self.assertTrue(observed["active"])
+        observed_paths = {
+            row["path"] for row in resources["locks"] if row["active"]
+        }
+        self.assertTrue({str(path) for path in coordination_locks} <= observed_paths)
 
     def test_apply_rolls_back_when_profile_changes_after_preflight(self) -> None:
         profile, original = self._legacy_profile()
