@@ -2819,10 +2819,9 @@ class Workspace:
             with self._resource_locks([source_request]):
                 self._set_profile(name, component_name, kind, value)
 
-    def _backfill_profile_references(self, *, already_locked: bool = False) -> bool:
+    def _backfill_profile_references(self, *, already_locked: bool = False) -> None:
         if not self.paths.profiles.is_dir() or self.paths.profiles.is_symlink():
-            return True
-        complete = True
+            return
         for path in sorted(self.paths.profiles.glob("*.json")):
             if already_locked:
                 profile = self._load_profile_file(path.stem, require_file=True)
@@ -2844,20 +2843,19 @@ class Workspace:
                     for checkout, source in sources
                 ],
             ]
-            try:
-                with resource_locks(self._lease_root, requests, nonblocking=True):
-                    confirmed = load_regular_json(path, f"profile {path.stem}")
-                    if confirmed != profile or any(
-                        not source.is_dir() for _checkout, source in sources
-                    ):
-                        complete = False
-                        continue
-                    self._publish_raw_profile_references(
-                        path.stem, path, profile=confirmed
+            with resource_locks(self._lease_root, requests, nonblocking=True):
+                confirmed = load_regular_json(path, f"profile {path.stem}")
+                if confirmed != profile:
+                    raise WorkspaceError(
+                        "profile changed during physical reference backfill: "
+                        f"{path.stem}; stop editing that profile and retry"
                     )
-            except LockBusyError:
-                complete = False
-        return complete
+                # Missing selectors are historical authored coordinates. Publish
+                # them conservatively so construction can finish without making
+                # a source at that exact path eligible for later reclamation.
+                self._publish_raw_profile_references(
+                    path.stem, path, profile=confirmed
+                )
 
     def _raw_profile_reference_sources(
         self, name: str, profile: Any
@@ -2984,13 +2982,8 @@ class Workspace:
         with shared_maintenance_lock(
             self._lease_namespace / "repository-layout.lock"
         ):
-            complete = self._backfill_profile_references()
-            complete = self._backfill_scenario_references() and complete
-            if not complete:
-                raise WorkspaceError(
-                    "physical reference backfill is busy; wait for the named exact "
-                    "resource operation to finish and retry"
-                )
+            self._backfill_profile_references()
+            self._backfill_scenario_references()
             self._atomic_physical_reference(
                 f"{state_identity}.json",
                 {
@@ -3301,10 +3294,9 @@ class Workspace:
             },
         )
 
-    def _backfill_scenario_references(self) -> bool:
+    def _backfill_scenario_references(self) -> None:
         if not self.paths.scenarios.is_dir() or self.paths.scenarios.is_symlink():
-            return True
-        complete = True
+            return
         for root in sorted(self.paths.scenarios.iterdir()):
             record = root / "scenario.json"
             if root.is_dir() and not root.is_symlink() and record.is_file():
@@ -3338,18 +3330,17 @@ class Workspace:
                         for checkout, source in sorted(sources, key=lambda item: (item[0], str(item[1])))
                     ],
                 ]
-                try:
-                    with resource_locks(self._lease_root, requests, nonblocking=True):
-                        confirmed = load_regular_json(record, "scenario metadata")
-                        if confirmed != metadata or any(
-                            not source.is_dir() for _checkout, source in sources
-                        ):
-                            complete = False
-                            continue
-                        self._publish_scenario_references(root.name, confirmed)
-                except LockBusyError:
-                    complete = False
-        return complete
+                with resource_locks(self._lease_root, requests, nonblocking=True):
+                    confirmed = load_regular_json(record, "scenario metadata")
+                    if confirmed != metadata:
+                        raise WorkspaceError(
+                            "scenario changed during physical reference backfill: "
+                            f"{root.name}; stop editing that scenario and retry"
+                        )
+                    # As with profiles, retain missing historical source paths in
+                    # the common registry so another workspace root cannot later
+                    # reclaim a source that the authored scenario still names.
+                    self._publish_scenario_references(root.name, confirmed)
 
     def _set_profile(
         self, name: str, component_name: str, kind: str, value: str = ""

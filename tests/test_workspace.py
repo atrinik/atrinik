@@ -13,6 +13,7 @@ import multiprocessing
 import os
 from pathlib import Path
 import queue
+import re
 import shutil
 import signal
 import socket
@@ -7159,7 +7160,12 @@ class WorkspaceTests(unittest.TestCase):
             "remove selected source",
         )
         with resource_locks(self.workspace._lease_root, [source_request]):
-            with self.assertRaisesRegex(WorkspaceError, "backfill is busy"):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                rf"source content:{re.escape(str(source))} is already in use by "
+                r"exclusive remove selected source by .*; "
+                r"inspect `\./atrinik worktree list --json` and retry",
+            ):
                 self.workspace._backfill_physical_references()
         self.assertFalse((registry / f"{profile_identity}.json").exists())
         self.assertFalse((registry / f"{state_identity}.json").exists())
@@ -7167,6 +7173,157 @@ class WorkspaceTests(unittest.TestCase):
         self.workspace._backfill_physical_references()
         self.assertTrue((registry / f"{profile_identity}.json").is_file())
         self.assertTrue((registry / f"{state_identity}.json").is_file())
+
+    def test_backfill_preserves_missing_profile_as_historical_reference(self) -> None:
+        source = self.workspace.create_worktree(
+            "content", "missing-profile", "feat/missing-profile", None, False
+        )
+        profile = self.workspace.create_profile("missing-profile")
+        self.workspace.set_profile("missing-profile", "content", "path", str(source))
+        authored = profile.read_bytes()
+        registry = self.workspace._lease_namespace / "profile-references"
+        profile_identity = hashlib.sha256(str(profile.resolve()).encode()).hexdigest()
+        state_identity = hashlib.sha256(
+            str(self.workspace.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        (registry / f"{profile_identity}.json").unlink()
+        (registry / f"{state_identity}.json").unlink()
+        shutil.rmtree(source)
+
+        fresh = Workspace(self.wrapper)
+        try:
+            self.assertTrue(fresh.repository_status(["content"]))
+            fresh.sync(["content"], "none")
+            self.assertEqual(profile.read_bytes(), authored)
+            record = load_json(registry / f"{profile_identity}.json")
+            self.assertEqual(record["sources"], [str(source.resolve())])
+            self.assertTrue((registry / f"{state_identity}.json").is_file())
+        finally:
+            fresh.close()
+
+    def test_relocated_backfill_and_removal_share_missing_source_coordinate(
+        self,
+    ) -> None:
+        source = self.workspace.create_worktree(
+            "content", "relocated-missing", "feat/relocated-missing", None, False
+        )
+        alternate_root = self.root / "alternate-workspace"
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
+        ):
+            alternate = Workspace(self.wrapper)
+            alternate.paths.ensure()
+            profile = alternate.create_profile("relocated-missing")
+            alternate.set_profile(
+                "relocated-missing", "content", "path", str(source)
+            )
+            alternate.close()
+
+        registry = self.workspace._lease_namespace / "profile-references"
+        profile_identity = hashlib.sha256(str(profile.resolve()).encode()).hexdigest()
+        state_identity = hashlib.sha256(str(alternate_root.resolve()).encode()).hexdigest()
+        (registry / f"{profile_identity}.json").unlink()
+        (registry / f"{state_identity}.json").unlink()
+        shutil.rmtree(source)
+        removal = self.workspace._lease_request(
+            "source",
+            self.workspace._source_coordinate("content", source),
+            "exclusive",
+            "remove selected source",
+        )
+        with resource_locks(self.workspace._lease_root, [removal]):
+            with (
+                mock.patch.dict(
+                    os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError,
+                    rf"source content:{re.escape(str(source))} is already in use by "
+                    r"exclusive remove selected source by",
+                ),
+            ):
+                Workspace(self.wrapper)
+
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
+        ):
+            fresh = Workspace(self.wrapper)
+            fresh.close()
+        source.mkdir(parents=True)
+        with resource_locks(self.workspace._lease_root, [removal]):
+            self.assertIn(
+                "profile:relocated-missing",
+                self.workspace._source_references(source),
+            )
+
+    def test_backfill_preserves_missing_scenario_as_historical_reference(self) -> None:
+        root = self.workspace.paths.scenarios / "missing-scenario"
+        root.mkdir()
+        missing = self.workspace.paths.worktrees / "server" / "missing-scenario"
+        record = root / "scenario.json"
+        atomic_json(
+            record,
+            {
+                "resolved": {
+                    "server": {
+                        "checkout": "server",
+                        "checkout_path": str(missing),
+                    }
+                }
+            },
+        )
+        authored = record.read_bytes()
+        registry = self.workspace._lease_namespace / "profile-references"
+        scenario_identity = hashlib.sha256(str(record.resolve()).encode()).hexdigest()
+        state_identity = hashlib.sha256(
+            str(self.workspace.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        (registry / f"{state_identity}.json").unlink()
+
+        fresh = Workspace(self.wrapper)
+        try:
+            self.assertEqual(record.read_bytes(), authored)
+            reference = load_json(registry / f"{scenario_identity}.json")
+            self.assertEqual(reference["sources"], [str(missing.resolve())])
+            self.assertTrue((registry / f"{state_identity}.json").is_file())
+        finally:
+            fresh.close()
+
+    def test_backfill_reports_authored_record_change_separately(self) -> None:
+        profile = self.workspace.create_profile("changing-backfill")
+        registry = self.workspace._lease_namespace / "profile-references"
+        profile_identity = hashlib.sha256(str(profile.resolve()).encode()).hexdigest()
+        state_identity = hashlib.sha256(
+            str(self.workspace.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        (registry / f"{profile_identity}.json").unlink()
+        (registry / f"{state_identity}.json").unlink()
+        real_load = workspace_module.load_regular_json
+        reads = 0
+
+        def changed_on_confirmation(path: Path, description: str) -> object:
+            nonlocal reads
+            value = real_load(path, description)
+            if path == profile:
+                reads += 1
+                if reads == 2:
+                    return {**value, "name": "changed-directly"}
+            return value
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.load_regular_json",
+                side_effect=changed_on_confirmation,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError,
+                "profile changed during physical reference backfill: "
+                "changing-backfill; stop editing that profile and retry",
+            ),
+        ):
+            self.workspace._backfill_physical_references()
+        self.assertFalse((registry / f"{profile_identity}.json").exists())
+        self.assertFalse((registry / f"{state_identity}.json").exists())
 
     def test_backfill_rejects_inexact_marker_schema(self) -> None:
         state_identity = hashlib.sha256(
