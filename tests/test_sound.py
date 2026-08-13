@@ -1314,6 +1314,101 @@ class ReleasedSoundTests(unittest.TestCase):
                 with self.assertRaisesRegex(WorkspaceError, "packaged schema"):
                     verify_release_tree(self.tree, self.coordinates)
 
+    def test_schema_subset_validation_covers_supported_boundaries(self) -> None:
+        structure_failures = (
+            ([], "node"),
+            ({"unknown": True}, "unsupported"),
+            ({"maximum": float("inf")}, "maximum"),
+            ({"minimum": False}, "minimum"),
+            ({"enum": []}, "enum"),
+            ({"required": ["a", "a"]}, "required"),
+            ({"type": []}, "type"),
+            ({"uniqueItems": 1}, "uniqueItems"),
+            ({"pattern": "["}, "pattern"),
+            ({"properties": []}, "properties"),
+            ({"$defs": []}, "properties"),
+            ({"additionalProperties": []}, "node"),
+            ({"allOf": []}, "allOf"),
+        )
+        for schema, message in structure_failures:
+            with self.subTest(schema=schema):
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    sound_module._validate_release_schema_structure(schema)
+        with self.assertRaisesRegex(WorkspaceError, "evaluation limits"):
+            sound_module._validate_release_schema_structure({}, budget=[0])
+        sound_module._validate_release_schema_structure(
+            {
+                "$defs": {"value": {"type": "string"}},
+                "properties": {"name": {"$ref": "#/$defs/value"}},
+                "items": True,
+                "additionalProperties": False,
+                "allOf": [True],
+                "maxItems": 1,
+                "minimum": 0,
+                "required": ["name"],
+                "type": ["object", "null"],
+                "uniqueItems": False,
+            }
+        )
+
+        validate = sound_module._validate_release_schema_instance
+        with self.assertRaises(sound_module._ReleaseSchemaMismatch):
+            validate("value", False, {})
+        with self.assertRaisesRegex(WorkspaceError, "node"):
+            validate("value", [], {})
+        with self.assertRaisesRegex(WorkspaceError, "evaluation limits"):
+            validate("value", {}, {}, budget=[0])
+        with self.assertRaisesRegex(WorkspaceError, "unsupported"):
+            validate("value", {"unknown": True}, {})
+        with self.assertRaisesRegex(WorkspaceError, "reference is invalid"):
+            validate("value", {"$ref": "invalid"}, {})
+        with self.assertRaisesRegex(WorkspaceError, "reference is unresolved"):
+            validate("value", {"$ref": "#/$defs/missing"}, {"$defs": {}})
+        root = {"$defs": {"text": {"type": "string"}}}
+        validate("value", {"$ref": "#/$defs/text"}, root)
+        for keyword in ("allOf", "anyOf", "oneOf"):
+            with self.subTest(keyword=keyword):
+                with self.assertRaisesRegex(WorkspaceError, keyword):
+                    validate("value", {keyword: []}, {})
+        validate("value", {"allOf": [True, True]}, {})
+        validate("value", {"anyOf": [False, True, True]}, {})
+        validate("value", {"oneOf": [False, True]}, {})
+        for schema, value, message in (
+            ({"allOf": [True, False]}, "x", "allOf"),
+            ({"anyOf": [False, False]}, "x", "anyOf"),
+            ({"oneOf": [True, True]}, "x", "oneOf"),
+            ({"const": "expected"}, "other", "const"),
+            ({"enum": ["expected"]}, "other", "enum"),
+            ({"type": "integer"}, "other", "wrong type"),
+            ({"type": "number"}, float("inf"), "wrong type"),
+            ({"type": "object", "required": ["name"]}, {}, "object"),
+            ({"type": "object", "minProperties": 2}, {"a": 1}, "minProperties"),
+            ({"type": "object", "maxProperties": 0}, {"a": 1}, "maxProperties"),
+            ({"type": "array", "minItems": 2}, [1], "minItems"),
+            ({"type": "array", "maxItems": 0}, [1], "maxItems"),
+            ({"type": "array", "uniqueItems": True}, [1, 1], "unique"),
+            ({"type": "string", "minLength": 2}, "x", "minLength"),
+            ({"type": "string", "maxLength": 0}, "x", "maxLength"),
+            ({"type": "string", "pattern": "^a"}, "x", "pattern"),
+            ({"type": "number", "minimum": 2}, 1, "minimum"),
+            ({"type": "number", "maximum": 0}, 1, "maximum"),
+        ):
+            with self.subTest(schema=schema, value=value):
+                with self.assertRaisesRegex(
+                    sound_module._ReleaseSchemaMismatch, message
+                ):
+                    validate(value, schema, {})
+        validate(
+            {"name": "value", "extra": 1},
+            {
+                "type": "object",
+                "properties": {"name": {"type": "string"}},
+                "additionalProperties": {"type": "integer"},
+            },
+            {},
+        )
+        validate(["a", "b"], {"type": "array", "items": {"type": "string"}}, {})
+
     def test_build_metadata_and_supervised_topology_reuse_verified_root(self) -> None:
         wrapper = self.root / "topology-wrapper"
         wrapper.mkdir()
