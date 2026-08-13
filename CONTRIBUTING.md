@@ -84,6 +84,17 @@ foundations; their wrapper build/runtime adapters and integrated service
 closure have not landed, so current game integration uses a profile created
 from `classic`.
 
+Runtime cohort and Classic maintenance boundaries do not impose a blanket
+clean-room rule. Under [`docs/PROVENANCE.md`](docs/PROVENANCE.md), exact,
+independently separable Classic material proven to fall within an applicable
+approved historical grant—including that row's temporal and
+sole-original-authorship scope—may be inspected as source reference, copied,
+migrated or ported, translated or adapted, and MIT-relicensed after the required
+audit and
+destination record. Later material needs contemporaneous compatible permission.
+The Classic source and notices stay GPL; this does not approve a GPL dependency
+or bundle, and any contribution needing permission but lacking it is excluded.
+
 For a pre-split workspace, initialize only the destination with
 `./atrinik init classic`, run `./atrinik migrate repositories --dry-run`
 before apply, and finish with `--audit`. The checked migration combines proven

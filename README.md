@@ -196,10 +196,17 @@ machine record maps every fresh repository to its local CI, provenance,
 dependency, notices, packaging, SBOM, and mixed-license gates without making
 this coordinator a second copy of their implementation policy.
 
-Historical reuse fails closed unless the canonical contract proves complete
-history, sole original authorship, identity, separability, and third-party
-review. Destination evidence cites the exact wrapper revision containing the
-registry used.
+The Classic repository remains GPL-2.0-or-later, but that is not a blanket
+source-reuse ban. Exact, independently separable material proven to fall within
+an applicable approved historical grant—including that row's temporal and
+sole-original-authorship scope—may be inspected as implementation reference,
+copied, migrated or ported, translated or adapted, and MIT-relicensed after the
+canonical complete-history, identity, separability, embedded-material, and
+destination-record review. Source-informed work from qualifying material is
+provenance-approved reuse, not clean-room work. Later material needs
+contemporaneous compatible permission. The source license and unrelated
+dependencies, assets, and surrounding work do not change; destination evidence
+cites the exact wrapper revision containing the registry used.
 
 The GPL classic utilities and their user-facing replacement/retirement paths
 are inventoried in

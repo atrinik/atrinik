@@ -45,7 +45,7 @@
       "owner_milestone": "M4 — Shared editor and scalable presentation",
       "disposition": "replace",
       "replacement_command": "Future bounded import/conversion commands owned by atrinik/editor#11.",
-      "licensing_method": "Clean-room reimplementation from documented input/output fixtures; do not copy GPL converter source without a separately proven grant record.",
+      "licensing_method": "Independent reimplementation from synthetic or independently licensed input/output fixtures; any GPL source reuse requires the canonical exact-grant process.",
       "safety": "Parse untrusted authored data with bounded sizes and write only through editor safe-filesystem transactions.",
       "verification": "Compile gridarta-types-convert.c with strict warnings and compare synthetic conversion fixtures in atrinik/editor#11."
     },
@@ -62,7 +62,7 @@
       "owner_milestone": "M4 — Shared editor and scalable presentation",
       "disposition": "replace",
       "replacement_command": "atrinik-content check (planned by atrinik/content-toolkit#8); native UI integration belongs to atrinik/editor#11.",
-      "licensing_method": "Retain GPL checker for classic use; port only independently specified diagnostics and parity fixtures into clean-room MIT owners.",
+      "licensing_method": "Retain the GPL checker for classic use; the current replacement disposition is independent implementation from specified diagnostics and synthetic parity fixtures. Any source reuse requires the canonical exact-grant process.",
       "safety": "Retain checksum, traversal, link, size, atomic-install, and import-origin checks; keep CLI validation display-independent.",
       "verification": "python3 -m unittest discover -s map-checker-qt/tests -v && python3 map-checker-qt/dependencies.py verify"
     },
@@ -79,7 +79,7 @@
       "owner_milestone": "M4 — Shared editor and scalable presentation",
       "disposition": "retire",
       "replacement_command": "Use the maintained map-checker-qt command until atrinik-content check reaches parity.",
-      "licensing_method": "Preserve GPL history only; no source migration.",
+      "licensing_method": "Preserve GPL history only; no source migration is approved by this retirement disposition.",
       "safety": "Do not reinstall unsupported Python 2/PyGTK or process untrusted maps with this command.",
       "verification": "Confirm every retained diagnostic has a map-checker-qt or atrinik-content parity fixture before removal."
     },
@@ -113,7 +113,7 @@
       "owner_milestone": "M4 — Shared editor and scalable presentation",
       "disposition": "replace",
       "replacement_command": "Future atrinik-content batch/query subcommands from atrinik/content-toolkit#8.",
-      "licensing_method": "Clean-room implementation from explicit operation fixtures; preserve GPL source only in tools.",
+      "licensing_method": "The current replacement disposition is independent implementation from synthetic operation fixtures; preserve GPL source only in tools.",
       "safety": "Require bounded traversal, source-root confinement, dry-run plans, atomic writes, and lossless round trips.",
       "verification": "Run new batch operations against synthetic maps and compare dry-run/edit plans without copying legacy source."
     },
@@ -147,7 +147,7 @@
       "owner_milestone": "M6 — Production hardening and cutover",
       "disposition": "retain-classic",
       "replacement_command": "Use platform-native Go/Rust crash and symbol packaging in each replacement owner; these commands remain classic-only until final classic retirement.",
-      "licensing_method": "Keep GPL scripts in tools; do not copy them into MIT repositories.",
+      "licensing_method": "Keep GPL scripts in tools; no source copy into an MIT repository is currently approved. Any future reuse proposal requires the canonical exact-grant process.",
       "safety": "Operate only on explicit build artifacts, preserve originals until verification, avoid shell-expanded broad paths, and redact sensitive paths from published traces.",
       "verification": "Run against disposable classic release artifacts and verify build IDs, debug links, symbol lookup, and unchanged runtime behavior."
     },
@@ -164,7 +164,7 @@
       "owner_milestone": "M6 — Production hardening and cutover",
       "disposition": "replace",
       "replacement_command": "Use deterministic renderer-owned world imagery and projection metadata from atrinik/renderer#13.",
-      "licensing_method": "Keep the GPL PHP implementation in tools and build a clean-room renderer and consumer; no parser/render source migration.",
+      "licensing_method": "Keep the GPL PHP implementation in tools; the current disposition is an independent renderer and consumer, with no parser/render source migration approved.",
       "safety": "Do not expose the legacy PHP server; bound map traversal and image dimensions; publish only reviewed content/resource licenses.",
       "verification": "Renderer projection fixtures must cover coordinates, labels, bounds, deterministic hashes, and chunk seams before retirement."
     }
