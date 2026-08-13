@@ -273,6 +273,31 @@ class PortReservationTests(unittest.TestCase):
         finally:
             os.close(replacement)
 
+    def test_reused_lease_reports_its_current_owner_not_stale_evidence(self) -> None:
+        port = self.free_port()
+        descriptor, record = self.workspace._reserve_topology_port(
+            port, "stale-owner", "b" * 64
+        )
+        owner = self.topologies / "stale-owner"
+        owner.mkdir()
+        atomic_json(owner / TOPOLOGY_PORT_RESERVATION_RECORD, record)
+        os.close(descriptor)
+
+        replacement, replacement_record = self.workspace._reserve_topology_port(
+            port, "current-owner", "c" * 64
+        )
+        try:
+            with self.assertRaises(WorkspaceError) as raised:
+                self.workspace._reserve_topology_port(
+                    port, "contender", "d" * 64
+                )
+            message = str(raised.exception)
+            self.assertIn("topology current-owner", message)
+            self.assertIn(str(replacement_record["generation"]), message)
+            self.assertNotIn("topology stale-owner", message)
+        finally:
+            os.close(replacement)
+
 
 if __name__ == "__main__":
     unittest.main()

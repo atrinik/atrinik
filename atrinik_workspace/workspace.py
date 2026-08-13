@@ -7654,7 +7654,7 @@ class Workspace:
                 f"run ./atrinik down {owner['topology']} only when safe"
             )
 
-        def known_owner(port: int) -> dict[str, Any] | None:
+        def validate_known_evidence(port: int) -> None:
             expected_path = (
                 self.paths.topologies
                 / PORT_RESERVATION_DIRECTORY
@@ -7680,22 +7680,19 @@ class Workspace:
                         f"topology port reservation evidence is invalid: {record_path}"
                     ) from error
                 try:
-                    if port_reservation_locked(owner):
-                        return owner
+                    port_reservation_locked(owner)
                 except PortReservationError as error:
                     raise WorkspaceError(
                         f"topology port reservation evidence for port {port} "
                         "does not match its exact lease; preserve it for diagnosis"
                     ) from error
-            return None
 
         def claim(port: int) -> tuple[int, dict[str, Any]] | None:
             try:
-                owner = known_owner(port)
-                if owner is not None:
-                    if automatic:
-                        return None
-                    conflict(owner)
+                # Historical pending evidence authenticates the lease inode, but
+                # its owner fields can be stale after an unlocked inode is reused.
+                # The locked lease record below is the authoritative current owner.
+                validate_known_evidence(port)
                 descriptor, path = open_port_reservation(
                     self.paths.topologies, port
                 )
@@ -8209,6 +8206,11 @@ class Workspace:
                         if status["supervisor"]["running"] and status["ready"]:
                             process.wait(timeout=2)
                             return status
+                        if not status["supervisor"]["running"]:
+                            raise WorkspaceError(
+                                "topology supervisor exited during startup; inspect "
+                                f"{topology_root / 'supervisor.log'}"
+                            )
                     if process.poll() not in (None, 0):
                         break
                     time.sleep(0.1)
