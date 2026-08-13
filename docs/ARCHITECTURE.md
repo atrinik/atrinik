@@ -222,34 +222,42 @@ interrupt the holder. The diagnostic is emitted at most once per acquisition.
 If the platform cannot provide a working advisory shared lock, the consuming
 operation fails closed.
 
-A supervised topology transfers its shared layout, exact build-root, state,
-process-tree, and generation-reservation descriptors through the daemon
-supervisor. The supervisor and its same-generation guardian retain the
-workspace/state/reservation leases; services inherit only the process-tree
-identity needed for exact descendant recovery. Client runtimes
-retain links to selected client and sound checkouts, while server runtimes link
-selected server configuration and tool inputs. Inherited descriptors preserve
-the leases if the supervisor dies; topology shutdown terminates orphaned
-services before the guardian releases the last descriptors. A topology-unique inherited
-process-tree lease is also held as an advisory generation lock, so a topology
-name cannot restart until its prior process tree releases the lease. Shutdown
-uses the same lease identity to find and pidfd-signal surviving descendants
-without trusting recycled process or process-group numbers. Foreground client
-and server processes inherit the same applicable leases from the wrapper. The
-common command runner also inherits every active advisory-lock descriptor into
-build and scenario subprocesses, preserving layout, build-root, state,
-registry, and cache protection if their wrapper exits unexpectedly.
+A supervised topology stages its complete executable closure below a random
+topology-owned generation directory before publishing schema-2 spec/status.
+The sealed generation contains copied executables, plugins, client data,
+sound, server configuration and tools, content, resources, and generated maps;
+descriptor-relative no-follow copying rejects links, special files, and source
+identity changes. Its manifest binds topology/profile/provider identity,
+source commits and trees, build metadata, per-file digests, external state, and
+generation. The server state link is the only mutable external runtime input.
+The server's generated asset listing and compressed transport cache occupy a
+generation-named directory below that same exclusively leased state; a sealed
+client-map subtree is copied beside its writable `data` sibling and bound into
+the manifest, while all other asset inputs remain copied into the immutable
+runtime generation. The server receives that exact state-owned asset root.
+After publication, services retain no repository-layout or mutable build-root
+lease. The supervisor and guardian retain exact state, runtime-generation,
+process-tree, and generation-specific port-reservation leases; shutdown uses
+those identities without trusting recycled process or process-group numbers.
+Services inherit only the process-tree identity needed for exact descendant
+recovery. Foreground runs use an equivalent temporary sealed generation and
+retain only its lease plus server state when applicable.
+The common command runner still inherits active advisory-lock descriptors into
+build and scenario subprocesses so an interrupted wrapper cannot strand an
+unprotected mutation.
 
 The writer-pending announcement precedes the writer-intent gate and layout lock,
 which remain
 outermost relative to all operational locks; private helpers never reacquire
 either boundary. A direct build or foreground client then takes its build-root
 lock and subordinate cache locks; the foreground process retains that root
-lease. Topology startup takes the topology-operation/process-tree lock, the
+lease only through publication; the long-lived process retains the immutable
+generation lease instead. Topology startup takes the topology-operation/process-tree lock, the
 automatic allocator when applicable, the per-port transaction and immutable
 generation lease, the server-state lock when needed, and finally the build-root
-lock. It transfers workspace leases into the supervisor/guardian rather than
-services.
+lock. It releases the layout/build boundaries after atomic runtime publication
+and transfers only the exact state, runtime, process-tree, and port leases into
+the supervisor/guardian rather than services.
 Independent CMake roots briefly serialize first-use compiler-cache marker and
 metadata publication, then release that cache lock before compilation.
 Scenario create takes the scenario-operation lock, then build-root and
@@ -656,10 +664,10 @@ endpoint; it never signals a namespace-local, recycled, or unrelated PID.
 Legacy records retain the PID/start-tick fallback. A same-namespace guardian
 holds the process-tree generation until every inherited descendant is gone. If
 the supervisor dies, pipe closure makes the guardian terminate exact lease
-holders and retain the generation until their absence is proven. Layout,
-build, and state leases remain held by the supervisor and guardian rather than
-service-inherited, so a descendant that closes its process-tree identity cannot
-retain those workspace leases. The guardian releases them only after exact
+holders and retain the generation until their absence is proven.
+Runtime-generation and state leases remain held by the supervisor and guardian
+rather than service-inherited, so a descendant that closes its process-tree
+identity cannot retain those resources. The guardian releases them only after exact
 process-tree recovery completes. Another namespace
 waits or fails closed with the owning topology and recovery action. Normal
 shutdown asks the supervisor to gracefully stop children before releasing
@@ -694,23 +702,15 @@ its topology and profile; a foreground client receives its profile and direct
 run mode. The client uses this label only for its native window title. It is
 not part of persisted settings, package or protocol identity, or network
 metadata, and unmanaged launches receive no label.
-A server topology copies the collected-content and staged-resource caches after
-the shared incremental build. The profile build retains its source caches, and
-each topology owns independent immutable-at-startup copies, so later builds and
-other topology removal or mutation cannot change the filesystem seen by a
-running process. Content, resources, and generated client maps are staged and
-installed as one runtime-input transaction, so a copy or validation failure
-before installation retains the complete previous snapshot set and status.
-Snapshot traversal opens every directory and regular file descriptor-relative
-with no-follow semantics and rejects identity changes, links, and special files;
-retained descriptors bind a complete source/destination comparison through
-installation.
-Atomic replacement keeps at most one marker-owned prior-output backup; failed
-reclamation is retried before another replacement may change the output, and
-an interrupted move is restored before a later replacement attempt.
-Because the caches remain below the marker-owned profile build, existing build
-retention and marker-safe cleanup own their lifecycle; topology copies follow
-topology retention.
+Each successful startup atomically renames a new sealed directory into
+`generations/<generation>` and publishes status only afterward. Failure removes
+only its exact staging directory and leaves every previously complete stopped
+generation and status intact. Distinct topology names and generations remain
+independent while the shared build root is rebuilt or selected worktrees
+advance. Generation directories stay with the marker-owned topology record so
+the preview-first topology reclamation contract in #397 can remove only an
+inactive, released, fully validated record; malformed, linked, unreachable, or
+retained generations fail closed.
 A topology may select one service, and distinct runtime names permit concurrent
 combinations as long as their server ports and mutable state directories do not
 conflict. When replacement runtime support lands, a concurrent `classic` and

@@ -124,6 +124,10 @@ COMPILER_CACHE_MAX_SIZE = "5G"
 TOPOLOGY_SERVICES = ("server", "client")
 TOPOLOGY_PROCESS_TREE_LEASE = "process-tree.lease"
 TOPOLOGY_PORT_RESERVATION_RECORD = "port-reservation.json"
+TOPOLOGY_STATUS_SCHEMA_VERSION = 2
+RUNTIME_GENERATION_SCHEMA_VERSION = 1
+RUNTIME_GENERATION_LEASE = "generation.lease"
+RUNTIME_GENERATION_MANIFEST = "manifest.json"
 PRE_MONOREPO_REPOSITORIES = {
     "client": "legacy-client",
     "server": "legacy-server",
@@ -6729,6 +6733,7 @@ class Workspace:
         source_display: Path,
         destination_fd: int,
         destination_display: Path,
+        exclusions: frozenset[str] = frozenset(),
     ) -> None:
         directory_before = os.fstat(source_fd)
         if not stat.S_ISDIR(directory_before.st_mode):
@@ -6742,6 +6747,8 @@ class Workspace:
                 f"cannot list topology runtime input {source_display}: {error}"
             ) from error
         for name in names:
+            if name in exclusions:
+                continue
             source_child = source_display / name
             destination_child = destination_display / name
             try:
@@ -6788,6 +6795,7 @@ class Workspace:
                             source_child,
                             destination_child_fd,
                             destination_child,
+                            frozenset(),
                         )
                     finally:
                         os.close(destination_child_fd)
@@ -6870,7 +6878,10 @@ class Workspace:
         )
 
     def _copy_topology_runtime_tree(
-        self, source: Path, destination: Path
+        self,
+        source: Path,
+        destination: Path,
+        exclusions: frozenset[str] = frozenset(),
     ) -> int:
         flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
         retained_destination_fd: int | None = None
@@ -6918,7 +6929,11 @@ class Workspace:
                     f"{destination}"
                 ) from error
             self._copy_topology_runtime_directory(
-                source_fd, source, destination_fd, destination
+                source_fd,
+                source,
+                destination_fd,
+                destination,
+                exclusions,
             )
             destination_parent_after = os.fstat(destination_parent_fd)
             if (
@@ -6944,6 +6959,566 @@ class Workspace:
             if destination_parent_fd is not None:
                 os.close(destination_parent_fd)
             os.close(source_fd)
+
+    def _copy_runtime_directory_contents(
+        self,
+        source: Path,
+        destination: Path,
+        exclusions: frozenset[str] = frozenset(),
+    ) -> None:
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        source_fd: int | None = None
+        destination_fd: int | None = None
+        try:
+            source_before = source.stat(follow_symlinks=False)
+            source_fd = os.open(source, flags)
+            destination_before = destination.stat(follow_symlinks=False)
+            destination_fd = os.open(destination, flags)
+        except OSError as error:
+            if destination_fd is not None:
+                os.close(destination_fd)
+            if source_fd is not None:
+                os.close(source_fd)
+            raise WorkspaceError(
+                f"cannot open runtime publication directory: {error}"
+            ) from error
+        try:
+            if (
+                self._runtime_tree_identity(os.fstat(source_fd))
+                != self._runtime_tree_identity(source_before)
+                or self._runtime_tree_identity(os.fstat(destination_fd))
+                != self._runtime_tree_identity(destination_before)
+            ):
+                raise WorkspaceError(
+                    "runtime publication directory changed before copy"
+                )
+            self._copy_topology_runtime_directory(
+                source_fd,
+                source,
+                destination_fd,
+                destination,
+                exclusions,
+            )
+        finally:
+            os.close(destination_fd)
+            os.close(source_fd)
+
+    def _copy_runtime_tree(
+        self,
+        source: Path,
+        destination: Path,
+        exclusions: frozenset[str] = frozenset(),
+    ) -> None:
+        descriptor = self._copy_topology_runtime_tree(
+            source, destination, exclusions
+        )
+        os.close(descriptor)
+
+    def _copy_runtime_regular_file(self, source: Path, destination: Path) -> None:
+        flags = os.O_RDONLY | os.O_NOFOLLOW
+        source_fd: int | None = None
+        destination_fd: int | None = None
+        try:
+            before = source.stat(follow_symlinks=False)
+            source_fd = os.open(source, flags)
+            opened = os.fstat(source_fd)
+            if (
+                not stat.S_ISREG(opened.st_mode)
+                or self._runtime_tree_identity(opened)
+                != self._runtime_tree_identity(before)
+            ):
+                raise WorkspaceError(
+                    f"runtime publication input changed or is not regular: {source}"
+                )
+            destination_fd = os.open(
+                destination,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                stat.S_IMODE(opened.st_mode),
+            )
+            with os.fdopen(source_fd, "rb", closefd=False) as source_stream:
+                with os.fdopen(
+                    destination_fd, "wb", closefd=False
+                ) as destination_stream:
+                    shutil.copyfileobj(source_stream, destination_stream)
+                    destination_stream.flush()
+                    os.fsync(destination_stream.fileno())
+            if self._runtime_tree_identity(os.fstat(source_fd)) != (
+                self._runtime_tree_identity(opened)
+            ):
+                raise WorkspaceError(
+                    f"runtime publication input changed during copy: {source}"
+                )
+            os.fchmod(destination_fd, stat.S_IMODE(opened.st_mode))
+            os.utime(
+                destination,
+                ns=(opened.st_atime_ns, opened.st_mtime_ns),
+                follow_symlinks=False,
+            )
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot copy runtime publication input {source}: {error}"
+            ) from error
+        finally:
+            if destination_fd is not None:
+                os.close(destination_fd)
+            if source_fd is not None:
+                os.close(source_fd)
+
+    def _runtime_generation_entries(
+        self,
+        root: Path,
+        state: Path | None,
+    ) -> list[dict[str, Any]]:
+        entries: list[dict[str, Any]] = []
+        for directory, names, files in os.walk(root, followlinks=False):
+            current = Path(directory)
+            names.sort()
+            files.sort()
+            linked_directories: set[str] = set()
+            for name in list(names):
+                path = current / name
+                relative = path.relative_to(root).as_posix()
+                metadata = path.lstat()
+                if stat.S_ISLNK(metadata.st_mode):
+                    if state is not None and relative == "server/data":
+                        target = state
+                        kind = "external-state"
+                    else:
+                        raise WorkspaceError(
+                            f"runtime publication contains a link: {path}"
+                        )
+                    if path.resolve(strict=False) != target.resolve(strict=False):
+                        raise WorkspaceError(
+                            f"runtime publication state link changed: {path}"
+                        )
+                    linked_directories.add(name)
+                    entries.append(
+                        {
+                            "kind": kind,
+                            "path": relative,
+                            "target": str(target),
+                        }
+                    )
+                elif not stat.S_ISDIR(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"runtime publication contains a special file: {path}"
+                    )
+                else:
+                    entries.append(
+                        {
+                            "kind": "directory",
+                            "path": relative,
+                            "mode": stat.S_IMODE(metadata.st_mode),
+                        }
+                    )
+            names[:] = [name for name in names if name not in linked_directories]
+            for name in files:
+                path = current / name
+                relative = path.relative_to(root).as_posix()
+                metadata = path.lstat()
+                if not stat.S_ISREG(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"runtime publication contains a link or special file: {path}"
+                    )
+                entries.append(
+                    {
+                        "kind": "file",
+                        "path": relative,
+                        "mode": stat.S_IMODE(metadata.st_mode),
+                        "size": metadata.st_size,
+                        "sha256": _file_digest(path, "runtime publication file"),
+                    }
+                )
+        return sorted(entries, key=lambda entry: entry["path"])
+
+    @staticmethod
+    def _prepare_runtime_state_output(state: Path, generation: str) -> Path:
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        descriptors: list[int] = []
+        created_generation = False
+        output = state / "tmp" / "runtime-assets" / generation
+
+        def open_directory(parent: int, name: str, create: bool) -> int:
+            if create:
+                try:
+                    os.mkdir(name, 0o700, dir_fd=parent)
+                except FileExistsError:
+                    pass
+            metadata = os.stat(
+                name, dir_fd=parent, follow_symlinks=False
+            )
+            if not stat.S_ISDIR(metadata.st_mode):
+                raise WorkspaceError(
+                    f"server runtime state output path is invalid: {output}"
+                )
+            descriptor = os.open(name, flags, dir_fd=parent)
+            if Workspace._runtime_tree_identity(os.fstat(descriptor)) != (
+                Workspace._runtime_tree_identity(metadata)
+            ):
+                os.close(descriptor)
+                raise WorkspaceError(
+                    f"server runtime state output path changed: {output}"
+                )
+            return descriptor
+
+        try:
+            state_before = state.stat(follow_symlinks=False)
+            state_fd = os.open(state, flags)
+            descriptors.append(state_fd)
+            if Workspace._runtime_tree_identity(os.fstat(state_fd)) != (
+                Workspace._runtime_tree_identity(state_before)
+            ):
+                raise WorkspaceError(
+                    f"server state changed before runtime publication: {state}"
+                )
+            tmp_fd = open_directory(state_fd, "tmp", True)
+            descriptors.append(tmp_fd)
+            container_fd = open_directory(tmp_fd, "runtime-assets", True)
+            descriptors.append(container_fd)
+            try:
+                os.mkdir(generation, 0o700, dir_fd=container_fd)
+            except FileExistsError as error:
+                raise WorkspaceError(
+                    f"server runtime state output already exists: {output}"
+                ) from error
+            created_generation = True
+            generation_fd = open_directory(container_fd, generation, False)
+            descriptors.append(generation_fd)
+            marker = json.dumps(
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": f"runtime-state-output:{generation}",
+                },
+                indent=2,
+                sort_keys=True,
+            ).encode() + b"\n"
+            marker_fd = os.open(
+                MANAGED_MARKER,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                0o600,
+                dir_fd=generation_fd,
+            )
+            try:
+                with os.fdopen(marker_fd, "wb", closefd=False) as stream:
+                    stream.write(marker)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+            finally:
+                os.close(marker_fd)
+            return output
+        except BaseException as error:
+            if created_generation and output.is_dir() and not output.is_symlink():
+                remove_owned_tree(output)
+            if isinstance(error, WorkspaceError):
+                raise
+            if not isinstance(error, (OSError, ValueError)):
+                raise
+            raise WorkspaceError(
+                f"cannot prepare server runtime state output {output}: {error}"
+            ) from error
+        finally:
+            for descriptor in reversed(descriptors):
+                os.close(descriptor)
+
+    @staticmethod
+    def _remove_runtime_state_output(path: Path, generation: str) -> None:
+        marker = path / MANAGED_MARKER
+        if (
+            path.is_symlink()
+            or not path.is_dir()
+            or marker.is_symlink()
+            or not marker.is_file()
+            or load_json(marker)
+            != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": f"runtime-state-output:{generation}",
+            }
+        ):
+            raise WorkspaceError(
+                f"server runtime state output ownership is invalid: {path}"
+            )
+        remove_owned_tree(path)
+
+    @staticmethod
+    def _seal_runtime_generation(root: Path) -> None:
+        directories: list[Path] = []
+        for directory, names, files in os.walk(root, followlinks=False):
+            current = Path(directory)
+            directories.append(current)
+            for name in names:
+                path = current / name
+                metadata = path.lstat()
+                if stat.S_ISLNK(metadata.st_mode):
+                    continue
+                if not stat.S_ISDIR(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"runtime generation contains a special entry: {path}"
+                    )
+            for name in files:
+                path = current / name
+                metadata = path.lstat()
+                if not stat.S_ISREG(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"runtime generation contains a special entry: {path}"
+                    )
+                if path.name == RUNTIME_GENERATION_LEASE and path.parent == root:
+                    path.chmod(0o600)
+                else:
+                    path.chmod(stat.S_IMODE(metadata.st_mode) & ~0o222)
+        for directory in reversed(directories):
+            directory.chmod(stat.S_IMODE(directory.lstat().st_mode) & ~0o222)
+
+    def _runtime_publication_input_digests(
+        self,
+        build_root: Path,
+        selected: dict[str, Path],
+        services: list[str],
+        sound_root: Path | None,
+    ) -> dict[str, str]:
+        directories: dict[str, tuple[Path, set[str]]] = {}
+        files: dict[str, Path] = {}
+        if "client" in services:
+            directories.update(
+                {
+                    "client-source": (
+                        selected["client"],
+                        {".git", "build", "sound", MANAGED_MARKER},
+                    ),
+                    "client-binary": (
+                        self._classic_binary_directory(build_root, "client"),
+                        set(),
+                    ),
+                    "sound": (
+                        sound_root or selected["sound"],
+                        {".git", "build", MANAGED_MARKER},
+                    ),
+                }
+            )
+        if "server" in services:
+            source = selected["server"]
+            directories.update(
+                {
+                    "server-binary": (
+                        self._classic_binary_directory(build_root, "server"),
+                        set(),
+                    ),
+                    "server-tools": (source / "tools", set()),
+                    "content-lib": (build_root / "runtime" / "content" / "lib", set()),
+                    "content-maps": (build_root / "runtime" / "content" / "maps", set()),
+                    "resources": (build_root / "runtime" / "resources", set()),
+                    "client-maps": (build_root / "runtime" / "client-maps", set()),
+                }
+            )
+            for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+                files[f"server-{name}"] = source / name
+            custom = source / "server-custom.cfg"
+            if custom.is_file() and not custom.is_symlink():
+                files["server-server-custom.cfg"] = custom
+        return {
+            **{
+                name: _tree_digest(
+                    path, exclusions, reject_symlinks=True
+                )
+                for name, (path, exclusions) in sorted(directories.items())
+            },
+            **{
+                name: _file_digest(path, "runtime publication input")
+                for name, path in sorted(files.items())
+            },
+        }
+
+    def _publish_runtime_generation(
+        self,
+        owner_root: Path,
+        generation: str,
+        profile_name: str,
+        build_root: Path,
+        selected: dict[str, Path],
+        resolved: dict[str, dict[str, Any]],
+        services: list[str],
+        *,
+        identity: dict[str, Any],
+        state: Path | None = None,
+        sound_root: Path | None = None,
+    ) -> tuple[Path, int, dict[str, Any]]:
+        generations = owner_root / "generations"
+        generations.mkdir(exist_ok=True)
+        if generations.is_symlink() or not generations.is_dir():
+            raise WorkspaceError(
+                f"runtime generation container is invalid: {generations}"
+            )
+        published = generations / generation
+        if published.exists() or published.is_symlink():
+            raise WorkspaceError(f"runtime generation already exists: {published}")
+        staging = Path(
+            tempfile.mkdtemp(prefix=f".{generation}-", dir=generations)
+        )
+        lease_fd: int | None = None
+        state_output: Path | None = None
+        try:
+            input_digests = self._runtime_publication_input_digests(
+                build_root, selected, services, sound_root
+            )
+            atomic_json(
+                staging / MANAGED_MARKER,
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": "immutable-runtime-generation",
+                },
+            )
+            if "client" in services:
+                client_runtime = staging / "client"
+                client_runtime.mkdir()
+                self._copy_runtime_directory_contents(
+                    selected["client"],
+                    client_runtime,
+                    frozenset({".git", "build", "sound", MANAGED_MARKER}),
+                )
+                self._copy_runtime_tree(
+                    sound_root or selected["sound"],
+                    client_runtime / "sound",
+                    frozenset({".git", "build", MANAGED_MARKER}),
+                )
+                self._copy_runtime_directory_contents(
+                    self._classic_binary_directory(build_root, "client"),
+                    client_runtime,
+                )
+            if "server" in services:
+                if state is None:
+                    raise WorkspaceError("server runtime generation lacks state")
+                server_runtime = staging / "server"
+                server_runtime.mkdir()
+                self._copy_runtime_directory_contents(
+                    self._classic_binary_directory(build_root, "server"),
+                    server_runtime,
+                )
+                source = selected["server"]
+                self._copy_runtime_tree(
+                    source / "tools", server_runtime / "tools"
+                )
+                for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+                    self._copy_runtime_regular_file(source / name, server_runtime / name)
+                custom = source / "server-custom.cfg"
+                if custom.is_file() and not custom.is_symlink():
+                    self._copy_runtime_regular_file(
+                        custom, server_runtime / "server-custom.cfg"
+                    )
+                content = build_root / "runtime" / "content"
+                self._copy_runtime_tree(
+                    content / "lib", server_runtime / "lib"
+                )
+                self._copy_runtime_tree(
+                    content / "maps", server_runtime / "maps"
+                )
+                self._copy_runtime_tree(
+                    build_root / "runtime" / "resources",
+                    server_runtime / "resources",
+                )
+                (server_runtime / "data").symlink_to(state, target_is_directory=True)
+                state_output = self._prepare_runtime_state_output(
+                    state, generation
+                )
+                (state_output / "data").mkdir()
+                client_maps = build_root / "runtime" / "client-maps"
+                self._validate_region_maps(client_maps)
+                self._copy_runtime_tree(
+                    client_maps, state_output / "client-maps"
+                )
+                state_output_entries = self._runtime_generation_entries(
+                    state_output / "client-maps", None
+                )
+                self._seal_runtime_generation(state_output / "client-maps")
+            else:
+                state_output_entries = []
+
+            if self._runtime_publication_input_digests(
+                build_root, selected, services, sound_root
+            ) != input_digests:
+                raise WorkspaceError(
+                    "runtime publication inputs changed during staging"
+                )
+
+            build_metadata = build_root / BUILD_METADATA
+            source_trees: dict[str, str] = {}
+            for component, coordinate in resolved.items():
+                tree = git(
+                    Path(coordinate["checkout_path"]),
+                    "rev-parse",
+                    f"{coordinate['head']}^{{tree}}",
+                    capture=True,
+                    trace=False,
+                )
+                if not re.fullmatch(r"[0-9a-f]{40,64}", tree):
+                    raise WorkspaceError(
+                        f"runtime source tree identity is invalid: {component}"
+                    )
+                source_trees[component] = tree
+            manifest = {
+                "schema_version": RUNTIME_GENERATION_SCHEMA_VERSION,
+                "generation": generation,
+                "profile": profile_name,
+                "identity": identity,
+                "services": services,
+                "resolved": resolved,
+                "source_trees": source_trees,
+                "input_digests": input_digests,
+                "build": {
+                    "root": str(build_root),
+                    "metadata_sha256": (
+                        _file_digest(build_metadata, "build metadata")
+                        if build_metadata.is_file() and not build_metadata.is_symlink()
+                        else None
+                    ),
+                },
+                "external_state": str(state) if state is not None else None,
+                "mutable_state_outputs": (
+                    [str(state_output)] if state_output is not None else []
+                ),
+                "mutable_state_output_entries": state_output_entries,
+                "entries": self._runtime_generation_entries(staging, state),
+            }
+            atomic_json(staging / RUNTIME_GENERATION_MANIFEST, manifest)
+            lease_fd = open_regular_file(
+                staging / RUNTIME_GENERATION_LEASE,
+                os.O_RDWR | os.O_CREAT,
+                "runtime generation lease",
+            )
+            lease_identity = initialize_lease(lease_fd, generation)
+            try:
+                fcntl.flock(lease_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot lock runtime generation lease: {error}"
+                ) from error
+            manifest_sha256 = _file_digest(
+                staging / RUNTIME_GENERATION_MANIFEST,
+                "runtime generation manifest",
+            )
+            self._seal_runtime_generation(staging)
+            staging.replace(published)
+            runtime_record = {
+                "schema_version": RUNTIME_GENERATION_SCHEMA_VERSION,
+                "generation": generation,
+                "path": str(published),
+                "manifest_sha256": manifest_sha256,
+                "lease": lease_identity,
+                "external_state": str(state) if state is not None else None,
+                "mutable_state_outputs": (
+                    [str(state_output)] if state_output is not None else []
+                ),
+            }
+            result_fd = lease_fd
+            lease_fd = None
+            return published, result_fd, runtime_record
+        except BaseException:
+            if staging.exists():
+                remove_owned_tree(staging)
+            if state_output is not None and state_output.exists():
+                self._remove_runtime_state_output(state_output, generation)
+            raise
+        finally:
+            if lease_fd is not None:
+                os.close(lease_fd)
 
     def _copy_topology_runtime_inputs(
         self,
@@ -7183,7 +7758,18 @@ class Workspace:
             "supervisor",
             "services",
         }
-        optional = {"stack", "providers", "sound", "control", "port_reservation"}
+        optional = {
+            "stack",
+            "providers",
+            "sound",
+            "control",
+            "port_reservation",
+            "runtime",
+        }
+        topology_schema = status.get("schema_version") if isinstance(status, dict) else None
+        current_runtime_record = topology_schema == TOPOLOGY_STATUS_SCHEMA_VERSION
+        if current_runtime_record:
+            required.add("runtime")
         historical_record = isinstance(status, dict) and not (
             {"stack", "providers"} & set(status)
         )
@@ -7234,7 +7820,7 @@ class Workspace:
         )
         if (
             not isinstance(status, dict)
-            or status.get("schema_version") != SCHEMA_VERSION
+            or topology_schema not in {SCHEMA_VERSION, TOPOLOGY_STATUS_SCHEMA_VERSION}
             or status.get("name") != name
             or not required <= set(status) <= required | optional | {"error"}
             or not isinstance(status.get("dependencies"), list)
@@ -7435,6 +8021,196 @@ class Workspace:
         process_tree_active = self._topology_process_tree_active(
             root, control if current_control else None
         )
+        runtime = status.get("runtime")
+        runtime_active = False
+        if current_runtime_record:
+            if not current_control:
+                raise WorkspaceError(f"topology runtime identity is invalid: {name}")
+            expected_runtime_path = root / "generations" / control["generation"]
+            if (
+                not isinstance(runtime, dict)
+                or set(runtime)
+                != {
+                    "schema_version",
+                    "generation",
+                    "path",
+                    "manifest_sha256",
+                    "lease",
+                    "external_state",
+                    "mutable_state_outputs",
+                }
+                or runtime.get("schema_version")
+                != RUNTIME_GENERATION_SCHEMA_VERSION
+                or runtime.get("generation") != control["generation"]
+                or runtime.get("path") != str(expected_runtime_path)
+                or not isinstance(runtime.get("manifest_sha256"), str)
+                or not re.fullmatch(r"[0-9a-f]{64}", runtime["manifest_sha256"])
+                or runtime.get("external_state") != status.get("state")
+                or runtime.get("mutable_state_outputs")
+                != (
+                    [
+                        str(
+                            Path(status["state"])
+                            / "tmp"
+                            / "runtime-assets"
+                            / control["generation"]
+                        )
+                    ]
+                    if status.get("state") is not None
+                    else []
+                )
+                or not isinstance(runtime.get("lease"), dict)
+                or set(runtime["lease"]) != {"device", "inode"}
+                or not all(
+                    isinstance(value, int)
+                    and not isinstance(value, bool)
+                    and value >= 0
+                    for value in runtime["lease"].values()
+                )
+            ):
+                raise WorkspaceError(f"topology runtime identity is invalid: {name}")
+            marker = expected_runtime_path / MANAGED_MARKER
+            manifest = expected_runtime_path / RUNTIME_GENERATION_MANIFEST
+            if (
+                expected_runtime_path.is_symlink()
+                or not expected_runtime_path.is_dir()
+                or marker.is_symlink()
+                or not marker.is_file()
+                or load_json(marker)
+                != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": "immutable-runtime-generation",
+                }
+                or manifest.is_symlink()
+                or not manifest.is_file()
+                or _file_digest(manifest, "runtime generation manifest")
+                != runtime["manifest_sha256"]
+            ):
+                raise WorkspaceError(f"topology runtime publication is invalid: {name}")
+            runtime_manifest = load_json(manifest)
+            expected_identity = {
+                "kind": "topology",
+                "name": name,
+                "stack": status["stack"],
+                "providers": status["providers"],
+            }
+            manifest_services = (
+                runtime_manifest.get("services")
+                if isinstance(runtime_manifest, dict)
+                else None
+            )
+            source_trees = (
+                runtime_manifest.get("source_trees")
+                if isinstance(runtime_manifest, dict)
+                else None
+            )
+            input_digests = (
+                runtime_manifest.get("input_digests")
+                if isinstance(runtime_manifest, dict)
+                else None
+            )
+            build = (
+                runtime_manifest.get("build")
+                if isinstance(runtime_manifest, dict)
+                else None
+            )
+            entries = (
+                runtime_manifest.get("entries")
+                if isinstance(runtime_manifest, dict)
+                else None
+            )
+            state_output_entries = (
+                runtime_manifest.get("mutable_state_output_entries")
+                if isinstance(runtime_manifest, dict)
+                else None
+            )
+            if (
+                not isinstance(runtime_manifest, dict)
+                or set(runtime_manifest)
+                != {
+                    "schema_version",
+                    "generation",
+                    "profile",
+                    "identity",
+                    "services",
+                    "resolved",
+                    "source_trees",
+                    "input_digests",
+                    "build",
+                    "external_state",
+                    "mutable_state_outputs",
+                    "mutable_state_output_entries",
+                    "entries",
+                }
+                or runtime_manifest.get("schema_version")
+                != RUNTIME_GENERATION_SCHEMA_VERSION
+                or runtime_manifest.get("generation") != control["generation"]
+                or runtime_manifest.get("profile") != status["profile"]
+                or runtime_manifest.get("identity") != expected_identity
+                or runtime_manifest.get("resolved") != status["resolved"]
+                or runtime_manifest.get("external_state") != status.get("state")
+                or runtime_manifest.get("mutable_state_outputs")
+                != runtime["mutable_state_outputs"]
+                or not isinstance(manifest_services, list)
+                or not manifest_services
+                or len(manifest_services) != len(set(manifest_services))
+                or not set(manifest_services) <= set(TOPOLOGY_SERVICES)
+                or not isinstance(source_trees, dict)
+                or set(source_trees) != set(status["resolved"])
+                or any(
+                    not isinstance(value, str)
+                    or not re.fullmatch(r"[0-9a-f]{40,64}", value)
+                    for value in source_trees.values()
+                )
+                or not isinstance(input_digests, dict)
+                or not input_digests
+                or any(
+                    not isinstance(key, str)
+                    or not key
+                    or not isinstance(value, str)
+                    or not re.fullmatch(r"[0-9a-f]{64}", value)
+                    for key, value in input_digests.items()
+                )
+                or not isinstance(build, dict)
+                or set(build) != {"root", "metadata_sha256"}
+                or build.get("root") != status["build_root"]
+                or (
+                    build.get("metadata_sha256") is not None
+                    and (
+                        not isinstance(build.get("metadata_sha256"), str)
+                        or not re.fullmatch(
+                            r"[0-9a-f]{64}", build["metadata_sha256"]
+                        )
+                    )
+                )
+                or not isinstance(entries, list)
+                or not entries
+                or any(not isinstance(entry, dict) for entry in entries)
+                or not isinstance(state_output_entries, list)
+                or (
+                    bool(runtime["mutable_state_outputs"])
+                    != bool(state_output_entries)
+                )
+                or any(
+                    not isinstance(entry, dict)
+                    for entry in state_output_entries
+                )
+            ):
+                raise WorkspaceError(
+                    f"topology runtime manifest identity is invalid: {name}"
+                )
+            try:
+                runtime_active = bound_lease_locked(
+                    expected_runtime_path / RUNTIME_GENERATION_LEASE,
+                    control["generation"],
+                    runtime["lease"],
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect topology runtime generation lease: {error}"
+                ) from error
+        elif runtime is not None:
+            raise WorkspaceError(f"historical topology runtime is invalid: {name}")
         supervisor_local = bool(
             not current_control and self._recorded_process_running(supervisor)
         )
@@ -7575,6 +8351,17 @@ class Workspace:
             or supervisor_running
             or any(service["running"] for service in services.values())
         )
+        if current_runtime_record and retained and not runtime_active:
+            raise WorkspaceError(
+                f"topology runtime generation lease is not retained: {name}"
+            )
+        if current_runtime_record and (
+            not set(services) <= set(manifest_services)
+            or status["ready"] and set(services) != set(manifest_services)
+        ):
+            raise WorkspaceError(
+                f"topology runtime manifest services are invalid: {name}"
+            )
         if control_reachable:
             safe_action = f"run ./atrinik down {name} from any supported session"
         elif process_tree_active:
@@ -7592,7 +8379,25 @@ class Workspace:
             ),
             "generation": control["generation"] if current_control else None,
             "process_tree_lease": "retained" if retained else "released",
-            "repository_layout_lease_owner": name if retained else None,
+            "runtime_generation": (
+                runtime["generation"] if current_runtime_record else None
+            ),
+            "runtime_bundle_lease": (
+                "retained" if runtime_active else "released"
+                if current_runtime_record
+                else "historical"
+            ),
+            "server_state_lease_owner": (
+                name if retained and status.get("state") is not None else None
+            ),
+            "port_reservation": (
+                status["endpoint"]["port"]
+                if retained and status.get("endpoint") is not None
+                else None
+            ),
+            "repository_layout_lease_owner": (
+                name if retained and not current_runtime_record else None
+            ),
             "safe_action": safe_action,
         }
         if port_reservation is not None:
@@ -7960,7 +8765,7 @@ class Workspace:
                     if isinstance(build_metadata, dict)
                     else None
                 )
-                service_specs: dict[str, dict[str, Any]] = {}
+                state: Path | None = None
                 if "server" in selected_services:
                     assert state_location is not None
                     state = self.state_path(
@@ -7968,55 +8773,8 @@ class Workspace:
                         selected["server"],
                         resolved_path=state_location,
                     )
-                    runtime_inputs = self._copy_topology_runtime_inputs(
-                        topology_root,
-                        (
-                            (
-                                "content",
-                                root / "runtime" / "content",
-                                "collected-content",
-                            ),
-                            (
-                                "resources",
-                                root / "runtime" / "resources",
-                                "resource-view",
-                            ),
-                            (
-                                "client-maps",
-                                root / "runtime" / "client-maps",
-                                "region-map-cache",
-                            ),
-                        ),
-                    )
-                    content = runtime_inputs["content"]
-                    resources = runtime_inputs["resources"]
-                    client_maps = runtime_inputs["client-maps"]
-                    runtime = self._prepare_server_runtime(
-                        root,
-                        selected,
-                        state,
-                        state_name,
-                        content,
-                        resources,
-                        client_maps,
-                    )
-                    executable = runtime / "atrinik-server"
-                    service_specs["server"] = {
-                        "command": [
-                            str(executable),
-                            f"--port_quic={endpoint['port']}",
-                            "--port_mapping=off",
-                            "--stun_server=off",
-                            f"--assetspath={runtime / 'assets'}",
-                            "--no_console",
-                        ],
-                        "cwd": str(runtime),
-                        "log": str(topology_root / "server.log"),
-                    }
+                sound_root: Path | None = None
                 if "client" in selected_services:
-                    executable = (
-                        self._classic_binary_directory(root, "client") / "atrinik"
-                    )
                     try:
                         validated_sound = validate_sound_record(sound_status)
                     except WorkspaceError as error:
@@ -8043,9 +8801,75 @@ class Workspace:
                         raise WorkspaceError(
                             f"profile {profile_name} source sound root changed before topology preparation"
                         )
-                    working = self._prepare_topology_client_runtime(
-                        topology_root, selected, sound_root
+                profile = self._load_profile(profile_name, require_file=False)
+                selected_stack = self.manifest.stack(profile["stack"])
+                resolved_status = self._topology_resolved_status(
+                    profile_name, selected
+                )
+                generation_root, runtime_lock_fd, runtime_record = (
+                    self._publish_runtime_generation(
+                        topology_root,
+                        generation,
+                        profile_name,
+                        root,
+                        selected,
+                        resolved_status,
+                        selected_services,
+                        identity={
+                            "kind": "topology",
+                            "name": name,
+                            "stack": selected_stack.name,
+                            "providers": {
+                                role: selected_stack.providers[role].name
+                                for role in sorted(required)
+                            },
+                        },
+                        state=state,
+                        sound_root=sound_root,
                     )
+                )
+                published_generation_owner = [generation_root]
+                stack.callback(
+                    lambda: remove_owned_tree(published_generation_owner.pop())
+                    if published_generation_owner
+                    else None
+                )
+                published_state_output_owner = [
+                    Path(runtime_record["mutable_state_outputs"][0])
+                ] if runtime_record["mutable_state_outputs"] else []
+                stack.callback(
+                    lambda: self._remove_runtime_state_output(
+                        published_state_output_owner.pop(), generation
+                    )
+                    if published_state_output_owner
+                    else None
+                )
+                runtime_lock_owner = [runtime_lock_fd]
+                stack.callback(
+                    lambda: os.close(runtime_lock_owner.pop())
+                    if runtime_lock_owner
+                    else None
+                )
+                service_specs: dict[str, dict[str, Any]] = {}
+                if "server" in selected_services:
+                    server_runtime = generation_root / "server"
+                    executable = server_runtime / "atrinik-server"
+                    service_specs["server"] = {
+                        "command": [
+                            str(executable),
+                            f"--port_quic={endpoint['port']}",
+                            "--port_mapping=off",
+                            "--stun_server=off",
+                            "--assetspath="
+                            f"{runtime_record['mutable_state_outputs'][0]}",
+                            "--no_console",
+                        ],
+                        "cwd": str(server_runtime),
+                        "log": str(topology_root / "server.log"),
+                    }
+                if "client" in selected_services:
+                    client_runtime = generation_root / "client"
+                    executable = client_runtime / "atrinik"
                     if not executable.is_file():
                         raise WorkspaceError(f"client executable is missing: {executable}")
                     client_config = topology_root / "client-config"
@@ -8058,25 +8882,19 @@ class Workspace:
                         client_config.mkdir()
                     service_specs["client"] = {
                         "command": [str(executable)],
-                        "cwd": str(working),
+                        "cwd": str(client_runtime),
                         "log": str(topology_root / "client.log"),
                         "environment": {
                             "ATRINIK_CONFIG_DIR": str(client_config.resolve())
                         },
                     }
-
-                profile = self._load_profile(profile_name, require_file=False)
-                selected_stack = self.manifest.stack(profile["stack"])
-                resolved_status = self._topology_resolved_status(
-                    profile_name, selected
-                )
                 # All fallible preparation is complete. Retire the stopped
                 # record and bind/publish the new generation without exposing
                 # old status against rewritten lease contents.
                 status_path.unlink(missing_ok=True)
                 lease_identity = initialize_lease(process_tree_fd, generation)
                 spec: dict[str, Any] = {
-                    "schema_version": SCHEMA_VERSION,
+                    "schema_version": TOPOLOGY_STATUS_SCHEMA_VERSION,
                     "name": name,
                     "profile": profile_name,
                     "stack": selected_stack.name,
@@ -8094,6 +8912,7 @@ class Workspace:
                         "generation": generation,
                         "lease": lease_identity,
                     },
+                    "runtime": runtime_record,
                     "services": service_specs,
                 }
                 if port_reservation is not None:
@@ -8135,15 +8954,10 @@ class Workspace:
                     if state_lock is not None:
                         command.extend(["--lock-fd", str(state_lock.fileno())])
                         inherited_locks.append(state_lock.fileno())
-                    if layout_lock is not None:
-                        command.extend(
-                            ["--layout-lock-fd", str(layout_lock.fileno())]
-                        )
-                        inherited_locks.append(layout_lock.fileno())
                     command.extend(
-                        ["--build-lock-fd", str(build_lock.fileno())]
+                        ["--runtime-lock-fd", str(runtime_lock_fd)]
                     )
-                    inherited_locks.append(build_lock.fileno())
+                    inherited_locks.append(runtime_lock_fd)
                     command.extend(
                         ["--process-tree-fd", str(process_tree_fd)]
                     )
@@ -8174,9 +8988,12 @@ class Workspace:
                         start_new_session=True,
                         pass_fds=tuple(inherited_locks),
                     )
+                    published_generation_owner.clear()
+                    published_state_output_owner.clear()
                     os.close(process_tree_owner.pop())
                     if port_reservation_owner:
                         os.close(port_reservation_owner.pop())
+                    os.close(runtime_lock_owner.pop())
                 except OSError as error:
                     raise WorkspaceError(f"cannot start topology supervisor: {error}") from error
                 finally:
@@ -8317,7 +9134,7 @@ class Workspace:
             time.sleep(0.1)
         if not requested:
             raise WorkspaceError(
-                f"topology {name} retains the repository-layout lease but its "
+                f"topology {name} retains its exact runtime generation but its "
                 "supervisor control endpoint is unreachable; wait for bounded "
                 "orphan recovery and retry; preserve a retained exact lease "
                 "for operator diagnosis"
@@ -8486,15 +9303,34 @@ class Workspace:
         with shared_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
-        ) as layout_lock:
-            return self._run_client(
+        ):
+            prepared = self._run_client(
                 profile_name,
                 state_name,
                 port,
                 arguments,
                 dry_run,
-                layout_lock=layout_lock,
             )
+        if not isinstance(prepared, dict):
+            return prepared
+        runtime_fd = prepared["runtime_fd"]
+        generation_root = prepared["generation_root"]
+        try:
+            if not dry_run:
+                self._require_client_display()
+                environment = os.environ.copy()
+                environment[CLIENT_LAUNCH_LABEL_ENV] = prepared["launch_label"]
+                run(
+                    prepared["command"],
+                    cwd=prepared["cwd"],
+                    env=environment,
+                    diagnostics_to_stderr=False,
+                    pass_fds=(runtime_fd,),
+                )
+            return prepared["executable"]
+        finally:
+            os.close(runtime_fd)
+            remove_owned_tree(generation_root)
 
     def _run_client(
         self,
@@ -8505,19 +9341,71 @@ class Workspace:
         dry_run: bool,
         *,
         layout_lock: TextIO | None = None,
-    ) -> Path:
+    ) -> dict[str, Any] | Path:
         self._validate_run_port(port)
         launch_label = client_launch_label(profile_name)
         self._require_classic_contracts(profile_name, {"client"})
         state = self._state_location(state_name)
         self._validate_state(state)
         fingerprint = self._server_identity_fingerprint(state)
-        root = self._build("client", profile_name, tests=False)
-        with self._profile_build_lock(root, profile_name) as build_lock:
-            executable = self._classic_binary_directory(root, "client") / "atrinik"
-            working = root / "sources" / "client"
-            if not executable.is_file():
-                raise WorkspaceError(f"client executable is missing: {executable}")
+        targets = self._expand_build_target("client", profile_name)
+        selected = self._resolve_build_profile(profile_name, {"client"})
+        root = self._build_resolved(
+            "client", profile_name, False, targets, selected
+        )
+        with self._profile_build_lock(root, profile_name):
+            build_metadata = load_json(root / BUILD_METADATA)
+            try:
+                validated_sound = validate_sound_record(build_metadata.get("sound"))
+            except WorkspaceError as error:
+                raise WorkspaceError(
+                    f"build sound metadata is invalid for profile {profile_name}"
+                ) from error
+            profile = self._load_profile(profile_name, require_file=False)
+            selected_stack = self.manifest.stack(profile["stack"])
+            if validated_sound["mode"] != profile["sound_mode"]:
+                raise WorkspaceError(
+                    f"profile {profile_name} sound mode does not match build metadata"
+                )
+            sound_root = Path(validated_sound["root"])
+            if validated_sound["mode"] == PLAYTEST_MODE:
+                inputs = clean_source_inputs(selected["sound"])
+                if verify_playtest_tree(selected["sound"], sound_root, inputs) != (
+                    validated_sound
+                ):
+                    raise WorkspaceError(
+                        f"profile {profile_name} local-playtest sound record changed "
+                        "before foreground publication"
+                    )
+            elif sound_root.resolve() != selected["sound"].resolve():
+                raise WorkspaceError(
+                    f"profile {profile_name} source sound root changed before "
+                    "foreground publication"
+                )
+            resolved = self._topology_resolved_status(profile_name, selected)
+            generation = secrets.token_hex(32)
+            generation_root, runtime_fd, _runtime_record = (
+                self._publish_runtime_generation(
+                    self._foreground_runtime_owner(),
+                    generation,
+                    profile_name,
+                    root,
+                    selected,
+                    resolved,
+                    ["client"],
+                    identity={
+                        "kind": "foreground-client",
+                        "stack": selected_stack.name,
+                        "providers": {
+                            role: selected_stack.providers[role].name
+                            for role in sorted(selected)
+                        },
+                    },
+                    sound_root=sound_root,
+                )
+            )
+            working = generation_root / "client"
+            executable = working / "atrinik"
             command = [
                 str(executable),
                 f"--server=127.0.0.1 {port} {fingerprint}",
@@ -8527,24 +9415,17 @@ class Workspace:
             ]
             print(f"state: {state}")
             print(f"cwd: {working}")
+            print(f"runtime generation: {generation}")
             print(f"launch label: {launch_label}")
             print(f"command: {display_arguments(command)}")
-            if not dry_run:
-                self._require_client_display()
-                environment = os.environ.copy()
-                environment[CLIENT_LAUNCH_LABEL_ENV] = launch_label
-                run(
-                    command,
-                    cwd=working,
-                    env=environment,
-                    diagnostics_to_stderr=False,
-                    pass_fds=tuple(
-                        lease.fileno()
-                        for lease in (layout_lock, build_lock)
-                        if lease is not None
-                    ),
-                )
-            return executable
+            return {
+                "command": command,
+                "cwd": working,
+                "executable": executable,
+                "generation_root": generation_root,
+                "runtime_fd": runtime_fd,
+                "launch_label": launch_label,
+            }
 
     def run_server(
         self,
@@ -8558,15 +9439,37 @@ class Workspace:
         with shared_layout_lock(
             self.paths.workspace / "repository-layout.lock",
             "repository layout",
-        ) as layout_lock:
-            return self._run_server(
+        ):
+            prepared = self._run_server(
                 profile_name,
                 state_name,
                 port,
                 arguments,
                 dry_run,
-                layout_lock=layout_lock,
             )
+        if not isinstance(prepared, dict):
+            return prepared
+        runtime_fd = prepared["runtime_fd"]
+        state_fd = prepared["state_fd"]
+        generation_root = prepared["generation_root"]
+        state_output = prepared["state_output"]
+        try:
+            if not dry_run:
+                run(
+                    prepared["command"],
+                    cwd=prepared["cwd"],
+                    diagnostics_to_stderr=False,
+                    pass_fds=(runtime_fd, state_fd),
+                )
+            return prepared["executable"]
+        finally:
+            os.close(state_fd)
+            os.close(runtime_fd)
+            remove_owned_tree(generation_root)
+            if state_output is not None:
+                self._remove_runtime_state_output(
+                    state_output, generation_root.name
+                )
 
     def _run_server(
         self,
@@ -8577,7 +9480,7 @@ class Workspace:
         dry_run: bool,
         *,
         layout_lock: TextIO | None = None,
-    ) -> Path:
+    ) -> dict[str, Any] | Path:
         self._validate_run_port(port)
         self._require_classic_contracts(profile_name, {"server"})
         targets = self._expand_build_target("server", profile_name)
@@ -8590,13 +9493,36 @@ class Workspace:
             root = self._build_resolved(
                 "server", profile_name, False, targets, selected
             )
-            with self._profile_build_lock(root, profile_name) as build_lock:
+            with self._profile_build_lock(root, profile_name):
                 state = self.state_path(
                     state_name, selected["server"], resolved_path=state_location
                 )
-                runtime = self._prepare_server_runtime(
-                    root, selected, state, state_name
+                resolved = self._topology_resolved_status(profile_name, selected)
+                profile = self._load_profile(profile_name, require_file=False)
+                selected_stack = self.manifest.stack(profile["stack"])
+                generation = secrets.token_hex(32)
+                generation_root, runtime_fd, _runtime_record = (
+                    self._publish_runtime_generation(
+                        self._foreground_runtime_owner(),
+                        generation,
+                        profile_name,
+                        root,
+                        selected,
+                        resolved,
+                        ["server"],
+                        identity={
+                            "kind": "foreground-server",
+                            "stack": selected_stack.name,
+                            "providers": {
+                                role: selected_stack.providers[role].name
+                                for role in sorted(selected)
+                            },
+                        },
+                        state=state,
+                    )
                 )
+                state_fd = os.dup(state_lock.fileno())
+                runtime = generation_root / "server"
                 executable = runtime / "atrinik-server"
                 command = [
                     str(executable),
@@ -8604,23 +9530,49 @@ class Workspace:
                     "--port_mapping=off",
                     "--stun_server=off",
                     *arguments,
-                    f"--assetspath={runtime / 'assets'}",
+                    "--assetspath="
+                    f"{_runtime_record['mutable_state_outputs'][0]}",
                 ]
                 print(f"state: {state}")
                 print(f"cwd: {runtime}")
+                print(f"runtime generation: {generation}")
                 print(f"command: {display_arguments(command)}")
-                if not dry_run:
-                    run(
-                        command,
-                        cwd=runtime,
-                        diagnostics_to_stderr=False,
-                        pass_fds=tuple(
-                            lease.fileno()
-                            for lease in (layout_lock, state_lock, build_lock)
-                            if lease is not None
-                        ),
-                    )
-                return executable
+                return {
+                    "command": command,
+                    "cwd": runtime,
+                    "executable": executable,
+                    "generation_root": generation_root,
+                    "runtime_fd": runtime_fd,
+                    "state_fd": state_fd,
+                    "state_output": (
+                        Path(_runtime_record["mutable_state_outputs"][0])
+                        if _runtime_record["mutable_state_outputs"]
+                        else None
+                    ),
+                }
+
+    def _foreground_runtime_owner(self) -> Path:
+        root = self.paths.workspace / "foreground-runs"
+        metadata = {
+            "schema_version": SCHEMA_VERSION,
+            "purpose": "foreground-runtime-generations",
+        }
+        marker = root / MANAGED_MARKER
+        if root.exists() or root.is_symlink():
+            if (
+                not root.is_dir()
+                or root.is_symlink()
+                or not marker.is_file()
+                or marker.is_symlink()
+                or load_json(marker) != metadata
+            ):
+                raise WorkspaceError(
+                    f"foreground runtime container is invalid: {root}"
+                )
+        else:
+            root.mkdir()
+            atomic_json(marker, metadata)
+        return root
 
     @staticmethod
     def _validate_run_port(port: int) -> None:

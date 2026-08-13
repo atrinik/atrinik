@@ -514,9 +514,9 @@ Each current topology persists a random generation identity and a mode-0600
 filesystem control endpoint. `ps` and `down` therefore work from another
 supported devcontainer or sandbox that shares the workspace even when its PID
 namespace cannot see the namespace-local process numbers. JSON status reports
-`live`, `exited`, `stale`, or fail-closed `unreachable` liveness plus an
-`observation` naming the topology that retains the repository-layout lease and
-the safe next action. Text status prints the same retained-lease owner and
+`live`, `exited`, `stale`, or fail-closed `unreachable` liveness plus exact
+runtime-generation, process-tree, server-state, and port observations and the
+safe next action. Text status prints the retained generation identity and
 action. A control response must match both the topology name and generation;
 `down` never falls back to signaling a mismatched or recycled PID.
 The runtime places the socket under a short generation-derived name in the
@@ -526,11 +526,9 @@ identity; never replace,
 unlink, or repair it by hand because an invalid current lease fails closed.
 
 If a supervisor is killed rather than shut down, its same-namespace guardian
-terminates exact process-tree lease holders and retains the generation until
-their absence is proven. Layout, build-root, and state leases are held by the
-supervisor and guardian, not services, so a descendant that closes its
-process-tree identity cannot retain those workspace leases; the guardian
-releases them after recovery. During that
+terminates exact process-tree lease holders and retains the runtime generation
+and server state until their absence is proven. No layout or mutable build-root
+lease survives publication. During that
 interval another session reports `unreachable` and fails closed: wait, retry
 `./atrinik ps TOPOLOGY --json`, then retry `./atrinik down TOPOLOGY`. If the
 lease remains retained and control remains unreachable, preserve the exact
@@ -956,8 +954,7 @@ declaring the topology ready. Use
 `--service server` or `--service client` for a single service. Client startup
 requires a live forwarded display socket.
 
-Build, foreground run, and runtime-preparation commands hold a shared
-repository-layout lock.
+Build and runtime-publication preparation hold a shared repository-layout lock.
 Different profile build roots may compile concurrently; an exclusive per-root
 lock still serializes the same root. Initialization, synchronization, worktree
 or profile changes, and cleanup apply take the layout lock exclusively, so they
@@ -976,24 +973,28 @@ not interrupt a reader, topology, build, or mutation. The pending announcement,
 writer-intent gate, and layout lock are always acquired before topology,
 scenario, port allocator/per-port reservation, state, build-root, registry, or
 cache locks. The allocator is released before state/build/runtime preparation;
-the exact generation reservation remains held. Foreground
-processes inherit their layout and exact build-root leases. Supervised services
-inherit only the process-tree identity through the daemon. The supervisor and
-same-generation guardian keep layout, build-root, state, and generation
-reservation leases until every service exits or `down` completes. Mutation
+the exact generation reservation remains held. Foreground processes run from
+temporary immutable generations after releasing layout/build leases.
+Supervised services likewise run from topology-owned generations and retain
+only exact runtime-generation/process-tree resources plus server state and the
+selected port reservation when applicable. Mutation
 subprocesses inherit all three writer leases. Build and scenario
 subprocesses inherit every active layout, build-root, state, registry, and cache
 lease so an orphan cannot outlive its protection.
 
-The supervisor records exact source commits, build and state paths, and process
-start identities. `ps` without a name lists every recorded topology; a name
+The supervisor records exact source commits/trees, build metadata, runtime
+digests, state paths, and process start identities. `ps` without a name lists every recorded topology; a name
 selects one. It distinguishes a live process from a reused PID, and `down`
 signals only processes holding that topology's identity lease, including
 orphaned services and descendants. The server state remains locked for the
 complete supervised lifetime. Each topology also has a persistent isolated
-client configuration/cache root and its own copies of the collected content and
-resource caches, so changing or removing one topology cannot affect another
-topology or the retained build caches. The inherited identity lease atomically
+client configuration/cache root and a complete sealed executable runtime, so
+rebuilding a profile or changing/removing a selected worktree cannot alter a
+live topology. Server-generated transport files live below a generation-named
+directory inside the exclusively leased state and are reached through the
+published state exception; copied maps are sealed beside that output and bound
+into the manifest, while other served inputs remain sealed inside the runtime
+generation. The inherited identity lease atomically
 prevents the same topology name from restarting while any generation remains.
 Server services do not inherit allocator, transaction, or generation
 reservation descriptors;
@@ -1274,7 +1275,10 @@ protocol, or network user-agent version data. Clients started outside the
 wrapper retain the ordinary package title. Start the server first
 so that its persistent `quic-identity.pem` exists. Additional arguments are
 appended after these defaults, and join-password arguments are redacted from
-command logging. Prefer `up` for routine use because it allocates a port,
+command logging. Each command first publishes a random command-owned immutable
+generation, releases source/layout/build leases, runs with only that generation
+lease (and server state for the server), then reclaims the exact generation on
+normal exit. Prefer `up` for routine use because it allocates a port,
 captures the fingerprint, and sequences both processes automatically.
 
 ## Workspace location and recovery
