@@ -256,10 +256,15 @@ def _verify_approval(
         with tempfile.TemporaryDirectory(prefix="atrinik-provenance-signature-") as temporary:
             allowed = Path(temporary) / "allowed_signers"
             signature_path = Path(temporary) / "signature"
-            allowed.write_text(
-                f"{reviewer_identity} {reviewer['public_key']}\n", encoding="utf-8"
-            )
-            signature_path.write_text(signature + "\n", encoding="utf-8")
+            with open(
+                allowed, "x", encoding="utf-8", opener=_private_file_opener
+            ) as stream:
+                stream.write(f"{reviewer_identity} {reviewer['public_key']}\n")
+            with open(
+                signature_path,
+                "x", encoding="utf-8", opener=_private_file_opener
+            ) as stream:
+                stream.write(signature + "\n")
             result = subprocess.run(
                 [
                     "ssh-keygen",
@@ -282,6 +287,10 @@ def _verify_approval(
         raise WorkspaceError(f"{context}: cannot verify reviewer signature") from exc
     if result.returncode != 0:
         raise WorkspaceError(f"{context}: reviewer signature is invalid")
+
+
+def _private_file_opener(path: str, flags: int) -> int:
+    return os.open(path, flags, 0o600)
 
 
 def _walk_confidential_keys(value: object, context: str) -> None:
