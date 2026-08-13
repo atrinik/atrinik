@@ -702,6 +702,7 @@ class ParserTests(unittest.TestCase):
         workspace_type.return_value.run_client.assert_called_once_with(
             "review", "shared", 1731, [], True
         )
+        workspace_type.return_value.command_maintenance.assert_not_called()
 
     def test_up_defaults_runtime_name_to_profile(self) -> None:
         status = {

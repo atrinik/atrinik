@@ -4,6 +4,7 @@ import copy
 import json
 import os
 from pathlib import Path
+import stat
 import sys
 import tempfile
 import unittest
@@ -14,6 +15,7 @@ from atrinik_workspace.model import (
     Paths,
     WorkspaceError,
     atomic_json,
+    durable_atomic_json,
     load_json,
     managed_directory,
     managed_remove,
@@ -834,6 +836,70 @@ class PathSafetyTests(unittest.TestCase):
             with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(workspace)}):
                 with self.assertRaisesRegex(WorkspaceError, "unmanaged non-empty"):
                     Paths.discover(root / "wrapper").ensure()
+
+    def test_atomic_json_rejects_symlinked_ancestor(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            external = root / "external"
+            (external / "records").mkdir(parents=True)
+            redirected = root / "redirected"
+            redirected.symlink_to(external, target_is_directory=True)
+
+            with self.assertRaises(OSError):
+                atomic_json(redirected / "records" / "value.json", {"safe": True})
+
+            self.assertFalse((external / "records" / "value.json").exists())
+
+    def test_durable_atomic_json_fsyncs_each_created_directory_parent(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            path = root / "first" / "second" / "value.json"
+            fsynced: set[tuple[int, int]] = set()
+            real_fsync = os.fsync
+
+            def observe(descriptor: int) -> None:
+                identity = os.fstat(descriptor)
+                if stat.S_ISDIR(identity.st_mode):
+                    fsynced.add((identity.st_dev, identity.st_ino))
+                real_fsync(descriptor)
+
+            with mock.patch("atrinik_workspace.model.os.fsync", side_effect=observe):
+                durable_atomic_json(path, {"safe": True})
+
+            self.assertIn(
+                (root.stat().st_dev, root.stat().st_ino),
+                fsynced,
+            )
+            self.assertIn(
+                ((root / "first").stat().st_dev, (root / "first").stat().st_ino),
+                fsynced,
+            )
+
+    def test_durable_atomic_json_accepts_safe_directory_creation_race(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            path = root / "records" / "value.json"
+            real_mkdir = os.mkdir
+            raced = False
+
+            def create_then_report_race(
+                name: str, mode: int = 0o777, *, dir_fd: int | None = None
+            ) -> None:
+                nonlocal raced
+                if name == "records" and not raced:
+                    raced = True
+                    real_mkdir(name, mode, dir_fd=dir_fd)
+                    raise FileExistsError(name)
+                real_mkdir(name, mode, dir_fd=dir_fd)
+
+            with mock.patch(
+                "atrinik_workspace.model.os.mkdir",
+                side_effect=create_then_report_race,
+            ):
+                durable_atomic_json(path, {"safe": True})
+
+            self.assertTrue(raced)
+            self.assertEqual(load_json(path), {"safe": True})
 
     def test_profile_key_is_unambiguous_for_paths_with_newlines(self) -> None:
         first = {"a": Path("/x\nb=/y"), "b": Path("/z")}

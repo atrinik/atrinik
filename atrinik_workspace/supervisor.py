@@ -18,11 +18,7 @@ from typing import Any, BinaryIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .process_tree import control_socket_path, holders_exist, signal_holders
-from .port_reservation import (
-    PORT_RESERVATION_DIRECTORY,
-    PortReservationError,
-    validate_held,
-)
+from .port_reservation import PortReservationError, validate_held
 
 
 LOG_LIMIT = 10 * 1024 * 1024
@@ -297,7 +293,7 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
 
 
 def _validate_port_reservation(
-    spec: dict[str, Any], descriptor: int | None, topology_root: Path
+    spec: dict[str, Any], descriptor: int | None, _topology_root: Path
 ) -> None:
     reservation = spec.get("port_reservation")
     if reservation is None and descriptor is None:
@@ -316,10 +312,6 @@ def _validate_port_reservation(
         or validated["generation"] != control.get("generation")
         or not isinstance(endpoint, dict)
         or validated["port"] != endpoint.get("port")
-        or Path(validated["path"])
-        != topology_root.parent
-        / PORT_RESERVATION_DIRECTORY
-        / f"{validated['port']}-{validated['generation']}.lease"
     ):
         raise RuntimeError("topology port reservation does not match the topology")
 
@@ -601,7 +593,8 @@ def supervise(
             )
         )
         guardian_pid, guardian_write_fd = _start_guardian(
-            process_tree_fd, *retained_fds
+            process_tree_fd,
+            *retained_fds,
         )
         control_socket = _open_control(spec, spec_path.parent)
         if "server" in spec["services"]:

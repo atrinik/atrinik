@@ -11,7 +11,7 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
-from typing import Any
+from typing import Any, Callable
 
 from .locking import (
     LockBusyError,
@@ -20,7 +20,14 @@ from .locking import (
     layout_writer_intent_path,
     layout_writer_pending_path,
 )
-from .model import WorkspaceError, atomic_json, load_json
+from .model import (
+    AtomicJsonCommitUncertain,
+    JsonUnlinkCommitUncertain,
+    WorkspaceError,
+    durable_atomic_json,
+    load_json,
+    unlink_validated_json,
+)
 from .process_tree import (
     bound_lease_locked,
     control_socket_path,
@@ -66,6 +73,12 @@ def _certified_parity() -> dict[str, str]:
         "final_1x_release": "v1.8.19",
         "status": "certified",
     }
+
+
+def _durable_unlink(path: Path, *, missing_ok: bool = False) -> None:
+    if missing_ok and not path.exists() and not path.is_symlink():
+        return
+    unlink_validated_json(path, lambda _value: None)
 
 
 def _git(path: Path, *arguments: str, check: bool = True) -> str:
@@ -154,7 +167,14 @@ def _atomic_bytes(path: Path, value: bytes) -> None:
 class ContentMigration:
     """Retire active ``content-1x`` selectors without rewriting history."""
 
-    def __init__(self, repository_root: Path, workspace_paths: Any, manifest: Any):
+    def __init__(
+        self,
+        repository_root: Path,
+        workspace_paths: Any,
+        manifest: Any,
+        physical_lock_path: Path,
+        reference_publisher: Callable[[dict[str, tuple[bytes, bytes]] | None], None],
+    ):
         self.repository_root = Path(repository_root).resolve()
         self.paths = workspace_paths
         self.manifest = manifest
@@ -163,6 +183,8 @@ class ContentMigration:
         self.pending_path = self.workspace / CONTENT_MIGRATION_PENDING
         self.canonical = self.repository_root / "content"
         self.legacy = self.repository_root / "content-1x"
+        self.physical_lock_path = Path(physical_lock_path)
+        self.reference_publisher = reference_publisher
 
     def execute(self, mode: str) -> dict[str, Any]:
         if mode not in {"dry-run", "apply", "audit", "restore"}:
@@ -179,6 +201,13 @@ class ContentMigration:
         lock_path = self.workspace / "repository-layout.lock"
         lock_stack = ExitStack()
         try:
+            lock_stack.enter_context(
+                exclusive_layout_lock(
+                    self.physical_lock_path,
+                    "physical repository layout",
+                    nonblocking=True,
+                )
+            )
             lock_stack.enter_context(
                 exclusive_layout_lock(
                     lock_path, "repository layout", nonblocking=True
@@ -200,8 +229,39 @@ class ContentMigration:
             if self.record_path.is_file() and not self.record_path.is_symlink():
                 result = self._audit()
                 if result["status"] == "complete":
+                    self.reference_publisher(None)
+                    if self.pending_path.exists() or self.pending_path.is_symlink():
+                        def validate_committed_pending(value: Any) -> None:
+                            if not isinstance(value, dict):
+                                raise WorkspaceError("pending migration journal is invalid")
+                            expected_keys = (
+                                set(result) - {"applied_at", "restore"}
+                            ) | {"started_at"}
+                            if set(value) != expected_keys:
+                                raise WorkspaceError(
+                                    "pending migration journal has unexpected fields"
+                                )
+                            if value["status"] != "pending" or not isinstance(
+                                value["started_at"], str
+                            ):
+                                raise WorkspaceError(
+                                    "pending migration journal state is invalid"
+                                )
+                            ignored = {"status", "started_at"}
+                            for key, pending_value in value.items():
+                                if key in ignored:
+                                    continue
+                                if key not in result or result[key] != pending_value:
+                                    raise WorkspaceError(
+                                        "pending journal does not match the committed migration"
+                                    )
+
+                        unlink_validated_json(
+                            self.pending_path, validate_committed_pending
+                        )
                     result["status"] = "already-applied"
                 elif result["status"] == "restored":
+                    self.reference_publisher(None)
                     result["status"] = "refused"
                     result["refusals"] = [
                         _refusal(
@@ -248,6 +308,13 @@ class ContentMigration:
         lock_path = self.workspace / "repository-layout.lock"
         lock_stack = ExitStack()
         try:
+            lock_stack.enter_context(
+                exclusive_layout_lock(
+                    self.physical_lock_path,
+                    "physical repository layout",
+                    nonblocking=True,
+                )
+            )
             lock_stack.enter_context(
                 exclusive_layout_lock(
                     lock_path, "repository layout", nonblocking=True
@@ -936,11 +1003,21 @@ class ContentMigration:
             "status": "pending",
             "started_at": datetime.now(timezone.utc).isoformat(),
         }
-        atomic_json(self.pending_path, journal)
+        durable_atomic_json(self.pending_path, journal)
         applied_profiles: list[dict[str, Any]] = []
         applied_moves: list[dict[str, Any]] = []
         published = False
         try:
+            self.reference_publisher(
+                {
+                    Path(row["path"]).stem: (
+                        base64.b64decode(row["original_base64"], validate=True),
+                        base64.b64decode(row["replacement_base64"], validate=True),
+                    )
+                    for row in inspection["profiles"]
+                    if row["status"] == "rewrite"
+                }
+            )
             for move in inspection["worktree_moves"]:
                 source, destination = self._managed_worktree_paths(
                     Path(move["source"]).name
@@ -978,26 +1055,48 @@ class ContentMigration:
                     ),
                 },
             }
-            atomic_json(self.record_path, record)
-            published = True
             try:
-                self.pending_path.unlink()
-            except OSError:
+                durable_atomic_json(self.record_path, record)
+            except AtomicJsonCommitUncertain:
+                published = True
+                raise
+            else:
+                published = True
+            self.reference_publisher(None)
+            try:
+                _durable_unlink(self.pending_path)
+            except JsonUnlinkCommitUncertain as error:
                 return {
                     **record,
-                    "pending_journal_retained": str(self.pending_path),
+                    "pending_journal_removed_durability_uncertain": str(error),
                 }
+            except WorkspaceError as error:
+                field = (
+                    "pending_journal_retained"
+                    if self.pending_path.exists() or self.pending_path.is_symlink()
+                    else "pending_journal_removed_durability_uncertain"
+                )
+                value = (
+                    str(self.pending_path)
+                    if field == "pending_journal_retained"
+                    else str(error)
+                )
+                return {**record, field: value}
             return record
         except BaseException as error:
             if published:
                 raise WorkspaceError(
                     "content migration completed and its durable record was published, "
                     f"but final journal cleanup failed: {error}; preserve {self.record_path} "
-                    f"and {self.pending_path} and run --audit"
+                    f"and {self.pending_path} and rerun --apply"
                 ) from error
             rollback_errors = self._rollback(applied_profiles, applied_moves)
+            try:
+                self.reference_publisher(None)
+            except WorkspaceError as publish_error:
+                rollback_errors.append(str(publish_error))
             if not rollback_errors:
-                self.pending_path.unlink(missing_ok=True)
+                _durable_unlink(self.pending_path, missing_ok=True)
             detail = f"content migration failed: {error}"
             if rollback_errors:
                 detail += "; rollback failed: " + "; ".join(rollback_errors)
@@ -1298,7 +1397,21 @@ class ContentMigration:
             return {**audit, "status": "refused", "resources": resources, "refusals": refusals}
         restored_profiles: list[dict[str, Any]] = []
         restored_moves: list[dict[str, Any]] = []
+        record_visible = False
         try:
+            # Retain both durable generations before changing either profiles
+            # or worktree paths. A crash at any later instruction therefore
+            # leaves cleanup conservatively protecting both sides.
+            self.reference_publisher(
+                {
+                    Path(row["path"]).stem: (
+                        base64.b64decode(row["original_base64"], validate=True),
+                        base64.b64decode(row["replacement_base64"], validate=True),
+                    )
+                    for row in audit["profiles"]
+                    if row.get("status") == "rewrite"
+                }
+            )
             for row in audit["profiles"]:
                 if row.get("status") != "rewrite":
                     continue
@@ -1327,12 +1440,29 @@ class ContentMigration:
                 "restored_at": datetime.now(timezone.utc).isoformat(),
                 "refusals": [],
             }
-            atomic_json(self.record_path, restored)
+            try:
+                durable_atomic_json(self.record_path, restored)
+            except AtomicJsonCommitUncertain:
+                record_visible = True
+                raise
+            record_visible = True
+            self.reference_publisher(None)
             return restored
         except BaseException as error:
+            if record_visible:
+                raise WorkspaceError(
+                    "content migration restore completed and its restored record is "
+                    f"visible, but directory durability is uncertain: {error}; "
+                    "preserve the record, repair the reported registry problem, "
+                    "then rerun --apply to finish reference reconciliation"
+                ) from error
             rollback_errors = self._rollback_restore(
                 restored_profiles, restored_moves, audit["canonical"]
             )
+            try:
+                self.reference_publisher(None)
+            except WorkspaceError as publish_error:
+                rollback_errors.append(str(publish_error))
             detail = (
                 "content migration restore stopped after a changed precondition: "
                 f"{error}; preserve the journal and all paths"

@@ -438,6 +438,8 @@ def main(arguments: list[str] | None = None) -> int:
     if raw_arguments and raw_arguments[0] == protocol_command():
         return protocol(root_parser, ROOT, raw_arguments[1:])
     options = root_parser.parse_args(raw_arguments)
+    workspace: Any = None
+    command_maintenance: Any = None
     try:
         if options.command == "completion":
             print(shell_script(options.shell), end="")
@@ -470,7 +472,23 @@ def main(arguments: list[str] | None = None) -> int:
         workspace_type = Workspace
         if workspace_type is None:
             from .workspace import Workspace as workspace_type
-        workspace = workspace_type(ROOT)
+        read_only_dry_run = (
+            options.command == "cleanup" and not options.apply
+        ) or (
+            options.command == "migrate"
+            and options.migrate_command in {"repositories", "content"}
+            and (options.dry_run or options.audit)
+        )
+        workspace = workspace_type(
+            ROOT, backfill_references=not read_only_dry_run
+        )
+        # Foreground runs acquire the maintenance barrier only while resolving,
+        # building, and publishing their sealed runtime generation. Keeping the
+        # CLI-wide reader after publication would needlessly block migration for
+        # the lifetime of an immutable client/server process.
+        if options.command not in {"migrate", "run"}:
+            command_maintenance = workspace.command_maintenance()
+            command_maintenance.__enter__()
         if options.command == "supply-chain":
             inventory = Inventory.load(
                 ROOT / "supply-chain" / "inventory.json", ROOT / "components.json"
@@ -926,6 +944,11 @@ def main(arguments: list[str] | None = None) -> int:
     except KeyboardInterrupt:
         print("interrupted", file=sys.stderr)
         return 130
+    finally:
+        if command_maintenance is not None:
+            command_maintenance.__exit__(None, None, None)
+        if workspace is not None:
+            workspace.close()
 
 
 if __name__ == "__main__":

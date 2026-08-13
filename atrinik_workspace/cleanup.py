@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from contextvars import copy_context
 from datetime import datetime, timezone
 import fcntl
@@ -9,11 +9,12 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
+import secrets
 import stat
 import subprocess
 from typing import Any, Iterable, Iterator
 
-from .locking import active_lock_fds
+from .locking import LockBusyError, active_lock_fds
 from .content_migration import CONTENT_MIGRATION_PENDING, CONTENT_MIGRATION_RECORD
 from .migration import MIGRATION_PENDING, MIGRATION_RECORD, OPERATION_PATHS
 from .model import (
@@ -21,6 +22,7 @@ from .model import (
     SCHEMA_VERSION,
     WorkspaceError,
     atomic_json,
+    durable_atomic_json,
     load_json,
     managed_remove,
 )
@@ -37,7 +39,6 @@ from .workspace import (
     COMPILER_CACHE_PURPOSE,
     _remote_matches,
     exclusive_lock,
-    exclusive_layout_lock,
     remove_owned_tree,
 )
 
@@ -460,21 +461,88 @@ class Cleanup:
             raise WorkspaceError(
                 f"workspace ownership marker is invalid: {self.paths.marker}"
             )
-        with exclusive_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ):
-            report = self._plan(selected_scopes, older_than_days, selected_names, "apply")
-            if report["summary"]["error_count"]:
-                report["aborted"] = True
-                return report
-            targets = [
-                item for item in report["items"] if item["disposition"] == "eligible"
-            ]
-            targets.sort(key=self._apply_order)
-            mutated = False
-            completed: set[tuple[str, str]] = set()
-            for target in targets:
+        report = self._plan(selected_scopes, older_than_days, selected_names, "apply")
+        if report["summary"]["error_count"]:
+            report["aborted"] = True
+            return report
+        targets = [
+            item for item in report["items"] if item["disposition"] == "eligible"
+        ]
+        targets.sort(key=self._apply_order)
+        mutated = False
+        completed: set[tuple[str, str]] = set()
+        report["completed_actions"] = []
+        journal_path = (
+            self.paths.workspace
+            / "cleanup-journals"
+            / f"{self.now.strftime('%Y%m%dT%H%M%S%fZ')}-{secrets.token_hex(6)}.json"
+        )
+        journal: dict[str, Any] = {
+            "schema_version": 1,
+            "started_at": self.now.isoformat(),
+            "status": "in-progress",
+            "targets": [
+                {"kind": target["kind"], "path": target["path"]}
+                for target in targets
+            ],
+            "completed": [],
+        }
+        durable_atomic_json(journal_path, journal)
+        report["journal"] = str(journal_path)
+        for target in targets:
+            with ExitStack() as target_stack:
+                if target["kind"] in {"worktree", "prunable-metadata"}:
+                    owner = target["owner"]
+                    checkout = self.manifest.by_checkout.get(owner)
+                    primary = (
+                        self.paths.repository
+                        if owner == "atrinik"
+                        else self.paths.repositories / checkout.path
+                        if checkout is not None
+                        else None
+                    )
+                    if primary is None:
+                        target["disposition"] = "error"
+                        target["reasons"] = ["unknown_worktree_owner"]
+                        report["aborted"] = True
+                        break
+                    requests = [
+                        self.workspace._lease_request(
+                            "git-admin",
+                            (
+                                self.workspace._git_admin_coordinate(
+                                    checkout, primary
+                                )
+                                if checkout is not None
+                                else self.workspace._wrapper_git_admin_coordinate()
+                            ),
+                            "exclusive",
+                            f"cleanup {target['kind']} {target['path']}",
+                        )
+                    ]
+                    if target["kind"] == "worktree":
+                        requests.append(
+                            self.workspace._lease_request(
+                                "source",
+                                self.workspace._source_coordinate(
+                                    owner, Path(target["path"])
+                                ),
+                                "exclusive",
+                                f"cleanup worktree {target['path']}",
+                            )
+                        )
+                    try:
+                        target_stack.enter_context(
+                            self.workspace._resource_locks(
+                                requests,
+                                nonblocking=True,
+                            )
+                        )
+                    except LockBusyError as error:
+                        target["disposition"] = "skipped"
+                        target["reasons"] = ["resource_busy"]
+                        target["error"] = str(error)
+                        continue
                 identity = (target["kind"], target["path"])
                 if identity in completed:
                     continue
@@ -513,6 +581,11 @@ class Cleanup:
                 report["mutation_attempted"] = True
                 try:
                     self._remove(match, older_than_days)
+                except LockBusyError as error:
+                    target["disposition"] = "skipped"
+                    target["reasons"] = ["resource_busy"]
+                    target["error"] = str(error)
+                    continue
                 except (OSError, RuntimeError, WorkspaceError) as error:
                     target["disposition"] = "error"
                     target["reasons"] = ["removal_failed"]
@@ -523,6 +596,19 @@ class Cleanup:
                 target["reasons"] = ["removed"]
                 mutated = True
                 completed.add(identity)
+                report["completed_actions"].append(
+                    {"kind": target["kind"], "path": target["path"]}
+                )
+                journal["completed"] = list(report["completed_actions"])
+                try:
+                    durable_atomic_json(journal_path, journal)
+                except (OSError, RuntimeError, WorkspaceError) as error:
+                    report["aborted"] = True
+                    report["journal_error"] = (
+                        "cleanup removed the reported target but could not durably "
+                        f"refresh its progress journal: {error}"
+                    )
+                    break
                 if target["kind"] == "prunable-metadata":
                     for related in targets:
                         if (
@@ -532,10 +618,21 @@ class Cleanup:
                             related["disposition"] = "removed"
                             related["reasons"] = ["removed"]
                             completed.add((related["kind"], related["path"]))
-            report["mutated"] = mutated
-            report.setdefault("mutation_attempted", False)
-            report["summary"] = self._summary(report["items"])
-            return report
+        report["mutated"] = mutated
+        report.setdefault("mutation_attempted", False)
+        report["summary"] = self._summary(report["items"])
+        journal["status"] = "aborted" if report.get("aborted") else "complete"
+        journal["finished_at"] = datetime.now(timezone.utc).isoformat()
+        try:
+            durable_atomic_json(journal_path, journal)
+        except (OSError, RuntimeError, WorkspaceError) as error:
+            report["aborted"] = True
+            report.setdefault(
+                "journal_error",
+                "cleanup completed the reported actions but could not durably "
+                f"finalize its journal: {error}",
+            )
+        return report
 
     @staticmethod
     def _normalize_scopes(scopes: list[str]) -> list[str]:
@@ -964,6 +1061,30 @@ class Cleanup:
             return False
 
     def _profile_references(self, references: dict[str, Any], errors: set[str]) -> None:
+        try:
+            for record in self.workspace._physical_reference_records():
+                if (
+                    not isinstance(record, dict)
+                    or set(record)
+                    != {"schema_version", "kind", "reference", "sources"}
+                    or record["schema_version"] != 1
+                    or record["kind"] not in {"profiles", "scenarios"}
+                    or not isinstance(record["reference"], str)
+                    or not isinstance(record["sources"], list)
+                    or not all(
+                        isinstance(source, str) and Path(source).is_absolute()
+                        for source in record["sources"]
+                    )
+                ):
+                    raise WorkspaceError("physical profile reference is invalid")
+                for source in record["sources"]:
+                    self._add_reference(
+                        references[record["kind"]],
+                        Path(source),
+                        record["reference"],
+                    )
+        except (OSError, WorkspaceError):
+            errors.add("profile_inventory_error")
         if not self.paths.profiles.is_dir() or self.paths.profiles.is_symlink():
             if self.paths.profiles.exists() or self.paths.profiles.is_symlink():
                 errors.add("profile_inventory_error")
@@ -1460,6 +1581,8 @@ class Cleanup:
         primary_item = normalized == primary.resolve()
         if primary_item:
             item["reasons"].append("primary_checkout")
+        if owner == "atrinik" and normalized == self.paths.repository.resolve():
+            item["reasons"].append("active_wrapper_view")
         reference_reasons = {
             "profiles": "profile_reference",
             "scenarios": "scenario_reference",
