@@ -294,6 +294,205 @@ def fair_layout_writer_process(
         raise
 
 
+def retained_topology_leases_process(
+    layout_path: str,
+    build_path: str,
+    state_path: str,
+    entered: object,
+    release: object,
+    results: object,
+) -> None:
+    try:
+        with (
+            shared_layout_lock(Path(layout_path), "repository layout"),
+            exclusive_lock(Path(build_path), "profile build topology-a"),
+            exclusive_lock(Path(state_path), "server state topology-a"),
+        ):
+            entered.set()
+            if not release.wait(10):
+                raise TimeoutError("retained topology leases were not released")
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def observed_layout_writer_process(
+    layout_path: str,
+    pending_acquired: object,
+    intent_acquired: object,
+    entered: object,
+    release: object,
+    results: object,
+) -> None:
+    try:
+        intent_path = workspace_module._layout_writer_intent_path(
+            Path(layout_path)
+        ).resolve()
+        pending_path = locking_module.layout_writer_pending_path(
+            Path(layout_path)
+        ).resolve()
+        real_flock = locking_module.fcntl.flock
+
+        def observe_flock(lock: object, operation: int) -> None:
+            real_flock(lock, operation)
+            descriptor_path = Path(
+                os.readlink(f"/proc/self/fd/{lock.fileno()}")
+            )
+            if operation & fcntl.LOCK_SH and descriptor_path == pending_path:
+                pending_acquired.set()
+            if operation & fcntl.LOCK_EX and descriptor_path == intent_path:
+                intent_acquired.set()
+
+        with mock.patch.object(
+            locking_module.fcntl, "flock", side_effect=observe_flock
+        ):
+            with exclusive_layout_lock(Path(layout_path), "repository layout"):
+                entered.set()
+                if not release.wait(10):
+                    raise TimeoutError("layout writer was not released")
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def public_lifecycle_reader_process(
+    wrapper: str,
+    workspace_directory: str,
+    operation: str,
+    attempting: object,
+    entered: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            intent_path = workspace_module._layout_writer_intent_path(
+                workspace.paths.workspace / "repository-layout.lock"
+            ).resolve()
+            real_flock = locking_module.fcntl.flock
+
+            def observe_flock(lock: object, lock_operation: int) -> None:
+                descriptor_path = Path(
+                    os.readlink(f"/proc/self/fd/{lock.fileno()}")
+                )
+                if (
+                    lock_operation & fcntl.LOCK_EX
+                    and descriptor_path == intent_path
+                ):
+                    attempting.set()
+                real_flock(lock, lock_operation)
+
+            def record_entry(*_arguments: object, **_keywords: object) -> Path:
+                entered.set()
+                return Path(wrapper)
+
+            with mock.patch.object(
+                locking_module.fcntl, "flock", side_effect=observe_flock
+            ):
+                if operation == "build-b":
+                    with mock.patch.object(
+                        workspace, "_build", side_effect=record_entry
+                    ):
+                        workspace.build("client", "profile-b", False)
+                else:
+                    with mock.patch.object(
+                        workspace, "_topology_up", side_effect=record_entry
+                    ):
+                        workspace.topology_up(
+                            "topology-b",
+                            "profile-b",
+                            "state-b",
+                            ["server"],
+                            17302,
+                        )
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def synthetic_server_start_process(
+    wrapper: str,
+    workspace_directory: str,
+    name: str,
+    state_path: str,
+    build_root: str,
+    port: int,
+    port_attempting: object,
+    pre_ready: object,
+    release: object,
+    results: object,
+) -> None:
+    stop_message = "synthetic startup reached release boundary"
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            ports_path = (workspace.paths.topologies / "ports.lock").resolve()
+            selected = {"server": Path(wrapper)}
+            state = Path(state_path)
+            root = Path(build_root)
+            real_flock = locking_module.fcntl.flock
+
+            def observe_flock(lock: object, operation: int) -> None:
+                descriptor = lock if isinstance(lock, int) else lock.fileno()
+                descriptor_path = Path(
+                    os.readlink(f"/proc/self/fd/{descriptor}")
+                )
+                if operation & fcntl.LOCK_EX and descriptor_path == ports_path:
+                    port_attempting.set()
+                real_flock(lock, operation)
+
+            def pause_before_readiness(
+                *_arguments: object, **_keywords: object
+            ) -> dict[str, Path]:
+                pre_ready.set()
+                if not release.wait(10):
+                    raise TimeoutError(f"server startup {name} was not released")
+                raise RuntimeError(stop_message)
+
+            with (
+                mock.patch.object(
+                    locking_module.fcntl, "flock", side_effect=observe_flock
+                ),
+                mock.patch.object(workspace, "_require_classic_contracts"),
+                mock.patch.object(
+                    workspace, "_resolve_build_profile", return_value=selected
+                ),
+                mock.patch.object(
+                    workspace, "_state_location", return_value=state
+                ),
+                mock.patch.object(workspace, "state_path", return_value=state),
+                mock.patch.object(
+                    workspace, "_build_resolved", return_value=root
+                ),
+                mock.patch.object(
+                    workspace, "_select_topology_port", return_value=port
+                ),
+                mock.patch.object(
+                    workspace,
+                    "_copy_topology_runtime_inputs",
+                    side_effect=pause_before_readiness,
+                ),
+            ):
+                try:
+                    workspace.topology_up(
+                        name, name, name, ["server"], port
+                    )
+                except RuntimeError as error:
+                    if str(error) != stop_message:
+                        raise
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
 def inherited_leases_wrapper_process(
     layout_path: str,
     build_path: str,
@@ -5824,6 +6023,156 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(started, processes)
         self.assertEqual([process.exitcode for process in processes], [0] * 10)
         self.assertEqual([results.get(timeout=2) for _ in processes], [None] * 10)
+
+    def test_p0_harness_reproduces_current_lifecycle_layout_convoy(self) -> None:
+        context = multiprocessing.get_context("spawn")
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        topology_build = self.workspace.paths.builds / "locks" / "topology-a.lock"
+        topology_state = self.workspace.paths.state / "topology-a.lock"
+        topology_entered = context.Event()
+        release_topology = context.Event()
+        writer_pending = context.Event()
+        writer_intent = context.Event()
+        writer_entered = context.Event()
+        release_writer = context.Event()
+        reader_attempting = [context.Event(), context.Event()]
+        readers_entered = [context.Event(), context.Event()]
+        results = context.Queue()
+        topology = context.Process(
+            target=retained_topology_leases_process,
+            args=(
+                str(layout),
+                str(topology_build),
+                str(topology_state),
+                topology_entered,
+                release_topology,
+                results,
+            ),
+        )
+        writer = context.Process(
+            target=observed_layout_writer_process,
+            args=(
+                str(layout),
+                writer_pending,
+                writer_intent,
+                writer_entered,
+                release_writer,
+                results,
+            ),
+        )
+        readers = [
+            context.Process(
+                target=public_lifecycle_reader_process,
+                args=(
+                    str(self.wrapper),
+                    str(self.workspace_directory),
+                    operation,
+                    reader_attempting[index],
+                    readers_entered[index],
+                    results,
+                ),
+            )
+            for index, operation in enumerate(("build-b", "topology-b"))
+        ]
+        processes = [topology, writer, *readers]
+        started: list[multiprocessing.Process] = []
+        try:
+            topology.start()
+            started.append(topology)
+            self.assertTrue(topology_entered.wait(5))
+
+            writer.start()
+            started.append(writer)
+            self.assertTrue(writer_pending.wait(5))
+            self.assertTrue(writer_intent.wait(5))
+            self.assertFalse(writer_entered.is_set())
+
+            for reader in readers:
+                reader.start()
+                started.append(reader)
+            self.assertTrue(
+                all(attempt.wait(5) for attempt in reader_attempting)
+            )
+            self.assertFalse(writer_entered.is_set())
+            self.assertTrue(all(not entered.is_set() for entered in readers_entered))
+
+            # This is the P0 current-behavior assertion. The #399 cutover will
+            # invert it: disjoint B readers must enter while A's writer waits.
+            release_topology.set()
+            self.assertTrue(writer_entered.wait(5))
+            self.assertTrue(all(not entered.is_set() for entered in readers_entered))
+            release_writer.set()
+            self.assertTrue(
+                all(entered.wait(5) for entered in readers_entered)
+            )
+        finally:
+            release_topology.set()
+            release_writer.set()
+            join_or_stop_processes(started, 10)
+        self.assertEqual(started, processes)
+        self.assertEqual([process.exitcode for process in processes], [0] * 4)
+        self.assertEqual([results.get(timeout=2) for _ in processes], [None] * 4)
+
+    def test_p0_harness_reproduces_current_server_startup_port_convoy(
+        self,
+    ) -> None:
+        context = multiprocessing.get_context("spawn")
+        results = context.Queue()
+        attempting = [context.Event(), context.Event()]
+        pre_ready = [context.Event(), context.Event()]
+        releases = [context.Event(), context.Event()]
+        coordinates = (
+            ("server-a", "state-a", "build-a", 17310),
+            ("server-b", "state-b", "build-b", 17311),
+        )
+        for _name, _state, build, _port in coordinates:
+            root = self.workspace.paths.builds / "profiles" / build
+            root.mkdir(parents=True)
+            atomic_json(root / workspace_module.BUILD_METADATA, {})
+        processes = [
+            context.Process(
+                target=synthetic_server_start_process,
+                args=(
+                    str(self.wrapper),
+                    str(self.workspace_directory),
+                    name,
+                    str(self.workspace.paths.state / state),
+                    str(self.workspace.paths.builds / "profiles" / build),
+                    port,
+                    attempting[index],
+                    pre_ready[index],
+                    releases[index],
+                    results,
+                ),
+            )
+            for index, (name, state, build, port) in enumerate(coordinates)
+        ]
+        started: list[multiprocessing.Process] = []
+        try:
+            processes[0].start()
+            started.append(processes[0])
+            self.assertTrue(attempting[0].wait(5))
+            self.assertTrue(pre_ready[0].wait(5))
+
+            processes[1].start()
+            started.append(processes[1])
+            self.assertTrue(attempting[1].wait(5))
+            self.assertFalse(pre_ready[1].is_set())
+
+            # Both starts use distinct topology, profile/build, state, and
+            # explicit-port coordinates. P0 records that the global allocator
+            # lease still serializes B until A leaves its pre-ready stage; #401
+            # will flip this assertion to require concurrent rendezvous entry.
+            releases[0].set()
+            self.assertTrue(pre_ready[1].wait(5))
+            releases[1].set()
+        finally:
+            for release in releases:
+                release.set()
+            join_or_stop_processes(started, 10)
+        self.assertEqual(started, processes)
+        self.assertEqual([process.exitcode for process in processes], [0, 0])
+        self.assertEqual([results.get(timeout=2) for _ in processes], [None, None])
 
     def test_layout_lock_reports_one_actionable_prolonged_wait(self) -> None:
         layout = self.workspace.paths.workspace / "repository-layout.lock"
