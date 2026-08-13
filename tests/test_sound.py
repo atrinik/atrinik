@@ -1138,6 +1138,14 @@ class ReleasedSoundTests(unittest.TestCase):
         oversized = archive_with("oversized-pax", [extended])
         with self.assertRaisesRegex(WorkspaceError, "extended metadata"):
             extract_release_archive(oversized, self.root / "oversized", self.coordinates)
+        solaris = tarfile.TarInfo(f"{prefix}/solaris-metadata")
+        solaris.type = tarfile.SOLARIS_XHDTYPE
+        solaris.size = 1
+        solaris_archive = archive_with("solaris-pax", [solaris])
+        with self.assertRaisesRegex(WorkspaceError, "extended metadata"):
+            extract_release_archive(
+                solaris_archive, self.root / "solaris", self.coordinates
+            )
 
     def test_interrupted_download_is_a_workspace_error(self) -> None:
         response = mock.Mock()
@@ -1214,6 +1222,19 @@ class ReleasedSoundTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "schema contract"):
             verify_release_tree(self.tree, self.coordinates)
 
+    def test_packaged_schema_must_be_an_object(self) -> None:
+        schema_path = self.tree / RELEASE_SCHEMA
+        schema_path.write_text("[]\n", encoding="utf-8")
+        self.coordinates["schema_sha256"] = digest(schema_path)
+        self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "schema contract"):
+            verify_release_tree(self.tree, self.coordinates)
+
     def test_packaged_schema_property_constraints_are_applied(self) -> None:
         schema_path = self.tree / RELEASE_SCHEMA
         schema = json.loads(schema_path.read_text())
@@ -1227,6 +1248,22 @@ class ReleasedSoundTests(unittest.TestCase):
         )
         self.rewrite_checksums()
         with self.assertRaisesRegex(WorkspaceError, "violates its schema"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_packaged_schema_reference_cycles_fail_closed(self) -> None:
+        schema_path = self.tree / RELEASE_SCHEMA
+        schema = json.loads(schema_path.read_text())
+        schema["$defs"] = {"loop": {"$ref": "#/$defs/loop"}}
+        schema["properties"]["assets"] = {"$ref": "#/$defs/loop"}
+        schema_path.write_bytes(canonical(schema))
+        self.coordinates["schema_sha256"] = digest(schema_path)
+        self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "schema reference"):
             verify_release_tree(self.tree, self.coordinates)
 
     def test_build_metadata_and_supervised_topology_reuse_verified_root(self) -> None:

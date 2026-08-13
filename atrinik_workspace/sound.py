@@ -349,6 +349,7 @@ def _prescan_release_archive(archive_path: Path) -> None:
                 if member.type in {
                     tarfile.XHDTYPE,
                     tarfile.XGLTYPE,
+                    tarfile.SOLARIS_XHDTYPE,
                     tarfile.GNUTYPE_LONGNAME,
                     tarfile.GNUTYPE_LONGLINK,
                 }:
@@ -889,9 +890,18 @@ def _validate_release_schema_instance(
     schema: object,
     root_schema: dict[str, Any],
     location: str = "$",
+    *,
+    active_refs: frozenset[str] = frozenset(),
+    budget: list[int] | None = None,
+    depth: int = 0,
 ) -> None:
     """Apply the bounded JSON Schema subset used by the sound release contract."""
 
+    if budget is None:
+        budget = [100_000]
+    budget[0] -= 1
+    if budget[0] < 0 or depth > 128:
+        raise WorkspaceError("released sound packaged schema exceeds evaluation limits")
     if schema is True:
         return
     if schema is False or not isinstance(schema, dict):
@@ -911,10 +921,22 @@ def _validate_release_schema_instance(
             raise WorkspaceError("released sound packaged schema reference is invalid")
         name = reference.removeprefix("#/$defs/")
         definitions = root_schema.get("$defs")
-        if not isinstance(definitions, dict) or name not in definitions:
+        if (
+            reference in active_refs
+            or not isinstance(definitions, dict)
+            or name not in definitions
+        ):
             raise WorkspaceError("released sound packaged schema reference is unresolved")
-        _validate_release_schema_instance(instance, definitions[name], root_schema, location)
-    for keyword, required_matches in (("allOf", None), ("anyOf", 1), ("oneOf", 1)):
+        _validate_release_schema_instance(
+            instance,
+            definitions[name],
+            root_schema,
+            location,
+            active_refs=active_refs | {reference},
+            budget=budget,
+            depth=depth + 1,
+        )
+    for keyword in ("allOf", "anyOf", "oneOf"):
         branches = schema.get(keyword)
         if branches is None:
             continue
@@ -923,11 +945,23 @@ def _validate_release_schema_instance(
         matches = 0
         for branch in branches:
             try:
-                _validate_release_schema_instance(instance, branch, root_schema, location)
+                _validate_release_schema_instance(
+                    instance,
+                    branch,
+                    root_schema,
+                    location,
+                    active_refs=active_refs,
+                    budget=budget,
+                    depth=depth + 1,
+                )
             except WorkspaceError:
                 continue
             matches += 1
-        if keyword == "allOf" and matches != len(branches) or required_matches == 1 and matches != 1:
+        if (
+            keyword == "allOf" and matches != len(branches)
+            or keyword == "anyOf" and matches < 1
+            or keyword == "oneOf" and matches != 1
+        ):
             raise WorkspaceError(f"released sound manifest violates {keyword} at {location}")
     if "const" in schema and instance != schema["const"]:
         raise WorkspaceError(f"released sound manifest violates const at {location}")
@@ -969,7 +1003,15 @@ def _validate_release_schema_instance(
             raise WorkspaceError("released sound packaged schema additionalProperties is invalid")
         for name, value in instance.items():
             child = properties.get(name, additional)
-            _validate_release_schema_instance(value, child, root_schema, f"{location}.{name}")
+            _validate_release_schema_instance(
+                value,
+                child,
+                root_schema,
+                f"{location}.{name}",
+                active_refs=active_refs,
+                budget=budget,
+                depth=depth + 1,
+            )
         for keyword, comparison in (("minProperties", lambda a, b: a >= b), ("maxProperties", lambda a, b: a <= b)):
             limit = schema.get(keyword)
             if limit is not None and (not isinstance(limit, int) or isinstance(limit, bool) or not comparison(len(instance), limit)):
@@ -977,7 +1019,15 @@ def _validate_release_schema_instance(
     if isinstance(instance, list):
         item_schema = schema.get("items", True)
         for index, value in enumerate(instance):
-            _validate_release_schema_instance(value, item_schema, root_schema, f"{location}[{index}]")
+            _validate_release_schema_instance(
+                value,
+                item_schema,
+                root_schema,
+                f"{location}[{index}]",
+                active_refs=active_refs,
+                budget=budget,
+                depth=depth + 1,
+            )
         for keyword, comparison in (("minItems", lambda a, b: a >= b), ("maxItems", lambda a, b: a <= b)):
             limit = schema.get(keyword)
             if limit is not None and (not isinstance(limit, int) or isinstance(limit, bool) or not comparison(len(instance), limit)):
@@ -1145,11 +1195,12 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
         )
     except (json.JSONDecodeError, ValueError) as error:
         raise WorkspaceError("released sound packaged schema is invalid JSON") from error
+    if not isinstance(schema, dict):
+        raise WorkspaceError("released sound packaged schema contract is invalid")
     required = schema.get("required")
     properties = schema.get("properties")
     if (
-        not isinstance(schema, dict)
-        or schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema"
+        schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema"
         or schema.get("$id") != f"https://atrinik.org/{RELEASE_SCHEMA}"
         or schema.get("type") != "object"
         or schema.get("additionalProperties") is not False
