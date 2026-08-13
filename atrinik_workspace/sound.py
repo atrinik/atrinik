@@ -954,7 +954,9 @@ def _validate_release_schema_instance(
                     budget=budget,
                     depth=depth + 1,
                 )
-            except WorkspaceError:
+            except WorkspaceError as error:
+                if not str(error).startswith("released sound manifest"):
+                    raise
                 continue
             matches += 1
         if (
