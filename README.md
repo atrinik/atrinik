@@ -187,8 +187,12 @@ directory, so an unrelated or historical checkout cannot impersonate
 ### Historical MIT provenance grants
 
 [`docs/PROVENANCE.md`](docs/PROVENANCE.md) is the single exhaustive approved
-grantor registry and evidence contract. Do not duplicate its table in component
-guides or skills.
+grantor registry. The canonical privacy-preserving identity schema, public
+registry and operating policy are in
+[`governance/provenance-identities/`](governance/provenance-identities/) and
+[`docs/PROVENANCE_IDENTITIES.md`](docs/PROVENANCE_IDENTITIES.md). Component
+repositories keep exact material scope and an immutable pinned reference; they
+never duplicate aliases or canonical identity records.
 
 The cross-repository M1 evidence and exact reuse procedure are indexed in
 [`docs/REPLACEMENT_FOUNDATIONS.md`](docs/REPLACEMENT_FOUNDATIONS.md). The
@@ -207,6 +211,14 @@ provenance-approved reuse, not clean-room work. Later material needs
 contemporaneous compatible permission. The source license and unrelated
 dependencies, assets, and surrounding work do not change; destination evidence
 cites the exact wrapper revision containing the registry used.
+
+Validate the canonical registry and one or more component references through a
+bounded local checkout. This reads only the pinned registry/schema Git blobs and
+does not use the network:
+
+~~~sh
+./atrinik provenance validate --reference PATH
+~~~
 
 The GPL classic utilities and their user-facing replacement/retirement paths
 are inventoried in

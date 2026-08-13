@@ -59,8 +59,8 @@
 - Unbound persisted records are historical and inert.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket
   holders per `CONTRIBUTING.md`; preserve precise attribution.
-- MIT reuse follows `docs/PROVENANCE.md`; temporal, sole-authorship, and
-  separability uncertainty fails closed. Cite its registry revision.
+- MIT reuse follows `docs/PROVENANCE.md` and its canonical identity registry;
+  any rights, identity, temporal, authorship, or scope uncertainty fails closed.
 - Update `supply-chain/inventory.json` when dependency ownership or validation
   changes. Keep Actions/images immutable, add no submodules, and audit a
   complete profile. Only aggregate-root workflows and Dependabot are active.
