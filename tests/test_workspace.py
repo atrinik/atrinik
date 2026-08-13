@@ -7627,6 +7627,23 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(scenario_path.read_bytes(), scenario_before)
         self.assertEqual(self.workspace.paths.states_file.read_bytes(), states_before)
 
+    def test_scenario_list_preserves_resolved_path_for_symlinked_container(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+
+        scenarios = self.workspace.paths.scenarios
+        external = self.root / "external-scenarios"
+        scenarios.rename(external)
+        scenarios.symlink_to(external, target_is_directory=True)
+
+        self.assertEqual(
+            self.workspace.scenario_list()[0]["path"],
+            self.workspace.scenario_show("current")["path"],
+        )
+
     def test_scenario_list_reports_invalid_record_without_error_detail(self) -> None:
         root = self.workspace.paths.scenarios / "malformed"
         root.mkdir(parents=True)
