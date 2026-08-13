@@ -231,16 +231,22 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 mock.patch.object(
                     supervisor_module.subprocess, "Popen", return_value=process
                 ),
+                mock.patch.object(
+                    supervisor_module,
+                    "_start_guardian",
+                    wraps=supervisor_module._start_guardian,
+                ) as start_guardian,
                 mock.patch.object(supervisor_module, "terminate") as terminate,
                 mock.patch.object(supervisor_module.os, "close") as close,
             ):
                 self.assertEqual(
-                    supervise(spec_path, None, 7, 8, None, None, 9), 1
+                    supervise(spec_path, 6, 7, 8, None, None, 9), 1
                 )
 
+            start_guardian.assert_called_once_with(None, None, 6, 9)
             terminate.assert_called_once()
             self.assertEqual(
-                {call.args[0] for call in close.call_args_list}, {7, 8, 9}
+                {call.args[0] for call in close.call_args_list}, {6, 7, 8, 9}
             )
             status = json.loads(
                 (root / "status.json").read_text(encoding="utf-8")
@@ -258,8 +264,10 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                     "-c",
                     "import os, pathlib, signal, sys, time; "
                     "child = os.fork(); "
+                    "path = pathlib.Path(sys.argv[1]); "
                     "child == 0 and signal.signal(signal.SIGTERM, signal.SIG_IGN); "
-                    "child == 0 and pathlib.Path(sys.argv[1]).write_text(str(os.getpid())); "
+                    "child == 0 and path.with_suffix('.tmp').write_text(str(os.getpid())); "
+                    "child == 0 and path.with_suffix('.tmp').replace(path); "
                     "child == 0 and time.sleep(60); "
                     "os._exit(0)",
                     str(descendant_path),
@@ -310,9 +318,11 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                     "-c",
                     "import os, pathlib, signal, sys, time; "
                     "child = os.fork(); "
+                    "path = pathlib.Path(sys.argv[1]); "
                     "child == 0 and os.close(int(sys.argv[2])); "
                     "child == 0 and signal.signal(signal.SIGTERM, signal.SIG_IGN); "
-                    "child == 0 and pathlib.Path(sys.argv[1]).write_text(str(os.getpid())); "
+                    "child == 0 and path.with_suffix('.tmp').write_text(str(os.getpid())); "
+                    "child == 0 and path.with_suffix('.tmp').replace(path); "
                     "child == 0 and time.sleep(60); "
                     "os._exit(0)",
                     str(descendant_path),

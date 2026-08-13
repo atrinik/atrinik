@@ -591,7 +591,7 @@ def supervise(
 
     try:
         retained_fds = (
-            (lock_fd, runtime_lock_fd, port_reservation_fd)
+            (port_reservation_fd, lock_fd, runtime_lock_fd)
             if spec.get("schema_version") == 2
             else (
                 lock_fd,
