@@ -7289,18 +7289,18 @@ class WorkspaceTests(unittest.TestCase):
             fresh = Workspace(self.wrapper, backfill_references=False)
         entered = threading.Event()
         release = threading.Event()
-        publish = fresh._publish_scenario_reference_sources
+        publish = fresh._publish_scenario_references
 
-        def pause_publication(name: str, values: list[str] | set[str]) -> None:
+        def pause_publication(name: str, metadata: dict[str, object]) -> None:
             entered.set()
             self.assertTrue(release.wait(5))
-            publish(name, values)
+            publish(name, metadata)
 
         try:
             with (
                 mock.patch.object(
                     fresh,
-                    "_publish_scenario_reference_sources",
+                    "_publish_scenario_references",
                     side_effect=pause_publication,
                 ),
                 ThreadPoolExecutor(max_workers=2) as executor,
@@ -7406,6 +7406,35 @@ class WorkspaceTests(unittest.TestCase):
             self.assertTrue((registry / f"{state_identity}.json").is_file())
         finally:
             fresh.close()
+
+    def test_backfill_rejects_malformed_scenario_without_marker(self) -> None:
+        root = self.workspace.paths.scenarios / "malformed-backfill"
+        root.mkdir()
+        atomic_json(
+            root / "scenario.json",
+            {
+                "resolved": {
+                    "server": {
+                        "checkout": "server",
+                        "checkout_path": str(self.root / "retained-server"),
+                    },
+                    "invalid": {"checkout": "retired-owner"},
+                }
+            },
+        )
+        state_identity = hashlib.sha256(
+            str(self.workspace.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        registry = self.workspace._lease_namespace / "profile-references"
+        (registry / f"{state_identity}.json").unlink()
+
+        with self.assertRaisesRegex(
+            WorkspaceError,
+            "scenario resolved references are invalid: malformed-backfill",
+        ):
+            self.workspace._backfill_physical_references()
+
+        self.assertFalse((registry / f"{state_identity}.json").exists())
 
     def test_backfill_reports_authored_record_change_separately(self) -> None:
         profile = self.workspace.create_profile("changing-backfill")

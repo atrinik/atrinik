@@ -3356,13 +3356,6 @@ class Workspace:
                     raise WorkspaceError(
                         f"scenario resolved references are invalid: {root.name}"
                     )
-                sources = {
-                    Path(value["checkout_path"]).resolve(strict=False)
-                    for value in resolved.values()
-                    if isinstance(value, dict)
-                    and isinstance(value.get("checkout"), str)
-                    and isinstance(value.get("checkout_path"), str)
-                }
                 scenario_request = self._lease_request(
                     "scenario", root.name, "shared", "backfill scenario reference"
                 )
@@ -3378,9 +3371,7 @@ class Workspace:
                     # The caller holds the common physical-reference registry
                     # barrier against removal, so the complete source set can be
                     # published once without retaining one descriptor per path.
-                    self._publish_scenario_reference_sources(
-                        root.name, {str(source) for source in sources}
-                    )
+                    self._publish_scenario_references(root.name, confirmed)
 
     def _set_profile(
         self, name: str, component_name: str, kind: str, value: str = ""
