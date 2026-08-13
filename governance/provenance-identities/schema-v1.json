@@ -60,10 +60,39 @@
         "superseded_by": {"$ref": "#/$defs/recordId"}
       }
     },
+    "activeStatusDetail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effective_on"],
+      "properties": {"effective_on": {"$ref": "#/$defs/date"}}
+    },
+    "revokedStatusDetail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effective_on", "reason"],
+      "properties": {
+        "effective_on": {"$ref": "#/$defs/date"},
+        "reason": {"enum": ["compromise", "correction", "dispute", "withdrawal"]}
+      }
+    },
+    "supersededStatusDetail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effective_on", "superseded_by"],
+      "properties": {
+        "effective_on": {"$ref": "#/$defs/date"},
+        "superseded_by": {"$ref": "#/$defs/recordId"}
+      }
+    },
     "publicAlias": {
       "type": "object",
       "additionalProperties": false,
       "required": ["record_id", "record_type", "status", "status_detail", "synthetic", "policy_version", "reviewer", "reviewed_on", "expires_on", "claims", "display_name", "aliases", "publication_authorization", "approval", "integrity"],
+      "allOf": [
+        {"if": {"properties": {"status": {"const": "active"}}}, "then": {"properties": {"status_detail": {"$ref": "#/$defs/activeStatusDetail"}}}},
+        {"if": {"properties": {"status": {"const": "revoked"}}}, "then": {"properties": {"status_detail": {"$ref": "#/$defs/revokedStatusDetail"}}}},
+        {"if": {"properties": {"status": {"const": "superseded"}}}, "then": {"properties": {"status_detail": {"$ref": "#/$defs/supersededStatusDetail"}}}}
+      ],
       "properties": {
         "record_id": {"$ref": "#/$defs/publicRecordId"},
         "record_type": {"const": "public-alias"},
@@ -95,6 +124,11 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["record_id", "record_type", "status", "status_detail", "synthetic", "policy_version", "reviewer", "reviewed_on", "expires_on", "claims", "scope_binding", "restricted_evidence", "publication_review", "approval", "integrity"],
+      "allOf": [
+        {"if": {"properties": {"status": {"const": "active"}}}, "then": {"properties": {"status_detail": {"$ref": "#/$defs/activeStatusDetail"}}}},
+        {"if": {"properties": {"status": {"const": "revoked"}}}, "then": {"properties": {"status_detail": {"$ref": "#/$defs/revokedStatusDetail"}}}},
+        {"if": {"properties": {"status": {"const": "superseded"}}}, "then": {"properties": {"status_detail": {"$ref": "#/$defs/supersededStatusDetail"}}}}
+      ],
       "properties": {
         "record_id": {"$ref": "#/$defs/confidentialRecordId"},
         "record_type": {"const": "confidential-attestation"},

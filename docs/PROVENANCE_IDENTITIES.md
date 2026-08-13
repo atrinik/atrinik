@@ -125,7 +125,7 @@ binding. Its `evidence_reference` has exactly:
 - `repository: atrinik/atrinik`;
 - a full 40-character coordinator commit reachable from canonical `origin/main`;
 - the opaque record ID;
-- SHA-256 digests of the registry and schema bytes; and
+- SHA-256 digests of the registry, schema, and reviewer-roster bytes; and
 - the canonical GitHub `blob/<commit>/.../registry.json#<record-id>` permalink.
 
 Online review opens that permalink and verifies that the commit is on the
@@ -138,9 +138,10 @@ history, or consult a local alias copy. A signed-release mode is not implemented
 in schema v1 and therefore fails closed.
 
 The synthetic component-owned records for `atrinik/client` and
-`atrinik/server` exercise both paths. The copies in this repository are test
-fixtures; each component keeps its own identical reference record and validates
-it without copying the canonical registry, schema, or reviewer roster:
+`atrinik/server` exercise the bounded audit path before merge. The copies in
+this repository are test fixtures; each component keeps its own identical
+reference record and validates it without copying the canonical registry,
+schema, or reviewer roster:
 
 ```sh
 ./atrinik provenance validate \
@@ -148,12 +149,15 @@ it without copying the canonical registry, schema, or reviewer roster:
   --reference tests/fixtures/provenance-identities/positive/synthetic-beta.json
 ```
 
-Their pinned URLs become online after this branch is pushed. Before merge they
-may be exercised only with `--non-authorizing-audit-ref
+Their pinned URLs become online after this branch is pushed. They may be
+exercised only with `--non-authorizing-audit-ref
 origin/feat/privacy-preserving-provenance-registry`; that mode is visibly not an
 approval for reuse. They carry an authenticated `synthetic: true` boundary and
-are test evidence, not permission for real material. Production validation
-accepts only a revision that has landed on the default branch.
+are test evidence, not permission for real material. Because the branch is
+squash-merged, these exact intermediate commits do not become default-branch
+ancestors. Completing the production-path demonstration is therefore an
+explicit post-merge dependency: new records must be reviewed and signed only
+after their coordinator revision has landed on the default branch.
 
 ## Migration and review
 

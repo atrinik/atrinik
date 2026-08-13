@@ -21,7 +21,7 @@ CANONICALIZATION = "atrinik-json-v1"
 REGISTRY_PATH = Path("governance/provenance-identities/registry.json")
 SCHEMA_PATH = Path("governance/provenance-identities/schema-v1.json")
 REVIEWERS_PATH = Path("governance/provenance-identities/reviewers.json")
-TRUSTED_SCHEMA_CANONICAL_SHA256 = "e04b15c8c79690c4f04752676a54febd95d1473fab7d968ad1cf4b6cedc35704"
+TRUSTED_SCHEMA_CANONICAL_SHA256 = "d80f49a1b17d00ad203a70229f2649d005bf69b738fc197c5ad6da8f944e57bd"
 CONFIDENTIAL_RECORD_ID_PATTERN = re.compile(r"^pir-c-[0-9a-f]{32}$")
 PUBLIC_RECORD_ID_PATTERN = re.compile(r"^pir-p-[0-9a-f]{32}$")
 RECORD_ID_PATTERN = re.compile(r"^pir-[cp]-[0-9a-f]{32}$")
@@ -547,7 +547,21 @@ def validate_registry(
 
 
 def _git_environment() -> dict[str, str]:
-    return {**os.environ, "GIT_NO_REPLACE_OBJECTS": "1"}
+    environment = os.environ.copy()
+    for name in (
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+        "GIT_CEILING_DIRECTORIES",
+        "GIT_COMMON_DIR",
+        "GIT_DIR",
+        "GIT_DISCOVERY_ACROSS_FILESYSTEM",
+        "GIT_INDEX_FILE",
+        "GIT_OBJECT_DIRECTORY",
+        "GIT_REPLACE_REF_BASE",
+        "GIT_WORK_TREE",
+    ):
+        environment.pop(name, None)
+    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
+    return environment
 
 
 def _git_output(repository_root: Path, arguments: list[str], context: str) -> bytes:

@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date
 import hashlib
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -13,6 +14,7 @@ from atrinik_workspace.model import WorkspaceError
 from atrinik_workspace.provenance_identity import (
     MAX_DOCUMENT_BYTES,
     _git_blob,
+    _git_environment,
     _git_output,
     _load_bytes,
     _validate_repository_trust,
@@ -302,6 +304,33 @@ class ProvenanceIdentityTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "trusted version"):
             validate_registry(registry(), drifted, reviewers(), as_of=AS_OF)
 
+    def test_schema_status_shapes_match_the_validator_contract(self) -> None:
+        definitions = schema()["$defs"]
+        expected = {
+            "active": "activeStatusDetail",
+            "revoked": "revokedStatusDetail",
+            "superseded": "supersededStatusDetail",
+        }
+        for record_name in ("publicAlias", "confidentialAttestation"):
+            conditions = definitions[record_name]["allOf"]
+            actual = {
+                condition["if"]["properties"]["status"]["const"]:
+                condition["then"]["properties"]["status_detail"]["$ref"].rsplit("/", 1)[-1]
+                for condition in conditions
+            }
+            self.assertEqual(actual, expected)
+        self.assertEqual(
+            set(definitions["activeStatusDetail"]["properties"]), {"effective_on"}
+        )
+        self.assertEqual(
+            set(definitions["revokedStatusDetail"]["required"]),
+            {"effective_on", "reason"},
+        )
+        self.assertEqual(
+            set(definitions["supersededStatusDetail"]["required"]),
+            {"effective_on", "superseded_by"},
+        )
+
     def test_future_review_and_readable_confidential_id_fail_closed(self) -> None:
         value = registry()
         value["records"][0]["reviewed_on"] = "2026-08-14"
@@ -348,6 +377,23 @@ class ProvenanceIdentityTests(unittest.TestCase):
             side_effect=outputs,
         ), mock.patch("pathlib.Path.exists", return_value=False):
             _validate_repository_trust(ROOT, "1" * 40, "origin/main")
+
+    def test_git_environment_cannot_redirect_the_coordinator_repository(self) -> None:
+        selecting = {
+            "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+            "GIT_CEILING_DIRECTORIES",
+            "GIT_COMMON_DIR",
+            "GIT_DIR",
+            "GIT_DISCOVERY_ACROSS_FILESYSTEM",
+            "GIT_INDEX_FILE",
+            "GIT_OBJECT_DIRECTORY",
+            "GIT_REPLACE_REF_BASE",
+            "GIT_WORK_TREE",
+        }
+        with mock.patch.dict(os.environ, {name: "/tmp/untrusted" for name in selecting}):
+            environment = _git_environment()
+        self.assertTrue(selecting.isdisjoint(environment))
+        self.assertEqual(environment["GIT_NO_REPLACE_OBJECTS"], "1")
 
     def test_record_digest_detects_mutation(self) -> None:
         value = registry()
