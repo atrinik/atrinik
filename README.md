@@ -210,8 +210,8 @@ contemporaneous compatible permission. The source license and unrelated
 dependencies, assets, and surrounding work do not change; destination evidence
 cites the exact wrapper revision containing the registry used.
 
-The GPL classic utilities and their user-facing replacement/retirement paths
-are inventoried in
+The MIT-by-default tools repository, its GPL-2.0-or-later `map-checker-qt/`
+exception, and user-facing replacement/retirement paths are inventoried in
 [`docs/CLASSIC_TOOLS_MIGRATION.md`](docs/CLASSIC_TOOLS_MIGRATION.md). They are
 available only through the explicit classic cohort and are not a production
 replacement build or runtime dependency.

@@ -2,17 +2,30 @@
   "schema_version": 2,
   "source": {
     "repository": "atrinik/tools",
-    "revision": "7777cf9f9ab6deb58de8a481dfccd6b05d86e3e1",
-    "tree": "daeb2eb5771d3f90ecf70ccfa2d9e1e4d768f6e4",
     "branch": "main",
-    "license": "LicenseRef-Atrinik-Tools-Mixed",
-    "default_license": "MIT",
-    "license_exceptions": [
-      {
-        "path": "map-checker-qt/",
-        "license": "GPL-2.0-or-later"
-      }
-    ],
+    "audit_baseline": {
+      "revision": "7777cf9f9ab6deb58de8a481dfccd6b05d86e3e1",
+      "tree": "daeb2eb5771d3f90ecf70ccfa2d9e1e4d768f6e4",
+      "license": "GPL-2.0-or-later"
+    },
+    "provenance_policy": {
+      "repository": "atrinik/atrinik",
+      "revision": "f0d1225791da7484e9456b39104cc30b0c77fe52",
+      "path": "docs/PROVENANCE.md"
+    },
+    "transition_target": {
+      "revision": null,
+      "tree": null,
+      "license": "LicenseRef-Atrinik-Tools-Mixed",
+      "default_license": "MIT",
+      "license_exceptions": [
+        {
+          "path": "map-checker-qt/",
+          "license": "GPL-2.0-or-later"
+        }
+      ],
+      "status": "pending-provenance"
+    },
     "history_complete": true,
     "ordinary_replacement_initialization": false,
     "classic_cohort_only": true,

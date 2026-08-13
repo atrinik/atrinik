@@ -219,19 +219,31 @@ class ClassicToolsInventoryTests(unittest.TestCase):
 
     def test_tools_license_boundary_is_narrow_and_machine_readable(self) -> None:
         source = self.inventory["source"]
+        target = source["transition_target"]
 
-        self.assertEqual(source["license"], "LicenseRef-Atrinik-Tools-Mixed")
-        self.assertEqual(source["default_license"], "MIT")
+        self.assertEqual(target["license"], "LicenseRef-Atrinik-Tools-Mixed")
+        self.assertEqual(target["default_license"], "MIT")
         self.assertEqual(
-            source["license_exceptions"],
+            target["license_exceptions"],
             [{"path": "map-checker-qt/", "license": "GPL-2.0-or-later"}],
         )
         self.assertEqual(
-            source["revision"],
+            source["audit_baseline"]["revision"],
             "7777cf9f9ab6deb58de8a481dfccd6b05d86e3e1",
         )
         self.assertEqual(
-            source["tree"], "daeb2eb5771d3f90ecf70ccfa2d9e1e4d768f6e4"
+            source["audit_baseline"]["tree"],
+            "daeb2eb5771d3f90ecf70ccfa2d9e1e4d768f6e4",
+        )
+        self.assertEqual(
+            source["audit_baseline"]["license"], "GPL-2.0-or-later"
+        )
+        self.assertIsNone(target["revision"])
+        self.assertIsNone(target["tree"])
+        self.assertEqual(target["status"], "pending-provenance")
+        self.assertEqual(
+            source["provenance_policy"]["revision"],
+            "f0d1225791da7484e9456b39104cc30b0c77fe52",
         )
 
 

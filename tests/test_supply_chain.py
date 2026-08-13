@@ -405,6 +405,13 @@ class InventoryTests(unittest.TestCase):
                 document["license_references"] = value
                 self.assert_invalid_document(document, expected)
 
+        compatible_v3_document = self.inventory_document()
+        compatible_v3_document.pop("license_references")
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "inventory.json"
+            path.write_text(json.dumps(compatible_v3_document), encoding="utf-8")
+            Inventory.load(path, ROOT / "components.json")
+
         document = self.inventory_document()
         document["repositories"][0] = "client"
         self.assert_invalid_document(document, "repository 0 must be an object")

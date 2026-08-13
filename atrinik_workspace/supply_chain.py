@@ -160,16 +160,17 @@ class Inventory:
         root = load_json(path)
         if not isinstance(root, dict):
             raise WorkspaceError("supply-chain inventory root must be an object")
+        required_root_keys = {
+            "schema_version",
+            "organization",
+            "created",
+            "repositories",
+            "dependencies",
+        }
         require_keys(
             root,
-            {
-                "schema_version",
-                "organization",
-                "created",
-                "license_references",
-                "repositories",
-                "dependencies",
-            },
+            required_root_keys
+            | ({"license_references"} if "license_references" in root else set()),
             "supply-chain inventory",
         )
         if root["schema_version"] != SCHEMA_VERSION:
@@ -177,7 +178,7 @@ class Inventory:
         if root["organization"] != "atrinik":
             raise WorkspaceError("supply-chain organization must be atrinik")
         created = _text(root["created"], "inventory.created")
-        raw_license_references = root["license_references"]
+        raw_license_references = root.get("license_references", {})
         if not isinstance(raw_license_references, dict):
             raise WorkspaceError("inventory.license_references must be an object")
         license_references: dict[str, str] = {}

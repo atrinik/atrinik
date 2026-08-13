@@ -4,7 +4,7 @@
   "title": "Atrinik supply-chain inventory",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "organization", "created", "license_references", "repositories", "dependencies"],
+  "required": ["schema_version", "organization", "created", "repositories", "dependencies"],
   "properties": {
     "schema_version": {"const": 3},
     "organization": {"const": "atrinik"},
