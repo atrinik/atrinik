@@ -278,6 +278,22 @@ class ProvenanceIdentityTests(unittest.TestCase):
                 current_reviewers=reviewer_keys,
             )
 
+    def test_current_registry_cannot_replace_an_active_pinned_record(self) -> None:
+        reference = load_document(FIXTURES / "positive" / "synthetic-alpha.json")
+        records, reviewer_keys = current()
+        records[reference["evidence_reference"]["record_id"]]["integrity"]["digest"] = (
+            "f" * 64
+        )
+        with self.assertRaisesRegex(WorkspaceError, "differs from the pinned"):
+            validate_component_reference(
+                reference,
+                repository_root=ROOT,
+                as_of=AS_OF,
+                trusted_ref="HEAD",
+                current_records=records,
+                current_reviewers=reviewer_keys,
+            )
+
     def test_scope_replay_invalidates_reviewer_signature(self) -> None:
         reference = load_document(FIXTURES / "positive" / "synthetic-alpha.json")
         reference["source"]["path"] = "engine/unapproved.c"

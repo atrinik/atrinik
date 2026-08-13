@@ -748,6 +748,8 @@ def validate_component_reference(
         )
     if current["scope_binding"] != reference["scope_binding"]:
         raise WorkspaceError("current provenance scope binding differs from the pinned record")
+    if current["integrity"]["digest"] != record["integrity"]["digest"]:
+        raise WorkspaceError("current provenance record differs from the pinned attestation")
     scope_payload = canonical_bytes(
         {key: value for key, value in reference.items() if key != "scope_approval"}
     )
