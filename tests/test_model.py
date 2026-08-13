@@ -693,6 +693,29 @@ class PathSafetyTests(unittest.TestCase):
 
             self.assertTrue(real.is_dir())
 
+    def test_managed_reset_replaces_read_only_generated_subtree(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            builds = Path(temporary) / "build"
+            target = builds / "profile"
+            managed_directory(target, builds, "test")
+            cache = target / "dependency-cache" / "source"
+            cache.mkdir(parents=True)
+            archive = cache / "archive.tar.gz"
+            archive.write_text("immutable\n", encoding="utf-8")
+            archive.chmod(0o444)
+            cache.chmod(0o555)
+
+            managed_reset(target, builds, "test")
+
+            self.assertTrue(target.is_dir())
+            self.assertFalse((target / "dependency-cache").exists())
+            self.assertEqual(
+                json.loads(
+                    (target / ".atrinik-workspace-managed.json").read_text()
+                ),
+                {"purpose": "test", "schema_version": 1},
+            )
+
     def test_managed_remove_revalidates_marker_purpose_and_containment(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -713,6 +736,22 @@ class PathSafetyTests(unittest.TestCase):
             with self.assertRaisesRegex(WorkspaceError, "outside workspace builds"):
                 managed_remove(outside, builds, "outside")
             self.assertTrue(outside.is_dir())
+
+    def test_managed_remove_deletes_read_only_generated_subtree(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            builds = Path(temporary) / "build"
+            target = builds / "profiles" / "review"
+            managed_directory(target, builds, "profile:review:key")
+            cache = target / "dependency-cache" / "source"
+            cache.mkdir(parents=True)
+            archive = cache / "archive.tar.gz"
+            archive.write_text("immutable\n", encoding="utf-8")
+            archive.chmod(0o444)
+            cache.chmod(0o555)
+
+            managed_remove(target, builds, "profile:review:key")
+
+            self.assertFalse(target.exists())
 
     def test_managed_remove_rejects_a_symlinked_build_container(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

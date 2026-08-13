@@ -7,7 +7,6 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
-import shutil
 import stat
 import tempfile
 import time
@@ -1215,7 +1214,13 @@ def managed_reset(path: Path, workspace_builds: Path, purpose: str) -> None:
         metadata = load_json(marker)
         if metadata != {"schema_version": SCHEMA_VERSION, "purpose": purpose}:
             raise WorkspaceError(f"managed build marker does not match {purpose}: {path}")
-        shutil.rmtree(path)
+        # Import lazily to preserve the model/CLI boundary: workspace imports
+        # this module, while completion must not import the heavyweight
+        # workspace implementation. The owned-tree remover safely makes
+        # immutable generated directories writable before deleting them.
+        from .workspace import remove_owned_tree
+
+        remove_owned_tree(path)
     path.mkdir(parents=True)
     atomic_json(marker, {"schema_version": SCHEMA_VERSION, "purpose": purpose})
 
@@ -1248,7 +1253,9 @@ def managed_remove(path: Path, workspace_builds: Path, purpose: str) -> None:
     metadata = load_json(marker)
     if metadata != {"schema_version": SCHEMA_VERSION, "purpose": purpose}:
         raise WorkspaceError(f"managed build marker does not match {purpose}: {path}")
-    shutil.rmtree(path)
+    from .workspace import remove_owned_tree
+
+    remove_owned_tree(path)
 
 
 def profile_key(paths: dict[str, Path], *, namespace: str = "") -> str:
