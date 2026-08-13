@@ -182,7 +182,7 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 mock.patch.object(supervisor_module, "terminate") as terminate,
                 mock.patch.object(supervisor_module.os, "close") as close,
             ):
-                self.assertEqual(supervise(spec_path, None, 7, 8, None), 1)
+                self.assertEqual(supervise(spec_path, None, 7, 8, None, None), 1)
 
             terminate.assert_called_once()
             self.assertEqual(terminate.call_args.args[0], {"client": process})

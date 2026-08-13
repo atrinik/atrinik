@@ -935,9 +935,18 @@ runnable implementation; the `default` replacement profile will become
 runnable as its component contracts land. For a runnable profile, `up` builds
 the requested targets, reuses or refreshes content and resource caches, stages
 sound, prepares an isolated runtime, and starts both game processes under one
-supervisor. A server
-gets an available UDP port by default; use `--port` when a stable port is
-useful. The supervisor waits for both the QUIC certificate fingerprint and
+supervisor. A server gets an available UDP port by default; `--port 0` has the
+same automatic-allocation meaning, while `--port 1` through `--port 65535`
+requests that exact port. Automatic selection briefly holds the workspace
+allocator only while it chooses and publishes a unique generation-bound
+reservation. Every server then retains its own mode-0600 per-port lease through
+supervisor and guardian recovery, so startup preparation and readiness waits
+for different ports overlap. An exact-port conflict fails without waiting for
+an unrelated port and names the owning topology and generation plus the safe
+`ps`/`down` action. The supervisor rechecks kernel availability immediately
+before launching the server; an external process that wins the bind race
+produces a bounded startup error without changing another topology's
+reservation. The supervisor waits for both the QUIC certificate fingerprint and
 completed server initialization, then gives the paired client an authenticated
 loopback endpoint, disables metaserver and STUN discovery in that client, and
 disables STUN discovery and automatic port mapping in the server before
@@ -963,7 +972,9 @@ fails closed when advisory shared locking is unavailable. A wait longer than 10
 seconds emits one diagnostic naming safe `ps` and worktree inventories; it does
 not interrupt a reader, topology, build, or mutation. The pending announcement,
 writer-intent gate, and layout lock are always acquired before topology,
-scenario, state, build-root, port, registry, or cache locks. Foreground
+scenario, port allocator/per-port reservation, state, build-root, registry, or
+cache locks. The allocator is released before state/build/runtime preparation;
+the exact per-port reservation remains held. Foreground
 processes inherit their layout and exact build-root leases. Supervised services
 inherit both leases through the daemon and keep them until every service exits
 or `down` completes. Mutation
@@ -981,6 +992,11 @@ client configuration/cache root and its own copies of the collected content and
 resource caches, so changing or removing one topology cannot affect another
 topology or the retained build caches. The inherited identity lease atomically
 prevents the same topology name from restarting while any generation remains.
+Server services do not inherit allocator or per-port reservation descriptors;
+the supervisor and same-generation guardian retain the exact reservation and
+release it after orderly shutdown or exact process-tree recovery. `ps --json`
+exposes its port, owner, generation, and retained/released observation without
+credentials. Reservation records are never reclaimed from recorded PIDs.
 Logs live below `workspace/topologies/`
 and rotate at 10 MiB with three backups.
 

@@ -661,9 +661,25 @@ waits or fails closed with the owning topology and recovery action. Normal
 shutdown asks the supervisor to gracefully stop children before releasing
 state. For a paired topology it starts the server
 first, waits for its fingerprint and final ready signal, and then pins the
-client to that authenticated loopback endpoint. Available UDP ports are
-allocated under a workspace-wide lock, or callers may request an explicit
-port. Each runtime name owns an isolated persistent client configuration base.
+client to that authenticated loopback endpoint. Omitted ports and explicit port
+zero use automatic allocation. A short workspace allocator transaction probes a
+candidate and publishes its unique exact-port lease, then releases the
+allocator before state, build, runtime-copy, supervisor-launch, or readiness
+work. Explicit nonzero ports bypass the allocator and contend only on their own
+lease. Each mode-0600 lease record binds port, topology, generation, path, and
+device/inode identity; no-follow opens, single-link validation, and a final
+supervisor identity check reject symlink, hard-link, record-replacement, and
+generation substitution. The supervisor revalidates kernel availability before
+server launch and reports an external bind winner as a bounded startup failure.
+The per-port descriptor is retained by the supervisor and guardian, never the
+service, until orderly shutdown or exact process-tree recovery. Same-port
+contenders fail with the exact owning topology/generation and safe action;
+status reports the reservation identity and retained/released disposition.
+Stale records are overwritten only after the exact inode is exclusively locked,
+never from PID observations. Lock order is repository layout, topology
+operation/process-tree identity, automatic allocator when applicable, exact
+port, state, then build root; independent exact ports therefore overlap through
+readiness. Each runtime name owns an isolated persistent client configuration base.
 A supervised client also receives a bounded, process-only launch label naming
 its topology and profile; a foreground client receives its profile and direct
 run mode. The client uses this label only for its native window title. It is

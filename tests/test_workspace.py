@@ -6898,7 +6898,14 @@ class WorkspaceTests(unittest.TestCase):
         executable = binary / "atrinik-server"
         executable.write_text(
             "#!/usr/bin/env python3\n"
-            "import sys, time\n"
+            "import os, sys, time\n"
+            "for descriptor in os.listdir('/proc/self/fd'):\n"
+            "    try:\n"
+            "        target = os.readlink('/proc/self/fd/' + descriptor)\n"
+            "    except OSError:\n"
+            "        continue\n"
+            "    assert not target.endswith('/ports.lock'), target\n"
+            "    assert '/port-reservations/' not in target, target\n"
             f"print('QUIC certificate SHA-256: {'a' * 64}', flush=True)\n"
             "print('Server ready. Waiting for connections...', flush=True)\n"
             "print(repr(sys.argv[1:]), flush=True)\n"
@@ -6973,6 +6980,11 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertTrue(status["ready"])
         self.assertEqual(status["endpoint"]["port"], 17300)
+        self.assertEqual(status["port_reservation"]["port"], 17300)
+        self.assertEqual(status["port_reservation"]["topology"], "server-review")
+        self.assertEqual(
+            status["observation"]["port_reservation"]["lease"], "retained"
+        )
         self.assertEqual(status["endpoint"]["fingerprint"], "a" * 64)
         server_runtime = Path(status["services"]["server"]["cwd"])
         self.assertEqual(

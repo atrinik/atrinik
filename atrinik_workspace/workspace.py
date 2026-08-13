@@ -48,6 +48,16 @@ from .process_tree import (
     lease_locked,
     signal_holders,
 )
+from .port_reservation import (
+    PORT_RESERVATION_DIRECTORY,
+    PortReservationError,
+    bind_record as bind_port_reservation,
+    open_lease as open_port_reservation,
+    read_record as read_port_reservation,
+    reservation_locked as port_reservation_locked,
+    try_lock as try_lock_port_reservation,
+    validate_record as validate_port_reservation,
+)
 
 from .model import (
     MANAGED_MARKER,
@@ -112,6 +122,7 @@ COMPILER_CACHE_PURPOSE = "compiler-cache"
 COMPILER_CACHE_MAX_SIZE = "5G"
 TOPOLOGY_SERVICES = ("server", "client")
 TOPOLOGY_PROCESS_TREE_LEASE = "process-tree.lease"
+TOPOLOGY_PORT_RESERVATION_RECORD = "port-reservation.json"
 PRE_MONOREPO_REPOSITORIES = {
     "client": "legacy-client",
     "server": "legacy-server",
@@ -7171,7 +7182,7 @@ class Workspace:
             "supervisor",
             "services",
         }
-        optional = {"stack", "providers", "sound", "control"}
+        optional = {"stack", "providers", "sound", "control", "port_reservation"}
         historical_record = isinstance(status, dict) and not (
             {"stack", "providers"} & set(status)
         )
@@ -7457,6 +7468,39 @@ class Workspace:
                 )
             ):
                 raise WorkspaceError(f"topology endpoint status is invalid: {name}")
+        port_reservation = status.get("port_reservation")
+        if port_reservation is not None:
+            reservation_port = (
+                port_reservation.get("port")
+                if isinstance(port_reservation, dict)
+                else None
+            )
+            try:
+                validate_port_reservation(
+                    port_reservation,
+                    expected_path=(
+                        self.paths.topologies
+                        / PORT_RESERVATION_DIRECTORY
+                        / f"{reservation_port}.lease"
+                    ),
+                )
+                reservation_retained = port_reservation_locked(port_reservation)
+            except PortReservationError as error:
+                raise WorkspaceError(
+                    f"topology port reservation status is invalid: {name}"
+                ) from error
+            if (
+                endpoint is None
+                or port_reservation["port"] != endpoint["port"]
+                or port_reservation["topology"] != name
+                or not current_control
+                or port_reservation["generation"] != control["generation"]
+            ):
+                raise WorkspaceError(
+                    f"topology port reservation status is invalid: {name}"
+                )
+        else:
+            reservation_retained = False
         services = status.get("services")
         if (
             not isinstance(services, dict)
@@ -7524,8 +7568,11 @@ class Workspace:
             raise WorkspaceError(f"topology endpoint status is invalid: {name}")
         if not supervisor_running:
             status["ready"] = False
-        retained = process_tree_active or supervisor_running or any(
-            service["running"] for service in services.values()
+        retained = (
+            reservation_retained
+            or process_tree_active
+            or supervisor_running
+            or any(service["running"] for service in services.values())
         )
         if control_reachable:
             safe_action = f"run ./atrinik down {name} from any supported session"
@@ -7547,6 +7594,13 @@ class Workspace:
             "repository_layout_lease_owner": name if retained else None,
             "safe_action": safe_action,
         }
+        if port_reservation is not None:
+            status["observation"]["port_reservation"] = {
+                "port": port_reservation["port"],
+                "owner": port_reservation["topology"],
+                "generation": port_reservation["generation"],
+                "lease": "retained" if reservation_retained else "released",
+            }
         return status
 
     def topology_statuses(self) -> list[dict[str, Any]]:
@@ -7579,6 +7633,123 @@ class Workspace:
                     f"topology UDP port {requested} is unavailable: {error}"
                 ) from error
             raise WorkspaceError(f"cannot allocate a topology UDP port: {error}") from error
+
+    def _reserve_topology_port(
+        self, requested: int | None, topology: str, generation: str
+    ) -> tuple[int, dict[str, Any]]:
+        if requested is not None and (
+            not isinstance(requested, int)
+            or isinstance(requested, bool)
+            or not 0 <= requested <= 65535
+        ):
+            raise WorkspaceError("topology port must be between 0 and 65535")
+
+        automatic = requested in (None, 0)
+
+        def conflict(owner: dict[str, Any]) -> None:
+            raise WorkspaceError(
+                f"topology UDP port {owner['port']} is reserved by topology "
+                f"{owner['topology']} generation {owner['generation']}; "
+                f"inspect ./atrinik ps {owner['topology']} --json and "
+                f"run ./atrinik down {owner['topology']} only when safe"
+            )
+
+        def known_owner(port: int) -> dict[str, Any] | None:
+            expected_path = (
+                self.paths.topologies
+                / PORT_RESERVATION_DIRECTORY
+                / f"{port}.lease"
+            )
+            for root in sorted(self.paths.topologies.iterdir()):
+                record_path = root / TOPOLOGY_PORT_RESERVATION_RECORD
+                if not record_path.exists() and not record_path.is_symlink():
+                    continue
+                if record_path.is_symlink() or not record_path.is_file():
+                    raise WorkspaceError(
+                        f"topology port reservation evidence is invalid: {record_path}"
+                    )
+                value = load_json(record_path)
+                if not isinstance(value, dict) or value.get("port") != port:
+                    continue
+                try:
+                    owner = validate_port_reservation(
+                        value, expected_path=expected_path
+                    )
+                except PortReservationError as error:
+                    raise WorkspaceError(
+                        f"topology port reservation evidence is invalid: {record_path}"
+                    ) from error
+                try:
+                    if port_reservation_locked(owner):
+                        return owner
+                except PortReservationError as error:
+                    raise WorkspaceError(
+                        f"topology port reservation evidence for port {port} "
+                        "does not match its exact lease; preserve it for diagnosis"
+                    ) from error
+            return None
+
+        def claim(port: int) -> tuple[int, dict[str, Any]] | None:
+            try:
+                owner = known_owner(port)
+                if owner is not None:
+                    if automatic:
+                        return None
+                    conflict(owner)
+                descriptor, path = open_port_reservation(
+                    self.paths.topologies, port
+                )
+                if not try_lock_port_reservation(descriptor):
+                    try:
+                        deadline = time.monotonic() + 1
+                        while True:
+                            try:
+                                owner = read_port_reservation(descriptor, path)
+                                break
+                            except PortReservationError:
+                                if time.monotonic() >= deadline:
+                                    raise WorkspaceError(
+                                        f"topology UDP port {port} is reserved but "
+                                        "its owner record is not yet valid; preserve "
+                                        "the lease and retry"
+                                    )
+                                time.sleep(0.01)
+                    finally:
+                        os.close(descriptor)
+                    if not automatic:
+                        conflict(owner)
+                    return None
+                try:
+                    self._select_topology_port(port)
+                    record = bind_port_reservation(
+                        descriptor,
+                        path,
+                        port=port,
+                        topology=topology,
+                        generation=generation,
+                    )
+                except BaseException:
+                    os.close(descriptor)
+                    raise
+                return descriptor, record
+            except PortReservationError as error:
+                raise WorkspaceError(str(error)) from error
+
+        if not automatic:
+            reserved = claim(requested)
+            assert reserved is not None
+            return reserved
+
+        with exclusive_lock(
+            self.paths.topologies / "ports.lock",
+            "topology automatic port allocation",
+        ):
+            for _attempt in range(64):
+                candidate = self._select_topology_port(None)
+                reserved = claim(candidate)
+                if reserved is not None:
+                    return reserved
+        raise WorkspaceError("cannot allocate a unique topology UDP port after 64 attempts")
 
     @staticmethod
     def _require_client_display() -> None:
@@ -7742,6 +7913,28 @@ class Workspace:
                         f"topology control directory is invalid: {control_directory}"
                     )
 
+                endpoint: dict[str, Any] | None = None
+                port_reservation: dict[str, Any] | None = None
+                port_reservation_owner: list[int] = []
+                if "server" in selected_services:
+                    port_reservation_fd, port_reservation = (
+                        self._reserve_topology_port(port, name, generation)
+                    )
+                    port_reservation_owner.append(port_reservation_fd)
+                    stack.callback(
+                        lambda: os.close(port_reservation_owner.pop())
+                        if port_reservation_owner
+                        else None
+                    )
+                    endpoint = {
+                        "host": "127.0.0.1",
+                        "port": port_reservation["port"],
+                    }
+                    atomic_json(
+                        topology_root / TOPOLOGY_PORT_RESERVATION_RECORD,
+                        port_reservation,
+                    )
+
                 state_location: Path | None = None
                 state_lock: TextIO | None = None
                 if "server" in selected_services:
@@ -7766,18 +7959,6 @@ class Workspace:
                     if isinstance(build_metadata, dict)
                     else None
                 )
-                endpoint: dict[str, Any] | None = None
-                if "server" in selected_services:
-                    stack.enter_context(
-                        exclusive_lock(
-                            self.paths.topologies / "ports.lock",
-                            "topology port allocation",
-                        )
-                    )
-                    endpoint = {
-                        "host": "127.0.0.1",
-                        "port": self._select_topology_port(port),
-                    }
                 service_specs: dict[str, dict[str, Any]] = {}
                 if "server" in selected_services:
                     assert state_location is not None
@@ -7914,6 +8095,8 @@ class Workspace:
                     },
                     "services": service_specs,
                 }
+                if port_reservation is not None:
+                    spec["port_reservation"] = port_reservation
                 if sound_status is not None:
                     spec["sound"] = sound_status
                 spec_path = topology_root / "spec.json"
@@ -7964,6 +8147,14 @@ class Workspace:
                         ["--process-tree-fd", str(process_tree_fd)]
                     )
                     inherited_locks.append(process_tree_fd)
+                    if port_reservation_owner:
+                        command.extend(
+                            [
+                                "--port-reservation-fd",
+                                str(port_reservation_owner[0]),
+                            ]
+                        )
+                        inherited_locks.append(port_reservation_owner[0])
                     environment = os.environ.copy()
                     source_root = str(Path(__file__).resolve().parents[1])
                     python_path = environment.get("PYTHONPATH")
@@ -7983,6 +8174,8 @@ class Workspace:
                         pass_fds=tuple(inherited_locks),
                     )
                     os.close(process_tree_owner.pop())
+                    if port_reservation_owner:
+                        os.close(port_reservation_owner.pop())
                 except OSError as error:
                     raise WorkspaceError(f"cannot start topology supervisor: {error}") from error
                 finally:

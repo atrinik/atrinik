@@ -18,6 +18,11 @@ from typing import Any, BinaryIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .process_tree import control_socket_path, holders_exist, signal_holders
+from .port_reservation import (
+    PORT_RESERVATION_DIRECTORY,
+    PortReservationError,
+    validate_held,
+)
 
 
 LOG_LIMIT = 10 * 1024 * 1024
@@ -284,7 +289,51 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
         status["providers"] = spec["providers"]
     if "sound" in spec:
         status["sound"] = spec["sound"]
+    if "port_reservation" in spec:
+        status["port_reservation"] = spec["port_reservation"]
     return status
+
+
+def _validate_port_reservation(
+    spec: dict[str, Any], descriptor: int | None, topology_root: Path
+) -> None:
+    reservation = spec.get("port_reservation")
+    if reservation is None and descriptor is None:
+        return
+    if reservation is None or descriptor is None:
+        raise RuntimeError("topology port reservation descriptor is incomplete")
+    try:
+        validated = validate_held(descriptor, reservation)
+    except PortReservationError as error:
+        raise RuntimeError(str(error)) from error
+    control = spec.get("control")
+    endpoint = spec.get("endpoint")
+    if (
+        not isinstance(control, dict)
+        or validated["topology"] != spec.get("name")
+        or validated["generation"] != control.get("generation")
+        or not isinstance(endpoint, dict)
+        or validated["port"] != endpoint.get("port")
+        or Path(validated["path"])
+        != topology_root.parent
+        / PORT_RESERVATION_DIRECTORY
+        / f"{validated['port']}.lease"
+    ):
+        raise RuntimeError("topology port reservation does not match the topology")
+
+
+def _require_server_port_available(spec: dict[str, Any]) -> None:
+    endpoint = spec.get("endpoint")
+    if not isinstance(endpoint, dict) or not isinstance(endpoint.get("port"), int):
+        raise RuntimeError("topology server endpoint is invalid")
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as candidate:
+            candidate.bind(("0.0.0.0", endpoint["port"]))
+    except OSError as error:
+        raise RuntimeError(
+            f"reserved topology UDP port {endpoint['port']} was claimed by an "
+            f"external process before server startup: {error}"
+        ) from error
 
 
 def _guardian(
@@ -443,6 +492,7 @@ def supervise(
     layout_lock_fd: int | None,
     build_lock_fd: int | None,
     process_tree_fd: int | None,
+    port_reservation_fd: int | None,
 ) -> int:
     with spec_path.open(encoding="utf-8") as stream:
         spec = json.load(stream)
@@ -463,6 +513,7 @@ def supervise(
     if supervisor_start_time is None:
         raise RuntimeError("cannot identify topology supervisor process")
     status = _initial_status(spec, supervisor_start_time)
+    _validate_port_reservation(spec, port_reservation_fd, spec_path.parent)
     processes: dict[str, subprocess.Popen[bytes]] = {}
     logs: list[RotatingLog] = []
     pumps: list[threading.Thread] = []
@@ -531,10 +582,15 @@ def supervise(
 
     try:
         guardian_pid, guardian_write_fd = _start_guardian(
-            process_tree_fd, lock_fd, layout_lock_fd, build_lock_fd
+            process_tree_fd,
+            lock_fd,
+            layout_lock_fd,
+            build_lock_fd,
+            port_reservation_fd,
         )
         control_socket = _open_control(spec, spec_path.parent)
         if "server" in spec["services"]:
+            _require_server_port_available(spec)
             capture = ServerReadinessCapture()
             server = start_service("server", capture=capture)
             deadline = time.monotonic() + SERVER_READY_TIMEOUT
@@ -636,6 +692,8 @@ def supervise(
             os.close(layout_lock_fd)
         if build_lock_fd is not None:
             os.close(build_lock_fd)
+        if port_reservation_fd is not None:
+            os.close(port_reservation_fd)
     return 0
 
 
@@ -646,6 +704,7 @@ def main() -> int:
     parser.add_argument("--layout-lock-fd", type=int)
     parser.add_argument("--build-lock-fd", type=int)
     parser.add_argument("--process-tree-fd", type=int)
+    parser.add_argument("--port-reservation-fd", type=int)
     parser.add_argument("--daemonize", action="store_true")
     options = parser.parse_args()
     if options.daemonize and os.fork() != 0:
@@ -657,6 +716,7 @@ def main() -> int:
             options.layout_lock_fd,
             options.build_lock_fd,
             options.process_tree_fd,
+            options.port_reservation_fd,
         )
     except BaseException as error:
         message = f"{type(error).__name__}: {error}"
@@ -683,6 +743,11 @@ def main() -> int:
         if options.process_tree_fd is not None:
             try:
                 os.close(options.process_tree_fd)
+            except OSError:
+                pass
+        if options.port_reservation_fd is not None:
+            try:
+                os.close(options.port_reservation_fd)
             except OSError:
                 pass
         return 1
