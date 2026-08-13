@@ -222,12 +222,15 @@ interrupt the holder. The diagnostic is emitted at most once per acquisition.
 If the platform cannot provide a working advisory shared lock, the consuming
 operation fails closed.
 
-A supervised topology transfers its shared layout and exact build-root lock
-descriptors through the daemon supervisor into every service. Client runtimes
+A supervised topology transfers its shared layout, exact build-root, state,
+process-tree, and generation-reservation descriptors through the daemon
+supervisor. The supervisor and its same-generation guardian retain the
+workspace/state/reservation leases; services inherit only the process-tree
+identity needed for exact descendant recovery. Client runtimes
 retain links to selected client and sound checkouts, while server runtimes link
 selected server configuration and tool inputs. Inherited descriptors preserve
-both leases if the supervisor dies; topology shutdown terminates orphaned
-services and releases the last descriptors. A topology-unique inherited
+the leases if the supervisor dies; topology shutdown terminates orphaned
+services before the guardian releases the last descriptors. A topology-unique inherited
 process-tree lease is also held as an advisory generation lock, so a topology
 name cannot restart until its prior process tree releases the lease. Shutdown
 uses the same lease identity to find and pidfd-signal surviving descendants
@@ -242,10 +245,11 @@ which remain
 outermost relative to all operational locks; private helpers never reacquire
 either boundary. A direct build or foreground client then takes its build-root
 lock and subordinate cache locks; the foreground process retains that root
-lease. Topology startup
-takes the topology-operation lock, the server-state lock when needed, the
-build-root lock, and finally the port-allocation lock, and transfers the layout
-and build-root leases into its services.
+lease. Topology startup takes the topology-operation/process-tree lock, the
+automatic allocator when applicable, the per-port transaction and immutable
+generation lease, the server-state lock when needed, and finally the build-root
+lock. It transfers workspace leases into the supervisor/guardian rather than
+services.
 Independent CMake roots briefly serialize first-use compiler-cache marker and
 metadata publication, then release that cache lock before compilation.
 Scenario create takes the scenario-operation lock, then build-root and
@@ -661,9 +665,30 @@ waits or fails closed with the owning topology and recovery action. Normal
 shutdown asks the supervisor to gracefully stop children before releasing
 state. For a paired topology it starts the server
 first, waits for its fingerprint and final ready signal, and then pins the
-client to that authenticated loopback endpoint. Available UDP ports are
-allocated under a workspace-wide lock, or callers may request an explicit
-port. Each runtime name owns an isolated persistent client configuration base.
+client to that authenticated loopback endpoint. Omitted ports and explicit port
+zero use automatic allocation. A short workspace allocator transaction probes a
+candidate and publishes its unique immutable generation lease, then releases the
+allocator before state, build, runtime-copy, supervisor-launch, or readiness
+work. Explicit nonzero ports bypass the allocator and contend only on their own
+short per-port transaction. Each mode-0600 generation record binds port,
+topology, generation, path, verified directory identity, and lease identity;
+descriptor-relative no-follow opens, single-link validation, and a final
+supervisor identity check reject symlink, hard-link, record-replacement, and
+generation substitution. The supervisor revalidates kernel availability before
+server launch and reports an external bind winner as a bounded startup failure.
+The short per-port transaction descriptor is released before preparation. An
+immutable generation-specific descriptor is retained by the supervisor and
+guardian, never the service, until orderly shutdown or exact process-tree
+recovery. Shared status probes of released generations neither conflict with
+one another nor resemble an owner. Same-port contenders fail with the exact
+owning topology/generation and a truthful retry action;
+status reports the reservation identity and retained/released disposition.
+Immutable generation records are never overwritten or reclaimed from PID
+observations. Lock order is repository layout, topology operation/process-tree
+identity, automatic allocator when applicable, per-port transaction,
+generation lease, state, then build root; independent exact ports therefore
+overlap through readiness. Each runtime name owns an isolated persistent client
+configuration base.
 A supervised client also receives a bounded, process-only launch label naming
 its topology and profile; a foreground client receives its profile and direct
 run mode. The client uses this label only for its native window title. It is
