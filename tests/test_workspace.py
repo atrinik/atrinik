@@ -7289,12 +7289,26 @@ class WorkspaceTests(unittest.TestCase):
             fresh = Workspace(self.wrapper, backfill_references=False)
         entered = threading.Event()
         release = threading.Event()
+        removal_reached_fence = threading.Event()
         publish = fresh._publish_scenario_references
+        lock_resources = self.workspace._resource_locks
 
         def pause_publication(name: str, metadata: dict[str, object]) -> None:
             entered.set()
             self.assertTrue(release.wait(5))
             publish(name, metadata)
+
+        def observe_removal_fence(
+            requests: list[LeaseRequest], *args: object, **kwargs: object
+        ) -> object:
+            if any(
+                request.kind == "registry"
+                and request.coordinate == "physical-references"
+                and request.mode == "exclusive"
+                for request in requests
+            ):
+                removal_reached_fence.set()
+            return lock_resources(requests, *args, **kwargs)
 
         try:
             with (
@@ -7302,6 +7316,11 @@ class WorkspaceTests(unittest.TestCase):
                     fresh,
                     "_publish_scenario_references",
                     side_effect=pause_publication,
+                ),
+                mock.patch.object(
+                    self.workspace,
+                    "_resource_locks",
+                    side_effect=observe_removal_fence,
                 ),
                 ThreadPoolExecutor(max_workers=2) as executor,
             ):
@@ -7312,7 +7331,7 @@ class WorkspaceTests(unittest.TestCase):
                     "content",
                     "retired-scenario-1",
                 )
-                time.sleep(0.05)
+                self.assertTrue(removal_reached_fence.wait(5))
                 self.assertFalse(removing.done())
                 release.set()
                 backfill.result(timeout=5)
