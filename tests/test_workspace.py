@@ -2131,15 +2131,36 @@ class WorkspaceTests(unittest.TestCase):
         (first[0] / "node_modules" / ".vite" / "cache").write_text(
             "profile generated\n", encoding="utf-8"
         )
+        (first[0] / "node_modules" / ".mf").mkdir()
+        (first[0] / "node_modules" / ".mf" / "cache").write_text(
+            "profile generated\n", encoding="utf-8"
+        )
         second = self.workspace._worker_view(
             root, source, dependencies, "a" * 64, metadata
         )
         self.assertFalse(first[1])
         self.assertTrue(second[1])
         self.assertTrue((second[0] / "src" / "build" / "nested.ts").is_file())
+        generated_type_declarations = (
+            "publisher-worker-configuration.d.ts",
+            "rendezvous-worker-configuration.d.ts",
+            "worker-configuration.d.ts",
+            "worker-runtime.d.ts",
+        )
+        for name in generated_type_declarations:
+            (second[0] / name).write_text("generated\n", encoding="utf-8")
         self.workspace._reconcile_worker_view_after_checks(
             source, second[0], "a" * 64, metadata
         )
+        for name in generated_type_declarations:
+            self.assertTrue((second[0] / name).is_file())
+        nested_generated_type = second[0] / "src" / "worker-runtime.d.ts"
+        nested_generated_type.write_text("unexpected\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "source changed"):
+            self.workspace._reconcile_worker_view_after_checks(
+                source, second[0], "a" * 64, metadata
+            )
+        nested_generated_type.unlink()
         unexpected_dependency_output = second[0] / "node_modules" / "alpha" / "changed"
         unexpected_dependency_output.write_text("changed\n", encoding="utf-8")
         with self.assertRaisesRegex(WorkspaceError, "does not match cache metadata"):
@@ -2214,11 +2235,15 @@ class WorkspaceTests(unittest.TestCase):
         view_metadata = reconciled_after_check[0] / ".atrinik-worker-view.json"
 
         def fail_after_corrupting_controls(*args: object, **kwargs: object) -> None:
+            check_environment = kwargs.get("env")
+            assert isinstance(check_environment, dict)
+            self.assertEqual(check_environment.get("PYTHONDONTWRITEBYTECODE"), "1")
             marker.unlink()
             view_metadata.unlink()
             view_metadata.symlink_to(external_metadata)
             raise subprocess.CalledProcessError(1, ["npm", "run", "check"])
 
+        worker_environment: dict[str, str] = {}
         with (
             mock.patch(
                 "atrinik_workspace.workspace.run",
@@ -2227,8 +2252,9 @@ class WorkspaceTests(unittest.TestCase):
             self.assertRaises(subprocess.CalledProcessError),
         ):
             self.workspace._run_worker_checks(
-                reconciled_after_check[0], {}, "a" * 64, metadata
+                reconciled_after_check[0], worker_environment, "a" * 64, metadata
             )
+        self.assertNotIn("PYTHONDONTWRITEBYTECODE", worker_environment)
         self.assertEqual(
             load_json(marker),
             {
