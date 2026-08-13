@@ -7256,8 +7256,6 @@ class Workspace:
                 validate_sound_record(status["sound"])
             except WorkspaceError as error:
                 raise WorkspaceError(f"topology status is invalid: {name}") from error
-        if not historical_record and "client" in status["dependencies"] and "sound" not in status:
-            raise WorkspaceError(f"topology status is invalid: {name}")
         if historical_record:
             status["stack"] = "classic"
             status["providers"] = {
@@ -7466,6 +7464,8 @@ class Workspace:
             or not set(services) <= set(TOPOLOGY_SERVICES)
         ):
             raise WorkspaceError(f"topology service status is invalid: {name}")
+        if not historical_record and "client" in services and "sound" not in status:
+            raise WorkspaceError(f"topology status is invalid: {name}")
         for service in services.values():
             if (
                 not isinstance(service, dict)
