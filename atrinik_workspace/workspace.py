@@ -6087,18 +6087,26 @@ class Workspace:
                     f"scenario component metadata is invalid: {name}/{component}"
                 )
             provider = stack.providers[component]
-            checkout_path = Path(record["checkout_path"]).resolve(strict=False)
-            expected_path = (
-                checkout_path
-                if provider.source == "."
-                else checkout_path.joinpath(*PurePosixPath(provider.source).parts)
-            ).resolve(strict=False)
+            try:
+                checkout_path = Path(record["checkout_path"]).resolve(strict=False)
+                expected_path = (
+                    checkout_path
+                    if provider.source == "."
+                    else checkout_path.joinpath(
+                        *PurePosixPath(provider.source).parts
+                    )
+                ).resolve(strict=False)
+                resolved_path = Path(record["path"]).resolve(strict=False)
+            except (OSError, RuntimeError, ValueError) as error:
+                raise WorkspaceError(
+                    f"scenario component metadata is invalid: {name}/{component}"
+                ) from error
             if (
                 record["checkout"] != provider.checkout_name
                 or record["repository"] != provider.repository
                 or record["branch"] != provider.branch
                 or record["source"] != provider.source
-                or Path(record["path"]).resolve(strict=False) != expected_path
+                or resolved_path != expected_path
             ):
                 raise WorkspaceError(
                     f"scenario component identity is invalid: {name}/{component}"
@@ -6111,7 +6119,17 @@ class Workspace:
             self._load_states() if registered_states is None else registered_states
         )
         registered = states.get(metadata["state"])
-        if registered is None or Path(registered).resolve(strict=False) != state.resolve():
+        try:
+            registered_path = (
+                None
+                if registered is None
+                else Path(registered).resolve(strict=False)
+            )
+        except (OSError, RuntimeError, ValueError) as error:
+            raise WorkspaceError(
+                f"scenario state registration is invalid: {name}"
+            ) from error
+        if registered_path is None or registered_path != state.resolve():
             raise WorkspaceError(f"scenario state registration is invalid: {name}")
         os.close(self._open_scenario_password(root / "password"))
         return metadata

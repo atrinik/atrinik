@@ -7750,6 +7750,45 @@ class WorkspaceTests(unittest.TestCase):
         ):
             self.workspace.scenario_list()
 
+    def test_scenario_list_isolates_invalid_resolved_paths(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+            self.workspace.scenario_create("invalid-component-path", "default")
+            self.workspace.scenario_create("invalid-state-path", "default")
+
+        metadata_path = (
+            self.workspace.paths.scenarios
+            / "invalid-component-path"
+            / "scenario.json"
+        )
+        metadata = load_json(metadata_path)
+        metadata["resolved"]["server"]["checkout_path"] = "/tmp/\0invalid"
+        atomic_json(metadata_path, metadata)
+        states = load_json(self.workspace.paths.states_file)
+        states["states"]["scenario-invalid-state-path"] = "/tmp/\0invalid"
+        atomic_json(self.workspace.paths.states_file, states)
+        metadata_before = metadata_path.read_bytes()
+        states_before = self.workspace.paths.states_file.read_bytes()
+
+        summaries = self.workspace.scenario_list()
+
+        self.assertEqual(
+            [summary["name"] for summary in summaries],
+            ["current", "invalid-component-path", "invalid-state-path"],
+        )
+        self.assertEqual(summaries[0]["profile"], "default")
+        self.assertEqual(summaries[1]["inert_reason"], "invalid_record")
+        self.assertEqual(summaries[2]["inert_reason"], "invalid_record")
+        self.assertEqual(metadata_path.read_bytes(), metadata_before)
+        self.assertEqual(self.workspace.paths.states_file.read_bytes(), states_before)
+        with self.assertRaisesRegex(
+            WorkspaceError, "scenario component metadata is invalid"
+        ):
+            self.workspace.scenario_show("invalid-component-path")
+
     def test_scenario_audit_records_only_server_dependency_closure(self) -> None:
         required = {"server", "content", "resources", "libatrinik", "protocol"}
         selected = {
