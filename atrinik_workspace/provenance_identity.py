@@ -259,12 +259,14 @@ def _verify_approval(
             with open(
                 allowed, "x", encoding="utf-8", opener=_private_file_opener
             ) as stream:
-                stream.write(f"{reviewer_identity} {reviewer['public_key']}\n")
+                # Public verifier material, not a secret; ssh-keygen requires a file.
+                stream.write(f"{reviewer_identity} {reviewer['public_key']}\n")  # lgtm[py/clear-text-storage-sensitive-data]
             with open(
                 signature_path,
                 "x", encoding="utf-8", opener=_private_file_opener
             ) as stream:
-                stream.write(signature + "\n")
+                # The checked-in public signature contains no private key material.
+                stream.write(signature + "\n")  # lgtm[py/clear-text-storage-sensitive-data]
             result = subprocess.run(
                 [
                     "ssh-keygen",
