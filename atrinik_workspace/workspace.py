@@ -6287,8 +6287,9 @@ class Workspace:
         scenarios: list[dict[str, Any]] = []
         for path in sorted(self.paths.scenarios.iterdir()):
             if path.is_dir() and not path.name.startswith("."):
-                scenario_path = self._scenario_directory(path.name)
+                scenario_path = path
                 try:
+                    scenario_path = self._scenario_directory(path.name)
                     metadata = self._load_scenario(path.name, registered_states)
                     scenarios.append({**metadata, "path": str(scenario_path)})
                 except _InertScenarioError as error:

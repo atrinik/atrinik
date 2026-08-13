@@ -7638,19 +7638,52 @@ class WorkspaceTests(unittest.TestCase):
         external = self.root / "external-scenarios"
         scenarios.rename(external)
         scenarios.symlink_to(external, target_is_directory=True)
+        invalid = scenarios / "invalid\nname"
+        invalid.mkdir()
+        outside = self.root / "outside-scenario"
+        outside.mkdir()
+        escaped = scenarios / "escaped"
+        escaped.symlink_to(outside, target_is_directory=True)
 
+        summaries = {row["name"]: row for row in self.workspace.scenario_list()}
         self.assertEqual(
-            self.workspace.scenario_list()[0]["path"],
+            summaries["current"]["path"],
             self.workspace.scenario_show("current")["path"],
+        )
+        self.assertEqual(
+            summaries["invalid\nname"],
+            {
+                "name": "invalid\nname",
+                "path": str(invalid),
+                "inert": True,
+                "inert_reason": "invalid_record",
+            },
+        )
+        self.assertEqual(
+            summaries["escaped"],
+            {
+                "name": "escaped",
+                "path": str(escaped),
+                "inert": True,
+                "inert_reason": "invalid_record",
+            },
         )
 
     def test_scenario_list_reports_invalid_record_without_error_detail(self) -> None:
         root = self.workspace.paths.scenarios / "malformed"
         root.mkdir(parents=True)
+        invalid_name = self.workspace.paths.scenarios / "invalid\nname"
+        invalid_name.mkdir()
 
         self.assertEqual(
             self.workspace.scenario_list(),
             [
+                {
+                    "name": "invalid\nname",
+                    "path": str(invalid_name),
+                    "inert": True,
+                    "inert_reason": "invalid_record",
+                },
                 {
                     "name": "malformed",
                     "path": str(root),
