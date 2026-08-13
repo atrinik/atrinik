@@ -14,15 +14,15 @@
   "scope_binding": "psb-22222222222222222222222222222222",
   "scope_approval": {
     "key_id": "synthetic-reviewer-2026",
-    "signature": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgBruVWBv4FEuaHvyX1z13qRO9BU\nTXED0DGAjTaWDx1NAAAAAVYXRyaW5pay1wcm92ZW5hbmNlLXYxAAAAAAAAAAZzaGE1MTIA\nAABTAAAAC3NzaC1lZDI1NTE5AAAAQGcyoaKoDFIcb6bogMTJmFpDJZhY3ro3N+OoeHalXc\nb0OI8EcGvJehLZy1beFGd8P5TKdASQD0lP+uvR2rKkQgw=\n-----END SSH SIGNATURE-----"
+    "signature": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgBruVWBv4FEuaHvyX1z13qRO9BU\nTXED0DGAjTaWDx1NAAAAAVYXRyaW5pay1wcm92ZW5hbmNlLXYxAAAAAAAAAAZzaGE1MTIA\nAABTAAAAC3NzaC1lZDI1NTE5AAAAQEFugnjUUCSFgna/vEgGbOICU997Tt/8eQzkbpW9Q+\n2I3AWwe5/21Woy/HAYW3EQPMjTyLpyx/ZNOPUhE23D6AU=\n-----END SSH SIGNATURE-----"
   },
   "evidence_reference": {
     "repository": "atrinik/atrinik",
-    "revision": "98ff80ef66a71d8b7c48e7d0c71029abd5c90227",
+    "revision": "89fc98b95f23c0f0f068c5254ffb72c62f173119",
     "record_id": "pir-c-22222222222222222222222222222222",
     "registry_sha256": "0a04fcadccb37e64f6c1209bc0b7e8d5762639ce4c5521c3bba028d9eba037bd",
-    "schema_sha256": "34ab398af4f166b8b65ac68500b547b9ade4955bd0b73770eeda1337bf5dcf47",
+    "schema_sha256": "e040c1575fbd2906d0fe1fcb27a874518a39b8bc5629ac2a987652ea801553f9",
     "reviewers_sha256": "b7a44ad27cec663a9092b924a0f6a9c95bf95a2ce74cf75ba8873e7938782240",
-    "url": "https://github.com/atrinik/atrinik/blob/98ff80ef66a71d8b7c48e7d0c71029abd5c90227/governance/provenance-identities/registry.json#pir-c-22222222222222222222222222222222"
+    "url": "https://github.com/atrinik/atrinik/blob/89fc98b95f23c0f0f068c5254ffb72c62f173119/governance/provenance-identities/registry.json#pir-c-22222222222222222222222222222222"
   }
 }
