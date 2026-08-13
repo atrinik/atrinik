@@ -2,6 +2,9 @@
   "schema_version": 3,
   "organization": "atrinik",
   "created": "2026-08-08T00:00:00Z",
+  "license_references": {
+    "LicenseRef-Atrinik-Tools-Mixed": "MIT applies by default to tracked files outside narrower notices. GPL-2.0-or-later applies to the complete map-checker-qt/ subtree unless a file explicitly states otherwise."
+  },
   "repositories": [
     {
       "audit_ready": true,
@@ -470,7 +473,7 @@
       "cohorts": [
         "classic"
       ],
-      "license": "GPL-2.0-or-later",
+      "license": "LicenseRef-Atrinik-Tools-Mixed",
       "commit": null,
       "name": "tools",
       "repository": "atrinik/tools",

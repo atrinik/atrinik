@@ -71,7 +71,8 @@ The canonical `server`, `client`, `editor`, `protocol`, `renderer`,
 Plain `./atrinik init` is replacement/default-only. Exact
 `./atrinik init --with classic` adds the complete currently playable classic
 cohort: the `atrinik/classic` monorepo checkout, the independent MIT
-`atrinik/playtester` checkout, and retained GPL tools. Both stacks reuse the
+`atrinik/playtester` checkout, and tools that are MIT by default with a
+GPL-2.0-or-later `map-checker-qt/` exception. Both stacks reuse the
 one `content@main` checkout initialized by the default cohort; Classic selects
 its target-specific publisher adapter. The
 monorepo supplies the logical classic client, server, editor, protocol, and

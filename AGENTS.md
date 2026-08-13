@@ -2,8 +2,7 @@
 
 ## Overview
 
-- This MIT Python 3.11+ repository coordinates Atrinik repositories, not
-  component source.
+- This MIT Python 3.11+ repository coordinates Atrinik repositories, not source.
   `./atrinik` and `components.json` manage profiles, worktrees, builds, runtimes,
   cleanup, migration, and supply-chain reports.
 - `default` selects the MIT replacement stack (Rust, Go, Protobuf, and Astro).
@@ -25,10 +24,11 @@
   so root `git status` omits them.
 - Resolve ownership through `components.json` and the checkout's nearest
   `AGENTS.md`; keep implementation, tests, packages, and releases there.
-- `classic/` provides five `classic-*` components. Both stacks share
-  `content@main`; Classic selects its publisher adapter. Retained `content-1x/`
-  is historical only. `playtester/` is classic-only with wrapper `build: none`.
-  `.devcontainer/` owns wrapper composition and `devcontainer/` reusable images.
+- `classic/` provides `classic-*`; stacks share `content@main`.
+  `content-1x/` is historical; `playtester/` classic-only (`build: none`).
+  `tools/` is MIT by default except GPL-2.0-or-later `map-checker-qt/`; the full
+  checkout uses `LicenseRef-Atrinik-Tools-Mixed`. `.devcontainer/` owns composition;
+  `devcontainer/` images.
 
 ## Core behaviors and patterns
 

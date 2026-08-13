@@ -219,6 +219,9 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(playtester.stacks, ("classic",))
         self.assertEqual(playtester.roles, ("playtester",))
         self.assertEqual(playtester.license, "MIT")
+        tools = inventory.repositories_by_name["tools"]
+        self.assertEqual(tools.repository, "atrinik/tools")
+        self.assertEqual(tools.license, "LicenseRef-Atrinik-Tools-Mixed")
 
         playtester_python = inventory.dependencies_by_id[
             "language/playtester-python"
@@ -1146,6 +1149,43 @@ class InventoryTests(unittest.TestCase):
             ).report("spdx")
         )
         self.assertNotIn("hasExtractedLicensingInfos", ordinary_spdx)
+
+    def test_tools_mixed_license_reference_expands_in_every_report(self) -> None:
+        inventory = self.load_inventory()
+        identifier = "LicenseRef-Atrinik-Tools-Mixed"
+        mit_fact = "MIT applies by default to tracked files outside narrower notices."
+        gpl_fact = (
+            "GPL-2.0-or-later applies to the complete map-checker-qt/ subtree "
+            "unless a file explicitly states otherwise."
+        )
+
+        licenses = inventory.report("licenses")
+        self.assertIn(identifier, licenses)
+        self.assertIn(mit_fact, licenses)
+        self.assertIn(gpl_fact, licenses)
+
+        cyclonedx = json.loads(inventory.report("cyclonedx"))
+        tools = next(
+            component
+            for component in cyclonedx["components"]
+            if component["bom-ref"] == "atrinik:component:tools"
+        )
+        properties = {
+            property_["name"]: property_["value"]
+            for property_ in tools["properties"]
+        }
+        self.assertEqual(properties["atrinik:license"], identifier)
+        self.assertIn(mit_fact, properties["atrinik:license-reference-description"])
+        self.assertIn(gpl_fact, properties["atrinik:license-reference-description"])
+
+        spdx = json.loads(inventory.report("spdx"))
+        extracted = next(
+            license_
+            for license_ in spdx["hasExtractedLicensingInfos"]
+            if license_["licenseId"] == identifier
+        )
+        self.assertIn(mit_fact, extracted["extractedText"])
+        self.assertIn(gpl_fact, extracted["extractedText"])
 
     def test_nested_action_coordinates_are_recognized(self) -> None:
         match = ACTION_REFERENCE_PATTERN.search(
