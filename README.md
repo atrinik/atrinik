@@ -114,6 +114,29 @@ top-level candidate query measured 63 ms cold and 61 ms warm median. The
 protocol is internal to the generated adapters; scripts should be obtained
 through `completion bash|zsh|fish` rather than hand-written against it.
 
+### MCP information-access contract
+
+[`mcp/contract/v1`](mcp/contract/v1/README.md) defines the common, versioned
+safety and measurement gates for future Atrinik MCP servers and evaluated
+connectors. It pins exact coordinates, stable failures, pagination, cache
+identity, hard record/byte/time/context limits, six known-answer domains, an
+adversarial corpus, and build/configure/defer/reject decisions. This repository
+does not yet ship or configure a production MCP server; direct wrapper,
+repository CLI, `rg`, Git, `gh`, and browser workflows remain authoritative.
+
+Validate or benchmark the contract without installing an MCP SDK:
+
+~~~sh
+python3 -m atrinik_workspace.mcp_contract validate
+python3 -m atrinik_workspace.mcp_contract benchmark \
+  --iterations 30 --output build/mcp/benchmark.json
+~~~
+
+The benchmark defaults offline and writes sanitized evidence under ignored
+`build/`. See [the safety and measurement contract](docs/MCP_INFORMATION_ACCESS.md)
+for bounds, threat coverage, capability ownership, optional live-GitHub
+measurement, and downstream consumer gates.
+
 ## Dependency and supply-chain ownership
 
 `supply-chain/inventory.json` records every supported repository and the owned
@@ -187,8 +210,12 @@ directory, so an unrelated or historical checkout cannot impersonate
 ### Historical MIT provenance grants
 
 [`docs/PROVENANCE.md`](docs/PROVENANCE.md) is the single exhaustive approved
-grantor registry and evidence contract. Do not duplicate its table in component
-guides or skills.
+grantor registry. The canonical privacy-preserving identity schema, public
+registry and operating policy are in
+[`governance/provenance-identities/`](governance/provenance-identities/) and
+[`docs/PROVENANCE_IDENTITIES.md`](docs/PROVENANCE_IDENTITIES.md). Component
+repositories keep exact material scope and an immutable pinned reference; they
+never duplicate aliases or canonical identity records.
 
 The cross-repository M1 evidence and exact reuse procedure are indexed in
 [`docs/REPLACEMENT_FOUNDATIONS.md`](docs/REPLACEMENT_FOUNDATIONS.md). The
@@ -207,6 +234,14 @@ provenance-approved reuse, not clean-room work. Later material needs
 contemporaneous compatible permission. The source license and unrelated
 dependencies, assets, and surrounding work do not change; destination evidence
 cites the exact wrapper revision containing the registry used.
+
+Validate the canonical registry and one or more component references through a
+bounded local checkout. This reads only the pinned registry/schema Git blobs and
+does not use the network:
+
+~~~sh
+./atrinik provenance validate --reference PATH
+~~~
 
 The GPL classic utilities and their user-facing replacement/retirement paths
 are inventoried in
@@ -883,15 +918,26 @@ repository-layout lock.
 Different profile build roots may compile concurrently; an exclusive per-root
 lock still serializes the same root. Initialization, synchronization, worktree
 or profile changes, and cleanup apply take the layout lock exclusively, so they
-wait until every build or runtime reader finishes. Repository migration uses
-the same exclusive mode but reports a busy result instead of waiting. The
-wrapper fails closed when advisory shared locking is unavailable. The layout
-lock is always acquired before topology, scenario, state, build-root, port,
-registry, or cache locks. Foreground processes inherit their layout and exact
-build-root leases. Supervised services inherit both leases through the daemon
-and keep them until every service exits or `down` completes. Build and scenario
+wait until every build or runtime reader finishes. A mutation first announces
+itself with a shared `repository-layout.writer-pending.lock`, then holds the
+exclusive `repository-layout.writer-intent.lock` admission gate. New readers
+briefly take the admission gate and proceed only when they can exclusively
+probe the pending lock; otherwise they release admission, wait for the announced
+writers, and retry. Readers admitted before a mutation finish normally while
+later arrivals cannot bypass it, and admitted readers continue to overlap.
+Repository migration uses the same
+exclusive layout mode but reports a busy result instead of waiting. The wrapper
+fails closed when advisory shared locking is unavailable. A wait longer than 10
+seconds emits one diagnostic naming safe `ps` and worktree inventories; it does
+not interrupt a reader, topology, build, or mutation. The pending announcement,
+writer-intent gate, and layout lock are always acquired before topology,
+scenario, state, build-root, port, registry, or cache locks. Foreground
+processes inherit their layout and exact build-root leases. Supervised services
+inherit both leases through the daemon and keep them until every service exits
+or `down` completes. Mutation
+subprocesses inherit all three writer leases. Build and scenario
 subprocesses inherit every active layout, build-root, state, registry, and cache
-lease so an orphan cannot outlive its reader protection.
+lease so an orphan cannot outlive its protection.
 
 The supervisor records exact source commits, build and state paths, and process
 start identities. `ps` without a name lists every recorded topology; a name

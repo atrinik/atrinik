@@ -67,7 +67,15 @@ input.
 
 Source provenance is also a cross-repository contract.
 [`PROVENANCE.md`](PROVENANCE.md) is the single exhaustive historical MIT
-grantor registry and evidence procedure. Exact independently separable Classic
+grantor registry and rights procedure. The coordinator also owns the only
+versioned public identity registry and schema under
+`governance/provenance-identities/`; components hold exact material scope and a
+full-commit reference rather than copied identities. Restricted mappings stay
+outside public Git while opaque, digest-bound attestations join an approved
+identity review to a destination record. The bounded validator resolves only
+size-limited blobs from the pinned local Git revision and fails closed on
+unsafe fields, stale/revoked records, version drift, or broken integrity.
+Exact independently separable Classic
 material proven to fall within an applicable approved historical grant,
 including its temporal and sole-original-authorship scope, may be inspected as
 source reference, copied, migrated or ported, translated or adapted, and
@@ -199,8 +207,19 @@ foreground client and server runs, and scenario create/reset take it in shared
 mode while they consume selected checkout and profile coordinates. Independent
 build roots can therefore compile concurrently, while each root's existing
 exclusive build lock still serializes identical profile/key work. An exclusive
-writer cannot advance or remove a selected checkout until all readers exit. If
-the platform cannot provide a working advisory shared lock, the consuming
+writer cannot advance or remove a selected checkout until all readers exit.
+Waiting mutations first announce themselves with a shared
+`repository-layout.writer-pending.lock`, then hold the exclusive
+`repository-layout.writer-intent.lock` admission gate. A new reader briefly
+takes the admission gate and proceeds only if its exclusive pending-lock probe
+finds no announced writer; otherwise it releases admission, waits, and retries.
+Existing readers complete normally but later readers cannot repeatedly bypass
+a writer that has announced itself. The writer holds the pending, intent, and
+layout locks through the mutation, and its subprocesses inherit all three
+descriptors. A wait longer than 10 seconds emits one diagnostic
+with the supported process and worktree inventories, but does not time out or
+interrupt the holder. The diagnostic is emitted at most once per acquisition.
+If the platform cannot provide a working advisory shared lock, the consuming
 operation fails closed.
 
 A supervised topology transfers its shared layout and exact build-root lock
@@ -218,9 +237,12 @@ common command runner also inherits every active advisory-lock descriptor into
 build and scenario subprocesses, preserving layout, build-root, state,
 registry, and cache protection if their wrapper exits unexpectedly.
 
-The layout lock is always outermost; private helpers never reacquire it. A
-direct build or foreground client then takes its build-root lock and subordinate
-cache locks; the foreground process retains that root lease. Topology startup
+The writer-pending announcement precedes the writer-intent gate and layout lock,
+which remain
+outermost relative to all operational locks; private helpers never reacquire
+either boundary. A direct build or foreground client then takes its build-root
+lock and subordinate cache locks; the foreground process retains that root
+lease. Topology startup
 takes the topology-operation lock, the server-state lock when needed, the
 build-root lock, and finally the port-allocation lock, and transfers the layout
 and build-root leases into its services.
@@ -692,6 +714,25 @@ CMake, Python collection, sound-tree generation, npm, and runtime commands
 execute code from the
 selected profile. Review a pull request before selecting its worktree.
 Profiles do not provide a security sandbox.
+
+MCP information access has a separate versioned contract under
+`mcp/contract/v1`; no production server is enabled by that contract alone.
+Future local adapters receive an explicit configured root and resolve only
+manifest or wrapper-registry identities. MCP Roots, implicit CWD, caller paths,
+tool annotations, prompts, and confirmation UI are not authorization. Every
+result is revision/worktree/dirty/authorization-qualified, schema-validated,
+deterministically paginated, and hard-capped. Reads use descriptor-relative
+no-follow regular-file inspection, and initial caches are bounded memory whose
+keys include every effective parameter and identity. Source, guidance, authored
+content, issues, comments, logs, and tool metadata remain untrusted data.
+
+The contract admits read-only compare, inspect, list, read, search, and validate
+operations. It excludes arbitrary paths, credentials, mutable state, ignored or
+generated state, command execution, Git/workspace/runtime/GitHub mutation,
+source upload, and persistent cross-worktree indexes. It checks distinct tool
+catalog, schema, instruction, routine-result, and hard output ceilings while
+continuing to enforce the separate guidance-inventory budget. Direct CLI, `rg`,
+Git, `gh`, and browser paths are the offline fallback and source of truth.
 
 Shell completion is a separate read-only path ahead of `Workspace`
 construction and normal command dispatch. One bounded line-oriented protocol

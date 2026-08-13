@@ -1,0 +1,136 @@
+{
+  "rows": [
+    {
+      "authorization": "local configured workspace; no ambient network authority",
+      "bounds": "contract/v1 limits; 12-tool combined catalog ceiling",
+      "data_classification": [
+        "public-source",
+        "unreleased-source",
+        "operational-metadata"
+      ],
+      "decision": "build",
+      "fallback": "./atrinik manifest/profile/worktree/status commands",
+      "id": "atrinik-context",
+      "owner": "atrinik/atrinik#351",
+      "supply_chain": "Evaluate modelcontextprotocol/python-sdk v2.0.0 at implementation; add only with inventory update.",
+      "transport": "local stdio"
+    },
+    {
+      "authorization": "manifest-selected local source coordinates",
+      "bounds": "contract/v1 plus repository-owned language adapter limits",
+      "data_classification": [
+        "public-source",
+        "unreleased-source"
+      ],
+      "decision": "build",
+      "fallback": "bounded rg, Git, and repository-owned language tools",
+      "id": "atrinik-search",
+      "owner": "atrinik/atrinik#352 and physical language-adapter owners",
+      "supply_chain": "No embeddings, hosted upload, or persistent vector database.",
+      "transport": "local stdio through atrinik-context"
+    },
+    {
+      "authorization": "configured content@main or named main-based review worktree",
+      "bounds": "contract/v1 plus canonical content-toolkit graph limits",
+      "data_classification": [
+        "public-source",
+        "unreleased-source"
+      ],
+      "decision": "build",
+      "fallback": "content-toolkit catalog/query/validation commands",
+      "id": "content-semantics",
+      "owner": "atrinik/content-toolkit#20 after #4 and #5",
+      "supply_chain": "Thin adapter over toolkit-owned parser/index/transaction preview; no second parser.",
+      "transport": "local stdio"
+    },
+    {
+      "authorization": "exact registered topology/state/service identity",
+      "bounds": "status only under contract/v1; log capability independently gated",
+      "data_classification": [
+        "operational-metadata"
+      ],
+      "decision": "build",
+      "fallback": "./atrinik ps/topology/logs with bounded explicit selectors",
+      "id": "atrinik-observe-status",
+      "owner": "atrinik/atrinik#355",
+      "supply_chain": "Separate server/profile, disabled by default.",
+      "transport": "local stdio, separately enabled"
+    },
+    {
+      "authorization": "not approved until redaction is proven",
+      "bounds": "single service, no-follow, hard line/byte/time caps",
+      "data_classification": [
+        "operational-metadata"
+      ],
+      "decision": "defer",
+      "fallback": "./atrinik logs NAME SERVICE --tail N",
+      "id": "atrinik-observe-logs",
+      "owner": "atrinik/atrinik#355",
+      "supply_chain": "Ship status without logs if secret/private-data redaction cannot be proved.",
+      "transport": "local stdio, separately enabled"
+    },
+    {
+      "authorization": "dedicated read-only Atrinik organization/repository allowlist",
+      "bounds": "task-specific small tool profile; no mutation tools",
+      "data_classification": [
+        "public-source",
+        "operational-metadata"
+      ],
+      "decision": "defer",
+      "fallback": "gh read-only API and web views under atrinik-github-governance",
+      "id": "github-maintained-connector",
+      "owner": "atrinik/atrinik#354",
+      "supply_chain": "Select and pin a maintained implementation only after measured catalog/auth review.",
+      "transport": "separate opt-in external profile"
+    },
+    {
+      "authorization": "credential-free isolated browser; approved Atrinik origins only",
+      "bounds": "bounded DOM/a11y/network/screenshot evidence",
+      "data_classification": [
+        "public-source",
+        "operational-metadata"
+      ],
+      "decision": "defer",
+      "fallback": "browser developer tools and repository-owned website checks",
+      "id": "browser-maintained-connector",
+      "owner": "atrinik/atrinik#354 and atrinik/website",
+      "supply_chain": "Pin only after origin escape, mutation, and catalog review.",
+      "transport": "separate opt-in external profile"
+    },
+    {
+      "authorization": "no approved read-only scope yet",
+      "bounds": "must exclude deploy, DNS, routes, secrets, databases, objects, and Durable Object mutation",
+      "data_classification": [
+        "operational-metadata"
+      ],
+      "decision": "defer",
+      "fallback": "provider dashboard/CLI under separate explicit authorization",
+      "id": "cloudflare-connector",
+      "owner": "atrinik/atrinik#354",
+      "supply_chain": "Reject if resource allowlists or mutation exclusion cannot be proven.",
+      "transport": "separate optional external profile"
+    },
+    {
+      "authorization": "none",
+      "bounds": "not applicable",
+      "data_classification": [],
+      "decision": "reject",
+      "fallback": "manifest-selected rg/Git/repository CLI paths",
+      "id": "generic-filesystem-shell-memory-vector",
+      "owner": "none",
+      "supply_chain": "Broad authority, source-upload, persistence, and context cost violate the contract.",
+      "transport": "none"
+    }
+  ],
+  "schema_version": "atrinik.mcp.capabilities/v1",
+  "sdk_decision": {
+    "dependency_added": false,
+    "evaluated_commit": "6f69a3758ebf2ee55ce050f58b470ce11af71133",
+    "evaluated_license": "MIT",
+    "evaluated_repository": "modelcontextprotocol/python-sdk",
+    "evaluated_version": "v2.0.0",
+    "owner": "atrinik/atrinik#351",
+    "reason": "Issue #350 ships schemas, fixtures, gates, and a benchmark, not a production MCP server. Defer the runtime dependency so #351 can evaluate the exact API surface and update supply-chain/inventory.json with an immutable pin if adopted.",
+    "update_policy": "Dependabot plus owner review of protocol support, changelog, license, and transitive inventory before each update."
+  }
+}
