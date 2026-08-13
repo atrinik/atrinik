@@ -418,7 +418,9 @@ class ProvenanceIdentityTests(unittest.TestCase):
             validate_registry(value, schema(), reviewers(), as_of=AS_OF)
 
     def test_squash_internal_anchor_requires_explicit_non_authorizing_ref(self) -> None:
-        revision = "51aa7ac9d5ae9c0ff0b2a24a46b5d3e97739bbe0"
+        revision = _git_output(
+            ROOT, ["rev-parse", "HEAD"], "cannot resolve test HEAD"
+        ).decode().strip()
         with self.assertRaisesRegex(WorkspaceError, "not reachable from trusted ref"):
             _validate_repository_trust(ROOT, revision, "main")
         _validate_repository_trust(ROOT, revision, revision)
