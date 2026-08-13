@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import tarfile
 import tempfile
 import unittest
 from unittest import mock
@@ -18,10 +19,18 @@ from atrinik_workspace.sound import (
     PLAYTEST_MANIFEST,
     PLAYTEST_MARKER,
     PLAYTEST_SCHEMA,
+    RELEASE_CHECKSUMS,
+    RELEASE_MANIFEST,
+    RELEASE_MARKER,
+    RELEASE_PRODUCT,
+    RELEASE_SCHEMA,
     cache_key,
     clean_source_inputs,
+    extract_release_archive,
+    validate_release_coordinates,
     validate_sound_record,
     verify_playtest_tree,
+    verify_release_tree,
 )
 from atrinik_workspace.workspace import BUILD_METADATA, Workspace
 
@@ -195,6 +204,8 @@ class PlaytestSoundTests(unittest.TestCase):
         self.assertEqual(
             validate_sound_record(replacement_record), replacement_record
         )
+
+
         replacement_record["converted_opus_count"] = 149
         with self.assertRaisesRegex(WorkspaceError, "provenance is invalid"):
             validate_sound_record(replacement_record)
@@ -851,6 +862,211 @@ class PlaytestSoundTests(unittest.TestCase):
                 "verify-playtest-tree",
             ],
         )
+
+
+class ReleasedSoundTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.root = Path(self.temporary.name)
+        self.tree = self.root / "tree"
+        self.tree.mkdir()
+        schema = self.tree / RELEASE_SCHEMA
+        schema.parent.mkdir()
+        schema.write_bytes(b"{}\n")
+        marker = {
+            "format": RELEASE_PRODUCT,
+            "playtest_only": False,
+            "product_version": "1.4.0",
+            "publishable": True,
+            "schema_version": 1,
+        }
+        (self.tree / RELEASE_MARKER).write_bytes(canonical(marker))
+        notices = []
+        for path in ("background/LICENSE", "effects/LICENSE"):
+            notice = self.tree / path
+            notice.parent.mkdir(exist_ok=True)
+            notice.write_text(f"fixture notice {path}\n", encoding="utf-8")
+            notices.append({"path": path, "sha256": digest(notice)})
+        assets: list[dict[str, object]] = []
+        for index in range(339):
+            copied = index >= 150
+            logical = (
+                f"effects/copy-{index - 150:03}.ogg"
+                if copied else f"background/convert-{index:03}.mid"
+            )
+            payload = (
+                b"OggS\x00fixture\x01vorbis" if copied
+                else b"OggS\x00fixtureOpusHead"
+            ) + str(index).encode()
+            path = self.tree / logical
+            path.parent.mkdir(exist_ok=True)
+            path.write_bytes(payload)
+            payload_hash = digest(path)
+            source_codec = "vorbis" if copied else ("flac" if index < 28 else "midi")
+            assets.append({
+                "logical_path": logical,
+                "source_path": logical if copied else f"background/source-{index:03}.flac",
+                "mapping": "copy" if copied else "render-opus",
+                "source": {
+                    "codec": source_codec,
+                    "container": "ogg" if copied else source_codec,
+                    "sha256": payload_hash if copied else hashlib.sha256(
+                        f"source-{index}".encode()
+                    ).hexdigest(),
+                },
+                "output": {
+                    "sha256": payload_hash,
+                    "size_bytes": len(payload),
+                    "codec": "vorbis" if copied else "opus",
+                    "container": "ogg",
+                    "sample_rate": 48000,
+                    "channels": 2,
+                    "duration_seconds": 1.0,
+                },
+            })
+        assets.sort(key=lambda asset: str(asset["logical_path"]))
+        tree_hash = hashlib.sha256()
+        for asset in assets:
+            output = asset["output"]
+            assert isinstance(output, dict)
+            tree_hash.update(
+                f"{output['sha256']}  {asset['logical_path']}\n".encode()
+            )
+        self.manifest = {
+            "$schema": RELEASE_SCHEMA,
+            "schema_version": 1,
+            "product": RELEASE_PRODUCT,
+            "product_version": "1.4.0",
+            "release_tag": "v1.4.0",
+            "repository": "atrinik/sound",
+            "playtest_only": False,
+            "publishable": True,
+            "source_commit": "a" * 40,
+            "source_tree": "b" * 40,
+            "source_manifest_sha256": "c" * 64,
+            "toolchain_sha256": "d" * 64,
+            "schema_sha256": digest(schema),
+            "marker_sha256": digest(self.tree / RELEASE_MARKER),
+            "logical_path_count": 339,
+            "copied_vorbis_count": 189,
+            "converted_opus_count": 150,
+            "output_tree_sha256": tree_hash.hexdigest(),
+            "notices": notices,
+            "assets": assets,
+        }
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.rewrite_checksums()
+        self.archive = self.root / f"{RELEASE_PRODUCT}-1.4.0.tar.gz"
+        with tarfile.open(self.archive, "w:gz") as archive:
+            archive.add(self.tree, arcname=f"{RELEASE_PRODUCT}-1.4.0")
+        self.coordinates = {
+            "repository": "atrinik/sound",
+            "tag": "v1.4.0",
+            "product": RELEASE_PRODUCT,
+            "product_version": "1.4.0",
+            "manifest_schema_version": 1,
+            "source_commit": "a" * 40,
+            "source_tree": "b" * 40,
+            "asset_url": (
+                "https://github.com/atrinik/sound/releases/download/v1.4.0/"
+                f"{RELEASE_PRODUCT}-1.4.0.tar.gz"
+            ),
+            "archive_sha256": digest(self.archive),
+            "release_manifest_sha256": digest(self.tree / RELEASE_MANIFEST),
+            "source_manifest_sha256": "c" * 64,
+            "schema_sha256": digest(schema),
+            "toolchain_sha256": "d" * 64,
+            "output_tree_sha256": tree_hash.hexdigest(),
+        }
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    def rewrite_checksums(self) -> None:
+        files = sorted(
+            path for path in self.tree.rglob("*")
+            if path.is_file() and path.name != RELEASE_CHECKSUMS
+        )
+        (self.tree / RELEASE_CHECKSUMS).write_text(
+            "".join(
+                f"{digest(path)}  {path.relative_to(self.tree).as_posix()}\n"
+                for path in files
+            ), encoding="ascii"
+        )
+
+    def test_complete_tree_archive_and_record_are_accepted(self) -> None:
+        self.assertEqual(validate_release_coordinates(self.coordinates), self.coordinates)
+        record = verify_release_tree(self.tree, self.coordinates)
+        self.assertEqual(record["mode"], "released")
+        self.assertEqual(validate_sound_record(record), record)
+        extracted = self.root / "extracted"
+        extract_release_archive(self.archive, extracted, self.coordinates)
+        self.assertEqual(verify_release_tree(extracted, self.coordinates), {
+            **record, "root": str(extracted.resolve())
+        })
+
+    def test_wrapper_downloads_once_and_reuses_exact_verified_cache(self) -> None:
+        wrapper = self.root / "wrapper"
+        wrapper.mkdir()
+        shutil.copy2(Path(__file__).resolve().parents[1] / "components.json", wrapper)
+        workspace = Workspace(wrapper)
+        build = self.root / "build"
+        build.mkdir()
+        profile = {
+            "stack": "classic",
+            "sound_mode": "released",
+            "sound_release": self.coordinates,
+        }
+        with (
+            mock.patch.object(workspace, "_load_profile", return_value=profile),
+            mock.patch(
+                "atrinik_workspace.workspace.download_release_archive",
+                side_effect=lambda _url, destination: shutil.copy2(
+                    self.archive, destination
+                ),
+            ) as download,
+        ):
+            first_root, first_record = workspace._prepare_sound(
+                build, {"sound": self.root / "unused-source"}, "classic-release"
+            )
+            shutil.rmtree(first_root)
+            second_root, second_record = workspace._prepare_sound(
+                build, {"sound": self.root / "unused-source"}, "classic-release"
+            )
+        self.assertEqual(download.call_count, 1)
+        self.assertEqual(first_root, second_root)
+        self.assertEqual(first_record, second_record)
+        self.assertEqual(first_record["archive_sha256"], self.coordinates["archive_sha256"])
+
+    def test_coordinates_marker_payload_and_archive_fail_closed(self) -> None:
+        for coordinates in (
+            {**self.coordinates, "asset_url": "https://example.com/a"},
+            {**self.coordinates, "repository": "atrinik/classic"},
+            {**self.coordinates, "tag": "v1.4.1"},
+            {**self.coordinates, "archive_sha256": "bad"},
+        ):
+            with self.assertRaises(WorkspaceError):
+                validate_release_coordinates(coordinates)
+
+        payload = self.tree / "background/convert-000.mid"
+        payload.write_bytes(b"MThd" + b"\0" * 20)
+        first = self.manifest["assets"][0]
+        assert isinstance(first, dict) and isinstance(first["output"], dict)
+        first["output"]["sha256"] = digest(payload)
+        first["output"]["size_bytes"] = payload.stat().st_size
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(self.tree / RELEASE_MANIFEST)
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "not an Ogg stream"):
+            verify_release_tree(self.tree, self.coordinates)
+
+        unsafe = self.root / "unsafe.tar.gz"
+        with tarfile.open(unsafe, "w:gz") as archive:
+            member = tarfile.TarInfo(f"{RELEASE_PRODUCT}-1.4.0/../escape")
+            member.size = 0
+            archive.addfile(member)
+        with self.assertRaisesRegex(WorkspaceError, "unsafe path"):
+            extract_release_archive(unsafe, self.root / "unsafe", self.coordinates)
 
 
 if __name__ == "__main__":

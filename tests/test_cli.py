@@ -619,6 +619,36 @@ class ParserTests(unittest.TestCase):
             "audio-review", "local-playtest"
         )
 
+    def test_profile_released_sound_dispatches_complete_coordinates(self) -> None:
+        sha256 = "a" * 64
+        commit = "b" * 40
+        tree = "c" * 40
+        arguments = [
+            "profile", "sound-mode", "audio-release", "released",
+            "--release-repository", "atrinik/sound",
+            "--release-tag", "v1.4.0",
+            "--release-product-version", "1.4.0",
+            "--release-source-commit", commit,
+            "--release-source-tree", tree,
+            "--release-asset-url",
+            "https://github.com/atrinik/sound/releases/download/v1.4.0/"
+            "atrinik-sound-classic-runtime-1.4.0.tar.gz",
+            "--release-archive-sha256", sha256,
+            "--release-manifest-sha256", sha256,
+            "--release-source-manifest-sha256", sha256,
+            "--release-schema-sha256", sha256,
+            "--release-toolchain-sha256", sha256,
+            "--release-tree-sha256", sha256,
+        ]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            result = main(arguments)
+
+        self.assertEqual(result, 0)
+        coordinates = workspace_type.return_value.set_profile_sound_mode.call_args.args[2]
+        self.assertEqual(coordinates["product"], "atrinik-sound-classic-runtime")
+        self.assertEqual(coordinates["manifest_schema_version"], 1)
+        self.assertEqual(coordinates["archive_sha256"], sha256)
+
     def test_path_prints_resolved_component_checkout(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
             workspace_type.return_value.component_path.return_value = Path(

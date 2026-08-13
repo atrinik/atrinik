@@ -930,6 +930,49 @@ class CohortWorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "Classic-derived"):
             self.workspace.profile_summary("replacement-audio")
 
+    def test_released_sound_coordinates_bind_profile_and_build_key(self) -> None:
+        coordinates = {
+            "repository": "atrinik/sound",
+            "tag": "v1.4.0",
+            "product": "atrinik-sound-classic-runtime",
+            "product_version": "1.4.0",
+            "manifest_schema_version": 1,
+            "source_commit": "a" * 40,
+            "source_tree": "b" * 40,
+            "asset_url": (
+                "https://github.com/atrinik/sound/releases/download/v1.4.0/"
+                "atrinik-sound-classic-runtime-1.4.0.tar.gz"
+            ),
+            "archive_sha256": "c" * 64,
+            "release_manifest_sha256": "d" * 64,
+            "source_manifest_sha256": "e" * 64,
+            "schema_sha256": "f" * 64,
+            "toolchain_sha256": "1" * 64,
+            "output_tree_sha256": "2" * 64,
+        }
+        self.workspace.create_profile("classic-release", "classic")
+        selected_root = self.root / "selected-client"
+        selected_root.mkdir()
+        selected = {"client": selected_root}
+        source_key = self.workspace._profile_build_key("classic-release", selected)
+        self.workspace.set_profile_sound_mode(
+            "classic-release", "released", coordinates
+        )
+        summary = self.workspace.profile_summary("classic-release")
+        self.assertEqual(summary["sound_mode"], "released")
+        self.assertEqual(summary["sound_release"], coordinates)
+        released_key = self.workspace._profile_build_key("classic-release", selected)
+        self.assertNotEqual(released_key, source_key)
+
+        changed = {**coordinates, "archive_sha256": "3" * 64}
+        self.workspace.set_profile_sound_mode("classic-release", "released", changed)
+        self.assertNotEqual(
+            self.workspace._profile_build_key("classic-release", selected),
+            released_key,
+        )
+        with self.assertRaisesRegex(WorkspaceError, "complete immutable"):
+            self.workspace.set_profile_sound_mode("classic-release", "released")
+
     def test_local_playtest_staging_invokes_builder_and_rechecks_inputs(self) -> None:
         self.workspace.create_profile("classic-audio", "classic")
         self.workspace.set_profile_sound_mode("classic-audio", "local-playtest")

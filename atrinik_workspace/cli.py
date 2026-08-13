@@ -203,12 +203,27 @@ def parser() -> argparse.ArgumentParser:
     mark(profile_show.add_argument("name", nargs="?", default="default"), "profile")
     profile_show.add_argument("--json", action="store_true")
     profile_sound = profile_commands.add_parser(
-        "sound-mode", help="select raw source or local Classic playtest sound"
+        "sound-mode", help="select source, local-playtest, or released Classic sound"
     )
     mark(profile_sound.add_argument("name"), "saved_profile")
     profile_sound.add_argument(
-        "mode", choices=["source", "local-playtest"]
+        "mode", choices=["source", "local-playtest", "released"]
     )
+    for flag, destination in (
+        ("--release-repository", "release_repository"),
+        ("--release-tag", "release_tag"),
+        ("--release-product-version", "release_product_version"),
+        ("--release-source-commit", "release_source_commit"),
+        ("--release-source-tree", "release_source_tree"),
+        ("--release-asset-url", "release_asset_url"),
+        ("--release-archive-sha256", "release_archive_sha256"),
+        ("--release-manifest-sha256", "release_manifest_sha256"),
+        ("--release-source-manifest-sha256", "release_source_manifest_sha256"),
+        ("--release-schema-sha256", "release_schema_sha256"),
+        ("--release-toolchain-sha256", "release_toolchain_sha256"),
+        ("--release-tree-sha256", "release_tree_sha256"),
+    ):
+        mark(profile_sound.add_argument(flag, dest=destination), "none")
 
     path = commands.add_parser(
         "path", help="print a resolved logical-component source path"
@@ -415,6 +430,19 @@ def main(arguments: list[str] | None = None) -> int:
                     )
                 ):
                     print(message)
+                summary = workspace.profile_summary(options.profile)
+                release = summary.get("sound_release")
+                if summary.get("sound_mode") == "released" and isinstance(
+                    release, dict
+                ):
+                    print(
+                        "sound-release: "
+                        f"{release['repository']}@{release['tag']} "
+                        f"commit={release['source_commit']} "
+                        f"tree={release['source_tree']} "
+                        f"archive=sha256:{release['archive_sha256']} "
+                        f"logical-tree=sha256:{release['output_tree_sha256']}"
+                    )
             elif options.supply_chain_command == "report":
                 stack, commits = report_component_commits(
                     ROOT, workspace, options.profile
@@ -628,7 +656,38 @@ def main(arguments: list[str] | None = None) -> int:
                         options.name, options.component, "path", str(options.path)
                     )
             elif options.profile_command == "sound-mode":
-                workspace.set_profile_sound_mode(options.name, options.mode)
+                release_values = {
+                    "repository": options.release_repository,
+                    "tag": options.release_tag,
+                    "product_version": options.release_product_version,
+                    "source_commit": options.release_source_commit,
+                    "source_tree": options.release_source_tree,
+                    "asset_url": options.release_asset_url,
+                    "archive_sha256": options.release_archive_sha256,
+                    "release_manifest_sha256": options.release_manifest_sha256,
+                    "source_manifest_sha256": options.release_source_manifest_sha256,
+                    "schema_sha256": options.release_schema_sha256,
+                    "toolchain_sha256": options.release_toolchain_sha256,
+                    "output_tree_sha256": options.release_tree_sha256,
+                    "product": "atrinik-sound-classic-runtime",
+                    "manifest_schema_version": 1,
+                }
+                coordinates = (
+                    release_values
+                    if options.mode == "released"
+                    or any(
+                        release_values[key] is not None
+                        for key in release_values
+                        if key not in {"product", "manifest_schema_version"}
+                    )
+                    else None
+                )
+                if coordinates is None:
+                    workspace.set_profile_sound_mode(options.name, options.mode)
+                else:
+                    workspace.set_profile_sound_mode(
+                        options.name, options.mode, coordinates
+                    )
             else:
                 summary = workspace.profile_summary(options.name)
                 if options.json:
@@ -637,6 +696,13 @@ def main(arguments: list[str] | None = None) -> int:
                     print(f"profile\t{summary['name']}")
                     print(f"stack\t{summary['stack']}")
                     print(f"sound-mode\t{summary['sound_mode']}")
+                    if summary["sound_release"] is not None:
+                        print(
+                            "sound-release\t"
+                            f"{summary['sound_release']['repository']}@"
+                            f"{summary['sound_release']['tag']}\t"
+                            f"{summary['sound_release']['archive_sha256']}"
+                        )
                     for row in summary["components"]:
                         if not row["initialized"]:
                             print(

@@ -6294,7 +6294,11 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("default-", summary["build_root"])
         self.assertEqual(
             summary["sound"],
-            {"mode": "source", "source_path": str(self.wrapper / "sound")},
+            {
+                "mode": "source",
+                "release": None,
+                "source_path": str(self.wrapper / "sound"),
+            },
         )
 
     def test_supervised_topology_lifecycle_and_logs(self) -> None:
