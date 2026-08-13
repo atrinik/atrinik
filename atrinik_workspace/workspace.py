@@ -62,6 +62,8 @@ from .sound import (
     EXPECTED_CONVERTED_OPUS,
     EXPECTED_COPIED_VORBIS,
     EXPECTED_PATHS,
+    EXPECTED_SOURCE_FLAC,
+    EXPECTED_SOURCE_MIDI,
     PLAYTEST_MODE,
     RELEASED_MODE,
     RELEASE_PRODUCT,
@@ -2659,7 +2661,9 @@ class Workspace:
                 )
                 contract = (
                     f"product={RELEASE_PRODUCT}; paths={EXPECTED_PATHS}; "
-                    f"vorbis={EXPECTED_COPIED_VORBIS}; opus={EXPECTED_CONVERTED_OPUS}"
+                    f"vorbis={EXPECTED_COPIED_VORBIS}; opus={EXPECTED_CONVERTED_OPUS}; "
+                    f"midi-sources={EXPECTED_SOURCE_MIDI}; "
+                    f"flac-sources={EXPECTED_SOURCE_FLAC}"
                 )
                 runtime = root / "runtime"
                 archive_path = runtime / (

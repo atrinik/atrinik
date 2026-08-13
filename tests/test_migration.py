@@ -485,6 +485,32 @@ class RepositoryMigrationTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "Classic-derived"):
             self.migration()._rewrite_profile(profile, value, {}, None)
 
+    def test_schema_v4_replacement_profiles_are_validated_and_left_inert(self) -> None:
+        profile = self.paths.profiles / "replacement.json"
+        value = {
+            "schema_version": 4,
+            "name": "replacement",
+            "stack": "default",
+            "sound_mode": "source",
+            "components": {},
+        }
+        rewritten, composite = self.migration()._rewrite_profile(
+            profile, value, {}, None
+        )
+        self.assertIsNone(rewritten)
+        self.assertIsNone(composite)
+        for malformed in (
+            {**value, "name": "other"},
+            {**value, "sound_mode": "local-playtest"},
+            {**value, "unexpected": True},
+            {**value, "components": []},
+        ):
+            with self.subTest(malformed=malformed):
+                with self.assertRaisesRegex(
+                    WorkspaceError, "schema-v4 replacement profile"
+                ):
+                    self.migration()._rewrite_profile(profile, malformed, {}, None)
+
     def test_audit_accepts_manifest_owned_replacement_at_reused_source_path(
         self,
     ) -> None:

@@ -1178,6 +1178,20 @@ class RepositoryMigration:
         if schema == LEGACY_PROFILE_SCHEMA_VERSION:
             if profile.get("stack") == "classic":
                 self._validate_schema_four_profile_shape(path, profile)
+            else:
+                if (
+                    set(profile) != {
+                        "schema_version", "name", "stack", "sound_mode", "components"
+                    }
+                    or profile.get("name") != path.stem
+                    or not isinstance(profile.get("stack"), str)
+                    or profile.get("sound_mode") != "source"
+                    or not isinstance(profile.get("components"), dict)
+                ):
+                    raise WorkspaceError("schema-v4 replacement profile is invalid")
+                for component_name, selector in profile["components"].items():
+                    self._validate_selector(component_name, selector)
+                return None, None
             return {
                 **profile,
                 "schema_version": PROFILE_SCHEMA_VERSION,

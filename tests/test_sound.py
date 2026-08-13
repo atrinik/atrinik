@@ -974,7 +974,9 @@ class ReleasedSoundTests(unittest.TestCase):
         (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
         self.rewrite_checksums()
         self.archive = self.root / f"{RELEASE_PRODUCT}-1.4.0.tar.gz"
-        with tarfile.open(self.archive, "w:gz") as archive:
+        with tarfile.open(
+            self.archive, "w:gz", format=tarfile.USTAR_FORMAT
+        ) as archive:
             archive.add(self.tree, arcname=f"{RELEASE_PRODUCT}-1.4.0")
         self.coordinates = {
             "repository": "atrinik/sound",
@@ -1113,6 +1115,9 @@ class ReleasedSoundTests(unittest.TestCase):
         device = tarfile.TarInfo(f"{prefix}/device")
         device.type = tarfile.CHRTYPE
         cases.append(("device", [device], "special member"))
+        duplicate_root = tarfile.TarInfo(prefix)
+        duplicate_root.type = tarfile.DIRTYPE
+        cases.append(("duplicate-root", [duplicate_root], "duplicate"))
         other = tarfile.TarInfo("other-product/file")
         cases.append(("multiple-prefixes", [other], "one directory prefix"))
         for index, (name, members, message) in enumerate(cases):
@@ -1173,6 +1178,29 @@ class ReleasedSoundTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "counts.*339-path"):
             verify_release_tree(self.tree, self.coordinates)
 
+    def test_exact_source_codec_split_and_finite_metadata_are_required(self) -> None:
+        for asset in self.manifest["assets"]:
+            if asset["source"]["codec"] == "flac":
+                asset["source"]["codec"] = "midi"
+                asset["source"]["container"] = "midi"
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "counts.*339-path"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_nonstandard_json_numbers_are_rejected(self) -> None:
+        self.manifest["assets"][0]["output"]["duration_seconds"] = float("nan")
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "invalid JSON"):
+            verify_release_tree(self.tree, self.coordinates)
+
     def test_packaged_schema_must_be_valid_and_applicable(self) -> None:
         schema = self.tree / RELEASE_SCHEMA
         schema.write_text("{}\n", encoding="utf-8")
@@ -1185,6 +1213,126 @@ class ReleasedSoundTests(unittest.TestCase):
         self.rewrite_checksums()
         with self.assertRaisesRegex(WorkspaceError, "schema contract"):
             verify_release_tree(self.tree, self.coordinates)
+
+    def test_packaged_schema_property_constraints_are_applied(self) -> None:
+        schema_path = self.tree / RELEASE_SCHEMA
+        schema = json.loads(schema_path.read_text())
+        schema["properties"]["assets"] = False
+        schema_path.write_bytes(canonical(schema))
+        self.coordinates["schema_sha256"] = digest(schema_path)
+        self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "violates its schema"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_build_metadata_and_supervised_topology_reuse_verified_root(self) -> None:
+        wrapper = self.root / "topology-wrapper"
+        wrapper.mkdir()
+        shutil.copy2(Path(__file__).resolve().parents[1] / "components.json", wrapper)
+        workspace_root = self.root / "topology-workspace"
+        previous = os.environ.get("ATRINIK_WORKSPACE_DIR")
+        os.environ["ATRINIK_WORKSPACE_DIR"] = str(workspace_root)
+        topology_name = "released-client"
+        workspace: Workspace | None = None
+        try:
+            workspace = Workspace(wrapper)
+            workspace.paths.ensure()
+            workspace.create_profile("classic-release", "classic")
+            workspace.set_profile_sound_mode(
+                "classic-release", "released", self.coordinates
+            )
+            build_root = workspace.paths.builds / "released-fixture"
+            build_root.mkdir(parents=True)
+            with mock.patch(
+                "atrinik_workspace.workspace.download_release_archive",
+                side_effect=lambda _url, destination: shutil.copy2(
+                    self.archive, destination
+                ),
+            ):
+                sound_root, sound_record = workspace._prepare_sound(
+                    build_root,
+                    {"sound": self.root / "unused-source"},
+                    "classic-release",
+                )
+            executable = build_root / "build" / "client" / "atrinik"
+            executable.parent.mkdir(parents=True)
+            executable.write_text(
+                "#!/usr/bin/env python3\nimport time\n"
+                "print('released client ready', flush=True)\ntime.sleep(5)\n",
+                encoding="utf-8",
+            )
+            executable.chmod(0o755)
+            (build_root / BUILD_METADATA).write_text(
+                json.dumps({"sound": sound_record}), encoding="utf-8"
+            )
+            client = self.root / "client"
+            client.mkdir()
+            (client / "tracked").write_text("fixture\n", encoding="utf-8")
+            selected = {"client": client, "sound": self.root / "unused-source"}
+            resolved = {
+                role: {
+                    "path": str(path),
+                    "checkout_path": str(path),
+                    "checkout": role,
+                    "repository": f"atrinik/{role}",
+                    "branch": "main",
+                    "source": ".",
+                    "head": ("a" if role == "client" else "b") * 40,
+                    "dirty": False,
+                }
+                for role, path in selected.items()
+            }
+            classic_stack = mock.Mock()
+            classic_stack.name = "classic"
+            classic_stack.components = workspace.manifest.stack("classic").components
+            classic_stack.providers = {
+                "client": workspace.manifest.by_name["client"],
+                "sound": workspace.manifest.by_name["sound"],
+            }
+            with (
+                mock.patch.object(
+                    workspace.manifest, "stack", return_value=classic_stack
+                ),
+                mock.patch.object(workspace, "_require_classic_contracts"),
+                mock.patch.object(workspace, "_require_client_display"),
+                mock.patch.object(
+                    workspace, "_resolve_build_profile", return_value=selected
+                ),
+                mock.patch.object(workspace, "_build_resolved", return_value=build_root),
+                mock.patch.object(
+                    workspace, "_topology_resolved_status", return_value=resolved
+                ),
+            ):
+                status = workspace.topology_up(
+                    topology_name, "classic-release", "default", ["client"]
+                )
+            self.assertEqual(status["sound"], sound_record)
+            runtime = Path(status["services"]["client"]["cwd"])
+            self.assertEqual((runtime / "sound").resolve(), sound_root.resolve())
+            spec = json.loads(
+                (workspace.paths.topologies / topology_name / "spec.json").read_text()
+            )
+            self.assertEqual(spec["sound"], sound_record)
+        finally:
+            if workspace is not None:
+                try:
+                    if "classic_stack" in locals():
+                        with mock.patch.object(
+                            workspace.manifest, "stack", return_value=classic_stack
+                        ):
+                            workspace.topology_down(topology_name, timeout=5)
+                    else:
+                        workspace.topology_down(topology_name, timeout=5)
+                except WorkspaceError:
+                    pass
+            if previous is None:
+                os.environ.pop("ATRINIK_WORKSPACE_DIR", None)
+            else:
+                os.environ["ATRINIK_WORKSPACE_DIR"] = previous
 
     def test_racing_cache_install_leaves_no_partial_runtime(self) -> None:
         wrapper = self.root / "race-wrapper"
