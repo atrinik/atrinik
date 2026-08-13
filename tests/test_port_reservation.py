@@ -44,6 +44,12 @@ class PortReservationTests(unittest.TestCase):
         self.topologies.mkdir()
         self.workspace = object.__new__(Workspace)
         self.workspace.paths = SimpleNamespace(topologies=self.topologies)
+        self.workspace._physical_lease_namespace = self.topologies
+        identity = self.topologies.stat()
+        self.workspace._physical_lease_namespace_identity = (
+            identity.st_dev,
+            identity.st_ino,
+        )
 
     @staticmethod
     def free_port() -> int:
@@ -158,9 +164,22 @@ class PortReservationTests(unittest.TestCase):
             open_directory(self.topologies)
 
         directory = self.topologies / PORT_RESERVATION_DIRECTORY
+        directory.mkdir(exist_ok=True)
         directory.chmod(0o755)
         with self.assertRaisesRegex(PortReservationError, "directory is invalid"):
             open_directory(self.topologies)
+
+    def test_directory_rejects_replaced_expected_root_identity(self) -> None:
+        identity = self.topologies.stat()
+        expected = (identity.st_dev, identity.st_ino)
+        detached = self.topologies.with_name("detached-topologies")
+        self.topologies.rename(detached)
+        self.topologies.mkdir()
+
+        with self.assertRaisesRegex(PortReservationError, "root was replaced"):
+            open_transaction(
+                self.topologies, 17300, root_identity=expected
+            )
 
     def test_lock_list_and_read_errors_fail_closed(self) -> None:
         with (

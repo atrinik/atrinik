@@ -15,10 +15,17 @@ import shutil
 import stat
 import subprocess
 import tempfile
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 from .locking import LockBusyError, active_lock_fds, exclusive_layout_lock
-from .model import WorkspaceError, atomic_json, load_json
+from .model import (
+    AtomicJsonCommitUncertain,
+    JsonUnlinkCommitUncertain,
+    WorkspaceError,
+    durable_atomic_json,
+    load_json,
+    unlink_validated_json,
+)
 from .process_tree import bound_lease_locked, control_socket_path, lease_locked
 from .supervisor import process_matches
 
@@ -29,6 +36,28 @@ LEGACY_PROFILE_SCHEMA_VERSION = 3
 MIGRATION_NAME = "repositories"
 MIGRATION_RECORD = "migrations/repositories.json"
 MIGRATION_PENDING = "migrations/repositories.pending.json"
+
+
+def physical_repository_lock_path(repository_root: Path) -> Path:
+    """Derive the mandatory maintenance barrier shared by wrapper worktrees."""
+
+    repository = Path(repository_root).resolve()
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repository), "rev-parse", "--git-common-dir"],
+            check=True,
+            capture_output=True,
+            text=True,
+            pass_fds=active_lock_fds(),
+        )
+    except (OSError, subprocess.CalledProcessError) as error:
+        raise WorkspaceError(
+            f"cannot derive physical repository maintenance lock: {repository}"
+        ) from error
+    common = Path(result.stdout.strip())
+    if not common.is_absolute():
+        common = repository / common
+    return common.resolve() / "atrinik-resource-leases" / "repository-layout.lock"
 
 # The two source names are deliberately retained.  A workspace may still use
 # the pre-rename canonical paths or may already have completed the earlier
@@ -381,7 +410,14 @@ class RepositoryMigration:
     state differs from the imported classic primary.
     """
 
-    def __init__(self, repository_root: Path, workspace_paths: Any, manifest: Any):
+    def __init__(
+        self,
+        repository_root: Path,
+        workspace_paths: Any,
+        manifest: Any,
+        physical_lock_path: Path,
+        reference_publisher: Callable[[dict[str, tuple[bytes, bytes]] | None], None],
+    ):
         self.repository_root = Path(repository_root).resolve()
         self.paths = workspace_paths
         self.manifest = manifest
@@ -389,6 +425,8 @@ class RepositoryMigration:
         self.record_path = self.workspace / MIGRATION_RECORD
         self.pending_path = self.workspace / MIGRATION_PENDING
         self.archive_root = self.workspace / "archive" / "classic-migration"
+        self.physical_lock_path = Path(physical_lock_path)
+        self.reference_publisher = reference_publisher
 
     def execute(self, mode: str) -> dict[str, Any]:
         if mode not in {"dry-run", "apply", "audit"}:
@@ -411,6 +449,13 @@ class RepositoryMigration:
         try:
             lock_stack.enter_context(
                 exclusive_layout_lock(
+                    self.physical_lock_path,
+                    "physical repository layout",
+                    nonblocking=True,
+                )
+            )
+            lock_stack.enter_context(
+                exclusive_layout_lock(
                     lock_path, "repository layout", nonblocking=True
                 )
             )
@@ -426,10 +471,53 @@ class RepositoryMigration:
             if self.record_path.is_file() and not self.record_path.is_symlink():
                 audited = self._audit()
                 if audited["status"] == "complete":
+                    self.reference_publisher(None)
+                    if self.pending_path.exists() or self.pending_path.is_symlink():
+                        committed = load_json(self.record_path)
+                        committed_journal = (
+                            committed.get("journal", {})
+                            if isinstance(committed, dict)
+                            else {}
+                        )
+                        pending_sha256 = committed_journal.get("pending_sha256")
+                        if not isinstance(pending_sha256, str):
+                            raise WorkspaceError(
+                                "committed migration lacks pending-journal identity"
+                            )
+
+                        def validate_committed_pending(value: Any) -> None:
+                            if not isinstance(value, dict):
+                                raise WorkspaceError("pending journal is invalid")
+                            self._validate_pending_journal(value)
+                            encoded = json.dumps(
+                                value,
+                                sort_keys=True,
+                                separators=(",", ":"),
+                            ).encode()
+                            if hashlib.sha256(encoded).hexdigest() != pending_sha256:
+                                raise WorkspaceError(
+                                    "pending journal does not match the committed migration"
+                                )
+
+                        unlink_validated_json(
+                            self.pending_path, validate_committed_pending
+                        )
                     audited["status"] = "already-applied"
                     return audited
                 return audited
             if self.pending_path.exists() or self.pending_path.is_symlink():
+                try:
+                    self.reference_publisher(
+                        self._pending_reference_transitions()
+                    )
+                except WorkspaceError as error:
+                    return self._with_refusal(
+                        inspection.plan,
+                        "pending_migration",
+                        "an interrupted repository migration could not retain "
+                        f"both profile generations: {error}",
+                        "preserve the pending journal and repair only its exact recorded paths",
+                    )
                 recovery_errors = self._rollback_pending()
                 if recovery_errors:
                     return self._with_refusal(
@@ -439,6 +527,7 @@ class RepositoryMigration:
                         + "; ".join(recovery_errors),
                         "preserve the pending journal and repair only its exact recorded paths",
                     )
+                self.reference_publisher(None)
             inspection = self._inspect()
             if inspection.plan["refusals"]:
                 return inspection.plan
@@ -1443,7 +1532,6 @@ class RepositoryMigration:
         if inspection.classic is None:
             raise WorkspaceError("classic checkout disappeared before apply")
         journal = self._pending_value(inspection)
-        self.pending_path.parent.mkdir(parents=True, exist_ok=True)
         self._durable_atomic_json(self.pending_path, journal)
         created_worktrees: list[_Worktree] = []
         created_composites: list[_CompositeWorktree] = []
@@ -1452,6 +1540,12 @@ class RepositoryMigration:
         temporary_profiles: list[Path] = []
         record_installed = False
         try:
+            self.reference_publisher(
+                {
+                    action.name: (action.before, action.after)
+                    for action in inspection.profiles
+                }
+            )
             for source in inspection.sources:
                 for worktree in source.worktrees:
                     if worktree.destination is None:
@@ -1467,7 +1561,6 @@ class RepositoryMigration:
                 backup, mode = self._exchange_profile(action)
                 temporary_profiles.append(backup)
                 exchanged_profiles.append((action, backup, mode))
-
             for source in inspection.sources:
                 archived.append(source)
                 self._archive_source(source)
@@ -1495,6 +1588,13 @@ class RepositoryMigration:
                 row["status"] = "preserved"
             record = copy.deepcopy(result)
             record["journal"] = {
+                "pending_sha256": hashlib.sha256(
+                    json.dumps(
+                        journal,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ).encode()
+                ).hexdigest(),
                 "profiles": [
                     {
                         "after": self._encode_bytes(action.after),
@@ -1504,22 +1604,40 @@ class RepositoryMigration:
                     for action in inspection.profiles
                 ]
             }
-            self._durable_atomic_json(self.record_path, record)
-            record_installed = True
+            try:
+                self._durable_atomic_json(self.record_path, record)
+            except AtomicJsonCommitUncertain:
+                record_installed = True
+                raise
+            else:
+                record_installed = True
+            self.reference_publisher(None)
             # Once the durable record exists, cleanup failures must not trigger
             # rollback of a migration that has already committed successfully.
-            try:
-                self.pending_path.unlink(missing_ok=True)
-                self._fsync_directory(self.pending_path.parent)
-            except (OSError, WorkspaceError):
-                pass
+            pending_outcome: dict[str, str] = {}
+            if self.pending_path.exists() or self.pending_path.is_symlink():
+                try:
+                    unlink_validated_json(
+                        self.pending_path,
+                        self._validate_pending_journal,
+                    )
+                except JsonUnlinkCommitUncertain as error:
+                    pending_outcome["pending_journal_removed_durability_uncertain"] = str(error)
+                except WorkspaceError:
+                    pending_outcome["pending_journal_retained"] = str(self.pending_path)
             for path in temporary_profiles:
                 try:
                     path.unlink(missing_ok=True)
                 except OSError:
                     pass
-            return result
+            return {**result, **pending_outcome}
         except BaseException as error:
+            if record_installed:
+                raise WorkspaceError(
+                    "repository migration committed, but conservative physical "
+                    f"references could not be narrowed: {error}; preserve "
+                    f"{self.record_path} and rerun --apply"
+                ) from error
             rollback_errors: list[str] = []
             if not record_installed and (
                 self.record_path.exists() or self.record_path.is_symlink()
@@ -1541,6 +1659,12 @@ class RepositoryMigration:
                     self._rollback_profile(action, backup, mode)
                 except (OSError, WorkspaceError) as rollback_error:
                     rollback_errors.append(f"profile {action.path}: {rollback_error}")
+            try:
+                self.reference_publisher(None)
+            except WorkspaceError as rollback_error:
+                rollback_errors.append(
+                    f"physical profile references: {rollback_error}"
+                )
             for composite in reversed(created_composites):
                 try:
                     self._remove_composite_worktree(inspection.classic, composite)
@@ -2292,6 +2416,28 @@ class RepositoryMigration:
             except (OSError, WorkspaceError) as error:
                 errors.append(f"cannot remove recovered pending journal: {error}")
         return errors
+
+    def _pending_reference_transitions(
+        self,
+    ) -> dict[str, tuple[bytes, bytes]]:
+        if self.pending_path.is_symlink():
+            raise WorkspaceError(f"pending journal is a symlink: {self.pending_path}")
+        pending = load_json(self.pending_path)
+        if (
+            not isinstance(pending, dict)
+            or pending.get("migration") != MIGRATION_NAME
+            or pending.get("schema_version") != PLAN_SCHEMA_VERSION
+        ):
+            raise WorkspaceError("pending journal has an unsupported shape")
+        self._validate_pending_journal(pending)
+        transitions: dict[str, tuple[bytes, bytes]] = {}
+        for raw in pending.get("profiles", []):
+            path = Path(str(raw["path"]))
+            transitions[path.stem] = (
+                self._decode_bytes(raw["before"]),
+                self._decode_bytes(raw["after"]),
+            )
+        return transitions
 
     def _validate_pending_journal(self, pending: dict[str, Any]) -> None:
         if set(pending) != {
@@ -3605,8 +3751,7 @@ class RepositoryMigration:
             raise
 
     def _durable_atomic_json(self, path: Path, value: Any) -> None:
-        atomic_json(path, value)
-        self._fsync_directory(path.parent)
+        durable_atomic_json(path, value)
 
     @staticmethod
     def _fsync_directory(path: Path) -> None:
@@ -3765,4 +3910,6 @@ def migrate_repositories(
 ) -> dict[str, Any]:
     """Convenience entry point for the workspace coordinator."""
 
-    return RepositoryMigration(repository_root, workspace_paths, manifest).execute(mode)
+    raise WorkspaceError(
+        "repository migration requires the Workspace coordinator to publish physical references"
+    )

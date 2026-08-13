@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import binascii
+import copy
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from contextlib import ExitStack, contextmanager
+from contextlib import AbstractContextManager, ExitStack, contextmanager
 from contextvars import copy_context
 import ctypes
+from dataclasses import dataclass
 from datetime import datetime, timezone
 import errno
 import fcntl
@@ -32,11 +34,17 @@ from typing import Any, Callable, Iterator, TextIO
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
 from .locking import (
+    LeaseRequest,
+    LockBusyError,
     active_lock_fds,
     exclusive_layout_lock,
     exclusive_lock,
     inherit_lock_fds,
     layout_writer_intent_path as _layout_writer_intent_path,
+    resource_lock_path,
+    resource_lifetime_reader,
+    resource_locks,
+    shared_maintenance_lock,
     shared_layout_lock,
     shared_lock,
 )
@@ -67,8 +75,11 @@ from .model import (
     Component,
     Manifest,
     Paths,
+    AtomicJsonCommitUncertain,
     WorkspaceError,
+    _reject_duplicate_keys,
     atomic_json,
+    durable_atomic_json,
     load_json,
     _managed_path_no_symlinks,
     managed_directory,
@@ -79,6 +90,7 @@ from .model import (
 )
 from .migration import (
     MIGRATED_CONTENT_WORKTREE_KIND,
+    PROFILE_IDENTITIES,
     RepositoryMigration,
     classic_lineage,
     rename_no_replace,
@@ -165,6 +177,8 @@ SCENARIO_INERT_PROFILE_UNRESOLVABLE = "profile_unresolvable"
 SCENARIO_INERT_INVALID_RECORD = "invalid_record"
 BUILD_METADATA = ".atrinik-build.json"
 BUILD_METADATA_SCHEMA_VERSION = 2
+PROFILE_RESOLUTION_METADATA = ".atrinik-profile-resolution.json"
+PROFILE_RESOLUTION_SCHEMA_VERSION = 1
 CACHE_METADATA = ".atrinik-cache.json"
 WORKER_DEPENDENCY_METADATA = ".atrinik-worker-dependencies.json"
 WORKER_VIEW_METADATA = ".atrinik-worker-view.json"
@@ -194,6 +208,32 @@ WORKER_NPM_FILE_CONFIG_KEYS = {
 }
 RUNTIME_INPUT_METADATA = ".atrinik-dependency.json"
 RUNTIME_INPUT_SCHEMA_VERSION = 1
+
+
+@dataclass(frozen=True)
+class ProfileResolutionSnapshot:
+    """Immutable profile bytes and exact source observations for one operation."""
+
+    name: str
+    generation: str
+    profile_json: str
+    selected: tuple[tuple[str, str], ...]
+    checkout_states_json: str
+
+    def profile(self) -> dict[str, Any]:
+        value = json.loads(self.profile_json)
+        assert isinstance(value, dict)
+        return value
+
+    def paths(self) -> dict[str, Path]:
+        return {role: Path(path) for role, path in self.selected}
+
+    def checkout_states(self) -> dict[str, dict[str, Any]]:
+        value = json.loads(self.checkout_states_json)
+        assert isinstance(value, dict)
+        for state in value.values():
+            state["path"] = Path(state["path"])
+        return value
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
 REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
@@ -331,6 +371,20 @@ def _descriptor_mount_id(descriptor: int) -> int | tuple[int, int]:
         raise WorkspaceError(
             f"filesystem mount identity is unavailable on {sys.platform}"
         )
+
+
+def _descriptor_path(descriptor: int) -> Path:
+    """Return the host's stable pathname for an open directory descriptor."""
+
+    root = Path("/proc/self/fd") if sys.platform == "linux" else Path("/dev/fd")
+    path = root / str(descriptor)
+    try:
+        path.resolve(strict=True)
+    except OSError as error:
+        raise WorkspaceError(
+            f"open-descriptor paths are unavailable on {sys.platform}: {path}"
+        ) from error
+    return path
 
 
 def _linux_fchmod_path_descriptor(descriptor: int, mode: int) -> None:
@@ -1198,15 +1252,83 @@ def open_regular_file(
         raise WorkspaceError(f"cannot open {description} {path}: {error}") from error
 
 
+def load_regular_json(path: Path, description: str, *, limit: int = 4 * 1024 * 1024) -> Any:
+    """Read one identity-bound regular JSON file without following links."""
+
+    descriptor = open_regular_file(path, os.O_RDONLY, description)
+    try:
+        opened = os.fstat(descriptor)
+        visible = path.stat(follow_symlinks=False)
+        if (
+            (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+            or opened.st_size > limit
+        ):
+            raise WorkspaceError(f"{description} identity is unsafe: {path}")
+        with os.fdopen(descriptor, encoding="utf-8", closefd=False) as stream:
+            return json.load(stream, object_pairs_hook=_reject_duplicate_keys)
+    except (OSError, UnicodeError, ValueError, RecursionError) as error:
+        raise WorkspaceError(f"cannot read {description} {path}: {error}") from error
+    finally:
+        os.close(descriptor)
+
+
 class Workspace:
-    def __init__(self, repository: Path):
+    def __init__(self, repository: Path, *, backfill_references: bool = True):
         self.paths = Paths.discover(repository)
         self.manifest = Manifest.load(self.paths.repository / "components.json")
+        self._wrapper_lease: Any = None
         self._build_state = threading.local()
         self._prefix_map_support: dict[
             tuple[str, str, str | None, str | None], bool
         ] = {}
         self._prefix_map_support_lock = threading.Lock()
+        repository_identity = self.paths.repository.stat()
+        common_identity = self._lease_namespace.parent.stat()
+        namespace_identity = self._establish_lease_namespace_identity()
+        wrapper_request = self._lease_request(
+            "source",
+            self._source_coordinate("atrinik", self.paths.repository),
+            "shared",
+            "use wrapper worktree",
+        )
+        self._wrapper_lease = resource_lifetime_reader(
+            self._lease_namespace, wrapper_request
+        )
+        self._wrapper_lease.__enter__()
+        if not self.paths.repository.is_dir():
+            raise WorkspaceError(
+                f"wrapper worktree disappeared while acquiring its lease: {self.paths.repository}"
+            )
+        current_repository = self.paths.repository.stat()
+        current_common = self._lease_namespace.parent.stat()
+        current_namespace = self._lease_namespace.stat(follow_symlinks=False)
+        if (
+            (repository_identity.st_dev, repository_identity.st_ino)
+            != (current_repository.st_dev, current_repository.st_ino)
+            or (common_identity.st_dev, common_identity.st_ino)
+            != (current_common.st_dev, current_common.st_ino)
+            or namespace_identity
+            != (current_namespace.st_dev, current_namespace.st_ino)
+        ):
+            raise WorkspaceError("wrapper worktree identity changed while acquiring its lease")
+        self.manifest = Manifest.load(self.paths.repository / "components.json")
+        self._physical_lease_namespace_identity = namespace_identity
+        if backfill_references:
+            self._backfill_physical_references()
+
+    def close(self) -> None:
+        """Release the command-lifetime wrapper and maintenance leases."""
+
+        wrapper_lease = self._wrapper_lease
+        if wrapper_lease is not None:
+            self._wrapper_lease = None
+            wrapper_lease.__exit__(None, None, None)
+
+    def __del__(self) -> None:
+        try:
+            self.close()
+        except BaseException:
+            pass
 
     @property
     def _force_reconfigure(self) -> bool:
@@ -1244,19 +1366,315 @@ class Workspace:
     def _source_view_unchanged(self, value: dict[str, bool]) -> None:
         self._build_state.source_view_unchanged = value
 
+    @property
+    def _profile_snapshot(self) -> ProfileResolutionSnapshot | None:
+        return getattr(self._build_state, "profile_snapshot", None)
+
+    @_profile_snapshot.setter
+    def _profile_snapshot(self, value: ProfileResolutionSnapshot | None) -> None:
+        self._build_state.profile_snapshot = value
+
+    @staticmethod
+    def _lease_recovery(kind: str, coordinate: str) -> str:
+        if kind == "profile":
+            return f"inspect `./atrinik profile show {coordinate} --json` and retry"
+        if kind in {"source", "git-admin"}:
+            return "inspect `./atrinik worktree list --json` and retry after the exact operation finishes"
+        if kind == "topology":
+            return f"inspect `./atrinik ps {coordinate} --json` and stop only that topology when appropriate"
+        return "inspect the exact resource owner and retry after its operation finishes"
+
+    def _lease_request(
+        self,
+        kind: str,
+        coordinate: str,
+        mode: str,
+        operation: str,
+    ) -> LeaseRequest:
+        return LeaseRequest(
+            kind,
+            coordinate,
+            mode,
+            operation,
+            self._lease_recovery(kind, coordinate),
+        )
+
+    @staticmethod
+    def _source_coordinate(checkout_name: str, root: Path) -> str:
+        return f"{checkout_name}:{Path(os.path.abspath(root))}"
+
+    @property
+    def _lease_namespace(self) -> Path:
+        """Return the common-Git namespace shared by physical wrapper views."""
+
+        cached = getattr(self, "_physical_lease_namespace", None)
+        if isinstance(cached, Path):
+            self._assert_lease_namespace_identity(cached)
+            return cached
+        fallback = getattr(self, "_fallback_lease_namespace", None)
+        if isinstance(fallback, Path) and not (
+            self.paths.repository / ".git"
+        ).exists():
+            self._assert_lease_namespace_identity(fallback)
+            return fallback
+        try:
+            anchor = self._git_common_directory(
+                self.paths.repository, trace=False
+            )
+        except WorkspaceError:
+            # Unit fixtures and a not-yet-materialized wrapper still need a
+            # stable pre-Git anchor. A production wrapper is itself a checkout.
+            git_marker = self.paths.repository / ".git"
+            if git_marker.exists() or git_marker.is_symlink():
+                raise
+            anchor = self.paths.repository.resolve(strict=False)
+        namespace = anchor / "atrinik-resource-leases"
+        if (self.paths.repository / ".git").exists():
+            if isinstance(fallback, Path) and fallback != namespace:
+                raise WorkspaceError(
+                    "wrapper Git identity materialized after workspace construction; "
+                    "recreate the Workspace before continuing"
+                )
+            self._physical_lease_namespace = namespace
+        else:
+            self._fallback_lease_namespace = namespace
+        return namespace
+
+    def _establish_lease_namespace_identity(self) -> tuple[int, int]:
+        namespace = self._lease_namespace
+        namespace.mkdir(mode=0o700, exist_ok=True)
+        visible = namespace.stat(follow_symlinks=False)
+        if not stat.S_ISDIR(visible.st_mode) or stat.S_IMODE(visible.st_mode) != 0o700:
+            raise WorkspaceError(f"physical lease namespace is unsafe: {namespace}")
+        identity = (visible.st_dev, visible.st_ino)
+        if not (self.paths.repository / ".git").exists():
+            return identity
+        record_path = namespace.parent / "atrinik-resource-leases.identity.json"
+        lock_path = namespace.parent / "atrinik-resource-leases.identity.lock"
+        with exclusive_lock(lock_path, "physical lease namespace identity"):
+            if record_path.exists() or record_path.is_symlink():
+                record = load_regular_json(
+                    record_path, "physical lease namespace identity"
+                )
+                if (
+                    not isinstance(record, dict)
+                    or set(record) != {"schema_version", "device", "inode"}
+                    or record.get("schema_version") != 1
+                    or record.get("device") != identity[0]
+                    or record.get("inode") != identity[1]
+                ):
+                    raise WorkspaceError(
+                        "physical lease namespace identity changed; restore the "
+                        f"original namespace: {namespace}"
+                    )
+            else:
+                durable_atomic_json(
+                    record_path,
+                    {
+                        "schema_version": 1,
+                        "device": identity[0],
+                        "inode": identity[1],
+                    },
+                )
+        return identity
+
+    def _assert_lease_namespace_identity(self, namespace: Path) -> None:
+        expected = getattr(self, "_physical_lease_namespace_identity", None)
+        if expected is None:
+            return
+        try:
+            visible = namespace.stat(follow_symlinks=False)
+        except OSError as error:
+            raise WorkspaceError(
+                f"physical lease namespace is unavailable: {namespace}: {error}"
+            ) from error
+        if (
+            not stat.S_ISDIR(visible.st_mode)
+            or (visible.st_dev, visible.st_ino) != expected
+        ):
+            raise WorkspaceError(
+                "physical lease namespace identity changed; restore the original "
+                f"namespace: {namespace}"
+            )
+
+    def command_maintenance(self) -> AbstractContextManager[None]:
+        """Protect one non-migration CLI command from physical layout writers."""
+
+        return shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
+        )
+
+    def _lease_root(self, request: LeaseRequest) -> Path:
+        """Route physical and workspace-local coordinates to stable namespaces."""
+
+        if request.kind in {"git-admin", "source"}:
+            return self._lease_namespace
+        return self.paths.workspace
+
+    def _assert_physical_namespace_fd(self, descriptor: int) -> None:
+        expected = getattr(self, "_physical_lease_namespace_identity", None)
+        if expected is None:
+            return
+        opened = os.fstat(descriptor)
+        if (opened.st_dev, opened.st_ino) != expected:
+            raise WorkspaceError(
+                "physical lease namespace identity changed; restore the original "
+                f"namespace: {self._lease_namespace}"
+            )
+
+    @contextmanager
+    def _resource_locks(
+        self,
+        requests: list[LeaseRequest] | tuple[LeaseRequest, ...],
+        *,
+        nonblocking: bool = False,
+    ) -> Iterator[tuple[TextIO, ...]]:
+        """Acquire exact leases beneath the shared migration barrier."""
+
+        wrapper_request = self._lease_request(
+            "source",
+            self._source_coordinate("atrinik", self.paths.repository),
+            "shared",
+            "use wrapper worktree",
+        )
+        protected_requests = (*requests, wrapper_request)
+        with shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
+        ):
+            with resource_locks(
+                self._lease_root, protected_requests, nonblocking=nonblocking
+            ) as leases:
+                self._assert_lease_namespace_identity(self._lease_namespace)
+                yield leases
+                self._assert_lease_namespace_identity(self._lease_namespace)
+
+    @contextmanager
+    def _resource_locks_all_or_none(
+        self, requests: list[LeaseRequest] | tuple[LeaseRequest, ...]
+    ) -> Iterator[tuple[TextIO, ...]]:
+        """Acquire a set without retaining earlier coordinates while waiting."""
+
+        ordered = tuple(sorted(requests, key=lambda request: request.sort_key))
+        while True:
+            try:
+                with self._resource_locks(ordered, nonblocking=True) as leases:
+                    yield leases
+                    return
+            except LockBusyError:
+                pass
+            for request in ordered:
+                try:
+                    with self._resource_locks([request], nonblocking=True):
+                        continue
+                except LockBusyError:
+                    with self._resource_locks([request]):
+                        pass
+                    break
+
+    def _git_admin_coordinate(self, checkout: Checkout, primary: Path) -> str:
+        # Every wrapper-managed worktree for a physical checkout is anchored to
+        # its canonical primary. The stable primary coordinate remains usable
+        # before clone and avoids reading mutable Git administration state just
+        # to discover the lease that protects that state.
+        return f"{checkout.name}:{primary.resolve(strict=False)}"
+
+    def _wrapper_git_admin_coordinate(self) -> str:
+        return f"atrinik:{self._lease_namespace.parent}"
+
+    @contextmanager
+    def _resolved_profile_operation(
+        self,
+        profile_name: str,
+        required: set[str],
+        operation: str,
+    ) -> Iterator[ProfileResolutionSnapshot]:
+        """Capture and retain one exact profile/source resolution."""
+
+        profile_request = self._lease_request(
+            "profile", profile_name, "shared", operation
+        )
+        with self._resource_locks([profile_request]):
+            profile = self._load_profile_file(profile_name, require_file=False)
+            stack = self.manifest.stack(profile["stack"])
+            source_requests: list[LeaseRequest] = []
+            seen: set[str] = set()
+            for component in stack.components:
+                root = self._selector_root(profile, component)
+                coordinate = self._source_coordinate(component.checkout_name, root)
+                if coordinate in seen:
+                    continue
+                seen.add(coordinate)
+                source_requests.append(
+                    self._lease_request("source", coordinate, "shared", operation)
+                )
+            with self._resource_locks(source_requests):
+                confirmed_profile = self._load_profile_file(
+                    profile_name, require_file=False
+                )
+                if confirmed_profile != profile:
+                    raise WorkspaceError(
+                        f"profile {profile_name} changed while its exact sources were being locked; retry"
+                    )
+                selected = self._resolve_build_profile(
+                    profile_name, required, trace=False, profile=confirmed_profile
+                )
+                states = self._selected_checkout_states(
+                    profile, selected, include_dirty=True, include_identity=True
+                )
+                serializable_states = {
+                    name: {**state, "path": str(state["path"])}
+                    for name, state in states.items()
+                }
+                profile_json = json.dumps(
+                    profile, sort_keys=True, separators=(",", ":")
+                )
+                selected_rows = tuple(
+                    (role, str(path.resolve()))
+                    for role, path in sorted(selected.items())
+                )
+                state_json = json.dumps(
+                    serializable_states, sort_keys=True, separators=(",", ":")
+                )
+                generation = hashlib.sha256(
+                    f"{profile_json}\0{selected_rows!r}\0{state_json}".encode()
+                ).hexdigest()
+                snapshot = ProfileResolutionSnapshot(
+                    profile_name,
+                    generation,
+                    profile_json,
+                    selected_rows,
+                    state_json,
+                )
+                previous = self._profile_snapshot
+                self._profile_snapshot = snapshot
+                try:
+                    yield snapshot
+                finally:
+                    self._profile_snapshot = previous
+
     def migrate_repositories(self, mode: str) -> dict[str, Any]:
         if mode == "apply":
             self.paths.ensure()
-        return RepositoryMigration(
-            self.paths.repository, self.paths, self.manifest
+        result = RepositoryMigration(
+            self.paths.repository,
+            self.paths,
+            self.manifest,
+            self._lease_namespace / "repository-layout.lock",
+            self._publish_migration_profile_references,
         ).execute(mode)
+        return result
 
     def migrate_content(self, mode: str) -> dict[str, Any]:
         if mode in {"apply", "restore"}:
             self.paths.ensure()
-        return ContentMigration(
-            self.paths.repository, self.paths, self.manifest
+        result = ContentMigration(
+            self.paths.repository,
+            self.paths,
+            self.manifest,
+            self._lease_namespace / "repository-layout.lock",
+            self._publish_migration_profile_references,
         ).execute(mode)
+        return result
 
     def cleanup(
         self,
@@ -1269,7 +1687,12 @@ class Workspace:
         # helpers without creating a module import cycle.
         from .cleanup import Cleanup
 
-        return Cleanup(self).execute(scopes, older_than_days, names, apply)
+        if not apply:
+            return Cleanup(self).execute(scopes, older_than_days, names, False)
+        with shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
+        ):
+            return Cleanup(self).execute(scopes, older_than_days, names, True)
 
     def _checkout_identity(self, value: Checkout | Component) -> Checkout:
         if isinstance(value, Checkout):
@@ -1320,34 +1743,47 @@ class Workspace:
         self.paths.ensure()
         checkouts = self._operation_checkouts(names, include_classic)
         failures: list[str] = []
-        with exclusive_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ):
-            # Validate every occupied destination before starting any clone.
-            # A pre-split classic checkout at a canonical replacement path
-            # must stop the entire operation without leaving a partially
-            # initialized replacement cohort behind.
-            for checkout in checkouts:
-                destination = self._primary_path(checkout)
-                if destination.exists() or destination.is_symlink():
-                    self._validate_primary_checkout(checkout, destination)
-            with ThreadPoolExecutor(
-                max_workers=max(1, min(jobs, len(checkouts)))
-            ) as executor:
-                futures = {
-                    executor.submit(
-                        copy_context().run, self._ensure_repository, checkout
-                    ): checkout
-                    for checkout in checkouts
-                }
-                for future in as_completed(futures):
-                    checkout = futures[future]
-                    try:
-                        future.result()
-                        print(f"{checkout.name}: ready")
-                    except Exception as error:
-                        failures.append(f"{checkout.name}: {error}")
+        # Validate every occupied destination before starting any clone. This
+        # preserves all-or-nothing preflight while the actual operations use
+        # disjoint checkout leases and may overlap.
+        for checkout in checkouts:
+            destination = self._primary_path(checkout)
+            if destination.exists() or destination.is_symlink():
+                self._validate_primary_checkout(checkout, destination)
+
+        def initialize_checkout(checkout: Checkout) -> Path:
+            destination = self._primary_path(checkout)
+            requests = [
+                self._lease_request(
+                    "git-admin",
+                    self._git_admin_coordinate(checkout, destination),
+                    "exclusive",
+                    f"initialize {checkout.name}",
+                ),
+                self._lease_request(
+                    "source",
+                    self._source_coordinate(checkout.name, destination),
+                    "exclusive",
+                    f"initialize {checkout.name}",
+                ),
+            ]
+            with self._resource_locks(requests):
+                return self._ensure_repository(checkout)
+
+        with ThreadPoolExecutor(
+            max_workers=max(1, min(jobs, len(checkouts)))
+        ) as executor:
+            futures = {
+                executor.submit(copy_context().run, initialize_checkout, checkout): checkout
+                for checkout in checkouts
+            }
+            for future in as_completed(futures):
+                checkout = futures[future]
+                try:
+                    future.result()
+                    print(f"{checkout.name}: ready")
+                except Exception as error:
+                    failures.append(f"{checkout.name}: {error}")
         if failures:
             raise WorkspaceError(
                 "repository initialization failed:\n" + "\n".join(sorted(failures))
@@ -1614,11 +2050,111 @@ class Workspace:
         if worktree_strategy not in {"none", "merge", "rebase"}:
             raise WorkspaceError(f"unknown worktree strategy: {worktree_strategy}")
         checkouts = self._operation_checkouts(names, include_classic)
-        with exclusive_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ):
-            self._sync_components(checkouts, names, worktree_strategy)
+        failures: list[str] = []
+
+        # Preserve the command's all-checkout preflight guarantee before any
+        # parallel worker can fetch or advance a checkout. Workers repeat this
+        # validation under their exact Git-admin/source leases to close races.
+        explicitly_requested = {
+            checkout.name
+            for checkout in self._operation_checkouts(names, False)
+        } if names else set()
+        migrated_content = (
+            self._migrated_content_worktree_paths()
+            if worktree_strategy != "none"
+            and any(checkout.name == "content" for checkout in checkouts)
+            else set()
+        )
+        for checkout in checkouts:
+            repository = self._primary_path(checkout)
+            if not repository.exists() and not repository.is_symlink():
+                if checkout.name in explicitly_requested:
+                    raise WorkspaceError(
+                        "component is not initialized; run ./atrinik init "
+                        f"{checkout.name}: {repository}"
+                    )
+                continue
+            self._validate_primary_checkout(checkout, repository)
+            if not _is_clean(repository):
+                raise WorkspaceError(
+                    f"refusing to update dirty primary checkout: {repository}"
+                )
+            self._canonical_remote(checkout, repository)
+            if worktree_strategy != "none":
+                self._component_worktrees(
+                    repository,
+                    migrated_content if checkout.name == "content" else set(),
+                )
+
+        def sync_checkout(checkout: Checkout) -> None:
+            repository = self._primary_path(checkout)
+            admin_request = self._lease_request(
+                "git-admin",
+                self._git_admin_coordinate(checkout, repository),
+                "exclusive",
+                f"synchronize {checkout.name}",
+            )
+            def source_roots() -> tuple[Path, ...]:
+                roots = [repository]
+                if repository.is_dir() and worktree_strategy != "none":
+                    roots.extend(
+                        Path(record["worktree"])
+                        for record in _worktree_records(repository, trace=False)
+                        if "branch" in record
+                    )
+                return tuple(
+                    sorted(
+                        {root.resolve(strict=False) for root in roots},
+                        key=str,
+                    )
+                )
+
+            while True:
+                with self._resource_locks([admin_request]):
+                    roots = source_roots()
+                requests = [
+                    self._lease_request(
+                        "source",
+                        self._source_coordinate(checkout.name, root),
+                        "exclusive",
+                        f"synchronize {checkout.name}",
+                    )
+                    for root in roots
+                ]
+                with self._resource_locks_all_or_none(requests):
+                    try:
+                        with self._resource_locks(
+                            [admin_request],
+                            nonblocking=True,
+                        ):
+                            if source_roots() != roots:
+                                continue
+                            self._sync_components(
+                                [checkout], names, worktree_strategy
+                            )
+                            return
+                    except LockBusyError:
+                        pass
+                # Never wait for Git administration while retaining a source
+                # lease: let the conflicting bounded mutation complete, then
+                # resnapshot and retry the ordered exact set.
+                with self._resource_locks([admin_request]):
+                    pass
+
+        with ThreadPoolExecutor(max_workers=max(1, len(checkouts))) as executor:
+            futures = {
+                executor.submit(copy_context().run, sync_checkout, checkout): checkout
+                for checkout in checkouts
+            }
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as error:
+                    failures.append(f"{futures[future].name}: {error}")
+        if failures:
+            raise WorkspaceError(
+                "repository synchronization failed:\n" + "\n".join(sorted(failures))
+            )
 
     def _sync_components(
         self,
@@ -1760,13 +2296,49 @@ class Workspace:
         existing: bool,
     ) -> Path:
         self.paths.ensure()
-        with exclusive_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        validate_name(label, "worktree label")
+        checkout = self._resolve_checkout(component_name)
+        repository = self._primary_path(checkout)
+        destination = self.paths.worktrees / checkout.name / label
+        with shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
         ):
-            return self._create_worktree(
-                component_name, label, branch, start_point, existing
-            )
+            with self._open_managed_worktree_parent(destination) as (
+                stable_destination,
+                physical_destination,
+            ):
+                requests = [
+                    self._lease_request(
+                        "git-admin",
+                        self._git_admin_coordinate(checkout, repository),
+                        "exclusive",
+                        f"create worktree {checkout.name}/{label}",
+                    ),
+                    self._lease_request(
+                        "source",
+                        self._source_coordinate(checkout.name, physical_destination),
+                        "exclusive",
+                        f"create worktree {checkout.name}/{label}",
+                    ),
+                ]
+                if not repository.exists() and not repository.is_symlink():
+                    requests.append(
+                        self._lease_request(
+                            "source",
+                            self._source_coordinate(checkout.name, repository),
+                            "exclusive",
+                            f"initialize {checkout.name} for worktree creation",
+                        )
+                    )
+                with self._resource_locks(requests):
+                    return self._create_worktree(
+                        component_name,
+                        label,
+                        branch,
+                        start_point,
+                        existing,
+                        stable_destination,
+                    )
 
     def _create_worktree(
         self,
@@ -1775,6 +2347,7 @@ class Workspace:
         branch: str,
         start_point: str | None,
         existing: bool,
+        stable_destination: Path | None = None,
     ) -> Path:
         self.paths.ensure()
         validate_name(label, "worktree label")
@@ -1782,66 +2355,331 @@ class Workspace:
         repository = self._ensure_repository(checkout)
         remote = self._canonical_remote(checkout, repository)
         run(["git", "check-ref-format", "--branch", branch], capture=True)
-        destination = self.paths.worktrees / checkout.name / label
+        reported_destination = self.paths.worktrees / checkout.name / label
+        destination = stable_destination or reported_destination
         if destination.exists():
-            raise WorkspaceError(f"worktree destination already exists: {destination}")
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        if existing:
-            git(repository, "worktree", "add", "--", str(destination), branch)
-        else:
-            if start_point is not None and start_point.startswith("-"):
-                raise WorkspaceError("worktree start point must not begin with '-'")
-            point = start_point or f"{remote}/{checkout.branch}"
-            git(repository, "fetch", "--prune", remote)
-            commit = git(
-                repository,
-                "rev-parse",
-                "--verify",
-                "--end-of-options",
-                f"{point}^{{commit}}",
-                capture=True,
+            raise WorkspaceError(
+                f"worktree destination already exists: {reported_destination}"
             )
-            git(
-                repository,
-                "worktree",
-                "add",
-                "-b",
-                branch,
-                "--",
-                str(destination),
-                commit,
-            )
-        self._validate_checkout(checkout, destination)
-        print(destination)
-        return destination
+        if stable_destination is None:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+        installed = False
+        try:
+            if existing:
+                git(repository, "worktree", "add", "--", str(destination), branch)
+            else:
+                if start_point is not None and start_point.startswith("-"):
+                    raise WorkspaceError("worktree start point must not begin with '-'")
+                point = start_point or f"{remote}/{checkout.branch}"
+                git(repository, "fetch", "--prune", remote)
+                commit = git(
+                    repository,
+                    "rev-parse",
+                    "--verify",
+                    "--end-of-options",
+                    f"{point}^{{commit}}",
+                    capture=True,
+                )
+                git(
+                    repository,
+                    "worktree",
+                    "add",
+                    "-b",
+                    branch,
+                    "--",
+                    str(destination),
+                    commit,
+                )
+            installed = True
+            self._validate_checkout(checkout, destination)
+            if stable_destination is not None:
+                self._require_visible_worktree_identity(
+                    reported_destination, destination
+                )
+        except BaseException as error:
+            if installed:
+                try:
+                    git(repository, "worktree", "remove", "--force", str(destination))
+                    if not existing:
+                        git(repository, "branch", "-D", branch)
+                except BaseException as rollback_error:
+                    raise WorkspaceError(
+                        "worktree creation failed and its Git registration could not "
+                        f"be rolled back: {rollback_error}"
+                    ) from error
+            raise
+        print(reported_destination)
+        return reported_destination
 
     def remove_worktree(self, component_name: str, label: str) -> None:
         self.paths.ensure()
-        with exclusive_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        validate_name(label, "worktree label")
+        checkout = self._resolve_checkout(component_name)
+        destination = self.paths.worktrees / checkout.name / label
+        repository = self._primary_path(checkout)
+        if not repository.is_dir() or repository.is_symlink():
+            raise WorkspaceError(
+                "component is not initialized; run ./atrinik init "
+                f"{checkout.name}: {repository}"
+            )
+        admin_request = self._lease_request(
+            "git-admin",
+            self._git_admin_coordinate(checkout, repository),
+            "exclusive",
+            f"remove worktree {checkout.name}/{label}",
+        )
+        with self._open_managed_worktree(destination) as (
+            stable_destination,
+            physical_destination,
         ):
-            self._remove_worktree(component_name, label)
+            source_request = self._lease_request(
+                "source",
+                self._source_coordinate(checkout.name, physical_destination),
+                "exclusive",
+                f"remove worktree {checkout.name}/{label}",
+            )
+            while True:
+                with self._resource_locks([source_request]):
+                    try:
+                        with self._resource_locks(
+                            [admin_request], nonblocking=True
+                        ):
+                            self._remove_worktree(
+                                component_name, label, stable_destination
+                            )
+                            return
+                    except LockBusyError:
+                        pass
+                with self._resource_locks([admin_request]):
+                    pass
 
-    def _remove_worktree(self, component_name: str, label: str) -> None:
+    def _remove_worktree(
+        self, component_name: str, label: str, stable_destination: Path
+    ) -> None:
         self.paths.ensure()
         validate_name(label, "worktree label")
         checkout = self._resolve_checkout(component_name)
-        repository = self._ensure_repository(checkout)
+        repository = self._primary_path(checkout)
+        self._validate_primary_checkout(checkout, repository)
         candidates = [self.paths.worktrees / checkout.name / label]
-        existing = [candidate.resolve() for candidate in candidates if candidate.is_dir()]
-        if len(existing) != 1:
-            rendered = ", ".join(str(candidate) for candidate in candidates)
-            raise WorkspaceError(f"worktree does not exist unambiguously: {rendered}")
-        destination = existing[0]
-        expected_parents = {
-            (self.paths.worktrees / checkout.name).resolve(),
-        }
-        if destination.parent not in expected_parents:
-            raise WorkspaceError(f"invalid managed worktree path: {destination}")
+        destination = stable_destination
+        if any(candidate.is_symlink() for candidate in candidates):
+            raise WorkspaceError(
+                "worktree does not exist unambiguously: "
+                + ", ".join(str(candidate) for candidate in candidates)
+            )
+        self._require_visible_worktree_identity(candidates[0], destination)
         if not _is_clean(destination):
             raise WorkspaceError(f"refusing to remove dirty worktree: {destination}")
+        references = self._source_references(destination)
+        if references:
+            raise WorkspaceError(
+                f"refusing to remove referenced worktree {destination}: "
+                + ", ".join(references)
+            )
+        self._require_visible_worktree_identity(candidates[0], destination)
         git(repository, "worktree", "remove", str(destination))
+
+    @staticmethod
+    def _require_visible_worktree_identity(visible: Path, stable: Path) -> None:
+        try:
+            visible_identity = visible.stat(follow_symlinks=False)
+            stable_identity = stable.stat()
+        except OSError as error:
+            raise WorkspaceError(
+                f"managed worktree path was replaced: {visible}"
+            ) from error
+        if (
+            not stat.S_ISDIR(visible_identity.st_mode)
+            or (visible_identity.st_dev, visible_identity.st_ino)
+            != (stable_identity.st_dev, stable_identity.st_ino)
+        ):
+            raise WorkspaceError(f"managed worktree path was replaced: {visible}")
+
+    @contextmanager
+    def _open_managed_worktree(
+        self, destination: Path
+    ) -> Iterator[tuple[Path, Path]]:
+        """Retain a no-follow target descriptor through destructive Git use."""
+
+        root = Path(os.path.abspath(self.paths.worktrees))
+        candidate = Path(os.path.abspath(destination))
+        try:
+            relative = candidate.relative_to(root)
+        except ValueError as error:
+            raise WorkspaceError(f"invalid managed worktree path: {candidate}") from error
+        if len(relative.parts) != 2:
+            raise WorkspaceError(f"invalid managed worktree path: {candidate}")
+        flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        descriptors: list[int] = []
+        try:
+            current_fd = os.open(root, flags)
+            descriptors.append(current_fd)
+            current_path = root
+            for part in relative.parts:
+                next_fd = os.open(part, flags, dir_fd=current_fd)
+                descriptors.append(next_fd)
+                current_fd = next_fd
+                current_path /= part
+                opened = os.fstat(current_fd)
+                visible = current_path.stat(follow_symlinks=False)
+                if (
+                    not stat.S_ISDIR(opened.st_mode)
+                    or (opened.st_dev, opened.st_ino)
+                    != (visible.st_dev, visible.st_ino)
+                ):
+                    raise WorkspaceError(
+                        f"managed worktree path was replaced: {current_path}"
+                    )
+            retained = os.dup(current_fd)
+            try:
+                stable = _descriptor_path(retained)
+                physical = stable.resolve(strict=True)
+                with inherit_lock_fds(retained):
+                    yield stable, physical
+            finally:
+                os.close(retained)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot open managed worktree path {candidate}: {error}"
+            ) from error
+        finally:
+            for descriptor in reversed(descriptors):
+                os.close(descriptor)
+
+    @contextmanager
+    def _open_managed_worktree_parent(
+        self, destination: Path
+    ) -> Iterator[tuple[Path, Path]]:
+        """Retain the destination parent without following managed-path links."""
+
+        root = Path(os.path.abspath(self.paths.worktrees))
+        candidate = Path(os.path.abspath(destination))
+        try:
+            relative = candidate.relative_to(root)
+        except ValueError as error:
+            raise WorkspaceError(f"invalid managed worktree path: {candidate}") from error
+        if len(relative.parts) != 2:
+            raise WorkspaceError(f"invalid managed worktree path: {candidate}")
+        checkout_name, label = relative.parts
+        flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        descriptors: list[int] = []
+        try:
+            root_fd = os.open(root, flags)
+            descriptors.append(root_fd)
+            try:
+                os.mkdir(checkout_name, dir_fd=root_fd)
+            except FileExistsError:
+                pass
+            parent_fd = os.open(checkout_name, flags, dir_fd=root_fd)
+            descriptors.append(parent_fd)
+            opened = os.fstat(parent_fd)
+            visible_path = root / checkout_name
+            visible = visible_path.stat(follow_symlinks=False)
+            if (
+                not stat.S_ISDIR(opened.st_mode)
+                or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+            ):
+                raise WorkspaceError(
+                    f"managed worktree path was replaced: {visible_path}"
+                )
+            try:
+                os.stat(label, dir_fd=parent_fd, follow_symlinks=False)
+            except FileNotFoundError:
+                pass
+            else:
+                raise WorkspaceError(f"worktree destination already exists: {candidate}")
+            retained = os.dup(parent_fd)
+            try:
+                stable_parent = _descriptor_path(retained)
+                physical_parent = stable_parent.resolve(strict=True)
+                with inherit_lock_fds(retained):
+                    yield stable_parent / label, physical_parent / label
+            finally:
+                os.close(retained)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot open managed worktree parent {candidate.parent}: {error}"
+            ) from error
+        finally:
+            for descriptor in reversed(descriptors):
+                os.close(descriptor)
+
+    def _source_references(self, source_root: Path) -> list[str]:
+        """Return exact persisted references while the caller holds source exclusive."""
+
+        target = source_root.resolve()
+        references: list[str] = []
+        for record in self._physical_reference_records():
+            if (
+                not isinstance(record, dict)
+                or set(record) != {"schema_version", "kind", "reference", "sources"}
+                or record["schema_version"] != 1
+                or record["kind"] not in {"profiles", "scenarios"}
+                or not isinstance(record["reference"], str)
+                or not isinstance(record["sources"], list)
+            ):
+                raise WorkspaceError("cannot prove physical reference record")
+            if any(
+                not isinstance(source, str) or not Path(source).is_absolute()
+                for source in record["sources"]
+            ):
+                raise WorkspaceError("cannot prove physical reference record")
+            if target in {
+                Path(source).resolve(strict=False) for source in record["sources"]
+            }:
+                references.append(f"{record['kind'][:-1]}:{record['reference']}")
+        if self.paths.profiles.exists():
+            for path in sorted(self.paths.profiles.glob("*.json")):
+                profile = self._load_profile_file(path.stem, require_file=True)
+                stack = self.manifest.stack(profile["stack"])
+                roots = {
+                    self._selector_root(profile, component).resolve(strict=False)
+                    for component in stack.components
+                }
+                if target in roots:
+                    references.append(f"profile:{profile['name']}")
+        for container, record_name in (
+            (self.paths.topologies, "topology"),
+            (self.paths.scenarios, "scenario"),
+        ):
+            if not container.exists():
+                continue
+            for directory in sorted(container.iterdir()):
+                if (
+                    directory.name.startswith(".")
+                    or not directory.is_dir()
+                    or directory.is_symlink()
+                ):
+                    continue
+                candidates = (
+                    (directory / "spec.json", directory / "status.json")
+                    if record_name == "topology"
+                    else (directory / "scenario.json",)
+                )
+                for record_path in candidates:
+                    if not record_path.exists():
+                        continue
+                    value = load_json(record_path)
+                    resolved = value.get("resolved") if isinstance(value, dict) else None
+                    if not isinstance(resolved, dict):
+                        raise WorkspaceError(
+                            f"cannot prove {record_name} references: {record_path}"
+                        )
+                    for coordinate in resolved.values():
+                        if not isinstance(coordinate, dict):
+                            continue
+                        raw_path = coordinate.get("checkout_path") or coordinate.get("path")
+                        if isinstance(raw_path, str) and Path(raw_path).resolve(
+                            strict=False
+                        ) == target:
+                            references.append(f"{record_name}:{directory.name}")
+                            break
+                    if references and references[-1] == f"{record_name}:{directory.name}":
+                        break
+        return sorted(set(references))
 
     def list_worktrees(self, names: list[str] | None = None) -> list[tuple[str, dict[str, str]]]:
         self.paths.ensure()
@@ -1864,13 +2702,49 @@ class Workspace:
 
     def create_profile(self, name: str, source: str = "default") -> Path:
         self.paths.ensure()
-        with exclusive_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ):
-            return self._create_profile(name, source)
+        validate_name(name, "profile name")
+        validate_name(source, "profile name")
+        requests = [
+            self._lease_request(
+                "profile", name, "exclusive", f"create profile {name}"
+            ),
+            self._lease_request(
+                "profile", source, "shared", f"copy profile {source} to {name}"
+            ),
+        ]
+        with self._resource_locks(requests):
+            source_profile = self._load_profile_file(source, require_file=False)
+            stack = self.manifest.stack(source_profile["stack"])
+            source_requests: list[LeaseRequest] = []
+            seen: set[str] = set()
+            for component in stack.components:
+                root = self._selector_root(source_profile, component)
+                coordinate = self._source_coordinate(
+                    component.checkout_name, root
+                )
+                if coordinate in seen:
+                    continue
+                seen.add(coordinate)
+                source_requests.append(
+                    self._lease_request(
+                        "source", coordinate, "shared", f"create profile {name}"
+                    )
+                )
+            with self._resource_locks(source_requests):
+                confirmed_profile = self._load_profile_file(
+                    source, require_file=False
+                )
+                if confirmed_profile != source_profile:
+                    raise WorkspaceError(
+                        f"profile {source} changed while its exact sources were being locked; retry"
+                    )
+                return self._create_profile(name, confirmed_profile)
 
-    def _create_profile(self, name: str, source: str = "default") -> Path:
+    def _create_profile(
+        self,
+        name: str,
+        source_profile: dict[str, Any],
+    ) -> Path:
         self.paths.ensure()
         validate_name(name, "profile name")
         if name in self.manifest.stacks:
@@ -1878,7 +2752,6 @@ class Workspace:
         path = self.paths.profiles / f"{name}.json"
         if path.exists():
             raise WorkspaceError(f"profile already exists: {name}")
-        source_profile = self._load_profile(source, require_file=False)
         value = {
             "schema_version": PROFILE_SCHEMA_VERSION,
             "name": name,
@@ -1889,7 +2762,16 @@ class Workspace:
                 for component_name, selector in source_profile["components"].items()
             },
         }
-        atomic_json(path, value)
+        self._publish_profile_references(name, value)
+        try:
+            durable_atomic_json(path, value)
+        except AtomicJsonCommitUncertain:
+            # The authored profile is visible. Keep its conservative physical
+            # references rather than pretending publication did not occur.
+            raise
+        except BaseException:
+            self._remove_physical_reference(path)
+            raise
         print(path)
         return path
 
@@ -1897,17 +2779,584 @@ class Workspace:
         self, name: str, component_name: str, kind: str, value: str = ""
     ) -> None:
         self.paths.ensure()
-        with exclusive_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        validate_name(name, "profile name")
+        profile_request = self._lease_request(
+            "profile", name, "exclusive", f"update profile {name}"
+        )
+        with self._resource_locks([profile_request]):
+            profile = self._load_profile_file(name, require_file=True)
+            components = self._profile_components(profile, component_name)
+            checkout_names = {component.checkout_name for component in components}
+            if len(checkout_names) != 1:
+                raise WorkspaceError(
+                    f"profile selection spans multiple checkouts: {component_name}"
+                )
+            checkout_name = checkout_names.pop()
+            checkout = self.manifest.by_checkout[checkout_name]
+            if kind == "primary":
+                selected_root = self._primary_path(checkout)
+            elif kind == "worktree":
+                validate_name(value, "worktree label")
+                selected_root = self.paths.worktrees / checkout_name / value
+            elif kind == "path":
+                selected_root = Path(value).expanduser()
+                if not selected_root.is_absolute():
+                    raise WorkspaceError("profile checkout path must be absolute")
+                if selected_root.is_symlink():
+                    raise WorkspaceError(
+                        f"component checkout is not a directory: {selected_root}"
+                    )
+                selected_root = selected_root.resolve(strict=False)
+                value = str(selected_root)
+            else:
+                raise WorkspaceError(f"invalid profile selector kind: {kind}")
+            source_request = self._lease_request(
+                "source",
+                self._source_coordinate(checkout_name, selected_root),
+                "shared",
+                f"publish profile {name}",
+            )
+            with self._resource_locks([source_request]):
+                self._set_profile(name, component_name, kind, value)
+
+    def _backfill_profile_references(self, *, already_locked: bool = False) -> bool:
+        if not self.paths.profiles.is_dir() or self.paths.profiles.is_symlink():
+            return True
+        complete = True
+        for path in sorted(self.paths.profiles.glob("*.json")):
+            if already_locked:
+                profile = self._load_profile_file(path.stem, require_file=True)
+                self._publish_profile_references(path.stem, profile)
+                continue
+            profile = load_regular_json(path, f"profile {path.stem}")
+            sources = self._raw_profile_reference_sources(path.stem, profile)
+            requests = [
+                self._lease_request(
+                    "profile", path.stem, "shared", "backfill profile reference"
+                ),
+                *[
+                    self._lease_request(
+                        "source",
+                        self._source_coordinate(checkout, source),
+                        "shared",
+                        "backfill profile reference",
+                    )
+                    for checkout, source in sources
+                ],
+            ]
+            try:
+                with resource_locks(self._lease_root, requests, nonblocking=True):
+                    confirmed = load_regular_json(path, f"profile {path.stem}")
+                    if confirmed != profile or any(
+                        not source.is_dir() for _checkout, source in sources
+                    ):
+                        complete = False
+                        continue
+                    self._publish_raw_profile_references(
+                        path.stem, path, profile=confirmed
+                    )
+            except LockBusyError:
+                complete = False
+        return complete
+
+    def _raw_profile_reference_sources(
+        self, name: str, profile: Any
+    ) -> list[tuple[str, Path]]:
+        if not isinstance(profile, dict) or not isinstance(profile.get("components"), dict):
+            raise WorkspaceError(f"profile must be an object with components: {name}")
+        sources: dict[tuple[str, str], tuple[str, Path]] = {}
+        for component_name, selector in profile["components"].items():
+            if not isinstance(selector, dict) or selector.get("kind") == "primary":
+                continue
+            component = self.manifest.by_name.get(component_name)
+            kind, value = selector.get("kind"), selector.get("value")
+            legacy_component = component is None and (
+                component_name == "content-1x" or component_name in PROFILE_IDENTITIES
+            )
+            if (component is None and not legacy_component) or not isinstance(value, str):
+                raise WorkspaceError(f"profile selector is invalid: {name}/{component_name}")
+            legacy_checkout = (
+                "content-1x"
+                if component_name in {"content", "content-1x"}
+                else component_name.removeprefix("legacy-")
+            )
+            root = (
+                self.paths.worktrees
+                / (component.checkout_name if component is not None else legacy_checkout)
+                / value
+                if kind == "worktree"
+                else Path(value)
+            )
+            if not root.is_absolute():
+                raise WorkspaceError(f"profile selector is invalid: {name}/{component_name}")
+            resolved = root.resolve(strict=False)
+            checkout_name = (
+                component.checkout_name if component is not None else legacy_checkout
+            )
+            sources[(checkout_name, str(resolved))] = (
+                checkout_name,
+                resolved,
+            )
+        return [sources[key] for key in sorted(sources)]
+
+    def _publish_raw_profile_references(
+        self, name: str, path: Path, *, profile: Any | None = None
+    ) -> None:
+        if profile is None:
+            profile = load_regular_json(path, f"profile {name}")
+        sources = self._raw_profile_reference_sources(name, profile)
+        identity = hashlib.sha256(str(path.resolve()).encode()).hexdigest()
+        self._atomic_physical_reference(
+            f"{identity}.json",
+            {
+                "schema_version": 1,
+                "kind": "profiles",
+                "reference": name,
+                "sources": sorted(str(source) for _checkout, source in sources),
+            },
+        )
+
+    def _publish_migration_profile_references(
+        self, transitions: dict[str, tuple[bytes, bytes]] | None = None
+    ) -> None:
+        """Publish conservative profile refs while a migration owns the barrier."""
+
+        retained: dict[str, set[str]] = {}
+        for name, generations in (transitions or {}).items():
+            sources: set[str] = set()
+            for raw in generations:
+                try:
+                    profile = json.loads(
+                        raw, object_pairs_hook=_reject_duplicate_keys
+                    )
+                    sources.update(
+                        str(source)
+                        for _checkout, source in self._raw_profile_reference_sources(
+                            name, profile
+                        )
+                    )
+                except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
+                    raise WorkspaceError(
+                        f"cannot publish migration references for profile {name}: {error}"
+                    ) from error
+            retained[name] = sources
+        if not self.paths.profiles.is_dir():
+            return
+        for path in sorted(self.paths.profiles.glob("*.json")):
+            profile = load_regular_json(path, f"profile {path.stem}")
+            current = {
+                str(source)
+                for _checkout, source in self._raw_profile_reference_sources(
+                    path.stem, profile
+                )
+            }
+            identity = hashlib.sha256(str(path.resolve()).encode()).hexdigest()
+            self._atomic_physical_reference(
+                f"{identity}.json",
+                {
+                    "schema_version": 1,
+                    "kind": "profiles",
+                    "reference": path.stem,
+                    "sources": sorted(current | retained.get(path.stem, set())),
+                },
+            )
+
+    def _backfill_physical_references(self) -> None:
+        state_identity = hashlib.sha256(
+            str(self.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        marker_reference = f"__backfill__:{state_identity}"
+        for marker in self._physical_reference_records(
+            only=f"{state_identity}.json"
         ):
-            self._set_profile(name, component_name, kind, value)
+            if not isinstance(marker, dict):
+                raise WorkspaceError("physical reference backfill marker is invalid")
+            if (
+                set(marker)
+                == {"schema_version", "kind", "reference", "sources"}
+                and marker.get("schema_version") == 1
+                and marker.get("kind") == "profiles"
+                and marker.get("reference") == marker_reference
+                and marker.get("sources") == []
+            ):
+                return
+            raise WorkspaceError("physical reference backfill marker is invalid")
+        with shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
+        ):
+            complete = self._backfill_profile_references()
+            complete = self._backfill_scenario_references() and complete
+            if not complete:
+                raise WorkspaceError(
+                    "physical reference backfill is busy; wait for the named exact "
+                    "resource operation to finish and retry"
+                )
+            self._atomic_physical_reference(
+                f"{state_identity}.json",
+                {
+                    "schema_version": 1,
+                    "kind": "profiles",
+                    "reference": marker_reference,
+                    "sources": [],
+                },
+            )
+
+    def _atomic_physical_reference(
+        self, name: str, value: dict[str, Any]
+    ) -> None:
+        namespace = self._lease_namespace
+        flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        parent_fd = os.open(namespace, flags)
+        directory_fd: int | None = None
+        temporary = f".{name}.{secrets.token_hex(12)}.tmp"
+        try:
+            self._assert_physical_namespace_fd(parent_fd)
+            self._validate_physical_reference_directory(
+                parent_fd, namespace, "physical lease namespace"
+            )
+            try:
+                os.mkdir("profile-references", mode=0o700, dir_fd=parent_fd)
+            except FileExistsError:
+                pass
+            directory_fd = os.open("profile-references", flags, dir_fd=parent_fd)
+            registry = namespace / "profile-references"
+            self._validate_physical_reference_directory(
+                directory_fd,
+                registry,
+                "physical reference registry",
+                expected_mode=0o700,
+            )
+            # Persist (or re-prove) the registry directory entry before any
+            # reference is accepted as durable within it. This is required on
+            # EEXIST too: a prior creator may have failed before its parent
+            # fsync completed.
+            os.fsync(parent_fd)
+            descriptor = os.open(
+                temporary,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC,
+                0o600,
+                dir_fd=directory_fd,
+            )
+            try:
+                with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+                    json.dump(value, stream, indent=2, sort_keys=True)
+                    stream.write("\n")
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                os.rename(temporary, name, src_dir_fd=directory_fd, dst_dir_fd=directory_fd)
+                os.fsync(directory_fd)
+                self._validate_physical_reference_directory(
+                    directory_fd,
+                    registry,
+                    "physical reference registry",
+                    expected_mode=0o700,
+                )
+                self._validate_physical_reference_directory(
+                    parent_fd, namespace, "physical lease namespace"
+                )
+            except BaseException:
+                try:
+                    os.unlink(temporary, dir_fd=directory_fd)
+                except FileNotFoundError:
+                    pass
+                raise
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot publish physical reference {name}: {error}"
+            ) from error
+        finally:
+            if directory_fd is not None:
+                os.close(directory_fd)
+            os.close(parent_fd)
+
+    @staticmethod
+    def _validate_physical_reference_directory(
+        descriptor: int,
+        path: Path,
+        description: str,
+        *,
+        expected_mode: int | None = None,
+    ) -> None:
+        opened = os.fstat(descriptor)
+        visible = path.stat(follow_symlinks=False)
+        if (
+            not stat.S_ISDIR(opened.st_mode)
+            or not stat.S_ISDIR(visible.st_mode)
+            or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+            or opened.st_uid != os.geteuid()
+            or (
+                expected_mode is not None
+                and stat.S_IMODE(opened.st_mode) != expected_mode
+            )
+        ):
+            raise WorkspaceError(f"{description} was replaced or is unsafe: {path}")
+
+    def _physical_reference_records(
+        self, *, only: str | None = None
+    ) -> list[dict[str, Any]]:
+        registry = self._lease_namespace / "profile-references"
+        flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        namespace_fd: int | None = None
+        try:
+            namespace_fd = os.open(self._lease_namespace, flags)
+            self._assert_physical_namespace_fd(namespace_fd)
+            self._validate_physical_reference_directory(
+                namespace_fd, self._lease_namespace, "physical lease namespace"
+            )
+            try:
+                directory_fd = os.open(
+                    "profile-references", flags, dir_fd=namespace_fd
+                )
+            except FileNotFoundError:
+                self._validate_physical_reference_directory(
+                    namespace_fd,
+                    self._lease_namespace,
+                    "physical lease namespace",
+                )
+                os.close(namespace_fd)
+                return []
+            self._validate_physical_reference_directory(
+                directory_fd,
+                registry,
+                "physical reference registry",
+                expected_mode=0o700,
+            )
+        except (OSError, WorkspaceError) as error:
+            if namespace_fd is not None:
+                os.close(namespace_fd)
+            if isinstance(error, WorkspaceError):
+                raise
+            raise WorkspaceError(
+                f"cannot open physical reference registry {registry}: {error}"
+            ) from error
+        records: list[dict[str, Any]] = []
+        try:
+            names = [only] if only is not None else sorted(os.listdir(directory_fd))
+            for name in names:
+                if re.fullmatch(r"\.[0-9a-f]{64}\.json\.[0-9a-f]{24}\.tmp", name):
+                    continue
+                if not re.fullmatch(r"[0-9a-f]{64}\.json", name):
+                    raise WorkspaceError(
+                        f"cannot prove physical reference registry entry: {name}"
+                    )
+                try:
+                    descriptor = os.open(
+                        name,
+                        os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_NOFOLLOW", 0),
+                        dir_fd=directory_fd,
+                    )
+                except FileNotFoundError:
+                    if only is not None:
+                        continue
+                    raise
+                try:
+                    metadata = os.fstat(descriptor)
+                    visible = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+                    if (
+                        not stat.S_ISREG(metadata.st_mode)
+                        or (metadata.st_dev, metadata.st_ino)
+                        != (visible.st_dev, visible.st_ino)
+                        or metadata.st_size > 4 * 1024 * 1024
+                    ):
+                        raise WorkspaceError(
+                            f"cannot prove physical reference registry entry: {name}"
+                        )
+                    with os.fdopen(descriptor, encoding="utf-8", closefd=False) as stream:
+                        records.append(
+                            json.load(
+                                stream, object_pairs_hook=_reject_duplicate_keys
+                            )
+                        )
+                finally:
+                    os.close(descriptor)
+            self._validate_physical_reference_directory(
+                directory_fd,
+                registry,
+                "physical reference registry",
+                expected_mode=0o700,
+            )
+            self._validate_physical_reference_directory(
+                namespace_fd,
+                self._lease_namespace,
+                "physical lease namespace",
+            )
+        except (OSError, UnicodeError, ValueError, RecursionError) as error:
+            raise WorkspaceError(
+                f"cannot read physical reference registry {registry}: {error}"
+            ) from error
+        finally:
+            os.close(directory_fd)
+            os.close(namespace_fd)
+        return records
+
+    def _remove_physical_reference(self, authored_path: Path) -> None:
+        """Roll back a prepublished reference when authored creation fails."""
+
+        name = hashlib.sha256(str(authored_path.resolve()).encode()).hexdigest() + ".json"
+        namespace = self._lease_namespace
+        registry = namespace / "profile-references"
+        flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        namespace_fd: int | None = None
+        try:
+            namespace_fd = os.open(namespace, flags)
+            self._assert_physical_namespace_fd(namespace_fd)
+            self._validate_physical_reference_directory(
+                namespace_fd, namespace, "physical lease namespace"
+            )
+            directory_fd = os.open("profile-references", flags, dir_fd=namespace_fd)
+            try:
+                self._validate_physical_reference_directory(
+                    directory_fd,
+                    registry,
+                    "physical reference registry",
+                    expected_mode=0o700,
+                )
+                try:
+                    os.unlink(name, dir_fd=directory_fd)
+                except FileNotFoundError:
+                    return
+                os.fsync(directory_fd)
+                self._validate_physical_reference_directory(
+                    directory_fd,
+                    registry,
+                    "physical reference registry",
+                    expected_mode=0o700,
+                )
+                self._assert_physical_namespace_fd(namespace_fd)
+                self._validate_physical_reference_directory(
+                    namespace_fd, namespace, "physical lease namespace"
+                )
+            finally:
+                os.close(directory_fd)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot roll back physical reference {name}: {error}"
+            ) from error
+        finally:
+            if namespace_fd is not None:
+                os.close(namespace_fd)
+
+    def _publish_profile_references(
+        self,
+        name: str,
+        profile: dict[str, Any],
+        retained_sources: set[str] | None = None,
+    ) -> None:
+        stack = self.manifest.stack(profile["stack"])
+        sources = sorted(
+            ({
+                str(self._selector_root(profile, component).resolve(strict=False))
+                for component in stack.components
+                if profile["components"][component.name]["kind"] != "primary"
+            } | (retained_sources or set()))
+        )
+        identity = hashlib.sha256(
+            str((self.paths.profiles / f"{name}.json").resolve()).encode()
+        ).hexdigest()
+        self._atomic_physical_reference(
+            f"{identity}.json",
+            {
+                "schema_version": 1,
+                "kind": "profiles",
+                "reference": name,
+                "sources": sources,
+            },
+        )
+
+    def _publish_scenario_references(
+        self,
+        name: str,
+        metadata: dict[str, Any],
+        retained_sources: set[str] | None = None,
+    ) -> None:
+        resolved = metadata.get("resolved")
+        if not isinstance(resolved, dict):
+            raise WorkspaceError(f"scenario resolved references are invalid: {name}")
+        if any(
+            not isinstance(value, dict)
+            or not isinstance(value.get("checkout"), str)
+            or not isinstance(value.get("checkout_path"), str)
+            for value in resolved.values()
+        ):
+            raise WorkspaceError(f"scenario resolved references are invalid: {name}")
+        sources = sorted(
+            {
+                str(Path(value["checkout_path"]).resolve(strict=False))
+                for value in resolved.values()
+            }
+            | (retained_sources or set())
+        )
+        record = (self.paths.scenarios / name / "scenario.json").resolve()
+        identity = hashlib.sha256(str(record).encode()).hexdigest()
+        self._atomic_physical_reference(
+            f"{identity}.json",
+            {
+                "schema_version": 1,
+                "kind": "scenarios",
+                "reference": name,
+                "sources": sources,
+            },
+        )
+
+    def _backfill_scenario_references(self) -> bool:
+        if not self.paths.scenarios.is_dir() or self.paths.scenarios.is_symlink():
+            return True
+        complete = True
+        for root in sorted(self.paths.scenarios.iterdir()):
+            record = root / "scenario.json"
+            if root.is_dir() and not root.is_symlink() and record.is_file():
+                metadata = load_regular_json(record, "scenario metadata")
+                resolved = metadata.get("resolved") if isinstance(metadata, dict) else None
+                if not isinstance(resolved, dict):
+                    raise WorkspaceError(
+                        f"scenario resolved references are invalid: {root.name}"
+                    )
+                sources = {
+                    (
+                        value["checkout"],
+                        Path(value["checkout_path"]).resolve(strict=False),
+                    )
+                    for value in resolved.values()
+                    if isinstance(value, dict)
+                    and isinstance(value.get("checkout"), str)
+                    and isinstance(value.get("checkout_path"), str)
+                }
+                requests = [
+                    self._lease_request(
+                        "scenario", root.name, "shared", "backfill scenario reference"
+                    ),
+                    *[
+                        self._lease_request(
+                            "source",
+                            self._source_coordinate(checkout, source),
+                            "shared",
+                            "backfill scenario reference",
+                        )
+                        for checkout, source in sorted(sources, key=lambda item: (item[0], str(item[1])))
+                    ],
+                ]
+                try:
+                    with resource_locks(self._lease_root, requests, nonblocking=True):
+                        confirmed = load_regular_json(record, "scenario metadata")
+                        if confirmed != metadata or any(
+                            not source.is_dir() for _checkout, source in sources
+                        ):
+                            complete = False
+                            continue
+                        self._publish_scenario_references(root.name, confirmed)
+                except LockBusyError:
+                    complete = False
+        return complete
 
     def _set_profile(
         self, name: str, component_name: str, kind: str, value: str = ""
     ) -> None:
         self.paths.ensure()
         profile = self._load_profile(name, require_file=True)
+        old_profile = copy.deepcopy(profile)
         components = self._profile_components(profile, component_name)
         checkout_names = {component.checkout_name for component in components}
         if len(checkout_names) != 1:
@@ -1931,13 +3380,23 @@ class Workspace:
             raise WorkspaceError(f"invalid profile selector kind: {kind}")
         for component in components:
             profile["components"][component.name] = {"kind": kind, "value": value}
-        atomic_json(self.paths.profiles / f"{name}.json", profile)
+        old_sources = {
+            str(self._selector_root(old_profile, component).resolve(strict=False))
+            for component in self.manifest.stack(old_profile["stack"]).components
+            if old_profile["components"][component.name]["kind"] != "primary"
+        }
+        self._publish_profile_references(name, profile, old_sources)
+        durable_atomic_json(self.paths.profiles / f"{name}.json", profile)
+        self._publish_profile_references(name, profile)
 
     def set_profile_sound_mode(self, name: str, mode: str) -> None:
         self.paths.ensure()
-        with exclusive_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        with self._resource_locks(
+            [
+                self._lease_request(
+                    "profile", name, "exclusive", f"update profile {name} sound mode"
+                )
+            ],
         ):
             if name in self.manifest.stacks:
                 raise WorkspaceError(
@@ -2034,9 +3493,11 @@ class Workspace:
         component_names: set[str] | None = None,
         *,
         trace: bool = True,
+        profile: dict[str, Any] | None = None,
     ) -> dict[str, Path]:
         self.paths.ensure()
-        profile = self._load_profile(name, require_file=False)
+        if profile is None:
+            profile = self._load_profile(name, require_file=False)
         result: dict[str, Path] = {}
         stack = self.manifest.stack(profile["stack"])
         stack_components = {component.name: component for component in stack.components}
@@ -2154,6 +3615,12 @@ class Workspace:
         return value.resolve() if value.is_absolute() else (path / value).resolve()
 
     def _load_profile(self, name: str, require_file: bool) -> dict[str, Any]:
+        snapshot = self._profile_snapshot
+        if snapshot is not None and snapshot.name == name and not require_file:
+            return snapshot.profile()
+        return self._load_profile_file(name, require_file)
+
+    def _load_profile_file(self, name: str, require_file: bool) -> dict[str, Any]:
         validate_name(name, "profile name")
         if name in self.manifest.stacks and not require_file:
             stack = self.manifest.stack(name)
@@ -2168,9 +3635,9 @@ class Workspace:
                 },
             }
         path = self.paths.profiles / f"{name}.json"
-        if not path.is_file():
+        if path.is_symlink() or not path.is_file():
             raise WorkspaceError(f"profile does not exist: {name}")
-        profile = load_json(path)
+        profile = load_regular_json(path, f"profile {name}")
         if not isinstance(profile, dict):
             raise WorkspaceError(f"profile must be an object: {name}")
         schema_version = profile.get("schema_version")
@@ -2234,6 +3701,9 @@ class Workspace:
                     raise WorkspaceError(
                         f"invalid profile selector: {component_name}"
                     ) from error
+                if kind == "path":
+                    selector = {"kind": kind, "value": str(selected_path)}
+                    profile["components"][component_name] = selector
             if kind == MIGRATED_CONTENT_WORKTREE_KIND:
                 expected_parent = (self.paths.worktrees / "content").resolve()
                 if (
@@ -2381,9 +3851,15 @@ class Workspace:
                 )
 
     def _resolve_build_profile(
-        self, profile_name: str, required: set[str]
+        self,
+        profile_name: str,
+        required: set[str],
+        *,
+        trace: bool = True,
+        profile: dict[str, Any] | None = None,
     ) -> dict[str, Path]:
-        profile = self._load_profile(profile_name, require_file=False)
+        if profile is None:
+            profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
         requested_roles = self._dependency_roles(profile, required)
         build_targets = {
@@ -2417,7 +3893,10 @@ class Workspace:
         # pass. This both fails closed for malformed optional checkouts and keeps
         # validation deduplicated if initialization races the existence snapshot.
         present_paths = self.resolve_profile(
-            profile_name, present_components | component_names
+            profile_name,
+            present_components | component_names,
+            trace=trace,
+            profile=profile,
         )
         paths = {
             component_name: present_paths[component_name]
@@ -2435,14 +3914,16 @@ class Workspace:
         use_ccache: bool = True,
     ) -> Path:
         self.paths.ensure()
-        with shared_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ):
-            return self._build(
+        targets = self._expand_build_target(target, profile_name)
+        with self._resolved_profile_operation(
+            profile_name, set(targets), f"build {target}"
+        ) as snapshot:
+            return self._build_resolved(
                 target,
                 profile_name,
                 tests,
+                targets,
+                snapshot.paths(),
                 force_reconfigure=force_reconfigure,
                 use_ccache=use_ccache,
             )
@@ -2581,6 +4062,24 @@ class Workspace:
                 "last_used_at": datetime.now(timezone.utc).isoformat(),
             },
         )
+        snapshot = self._profile_snapshot
+        if snapshot is not None and snapshot.name == profile_name:
+            atomic_json(
+                root / PROFILE_RESOLUTION_METADATA,
+                {
+                    "schema_version": PROFILE_RESOLUTION_SCHEMA_VERSION,
+                    "profile": profile_name,
+                    "generation": snapshot.generation,
+                    "stack": stack.name,
+                    "stack_generation": stack.generation,
+                    "sound_mode": profile["sound_mode"],
+                    "selected": coordinates,
+                    "checkouts": {
+                        name: {**state, "path": str(state["path"])}
+                        for name, state in snapshot.checkout_states().items()
+                    },
+                },
+            )
 
     def _prepare_sound(
         self,
@@ -2704,7 +4203,17 @@ class Workspace:
         selected: dict[str, Path],
         *,
         include_dirty: bool,
+        include_identity: bool = False,
     ) -> dict[str, dict[str, Any]]:
+        snapshot = self._profile_snapshot
+        if snapshot is not None and snapshot.paths() == {
+            role: path.resolve() for role, path in selected.items()
+        }:
+            states = snapshot.checkout_states()
+            if not include_dirty:
+                for state in states.values():
+                    state.pop("dirty", None)
+            return states
         stack = self.manifest.stack(profile["stack"])
         states: dict[str, dict[str, Any]] = {}
         for role in sorted(selected):
@@ -2722,6 +4231,17 @@ class Workspace:
                     trace=False,
                 ),
             }
+            if include_identity:
+                identity = checkout.stat()
+                state.update(
+                    {
+                        "device": identity.st_dev,
+                        "inode": identity.st_ino,
+                        "git_common": str(
+                            self._git_common_directory(checkout, trace=False)
+                        ),
+                    }
+                )
             if include_dirty:
                 state["dirty"] = not _is_clean(checkout, trace=False)
             states[component.checkout_name] = state
@@ -5929,6 +7449,12 @@ class Workspace:
 
     def state_add(self, name: str, path: Path | None) -> Path:
         self.paths.ensure()
+        with shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
+        ):
+            return self._state_add(name, path)
+
+    def _state_add(self, name: str, path: Path | None) -> Path:
         validate_name(name, "state name")
         if path is None:
             resolved = (self.paths.state / "server" / name).resolve(strict=False)
@@ -6030,7 +7556,7 @@ class Workspace:
         if not root.is_dir() or root.is_symlink():
             raise WorkspaceError(f"scenario does not exist: {name}")
         marker = root / MANAGED_MARKER
-        if marker.is_symlink() or load_json(marker) != {
+        if marker.is_symlink() or load_regular_json(marker, "scenario ownership marker") != {
             "schema_version": SCHEMA_VERSION,
             "purpose": "test-scenario",
         }:
@@ -6038,7 +7564,7 @@ class Workspace:
         metadata_path = root / "scenario.json"
         if metadata_path.is_symlink():
             raise WorkspaceError(f"scenario metadata is invalid: {name}")
-        metadata = load_json(metadata_path)
+        metadata = load_regular_json(metadata_path, "scenario metadata")
         if not isinstance(metadata, dict):
             raise WorkspaceError(f"scenario metadata must be an object: {name}")
         actual_keys = set(metadata)
@@ -6226,11 +7752,18 @@ class Workspace:
         self, name: str, profile: str, preset: str = "basic-player"
     ) -> dict[str, Any]:
         self.paths.ensure()
-        with shared_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        validate_name(name, "scenario name")
+        with self._resolved_profile_operation(
+            profile, {"server"}, f"create scenario {name}"
         ):
-            return self._scenario_create(name, profile, preset)
+            with self._resource_locks(
+                [
+                    self._lease_request(
+                        "scenario", name, "exclusive", f"create scenario {name}"
+                    )
+                ],
+            ):
+                return self._scenario_create(name, profile, preset)
 
     def _scenario_create(
         self, name: str, profile: str, preset: str = "basic-player"
@@ -6262,7 +7795,7 @@ class Workspace:
         metadata["providers"] = {
             role: selected_stack.providers[role].name for role in sorted(required)
         }
-        operation_lock = self.paths.scenarios / "operation.lock"
+        operation_lock = self.paths.scenarios / ".locks" / f"{name}.lock"
         with exclusive_lock(operation_lock, "scenario operation"):
             if root.exists() or root.is_symlink():
                 raise WorkspaceError(f"scenario already exists: {name}")
@@ -6287,12 +7820,17 @@ class Workspace:
                     metadata, state, password_file
                 )
                 metadata["provisioned_at"] = datetime.now(timezone.utc).isoformat()
-                atomic_json(staging / "scenario.json", metadata)
-                staging.replace(root)
+                self._publish_scenario_references(name, metadata)
                 try:
-                    self._register_state(state_name, (root / "state").resolve())
+                    durable_atomic_json(staging / "scenario.json", metadata)
+                    staging.replace(root)
+                    try:
+                        self._register_state(state_name, (root / "state").resolve())
+                    except BaseException:
+                        shutil.rmtree(root)
+                        raise
                 except BaseException:
-                    shutil.rmtree(root)
+                    self._remove_physical_reference(root / "scenario.json")
                     raise
             except BaseException:
                 if staging.exists():
@@ -6347,18 +7885,32 @@ class Workspace:
 
     def scenario_reset(self, name: str) -> dict[str, Any]:
         self.paths.ensure()
-        with shared_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        validate_name(name, "scenario name")
+        metadata = self._load_scenario(name)
+        with self._resolved_profile_operation(
+            metadata["profile"], {"server"}, f"reset scenario {name}"
         ):
-            return self._scenario_reset(name)
+            with self._resource_locks(
+                [
+                    self._lease_request(
+                        "scenario", name, "exclusive", f"reset scenario {name}"
+                    )
+                ],
+            ):
+                return self._scenario_reset(name)
 
     def _scenario_reset(self, name: str) -> dict[str, Any]:
         self.paths.ensure()
         root = self._scenario_directory(name)
-        operation_lock = self.paths.scenarios / "operation.lock"
+        operation_lock = self.paths.scenarios / ".locks" / f"{name}.lock"
         with exclusive_lock(operation_lock, "scenario operation"):
             metadata = self._load_scenario(name)
+            old_sources = {
+                str(Path(value["checkout_path"]).resolve(strict=False))
+                for value in metadata["resolved"].values()
+                if isinstance(value, dict)
+                and isinstance(value.get("checkout_path"), str)
+            }
             state = root / "state"
             with exclusive_lock(
                 Path(f"{state}.lock"),
@@ -6379,8 +7931,12 @@ class Workspace:
                         metadata, staging_state, root / "password"
                     )
                     metadata["provisioned_at"] = datetime.now(timezone.utc).isoformat()
+                    self._publish_scenario_references(
+                        name, metadata, old_sources
+                    )
                     replace_directory(state, staging_state, f".{name}-state-previous-")
-                    atomic_json(root / "scenario.json", metadata)
+                    durable_atomic_json(root / "scenario.json", metadata)
+                    self._publish_scenario_references(name, metadata)
                 finally:
                     if staging_root.exists():
                         shutil.rmtree(staging_root)
@@ -8256,7 +9812,7 @@ class Workspace:
                 validate_port_reservation(
                     port_reservation,
                     expected_path=(
-                        self.paths.topologies
+                        self._lease_namespace
                         / PORT_RESERVATION_DIRECTORY
                         / f"{reservation_port}-{port_reservation.get('generation')}.lease"
                     ),
@@ -8451,13 +10007,14 @@ class Workspace:
             raise WorkspaceError("topology port must be between 0 and 65535")
 
         automatic = requested in (None, 0)
+        reservation_root = self._lease_namespace
 
         def conflict(owner: dict[str, Any]) -> None:
             raise WorkspaceError(
                 f"topology UDP port {owner['port']} is reserved by topology "
                 f"{owner['topology']} generation {owner['generation']}; "
                 "retry after its startup transaction completes; if contention "
-                f"persists inspect ./atrinik ps {owner['topology']} --json"
+                f"persists inspect the shared reservation {owner['path']}"
             )
 
         def validate_known_evidence(port: int) -> None:
@@ -8477,7 +10034,7 @@ class Workspace:
                     if owner["port"] != port:
                         continue
                     expected_path = (
-                        self.paths.topologies
+                        reservation_root
                         / PORT_RESERVATION_DIRECTORY
                         / f"{port}-{owner['generation']}.lease"
                     )
@@ -8499,7 +10056,9 @@ class Workspace:
                 validate_known_evidence(port)
                 transaction, directory_fd, directory, directory_identity = (
                     open_port_transaction(
-                        self.paths.topologies, port
+                        reservation_root,
+                        port,
+                        root_identity=self._physical_lease_namespace_identity,
                     )
                 )
                 try:
@@ -8547,7 +10106,7 @@ class Workspace:
             return reserved
 
         with exclusive_lock(
-            self.paths.topologies / "ports.lock",
+            reservation_root / "ports.lock",
             "topology automatic port allocation",
         ):
             for _attempt in range(64):
@@ -8584,18 +10143,26 @@ class Workspace:
         port: int | None = None,
     ) -> dict[str, Any]:
         self.paths.ensure()
-        with shared_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ) as layout_lock:
-            return self._topology_up(
-                name,
-                profile_name,
-                state_name,
-                services,
-                port,
-                layout_lock=layout_lock,
-            )
+        selected_services = self._topology_services(services)
+        with self._resolved_profile_operation(
+            profile_name,
+            set(selected_services),
+            f"prepare topology {name}",
+        ):
+            with self._resource_locks(
+                [
+                    self._lease_request(
+                        "topology", name, "exclusive", f"prepare topology {name}"
+                    )
+                ],
+            ):
+                return self._topology_up(
+                    name,
+                    profile_name,
+                    state_name,
+                    services,
+                    port,
+                )
 
     def _topology_resolved_status(
         self, profile_name: str, selected: dict[str, Path]
@@ -8628,8 +10195,6 @@ class Workspace:
         state_name: str,
         services: list[str] | None = None,
         port: int | None = None,
-        *,
-        layout_lock: TextIO | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
         if "client" in selected_services:
@@ -9300,9 +10865,8 @@ class Workspace:
         dry_run: bool,
     ) -> Path:
         self.paths.ensure()
-        with shared_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        with self._resolved_profile_operation(
+            profile_name, {"client"}, "publish foreground client runtime"
         ):
             prepared = self._run_client(
                 profile_name,
@@ -9436,9 +11000,8 @@ class Workspace:
         dry_run: bool,
     ) -> Path:
         self.paths.ensure()
-        with shared_layout_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        with self._resolved_profile_operation(
+            profile_name, {"server"}, "publish foreground server runtime"
         ):
             prepared = self._run_server(
                 profile_name,

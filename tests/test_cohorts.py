@@ -202,8 +202,11 @@ class CohortWorkspaceTests(unittest.TestCase):
             component_names: set[str] | None = None,
             *,
             trace: bool = True,
+            profile: dict[str, object] | None = None,
         ) -> dict[str, Path]:
-            stack = self.workspace.manifest.stack(profile_name)
+            stack = self.workspace.manifest.stack(
+                profile["stack"] if profile is not None else profile_name
+            )
             selected = component_names or {
                 component.name for component in stack.components
             }
@@ -486,8 +489,8 @@ class CohortWorkspaceTests(unittest.TestCase):
             set(audited),
             {"server", "content", "resources", "libatrinik", "protocol"},
         )
-        # Each of six resolutions validates the five selected physical
-        # checkouts once; four Classic logical providers share one checkout.
+        # Every resolution validates once, after exact source acquisition.
+        # Four Classic logical providers share one physical checkout.
         self.assertEqual(validate.call_count, 30)
         expected_checkouts = {
             "classic",
@@ -504,10 +507,25 @@ class CohortWorkspaceTests(unittest.TestCase):
                 set(validated[offset : offset + len(expected_checkouts)]),
                 expected_checkouts,
             )
-        # Topology summary probes all five physical roots once. Scenario audit
-        # intentionally records only the three physical server-closure roots.
-        self.assertEqual(git.call_count, 8)
-        self.assertEqual(clean.call_count, 8)
+        # Each public build snapshot records checkout HEAD identities. Common-Git
+        # namespace discovery may add independent Git calls, so assert the
+        # meaningful probes instead of their aggregate mock count.
+        head_roots = {
+            call.args[0]
+            for call in git.call_args_list
+            if call.args[1:] == ("rev-parse", "HEAD")
+        }
+        self.assertTrue(
+            {
+                self.wrapper / "classic",
+                self.wrapper / "content",
+                self.wrapper / "sound",
+                self.wrapper / "resources",
+                self.wrapper / "metaserver-worker",
+            }
+            <= head_roots
+        )
+        self.assertEqual(clean.call_count, 23)
 
     def test_complete_default_selection_keeps_requested_service(self) -> None:
         profile = self.workspace._load_profile("default", require_file=False)
@@ -653,9 +671,15 @@ class CohortWorkspaceTests(unittest.TestCase):
         profile = self.workspace._load_profile("classic-review", require_file=True)
         server_roles = self.workspace._dependency_roles(profile, {"server"})
         self.assertEqual(set(region_inputs["coordinates"]), server_roles)
-        # Five metadata checkouts plus the three physical server/worldmaker
-        # inputs (Classic, content, and resources) are each probed once.
-        self.assertEqual(git.call_count, 8)
+        head_roots = {
+            call.args[0]
+            for call in git.call_args_list
+            if call.args[1:] == ("rev-parse", "HEAD")
+        }
+        self.assertTrue(
+            {worktree, self.wrapper / "content", self.wrapper / "resources"}
+            <= head_roots
+        )
 
     def test_classic_component_source_rejects_symlinked_module(self) -> None:
         checkout = self.wrapper / "classic"
@@ -702,7 +726,12 @@ class CohortWorkspaceTests(unittest.TestCase):
         ):
             self.workspace.sync(["client"], "none", include_classic=True)
 
-        self.assertEqual(git.call_count, 2)
+        git.assert_any_call(
+            self.wrapper / "client", "fetch", "--prune", "--tags", "origin"
+        )
+        git.assert_any_call(
+            self.wrapper / "client", "merge", "--ff-only", "origin/main"
+        )
 
     def test_external_content_profile_requires_canonical_repository(self) -> None:
         selected = self.wrapper / "external-content-review"
@@ -852,7 +881,13 @@ class CohortWorkspaceTests(unittest.TestCase):
         ):
             self.workspace.sync(["content"], "merge")
 
-        worktrees.assert_called_once_with(primary, {selected.resolve()})
+        self.assertEqual(
+            worktrees.call_args_list,
+            [
+                mock.call(primary, {selected.resolve()}),
+                mock.call(primary, {selected.resolve()}),
+            ],
+        )
 
     def test_explicit_sync_of_missing_component_fails_closed(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "run ./atrinik init classic"):

@@ -122,6 +122,8 @@ class ContentMigrationTests(unittest.TestCase):
             self.workspace.paths.repository,
             self.workspace.paths,
             self.workspace.manifest,
+            self.workspace.paths.workspace / "physical-repository-layout.lock",
+            lambda _transitions=None: None,
         )
 
     def test_primary_profile_apply_audit_and_restore_preserve_legacy_checkout(self) -> None:
@@ -789,6 +791,9 @@ class ContentMigrationTests(unittest.TestCase):
                                 workspace.paths.repository,
                                 workspace.paths,
                                 workspace.manifest,
+                                workspace.paths.workspace
+                                / "physical-repository-layout.lock",
+                                lambda _transitions=None: None,
                             ).execute("dry-run")
                         self.assertEqual(result["status"], "refused")
                         self.assertIn(
@@ -1018,7 +1023,7 @@ class ContentMigrationTests(unittest.TestCase):
         profile, original = self._legacy_profile()
         migration = self.migration()
         plan = migration.execute("dry-run")
-        real_atomic_json = migration_module.atomic_json
+        real_atomic_json = migration_module.durable_atomic_json
         calls = 0
 
         def fail_record(path: Path, value: object) -> None:
@@ -1028,7 +1033,9 @@ class ContentMigrationTests(unittest.TestCase):
                 raise OSError("record publication failed")
             real_atomic_json(path, value)
 
-        with mock.patch.object(migration_module, "atomic_json", side_effect=fail_record):
+        with mock.patch.object(
+            migration_module, "durable_atomic_json", side_effect=fail_record
+        ):
             with self.assertRaisesRegex(
                 migration_module.WorkspaceError, "record publication failed"
             ):
@@ -1038,24 +1045,86 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertFalse(migration.pending_path.exists())
         self.assertFalse(migration.record_path.exists())
 
+    def test_apply_does_not_rollback_visible_record_on_fsync_uncertainty(self) -> None:
+        profile, original = self._legacy_profile()
+        migration = self.migration()
+        plan = migration.execute("dry-run")
+        real_atomic_json = migration_module.durable_atomic_json
+
+        def uncertain_record(path: Path, value: object) -> None:
+            real_atomic_json(path, value)
+            if path == migration.record_path:
+                raise migration_module.AtomicJsonCommitUncertain(
+                    "simulated record durability uncertainty"
+                )
+
+        with (
+            mock.patch.object(
+                migration_module, "durable_atomic_json", side_effect=uncertain_record
+            ),
+            self.assertRaisesRegex(
+                migration_module.WorkspaceError, "durable record was published"
+            ),
+        ):
+            migration._apply(plan)
+
+        self.assertNotEqual(profile.read_bytes(), original)
+        self.assertTrue(migration.record_path.is_file())
+        self.assertTrue(migration.pending_path.is_file())
+
     def test_apply_reports_retained_pending_journal_after_commit(self) -> None:
         self._legacy_profile()
         migration = self.migration()
         plan = migration.execute("dry-run")
-        real_unlink = Path.unlink
-
-        def fail_pending(path: Path, *args: object, **kwargs: object) -> None:
-            if path == migration.pending_path:
-                raise OSError("retain journal")
-            real_unlink(path, *args, **kwargs)
-
-        with mock.patch.object(Path, "unlink", fail_pending):
+        with mock.patch.object(
+            migration_module,
+            "_durable_unlink",
+            side_effect=migration_module.WorkspaceError("retain journal"),
+        ):
             result = migration._apply(plan)
 
         self.assertEqual(result["status"], "complete")
         self.assertEqual(result["pending_journal_retained"], str(migration.pending_path))
         self.assertTrue(migration.record_path.is_file())
         self.assertTrue(migration.pending_path.is_file())
+
+        pending = json.loads(migration.pending_path.read_text(encoding="utf-8"))
+        truncated = dict(pending)
+        truncated.pop("resources")
+        migration_module.durable_atomic_json(migration.pending_path, truncated)
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "unexpected fields"
+        ):
+            migration.execute("apply")
+        migration_module.durable_atomic_json(migration.pending_path, pending)
+
+        retry = migration.execute("apply")
+
+        self.assertEqual(retry["status"], "already-applied")
+        self.assertFalse(migration.pending_path.exists())
+
+    def test_apply_reports_removed_pending_journal_durability_uncertainty(self) -> None:
+        self._legacy_profile()
+        migration = self.migration()
+        plan = migration.execute("dry-run")
+
+        def uncertain_unlink(path: Path, *, missing_ok: bool = False) -> None:
+            path.unlink(missing_ok=missing_ok)
+            raise migration_module.JsonUnlinkCommitUncertain(
+                "simulated unlink durability uncertainty"
+            )
+
+        with mock.patch.object(
+            migration_module, "_durable_unlink", side_effect=uncertain_unlink
+        ):
+            result = migration._apply(plan)
+
+        self.assertEqual(result["status"], "complete")
+        self.assertIn(
+            "simulated unlink durability uncertainty",
+            result["pending_journal_removed_durability_uncertain"],
+        )
+        self.assertFalse(migration.pending_path.exists())
 
     def test_journal_shape_and_digest_tampering_fail_closed(self) -> None:
         self._legacy_profile()
