@@ -2158,7 +2158,10 @@ class Workspace:
             require_keys(profile, PROFILE_KEYS, f"profile {name}")
         if profile["schema_version"] != PROFILE_SCHEMA_VERSION or profile["name"] != name:
             raise WorkspaceError(f"profile identity/schema mismatch: {name}")
-        if profile["sound_mode"] not in SOUND_MODES:
+        if (
+            not isinstance(profile["sound_mode"], str)
+            or profile["sound_mode"] not in SOUND_MODES
+        ):
             raise WorkspaceError(f"profile sound mode is invalid: {name}")
         stack_name = profile["stack"]
         if not isinstance(stack_name, str) or stack_name not in self.manifest.stacks:
@@ -2179,12 +2182,17 @@ class Workspace:
             require_keys(selector, SELECTOR_KEYS, f"profile selector {component_name}")
             kind = selector["kind"]
             value = selector["value"]
-            if kind not in {
-                "primary",
-                "worktree",
-                "path",
-                MIGRATED_CONTENT_WORKTREE_KIND,
-            } or not isinstance(value, str):
+            if (
+                not isinstance(kind, str)
+                or kind
+                not in {
+                    "primary",
+                    "worktree",
+                    "path",
+                    MIGRATED_CONTENT_WORKTREE_KIND,
+                }
+                or not isinstance(value, str)
+            ):
                 raise WorkspaceError(f"invalid profile selector: {component_name}")
             if kind == "primary" and value:
                 raise WorkspaceError(f"primary selector must not have a value: {component_name}")

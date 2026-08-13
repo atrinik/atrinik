@@ -7698,6 +7698,42 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(metadata_path.read_bytes(), metadata_before)
         self.assertEqual(profile_path.read_bytes(), profile_before)
 
+    def test_scenario_list_isolates_unhashable_profile_fields(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        self.workspace.create_profile("invalid-sound-mode")
+        self.workspace.create_profile("invalid-selector-kind")
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+            self.workspace.scenario_create(
+                "invalid-sound-mode", "invalid-sound-mode"
+            )
+            self.workspace.scenario_create(
+                "invalid-selector-kind", "invalid-selector-kind"
+            )
+
+        sound_path = self.workspace.paths.profiles / "invalid-sound-mode.json"
+        sound_profile = load_json(sound_path)
+        sound_profile["sound_mode"] = {"invalid": "object"}
+        atomic_json(sound_path, sound_profile)
+        selector_path = (
+            self.workspace.paths.profiles / "invalid-selector-kind.json"
+        )
+        selector_profile = load_json(selector_path)
+        selector_profile["components"]["content"]["kind"] = ["invalid"]
+        atomic_json(selector_path, selector_profile)
+
+        summaries = self.workspace.scenario_list()
+
+        self.assertEqual(
+            [summary["name"] for summary in summaries],
+            ["current", "invalid-selector-kind", "invalid-sound-mode"],
+        )
+        self.assertEqual(summaries[0]["profile"], "default")
+        self.assertEqual(summaries[1]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(summaries[2]["inert_reason"], "profile_unresolvable")
+
     def test_scenario_list_fails_closed_for_invalid_shared_state_registry(self) -> None:
         resolved = self.scenario_resolved_fixture()
         with mock.patch.object(
