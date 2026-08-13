@@ -13,16 +13,16 @@
   "transformation": "Synthetic port used only to verify the reference contract.",
   "scope_binding": "psb-22222222222222222222222222222222",
   "scope_approval": {
-    "key_id": "synthetic-reviewer-2026",
-    "signature": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgBruVWBv4FEuaHvyX1z13qRO9BU\nTXED0DGAjTaWDx1NAAAAAVYXRyaW5pay1wcm92ZW5hbmNlLXYxAAAAAAAAAAZzaGE1MTIA\nAABTAAAAC3NzaC1lZDI1NTE5AAAAQIIntFyZwxlBb8JrL5UGvsL55gDCSPrsD63OUhQdDz\n1u0Aiv3EtOOR5D79Ort0aOsVmoADkKb3IVmxYRM7vt3wI=\n-----END SSH SIGNATURE-----"
+    "key_id": "synthetic-component-reviewer-2026",
+    "signature": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgkjGqMmv/M++0NFFTLIFK3kuJ84\nd5ZFkWQvXyK+QehDoAAAAVYXRyaW5pay1wcm92ZW5hbmNlLXYxAAAAAAAAAAZzaGE1MTIA\nAABTAAAAC3NzaC1lZDI1NTE5AAAAQNRLaQRiwLHs8L7csYA7tI5RLLZNWARYbHp8VASw+C\nAmjNuEKeafM9Xlv3er28KlBF3qXpxTB2C/WQLNZ6CsfgY=\n-----END SSH SIGNATURE-----"
   },
   "evidence_reference": {
     "repository": "atrinik/atrinik",
-    "revision": "51aa7ac9d5ae9c0ff0b2a24a46b5d3e97739bbe0",
+    "revision": "6f6040212f0fa0cb6b8e4e695d1488a403d966be",
     "record_id": "pir-c-22222222222222222222222222222222",
     "registry_sha256": "0a04fcadccb37e64f6c1209bc0b7e8d5762639ce4c5521c3bba028d9eba037bd",
     "schema_sha256": "9c726627c8679b4b437db2b54b2480fe0c45eef788de7cd76de1dec5c3ce3409",
     "reviewers_sha256": "b7a44ad27cec663a9092b924a0f6a9c95bf95a2ce74cf75ba8873e7938782240",
-    "url": "https://github.com/atrinik/atrinik/blob/51aa7ac9d5ae9c0ff0b2a24a46b5d3e97739bbe0/governance/provenance-identities/registry.json#pir-c-22222222222222222222222222222222"
+    "url": "https://github.com/atrinik/atrinik/blob/6f6040212f0fa0cb6b8e4e695d1488a403d966be/governance/provenance-identities/registry.json#pir-c-22222222222222222222222222222222"
   }
 }

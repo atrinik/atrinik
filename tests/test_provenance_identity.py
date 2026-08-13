@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 from unittest import mock
@@ -37,6 +38,8 @@ REGISTRY = ROOT / "governance/provenance-identities/registry.json"
 SCHEMA = ROOT / "governance/provenance-identities/schema-v1.json"
 FIXTURES = ROOT / "tests/fixtures/provenance-identities"
 REVIEWERS = ROOT / "governance/provenance-identities/reviewers.json"
+PINNED_REVISION = "6f6040212f0fa0cb6b8e4e695d1488a403d966be"
+PINNED_REVIEWERS_PATH = "governance/provenance-identities/reviewers.json"
 AS_OF = date(2026, 8, 13)
 
 
@@ -189,6 +192,7 @@ class ProvenanceIdentityTests(unittest.TestCase):
     def test_reference_validation_uses_current_state_from_trusted_ref(self) -> None:
         reference = FIXTURES / "positive" / "synthetic-alpha.json"
         pinned_registry = REGISTRY.read_bytes()
+        pinned_reviewers = _git_blob(ROOT, PINNED_REVISION, PINNED_REVIEWERS_PATH)
         revoked = registry()
         revoked["records"][0]["status"] = "revoked"
         revoked["records"][0]["status_detail"] = {
@@ -203,7 +207,7 @@ class ProvenanceIdentityTests(unittest.TestCase):
                 return trusted_registry if revision == "trusted" else pinned_registry
             if path.endswith("schema-v1.json"):
                 return SCHEMA.read_bytes()
-            return REVIEWERS.read_bytes()
+            return REVIEWERS.read_bytes() if revision == "trusted" else pinned_reviewers
 
         with mock.patch(
             "atrinik_workspace.provenance_identity._validate_repository_trust"
@@ -414,16 +418,63 @@ class ProvenanceIdentityTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "reviewer signature is invalid"):
             validate_registry(value, schema(), reviewers(), as_of=AS_OF)
 
-    def test_unmerged_anchor_requires_explicit_non_authorizing_ref(self) -> None:
-        with self.assertRaisesRegex(WorkspaceError, "not reachable from trusted ref"):
-            _validate_repository_trust(
-                ROOT, "51aa7ac9d5ae9c0ff0b2a24a46b5d3e97739bbe0", "main"
+    def test_branch_only_anchor_requires_explicit_non_authorizing_ref(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            checkout = root / "checkout"
+            subprocess.run(
+                ["git", "init", "-b", "main", checkout],
+                check=True,
+                capture_output=True,
             )
-        _validate_repository_trust(
-            ROOT,
-            "51aa7ac9d5ae9c0ff0b2a24a46b5d3e97739bbe0",
-            "HEAD",
-        )
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    checkout,
+                    "remote",
+                    "add",
+                    "origin",
+                    "https://github.com/atrinik/atrinik.git",
+                ],
+                check=True,
+            )
+            environment = {
+                **os.environ,
+                "GIT_AUTHOR_NAME": "Test",
+                "GIT_AUTHOR_EMAIL": "test@example.invalid",
+                "GIT_COMMITTER_NAME": "Test",
+                "GIT_COMMITTER_EMAIL": "test@example.invalid",
+            }
+            (checkout / "fixture").write_text("main\n", encoding="utf-8")
+            subprocess.run(["git", "-C", checkout, "add", "fixture"], check=True)
+            subprocess.run(
+                ["git", "-C", checkout, "commit", "-m", "main"],
+                check=True,
+                env=environment,
+                capture_output=True,
+            )
+            subprocess.run(["git", "-C", checkout, "branch", "audit"], check=True)
+            subprocess.run(
+                ["git", "-C", checkout, "checkout", "audit"],
+                check=True,
+                capture_output=True,
+            )
+            (checkout / "fixture").write_text("audit\n", encoding="utf-8")
+            subprocess.run(
+                ["git", "-C", checkout, "commit", "-am", "audit"],
+                check=True,
+                env=environment,
+                capture_output=True,
+            )
+            revision = _git_output(
+                checkout, ["rev-parse", "HEAD"], "cannot resolve audit HEAD"
+            ).decode().strip()
+            with self.assertRaisesRegex(
+                WorkspaceError, "not reachable from trusted ref"
+            ):
+                _validate_repository_trust(checkout, revision, "main")
+            _validate_repository_trust(checkout, revision, revision)
 
     def test_repository_trust_accepts_github_actions_canonical_origin(self) -> None:
         outputs = [b"false\n", b"/tmp/coordinator.git\n", b"https://github.com/atrinik/atrinik\n", b""]
@@ -562,6 +613,7 @@ class ProvenanceIdentityTests(unittest.TestCase):
 
     def test_reference_to_revoked_attestation_fails_closed(self) -> None:
         reference = load_document(FIXTURES / "positive" / "synthetic-alpha.json")
+        pinned_reviewers = _git_blob(ROOT, PINNED_REVISION, PINNED_REVIEWERS_PATH)
         registry_blob = json.loads(
             REGISTRY.read_text(encoding="utf-8")
         )
@@ -581,7 +633,7 @@ class ProvenanceIdentityTests(unittest.TestCase):
                 return encoded_registry
             if path.endswith("schema-v1.json"):
                 return SCHEMA.read_bytes()
-            return REVIEWERS.read_bytes()
+            return pinned_reviewers
 
         records, reviewer_keys = current()
         with mock.patch(
