@@ -236,10 +236,23 @@ class InventoryTests(unittest.TestCase):
         ]
         self.assertEqual(playtester_content.owner, "content")
         self.assertEqual(playtester_content.scope, ("playtester",))
-        self.assertEqual(playtester_content.version, "v1.8.0")
+        self.assertEqual(playtester_content.version, "v2.14.0")
         self.assertEqual(
             playtester_content.commit,
-            "96073eeff1854fc29347fdafd32e622394f24c07",
+            "7dde0c0afe8840fc95dd26f404310e77d9c82621",
+        )
+        self.assertEqual(
+            playtester_content.checksum,
+            "sha256:bd5aa9acb8dd17c07e16913cb36c58644f7910f28f47e3b0739d00d91936a9e6",
+        )
+
+        content_runtime = inventory.dependencies_by_id[
+            "source/atrinik-content-runtime"
+        ]
+        self.assertEqual(content_runtime.scope, ("classic-server", "playtester"))
+        self.assertEqual(
+            content_runtime.checksum,
+            "sha256:f4ad326e20e221869897c72f7e33b533c408ce6654038dbfc4352da1c3391261",
         )
 
         playtester_protocol = inventory.dependencies_by_id[
@@ -258,6 +271,10 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(playtester_libatrinik.owner, "playtester")
         self.assertEqual(playtester_libatrinik.scope, ("playtester",))
         self.assertEqual(
+            {evidence.path for evidence in playtester_libatrinik.evidence},
+            {"dependencies.lock.json"},
+        )
+        self.assertEqual(
             inventory.dependencies_by_id[
                 "source/atrinik-libatrinik-server"
             ].scope,
@@ -270,6 +287,10 @@ class InventoryTests(unittest.TestCase):
         self.assertIn(
             "playtester",
             inventory.dependencies_by_id["action/actions-setup-node"].scope,
+        )
+        self.assertIn(
+            "playtester",
+            inventory.dependencies_by_id["action/actions-setup-python"].scope,
         )
         self.assertIn(
             "playtester",
