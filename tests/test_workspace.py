@@ -5806,6 +5806,7 @@ class WorkspaceTests(unittest.TestCase):
 
     def test_layout_lock_reports_one_actionable_prolonged_wait(self) -> None:
         layout = self.workspace.paths.workspace / "repository-layout.lock"
+        intent = workspace_module._layout_writer_intent_path(layout)
         waiter_entered = threading.Event()
 
         def wait_for_reader_lease() -> None:
@@ -5818,11 +5819,14 @@ class WorkspaceTests(unittest.TestCase):
                 locking_module, "LOCK_WAIT_DIAGNOSTIC_SECONDS", 0.05
             ),
             redirect_stderr(output),
-            exclusive_layout_lock(layout, "repository layout"),
+            exclusive_lock(layout, "held repository layout"),
         ):
-            waiter = threading.Thread(target=wait_for_reader_lease)
-            waiter.start()
-            time.sleep(0.12)
+            with exclusive_lock(intent, "held reader admission"):
+                waiter = threading.Thread(target=wait_for_reader_lease)
+                waiter.start()
+                time.sleep(0.08)
+                self.assertFalse(waiter_entered.is_set())
+            time.sleep(0.08)
             self.assertFalse(waiter_entered.is_set())
         waiter.join(2)
         self.assertFalse(waiter.is_alive())
@@ -5840,6 +5844,36 @@ class WorkspaceTests(unittest.TestCase):
         with shared_layout_lock(layout, "repository layout") as lease:
             self.assertEqual(active_lock_fds(), (lease.fileno(),))
         self.assertEqual(active_lock_fds(), ())
+
+    def test_layout_writer_reports_once_across_sequential_waits(self) -> None:
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        intent = workspace_module._layout_writer_intent_path(layout)
+        pending = locking_module.layout_writer_pending_path(layout)
+        writer_entered = threading.Event()
+
+        def wait_for_writer_lease() -> None:
+            with exclusive_layout_lock(layout, "repository layout"):
+                writer_entered.set()
+
+        output = io.StringIO()
+        with (
+            mock.patch.object(
+                locking_module, "LOCK_WAIT_DIAGNOSTIC_SECONDS", 0.05
+            ),
+            redirect_stderr(output),
+            exclusive_lock(intent, "held writer admission"),
+        ):
+            with exclusive_lock(pending, "held writer announcement"):
+                writer = threading.Thread(target=wait_for_writer_lease)
+                writer.start()
+                time.sleep(0.08)
+                self.assertFalse(writer_entered.is_set())
+            time.sleep(0.08)
+            self.assertFalse(writer_entered.is_set())
+        writer.join(2)
+        self.assertFalse(writer.is_alive())
+        self.assertTrue(writer_entered.is_set())
+        self.assertEqual(output.getvalue().count("waiting more than"), 1)
 
     def test_independent_build_roots_overlap_across_processes(self) -> None:
         context = multiprocessing.get_context("spawn")

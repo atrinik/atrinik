@@ -111,6 +111,31 @@ def _advisory_lock(
 
 
 @contextmanager
+def _diagnose_layout_wait(path: Path, description: str) -> Iterator[None]:
+    acquired = threading.Event()
+
+    def warn_about_wait() -> None:
+        if acquired.wait(LOCK_WAIT_DIAGNOSTIC_SECONDS):
+            return
+        print(
+            f"waiting more than {LOCK_WAIT_DIAGNOSTIC_SECONDS:g}s "
+            f"for {description} lock at {path}; inspect "
+            "`./atrinik ps --json` and "
+            "`./atrinik worktree list --json`; do not bypass the "
+            "wrapper or stop unrelated processes",
+            file=sys.stderr,
+        )
+
+    warning = threading.Thread(target=warn_about_wait, daemon=True)
+    warning.start()
+    try:
+        yield
+    finally:
+        acquired.set()
+        warning.join(timeout=0.1)
+
+
+@contextmanager
 def exclusive_lock(
     path: Path,
     description: str,
@@ -169,25 +194,31 @@ def layout_writer_pending_path(path: Path) -> Path:
 def exclusive_layout_lock(
     path: Path, description: str, nonblocking: bool = False
 ) -> Iterator[TextIO]:
-    with shared_lock(
-        layout_writer_pending_path(path),
-        f"{description} writer pending",
-        nonblocking,
-        diagnose_wait=True,
-    ):
-        with exclusive_lock(
-            layout_writer_intent_path(path),
-            f"{description} writer intent",
-            nonblocking,
-            diagnose_wait=True,
-        ):
-            with exclusive_lock(
+    locks = ExitStack()
+    with _diagnose_layout_wait(path, description):
+        locks.enter_context(
+            shared_lock(
+                layout_writer_pending_path(path),
+                f"{description} writer pending",
+                nonblocking,
+            )
+        )
+        locks.enter_context(
+            exclusive_lock(
+                layout_writer_intent_path(path),
+                f"{description} writer intent",
+                nonblocking,
+            )
+        )
+        lock = locks.enter_context(
+            exclusive_lock(
                 path,
                 description,
                 nonblocking,
-                diagnose_wait=True,
-            ) as lock:
-                yield lock
+            )
+        )
+    with locks:
+        yield lock
 
 
 @contextmanager
@@ -198,53 +229,51 @@ def shared_layout_lock(path: Path, description: str) -> Iterator[TextIO]:
             f"exclusive locking is unavailable for {description} writer intent; "
             "refusing to continue"
         )
-    while True:
-        layout_stack = ExitStack()
-        admitted = False
-        with _advisory_lock(
-            layout_writer_intent_path(path),
-            f"{description} reader admission",
-            operation,
-            diagnose_wait=True,
-        ):
-            pending_stack = ExitStack()
-            try:
-                pending_stack.enter_context(
-                    _advisory_lock(
-                        layout_writer_pending_path(path),
-                        f"{description} writer pending",
-                        operation,
-                        nonblocking=True,
-                    )
-                )
-            except LockBusyError:
-                pending_stack.close()
-            else:
-                with pending_stack:
-                    shared_operation = getattr(fcntl, "LOCK_SH", None)
-                    if not isinstance(shared_operation, int):
-                        raise WorkspaceError(
-                            f"shared locking is unavailable for {description}; "
-                            "refusing to continue"
-                        )
-                    lock = layout_stack.enter_context(
+    with _diagnose_layout_wait(path, description):
+        while True:
+            layout_stack = ExitStack()
+            admitted = False
+            with _advisory_lock(
+                layout_writer_intent_path(path),
+                f"{description} reader admission",
+                operation,
+            ):
+                pending_stack = ExitStack()
+                try:
+                    pending_stack.enter_context(
                         _advisory_lock(
-                            path,
-                            description,
-                            shared_operation,
-                            diagnose_wait=True,
+                            layout_writer_pending_path(path),
+                            f"{description} writer pending",
+                            operation,
+                            nonblocking=True,
                         )
                     )
-                    admitted = True
-        if admitted:
-            with layout_stack, inherit_lock_fds(lock):
-                yield lock
-            return
-        layout_stack.close()
-        with _advisory_lock(
-            layout_writer_pending_path(path),
-            f"{description} writer pending",
-            operation,
-            diagnose_wait=True,
-        ):
-            pass
+                except LockBusyError:
+                    pending_stack.close()
+                else:
+                    with pending_stack:
+                        shared_operation = getattr(fcntl, "LOCK_SH", None)
+                        if not isinstance(shared_operation, int):
+                            raise WorkspaceError(
+                                f"shared locking is unavailable for {description}; "
+                                "refusing to continue"
+                            )
+                        lock = layout_stack.enter_context(
+                            _advisory_lock(
+                                path,
+                                description,
+                                shared_operation,
+                            )
+                        )
+                        admitted = True
+            if admitted:
+                break
+            layout_stack.close()
+            with _advisory_lock(
+                layout_writer_pending_path(path),
+                f"{description} writer pending",
+                operation,
+            ):
+                pass
+    with layout_stack, inherit_lock_fds(lock):
+        yield lock
