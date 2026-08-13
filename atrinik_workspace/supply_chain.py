@@ -19,7 +19,7 @@ from .model import (
 )
 
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 ACTION_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 CHECKSUM_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
 GIT_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}(?:[0-9a-f]{24})?$")
@@ -160,17 +160,16 @@ class Inventory:
         root = load_json(path)
         if not isinstance(root, dict):
             raise WorkspaceError("supply-chain inventory root must be an object")
-        required_root_keys = {
-            "schema_version",
-            "organization",
-            "created",
-            "repositories",
-            "dependencies",
-        }
         require_keys(
             root,
-            required_root_keys
-            | ({"license_references"} if "license_references" in root else set()),
+            {
+                "schema_version",
+                "organization",
+                "created",
+                "license_references",
+                "repositories",
+                "dependencies",
+            },
             "supply-chain inventory",
         )
         if root["schema_version"] != SCHEMA_VERSION:
@@ -178,7 +177,7 @@ class Inventory:
         if root["organization"] != "atrinik":
             raise WorkspaceError("supply-chain organization must be atrinik")
         created = _text(root["created"], "inventory.created")
-        raw_license_references = root.get("license_references", {})
+        raw_license_references = root["license_references"]
         if not isinstance(raw_license_references, dict):
             raise WorkspaceError("inventory.license_references must be an object")
         license_references: dict[str, str] = {}
@@ -405,7 +404,7 @@ class Inventory:
             raise WorkspaceError("supply-chain schema root must be an object")
         if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
             raise WorkspaceError("supply-chain schema must use JSON Schema draft 2020-12")
-        if schema.get("$id") != "https://atrinik.org/schema/supply-chain-inventory-v3.json":
+        if schema.get("$id") != "https://atrinik.org/schema/supply-chain-inventory-v4.json":
             raise WorkspaceError("supply-chain schema has an unexpected $id")
         if schema.get("additionalProperties") is not False:
             raise WorkspaceError("supply-chain schema must reject additional root properties")

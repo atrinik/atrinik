@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://atrinik.org/schema/supply-chain-inventory-v3.json",
+  "$id": "https://atrinik.org/schema/supply-chain-inventory-v4.json",
   "title": "Atrinik supply-chain inventory",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "organization", "created", "repositories", "dependencies"],
+  "required": ["schema_version", "organization", "created", "license_references", "repositories", "dependencies"],
   "properties": {
-    "schema_version": {"const": 3},
+    "schema_version": {"const": 4},
     "organization": {"const": "atrinik"},
     "created": {"type": "string", "format": "date-time"},
     "license_references": {
