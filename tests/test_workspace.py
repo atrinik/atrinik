@@ -465,6 +465,10 @@ def synthetic_server_start_process(
             reservation_received.set()
             if not release_reservation.wait(10):
                 raise TimeoutError("port reservation was not released")
+            # The parent reserves an exact free port across process spawn. The
+            # child closes its inherited copy immediately before the wrapper's
+            # kernel availability check.
+            reserved_port.close()
 
             with (
                 mock.patch.object(
@@ -6334,39 +6338,27 @@ class WorkspaceTests(unittest.TestCase):
             self.fail(f"{description} was not reached; children={child_errors}")
 
         try:
-            processes[0].start()
-            started.append(processes[0])
-            wait_for_process_event(
-                reservation_received[0],
-                "server A port reservation transfer",
-                results,
-            )
-            reservations[0].close()
-            release_reservation[0].set()
+            for process in processes:
+                process.start()
+                started.append(process)
+            for index, received in enumerate(reservation_received):
+                wait_for_process_event(
+                    received,
+                    f"server {index} port reservation transfer",
+                    results,
+                )
+                reservations[index].close()
+            for event in release_reservation:
+                event.set()
             wait_for_path(pre_ready[0], "server A pre-ready barrier")
-
-            processes[1].start()
-            started.append(processes[1])
-            wait_for_process_event(
-                reservation_received[1],
-                "server B port reservation transfer",
-                results,
-            )
-            reservations[1].close()
-            release_reservation[1].set()
-            wait_for_process_event(
-                port_blocked[1], "server B confirmed port-lock block", results
-            )
-            self.assertFalse(pre_ready[1].exists())
-
-            # Both starts use distinct topology, profile/build, state, and
-            # explicit-port coordinates. P0 positively records that the global
-            # allocator lease serializes B until A leaves its pre-ready stage.
-            # The #401 cutover will replace this lock-specific expectation with
-            # per-port ownership and concurrent pre-ready rendezvous assertions.
-            releases[0].write_text("release\n", encoding="utf-8")
             wait_for_path(pre_ready[1], "server B pre-ready barrier")
-            releases[1].write_text("release\n", encoding="utf-8")
+            self.assertTrue(all(not blocked.is_set() for blocked in port_blocked))
+
+            # Distinct explicit ports, build roots, states, and topology names
+            # reach the server pre-ready barrier concurrently. Neither waits on
+            # the automatic allocator or the other generation's owner lease.
+            for release in releases:
+                release.write_text("release\n", encoding="utf-8")
         finally:
             for reservation in reservations:
                 reservation.close()
