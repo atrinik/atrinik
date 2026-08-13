@@ -510,6 +510,17 @@ class ManifestTests(unittest.TestCase):
             with self.assertRaisesRegex(WorkspaceError, "cannot read"):
                 load_json(path)
 
+    def test_load_json_rejects_decoder_resource_errors(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "invalid-resource.json"
+            for payload in (
+                b"1" * 5000,
+                b"[" * 100_000 + b"0" + b"]" * 100_000,
+            ):
+                path.write_bytes(payload)
+                with self.assertRaisesRegex(WorkspaceError, "cannot read"):
+                    load_json(path)
+
     def test_rejects_unknown_fields(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             components = self.valid_components()

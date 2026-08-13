@@ -7669,33 +7669,56 @@ class WorkspaceTests(unittest.TestCase):
 
     def test_scenario_list_isolates_non_utf8_scenario_and_profile(self) -> None:
         resolved = self.scenario_resolved_fixture()
+        self.workspace.create_profile("invalid-nesting")
         self.workspace.create_profile("invalid-profile")
         with mock.patch.object(
             self.workspace, "_scenario_provision_state", return_value=resolved
         ):
             self.workspace.scenario_create("current", "default")
+            self.workspace.scenario_create("invalid-integer", "default")
             self.workspace.scenario_create("invalid-metadata", "default")
+            self.workspace.scenario_create("invalid-nesting", "invalid-nesting")
             self.workspace.scenario_create("invalid-profile", "invalid-profile")
 
         metadata_path = (
             self.workspace.paths.scenarios / "invalid-metadata" / "scenario.json"
         )
         profile_path = self.workspace.paths.profiles / "invalid-profile.json"
+        integer_path = (
+            self.workspace.paths.scenarios / "invalid-integer" / "scenario.json"
+        )
+        nesting_path = self.workspace.paths.profiles / "invalid-nesting.json"
+        integer_path.write_bytes(b"1" * 5000)
         metadata_path.write_bytes(b"\xff")
+        nesting_path.write_bytes(
+            b"[" * 100_000 + b"0" + b"]" * 100_000
+        )
         profile_path.write_bytes(b"\xff")
+        integer_before = integer_path.read_bytes()
         metadata_before = metadata_path.read_bytes()
+        nesting_before = nesting_path.read_bytes()
         profile_before = profile_path.read_bytes()
 
         summaries = self.workspace.scenario_list()
 
         self.assertEqual(
             [summary["name"] for summary in summaries],
-            ["current", "invalid-metadata", "invalid-profile"],
+            [
+                "current",
+                "invalid-integer",
+                "invalid-metadata",
+                "invalid-nesting",
+                "invalid-profile",
+            ],
         )
         self.assertEqual(summaries[0]["profile"], "default")
         self.assertEqual(summaries[1]["inert_reason"], "invalid_record")
-        self.assertEqual(summaries[2]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(summaries[2]["inert_reason"], "invalid_record")
+        self.assertEqual(summaries[3]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(summaries[4]["inert_reason"], "profile_unresolvable")
+        self.assertEqual(integer_path.read_bytes(), integer_before)
         self.assertEqual(metadata_path.read_bytes(), metadata_before)
+        self.assertEqual(nesting_path.read_bytes(), nesting_before)
         self.assertEqual(profile_path.read_bytes(), profile_before)
 
     def test_scenario_list_isolates_unhashable_profile_fields(self) -> None:
