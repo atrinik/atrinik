@@ -138,10 +138,11 @@ history, or consult a local alias copy. A signed-release mode is not implemented
 in schema v1 and therefore fails closed.
 
 The synthetic component-owned records for `atrinik/client` and
-`atrinik/server` exercise the bounded audit path before merge. The copies in
-this repository are test fixtures; each component keeps its own identical
-reference record and validates it without copying the canonical registry,
-schema, or reviewer roster:
+`atrinik/server` pin coordinator commit
+`6f6040212f0fa0cb6b8e4e695d1488a403d966be`, the squash merge of PR #381
+already on canonical `origin/main`. The copies in this repository are test
+fixtures; each component keeps its own identical reference record and validates
+it without copying the canonical registry, schema, or reviewer roster:
 
 ```sh
 ./atrinik provenance validate \
@@ -149,15 +150,11 @@ schema, or reviewer roster:
   --reference tests/fixtures/provenance-identities/positive/synthetic-beta.json
 ```
 
-Their pinned URLs become online after this branch is pushed. They may be
-exercised only with `--non-authorizing-audit-ref
-origin/feat/privacy-preserving-provenance-registry`; that mode is visibly not an
-approval for reuse. They carry an authenticated `synthetic: true` boundary and
-are test evidence, not permission for real material. Because the branch is
-squash-merged, these exact intermediate commits do not become default-branch
-ancestors. Completing the production-path demonstration is therefore an
-explicit post-merge dependency: new records must be reviewed and signed only
-after their coordinator revision has landed on the default branch.
+Use the default command exactly as shown: do not set a trusted-ref override and
+do not add `--non-authorizing-audit-ref`. Current revocation state and reviewer
+authority come from canonical `origin/main`; the immutable evidence bytes come
+from the pinned landed commit. The records carry an authenticated `synthetic:
+true` boundary and remain test evidence, not permission for real material.
 
 ## Migration and review
 
