@@ -465,6 +465,10 @@ def synthetic_server_start_process(
             reservation_received.set()
             if not release_reservation.wait(10):
                 raise TimeoutError("port reservation was not released")
+            # The parent reserves an exact free port across process spawn. The
+            # child closes its inherited copy immediately before the wrapper's
+            # kernel availability check.
+            reserved_port.close()
 
             with (
                 mock.patch.object(
@@ -860,6 +864,65 @@ class WorkspaceTests(unittest.TestCase):
             {"schema_version": 1, "purpose": "region-map-cache"},
         )
         return output
+
+    def make_rendezvous_server_build(
+        self,
+        root: Path,
+        rendezvous: Path,
+        marker: str,
+        *,
+        peers: int = 2,
+        bind_after_gate: bool = False,
+    ) -> None:
+        binary = root / "build" / "server"
+        binary.mkdir(parents=True)
+        executable = binary / "atrinik-server"
+        executable.write_text(
+            "#!/usr/bin/env python3\n"
+            "import os, pathlib, socket, sys, time\n"
+            "port = int(next(value.split('=', 1)[1] for value in sys.argv "
+            "if value.startswith('--port_quic=')))\n"
+            f"rendezvous = pathlib.Path({str(rendezvous)!r})\n"
+            f"marker = rendezvous / {marker!r}\n"
+            "udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)\n"
+            + ("marker.write_text('entered\\n', encoding='utf-8')\n" if bind_after_gate else "udp.bind(('0.0.0.0', port))\nmarker.write_text('bound\\n', encoding='utf-8')\n")
+            + "deadline = time.monotonic() + 10\n"
+            f"while len(list(rendezvous.glob('*.entered'))) + len(list(rendezvous.glob('*.bound'))) < {peers}:\n"
+            "    if time.monotonic() >= deadline:\n"
+            "        raise RuntimeError('rendezvous timed out')\n"
+            "    time.sleep(0.01)\n"
+            + ("udp.bind(('0.0.0.0', port))\n" if bind_after_gate else "")
+            + "for descriptor in os.listdir('/proc/self/fd'):\n"
+            "    try:\n"
+            "        target = os.readlink('/proc/self/fd/' + descriptor)\n"
+            "    except OSError:\n"
+            "        continue\n"
+            "    assert '/port-reservations/' not in target, target\n"
+            f"print('QUIC certificate SHA-256: {'e' * 64}', flush=True)\n"
+            "print('Server ready. Waiting for connections...', flush=True)\n"
+            "while True:\n"
+            "    time.sleep(0.1)\n",
+            encoding="utf-8",
+        )
+        executable.chmod(0o755)
+        for name in ("libplugin_arena.so", "libplugin_python.so"):
+            (binary / name).write_text("test\n", encoding="utf-8")
+        for path in (
+            root / "runtime" / "content" / "lib",
+            root / "runtime" / "content" / "maps",
+            root / "runtime" / "resources",
+        ):
+            path.mkdir(parents=True, exist_ok=True)
+        atomic_json(
+            root / "runtime" / "content" / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "collected-content"},
+        )
+        atomic_json(
+            root / "runtime" / "resources" / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": "resource-view"},
+        )
+        self.make_region_map_cache(root)
+        atomic_json(root / workspace_module.BUILD_METADATA, {})
 
     @staticmethod
     def make_content_candidate(output: Path, commit: str, payload: str) -> None:
@@ -6275,39 +6338,27 @@ class WorkspaceTests(unittest.TestCase):
             self.fail(f"{description} was not reached; children={child_errors}")
 
         try:
-            processes[0].start()
-            started.append(processes[0])
-            wait_for_process_event(
-                reservation_received[0],
-                "server A port reservation transfer",
-                results,
-            )
-            reservations[0].close()
-            release_reservation[0].set()
+            for process in processes:
+                process.start()
+                started.append(process)
+            for index, received in enumerate(reservation_received):
+                wait_for_process_event(
+                    received,
+                    f"server {index} port reservation transfer",
+                    results,
+                )
+                reservations[index].close()
+            for event in release_reservation:
+                event.set()
             wait_for_path(pre_ready[0], "server A pre-ready barrier")
-
-            processes[1].start()
-            started.append(processes[1])
-            wait_for_process_event(
-                reservation_received[1],
-                "server B port reservation transfer",
-                results,
-            )
-            reservations[1].close()
-            release_reservation[1].set()
-            wait_for_process_event(
-                port_blocked[1], "server B confirmed port-lock block", results
-            )
-            self.assertFalse(pre_ready[1].exists())
-
-            # Both starts use distinct topology, profile/build, state, and
-            # explicit-port coordinates. P0 positively records that the global
-            # allocator lease serializes B until A leaves its pre-ready stage.
-            # The #401 cutover will replace this lock-specific expectation with
-            # per-port ownership and concurrent pre-ready rendezvous assertions.
-            releases[0].write_text("release\n", encoding="utf-8")
             wait_for_path(pre_ready[1], "server B pre-ready barrier")
-            releases[1].write_text("release\n", encoding="utf-8")
+            self.assertTrue(all(not blocked.is_set() for blocked in port_blocked))
+
+            # Distinct explicit ports, build roots, states, and topology names
+            # reach the server pre-ready barrier concurrently. Neither waits on
+            # the automatic allocator or the other generation's owner lease.
+            for release in releases:
+                release.write_text("release\n", encoding="utf-8")
         finally:
             for reservation in reservations:
                 reservation.close()
@@ -7382,6 +7433,214 @@ class WorkspaceTests(unittest.TestCase):
                 )
         self.assertFalse(stopped["services"]["client"]["running"])
 
+    def test_concurrent_server_topologies_overlap_through_readiness(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / name).write_text("test\n", encoding="utf-8")
+
+        def free_port() -> int:
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as candidate:
+                candidate.bind(("0.0.0.0", 0))
+                return int(candidate.getsockname()[1])
+
+        for mode in ("explicit", "automatic"):
+            with self.subTest(mode=mode):
+                rendezvous = self.root / f"{mode}-port-rendezvous"
+                rendezvous.mkdir()
+                roots = [
+                    self.workspace.paths.builds / f"{mode}-server-{index}"
+                    for index in range(2)
+                ]
+                for index, root in enumerate(roots):
+                    self.make_rendezvous_server_build(
+                        root, rendezvous, f"{index}.bound"
+                    )
+                states = [f"{mode}-state-{index}" for index in range(2)]
+                for state in states:
+                    self.workspace.state_add(state, None)
+                names = [f"{mode}-topology-{index}" for index in range(2)]
+                if mode == "explicit":
+                    ports: list[int | None] = [free_port(), free_port()]
+                    while ports[0] == ports[1]:
+                        ports[1] = free_port()
+                else:
+                    ports = [None, None]
+                sessions = [Workspace(self.wrapper), Workspace(self.wrapper)]
+                try:
+                    with (
+                        mock.patch.object(
+                            sessions[0], "_build_resolved", return_value=roots[0]
+                        ),
+                        mock.patch.object(
+                            sessions[1], "_build_resolved", return_value=roots[1]
+                        ),
+                        ThreadPoolExecutor(max_workers=2) as executor,
+                    ):
+                        futures = [
+                            executor.submit(
+                                sessions[index].topology_up,
+                                names[index],
+                                "default",
+                                states[index],
+                                ["server"],
+                                ports[index],
+                            )
+                            for index in range(2)
+                        ]
+                        statuses = [future.result(timeout=20) for future in futures]
+                    self.assertTrue(all(status["ready"] for status in statuses))
+                    self.assertEqual(
+                        len({status["endpoint"]["port"] for status in statuses}), 2
+                    )
+                    self.assertEqual(
+                        {path.name for path in rendezvous.glob("*.bound")},
+                        {"0.bound", "1.bound"},
+                    )
+                    observer = Workspace(self.wrapper)
+                    for index, name in enumerate(names):
+                        observed = observer.topology_status(name)
+                        self.assertTrue(observed["ready"])
+                        self.assertEqual(
+                            observed["observation"]["port_reservation"]["lease"],
+                            "retained",
+                        )
+                        if mode == "explicit":
+                            self.assertEqual(observed["endpoint"]["port"], ports[index])
+
+                    supervisor = statuses[0]["supervisor"]
+                    pidfd = os.pidfd_open(supervisor["pid"])
+                    try:
+                        signal.pidfd_send_signal(pidfd, signal.SIGKILL)
+                    finally:
+                        os.close(pidfd)
+                    deadline = time.monotonic() + 15
+                    while time.monotonic() < deadline:
+                        crashed = observer.topology_status(names[0])
+                        if (
+                            not crashed["supervisor"]["running"]
+                            and crashed["observation"]["port_reservation"]["lease"]
+                            == "released"
+                        ):
+                            break
+                        time.sleep(0.05)
+                    self.assertFalse(crashed["supervisor"]["running"])
+                    self.assertEqual(
+                        crashed["observation"]["port_reservation"]["lease"],
+                        "released",
+                    )
+                    reassigned_fd, reassigned = observer._reserve_topology_port(
+                        crashed["endpoint"]["port"],
+                        f"{mode}-replacement",
+                        "f" * 64,
+                    )
+                    try:
+                        self.assertTrue(
+                            workspace_module.port_reservation_locked(reassigned)
+                        )
+                        self.assertEqual(
+                            observer.topology_status(names[0])["observation"]
+                            ["port_reservation"]["lease"],
+                            "released",
+                        )
+                    finally:
+                        os.close(reassigned_fd)
+                finally:
+                    observer = Workspace(self.wrapper)
+                    for name in names:
+                        remaining = observer.topology_status(name)
+                        if remaining["supervisor"]["running"] or any(
+                            service["running"]
+                            for service in remaining["services"].values()
+                        ):
+                            observer.topology_down(name, timeout=5)
+
+    def test_supervisor_loss_before_server_bind_releases_reservation(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / name).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "pre-bind-rendezvous"
+        rendezvous.mkdir()
+        build_root = self.workspace.paths.builds / "pre-bind-server"
+        self.make_rendezvous_server_build(
+            build_root,
+            rendezvous,
+            "server.entered",
+            peers=2,
+            bind_after_gate=True,
+        )
+        state = "pre-bind-state"
+        self.workspace.state_add(state, None)
+        name = "pre-bind-topology"
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as candidate:
+            candidate.bind(("0.0.0.0", 0))
+            port = int(candidate.getsockname()[1])
+        session = Workspace(self.wrapper)
+        observer = Workspace(self.wrapper)
+        try:
+            with (
+                mock.patch.object(
+                    session, "_build_resolved", return_value=build_root
+                ),
+                ThreadPoolExecutor(max_workers=1) as executor,
+            ):
+                startup = executor.submit(
+                    session.topology_up,
+                    name,
+                    "default",
+                    state,
+                    ["server"],
+                    port,
+                )
+                marker = rendezvous / "server.entered"
+                deadline = time.monotonic() + 10
+                while time.monotonic() < deadline and not marker.is_file():
+                    time.sleep(0.02)
+                self.assertTrue(marker.is_file())
+                pending = observer.topology_status(name)
+                self.assertEqual(
+                    pending["observation"]["port_reservation"]["lease"],
+                    "retained",
+                )
+                supervisor = pending["supervisor"]
+                pidfd = os.pidfd_open(supervisor["pid"])
+                try:
+                    signal.pidfd_send_signal(pidfd, signal.SIGKILL)
+                finally:
+                    os.close(pidfd)
+                with self.assertRaisesRegex(
+                    WorkspaceError, "supervisor exited during startup"
+                ):
+                    startup.result(timeout=10)
+
+            deadline = time.monotonic() + 15
+            while time.monotonic() < deadline:
+                failed = observer.topology_status(name)
+                if (
+                    not failed["supervisor"]["running"]
+                    and failed["observation"]["port_reservation"]["lease"]
+                    == "released"
+                ):
+                    break
+                time.sleep(0.05)
+            self.assertEqual(
+                failed["observation"]["port_reservation"]["lease"], "released"
+            )
+            replacement_fd, replacement = observer._reserve_topology_port(
+                port, "post-crash", "f" * 64
+            )
+            try:
+                self.assertEqual(replacement["port"], port)
+            finally:
+                os.close(replacement_fd)
+        finally:
+            remaining = observer.topology_status(name)
+            if remaining["supervisor"]["running"] or any(
+                service["running"] for service in remaining["services"].values()
+            ):
+                observer.topology_down(name, timeout=5)
+
     def test_supervised_pair_pins_client_and_holds_state_lock_until_down(self) -> None:
         source = self.workspace.paths.repositories / "server"
         (source / "tools").mkdir()
@@ -7393,7 +7652,14 @@ class WorkspaceTests(unittest.TestCase):
         executable = binary / "atrinik-server"
         executable.write_text(
             "#!/usr/bin/env python3\n"
-            "import sys, time\n"
+            "import os, sys, time\n"
+            "for descriptor in os.listdir('/proc/self/fd'):\n"
+            "    try:\n"
+            "        target = os.readlink('/proc/self/fd/' + descriptor)\n"
+            "    except OSError:\n"
+            "        continue\n"
+            "    assert not target.endswith('/ports.lock'), target\n"
+            "    assert '/port-reservations/' not in target, target\n"
             f"print('QUIC certificate SHA-256: {'a' * 64}', flush=True)\n"
             "print('Server ready. Waiting for connections...', flush=True)\n"
             "print(repr(sys.argv[1:]), flush=True)\n"
@@ -7468,6 +7734,11 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertTrue(status["ready"])
         self.assertEqual(status["endpoint"]["port"], 17300)
+        self.assertEqual(status["port_reservation"]["port"], 17300)
+        self.assertEqual(status["port_reservation"]["topology"], "server-review")
+        self.assertEqual(
+            status["observation"]["port_reservation"]["lease"], "retained"
+        )
         self.assertEqual(status["endpoint"]["fingerprint"], "a" * 64)
         server_runtime = Path(status["services"]["server"]["cwd"])
         self.assertEqual(
