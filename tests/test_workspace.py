@@ -7583,6 +7583,66 @@ class WorkspaceTests(unittest.TestCase):
         ):
             self.workspace.scenario_show("historical-coordinate")
 
+    def test_scenario_list_preserves_inert_record_and_continues_inventory(self) -> None:
+        resolved = self.scenario_resolved_fixture()
+        self.workspace.create_profile("stale-profile")
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state", return_value=resolved
+        ):
+            self.workspace.scenario_create("current", "default")
+            self.workspace.scenario_create("historical", "stale-profile")
+
+        profile_path = self.workspace.paths.profiles / "stale-profile.json"
+        profile = load_json(profile_path)
+        profile["components"].pop("content")
+        atomic_json(profile_path, profile)
+        scenario_path = (
+            self.workspace.paths.scenarios / "historical" / "scenario.json"
+        )
+        profile_before = profile_path.read_bytes()
+        scenario_before = scenario_path.read_bytes()
+        states_before = self.workspace.paths.states_file.read_bytes()
+
+        summaries = self.workspace.scenario_list()
+
+        self.assertEqual(
+            [summary["name"] for summary in summaries],
+            ["current", "historical"],
+        )
+        self.assertEqual(summaries[0]["profile"], "default")
+        self.assertEqual(
+            summaries[1],
+            {
+                "name": "historical",
+                "path": str(self.workspace.paths.scenarios / "historical"),
+                "inert": True,
+                "inert_reason": "profile_unresolvable",
+            },
+        )
+        with self.assertRaisesRegex(
+            WorkspaceError, "profile component set does not match manifest"
+        ):
+            self.workspace.scenario_show("historical")
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+        self.assertEqual(scenario_path.read_bytes(), scenario_before)
+        self.assertEqual(self.workspace.paths.states_file.read_bytes(), states_before)
+
+    def test_scenario_list_reports_invalid_record_without_error_detail(self) -> None:
+        root = self.workspace.paths.scenarios / "malformed"
+        root.mkdir(parents=True)
+
+        self.assertEqual(
+            self.workspace.scenario_list(),
+            [
+                {
+                    "name": "malformed",
+                    "path": str(root),
+                    "inert": True,
+                    "inert_reason": "invalid_record",
+                }
+            ],
+        )
+
     def test_scenario_audit_records_only_server_dependency_closure(self) -> None:
         required = {"server", "content", "resources", "libatrinik", "protocol"}
         selected = {

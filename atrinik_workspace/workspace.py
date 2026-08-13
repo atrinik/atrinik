@@ -137,6 +137,9 @@ SCENARIO_PRESETS = {
     "lighting-radiance-inside": {"archetype": "human_male"},
 }
 SCENARIO_PASSWORD_MAX_SIZE = 128
+SCENARIO_INERT_HISTORICAL_IDENTITY = "historical_identity"
+SCENARIO_INERT_PROFILE_UNRESOLVABLE = "profile_unresolvable"
+SCENARIO_INERT_INVALID_RECORD = "invalid_record"
 BUILD_METADATA = ".atrinik-build.json"
 BUILD_METADATA_SCHEMA_VERSION = 2
 CACHE_METADATA = ".atrinik-cache.json"
@@ -171,6 +174,12 @@ RUNTIME_INPUT_SCHEMA_VERSION = 1
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
 REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
+
+
+class _InertScenarioError(WorkspaceError):
+    def __init__(self, reason: str, message: str) -> None:
+        super().__init__(message)
+        self.reason = reason
 
 
 def display_arguments(arguments: list[str]) -> str:
@@ -5992,19 +6001,28 @@ class Workspace:
             actual_keys == historical_keys
             and metadata.get("schema_version") == SCHEMA_VERSION
         ):
-            raise WorkspaceError(
+            raise _InertScenarioError(
+                SCENARIO_INERT_HISTORICAL_IDENTITY,
                 "historical scenario lacks immutable stack/provider identity and is "
                 f"inert; recreate it explicitly: {name}"
             )
         if actual_keys != SCENARIO_KEYS:
             raise WorkspaceError(f"scenario fields are invalid: {name}")
         if metadata.get("schema_version") != SCENARIO_SCHEMA_VERSION:
-            raise WorkspaceError(
+            raise _InertScenarioError(
+                SCENARIO_INERT_HISTORICAL_IDENTITY,
                 "historical scenario lacks immutable repository/branch identity and "
                 f"is inert; recreate it explicitly: {name}"
             )
         resolved = metadata.get("resolved")
-        profile = self._load_profile(metadata.get("profile", ""), require_file=False)
+        try:
+            profile = self._load_profile(
+                metadata.get("profile", ""), require_file=False
+            )
+        except WorkspaceError as error:
+            raise _InertScenarioError(
+                SCENARIO_INERT_PROFILE_UNRESOLVABLE, str(error)
+            ) from error
         stack = self.manifest.stack(profile["stack"])
         required = self._dependency_roles(profile, {"server"})
         expected_providers = {
@@ -6223,7 +6241,26 @@ class Workspace:
         scenarios: list[dict[str, Any]] = []
         for path in sorted(self.paths.scenarios.iterdir()):
             if path.is_dir() and not path.name.startswith("."):
-                scenarios.append(self.scenario_show(path.name))
+                try:
+                    scenarios.append(self.scenario_show(path.name))
+                except _InertScenarioError as error:
+                    scenarios.append(
+                        {
+                            "name": path.name,
+                            "path": str(path),
+                            "inert": True,
+                            "inert_reason": error.reason,
+                        }
+                    )
+                except WorkspaceError:
+                    scenarios.append(
+                        {
+                            "name": path.name,
+                            "path": str(path),
+                            "inert": True,
+                            "inert_reason": SCENARIO_INERT_INVALID_RECORD,
+                        }
+                    )
         return scenarios
 
     def scenario_credentials(self, name: str) -> dict[str, str]:
