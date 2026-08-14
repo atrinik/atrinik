@@ -12485,13 +12485,18 @@ class Workspace:
         if not isinstance(outputs, list) or not outputs:
             return
         state = Path(policy["path"])
-        descriptor = self._open_validated_state_directory(
-            state, policy["implementation"], write_implementation=False
+        descriptor = _open_directory_nofollow(
+            state,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
         )
         try:
             opened = os.fstat(descriptor)
-            if {"device": opened.st_dev, "inode": opened.st_ino} != policy.get(
-                "identity"
+            visible = state.stat(follow_symlinks=False)
+            identity = policy.get("identity")
+            if (
+                {"device": opened.st_dev, "inode": opened.st_ino} != identity
+                or {"device": visible.st_dev, "inode": visible.st_ino}
+                != identity
             ):
                 raise WorkspaceError(
                     f"server state identity changed before runtime cleanup: {state}"
