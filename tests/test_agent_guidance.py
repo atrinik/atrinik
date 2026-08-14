@@ -882,36 +882,37 @@ class AgentGuidanceTests(unittest.TestCase):
 
         for marker in {
             "<owner>-<repo>-<number>.ledger.json",
-            "human report are ignored",
-            "exclusive lock on the coordinate ledger",
-            "repository and master issue node IDs",
-            "durable goal authority",
-            "SHA-256 of its normalized objective",
-            "authenticated actor node ID and login",
-            "complete ordered leaf graph with its digest",
-            "monotonic `generation`",
-            "prior canonical-file inode and byte digest",
-            "phase `none`, `planned`, `in-flight`, or `bound`",
-            "intended and current body SHA-256 digests",
-            "generation/digest/inode CAS",
             "GitHub linkage, marker text, the human report, a leaf ledger",
-            "fully paginate all master comments",
             "Never adopt live text or a matching marker into an absent ledger",
-            "persist `in-flight` before the first `POST`",
-            "stop as an uncertain write and never repost",
-            "repeating the same idempotent `PATCH` is allowed",
-            "reproduced byte-for-byte from the ledger",
-            "Compose leaf ledgers read-only",
-            "cannot claim the master comment, another leaf position",
-            "program ledger is deliberately replanned under CAS",
+            "`<owner>-<repo>-<number>.ledger.lock`",
+            "lock on the replaceable JSON inode is invalid",
+            "schema_version: 1",
+            "goal_thread_id",
+            "exact UTF-8 objective returned by the goal API",
+            "contiguous integers from 1",
+            "ordinary leaf-ledger progress does not rekey the marker",
+            "next_ordered_graph: null | [graph entry]",
+            "json.dumps(value, ensure_ascii=False",
+            "<!-- atrinik-program-delivery:v1 sha256=<64 lowercase hex> -->",
+            "final line of `intended_body`",
+            "record its fstat device/inode as `self`",
+            "at most 100 pages",
+            "16 MiB total body bytes",
+            "incomplete pagination and stops",
+            "two consecutive complete scans",
+            "newly visible exact result",
+            "## Ordered-graph rekey",
+            "never creates a new comment",
+            "`next_authority`/`next_ordered_graph`",
+            "Interruption must never permit `POST`",
         }:
             with self.subTest(marker=marker):
                 self.assertIn(marker, ledger)
 
         self.assertIn("references/master-publication-ledger.md", body)
-        self.assertIn("before master comment mutation", body)
+        self.assertIn("before master-comment mutation", body)
         self.assertLess(
-            ledger.index("persist `planned` with the exact intended body"),
+            ledger.index("persist `planned` with exact intended body"),
             ledger.index("persist `in-flight` before the first `POST`"),
         )
         self.assertLess(
@@ -926,6 +927,8 @@ class AgentGuidanceTests(unittest.TestCase):
             "## Leaf ledger composition",
             "Final master-comment generation / node / body digests:",
             "never authorizes publication",
+            "Stable lock path / device / inode:",
+            "Current / next authority and graph-rekey phase:",
         }:
             self.assertIn(marker, report)
         for marker in {
@@ -936,9 +939,17 @@ class AgentGuidanceTests(unittest.TestCase):
             "ledger/report loss",
             "without live GitHub mutation",
             "cannot authorize or recover a write",
+            "stable non-replaced lock file",
+            "ordered-graph same-node rekeying",
+            "summaries remain local",
         }:
             self.assertIn(marker, checklist)
         self.assertIn("machine-readable program ledger", interface)
+        self.assertIn(
+            "Without durable goal authority, keep summaries local",
+            body,
+        )
+        self.assertIn("Publish the master summary only through", body)
 
     def test_removed_stale_routes_do_not_return(self) -> None:
         paths = [ROOT / "AGENTS.md"]

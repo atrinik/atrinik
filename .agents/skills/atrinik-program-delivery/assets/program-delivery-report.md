@@ -19,6 +19,8 @@
 - Intended body SHA-256 / current body SHA-256:
 - Remote comment node ID:
 - Complete pagination observation:
+- Stable lock path / device / inode:
+- Current / next authority and graph-rekey phase:
 - Last CAS and durable-write result:
 
 This section never authorizes publication. The ignored machine-readable ledger

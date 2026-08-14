@@ -23,8 +23,8 @@ cannot prove alone.
 ## Master publication recovery
 
 - Is the canonical ledger ignored, schema-valid, complete, and protected by an
-  exclusive coordinate lock plus generation/digest/inode CAS and durable
-  same-directory replacement?
+  exclusive stable non-replaced lock file plus generation/digest/inode CAS and
+  durable same-directory replacement?
 - Was complete bounded comment pagination performed before every decision and
   after every call, with zero markers for a first post or exactly one recorded
   actor-owned marker for a bound update?
@@ -44,6 +44,10 @@ cannot prove alone.
   tests prove fail-closed behavior without live GitHub mutation?
 - Does the human report mirror only already-durable generations and make clear
   that it cannot authorize or recover a write?
+- Is canonical JSON, objective/graph hashing, marker grammar, stable lock
+  identity, streaming limits, and ordered-graph same-node rekeying exact?
+- When no durable goal exists, do summaries remain local with no ledger or
+  master-comment mutation?
 
 ## Order and gates
 

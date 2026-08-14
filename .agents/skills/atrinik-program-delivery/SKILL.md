@@ -26,10 +26,10 @@ a program.
    and never delegates PR-mode adoption.
 2. Load `atrinik-multi-repo-workspace`, `atrinik-github-governance`, and the
    narrow implementation, runtime, or scenario skills selected by each leaf.
-3. Read the [program review checklist](references/program-review-checklist.md)
-   before planning/audit and the
+3. Read the [program checklist](references/program-review-checklist.md) before
+   audits and the
    [master-publication ledger contract](references/master-publication-ledger.md)
-   before master comment mutation.
+   before master-comment mutation.
 4. Copy [the program report template](assets/program-delivery-report.md) to an
    ignored path such as
    `<workspace>/build/program-delivery/<owner>-<repo>-<number>.md`. Prove the
@@ -38,10 +38,13 @@ a program.
 
 ## Establish the live program
 
-Only when explicitly requested, create/resume one durable goal continuously
-owning the exact master/leaves. Each leaf sidecar records its goal proof, allowed
+If and only if the user explicitly requested `/goal` or another persistent
+goal, create or resume one goal continuously owning the exact master and leaves
+before live preflight. Each leaf sidecar records its goal proof, allowed
 master/leaf node IDs, distinct coordinates, and exclusive `leaf_position`; the
-leaf is explicit. Never create a nested/per-leaf goal.
+leaf is explicit. Never create a nested or per-leaf goal. Without durable goal
+authority, keep summaries local; do not create the master ledger or mutate its
+comments.
 
 1. Normalize the master as `owner/repository#number`. Inspect the live issue,
    body, comments, native parent/subissue graph, linked PRs, assignees, Project
@@ -84,21 +87,19 @@ A merge-ready leaf is progress, not goal completion.
    mark a draft ready until both its leaf review and the cumulative program
    review below converge.
 3. Reconcile every head onto its current required base before relying on
-   validation. Before target drift, CAS-cancel body/readiness/planned-comment
-   intents; recover an in-flight comment or stop, then refresh/replan. A prior
-   green check proves only the old head/base combination. Never bulk-refresh a
-   queue whose earlier merges change later baselines.
-4. Review the cumulative
+   validation. Before target drift, CAS-cancel leaf body/readiness/planned-comment
+   intents; recover an in-flight leaf comment or stop, then refresh/replan. A
+   prior green check proves only the old head/base combination. Never bulk-merge
+   or bulk-refresh a queue whose earlier merges change later baselines.
+4. Run leaf whole-diff reviews to convergence, then review the cumulative
    program state against merged work, in-flight heads, master invariants, and
-   the checklist. Give findings stable IDs, fix them, rerun affected validation,
-   and record exact reviewed heads.
+   the checklist. Give findings stable program IDs, fix every actionable item,
+   rerun affected validation, and record exact reviewed heads.
 5. After both leaf and cumulative reviews converge, run issue delivery's
    latest-head/check/readiness section completely. Update the ignored matrix on
-   durable change. Each leaf ledger alone owns its
-   PR writes. Do not create/update a program master comment: goal state cannot
-   persist remote-write intent, and the human report is non-authoritative. Keep
-   contributor issue bodies and incidental issues read-only; preserve program
-   summaries in the report/final handoff pending a program-level ledger.
+   durable change. Each leaf ledger alone owns its PR writes; keep generic issue
+   bodies and incidental issues read-only. Publish the master summary only
+   through the master ledger's bound comment; verify rendering and avoid noise.
 
 ## Stop at every merge or human gate
 
@@ -149,8 +150,8 @@ handoff pending program-ledger authority. Once an authorized child exists,
 deliver that leaf through its review and merge gate, refresh the live graph and
 tips, then repeat the terminal audit. Never waive a stage or finding yourself.
 
-Prepare the master's exact close-ready summary in the report/final handoff, but
-do not publish it without program-ledger ownership and do not close the master.
-Name remaining human closure/release action and the preserved report path. Mark
-the durable goal complete only when the master is genuinely ready to close, not
-merely because the current stage is ready or waiting at a merge gate.
+Update the master ledger's bound comment with exact final coordinates; do not
+close the issue. The final handoff names any remaining closure or release action
+and the preserved report path. Mark the durable goal complete only when the
+master is genuinely ready to close, not merely because the current stage is
+ready or waiting at a merge gate.
