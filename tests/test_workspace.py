@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import ExitStack, redirect_stderr
+from contextlib import contextmanager, ExitStack, redirect_stderr
 import ctypes
 import errno
 import fcntl
@@ -335,6 +335,7 @@ def resource_lease_process(
     results: object,
     attempting: object | None = None,
     entered_event: object | None = None,
+    admission_attempting: object | None = None,
 ) -> None:
     try:
         request = LeaseRequest(
@@ -346,12 +347,30 @@ def resource_lease_process(
         )
         if attempting is not None:
             attempting.set()
-        with resource_locks(Path(workspace_directory), [request]):
-            if entered_event is not None:
-                entered_event.set()
-            entered.put(name)
-            if release is not None and not release.wait(60):
-                raise TimeoutError(f"{name} was not released")
+        original_advisory_lock = locking_module._advisory_lock
+
+        @contextmanager
+        def observed_advisory_lock(*args: object, **kwargs: object):
+            if (
+                admission_attempting is not None
+                and Path(args[0])
+                == locking_module.layout_writer_intent_path(
+                    resource_lock_path(Path(workspace_directory), kind, coordinate)
+                )
+            ):
+                admission_attempting.set()
+            with original_advisory_lock(*args, **kwargs) as lock:
+                yield lock
+
+        with mock.patch.object(
+            locking_module, "_advisory_lock", observed_advisory_lock
+        ):
+            with resource_locks(Path(workspace_directory), [request]):
+                if entered_event is not None:
+                    entered_event.set()
+                entered.put(name)
+                if release is not None and not release.wait(60):
+                    raise TimeoutError(f"{name} was not released")
         results.put(None)
     except BaseException as error:
         results.put(f"{type(error).__name__}: {error}")
@@ -6876,15 +6895,60 @@ class WorkspaceTests(unittest.TestCase):
         def stop_test_topologies() -> None:
             failures = []
             for name in ("topology-a", "topology-c"):
-                status_path = (
-                    self.workspace.paths.topologies / name / "status.json"
+                root = self.workspace.paths.topologies / name
+                status_path = root / "status.json"
+                process_tree_path = (
+                    root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
                 )
-                if not status_path.is_file():
-                    continue
-                try:
-                    self.workspace.topology_down(name, timeout=5)
-                except WorkspaceError as error:
-                    failures.append(f"{name}: {error}")
+                down_error = None
+                if status_path.is_file():
+                    try:
+                        self.workspace.topology_down(name, timeout=5)
+                    except WorkspaceError as error:
+                        down_error = error
+                if process_tree_path.is_file() and not process_tree_path.is_symlink():
+                    descriptor = workspace_module.open_regular_file(
+                        process_tree_path,
+                        os.O_PATH,
+                        "test topology process-tree lease",
+                    )
+                    try:
+                        if workspace_module.holders_exist(
+                            descriptor, exclude=(os.getpid(),)
+                        ):
+                            workspace_module.signal_holders(
+                                descriptor, signal.SIGTERM, exclude=(os.getpid(),)
+                            )
+                            deadline = time.monotonic() + 5
+                            while (
+                                time.monotonic() < deadline
+                                and workspace_module.holders_exist(
+                                    descriptor, exclude=(os.getpid(),)
+                                )
+                            ):
+                                time.sleep(0.05)
+                        if workspace_module.holders_exist(
+                            descriptor, exclude=(os.getpid(),)
+                        ):
+                            workspace_module.signal_holders(
+                                descriptor, signal.SIGKILL, exclude=(os.getpid(),)
+                            )
+                            deadline = time.monotonic() + 2
+                            while (
+                                time.monotonic() < deadline
+                                and workspace_module.holders_exist(
+                                    descriptor, exclude=(os.getpid(),)
+                                )
+                            ):
+                                time.sleep(0.05)
+                        if workspace_module.holders_exist(
+                            descriptor, exclude=(os.getpid(),)
+                        ):
+                            failures.append(f"{name}: process tree remains active")
+                    finally:
+                        os.close(descriptor)
+                elif down_error is not None:
+                    failures.append(f"{name}: {down_error}")
             if failures:
                 self.fail("cannot stop test topologies: " + "; ".join(failures))
 
@@ -6965,8 +7029,9 @@ class WorkspaceTests(unittest.TestCase):
                 exact_entered,
                 release_late_reader,
                 results,
-                late_reader_attempting,
+                None,
                 late_reader_entered,
+                late_reader_attempting,
             ),
         )
         readers = [
