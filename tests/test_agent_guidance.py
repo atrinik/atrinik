@@ -250,34 +250,58 @@ class AgentGuidanceTests(unittest.TestCase):
         checklist = (
             skill / "references/deep-review-checklist.md"
         ).read_text(encoding="utf-8")
+        normalized_body = " ".join(body.split())
+        normalized_interface = " ".join(interface.split())
 
         self.assertIn("never trigger implicitly", body.lower())
         self.assertIn("$atrinik-issue-delivery", body)
         self.assertIn("policy:\n  allow_implicit_invocation: false", interface)
         self.assertIn("$atrinik-issue-delivery", interface)
-        self.assertIn('display_name: "Atrinik Issue Delivery"', interface)
+        self.assertIn('display_name: "Atrinik Issue or PR Delivery"', interface)
         self.assertIn(
-            'short_description: "Deliver Atrinik issues as merge-ready pull requests"',
+            'short_description: "Deliver Atrinik issues or PRs to merge-ready"',
             interface,
         )
         for mutation in {
-            "assign the issue",
-            "update its Project status",
-            "push branches",
-            "open or update draft PRs",
-            "mark drafts ready after exit conditions",
+            "claim an explicitly authorized issue",
+            "push ordinary branches",
+            "create a draft PR in issue mode",
+            "update the selected PR",
+            "mark a draft ready after exit conditions",
             "post brief delivery comments",
         }:
             with self.subTest(mutation=mutation):
-                self.assertIn(mutation, interface)
-        self.assertIn(
-            "do not force-push, close, merge, bypass policy, destructively reset, or apply cleanup",
-            interface,
-        )
+                self.assertIn(mutation, normalized_interface)
+        for prohibited in {
+            "do not create placeholder issues",
+            "mutate incidental linked issues in PR-only mode",
+            "force-push",
+            "close",
+            "merge",
+            "self-approve",
+            "bypass policy",
+            "destructively reset",
+            "retarget",
+            "apply cleanup",
+        }:
+            with self.subTest(prohibited=prohibited):
+                self.assertIn(prohibited, normalized_interface)
 
         for contract in {
+            "exactly one type-explicit `ENTRY_MODE`",
+            "bare `owner/repository#number` is ambiguous",
+            "active PR already owns the work",
+            "existing open, unmerged PR",
+            "author, head repository",
+            "reviews, conversations, checks, and mergeability",
+            "Require a same-repository head",
+            "zero or more incidental linked issues as read-only",
+            "make no linked-issue or Project mutation",
+            "A PR without an issue is a complete valid input",
             "--from BASE_SHA",
             "HEAD` equals `BASE_SHA",
+            "--existing",
+            "HEAD` equals the recorded `HEAD_SHA`, not `BASE_SHA`",
             "--base TARGET_BRANCH",
             "wrapper-owned",
             "never reconstruct, copy",
@@ -285,17 +309,36 @@ class AgentGuidanceTests(unittest.TestCase):
             "required human",
             "concise PR update",
             "Reuse rather than recreate",
-            "issue profile selecting the final",
+            "delivery profile selecting the final",
             "blocks merging, not the ready transition",
+            "Never convert an already-ready PR to draft",
+            "leave an already-ready PR ready",
+            "issue-<number>.md",
+            "pr-<number>.md",
+            "only when issues actually exist",
+            "do not fabricate placeholders",
         }:
             with self.subTest(contract=contract):
-                self.assertIn(contract, body)
+                self.assertIn(contract, normalized_body)
 
         self.assertIn("references/deep-review-checklist.md", body)
         self.assertIn("assets/deep-review-report.md", body)
         self.assertIn("| ID | Severity | Location |", report)
+        self.assertIn("Entry mode: `<issue|PR>`", report)
+        self.assertIn("Selected issue(s): `<URL(s) or none>`", report)
+        self.assertIn("Claim/linkage state:", report)
         self.assertIn("## Scale and performance", checklist)
         self.assertIn("## Safety, security, and supply chain", checklist)
+        self.assertIn("never fabricate missing issue requirements", checklist)
+        self.assertIn("require no synthetic or broadened closing reference", checklist)
+
+        root_guide = " ".join(
+            (ROOT / "AGENTS.md").read_text(encoding="utf-8").split()
+        )
+        self.assertIn(
+            "for an issue or existing PR; it stops before merge",
+            root_guide,
+        )
 
     def test_content_issue_delivery_uses_main_as_sole_authored_source(self) -> None:
         content = " ".join(
@@ -327,7 +370,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "author only on `main`",
             "validate every affected target and consumer",
             "never publish a new `1.x` PR",
-            "A content `main` PR may close its issue",
+            "A content `main` PR may close an explicitly selected issue",
             "per-target bases",
         }:
             with self.subTest(surface="delivery", marker=marker):
@@ -412,6 +455,16 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn(
             "program-delivery invocation delegates this contract",
             " ".join(leaf_delivery.split()),
+        )
+        self.assertIn(
+            "delegates this contract only in issue mode",
+            " ".join(leaf_delivery.split()),
+        )
+        self.assertIn("selecting its explicit issue mode", normalized_body)
+        self.assertIn("does not delegate PR-mode adoption", normalized_body)
+        self.assertIn(
+            "program delegation does not authorize switching to PR mode",
+            normalized_body,
         )
 
     def test_removed_stale_routes_do_not_return(self) -> None:

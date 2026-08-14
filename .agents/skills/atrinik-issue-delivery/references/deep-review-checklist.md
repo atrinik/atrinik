@@ -23,7 +23,9 @@ categories into invented findings.
 
 - Freeze and record the current base SHA, head SHA, merge-base, branch, worktree,
   commits, changed paths, and diff statistics.
-- Compare the raw issue and acceptance criteria directly with the complete diff.
+- Record the explicit entry mode and selected issue/PR coordinates. Compare the
+  raw issue when present, PR body and conversations, and acceptance criteria
+  directly with the complete diff; never fabricate missing issue requirements.
 - Inspect new files, deletions, renames, generated outputs, binary changes, and
   mode changes as well as ordinary hunks.
 - Read enough surrounding code, tests, history, ownership guidance, and upstream
@@ -40,13 +42,15 @@ categories into invented findings.
 
 - Trace every desired outcome and acceptance criterion to implementation, test,
   documentation, manual verification, or a concrete evidenced deferral.
-- Confirm the change solves the reported problem rather than a neighboring one.
+- Confirm the change solves the selected issue or PR problem rather than a
+  neighboring one.
 - Identify unrequested behavior, scope creep, hidden compatibility changes, and
   accidentally omitted files.
 - Confirm each file belongs to the physical repository that owns its contract.
 - Check cross-repository or cross-line changes have independent branches,
-  commits, PRs, and one unambiguous issue-closing path: a default-branch
-  closing keyword or documented manual post-merge close.
+  commits, and PRs. When an issue exists, require one unambiguous issue-closing
+  path: a default-branch closing keyword or documented manual post-merge close.
+  When no issue exists, require no synthetic or broadened closing reference.
 - Verify the fetched target branch and recorded base SHA are current and correct.
 - Check public APIs, protocols, schemas, manifests, fixtures, docs, packages,
   release inputs, and generated consumers stay synchronized where applicable.
@@ -121,7 +125,7 @@ categories into invented findings.
 - Make manual verification copy-pasteable with exact prerequisites, actions,
   expected results, repeat behavior, bounded logs, shutdown, and safe cleanup.
 - Confirm forward tests cannot mutate live GitHub, shared state, or unrelated
-  worktrees and cover every scenario required by the issue.
+  worktrees and cover every scenario required by the selected issue or PR.
 
 ## Lifecycle, concurrency, and integrity
 
@@ -136,6 +140,9 @@ categories into invented findings.
 - Confirm cleanup targets exact proven ownership and fails closed on ambiguity.
 - Check external mutations are ordered, idempotent where possible, permission-
   scoped, and observable without leaking secrets.
+- Confirm PR-only delivery does not mutate incidental linked issues or Project
+  items, and that any issue claim came from an explicitly supplied, verified
+  issue coordinate.
 
 ## Scale and performance
 
@@ -194,7 +201,8 @@ categories into invented findings.
 
 - Confirm every finding is fixed and validated or has a concrete evidenced
   out-of-scope disposition; no status is stale.
-- Re-read the raw issue and acceptance criteria against final HEAD.
+- Re-read the raw selected issue and/or PR requirements and acceptance criteria
+  against final HEAD.
 - Re-run a complete base-to-head review after the last fix; require zero known
   actionable findings and confirm no prior finding reopened.
 - Re-run required validation and verify it used final committed HEAD.
@@ -202,7 +210,8 @@ categories into invented findings.
   draft/ready state, and all expected checks at the same head SHA.
 - Explain skipped/neutral checks; block on expected missing, failed, or cancelled
   checks and on required human approval.
-- Confirm the issue remains open, no merge/self-approval/force-push/destructive
-  reset/cleanup apply occurred, and worktrees/reports remain available.
+- Confirm selected issues, if any, remain open; the PR remains unmerged; no
+  self-approval/force-push/destructive reset/cleanup apply occurred; and
+  worktrees/reports remain available.
 - Produce the exact capability-aware verification and cleanup handoff, with
   blockers explicitly listed or `none`.

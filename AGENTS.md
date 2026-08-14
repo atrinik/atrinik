@@ -34,8 +34,8 @@
 - Use `atrinik-multi-repo-workspace` for wrapper ownership, profiles, worktrees,
   migration, cleanup, releases, CLI, or layout. Add only applicable specialist
   skills; use `atrinik-guidance-maintenance` for guidance audits.
-- Use `atrinik-issue-delivery` only when explicitly invoked for
-  issue-to-ready-PR delivery; it stops before merge.
+- Use `atrinik-issue-delivery` only when explicitly invoked for an issue or
+  existing PR; it stops before merge.
 - Use `atrinik-program-delivery` only when explicitly invoked for an ordered
   master issue; it composes leaves across merge gates and stops before merge or
   issue closure.

@@ -1,4 +1,4 @@
-# Deep self-review: `<owner>/<repository>#<issue>`
+# Deep self-review: `<owner>/<repository> <issue|PR> #<number>`
 
 This ignored local report tracks evidence for the complete current-base diff.
 Do not include credentials, confidential material, or unnecessarily actionable
@@ -6,9 +6,11 @@ vulnerability detail. Do not commit or publish this report.
 
 ## Coordinates
 
-- Issue: `<URL>`
-- Pull request(s): `<URL(s)>`
-- Issue-closing path: `<default-branch PR URL or manual post-merge close>`
+- Entry mode: `<issue|PR>`
+- Selected issue(s): `<URL(s) or none>`
+- Selected pull request: `<URL or pending in issue mode>`
+- Claim/linkage state: `<claimed explicit issue | linked issues read-only | none>`
+- Issue-closing path: `<default-branch PR URL, manual post-merge close, or none>`
 - Review started / last refreshed: `<UTC timestamps>`
 
 | Release line / owner | Target / fetched base | Head branch / SHA | Merge base | Worktree | Commits reviewed |
@@ -19,7 +21,7 @@ vulnerability detail. Do not commit or publish this report.
 
 | Requirement | Implementation | Tests or verification | Status / evidence |
 | --- | --- | --- | --- |
-| `<issue requirement>` | `<paths/symbols>` | `<commands/actions>` | `<met/deferred + evidence>` |
+| `<selected issue or PR requirement>` | `<paths/symbols>` | `<commands/actions>` | `<met/deferred + evidence>` |
 
 ## Complete diff inventory
 
@@ -125,8 +127,9 @@ accessibility/localization, docs and manual verification>`
 - [ ] Required validation passed at final committed HEAD.
 - [ ] Rendered PR body, comments/threads, mergeability, and expected checks were
       rechecked at that same HEAD.
-- [ ] Issue remains open; no merge, self-approval, force-push, destructive reset,
-      credential disclosure, or cleanup apply occurred.
+- [ ] Selected issues, if any, remain open; the PR remains unmerged; no
+      self-approval, force-push, destructive reset, credential disclosure, or
+      cleanup apply occurred.
 - [ ] Exact resources, verification, shutdown, repeat, cleanup, and blockers are
       ready for handoff.
 

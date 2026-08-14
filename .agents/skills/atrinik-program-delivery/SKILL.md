@@ -20,9 +20,10 @@ requests to finish, complete, or fully deliver a program.
 ## Load the delivery contracts
 
 1. Read and follow the complete
-   [issue-delivery contract](../atrinik-issue-delivery/SKILL.md) for every leaf.
-   Its validation, review, publication, and ready-state exit conditions remain
-   mandatory; this skill adds orchestration rather than replacing them.
+   [issue-delivery contract](../atrinik-issue-delivery/SKILL.md) for every leaf,
+   selecting its explicit issue mode. Its validation, review, publication, and
+   ready-state exit conditions remain mandatory; this skill adds orchestration
+   rather than replacing them and does not delegate PR-mode adoption.
 2. Load `atrinik-multi-repo-workspace`, `atrinik-github-governance`, and the
    narrow implementation, runtime, or scenario skills selected by each leaf.
 3. Read the full
@@ -70,11 +71,14 @@ A merge-ready leaf is progress, not goal completion.
    when later PRs are already green. Parallelize only independent work with no
    shared base, schema, ledger, generated baseline, authored path, or closing
    path.
-2. Apply the issue-delivery workflow completely to the leaf. Resume existing
-   work rather than creating replacement PRs. For paired release lines, keep
-   separate bases, commits, validation, and PRs; preserve the declared merge
-   order and canonical issue-closing path. Do not mark a draft ready until both
-   its leaf review and the cumulative program review below converge.
+2. Apply the issue-delivery workflow completely to the leaf in issue mode.
+   Resume only work created and recorded by that exact leaf delivery rather
+   than creating a replacement PR. If fresh issue-mode preflight finds a
+   different active PR, stop with its coordinate; program delegation does not
+   authorize switching to PR mode or adopting it. For paired release lines,
+   keep separate bases, commits, validation, and PRs; preserve the declared
+   merge order and canonical issue-closing path. Do not mark a draft ready until
+   both its leaf review and the cumulative program review below converge.
 3. Reconcile every head onto its current required base before relying on
    validation. A prior green check proves only the old head/base combination.
    Never bulk-merge or bulk-refresh a queue whose earlier merges change later
