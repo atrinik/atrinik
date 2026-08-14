@@ -2156,7 +2156,7 @@ class WorkspaceTests(unittest.TestCase):
                             self.root, "b" * 40
                         )
 
-        failures: tuple[BaseException, str] = (
+        failures: tuple[tuple[BaseException, str], ...] = (
             (FileNotFoundError(), "required command not found"),
             (
                 subprocess.CalledProcessError(1, ["git"], stderr=b"denied"),
