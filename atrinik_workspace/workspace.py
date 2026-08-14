@@ -5166,6 +5166,59 @@ class Workspace:
                 root_fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
                 runtime_fd: int | None = None
                 try:
+                    root_identity = os.fstat(root_fd)
+
+                    @contextmanager
+                    def pinned_temporary(prefix: str) -> Iterator[Path]:
+                        created = Path(
+                            tempfile.mkdtemp(
+                                prefix=prefix, dir=f"/proc/self/fd/{runtime_fd}"
+                            )
+                        )
+                        name = created.name
+                        descriptor = os.open(
+                            name,
+                            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                            dir_fd=runtime_fd,
+                        )
+                        identity = os.fstat(descriptor)
+                        mount_id = _descriptor_mount_id(descriptor)
+                        try:
+                            yield Path(f"/proc/self/fd/{descriptor}")
+                        finally:
+                            try:
+                                _prepare_owned_tree_removal(
+                                    descriptor,
+                                    identity.st_dev,
+                                    mount_id,
+                                    created,
+                                    stat.S_IMODE(identity.st_mode),
+                                    reject_links=True,
+                                )
+                                _remove_owned_tree_contents(
+                                    descriptor,
+                                    identity.st_dev,
+                                    mount_id,
+                                    created,
+                                    reject_links=True,
+                                )
+                                visible = os.stat(
+                                    name,
+                                    dir_fd=runtime_fd,
+                                    follow_symlinks=False,
+                                )
+                                if (
+                                    not stat.S_ISDIR(visible.st_mode)
+                                    or (visible.st_dev, visible.st_ino)
+                                    != (identity.st_dev, identity.st_ino)
+                                ):
+                                    raise WorkspaceError(
+                                        "released sound temporary directory changed"
+                                    )
+                                os.rmdir(name, dir_fd=runtime_fd)
+                            finally:
+                                os.close(descriptor)
+
                     try:
                         os.mkdir("runtime", dir_fd=root_fd)
                     except FileExistsError:
@@ -5194,10 +5247,10 @@ class Workspace:
                             archive_path, coordinates, "cached released sound archive"
                         )
                         if not tree_present:
-                            with tempfile.TemporaryDirectory(
-                                prefix=".sound-released-recovery-", dir=runtime
+                            with pinned_temporary(
+                                ".sound-released-recovery-"
                             ) as temporary:
-                                candidate_tree = Path(temporary) / "tree"
+                                candidate_tree = temporary / "tree"
                                 extract_release_archive(
                                     archive_path, candidate_tree, coordinates
                                 )
@@ -5205,10 +5258,7 @@ class Workspace:
                                 rename_no_replace(candidate_tree, staged)
                         record = verify_release_tree(staged, coordinates)
                     else:
-                        with tempfile.TemporaryDirectory(
-                            prefix=".sound-released-", dir=runtime
-                        ) as temporary:
-                            temporary_root = Path(temporary)
+                        with pinned_temporary(".sound-released-") as temporary_root:
                             candidate_archive = temporary_root / "archive.tar.gz"
                             candidate_tree = temporary_root / "tree"
                             download_release_archive(
@@ -5252,6 +5302,15 @@ class Workspace:
                     ):
                         raise WorkspaceError(
                             "released sound handoff parent changed during publication"
+                        )
+                    visible_root = os.stat(root, follow_symlinks=False)
+                    if (
+                        not stat.S_ISDIR(visible_root.st_mode)
+                        or (visible_root.st_dev, visible_root.st_ino)
+                        != (root_identity.st_dev, root_identity.st_ino)
+                    ):
+                        raise WorkspaceError(
+                            "profile build root changed during released sound publication"
                         )
                     staged = root / "runtime" / "sound-released"
                     record["root"] = str(staged)

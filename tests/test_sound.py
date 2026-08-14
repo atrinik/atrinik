@@ -1948,42 +1948,68 @@ class ReleasedSoundTests(unittest.TestCase):
         runtime = build / "runtime"
         self.assertEqual(list(runtime.iterdir()), [])
 
-    def test_raced_runtime_parent_identity_fails_closed(self) -> None:
-        wrapper = self.root / "parent-race-wrapper"
-        wrapper.mkdir()
-        shutil.copy2(Path(__file__).resolve().parents[1] / "components.json", wrapper)
-        workspace = Workspace(wrapper)
-        build = self.root / "parent-race-build"
-        build.mkdir()
-        profile = {
-            "stack": "classic",
-            "sound_mode": "released",
-            "sound_release": self.coordinates,
-        }
+    def test_raced_publication_directory_identities_fail_closed(self) -> None:
         real_stat = workspace_module.os.stat
-
-        def raced_stat(path: object, *args: object, **kwargs: object) -> os.stat_result:
-            result = real_stat(path, *args, **kwargs)
-            if path == "runtime" and kwargs.get("dir_fd") is not None:
-                fields = list(result)
-                fields[1] += 1
-                return os.stat_result(fields)
-            return result
-
-        with (
-            mock.patch.object(workspace, "_load_profile", return_value=profile),
-            mock.patch(
-                "atrinik_workspace.workspace.download_release_archive",
-                side_effect=lambda _url, destination: shutil.copy2(
-                    self.archive, destination
-                ),
-            ),
-            mock.patch.object(workspace_module.os, "stat", side_effect=raced_stat),
+        for case, message in (
+            ("runtime", "parent changed"),
+            ("root", "build root changed"),
+            ("temporary", "temporary directory changed"),
         ):
-            with self.assertRaisesRegex(WorkspaceError, "parent changed"):
-                workspace._prepare_sound(
-                    build, {"sound": self.root / "unused-source"}, "classic-release"
+            with self.subTest(case=case):
+                wrapper = self.root / f"{case}-race-wrapper"
+                wrapper.mkdir()
+                shutil.copy2(
+                    Path(__file__).resolve().parents[1] / "components.json", wrapper
                 )
+                workspace = Workspace(wrapper)
+                build = self.root / f"{case}-race-build"
+                build.mkdir()
+                profile = {
+                    "stack": "classic",
+                    "sound_mode": "released",
+                    "sound_release": self.coordinates,
+                }
+
+                def raced_stat(
+                    path: object, *args: object, **kwargs: object
+                ) -> os.stat_result:
+                    result = real_stat(path, *args, **kwargs)
+                    raced = (
+                        case == "runtime"
+                        and path == "runtime"
+                        and kwargs.get("dir_fd") is not None
+                    ) or (case == "root" and path == build) or (
+                        case == "temporary"
+                        and isinstance(path, str)
+                        and path.startswith(".sound-released-")
+                        and kwargs.get("dir_fd") is not None
+                    )
+                    if raced:
+                        fields = list(result)
+                        fields[1] += 1
+                        return os.stat_result(fields)
+                    return result
+
+                with (
+                    mock.patch.object(
+                        workspace, "_load_profile", return_value=profile
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace.download_release_archive",
+                        side_effect=lambda _url, destination: shutil.copy2(
+                            self.archive, destination
+                        ),
+                    ),
+                    mock.patch.object(
+                        workspace_module.os, "stat", side_effect=raced_stat
+                    ),
+                ):
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        workspace._prepare_sound(
+                            build,
+                            {"sound": self.root / "unused-source"},
+                            "classic-release",
+                        )
 
 
 if __name__ == "__main__":
