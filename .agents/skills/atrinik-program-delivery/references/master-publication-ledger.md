@@ -7,12 +7,13 @@ report mirrors evidence and never authorizes a write.
 ## Canonical authority, paths, and bytes
 
 Create or resume one canonical ledger at
-`<workspace>/build/program-delivery/<owner>-<repo>-<number>-<goal-sha256>.ledger.json`;
-the final component is the full objective digest. Prove
+`<workspace>/build/program-delivery/<owner>-<repo>-<number>.ledger.json`. Prove
 it and the report are ignored, regular, no-follow files under safe parents.
-Lock its separate stable same-stem `.ledger.lock`, created mode
+Lock the master-coordinate `<owner>-<repo>-<number>.publication.lock`, created mode
 `0600` without following links and never replaced or removed while retained.
-Verify its device/inode after locking and hold that descriptor across ledger
+Every goal/objective for that master uses this arbitration lock; goal-specific
+locks are forbidden. Verify its device/inode after locking, require it equal
+the ledger's `lock` identity, and hold that descriptor across ledger
 read, pagination, persistence, remote mutation, and reconciliation. A lock on
 the replaceable JSON inode is invalid.
 
@@ -34,6 +35,7 @@ The top-level object has exactly:
 schema_version: 1
 generation: integer >= 0
 self: {device: integer >= 0, inode: integer > 0}
+lock: {device: integer >= 0, inode: integer > 0}
 previous: null | {device: integer >= 0, inode: integer > 0, sha256: digest}
 authority: authority
 next_authority: null | authority
@@ -151,11 +153,10 @@ Fresh initialization is only `(lock absent, ledger absent)`: atomically create
 the lock, acquire it, prove the ledger remains absent, perform the complete
 remote namespace scans below, and write generation zero. `(lock present,
 ledger absent)` is ambiguous, including a crash before generation zero, and
-stops. Recovery requires restoring the exact ledger from durable backup or an
-explicitly new goal objective/digest, whose distinct canonical stem is created
-only after two fresh identical empty namespace scans and archival of the old
-lock-only coordinate. Never delete/reuse a lock-only artifact, reuse its goal
-digest, or infer freshness from remote state alone.
+stops. Recovery requires restoring the exact ledger from durable backup; a new
+goal does not change the master coordinate or bypass this stop. Otherwise a
+maintainer must supply a different master issue coordinate. Never delete/reuse
+a lock-only artifact or infer freshness from remote state alone.
 
 Reject stale CAS, inode substitution, corrupt/missing ledger, changed
 goal/actor/master coordinate, or unrecorded temporary artifact. The durable
