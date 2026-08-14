@@ -38,7 +38,9 @@ Open this wrapper repository in VS Code and choose **Dev Containers: Reopen in
 Container** to use the pinned Linux build environment. On first creation, the
 container runs `./atrinik init`; it clones only missing replacement/default
 repositories and validates existing checkouts without updating or replacing
-them. It never adds classic repositories, the MIT playtester, or GPL tools
+them. It never adds classic repositories, the MIT playtester, or the
+MIT-by-default tools repository with its GPL-2.0-or-later `map-checker-qt/`
+exception
 implicitly, and never touches a retained historical `content@1.x` path. The Windows cross-build configuration is available at
 `.devcontainer/windows-cross/devcontainer.json` after the required component
 checkouts have been initialized.
@@ -243,8 +245,8 @@ does not use the network:
 ./atrinik provenance validate --reference PATH
 ~~~
 
-The GPL classic utilities and their user-facing replacement/retirement paths
-are inventoried in
+The MIT-by-default tools repository, its GPL-2.0-or-later `map-checker-qt/`
+exception, and user-facing replacement/retirement paths are inventoried in
 [`docs/CLASSIC_TOOLS_MIGRATION.md`](docs/CLASSIC_TOOLS_MIGRATION.md). They are
 available only through the explicit classic cohort and are not a production
 replacement build or runtime dependency.
@@ -262,7 +264,8 @@ initialization cohort. That includes the replacement MIT `server`, `client`,
 `editor`, `protocol`, `renderer`, `content-toolkit`, and `website` repositories;
 `content` from `atrinik/content@main`; compatible shared resources, sound, and
 metaserver code; and required development infrastructure. It does not clone
-`atrinik/classic`, `atrinik/playtester`, or the GPL `tools` repository, and
+`atrinik/classic`, `atrinik/playtester`, or the MIT-by-default `tools`
+repository with its GPL-2.0-or-later `map-checker-qt/` exception, and
 does not touch a retained historical `atrinik/content@1.x` checkout.
 The replacement repositories have independently validated M1 build, package,
 provenance, and dependency contracts. Their wrapper manifest build/runtime
@@ -362,7 +365,8 @@ preparation/reuse time.
 `--with classic` has one exact meaning: add the complete classic initialization
 cohort to the replacement/default cohort. It is not a classic-only mode. The
 cohort consists of one `atrinik/classic` checkout, the MIT
-`atrinik/playtester` checkout, and the retained GPL `tools` repository. The
+`atrinik/playtester` checkout, and the MIT-by-default `tools` repository with
+its GPL-2.0-or-later `map-checker-qt/` exception. The
 union initializes the shared `atrinik/content@main` checkout exactly once.
 The classic monorepo supplies logical `classic-server`, `classic-client`,
 `classic-editor`, `classic-libatrinik`, and `classic-protocol` components from

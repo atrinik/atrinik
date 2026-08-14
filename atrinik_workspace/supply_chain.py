@@ -20,7 +20,7 @@ from .model import (
 from .sound import validate_release_coordinates
 
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 ACTION_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 CHECKSUM_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
 GIT_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}(?:[0-9a-f]{24})?$")
@@ -146,11 +146,13 @@ class Inventory:
         created: str,
         repositories: list[Repository],
         dependencies: list[Dependency],
+        license_references: dict[str, str] | None = None,
     ):
         self.organization = organization
         self.created = created
         self.repositories = repositories
         self.dependencies = dependencies
+        self.license_references = license_references or {}
         self.repositories_by_name = {repository.name: repository for repository in repositories}
         self.dependencies_by_id = {dependency.identifier: dependency for dependency in dependencies}
 
@@ -161,7 +163,14 @@ class Inventory:
             raise WorkspaceError("supply-chain inventory root must be an object")
         require_keys(
             root,
-            {"schema_version", "organization", "created", "repositories", "dependencies"},
+            {
+                "schema_version",
+                "organization",
+                "created",
+                "license_references",
+                "repositories",
+                "dependencies",
+            },
             "supply-chain inventory",
         )
         if root["schema_version"] != SCHEMA_VERSION:
@@ -169,6 +178,26 @@ class Inventory:
         if root["organization"] != "atrinik":
             raise WorkspaceError("supply-chain organization must be atrinik")
         created = _text(root["created"], "inventory.created")
+        raw_license_references = root["license_references"]
+        if not isinstance(raw_license_references, dict):
+            raise WorkspaceError("inventory.license_references must be an object")
+        license_references: dict[str, str] = {}
+        for identifier, raw_text in raw_license_references.items():
+            if (
+                not isinstance(identifier, str)
+                or not identifier.startswith("LicenseRef-")
+                or not SPDX_PATTERN.fullmatch(identifier)
+            ):
+                raise WorkspaceError(
+                    "inventory.license_references keys must be LicenseRef identifiers"
+                )
+            license_references[identifier] = _text(
+                raw_text, f"inventory.license_references.{identifier}"
+            )
+        if list(license_references) != sorted(license_references):
+            raise WorkspaceError(
+                "inventory.license_references must be sorted by identifier"
+            )
 
         raw_repositories = root["repositories"]
         if not isinstance(raw_repositories, list) or not raw_repositories:
@@ -362,7 +391,13 @@ class Inventory:
         ]
         if len(action_locators) != len(set(action_locators)):
             raise WorkspaceError("inventory GitHub Action locators must be unique")
-        return cls(root["organization"], created, repositories, dependencies)
+        return cls(
+            root["organization"],
+            created,
+            repositories,
+            dependencies,
+            license_references,
+        )
 
     def validate_schema(self, schema_path: Path) -> None:
         schema = load_json(schema_path)
@@ -370,7 +405,7 @@ class Inventory:
             raise WorkspaceError("supply-chain schema root must be an object")
         if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
             raise WorkspaceError("supply-chain schema must use JSON Schema draft 2020-12")
-        if schema.get("$id") != "https://atrinik.org/schema/supply-chain-inventory-v3.json":
+        if schema.get("$id") != "https://atrinik.org/schema/supply-chain-inventory-v4.json":
             raise WorkspaceError("supply-chain schema has an unexpected $id")
         if schema.get("additionalProperties") is not False:
             raise WorkspaceError("supply-chain schema must reject additional root properties")
@@ -726,6 +761,10 @@ class Inventory:
                 f"| {dependency.name} | {dependency.version} | {dependency.license} | "
                 f"{dependency.owner} | {dependency.disposition} | {dependency.source_url} |"
             )
+        if self.license_references:
+            lines.extend(["", "## License references", ""])
+            for identifier, description in self.license_references.items():
+                lines.extend([f"### `{identifier}`", "", description, ""])
         if sound_release is not None:
             lines.extend(
                 [
@@ -793,29 +832,36 @@ class Inventory:
         for repository in self._first_party_repositories():
             commit = commits[repository.name]
             selected = self._selected_for_report(repository, selected_stack)
-            components.append(
-                {
-                    "type": "application",
-                    "bom-ref": f"atrinik:component:{repository.name}",
-                    "name": repository.name,
-                    "version": commit or "unavailable",
-                    "licenses": [
-                        {"license": self._cyclonedx_license(repository.license)}
-                    ],
-                    "externalReferences": [
-                        {
-                            "type": "vcs",
-                            "url": (
-                                f"https://github.com/{repository.repository}/tree/"
-                                f"{commit or repository.branch}"
-                            ),
-                        }
-                    ],
-                    "properties": self._repository_properties(
-                        repository, commit, selected_stack, selected
-                    ),
-                }
-            )
+            component = {
+                "type": "application",
+                "bom-ref": f"atrinik:component:{repository.name}",
+                "name": repository.name,
+                "version": commit or "unavailable",
+                "licenses": [
+                    {"license": self._cyclonedx_license(repository.license)}
+                ],
+                "externalReferences": [
+                    {
+                        "type": "vcs",
+                        "url": (
+                            f"https://github.com/{repository.repository}/tree/"
+                            f"{commit or repository.branch}"
+                        ),
+                    }
+                ],
+                "properties": self._repository_properties(
+                    repository, commit, selected_stack, selected
+                ),
+            }
+            description = self.license_references.get(repository.license)
+            if description is not None:
+                component["properties"].append(
+                    {
+                        "name": "atrinik:license-reference-description",
+                        "value": description,
+                    }
+                )
+            components.append(component)
         for dependency in self.dependencies:
             license_value = self._cyclonedx_license(dependency.license)
             component: dict[str, Any] = {
@@ -940,9 +986,10 @@ class Inventory:
             if repository.license.startswith("LicenseRef-"):
                 extracted_licenses[repository.license] = {
                     "licenseId": repository.license,
-                    "extractedText": (
+                    "extractedText": self.license_references.get(
+                        repository.license,
                         "The applicable license and provenance are recorded by the "
-                        "component's source-local licensing files and inventory metadata."
+                        "component's source-local licensing files and inventory metadata.",
                     ),
                     "name": repository.license,
                 }

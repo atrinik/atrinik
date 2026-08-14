@@ -219,6 +219,10 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(playtester.stacks, ("classic",))
         self.assertEqual(playtester.roles, ("playtester",))
         self.assertEqual(playtester.license, "MIT")
+        tools = inventory.repositories_by_name["tools"]
+        self.assertEqual(tools.repository, "atrinik/tools")
+        self.assertEqual(tools.license, "LicenseRef-Atrinik-Tools-Mixed")
+        self.assertNotIn("external/php", inventory.dependencies_by_id)
 
         playtester_python = inventory.dependencies_by_id[
             "language/playtester-python"
@@ -250,10 +254,10 @@ class InventoryTests(unittest.TestCase):
             "source/atrinik-content-runtime"
         ]
         self.assertEqual(content_runtime.scope, ("classic-server",))
-        self.assertEqual(content_runtime.version, "v3.0.1")
+        self.assertEqual(content_runtime.version, "v5.0.0")
         self.assertEqual(
             content_runtime.checksum,
-            "sha256:2b49daee9d515a86323a5ef28a9f85a5098c96f72375155bb59dcdda50daeaf7",
+            "sha256:ac15a58d6ac07e9cbef64076dded0024a9a0c8b03d07748c1f0224d5901f4178",
         )
 
         playtester_content_runtime = inventory.dependencies_by_id[
@@ -395,6 +399,24 @@ class InventoryTests(unittest.TestCase):
                 document = self.inventory_document()
                 document[field] = value
                 self.assert_invalid_document(document, expected)
+
+        license_reference_mutations = [
+            ([], "license_references must be an object"),
+            ({"MIT": "not a reference"}, "keys must be LicenseRef identifiers"),
+            (
+                {
+                    "LicenseRef-Z": "last",
+                    "LicenseRef-A": "first",
+                },
+                "must be sorted by identifier",
+            ),
+        ]
+        for value, expected in license_reference_mutations:
+            with self.subTest(license_references=value):
+                document = self.inventory_document()
+                document["license_references"] = value
+                self.assert_invalid_document(document, expected)
+
 
         document = self.inventory_document()
         document["repositories"][0] = "client"
@@ -1200,6 +1222,43 @@ class InventoryTests(unittest.TestCase):
             ).report("spdx")
         )
         self.assertNotIn("hasExtractedLicensingInfos", ordinary_spdx)
+
+    def test_tools_mixed_license_reference_expands_in_every_report(self) -> None:
+        inventory = self.load_inventory()
+        identifier = "LicenseRef-Atrinik-Tools-Mixed"
+        mit_fact = "MIT applies by default to tracked files outside narrower notices."
+        gpl_fact = (
+            "GPL-2.0-or-later applies to the complete map-checker-qt/ subtree "
+            "unless a file explicitly states otherwise."
+        )
+
+        licenses = inventory.report("licenses")
+        self.assertIn(identifier, licenses)
+        self.assertIn(mit_fact, licenses)
+        self.assertIn(gpl_fact, licenses)
+
+        cyclonedx = json.loads(inventory.report("cyclonedx"))
+        tools = next(
+            component
+            for component in cyclonedx["components"]
+            if component["bom-ref"] == "atrinik:component:tools"
+        )
+        properties = {
+            property_["name"]: property_["value"]
+            for property_ in tools["properties"]
+        }
+        self.assertEqual(properties["atrinik:license"], identifier)
+        self.assertIn(mit_fact, properties["atrinik:license-reference-description"])
+        self.assertIn(gpl_fact, properties["atrinik:license-reference-description"])
+
+        spdx = json.loads(inventory.report("spdx"))
+        extracted = next(
+            license_
+            for license_ in spdx["hasExtractedLicensingInfos"]
+            if license_["licenseId"] == identifier
+        )
+        self.assertIn(mit_fact, extracted["extractedText"])
+        self.assertIn(gpl_fact, extracted["extractedText"])
 
     def test_nested_action_coordinates_are_recognized(self) -> None:
         match = ACTION_REFERENCE_PATTERN.search(

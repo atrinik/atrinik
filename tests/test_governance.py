@@ -155,17 +155,9 @@ class ClassicToolsInventoryTests(unittest.TestCase):
 
     def test_every_tracked_top_level_tools_path_is_owned_exactly_once(self) -> None:
         expected = {
-            "atrinik_bot",
-            "gridarta-types-convert",
-            "gridarta_materials.pl",
-            "map-checker",
             "map-checker-qt",
-            "map-maker",
-            "mapset",
-            "randomizer",
             "split_symbols.sh",
             "stacktrace.py",
-            "worldviewer",
         }
         paths = [path for entry in self.inventory["entries"] for path in entry["paths"]]
 
@@ -225,31 +217,42 @@ class ClassicToolsInventoryTests(unittest.TestCase):
             if component["name"] in default_components:
                 self.assertNotIn("tools", component.get("requires", []))
 
-    def test_bot_migration_is_owned_by_the_classic_only_playtester(self) -> None:
-        bot = next(
-            entry
-            for entry in self.inventory["entries"]
-            if entry["id"] == "atrinik-bot"
-        )
+    def test_tools_license_boundary_is_narrow_and_machine_readable(self) -> None:
+        source = self.inventory["source"]
+        target = source["transition_target"]
 
-        self.assertEqual(bot["owner_repository"], "atrinik/playtester")
+        self.assertEqual(target["license"], "LicenseRef-Atrinik-Tools-Mixed")
+        self.assertEqual(target["default_license"], "MIT")
         self.assertEqual(
-            bot["owner_issue"], "https://github.com/atrinik/playtester/issues/1"
-        )
-        self.assertIn("MIT", bot["licensing_method"])
-        self.assertIn("GPL", bot["licensing_method"])
-        self.assertIn("OpenAI Codex", bot["licensing_method"])
-        self.assertIn("direct supervision and steering", bot["licensing_method"])
-        self.assertIn("rights she holds", bot["licensing_method"])
-        self.assertNotIn("wholly authored", bot["licensing_method"])
-        self.assertNotIn("playtester", self.manifest["cohorts"]["default"])
-        self.assertIn("playtester", self.manifest["cohorts"]["classic"])
-        self.assertNotIn(
-            "playtester", self.manifest["stacks"]["default"]["components"]
+            target["license_exceptions"],
+            [{"path": "map-checker-qt/", "license": "GPL-2.0-or-later"}],
         )
         self.assertEqual(
-            self.manifest["stacks"]["classic"]["providers"]["playtester"],
-            "playtester",
+            source["audit_baseline"]["revision"],
+            "7777cf9f9ab6deb58de8a481dfccd6b05d86e3e1",
+        )
+        self.assertEqual(
+            source["audit_baseline"]["tree"],
+            "daeb2eb5771d3f90ecf70ccfa2d9e1e4d768f6e4",
+        )
+        self.assertEqual(
+            source["audit_baseline"]["license"], "GPL-2.0-or-later"
+        )
+        self.assertEqual(
+            target["revision"],
+            "33003ac9f737da9c722b446b6bf4948d669ce42b",
+        )
+        self.assertEqual(
+            target["tree"], "1f84a1d32120fc3f32902c2a9603f7c1730e6034"
+        )
+        self.assertEqual(target["status"], "reviewed-pull-request")
+        self.assertEqual(
+            source["provenance_policy"]["revision"],
+            "f0d1225791da7484e9456b39104cc30b0c77fe52",
+        )
+        self.assertEqual(
+            source["identity_policy"]["revision"],
+            "6f6040212f0fa0cb6b8e4e695d1488a403d966be",
         )
 
 

@@ -23,10 +23,11 @@
   and `build/` are ignored generated state, so root status omits them.
 - Resolve ownership through `components.json` and the checkout's nearest
   `AGENTS.md`; keep implementation, tests, packages, and releases there.
-- `classic/` provides five `classic-*` components. Both stacks share
-  `content@main`; Classic selects its publisher adapter. Retained `content-1x/`
-  is historical only. `playtester/` is classic-only with wrapper `build: none`.
-  `.devcontainer/` owns wrapper composition and `devcontainer/` reusable images.
+- `classic/` provides `classic-*`; stacks share `content@main`.
+  `content-1x/` is historical; `playtester/` classic-only (`build: none`).
+  `tools/` is MIT-default except GPL-2.0-or-later `map-checker-qt/`; its
+  checkout: `LicenseRef-Atrinik-Tools-Mixed`. `.devcontainer/` composition;
+  `devcontainer/` images.
 
 ## Core behaviors and patterns
 
