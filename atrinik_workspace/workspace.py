@@ -1247,6 +1247,8 @@ def _tree_digest_descriptor(root_fd: int, display: Path) -> str:
     """Hash an exact pinned regular tree without following child links."""
 
     digest = hashlib.sha256()
+    root = os.fstat(root_fd)
+    root_mount = _descriptor_mount_id(root_fd)
 
     def record(*fields: object) -> None:
         encoded = json.dumps(
@@ -1264,6 +1266,10 @@ def _tree_digest_descriptor(root_fd: int, display: Path) -> str:
             )
             mode = stat.S_IMODE(metadata.st_mode)
             if stat.S_ISDIR(metadata.st_mode):
+                if metadata.st_dev != root.st_dev:
+                    raise WorkspaceError(
+                        f"Worker source contains a mounted directory: {child_display}"
+                    )
                 record("directory", child.as_posix(), mode)
                 descriptor = os.open(
                     name,
@@ -1278,7 +1284,7 @@ def _tree_digest_descriptor(root_fd: int, display: Path) -> str:
                     if (opened.st_dev, opened.st_ino) != (
                         metadata.st_dev,
                         metadata.st_ino,
-                    ):
+                    ) or _descriptor_mount_id(descriptor) != root_mount:
                         raise WorkspaceError(
                             f"Worker source changed during inventory: {child_display}"
                         )
@@ -1286,6 +1292,10 @@ def _tree_digest_descriptor(root_fd: int, display: Path) -> str:
                 finally:
                     os.close(descriptor)
             elif stat.S_ISREG(metadata.st_mode):
+                if metadata.st_nlink != 1 or metadata.st_dev != root.st_dev:
+                    raise WorkspaceError(
+                        f"Worker source contains a linked file: {child_display}"
+                    )
                 descriptor = os.open(
                     name,
                     os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
@@ -1297,6 +1307,7 @@ def _tree_digest_descriptor(root_fd: int, display: Path) -> str:
                         not stat.S_ISREG(opened.st_mode)
                         or (opened.st_dev, opened.st_ino)
                         != (metadata.st_dev, metadata.st_ino)
+                        or _descriptor_mount_id(descriptor) != root_mount
                     ):
                         raise WorkspaceError(
                             f"Worker source changed during inventory: {child_display}"
@@ -1322,7 +1333,6 @@ def _tree_digest_descriptor(root_fd: int, display: Path) -> str:
                     f"Worker source contains an unsupported file type: {child_display}"
                 )
 
-    root = os.fstat(root_fd)
     if not stat.S_ISDIR(root.st_mode):
         raise WorkspaceError(f"Worker source is not a regular directory: {display}")
     record("root", stat.S_IMODE(root.st_mode))
@@ -9346,6 +9356,13 @@ class Workspace:
                     "state_policy": policy,
                 },
             )
+            self._validate_temporary_state_integrity(
+                staging_fd,
+                destination,
+                implementation,
+                container_fd,
+                staging_name,
+            )
             visible_staging = os.stat(
                 staging_name, dir_fd=container_fd, follow_symlinks=False
             )
@@ -9416,18 +9433,26 @@ class Workspace:
         directory_fd: int,
         path: Path,
         implementation: dict[str, str] | None = None,
+        parent_directory_fd: int | None = None,
+        entry_name: str | None = None,
     ) -> None:
         """Fail closed before deleting wrapper-owned mutable server state."""
 
         root = os.fstat(directory_fd)
         root_mount = _descriptor_mount_id(directory_fd)
-        parent_fd = _open_directory_nofollow(
-            path.parent,
-            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+        parent_fd = (
+            os.dup(parent_directory_fd)
+            if parent_directory_fd is not None
+            else _open_directory_nofollow(
+                path.parent,
+                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+            )
         )
         try:
             visible = os.stat(
-                path.name, dir_fd=parent_fd, follow_symlinks=False
+                entry_name or path.name,
+                dir_fd=parent_fd,
+                follow_symlinks=False,
             )
             if (
                 (visible.st_dev, visible.st_ino) != (root.st_dev, root.st_ino)
@@ -10399,6 +10424,8 @@ class Workspace:
             descriptors.append(tmp_fd)
             container_fd = open_directory(tmp_fd, "runtime-assets", True)
             descriptors.append(container_fd)
+            if cleanup_proof is not None:
+                cleanup_proof[0] = False
             try:
                 os.mkdir(generation, 0o700, dir_fd=container_fd)
             except FileExistsError as error:
@@ -10406,8 +10433,6 @@ class Workspace:
                     f"server runtime state output already exists: {output}"
                 ) from error
             created_generation = True
-            if cleanup_proof is not None:
-                cleanup_proof[0] = False
             generation_fd = open_directory(container_fd, generation, False)
             descriptors.append(generation_fd)
             marker = json.dumps(
@@ -10807,6 +10832,15 @@ class Workspace:
                     opened.st_dev,
                     opened.st_ino,
                 ):
+                    try:
+                        rename_no_replace_at(
+                            descriptor,
+                            tombstone,
+                            descriptor,
+                            RUNTIME_STATE_OUTPUT_TRANSACTION,
+                        )
+                    except WorkspaceError:
+                        pass
                     raise WorkspaceError(
                         "runtime state output transaction changed before removal"
                     )

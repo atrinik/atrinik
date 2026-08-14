@@ -5568,6 +5568,90 @@ class WorkspaceTests(unittest.TestCase):
             )
         self.assertTrue(transaction.is_file())
 
+    def test_runtime_output_creation_marks_uncertainty_before_mkdir(self) -> None:
+        state = self.root / "runtime-output-mkdir-interruption"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "9" * 64
+        proof = [True]
+        real_mkdir = os.mkdir
+
+        def mkdir_then_interrupt(
+            name: str | bytes,
+            mode: int = 0o777,
+            *,
+            dir_fd: int | None = None,
+        ) -> None:
+            real_mkdir(name, mode, dir_fd=dir_fd)
+            if name == generation:
+                raise KeyboardInterrupt("simulated interruption after mkdir")
+
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.os.mkdir",
+                    side_effect=mkdir_then_interrupt,
+                ),
+                self.assertRaisesRegex(KeyboardInterrupt, "after mkdir"),
+            ):
+                self.workspace._prepare_runtime_state_output(
+                    state,
+                    generation,
+                    state_fd,
+                    cleanup_proof=proof,
+                )
+            self.assertFalse(proof[0])
+            self.assertTrue(
+                (state / "tmp" / "runtime-assets" / generation).is_dir()
+            )
+        finally:
+            os.close(state_fd)
+
+    def test_runtime_output_transaction_clear_restores_replacement(self) -> None:
+        topology = self.workspace._topology_directory(
+            "runtime-output-clear-race", create=True
+        )
+        transaction = topology / workspace_module.RUNTIME_STATE_OUTPUT_TRANSACTION
+        atomic_json(transaction, {"schema_version": 1, "value": "original"})
+        displaced = topology / "displaced-transaction"
+        real_rename_at = workspace_module.rename_no_replace_at
+        raced = False
+
+        def replace_before_rename(
+            source_fd: int,
+            source: str,
+            destination_fd: int,
+            destination: str,
+        ) -> None:
+            nonlocal raced
+            if source == workspace_module.RUNTIME_STATE_OUTPUT_TRANSACTION and not raced:
+                raced = True
+                os.rename(source, displaced.name, src_dir_fd=source_fd, dst_dir_fd=source_fd)
+                replacement_fd = os.open(
+                    source,
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                    0o600,
+                    dir_fd=source_fd,
+                )
+                try:
+                    os.write(replacement_fd, b'{"replacement": true}\n')
+                finally:
+                    os.close(replacement_fd)
+            real_rename_at(source_fd, source, destination_fd, destination)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=replace_before_rename,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "changed before removal"),
+        ):
+            self.workspace._clear_runtime_state_output_transaction(topology)
+        self.assertEqual(load_json(transaction), {"replacement": True})
+        self.assertEqual(
+            load_json(displaced), {"schema_version": 1, "value": "original"}
+        )
+
     def test_pre_spawn_runtime_output_rollback_completes_transaction(self) -> None:
         topology = self.workspace._topology_directory(
             "runtime-output-pre-spawn", create=True
@@ -12588,6 +12672,91 @@ class WorkspaceTests(unittest.TestCase):
             "preserve\n",
         )
         self.assertTrue(displaced.is_dir())
+
+    def test_temporary_state_staging_rejects_hardlinks(self) -> None:
+        topology = self.workspace._topology_directory(
+            "staging-hardlink", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        generation = "8" * 64
+        original_copytree = shutil.copytree
+
+        def link_copied_file(*args: object, **kwargs: object) -> object:
+            result = original_copytree(*args, **kwargs)
+            if Path(args[0]) == server / "install_data":
+                destination = Path(args[1])
+                copied = destination / "motd"
+                copied.unlink()
+                os.link(server / "install_data" / "motd", copied)
+            return result
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.shutil.copytree",
+                side_effect=link_copied_file,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "linked file"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "staging-hardlink",
+                "default",
+                generation,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            {path.name for path in (topology / "temporary-states").iterdir()},
+            {MANAGED_MARKER},
+        )
+
+    def test_temporary_state_revalidates_after_metadata_publication(self) -> None:
+        topology = self.workspace._topology_directory(
+            "staging-final-validation", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        generation = "7" * 64
+        original_atomic_json_at = workspace_module.durable_atomic_json_at
+
+        def add_late_link(
+            directory_fd: int,
+            name: str,
+            value: object,
+            **kwargs: object,
+        ) -> None:
+            original_atomic_json_at(directory_fd, name, value, **kwargs)
+            if name == workspace_module.TEMPORARY_STATE_METADATA:
+                os.symlink("motd", "late-link", dir_fd=directory_fd)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.durable_atomic_json_at",
+                side_effect=add_late_link,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "symbolic link"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "staging-final-validation",
+                "default",
+                generation,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            {path.name for path in (topology / "temporary-states").iterdir()},
+            {MANAGED_MARKER},
+        )
 
     def test_temporary_startup_rollback_removes_state_and_lease(self) -> None:
         topology = self.workspace._topology_directory("rollback", create=True)
