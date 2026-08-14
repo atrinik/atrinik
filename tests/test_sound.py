@@ -25,8 +25,9 @@ from atrinik_workspace.sound import (
     PLAYTEST_SCHEMA,
     RELEASE_CHECKSUMS,
     RELEASE_MANIFEST,
-    RELEASE_MARKER,
+    RELEASE_METADATA_FILES,
     RELEASE_PRODUCT,
+    RELEASE_REMEDIATION,
     RELEASE_SCHEMA,
     cache_key,
     clean_source_inputs,
@@ -888,34 +889,39 @@ class ReleasedSoundTests(unittest.TestCase):
         schema.parent.mkdir()
         schema_fields = [
             "$schema", "assets", "converted_opus_count",
-            "copied_vorbis_count", "logical_path_count", "marker_sha256",
-            "notices", "output_tree_sha256", "playtest_only", "product",
-            "product_version", "publishable", "release_tag", "repository",
+            "copied_vorbis_count", "logical_path_count", "output_tree_sha256",
+            "playtest_only", "publishable", "release_tag",
+            "remediation_finding_count", "remediation_report_sha256",
             "schema_sha256", "schema_version", "source_commit",
-            "source_manifest_sha256", "source_tree", "toolchain_sha256",
+            "source_manifest_sha256", "source_tree", "tool_versions",
+            "toolchain_sha256",
         ]
         schema.write_bytes(canonical({
-            "$id": f"https://atrinik.org/{RELEASE_SCHEMA}",
+            "$id": "https://atrinik.org/schemas/sound/classic-runtime-manifest-v1.schema.json",
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "additionalProperties": False,
             "properties": {name: {} for name in schema_fields},
             "required": schema_fields,
             "type": "object",
         }))
-        marker = {
-            "format": RELEASE_PRODUCT,
-            "playtest_only": False,
-            "product_version": "1.4.0",
-            "publishable": True,
+        for relative in RELEASE_METADATA_FILES - {RELEASE_SCHEMA, RELEASE_REMEDIATION}:
+            metadata = self.tree / relative
+            metadata.parent.mkdir(parents=True, exist_ok=True)
+            metadata.write_text(f"fixture metadata {relative}\n", encoding="utf-8")
+        remediation = {
+            "$schema": "schemas/classic-remediation-v1.schema.json",
+            "category_counts": {},
+            "classification": "nonblocking-modernization",
+            "count": 0,
+            "findings": [],
+            "release_boundary": "Fixture modernization boundary.",
             "schema_version": 1,
+            "source_commit": "a" * 40,
+            "source_count": 339,
+            "source_manifest_sha256": "c" * 64,
+            "source_tree": "b" * 40,
         }
-        (self.tree / RELEASE_MARKER).write_bytes(canonical(marker))
-        notices = []
-        for path in ("background/LICENSE", "effects/LICENSE"):
-            notice = self.tree / path
-            notice.parent.mkdir(exist_ok=True)
-            notice.write_text(f"fixture notice {path}\n", encoding="utf-8")
-            notices.append({"path": path, "sha256": digest(notice)})
+        (self.tree / RELEASE_REMEDIATION).write_bytes(canonical(remediation))
         assets: list[dict[str, object]] = []
         for index in range(339):
             copied = index >= 150
@@ -938,7 +944,10 @@ class ReleasedSoundTests(unittest.TestCase):
                 "mapping": "copy" if copied else "render-opus",
                 "source": {
                     "codec": source_codec,
-                    "container": "ogg" if copied else source_codec,
+                    "container": (
+                        "ogg" if copied else
+                        "standard-midi-file" if source_codec == "midi" else "flac"
+                    ),
                     "sha256": payload_hash if copied else hashlib.sha256(
                         f"source-{index}".encode()
                     ).hexdigest(),
@@ -964,23 +973,21 @@ class ReleasedSoundTests(unittest.TestCase):
         self.manifest = {
             "$schema": RELEASE_SCHEMA,
             "schema_version": 1,
-            "product": RELEASE_PRODUCT,
-            "product_version": "1.4.0",
             "release_tag": "v1.4.0",
-            "repository": "atrinik/sound",
             "playtest_only": False,
             "publishable": True,
             "source_commit": "a" * 40,
             "source_tree": "b" * 40,
             "source_manifest_sha256": "c" * 64,
             "toolchain_sha256": "d" * 64,
+            "tool_versions": {name: "fixture" for name in sorted(sound_module.TOOL_NAMES)},
             "schema_sha256": digest(schema),
-            "marker_sha256": digest(self.tree / RELEASE_MARKER),
+            "remediation_report_sha256": digest(self.tree / RELEASE_REMEDIATION),
+            "remediation_finding_count": 0,
             "logical_path_count": 339,
             "copied_vorbis_count": 189,
             "converted_opus_count": 150,
             "output_tree_sha256": tree_hash.hexdigest(),
-            "notices": notices,
             "assets": assets,
         }
         (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
@@ -1069,7 +1076,7 @@ class ReleasedSoundTests(unittest.TestCase):
         self.assertEqual(first_record, second_record)
         self.assertEqual(first_record["archive_sha256"], self.coordinates["archive_sha256"])
 
-    def test_coordinates_marker_payload_and_archive_fail_closed(self) -> None:
+    def test_coordinates_payload_and_archive_fail_closed(self) -> None:
         for coordinates in (
             {**self.coordinates, "asset_url": "https://example.com/a"},
             {**self.coordinates, "repository": "atrinik/classic"},
@@ -1218,10 +1225,10 @@ class ReleasedSoundTests(unittest.TestCase):
                 wrong_prefix, self.root / "wrong-prefix", self.coordinates
             )
 
-        missing_directory = self.root / "missing-directory.tar.gz"
+        implicit_directory = self.root / "implicit-directory.tar.gz"
         prefix = f"{RELEASE_PRODUCT}-1.4.0"
         with tarfile.open(
-            missing_directory, "w:gz", format=tarfile.USTAR_FORMAT
+            implicit_directory, "w:gz", format=tarfile.USTAR_FORMAT
         ) as archive:
             root = tarfile.TarInfo(prefix)
             root.type = tarfile.DIRTYPE
@@ -1229,9 +1236,27 @@ class ReleasedSoundTests(unittest.TestCase):
             member = tarfile.TarInfo(f"{prefix}/nested/file")
             member.size = 1
             archive.addfile(member, io.BytesIO(b"x"))
-        with self.assertRaisesRegex(WorkspaceError, "directories"):
+        implicit_destination = self.root / "implicit-directory"
+        extract_release_archive(
+            implicit_directory, implicit_destination, self.coordinates
+        )
+        self.assertEqual((implicit_destination / "nested" / "file").read_bytes(), b"x")
+
+        unexpected_directory = self.root / "unexpected-directory.tar.gz"
+        with tarfile.open(
+            unexpected_directory, "w:gz", format=tarfile.USTAR_FORMAT
+        ) as archive:
+            root = tarfile.TarInfo(prefix)
+            root.type = tarfile.DIRTYPE
+            archive.addfile(root)
+            extra = tarfile.TarInfo(f"{prefix}/empty")
+            extra.type = tarfile.DIRTYPE
+            archive.addfile(extra)
+        with self.assertRaisesRegex(WorkspaceError, "unexpected directories"):
             extract_release_archive(
-                missing_directory, self.root / "missing-directory", self.coordinates
+                unexpected_directory,
+                self.root / "unexpected-directory",
+                self.coordinates,
             )
 
     def test_interrupted_download_is_a_workspace_error(self) -> None:
@@ -1291,17 +1316,16 @@ class ReleasedSoundTests(unittest.TestCase):
                     self.coordinates["asset_url"], self.root / "too-large.tar.gz"
                 )
 
-    def test_marker_tampering_fails_closed(self) -> None:
-        (self.tree / RELEASE_MARKER).write_text("{}\n", encoding="utf-8")
+    def test_remediation_tampering_fails_closed(self) -> None:
+        (self.tree / RELEASE_REMEDIATION).write_text("{}\n", encoding="utf-8")
         self.rewrite_checksums()
-        with self.assertRaisesRegex(WorkspaceError, "marker"):
+        with self.assertRaisesRegex(WorkspaceError, "remediation"):
             verify_release_tree(self.tree, self.coordinates)
 
     def test_notice_tampering_fails_closed(self) -> None:
         notice = self.tree / "background/LICENSE"
         notice.write_text("tampered\n", encoding="utf-8")
-        self.rewrite_checksums()
-        with self.assertRaisesRegex(WorkspaceError, "notice"):
+        with self.assertRaisesRegex(WorkspaceError, "checksum"):
             verify_release_tree(self.tree, self.coordinates)
 
     def test_missing_checksums_fail_closed(self) -> None:
@@ -1359,7 +1383,7 @@ class ReleasedSoundTests(unittest.TestCase):
                 verify_release_tree(self.tree, self.coordinates)
             restore()
 
-            self.manifest["product"] = "wrong-product"
+            self.manifest["release_tag"] = "v9.9.9"
             manifest_path.write_bytes(canonical(self.manifest))
             self.coordinates["release_manifest_sha256"] = digest(manifest_path)
             with self.assertRaisesRegex(WorkspaceError, "manifest identity"):
@@ -1397,7 +1421,7 @@ class ReleasedSoundTests(unittest.TestCase):
         for asset in self.manifest["assets"]:
             if asset["source"]["codec"] == "flac":
                 asset["source"]["codec"] = "midi"
-                asset["source"]["container"] = "midi"
+                asset["source"]["container"] = "standard-midi-file"
         (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
         self.coordinates["release_manifest_sha256"] = digest(
             self.tree / RELEASE_MANIFEST
@@ -1525,6 +1549,8 @@ class ReleasedSoundTests(unittest.TestCase):
         structure_failures = (
             ([], "node"),
             ({"unknown": True}, "unsupported"),
+            ({"exclusiveMaximum": float("inf")}, "exclusiveMaximum"),
+            ({"exclusiveMinimum": False}, "exclusiveMinimum"),
             ({"maximum": float("inf")}, "maximum"),
             ({"minimum": False}, "minimum"),
             ({"enum": []}, "enum"),
@@ -1601,6 +1627,8 @@ class ReleasedSoundTests(unittest.TestCase):
             ({"enum": ["expected"]}, "other", "enum"),
             ({"type": "integer"}, "other", "wrong type"),
             ({"type": "number"}, float("inf"), "wrong type"),
+            ({"type": "number", "exclusiveMinimum": 1}, 1, "exclusiveMinimum"),
+            ({"type": "number", "exclusiveMaximum": 1}, 1, "exclusiveMaximum"),
             ({"type": "object", "required": ["name"]}, {}, "object"),
             ({"type": "object", "minProperties": 2}, {"a": 1}, "minProperties"),
             ({"type": "object", "maxProperties": 0}, {"a": 1}, "maxProperties"),

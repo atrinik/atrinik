@@ -34,9 +34,35 @@ EXPECTED_SOURCE_MIDI = 122
 EXPECTED_SOURCE_FLAC = 28
 RELEASE_PRODUCT = "atrinik-sound-classic-runtime"
 RELEASE_MANIFEST = "classic-runtime-manifest.json"
-RELEASE_MARKER = ".atrinik-classic-runtime.json"
+RELEASE_REMEDIATION = "classic-runtime-remediation.json"
 RELEASE_SCHEMA = "schemas/classic-runtime-manifest-v1.schema.json"
 RELEASE_CHECKSUMS = "SHA256SUMS"
+RELEASE_METADATA_FILES = {
+    "README.md",
+    "background/LICENSE",
+    "background/README.md",
+    "effects/LICENSE",
+    "effects/README.md",
+    RELEASE_REMEDIATION,
+    "licenses/CC-BY-3.0.txt",
+    "licenses/CC-BY-SA-3.0-DE.txt",
+    "licenses/CC-BY-SA-3.0.txt",
+    "licenses/CC0-1.0.txt",
+    "licenses/GPL-2.0.txt",
+    "licenses/GPL-3.0.txt",
+    "manifests/classic-audio-toolchain.json",
+    "manifests/license-reviews.json",
+    "manifests/source-assets.json",
+    "manifests/source-replacements.json",
+    "manifests/vorbis-quality-reviews.json",
+    "schemas/classic-audio-toolchain-v1.schema.json",
+    "schemas/classic-remediation-v1.schema.json",
+    RELEASE_SCHEMA,
+    "schemas/license-reviews-v2.schema.json",
+    "schemas/source-assets-v1.schema.json",
+    "schemas/source-replacements-v1.schema.json",
+    "schemas/vorbis-quality-reviews-v2.schema.json",
+}
 RELEASE_COORDINATE_KEYS = {
     "archive_sha256",
     "asset_url",
@@ -60,7 +86,7 @@ MAX_RELEASE_MEMBERS = 4096
 MAX_RELEASE_TAR_BYTES = MAX_RELEASE_EXTRACTED_BYTES + MAX_RELEASE_MEMBERS * 1024
 MAX_RELEASE_MANIFEST_BYTES = 8 * 1024 * 1024
 MAX_RELEASE_CHECKSUM_BYTES = 256 * 1024
-MAX_RELEASE_MARKER_BYTES = 4096
+MAX_RELEASE_REMEDIATION_BYTES = 16 * 1024 * 1024
 MAX_RELEASE_SCHEMA_BYTES = 1024 * 1024
 MAX_RELEASE_METADATA_BYTES = 64 * 1024
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
@@ -454,10 +480,8 @@ def _extract_release_archive(
             for _member, relative in files
             for index in range(1, len(relative.parts))
         }
-        if directories != required_directories:
-            raise WorkspaceError(
-                "released sound archive has missing or unexpected directories"
-            )
+        if not directories.issubset(required_directories):
+            raise WorkspaceError("released sound archive has unexpected directories")
         destination.mkdir(mode=0o700)
         try:
             for member, relative in files:
@@ -916,8 +940,9 @@ def _validate_release_schema_structure(
     supported = {
         "$defs", "$id", "$ref", "$schema", "additionalProperties", "allOf",
         "anyOf", "const", "default", "description", "enum", "examples", "format",
-        "items", "maxItems", "maxLength", "maxProperties", "maximum", "minItems",
-        "minLength", "minProperties", "minimum", "oneOf", "pattern", "properties",
+        "exclusiveMaximum", "exclusiveMinimum", "items", "maxItems", "maxLength",
+        "maxProperties", "maximum", "minItems", "minLength", "minProperties",
+        "minimum", "oneOf", "pattern", "properties",
         "required", "title", "type", "uniqueItems",
     }
     if set(schema) - supported:
@@ -950,7 +975,7 @@ def _validate_release_schema_structure(
             not isinstance(value, int) or isinstance(value, bool) or value < 0
         ):
             raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
-    for keyword in ("maximum", "minimum"):
+    for keyword in ("exclusiveMaximum", "exclusiveMinimum", "maximum", "minimum"):
         value = schema.get(keyword)
         if keyword in schema and (
             not isinstance(value, (int, float))
@@ -1049,8 +1074,9 @@ def _validate_release_schema_instance(
     supported = {
         "$defs", "$id", "$ref", "$schema", "additionalProperties", "allOf",
         "anyOf", "const", "default", "description", "enum", "examples", "format",
-        "items", "maxItems", "maxLength", "maxProperties", "maximum", "minItems",
-        "minLength", "minProperties", "minimum", "oneOf", "pattern", "properties",
+        "exclusiveMaximum", "exclusiveMinimum", "items", "maxItems", "maxLength",
+        "maxProperties", "maximum", "minItems", "minLength", "minProperties",
+        "minimum", "oneOf", "pattern", "properties",
         "required", "title", "type", "uniqueItems",
     }
     if set(schema) - supported:
@@ -1064,7 +1090,7 @@ def _validate_release_schema_instance(
             not isinstance(limit, int) or isinstance(limit, bool) or limit < 0
         ):
             raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
-    for keyword in ("maximum", "minimum"):
+    for keyword in ("exclusiveMaximum", "exclusiveMinimum", "maximum", "minimum"):
         limit = schema.get(keyword)
         if limit is not None and (
             not isinstance(limit, (int, float))
@@ -1242,7 +1268,12 @@ def _validate_release_schema_instance(
             if not matches:
                 raise _ReleaseSchemaMismatch(f"released sound manifest violates pattern at {location}")
     if isinstance(instance, (int, float)) and not isinstance(instance, bool):
-        for keyword, comparison in (("minimum", lambda a, b: a >= b), ("maximum", lambda a, b: a <= b)):
+        for keyword, comparison in (
+            ("exclusiveMinimum", lambda a, b: a > b),
+            ("exclusiveMaximum", lambda a, b: a < b),
+            ("minimum", lambda a, b: a >= b),
+            ("maximum", lambda a, b: a <= b),
+        ):
             limit = schema.get(keyword)
             if limit is not None and (not isinstance(limit, (int, float)) or isinstance(limit, bool) or not math.isfinite(limit)):
                 raise WorkspaceError(f"released sound packaged schema {keyword} is invalid")
@@ -1311,30 +1342,25 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
         "converted_opus_count",
         "copied_vorbis_count",
         "logical_path_count",
-        "marker_sha256",
-        "notices",
         "output_tree_sha256",
         "playtest_only",
-        "product",
-        "product_version",
         "publishable",
         "release_tag",
-        "repository",
+        "remediation_finding_count",
+        "remediation_report_sha256",
         "schema_sha256",
         "schema_version",
         "source_commit",
         "source_manifest_sha256",
         "source_tree",
+        "tool_versions",
         "toolchain_sha256",
     }
     if not isinstance(manifest_value, dict) or set(manifest_value) != manifest_keys:
         raise WorkspaceError("released sound manifest fields are invalid")
     manifest = manifest_value
     identity_fields = {
-        "product": "product",
-        "product_version": "product_version",
         "release_tag": "tag",
-        "repository": "repository",
         "schema_version": "manifest_schema_version",
         "source_commit": "source_commit",
         "source_manifest_sha256": "source_manifest_sha256",
@@ -1353,25 +1379,13 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
         )
     ):
         raise WorkspaceError("released sound manifest identity does not match the profile")
-    marker_payload = _read_regular(
-        root / RELEASE_MARKER,
-        "released sound marker",
-        maximum_bytes=MAX_RELEASE_MARKER_BYTES,
-    )
-    expected_marker = _canonical_json(
-        {
-            "format": RELEASE_PRODUCT,
-            "playtest_only": False,
-            "product_version": expected["product_version"],
-            "publishable": True,
-            "schema_version": 1,
-        }
-    )
+    tool_versions = manifest.get("tool_versions")
     if (
-        marker_payload != expected_marker
-        or manifest.get("marker_sha256") != _hash_bytes(marker_payload)
+        not isinstance(tool_versions, dict)
+        or set(tool_versions) != TOOL_NAMES
+        or not all(isinstance(value, str) and value for value in tool_versions.values())
     ):
-        raise WorkspaceError("released sound ownership marker is missing or tampered")
+        raise WorkspaceError("released sound toolchain versions are invalid")
     schema_hash, _schema_size, _schema_prefix = _hash_regular(
         root / RELEASE_SCHEMA, "released sound packaged schema"
     )
@@ -1398,7 +1412,8 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
     properties = schema.get("properties")
     if (
         schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema"
-        or schema.get("$id") != f"https://atrinik.org/{RELEASE_SCHEMA}"
+        or schema.get("$id")
+        != "https://atrinik.org/schemas/sound/classic-runtime-manifest-v1.schema.json"
         or schema.get("type") != "object"
         or schema.get("additionalProperties") is not False
         or not isinstance(required, list)
@@ -1410,33 +1425,58 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
         raise WorkspaceError("released sound packaged schema contract is invalid")
     _validate_release_schema_instance(manifest, schema, schema)
 
-    notices = manifest.get("notices")
-    if not isinstance(notices, list) or not notices:
-        raise WorkspaceError("released sound notices must be a nonempty array")
-    notice_paths: set[str] = set()
-    notice_folded: set[str] = set()
-    for raw_notice in notices:
-        if not isinstance(raw_notice, dict) or set(raw_notice) != {"path", "sha256"}:
-            raise WorkspaceError("released sound notice fields are invalid")
-        path = _safe_release_path(raw_notice.get("path"), "notice")
-        digest = raw_notice.get("sha256")
-        if (
-            not isinstance(digest, str)
-            or not SHA256_PATTERN.fullmatch(digest)
-            or path in notice_paths
-            or path.casefold() in notice_folded
-            or path.casefold().endswith("-blocked.json")
-        ):
-            raise WorkspaceError("released sound notice identity is invalid")
-        actual_hash, _size, _prefix = _hash_regular(
-            root / path, f"released sound notice {path}"
+    remediation_payload = _read_regular(
+        root / RELEASE_REMEDIATION,
+        "released sound remediation report",
+        maximum_bytes=MAX_RELEASE_REMEDIATION_BYTES,
+    )
+    if _hash_bytes(remediation_payload) != manifest.get("remediation_report_sha256"):
+        raise WorkspaceError("released sound remediation report is missing or tampered")
+    try:
+        remediation_value = json.loads(
+            remediation_payload,
+            parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)),
         )
-        if actual_hash != digest:
-            raise WorkspaceError(f"released sound notice hash mismatch: {path}")
-        notice_paths.add(path)
-        notice_folded.add(path.casefold())
-    if [notice["path"] for notice in notices] != sorted(notice_paths):
-        raise WorkspaceError("released sound notices are not canonically ordered")
+    except (json.JSONDecodeError, ValueError) as error:
+        raise WorkspaceError("released sound remediation report is invalid JSON") from error
+    remediation_keys = {
+        "$schema", "category_counts", "classification", "count", "findings",
+        "release_boundary", "schema_version", "source_commit",
+        "source_count", "source_manifest_sha256", "source_tree",
+    }
+    if (
+        remediation_payload != _canonical_json(remediation_value)
+        or not isinstance(remediation_value, dict)
+        or set(remediation_value) != remediation_keys
+        or remediation_value.get("$schema")
+        != "schemas/classic-remediation-v1.schema.json"
+        or remediation_value.get("schema_version") != 1
+        or remediation_value.get("classification") != "nonblocking-modernization"
+        or remediation_value.get("source_commit") != expected["source_commit"]
+        or remediation_value.get("source_tree") != expected["source_tree"]
+        or remediation_value.get("source_manifest_sha256")
+        != expected["source_manifest_sha256"]
+        or remediation_value.get("source_count") != EXPECTED_PATHS
+        or not isinstance(remediation_value.get("release_boundary"), str)
+        or not remediation_value["release_boundary"]
+    ):
+        raise WorkspaceError("released sound remediation report contract is invalid")
+    findings = remediation_value.get("findings")
+    category_counts = remediation_value.get("category_counts")
+    actual_categories: dict[str, int] = {}
+    if not isinstance(findings, list) or not isinstance(category_counts, dict):
+        raise WorkspaceError("released sound remediation report contract is invalid")
+    for finding in findings:
+        if not isinstance(finding, dict) or not isinstance(finding.get("category"), str):
+            raise WorkspaceError("released sound remediation finding is invalid")
+        category = finding["category"]
+        actual_categories[category] = actual_categories.get(category, 0) + 1
+    if (
+        remediation_value.get("count") != len(findings)
+        or manifest.get("remediation_finding_count") != len(findings)
+        or category_counts != actual_categories
+    ):
+        raise WorkspaceError("released sound remediation finding counts are invalid")
 
     assets = manifest.get("assets")
     if not isinstance(assets, list):
@@ -1484,7 +1524,9 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
         elif source_codec in {"flac", "midi"}:
             expected_mapping = "render-opus"
             expected_codec = "opus"
-            expected_source_container = source_codec
+            expected_source_container = (
+                "standard-midi-file" if source_codec == "midi" else "flac"
+            )
         else:
             raise WorkspaceError(f"released sound source codec is invalid: {logical_path}")
         if (
@@ -1529,8 +1571,6 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
         tree_entries.append((logical_path, payload_hash))
         if not source_path:
             raise WorkspaceError(f"released sound source path is invalid: {logical_path}")
-    if [asset["logical_path"] for asset in assets] != sorted(logical_paths):
-        raise WorkspaceError("released sound assets are not canonically ordered")
     if (
         len(assets) != EXPECTED_PATHS
         or manifest.get("logical_path_count") != EXPECTED_PATHS
@@ -1550,11 +1590,9 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
 
     checksums = _release_checksums(root)
     files = _tree_files(root, contract="released sound")
-    expected_files = logical_paths | notice_paths | {
+    expected_files = logical_paths | RELEASE_METADATA_FILES | {
         RELEASE_CHECKSUMS,
         RELEASE_MANIFEST,
-        RELEASE_MARKER,
-        RELEASE_SCHEMA,
     }
     if files != expected_files or set(checksums) != files - {RELEASE_CHECKSUMS}:
         raise WorkspaceError("released sound archive has missing or unexpected files")
@@ -1580,7 +1618,8 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
         "source_manifest_sha256": expected["source_manifest_sha256"],
         "toolchain_sha256": expected["toolchain_sha256"],
         "schema_sha256": expected["schema_sha256"],
-        "marker_sha256": manifest["marker_sha256"],
+        "remediation_report_sha256": manifest["remediation_report_sha256"],
+        "remediation_finding_count": manifest["remediation_finding_count"],
         "output_tree_sha256": expected["output_tree_sha256"],
         "logical_path_count": EXPECTED_PATHS,
         "copied_vorbis_count": EXPECTED_COPIED_VORBIS,
@@ -1604,8 +1643,9 @@ RELEASE_RECORD_KEYS = {
     "asset_url", "archive_sha256", "release_manifest_sha256",
     "manifest_schema_version", "source_commit", "source_tree",
     "source_manifest_sha256", "toolchain_sha256", "schema_sha256",
-    "marker_sha256", "output_tree_sha256", "logical_path_count",
-    "copied_vorbis_count", "converted_opus_count",
+    "remediation_report_sha256", "remediation_finding_count",
+    "output_tree_sha256", "logical_path_count", "copied_vorbis_count",
+    "converted_opus_count",
 }
 
 
@@ -1643,8 +1683,8 @@ def validate_sound_record(value: object) -> dict[str, Any]:
         hashes = RELEASE_RECORD_KEYS - {
             "asset_url", "copied_vorbis_count", "converted_opus_count",
             "logical_path_count", "manifest_schema_version", "mode", "product",
-            "product_version", "repository", "root", "source_commit",
-            "source_tree", "tag",
+            "product_version", "remediation_finding_count", "repository", "root",
+            "source_commit", "source_tree", "tag",
         }
         if (
             any(
@@ -1655,6 +1695,9 @@ def validate_sound_record(value: object) -> dict[str, Any]:
             or value.get("logical_path_count") != EXPECTED_PATHS
             or value.get("copied_vorbis_count") != EXPECTED_COPIED_VORBIS
             or value.get("converted_opus_count") != EXPECTED_CONVERTED_OPUS
+            or not isinstance(value.get("remediation_finding_count"), int)
+            or isinstance(value.get("remediation_finding_count"), bool)
+            or value["remediation_finding_count"] < 0
         ):
             raise WorkspaceError("released sound provenance is invalid")
         return value

@@ -10907,7 +10907,7 @@ class Workspace:
                     except OSError as error:
                         raise WorkspaceError(
                             "topology runtime staging destination changed during "
-                            f"copy: {destination_child}"
+                            f"copy: {destination_child}: {error}"
                         ) from error
                     try:
                         self._copy_topology_runtime_directory(
@@ -10950,7 +10950,7 @@ class Workspace:
                     except OSError as error:
                         raise WorkspaceError(
                             "topology runtime staging destination changed during "
-                            f"copy: {destination_child}"
+                            f"copy: {destination_child}: {error}"
                         ) from error
                     try:
                         with os.fdopen(child_fd, "rb", closefd=False) as source_file:
@@ -11053,7 +11053,7 @@ class Workspace:
             except OSError as error:
                 raise WorkspaceError(
                     "topology runtime staging destination changed during copy: "
-                    f"{destination}"
+                    f"{destination}: {error}"
                 ) from error
             self._copy_topology_runtime_directory(
                 source_fd,
@@ -11965,15 +11965,14 @@ class Workspace:
                         selected["client"],
                         {".git", "build", "sound", MANAGED_MARKER},
                     ),
-                    "client-binary": (
-                        self._classic_binary_directory(build_root, "client"),
-                        set(),
-                    ),
                     "sound": (
                         sound_root or selected["sound"],
                         {".git", "build", MANAGED_MARKER},
                     ),
                 }
+            )
+            files["client-executable"] = (
+                self._classic_binary_directory(build_root, "client") / "atrinik"
             )
         if "server" in services:
             source = selected["server"]
@@ -12067,9 +12066,9 @@ class Workspace:
                     client_runtime / "sound",
                     frozenset({".git", "build", MANAGED_MARKER}),
                 )
-                self._copy_runtime_directory_contents(
-                    self._classic_binary_directory(build_root, "client"),
-                    client_runtime,
+                self._copy_runtime_regular_file(
+                    self._classic_binary_directory(build_root, "client") / "atrinik",
+                    client_runtime / "atrinik",
                 )
             if "server" in services:
                 if state is None:
@@ -15776,6 +15775,13 @@ class Workspace:
                 ):
                     raise WorkspaceError(
                         f"profile {profile_name} local-playtest sound record changed "
+                        "before foreground publication"
+                    )
+            elif validated_sound["mode"] == RELEASED_MODE:
+                coordinates = validate_release_coordinates(profile["sound_release"])
+                if verify_release_tree(sound_root, coordinates) != validated_sound:
+                    raise WorkspaceError(
+                        f"profile {profile_name} released sound record changed "
                         "before foreground publication"
                     )
             elif sound_root.resolve() != selected["sound"].resolve():

@@ -11228,6 +11228,9 @@ class WorkspaceTests(unittest.TestCase):
         (source / "tools").mkdir()
         for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
             (source / name).write_text("test\n", encoding="utf-8")
+        client_source = self.workspace.paths.repositories / "client" / "src"
+        client_source.mkdir()
+        (client_source / "authored.c").write_text("source\n", encoding="utf-8")
         build_root = self.workspace.paths.builds / "fake-server-topology"
         binary = build_root / "build" / "server"
         binary.mkdir(parents=True)
@@ -11283,6 +11286,11 @@ class WorkspaceTests(unittest.TestCase):
         self.make_region_map_cache(build_root)
         client = build_root / "build" / "client" / "atrinik"
         client.parent.mkdir(parents=True)
+        build_only_source = client.parent / "src"
+        build_only_source.mkdir()
+        (build_only_source / "generated.c").write_text(
+            "build-only\n", encoding="utf-8"
+        )
         (build_root / "sources" / "client").mkdir(parents=True)
         client.write_text(
             "#!/usr/bin/env python3\n"
@@ -11406,6 +11414,13 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(
             Path(status["services"]["client"]["cwd"]),
             generation_root / "client",
+        )
+        self.assertFalse(
+            (generation_root / "client" / "src" / "generated.c").exists()
+        )
+        self.assertEqual(
+            (generation_root / "client" / "src" / "authored.c").read_text(),
+            "source\n",
         )
         client_log = self.workspace.paths.topologies / "server-review" / "client.log"
         server_log = self.workspace.paths.topologies / "server-review" / "server.log"
