@@ -12809,6 +12809,61 @@ class WorkspaceTests(unittest.TestCase):
             {MANAGED_MARKER},
         )
 
+    def test_temporary_state_revalidates_metadata_at_publication(self) -> None:
+        topology = self.workspace._topology_directory(
+            "staging-metadata-validation", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        generation = "5" * 64
+        original_digest = workspace_module._tree_digest_descriptor
+        full_digest_calls = 0
+
+        def change_metadata_after_snapshot(
+            directory_fd: int,
+            display: Path,
+            root_exclusions: set[str] | None = None,
+        ) -> str:
+            nonlocal full_digest_calls
+            digest = original_digest(directory_fd, display, root_exclusions)
+            if root_exclusions is None:
+                full_digest_calls += 1
+                if full_digest_calls == 2:
+                    state_fd = os.open(
+                        workspace_module.TEMPORARY_STATE_METADATA,
+                        os.O_WRONLY | os.O_TRUNC | os.O_NOFOLLOW,
+                        dir_fd=directory_fd,
+                    )
+                    try:
+                        os.write(state_fd, b'{}\n')
+                    finally:
+                        os.close(state_fd)
+            return digest
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._tree_digest_descriptor",
+                side_effect=change_metadata_after_snapshot,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "metadata changed"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "staging-metadata-validation",
+                "default",
+                generation,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            {path.name for path in (topology / "temporary-states").iterdir()},
+            {MANAGED_MARKER},
+        )
+
     def test_temporary_startup_rollback_removes_state_and_lease(self) -> None:
         topology = self.workspace._topology_directory("rollback", create=True)
         server = self.workspace.paths.repositories / "server"

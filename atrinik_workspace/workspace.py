@@ -9363,13 +9363,60 @@ class Workspace:
                     "state_policy": policy,
                 },
             )
-            self._validate_temporary_state_integrity(
-                staging_fd,
-                destination,
-                implementation,
-                container_fd,
-                staging_name,
-            )
+            managed_record = {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": "temporary-topology-state",
+                "topology": topology_name,
+                "generation": generation,
+            }
+            creation_record = {
+                "schema_version": TEMPORARY_STATE_SCHEMA_VERSION,
+                "state_policy": policy,
+            }
+
+            def validate_publication_state() -> None:
+                self._validate_temporary_state_integrity(
+                    staging_fd,
+                    destination,
+                    implementation,
+                    container_fd,
+                    staging_name if published_identity is None else generation,
+                )
+                if self._load_state_json_at(
+                    staging_fd,
+                    MANAGED_MARKER,
+                    "temporary state ownership marker",
+                ) != managed_record or self._load_state_json_at(
+                    staging_fd,
+                    TEMPORARY_STATE_METADATA,
+                    "temporary state creation record",
+                ) != creation_record:
+                    raise WorkspaceError(
+                        "temporary topology state metadata changed before publication"
+                    )
+                tmp_fd = os.open(
+                    "tmp",
+                    os.O_RDONLY
+                    | os.O_CLOEXEC
+                    | os.O_DIRECTORY
+                    | os.O_NOFOLLOW,
+                    dir_fd=staging_fd,
+                )
+                try:
+                    tmp_metadata = os.fstat(tmp_fd)
+                    if (
+                        tmp_metadata.st_dev != staging_metadata.st_dev
+                        or _descriptor_mount_id(tmp_fd)
+                        != _descriptor_mount_id(staging_fd)
+                        or os.listdir(tmp_fd)
+                    ):
+                        raise WorkspaceError(
+                            "temporary topology state mutable output is not empty"
+                        )
+                finally:
+                    os.close(tmp_fd)
+
+            validate_publication_state()
             copied_exclusions = {
                 "tmp",
                 STATE_IMPLEMENTATION_MARKER,
@@ -9389,6 +9436,15 @@ class Workspace:
                 raise WorkspaceError(
                     "selected server install_data changed before temporary state "
                     "publication"
+                )
+            full_tree_digest = _tree_digest_descriptor(staging_fd, destination)
+            validate_publication_state()
+            if (
+                _tree_digest_descriptor(staging_fd, destination)
+                != full_tree_digest
+            ):
+                raise WorkspaceError(
+                    "temporary topology state changed before publication"
                 )
             visible_staging = os.stat(
                 staging_name, dir_fd=container_fd, follow_symlinks=False
@@ -9416,6 +9472,14 @@ class Workspace:
                 raise WorkspaceError(
                     "selected server install_data changed during temporary state "
                     "publication"
+                )
+            validate_publication_state()
+            if (
+                _tree_digest_descriptor(staging_fd, destination)
+                != full_tree_digest
+            ):
+                raise WorkspaceError(
+                    "temporary topology state changed during publication"
                 )
             published = os.stat(
                 generation, dir_fd=container_fd, follow_symlinks=False
