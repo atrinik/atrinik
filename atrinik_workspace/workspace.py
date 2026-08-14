@@ -12031,6 +12031,7 @@ class Workspace:
         sound_root: Path | None,
     ) -> dict[str, str]:
         directories: dict[str, tuple[Path, set[str]]] = {}
+        files: dict[str, Path] = {}
         if "client" in services:
             directories.update(
                 {
@@ -12069,8 +12070,14 @@ class Workspace:
             if custom.is_file() and not custom.is_symlink():
                 files["server-server-custom.cfg"] = custom
         return {
-            name: _tree_digest(path, exclusions, reject_symlinks=True)
-            for name, (path, exclusions) in sorted(directories.items())
+            **{
+                name: _tree_digest(path, exclusions, reject_symlinks=True)
+                for name, (path, exclusions) in sorted(directories.items())
+            },
+            **{
+                name: _file_digest(path, "runtime publication input")
+                for name, path in sorted(files.items())
+            },
         }
 
     def _publish_runtime_generation(
