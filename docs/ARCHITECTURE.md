@@ -409,8 +409,10 @@ through a pinned, no-follow descriptor traversal before selection. A mismatch
 fails closed and leaves recovery to the explicit preview-first `builds` cleanup
 boundary. Once path, marker, key, and closed metadata ownership are exact,
 cleanup classifies a content-digest mismatch as removable corruption. Builds
-hold a per-key shared lock; cleanup apply revalidates ownership, content state,
-and age under its exclusive side before bounded removal. First-use container
+authenticate an existing generation while holding its per-key shared lock;
+only an absent generation upgrades through exclusive creation with a recheck.
+Cleanup apply revalidates ownership, content state, and age under its exclusive
+side before bounded removal. First-use container
 publication is checkout-serialized. Interrupted staging remains a recognized
 child of its marker-owned container, is protected while its generation lock is
 busy, and becomes independently reclaimable after the normal grace period.

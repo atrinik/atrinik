@@ -495,6 +495,7 @@ class ScopeLifecycleTests(unittest.TestCase):
         coordination: list[tuple[str, str]] = []
         coordination_lock = threading.Lock()
         build_calls: dict[str, int] = {}
+        first_build_holds_generation = threading.Event()
 
         def controlled_build(
             workspace: Workspace,
@@ -513,6 +514,8 @@ class ScopeLifecycleTests(unittest.TestCase):
             if phase == "build":
                 self.assertEqual(target, "server")
                 self.assertTrue(tests)
+                if profile == scopes[0]["profile"]["name"]:
+                    first_build_holds_generation.set()
             else:
                 self.assertEqual(target, "topology")
                 self.assertFalse(tests)
@@ -526,13 +529,21 @@ class ScopeLifecycleTests(unittest.TestCase):
                 with ThreadPoolExecutor(max_workers=2) as executor:
                     builds = [
                         executor.submit(
-                            sessions[index].build,
+                            sessions[0].build,
                             "server",
-                            scopes[index]["profile"]["name"],
+                            scopes[0]["profile"]["name"],
                             True,
                         )
-                        for index in range(2)
                     ]
+                    self.assertTrue(first_build_holds_generation.wait(timeout=10))
+                    builds.append(
+                        executor.submit(
+                            sessions[1].build,
+                            "server",
+                            scopes[1]["profile"]["name"],
+                            True,
+                        )
+                    )
                     self.assertEqual(
                         {future.result(timeout=20) for future in builds}, set(roots.values())
                     )
@@ -590,7 +601,9 @@ class ScopeLifecycleTests(unittest.TestCase):
             stopped_b = self.stop_topology_after_guardian_handoff(names[1])
             self.assertFalse(stopped_b["supervisor"]["running"])
             spec_path = Path(scopes[1]["topology"]["path"]) / "spec.json"
+            status_path = Path(scopes[1]["topology"]["path"]) / "status.json"
             spec = json.loads(spec_path.read_text(encoding="utf-8"))
+            persisted = json.loads(status_path.read_text(encoding="utf-8"))
             divergent = copy.deepcopy(spec)
             coordinate = next(iter(divergent["resolved"].values()))
             coordinate["checkout_path"] = scopes[0]["worktrees"][0]["path"]
@@ -606,6 +619,60 @@ class ScopeLifecycleTests(unittest.TestCase):
                     if item["kind"] == "topology"
                 )["reasons"],
             )
+            atomic_json(spec_path, spec)
+            coherent_spec = copy.deepcopy(spec)
+            coherent_status = copy.deepcopy(persisted)
+            coherent_observed = self.workspace.topology_status(names[1])
+            for topology_record in (coherent_spec, coherent_status):
+                coordinate = next(iter(topology_record["resolved"].values()))
+                coordinate["head"] = "f" * 40
+            for coordinate in coherent_observed["resolved"].values():
+                if coordinate["checkout"] == scopes[1]["worktrees"][0]["checkout"]:
+                    coordinate["head"] = "f" * 40
+            atomic_json(spec_path, coherent_spec)
+            atomic_json(status_path, coherent_status)
+            with mock.patch.object(
+                self.workspace,
+                "topology_status",
+                return_value=coherent_observed,
+            ):
+                coherent_preview = self.workspace.scope_release(
+                    scopes[1]["name"], apply=False
+                )
+            self.assertIn(
+                "mismatched_topology_records",
+                next(
+                    item
+                    for item in coherent_preview["items"]
+                    if item["kind"] == "topology"
+                )["reasons"],
+            )
+            atomic_json(spec_path, spec)
+            atomic_json(status_path, persisted)
+            race_preview = self.workspace.scope_release(
+                scopes[1]["name"], apply=False
+            )
+            replaced = False
+
+            def replace_after_plan(boundary: str) -> None:
+                nonlocal replaced
+                if boundary == "release:journal" and not replaced:
+                    replaced = True
+                    atomic_json(spec_path, coherent_spec)
+
+            with mock.patch.object(
+                ScopeLifecycle, "_maybe_fail", side_effect=replace_after_plan
+            ):
+                with self.assertRaisesRegex(
+                    WorkspaceError, "topology evidence changed"
+                ):
+                    self.workspace.scope_release(
+                        scopes[1]["name"],
+                        apply=True,
+                        plan_sha256=race_preview["plan_sha256"],
+                    )
+            self.assertTrue(Path(scopes[1]["worktrees"][0]["path"]).is_dir())
+            self.assertTrue(Path(scopes[1]["profile"]["path"]).is_file())
             atomic_json(spec_path, spec)
             released_b = self.release_scope(scopes[1]["name"])
             self.assertTrue(released_b["released"])
@@ -1013,6 +1080,7 @@ class ScopeLifecycleTests(unittest.TestCase):
                 )
             )
             self.assertEqual(journal["status"], "complete")
+            self.assertIn(f"build:{root}", journal["completed"])
             self.assertFalse(root.exists())
             self.assertFalse(Path(record["profile"]["path"]).exists())
             self.assertFalse(Path(record["worktrees"][0]["path"]).exists())

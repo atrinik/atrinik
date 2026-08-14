@@ -2687,79 +2687,84 @@ class Workspace:
             )
         generation = container / key
         lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
+        def reuse_generation() -> Path:
+            if generation.is_symlink() or not generation.is_dir():
+                raise WorkspaceError(
+                    f"immutable source generation is invalid: {generation}"
+                )
+            marker = generation / MANAGED_MARKER
+            record = self._source_generation_record(generation / "source")
+            expected_record = {
+                **identity,
+                "source_tree_sha256": _tree_digest(
+                    generation / "source",
+                    set(),
+                    bounded_symlinks=True,
+                    reject_hardlinks=True,
+                ),
+            }
+            if (
+                not marker.is_file()
+                or marker.is_symlink()
+                or load_json(marker)
+                != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": f"source-generation:{key}",
+                }
+                or record != expected_record
+            ):
+                raise WorkspaceError(
+                    f"immutable source generation is corrupt: {generation}"
+                )
+            current_git_common = self._git_common_directory(checkout, trace=False)
+            current_checkout = checkout.stat()
+            current_source = source.stat()
+            current_git_common_identity = current_git_common.stat()
+            if (
+                (current_checkout.st_dev, current_checkout.st_ino)
+                != (state["device"], state["inode"])
+                or str(current_git_common) != state["git_common"]
+                or (
+                    current_git_common_identity.st_dev,
+                    current_git_common_identity.st_ino,
+                )
+                != (
+                    state["git_common_device"],
+                    state["git_common_inode"],
+                )
+                or state["sources"][component.source]
+                != {
+                    "path": str(source.resolve()),
+                    "device": current_source.st_dev,
+                    "inode": current_source.st_ino,
+                }
+                or not _is_clean(checkout, trace=False)
+                or git(
+                    checkout,
+                    "rev-parse",
+                    "HEAD",
+                    capture=True,
+                    trace=False,
+                )
+                != commit
+            ):
+                raise WorkspaceError(
+                    f"clean primary source changed before generation reuse: {checkout}"
+                )
+            self._validate_source_generation_git_tree(
+                checkout,
+                generation / "source",
+                source_tree,
+            )
+            return generation / "source"
+
+        if generation.exists() or generation.is_symlink():
+            with shared_lock(lock, f"immutable source generation {component.name}"):
+                return reuse_generation()
+
         with exclusive_lock(lock, f"immutable source generation {component.name}"):
             if generation.exists() or generation.is_symlink():
-                if generation.is_symlink() or not generation.is_dir():
-                    raise WorkspaceError(
-                        f"immutable source generation is invalid: {generation}"
-                    )
-                marker = generation / MANAGED_MARKER
-                record = self._source_generation_record(generation / "source")
-                expected_record = {
-                    **identity,
-                    "source_tree_sha256": _tree_digest(
-                        generation / "source",
-                        set(),
-                        bounded_symlinks=True,
-                        reject_hardlinks=True,
-                    ),
-                }
-                if (
-                    not marker.is_file()
-                    or marker.is_symlink()
-                    or load_json(marker)
-                    != {
-                        "schema_version": SCHEMA_VERSION,
-                        "purpose": f"source-generation:{key}",
-                    }
-                    or record != expected_record
-                ):
-                    raise WorkspaceError(
-                        f"immutable source generation is corrupt: {generation}"
-                    )
-                current_git_common = self._git_common_directory(
-                    checkout, trace=False
-                )
-                current_checkout = checkout.stat()
-                current_source = source.stat()
-                current_git_common_identity = current_git_common.stat()
-                if (
-                    (current_checkout.st_dev, current_checkout.st_ino)
-                    != (state["device"], state["inode"])
-                    or str(current_git_common) != state["git_common"]
-                    or (
-                        current_git_common_identity.st_dev,
-                        current_git_common_identity.st_ino,
-                    )
-                    != (
-                        state["git_common_device"],
-                        state["git_common_inode"],
-                    )
-                    or state["sources"][component.source]
-                    != {
-                        "path": str(source.resolve()),
-                        "device": current_source.st_dev,
-                        "inode": current_source.st_ino,
-                    }
-                    or not _is_clean(checkout, trace=False)
-                    or git(
-                        checkout,
-                        "rev-parse",
-                        "HEAD",
-                        capture=True,
-                        trace=False,
-                    )
-                    != commit
-                ):
-                    raise WorkspaceError(
-                        f"clean primary source changed before generation reuse: {checkout}"
-                    )
-                self._validate_source_generation_git_tree(
-                    checkout,
-                    generation / "source",
-                    source_tree,
-                )
-                return generation / "source"
+                return reuse_generation()
 
             staging = Path(
                 tempfile.mkdtemp(prefix=f"{key}-staging-", dir=container)

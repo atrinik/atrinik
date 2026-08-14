@@ -1361,6 +1361,30 @@ class ScopeLifecycle:
                         )
                         and policy_matches
                     )
+                    scope_worktrees = {
+                        row["checkout"]: row for row in record["worktrees"]
+                    }
+                    resolved = spec.get("resolved") if isinstance(spec, dict) else None
+                    resolved_by_checkout: dict[str, list[dict[str, Any]]] = {}
+                    if isinstance(resolved, dict):
+                        for coordinate in resolved.values():
+                            if isinstance(coordinate, dict) and isinstance(
+                                coordinate.get("checkout"), str
+                            ):
+                                resolved_by_checkout.setdefault(
+                                    coordinate["checkout"], []
+                                ).append(coordinate)
+                    scope_coordinates_match = all(
+                        row["checkout"] in resolved_by_checkout
+                        and all(
+                            coordinate.get("checkout_path") == row["path"]
+                            and coordinate.get("head") == row["commit"]
+                            and coordinate.get("dirty") is False
+                            for coordinate in resolved_by_checkout[row["checkout"]]
+                        )
+                        for row in scope_worktrees.values()
+                    )
+                    records_match = records_match and scope_coordinates_match
                     stopped_cleanly = (
                         isinstance(persisted, dict)
                         and isinstance(persisted.get("stopped_at"), str)
@@ -1627,6 +1651,30 @@ class ScopeLifecycle:
     def _apply_release(self, record: dict[str, Any], plan: dict[str, Any]) -> dict[str, Any]:
         from .workspace import BUILD_METADATA, git, remove_owned_tree
 
+        topology_item = next(
+            item for item in plan["items"] if item["kind"] == "topology"
+        )
+
+        def revalidate_topology_evidence() -> None:
+            if topology_item["disposition"] != "retained":
+                return
+            topology_root = Path(topology_item["path"])
+            for prefix, filename in (("spec", "spec.json"), ("status", "status.json")):
+                path = topology_root / filename
+                if path.is_symlink() or not path.is_file():
+                    raise WorkspaceError(
+                        "scope topology evidence changed during release"
+                    )
+                identity = path.stat(follow_symlinks=False)
+                if (
+                    identity.st_dev != topology_item.get(f"{prefix}_device")
+                    or identity.st_ino != topology_item.get(f"{prefix}_inode")
+                    or _file_sha256(path) != topology_item.get(f"{prefix}_sha256")
+                ):
+                    raise WorkspaceError(
+                        "scope topology evidence changed during release"
+                    )
+
         completed: list[str] = []
         release_path = self._release_path(record["name"])
         if release_path.exists() or release_path.is_symlink():
@@ -1640,9 +1688,67 @@ class ScopeLifecycle:
                 or previous.get("generation") != record["generation"]
                 or not isinstance(previous.get("completed"), list)
                 or not all(isinstance(item, str) for item in previous["completed"])
+                or "pending_builds" in previous
+                and (
+                    not isinstance(previous["pending_builds"], list)
+                    or any(
+                        not isinstance(item, dict)
+                        or set(item)
+                        != {
+                            "path",
+                            "device",
+                            "inode",
+                            "metadata_sha256",
+                            "marker_sha256",
+                        }
+                        or not isinstance(item["path"], str)
+                        or Path(item["path"]).parent
+                        != self.workspace.paths.builds / "profiles"
+                        or not re.fullmatch(
+                            re.escape(record["profile"]["name"])
+                            + r"-[0-9a-f]{64}",
+                            Path(item["path"]).name,
+                        )
+                        or not all(
+                            isinstance(item[key], int)
+                            and not isinstance(item[key], bool)
+                            and item[key] >= 0
+                            for key in ("device", "inode")
+                        )
+                        or not all(
+                            isinstance(item[key], str)
+                            and re.fullmatch(r"[0-9a-f]{64}", item[key])
+                            for key in ("metadata_sha256", "marker_sha256")
+                        )
+                        for item in previous["pending_builds"]
+                    )
+                )
             ):
                 raise WorkspaceError("scope release journal is invalid")
             completed = list(dict.fromkeys(previous["completed"]))
+        else:
+            previous = {}
+        pending_by_path = {
+            item["path"]: item
+            for item in previous.get("pending_builds", [])
+        }
+        for item in plan["items"]:
+            if item["kind"] != "build" or item["disposition"] != "eligible":
+                continue
+            evidence = {
+                key: item[key]
+                for key in (
+                    "path",
+                    "device",
+                    "inode",
+                    "metadata_sha256",
+                    "marker_sha256",
+                )
+            }
+            prior = pending_by_path.setdefault(item["path"], evidence)
+            if prior != evidence:
+                raise WorkspaceError("scope release build intent changed")
+        pending_builds = [pending_by_path[path] for path in sorted(pending_by_path)]
         journal: dict[str, Any] = {
             "schema_version": SCOPE_RELEASE_SCHEMA_VERSION,
             "scope": record["name"],
@@ -1650,10 +1756,21 @@ class ScopeLifecycle:
             "plan_sha256": plan["plan_sha256"],
             "status": "applying",
             "completed": completed,
+            "pending_builds": pending_builds,
             "updated_at": _now(),
         }
         durable_atomic_json(self._release_path(record["name"]), journal)
         self._maybe_fail("release:journal")
+        revalidate_topology_evidence()
+        for intent in pending_builds:
+            action = f"build:{intent['path']}"
+            if action in journal["completed"]:
+                continue
+            root = Path(intent["path"])
+            if not root.exists() and not root.is_symlink():
+                journal["completed"].append(action)
+                journal["updated_at"] = _now()
+                durable_atomic_json(self._release_path(record["name"]), journal)
         for item in plan["items"]:
             if item["kind"] != "build" or item["disposition"] != "eligible":
                 continue
@@ -1687,6 +1804,7 @@ class ScopeLifecycle:
         profile_item = next(
             item for item in plan["items"] if item["kind"] == "profile"
         )
+        revalidate_topology_evidence()
         if profile_item["disposition"] == "eligible":
             if (
                 profile_path.is_symlink()
@@ -1723,6 +1841,7 @@ class ScopeLifecycle:
                 continue
             path = Path(row["path"])
             primary = Path(row["primary_path"])
+            revalidate_topology_evidence()
             if item["disposition"] == "eligible":
                 if path.is_symlink() or not path.is_dir():
                     raise WorkspaceError(f"scope worktree changed during release: {path}")
@@ -1771,6 +1890,16 @@ class ScopeLifecycle:
             journal["updated_at"] = _now()
             durable_atomic_json(self._release_path(record["name"]), journal)
             self._maybe_fail(f"release:worktree:{row['checkout']}")
+        missing_build_evidence = [
+            f"build:{intent['path']}"
+            for intent in pending_builds
+            if f"build:{intent['path']}" not in journal["completed"]
+        ]
+        if missing_build_evidence:
+            raise WorkspaceError(
+                "scope release build actions are incomplete: "
+                + ", ".join(missing_build_evidence)
+            )
         journal["status"] = "complete"
         journal["updated_at"] = _now()
         durable_atomic_json(self._release_path(record["name"]), journal)

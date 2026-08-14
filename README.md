@@ -1220,7 +1220,9 @@ commit/tree/subpath-keyed read-only generations below
 `workspace/build/source-generations/`; reuse verifies ownership metadata and a
 complete tree digest plus the captured checkout, source, and common-Git
 filesystem identities. No generation links or hard-links back to mutable
-primary files. Every generated path is revalidated after the build takes its
+primary files. Existing generations are authenticated under a shared per-key
+lock; only an absent generation takes the exclusive creation lock and rechecks
+after admission. Every generated path is revalidated after the build takes its
 shared pin; only then are its primary source leases released. Dirty primaries
 and worktrees stay locked for as long as the build
 can read them. Cache and region-map coordinates come from the captured snapshot
