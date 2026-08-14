@@ -40,6 +40,7 @@ from .workspace import (
     COMPILER_CACHE_PURPOSE,
     TEMPORARY_STATE_METADATA,
     TEMPORARY_STATE_SCHEMA_VERSION,
+    _owned_tree_tombstone_path,
     _remote_matches,
     exclusive_lock,
     remove_owned_tree,
@@ -778,6 +779,8 @@ class Cleanup:
                             "disposition": match["disposition"],
                             "reasons": match["reasons"],
                         }
+                        if "error" in match:
+                            target["revalidation"]["error"] = match["error"]
                     report["aborted"] = True
                     break
                 credited = {
@@ -1003,7 +1006,16 @@ class Cleanup:
                 )
             return item
         if kind == "temporary-state":
-            item = self._temporary_state_item(path, older_than_days)
+            physical = target.get("_physical_path")
+            item = self._temporary_state_item(
+                path,
+                older_than_days,
+                physical_path=(
+                    Path(physical)
+                    if isinstance(physical, str) and not path.exists()
+                    else None
+                ),
+            )
             filesystem_identity = item.get("_identity")
             self._strip_internal(item)
             item["_identity"] = filesystem_identity
@@ -3583,6 +3595,33 @@ class Cleanup:
                             logical, older_than_days, physical_path=path
                         )
                     )
+                elif re.fullmatch(
+                    r"\.remove-[0-9a-f]{16}-[0-9a-f]+-[0-9a-f]+", path.name
+                ):
+                    try:
+                        creation = load_json(path / TEMPORARY_STATE_METADATA)
+                        policy = creation["state_policy"]
+                        logical = Path(policy["path"])
+                        identity = policy["identity"]
+                        pending_path = logical.parent / (
+                            f".{logical.name}.removal-pending"
+                        )
+                        if path not in {
+                            _owned_tree_tombstone_path(logical, identity),
+                            _owned_tree_tombstone_path(pending_path, identity),
+                        }:
+                            raise WorkspaceError(
+                                "temporary state removal tombstone is invalid"
+                            )
+                        items.append(
+                            self._temporary_state_item(
+                                logical, older_than_days, physical_path=path
+                            )
+                        )
+                    except (KeyError, OSError, TypeError, WorkspaceError):
+                        items.append(
+                            self._temporary_state_item(path, older_than_days)
+                        )
                 else:
                     items.append(self._temporary_state_item(path, older_than_days))
         return items
@@ -3606,6 +3645,7 @@ class Cleanup:
             and (pending_path.exists() or pending_path.is_symlink())
             else path
         )
+        item["_physical_path"] = str(physical)
         inodes, observed, walk_error = _tree_usage(physical)
         item["_inodes"] = inodes
         if walk_error:
@@ -3849,9 +3889,7 @@ class Cleanup:
                         "inode": lease_metadata.st_ino,
                     },
                     physical_path=(
-                        self.workspace._temporary_state_removal_path(
-                            self.workspace.topology_status(topology)["state_policy"]
-                        )
+                        Path(item["_physical_path"])
                         if not path.exists()
                         else None
                     ),
@@ -3861,7 +3899,8 @@ class Cleanup:
                     or current["disposition"] != "eligible"
                 ):
                     raise WorkspaceError(
-                        f"temporary state changed before removal: {path}"
+                        f"temporary state changed before removal: {path}: "
+                        f"{current.get('error', current['reasons'])}"
                     )
                 status = self.workspace.topology_status(topology)
                 self.workspace._commit_temporary_state_removal(

@@ -6010,8 +6010,8 @@ class WorkspaceTests(unittest.TestCase):
         root.mkdir()
         (root / "payload").write_text("owned\n", encoding="utf-8")
         identity = self.workspace._state_identity(root)
-        root_tombstone = root.parent / (
-            f".{root.name}.remove-{identity['device']:x}-{identity['inode']:x}"
+        root_tombstone = workspace_module._owned_tree_tombstone_path(
+            root, identity
         )
         root.rename(root_tombstone)
         remove_owned_tree(root, expected_identity=identity)
@@ -6022,9 +6022,8 @@ class WorkspaceTests(unittest.TestCase):
         child = child_root / "payload"
         child.write_text("owned\n", encoding="utf-8")
         child_metadata = child.stat()
-        child_tombstone = child_root / (
-            f".{child.name}.remove-{child_metadata.st_dev:x}-"
-            f"{child_metadata.st_ino:x}"
+        child_tombstone = child_root / workspace_module._owned_tree_tombstone_name(
+            child.name, child_metadata.st_dev, child_metadata.st_ino
         )
         child.rename(child_tombstone)
         remove_owned_tree(
@@ -6039,8 +6038,8 @@ class WorkspaceTests(unittest.TestCase):
         original = root / "payload"
         original.write_text("owned\n", encoding="utf-8")
         metadata = original.stat()
-        tombstone = root / (
-            f".{original.name}.remove-{metadata.st_dev:x}-{metadata.st_ino:x}"
+        tombstone = root / workspace_module._owned_tree_tombstone_name(
+            original.name, metadata.st_dev, metadata.st_ino
         )
         original.rename(self.root / "preserved-original")
         tombstone.write_text("must survive\n", encoding="utf-8")
@@ -6049,6 +6048,14 @@ class WorkspaceTests(unittest.TestCase):
                 root, expected_identity=self.workspace._state_identity(root)
             )
         self.assertEqual(tombstone.read_text(encoding="utf-8"), "must survive\n")
+
+    def test_owned_tree_removal_supports_name_max_entries(self) -> None:
+        root = self.root / "name-max-removal"
+        root.mkdir()
+        (root / ("f" * 255)).write_text("owned\n", encoding="utf-8")
+        (root / ("d" * 255)).mkdir()
+        remove_owned_tree(root, expected_identity=self.workspace._state_identity(root))
+        self.assertFalse(root.exists())
 
     def test_replaced_directory_recovery_rejects_invalid_states(self) -> None:
         def snapshot(parent: Path) -> dict[str, tuple[object, ...]]:
@@ -10762,9 +10769,18 @@ class WorkspaceTests(unittest.TestCase):
             item for item in preview["items"] if item["path"] == str(state)
         )
         self.assertEqual(candidate["disposition"], "eligible")
+        pending_state = state.parent / f".{state.name}.removal-pending"
+        removal_tombstone = workspace_module._owned_tree_tombstone_path(
+            pending_state, crashed["state_policy"]["identity"]
+        )
+
+        def interrupt_after_root_tombstone(*_args: object, **_kwargs: object) -> None:
+            pending_state.rename(removal_tombstone)
+            raise WorkspaceError("simulated cleanup removal interruption")
+
         with mock.patch(
             "atrinik_workspace.workspace.remove_owned_tree",
-            side_effect=WorkspaceError("simulated cleanup removal interruption"),
+            side_effect=interrupt_after_root_tombstone,
         ):
             interrupted = self.workspace.cleanup(
                 ["temporary-states"], 0, [], True
@@ -10779,9 +10795,7 @@ class WorkspaceTests(unittest.TestCase):
             ],
             "removal-pending",
         )
-        self.assertTrue(
-            (state.parent / f".{state.name}.removal-pending").is_dir()
-        )
+        self.assertTrue(removal_tombstone.is_dir())
         applied = self.workspace.cleanup(
             ["temporary-states"], 0, [], True
         )
@@ -11433,6 +11447,20 @@ class WorkspaceTests(unittest.TestCase):
             )
         self.assertFalse(state.exists())
         self.assertFalse(lock.exists())
+
+    def test_temporary_mutation_refuses_live_physical_alias(self) -> None:
+        state = self.root / "temporary-physical-alias"
+        state.mkdir()
+        identity = self.workspace._state_identity(state)
+        alias_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            fcntl.flock(alias_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with self.assertRaisesRegex(
+                WorkspaceError, "temporary state is already in use"
+            ):
+                self.workspace._lock_state_directory_mutation(state, identity)
+        finally:
+            os.close(alias_fd)
 
     def test_temporary_state_first_digest_failure_removes_staging(self) -> None:
         topology = self.workspace._topology_directory("digest-failure", create=True)
@@ -12120,8 +12148,18 @@ class WorkspaceTests(unittest.TestCase):
 
         state = self.workspace.paths.scenarios / "locked" / "state"
         with exclusive_lock(Path(f"{state}.lock"), "test state"):
-            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+            with self.assertRaisesRegex(WorkspaceError, "already in use|busy"):
                 self.workspace.scenario_reset("locked")
+
+        descriptor = os.open(state, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with self.assertRaisesRegex(
+                WorkspaceError, "scenario server state is already in use"
+            ):
+                self.workspace.scenario_reset("locked")
+        finally:
+            os.close(descriptor)
 
     def test_foreground_client_pins_matching_server_state(self) -> None:
         server = self.workspace.paths.repositories / "server"
