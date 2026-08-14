@@ -8315,7 +8315,7 @@ class Workspace:
                 metadata = current.lstat()
             except FileNotFoundError:
                 break
-            except OSError as error:
+            except (OSError, ValueError) as error:
                 raise WorkspaceError(
                     f"cannot inspect server state path {current}: {error}"
                 ) from error
@@ -8350,7 +8350,8 @@ class Workspace:
 
     @staticmethod
     def _validate_state_implementation(
-        path: Path, implementation: dict[str, str] | None
+        path: Path,
+        implementation: dict[str, str] | None,
     ) -> None:
         marker = path / STATE_IMPLEMENTATION_MARKER
         if not marker.exists() and not marker.is_symlink():
@@ -8378,7 +8379,8 @@ class Workspace:
         descriptor: int | None = None
         try:
             descriptor = os.open(
-                name, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                name,
+                os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC | os.O_NOFOLLOW,
                 dir_fd=directory_fd,
             )
             metadata = os.fstat(descriptor)
@@ -9128,7 +9130,9 @@ class Workspace:
 
     @staticmethod
     def _validate_temporary_state_integrity(
-        directory_fd: int, path: Path
+        directory_fd: int,
+        path: Path,
+        implementation: dict[str, str] | None = None,
     ) -> None:
         """Fail closed before deleting wrapper-owned mutable server state."""
 
@@ -9151,6 +9155,32 @@ class Workspace:
                 )
         finally:
             os.close(parent_fd)
+        marker = Workspace._load_state_json_at(
+            directory_fd,
+            STATE_IMPLEMENTATION_MARKER,
+            "temporary state implementation marker",
+        )
+        if implementation is None:
+            marker_valid = bool(
+                isinstance(marker, dict)
+                and set(marker)
+                == {"schema_version", "stack", "provider", "repository"}
+                and marker.get("schema_version")
+                == STATE_IMPLEMENTATION_SCHEMA_VERSION
+                and all(
+                    isinstance(marker.get(key), str) and marker[key]
+                    for key in ("stack", "provider", "repository")
+                )
+            )
+        else:
+            marker_valid = marker == {
+                "schema_version": STATE_IMPLEMENTATION_SCHEMA_VERSION,
+                **implementation,
+            }
+        if not marker_valid:
+            raise WorkspaceError(
+                f"temporary state implementation marker is invalid: {path}"
+            )
         for name in EXPECTED_SERVER_DATA["files"]:
             try:
                 metadata = os.stat(
@@ -9984,6 +10014,29 @@ class Workspace:
         return sorted(entries, key=lambda entry: entry["path"])
 
     @staticmethod
+    def _runtime_state_output_identity_at(
+        state_directory_fd: int, generation: str
+    ) -> dict[str, int]:
+        flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        descriptors: list[int] = []
+        state_mount_id = _descriptor_mount_id(state_directory_fd)
+        try:
+            parent = state_directory_fd
+            for name in ("tmp", "runtime-assets", generation):
+                descriptor = os.open(name, flags, dir_fd=parent)
+                descriptors.append(descriptor)
+                if _descriptor_mount_id(descriptor) != state_mount_id:
+                    raise WorkspaceError(
+                        "server runtime state output crosses a mount"
+                    )
+                parent = descriptor
+            metadata = os.fstat(descriptors[-1])
+            return {"device": metadata.st_dev, "inode": metadata.st_ino}
+        finally:
+            for descriptor in reversed(descriptors):
+                os.close(descriptor)
+
+    @staticmethod
     def _prepare_runtime_state_output(
         state: Path, generation: str, state_directory_fd: int | None = None
     ) -> Path:
@@ -9991,6 +10044,7 @@ class Workspace:
         descriptors: list[int] = []
         created_generation = False
         output = state / "tmp" / "runtime-assets" / generation
+        state_mount_id: int | None = None
 
         def open_directory(parent: int, name: str, create: bool) -> int:
             if create:
@@ -10013,6 +10067,14 @@ class Workspace:
                 raise WorkspaceError(
                     f"server runtime state output path changed: {output}"
                 )
+            if (
+                state_mount_id is not None
+                and _descriptor_mount_id(descriptor) != state_mount_id
+            ):
+                os.close(descriptor)
+                raise WorkspaceError(
+                    f"server runtime state output crosses a mount: {output}"
+                )
             return descriptor
 
         try:
@@ -10023,6 +10085,7 @@ class Workspace:
             )
             descriptors.append(state_fd)
             state_metadata = os.fstat(state_fd)
+            state_mount_id = _descriptor_mount_id(state_fd)
             if not stat.S_ISDIR(state_metadata.st_mode):
                 raise WorkspaceError(f"server state is invalid: {state}")
             if state_directory_fd is None and Workspace._runtime_tree_identity(
@@ -10123,10 +10186,12 @@ class Workspace:
         path: Path,
         generation: str,
         state_directory_fd: int | None = None,
+        expected_identity: dict[str, int] | None = None,
     ) -> None:
         if state_directory_fd is not None:
             flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
             descriptors = [os.dup(state_directory_fd)]
+            state_mount_id = _descriptor_mount_id(descriptors[0])
 
             def open_exact_directory(parent: int, name: str) -> int:
                 visible = os.stat(name, dir_fd=parent, follow_symlinks=False)
@@ -10142,6 +10207,11 @@ class Workspace:
                     os.close(descriptor)
                     raise WorkspaceError(
                         f"server runtime state output path changed: {path}"
+                    )
+                if _descriptor_mount_id(descriptor) != state_mount_id:
+                    os.close(descriptor)
+                    raise WorkspaceError(
+                        f"server runtime state output crosses a mount: {path}"
                     )
                 return descriptor
 
@@ -10171,6 +10241,13 @@ class Workspace:
                     already_tombstoned = True
                 descriptors.append(generation_fd)
                 metadata = os.fstat(generation_fd)
+                if expected_identity is None or expected_identity != {
+                    "device": metadata.st_dev,
+                    "inode": metadata.st_ino,
+                }:
+                    raise WorkspaceError(
+                        f"server runtime state output identity changed: {path}"
+                    )
                 if already_tombstoned:
                     match = re.fullmatch(
                         r"\.remove-[0-9a-f]{16}-([0-9a-f]+)-([0-9a-f]+)",
@@ -10183,13 +10260,11 @@ class Workspace:
                         raise WorkspaceError(
                             f"server runtime state output tombstone is invalid: {path}"
                         )
-                marker_fd = os.open(
+                marker = Workspace._load_state_json_at(
+                    generation_fd,
                     MANAGED_MARKER,
-                    os.O_RDONLY | os.O_NOFOLLOW,
-                    dir_fd=generation_fd,
+                    "server runtime state output ownership",
                 )
-                with os.fdopen(marker_fd, encoding="utf-8") as stream:
-                    marker = json.load(stream)
                 if marker != {
                     "schema_version": SCHEMA_VERSION,
                     "purpose": f"runtime-state-output:{generation}",
@@ -10382,6 +10457,7 @@ class Workspace:
         lease_fd: int | None = None
         state_output: Path | None = None
         state_output_access: Path | None = None
+        state_output_identity: dict[str, int] | None = None
         try:
             input_digests = self._runtime_publication_input_digests(
                 build_root, selected, services, sound_root
@@ -10460,6 +10536,13 @@ class Workspace:
                     if state_directory_fd is not None
                     else state_output
                 )
+                state_output_identity = (
+                    self._runtime_state_output_identity_at(
+                        state_directory_fd, generation
+                    )
+                    if state_directory_fd is not None
+                    else self._state_identity(state_output_access)
+                )
                 (state_output_access / "data").mkdir()
                 client_maps = build_root / "runtime" / "client-maps"
                 self._validate_region_maps(client_maps)
@@ -10516,6 +10599,11 @@ class Workspace:
                 "mutable_state_outputs": (
                     [str(state_output)] if state_output is not None else []
                 ),
+                "mutable_state_output_identities": (
+                    [state_output_identity]
+                    if state_output_identity is not None
+                    else []
+                ),
                 "mutable_state_output_entries": state_output_entries,
                 "entries": self._runtime_generation_entries(staging, state),
             }
@@ -10548,6 +10636,11 @@ class Workspace:
                 "mutable_state_outputs": (
                     [str(state_output)] if state_output is not None else []
                 ),
+                "mutable_state_output_identities": (
+                    [state_output_identity]
+                    if state_output_identity is not None
+                    else []
+                ),
             }
             result_fd = lease_fd
             lease_fd = None
@@ -10557,10 +10650,18 @@ class Workspace:
                 remove_owned_tree(staging)
             cleanup_output = state_output_access or state_output
             if cleanup_output is not None and cleanup_output.exists():
+                if (
+                    state_output_identity is None
+                    and state_directory_fd is not None
+                ):
+                    state_output_identity = self._runtime_state_output_identity_at(
+                        state_directory_fd, generation
+                    )
                 self._remove_runtime_state_output(
                     state_output or cleanup_output,
                     generation,
                     state_directory_fd,
+                    state_output_identity,
                 )
             raise
         finally:
@@ -11288,6 +11389,7 @@ class Workspace:
                     "lease",
                     "external_state",
                     "mutable_state_outputs",
+                    "mutable_state_output_identities",
                 }
                 or runtime.get("schema_version")
                 != RUNTIME_GENERATION_SCHEMA_VERSION
@@ -11308,6 +11410,22 @@ class Workspace:
                     ]
                     if status.get("state") is not None
                     else []
+                )
+                or not isinstance(
+                    runtime.get("mutable_state_output_identities"), list
+                )
+                or len(runtime["mutable_state_output_identities"])
+                != len(runtime["mutable_state_outputs"])
+                or any(
+                    not isinstance(identity, dict)
+                    or set(identity) != {"device", "inode"}
+                    or any(
+                        not isinstance(value, int)
+                        or isinstance(value, bool)
+                        or value < 0
+                        for value in identity.values()
+                    )
+                    for identity in runtime["mutable_state_output_identities"]
                 )
                 or not isinstance(runtime.get("lease"), dict)
                 or set(runtime["lease"]) != {"device", "inode"}
@@ -11389,6 +11507,7 @@ class Workspace:
                     "build",
                     "external_state",
                     "mutable_state_outputs",
+                    "mutable_state_output_identities",
                     "mutable_state_output_entries",
                     "entries",
                 }
@@ -11401,6 +11520,8 @@ class Workspace:
                 or runtime_manifest.get("external_state") != status.get("state")
                 or runtime_manifest.get("mutable_state_outputs")
                 != runtime["mutable_state_outputs"]
+                or runtime_manifest.get("mutable_state_output_identities")
+                != runtime["mutable_state_output_identities"]
                 or not isinstance(manifest_services, list)
                 or not manifest_services
                 or len(manifest_services) != len(set(manifest_services))
@@ -12056,7 +12177,14 @@ class Workspace:
                 state_policy: dict[str, Any] | None = None
                 state_directory_fd: int | None = None
                 temporary_state_owner: list[
-                    tuple[Path, TextIO, dict[str, int], dict[str, int], int]
+                    tuple[
+                        Path,
+                        TextIO,
+                        dict[str, int],
+                        dict[str, int],
+                        int,
+                        dict[str, str],
+                    ]
                 ] = []
                 if "server" in selected_services:
                     assert implementation is not None
@@ -12168,6 +12296,7 @@ class Workspace:
                                 state_policy["identity"],
                                 state_policy["lease_identity"],
                                 state_directory_fd,
+                                state_policy["implementation"],
                             )
                         )
                         stack.callback(
@@ -12262,6 +12391,7 @@ class Workspace:
                         published_state_output_owner.pop(),
                         generation,
                         state_directory_fd,
+                        runtime_record["mutable_state_output_identities"][0],
                     )
                     if published_state_output_owner
                     else None
@@ -12618,7 +12748,13 @@ class Workspace:
         ):
             return
         outputs = runtime.get("mutable_state_outputs")
-        if not isinstance(outputs, list) or not outputs:
+        identities = runtime.get("mutable_state_output_identities")
+        if (
+            not isinstance(outputs, list)
+            or not outputs
+            or not isinstance(identities, list)
+            or len(identities) != len(outputs)
+        ):
             return
         state = Path(policy["path"])
         descriptor = _open_directory_nofollow(
@@ -12637,11 +12773,14 @@ class Workspace:
                 raise WorkspaceError(
                     f"server state identity changed before runtime cleanup: {state}"
                 )
-            for value in outputs:
+            for value, output_identity in zip(outputs, identities, strict=True):
                 output = Path(value)
                 try:
                     self._remove_runtime_state_output(
-                        output, control["generation"], descriptor
+                        output,
+                        control["generation"],
+                        descriptor,
+                        output_identity,
                     )
                 except FileNotFoundError:
                     continue
@@ -12746,7 +12885,32 @@ class Workspace:
                 raise WorkspaceError(
                     f"temporary topology state lease changed before removal: {lock}"
                 )
-            os.unlink(tombstone, dir_fd=parent_fd)
+            if not stat.S_ISREG(moved.st_mode) or moved.st_nlink != 1:
+                raise WorkspaceError(
+                    f"temporary topology state lease changed before removal: {lock}"
+                )
+            tombstone_fd = os.open(
+                tombstone, os.O_PATH | os.O_CLOEXEC | os.O_NOFOLLOW,
+                dir_fd=parent_fd,
+            )
+            try:
+                opened = os.fstat(tombstone_fd)
+                visible = os.stat(
+                    tombstone, dir_fd=parent_fd, follow_symlinks=False
+                )
+                if (
+                    not stat.S_ISREG(opened.st_mode)
+                    or opened.st_nlink != 1
+                    or (opened.st_dev, opened.st_ino) != expected
+                    or (visible.st_dev, visible.st_ino) != expected
+                    or visible.st_nlink != 1
+                ):
+                    raise WorkspaceError(
+                        f"temporary topology state lease changed before removal: {lock}"
+                    )
+                os.unlink(tombstone, dir_fd=parent_fd)
+            finally:
+                os.close(tombstone_fd)
             os.fsync(parent_fd)
         finally:
             os.close(parent_fd)
@@ -12788,18 +12952,39 @@ class Workspace:
         )
         if not tombstone.exists() and not tombstone.is_symlink():
             return False
-        metadata = tombstone.stat(follow_symlinks=False)
-        if (
-            not stat.S_ISREG(metadata.st_mode)
-            or metadata.st_nlink != 1
-            or (metadata.st_dev, metadata.st_ino)
-            != (lease_identity["device"], lease_identity["inode"])
-        ):
-            raise WorkspaceError(
-                f"temporary topology state lease tombstone is invalid: {tombstone}"
+        parent_fd = os.open(
+            tombstone.parent,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+        )
+        try:
+            descriptor = os.open(
+                tombstone.name,
+                os.O_PATH | os.O_CLOEXEC | os.O_NOFOLLOW,
+                dir_fd=parent_fd,
             )
-        tombstone.unlink()
-        _fsync_directory(tombstone.parent)
+            try:
+                metadata = os.fstat(descriptor)
+                visible = os.stat(
+                    tombstone.name, dir_fd=parent_fd, follow_symlinks=False
+                )
+                expected = (lease_identity["device"], lease_identity["inode"])
+                if (
+                    not stat.S_ISREG(metadata.st_mode)
+                    or metadata.st_nlink != 1
+                    or (metadata.st_dev, metadata.st_ino) != expected
+                    or (visible.st_dev, visible.st_ino) != expected
+                    or visible.st_nlink != 1
+                ):
+                    raise WorkspaceError(
+                        "temporary topology state lease tombstone is invalid: "
+                        f"{tombstone}"
+                    )
+                os.unlink(tombstone.name, dir_fd=parent_fd)
+                os.fsync(parent_fd)
+            finally:
+                os.close(descriptor)
+        finally:
+            os.close(parent_fd)
         return True
 
     @staticmethod
@@ -12845,6 +13030,7 @@ class Workspace:
         state_identity: dict[str, int],
         lease_identity: dict[str, int],
         state_directory_fd: int | None = None,
+        implementation: dict[str, str] | None = None,
     ) -> None:
         Workspace._validate_temporary_state_lock(
             state, state_lease, lease_identity
@@ -12859,7 +13045,7 @@ class Workspace:
             close_descriptor = True
         try:
             Workspace._validate_temporary_state_integrity(
-                owned_descriptor, state
+                owned_descriptor, state, implementation
             )
             remove_owned_tree(
                 state,
@@ -12892,7 +13078,7 @@ class Workspace:
                     "temporary state integrity lease is missing before removal"
                 )
             self._validate_temporary_state_integrity(
-                state_directory_fd, state
+                state_directory_fd, state, policy["implementation"]
             )
             pending = {**policy, "lifecycle": "removal-pending"}
             current = self._write_temporary_state_policy(name, current, pending)
@@ -12920,7 +13106,7 @@ class Workspace:
                         "resuming removal"
                     )
                 self._validate_temporary_state_integrity(
-                    state_directory_fd, state
+                    state_directory_fd, state, policy["implementation"]
                 )
                 rename_no_replace(state, tombstone)
                 tombstone_present = True
@@ -12987,6 +13173,13 @@ class Workspace:
             "retained",
         }:
             return status
+        if retain_state and policy.get("lifecycle") in {
+            "removal-pending",
+            "removed",
+        }:
+            raise WorkspaceError(
+                "temporary state removal has already begun and cannot be retained"
+            )
         if not confirmed_clean and policy.get("lifecycle") != "removal-pending":
             if retain_state:
                 raise WorkspaceError(
@@ -13044,7 +13237,7 @@ class Workspace:
                 }:
                     try:
                         self._validate_temporary_state_integrity(
-                            mutation_fd, state
+                            mutation_fd, state, policy["implementation"]
                         )
                     except WorkspaceError as error:
                         retained = {**policy, "lifecycle": "retained"}
@@ -13113,6 +13306,14 @@ class Workspace:
                 raise WorkspaceError(
                     f"temporary topology state is still active: {topology_name}"
                 )
+            if (
+                policy.get("lifecycle") == "promotion-pending"
+                and policy.get("name") != state_name
+            ):
+                raise WorkspaceError(
+                    "temporary state promotion target cannot change while "
+                    f"promotion is pending: {policy.get('name')}"
+                )
             state = Path(policy["path"])
             with ExitStack() as promotion:
                 state_lease = promotion.enter_context(
@@ -13159,6 +13360,9 @@ class Workspace:
                         )
 
                 verify_visible_state()
+                self._validate_temporary_state_integrity(
+                    state_fd, state, policy["implementation"]
+                )
                 with exclusive_lock(
                     self.paths.workspace / "states.lock", "states registry"
                 ):
@@ -13654,6 +13858,7 @@ class Workspace:
                         state_output,
                         generation_root.name,
                         state_fd,
+                        prepared["state_output_identity"],
                     )
             finally:
                 if physical_state_lock_fd is not None:
@@ -13742,6 +13947,11 @@ class Workspace:
                     if _runtime_record["mutable_state_outputs"]
                     else None
                 )
+                state_output_identity = (
+                    _runtime_record["mutable_state_output_identities"][0]
+                    if _runtime_record["mutable_state_output_identities"]
+                    else None
+                )
                 state_lock_fd: int | None = None
                 physical_state_lock_fd: int | None = None
                 try:
@@ -13759,7 +13969,10 @@ class Workspace:
                     try:
                         if state_output is not None:
                             self._remove_runtime_state_output(
-                                state_output, generation, state_fd
+                                state_output,
+                                generation,
+                                state_fd,
+                                state_output_identity,
                             )
                     finally:
                         os.close(state_fd)
@@ -13793,6 +14006,7 @@ class Workspace:
                     "state_lock_fd": state_lock_fd,
                     "physical_state_lock_fd": physical_state_lock_fd,
                     "state_output": state_output,
+                    "state_output_identity": state_output_identity,
                 }
 
     def _foreground_runtime_owner(self) -> Path:

@@ -1366,6 +1366,13 @@ class Cleanup:
             item["liveness"] = liveness
             item["control_observation"] = observation["control"]
             item["generation"] = observation["generation"]
+            state_policy = status.get("state_policy")
+            if (
+                isinstance(state_policy, dict)
+                and state_policy.get("mode") == "temporary"
+                and state_policy.get("lifecycle") not in {"removed", "promoted"}
+            ):
+                reasons.append("temporary_state_recovery_pending")
             item["process_tree_lease"] = observation["process_tree_lease"]
             item["runtime_bundle_lease"] = observation.get(
                 "runtime_bundle_lease", "unverifiable"
@@ -3798,8 +3805,39 @@ class Cleanup:
                                 topology.name, status, older_than_days
                             )
                         )
-            except (KeyError, OSError, TypeError, WorkspaceError):
-                pass
+            except (KeyError, OSError, TypeError, ValueError, WorkspaceError) as error:
+                try:
+                    raw_status = load_json(topology / "status.json")
+                    raw_policy = (
+                        raw_status.get("state_policy")
+                        if isinstance(raw_status, dict)
+                        else None
+                    )
+                    raw_path = (
+                        raw_policy.get("path")
+                        if isinstance(raw_policy, dict)
+                        else None
+                    )
+                    if (
+                        isinstance(raw_policy, dict)
+                        and raw_policy.get("mode") == "temporary"
+                        and isinstance(raw_path, str)
+                        and raw_path
+                        and raw_path not in represented
+                    ):
+                        item = _base_item(
+                            "temporary-state",
+                            "atrinik",
+                            "atrinik/atrinik",
+                            Path(raw_path),
+                        )
+                        item["topology"] = topology.name
+                        item["state_policy"] = raw_policy
+                        item["reasons"] = ["temporary_state_status_unverifiable"]
+                        item["error"] = str(error)
+                        items.append(item)
+                except (OSError, RuntimeError, TypeError, ValueError, WorkspaceError):
+                    pass
         return items
 
     def _detached_temporary_state_item(
@@ -4064,7 +4102,7 @@ class Cleanup:
                         )
                     try:
                         self.workspace._validate_temporary_state_integrity(
-                            state_fd, physical
+                            state_fd, physical, policy.get("implementation")
                         )
                     except WorkspaceError as error:
                         message = str(error)

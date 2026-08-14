@@ -5286,13 +5286,14 @@ class WorkspaceTests(unittest.TestCase):
             output = self.workspace._prepare_runtime_state_output(
                 state, generation, state_fd
             )
+            output_identity = self.workspace._state_identity(output)
             state.rename(relocated)
             state.mkdir()
             sentinel = state / "sentinel"
             sentinel.write_text("replacement\n", encoding="utf-8")
 
             self.workspace._remove_runtime_state_output(
-                output, generation, state_fd
+                output, generation, state_fd, output_identity
             )
 
             self.assertFalse(
@@ -5311,6 +5312,7 @@ class WorkspaceTests(unittest.TestCase):
         output = self.workspace._prepare_runtime_state_output(
             state, generation, state_fd
         )
+        output_identity = self.workspace._state_identity(output)
         replacement = self.root / "replacement-output"
         replacement.mkdir()
         atomic_json(
@@ -5345,7 +5347,7 @@ class WorkspaceTests(unittest.TestCase):
                 self.assertRaisesRegex(WorkspaceError, "output path changed"),
             ):
                 self.workspace._remove_runtime_state_output(
-                    output, generation, state_fd
+                    output, generation, state_fd, output_identity
                 )
             self.assertTrue(swapped)
             self.assertEqual(
@@ -5353,6 +5355,76 @@ class WorkspaceTests(unittest.TestCase):
                 "replacement\n",
             )
             self.assertTrue((displaced / MANAGED_MARKER).is_file())
+        finally:
+            os.close(state_fd)
+
+    def test_runtime_state_output_cleanup_rejects_completed_replacement(self) -> None:
+        state = self.root / "state-output-replaced"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "c" * 32
+        output = self.workspace._prepare_runtime_state_output(
+            state, generation, state_fd
+        )
+        output_identity = self.workspace._state_identity(output)
+        displaced = self.root / "displaced-runtime-output"
+        output.rename(displaced)
+        output.mkdir()
+        atomic_json(
+            output / MANAGED_MARKER,
+            {
+                "schema_version": 1,
+                "purpose": f"runtime-state-output:{generation}",
+            },
+        )
+        sentinel = output / "sentinel"
+        sentinel.write_text("replacement\n", encoding="utf-8")
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "identity changed"):
+                self.workspace._remove_runtime_state_output(
+                    output, generation, state_fd, output_identity
+                )
+            self.assertEqual(sentinel.read_text(encoding="utf-8"), "replacement\n")
+            self.assertTrue((displaced / MANAGED_MARKER).is_file())
+        finally:
+            os.close(state_fd)
+
+    def test_runtime_state_output_cleanup_rejects_fifo_marker_and_mount(self) -> None:
+        state = self.root / "state-output-invalid"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "d" * 32
+        output = self.workspace._prepare_runtime_state_output(
+            state, generation, state_fd
+        )
+        output_identity = self.workspace._state_identity(output)
+        marker = output / MANAGED_MARKER
+        marker.unlink()
+        os.mkfifo(marker)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "ownership.*invalid"):
+                self.workspace._remove_runtime_state_output(
+                    output, generation, state_fd, output_identity
+                )
+            marker.unlink()
+            atomic_json(
+                marker,
+                {
+                    "schema_version": 1,
+                    "purpose": f"runtime-state-output:{generation}",
+                },
+            )
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace._descriptor_mount_id",
+                    side_effect=[1, 1, 2],
+                ),
+                self.assertRaisesRegex(WorkspaceError, "crosses a mount"),
+            ):
+                self.workspace._remove_runtime_state_output(
+                    output, generation, state_fd, output_identity
+                )
+            self.assertTrue(marker.is_file())
         finally:
             os.close(state_fd)
 
@@ -10355,6 +10427,25 @@ class WorkspaceTests(unittest.TestCase):
             ],
             "removal-pending",
         )
+        with self.assertRaisesRegex(
+            WorkspaceError, "removal has already begun"
+        ):
+            self.workspace.topology_down(
+                "temporary-clean", timeout=5, retain_state=True
+            )
+        topology_preview = self.workspace.cleanup(
+            ["topologies"], 0, [], False
+        )
+        pending_topology_item = next(
+            item
+            for item in topology_preview["items"]
+            if item.get("name") == "temporary-clean"
+        )
+        self.assertEqual(pending_topology_item["disposition"], "protected")
+        self.assertIn(
+            "temporary_state_recovery_pending",
+            pending_topology_item["reasons"],
+        )
         pending_link_target = self.root / "pending-link-target"
         pending_link_target.write_text("preserve\n", encoding="utf-8")
         pending_link = first_path / "pending-link"
@@ -10617,6 +10708,24 @@ class WorkspaceTests(unittest.TestCase):
             )
         retained_path = Path(retained["state_policy"]["path"])
         self.assertEqual(retained["state_policy"]["profile"], "default")
+        retained_status_path = (
+            self.workspace.paths.topologies / "temporary-retained" / "status.json"
+        )
+        implementation_marker = (
+            retained_path / workspace_module.STATE_IMPLEMENTATION_MARKER
+        )
+        implementation_payload = implementation_marker.read_bytes()
+        implementation_marker.unlink()
+        with self.assertRaisesRegex(
+            WorkspaceError, "retained because its integrity could not be proved"
+        ):
+            self.workspace.topology_down("temporary-retained", timeout=5)
+        self.assertTrue(retained_path.is_dir())
+        self.assertEqual(
+            load_json(retained_status_path)["state_policy"]["lifecycle"],
+            "retained",
+        )
+        implementation_marker.write_bytes(implementation_payload)
         stopped = self.workspace.topology_down(
             "temporary-retained", timeout=5, retain_state=True
         )
@@ -10679,6 +10788,15 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(retained_item["disposition"], "protected")
         self.assertIn("temporary_state_retained", retained_item["reasons"])
+        implementation_marker.unlink()
+        with self.assertRaisesRegex(
+            WorkspaceError, "implementation marker"
+        ):
+            self.workspace.state_promote(
+                "temporary-retained", "markerless-promotion"
+            )
+        self.assertNotIn("markerless-promotion", self.workspace._load_states())
+        implementation_marker.write_bytes(implementation_payload)
         displaced_state = retained_path.with_name("promotion-displaced")
         replacement_sentinel = retained_path / "replacement-sentinel"
         real_durable_json_at = workspace_module.durable_atomic_json_at
@@ -10899,6 +11017,18 @@ class WorkspaceTests(unittest.TestCase):
                 "state_policy"
             ]["lifecycle"],
             "promotion-pending",
+        )
+        with self.assertRaisesRegex(
+            WorkspaceError, "promotion target cannot change"
+        ):
+            self.workspace.state_promote(
+                "temporary-promotion-retry", "different-promoted-retry"
+            )
+        self.assertEqual(
+            self.workspace.topology_status("temporary-promotion-retry")[
+                "state_policy"
+            ]["name"],
+            "promoted-retry",
         )
         self.assertEqual(
             self.workspace.state_promote(
@@ -12923,6 +13053,9 @@ class WorkspaceTests(unittest.TestCase):
             )
             return generation_root, descriptor, {
                 "mutable_state_outputs": [str(state_output)],
+                "mutable_state_output_identities": [
+                    self.workspace._state_identity(state_output)
+                ],
             }
 
         def execute_server(*_arguments: object, **_keywords: object) -> None:
