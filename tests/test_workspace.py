@@ -2437,8 +2437,8 @@ class WorkspaceTests(unittest.TestCase):
             for row in report["items"]
             if row["kind"] == "source-generation"
         )
-        self.assertEqual(item["disposition"], "protected")
-        self.assertIn("invalid_source_generation", item["reasons"])
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["corrupt_source_generation"])
 
     def test_source_generation_publication_failure_leaves_no_partial_generation(self) -> None:
         with (
