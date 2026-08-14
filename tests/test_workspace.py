@@ -12758,6 +12758,57 @@ class WorkspaceTests(unittest.TestCase):
             {MANAGED_MARKER},
         )
 
+    def test_temporary_state_revalidates_copied_bytes_before_publication(self) -> None:
+        topology = self.workspace._topology_directory(
+            "staging-content-validation", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        generation = "6" * 64
+        original_atomic_json_at = workspace_module.durable_atomic_json_at
+
+        def change_copied_file(
+            directory_fd: int,
+            name: str,
+            value: object,
+            **kwargs: object,
+        ) -> None:
+            original_atomic_json_at(directory_fd, name, value, **kwargs)
+            if name == workspace_module.TEMPORARY_STATE_METADATA:
+                motd_fd = os.open(
+                    "motd",
+                    os.O_WRONLY | os.O_TRUNC | os.O_NOFOLLOW,
+                    dir_fd=directory_fd,
+                )
+                try:
+                    os.write(motd_fd, b"changed after validation\n")
+                finally:
+                    os.close(motd_fd)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.durable_atomic_json_at",
+                side_effect=change_copied_file,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "changed before.*publication"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "staging-content-validation",
+                "default",
+                generation,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            {path.name for path in (topology / "temporary-states").iterdir()},
+            {MANAGED_MARKER},
+        )
+
     def test_temporary_startup_rollback_removes_state_and_lease(self) -> None:
         topology = self.workspace._topology_directory("rollback", create=True)
         server = self.workspace.paths.repositories / "server"

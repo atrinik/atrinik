@@ -1243,7 +1243,11 @@ def _tree_digest(
     return digest.hexdigest()
 
 
-def _tree_digest_descriptor(root_fd: int, display: Path) -> str:
+def _tree_digest_descriptor(
+    root_fd: int,
+    display: Path,
+    root_exclusions: set[str] | None = None,
+) -> str:
     """Hash an exact pinned regular tree without following child links."""
 
     digest = hashlib.sha256()
@@ -1259,6 +1263,8 @@ def _tree_digest_descriptor(root_fd: int, display: Path) -> str:
 
     def visit(directory_fd: int, relative: PurePosixPath) -> None:
         for name in sorted(os.listdir(directory_fd)):
+            if not relative.parts and name in (root_exclusions or set()):
+                continue
             child = relative / name
             child_display = display / child.as_posix()
             metadata = os.stat(
@@ -1305,6 +1311,7 @@ def _tree_digest_descriptor(root_fd: int, display: Path) -> str:
                     opened = os.fstat(descriptor)
                     if (
                         not stat.S_ISREG(opened.st_mode)
+                        or opened.st_nlink != 1
                         or (opened.st_dev, opened.st_ino)
                         != (metadata.st_dev, metadata.st_ino)
                         or _descriptor_mount_id(descriptor) != root_mount
@@ -9363,6 +9370,26 @@ class Workspace:
                 container_fd,
                 staging_name,
             )
+            copied_exclusions = {
+                "tmp",
+                STATE_IMPLEMENTATION_MARKER,
+                MANAGED_MARKER,
+                TEMPORARY_STATE_METADATA,
+            }
+            if (
+                _tree_digest_descriptor(
+                    staging_fd,
+                    destination,
+                    copied_exclusions,
+                )
+                != source_digest
+                or _tree_digest(install_data, set(), reject_symlinks=True)
+                != source_digest
+            ):
+                raise WorkspaceError(
+                    "selected server install_data changed before temporary state "
+                    "publication"
+                )
             visible_staging = os.stat(
                 staging_name, dir_fd=container_fd, follow_symlinks=False
             )
@@ -9376,6 +9403,20 @@ class Workspace:
                 container_fd, staging_name, container_fd, generation
             )
             published_identity = identity
+            if (
+                _tree_digest_descriptor(
+                    staging_fd,
+                    destination,
+                    copied_exclusions,
+                )
+                != source_digest
+                or _tree_digest(install_data, set(), reject_symlinks=True)
+                != source_digest
+            ):
+                raise WorkspaceError(
+                    "selected server install_data changed during temporary state "
+                    "publication"
+                )
             published = os.stat(
                 generation, dir_fd=container_fd, follow_symlinks=False
             )
@@ -9544,7 +9585,8 @@ class Workspace:
                     try:
                         opened = os.fstat(child_fd)
                         if (
-                            (opened.st_dev, opened.st_ino)
+                            opened.st_nlink != 1
+                            or (opened.st_dev, opened.st_ino)
                             != (metadata.st_dev, metadata.st_ino)
                             or _descriptor_mount_id(child_fd) != root_mount
                         ):
