@@ -659,7 +659,7 @@ def _remove_owned_tree_contents(
     display: Path,
 ) -> None:
     def move_to_tombstone(name: str, child: os.stat_result) -> str:
-        tombstone = f".{name}.remove-{secrets.token_hex(16)}"
+        tombstone = f".{name}.remove-{child.st_dev:x}-{child.st_ino:x}"
         rename_no_replace_at(descriptor, name, descriptor, tombstone)
         moved = os.stat(tombstone, dir_fd=descriptor, follow_symlinks=False)
         if (moved.st_dev, moved.st_ino) != (
@@ -678,6 +678,16 @@ def _remove_owned_tree_contents(
     for name in sorted(os.listdir(descriptor)):
         child_display = display / name
         child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+        tombstone_match = re.fullmatch(
+            r"\.(.+)\.remove-([0-9a-f]+)-([0-9a-f]+)", name
+        )
+        if tombstone_match and (child.st_dev, child.st_ino) != (
+            int(tombstone_match.group(2), 16),
+            int(tombstone_match.group(3), 16),
+        ):
+            raise WorkspaceError(
+                f"owned removal has an uncertain tombstone: {child_display}"
+            )
         if child.st_dev != device:
             raise WorkspaceError(
                 f"owned removal encountered a mount: {child_display}"
@@ -692,38 +702,66 @@ def _remove_owned_tree_contents(
                 )
             finally:
                 os.close(child_descriptor)
-            tombstone = move_to_tombstone(name, child)
+            tombstone = name if tombstone_match else move_to_tombstone(name, child)
             os.rmdir(tombstone, dir_fd=descriptor)
         else:
             _probe_owned_tree_entry_mount(
                 descriptor, name, child, mount_id, child_display
             )
-            tombstone = move_to_tombstone(name, child)
+            tombstone = name if tombstone_match else move_to_tombstone(name, child)
             os.unlink(tombstone, dir_fd=descriptor)
 
 
 def remove_owned_tree(
     path: Path, *, expected_identity: dict[str, int] | None = None
 ) -> None:
-    if path.is_symlink() or not path.is_dir():
-        raise WorkspaceError(f"owned removal root is invalid: {path}")
+    if expected_identity is not None and (
+        set(expected_identity) != {"device", "inode"}
+        or any(
+            not isinstance(value, int) or isinstance(value, bool) or value < 0
+            for value in expected_identity.values()
+        )
+    ):
+        raise WorkspaceError(f"owned removal root identity is invalid: {path}")
     parent_descriptor = _open_directory_nofollow(
         path.parent,
         os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
     )
     descriptor: int | None = None
     try:
-        before = os.stat(path.name, dir_fd=parent_descriptor, follow_symlinks=False)
-        if expected_identity is not None and (
-            set(expected_identity) != {"device", "inode"}
-            or (before.st_dev, before.st_ino)
-            != (expected_identity["device"], expected_identity["inode"])
+        entry_name = path.name
+        already_tombstoned = False
+        try:
+            before = os.stat(
+                entry_name, dir_fd=parent_descriptor, follow_symlinks=False
+            )
+        except FileNotFoundError:
+            if expected_identity is None:
+                raise WorkspaceError(f"owned removal root is invalid: {path}")
+            entry_name = (
+                f".{path.name}.remove-{expected_identity['device']:x}-"
+                f"{expected_identity['inode']:x}"
+            )
+            try:
+                before = os.stat(
+                    entry_name, dir_fd=parent_descriptor, follow_symlinks=False
+                )
+            except FileNotFoundError as error:
+                raise WorkspaceError(
+                    f"owned removal root is invalid: {path}"
+                ) from error
+            already_tombstoned = True
+        if not stat.S_ISDIR(before.st_mode):
+            raise WorkspaceError(f"owned removal root is invalid: {path}")
+        if expected_identity is not None and (before.st_dev, before.st_ino) != (
+            expected_identity["device"],
+            expected_identity["inode"],
         ):
             raise WorkspaceError(f"owned removal root identity changed: {path}")
         parent_mount_id = _descriptor_mount_id(parent_descriptor)
         descriptor = _open_owned_tree_directory(
             parent_descriptor,
-            path.name,
+            entry_name,
             before,
             parent_mount_id,
             path,
@@ -740,7 +778,7 @@ def remove_owned_tree(
             stat.S_IMODE(before.st_mode),
         )
         visible = os.stat(
-            path.name, dir_fd=parent_descriptor, follow_symlinks=False
+            entry_name, dir_fd=parent_descriptor, follow_symlinks=False
         )
         if (visible.st_dev, visible.st_ino) != expected:
             raise WorkspaceError(f"owned removal root identity changed: {path}")
@@ -751,11 +789,33 @@ def remove_owned_tree(
         os.close(descriptor)
         descriptor = None
         visible = os.stat(
-            path.name, dir_fd=parent_descriptor, follow_symlinks=False
+            entry_name, dir_fd=parent_descriptor, follow_symlinks=False
         )
         if (visible.st_dev, visible.st_ino) != expected:
             raise WorkspaceError(f"owned removal root identity changed: {path}")
-        os.rmdir(path.name, dir_fd=parent_descriptor)
+        tombstone = f".{path.name}.remove-{expected[0]:x}-{expected[1]:x}"
+        if not already_tombstoned:
+            rename_no_replace_at(
+                parent_descriptor,
+                path.name,
+                parent_descriptor,
+                tombstone,
+            )
+        moved = os.stat(
+            tombstone, dir_fd=parent_descriptor, follow_symlinks=False
+        )
+        if (moved.st_dev, moved.st_ino) != expected:
+            try:
+                rename_no_replace_at(
+                    parent_descriptor,
+                    tombstone,
+                    parent_descriptor,
+                    path.name,
+                )
+            except WorkspaceError:
+                pass
+            raise WorkspaceError(f"owned removal root identity changed: {path}")
+        os.rmdir(tombstone, dir_fd=parent_descriptor)
     finally:
         if descriptor is not None:
             os.close(descriptor)
@@ -1360,19 +1420,9 @@ def durable_atomic_json_at(directory_fd: int, name: str, value: Any) -> None:
             stream.write("\n")
             stream.flush()
             os.fsync(stream.fileno())
-        try:
-            os.link(
-                temporary,
-                name,
-                src_dir_fd=directory_fd,
-                dst_dir_fd=directory_fd,
-                follow_symlinks=False,
-            )
-        except FileExistsError as error:
-            raise WorkspaceError(
-                f"descriptor-relative JSON appeared before publication: {name}"
-            ) from error
-        os.unlink(temporary, dir_fd=directory_fd)
+        rename_no_replace_at(
+            directory_fd, temporary, directory_fd, name
+        )
         os.fsync(directory_fd)
     except BaseException:
         try:
@@ -8274,7 +8324,6 @@ class Workspace:
     ) -> None:
         temporary = f".{name}.{secrets.token_hex(12)}.tmp"
         descriptor: int | None = None
-        linked = False
         try:
             descriptor = os.open(
                 temporary,
@@ -8288,20 +8337,10 @@ class Workspace:
                 stream.write("\n")
                 stream.flush()
                 os.fsync(stream.fileno())
-            os.link(
-                temporary,
-                name,
-                src_dir_fd=directory_fd,
-                dst_dir_fd=directory_fd,
-                follow_symlinks=False,
+            rename_no_replace_at(
+                directory_fd, temporary, directory_fd, name
             )
-            linked = True
-            os.unlink(temporary, dir_fd=directory_fd)
             os.fsync(directory_fd)
-        except FileExistsError as error:
-            raise WorkspaceError(
-                "server state implementation marker appeared during publication"
-            ) from error
         except OSError as error:
             raise WorkspaceError(
                 f"cannot publish server state implementation marker: {error}"
@@ -8309,11 +8348,10 @@ class Workspace:
         finally:
             if descriptor is not None:
                 os.close(descriptor)
-            if not linked:
-                try:
-                    os.unlink(temporary, dir_fd=directory_fd)
-                except FileNotFoundError:
-                    pass
+            try:
+                os.unlink(temporary, dir_fd=directory_fd)
+            except FileNotFoundError:
+                pass
 
     def _validate_state_descriptor(
         self,
@@ -8426,6 +8464,16 @@ class Workspace:
                 raise WorkspaceError(
                     f"server state identity changed during validation: {path}"
                 )
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as error:
+                if error.errno in {errno.EACCES, errno.EAGAIN}:
+                    raise WorkspaceError(
+                        f"physical server state is already in use: {path}"
+                    ) from error
+                raise WorkspaceError(
+                    f"cannot lock physical server state: {path}: {error}"
+                ) from error
             self._validate_state_descriptor(
                 descriptor,
                 path,
@@ -8637,11 +8685,11 @@ class Workspace:
                     "retry its originating state promote command"
                 )
             creation_path = path / TEMPORARY_STATE_METADATA
-            if creation_path.is_symlink():
-                raise WorkspaceError(
-                    f"promoted state creation metadata is invalid: {creation_path}"
-                )
-            if creation_path.is_file():
+            if creation_path.exists() or creation_path.is_symlink():
+                if creation_path.is_symlink() or not creation_path.is_file():
+                    raise WorkspaceError(
+                        f"promoted state creation metadata is invalid: {creation_path}"
+                    )
                 creation = load_regular_json(
                     creation_path, "promoted state creation metadata"
                 )
@@ -8651,18 +8699,48 @@ class Workspace:
                     else None
                 )
                 if (
-                    isinstance(creation, dict)
-                    and
-                    creation.get("schema_version")
-                    == TEMPORARY_STATE_SCHEMA_VERSION
-                    and isinstance(creation_policy, dict)
-                    and creation_policy.get("mode") == "temporary"
-                    and creation_policy.get("path") == str(path)
+                    not isinstance(creation, dict)
+                    or creation.get("schema_version")
+                    != TEMPORARY_STATE_SCHEMA_VERSION
+                    or not isinstance(creation_policy, dict)
+                    or creation_policy.get("mode") != "temporary"
+                    or creation_policy.get("path") != str(path)
                 ):
                     raise WorkspaceError(
-                        f"promoted state provenance is missing: {record_path}; "
-                        "retry its originating state promote command"
+                        f"promoted state creation metadata is invalid: {creation_path}"
                     )
+                raise WorkspaceError(
+                    f"promoted state provenance is missing: {record_path}; "
+                    "retry its originating state promote command"
+                )
+            if self.paths.topologies.is_dir() and not self.paths.topologies.is_symlink():
+                for topology in self.paths.topologies.iterdir():
+                    status_path = topology / "status.json"
+                    if status_path.is_symlink() or not status_path.is_file():
+                        continue
+                    try:
+                        status = load_regular_json(
+                            status_path, "promoted state origin status"
+                        )
+                    except WorkspaceError:
+                        continue
+                    policy = (
+                        status.get("state_policy")
+                        if isinstance(status, dict)
+                        else None
+                    )
+                    if (
+                        isinstance(policy, dict)
+                        and policy.get("mode") == "temporary"
+                        and policy.get("lifecycle")
+                        in {"promotion-pending", "promoted"}
+                        and policy.get("name") == state_name
+                        and policy.get("path") == str(path)
+                    ):
+                        raise WorkspaceError(
+                            f"promoted state provenance is missing: {record_path}; "
+                            f"retry ./atrinik state promote {topology.name} {state_name}"
+                        )
             return None
         record = load_regular_json(record_path, "promoted state provenance")
         if (
@@ -11699,7 +11777,9 @@ class Workspace:
                 state: Path | None = None
                 state_policy: dict[str, Any] | None = None
                 state_directory_fd: int | None = None
-                temporary_state_owner: list[Path] = []
+                temporary_state_owner: list[
+                    tuple[Path, TextIO, dict[str, int], dict[str, int]]
+                ] = []
                 if "server" in selected_services:
                     assert implementation is not None
                     if state_mode == "temporary":
@@ -11713,12 +11793,6 @@ class Workspace:
                             resolved_status[server_provider],
                         )
                         state_location = state
-                        temporary_state_owner.append(state)
-                        stack.callback(
-                            lambda: remove_owned_tree(temporary_state_owner.pop())
-                            if temporary_state_owner
-                            else None
-                        )
                         state_lock = stack.enter_context(
                             self._topology_state_lock(
                                 state_location,
@@ -11762,6 +11836,22 @@ class Workspace:
                             "inode": lock_metadata.st_ino,
                         },
                     }
+                    if state_mode == "temporary":
+                        temporary_state_owner.append(
+                            (
+                                state,
+                                state_lock.path_lock,
+                                state_policy["identity"],
+                                state_policy["lease_identity"],
+                            )
+                        )
+                        stack.callback(
+                            lambda: self._rollback_temporary_state_creation(
+                                *temporary_state_owner.pop()
+                            )
+                            if temporary_state_owner
+                            else None
+                        )
                     try:
                         visible_lock = Path(f"{state}.lock").stat(
                             follow_symlinks=False
@@ -12286,7 +12376,31 @@ class Workspace:
             os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
         )
         try:
-            os.unlink(lock.name, dir_fd=parent_fd)
+            tombstone = (
+                f".{lock.name}.remove-{lease_identity['device']:x}-"
+                f"{lease_identity['inode']:x}"
+            )
+            rename_no_replace_at(
+                parent_fd, lock.name, parent_fd, tombstone
+            )
+            moved = os.stat(
+                tombstone, dir_fd=parent_fd, follow_symlinks=False
+            )
+            expected = (
+                lease_identity["device"],
+                lease_identity["inode"],
+            )
+            if (moved.st_dev, moved.st_ino) != expected:
+                try:
+                    rename_no_replace_at(
+                        parent_fd, tombstone, parent_fd, lock.name
+                    )
+                except WorkspaceError:
+                    pass
+                raise WorkspaceError(
+                    f"temporary topology state lease changed before removal: {lock}"
+                )
+            os.unlink(tombstone, dir_fd=parent_fd)
             os.fsync(parent_fd)
         finally:
             os.close(parent_fd)
@@ -12316,6 +12430,46 @@ class Workspace:
                 "temporary topology state lease changed before lifecycle "
                 f"mutation: {lock}"
             )
+
+    @staticmethod
+    def _finish_temporary_state_lock_tombstone(
+        state: Path, lease_identity: dict[str, int]
+    ) -> bool:
+        lock = Path(f"{state}.lock")
+        tombstone = lock.parent / (
+            f".{lock.name}.remove-{lease_identity['device']:x}-"
+            f"{lease_identity['inode']:x}"
+        )
+        if not tombstone.exists() and not tombstone.is_symlink():
+            return False
+        metadata = tombstone.stat(follow_symlinks=False)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_nlink != 1
+            or (metadata.st_dev, metadata.st_ino)
+            != (lease_identity["device"], lease_identity["inode"])
+        ):
+            raise WorkspaceError(
+                f"temporary topology state lease tombstone is invalid: {tombstone}"
+            )
+        tombstone.unlink()
+        fsync_directory(tombstone.parent)
+        return True
+
+    @staticmethod
+    def _rollback_temporary_state_creation(
+        state: Path,
+        state_lease: TextIO,
+        state_identity: dict[str, int],
+        lease_identity: dict[str, int],
+    ) -> None:
+        Workspace._validate_temporary_state_lock(
+            state, state_lease, lease_identity
+        )
+        remove_owned_tree(state, expected_identity=state_identity)
+        Workspace._unlink_temporary_state_lock(
+            state, state_lease, lease_identity
+        )
 
     def _commit_temporary_state_removal(
         self,
@@ -12397,10 +12551,12 @@ class Workspace:
             return status
         state = Path(policy["path"])
         lock_path = Path(f"{state}.lock")
-        if policy.get("lifecycle") == "removed" and not (
-            lock_path.exists() or lock_path.is_symlink()
-        ):
-            return status
+        if policy.get("lifecycle") == "removed":
+            if not (lock_path.exists() or lock_path.is_symlink()):
+                self._finish_temporary_state_lock_tombstone(
+                    state, policy["lease_identity"]
+                )
+                return status
         with exclusive_lock(
             lock_path,
             f"temporary topology state {state}",

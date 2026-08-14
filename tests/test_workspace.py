@@ -6005,6 +6005,51 @@ class WorkspaceTests(unittest.TestCase):
                         "owned\n",
                     )
 
+    def test_owned_tree_removal_recovers_identity_named_tombstones(self) -> None:
+        root = self.root / "recover-root-tombstone"
+        root.mkdir()
+        (root / "payload").write_text("owned\n", encoding="utf-8")
+        identity = self.workspace._state_identity(root)
+        root_tombstone = root.parent / (
+            f".{root.name}.remove-{identity['device']:x}-{identity['inode']:x}"
+        )
+        root.rename(root_tombstone)
+        remove_owned_tree(root, expected_identity=identity)
+        self.assertFalse(root_tombstone.exists())
+
+        child_root = self.root / "recover-child-tombstone"
+        child_root.mkdir()
+        child = child_root / "payload"
+        child.write_text("owned\n", encoding="utf-8")
+        child_metadata = child.stat()
+        child_tombstone = child_root / (
+            f".{child.name}.remove-{child_metadata.st_dev:x}-"
+            f"{child_metadata.st_ino:x}"
+        )
+        child.rename(child_tombstone)
+        remove_owned_tree(
+            child_root,
+            expected_identity=self.workspace._state_identity(child_root),
+        )
+        self.assertFalse(child_root.exists())
+
+    def test_owned_tree_removal_rejects_unverified_tombstone(self) -> None:
+        root = self.root / "uncertain-child-tombstone"
+        root.mkdir()
+        original = root / "payload"
+        original.write_text("owned\n", encoding="utf-8")
+        metadata = original.stat()
+        tombstone = root / (
+            f".{original.name}.remove-{metadata.st_dev:x}-{metadata.st_ino:x}"
+        )
+        original.rename(self.root / "preserved-original")
+        tombstone.write_text("must survive\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "uncertain tombstone"):
+            remove_owned_tree(
+                root, expected_identity=self.workspace._state_identity(root)
+            )
+        self.assertEqual(tombstone.read_text(encoding="utf-8"), "must survive\n")
+
     def test_replaced_directory_recovery_rejects_invalid_states(self) -> None:
         def snapshot(parent: Path) -> dict[str, tuple[object, ...]]:
             result: dict[str, tuple[object, ...]] = {}
@@ -11227,6 +11272,55 @@ class WorkspaceTests(unittest.TestCase):
             with self.workspace._topology_state_lock(second):
                 self.fail("physical aliases must not receive distinct leases")
 
+    def test_open_state_directory_retains_inode_bound_lease(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        state = self.workspace.state_path("default", server)
+        first = self.workspace._open_validated_state_directory(
+            state, None, write_implementation=False
+        )
+        try:
+            with self.assertRaisesRegex(
+                WorkspaceError, "physical server state is already in use"
+            ):
+                self.workspace._open_validated_state_directory(
+                    state, None, write_implementation=False
+                )
+        finally:
+            os.close(first)
+        reopened = self.workspace._open_validated_state_directory(
+            state, None, write_implementation=False
+        )
+        os.close(reopened)
+
+    def test_state_marker_no_replace_publication_retries_cleanly(self) -> None:
+        state = self.root / "marker-publication"
+        state.mkdir()
+        directory_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY)
+        marker = ".atrinik-state.json"
+        value = {"schema_version": 1, "stack": "classic", "provider": "server"}
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.rename_no_replace_at",
+                    side_effect=WorkspaceError("simulated publication interruption"),
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError, "simulated publication interruption"
+                ),
+            ):
+                self.workspace._write_state_json_no_replace_at(
+                    directory_fd, marker, value
+                )
+            self.assertFalse((state / marker).exists())
+            self.assertEqual(list(state.iterdir()), [])
+            self.workspace._write_state_json_no_replace_at(
+                directory_fd, marker, value
+            )
+            self.assertEqual(load_json(state / marker), value)
+            self.assertEqual((state / marker).stat().st_nlink, 1)
+        finally:
+            os.close(directory_fd)
+
     def test_physical_state_alias_conflict_reports_live_owner(self) -> None:
         first = self.root / "owner-alias"
         second = self.root / "contender-alias"
@@ -11312,6 +11406,33 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(
             {path.name for path in container.iterdir()}, {MANAGED_MARKER}
         )
+
+    def test_temporary_startup_rollback_removes_state_and_lease(self) -> None:
+        topology = self.workspace._topology_directory("rollback", create=True)
+        server = self.workspace.paths.repositories / "server"
+        state, policy = self.workspace._create_temporary_state(
+            topology,
+            "rollback",
+            "e" * 64,
+            server,
+            {
+                "stack": "default",
+                "provider": "server",
+                "repository": "atrinik/server",
+            },
+            self.scenario_resolved_fixture()["server"],
+        )
+        lock = Path(f"{state}.lock")
+        with exclusive_lock(lock, "temporary rollback") as state_lease:
+            metadata = os.fstat(state_lease.fileno())
+            self.workspace._rollback_temporary_state_creation(
+                state,
+                state_lease,
+                policy["identity"],
+                {"device": metadata.st_dev, "inode": metadata.st_ino},
+            )
+        self.assertFalse(state.exists())
+        self.assertFalse(lock.exists())
 
     def test_temporary_state_first_digest_failure_removes_staging(self) -> None:
         topology = self.workspace._topology_directory("digest-failure", create=True)
