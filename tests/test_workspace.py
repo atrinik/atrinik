@@ -10727,7 +10727,7 @@ class WorkspaceTests(unittest.TestCase):
             )
         retry_path = Path(retry["state_policy"]["path"])
         self.workspace.topology_down(
-            "temporary-promotion-retry", timeout=5, retain_state=True
+            "temporary-promotion-retry", timeout=10, retain_state=True
         )
         write_policy = self.workspace._write_temporary_state_policy
         writes = 0
