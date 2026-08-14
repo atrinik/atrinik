@@ -310,7 +310,12 @@ class ProgramLedgerModel:
 
     def plan_comment(self) -> None:
         observation = self.record["observation"]["comment"]
-        if not observation or not observation["complete"]:
+        phase = self.record["comment"]["phase"]
+        expected_count = 1 if phase == "bound" else 0
+        if (
+            not observation or not observation["complete"]
+            or observation["count"] != expected_count
+        ):
             raise StopClosed("comment scan evidence is absent")
         self._plan("comment")
 
@@ -337,6 +342,11 @@ class ProgramLedgerModel:
         planned = self.record[slot]["plan_observation"]
         if not current or not current["complete"] or current["generation"] <= planned["generation"]:
             raise StopClosed("persisted observation evidence changed")
+        expected_count = (
+            1 if slot == "comment" and self.record[slot]["node"] is not None else 0
+        )
+        if current["count"] != expected_count:
+            raise StopClosed("mutation prerequisite no longer holds")
         if current["stream"] != planned["stream"] or current["count"] != planned["count"]:
             self.persist(
                 lambda record: record[slot].update(
@@ -452,6 +462,16 @@ class ProgramLedgerModel:
         ):
             raise StopClosed("PATCH result lacks complete post-call observation")
         if remote_body == "old-body":
+            if (
+                observed["stream"] != armed["stream"]
+                or observed["count"] != armed["count"]
+            ):
+                self.persist(
+                    lambda record: record["comment"].update(
+                        arm_observation=copy.deepcopy(observed)
+                    )
+                )
+                raise StopClosed("PATCH retry needs a second identical observation")
             return CallPermit("comment", int(self.record["generation"]))
         if remote_body != "intended-body":
             raise StopClosed("PATCH result or prior body drifted")
@@ -703,6 +723,34 @@ class ProgramLedgerModelTests(unittest.TestCase):
         model.observe_comment(stream="first")
         model.arm("comment")
 
+    def test_stable_forbidden_state_never_arms_mutation(self) -> None:
+        comment = ProgramLedgerModel()
+        comment.observe_comment(count=1)
+        with self.assertRaises(StopClosed):
+            comment.plan_comment()
+
+        create = ProgramLedgerModel()
+        create.classify_child([])
+        create.plan_create()
+        duplicate = {"title": True}
+        create.classify_child([duplicate], "blocked", "blocked")
+        with self.assertRaises(StopClosed):
+            create.arm("create")
+        create.classify_child([duplicate], "blocked", "blocked")
+        with self.assertRaises(StopClosed):
+            create.arm("create")
+
+        link = ProgramLedgerModel()
+        link.record["create"].update(phase="bound", node="issue-node")
+        link.observe_parent()
+        link.plan_link()
+        link.observe_parent(["issue-node"], stream="blocked")
+        with self.assertRaises(StopClosed):
+            link.arm("link")
+        link.observe_parent(["issue-node"], stream="blocked")
+        with self.assertRaises(StopClosed):
+            link.arm("link")
+
     def test_crash_after_each_remote_call_never_reposts(self) -> None:
         for slot in ("comment", "create", "link"):
             with self.subTest(slot=slot):
@@ -813,6 +861,9 @@ class ProgramLedgerModelTests(unittest.TestCase):
         model.observe_comment(stream="patch-old", count=1)
         with self.assertRaises(StopClosed):
             model.finish_patch("drifted-body", "comment-node")
+        with self.assertRaises(StopClosed):
+            model.finish_patch("old-body", "comment-node")
+        model.observe_comment(stream="patch-old", count=1)
         retry = model.finish_patch("old-body", "comment-node")
         self.assertIsNotNone(retry)
         self.assertEqual(model.record["graph"], ["leaf-1"])
