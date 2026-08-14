@@ -2201,6 +2201,7 @@ class Workspace:
             result = subprocess.run(
                 [
                     "git",
+                    "--no-replace-objects",
                     "-C",
                     str(checkout),
                     "ls-tree",
@@ -2258,66 +2259,135 @@ class Workspace:
             digest.update(payload)
             return digest.hexdigest().encode()
 
-        def file_blob_id(path: Path, size: int) -> bytes:
-            descriptor: int | None = None
-            try:
-                descriptor = open_regular_file(
-                    path, os.O_RDONLY, "immutable source generation file"
-                )
-                digest = algorithm()
-                digest.update(f"blob {size}\0".encode())
-                observed = 0
-                with os.fdopen(descriptor, "rb") as stream:
-                    descriptor = None
-                    while chunk := stream.read(1024 * 1024):
-                        observed += len(chunk)
-                        digest.update(chunk)
-                if observed != size:
-                    raise WorkspaceError(
-                        f"immutable source generation file changed while reading: {path}"
-                    )
-                return digest.hexdigest().encode()
-            finally:
-                if descriptor is not None:
-                    os.close(descriptor)
+        def stable_identity(value: os.stat_result) -> tuple[int, ...]:
+            return (
+                value.st_dev,
+                value.st_ino,
+                value.st_mode,
+                value.st_nlink,
+                value.st_size,
+                value.st_mtime_ns,
+                value.st_ctime_ns,
+            )
 
-        def visit(directory: Path, prefix: bytes) -> None:
+        def changed(
+            before: os.stat_result, after: os.stat_result
+        ) -> bool:
+            return stable_identity(before) != stable_identity(after)
+
+        def visit(directory_fd: int, prefix: bytes) -> None:
+            directory_before = os.fstat(directory_fd)
             try:
-                entries = list(directory.iterdir())
+                entries = sorted(os.listdir(directory_fd))
             except OSError as error:
                 raise WorkspaceError(
-                    f"cannot inspect immutable source generation {directory}: {error}"
+                    f"cannot inspect immutable source generation {source}: {error}"
                 ) from error
-            for path in entries:
-                name = os.fsencode(path.name)
+            for entry_name in entries:
+                name = os.fsencode(entry_name)
                 relative = prefix + (b"/" if prefix else b"") + name
+                display = source / os.fsdecode(relative)
+                descriptor: int | None = None
                 try:
-                    status = path.lstat()
+                    status = os.stat(
+                        entry_name,
+                        dir_fd=directory_fd,
+                        follow_symlinks=False,
+                    )
                     if stat.S_ISDIR(status.st_mode):
+                        descriptor = os.open(
+                            entry_name,
+                            os.O_RDONLY
+                            | os.O_CLOEXEC
+                            | os.O_DIRECTORY
+                            | os.O_NOFOLLOW,
+                            dir_fd=directory_fd,
+                        )
+                        opened = os.fstat(descriptor)
+                        if (
+                            changed(status, opened)
+                            or opened.st_dev != root_status.st_dev
+                            or _descriptor_mount_id(descriptor) != root_mount
+                        ):
+                            raise WorkspaceError(
+                                "immutable source generation changed while "
+                                f"reading: {display}"
+                            )
                         value = (b"040000", b"tree", b"")
-                        visit(path, relative)
+                        visit(descriptor, relative)
+                        if changed(opened, os.fstat(descriptor)):
+                            raise WorkspaceError(
+                                "immutable source generation changed while "
+                                f"reading: {display}"
+                            )
                     elif stat.S_ISREG(status.st_mode):
                         if status.st_nlink != 1:
                             raise WorkspaceError(
                                 "generated source contains a hard-linked file: "
-                                f"{path}"
+                                f"{display}"
                             )
-                        mode = b"100755" if status.st_mode & 0o111 else b"100644"
-                        value = (mode, b"blob", file_blob_id(path, status.st_size))
+                        descriptor = os.open(
+                            entry_name,
+                            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                            dir_fd=directory_fd,
+                        )
+                        opened = os.fstat(descriptor)
+                        if (
+                            changed(status, opened)
+                            or not stat.S_ISREG(opened.st_mode)
+                            or opened.st_nlink != 1
+                            or opened.st_dev != root_status.st_dev
+                            or _descriptor_mount_id(descriptor) != root_mount
+                        ):
+                            raise WorkspaceError(
+                                "immutable source generation changed while "
+                                f"reading: {display}"
+                            )
+                        digest = algorithm()
+                        digest.update(f"blob {opened.st_size}\0".encode())
+                        observed = 0
+                        while chunk := os.read(descriptor, 1024 * 1024):
+                            observed += len(chunk)
+                            digest.update(chunk)
+                        if (
+                            observed != opened.st_size
+                            or changed(opened, os.fstat(descriptor))
+                        ):
+                            raise WorkspaceError(
+                                "immutable source generation changed while "
+                                f"reading: {display}"
+                            )
+                        mode = b"100755" if opened.st_mode & 0o111 else b"100644"
+                        value = (mode, b"blob", digest.hexdigest().encode())
                     elif stat.S_ISLNK(status.st_mode):
-                        target = os.fsencode(os.readlink(path))
+                        target = os.fsencode(
+                            os.readlink(entry_name, dir_fd=directory_fd)
+                        )
+                        after = os.stat(
+                            entry_name,
+                            dir_fd=directory_fd,
+                            follow_symlinks=False,
+                        )
+                        if changed(status, after):
+                            raise WorkspaceError(
+                                "immutable source generation changed while "
+                                f"reading: {display}"
+                            )
                         value = (b"120000", b"blob", blob_id(target))
                     else:
                         raise WorkspaceError(
                             "immutable source generation contains an unsupported "
-                            f"entry: {path}"
+                            f"entry: {display}"
                         )
                 except WorkspaceError:
                     raise
                 except OSError as error:
                     raise WorkspaceError(
-                        f"cannot inspect immutable source generation {path}: {error}"
+                        f"cannot inspect immutable source generation {display}: {error}"
                     ) from error
+                finally:
+                    if descriptor is not None:
+                        os.close(descriptor)
                 if relative in actual:
                     raise WorkspaceError(
                         "immutable source generation repeats a path: "
@@ -2325,11 +2395,43 @@ class Workspace:
                     )
                 actual[relative] = value
 
-        if source.is_symlink() or not source.is_dir():
-            raise WorkspaceError(
-                f"immutable source generation is not a regular directory: {source}"
+            if changed(directory_before, os.fstat(directory_fd)):
+                raise WorkspaceError(
+                    "immutable source generation changed while reading: "
+                    f"{source / os.fsdecode(prefix)}"
+                )
+
+        root_fd: int | None = None
+        try:
+            visible_root = source.stat(follow_symlinks=False)
+            root_fd = _open_directory_nofollow(
+                source,
+                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
             )
-        visit(source, b"")
+            root_status = os.fstat(root_fd)
+            root_mount = _descriptor_mount_id(root_fd)
+            if changed(visible_root, root_status):
+                raise WorkspaceError(
+                    f"immutable source generation changed while reading: {source}"
+                )
+            visit(root_fd, b"")
+            visible_after = source.stat(follow_symlinks=False)
+            if (
+                changed(root_status, os.fstat(root_fd))
+                or changed(root_status, visible_after)
+            ):
+                raise WorkspaceError(
+                    f"immutable source generation changed while reading: {source}"
+                )
+        except WorkspaceError:
+            raise
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect immutable source generation {source}: {error}"
+            ) from error
+        finally:
+            if root_fd is not None:
+                os.close(root_fd)
         if set(actual) != set(expected) or any(
             actual[path][:2] != expected[path][:2]
             or (actual[path][1] != b"tree" and actual[path][2] != expected[path][2])
@@ -2374,6 +2476,7 @@ class Workspace:
         commit = state["head"]
         tree = git(
             checkout,
+            "--no-replace-objects",
             "rev-parse",
             f"{commit}^{{tree}}",
             capture=True,
@@ -2381,6 +2484,7 @@ class Workspace:
         )
         source_tree = git(
             checkout,
+            "--no-replace-objects",
             "rev-parse",
             (
                 f"{commit}^{{tree}}"
@@ -2506,21 +2610,17 @@ class Workspace:
                         "purpose": f"source-generation:{key}",
                     },
                 )
-                archive_ref = (
-                    commit
-                    if component.source == "."
-                    else f"{commit}:{component.source}"
-                )
                 try:
                     subprocess.run(
                         [
                             "git",
+                            "--no-replace-objects",
                             "-C",
                             str(checkout),
                             "archive",
                             "--format=tar",
                             f"--output={archive_path}",
-                            archive_ref,
+                            source_tree,
                         ],
                         check=True,
                         stderr=subprocess.PIPE,
@@ -2561,6 +2661,7 @@ class Workspace:
                     != commit
                     or git(
                         checkout,
+                        "--no-replace-objects",
                         "rev-parse",
                         f"{commit}^{{tree}}",
                         capture=True,
@@ -2571,6 +2672,11 @@ class Workspace:
                     raise WorkspaceError(
                         f"clean primary source changed during materialization: {checkout}"
                     )
+                self._validate_source_generation_git_tree(
+                    checkout,
+                    staging / "source",
+                    source_tree,
+                )
                 self._seal_runtime_generation(staging / "source")
                 record = {
                     **identity,

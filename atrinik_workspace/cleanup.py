@@ -3120,16 +3120,24 @@ class Cleanup:
                         "source_tree_sha256",
                     )
                 )
-                or metadata.get("source_tree_sha256")
-                != _tree_digest(
+            ):
+                raise WorkspaceError("source generation metadata is invalid")
+            item["source_tree_sha256"] = metadata["source_tree_sha256"]
+            try:
+                observed_digest = _tree_digest(
                     source,
                     set(),
                     bounded_symlinks=True,
                     reject_hardlinks=True,
                 )
-            ):
-                raise WorkspaceError("source generation metadata is invalid")
-            item["source_tree_sha256"] = metadata["source_tree_sha256"]
+                item["source_tree_observed_sha256"] = observed_digest
+                if observed_digest != metadata["source_tree_sha256"]:
+                    raise WorkspaceError(
+                        "source generation content digest does not match metadata"
+                    )
+            except (OSError, RuntimeError, WorkspaceError) as error:
+                item["reasons"].append("corrupt_source_generation")
+                item["content_error"] = str(error)
         except (OSError, RuntimeError, WorkspaceError) as error:
             item["reasons"].append("invalid_source_generation")
             item["error"] = str(error)
@@ -3153,9 +3161,11 @@ class Cleanup:
             elif age < older_than_days * 86400:
                 item["reasons"].append("younger_than_grace_period")
         item["reasons"] = sorted(set(item["reasons"]))
-        if not item["reasons"]:
+        blocking_reasons = set(item["reasons"]) - {"corrupt_source_generation"}
+        if not blocking_reasons:
             item["disposition"] = "eligible"
-            item["reasons"] = ["stale_source_generation"]
+            if not item["reasons"]:
+                item["reasons"] = ["stale_source_generation"]
         return item
 
     def _worker_dependency_caches(
@@ -5378,6 +5388,9 @@ class Cleanup:
                     current["disposition"] != "eligible"
                     or current.get("source_tree_sha256")
                     != item.get("source_tree_sha256")
+                    or current.get("source_tree_observed_sha256")
+                    != item.get("source_tree_observed_sha256")
+                    or current.get("content_error") != item.get("content_error")
                 ):
                     raise WorkspaceError(
                         "source generation changed before removal"

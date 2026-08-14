@@ -2069,6 +2069,160 @@ class WorkspaceTests(unittest.TestCase):
         ):
             resolve()
 
+    def test_source_generation_git_tree_ignores_replacement_objects(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        checkout = self.workspace.paths.repositories / "client"
+        original_tree = command("git", "rev-parse", "HEAD^{tree}", cwd=checkout)
+        readme = checkout / "README"
+        readme.write_text("replacement\n", encoding="utf-8")
+        command("git", "add", "README", cwd=checkout)
+        replacement_tree = command("git", "write-tree", cwd=checkout)
+        command("git", "restore", "--staged", "--worktree", "README", cwd=checkout)
+        command("git", "replace", original_tree, replacement_tree, cwd=checkout)
+
+        record = load_json(
+            source.parent / workspace_module.SOURCE_GENERATION_METADATA
+        )
+        self.workspace._validate_source_generation_git_tree(
+            checkout, source, record["source_tree"]
+        )
+        self.assertEqual((source / "README").read_text(encoding="utf-8"), "client\n")
+
+    def test_source_generation_git_tree_rejects_file_open_replacement(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["client"]
+        record = load_json(
+            source.parent / workspace_module.SOURCE_GENERATION_METADATA
+        )
+        source.chmod(0o700)
+        readme = source / "README"
+        external = self.root / "linked-readme"
+        shutil.copy2(readme, external)
+        real_open = os.open
+        replaced = False
+
+        def replace_before_open(
+            path: object, flags: int, *args: object, **kwargs: object
+        ) -> int:
+            nonlocal replaced
+            if path == "README" and kwargs.get("dir_fd") is not None and not replaced:
+                replaced = True
+                readme.unlink()
+                os.link(external, readme)
+            return real_open(path, flags, *args, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.open",
+            side_effect=replace_before_open,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed while reading"):
+                self.workspace._validate_source_generation_git_tree(
+                    self.workspace.paths.repositories / "client",
+                    source,
+                    record["source_tree"],
+                )
+
+    def test_source_generation_git_tree_rejects_directory_open_replacement(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"resources"},
+            "build resources",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["resources"]
+        record = load_json(
+            source.parent / workspace_module.SOURCE_GENERATION_METADATA
+        )
+        source.chmod(0o700)
+        external = self.root / "replacement-directory"
+        external.mkdir()
+        paintings = source / "paintings"
+        displaced = source / "displaced-paintings"
+        real_open = os.open
+        replaced = False
+
+        def replace_before_open(
+            path: object, flags: int, *args: object, **kwargs: object
+        ) -> int:
+            nonlocal replaced
+            if (
+                path == "paintings"
+                and flags & os.O_DIRECTORY
+                and kwargs.get("dir_fd") is not None
+                and not replaced
+            ):
+                replaced = True
+                paintings.rename(displaced)
+                paintings.symlink_to(external, target_is_directory=True)
+            return real_open(path, flags, *args, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.open",
+            side_effect=replace_before_open,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "cannot inspect immutable"):
+                self.workspace._validate_source_generation_git_tree(
+                    self.workspace.paths.repositories / "resources",
+                    source,
+                    record["source_tree"],
+                )
+
+    def test_corrupt_source_generation_cleanup_recovers_preview_first(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        source.chmod(0o700)
+        (source / "README").unlink()
+
+        preview = self.workspace.cleanup(["builds"], 0, [], False)
+        candidate = next(
+            item
+            for item in preview["items"]
+            if item["kind"] == "source-generation"
+        )
+        self.assertEqual(candidate["disposition"], "eligible")
+        self.assertEqual(candidate["reasons"], ["corrupt_source_generation"])
+        self.assertTrue(generation.exists())
+
+        with mock.patch(
+            "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
+            return_value=(set(), False),
+        ):
+            applied = self.workspace.cleanup(["builds"], 0, [], True)
+        removed = next(
+            item
+            for item in applied["items"]
+            if item["kind"] == "source-generation"
+        )
+        self.assertEqual(removed["disposition"], "removed")
+        self.assertFalse(generation.exists())
+        recreated = resolve()
+        self.assertEqual(recreated, source)
+        self.assertEqual((recreated / "README").read_text(encoding="utf-8"), "client\n")
+
     def test_source_generation_archive_extraction_rejects_unsafe_entries(self) -> None:
         def archive(name: str, entries: list[tuple[tarfile.TarInfo, bytes]]) -> Path:
             path = self.root / f"{name}.tar"
