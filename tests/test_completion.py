@@ -216,6 +216,71 @@ class CompletionTests(unittest.TestCase):
         _, after = self.candidates("profile", "show", "")
         self.assertNotIn("review", after)
 
+    def test_current_sound_profiles_are_available_to_completion(self) -> None:
+        source = self.profile_record("source-sound", "classic")
+        source.update(
+            {
+                "schema_version": 5,
+                "sound_mode": "source",
+                "sound_release": None,
+            }
+        )
+        released = self.profile_record("released-sound", "classic")
+        released.update(
+            {
+                "schema_version": 5,
+                "sound_mode": "released",
+                "sound_release": {
+                    "archive_sha256": "a" * 64,
+                    "asset_url": (
+                        "https://github.com/atrinik/sound/releases/download/v1.2.3/"
+                        "atrinik-sound-classic-runtime-1.2.3.tar.gz"
+                    ),
+                    "manifest_schema_version": 1,
+                    "output_tree_sha256": "b" * 64,
+                    "product": "atrinik-sound-classic-runtime",
+                    "product_version": "1.2.3",
+                    "release_manifest_sha256": "c" * 64,
+                    "repository": "atrinik/sound",
+                    "schema_sha256": "d" * 64,
+                    "source_commit": "e" * 40,
+                    "source_manifest_sha256": "f" * 64,
+                    "source_tree": "1" * 40,
+                    "tag": "v1.2.3",
+                    "toolchain_sha256": "2" * 64,
+                },
+            }
+        )
+        malformed = dict(released)
+        malformed["name"] = "malformed-sound"
+        malformed["sound_release"] = None
+        invalid_coordinates = json.loads(json.dumps(released))
+        invalid_coordinates["name"] = "invalid-coordinates"
+        invalid_coordinates["sound_release"]["asset_url"] = (
+            "https://example.invalid/mutable.tar.gz"
+        )
+        cross_stack = self.profile_record("cross-stack-sound", "default")
+        cross_stack.update(
+            {
+                "schema_version": 5,
+                "sound_mode": "local-playtest",
+                "sound_release": None,
+            }
+        )
+        profiles = self.workspace / "profiles"
+        self.write_json(profiles / "source-sound.json", source)
+        self.write_json(profiles / "released-sound.json", released)
+        self.write_json(profiles / "malformed-sound.json", malformed)
+        self.write_json(profiles / "invalid-coordinates.json", invalid_coordinates)
+        self.write_json(profiles / "cross-stack-sound.json", cross_stack)
+
+        _, names = self.candidates("profile", "show", "")
+        self.assertIn("source-sound", names)
+        self.assertIn("released-sound", names)
+        self.assertNotIn("malformed-sound", names)
+        self.assertNotIn("invalid-coordinates", names)
+        self.assertNotIn("cross-stack-sound", names)
+
     def test_profiles_reject_cross_checkout_and_invalid_migration_selectors(self) -> None:
         record = self.profile_record("broken", "classic")
         record["components"]["classic-client"] = {

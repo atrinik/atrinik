@@ -817,10 +817,11 @@ component, or one of its roles updates all five classic selectors together.
 The `classic-server` alias above has the same checkout-wide effect as naming
 `classic`: every classic logical component comes from `socket-review`.
 Resolution then returns the appropriate `server/`, `client/`, `editor/`,
-`libatrinik/`, or `protocol/` source root for each component. Profile schema 4
+`libatrinik/`, or `protocol/` source root for each component. Profile schema 5
 rejects different selectors for logical components that share one physical
-checkout and records the selected sound mode. Existing schema-3 profiles load
-as `source` mode and are upgraded when next changed.
+checkout and records the selected sound mode plus immutable released-product
+coordinates when applicable. Existing schema-3 and schema-4 profiles load as
+`source` or their previously selected mode and are upgraded when next changed.
 
 Clone an existing profile when starting a related combination instead of
 repeating every selector:
@@ -908,6 +909,46 @@ gets a distinct cache key; failed or racing generation leaves existing output
 untouched. Wrapper-owned profile builds remain covered by ordinary retention.
 Sound-owned ignored outputs are preserved by default and are reclaimed only
 through the explicit preview-first `sound-cache` cleanup scope described above.
+
+A saved Classic-derived profile may instead consume the publishable Classic
+compatibility runtime from an immutable `atrinik/sound` release. Released mode
+does not invoke a source builder and never falls back to `source` or
+`local-playtest`. Supply every coordinate posted by the sound release. For
+example, the published v1.4.1 Classic runtime is selected with:
+
+~~~sh
+./atrinik profile create classic-released-audio --from classic
+./atrinik profile sound-mode classic-released-audio released \
+  --release-repository atrinik/sound \
+  --release-tag v1.4.1 \
+  --release-product-version 1.4.1 \
+  --release-source-commit 49a169bf41568e4e3b3ac70dfaf42b1a3eabe985 \
+  --release-source-tree 92b81774820dfd55944f4d7b005c1dc344b43561 \
+  --release-asset-url https://github.com/atrinik/sound/releases/download/v1.4.1/atrinik-sound-classic-runtime-1.4.1.tar.gz \
+  --release-archive-sha256 8373868ab4632eda58ae7959909f414a10a43ce519dd1ef9e7f911d4fa208a52 \
+  --release-manifest-sha256 7961ea27069c2cd54131466394571942d486e31e1007c9d957b97cb8b0d63b56 \
+  --release-source-manifest-sha256 3aacd122abe16da771ac1eb6ad80c50c1c6e7ab43d555dc8772f21be24248366 \
+  --release-schema-sha256 428e1312d9922ab4ec20c0ee89d93d842528db6d8cc75197c135f4d4f59066aa \
+  --release-toolchain-sha256 ee842444c37df3c6784665c2dacef4ab9220f3abfc5c2daf9214fe4b40aadbf7 \
+  --release-tree-sha256 2c3d42ea91ca088ac37e5215e3452dad31e5f1fb17018941ed5ad0a3c53060da
+./atrinik profile show classic-released-audio --json
+./atrinik build classic-client --profile classic-released-audio --test
+./atrinik topology show classic-released-audio --service client --json
+~~~
+
+The wrapper downloads only that exact versioned GitHub release URL, verifies
+the outer checksum, safely extracts one bounded product prefix, and then checks
+canonical internal checksums, the publishable/non-playtest manifest and
+packaged schema, the nonblocking remediation report, packaged notices and
+licenses, exact 339-path closure, every payload hash and codec signature, the
+189 byte-preserved Vorbis / 150 Opus split, and the logical-tree digest.
+The verified archive and tree live below the coordinate-keyed profile build;
+unchanged inputs reuse them offline. Build and topology records retain all
+coordinates and verification results. A changed coordinate produces a distinct
+build key, while incomplete or mismatched caches fail closed and remain covered
+by normal preview-first build cleanup. Supply-chain audit output identifies the
+selected archive, source commit/tree, and logical tree; license, CycloneDX, and
+SPDX reports for that profile also carry the complete immutable coordinate set.
 
 ## Deterministic test scenarios
 

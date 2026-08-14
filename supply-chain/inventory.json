@@ -1359,13 +1359,13 @@
         "classic-server"
       ],
       "required": true,
-      "version": "materials-c70422ac4df08fc013a6b1bf15d93fd19fbae724d871caa80793a5a73ac08865",
+      "version": "materials-7e2ad179a1d95540820634792e355e2fbf3cf030b41816c3bed9923c9d0a718d",
       "version_source": "Classic dependencies.bundle.json material digest",
       "license": "LicenseRef-Atrinik-Image-Contents",
       "source_url": "https://github.com/atrinik/classic/pkgs/container/classic-dependencies",
-      "locator": "ghcr.io/atrinik/classic-dependencies@sha256:e8b84176046719785f768b45f513b29ab81c631b153454a025aa016cd82ee16f",
+      "locator": "ghcr.io/atrinik/classic-dependencies@sha256:60f13a18830552fbdbda314c9e29029323fce84eb0de1defd2a1d3610de78043",
       "commit": null,
-      "checksum": "sha256:e8b84176046719785f768b45f513b29ab81c631b153454a025aa016cd82ee16f",
+      "checksum": "sha256:60f13a18830552fbdbda314c9e29029323fce84eb0de1defd2a1d3610de78043",
       "acquisition": "A trusted current-main workflow builds the deterministic OCI layout through the authoritative Classic fetcher and publishes its exact manifest digest",
       "update_cadence_days": 30,
       "update_mechanism": "Reviewed Classic lock or acquisition-contract update with a regenerated material and OCI descriptor",
@@ -1382,7 +1382,7 @@
         {
           "repository": "classic",
           "path": "dependencies.bundle.json",
-          "contains": "sha256:e8b84176046719785f768b45f513b29ab81c631b153454a025aa016cd82ee16f"
+          "contains": "sha256:60f13a18830552fbdbda314c9e29029323fce84eb0de1defd2a1d3610de78043"
         },
         {
           "repository": "classic",
@@ -2624,13 +2624,13 @@
         "classic-server"
       ],
       "required": true,
-      "version": "v3.0.1",
+      "version": "v5.0.0",
       "version_source": "Classic server dependencies.lock.json content runtime input",
       "license": "LicenseRef-Atrinik-Asset-Per-File",
-      "source_url": "https://github.com/atrinik/content/releases/tag/v3.0.1",
-      "locator": "pkg:github/atrinik/content@v3.0.1",
-      "commit": "65a88167d3a2bedcc2dc21508d94d7ca009a76d2",
-      "checksum": "sha256:2b49daee9d515a86323a5ef28a9f85a5098c96f72375155bb59dcdda50daeaf7",
+      "source_url": "https://github.com/atrinik/content/releases/tag/v5.0.0",
+      "locator": "pkg:github/atrinik/content@v5.0.0",
+      "commit": "b0ccf98ed5e65d3d1a66f6dfce44c19122b26eef",
+      "checksum": "sha256:ac15a58d6ac07e9cbef64076dded0024a9a0c8b03d07748c1f0224d5901f4178",
       "acquisition": "Classic release packaging obtains the archive from the exact durable dependency-bundle digest and rechecks it before safe extraction",
       "update_cadence_days": 30,
       "update_mechanism": "Daily fail-closed GitHub App proposal plus reviewed Classic compatibility update",
@@ -2642,7 +2642,7 @@
         {
           "repository": "classic-server",
           "path": "dependencies.lock.json",
-          "contains": "atrinik-content-3.0.1-classic-runtime.tar.gz"
+          "contains": "atrinik-content-5.0.0-classic-runtime.tar.gz"
         }
       ]
     },
@@ -2829,6 +2829,38 @@
           "repository": "classic-server",
           "path": "dependencies.lock.json",
           "contains": "atrinik-resources-1.0.1.tar.gz"
+        }
+      ]
+    },
+    {
+      "id": "source/atrinik-sound-classic-runtime",
+      "name": "Profile-selected Atrinik Classic sound runtime",
+      "kind": "source-archive",
+      "owner": "sound",
+      "scope": [
+        "atrinik",
+        "classic-client"
+      ],
+      "required": false,
+      "version": "profile-selected",
+      "version_source": "Atrinik profile sound_release immutable coordinates",
+      "license": "LicenseRef-Atrinik-Asset-Per-File",
+      "source_url": "https://github.com/atrinik/sound/releases",
+      "locator": "pkg:github/atrinik/sound@profile-selected?product=classic-runtime",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Atrinik wrapper downloads a profile-pinned release asset into a profile-build-owned verified cache",
+      "update_cadence_days": 30,
+      "update_mechanism": "Set reviewed immutable profile coordinates from an atrinik/sound release",
+      "eol_response": "Select a supported publishable runtime release or return the profile to source mode",
+      "validation": "Exact URL and archive checksum, bounded safe extraction, internal checksums, schema and manifest identity, 339-path codec contract, and logical tree checksum",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": "atrinik_workspace/sound.py",
+          "contains": "atrinik-sound-classic-runtime"
         }
       ]
     },

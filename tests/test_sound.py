@@ -1,27 +1,42 @@
 from __future__ import annotations
 
 import copy
+import gzip
 import hashlib
+import http.client
+import io
 import json
 import os
 from pathlib import Path
 import shutil
 import subprocess
+import tarfile
 import tempfile
 import unittest
+import urllib.error
 from unittest import mock
 
 from atrinik_workspace import sound as sound_module
+from atrinik_workspace import workspace as workspace_module
 from atrinik_workspace.model import WorkspaceError
 from atrinik_workspace.sound import (
     PLAYTEST_BLOCKERS,
     PLAYTEST_MANIFEST,
     PLAYTEST_MARKER,
     PLAYTEST_SCHEMA,
+    RELEASE_CHECKSUMS,
+    RELEASE_MANIFEST,
+    RELEASE_METADATA_FILES,
+    RELEASE_PRODUCT,
+    RELEASE_REMEDIATION,
+    RELEASE_SCHEMA,
     cache_key,
     clean_source_inputs,
+    extract_release_archive,
+    validate_release_coordinates,
     validate_sound_record,
     verify_playtest_tree,
+    verify_release_tree,
 )
 from atrinik_workspace.workspace import BUILD_METADATA, Workspace
 
@@ -195,6 +210,8 @@ class PlaytestSoundTests(unittest.TestCase):
         self.assertEqual(
             validate_sound_record(replacement_record), replacement_record
         )
+
+
         replacement_record["converted_opus_count"] = 149
         with self.assertRaisesRegex(WorkspaceError, "provenance is invalid"):
             validate_sound_record(replacement_record)
@@ -861,6 +878,1138 @@ class PlaytestSoundTests(unittest.TestCase):
                 "verify-playtest-tree",
             ],
         )
+
+
+class ReleasedSoundTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.root = Path(self.temporary.name)
+        self.tree = self.root / "tree"
+        self.tree.mkdir()
+        schema = self.tree / RELEASE_SCHEMA
+        schema.parent.mkdir()
+        schema_fields = [
+            "$schema", "assets", "converted_opus_count",
+            "copied_vorbis_count", "logical_path_count", "output_tree_sha256",
+            "playtest_only", "publishable", "release_tag",
+            "remediation_finding_count", "remediation_report_sha256",
+            "schema_sha256", "schema_version", "source_commit",
+            "source_manifest_sha256", "source_tree", "tool_versions",
+            "toolchain_sha256",
+        ]
+        schema.write_bytes(canonical({
+            "$id": "https://atrinik.org/schemas/sound/classic-runtime-manifest-v1.schema.json",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "additionalProperties": False,
+            "properties": {name: {} for name in schema_fields},
+            "required": schema_fields,
+            "type": "object",
+        }))
+        for relative in RELEASE_METADATA_FILES - {RELEASE_SCHEMA, RELEASE_REMEDIATION}:
+            metadata = self.tree / relative
+            metadata.parent.mkdir(parents=True, exist_ok=True)
+            metadata.write_text(f"fixture metadata {relative}\n", encoding="utf-8")
+        remediation = {
+            "$schema": "schemas/classic-remediation-v1.schema.json",
+            "category_counts": {},
+            "classification": "nonblocking-modernization",
+            "count": 0,
+            "findings": [],
+            "release_boundary": "Fixture modernization boundary.",
+            "schema_version": 1,
+            "source_commit": "a" * 40,
+            "source_count": 339,
+            "source_manifest_sha256": "c" * 64,
+            "source_tree": "b" * 40,
+        }
+        (self.tree / RELEASE_REMEDIATION).write_bytes(canonical(remediation))
+        assets: list[dict[str, object]] = []
+        for index in range(339):
+            copied = index >= 150
+            logical = (
+                f"effects/copy-{index - 150:03}.ogg"
+                if copied else f"background/convert-{index:03}.mid"
+            )
+            payload = (
+                b"OggS\x00fixture\x01vorbis" if copied
+                else b"OggS\x00fixtureOpusHead"
+            ) + str(index).encode()
+            path = self.tree / logical
+            path.parent.mkdir(exist_ok=True)
+            path.write_bytes(payload)
+            payload_hash = digest(path)
+            source_codec = "vorbis" if copied else ("flac" if index < 28 else "midi")
+            assets.append({
+                "logical_path": logical,
+                "source_path": logical if copied else f"background/source-{index:03}.flac",
+                "mapping": "copy" if copied else "render-opus",
+                "source": {
+                    "codec": source_codec,
+                    "container": (
+                        "ogg" if copied else
+                        "standard-midi-file" if source_codec == "midi" else "flac"
+                    ),
+                    "sha256": payload_hash if copied else hashlib.sha256(
+                        f"source-{index}".encode()
+                    ).hexdigest(),
+                },
+                "output": {
+                    "sha256": payload_hash,
+                    "size_bytes": len(payload),
+                    "codec": "vorbis" if copied else "opus",
+                    "container": "ogg",
+                    "sample_rate": 48000,
+                    "channels": 2,
+                    "duration_seconds": 1.0,
+                },
+            })
+        assets.sort(key=lambda asset: str(asset["logical_path"]))
+        tree_hash = hashlib.sha256()
+        for asset in assets:
+            output = asset["output"]
+            assert isinstance(output, dict)
+            tree_hash.update(
+                f"{output['sha256']}  {asset['logical_path']}\n".encode()
+            )
+        source_manifest = {
+            "$schema": "../schemas/source-assets-v1.schema.json",
+            "assets": [
+                {
+                    "logical_path": asset["logical_path"],
+                    "source_path": asset["source_path"],
+                    "source": asset["source"],
+                }
+                for asset in assets
+            ],
+            "audio_source_count": 339,
+            "schema_version": 1,
+            "source_corpus_sha256": "e" * 64,
+            "source_size_bytes": 1,
+        }
+        source_manifest_path = self.tree / "manifests/source-assets.json"
+        source_manifest_path.write_bytes(canonical(source_manifest))
+        source_manifest_hash = digest(source_manifest_path)
+        toolchain = {
+            "$schema": "../schemas/classic-audio-toolchain-v1.schema.json",
+            "schema_version": 1,
+            "tools": {name: {} for name in sorted(sound_module.TOOL_NAMES)},
+        }
+        toolchain_path = self.tree / "manifests/classic-audio-toolchain.json"
+        toolchain_path.write_bytes(canonical(toolchain))
+        toolchain_hash = digest(toolchain_path)
+        remediation["source_manifest_sha256"] = source_manifest_hash
+        (self.tree / RELEASE_REMEDIATION).write_bytes(canonical(remediation))
+        self.manifest = {
+            "$schema": RELEASE_SCHEMA,
+            "schema_version": 1,
+            "release_tag": "v1.4.0",
+            "playtest_only": False,
+            "publishable": True,
+            "source_commit": "a" * 40,
+            "source_tree": "b" * 40,
+            "source_manifest_sha256": source_manifest_hash,
+            "toolchain_sha256": toolchain_hash,
+            "tool_versions": {name: "fixture" for name in sorted(sound_module.TOOL_NAMES)},
+            "schema_sha256": digest(schema),
+            "remediation_report_sha256": digest(self.tree / RELEASE_REMEDIATION),
+            "remediation_finding_count": 0,
+            "logical_path_count": 339,
+            "copied_vorbis_count": 189,
+            "converted_opus_count": 150,
+            "output_tree_sha256": tree_hash.hexdigest(),
+            "assets": assets,
+        }
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.rewrite_checksums()
+        self.archive = self.root / f"{RELEASE_PRODUCT}-1.4.0.tar.gz"
+        with tarfile.open(
+            self.archive, "w:gz", format=tarfile.USTAR_FORMAT
+        ) as archive:
+            archive.add(self.tree, arcname=f"{RELEASE_PRODUCT}-1.4.0")
+        self.coordinates = {
+            "repository": "atrinik/sound",
+            "tag": "v1.4.0",
+            "product": RELEASE_PRODUCT,
+            "product_version": "1.4.0",
+            "manifest_schema_version": 1,
+            "source_commit": "a" * 40,
+            "source_tree": "b" * 40,
+            "asset_url": (
+                "https://github.com/atrinik/sound/releases/download/v1.4.0/"
+                f"{RELEASE_PRODUCT}-1.4.0.tar.gz"
+            ),
+            "archive_sha256": digest(self.archive),
+            "release_manifest_sha256": digest(self.tree / RELEASE_MANIFEST),
+            "source_manifest_sha256": source_manifest_hash,
+            "schema_sha256": digest(schema),
+            "toolchain_sha256": toolchain_hash,
+            "output_tree_sha256": tree_hash.hexdigest(),
+        }
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    def rewrite_checksums(self) -> None:
+        files = sorted(
+            path for path in self.tree.rglob("*")
+            if path.is_file() and path.name != RELEASE_CHECKSUMS
+        )
+        (self.tree / RELEASE_CHECKSUMS).write_text(
+            "".join(
+                f"{digest(path)}  {path.relative_to(self.tree).as_posix()}\n"
+                for path in files
+            ), encoding="ascii"
+        )
+
+    def test_complete_tree_archive_and_record_are_accepted(self) -> None:
+        self.assertEqual(validate_release_coordinates(self.coordinates), self.coordinates)
+        record = verify_release_tree(self.tree, self.coordinates)
+        self.assertEqual(record["mode"], "released")
+        self.assertEqual(validate_sound_record(record), record)
+        extracted = self.root / "extracted"
+        extract_release_archive(self.archive, extracted, self.coordinates)
+        self.assertEqual(verify_release_tree(extracted, self.coordinates), {
+            **record, "root": str(extracted.resolve())
+        })
+
+    def test_wrapper_downloads_once_and_reuses_exact_verified_cache(self) -> None:
+        wrapper = self.root / "wrapper"
+        wrapper.mkdir()
+        shutil.copy2(Path(__file__).resolve().parents[1] / "components.json", wrapper)
+        workspace = Workspace(wrapper)
+        build = self.root / "build"
+        build.mkdir()
+        profile = {
+            "stack": "classic",
+            "sound_mode": "released",
+            "sound_release": self.coordinates,
+        }
+        with (
+            mock.patch.object(workspace, "_load_profile", return_value=profile),
+            mock.patch(
+                "atrinik_workspace.workspace.download_release_archive",
+                side_effect=lambda _url, destination: shutil.copy2(
+                    self.archive, destination
+                ),
+            ) as download,
+        ):
+            first_root, first_record = workspace._prepare_sound(
+                build, {"sound": self.root / "unused-source"}, "classic-release"
+            )
+            shutil.rmtree(first_root)
+            second_root, second_record = workspace._prepare_sound(
+                build, {"sound": self.root / "unused-source"}, "classic-release"
+            )
+        self.assertEqual(download.call_count, 1)
+        self.assertEqual(first_root, second_root)
+        self.assertEqual(first_record, second_record)
+        self.assertEqual(first_record["archive_sha256"], self.coordinates["archive_sha256"])
+
+    def test_coordinates_payload_and_archive_fail_closed(self) -> None:
+        for coordinates in (
+            {**self.coordinates, "asset_url": "https://example.com/a"},
+            {**self.coordinates, "repository": "atrinik/classic"},
+            {**self.coordinates, "tag": "v1.4.1"},
+            {**self.coordinates, "archive_sha256": "bad"},
+        ):
+            with self.assertRaises(WorkspaceError):
+                validate_release_coordinates(coordinates)
+
+        payload = self.tree / "background/convert-000.mid"
+        payload.write_bytes(b"MThd" + b"\0" * 20)
+        first = self.manifest["assets"][0]
+        assert isinstance(first, dict) and isinstance(first["output"], dict)
+        first["output"]["sha256"] = digest(payload)
+        first["output"]["size_bytes"] = payload.stat().st_size
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(self.tree / RELEASE_MANIFEST)
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "not an Ogg stream"):
+            verify_release_tree(self.tree, self.coordinates)
+
+        unsafe = self.root / "unsafe.tar.gz"
+        with tarfile.open(unsafe, "w:gz") as archive:
+            member = tarfile.TarInfo(f"{RELEASE_PRODUCT}-1.4.0/../escape")
+            member.size = 0
+            archive.addfile(member)
+        with self.assertRaisesRegex(WorkspaceError, "unsafe path"):
+            extract_release_archive(unsafe, self.root / "unsafe", self.coordinates)
+
+    def test_archive_member_and_stream_failures_are_bounded_and_safe(self) -> None:
+        prefix = f"{RELEASE_PRODUCT}-1.4.0"
+
+        def archive_with(name: str, members: list[tarfile.TarInfo]) -> Path:
+            path = self.root / f"{name}.tar.gz"
+            with tarfile.open(path, "w:gz") as archive:
+                root = tarfile.TarInfo(prefix)
+                root.type = tarfile.DIRTYPE
+                archive.addfile(root)
+                for member in members:
+                    payload = b"x" * member.size
+                    archive.addfile(member, io.BytesIO(payload) if member.size else None)
+            return path
+
+        cases: list[tuple[str, list[tarfile.TarInfo], str]] = []
+        for name in (f"{prefix}/..\\escape", "/absolute"):
+            member = tarfile.TarInfo(name)
+            cases.append((name.replace("/", "-").replace("\\", "-"), [member], "unsafe path"))
+        first = tarfile.TarInfo(f"{prefix}/sound.ogg")
+        second = tarfile.TarInfo(f"{prefix}/SOUND.ogg")
+        cases.append(("case-collision", [first, second], "case-colliding"))
+        link = tarfile.TarInfo(f"{prefix}/escape")
+        link.type = tarfile.SYMTYPE
+        link.linkname = "../../escape"
+        cases.append(("symlink", [link], "special member"))
+        device = tarfile.TarInfo(f"{prefix}/device")
+        device.type = tarfile.CHRTYPE
+        cases.append(("device", [device], "special member"))
+        duplicate_root = tarfile.TarInfo(prefix)
+        duplicate_root.type = tarfile.DIRTYPE
+        cases.append(("duplicate-root", [duplicate_root], "duplicate"))
+        other = tarfile.TarInfo("other-product/file")
+        cases.append(("multiple-prefixes", [other], "one directory prefix"))
+        for index, (name, members, message) in enumerate(cases):
+            with self.subTest(name=name):
+                archive = archive_with(f"unsafe-{index}", members)
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    extract_release_archive(
+                        archive, self.root / f"destination-{index}", self.coordinates
+                    )
+
+        truncated = self.root / "truncated.tar.gz"
+        truncated.write_bytes(self.archive.read_bytes()[:128])
+        with self.assertRaisesRegex(WorkspaceError, "invalid|truncated|corrupt"):
+            extract_release_archive(truncated, self.root / "truncated", self.coordinates)
+
+        extended = tarfile.TarInfo(f"{prefix}/file")
+        extended.pax_headers = {"comment": "x" * (sound_module.MAX_RELEASE_METADATA_BYTES + 1)}
+        oversized = archive_with("oversized-pax", [extended])
+        with self.assertRaisesRegex(WorkspaceError, "extended metadata"):
+            extract_release_archive(oversized, self.root / "oversized", self.coordinates)
+        solaris = tarfile.TarInfo(f"{prefix}/solaris-metadata")
+        solaris.type = tarfile.SOLARIS_XHDTYPE
+        solaris.size = 1
+        solaris_archive = archive_with("solaris-pax", [solaris])
+        with self.assertRaisesRegex(WorkspaceError, "extended metadata"):
+            extract_release_archive(
+                solaris_archive, self.root / "solaris", self.coordinates
+            )
+
+    def test_archive_envelope_and_layout_failures_are_bounded(self) -> None:
+        def compressed(name: str, payload: bytes) -> Path:
+            path = self.root / name
+            with gzip.open(path, "wb") as stream:
+                stream.write(payload)
+            return path
+
+        for name, payload, message in (
+            ("empty.tar.gz", b"", "truncated"),
+            ("short-header.tar.gz", b"x" * 100, "truncated header"),
+            (
+                "invalid-trailer.tar.gz",
+                tarfile.NUL * tarfile.BLOCKSIZE + b"x" * tarfile.BLOCKSIZE,
+                "invalid trailer",
+            ),
+            ("invalid-header.tar.gz", b"x" * tarfile.BLOCKSIZE, "header is invalid"),
+        ):
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    sound_module._prescan_release_archive(
+                        compressed(name, payload)
+                    )
+
+        with mock.patch.object(sound_module, "MAX_RELEASE_MEMBERS", 0):
+            with self.assertRaisesRegex(WorkspaceError, "member count"):
+                sound_module._prescan_release_archive(self.archive)
+        with mock.patch.object(sound_module, "MAX_RELEASE_MEMBER_BYTES", 0):
+            with self.assertRaisesRegex(WorkspaceError, "member exceeds"):
+                sound_module._prescan_release_archive(self.archive)
+        with mock.patch.object(sound_module, "MAX_RELEASE_TAR_BYTES", 1):
+            with self.assertRaisesRegex(WorkspaceError, "extraction limit"):
+                sound_module._prescan_release_archive(self.archive)
+
+        existing = self.root / "existing-destination"
+        existing.mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "already exists"):
+            extract_release_archive(self.archive, existing, self.coordinates)
+        with mock.patch.object(sound_module, "MAX_RELEASE_ARCHIVE_BYTES", 1):
+            with self.assertRaisesRegex(WorkspaceError, "size limit"):
+                extract_release_archive(
+                    self.archive, self.root / "input-too-large", self.coordinates
+                )
+
+        empty = self.root / "empty-members.tar.gz"
+        with tarfile.open(empty, "w:gz", format=tarfile.USTAR_FORMAT):
+            pass
+        with self.assertRaisesRegex(WorkspaceError, "member count"):
+            extract_release_archive(empty, self.root / "empty-members", self.coordinates)
+
+        wrong_prefix = self.root / "wrong-prefix.tar.gz"
+        with tarfile.open(wrong_prefix, "w:gz", format=tarfile.USTAR_FORMAT) as archive:
+            root = tarfile.TarInfo("wrong-product-1.4.0")
+            root.type = tarfile.DIRTYPE
+            archive.addfile(root)
+        with self.assertRaisesRegex(WorkspaceError, "wrong product prefix"):
+            extract_release_archive(
+                wrong_prefix, self.root / "wrong-prefix", self.coordinates
+            )
+
+        implicit_directory = self.root / "implicit-directory.tar.gz"
+        prefix = f"{RELEASE_PRODUCT}-1.4.0"
+        with tarfile.open(
+            implicit_directory, "w:gz", format=tarfile.USTAR_FORMAT
+        ) as archive:
+            root = tarfile.TarInfo(prefix)
+            root.type = tarfile.DIRTYPE
+            archive.addfile(root)
+            member = tarfile.TarInfo(f"{prefix}/nested/file")
+            member.size = 1
+            archive.addfile(member, io.BytesIO(b"x"))
+        implicit_destination = self.root / "implicit-directory"
+        extract_release_archive(
+            implicit_directory, implicit_destination, self.coordinates
+        )
+        self.assertEqual((implicit_destination / "nested" / "file").read_bytes(), b"x")
+
+        unexpected_directory = self.root / "unexpected-directory.tar.gz"
+        with tarfile.open(
+            unexpected_directory, "w:gz", format=tarfile.USTAR_FORMAT
+        ) as archive:
+            root = tarfile.TarInfo(prefix)
+            root.type = tarfile.DIRTYPE
+            archive.addfile(root)
+            extra = tarfile.TarInfo(f"{prefix}/empty")
+            extra.type = tarfile.DIRTYPE
+            archive.addfile(extra)
+        with self.assertRaisesRegex(WorkspaceError, "unexpected directories"):
+            extract_release_archive(
+                unexpected_directory,
+                self.root / "unexpected-directory",
+                self.coordinates,
+            )
+
+    def test_oversized_cached_archive_is_rejected_before_decompression(self) -> None:
+        oversized = self.root / "oversized-cache.tar.gz"
+        with oversized.open("wb") as stream:
+            stream.truncate(2)
+        with (
+            mock.patch.object(sound_module, "MAX_RELEASE_ARCHIVE_BYTES", 1),
+            mock.patch.object(sound_module, "_prescan_release_archive") as prescan,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "size limit"):
+                sound_module.verify_release_archive(
+                    oversized, self.coordinates, "cached released sound archive"
+                )
+            with self.assertRaisesRegex(WorkspaceError, "size limit"):
+                extract_release_archive(
+                    oversized, self.root / "oversized-output", self.coordinates
+                )
+            prescan.assert_not_called()
+
+    def test_interrupted_download_is_a_workspace_error(self) -> None:
+        response = mock.Mock()
+        response.headers = {}
+        response.read.side_effect = http.client.IncompleteRead(b"partial", 100)
+        with mock.patch("urllib.request.urlopen", return_value=response):
+            with self.assertRaisesRegex(WorkspaceError, "interrupted"):
+                sound_module.download_release_archive(
+                    self.coordinates["asset_url"], self.root / "partial.tar.gz"
+                )
+        response.close.assert_called_once()
+
+    def test_download_headers_limits_and_completion_fail_closed(self) -> None:
+        with mock.patch(
+            "urllib.request.urlopen", side_effect=urllib.error.URLError("offline")
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "cannot download"):
+                sound_module.download_release_archive(
+                    self.coordinates["asset_url"], self.root / "offline.tar.gz"
+                )
+        for index, (length, chunks, message) in enumerate((
+            ("invalid", [b""], "invalid Content-Length"),
+            ("0", [b""], "download limit"),
+            ("2", [b"x", b""], "incomplete"),
+            (None, [b""], "incomplete"),
+        )):
+            response = mock.Mock()
+            response.headers = {} if length is None else {"Content-Length": length}
+            response.read.side_effect = chunks
+            with self.subTest(length=length):
+                with mock.patch("urllib.request.urlopen", return_value=response):
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        sound_module.download_release_archive(
+                            self.coordinates["asset_url"],
+                            self.root / f"download-{index}.tar.gz",
+                        )
+            response.close.assert_called_once()
+        response = mock.Mock()
+        response.headers = {"Content-Length": "3"}
+        response.read.side_effect = [b"abc", b""]
+        response.close.side_effect = OSError("close failed")
+        with mock.patch("urllib.request.urlopen", return_value=response):
+            sound_module.download_release_archive(
+                self.coordinates["asset_url"], self.root / "complete.tar.gz"
+            )
+        self.assertEqual((self.root / "complete.tar.gz").read_bytes(), b"abc")
+        response = mock.Mock()
+        response.headers = {}
+        response.read.side_effect = [b"abc", b""]
+        with (
+            mock.patch("urllib.request.urlopen", return_value=response),
+            mock.patch.object(sound_module, "MAX_RELEASE_ARCHIVE_BYTES", 2),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "download limit"):
+                sound_module.download_release_archive(
+                    self.coordinates["asset_url"], self.root / "too-large.tar.gz"
+                )
+
+    def test_remediation_tampering_fails_closed(self) -> None:
+        (self.tree / RELEASE_REMEDIATION).write_text("{}\n", encoding="utf-8")
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "remediation"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_notice_tampering_fails_closed(self) -> None:
+        notice = self.tree / "background/LICENSE"
+        notice.write_text("tampered\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "checksum"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_missing_checksums_fail_closed(self) -> None:
+        (self.tree / RELEASE_CHECKSUMS).unlink()
+        with self.assertRaisesRegex(WorkspaceError, "checksums"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_manifest_counts_and_schema_contract_fail_closed(self) -> None:
+        self.manifest["logical_path_count"] = 338
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "counts.*339-path"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_manifest_and_schema_envelope_failures_are_distinguished(self) -> None:
+        manifest_path = self.tree / RELEASE_MANIFEST
+        schema_path = self.tree / RELEASE_SCHEMA
+        original_manifest = canonical(self.manifest)
+        original_schema = schema_path.read_bytes()
+        original_coordinates = dict(self.coordinates)
+
+        def restore() -> None:
+            self.manifest = json.loads(original_manifest)
+            manifest_path.write_bytes(original_manifest)
+            schema_path.write_bytes(original_schema)
+            self.coordinates.clear()
+            self.coordinates.update(original_coordinates)
+            self.rewrite_checksums()
+
+        try:
+            for name, payload, message in (
+                ("invalid-json", b"{\n", "invalid JSON"),
+                (
+                    "noncanonical-json",
+                    json.dumps(self.manifest, indent=2).encode() + b"\n",
+                    "not canonical JSON",
+                ),
+            ):
+                with self.subTest(name=name):
+                    manifest_path.write_bytes(payload)
+                    self.coordinates["release_manifest_sha256"] = hashlib.sha256(
+                        payload
+                    ).hexdigest()
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        verify_release_tree(self.tree, self.coordinates)
+                    restore()
+
+            del self.manifest["assets"]
+            manifest_path.write_bytes(canonical(self.manifest))
+            self.coordinates["release_manifest_sha256"] = digest(manifest_path)
+            with self.assertRaisesRegex(WorkspaceError, "manifest fields"):
+                verify_release_tree(self.tree, self.coordinates)
+            restore()
+
+            self.manifest["release_tag"] = "v9.9.9"
+            manifest_path.write_bytes(canonical(self.manifest))
+            self.coordinates["release_manifest_sha256"] = digest(manifest_path)
+            with self.assertRaisesRegex(WorkspaceError, "manifest identity"):
+                verify_release_tree(self.tree, self.coordinates)
+            restore()
+
+            with mock.patch.object(
+                sound_module, "MAX_RELEASE_SCHEMA_BYTES", len(original_schema) - 1
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "schema exceeds"):
+                    verify_release_tree(self.tree, self.coordinates)
+            restore()
+
+            wrong_hash = "e" * 64
+            self.coordinates["schema_sha256"] = wrong_hash
+            self.manifest["schema_sha256"] = wrong_hash
+            manifest_path.write_bytes(canonical(self.manifest))
+            self.coordinates["release_manifest_sha256"] = digest(manifest_path)
+            with self.assertRaisesRegex(WorkspaceError, "schema.*tampered"):
+                verify_release_tree(self.tree, self.coordinates)
+            restore()
+
+            schema_path.write_bytes(b"{\n")
+            self.coordinates["schema_sha256"] = digest(schema_path)
+            self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+            manifest_path.write_bytes(canonical(self.manifest))
+            self.coordinates["release_manifest_sha256"] = digest(manifest_path)
+            self.rewrite_checksums()
+            with self.assertRaisesRegex(WorkspaceError, "schema is invalid JSON"):
+                verify_release_tree(self.tree, self.coordinates)
+        finally:
+            restore()
+
+    def test_exact_source_codec_split_and_finite_metadata_are_required(self) -> None:
+        for asset in self.manifest["assets"]:
+            if asset["source"]["codec"] == "flac":
+                asset["source"]["codec"] = "midi"
+                asset["source"]["container"] = "standard-midi-file"
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "source manifest closure"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_source_manifest_and_toolchain_pins_and_closure_are_required(self) -> None:
+        source_path = self.tree / "manifests/source-assets.json"
+        source_manifest = json.loads(source_path.read_text(encoding="utf-8"))
+        source_manifest["assets"][0]["source"]["sha256"] = "0" * 64
+        source_path.write_bytes(canonical(source_manifest))
+        source_hash = digest(source_path)
+        self.coordinates["source_manifest_sha256"] = source_hash
+        self.manifest["source_manifest_sha256"] = source_hash
+        remediation_path = self.tree / RELEASE_REMEDIATION
+        remediation = json.loads(remediation_path.read_text(encoding="utf-8"))
+        remediation["source_manifest_sha256"] = source_hash
+        remediation_path.write_bytes(canonical(remediation))
+        self.manifest["remediation_report_sha256"] = digest(remediation_path)
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "source manifest closure"):
+            verify_release_tree(self.tree, self.coordinates)
+
+        self.manifest["assets"][0]["source"]["sha256"] = "0" * 64
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        toolchain_path = self.tree / "manifests/classic-audio-toolchain.json"
+        toolchain_path.write_bytes(toolchain_path.read_bytes() + b" ")
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "toolchain hash"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_schema_regex_and_json_nesting_are_bounded(self) -> None:
+        with self.assertRaisesRegex(WorkspaceError, "pattern is unsupported"):
+            sound_module._validate_release_schema_structure(
+                {"type": "string", "pattern": "(a+)+$"}
+            )
+
+        manifest_path = self.tree / RELEASE_MANIFEST
+        nested = (b'{"x":' * 1500) + b"0" + (b"}" * 1500)
+        manifest_path.write_bytes(nested)
+        self.coordinates["release_manifest_sha256"] = hashlib.sha256(nested).hexdigest()
+        with self.assertRaisesRegex(WorkspaceError, "nesting limit"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_nonstandard_json_numbers_are_rejected(self) -> None:
+        self.manifest["assets"][0]["output"]["duration_seconds"] = float("nan")
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "invalid JSON"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_packaged_schema_must_be_valid_and_applicable(self) -> None:
+        schema = self.tree / RELEASE_SCHEMA
+        schema.write_text("{}\n", encoding="utf-8")
+        self.coordinates["schema_sha256"] = digest(schema)
+        self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "schema contract"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_packaged_schema_must_be_an_object(self) -> None:
+        schema_path = self.tree / RELEASE_SCHEMA
+        schema_path.write_text("[]\n", encoding="utf-8")
+        self.coordinates["schema_sha256"] = digest(schema_path)
+        self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "schema contract"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_packaged_schema_property_constraints_are_applied(self) -> None:
+        schema_path = self.tree / RELEASE_SCHEMA
+        schema = json.loads(schema_path.read_text())
+        schema["properties"]["assets"] = False
+        schema_path.write_bytes(canonical(schema))
+        self.coordinates["schema_sha256"] = digest(schema_path)
+        self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "violates its schema"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_packaged_schema_reference_cycles_fail_closed(self) -> None:
+        schema_path = self.tree / RELEASE_SCHEMA
+        schema = json.loads(schema_path.read_text())
+        schema["$defs"] = {"loop": {"$ref": "#/$defs/loop"}}
+        schema["properties"]["assets"] = {"$ref": "#/$defs/loop"}
+        schema_path.write_bytes(canonical(schema))
+        self.coordinates["schema_sha256"] = digest(schema_path)
+        self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "schema reference"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_combinators_do_not_swallow_invalid_schema_branches(self) -> None:
+        schema_path = self.tree / RELEASE_SCHEMA
+        schema = json.loads(schema_path.read_text())
+        schema["$defs"] = {"loop": {"$ref": "#/$defs/loop"}}
+        schema["properties"]["assets"] = {
+            "anyOf": [True, {"$ref": "#/$defs/loop"}]
+        }
+        schema_path.write_bytes(canonical(schema))
+        self.coordinates["schema_sha256"] = digest(schema_path)
+        self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "schema reference"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_combinators_do_not_swallow_malformed_keyword_values(self) -> None:
+        for index, invalid in enumerate((
+            {"enum": "invalid"},
+            {"type": "bogus"},
+            {"required": "invalid"},
+            {"maxItems": -1},
+            {"additionalProperties": "invalid"},
+            {"pattern": "["},
+            {"items": "invalid"},
+            {"properties": {"absent": {"$ref": "invalid"}}},
+            {"anyOf": None},
+            {"maxItems": None},
+            {"type": None},
+            {"type": [{}]},
+        )):
+            with self.subTest(invalid=invalid):
+                schema_path = self.tree / RELEASE_SCHEMA
+                schema = json.loads(schema_path.read_text())
+                schema["properties"]["assets"] = {"anyOf": [True, invalid]}
+                schema_path.write_bytes(canonical(schema))
+                self.coordinates["schema_sha256"] = digest(schema_path)
+                self.manifest["schema_sha256"] = self.coordinates["schema_sha256"]
+                (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+                self.coordinates["release_manifest_sha256"] = digest(
+                    self.tree / RELEASE_MANIFEST
+                )
+                self.rewrite_checksums()
+                with self.assertRaisesRegex(WorkspaceError, "packaged schema"):
+                    verify_release_tree(self.tree, self.coordinates)
+
+    def test_schema_subset_validation_covers_supported_boundaries(self) -> None:
+        structure_failures = (
+            ([], "node"),
+            ({"unknown": True}, "unsupported"),
+            ({"exclusiveMaximum": float("inf")}, "exclusiveMaximum"),
+            ({"exclusiveMinimum": False}, "exclusiveMinimum"),
+            ({"maximum": float("inf")}, "maximum"),
+            ({"minimum": False}, "minimum"),
+            ({"enum": []}, "enum"),
+            ({"required": ["a", "a"]}, "required"),
+            ({"type": []}, "type"),
+            ({"uniqueItems": 1}, "uniqueItems"),
+            ({"pattern": "["}, "pattern"),
+            ({"properties": []}, "properties"),
+            ({"$defs": []}, "properties"),
+            ({"additionalProperties": []}, "node"),
+            ({"allOf": []}, "allOf"),
+        )
+        for schema, message in structure_failures:
+            with self.subTest(schema=schema):
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    sound_module._validate_release_schema_structure(schema)
+        with self.assertRaisesRegex(WorkspaceError, "evaluation limits"):
+            sound_module._validate_release_schema_structure({}, budget=[0])
+        sound_module._validate_release_schema_structure(
+            {
+                "$defs": {"value": {"type": "string"}},
+                "properties": {"name": {"$ref": "#/$defs/value"}},
+                "items": True,
+                "additionalProperties": False,
+                "allOf": [True],
+                "maxItems": 1,
+                "minimum": 0,
+                "required": ["name"],
+                "type": ["object", "null"],
+                "uniqueItems": False,
+            }
+        )
+
+        validate = sound_module._validate_release_schema_instance
+        with self.assertRaises(sound_module._ReleaseSchemaMismatch):
+            validate("value", False, {})
+        with self.assertRaisesRegex(WorkspaceError, "node"):
+            validate("value", [], {})
+        with self.assertRaisesRegex(WorkspaceError, "evaluation limits"):
+            validate("value", {}, {}, budget=[0])
+        with self.assertRaisesRegex(WorkspaceError, "unsupported"):
+            validate("value", {"unknown": True}, {})
+        for schema, message in (
+            ({"maxItems": -1}, "maxItems"),
+            ({"maximum": float("inf")}, "maximum"),
+            ({"enum": []}, "enum"),
+            ({"required": "invalid"}, "required"),
+            ({"properties": []}, "properties"),
+            ({"pattern": 1}, "pattern"),
+            ({"uniqueItems": 1}, "uniqueItems"),
+            ({"type": "invalid"}, "type"),
+        ):
+            with self.subTest(instance_schema=schema):
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    validate("value", schema, {})
+        with self.assertRaisesRegex(WorkspaceError, "reference is invalid"):
+            validate("value", {"$ref": "invalid"}, {})
+        with self.assertRaisesRegex(WorkspaceError, "reference is unresolved"):
+            validate("value", {"$ref": "#/$defs/missing"}, {"$defs": {}})
+        root = {"$defs": {"text": {"type": "string"}}}
+        validate("value", {"$ref": "#/$defs/text"}, root)
+        for keyword in ("allOf", "anyOf", "oneOf"):
+            with self.subTest(keyword=keyword):
+                with self.assertRaisesRegex(WorkspaceError, keyword):
+                    validate("value", {keyword: []}, {})
+        validate("value", {"allOf": [True, True]}, {})
+        validate("value", {"anyOf": [False, True, True]}, {})
+        validate("value", {"oneOf": [False, True]}, {})
+        for schema, value, message in (
+            ({"allOf": [True, False]}, "x", "allOf"),
+            ({"anyOf": [False, False]}, "x", "anyOf"),
+            ({"oneOf": [True, True]}, "x", "oneOf"),
+            ({"const": "expected"}, "other", "const"),
+            ({"enum": ["expected"]}, "other", "enum"),
+            ({"type": "integer"}, "other", "wrong type"),
+            ({"type": "number"}, float("inf"), "wrong type"),
+            ({"type": "number", "exclusiveMinimum": 1}, 1, "exclusiveMinimum"),
+            ({"type": "number", "exclusiveMaximum": 1}, 1, "exclusiveMaximum"),
+            ({"type": "object", "required": ["name"]}, {}, "object"),
+            ({"type": "object", "minProperties": 2}, {"a": 1}, "minProperties"),
+            ({"type": "object", "maxProperties": 0}, {"a": 1}, "maxProperties"),
+            ({"type": "array", "minItems": 2}, [1], "minItems"),
+            ({"type": "array", "maxItems": 0}, [1], "maxItems"),
+            ({"type": "array", "uniqueItems": True}, [1, 1], "unique"),
+            ({"type": "string", "minLength": 2}, "x", "minLength"),
+            ({"type": "string", "maxLength": 0}, "x", "maxLength"),
+            ({"type": "string", "pattern": r"^[0-9a-f]{64}$"}, "x", "pattern"),
+            ({"type": "number", "minimum": 2}, 1, "minimum"),
+            ({"type": "number", "maximum": 0}, 1, "maximum"),
+        ):
+            with self.subTest(schema=schema, value=value):
+                with self.assertRaisesRegex(
+                    sound_module._ReleaseSchemaMismatch, message
+                ):
+                    validate(value, schema, {})
+        validate(
+            {"name": "value", "extra": 1},
+            {
+                "type": "object",
+                "properties": {"name": {"type": "string"}},
+                "additionalProperties": {"type": "integer"},
+            },
+            {},
+        )
+        validate(["a", "b"], {"type": "array", "items": {"type": "string"}}, {})
+
+    def test_build_metadata_and_supervised_topology_reuse_verified_root(self) -> None:
+        wrapper = self.root / "topology-wrapper"
+        wrapper.mkdir()
+        shutil.copy2(Path(__file__).resolve().parents[1] / "components.json", wrapper)
+        workspace_root = self.root / "topology-workspace"
+        previous = os.environ.get("ATRINIK_WORKSPACE_DIR")
+        os.environ["ATRINIK_WORKSPACE_DIR"] = str(workspace_root)
+        topology_name = "released-client"
+        workspace: Workspace | None = None
+        try:
+            workspace = Workspace(wrapper)
+            workspace.paths.ensure()
+            workspace.create_profile("classic-release", "classic")
+            workspace.set_profile_sound_mode(
+                "classic-release", "released", self.coordinates
+            )
+            build_root = workspace.paths.builds / "released-fixture"
+            build_root.mkdir(parents=True)
+            with mock.patch(
+                "atrinik_workspace.workspace.download_release_archive",
+                side_effect=lambda _url, destination: shutil.copy2(
+                    self.archive, destination
+                ),
+            ):
+                sound_root, sound_record = workspace._prepare_sound(
+                    build_root,
+                    {"sound": self.root / "unused-source"},
+                    "classic-release",
+                )
+            executable = build_root / "build" / "client" / "atrinik"
+            executable.parent.mkdir(parents=True)
+            executable.write_text(
+                "#!/usr/bin/env python3\nimport time\n"
+                "print('released client ready', flush=True)\ntime.sleep(5)\n",
+                encoding="utf-8",
+            )
+            executable.chmod(0o755)
+            (build_root / BUILD_METADATA).write_text(
+                json.dumps({"sound": sound_record}), encoding="utf-8"
+            )
+            classic = self.root / "classic"
+            sound = self.root / "unused-source"
+            for source in ("client", "libatrinik", "protocol"):
+                component_path = classic / source
+                component_path.mkdir(parents=True, exist_ok=True)
+                (component_path / "tracked").write_text(
+                    "fixture\n", encoding="utf-8"
+                )
+            heads: dict[str, str] = {}
+            for checkout, path in (("classic", classic), ("sound", sound)):
+                path.mkdir(exist_ok=True)
+                (path / "tracked").write_text("fixture\n", encoding="utf-8")
+                subprocess.run(["git", "init", "-q", str(path)], check=True)
+                subprocess.run(["git", "-C", str(path), "add", "."], check=True)
+                subprocess.run(
+                    [
+                        "git",
+                        "-C",
+                        str(path),
+                        "-c",
+                        "user.name=Fixture",
+                        "-c",
+                        "user.email=fixture@example.invalid",
+                        "commit",
+                        "-qm",
+                        "test: seed fixture",
+                    ],
+                    check=True,
+                )
+                heads[checkout] = subprocess.run(
+                    ["git", "-C", str(path), "rev-parse", "HEAD"],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                ).stdout.strip()
+            selected = {
+                "client": classic / "client",
+                "libatrinik": classic / "libatrinik",
+                "protocol": classic / "protocol",
+                "sound": sound,
+            }
+            resolved: dict[str, dict[str, object]] = {}
+            for role, path in selected.items():
+                component = workspace.manifest.by_name[
+                    role if role == "sound" else f"classic-{role}"
+                ]
+                checkout_path = sound if role == "sound" else classic
+                resolved[component.name] = {
+                    "path": str(path),
+                    "checkout_path": str(checkout_path),
+                    "checkout": component.checkout_name,
+                    "repository": component.repository,
+                    "branch": "main",
+                    "source": component.source,
+                    "head": heads[component.checkout_name],
+                    "dirty": False,
+                }
+            classic_stack = mock.Mock()
+            classic_stack.name = "classic"
+            classic_stack.components = workspace.manifest.stack("classic").components
+            classic_stack.providers = {
+                "client": workspace.manifest.by_name["classic-client"],
+                "libatrinik": workspace.manifest.by_name["classic-libatrinik"],
+                "protocol": workspace.manifest.by_name["classic-protocol"],
+                "sound": workspace.manifest.by_name["sound"],
+            }
+            with (
+                mock.patch.object(
+                    workspace.manifest, "stack", return_value=classic_stack
+                ),
+                mock.patch.object(workspace, "_require_classic_contracts"),
+                mock.patch.object(workspace, "_require_client_display"),
+                mock.patch.object(
+                    workspace, "_resolve_build_profile", return_value=selected
+                ),
+                mock.patch.object(
+                    workspace,
+                    "_selected_checkout_states",
+                    return_value={
+                        "classic": {
+                            "path": classic,
+                            "head": heads["classic"],
+                            "dirty": False,
+                        },
+                        "sound": {
+                            "path": sound,
+                            "head": heads["sound"],
+                            "dirty": False,
+                        },
+                    },
+                ),
+                mock.patch.object(workspace, "_build_resolved", return_value=build_root),
+                mock.patch.object(
+                    workspace, "_topology_resolved_status", return_value=resolved
+                ),
+            ):
+                status = workspace.topology_up(
+                    topology_name, "classic-release", "default", ["client"]
+                )
+            self.assertEqual(status["sound"], sound_record)
+            runtime = Path(status["services"]["client"]["cwd"])
+            runtime_sound = verify_release_tree(runtime / "sound", self.coordinates)
+            self.assertEqual(
+                {**runtime_sound, "root": "<verified-root>"},
+                {**sound_record, "root": "<verified-root>"},
+            )
+            spec = json.loads(
+                (workspace.paths.topologies / topology_name / "spec.json").read_text()
+            )
+            self.assertEqual(spec["sound"], sound_record)
+        finally:
+            if workspace is not None:
+                try:
+                    if "classic_stack" in locals():
+                        with mock.patch.object(
+                            workspace.manifest, "stack", return_value=classic_stack
+                        ):
+                            workspace.topology_down(topology_name, timeout=5)
+                    else:
+                        workspace.topology_down(topology_name, timeout=5)
+                except WorkspaceError:
+                    pass
+            if previous is None:
+                os.environ.pop("ATRINIK_WORKSPACE_DIR", None)
+            else:
+                os.environ["ATRINIK_WORKSPACE_DIR"] = previous
+
+    def test_racing_cache_install_leaves_no_partial_runtime(self) -> None:
+        wrapper = self.root / "race-wrapper"
+        wrapper.mkdir()
+        shutil.copy2(Path(__file__).resolve().parents[1] / "components.json", wrapper)
+        workspace = Workspace(wrapper)
+        build = self.root / "race-build"
+        build.mkdir()
+        profile = {
+            "stack": "classic",
+            "sound_mode": "released",
+            "sound_release": self.coordinates,
+        }
+        with (
+            mock.patch.object(workspace, "_load_profile", return_value=profile),
+            mock.patch(
+                "atrinik_workspace.workspace.download_release_archive",
+                side_effect=lambda _url, destination: shutil.copy2(
+                    self.archive, destination
+                ),
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace",
+                side_effect=FileExistsError("raced install"),
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "raced install"):
+                workspace._prepare_sound(
+                    build, {"sound": self.root / "unused-source"}, "classic-release"
+                )
+        runtime = build / "runtime"
+        self.assertEqual(list(runtime.iterdir()), [])
+
+    def test_raced_publication_directory_identities_fail_closed(self) -> None:
+        real_stat = workspace_module.os.stat
+        for case, message in (
+            ("runtime", "parent changed"),
+            ("root", "build root changed"),
+            ("temporary", "temporary directory changed"),
+        ):
+            with self.subTest(case=case):
+                wrapper = self.root / f"{case}-race-wrapper"
+                wrapper.mkdir()
+                shutil.copy2(
+                    Path(__file__).resolve().parents[1] / "components.json", wrapper
+                )
+                workspace = Workspace(wrapper)
+                build = self.root / f"{case}-race-build"
+                build.mkdir()
+                profile = {
+                    "stack": "classic",
+                    "sound_mode": "released",
+                    "sound_release": self.coordinates,
+                }
+
+                def raced_stat(
+                    path: object, *args: object, **kwargs: object
+                ) -> os.stat_result:
+                    result = real_stat(path, *args, **kwargs)
+                    raced = (
+                        case == "runtime"
+                        and path == "runtime"
+                        and kwargs.get("dir_fd") is not None
+                    ) or (case == "root" and path == build) or (
+                        case == "temporary"
+                        and isinstance(path, str)
+                        and path.startswith(".sound-released-")
+                        and kwargs.get("dir_fd") is not None
+                    )
+                    if raced:
+                        fields = list(result)
+                        fields[1] += 1
+                        return os.stat_result(fields)
+                    return result
+
+                with (
+                    mock.patch.object(
+                        workspace, "_load_profile", return_value=profile
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace.download_release_archive",
+                        side_effect=lambda _url, destination: shutil.copy2(
+                            self.archive, destination
+                        ),
+                    ),
+                    mock.patch.object(
+                        workspace_module.os, "stat", side_effect=raced_stat
+                    ),
+                ):
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        workspace._prepare_sound(
+                            build,
+                            {"sound": self.root / "unused-source"},
+                            "classic-release",
+                        )
 
 
 if __name__ == "__main__":

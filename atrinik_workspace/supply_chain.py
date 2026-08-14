@@ -17,6 +17,7 @@ from .model import (
     load_json,
     require_keys,
 )
+from .sound import validate_release_coordinates
 
 
 SCHEMA_VERSION = 4
@@ -636,6 +637,7 @@ class Inventory:
         format_name: str,
         component_commits: dict[str, str | None] | None = None,
         selected_stack: str | None = None,
+        sound_release: dict[str, Any] | None = None,
     ) -> str:
         if selected_stack is not None and not any(
             selected_stack in repository.stacks for repository in self.repositories
@@ -646,17 +648,22 @@ class Inventory:
         resolved_commits = self._resolved_first_party_commits(
             component_commits, selected_stack
         )
+        release = (
+            validate_release_coordinates(sound_release)
+            if sound_release is not None
+            else None
+        )
         if format_name == "licenses":
-            return self._license_report(resolved_commits, selected_stack)
+            return self._license_report(resolved_commits, selected_stack, release)
         if format_name == "cyclonedx":
             return json.dumps(
-                self._cyclonedx(resolved_commits, selected_stack),
+                self._cyclonedx(resolved_commits, selected_stack, release),
                 indent=2,
                 sort_keys=True,
             ) + "\n"
         if format_name == "spdx":
             return json.dumps(
-                self._spdx(resolved_commits, selected_stack),
+                self._spdx(resolved_commits, selected_stack, release),
                 indent=2,
                 sort_keys=True,
             ) + "\n"
@@ -712,7 +719,10 @@ class Inventory:
         )
 
     def _license_report(
-        self, commits: dict[str, str | None], selected_stack: str | None
+        self,
+        commits: dict[str, str | None],
+        selected_stack: str | None,
+        sound_release: dict[str, Any] | None,
     ) -> str:
         lines = [
             "# Atrinik component, dependency, and provenance report",
@@ -755,6 +765,22 @@ class Inventory:
             lines.extend(["", "## License references", ""])
             for identifier, description in self.license_references.items():
                 lines.extend([f"### `{identifier}`", "", description, ""])
+        if sound_release is not None:
+            lines.extend(
+                [
+                    "",
+                    "## Profile-selected released sound runtime",
+                    "",
+                    "| Product | Version | Repository | Tag | Source commit | Source tree | Archive SHA-256 | Logical tree SHA-256 | Asset |",
+                    "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+                    f"| {sound_release['product']} | {sound_release['product_version']} | "
+                    f"{sound_release['repository']} | {sound_release['tag']} | "
+                    f"{sound_release['source_commit']} | {sound_release['source_tree']} | "
+                    f"{sound_release['archive_sha256']} | "
+                    f"{sound_release['output_tree_sha256']} | "
+                    f"{sound_release['asset_url']} |",
+                ]
+            )
         return "\n".join(lines) + "\n"
 
     def _first_party_repositories(self) -> list[Repository]:
@@ -797,7 +823,10 @@ class Inventory:
         ]
 
     def _cyclonedx(
-        self, commits: dict[str, str | None], selected_stack: str | None
+        self,
+        commits: dict[str, str | None],
+        selected_stack: str | None,
+        sound_release: dict[str, Any] | None,
     ) -> dict[str, Any]:
         components: list[dict[str, Any]] = []
         for repository in self._first_party_repositories():
@@ -866,6 +895,32 @@ class Inventory:
                     {"alg": "SHA-256", "content": dependency.checksum.removeprefix("sha256:")}
                 ]
             components.append(component)
+        if sound_release is not None:
+            components.append(
+                {
+                    "type": "file",
+                    "bom-ref": f"atrinik:sound-release:{sound_release['archive_sha256']}",
+                    "name": sound_release["product"],
+                    "version": sound_release["product_version"],
+                    "hashes": [
+                        {"alg": "SHA-256", "content": sound_release["archive_sha256"]}
+                    ],
+                    "externalReferences": [
+                        {"type": "distribution", "url": sound_release["asset_url"]},
+                        {
+                            "type": "vcs",
+                            "url": (
+                                f"https://github.com/{sound_release['repository']}/commit/"
+                                f"{sound_release['source_commit']}"
+                            ),
+                        },
+                    ],
+                    "properties": [
+                        {"name": f"atrinik:sound:{key}", "value": str(value)}
+                        for key, value in sorted(sound_release.items())
+                    ],
+                }
+            )
         return {
             "bomFormat": "CycloneDX",
             "specVersion": "1.6",
@@ -875,7 +930,10 @@ class Inventory:
         }
 
     def _spdx(
-        self, commits: dict[str, str | None], selected_stack: str | None
+        self,
+        commits: dict[str, str | None],
+        selected_stack: str | None,
+        sound_release: dict[str, Any] | None,
     ) -> dict[str, Any]:
         packages: list[dict[str, Any]] = []
         relationships: list[dict[str, str]] = []
@@ -973,6 +1031,47 @@ class Inventory:
                     ),
                     "name": dependency.license,
                 }
+        if sound_release is not None:
+            suffix = sound_release["archive_sha256"][:16]
+            spdx_id = f"SPDXRef-SoundRelease-{suffix}"
+            packages.append(
+                {
+                    "SPDXID": spdx_id,
+                    "name": sound_release["product"],
+                    "versionInfo": sound_release["product_version"],
+                    "downloadLocation": sound_release["asset_url"],
+                    "filesAnalyzed": False,
+                    "checksums": [
+                        {
+                            "algorithm": "SHA256",
+                            "checksumValue": sound_release["archive_sha256"],
+                        }
+                    ],
+                    "licenseConcluded": "NOASSERTION",
+                    "licenseDeclared": "NOASSERTION",
+                    "supplier": "Organization: Atrinik",
+                    "externalRefs": [
+                        {
+                            "referenceCategory": "OTHER",
+                            "referenceType": "atrinik-released-sound-coordinates",
+                            "referenceLocator": json.dumps(
+                                sound_release, sort_keys=True, separators=(",", ":")
+                            ),
+                        }
+                    ],
+                    "packageComment": (
+                        "Profile-selected publishable Classic runtime; logical tree "
+                        f"SHA-256: {sound_release['output_tree_sha256']}."
+                    ),
+                }
+            )
+            relationships.append(
+                {
+                    "spdxElementId": "SPDXRef-DOCUMENT",
+                    "relationshipType": "DESCRIBES",
+                    "relatedSpdxElement": spdx_id,
+                }
+            )
         document = {
             "spdxVersion": "SPDX-2.3",
             "dataLicense": "CC0-1.0",

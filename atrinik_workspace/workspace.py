@@ -99,21 +99,39 @@ from .migration import (
 )
 from .supervisor import process_matches
 from .sound import (
+    EXPECTED_CONVERTED_OPUS,
+    EXPECTED_COPIED_VORBIS,
+    EXPECTED_PATHS,
+    EXPECTED_SOURCE_FLAC,
+    EXPECTED_SOURCE_MIDI,
     PLAYTEST_MODE,
+    RELEASED_MODE,
+    RELEASE_PRODUCT,
     SOUND_MODES,
     SOURCE_MODE,
     cache_key as sound_cache_key,
     clean_source_inputs,
+    download_release_archive,
+    extract_release_archive,
+    release_cache_key,
     source_record as sound_source_record,
+    validate_release_coordinates,
     validate_sound_record,
     verify_playtest_tree,
+    verify_release_archive,
+    verify_release_tree,
 )
 
 
-PROFILE_SCHEMA_VERSION = 4
-LEGACY_PROFILE_SCHEMA_VERSION = 3
-PROFILE_KEYS = {"schema_version", "name", "stack", "components", "sound_mode"}
-LEGACY_PROFILE_KEYS = {"schema_version", "name", "stack", "components"}
+PROFILE_SCHEMA_VERSION = 5
+LEGACY_PROFILE_SCHEMA_VERSION = 4
+OLDEST_PROFILE_SCHEMA_VERSION = 3
+PROFILE_KEYS = {
+    "schema_version", "name", "stack", "components", "sound_mode",
+    "sound_release",
+}
+LEGACY_PROFILE_KEYS = {"schema_version", "name", "stack", "components", "sound_mode"}
+OLDEST_PROFILE_KEYS = {"schema_version", "name", "stack", "components"}
 SELECTOR_KEYS = {"kind", "value"}
 EXPECTED_SERVER_DATA = {
     "files": ("bans", "motd"),
@@ -3761,6 +3779,11 @@ class Workspace:
             "name": name,
             "stack": source_profile["stack"],
             "sound_mode": source_profile["sound_mode"],
+            "sound_release": (
+                dict(source_profile["sound_release"])
+                if source_profile["sound_release"] is not None
+                else None
+            ),
             "components": {
                 component_name: dict(selector)
                 for component_name, selector in source_profile["components"].items()
@@ -4397,7 +4420,12 @@ class Workspace:
         durable_atomic_json(self.paths.profiles / f"{name}.json", profile)
         self._publish_profile_references(name, profile)
 
-    def set_profile_sound_mode(self, name: str, mode: str) -> None:
+    def set_profile_sound_mode(
+        self,
+        name: str,
+        mode: str,
+        release_coordinates: dict[str, Any] | None = None,
+    ) -> None:
         self.paths.ensure()
         with self._resource_locks(
             [
@@ -4413,12 +4441,25 @@ class Workspace:
             profile = self._load_profile(name, require_file=True)
             if profile["stack"] != "classic":
                 raise WorkspaceError(
-                    "local-playtest sound mode is available only to Classic-derived profiles"
+                    "non-source sound modes are available only to Classic-derived profiles"
                 )
             if mode not in SOUND_MODES:
                 raise WorkspaceError(f"invalid profile sound mode: {mode}")
+            if mode == RELEASED_MODE:
+                if release_coordinates is None:
+                    raise WorkspaceError(
+                        "released sound mode requires complete immutable release coordinates"
+                    )
+                release_coordinates = dict(
+                    validate_release_coordinates(release_coordinates)
+                )
+            elif release_coordinates is not None:
+                raise WorkspaceError(
+                    f"profile sound mode {mode} does not accept release coordinates"
+                )
             profile["schema_version"] = PROFILE_SCHEMA_VERSION
             profile["sound_mode"] = mode
+            profile["sound_release"] = release_coordinates
             atomic_json(self.paths.profiles / f"{name}.json", profile)
 
     def _profile_components(
@@ -4637,6 +4678,7 @@ class Workspace:
                 "name": name,
                 "stack": name,
                 "sound_mode": SOURCE_MODE,
+                "sound_release": None,
                 "components": {
                     component.name: {"kind": "primary", "value": ""}
                     for component in stack.components
@@ -4649,9 +4691,21 @@ class Workspace:
         if not isinstance(profile, dict):
             raise WorkspaceError(f"profile must be an object: {name}")
         schema_version = profile.get("schema_version")
-        if schema_version == LEGACY_PROFILE_SCHEMA_VERSION:
+        if schema_version == OLDEST_PROFILE_SCHEMA_VERSION:
+            require_keys(profile, OLDEST_PROFILE_KEYS, f"profile {name}")
+            profile = {
+                **profile,
+                "schema_version": PROFILE_SCHEMA_VERSION,
+                "sound_mode": SOURCE_MODE,
+                "sound_release": None,
+            }
+        elif schema_version == LEGACY_PROFILE_SCHEMA_VERSION:
             require_keys(profile, LEGACY_PROFILE_KEYS, f"profile {name}")
-            profile = {**profile, "schema_version": PROFILE_SCHEMA_VERSION, "sound_mode": SOURCE_MODE}
+            profile = {
+                **profile,
+                "schema_version": PROFILE_SCHEMA_VERSION,
+                "sound_release": None,
+            }
         else:
             require_keys(profile, PROFILE_KEYS, f"profile {name}")
         if profile["schema_version"] != PROFILE_SCHEMA_VERSION or profile["name"] != name:
@@ -4664,9 +4718,20 @@ class Workspace:
         stack_name = profile["stack"]
         if not isinstance(stack_name, str) or stack_name not in self.manifest.stacks:
             raise WorkspaceError(f"profile stack is invalid: {name}")
-        if profile["sound_mode"] == PLAYTEST_MODE and stack_name != "classic":
+        if profile["sound_mode"] != SOURCE_MODE and stack_name != "classic":
             raise WorkspaceError(
-                f"local-playtest sound mode requires a Classic-derived profile: {name}"
+                f"non-source sound mode requires a Classic-derived profile: {name}"
+            )
+        if profile["sound_mode"] == RELEASED_MODE:
+            try:
+                validate_release_coordinates(profile["sound_release"])
+            except WorkspaceError as error:
+                raise WorkspaceError(
+                    f"profile released sound coordinates are invalid: {name}: {error}"
+                ) from error
+        elif profile["sound_release"] is not None:
+            raise WorkspaceError(
+                f"profile sound release must be null outside released mode: {name}"
             )
         stack = self.manifest.stack(stack_name)
         selectors = profile["components"]
@@ -4785,6 +4850,7 @@ class Workspace:
             "name": name,
             "stack": stack.name,
             "sound_mode": profile["sound_mode"],
+            "sound_release": profile["sound_release"],
             "components": rows,
         }
 
@@ -5080,7 +5146,190 @@ class Workspace:
         mode = profile["sound_mode"]
         if mode == SOURCE_MODE:
             return source, self._sound_source_record(source)
-        if mode != PLAYTEST_MODE or profile["stack"] != "classic":
+        if profile["stack"] != "classic":
+            raise WorkspaceError(
+                f"profile {profile_name} has unsupported sound mode {mode}"
+            )
+        if mode == RELEASED_MODE:
+            identity = "invalid or incomplete"
+            try:
+                coordinates = validate_release_coordinates(profile["sound_release"])
+                identity = json.dumps(
+                    coordinates, sort_keys=True, separators=(",", ":")
+                )
+                contract = (
+                    f"product={RELEASE_PRODUCT}; paths={EXPECTED_PATHS}; "
+                    f"vorbis={EXPECTED_COPIED_VORBIS}; opus={EXPECTED_CONVERTED_OPUS}; "
+                    f"midi-sources={EXPECTED_SOURCE_MIDI}; "
+                    f"flac-sources={EXPECTED_SOURCE_FLAC}"
+                )
+                root_fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+                runtime_fd: int | None = None
+                try:
+                    root_identity = os.fstat(root_fd)
+
+                    @contextmanager
+                    def pinned_temporary(prefix: str) -> Iterator[Path]:
+                        created = Path(
+                            tempfile.mkdtemp(
+                                prefix=prefix, dir=f"/proc/self/fd/{runtime_fd}"
+                            )
+                        )
+                        name = created.name
+                        descriptor = os.open(
+                            name,
+                            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                            dir_fd=runtime_fd,
+                        )
+                        identity = os.fstat(descriptor)
+                        mount_id = _descriptor_mount_id(descriptor)
+                        try:
+                            yield Path(f"/proc/self/fd/{descriptor}")
+                        finally:
+                            try:
+                                _prepare_owned_tree_removal(
+                                    descriptor,
+                                    identity.st_dev,
+                                    mount_id,
+                                    created,
+                                    stat.S_IMODE(identity.st_mode),
+                                    reject_links=True,
+                                )
+                                _remove_owned_tree_contents(
+                                    descriptor,
+                                    identity.st_dev,
+                                    mount_id,
+                                    created,
+                                    reject_links=True,
+                                )
+                                visible = os.stat(
+                                    name,
+                                    dir_fd=runtime_fd,
+                                    follow_symlinks=False,
+                                )
+                                if (
+                                    not stat.S_ISDIR(visible.st_mode)
+                                    or (visible.st_dev, visible.st_ino)
+                                    != (identity.st_dev, identity.st_ino)
+                                ):
+                                    raise WorkspaceError(
+                                        "released sound temporary directory changed"
+                                    )
+                                os.rmdir(name, dir_fd=runtime_fd)
+                            finally:
+                                os.close(descriptor)
+
+                    try:
+                        os.mkdir("runtime", dir_fd=root_fd)
+                    except FileExistsError:
+                        pass
+                    runtime_fd = os.open(
+                        "runtime",
+                        os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                        dir_fd=root_fd,
+                    )
+                    runtime_identity = os.fstat(runtime_fd)
+                    runtime = Path(f"/proc/self/fd/{runtime_fd}")
+                    archive_name = (
+                        f"sound-released-{release_cache_key(coordinates)}.tar.gz"
+                    )
+                    archive_path = runtime / archive_name
+                    staged = runtime / "sound-released"
+                    archive_present = archive_path.exists() or archive_path.is_symlink()
+                    tree_present = staged.exists() or staged.is_symlink()
+                    if tree_present and not archive_present:
+                        raise WorkspaceError(
+                            "released sound cache lacks its verified archive; "
+                            "use preview-first build cleanup"
+                        )
+                    if archive_present:
+                        verify_release_archive(
+                            archive_path, coordinates, "cached released sound archive"
+                        )
+                        if not tree_present:
+                            with pinned_temporary(
+                                ".sound-released-recovery-"
+                            ) as temporary:
+                                candidate_tree = temporary / "tree"
+                                extract_release_archive(
+                                    archive_path, candidate_tree, coordinates
+                                )
+                                verify_release_tree(candidate_tree, coordinates)
+                                rename_no_replace(candidate_tree, staged)
+                        record = verify_release_tree(staged, coordinates)
+                    else:
+                        with pinned_temporary(".sound-released-") as temporary_root:
+                            candidate_archive = temporary_root / "archive.tar.gz"
+                            candidate_tree = temporary_root / "tree"
+                            download_release_archive(
+                                coordinates["asset_url"], candidate_archive
+                            )
+                            verify_release_archive(
+                                candidate_archive,
+                                coordinates,
+                                "downloaded released sound archive",
+                            )
+                            extract_release_archive(
+                                candidate_archive, candidate_tree, coordinates
+                            )
+                            candidate_record = verify_release_tree(
+                                candidate_tree, coordinates
+                            )
+                            rename_no_replace(candidate_archive, archive_path)
+                            try:
+                                rename_no_replace(candidate_tree, staged)
+                            except BaseException:
+                                archive_path.unlink(missing_ok=True)
+                                raise
+                        record = verify_release_tree(staged, coordinates)
+                        if {
+                            **record,
+                            "root": "<verified-root>",
+                        } != {
+                            **candidate_record,
+                            "root": "<verified-root>",
+                        }:
+                            raise WorkspaceError(
+                                "installed released sound handoff differs from verified download"
+                            )
+                    current_runtime = os.stat(
+                        "runtime", dir_fd=root_fd, follow_symlinks=False
+                    )
+                    if (
+                        not stat.S_ISDIR(current_runtime.st_mode)
+                        or (current_runtime.st_dev, current_runtime.st_ino)
+                        != (runtime_identity.st_dev, runtime_identity.st_ino)
+                    ):
+                        raise WorkspaceError(
+                            "released sound handoff parent changed during publication"
+                        )
+                    visible_root = os.stat(root, follow_symlinks=False)
+                    if (
+                        not stat.S_ISDIR(visible_root.st_mode)
+                        or (visible_root.st_dev, visible_root.st_ino)
+                        != (root_identity.st_dev, root_identity.st_ino)
+                    ):
+                        raise WorkspaceError(
+                            "profile build root changed during released sound publication"
+                        )
+                    staged = root / "runtime" / "sound-released"
+                    record["root"] = str(staged)
+                finally:
+                    if runtime_fd is not None:
+                        os.close(runtime_fd)
+                    os.close(root_fd)
+            except (OSError, WorkspaceError) as error:
+                raise WorkspaceError(
+                    f"profile {profile_name} mode {mode} coordinates ({identity}) "
+                    f"expected contract ({contract if 'contract' in locals() else RELEASE_PRODUCT}) "
+                    f"failed check: {error}"
+                ) from error
+            print(
+                "sound: staged released tree "
+                f"{record['output_tree_sha256']} for {coordinates['tag']}"
+            )
+            return staged, record
+        if mode != PLAYTEST_MODE:
             raise WorkspaceError(
                 f"profile {profile_name} has unsupported sound mode {mode}"
             )
@@ -5304,6 +5553,8 @@ class Workspace:
         namespace = (
             f"profile-schema:{PROFILE_SCHEMA_VERSION};stack:{stack.name};"
             f"generation:{stack.generation};sound-mode:{profile['sound_mode']};"
+            "sound-release:"
+            f"{json.dumps(profile['sound_release'], sort_keys=True, separators=(',', ':'))};"
             f"providers:{providers}"
         )
         return profile_key(selected, namespace=namespace)
@@ -10400,6 +10651,7 @@ class Workspace:
             "stack": stack.name,
             "sound": {
                 "mode": profile["sound_mode"],
+                "release": profile["sound_release"],
                 "source_path": str(resolved["sound"])
                 if "sound" in resolved
                 else None,
@@ -10729,7 +10981,7 @@ class Workspace:
                     except OSError as error:
                         raise WorkspaceError(
                             "topology runtime staging destination changed during "
-                            f"copy: {destination_child}"
+                            f"copy: {destination_child}: {error}"
                         ) from error
                     try:
                         self._copy_topology_runtime_directory(
@@ -10772,7 +11024,7 @@ class Workspace:
                     except OSError as error:
                         raise WorkspaceError(
                             "topology runtime staging destination changed during "
-                            f"copy: {destination_child}"
+                            f"copy: {destination_child}: {error}"
                         ) from error
                     try:
                         with os.fdopen(child_fd, "rb", closefd=False) as source_file:
@@ -10875,7 +11127,7 @@ class Workspace:
             except OSError as error:
                 raise WorkspaceError(
                     "topology runtime staging destination changed during copy: "
-                    f"{destination}"
+                    f"{destination}: {error}"
                 ) from error
             self._copy_topology_runtime_directory(
                 source_fd,
@@ -11819,9 +12071,7 @@ class Workspace:
                 files["server-server-custom.cfg"] = custom
         return {
             **{
-                name: _tree_digest(
-                    path, exclusions, reject_symlinks=True
-                )
+                name: _tree_digest(path, exclusions, reject_symlinks=True)
                 for name, (path, exclusions) in sorted(directories.items())
             },
             **{
@@ -13906,6 +14156,16 @@ class Workspace:
                                 f"profile {profile_name} local-playtest sound "
                                 "record changed before topology preparation"
                             )
+                    elif validated_sound["mode"] == RELEASED_MODE:
+                        coordinates = validate_release_coordinates(
+                            profile["sound_release"]
+                        )
+                        verified = verify_release_tree(sound_root, coordinates)
+                        if verified != validated_sound:
+                            raise WorkspaceError(
+                                f"profile {profile_name} released sound record "
+                                "changed before topology preparation"
+                            )
                     elif sound_root.resolve() != selected["sound"].resolve():
                         raise WorkspaceError(
                             f"profile {profile_name} source sound root changed before topology preparation"
@@ -15589,6 +15849,13 @@ class Workspace:
                 ):
                     raise WorkspaceError(
                         f"profile {profile_name} local-playtest sound record changed "
+                        "before foreground publication"
+                    )
+            elif validated_sound["mode"] == RELEASED_MODE:
+                coordinates = validate_release_coordinates(profile["sound_release"])
+                if verify_release_tree(sound_root, coordinates) != validated_sound:
+                    raise WorkspaceError(
+                        f"profile {profile_name} released sound record changed "
                         "before foreground publication"
                     )
             elif sound_root.resolve() != selected["sound"].resolve():
