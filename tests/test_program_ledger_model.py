@@ -80,6 +80,7 @@ class ProgramLedgerModel:
     MAX_DEPTH = 16
     MAX_INTEGER = (1 << 64) - 1
     AUTO_SCAN = object()
+    CHILD_QUERY_SHA256 = hashlib.sha256(b"canonical-child-duplicate-query").hexdigest()
 
     KEYS = {
         "generation", "self_inode", "lock", "previous_sha256", "authority", "graph",
@@ -354,6 +355,7 @@ class ProgramLedgerModel:
                 set(value) == {
                     "generation", "stream", "result_stream", "complete", "count",
                     "pages", "nodes", "body_bytes", "terminal_cursor", "completed_at",
+                    "query_sha256",
                 }
                 and isinstance(value["generation"], int)
                 and not isinstance(value["generation"], bool)
@@ -374,6 +376,10 @@ class ProgramLedgerModel:
                         and bool(value["terminal_cursor"]))
                 )
                 and cls.valid_timestamp(value["completed_at"])
+                and (
+                    value["query_sha256"] is None
+                    or cls.digest_is_valid(value["query_sha256"])
+                )
             )
 
         observations = record.get("observation")
@@ -387,6 +393,17 @@ class ProgramLedgerModel:
                 or observation["generation"] > generation
             ):
                 raise StopClosed("observation evidence is corrupt")
+        if (
+            observations["comment"] is not None
+            and observations["comment"]["query_sha256"] is not None
+        ) or (
+            observations["parent"] is not None
+            and observations["parent"]["query_sha256"] is not None
+        ) or (
+            observations["child"] is not None
+            and observations["child"]["query_sha256"] != cls.CHILD_QUERY_SHA256
+        ):
+            raise StopClosed("observation query scope is corrupt")
 
         for name in ("comment", "create", "link"):
             slot = record[name]
@@ -554,6 +571,8 @@ class ProgramLedgerModel:
         self, mutate: object, expected_generation: int | None = None,
         expected_digest: str | None = None, expected_lock_inode: int = 41,
     ) -> None:
+        if self.call_registry:
+            raise StopClosed("generation change while a call permit is outstanding")
         generation = int(self.record["generation"])
         old_digest = self.digest()
         expected_authority = copy.deepcopy(self.record["authority"])
@@ -642,30 +661,38 @@ class ProgramLedgerModel:
     def issue_scan(
         self, kind: str, cursors: list[str], node_ids: list[str],
         first_digest: str, second_digest: str, *, body_sizes: list[int],
+        query_sha256: str | None = None,
     ) -> ScanPermit:
         if kind not in {"comment", "child", "parent"}:
             raise StopClosed("scan kind is not a publication connection")
+        if (
+            (kind == "child" and not self.digest_is_valid(query_sha256))
+            or (kind != "child" and query_sha256 is not None)
+        ):
+            raise StopClosed("scan query scope is invalid")
         transcript = self.stable_scan(
             cursors, node_ids, first_digest, second_digest, body_sizes=body_sizes
         )
         return self._issue_scan_permit(
             kind, transcript.stream, transcript.evidence,
-            list(transcript.node_ids), list(transcript.body_sizes),
+            list(transcript.node_ids), list(transcript.body_sizes), query_sha256,
         )
 
     def _issue_scan_permit(
         self, kind: str, stream: str, evidence: dict[str, object],
-        node_ids: list[str], body_sizes: list[int],
+        node_ids: list[str], body_sizes: list[int], query_sha256: str | None,
     ) -> ScanPermit:
         if len(self.scan_registry) >= 8:
             raise StopClosed("too many outstanding scan permits")
         self.scan_sequence += 1
+        scoped_evidence = copy.deepcopy(evidence)
+        scoped_evidence["query_sha256"] = query_sha256
         permit = ScanPermit(
-            _SCAN_FACTORY, self.scan_owner, self.scan_sequence, stream, evidence
+            _SCAN_FACTORY, self.scan_owner, self.scan_sequence, stream, scoped_evidence
         )
         self.scan_registry[permit.token] = (
             self.scan_owner, tuple(self.record["authority"]), kind,
-            stream, permit.seal, tuple(node_ids), tuple(body_sizes)
+            query_sha256, stream, permit.seal, tuple(node_ids), tuple(body_sizes)
         )
         return permit
 
@@ -680,12 +707,14 @@ class ProgramLedgerModel:
         self, kind: str, stream: str, result_stream: str, count: int,
         complete: bool, scan: object, node_ids: list[str], body_sizes: list[int],
     ) -> None:
+        query_sha256 = self.CHILD_QUERY_SHA256 if kind == "child" else None
         if scan is self.AUTO_SCAN:
             pages = max(1, (len(node_ids) + 99) // 100)
             cursors = [f"cursor-{index}" for index in range(pages)] if node_ids else []
             if complete:
                 scan = self.issue_scan(
-                    kind, cursors, node_ids, stream, stream, body_sizes=body_sizes
+                    kind, cursors, node_ids, stream, stream, body_sizes=body_sizes,
+                    query_sha256=query_sha256,
                 )
             else:
                 scan = self._issue_scan_permit(
@@ -697,7 +726,7 @@ class ProgramLedgerModel:
                         "terminal_cursor": cursors[-1] if cursors else None,
                         "completed_at": "2026-08-14T00:00:00Z", "complete": False,
                     },
-                    node_ids, body_sizes,
+                    node_ids, body_sizes, query_sha256,
                 )
         registered = (
             self.scan_registry.get(scan.token)
@@ -713,12 +742,12 @@ class ProgramLedgerModel:
             ).hexdigest()
             or registered != (
                 self.scan_owner, tuple(self.record["authority"]), kind,
-                scan.stream, scan.seal, tuple(node_ids), tuple(body_sizes)
+                query_sha256, scan.stream, scan.seal, tuple(node_ids), tuple(body_sizes)
             )
             or scan.owner is not self.scan_owner
             or set(scan.evidence) != {
                 "pages", "nodes", "body_bytes", "terminal_cursor", "completed_at",
-                "complete",
+                "complete", "query_sha256",
             }
             or scan.evidence["complete"] is not complete
             or type(scan.evidence["nodes"]) is not int
@@ -1537,10 +1566,16 @@ class ProgramLedgerModelTests(unittest.TestCase):
         child_mismatch = ProgramLedgerModel()
         partial_child = child_mismatch.issue_scan(
             "child", ["cursor"], ["issue-0"], "stable", "stable",
-            body_sizes=[0],
+            body_sizes=[0], query_sha256=child_mismatch.CHILD_QUERY_SHA256,
         )
         with self.assertRaises(StopClosed):
             child_mismatch.classify_child([{}, {}], scan=partial_child)
+        wrong_query = child_mismatch.issue_scan(
+            "child", [], [], "stable", "stable", body_sizes=[],
+            query_sha256="0" * 64,
+        )
+        with self.assertRaises(StopClosed):
+            child_mismatch.classify_child([], scan=wrong_query)
 
         scoped = ProgramLedgerModel()
         wrong_kind = scoped.issue_scan(
@@ -1922,6 +1957,22 @@ class ProgramLedgerModelTests(unittest.TestCase):
         with self.assertRaises(StopClosed):
             live.execute(issued)
 
+        concurrent = ProgramLedgerModel()
+        concurrent.observe_comment()
+        concurrent.plan_comment()
+        concurrent.classify_child([])
+        concurrent.plan_create()
+        self.refresh_before_arm(concurrent, "comment")
+        self.refresh_before_arm(concurrent, "create")
+        comment_call = concurrent.arm("comment")
+        retained = copy.deepcopy(concurrent.record)
+        with self.assertRaises(StopClosed):
+            concurrent.arm("create")
+        self.assertEqual(concurrent.record, retained)
+        concurrent.execute(comment_call)
+        self.assertEqual(concurrent.remote_calls["comment"], 1)
+        self.assertEqual(concurrent.record["create"]["phase"], "planned")
+
     def test_arm_requires_new_identical_post_plan_observation(self) -> None:
         model = ProgramLedgerModel()
         model.observe_comment(stream="first")
@@ -1955,7 +2006,8 @@ class ProgramLedgerModelTests(unittest.TestCase):
             create.arm("create")
         create.classify_child([], "clear", "clear")
         create.arm("create")
-        create.classify_child([duplicate], "blocked", "blocked")
+        with self.assertRaises(StopClosed):
+            create.classify_child([duplicate], "blocked", "blocked")
         with self.assertRaises(StopClosed):
             create.arm("create")
 
