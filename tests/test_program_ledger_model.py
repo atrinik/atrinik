@@ -19,6 +19,9 @@ class StopClosed(RuntimeError):
     """The modeled ledger cannot safely authorize a remote mutation."""
 
 
+_SCAN_FACTORY = object()
+
+
 class CallPermit:
     """Ephemeral authority returned only by the durable in-flight transition."""
 
@@ -31,7 +34,13 @@ class CallPermit:
 class ScanPermit:
     """One-use proof returned only by a complete bounded pagination pass."""
 
-    def __init__(self, stream: str, evidence: dict[str, object]) -> None:
+    def __init__(
+        self, factory: object, token: int, stream: str,
+        evidence: dict[str, object],
+    ) -> None:
+        if factory is not _SCAN_FACTORY:
+            raise StopClosed("scan permits are issued only by bounded pagination")
+        self.token = token
         self.stream = stream
         self.evidence = evidence
         self.seal = hashlib.sha256(
@@ -49,6 +58,8 @@ class ProgramLedgerModel:
     MAX_DEPTH = 16
     MAX_INTEGER = (1 << 64) - 1
     AUTO_SCAN = object()
+    SCAN_SEQUENCE = 0
+    SCAN_REGISTRY: dict[int, tuple[str, str, tuple[str, ...], tuple[int, ...]]] = {}
 
     KEYS = {
         "generation", "self_inode", "lock", "previous_sha256", "authority", "graph",
@@ -550,9 +561,9 @@ class ProgramLedgerModel:
     def replace_lock_path(self, inode: int) -> None:
         self.path_lock_inode = inode
 
-    @staticmethod
+    @classmethod
     def stable_scan(
-        cursors: list[str], node_ids: list[str], first_digest: str,
+        cls, cursors: list[str], node_ids: list[str], first_digest: str,
         second_digest: str, complete: bool = True, pages: int | None = None,
         nodes: int | None = None, body_bytes: int | None = None,
         timed_out: bool = False,
@@ -595,11 +606,24 @@ class ProgramLedgerModel:
         ):
             raise StopClosed("pagination is incomplete, excessive, or changed")
         stream = hashlib.sha256(first_digest.encode("utf-8")).hexdigest()
-        return ScanPermit(stream, {
+        evidence = {
             "pages": pages, "nodes": nodes, "body_bytes": body_bytes,
             "terminal_cursor": cursors[-1] if node_ids else None,
             "completed_at": "2026-08-14T00:00:00Z", "complete": True,
-        })
+        }
+        return cls._issue_scan_permit(stream, evidence, node_ids, body_sizes)
+
+    @classmethod
+    def _issue_scan_permit(
+        cls, stream: str, evidence: dict[str, object], node_ids: list[str],
+        body_sizes: list[int],
+    ) -> ScanPermit:
+        cls.SCAN_SEQUENCE += 1
+        permit = ScanPermit(_SCAN_FACTORY, cls.SCAN_SEQUENCE, stream, evidence)
+        cls.SCAN_REGISTRY[permit.token] = (
+            stream, permit.seal, tuple(node_ids), tuple(body_sizes)
+        )
+        return permit
 
     @staticmethod
     def validate_marker(namespace: list[tuple[str, str]], actor: str, bound: bool) -> None:
@@ -610,12 +634,9 @@ class ProgramLedgerModel:
 
     def _observe(
         self, kind: str, stream: str, result_stream: str, count: int,
-        complete: bool, scan: object, body_sizes: list[int],
+        complete: bool, scan: object, node_ids: list[str], body_sizes: list[int],
     ) -> None:
         if scan is self.AUTO_SCAN:
-            node_ids = [
-                f"node-{index}" for index in range(max(count, len(body_sizes)))
-            ]
             pages = max(1, (len(node_ids) + 99) // 100)
             cursors = [f"cursor-{index}" for index in range(pages)] if node_ids else []
             if complete:
@@ -623,7 +644,7 @@ class ProgramLedgerModel:
                     cursors, node_ids, stream, stream, body_sizes=body_sizes
                 )
             else:
-                scan = ScanPermit(
+                scan = type(self)._issue_scan_permit(
                     hashlib.sha256(stream.encode("utf-8")).hexdigest(),
                     {
                         "pages": pages, "nodes": len(node_ids),
@@ -631,7 +652,12 @@ class ProgramLedgerModel:
                         "terminal_cursor": cursors[-1] if cursors else None,
                         "completed_at": "2026-08-14T00:00:00Z", "complete": False,
                     },
+                    node_ids, body_sizes,
                 )
+        registered = (
+            type(self).SCAN_REGISTRY.get(scan.token)
+            if isinstance(scan, ScanPermit) else None
+        )
         if (
             not isinstance(scan, ScanPermit) or scan.used
             or scan.stream != hashlib.sha256(stream.encode("utf-8")).hexdigest()
@@ -640,6 +666,9 @@ class ProgramLedgerModel:
                     scan.evidence, sort_keys=True, separators=(",", ":")
                 ).encode()
             ).hexdigest()
+            or registered != (
+                scan.stream, scan.seal, tuple(node_ids), tuple(body_sizes)
+            )
             or set(scan.evidence) != {
                 "pages", "nodes", "body_bytes", "terminal_cursor", "completed_at",
                 "complete",
@@ -661,6 +690,7 @@ class ProgramLedgerModel:
                 }
             })
         )
+        del type(self).SCAN_REGISTRY[scan.token]
         scan.used = True
 
     def observe_comment(
@@ -687,10 +717,16 @@ class ProgramLedgerModel:
             {"node": node, "author": author, "marker": marker, "body": text}
             for node, author, marker, text in namespace
         ]
+        observed_count = int(marker_required) if count is None else count
+        node_ids = [result["node"] for result in results]
+        node_ids.extend(
+            f"conflict-{index}" for index in range(len(node_ids), observed_count)
+        )
+        body_sizes = [len(result["body"].encode("utf-8")) for result in results]
+        body_sizes.extend(0 for _ in range(len(body_sizes), observed_count))
         self._observe(
             "comment", stream, self.result_stream(results),
-            int(marker_required) if count is None else count, complete, scan,
-            [len(result["body"].encode("utf-8")) for result in results],
+            observed_count, complete, scan, node_ids, body_sizes,
         )
 
     def classify_child(
@@ -711,7 +747,9 @@ class ProgramLedgerModel:
                 evidence.append(issue)
         self._observe(
             "child", first_digest, self.result_stream(candidates), len(candidates),
-            True, scan, [0] * len(issues),
+            True, scan,
+            [str(issue.get("node", f"issue-{index}")) for index, issue in enumerate(issues)],
+            [len(str(issue.get("body", "")).encode("utf-8")) for issue in issues],
         )
         return candidates, evidence
 
@@ -724,7 +762,7 @@ class ProgramLedgerModel:
         proof = [{"child_parent": child_parent, "parent_subissues": relationships}]
         self._observe(
             "parent", stream, self.result_stream(proof), len(relationships), complete,
-            scan, [],
+            scan, relationships, [],
         )
 
     def _plan(self, slot: str, node: str | None = None, prior: str | None = None) -> None:
@@ -1362,6 +1400,13 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 )
 
     def test_mutations_require_consumed_bounded_scan_evidence(self) -> None:
+        with self.assertRaises(StopClosed):
+            ScanPermit(
+                object(), 999, "0" * 64,
+                {"pages": 1, "nodes": 0, "body_bytes": 0,
+                 "terminal_cursor": None, "completed_at": "2026-08-14T00:00:00Z",
+                 "complete": True},
+            )
         comment = ProgramLedgerModel()
         with self.assertRaises(StopClosed):
             comment.observe_comment(scan=None)
@@ -1389,6 +1434,34 @@ class ProgramLedgerModelTests(unittest.TestCase):
         with self.assertRaises(StopClosed):
             child.arm("create")
         self.assertEqual(child.remote_calls["create"], 0)
+
+        replayed = ProgramLedgerModel()
+        first = ProgramLedgerModel.stable_scan(
+            [], [], "comment-stable", "comment-stable"
+        )
+        replay = copy.deepcopy(first)
+        replayed.observe_comment(scan=first)
+        replayed.plan_comment()
+        with self.assertRaises(StopClosed):
+            replayed.observe_comment(scan=replay)
+        with self.assertRaises(StopClosed):
+            replayed.arm("comment")
+
+        body_mismatch = ProgramLedgerModel()
+        body_mismatch.record["comment"].update(phase="bound", node="comment-node")
+        incomplete_body = ProgramLedgerModel.stable_scan(
+            ["cursor"], ["comment-node"], "comment-stable", "comment-stable",
+            body_sizes=[],
+        )
+        with self.assertRaises(StopClosed):
+            body_mismatch.observe_comment(scan=incomplete_body)
+
+        child_mismatch = ProgramLedgerModel()
+        partial_child = ProgramLedgerModel.stable_scan(
+            ["cursor"], ["issue-0"], "stable", "stable", body_sizes=[0]
+        )
+        with self.assertRaises(StopClosed):
+            child_mismatch.classify_child([{}, {}], scan=partial_child)
 
     def test_ledger_size_and_nested_value_bounds_precede_parsing(self) -> None:
         maximum = ProgramLedgerModel.MAX_LEDGER_BYTES
