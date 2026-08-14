@@ -377,7 +377,7 @@ class ProgramLedgerModel:
                 set(value) == {
                     "generation", "stream", "result_stream", "complete", "count",
                     "pages", "nodes", "body_bytes", "terminal_cursor", "completed_at",
-                    "query_sha256",
+                    "query_sha256", "node_ids",
                 }
                 and isinstance(value["generation"], int)
                 and not isinstance(value["generation"], bool)
@@ -390,6 +390,13 @@ class ProgramLedgerModel:
                 and value["count"] >= 0
                 and type(value["pages"]) is int and 1 <= value["pages"] <= 100
                 and type(value["nodes"]) is int and 0 <= value["nodes"] <= 10_000
+                and isinstance(value["node_ids"], list)
+                and len(value["node_ids"]) == value["nodes"]
+                and len(value["node_ids"]) == len(set(value["node_ids"]))
+                and all(
+                    isinstance(node, str) and bool(node)
+                    for node in value["node_ids"]
+                )
                 and value["nodes"] <= value["pages"] * 100
                 and value["count"] <= value["nodes"]
                 and type(value["body_bytes"]) is int
@@ -559,14 +566,19 @@ class ProgramLedgerModel:
             ):
                 raise StopClosed("link intent contains a result")
             if name == "link" and slot["phase"] in {"planned", "in-flight"}:
-                absent = cls.result_stream([{
-                    "child_parent": None, "parent_subissues": []
+                plan_absent = cls.result_stream([{
+                    "child_parent": None,
+                    "parent_subissues": slot["plan_observation"]["node_ids"],
                 }])
                 if (
-                    slot["plan_observation"]["result_stream"] != absent
+                    slot["plan_observation"]["result_stream"] != plan_absent
                     or (
                         slot["arm_observation"] is not None
-                        and slot["arm_observation"]["result_stream"] != absent
+                        and slot["arm_observation"]["result_stream"]
+                        != cls.result_stream([{
+                            "child_parent": None,
+                            "parent_subissues": slot["arm_observation"]["node_ids"],
+                        }])
                     )
                 ):
                     raise StopClosed("link intent lacks exact two-way absence")
@@ -818,7 +830,7 @@ class ProgramLedgerModel:
                     "generation": generation,
                     "stream": scan.stream,
                     "result_stream": result_stream,
-                    "count": count, **evidence,
+                    "count": count, "node_ids": list(node_ids), **evidence,
                 }
             })
         )
@@ -899,7 +911,8 @@ class ProgramLedgerModel:
         relationships = relationships or []
         proof = [{"child_parent": child_parent, "parent_subissues": relationships}]
         self._observe(
-            "parent", stream, self.result_stream(proof), len(relationships), complete,
+            "parent", stream, self.result_stream(proof),
+            relationships.count("issue-node"), complete,
             scan, relationships, [],
         )
 
@@ -944,7 +957,8 @@ class ProgramLedgerModel:
             raise StopClosed("link lacks the exact bound child")
         observation = self.record["observation"]["parent"]
         absent = self.result_stream([{
-            "child_parent": None, "parent_subissues": []
+            "child_parent": None,
+            "parent_subissues": observation["node_ids"] if observation else [],
         }])
         if (
             not observation or not observation["complete"] or observation["count"]
@@ -968,7 +982,7 @@ class ProgramLedgerModel:
             1 if slot == "comment" and self.record[slot]["node"] is not None else 0
         )
         if slot == "link" and current["result_stream"] != self.result_stream([{
-            "child_parent": None, "parent_subissues": []
+            "child_parent": None, "parent_subissues": current["node_ids"]
         }]):
             self.persist(lambda record: record[slot].update(
                 phase="none", node=None, prior=None, created_at=None,
@@ -1081,6 +1095,14 @@ class ProgramLedgerModel:
             and item["child_marker"] == "program-child-marker"
             and self.valid_timestamp(item["created_at"])
         ]
+        armed = self.record["create"]["arm_observation"]
+        observed = self.record["observation"]["child"]
+        if (
+            not exact or not armed or not observed
+            or exact[0]["node"] in armed["node_ids"]
+            or exact[0]["node"] not in observed["node_ids"]
+        ):
+            raise StopClosed("child result identity was not newly created")
         self._bind(
             "create", [item["node"] for item in exact],
             self.result_stream(candidates),
@@ -1098,6 +1120,7 @@ class ProgramLedgerModel:
             self.record["link"]["phase"] != "in-flight" or not observed
             or not observed["complete"] or observed["generation"] <= armed["generation"]
             or observed["count"] != 1
+            or observed["node_ids"] != parent_subissues
             or proof_digest != observed["result_stream"]
         ):
             raise StopClosed("link result lacks durable intent")
@@ -2304,29 +2327,49 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
     def test_invisible_child_create_and_link_bind_after_restart(self) -> None:
         model = ProgramLedgerModel()
-        model.classify_child([])
+        unrelated = {"node": "existing-node", "marker": "unrelated"}
+        model.classify_child([unrelated])
         model.plan_create()
-        self.refresh_before_arm(model, "create")
+        model.classify_child([unrelated])
         create = model.arm("create")
         model.execute(create)
         resumed = ProgramLedgerModel.resume(
             model.record, 41, model.record["self_inode"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
-        self.observe_result(resumed, "create")
+        resumed.classify_child(
+            [unrelated, self.exact_child()], "child-post", "child-post"
+        )
         resumed.bind_create([self.exact_child()])
-        resumed.observe_parent()
+        resumed.observe_parent(["other-child"])
         resumed.plan_link()
-        self.refresh_before_arm(resumed, "link")
+        resumed.observe_parent(["other-child"])
         link = resumed.arm("link")
         resumed.execute(link)
         again = ProgramLedgerModel.resume(
             resumed.record, 41, resumed.record["self_inode"], resumed.digest(),
             resumed.record["authority"], remote_calls=resumed.remote_calls,
         )
-        self.observe_result(again, "link")
-        again.bind_link("master", ["issue-node"])
+        again.observe_parent(
+            ["other-child", "issue-node"], stream="parent-post",
+            child_parent="master",
+        )
+        again.bind_link("master", ["other-child", "issue-node"])
         self.assertEqual(again.remote_calls, {"comment": 0, "create": 1, "link": 1})
+
+    def test_child_create_never_adopts_a_preexisting_node_identity(self) -> None:
+        model = ProgramLedgerModel()
+        preexisting = {"node": "issue-node", "marker": "unrelated"}
+        model.classify_child([preexisting])
+        model.plan_create()
+        model.classify_child([preexisting])
+        permit = model.arm("create")
+        model.execute(permit)
+        exact = self.exact_child()
+        model.classify_child([exact], "child-post", "child-post")
+        with self.assertRaises(StopClosed):
+            model.bind_create([exact])
+        self.assertEqual(model.remote_calls["create"], 1)
 
     def test_stale_generation_digest_and_lock_writers_stop(self) -> None:
         model = ProgramLedgerModel()
