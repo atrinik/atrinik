@@ -253,6 +253,13 @@ class ProgramLedgerModel:
 
     @staticmethod
     def coordinate(repository_node: str, master_node: str) -> str:
+        if (
+            not isinstance(repository_node, str) or not repository_node
+            or not isinstance(master_node, str) or not master_node
+            or not ProgramLedgerModel.string_is_bounded(repository_node)
+            or not ProgramLedgerModel.string_is_bounded(master_node)
+        ):
+            raise StopClosed("coordinate node identities are invalid")
         payload = {
             "domain": "atrinik-program-delivery-coordinate",
             "master_node_id": master_node,
@@ -551,6 +558,18 @@ class ProgramLedgerModel:
                 or slot["created_at"] is not None
             ):
                 raise StopClosed("link intent contains a result")
+            if name == "link" and slot["phase"] in {"planned", "in-flight"}:
+                absent = cls.result_stream([{
+                    "child_parent": None, "parent_subissues": []
+                }])
+                if (
+                    slot["plan_observation"]["result_stream"] != absent
+                    or (
+                        slot["arm_observation"] is not None
+                        and slot["arm_observation"]["result_stream"] != absent
+                    )
+                ):
+                    raise StopClosed("link intent lacks exact two-way absence")
             if name == "comment" and slot["phase"] in {"planned", "in-flight"} and not (
                 slot["created_at"] is None and (
                     (slot["node"] is None and slot["prior"] is None)
@@ -874,7 +893,7 @@ class ProgramLedgerModel:
 
     def observe_parent(
         self, relationships: list[str] | None = None, stream: str = "parent-stable",
-        complete: bool = True, child_parent: str = "master",
+        complete: bool = True, child_parent: str | None = None,
         scan: object = AUTO_SCAN,
     ) -> None:
         relationships = relationships or []
@@ -924,7 +943,13 @@ class ProgramLedgerModel:
         if create["phase"] != "bound" or create["node"] != "issue-node":
             raise StopClosed("link lacks the exact bound child")
         observation = self.record["observation"]["parent"]
-        if not observation or not observation["complete"] or observation["count"]:
+        absent = self.result_stream([{
+            "child_parent": None, "parent_subissues": []
+        }])
+        if (
+            not observation or not observation["complete"] or observation["count"]
+            or observation["result_stream"] != absent
+        ):
             raise StopClosed("parent scan evidence is absent")
         self._plan("link")
 
@@ -942,6 +967,15 @@ class ProgramLedgerModel:
         expected_count = (
             1 if slot == "comment" and self.record[slot]["node"] is not None else 0
         )
+        if slot == "link" and current["result_stream"] != self.result_stream([{
+            "child_parent": None, "parent_subissues": []
+        }]):
+            self.persist(lambda record: record[slot].update(
+                phase="none", node=None, prior=None, created_at=None,
+                plan_observation=None, arm_observation=None,
+                retry_observation=None,
+            ))
+            raise StopClosed("native relationship is not exactly absent")
         if (
             current["stream"] != planned["stream"]
             or current["result_stream"] != planned["result_stream"]
@@ -1203,7 +1237,9 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 "full-child-stream-with-unrelated",
             )
         else:
-            model.observe_parent(["issue-node"], stream="parent-post")
+            model.observe_parent(
+                ["issue-node"], stream="parent-post", child_parent="master"
+            )
 
     def test_fresh_and_persisted_resume_are_distinct(self) -> None:
         model = ProgramLedgerModel.fresh(False, False)
@@ -1522,6 +1558,15 @@ class ProgramLedgerModelTests(unittest.TestCase):
         )
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.coordinate("R_e\N{COMBINING ACUTE ACCENT}", "I_1")
+        for repository_node, master_node in (
+            ("", "I_1"), ("R_1", ""), (True, "I_1"),
+            ("R_1", 1), (None, "I_1"), ("R_1", None),
+            ("x" * 65_537, "I_1"), ("R_1", "x" * 65_537),
+        ):
+            with self.subTest(
+                repository_node=repository_node, master_node=master_node
+            ), self.assertRaises(StopClosed):
+                ProgramLedgerModel.coordinate(repository_node, master_node)
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.result_stream([{"body": "e\N{COMBINING ACUTE ACCENT}"}])
 
@@ -2406,15 +2451,50 @@ class ProgramLedgerModelTests(unittest.TestCase):
         with self.assertRaises(StopClosed):
             model.observe_parent(["issue-node"], stream="parent-wrong")
             model.bind_link("wrong-parent", ["issue-node"])
-        model.observe_parent(["other-child"], stream="parent-other")
+        model.observe_parent(
+            ["other-child"], stream="parent-other", child_parent="master"
+        )
         with self.assertRaises(StopClosed):
             model.bind_link("master", ["issue-node"])
-        model.observe_parent(["issue-node"], stream="parent-exact")
+        model.observe_parent(
+            ["issue-node"], stream="parent-exact", child_parent="master"
+        )
         model.bind_link("master", ["issue-node"])
         self.assertEqual(
             (model.record["link"]["parent"], model.record["link"]["child"]),
             ("master", "issue-node"),
         )
+
+    def test_native_link_requires_exact_two_way_absence_before_call(self) -> None:
+        for child_parent in ("master", "other"):
+            with self.subTest(child_parent=child_parent):
+                model = ProgramLedgerModel()
+                model.record["create"].update(
+                    phase="bound", node="issue-node",
+                    created_at="2026-08-14T00:00:00Z",
+                )
+                model.observe_parent(child_parent=child_parent)
+                with self.assertRaises(StopClosed):
+                    model.plan_link()
+
+        model = ProgramLedgerModel()
+        model.record["create"].update(
+            phase="bound", node="issue-node",
+            created_at="2026-08-14T00:00:00Z",
+        )
+        model.observe_parent()
+        model.plan_link()
+        model.observe_parent(child_parent="other")
+        with self.assertRaises(StopClosed):
+            model.arm("link")
+        model.observe_parent()
+        with self.assertRaises(StopClosed):
+            model.arm("link")
+        model.plan_link()
+        model.observe_parent()
+        permit = model.arm("link")
+        model.execute(permit)
+        self.assertEqual(model.remote_calls["link"], 1)
 
     def test_duplicate_uncertain_results_stop_without_repost(self) -> None:
         model = ProgramLedgerModel()
