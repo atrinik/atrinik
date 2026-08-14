@@ -605,6 +605,7 @@ def _prepare_owned_tree_removal(
     mount_id: int | tuple[int, int],
     display: Path,
     original_mode: int | None = None,
+    reject_links: bool = False,
 ) -> None:
     root = os.fstat(descriptor)
     if (
@@ -625,6 +626,13 @@ def _prepare_owned_tree_removal(
                 raise WorkspaceError(
                     f"owned removal encountered a mount: {child_display}"
                 )
+            if reject_links and (
+                stat.S_ISLNK(child.st_mode)
+                or (stat.S_ISREG(child.st_mode) and child.st_nlink != 1)
+            ):
+                raise WorkspaceError(
+                    f"owned removal encountered linked state: {child_display}"
+                )
             if stat.S_ISDIR(child.st_mode):
                 child_descriptor = _open_owned_tree_directory(
                     descriptor, name, child, mount_id, child_display
@@ -636,6 +644,7 @@ def _prepare_owned_tree_removal(
                         mount_id,
                         child_display,
                         stat.S_IMODE(child.st_mode),
+                        reject_links,
                     )
                 finally:
                     os.close(child_descriptor)
@@ -680,6 +689,7 @@ def _remove_owned_tree_contents(
     device: int,
     mount_id: int | tuple[int, int],
     display: Path,
+    reject_links: bool = False,
 ) -> None:
     def move_to_tombstone(name: str, child: os.stat_result) -> str:
         tombstone = _owned_tree_tombstone_name(
@@ -717,13 +727,24 @@ def _remove_owned_tree_contents(
             raise WorkspaceError(
                 f"owned removal encountered a mount: {child_display}"
             )
+        if reject_links and (
+            stat.S_ISLNK(child.st_mode)
+            or (stat.S_ISREG(child.st_mode) and child.st_nlink != 1)
+        ):
+            raise WorkspaceError(
+                f"owned removal encountered linked state: {child_display}"
+            )
         if stat.S_ISDIR(child.st_mode):
             child_descriptor = _open_owned_tree_directory(
                 descriptor, name, child, mount_id, child_display
             )
             try:
                 _remove_owned_tree_contents(
-                    child_descriptor, device, mount_id, child_display
+                    child_descriptor,
+                    device,
+                    mount_id,
+                    child_display,
+                    reject_links,
                 )
             finally:
                 os.close(child_descriptor)
@@ -742,6 +763,7 @@ def remove_owned_tree(
     *,
     expected_identity: dict[str, int] | None = None,
     keep_root: bool = False,
+    reject_links: bool = False,
 ) -> None:
     if expected_identity is not None and (
         set(expected_identity) != {"device", "inode"}
@@ -809,6 +831,7 @@ def remove_owned_tree(
             root_mount_id,
             path,
             stat.S_IMODE(before.st_mode),
+            reject_links,
         )
         visible = os.stat(
             entry_name, dir_fd=parent_descriptor, follow_symlinks=False
@@ -817,7 +840,11 @@ def remove_owned_tree(
             raise WorkspaceError(f"owned removal root identity changed: {path}")
         os.fchmod(descriptor, stat.S_IRWXU)
         _remove_owned_tree_contents(
-            descriptor, opened.st_dev, root_mount_id, path
+            descriptor,
+            opened.st_dev,
+            root_mount_id,
+            path,
+            reject_links,
         )
         os.close(descriptor)
         descriptor = None
@@ -9070,6 +9097,7 @@ class Workspace:
         """Fail closed before deleting wrapper-owned mutable server state."""
 
         root = os.fstat(directory_fd)
+        root_mount = _descriptor_mount_id(directory_fd)
         for name in EXPECTED_SERVER_DATA["files"]:
             try:
                 metadata = os.stat(
@@ -9140,9 +9168,10 @@ class Workspace:
                     if (opened.st_dev, opened.st_ino) != (
                         metadata.st_dev,
                         metadata.st_ino,
-                    ):
+                    ) or _descriptor_mount_id(child_fd) != root_mount:
                         raise WorkspaceError(
-                            "temporary server state entry changed during "
+                            "temporary server state entry changed or crossed a "
+                            "mount during "
                             f"validation: {child_display}"
                         )
                     validate_directory(child_fd, child_display)
@@ -10692,7 +10721,8 @@ class Workspace:
     ) -> None:
         policy = status.get("state_policy")
         state = status.get("state")
-        server_present = state is not None
+        services = status.get("services")
+        server_present = isinstance(services, dict) and "server" in services
         if not server_present:
             if policy is not None or state is not None:
                 raise WorkspaceError(f"topology state policy is invalid: {name}")
@@ -11957,13 +11987,33 @@ class Workspace:
                             resolved_status[server_provider],
                         )
                         state_location = state
-                        state_lock = stack.enter_context(
-                            self._topology_state_lock(
-                                state_location,
-                                preparing_topology=name,
-                                physical_identity=False,
+                        try:
+                            state_lock = stack.enter_context(
+                                self._topology_state_lock(
+                                    state_location,
+                                    preparing_topology=name,
+                                    physical_identity=False,
+                                )
                             )
-                        )
+                        except BaseException:
+                            with exclusive_lock(
+                                Path(f"{state_location}.lock"),
+                                f"temporary topology state {state_location}",
+                                nonblocking=True,
+                            ) as rollback_lease:
+                                rollback_metadata = os.fstat(
+                                    rollback_lease.fileno()
+                                )
+                                self._rollback_temporary_state_creation(
+                                    state_location,
+                                    rollback_lease,
+                                    state_policy["identity"],
+                                    {
+                                        "device": rollback_metadata.st_dev,
+                                        "inode": rollback_metadata.st_ino,
+                                    },
+                                )
+                            raise
                     else:
                         assert state_name is not None and state_location is not None
                         state, state_directory_fd = self._prepared_state_path(
@@ -12758,6 +12808,14 @@ class Workspace:
                     raise WorkspaceError(
                         f"temporary state identity changed before removal: {state}"
                     )
+                if state_directory_fd is None:
+                    raise WorkspaceError(
+                        "temporary state integrity lease is missing while "
+                        "resuming removal"
+                    )
+                self._validate_temporary_state_integrity(
+                    state_directory_fd, state
+                )
                 rename_no_replace(state, tombstone)
                 tombstone_present = True
             if tombstone_present:
@@ -12773,9 +12831,16 @@ class Workspace:
                     raise WorkspaceError(
                         f"temporary state removal identity is invalid: {tombstone}"
                     )
+            if not (tombstone_present or removal_tombstone_present):
+                raise WorkspaceError(
+                    f"temporary state removal ownership evidence is missing: {state}"
+                )
             if tombstone_present or removal_tombstone_present:
                 remove_owned_tree(
-                    tombstone, expected_identity=identity, keep_root=True
+                    tombstone,
+                    expected_identity=identity,
+                    keep_root=True,
+                    reject_links=True,
                 )
                 if removal_tombstone_present and not tombstone.exists():
                     rename_no_replace(removal_tombstone, tombstone)

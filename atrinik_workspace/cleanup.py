@@ -40,6 +40,7 @@ from .workspace import (
     COMPILER_CACHE_PURPOSE,
     TEMPORARY_STATE_METADATA,
     TEMPORARY_STATE_SCHEMA_VERSION,
+    _descriptor_mount_id,
     _owned_tree_tombstone_path,
     _remote_matches,
     exclusive_lock,
@@ -386,6 +387,90 @@ def _tree_usage(
         datetime.fromtimestamp(maximum, timezone.utc) if maximum is not None else None
     )
     return sizes, observed, None
+
+
+def _temporary_tree_usage(
+    root: Path,
+) -> tuple[dict[tuple[int, int], int], datetime | None, str | None]:
+    """Measure temporary state without following links or crossing mounts."""
+
+    sizes: dict[tuple[int, int], int] = {}
+    maximum: float | None = None
+    descriptors: list[int] = []
+    try:
+        root_fd = os.open(
+            root,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+        )
+        descriptors.append(root_fd)
+        root_mount = _descriptor_mount_id(root_fd)
+        stack: list[tuple[int, Path]] = [(root_fd, root)]
+        visited: set[tuple[int, int, int | tuple[int, int]]] = set()
+        while stack:
+            descriptor, display = stack.pop()
+            directory = os.fstat(descriptor)
+            coordinate = (directory.st_dev, directory.st_ino, root_mount)
+            if coordinate in visited:
+                raise WorkspaceError(
+                    f"temporary state traversal encountered a cycle: {display}"
+                )
+            visited.add(coordinate)
+            sizes.setdefault(
+                (directory.st_dev, directory.st_ino), directory.st_blocks * 512
+            )
+            maximum = (
+                directory.st_mtime
+                if maximum is None
+                else max(maximum, directory.st_mtime)
+            )
+            for name in os.listdir(descriptor):
+                child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+                sizes.setdefault(
+                    (child.st_dev, child.st_ino), child.st_blocks * 512
+                )
+                maximum = (
+                    child.st_mtime
+                    if maximum is None
+                    else max(maximum, child.st_mtime)
+                )
+                if not stat.S_ISDIR(child.st_mode):
+                    continue
+                child_fd = os.open(
+                    name,
+                    os.O_RDONLY
+                    | os.O_CLOEXEC
+                    | os.O_DIRECTORY
+                    | os.O_NOFOLLOW,
+                    dir_fd=descriptor,
+                )
+                descriptors.append(child_fd)
+                opened = os.fstat(child_fd)
+                if (
+                    (opened.st_dev, opened.st_ino)
+                    != (child.st_dev, child.st_ino)
+                    or _descriptor_mount_id(child_fd) != root_mount
+                ):
+                    raise WorkspaceError(
+                        f"temporary state traversal encountered a mount: "
+                        f"{display / name}"
+                    )
+                stack.append((child_fd, display / name))
+        observed = (
+            datetime.fromtimestamp(maximum, timezone.utc)
+            if maximum is not None
+            else None
+        )
+        return sizes, observed, None
+    except (OSError, RuntimeError, WorkspaceError) as error:
+        observed = (
+            datetime.fromtimestamp(maximum, timezone.utc)
+            if maximum is not None
+            else None
+        )
+        return sizes, observed, str(error)
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
 
 
 def _topology_tree_snapshot(
@@ -3782,7 +3867,7 @@ class Cleanup:
             else path
         )
         item["_physical_path"] = str(physical)
-        inodes, observed, walk_error = _tree_usage(physical)
+        inodes, observed, walk_error = _temporary_tree_usage(physical)
         item["_inodes"] = inodes
         if walk_error:
             item["reasons"].append("filesystem_traversal_error")

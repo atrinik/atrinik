@@ -30,15 +30,14 @@
 
 ## Core behaviors and patterns
 
-- Use `atrinik-multi-repo-workspace` for ownership, profiles, worktrees,
-  migration, cleanup, releases, or wrapper CLI/layout work. Add only the narrow
-  C, content, protocol, runtime, scenario, or GitHub skill needed. Use
-  `atrinik-guidance-maintenance` for periodic guidance audits or drift updates.
+- Use `atrinik-multi-repo-workspace` for wrapper ownership, profiles, worktrees,
+  migration, cleanup, releases, CLI, or layout. Add only applicable specialist
+  skills; use `atrinik-guidance-maintenance` for guidance audits.
 - Use `atrinik-issue-delivery` only when explicitly invoked for
   issue-to-ready-PR delivery; it stops before merge.
 - Use `atrinik-program-delivery` only when explicitly invoked for an ordered
-  master issue; it composes leaf delivery across human merge gates and stops
-  before merge or issue closure.
+  master issue; it composes leaves across merge gates and stops before merge or
+  issue closure.
 - Never replace or move a dirty primary checkout, remove a dirty worktree, or
   overwrite mutable server data. Preserve recoverable migration inputs.
 - Cleanup is explicit and preview-first: run
@@ -48,9 +47,11 @@
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.
-- Use wrapper paths. Concurrent topologies need names, ports, and client
-  config; prefer temporary state.
-- Keep completion bounded, local, parser-driven and secret-free.
+- Use wrapper commands and paths; never reconstruct managed paths. Give
+  concurrent topologies distinct names, states, ports, and client config;
+  prefer temporary state.
+- Keep completion bounded, local, parser-driven, secret-free, and ahead of
+  `Workspace` construction.
 - Lease in order; gate same-coordinate readers; share the migration barrier.
 - Unbound persisted records are historical and inert.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket
@@ -65,8 +66,7 @@
   never visible literal `\n` separators. Feed multi-section bodies by file or
   stdin; after create/edit, verify remote rendering. Use
   `atrinik-github-governance` for publication, policy, or native PR stacks.
-  Semantic-release owns
-  tags/assets; keep confidential or unreleased work off public surfaces.
+  Semantic-release owns tags/assets; keep unreleased work off public surfaces.
 
 ## Working agreements and commands
 
