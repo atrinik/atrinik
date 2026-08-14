@@ -217,7 +217,7 @@
       "branch": "main",
       "path": "tools",
       "generation": "classic",
-      "license": "GPL-2.0-or-later"
+      "license": "LicenseRef-Atrinik-Tools-Mixed"
     }
   ],
   "components": [
@@ -422,7 +422,7 @@
       "generation": "classic",
       "provides": ["tools"],
       "requires": ["content"],
-      "license": "GPL-2.0-or-later"
+      "license": "LicenseRef-Atrinik-Tools-Mixed"
     }
   ]
 }

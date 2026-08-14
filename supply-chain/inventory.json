@@ -1,7 +1,10 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "organization": "atrinik",
   "created": "2026-08-08T00:00:00Z",
+  "license_references": {
+    "LicenseRef-Atrinik-Tools-Mixed": "MIT applies by default to tracked files outside narrower notices. GPL-2.0-or-later applies to the complete map-checker-qt/ subtree unless a file explicitly states otherwise."
+  },
   "repositories": [
     {
       "audit_ready": true,
@@ -470,7 +473,7 @@
       "cohorts": [
         "classic"
       ],
-      "license": "GPL-2.0-or-later",
+      "license": "LicenseRef-Atrinik-Tools-Mixed",
       "commit": null,
       "name": "tools",
       "repository": "atrinik/tools",
@@ -1356,13 +1359,13 @@
         "classic-server"
       ],
       "required": true,
-      "version": "materials-c70422ac4df08fc013a6b1bf15d93fd19fbae724d871caa80793a5a73ac08865",
+      "version": "materials-7e2ad179a1d95540820634792e355e2fbf3cf030b41816c3bed9923c9d0a718d",
       "version_source": "Classic dependencies.bundle.json material digest",
       "license": "LicenseRef-Atrinik-Image-Contents",
       "source_url": "https://github.com/atrinik/classic/pkgs/container/classic-dependencies",
-      "locator": "ghcr.io/atrinik/classic-dependencies@sha256:e8b84176046719785f768b45f513b29ab81c631b153454a025aa016cd82ee16f",
+      "locator": "ghcr.io/atrinik/classic-dependencies@sha256:60f13a18830552fbdbda314c9e29029323fce84eb0de1defd2a1d3610de78043",
       "commit": null,
-      "checksum": "sha256:e8b84176046719785f768b45f513b29ab81c631b153454a025aa016cd82ee16f",
+      "checksum": "sha256:60f13a18830552fbdbda314c9e29029323fce84eb0de1defd2a1d3610de78043",
       "acquisition": "A trusted current-main workflow builds the deterministic OCI layout through the authoritative Classic fetcher and publishes its exact manifest digest",
       "update_cadence_days": 30,
       "update_mechanism": "Reviewed Classic lock or acquisition-contract update with a regenerated material and OCI descriptor",
@@ -1379,7 +1382,7 @@
         {
           "repository": "classic",
           "path": "dependencies.bundle.json",
-          "contains": "sha256:e8b84176046719785f768b45f513b29ab81c631b153454a025aa016cd82ee16f"
+          "contains": "sha256:60f13a18830552fbdbda314c9e29029323fce84eb0de1defd2a1d3610de78043"
         },
         {
           "repository": "classic",
@@ -1850,37 +1853,6 @@
           "repository": "classic-editor",
           "path": "build.sh",
           "contains": "./gradlew clean :src:atrinik:preparePublish"
-        }
-      ]
-    },
-    {
-      "id": "external/php",
-      "name": "PHP runtime for classic worldviewer",
-      "kind": "external-tool",
-      "owner": "tools",
-      "scope": [
-        "tools"
-      ],
-      "required": false,
-      "version": "operator-supplied",
-      "version_source": "Classic worldviewer deployment environment",
-      "license": "PHP-3.01",
-      "source_url": "https://www.php.net/",
-      "locator": "php",
-      "commit": null,
-      "checksum": null,
-      "acquisition": "Optional system runtime outside supported CI",
-      "update_cadence_days": 180,
-      "update_mechanism": "Manual compatibility audit while the classic viewer remains",
-      "eol_response": "Remove the viewer if it cannot run safely on a supported PHP release",
-      "validation": "PHP syntax check in a deliberately provisioned classic environment",
-      "disposition": "remove",
-      "packages": [],
-      "evidence": [
-        {
-          "repository": "tools",
-          "path": "worldviewer/world.php",
-          "contains": "php_sapi_name()"
         }
       ]
     },
@@ -2652,13 +2624,13 @@
         "classic-server"
       ],
       "required": true,
-      "version": "v3.0.1",
+      "version": "v5.0.0",
       "version_source": "Classic server dependencies.lock.json content runtime input",
       "license": "LicenseRef-Atrinik-Asset-Per-File",
-      "source_url": "https://github.com/atrinik/content/releases/tag/v3.0.1",
-      "locator": "pkg:github/atrinik/content@v3.0.1",
-      "commit": "65a88167d3a2bedcc2dc21508d94d7ca009a76d2",
-      "checksum": "sha256:2b49daee9d515a86323a5ef28a9f85a5098c96f72375155bb59dcdda50daeaf7",
+      "source_url": "https://github.com/atrinik/content/releases/tag/v5.0.0",
+      "locator": "pkg:github/atrinik/content@v5.0.0",
+      "commit": "b0ccf98ed5e65d3d1a66f6dfce44c19122b26eef",
+      "checksum": "sha256:ac15a58d6ac07e9cbef64076dded0024a9a0c8b03d07748c1f0224d5901f4178",
       "acquisition": "Classic release packaging obtains the archive from the exact durable dependency-bundle digest and rechecks it before safe extraction",
       "update_cadence_days": 30,
       "update_mechanism": "Daily fail-closed GitHub App proposal plus reviewed Classic compatibility update",
@@ -2670,7 +2642,7 @@
         {
           "repository": "classic-server",
           "path": "dependencies.lock.json",
-          "contains": "atrinik-content-3.0.1-classic-runtime.tar.gz"
+          "contains": "atrinik-content-5.0.0-classic-runtime.tar.gz"
         }
       ]
     },

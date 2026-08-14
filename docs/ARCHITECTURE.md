@@ -173,7 +173,8 @@ public HTTPS is the fallback when the wrapper has no recognized GitHub remote.
 With no explicit arguments, initialization resolves only the
 replacement/default cohort. `init --with classic` resolves the union of the
 default and classic cohorts; the option is additive and has no classic-only
-alias. The `classic` monorepo, GPL `tools`, and MIT `playtester` are absent from
+alias. The `classic` monorepo, MIT-by-default `tools` with its
+GPL-2.0-or-later `map-checker-qt/` exception, and MIT `playtester` are absent from
 ordinary initialization. The shared content checkout is cloned once. Explicit checkout or
 logical-component initialization remains available for partial workspaces.
 Aliases that own one physical checkout are deduplicated. Initialization is
@@ -681,9 +682,10 @@ match; dirty inputs deliberately regenerate.
 
 For the currently runnable classic profile, server launch preparation assembles
 a disposable working directory with links to the selected build, plugins,
-collected Classic-target `content@main`, resources, configuration, GPL tools,
-and one explicit state policy. GPL tools are not part of the
-replacement/default role graph. `temporary` allocates a fresh topology-
+collected Classic-target `content@main`, resources, configuration, tools, and
+one explicit state policy. Tools are MIT by default with a GPL-2.0-or-later
+`map-checker-qt/` exception and are not part of the replacement/default role
+graph. `temporary` allocates a fresh topology-
 generation-owned state, `named` selects an existing registered persistent
 state, and `default` explicitly identifies the legacy managed persistent
 default. Scenario state remains registered and scenario-owned rather than
