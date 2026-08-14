@@ -300,6 +300,12 @@ class ProgramLedgerModel:
             raise StopClosed("schema or inode corruption")
         if (
             not isinstance(record["authority"], list)
+            or len(record["authority"]) != 4
+            or any(
+                not isinstance(item, str) or not item
+                or not cls.string_is_bounded(item)
+                for item in record["authority"]
+            )
             or not isinstance(record["graph"], list)
             or any(not isinstance(item, str) or not item for item in record["graph"])
             or len(record["graph"]) != len(set(record["graph"]))
@@ -328,7 +334,16 @@ class ProgramLedgerModel:
             or hashlib.sha256(cls.canonical(record)).hexdigest() != observed_sha256
         ):
             raise StopClosed("byte corruption")
-        if record["authority"] != expected_authority:
+        if (
+            not isinstance(expected_authority, list)
+            or len(expected_authority) != 4
+            or any(
+                not isinstance(item, str) or not item
+                or not cls.string_is_bounded(item)
+                for item in expected_authority
+            )
+            or record["authority"] != expected_authority
+        ):
             raise StopClosed("live authority changed")
         generation = record["generation"]
         previous = record["previous_sha256"]
@@ -833,6 +848,12 @@ class ProgramLedgerModel:
     ) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
         if first_digest != second_digest:
             raise StopClosed("duplicate-search streams changed")
+        if any(
+            not isinstance(issue, dict)
+            or not isinstance(issue.get("node"), str) or not issue["node"]
+            for issue in issues
+        ):
+            raise StopClosed("child search contains an invalid issue node identity")
         candidates, evidence = [], []
         for issue in issues:
             marker = issue.get("marker")
@@ -846,7 +867,7 @@ class ProgramLedgerModel:
         self._observe(
             "child", first_digest, self.result_stream(candidates), len(candidates),
             True, scan,
-            [str(issue.get("node", f"issue-{index}")) for index, issue in enumerate(issues)],
+            [issue["node"] for issue in issues],
             [len(str(issue.get("body", "")).encode("utf-8")) for issue in issues],
         )
         return candidates, evidence
@@ -1253,6 +1274,20 @@ class ProgramLedgerModelTests(unittest.TestCase):
             with self.subTest(args=args):
                 with self.assertRaises(StopClosed):
                     ProgramLedgerModel.resume(*args)
+        for authority in (
+            [], ["repo"], [True, "master", "goal", "actor"],
+            ["", "master", "goal", "actor"],
+        ):
+            malformed_authority = copy.deepcopy(model.record)
+            malformed_authority["authority"] = authority
+            with self.subTest(authority=authority), self.assertRaises(StopClosed):
+                ProgramLedgerModel.resume(
+                    malformed_authority, 41, malformed_authority["self_inode"],
+                    hashlib.sha256(
+                        ProgramLedgerModel.canonical(malformed_authority)
+                    ).hexdigest(),
+                    authority,
+                )
         retry = ProgramLedgerModel()
         retry.observe_comment()
         retry.plan_comment()
@@ -2050,7 +2085,8 @@ class ProgramLedgerModelTests(unittest.TestCase):
             {"marker": "matching"}, {"title": True}, {"body": True},
             {"backlink": True}, {"parent": True},
         )
-        for issue in blockers:
+        for index, predicate in enumerate(blockers):
+            issue = {"node": f"blocker-{index}", **predicate}
             with self.subTest(issue=issue):
                 model = ProgramLedgerModel()
                 candidates, _ = model.classify_child([issue])
@@ -2058,9 +2094,13 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 with self.assertRaises(StopClosed):
                     model.plan_create()
         model = ProgramLedgerModel()
-        with self.assertRaises(StopClosed):
-            model.classify_child([{"node": ""}])
-        unrelated = [{"marker": "unrelated"}, {"marker": "malformed"}]
+        for issue in ({}, {"node": ""}, {"node": None}, {"node": 123}):
+            with self.subTest(issue=issue), self.assertRaises(StopClosed):
+                model.classify_child([issue])
+        unrelated = [
+            {"node": "unrelated-node", "marker": "unrelated"},
+            {"node": "malformed-node", "marker": "malformed"},
+        ]
         candidates, evidence = model.classify_child(unrelated)
         self.assertEqual(candidates, [])
         self.assertEqual(evidence, unrelated)
@@ -2138,7 +2178,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         create = ProgramLedgerModel()
         create.classify_child([])
         create.plan_create()
-        duplicate = {"title": True}
+        duplicate = {"node": "duplicate-node", "title": True}
         create.classify_child([duplicate], "blocked", "blocked")
         with self.assertRaises(StopClosed):
             create.arm("create")
