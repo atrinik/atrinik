@@ -343,7 +343,12 @@ options fail closed; project
 `.npmrc` is supported through an authenticated copy. The hashed lifecycle-script
 environment and source
 metadata also participate in the key. `npm ci` remains the only
-installer. A second
+installer. Copied root metadata is authenticated before the wrapper temporarily
+restores owner-only write access needed by dependency-install and source-view
+transactions; the source mode is reapplied before view publication. Sealed
+immutable source generations therefore cannot block staging writes. Worker
+checks receive the same temporary owner-only access for allowed generated
+outputs, and the sealed root mode is restored afterward. A second
 input-identical build reuses that installation and an unchanged profile source
 view. Because enabled dependency lifecycle scripts can observe root files, the
 complete non-generated source digest participates in every dependency key and

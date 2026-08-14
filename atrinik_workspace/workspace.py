@@ -1430,6 +1430,51 @@ def _copy_worker_source_metadata(source: Path, destination: Path) -> None:
     visit(source, destination, True)
 
 
+def _worker_owner_writable_mode(mode: int) -> int:
+    """Return a mode with owner access and no group or other write bits."""
+
+    return mode & ~(stat.S_IWGRP | stat.S_IWOTH) | stat.S_IRWXU
+
+
+def _make_worker_staging_owner_writable(staging: Path) -> None:
+    """Restore owner access after authenticating copied source metadata."""
+
+    descriptor: int | None = None
+    try:
+        descriptor = os.open(
+            staging,
+            os.O_RDONLY | os.O_DIRECTORY | getattr(os, "O_NOFOLLOW", 0),
+        )
+        opened = os.fstat(descriptor)
+        visible = staging.stat(follow_symlinks=False)
+        if (
+            not stat.S_ISDIR(opened.st_mode)
+            or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+            or opened.st_uid != os.geteuid()
+        ):
+            raise WorkspaceError(
+                f"Worker dependency staging root ownership is unsafe: {staging}"
+            )
+        os.fchmod(
+            descriptor,
+            _worker_owner_writable_mode(stat.S_IMODE(opened.st_mode)),
+        )
+        writable = os.fstat(descriptor)
+        if stat.S_IMODE(writable.st_mode) & stat.S_IRWXU != stat.S_IRWXU:
+            raise WorkspaceError(
+                f"Worker dependency staging root is not owner-writable: {staging}"
+            )
+    except WorkspaceError:
+        raise
+    except OSError as error:
+        raise WorkspaceError(
+            f"cannot make Worker dependency staging root writable {staging}: {error}"
+        ) from error
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+
+
 def _copy_regular_file(
     source: Path,
     destination: Path,
@@ -8478,6 +8523,11 @@ class Workspace:
                     raise WorkspaceError(
                         "staged Worker lifecycle source does not match its cache key"
                     )
+                # Clean primary sources are immutable generations whose root
+                # has no write bits. Authenticate that copied mode first, then
+                # restore access only for the effective owner of this
+                # wrapper-created transaction so npm can create node_modules.
+                _make_worker_staging_owner_writable(staging)
                 if (staging / ".npmrc").exists():
                     (staging / ".npmrc").chmod(0o600)
                     if (
@@ -8695,6 +8745,7 @@ class Workspace:
                 raise WorkspaceError(
                     "staged Worker view source does not match its fingerprint"
                 )
+            _make_worker_staging_owner_writable(staging)
             shutil.copytree(dependencies, staging / "node_modules", symlinks=True)
             if (
                 _tree_digest(
@@ -8721,6 +8772,7 @@ class Workspace:
                 },
             )
             atomic_json(staging / WORKER_VIEW_METADATA, expected)
+            shutil.copystat(source, staging, follow_symlinks=False)
             replace_directory(
                 view,
                 staging,
@@ -8879,6 +8931,10 @@ class Workspace:
                 != dependency_metadata["node_modules_lock_sha256"]
             ):
                 raise WorkspaceError("Worker view controls are invalid before checks")
+            if opened_status.st_uid != os.geteuid():
+                raise WorkspaceError("Worker view ownership is unsafe before checks")
+            original_mode = stat.S_IMODE(opened_status.st_mode)
+            os.fchmod(descriptor, _worker_owner_writable_mode(original_mode))
             try:
                 run(
                     ["npm", "run", "check"],
@@ -8887,23 +8943,26 @@ class Workspace:
                 )
             finally:
                 try:
-                    current_status = view.lstat()
-                except OSError:
-                    current_status = None
-                if (
-                    current_status is not None
-                    and not view.is_symlink()
-                    and stat.S_ISDIR(current_status.st_mode)
-                    and (current_status.st_dev, current_status.st_ino)
-                    == (opened_status.st_dev, opened_status.st_ino)
-                ):
-                    for control_path in (marker_path, metadata_path):
-                        if control_path.is_symlink() or not control_path.is_dir():
-                            control_path.unlink(missing_ok=True)
-                        else:
-                            remove_owned_tree(control_path)
-                    atomic_json(marker_path, expected_marker)
-                    atomic_json(metadata_path, control_metadata)
+                    try:
+                        current_status = view.lstat()
+                    except OSError:
+                        current_status = None
+                    if (
+                        current_status is not None
+                        and not view.is_symlink()
+                        and stat.S_ISDIR(current_status.st_mode)
+                        and (current_status.st_dev, current_status.st_ino)
+                        == (opened_status.st_dev, opened_status.st_ino)
+                    ):
+                        for control_path in (marker_path, metadata_path):
+                            if control_path.is_symlink() or not control_path.is_dir():
+                                control_path.unlink(missing_ok=True)
+                            else:
+                                remove_owned_tree(control_path)
+                        atomic_json(marker_path, expected_marker)
+                        atomic_json(metadata_path, control_metadata)
+                finally:
+                    os.fchmod(descriptor, original_mode)
         finally:
             os.close(descriptor)
 
