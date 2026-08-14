@@ -787,12 +787,20 @@ reclaimed regardless of age unless another protection applies.
 
 Immutable source generations use the same default `builds` scope and grace
 period. Cleanup authenticates their checkout/key path, ownership marker,
-closed commit/tree/subpath metadata, and complete tree digest. An active build
-holds the generation's shared lock; apply takes its exclusive side and repeats
-identity, digest, and age validation before bounded removal. Generation staging
-transactions within the marker-owned container are separately inventoried,
-remain protected under an active generation lock, and are reclaimable after
-interruption and the normal grace period.
+and closed commit/tree/subpath metadata before considering removal. Build
+selection separately proves the complete tree digest and exact path,
+entry-type, executable-mode, symlink-target, and blob identity against the
+recorded Git source tree; a mismatch fails the build without deleting the
+generation. Once ownership is unambiguous, cleanup reports content-digest
+corruption as an explicitly eligible `corrupt_source_generation`. Inspect
+recovery with `./atrinik cleanup --scope builds
+--older-than 0 --dry-run --json`; after reviewing the exact protected or
+eligible generation, use the same scoped command with `--apply`. An active
+build holds the generation's shared lock; apply takes its exclusive side and
+repeats ownership, content state, and age validation before bounded removal.
+Generation staging transactions within the marker-owned container are
+separately inventoried, remain protected under an active generation lock, and
+are reclaimable after interruption and the normal grace period.
 
 Worker dependency entries under `workspace/build/worker-dependencies/` use the
 same default `builds` scope and grace period. Cleanup requires the exact parent
