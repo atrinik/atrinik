@@ -10357,6 +10357,24 @@ class WorkspaceTests(unittest.TestCase):
             missing_evidence_applied_item["disposition"], "protected"
         )
         self.assertTrue(displaced.is_dir())
+        state_lock = Path(f"{first_path}.lock")
+        displaced_lock = self.root / "displaced-temporary-state.lock"
+        state_lock.rename(displaced_lock)
+        missing_all_evidence = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        missing_all_item = next(
+            item
+            for item in missing_all_evidence["items"]
+            if item["path"] == str(first_path)
+        )
+        self.assertEqual(missing_all_item["disposition"], "protected")
+        self.assertIn(
+            "temporary_state_ownership_evidence_missing",
+            missing_all_item["reasons"],
+        )
+        self.assertIn("state_lease_unverifiable", missing_all_item["reasons"])
+        displaced_lock.rename(state_lock)
         displaced.rename(first_path)
         with (
             mock.patch(

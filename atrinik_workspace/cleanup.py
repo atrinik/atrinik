@@ -3767,7 +3767,7 @@ class Cleanup:
                         f".{lock.name}.remove-{lease_identity['device']:x}-"
                         f"{lease_identity['inode']:x}"
                     )
-                    if (
+                    if policy["lifecycle"] == "removal-pending" or (
                         lock.exists()
                         or lock.is_symlink()
                         or lock_tombstone.exists()
