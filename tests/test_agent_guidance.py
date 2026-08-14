@@ -911,6 +911,9 @@ class AgentGuidanceTests(unittest.TestCase):
             "never create again",
             "never link again",
             "ProgramLedgerModelTests",
+            "GitHub exposes no relationship node ID",
+            "call_not_before",
+            "proposal's recorded position",
         }:
             with self.subTest(marker=marker):
                 self.assertIn(marker, ledger)
@@ -936,7 +939,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "Stable lock path / device / inode:",
             "Current / next authority and graph-rekey phase:",
             "Child create phase / intent digest / issue number / node / URL:",
-            "Native link phase / intent digest / relationship node:",
+            "Native link phase / intent digest / parent-child proof digest:",
         }:
             self.assertIn(marker, report)
         for marker in {
@@ -955,9 +958,10 @@ class AgentGuidanceTests(unittest.TestCase):
             self.assertIn(marker, checklist)
         self.assertIn("machine-readable program ledger", interface)
         self.assertIn(
-            "Without durable goal authority, keep summaries local",
+            "Without goal authority, keep summaries/children local",
             body,
         )
+        self.assertIn("create no ledger, master comment, child, or link", body)
         self.assertIn("Publish the master summary only through", body)
 
     def test_removed_stale_routes_do_not_return(self) -> None:

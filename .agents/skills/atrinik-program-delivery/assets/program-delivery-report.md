@@ -24,7 +24,7 @@
 - Proposed child repository / exact title / body SHA-256 / parent node:
 - Duplicate-search query / stream digest / candidates / proven-missing:
 - Child create phase / intent digest / issue number / node / URL:
-- Native link phase / intent digest / relationship node:
+- Native link phase / intent digest / parent-child proof digest:
 - Last CAS and durable-write result:
 
 This section never authorizes publication. The ignored machine-readable ledger

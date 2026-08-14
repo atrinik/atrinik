@@ -52,6 +52,12 @@ cannot prove alone.
   two stable complete duplicate scans, and separate create/link state slots?
 - After create or link becomes `in-flight`, does an absent result stop without
   reposting until one exact issue or native relationship can be bound?
+- Does create reconciliation use a durable pre-call stream/time boundary and
+  server creation time, and does link binding prove the parent-child pair from
+  both `parent` and completely paginated `subIssues` without inventing an edge
+  node ID?
+- Is the proposed child's graph position/dependency set fixed before creation
+  and reproduced exactly during the same-node graph rekey?
 
 ## Order and gates
 

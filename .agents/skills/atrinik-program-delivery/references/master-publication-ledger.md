@@ -89,29 +89,36 @@ intended body/digest, `current_sha256 == intended_sha256`, and prior null.
 `child_slot` has exactly:
 
 ```text
-proposal: {repository, repository_node_id, title, body, body_sha256,
-           parent_repository, parent_number, parent_node_id}
+proposal: {position, dependencies, repository, repository_node_id, title, body,
+           body_sha256, parent_repository, parent_number, parent_node_id}
 search: null | {query_sha256, pages, issues, terminal_cursor, completed_at,
          stream_sha256, candidates, proven_missing}
-create: {phase, mutation, issue_number, issue_node_id, issue_url,
-         creator_node_id, intended_sha256}
+create: {phase, mutation, call_not_before, pre_call_stream_sha256,
+         issue_number, issue_node_id, issue_url, creator_node_id,
+         created_at, intended_sha256}
 link: {phase, mutation, parent_node_id, child_node_id,
-       relationship_node_id, intended_sha256}
+       bound_parent_stream_sha256, intended_sha256}
 ```
 
-Proposal strings are exact NFC bytes; its body digest hashes exact UTF-8 body;
-parent coordinates equal authority. Each candidate has exactly `repository`,
-`issue_number`, `issue_node_id`, `state`, `creator_node_id`, `title_sha256`, and
-`body_sha256`. Candidates remain in canonical API order. Search counts are
+Proposal position is the intended contiguous graph position, dependencies are
+sorted unique existing earlier positions, strings are exact NFC bytes, and its
+body digest hashes exact UTF-8 body; parent coordinates equal authority. Each
+candidate has exactly `repository`, `issue_number`, `issue_node_id`, `state`,
+`creator_node_id`, `created_at`, `title_sha256`, and `body_sha256`. Candidates
+remain in canonical API order. Search counts are
 bounded nonnegative integers, cursor/time are validated as below, and
 `proven_missing` is boolean. Null search is allowed only while create and link
 are `none`; a create plan requires a non-null proven-missing search. Create/link
-use the four phases. `none` requires
-mutation and all result/intended fields null. `planned`/`in-flight` require
-mutation `POST`, exact canonical request digest, and null results. Bound create
-requires mutation null, every issue result, and creator equal to authority.
-Bound link requires mutation null, the proposal's exact parent and bound child
-IDs, and a non-empty native relationship node ID. Link cannot leave `none`
+use the four phases. `none` requires mutation and all call/result/intended
+fields null. `planned` requires mutation `POST`, exact canonical request digest,
+and null call/result fields. `in-flight` additionally requires a UTC
+`call_not_before` captured immediately before persistence and the exact stable
+pre-call issue-stream digest. Bound create requires mutation null, every issue
+result including server `created_at`, creator equal to authority, and clears
+call-boundary fields. Bound link requires mutation null, the proposal's exact
+parent and bound child IDs, and the digest of the complete parent stream that
+proves the pair. GitHub exposes no relationship node ID; never invent one.
+Link cannot leave `none`
 until create is bound. `child: null` means the execution plan proves no missing
 child is proposed and permits no child mutation.
 
@@ -211,21 +218,30 @@ incomplete scan, or changing stream means `proven_missing: false` and stops.
 Only a stable zero-candidate search may persist create `planned` with the exact
 proposal and request digest. Recheck search and CAS, persist create `in-flight`,
 then call issue creation once. Bind only one issue in the proposed repository
-whose creator, exact title/body, intent time window, and returned or reconciled
-identity match. If none is visible after in-flight create, stop as uncertain
+whose creator, exact title/body, and identity match, whose server `created_at`
+is not earlier than durable `call_not_before`, and which was absent from the
+recorded pre-call stream. If none is visible after in-flight create, stop as uncertain
 and never create again. Later resumptions repeat the full search and may bind
 one exact result; zero or multiple results stop.
 
 After create is durably bound, fully paginate the native parent graph and
 require the relationship absent before link `planned`, then `in-flight`, with
 exact parent/child IDs and request digest. Call native linking once. Bind only
-one exact native relationship. If none is visible after in-flight link, stop as
+one exact parent-child pair, proving both the child's `parent` equals the master
+and the completely paginated master `subIssues` contains that child, then store
+the parent-stream digest. If none is visible after in-flight link, stop as
 uncertain and never link again; later resumes may bind the exact relationship
 but never repost. An existing link is accepted only while reconciling this
 recorded in-flight intent. Wrong parent, duplicate relationship, disappeared
 child, changed proposal/body, or ambiguous result stops. Comment, create, and
 link slots advance independently under the same lock and generation CAS, so a
 crash at any boundary cannot authorize the next remote call.
+
+After child create/link binding, rekey the ordered graph on the existing master
+comment node. The new entry must use the proposal's recorded position,
+dependencies, repository identity, and bound issue number/node; every other
+entry stays byte-identical. Any different placement or dependency set stops
+instead of transferring the child intent.
 
 ## Leaf composition and executable tests
 

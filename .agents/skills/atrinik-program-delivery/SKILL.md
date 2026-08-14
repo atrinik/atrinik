@@ -43,8 +43,8 @@ goal, create or resume one goal continuously owning the exact master and leaves
 before live preflight. Each leaf sidecar records its goal proof, allowed
 master/leaf node IDs, distinct coordinates, and exclusive `leaf_position`; the
 leaf is explicit. Never create a nested or per-leaf goal. Without durable goal
-authority, keep summaries local; do not create the master ledger or mutate its
-comments.
+authority, keep summaries and proposed children local; create no master ledger,
+master comment, child, or link.
 
 1. Normalize the master as `owner/repository#number`. Inspect the live issue,
    body, comments, native parent/subissue graph, linked PRs, assignees, Project
