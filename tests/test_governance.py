@@ -240,10 +240,10 @@ class ClassicToolsInventoryTests(unittest.TestCase):
         )
         self.assertEqual(
             target["revision"],
-            "6feef28190b8fa5f7b5a9669b03c1173c78c47f1",
+            "3e024cc6138b0e2e93deebe30b7367caaf696c66",
         )
         self.assertEqual(
-            target["tree"], "5ca6fa2e0e435cfae7c66ad60463228b65dadb15"
+            target["tree"], "ac4c6511ac78eca415068a6adfea0cedc18f7542"
         )
         self.assertEqual(target["status"], "reviewed-pull-request")
         self.assertEqual(
