@@ -5302,6 +5302,59 @@ class WorkspaceTests(unittest.TestCase):
         finally:
             os.close(state_fd)
 
+    def test_runtime_state_output_cleanup_rejects_generation_swap(self) -> None:
+        state = self.root / "state-output-race"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "b" * 32
+        output = self.workspace._prepare_runtime_state_output(
+            state, generation, state_fd
+        )
+        replacement = self.root / "replacement-output"
+        replacement.mkdir()
+        atomic_json(
+            replacement / MANAGED_MARKER,
+            {
+                "schema_version": 1,
+                "purpose": f"runtime-state-output:{generation}",
+            },
+        )
+        sentinel = replacement / "sentinel"
+        sentinel.write_text("replacement\n", encoding="utf-8")
+        displaced = self.root / "displaced-output"
+        real_open = os.open
+        swapped = False
+
+        def open_after_swap(
+            path: object, flags: int, *args: object, **kwargs: object
+        ) -> int:
+            nonlocal swapped
+            if path == generation and not swapped:
+                swapped = True
+                output.rename(displaced)
+                replacement.rename(output)
+            return real_open(path, flags, *args, **kwargs)
+
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.os.open",
+                    side_effect=open_after_swap,
+                ),
+                self.assertRaisesRegex(WorkspaceError, "output path changed"),
+            ):
+                self.workspace._remove_runtime_state_output(
+                    output, generation, state_fd
+                )
+            self.assertTrue(swapped)
+            self.assertEqual(
+                (output / "sentinel").read_text(encoding="utf-8"),
+                "replacement\n",
+            )
+            self.assertTrue((displaced / MANAGED_MARKER).is_file())
+        finally:
+            os.close(state_fd)
+
     def test_topology_runtime_set_copies_read_only_directories(self) -> None:
         topology = self.root / "topology"
         topology.mkdir()
@@ -10311,6 +10364,45 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(retained_item["disposition"], "protected")
         self.assertIn("temporary_state_retained", retained_item["reasons"])
+        displaced_state = retained_path.with_name("promotion-displaced")
+        replacement_sentinel = retained_path / "replacement-sentinel"
+        real_durable_json_at = workspace_module.durable_atomic_json_at
+        swapped = False
+
+        def swap_before_provenance(
+            directory_fd: int, name: str, value: object
+        ) -> None:
+            nonlocal swapped
+            if name == workspace_module.PROMOTED_STATE_METADATA and not swapped:
+                swapped = True
+                retained_path.rename(displaced_state)
+                retained_path.mkdir()
+                replacement_sentinel.write_text(
+                    "replacement\n", encoding="utf-8"
+                )
+            real_durable_json_at(directory_fd, name, value)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.durable_atomic_json_at",
+                side_effect=swap_before_provenance,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "temporary state changed during promotion"
+            ),
+        ):
+            self.workspace.state_promote(
+                "temporary-retained", "promotion-swap-review"
+            )
+        self.assertTrue(swapped)
+        self.assertEqual(
+            replacement_sentinel.read_text(encoding="utf-8"), "replacement\n"
+        )
+        self.assertNotIn("promotion-swap-review", self.workspace._load_states())
+        shutil.rmtree(retained_path)
+        displaced_state.rename(retained_path)
+        (retained_path / workspace_module.PROMOTED_STATE_METADATA).unlink()
+        atomic_json(retained_status_path, retained_record)
         sessions = [Workspace(self.wrapper), Workspace(self.wrapper)]
         with ThreadPoolExecutor(max_workers=2) as executor:
             futures = [
@@ -10368,6 +10460,22 @@ class WorkspaceTests(unittest.TestCase):
             promoted_summary["state_policy"]["lifecycle"],
             "persistent-promoted",
         )
+        provenance = retained_path / workspace_module.PROMOTED_STATE_METADATA
+        provenance.unlink()
+        origin_status.rename(hidden_status)
+        try:
+            with self.assertRaisesRegex(
+                WorkspaceError, "promoted state provenance is missing"
+            ):
+                self.workspace.topology_summary(
+                    "default", str(promoted["name"]), ["server"]
+                )
+        finally:
+            hidden_status.rename(origin_status)
+        self.workspace.state_promote(
+            "temporary-retained", str(promoted["name"])
+        )
+        self.assertTrue(provenance.is_file())
         (rendezvous / "temporary.bound").unlink()
         with mock.patch.object(
             self.workspace, "_build_resolved", return_value=build_root
@@ -10469,12 +10577,18 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace.paths.topologies / "temporary-crash" / "status.json"
         )
         raw_status = load_json(status_path)
-        without_port_evidence = copy.deepcopy(raw_status)
-        without_port_evidence.pop("port_reservation", None)
-        atomic_json(status_path, without_port_evidence)
-        missing_port = self.workspace.cleanup(
-            ["temporary-states"], 0, [], False
-        )
+        without_port_evidence = copy.deepcopy(recovered)
+        without_port_evidence["endpoint"] = None
+        without_port_evidence["services"] = {}
+        without_port_evidence["observation"]["port_reservation"] = None
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            return_value=without_port_evidence,
+        ):
+            missing_port = self.workspace.cleanup(
+                ["temporary-states"], 0, [], False
+            )
         missing_port_item = next(
             item for item in missing_port["items"] if item["path"] == str(state)
         )
@@ -10483,7 +10597,6 @@ class WorkspaceTests(unittest.TestCase):
             "port_reservation_lease_unverifiable",
             missing_port_item["reasons"],
         )
-        atomic_json(status_path, raw_status)
         state_lock = Path(f"{state}.lock")
         saved_state_lock = state_lock.with_suffix(".saved-lock")
         state_lock.rename(saved_state_lock)
@@ -11024,6 +11137,47 @@ class WorkspaceTests(unittest.TestCase):
         ):
             with self.workspace._topology_state_lock(second):
                 self.fail("physical aliases must not receive distinct leases")
+
+    def test_physical_state_alias_conflict_reports_live_owner(self) -> None:
+        first = self.root / "owner-alias"
+        second = self.root / "contender-alias"
+        first.mkdir()
+        second.mkdir()
+        shared_identity = {"device": 51, "inode": 83}
+        status = {
+            "name": "alias-owner",
+            "state": str(first),
+            "control": {"generation": "d" * 64},
+            "observation": {"process_tree_lease": "retained"},
+            "state_policy": {"identity": shared_identity},
+        }
+        with (
+            mock.patch.object(
+                self.workspace, "_state_identity", return_value=shared_identity
+            ),
+            self.workspace._topology_state_lock(first),
+            mock.patch.object(
+                self.workspace, "topology_statuses", return_value=[status]
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "owned by topology alias-owner generation"
+            ),
+        ):
+            with self.workspace._topology_state_lock(second):
+                self.fail("physical alias conflict must report its live owner")
+
+    def test_state_lease_rejects_identity_change_after_path_lock(self) -> None:
+        state = self.root / "state-before-lock"
+        state.mkdir()
+        original_identity = self.workspace._state_identity(state)
+        with self.workspace._topology_state_lock(state) as lease:
+            self.assertEqual(lease.physical_identity, original_identity)
+            state.rename(self.root / "state-after-lock")
+            state.mkdir()
+            with self.assertRaisesRegex(
+                WorkspaceError, "state identity changed"
+            ):
+                lease.bind(self.workspace._state_identity(state))
 
     def test_temporary_state_publication_interruption_leaves_no_partial_state(self) -> None:
         topology = self.workspace._topology_directory("interrupted", create=True)

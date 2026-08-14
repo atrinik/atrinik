@@ -735,9 +735,11 @@ termination, and exact lease release; the durable proof permits a later
 `down` invocation to finish an interrupted removal transaction.
 `down --retain-state` instead records a retained lifecycle. `state
 promote` requires that stopped retained identity, serializes
-topology/state/registry mutation, publishes a promotion-pending record, and
+topology/state/registry mutation, pins and revalidates the retained directory,
+publishes descriptor-relative provenance plus a promotion-pending record, and
 atomically adds the exact path under a previously unused persistent name before
-finalizing it as promoted. Creation metadata remains immutable and status owns
+finalizing it as promoted. A raced path replacement rolls registry publication
+back before returning an error. Creation metadata remains immutable and status owns
 the mutable lifecycle, so interruption after either durable promotion write is
 recoverable by retry. Independent immutable promotion provenance binds the
 registered name and path to the source topology generation, including while the
