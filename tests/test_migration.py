@@ -341,7 +341,7 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.assertTrue(source.is_dir())
         self.assertEqual(profile.read_bytes(), before)
 
-    def test_apply_archives_clean_source_and_rewrites_profile_to_schema_v4(self) -> None:
+    def test_apply_archives_clean_source_and_rewrites_profile_to_schema_v5(self) -> None:
         source = self.make_repository("client", "client")
         classic = self.make_classic({"client": source})
         head = command("git", "rev-parse", "HEAD", cwd=source).decode().strip()
@@ -370,8 +370,9 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.assertEqual(self.status_bytes(archive), b"")
         self.assertEqual(self.status_bytes(classic), b"")
         value = json.loads(profile.read_text(encoding="utf-8"))
-        self.assertEqual(value["schema_version"], 4)
+        self.assertEqual(value["schema_version"], 5)
         self.assertEqual(value["sound_mode"], "source")
+        self.assertIsNone(value["sound_release"])
         self.assertEqual(value["stack"], "classic")
         self.assertEqual(stat.S_IMODE(profile.stat().st_mode), 0o600)
         self.assertEqual(
@@ -498,8 +499,9 @@ class RepositoryMigrationTests(unittest.TestCase):
             rewritten,
             {
                 **value,
-                "schema_version": 4,
+                "schema_version": 5,
                 "sound_mode": "source",
+                "sound_release": None,
             },
         )
 
@@ -511,10 +513,11 @@ class RepositoryMigrationTests(unittest.TestCase):
             for name in migration._classic_profile_component_names()
         }
         current = {
-            "schema_version": 4,
+            "schema_version": 5,
             "name": "classic",
             "stack": "classic",
             "sound_mode": "source",
+            "sound_release": None,
             "components": components,
         }
         current_mutations = {
@@ -562,15 +565,42 @@ class RepositoryMigrationTests(unittest.TestCase):
     def test_replacement_profile_cannot_enable_local_playtest_sound(self) -> None:
         profile = self.paths.profiles / "replacement.json"
         value = {
-            "schema_version": 4,
+            "schema_version": 5,
             "name": "replacement",
             "stack": "default",
             "sound_mode": "local-playtest",
+            "sound_release": None,
             "components": {},
         }
 
         with self.assertRaisesRegex(WorkspaceError, "Classic-derived"):
             self.migration()._rewrite_profile(profile, value, {}, None)
+
+    def test_schema_v4_replacement_profiles_are_validated_and_left_inert(self) -> None:
+        profile = self.paths.profiles / "replacement.json"
+        value = {
+            "schema_version": 4,
+            "name": "replacement",
+            "stack": "default",
+            "sound_mode": "source",
+            "components": {},
+        }
+        rewritten, composite = self.migration()._rewrite_profile(
+            profile, value, {}, None
+        )
+        self.assertIsNone(rewritten)
+        self.assertIsNone(composite)
+        for malformed in (
+            {**value, "name": "other"},
+            {**value, "sound_mode": "local-playtest"},
+            {**value, "unexpected": True},
+            {**value, "components": []},
+        ):
+            with self.subTest(malformed=malformed):
+                with self.assertRaisesRegex(
+                    WorkspaceError, "schema-v4 replacement profile"
+                ):
+                    self.migration()._rewrite_profile(profile, malformed, {}, None)
 
     def test_audit_accepts_manifest_owned_replacement_at_reused_source_path(
         self,

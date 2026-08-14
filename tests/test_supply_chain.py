@@ -1055,6 +1055,49 @@ class InventoryTests(unittest.TestCase):
         self.assertIn("| Dependency | Version |", inventory.report("licenses"))
         self.assertIn("| Component | Repository | Branch |", inventory.report("licenses"))
 
+    def test_reports_bind_profile_selected_sound_release_coordinates(self) -> None:
+        release = {
+            "archive_sha256": "a" * 64,
+            "asset_url": (
+                "https://github.com/atrinik/sound/releases/download/v1.2.3/"
+                "atrinik-sound-classic-runtime-1.2.3.tar.gz"
+            ),
+            "manifest_schema_version": 1,
+            "output_tree_sha256": "b" * 64,
+            "product": "atrinik-sound-classic-runtime",
+            "product_version": "1.2.3",
+            "release_manifest_sha256": "c" * 64,
+            "repository": "atrinik/sound",
+            "schema_sha256": "d" * 64,
+            "source_commit": "e" * 40,
+            "source_manifest_sha256": "f" * 64,
+            "source_tree": "1" * 40,
+            "tag": "v1.2.3",
+            "toolchain_sha256": "2" * 64,
+        }
+        inventory = self.load_inventory()
+        cyclonedx = json.loads(inventory.report("cyclonedx", sound_release=release))
+        component = next(
+            item for item in cyclonedx["components"]
+            if item["name"] == "atrinik-sound-classic-runtime"
+            and item["version"] == "1.2.3"
+        )
+        self.assertEqual(component["hashes"][0]["content"], "a" * 64)
+        properties = {item["name"]: item["value"] for item in component["properties"]}
+        self.assertEqual(properties["atrinik:sound:source_commit"], "e" * 40)
+        self.assertEqual(properties["atrinik:sound:output_tree_sha256"], "b" * 64)
+
+        spdx = json.loads(inventory.report("spdx", sound_release=release))
+        package = next(
+            item for item in spdx["packages"]
+            if item["name"] == "atrinik-sound-classic-runtime"
+            and item["versionInfo"] == "1.2.3"
+        )
+        self.assertEqual(package["checksums"][0]["checksumValue"], "a" * 64)
+        licenses = inventory.report("licenses", sound_release=release)
+        self.assertIn("## Profile-selected released sound runtime", licenses)
+        self.assertIn("e" * 40, licenses)
+
     def test_reports_resolve_one_content_commit_for_both_stacks(self) -> None:
         inventory = self.load_inventory()
         default_commit = "a" * 40

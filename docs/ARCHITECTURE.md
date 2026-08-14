@@ -550,6 +550,9 @@ selected Classic + content + resources ---> offline worldmaker -> region-map cac
 clean selected sound + local-playtest mode -> sound-owned builder/verifier
                                              -> nonpublishing compatibility tree
                                              -> client source view + topology
+immutable sound release + released mode -> bounded download/safe extraction
+                                          -> wrapper verification/cache
+                                          -> client source view + topology
 selected Worker -> keyed npm ci cache -> isolated reconciled view -> npm run check
 ~~~
 
@@ -590,7 +593,7 @@ only tracked regular files below those paths enter the runtime view. This keeps
 repository metadata, local untracked files, and symlinks out of the asset
 protocol.
 
-Sound composition has two explicit profile states. `source` preserves the
+Sound composition has three explicit profile states. `source` preserves the
 historical raw-checkout link. `local-playtest` is accepted only on a saved
 Classic-derived profile and never changes the built-in profile or a replacement
 stack. It invokes the public builder and full-decoder verifier in the clean,
@@ -611,6 +614,26 @@ and topology metadata carry this evidence, and the same verified directory is
 linked into both the client source view and supervised client working tree.
 There is no archive, upload, installer, container-layer, release, or raw-source
 fallback path for this mode.
+
+`released` is likewise limited to a saved Classic-derived profile but is
+independent of the selected sound checkout's working tree. Profile schema 5
+binds repository, tag, product/version, source commit/tree, exact versioned
+GitHub asset URL, outer archive checksum, manifest/source-manifest/schema/
+toolchain hashes, and logical-tree digest. These values participate directly in
+the profile build key. The coordinate-keyed profile build owns the bounded
+download and extracted cache, so ordinary build retention and preview-first
+cleanup cover both without introducing another mutable global cache.
+
+Extraction accepts regular files beneath one exact product/version prefix and
+rejects traversal, absolute, duplicate, case-colliding, linked, special,
+oversized, multi-prefix, source, and playtest archives. Independent verification
+then requires the canonical publishable manifest and marker, internal checksum
+closure, packaged schema, hashed notice set, 339 safe unique legacy paths, 189
+byte-preserved Vorbis payloads, 150 Opus payloads, content-based codec
+signatures, and the complete tree digest. The same verified root enters the
+Classic client source view and supervised client topology. Build and topology
+records persist the coordinates and verifier evidence; old or mismatched
+records remain inert and no released-mode failure can select either other mode.
 
 Each CMake binary tree stores an atomic configure fingerprint covering the
 source-view identity, Ninja generator, CMake and compiler identities, toolchain
