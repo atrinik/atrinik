@@ -395,6 +395,34 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 process.kill()
                 process.wait(timeout=2)
 
+    def test_terminate_rejects_abnormal_service_exit_as_clean(self) -> None:
+        process = subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                "import signal, sys, time; "
+                "signal.signal(signal.SIGTERM, lambda *_args: sys.exit(23)); "
+                "print('ready', flush=True); time.sleep(60)",
+            ],
+            start_new_session=True,
+            stdout=subprocess.PIPE,
+        )
+        try:
+            assert process.stdout is not None
+            self.assertEqual(process.stdout.readline(), b"ready\n")
+            self.assertFalse(
+                supervisor_module.terminate(
+                    {"server": process}, None, timeout=2
+                )
+            )
+            self.assertEqual(process.returncode, 23)
+        finally:
+            if process.stdout is not None:
+                process.stdout.close()
+            if process.poll() is None:
+                process.kill()
+                process.wait(timeout=2)
+
     def test_requires_fingerprint_and_finished_server_startup(self) -> None:
         capture = ServerReadinessCapture()
 

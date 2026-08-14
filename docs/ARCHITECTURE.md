@@ -672,7 +672,9 @@ topology retention and are replaced on the next launch of that topology name.
 The coordinator takes an advisory exclusive lock next to the state directory
 before build/runtime preparation and holds it for the lifetime of a launched
 server. Profile builds have their own blocking lock, and server launch views are
-keyed by state path. Processes started outside the coordinator do not
+keyed by state path and, for existing persistent directories, by physical
+device/inode identity so alternate mounted names cannot obtain distinct
+leases. Processes started outside the coordinator do not
 participate in the state lock, so operators must not point those processes at
 the same state concurrently. Startup also opens the selected state directory
 without following links, verifies its recorded device/inode identity, and hands
@@ -725,13 +727,18 @@ gracefully stop children before releasing state. After a confirmed clean
 after every process/state lease is released, records a removal-pending
 lifecycle, then removes only a disposable state and finalizes it as removed.
 An interrupted removal is safe to retry without requiring another live
-generation. `down --retain-state` instead records a retained lifecycle. `state
+generation. Clean proof includes expected service exit status, absence of forced
+termination, and exact lease release; the durable proof permits a later
+`down` invocation to finish an interrupted removal transaction.
+`down --retain-state` instead records a retained lifecycle. `state
 promote` requires that stopped retained identity, serializes
 topology/state/registry mutation, publishes a promotion-pending record, and
 atomically adds the exact path under a previously unused persistent name before
 finalizing it as promoted. Creation metadata remains immutable and status owns
 the mutable lifecycle, so interruption after either durable promotion write is
-recoverable by retry. It never overwrites a name or directory. A crash,
+recoverable by retry. Its persistent policy continues to identify the source
+topology generation rather than collapsing to generic external ownership. It
+never overwrites a name or directory. A crash,
 unreachable control endpoint, failed post-spawn startup, malformed identity,
 linked path, uncertain lock, or incomplete promotion remains on disk for
 diagnosis. Foreground and scenario state keep their separate lifecycles. For a

@@ -557,6 +557,15 @@ def synthetic_server_start_process(
             # kernel availability check.
             reserved_port.close()
 
+            def prepared_state_path(
+                *_args: object, **kwargs: object
+            ) -> Path | tuple[Path, int]:
+                if kwargs.get("keep_descriptor"):
+                    return state, os.open(
+                        state, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW
+                    )
+                return state
+
             with (
                 mock.patch.object(
                     locking_module.fcntl, "flock", side_effect=observe_flock
@@ -565,7 +574,9 @@ def synthetic_server_start_process(
                 mock.patch.object(
                     workspace, "_state_location", return_value=state
                 ),
-                mock.patch.object(workspace, "state_path", return_value=state),
+                mock.patch.object(
+                    workspace, "state_path", side_effect=prepared_state_path
+                ),
                 mock.patch.object(
                     workspace, "_build_resolved", return_value=root
                 ),
@@ -9807,8 +9818,11 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("'--port_mapping=off'", server_log.read_text())
         self.assertIn("'--stun_server=off'", server_log.read_text())
         self.assertRegex(server_log.read_text(), r"'--datapath=/proc/self/fd/\d+'")
-        self.assertIn(
-            f"'--assetspath={mutable_asset_output}'", server_log.read_text()
+        self.assertRegex(
+            server_log.read_text(),
+            r"'--assetspath=/proc/self/fd/\d+/tmp/runtime-assets/"
+            + status["control"]["generation"]
+            + r"'",
         )
         self.assertIn(
             f"'--server=127.0.0.1 17300 {'a' * 64}'", client_log.read_text()
@@ -10161,6 +10175,31 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.workspace.topology_down("temporary-clean", timeout=5)
 
+        external_state = self.root / "external-supervised-state"
+        shutil.copytree(source / "install_data", external_state)
+        (external_state / "external-sentinel").write_text(
+            "preserve\n", encoding="utf-8"
+        )
+        self.workspace.state_add("external-supervised", external_state)
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            external_status = self.workspace.topology_up(
+                "external-supervised", "default", "external-supervised", ["server"], 0
+            )
+        self.assertEqual(
+            external_status["state_policy"]["owner"], {"kind": "external"}
+        )
+        self.assertEqual(
+            external_status["state_policy"]["lifecycle"],
+            "persistent-external",
+        )
+        self.workspace.topology_down("external-supervised", timeout=5)
+        self.assertEqual(
+            (external_state / "external-sentinel").read_text(encoding="utf-8"),
+            "preserve\n",
+        )
+
         (rendezvous / "temporary.bound").unlink()
         with mock.patch.object(
             self.workspace, "_build_resolved", return_value=build_root
@@ -10174,6 +10213,10 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(stopped["state_policy"]["lifecycle"], "retained")
         self.assertTrue(retained_path.is_dir())
+        with self.assertRaisesRegex(
+            WorkspaceError, "only be registered through state promote"
+        ):
+            self.workspace.state_add("unsafe-temporary-alias", retained_path)
         retained_status_path = (
             self.workspace.paths.topologies / "temporary-retained" / "status.json"
         )
@@ -10254,6 +10297,21 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(
             self.workspace._state_location(str(promoted["name"])), retained_path
+        )
+        promoted_summary = self.workspace.topology_summary(
+            "default", str(promoted["name"]), ["server"]
+        )
+        self.assertEqual(
+            promoted_summary["state_policy"]["owner"],
+            {
+                "kind": "promoted-topology-state",
+                "topology": "temporary-retained",
+                "generation": retained["control"]["generation"],
+            },
+        )
+        self.assertEqual(
+            promoted_summary["state_policy"]["lifecycle"],
+            "persistent-promoted",
         )
         self.assertEqual(
             self.workspace.state_promote(
@@ -10359,6 +10417,25 @@ class WorkspaceTests(unittest.TestCase):
         recovered = self.workspace.topology_down("temporary-crash", timeout=5)
         self.assertEqual(recovered["state_policy"]["lifecycle"], "disposable")
         self.assertTrue(state.is_dir())
+        status_path = (
+            self.workspace.paths.topologies / "temporary-crash" / "status.json"
+        )
+        raw_status = load_json(status_path)
+        without_port_evidence = copy.deepcopy(raw_status)
+        without_port_evidence.pop("port_reservation", None)
+        atomic_json(status_path, without_port_evidence)
+        missing_port = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        missing_port_item = next(
+            item for item in missing_port["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(missing_port_item["disposition"], "protected")
+        self.assertIn(
+            "port_reservation_lease_unverifiable",
+            missing_port_item["reasons"],
+        )
+        atomic_json(status_path, raw_status)
         state_lock = Path(f"{state}.lock")
         saved_state_lock = state_lock.with_suffix(".saved-lock")
         state_lock.rename(saved_state_lock)
@@ -10422,6 +10499,50 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(cleaned["state_policy"]["lifecycle"], "removed")
         self.assertFalse(Path(f"{state}.lock").exists())
 
+    def test_failed_post_spawn_temporary_startup_retains_diagnostic_state(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "failed-startup-rendezvous"
+        rendezvous.mkdir()
+        build_root = self.workspace.paths.builds / "failed-startup-server"
+        self.make_rendezvous_server_build(
+            build_root, rendezvous, "unused.bound", peers=1
+        )
+        executable = build_root / "build" / "server" / "atrinik-server"
+        executable.write_text(
+            "#!/usr/bin/env python3\n"
+            "import pathlib, sys\n"
+            "datapath = pathlib.Path(next(value.split('=', 1)[1] for value in "
+            "sys.argv if value.startswith('--datapath=')))\n"
+            "(datapath / 'failed-startup-proof').write_text('retained\\n', "
+            "encoding='utf-8')\n"
+            "raise SystemExit(23)\n",
+            encoding="utf-8",
+        )
+        executable.chmod(0o755)
+        with (
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            self.assertRaisesRegex(WorkspaceError, "topology supervisor failed"),
+        ):
+            self.workspace.topology_up(
+                "temporary-failed-startup", "default", None, ["server"], 0
+            )
+        failed = self.workspace.topology_status("temporary-failed-startup")
+        failed_state = Path(failed["state_policy"]["path"])
+        self.assertEqual(failed["state_policy"]["lifecycle"], "disposable")
+        self.assertTrue(failed_state.is_dir())
+        self.assertEqual(
+            (failed_state / "failed-startup-proof").read_text(encoding="utf-8"),
+            "retained\n",
+        )
+        self.assertNotIn(
+            str(failed_state), self.workspace._load_states().values()
+        )
+
     def test_stop_acknowledgement_without_clean_shutdown_proof_retains_state(
         self,
     ) -> None:
@@ -10453,6 +10574,33 @@ class WorkspaceTests(unittest.TestCase):
             )
         self.assertIs(observed, stopped)
         self.assertFalse(confirmed_clean)
+
+    def test_persisted_clean_shutdown_proof_allows_down_retry(self) -> None:
+        control = {"generation": "a" * 64}
+        stopped = {
+            "control": control,
+            "shutdown": {"control_requested": True, "clean": True},
+            "error": None,
+            "supervisor": {"running": False},
+            "services": {"server": {"running": False}},
+        }
+        self.workspace._topology_directory("clean-down-retry", create=True)
+        with (
+            mock.patch.object(
+                self.workspace, "_topology_control_request", return_value=False
+            ),
+            mock.patch.object(
+                self.workspace, "_topology_process_tree_active", return_value=False
+            ),
+            mock.patch.object(
+                self.workspace, "topology_status", return_value=stopped
+            ),
+        ):
+            observed, confirmed_clean = self.workspace._controlled_topology_down(
+                "clean-down-retry", {"control": control}, 1
+            )
+        self.assertIs(observed, stopped)
+        self.assertTrue(confirmed_clean)
 
     def test_topology_port_selection_rejects_unavailable_port(self) -> None:
         candidate = mock.MagicMock()
@@ -10813,6 +10961,22 @@ class WorkspaceTests(unittest.TestCase):
                 with self.workspace._topology_state_lock(state):
                     self.fail("replacement lock must not grant state ownership")
 
+    def test_physical_state_aliases_share_one_exclusive_lease(self) -> None:
+        first = self.root / "state-alias-first"
+        second = self.root / "state-alias-second"
+        first.mkdir()
+        second.mkdir()
+        shared_identity = {"device": 41, "inode": 73}
+        with (
+            mock.patch.object(
+                self.workspace, "_state_identity", return_value=shared_identity
+            ),
+            self.workspace._topology_state_lock(first),
+            self.assertRaisesRegex(WorkspaceError, "exact owner cannot be confirmed"),
+        ):
+            with self.workspace._topology_state_lock(second):
+                self.fail("physical aliases must not receive distinct leases")
+
     def test_temporary_state_publication_interruption_leaves_no_partial_state(self) -> None:
         topology = self.workspace._topology_directory("interrupted", create=True)
         generation = "a" * 64
@@ -10838,6 +11002,48 @@ class WorkspaceTests(unittest.TestCase):
         container = topology / "temporary-states"
         self.assertEqual(
             {path.name for path in container.iterdir()}, {MANAGED_MARKER}
+        )
+
+    def test_temporary_state_rejects_install_data_mutation_during_copy(self) -> None:
+        topology = self.workspace._topology_directory("copy-race", create=True)
+        server = self.workspace.paths.repositories / "server"
+        original_tree_digest = workspace_module._tree_digest
+        digest_calls = 0
+
+        def digest_then_mutate(*args: object, **kwargs: object) -> str:
+            nonlocal digest_calls
+            digest_calls += 1
+            digest = original_tree_digest(*args, **kwargs)
+            if digest_calls == 2:
+                (server / "install_data" / "motd").write_text(
+                    "changed\n", encoding="utf-8"
+                )
+            return digest
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._tree_digest",
+                side_effect=digest_then_mutate,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "install_data changed during temporary state"
+            ),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "copy-race",
+                "b" * 64,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            {path.name for path in (topology / "temporary-states").iterdir()},
+            {MANAGED_MARKER},
         )
 
     def test_scenario_lifecycle_owns_isolated_state_and_credentials(self) -> None:
@@ -11620,7 +11826,7 @@ class WorkspaceTests(unittest.TestCase):
             }
 
         def execute_server(*_arguments: object, **_keywords: object) -> None:
-            self.assertEqual(len(_keywords["pass_fds"]), 2)
+            self.assertEqual(len(_keywords["pass_fds"]), 3)
             for path, description in (
                 (
                     resource_lock_path(
@@ -11669,7 +11875,13 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace, "_build_resolved", return_value=build_root
             ),
             mock.patch.object(
-                self.workspace, "_topology_resolved_status", return_value={}
+                self.workspace,
+                "_topology_resolved_status",
+                return_value={
+                    "server": {
+                        "repository": "https://github.com/atrinik/server.git"
+                    }
+                },
             ),
             mock.patch.object(
                 self.workspace,
@@ -11696,6 +11908,12 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(result.name, "atrinik-server")
         self.assertFalse(result.exists())
+        implementation = load_json(
+            self.workspace._state_location("default")
+            / workspace_module.STATE_IMPLEMENTATION_MARKER
+        )
+        self.assertEqual(implementation["stack"], "default")
+        self.assertEqual(implementation["provider"], "server")
         rendered = "\n".join(str(call.args[0]) for call in output.call_args_list)
         self.assertIn("--port_quic=1731", rendered)
         self.assertIn("--port_mapping=off", rendered)
@@ -11703,10 +11921,9 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("--no_console", rendered)
         self.assertLess(
             rendered.index("--assetspath=/tmp/untrusted"),
-            rendered.index(
-                f"--assetspath={self.root / 'foreground-server-state-output'}"
-            ),
+            rendered.index("--assetspath=/proc/self/fd/"),
         )
+        self.assertIn("--datapath=/proc/self/fd/", rendered)
 
     def test_foreground_launch_rejects_invalid_port(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "between 1 and 65535"):

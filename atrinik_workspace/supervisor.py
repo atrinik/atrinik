@@ -186,6 +186,8 @@ def terminate(
             process.wait(timeout=2)
         except subprocess.TimeoutExpired:
             clean = False
+        if process.returncode not in {0, -signal.SIGTERM}:
+            clean = False
     return clean
 
 

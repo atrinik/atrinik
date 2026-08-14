@@ -33,7 +33,9 @@ HTTP(S) origin; never restore a bundled HTTP listener.
 `--state NAME` selects a registered persistent state; `--default-state`
 explicitly selects the legacy managed default. The three selectors are
 mutually exclusive. A confirmed clean `down` removes temporary state only
-after exact process/state lease release. Use `down NAME --retain-state` and
+after expected service exit and exact process/state lease release; persisted
+clean proof makes interrupted finalization retryable. Use `down NAME
+--retain-state` and
 `state promote NAME SAVED_NAME` to preserve it without overwrite. Crash,
 unreachable, malformed, linked, busy, or uncertain state remains for diagnosis;
 inventory it with `cleanup --scope temporary-states --dry-run --json` and never

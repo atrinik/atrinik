@@ -960,7 +960,9 @@ backward compatible with `--state default`. `topology show`, `up`, and
 and followed service logs begin with the same policy context so captured output
 retains the state ownership boundary.
 Temporary state is never entered in `state list`; a confirmed clean `down`
-removes it after its process and state leases are released. A crash,
+removes it after its process and state leases are released. Clean proof
+requires expected service exit status as well as released leases and remains
+durable so an interrupted `down` can safely retry finalization. A crash,
 unreachable supervisor, malformed record, or uncertain lease retains it for
 diagnosis.
 
@@ -972,8 +974,9 @@ an existing name:
 ./atrinik state promote TOPOLOGY SAVED_NAME --json
 ~~~
 
-Promotion registers the exact stopped directory in place. Retained and
-promoted states are protected, and a topology name with unfinished temporary
+Promotion registers the exact stopped directory in place and persistent policy
+surfaces retain its topology-generation provenance. Retained and promoted
+states are protected, and a topology name with unfinished temporary
 state cannot be restarted until that state is promoted or explicitly reclaimed.
 Abandoned disposable states participate only in
 the explicit preview-first cleanup scope:

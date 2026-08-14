@@ -7518,6 +7518,12 @@ class Workspace:
             raise WorkspaceError(f"state path is not a directory: {resolved}")
         if resolved.exists():
             self._validate_state(resolved)
+            temporary_marker = resolved / TEMPORARY_STATE_METADATA
+            if temporary_marker.is_file() and not temporary_marker.is_symlink():
+                raise WorkspaceError(
+                    "temporary topology state can only be registered through "
+                    "state promote"
+                )
         self._register_state(name, resolved)
         print(resolved)
         return resolved
@@ -8440,6 +8446,9 @@ class Workspace:
         ):
             owner = {"kind": "scenario", "name": state_name.removeprefix("scenario-")}
             lifecycle = "scenario-owned"
+        elif (promoted := self._promoted_state_owner(state_name, path)) is not None:
+            owner = promoted
+            lifecycle = "persistent-promoted"
         elif path.is_relative_to(self.paths.state.resolve(strict=False)):
             owner = {"kind": "workspace"}
             lifecycle = "persistent"
@@ -8447,6 +8456,39 @@ class Workspace:
             owner = {"kind": "external"}
             lifecycle = "persistent-external"
         return owner, lifecycle
+
+    def _promoted_state_owner(
+        self, state_name: str, path: Path
+    ) -> dict[str, str] | None:
+        if self.paths.topologies.is_symlink() or not self.paths.topologies.is_dir():
+            return None
+        for topology in sorted(self.paths.topologies.iterdir()):
+            status_path = topology / "status.json"
+            if status_path.is_symlink() or not status_path.is_file():
+                continue
+            try:
+                status = load_regular_json(status_path, "promoted state status")
+            except WorkspaceError:
+                continue
+            policy = status.get("state_policy") if isinstance(status, dict) else None
+            owner = policy.get("owner") if isinstance(policy, dict) else None
+            if (
+                isinstance(policy, dict)
+                and policy.get("mode") == "temporary"
+                and policy.get("lifecycle") == "promoted"
+                and policy.get("name") == state_name
+                and policy.get("path") == str(path)
+                and isinstance(owner, dict)
+                and owner.get("kind") == "topology-generation"
+                and owner.get("topology") == topology.name
+                and isinstance(owner.get("generation"), str)
+            ):
+                return {
+                    "kind": "promoted-topology-state",
+                    "topology": topology.name,
+                    "generation": owner["generation"],
+                }
+        return None
 
     def _temporary_state_container(self, topology_root: Path) -> Path:
         container = topology_root / "temporary-states"
@@ -8473,14 +8515,33 @@ class Workspace:
 
     @contextmanager
     def _topology_state_lock(
-        self, path: Path, *, preparing_topology: str | None = None
+        self,
+        path: Path,
+        *,
+        preparing_topology: str | None = None,
+        physical_identity: bool = True,
     ) -> Iterator[TextIO]:
         try:
-            with exclusive_lock(
-                Path(f"{path}.lock"),
-                f"server state {path}",
-                nonblocking=True,
-            ) as lock:
+            with ExitStack() as leases:
+                if physical_identity and path.exists() and not path.is_symlink():
+                    identity = self._state_identity(path)
+                    identity_root = self._lease_namespace / "state-identities"
+                    identity_root.mkdir(exist_ok=True)
+                    leases.enter_context(
+                        exclusive_lock(
+                            identity_root
+                            / f"{identity['device']}-{identity['inode']}.lock",
+                            f"physical server state {path}",
+                            nonblocking=True,
+                        )
+                    )
+                lock = leases.enter_context(
+                    exclusive_lock(
+                        Path(f"{path}.lock"),
+                        f"server state {path}",
+                        nonblocking=True,
+                    )
+                )
                 for topology in sorted(self.paths.topologies.iterdir()):
                     if topology.name == preparing_topology:
                         continue
@@ -8578,10 +8639,21 @@ class Workspace:
             tempfile.mkdtemp(prefix=f".{generation}.", dir=container)
         )
         created_at = datetime.now(timezone.utc).isoformat()
+        install_data = server_source / "install_data"
+        source_digest = _tree_digest(install_data, set(), reject_symlinks=True)
         try:
             shutil.copytree(
-                server_source / "install_data", staging, dirs_exist_ok=True
+                install_data, staging, dirs_exist_ok=True
             )
+            if (
+                _tree_digest(staging, set(), reject_symlinks=True) != source_digest
+                or _tree_digest(install_data, set(), reject_symlinks=True)
+                != source_digest
+            ):
+                raise WorkspaceError(
+                    "selected server install_data changed during temporary state "
+                    "initialization"
+                )
             (staging / "tmp").mkdir()
             durable_atomic_json(
                 staging / STATE_IMPLEMENTATION_MARKER,
@@ -9376,7 +9448,9 @@ class Workspace:
         return sorted(entries, key=lambda entry: entry["path"])
 
     @staticmethod
-    def _prepare_runtime_state_output(state: Path, generation: str) -> Path:
+    def _prepare_runtime_state_output(
+        state: Path, generation: str, state_directory_fd: int | None = None
+    ) -> Path:
         flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
         descriptors: list[int] = []
         created_generation = False
@@ -9406,11 +9480,19 @@ class Workspace:
             return descriptor
 
         try:
-            state_before = state.stat(follow_symlinks=False)
-            state_fd = os.open(state, flags)
+            state_fd = (
+                os.dup(state_directory_fd)
+                if state_directory_fd is not None
+                else os.open(state, flags)
+            )
             descriptors.append(state_fd)
-            if Workspace._runtime_tree_identity(os.fstat(state_fd)) != (
-                Workspace._runtime_tree_identity(state_before)
+            state_metadata = os.fstat(state_fd)
+            if not stat.S_ISDIR(state_metadata.st_mode):
+                raise WorkspaceError(f"server state is invalid: {state}")
+            if state_directory_fd is None and Workspace._runtime_tree_identity(
+                state_metadata
+            ) != Workspace._runtime_tree_identity(
+                state.stat(follow_symlinks=False)
             ):
                 raise WorkspaceError(
                     f"server state changed before runtime publication: {state}"
@@ -9583,6 +9665,7 @@ class Workspace:
         *,
         identity: dict[str, Any],
         state: Path | None = None,
+        state_directory_fd: int | None = None,
         sound_root: Path | None = None,
     ) -> tuple[Path, int, dict[str, Any]]:
         generations = owner_root / "generations"
@@ -9599,6 +9682,7 @@ class Workspace:
         )
         lease_fd: int | None = None
         state_output: Path | None = None
+        state_output_access: Path | None = None
         try:
             input_digests = self._runtime_publication_input_digests(
                 build_root, selected, services, sound_root
@@ -9662,18 +9746,26 @@ class Workspace:
                     state, target_is_directory=True
                 )
                 state_output = self._prepare_runtime_state_output(
-                    state, generation
+                    state, generation, state_directory_fd
                 )
-                (state_output / "data").mkdir()
+                state_output_access = (
+                    Path(f"/proc/self/fd/{state_directory_fd}")
+                    / "tmp"
+                    / "runtime-assets"
+                    / generation
+                    if state_directory_fd is not None
+                    else state_output
+                )
+                (state_output_access / "data").mkdir()
                 client_maps = build_root / "runtime" / "client-maps"
                 self._validate_region_maps(client_maps)
                 self._copy_runtime_tree(
-                    client_maps, state_output / "client-maps"
+                    client_maps, state_output_access / "client-maps"
                 )
                 state_output_entries = self._runtime_generation_entries(
-                    state_output / "client-maps", None
+                    state_output_access / "client-maps", None
                 )
-                self._seal_runtime_generation(state_output / "client-maps")
+                self._seal_runtime_generation(state_output_access / "client-maps")
             else:
                 state_output_entries = []
 
@@ -11263,7 +11355,9 @@ class Workspace:
                         )
                         state_lock = stack.enter_context(
                             self._topology_state_lock(
-                                state_location, preparing_topology=name
+                                state_location,
+                                preparing_topology=name,
+                                physical_identity=False,
                             )
                         )
                     else:
@@ -11380,6 +11474,7 @@ class Workspace:
                             "providers": providers,
                         },
                         state=state,
+                        state_directory_fd=state_directory_fd,
                         sound_root=sound_root,
                     )
                 )
@@ -11421,7 +11516,12 @@ class Workspace:
                                 else []
                             ),
                             "--assetspath="
-                            f"{runtime_record['mutable_state_outputs'][0]}",
+                            + (
+                                f"/proc/self/fd/{state_directory_fd}/tmp/"
+                                f"runtime-assets/{generation}"
+                                if state_directory_fd is not None
+                                else runtime_record["mutable_state_outputs"][0]
+                            ),
                             "--no_console",
                         ],
                         "cwd": str(server_runtime),
@@ -11448,6 +11548,22 @@ class Workspace:
                             "ATRINIK_CONFIG_DIR": str(client_config.resolve())
                         },
                     }
+                if state is not None and state_directory_fd is not None:
+                    pinned = os.fstat(state_directory_fd)
+                    try:
+                        visible = state.stat(follow_symlinks=False)
+                        canonical = self._canonical_state_path(state)
+                    except OSError as error:
+                        raise WorkspaceError(
+                            f"server state changed before topology launch: {state}"
+                        ) from error
+                    if canonical != state or (pinned.st_dev, pinned.st_ino) != (
+                        visible.st_dev,
+                        visible.st_ino,
+                    ):
+                        raise WorkspaceError(
+                            f"server state changed before topology launch: {state}"
+                        )
                 # All fallible preparation is complete. Retire the stopped
                 # record and bind/publish the new generation without exposing
                 # old status against rewritten lease contents.
@@ -11719,8 +11835,7 @@ class Workspace:
             ):
                 shutdown = current.get("shutdown")
                 confirmed_clean = bool(
-                    requested
-                    and isinstance(shutdown, dict)
+                    isinstance(shutdown, dict)
                     and shutdown.get("control_requested") is True
                     and shutdown.get("clean") is True
                     and current.get("error") is None
@@ -12338,6 +12453,7 @@ class Workspace:
             return prepared
         runtime_fd = prepared["runtime_fd"]
         state_fd = prepared["state_fd"]
+        state_lock_fd = prepared["state_lock_fd"]
         generation_root = prepared["generation_root"]
         state_output = prepared["state_output"]
         try:
@@ -12346,10 +12462,11 @@ class Workspace:
                     prepared["command"],
                     cwd=prepared["cwd"],
                     diagnostics_to_stderr=False,
-                    pass_fds=(runtime_fd, state_fd),
+                    pass_fds=(runtime_fd, state_fd, state_lock_fd),
                 )
             return prepared["executable"]
         finally:
+            os.close(state_lock_fd)
             os.close(state_fd)
             os.close(runtime_fd)
             remove_owned_tree(generation_root)
@@ -12373,42 +12490,55 @@ class Workspace:
         targets = self._expand_build_target("server", profile_name)
         selected = self._resolve_build_profile(profile_name, {"server"})
         state_location = self._state_location(state_name)
-        lock_path = Path(f"{state_location}.lock")
-        with exclusive_lock(
-            lock_path, f"server state {state_location}", nonblocking=True
-        ) as state_lock:
+        with self._topology_state_lock(state_location) as state_lock:
             root = self._build_resolved(
                 "server", profile_name, False, targets, selected
             )
             with self._profile_build_lock(root, profile_name):
-                state = self.state_path(
-                    state_name, selected["server"], resolved_path=state_location
-                )
                 resolved = self._topology_resolved_status(profile_name, selected)
                 profile = self._load_profile(profile_name, require_file=False)
                 selected_stack = self.manifest.stack(profile["stack"])
-                generation = secrets.token_hex(32)
-                generation_root, runtime_fd, _runtime_record = (
-                    self._publish_runtime_generation(
-                        self._foreground_runtime_owner(),
-                        generation,
-                        profile_name,
-                        root,
-                        selected,
-                        resolved,
-                        ["server"],
-                        identity={
-                            "kind": "foreground-server",
-                            "stack": selected_stack.name,
-                            "providers": {
-                                role: selected_stack.providers[role].name
-                                for role in sorted(selected)
-                            },
-                        },
-                        state=state,
-                    )
+                providers = {
+                    role: selected_stack.providers[role].name
+                    for role in sorted(selected)
+                }
+                implementation = self._state_implementation(
+                    selected_stack.name, providers, resolved
                 )
-                state_fd = os.dup(state_lock.fileno())
+                prepared_state = self.state_path(
+                    state_name,
+                    selected["server"],
+                    resolved_path=state_location,
+                    implementation=implementation,
+                    write_implementation=True,
+                    keep_descriptor=True,
+                )
+                assert isinstance(prepared_state, tuple)
+                state, state_fd = prepared_state
+                generation = secrets.token_hex(32)
+                try:
+                    generation_root, runtime_fd, _runtime_record = (
+                        self._publish_runtime_generation(
+                            self._foreground_runtime_owner(),
+                            generation,
+                            profile_name,
+                            root,
+                            selected,
+                            resolved,
+                            ["server"],
+                            identity={
+                                "kind": "foreground-server",
+                                "stack": selected_stack.name,
+                                "providers": providers,
+                            },
+                            state=state,
+                            state_directory_fd=state_fd,
+                        )
+                    )
+                except BaseException:
+                    os.close(state_fd)
+                    raise
+                state_lock_fd = os.dup(state_lock.fileno())
                 runtime = generation_root / "server"
                 executable = runtime / "atrinik-server"
                 command = [
@@ -12417,8 +12547,9 @@ class Workspace:
                     "--port_mapping=off",
                     "--stun_server=off",
                     *arguments,
+                    f"--datapath=/proc/self/fd/{state_fd}",
                     "--assetspath="
-                    f"{_runtime_record['mutable_state_outputs'][0]}",
+                    f"/proc/self/fd/{state_fd}/tmp/runtime-assets/{generation}",
                 ]
                 print(f"state: {state}")
                 print(f"cwd: {runtime}")
@@ -12431,6 +12562,7 @@ class Workspace:
                     "generation_root": generation_root,
                     "runtime_fd": runtime_fd,
                     "state_fd": state_fd,
+                    "state_lock_fd": state_lock_fd,
                     "state_output": (
                         Path(_runtime_record["mutable_state_outputs"][0])
                         if _runtime_record["mutable_state_outputs"]

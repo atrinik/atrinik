@@ -3760,14 +3760,20 @@ class Cleanup:
                                 item["reasons"].append(
                                     "runtime_bundle_lease_unverifiable"
                                 )
-                            port = observation.get("port_reservation")
-                            if port is not None and (
-                                not isinstance(port, dict)
-                                or port.get("lease") != "released"
-                            ):
-                                item["reasons"].append(
-                                    "port_reservation_lease_unverifiable"
-                                )
+                            if "server" in status.get("services", {}):
+                                endpoint = status.get("endpoint")
+                                port = observation.get("port_reservation")
+                                if (
+                                    not isinstance(endpoint, dict)
+                                    or not isinstance(port, dict)
+                                    or port.get("port") != endpoint.get("port")
+                                    or port.get("owner") != topology_name
+                                    or port.get("generation") != generation
+                                    or port.get("lease") != "released"
+                                ):
+                                    item["reasons"].append(
+                                        "port_reservation_lease_unverifiable"
+                                    )
                 except (OSError, RuntimeError, WorkspaceError) as error:
                     item["reasons"].append("topology_status_uncertain")
                     item["error"] = str(error)
