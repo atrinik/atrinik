@@ -30,7 +30,7 @@ class ProgramLedgerModel:
 
     KEYS = {
         "generation", "self_inode", "lock", "previous_sha256", "authority", "graph",
-        "next_graph", "comment", "create", "link", "leaf_snapshots",
+        "next_graph", "comment", "create", "link", "leaf_snapshots", "observation",
     }
 
     def __init__(self) -> None:
@@ -47,6 +47,10 @@ class ProgramLedgerModel:
             "create": copy.deepcopy(empty),
             "link": copy.deepcopy(empty),
             "leaf_snapshots": {"leaf-1": [1, "a" * 64]},
+            "observation": {
+                "comment_complete": False, "child_missing": False,
+                "parent_empty": False,
+            },
         }
         self.lock_inode = 41
         self.path_lock_inode = 41
@@ -154,6 +158,10 @@ class ProgramLedgerModel:
             raise StopClosed("next graph lacks its PATCH intent")
         if not set(record["leaf_snapshots"]).issubset(set(record["graph"])):
             raise StopClosed("leaf snapshot is outside the graph")
+        if record["observation"].keys() != {
+            "comment_complete", "child_missing", "parent_empty"
+        } or any(type(value) is not bool for value in record["observation"].values()):
+            raise StopClosed("observation evidence is corrupt")
         model = cls()
         model.record = copy.deepcopy(record)
         model.lock_inode = lock_inode
@@ -207,6 +215,43 @@ class ProgramLedgerModel:
         if bound and (len(namespace) != 1 or namespace[0][1] != actor):
             raise StopClosed("marker is missing, duplicate, or wrong-author")
 
+    def observe_comment(self) -> None:
+        bound = self.record["comment"]["phase"] == "bound"
+        namespace = [("marker", "actor")] if bound else []
+        self.validate_marker(namespace, "actor", bound)
+        self.persist(lambda record: record["observation"].update(comment_complete=True))
+
+    def classify_child(
+        self, issues: list[dict[str, object]], first_digest: str = "stable",
+        second_digest: str = "stable",
+    ) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+        if first_digest != second_digest:
+            raise StopClosed("duplicate-search streams changed")
+        candidates, evidence = [], []
+        for issue in issues:
+            marker = issue.get("marker")
+            other_match = any(issue.get(field) is True for field in (
+                "title", "body", "backlink", "parent"
+            ))
+            if marker == "matching" or other_match:
+                candidates.append(issue)
+            else:
+                evidence.append(issue)
+        self.persist(
+            lambda record: record["observation"].update(
+                child_missing=not candidates
+            )
+        )
+        return candidates, evidence
+
+    def observe_parent(self, relationships: list[str] | None = None) -> None:
+        relationships = relationships or []
+        self.persist(
+            lambda record: record["observation"].update(
+                parent_empty=not relationships
+            )
+        )
+
     def _plan(self, slot: str, node: str | None = None, prior: str | None = None) -> None:
         current = self.record[slot]
         if current["phase"] != "none" and not (
@@ -216,10 +261,12 @@ class ProgramLedgerModel:
         self.persist(lambda r: r[slot].update(phase="planned", node=node, prior=prior))
 
     def plan_comment(self) -> None:
+        if not self.record["observation"]["comment_complete"]:
+            raise StopClosed("comment scan evidence is absent")
         self._plan("comment")
 
-    def plan_create(self, proven_missing: bool = True) -> None:
-        if not proven_missing:
+    def plan_create(self) -> None:
+        if not self.record["observation"]["child_missing"]:
             raise StopClosed("child is not proven missing")
         self._plan("create")
 
@@ -227,11 +274,19 @@ class ProgramLedgerModel:
         create = self.record["create"]
         if create["phase"] != "bound" or create["node"] != "issue-node":
             raise StopClosed("link lacks the exact bound child")
+        if not self.record["observation"]["parent_empty"]:
+            raise StopClosed("parent scan evidence is absent")
         self._plan("link")
 
     def arm(self, slot: str) -> CallPermit:
         if self.record[slot]["phase"] != "planned":
             raise StopClosed("remote call lacks planned intent")
+        evidence = {
+            "comment": "comment_complete", "create": "child_missing",
+            "link": "parent_empty",
+        }[slot]
+        if not self.record["observation"][evidence]:
+            raise StopClosed("persisted observation evidence changed")
         self.persist(lambda r: r[slot].update(phase="in-flight"))
         return CallPermit(slot, int(self.record["generation"]))
 
@@ -245,7 +300,7 @@ class ProgramLedgerModel:
         permit.used = True
         self.remote_calls[permit.slot] += 1
 
-    def bind(self, slot: str, exact_results: list[str]) -> None:
+    def _bind(self, slot: str, exact_results: list[str]) -> None:
         if self.record[slot]["phase"] != "in-flight" or len(exact_results) != 1:
             raise StopClosed("remote result is uncertain")
         self.persist(
@@ -253,6 +308,16 @@ class ProgramLedgerModel:
                 phase="bound", node=exact_results[0], prior=None
             )
         )
+
+    def bind_comment(self, results: list[dict[str, str]]) -> None:
+        exact = [
+            result for result in results
+            if result == {
+                "node": "comment-node", "author": "actor",
+                "body": "intended-body", "marker": "program-marker",
+            }
+        ]
+        self._bind("comment", [result["node"] for result in exact])
 
     def bind_create(self, candidates: list[dict[str, str]]) -> None:
         exact = [
@@ -264,7 +329,7 @@ class ProgramLedgerModel:
             and item["title"] == "title" and item["body"] == "body"
             and item["child_marker"] == "program-child-marker"
         ]
-        self.bind("create", [item["node"] for item in exact])
+        self._bind("create", [item["node"] for item in exact])
 
     def bind_link(
         self, child_parent: str, parent_subissues: list[str], stream_digest: str,
@@ -287,6 +352,8 @@ class ProgramLedgerModel:
             or self.record["comment"]["node"] != node
         ):
             raise StopClosed("rekey changes authority or comment node")
+        if not self.record["observation"]["comment_complete"]:
+            raise StopClosed("rekey lacks complete comment observation")
         self.persist(lambda r: r.update(next_graph=copy.deepcopy(next_graph)))
         self._plan("comment", node=node, prior="old-body")
 
@@ -318,6 +385,21 @@ class ProgramLedgerModel:
 
 
 class ProgramLedgerModelTests(unittest.TestCase):
+    @staticmethod
+    def exact_comment() -> dict[str, str]:
+        return {
+            "node": "comment-node", "author": "actor",
+            "body": "intended-body", "marker": "program-marker",
+        }
+
+    @staticmethod
+    def exact_child() -> dict[str, str]:
+        return {
+            "node": "issue-node", "creator": "actor", "title": "title",
+            "body": "body", "child_marker": "program-child-marker",
+            "created_at": "2026-08-14T00:00:00.123Z",
+        }
+
     def test_fresh_and_persisted_resume_are_distinct(self) -> None:
         model = ProgramLedgerModel.fresh(False, False)
         with self.assertRaises(StopClosed):
@@ -423,6 +505,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
             with self.assertRaises(StopClosed):
                 model.persist(lambda record: None)
             model = ProgramLedgerModel()
+            model.observe_comment()
             model.plan_comment()
             permit = model.arm("comment")
             model.replace_lock_path(os.stat(lock).st_ino)
@@ -458,8 +541,30 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 with self.assertRaises(StopClosed):
                     ProgramLedgerModel.validate_marker(namespace, "actor", bound)
 
+    def test_child_duplicate_classifier_scopes_markers_and_predicates(self) -> None:
+        blockers = (
+            {"marker": "matching"}, {"title": True}, {"body": True},
+            {"backlink": True}, {"parent": True},
+        )
+        for issue in blockers:
+            with self.subTest(issue=issue):
+                model = ProgramLedgerModel()
+                candidates, _ = model.classify_child([issue])
+                self.assertEqual(candidates, [issue])
+                with self.assertRaises(StopClosed):
+                    model.plan_create()
+        model = ProgramLedgerModel()
+        unrelated = [{"marker": "unrelated"}, {"marker": "malformed"}]
+        candidates, evidence = model.classify_child(unrelated)
+        self.assertEqual(candidates, [])
+        self.assertEqual(evidence, unrelated)
+        model.plan_create()
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel().classify_child([], "before", "after")
+
     def test_crash_before_remote_call_loses_permit_and_never_calls(self) -> None:
         model = ProgramLedgerModel()
+        model.observe_comment()
         model.plan_comment()
         model.arm("comment")
         resumed = ProgramLedgerModel.resume(
@@ -475,11 +580,14 @@ class ProgramLedgerModelTests(unittest.TestCase):
             with self.subTest(slot=slot):
                 model = ProgramLedgerModel()
                 if slot == "comment":
+                    model.observe_comment()
                     model.plan_comment()
                 elif slot == "create":
+                    model.classify_child([])
                     model.plan_create()
                 else:
                     model.record["create"].update(phase="bound", node="issue-node")
+                    model.observe_parent()
                     model.plan_link()
                 permit = model.arm(slot)
                 model.execute(permit)
@@ -497,6 +605,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         for report_present in (False, True):
             with self.subTest(report_present=report_present):
                 model = ProgramLedgerModel()
+                model.observe_comment()
                 model.plan_comment()
                 permit = model.arm("comment")
                 model.execute(permit)
@@ -508,12 +617,13 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 self.assertEqual(resumed.report_present, report_present)
                 with self.assertRaises(StopClosed):
                     resumed.arm("comment")
-                resumed.bind("comment", ["comment-node"])
+                resumed.bind_comment([self.exact_comment()])
                 self.assertEqual(resumed.record["comment"]["phase"], "bound")
                 self.assertEqual(resumed.remote_calls["comment"], 1)
 
     def test_invisible_child_create_and_link_bind_after_restart(self) -> None:
         model = ProgramLedgerModel()
+        model.classify_child([])
         model.plan_create()
         create = model.arm("create")
         model.execute(create)
@@ -521,7 +631,8 @@ class ProgramLedgerModelTests(unittest.TestCase):
             model.record, 41, model.record["self_inode"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
-        resumed.bind("create", ["issue-node"])
+        resumed.bind_create([self.exact_child()])
+        resumed.observe_parent()
         resumed.plan_link()
         link = resumed.arm("link")
         resumed.execute(link)
@@ -544,10 +655,12 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
     def test_patch_and_rekey_keep_one_comment_node_and_authority(self) -> None:
         model = ProgramLedgerModel()
+        model.observe_comment()
         model.plan_comment()
         permit = model.arm("comment")
         model.execute(permit)
-        model.bind("comment", ["comment-node"])
+        model.bind_comment([self.exact_comment()])
+        model.observe_comment()
         model.rekey(model.record["authority"], ["leaf-1", "leaf-2"], "comment-node")
         patch = model.arm("comment")
         model.execute(patch)
@@ -575,12 +688,11 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
     def test_create_result_requires_exact_actor_bytes_and_child_marker(self) -> None:
         model = ProgramLedgerModel()
+        model.classify_child([])
         model.plan_create()
         permit = model.arm("create")
         model.execute(permit)
-        wrong = {"node": "issue-node", "creator": "other", "title": "title",
-                 "body": "body", "child_marker": "program-child-marker",
-                 "created_at": "2026-08-14T00:00:00.123Z"}
+        wrong = dict(self.exact_child(), creator="other")
         with self.assertRaises(StopClosed):
             model.bind_create([wrong])
         exact = dict(wrong, creator="actor")
@@ -591,6 +703,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         with self.assertRaises(StopClosed):
             model.plan_link()
         model.record["create"].update(phase="bound", node="issue-node")
+        model.observe_parent()
         model.plan_link()
         permit = model.arm("link")
         model.execute(permit)
@@ -604,26 +717,29 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
     def test_duplicate_uncertain_results_stop_without_repost(self) -> None:
         model = ProgramLedgerModel()
+        model.classify_child([])
         model.plan_create()
         permit = model.arm("create")
         model.execute(permit)
-        for results in ([], ["one", "two"]):
+        for results in ([], [self.exact_child(), self.exact_child()]):
             with self.subTest(results=results), self.assertRaises(StopClosed):
-                model.bind("create", results)
+                model.bind_create(results)
         self.assertEqual(model.remote_calls["create"], 1)
 
     def test_create_and_link_cannot_plan_twice_or_out_of_order(self) -> None:
         model = ProgramLedgerModel()
         with self.assertRaises(StopClosed):
-            model.plan_create(False)
+            model.plan_create()
         with self.assertRaises(StopClosed):
             model.plan_link()
+        model.classify_child([])
         model.plan_create()
         create_permit = model.arm("create")
         model.execute(create_permit)
-        model.bind("create", ["issue-node"])
+        model.bind_create([self.exact_child()])
         with self.assertRaises(StopClosed):
             model.plan_create()
+        model.observe_parent()
         model.plan_link()
         link_permit = model.arm("link")
         model.execute(link_permit)
