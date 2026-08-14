@@ -21,13 +21,13 @@ configuration.
 `components.json` schema 3 separates physical `checkouts` from logical
 `components`. A checkout owns its repository, branch, local destination,
 generation, license, and initialization-cohort membership. A component names
-its checkout and a safe relative `source`, optional safe non-overlapping
-`source_includes`, plus provider roles, requirements, license, generation, and
-local build contract. Includes may be shared by components but cannot overlap a
-logical component source. The replacement/default and opt-in classic cohorts
-contain physical checkout identities. The built-in `default` and `classic`
-profiles are coherent stacks of logical components rather than aliases for
-every manifest entry.
+its checkout and a safe relative `source`, optional safe non-overlapping file
+or directory `source_includes`, plus provider roles, requirements, license,
+generation, and local build contract. Includes may be shared by components but
+cannot overlap a logical component source. The replacement/default and opt-in
+classic cohorts contain physical checkout identities. The built-in `default`
+and `classic` profiles are coherent stacks of logical components rather than
+aliases for every manifest entry.
 
 The `atrinik/classic@main` checkout at `./classic` provides five logical
 components: `classic-client` from `client/`, `classic-server` from `server/`,

@@ -102,7 +102,7 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(manifest.by_name["classic-server"].source, "server")
             self.assertEqual(
                 manifest.by_name["classic-server"].source_includes,
-                ("cmake",),
+                ("cmake", "LICENSE.md", "ATTRIBUTIONS.md"),
             )
             self.assertEqual(
                 manifest.checkout_for("classic-server").repository,

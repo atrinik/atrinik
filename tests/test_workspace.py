@@ -2048,6 +2048,12 @@ class WorkspaceTests(unittest.TestCase):
                     "endfunction()\n",
                     encoding="utf-8",
                 )
+                (checkout / "LICENSE.md").write_text(
+                    "test license\n", encoding="utf-8"
+                )
+                (checkout / "ATTRIBUTIONS.md").write_text(
+                    "test attributions\n", encoding="utf-8"
+                )
                 (checkout / role / "CMakeLists.txt").write_text(
                     "cmake_minimum_required(VERSION 3.16)\n"
                     "include(../cmake/AtrinikVersion.cmake)\n"
@@ -2056,12 +2062,25 @@ class WorkspaceTests(unittest.TestCase):
                     "if(NOT ATRINIK_VERSION STREQUAL test-version)\n"
                     '  message(FATAL_ERROR "shared version module was not used")\n'
                     "endif()\n"
+                    "foreach(document LICENSE.md ATTRIBUTIONS.md)\n"
+                    "  if(NOT EXISTS \"${CMAKE_CURRENT_SOURCE_DIR}/../${document}\")\n"
+                    '    message(FATAL_ERROR "missing root document: ${document}")\n'
+                    "  endif()\n"
+                    "endforeach()\n"
                     "enable_testing()\n"
                     "add_test(NAME shared-version COMMAND "
                     "${CMAKE_COMMAND} -E true)\n",
                     encoding="utf-8",
                 )
-                command("git", "add", role, "cmake", cwd=checkout)
+                command(
+                    "git",
+                    "add",
+                    role,
+                    "cmake",
+                    "LICENSE.md",
+                    "ATTRIBUTIONS.md",
+                    cwd=checkout,
+                )
                 command(
                     "git",
                     "commit",
@@ -2074,7 +2093,11 @@ class WorkspaceTests(unittest.TestCase):
                 component = replace(
                     original,
                     source=role,
-                    source_includes=("cmake",),
+                    source_includes=(
+                        "cmake",
+                        "LICENSE.md",
+                        "ATTRIBUTIONS.md",
+                    ),
                 )
                 self.workspace.manifest.by_name[role] = component
                 self.workspace.manifest.components = [
@@ -2109,16 +2132,58 @@ class WorkspaceTests(unittest.TestCase):
                 self.assertTrue(
                     (generated.parent / "cmake" / "AtrinikVersion.cmake").is_file()
                 )
+                self.assertTrue((generated.parent / "LICENSE.md").is_file())
+                self.assertTrue((generated.parent / "ATTRIBUTIONS.md").is_file())
                 build_root = self.workspace.paths.builds / f"scoped-{role}"
-                self.workspace._prepare_component_source_includes(
-                    build_root, component, generated
-                )
                 view = self.workspace._profile_source_view(
-                    build_root, role, generated, set()
+                    build_root,
+                    role,
+                    generated,
+                    set(),
+                    preserved_entries={
+                        workspace_module.SOURCE_INCLUDE_VIEW_METADATA
+                    },
+                )
+                self.workspace._prepare_component_source_includes(
+                    build_root, component, generated, view
                 )
                 self.assertTrue(
                     (build_root / "sources" / "cmake" / "AtrinikVersion.cmake").is_file()
                 )
+                self.assertTrue(
+                    (build_root / "sources" / "LICENSE.md").is_file()
+                )
+                self.assertTrue(
+                    (build_root / "sources" / "ATTRIBUTIONS.md").is_file()
+                )
+                view = self.workspace._profile_source_view(
+                    build_root,
+                    role,
+                    generated,
+                    set(),
+                    preserved_entries={
+                        workspace_module.SOURCE_INCLUDE_VIEW_METADATA
+                    },
+                )
+                self.workspace._prepare_component_source_includes(
+                    build_root, component, generated, view
+                )
+                view_key = str(view.resolve())
+                self.assertTrue(self.workspace._source_view_unchanged[view_key])
+                (build_root / "sources" / "cmake" / "AtrinikVersion.cmake").unlink()
+                view = self.workspace._profile_source_view(
+                    build_root,
+                    role,
+                    generated,
+                    set(),
+                    preserved_entries={
+                        workspace_module.SOURCE_INCLUDE_VIEW_METADATA
+                    },
+                )
+                self.workspace._prepare_component_source_includes(
+                    build_root, component, generated, view
+                )
+                self.assertFalse(self.workspace._source_view_unchanged[view_key])
                 self.workspace._cmake(
                     view,
                     build_root / "build" / role,
@@ -3196,8 +3261,19 @@ class WorkspaceTests(unittest.TestCase):
             )
 
         namespace = make_key.call_args.kwargs["namespace"]
-        self.assertIn(
-            "server=server@atrinik/server@main@server:.", namespace
+        providers = json.loads(namespace.split("providers:", 1)[1])
+        self.assertEqual(
+            providers,
+            {
+                "server": {
+                    "name": "server",
+                    "repository": "atrinik/server",
+                    "branch": "main",
+                    "checkout": "server",
+                    "source": ".",
+                    "source_includes": [],
+                }
+            },
         )
 
     def test_start_point_cannot_be_an_option(self) -> None:

@@ -3139,6 +3139,7 @@ class Cleanup:
                 or not metadata_path.is_file()
                 or not isinstance(metadata, dict)
                 or set(metadata) != metadata_keys
+                or isinstance(metadata_schema, bool)
                 or metadata_schema not in {1, SOURCE_GENERATION_SCHEMA_VERSION}
                 or metadata.get("checkout") != checkout
                 or key != expected_key
@@ -3747,6 +3748,7 @@ class Cleanup:
                         schema_version != BUILD_METADATA_SCHEMA_VERSION
                         or not isinstance(generation, dict)
                         or set(generation) != generation_keys
+                        or isinstance(generation_schema, bool)
                         or generation_schema not in {
                             1,
                             SOURCE_GENERATION_SCHEMA_VERSION,

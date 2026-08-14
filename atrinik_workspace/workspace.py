@@ -149,6 +149,7 @@ ALL_BUILD_TARGETS = (
 )
 SOURCE_VIEW_METADATA = ".atrinik-source-view.json"
 SOURCE_VIEW_SCHEMA_VERSION = 2
+SOURCE_INCLUDE_VIEW_METADATA = ".atrinik-source-includes.json"
 CONFIGURE_METADATA = ".atrinik-configure.json"
 CONFIGURE_SCHEMA_VERSION = 2
 COMPILER_CACHE_PURPOSE = "compiler-cache"
@@ -1272,7 +1273,7 @@ def _tree_digest(
 def _source_closure_digest(generation: Path, includes: Iterable[str]) -> str:
     """Authenticate a generated logical source and its declared sibling inputs."""
 
-    entries = {
+    entries: dict[str, object] = {
         "source": _tree_digest(
             generation / "source",
             set(),
@@ -1281,12 +1282,35 @@ def _source_closure_digest(generation: Path, includes: Iterable[str]) -> str:
         )
     }
     for include in sorted(includes):
-        entries[include] = _tree_digest(
-            generation.joinpath(*PurePosixPath(include).parts),
-            set(),
-            bounded_symlinks=True,
-            reject_hardlinks=True,
-        )
+        path = generation.joinpath(*PurePosixPath(include).parts)
+        try:
+            status = path.lstat()
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect generated source include {path}: {error}"
+            ) from error
+        if stat.S_ISDIR(status.st_mode):
+            entries[include] = _tree_digest(
+                path,
+                set(),
+                bounded_symlinks=True,
+                reject_hardlinks=True,
+            )
+        elif stat.S_ISREG(status.st_mode):
+            if status.st_nlink != 1:
+                raise WorkspaceError(
+                    f"generated source include is hard-linked: {path}"
+                )
+            entries[include] = {
+                "kind": "file",
+                "mode": stat.S_IMODE(status.st_mode),
+                "size": status.st_size,
+                "sha256": _file_digest(path, "generated source include"),
+            }
+        else:
+            raise WorkspaceError(
+                f"generated source include is not a regular file or directory: {path}"
+            )
     return hashlib.sha256(
         json.dumps(entries, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
@@ -2196,10 +2220,18 @@ class Workspace:
         return value
 
     @staticmethod
-    def _extract_git_source_archive(archive_path: Path, output: Path) -> None:
+    def _extract_git_source_archive(
+        archive_path: Path, output: Path, *, existing_output: bool = False
+    ) -> None:
         """Extract a local Git archive without trusting archive paths or links."""
 
-        output.mkdir(parents=True)
+        if existing_output:
+            if output.is_symlink() or not output.is_dir():
+                raise WorkspaceError(
+                    f"Git source archive output is not a regular directory: {output}"
+                )
+        else:
+            output.mkdir(parents=True)
         root = output.resolve()
         try:
             with tarfile.open(archive_path, mode="r:") as archive:
@@ -2459,22 +2491,31 @@ class Workspace:
                         "purpose": f"source-generation:{key}",
                     },
                 )
-                exports = [
+                exports: list[tuple[str, str | None, Path, bool]] = [
                     (
                         commit
                         if component.source == "."
                         else f"{commit}:{component.source}",
+                        None,
                         staging / "source",
+                        False,
                     ),
                     *(
                         (
-                            f"{commit}:{include}",
-                            staging.joinpath(*PurePosixPath(include).parts),
+                            commit,
+                            include,
+                            staging,
+                            True,
                         )
                         for include in component.source_includes
                     ),
                 ]
-                for export_index, (archive_ref, destination) in enumerate(exports):
+                for export_index, (
+                    archive_ref,
+                    archive_pathspec,
+                    destination,
+                    existing_output,
+                ) in enumerate(exports):
                     archive_descriptor, archive_name = tempfile.mkstemp(
                         prefix=f"atrinik-source-{export_index}-", suffix=".tar"
                     )
@@ -2482,16 +2523,19 @@ class Workspace:
                     archive_path = Path(archive_name)
                     try:
                         try:
+                            archive_command = [
+                                "git",
+                                "-C",
+                                str(checkout),
+                                "archive",
+                                "--format=tar",
+                                f"--output={archive_path}",
+                                archive_ref,
+                            ]
+                            if archive_pathspec is not None:
+                                archive_command.extend(["--", archive_pathspec])
                             subprocess.run(
-                                [
-                                    "git",
-                                    "-C",
-                                    str(checkout),
-                                    "archive",
-                                    "--format=tar",
-                                    f"--output={archive_path}",
-                                    archive_ref,
-                                ],
+                                archive_command,
                                 check=True,
                                 stderr=subprocess.PIPE,
                                 pass_fds=active_lock_fds(),
@@ -2508,7 +2552,11 @@ class Workspace:
                             raise WorkspaceError(
                                 f"cannot export immutable source generation{suffix}"
                             ) from error
-                        self._extract_git_source_archive(archive_path, destination)
+                        self._extract_git_source_archive(
+                            archive_path,
+                            destination,
+                            existing_output=existing_output,
+                        )
                     finally:
                         archive_path.unlink(missing_ok=True)
                 current_checkout = checkout.stat()
@@ -5816,14 +5864,20 @@ class Workspace:
     ) -> str:
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
-        providers = ",".join(
-            f"{role}={stack.providers[role].name}@"
-            f"{stack.providers[role].repository}@"
-            f"{stack.providers[role].branch}@"
-            f"{stack.providers[role].checkout_name}:"
-            f"{stack.providers[role].source}:"
-            f"{','.join(stack.providers[role].source_includes)}"
-            for role in sorted(selected)
+        providers = json.dumps(
+            {
+                role: {
+                    "name": stack.providers[role].name,
+                    "repository": stack.providers[role].repository,
+                    "branch": stack.providers[role].branch,
+                    "checkout": stack.providers[role].checkout_name,
+                    "source": stack.providers[role].source,
+                    "source_includes": stack.providers[role].source_includes,
+                }
+                for role in sorted(selected)
+            },
+            sort_keys=True,
+            separators=(",", ":"),
         )
         namespace = (
             f"profile-schema:{PROFILE_SCHEMA_VERSION};stack:{stack.name};"
@@ -5876,6 +5930,7 @@ class Workspace:
             ".git",
             MANAGED_MARKER,
             SOURCE_VIEW_METADATA,
+            SOURCE_INCLUDE_VIEW_METADATA,
         }
         copied_directories = copied_directories or set()
         try:
@@ -7748,7 +7803,7 @@ class Workspace:
         )
 
     def _prepare_component_source_includes(
-        self, root: Path, component: Component, source: Path
+        self, root: Path, component: Component, source: Path, consumer: Path
     ) -> None:
         if not component.source_includes:
             return
@@ -7760,9 +7815,82 @@ class Workspace:
             if component.source != ".":
                 for _part in PurePosixPath(component.source).parts:
                     closure_root = closure_root.parent
+        records: dict[str, dict[str, Any]] = {}
+        includes_unchanged = True
         for include in component.source_includes:
             include_source = closure_root.joinpath(*PurePosixPath(include).parts)
-            self._profile_source_view(root, include, include_source, set())
+            try:
+                status = include_source.lstat()
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect component source include {include_source}: {error}"
+                ) from error
+            if stat.S_ISDIR(status.st_mode):
+                include_view = self._profile_source_view(
+                    root, include, include_source, set()
+                )
+                include_key = str(include_view.resolve())
+                includes_unchanged = (
+                    includes_unchanged
+                    and self._source_view_unchanged.get(include_key, False)
+                )
+                records[include] = {
+                    "kind": "directory",
+                    "view": load_regular_json(
+                        include_view / SOURCE_VIEW_METADATA,
+                        "component source include view",
+                    ),
+                }
+            elif stat.S_ISREG(status.st_mode):
+                destination = root.joinpath(
+                    "sources", *PurePosixPath(include).parts
+                )
+                expected_target = str(include_source)
+                link_unchanged = (
+                    destination.is_symlink()
+                    and os.readlink(destination) == expected_target
+                )
+                self._source_view_link(
+                    root / "sources",
+                    include,
+                    include_source,
+                    target_is_directory=False,
+                )
+                includes_unchanged = includes_unchanged and link_unchanged
+                records[include] = {
+                    "kind": "file",
+                    "source": str(include_source.resolve()),
+                    "mode": stat.S_IMODE(status.st_mode),
+                    "size": status.st_size,
+                    "sha256": _file_digest(
+                        include_source, "component source include"
+                    ),
+                }
+            else:
+                raise WorkspaceError(
+                    "component source include is not a regular file or directory: "
+                    f"{include_source}"
+                )
+        metadata = {
+            "schema_version": 1,
+            "purpose": f"source-includes:{component.name}",
+            "entries": records,
+        }
+        metadata_path = consumer / SOURCE_INCLUDE_VIEW_METADATA
+        try:
+            previous = load_regular_json(
+                metadata_path, "component source include metadata"
+            )
+        except WorkspaceError:
+            previous = None
+        includes_unchanged = includes_unchanged and previous == metadata
+        if previous != metadata:
+            atomic_json(metadata_path, metadata)
+        consumer_key = str(consumer.resolve())
+        self._source_view_unchanged[consumer_key] = (
+            self._source_view_unchanged.get(consumer_key, False)
+            and includes_unchanged
+        )
 
     def _build_client(
         self,
@@ -7773,13 +7901,15 @@ class Workspace:
         component: Component,
         sound_root: Path | None = None,
     ) -> None:
-        self._prepare_component_source_includes(root, component, selected["client"])
         view = self._profile_source_view(
             root,
             "client",
             selected["client"],
             {"build", "sound"},
-            preserved_entries={"sound"},
+            preserved_entries={"sound", SOURCE_INCLUDE_VIEW_METADATA},
+        )
+        self._prepare_component_source_includes(
+            root, component, selected["client"], view
         )
         self._source_view_link(
             view,
@@ -7808,7 +7938,6 @@ class Workspace:
         *,
         component: Component,
     ) -> None:
-        self._prepare_component_source_includes(root, component, selected["server"])
         view = self._profile_source_view(
             root,
             "server",
@@ -7828,7 +7957,14 @@ class Workspace:
             # CMake treats a top-level directory symlink as the object to copy,
             # which conflicts with the destination directory it just created.
             {"install_data"},
-            preserved_entries={"runtime", "resources"},
+            preserved_entries={
+                "runtime",
+                "resources",
+                SOURCE_INCLUDE_VIEW_METADATA,
+            },
+        )
+        self._prepare_component_source_includes(
+            root, component, selected["server"], view
         )
         self._source_view_directory(view, "runtime", {"content"})
         self._source_view_link(
