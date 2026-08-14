@@ -254,15 +254,32 @@ class CompletionTests(unittest.TestCase):
         malformed = dict(released)
         malformed["name"] = "malformed-sound"
         malformed["sound_release"] = None
+        invalid_coordinates = json.loads(json.dumps(released))
+        invalid_coordinates["name"] = "invalid-coordinates"
+        invalid_coordinates["sound_release"]["asset_url"] = (
+            "https://example.invalid/mutable.tar.gz"
+        )
+        cross_stack = self.profile_record("cross-stack-sound", "default")
+        cross_stack.update(
+            {
+                "schema_version": 5,
+                "sound_mode": "local-playtest",
+                "sound_release": None,
+            }
+        )
         profiles = self.workspace / "profiles"
         self.write_json(profiles / "source-sound.json", source)
         self.write_json(profiles / "released-sound.json", released)
         self.write_json(profiles / "malformed-sound.json", malformed)
+        self.write_json(profiles / "invalid-coordinates.json", invalid_coordinates)
+        self.write_json(profiles / "cross-stack-sound.json", cross_stack)
 
         _, names = self.candidates("profile", "show", "")
         self.assertIn("source-sound", names)
         self.assertIn("released-sound", names)
         self.assertNotIn("malformed-sound", names)
+        self.assertNotIn("invalid-coordinates", names)
+        self.assertNotIn("cross-stack-sound", names)
 
     def test_profiles_reject_cross_checkout_and_invalid_migration_selectors(self) -> None:
         record = self.profile_record("broken", "classic")

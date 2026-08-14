@@ -524,6 +524,14 @@ class ContentMigration:
                 }.get(schema_version)
                 if allowed_sound_modes is not None and value.get("sound_mode") not in allowed_sound_modes:
                     raise WorkspaceError("profile sound mode is invalid")
+                if (
+                    allowed_sound_modes is not None
+                    and value.get("sound_mode") != "source"
+                    and value.get("stack") != "classic"
+                ):
+                    raise WorkspaceError(
+                        "non-source sound modes require the classic stack"
+                    )
                 if schema_version == 5:
                     release = value.get("sound_release")
                     if (value.get("sound_mode") == "released") != isinstance(release, dict):

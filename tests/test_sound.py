@@ -17,6 +17,7 @@ import urllib.error
 from unittest import mock
 
 from atrinik_workspace import sound as sound_module
+from atrinik_workspace import workspace as workspace_module
 from atrinik_workspace.model import WorkspaceError
 from atrinik_workspace.sound import (
     PLAYTEST_BLOCKERS,
@@ -970,6 +971,34 @@ class ReleasedSoundTests(unittest.TestCase):
             tree_hash.update(
                 f"{output['sha256']}  {asset['logical_path']}\n".encode()
             )
+        source_manifest = {
+            "$schema": "../schemas/source-assets-v1.schema.json",
+            "assets": [
+                {
+                    "logical_path": asset["logical_path"],
+                    "source_path": asset["source_path"],
+                    "source": asset["source"],
+                }
+                for asset in assets
+            ],
+            "audio_source_count": 339,
+            "schema_version": 1,
+            "source_corpus_sha256": "e" * 64,
+            "source_size_bytes": 1,
+        }
+        source_manifest_path = self.tree / "manifests/source-assets.json"
+        source_manifest_path.write_bytes(canonical(source_manifest))
+        source_manifest_hash = digest(source_manifest_path)
+        toolchain = {
+            "$schema": "../schemas/classic-audio-toolchain-v1.schema.json",
+            "schema_version": 1,
+            "tools": {name: {} for name in sorted(sound_module.TOOL_NAMES)},
+        }
+        toolchain_path = self.tree / "manifests/classic-audio-toolchain.json"
+        toolchain_path.write_bytes(canonical(toolchain))
+        toolchain_hash = digest(toolchain_path)
+        remediation["source_manifest_sha256"] = source_manifest_hash
+        (self.tree / RELEASE_REMEDIATION).write_bytes(canonical(remediation))
         self.manifest = {
             "$schema": RELEASE_SCHEMA,
             "schema_version": 1,
@@ -978,8 +1007,8 @@ class ReleasedSoundTests(unittest.TestCase):
             "publishable": True,
             "source_commit": "a" * 40,
             "source_tree": "b" * 40,
-            "source_manifest_sha256": "c" * 64,
-            "toolchain_sha256": "d" * 64,
+            "source_manifest_sha256": source_manifest_hash,
+            "toolchain_sha256": toolchain_hash,
             "tool_versions": {name: "fixture" for name in sorted(sound_module.TOOL_NAMES)},
             "schema_sha256": digest(schema),
             "remediation_report_sha256": digest(self.tree / RELEASE_REMEDIATION),
@@ -1011,9 +1040,9 @@ class ReleasedSoundTests(unittest.TestCase):
             ),
             "archive_sha256": digest(self.archive),
             "release_manifest_sha256": digest(self.tree / RELEASE_MANIFEST),
-            "source_manifest_sha256": "c" * 64,
+            "source_manifest_sha256": source_manifest_hash,
             "schema_sha256": digest(schema),
-            "toolchain_sha256": "d" * 64,
+            "toolchain_sha256": toolchain_hash,
             "output_tree_sha256": tree_hash.hexdigest(),
         }
 
@@ -1204,7 +1233,7 @@ class ReleasedSoundTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "already exists"):
             extract_release_archive(self.archive, existing, self.coordinates)
         with mock.patch.object(sound_module, "MAX_RELEASE_ARCHIVE_BYTES", 1):
-            with self.assertRaisesRegex(WorkspaceError, "extraction input limit"):
+            with self.assertRaisesRegex(WorkspaceError, "size limit"):
                 extract_release_archive(
                     self.archive, self.root / "input-too-large", self.coordinates
                 )
@@ -1258,6 +1287,24 @@ class ReleasedSoundTests(unittest.TestCase):
                 self.root / "unexpected-directory",
                 self.coordinates,
             )
+
+    def test_oversized_cached_archive_is_rejected_before_decompression(self) -> None:
+        oversized = self.root / "oversized-cache.tar.gz"
+        with oversized.open("wb") as stream:
+            stream.truncate(2)
+        with (
+            mock.patch.object(sound_module, "MAX_RELEASE_ARCHIVE_BYTES", 1),
+            mock.patch.object(sound_module, "_prescan_release_archive") as prescan,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "size limit"):
+                sound_module.verify_release_archive(
+                    oversized, self.coordinates, "cached released sound archive"
+                )
+            with self.assertRaisesRegex(WorkspaceError, "size limit"):
+                extract_release_archive(
+                    oversized, self.root / "oversized-output", self.coordinates
+                )
+            prescan.assert_not_called()
 
     def test_interrupted_download_is_a_workspace_error(self) -> None:
         response = mock.Mock()
@@ -1427,7 +1474,52 @@ class ReleasedSoundTests(unittest.TestCase):
             self.tree / RELEASE_MANIFEST
         )
         self.rewrite_checksums()
-        with self.assertRaisesRegex(WorkspaceError, "counts.*339-path"):
+        with self.assertRaisesRegex(WorkspaceError, "source manifest closure"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_source_manifest_and_toolchain_pins_and_closure_are_required(self) -> None:
+        source_path = self.tree / "manifests/source-assets.json"
+        source_manifest = json.loads(source_path.read_text(encoding="utf-8"))
+        source_manifest["assets"][0]["source"]["sha256"] = "0" * 64
+        source_path.write_bytes(canonical(source_manifest))
+        source_hash = digest(source_path)
+        self.coordinates["source_manifest_sha256"] = source_hash
+        self.manifest["source_manifest_sha256"] = source_hash
+        remediation_path = self.tree / RELEASE_REMEDIATION
+        remediation = json.loads(remediation_path.read_text(encoding="utf-8"))
+        remediation["source_manifest_sha256"] = source_hash
+        remediation_path.write_bytes(canonical(remediation))
+        self.manifest["remediation_report_sha256"] = digest(remediation_path)
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "source manifest closure"):
+            verify_release_tree(self.tree, self.coordinates)
+
+        self.manifest["assets"][0]["source"]["sha256"] = "0" * 64
+        (self.tree / RELEASE_MANIFEST).write_bytes(canonical(self.manifest))
+        self.coordinates["release_manifest_sha256"] = digest(
+            self.tree / RELEASE_MANIFEST
+        )
+        toolchain_path = self.tree / "manifests/classic-audio-toolchain.json"
+        toolchain_path.write_bytes(toolchain_path.read_bytes() + b" ")
+        self.rewrite_checksums()
+        with self.assertRaisesRegex(WorkspaceError, "toolchain hash"):
+            verify_release_tree(self.tree, self.coordinates)
+
+    def test_schema_regex_and_json_nesting_are_bounded(self) -> None:
+        with self.assertRaisesRegex(WorkspaceError, "pattern is unsupported"):
+            sound_module._validate_release_schema_structure(
+                {"type": "string", "pattern": "(a+)+$"}
+            )
+
+        manifest_path = self.tree / RELEASE_MANIFEST
+        nested = (b'{"x":' * 1500) + b"0" + (b"}" * 1500)
+        manifest_path.write_bytes(nested)
+        self.coordinates["release_manifest_sha256"] = hashlib.sha256(nested).hexdigest()
+        with self.assertRaisesRegex(WorkspaceError, "nesting limit"):
             verify_release_tree(self.tree, self.coordinates)
 
     def test_nonstandard_json_numbers_are_rejected(self) -> None:
@@ -1637,7 +1729,7 @@ class ReleasedSoundTests(unittest.TestCase):
             ({"type": "array", "uniqueItems": True}, [1, 1], "unique"),
             ({"type": "string", "minLength": 2}, "x", "minLength"),
             ({"type": "string", "maxLength": 0}, "x", "maxLength"),
-            ({"type": "string", "pattern": "^a"}, "x", "pattern"),
+            ({"type": "string", "pattern": r"^[0-9a-f]{64}$"}, "x", "pattern"),
             ({"type": "number", "minimum": 2}, 1, "minimum"),
             ({"type": "number", "maximum": 0}, 1, "maximum"),
         ):
@@ -1855,6 +1947,43 @@ class ReleasedSoundTests(unittest.TestCase):
                 )
         runtime = build / "runtime"
         self.assertEqual(list(runtime.iterdir()), [])
+
+    def test_raced_runtime_parent_identity_fails_closed(self) -> None:
+        wrapper = self.root / "parent-race-wrapper"
+        wrapper.mkdir()
+        shutil.copy2(Path(__file__).resolve().parents[1] / "components.json", wrapper)
+        workspace = Workspace(wrapper)
+        build = self.root / "parent-race-build"
+        build.mkdir()
+        profile = {
+            "stack": "classic",
+            "sound_mode": "released",
+            "sound_release": self.coordinates,
+        }
+        real_stat = workspace_module.os.stat
+
+        def raced_stat(path: object, *args: object, **kwargs: object) -> os.stat_result:
+            result = real_stat(path, *args, **kwargs)
+            if path == "runtime" and kwargs.get("dir_fd") is not None:
+                fields = list(result)
+                fields[1] += 1
+                return os.stat_result(fields)
+            return result
+
+        with (
+            mock.patch.object(workspace, "_load_profile", return_value=profile),
+            mock.patch(
+                "atrinik_workspace.workspace.download_release_archive",
+                side_effect=lambda _url, destination: shutil.copy2(
+                    self.archive, destination
+                ),
+            ),
+            mock.patch.object(workspace_module.os, "stat", side_effect=raced_stat),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "parent changed"):
+                workspace._prepare_sound(
+                    build, {"sound": self.root / "unused-source"}, "classic-release"
+                )
 
 
 if __name__ == "__main__":

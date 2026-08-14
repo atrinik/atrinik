@@ -88,6 +88,8 @@ MAX_RELEASE_MANIFEST_BYTES = 8 * 1024 * 1024
 MAX_RELEASE_CHECKSUM_BYTES = 256 * 1024
 MAX_RELEASE_REMEDIATION_BYTES = 16 * 1024 * 1024
 MAX_RELEASE_SCHEMA_BYTES = 1024 * 1024
+MAX_RELEASE_SOURCE_MANIFEST_BYTES = 8 * 1024 * 1024
+MAX_RELEASE_TOOLCHAIN_BYTES = 2 * 1024 * 1024
 MAX_RELEASE_METADATA_BYTES = 64 * 1024
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 OBJECT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
@@ -95,6 +97,19 @@ LOGICAL_PATH_PATTERN = re.compile(
     r"^(background|effects)/(?:[a-z0-9][a-z0-9_.-]*/)*"
     r"[a-z0-9][a-z0-9_.-]*\.(mid|mod|s3m|xm|ogg)$"
 )
+RELEASE_SCHEMA_PATTERNS = {
+    r"^v[0-9]+\.[0-9]+\.[0-9]+$": re.compile(r"^v[0-9]+\.[0-9]+\.[0-9]+$"),
+    r"^[0-9a-f]{64}$": SHA256_PATTERN,
+    r"^[0-9a-f]{40}$": OBJECT_PATTERN,
+    LOGICAL_PATH_PATTERN.pattern: LOGICAL_PATH_PATTERN,
+    (
+        r"^(background|effects)/(?:[a-z0-9][a-z0-9_.-]*/)*"
+        r"[a-z0-9][a-z0-9_.-]*\.(flac|mid|mod|s3m|xm|ogg)$"
+    ): re.compile(
+        r"^(background|effects)/(?:[a-z0-9][a-z0-9_.-]*/)*"
+        r"[a-z0-9][a-z0-9_.-]*\.(flac|mid|mod|s3m|xm|ogg)$"
+    ),
+}
 TOOL_NAMES = {
     "ffmpeg",
     "openmpt123",
@@ -106,7 +121,19 @@ TOOL_NAMES = {
 
 
 def _canonical_json(value: object) -> bytes:
-    return (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    pending = [(value, 0)]
+    while pending:
+        current, depth = pending.pop()
+        if depth > 128:
+            raise WorkspaceError("released sound JSON exceeds the nesting limit")
+        if isinstance(current, dict):
+            pending.extend((child, depth + 1) for child in current.values())
+        elif isinstance(current, list):
+            pending.extend((child, depth + 1) for child in current)
+    try:
+        return (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    except RecursionError as error:
+        raise WorkspaceError("released sound JSON exceeds the nesting limit") from error
 
 
 def _hash_bytes(value: bytes) -> str:
@@ -138,7 +165,9 @@ def _read_regular(
         os.close(descriptor)
 
 
-def _hash_regular(path: Path, description: str) -> tuple[str, int, bytes]:
+def _hash_regular(
+    path: Path, description: str, *, maximum_bytes: int | None = None
+) -> tuple[str, int, bytes]:
     try:
         descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
     except OSError as error:
@@ -149,12 +178,16 @@ def _hash_regular(path: Path, description: str) -> tuple[str, int, bytes]:
         metadata = os.fstat(descriptor)
         if not stat.S_ISREG(metadata.st_mode):
             raise WorkspaceError(f"{description} is not a regular file: {path}")
+        if maximum_bytes is not None and metadata.st_size > maximum_bytes:
+            raise WorkspaceError(f"{description} exceeds its size limit")
         digest = hashlib.sha256()
         prefix = bytearray()
         size = 0
         while chunk := os.read(descriptor, 1024 * 1024):
             digest.update(chunk)
             size += len(chunk)
+            if maximum_bytes is not None and size > maximum_bytes:
+                raise WorkspaceError(f"{description} exceeds its size limit")
             if len(prefix) < 65536:
                 prefix.extend(chunk[: 65536 - len(prefix)])
         return digest.hexdigest(), size, bytes(prefix)
@@ -283,7 +316,9 @@ def verify_release_archive(
     archive_path: Path, coordinates: dict[str, Any], description: str
 ) -> None:
     expected = validate_release_coordinates(coordinates)
-    archive_hash, size, _prefix = _hash_regular(archive_path, description)
+    archive_hash, size, _prefix = _hash_regular(
+        archive_path, description, maximum_bytes=MAX_RELEASE_ARCHIVE_BYTES
+    )
     if size < 1 or archive_hash != expected["archive_sha256"]:
         raise WorkspaceError(f"{description} checksum mismatch")
 
@@ -406,14 +441,16 @@ def _extract_release_archive(
     """Safely extract a bounded single-prefix release archive."""
 
     expected = validate_release_coordinates(coordinates)
-    _prescan_release_archive(archive_path)
     if destination.exists() or destination.is_symlink():
         raise WorkspaceError("released sound extraction destination already exists")
     _archive_hash, archive_size, _archive_prefix = _hash_regular(
-        archive_path, "released sound archive"
+        archive_path,
+        "released sound archive",
+        maximum_bytes=MAX_RELEASE_ARCHIVE_BYTES,
     )
     if archive_size < 1 or archive_size > MAX_RELEASE_ARCHIVE_BYTES:
         raise WorkspaceError("released sound archive exceeds the extraction input limit")
+    _prescan_release_archive(archive_path)
     try:
         archive = tarfile.open(archive_path, mode="r:gz")
     except (OSError, tarfile.TarError) as error:
@@ -1012,12 +1049,8 @@ def _validate_release_schema_structure(
         raise WorkspaceError("released sound packaged schema uniqueItems is invalid")
     pattern = schema.get("pattern")
     if "pattern" in schema:
-        if not isinstance(pattern, str):
-            raise WorkspaceError("released sound packaged schema pattern is invalid")
-        try:
-            re.compile(pattern)
-        except re.error as error:
-            raise WorkspaceError("released sound packaged schema pattern is invalid") from error
+        if not isinstance(pattern, str) or pattern not in RELEASE_SCHEMA_PATTERNS:
+            raise WorkspaceError("released sound packaged schema pattern is unsupported")
     properties = schema.get("properties", {})
     definitions = schema.get("$defs", {})
     if not isinstance(properties, dict) or not isinstance(definitions, dict):
@@ -1261,10 +1294,10 @@ def _validate_release_schema_instance(
                 raise _ReleaseSchemaMismatch(f"released sound manifest violates {keyword} at {location}")
         pattern = schema.get("pattern")
         if pattern is not None:
-            try:
-                matches = isinstance(pattern, str) and re.search(pattern, instance)
-            except re.error as error:
-                raise WorkspaceError("released sound packaged schema pattern is invalid") from error
+            expression = RELEASE_SCHEMA_PATTERNS.get(pattern) if isinstance(pattern, str) else None
+            if expression is None:
+                raise WorkspaceError("released sound packaged schema pattern is unsupported")
+            matches = expression.search(instance)
             if not matches:
                 raise _ReleaseSchemaMismatch(f"released sound manifest violates pattern at {location}")
     if isinstance(instance, (int, float)) and not isinstance(instance, bool):
@@ -1332,7 +1365,7 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
             manifest_payload,
             parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)),
         )
-    except (json.JSONDecodeError, ValueError) as error:
+    except (json.JSONDecodeError, ValueError, RecursionError) as error:
         raise WorkspaceError("released sound manifest is invalid JSON") from error
     if manifest_payload != _canonical_json(manifest_value):
         raise WorkspaceError("released sound manifest is not canonical JSON")
@@ -1403,7 +1436,7 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
             schema_payload,
             parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)),
         )
-    except (json.JSONDecodeError, ValueError) as error:
+    except (json.JSONDecodeError, ValueError, RecursionError) as error:
         raise WorkspaceError("released sound packaged schema is invalid JSON") from error
     if not isinstance(schema, dict):
         raise WorkspaceError("released sound packaged schema contract is invalid")
@@ -1425,6 +1458,85 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
         raise WorkspaceError("released sound packaged schema contract is invalid")
     _validate_release_schema_instance(manifest, schema, schema)
 
+    source_manifest_payload = _read_regular(
+        root / "manifests/source-assets.json",
+        "released sound source manifest",
+        maximum_bytes=MAX_RELEASE_SOURCE_MANIFEST_BYTES,
+    )
+    if _hash_bytes(source_manifest_payload) != expected["source_manifest_sha256"]:
+        raise WorkspaceError("released sound source manifest hash does not match the profile")
+    try:
+        source_manifest = json.loads(
+            source_manifest_payload,
+            parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)),
+        )
+    except (json.JSONDecodeError, ValueError, RecursionError) as error:
+        raise WorkspaceError("released sound source manifest is invalid JSON") from error
+    if (
+        source_manifest_payload != _canonical_json(source_manifest)
+        or not isinstance(source_manifest, dict)
+        or set(source_manifest) != {
+            "$schema", "assets", "audio_source_count", "schema_version",
+            "source_corpus_sha256", "source_size_bytes",
+        }
+        or source_manifest.get("$schema") != "../schemas/source-assets-v1.schema.json"
+        or source_manifest.get("schema_version") != 1
+        or source_manifest.get("audio_source_count") != EXPECTED_PATHS
+        or not isinstance(source_manifest.get("assets"), list)
+        or len(source_manifest["assets"]) != EXPECTED_PATHS
+    ):
+        raise WorkspaceError("released sound source manifest contract is invalid")
+
+    source_assets: dict[str, tuple[str, str, str, str]] = {}
+    for source_asset in source_manifest["assets"]:
+        if not isinstance(source_asset, dict):
+            raise WorkspaceError("released sound source manifest asset is invalid")
+        logical_path = source_asset.get("logical_path")
+        source_path = source_asset.get("source_path")
+        source_value = source_asset.get("source")
+        if (
+            not isinstance(logical_path, str)
+            or not LOGICAL_PATH_PATTERN.fullmatch(logical_path)
+            or logical_path in source_assets
+            or not isinstance(source_path, str)
+            or not isinstance(source_value, dict)
+            or not isinstance(source_value.get("codec"), str)
+            or not isinstance(source_value.get("container"), str)
+            or not isinstance(source_value.get("sha256"), str)
+            or not SHA256_PATTERN.fullmatch(source_value["sha256"])
+        ):
+            raise WorkspaceError("released sound source manifest asset is invalid")
+        source_assets[logical_path] = (
+            source_path,
+            source_value["codec"],
+            source_value["container"],
+            source_value["sha256"],
+        )
+
+    toolchain_payload = _read_regular(
+        root / "manifests/classic-audio-toolchain.json",
+        "released sound toolchain manifest",
+        maximum_bytes=MAX_RELEASE_TOOLCHAIN_BYTES,
+    )
+    if _hash_bytes(toolchain_payload) != expected["toolchain_sha256"]:
+        raise WorkspaceError("released sound toolchain hash does not match the profile")
+    try:
+        packaged_toolchain = json.loads(
+            toolchain_payload,
+            parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)),
+        )
+    except (json.JSONDecodeError, ValueError, RecursionError) as error:
+        raise WorkspaceError("released sound toolchain manifest is invalid JSON") from error
+    if (
+        not isinstance(packaged_toolchain, dict)
+        or packaged_toolchain.get("$schema")
+        != "../schemas/classic-audio-toolchain-v1.schema.json"
+        or packaged_toolchain.get("schema_version") != 1
+        or not isinstance(packaged_toolchain.get("tools"), dict)
+        or set(packaged_toolchain["tools"]) != TOOL_NAMES
+    ):
+        raise WorkspaceError("released sound toolchain manifest contract is invalid")
+
     remediation_payload = _read_regular(
         root / RELEASE_REMEDIATION,
         "released sound remediation report",
@@ -1437,7 +1549,7 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
             remediation_payload,
             parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)),
         )
-    except (json.JSONDecodeError, ValueError) as error:
+    except (json.JSONDecodeError, ValueError, RecursionError) as error:
         raise WorkspaceError("released sound remediation report is invalid JSON") from error
     remediation_keys = {
         "$schema", "category_counts", "classification", "count", "findings",
@@ -1514,6 +1626,15 @@ def verify_release_tree(root: Path, coordinates: dict[str, Any]) -> dict[str, An
             }
         ):
             raise WorkspaceError(f"released sound mapping is invalid: {logical_path}")
+        if source_assets.get(logical_path) != (
+            source_path,
+            source.get("codec"),
+            source.get("container"),
+            source.get("sha256"),
+        ):
+            raise WorkspaceError(
+                f"released sound source manifest closure mismatch: {logical_path}"
+            )
         source_codec = source.get("codec")
         mapping = raw_asset.get("mapping")
         output_codec = output.get("codec")

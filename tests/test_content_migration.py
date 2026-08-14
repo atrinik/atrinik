@@ -845,6 +845,47 @@ class ContentMigrationTests(unittest.TestCase):
         )
         self.assertEqual(row["status"], "inert")
 
+        coordinates = {
+            "archive_sha256": "a" * 64,
+            "asset_url": (
+                "https://github.com/atrinik/sound/releases/download/v1.2.3/"
+                "atrinik-sound-classic-runtime-1.2.3.tar.gz"
+            ),
+            "manifest_schema_version": 1,
+            "output_tree_sha256": "b" * 64,
+            "product": "atrinik-sound-classic-runtime",
+            "product_version": "1.2.3",
+            "release_manifest_sha256": "c" * 64,
+            "repository": "atrinik/sound",
+            "schema_sha256": "d" * 64,
+            "source_commit": "e" * 40,
+            "source_manifest_sha256": "f" * 64,
+            "source_tree": "1" * 40,
+            "tag": "v1.2.3",
+            "toolchain_sha256": "2" * 64,
+        }
+        default = self.workspace._load_profile("default", require_file=False)
+        for action in ("dry-run", "audit", "apply"):
+            for mode in ("local-playtest", "released"):
+                name = f"invalid-{action}-{mode}"
+                invalid = {
+                    **default,
+                    "schema_version": 5,
+                    "name": name,
+                    "sound_mode": mode,
+                    "sound_release": coordinates if mode == "released" else None,
+                }
+                invalid_path = self.workspace.paths.profiles / f"{name}.json"
+                raw = json.dumps(invalid).encode()
+                invalid_path.write_bytes(raw)
+                result = self.migration().execute(action)
+                invalid_row = next(
+                    item for item in result["profiles"] if item["name"] == name
+                )
+                self.assertEqual(invalid_row["status"], "blocked")
+                self.assertEqual(invalid_path.read_bytes(), raw)
+                invalid_path.unlink()
+
     def test_profile_inventory_fails_closed_on_unsafe_storage_shapes(self) -> None:
         profiles = self.workspace.paths.profiles
         shutil.rmtree(profiles)

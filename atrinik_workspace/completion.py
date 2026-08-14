@@ -10,6 +10,7 @@ from typing import Any, Iterable
 
 from .model import MANAGED_MARKER, Manifest, Paths, WorkspaceError, validate_name
 from .process_tree import control_socket_path
+from .sound import validate_release_coordinates
 
 
 _PROTOCOL_COMMAND = "__complete"
@@ -466,6 +467,8 @@ def _profile_value(
         )
         if sound_mode not in allowed_modes:
             return None
+        if sound_mode != "source" and stack_name != "classic":
+            return None
         if schema_version == 5:
             sound_release = value.get("sound_release")
             if sound_mode == "released":
@@ -473,6 +476,10 @@ def _profile_value(
                     not isinstance(sound_release, dict)
                     or set(sound_release) != _SOUND_RELEASE_KEYS
                 ):
+                    return None
+                try:
+                    validate_release_coordinates(sound_release)
+                except WorkspaceError:
                     return None
             elif sound_release is not None:
                 return None

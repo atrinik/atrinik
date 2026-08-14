@@ -5163,87 +5163,102 @@ class Workspace:
                     f"midi-sources={EXPECTED_SOURCE_MIDI}; "
                     f"flac-sources={EXPECTED_SOURCE_FLAC}"
                 )
-                runtime = root / "runtime"
-                archive_path = runtime / (
-                    f"sound-released-{release_cache_key(coordinates)}.tar.gz"
-                )
-                staged = runtime / "sound-released"
-                if runtime.exists() or runtime.is_symlink():
-                    if runtime.is_symlink() or not runtime.is_dir():
-                        raise WorkspaceError(
-                            "released sound handoff parent is not a safe directory"
-                        )
-                else:
-                    runtime.mkdir()
+                root_fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+                runtime_fd: int | None = None
                 try:
-                    if runtime.resolve() != root.resolve() / "runtime":
+                    try:
+                        os.mkdir("runtime", dir_fd=root_fd)
+                    except FileExistsError:
+                        pass
+                    runtime_fd = os.open(
+                        "runtime",
+                        os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                        dir_fd=root_fd,
+                    )
+                    runtime_identity = os.fstat(runtime_fd)
+                    runtime = Path(f"/proc/self/fd/{runtime_fd}")
+                    archive_name = (
+                        f"sound-released-{release_cache_key(coordinates)}.tar.gz"
+                    )
+                    archive_path = runtime / archive_name
+                    staged = runtime / "sound-released"
+                    archive_present = archive_path.exists() or archive_path.is_symlink()
+                    tree_present = staged.exists() or staged.is_symlink()
+                    if tree_present and not archive_present:
                         raise WorkspaceError(
-                            "released sound handoff parent escapes the profile build"
+                            "released sound cache lacks its verified archive; "
+                            "use preview-first build cleanup"
                         )
-                except RuntimeError as error:
-                    raise WorkspaceError(
-                        "released sound handoff parent cannot be resolved"
-                    ) from error
-                archive_present = archive_path.exists() or archive_path.is_symlink()
-                tree_present = staged.exists() or staged.is_symlink()
-                if tree_present and not archive_present:
-                    raise WorkspaceError(
-                        "released sound cache lacks its verified archive; "
-                        "use preview-first build cleanup"
-                    )
-                if archive_present:
-                    verify_release_archive(
-                        archive_path, coordinates, "cached released sound archive"
-                    )
-                    if not tree_present:
-                        with tempfile.TemporaryDirectory(
-                            prefix=".sound-released-recovery-", dir=runtime
-                        ) as temporary:
-                            candidate_tree = Path(temporary) / "tree"
-                            extract_release_archive(
-                                archive_path, candidate_tree, coordinates
-                            )
-                            verify_release_tree(candidate_tree, coordinates)
-                            rename_no_replace(candidate_tree, staged)
-                    record = verify_release_tree(staged, coordinates)
-                else:
-                    with tempfile.TemporaryDirectory(
-                        prefix=".sound-released-", dir=runtime
-                    ) as temporary:
-                        temporary_root = Path(temporary)
-                        candidate_archive = temporary_root / "archive.tar.gz"
-                        candidate_tree = temporary_root / "tree"
-                        download_release_archive(
-                            coordinates["asset_url"], candidate_archive
-                        )
+                    if archive_present:
                         verify_release_archive(
-                            candidate_archive,
-                            coordinates,
-                            "downloaded released sound archive",
+                            archive_path, coordinates, "cached released sound archive"
                         )
-                        extract_release_archive(
-                            candidate_archive, candidate_tree, coordinates
-                        )
-                        candidate_record = verify_release_tree(
-                            candidate_tree, coordinates
-                        )
-                        rename_no_replace(candidate_archive, archive_path)
-                        try:
-                            rename_no_replace(candidate_tree, staged)
-                        except BaseException:
-                            archive_path.unlink(missing_ok=True)
-                            raise
-                    record = verify_release_tree(staged, coordinates)
-                    if {
-                        **record,
-                        "root": "<verified-root>",
-                    } != {
-                        **candidate_record,
-                        "root": "<verified-root>",
-                    }:
+                        if not tree_present:
+                            with tempfile.TemporaryDirectory(
+                                prefix=".sound-released-recovery-", dir=runtime
+                            ) as temporary:
+                                candidate_tree = Path(temporary) / "tree"
+                                extract_release_archive(
+                                    archive_path, candidate_tree, coordinates
+                                )
+                                verify_release_tree(candidate_tree, coordinates)
+                                rename_no_replace(candidate_tree, staged)
+                        record = verify_release_tree(staged, coordinates)
+                    else:
+                        with tempfile.TemporaryDirectory(
+                            prefix=".sound-released-", dir=runtime
+                        ) as temporary:
+                            temporary_root = Path(temporary)
+                            candidate_archive = temporary_root / "archive.tar.gz"
+                            candidate_tree = temporary_root / "tree"
+                            download_release_archive(
+                                coordinates["asset_url"], candidate_archive
+                            )
+                            verify_release_archive(
+                                candidate_archive,
+                                coordinates,
+                                "downloaded released sound archive",
+                            )
+                            extract_release_archive(
+                                candidate_archive, candidate_tree, coordinates
+                            )
+                            candidate_record = verify_release_tree(
+                                candidate_tree, coordinates
+                            )
+                            rename_no_replace(candidate_archive, archive_path)
+                            try:
+                                rename_no_replace(candidate_tree, staged)
+                            except BaseException:
+                                archive_path.unlink(missing_ok=True)
+                                raise
+                        record = verify_release_tree(staged, coordinates)
+                        if {
+                            **record,
+                            "root": "<verified-root>",
+                        } != {
+                            **candidate_record,
+                            "root": "<verified-root>",
+                        }:
+                            raise WorkspaceError(
+                                "installed released sound handoff differs from verified download"
+                            )
+                    current_runtime = os.stat(
+                        "runtime", dir_fd=root_fd, follow_symlinks=False
+                    )
+                    if (
+                        not stat.S_ISDIR(current_runtime.st_mode)
+                        or (current_runtime.st_dev, current_runtime.st_ino)
+                        != (runtime_identity.st_dev, runtime_identity.st_ino)
+                    ):
                         raise WorkspaceError(
-                            "installed released sound handoff differs from verified download"
+                            "released sound handoff parent changed during publication"
                         )
+                    staged = root / "runtime" / "sound-released"
+                    record["root"] = str(staged)
+                finally:
+                    if runtime_fd is not None:
+                        os.close(runtime_fd)
+                    os.close(root_fd)
             except (OSError, WorkspaceError) as error:
                 raise WorkspaceError(
                     f"profile {profile_name} mode {mode} coordinates ({identity}) "
