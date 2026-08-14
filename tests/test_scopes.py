@@ -1199,6 +1199,31 @@ class ScopeLifecycleTests(unittest.TestCase):
         with mock.patch.object(
             self.workspace, "topology_status", return_value=persisted
         ):
+            foreign_spec = copy.deepcopy(spec)
+            foreign_status = copy.deepcopy(persisted)
+            for value in (foreign_spec, foreign_status):
+                value["resolved"]["server"]["path"] = rows["client"]["path"]
+                value["resolved"]["server"]["checkout_path"] = rows["client"][
+                    "path"
+                ]
+            atomic_json(topology_root / "spec.json", foreign_spec)
+            atomic_json(topology_root / "status.json", foreign_status)
+            with mock.patch.object(
+                self.workspace, "topology_status", return_value=foreign_status
+            ):
+                foreign_preview = self.workspace.scope_release(
+                    record["name"], apply=False
+                )
+            self.assertIn(
+                "mismatched_topology_records",
+                next(
+                    item
+                    for item in foreign_preview["items"]
+                    if item["kind"] == "topology"
+                )["reasons"],
+            )
+            atomic_json(topology_root / "spec.json", spec)
+            atomic_json(topology_root / "status.json", persisted)
             preview = self.workspace.scope_release(
                 record["name"], apply=False
             )

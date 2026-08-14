@@ -1365,26 +1365,43 @@ class ScopeLifecycle:
                         row["checkout"]: row for row in record["worktrees"]
                     }
                     resolved = spec.get("resolved") if isinstance(spec, dict) else None
-                    resolved_by_checkout: dict[str, list[dict[str, Any]]] = {}
+                    scope_worktrees_by_path = {
+                        Path(row["path"]).resolve(strict=False): row
+                        for row in record["worktrees"]
+                    }
+                    scope_coordinates_match = isinstance(resolved, dict)
                     if isinstance(resolved, dict):
                         for coordinate in resolved.values():
-                            if isinstance(coordinate, dict) and isinstance(
-                                coordinate.get("checkout"), str
+                            if not isinstance(coordinate, dict) or not isinstance(
+                                coordinate.get("checkout_path"), str
                             ):
-                                resolved_by_checkout.setdefault(
-                                    coordinate["checkout"], []
-                                ).append(coordinate)
-                    scope_coordinates_match = all(
-                        all(
-                            coordinate.get("checkout_path") == row["path"]
-                            and coordinate.get("head") == row["commit"]
-                            and coordinate.get("dirty") is False
-                            for coordinate in resolved_by_checkout.get(
-                                row["checkout"], []
+                                scope_coordinates_match = False
+                                break
+                            checkout = coordinate.get("checkout")
+                            declared_row = scope_worktrees.get(checkout)
+                            path_row = scope_worktrees_by_path.get(
+                                Path(coordinate["checkout_path"]).resolve(
+                                    strict=False
+                                )
                             )
-                        )
-                        for row in scope_worktrees.values()
-                    )
+                            rows_to_check: list[dict[str, Any]] = []
+                            for row in (declared_row, path_row):
+                                if row is not None and row not in rows_to_check:
+                                    rows_to_check.append(row)
+                            for row in rows_to_check:
+                                if (
+                                    checkout != row["checkout"]
+                                    or Path(coordinate["checkout_path"]).resolve(
+                                        strict=False
+                                    )
+                                    != Path(row["path"]).resolve(strict=False)
+                                    or coordinate.get("head") != row["commit"]
+                                    or coordinate.get("dirty") is not False
+                                ):
+                                    scope_coordinates_match = False
+                                    break
+                            if not scope_coordinates_match:
+                                break
                     records_match = records_match and scope_coordinates_match
                     stopped_cleanly = (
                         isinstance(persisted, dict)
