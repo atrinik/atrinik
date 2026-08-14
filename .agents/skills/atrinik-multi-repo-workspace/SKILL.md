@@ -102,7 +102,8 @@ remainder.
 For classic server execution or diagnosis, load `atrinik-server-runtime`. For
 a ready account and character, also load `atrinik-test-scenario`; never
 handcraft saves or expose credentials. Keep every concurrent topology on a
-distinct name and server state.
+distinct name and state policy; prefer generation-owned temporary state for
+isolated automation.
 
 ## Validate and hand off
 
@@ -112,8 +113,8 @@ names and follows this lifecycle:
 ```sh
 ./atrinik profile show PROFILE
 ./atrinik build COMPONENT --profile PROFILE --test
-./atrinik topology show PROFILE --json
-./atrinik up --name TOPOLOGY --profile PROFILE --state STATE
+./atrinik topology show PROFILE --temporary-state --json
+./atrinik up --name TOPOLOGY --profile PROFILE --temporary-state
 ./atrinik ps TOPOLOGY --json
 ./atrinik logs TOPOLOGY [server|client] --follow
 ./atrinik down TOPOLOGY

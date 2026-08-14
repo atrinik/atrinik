@@ -13,6 +13,7 @@ import threading
 import unittest
 from unittest import mock
 
+from atrinik_workspace import cleanup as cleanup_module
 from atrinik_workspace.cleanup import (
     ALL_SCOPES,
     Cleanup,
@@ -244,6 +245,25 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["reasons"], ["inactive_topology"])
         self.assertEqual(item["liveness"], "exited")
         self.assertEqual(item["age_basis"], "stopped-at")
+
+    def test_topology_cleanup_preserves_generation_owned_state(self) -> None:
+        root = self.make_topology_record("stateful-history")
+        container = root / "temporary-states"
+        container.mkdir()
+        atomic_json(
+            container / MANAGED_MARKER,
+            {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": "topology-temporary-states",
+            },
+        )
+        (container / ("a" * 64)).mkdir()
+
+        report = self.workspace.cleanup(["topologies"], 7, [], False)
+
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("temporary_states_present", item["reasons"])
 
     def test_missing_topology_container_is_an_empty_inventory(self) -> None:
         self.workspace.paths.topologies.rmdir()
@@ -3481,7 +3501,11 @@ class CleanupTests(unittest.TestCase):
             self.assertEqual(
                 cleanup._normalize_scopes(["all"]),
                 [
-                    "worktrees", "builds", "npm-cache", "compiler-cache",
+                    "worktrees",
+                    "builds",
+                    "temporary-states",
+                    "npm-cache",
+                    "compiler-cache",
                     "sound-cache",
                 ],
             )
@@ -3535,6 +3559,45 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(
             first["allocated_bytes"] + second["allocated_bytes"], 16384
         )
+
+    def test_temporary_tree_usage_bounds_open_descriptors_for_wide_tree(self) -> None:
+        state = self.root / "wide-temporary-state"
+        state.mkdir()
+        for index in range(80):
+            child = state / f"child-{index}"
+            child.mkdir()
+            (child / "payload").write_text("data\n", encoding="utf-8")
+        real_open = os.open
+        real_close = os.close
+        active: set[int] = set()
+        maximum = 0
+
+        def tracked_open(*args: object, **kwargs: object) -> int:
+            nonlocal maximum
+            descriptor = real_open(*args, **kwargs)
+            active.add(descriptor)
+            maximum = max(maximum, len(active))
+            if maximum > 4:
+                real_close(descriptor)
+                active.remove(descriptor)
+                raise OSError("simulated descriptor exhaustion")
+            return descriptor
+
+        def tracked_close(descriptor: int) -> None:
+            active.discard(descriptor)
+            real_close(descriptor)
+
+        with (
+            mock.patch.object(cleanup_module.os, "open", side_effect=tracked_open),
+            mock.patch.object(cleanup_module.os, "close", side_effect=tracked_close),
+        ):
+            sizes, observed, error = cleanup_module._temporary_tree_usage(state)
+
+        self.assertIsNone(error)
+        self.assertIsNotNone(observed)
+        self.assertTrue(sizes)
+        self.assertLessEqual(maximum, 4)
+        self.assertEqual(active, set())
 
 
 if __name__ == "__main__":

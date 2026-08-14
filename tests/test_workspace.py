@@ -27,6 +27,7 @@ import unittest
 from unittest import mock
 
 from atrinik_workspace import workspace as workspace_module
+from atrinik_workspace import cleanup as cleanup_module
 from atrinik_workspace import locking as locking_module
 from atrinik_workspace.locking import (
     LeaseRequest,
@@ -557,6 +558,15 @@ def synthetic_server_start_process(
             # kernel availability check.
             reserved_port.close()
 
+            def prepared_state_path(
+                *_args: object, **kwargs: object
+            ) -> Path | tuple[Path, int]:
+                if kwargs.get("keep_descriptor"):
+                    return state, os.open(
+                        state, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW
+                    )
+                return state
+
             with (
                 mock.patch.object(
                     locking_module.fcntl, "flock", side_effect=observe_flock
@@ -565,7 +575,9 @@ def synthetic_server_start_process(
                 mock.patch.object(
                     workspace, "_state_location", return_value=state
                 ),
-                mock.patch.object(workspace, "state_path", return_value=state),
+                mock.patch.object(
+                    workspace, "state_path", side_effect=prepared_state_path
+                ),
                 mock.patch.object(
                     workspace, "_build_resolved", return_value=root
                 ),
@@ -963,6 +975,10 @@ class WorkspaceTests(unittest.TestCase):
             "import os, pathlib, socket, sys, time\n"
             "port = int(next(value.split('=', 1)[1] for value in sys.argv "
             "if value.startswith('--port_quic=')))\n"
+            "datapath = pathlib.Path(next(value.split('=', 1)[1] for value in "
+            "sys.argv if value.startswith('--datapath=')))\n"
+            "(datapath / 'rendezvous-state-proof').write_text('pinned\\n', "
+            "encoding='utf-8')\n"
             f"rendezvous = pathlib.Path({str(rendezvous)!r})\n"
             f"marker = rendezvous / {marker!r}\n"
             "udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)\n"
@@ -5258,6 +5274,536 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(sorted(path.name for path in external.iterdir()), ["sentinel"])
         self.assertEqual(list(topology.iterdir()), [])
 
+    def test_runtime_state_output_cleanup_remains_bound_to_pinned_state(
+        self,
+    ) -> None:
+        state = self.root / "external-state"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "a" * 32
+        relocated = self.root / "relocated-state"
+        try:
+            output, output_fd, output_identity = self.workspace._prepare_runtime_state_output(
+                state, generation, state_fd
+            )
+            os.close(output_fd)
+            state.rename(relocated)
+            state.mkdir()
+            sentinel = state / "sentinel"
+            sentinel.write_text("replacement\n", encoding="utf-8")
+
+            self.workspace._remove_runtime_state_output(
+                output, generation, state_fd, output_identity
+            )
+
+            self.assertFalse(
+                (relocated / "tmp" / "runtime-assets" / generation).exists()
+            )
+            self.assertEqual(sentinel.read_text(encoding="utf-8"), "replacement\n")
+            self.assertEqual(sorted(path.name for path in state.iterdir()), ["sentinel"])
+        finally:
+            os.close(state_fd)
+
+    def test_runtime_state_output_cleanup_rejects_generation_swap(self) -> None:
+        state = self.root / "state-output-race"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "b" * 32
+        output, output_fd, output_identity = self.workspace._prepare_runtime_state_output(
+            state, generation, state_fd
+        )
+        os.close(output_fd)
+        replacement = self.root / "replacement-output"
+        replacement.mkdir()
+        atomic_json(
+            replacement / MANAGED_MARKER,
+            {
+                "schema_version": 1,
+                "purpose": f"runtime-state-output:{generation}",
+            },
+        )
+        sentinel = replacement / "sentinel"
+        sentinel.write_text("replacement\n", encoding="utf-8")
+        displaced = self.root / "displaced-output"
+        real_open = os.open
+        swapped = False
+
+        def open_after_swap(
+            path: object, flags: int, *args: object, **kwargs: object
+        ) -> int:
+            nonlocal swapped
+            if path == generation and not swapped:
+                swapped = True
+                output.rename(displaced)
+                replacement.rename(output)
+            return real_open(path, flags, *args, **kwargs)
+
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.os.open",
+                    side_effect=open_after_swap,
+                ),
+                self.assertRaisesRegex(WorkspaceError, "output path changed"),
+            ):
+                self.workspace._remove_runtime_state_output(
+                    output, generation, state_fd, output_identity
+                )
+            self.assertTrue(swapped)
+            self.assertEqual(
+                (output / "sentinel").read_text(encoding="utf-8"),
+                "replacement\n",
+            )
+            self.assertTrue((displaced / MANAGED_MARKER).is_file())
+        finally:
+            os.close(state_fd)
+
+    def test_runtime_state_output_cleanup_rejects_completed_replacement(self) -> None:
+        state = self.root / "state-output-replaced"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "c" * 32
+        output, output_fd, output_identity = self.workspace._prepare_runtime_state_output(
+            state, generation, state_fd
+        )
+        displaced = self.root / "displaced-runtime-output"
+        output.rename(displaced)
+        output.mkdir()
+        atomic_json(
+            output / MANAGED_MARKER,
+            {
+                "schema_version": 1,
+                "purpose": f"runtime-state-output:{generation}",
+            },
+        )
+        sentinel = output / "sentinel"
+        sentinel.write_text("replacement\n", encoding="utf-8")
+        try:
+            pinned = Path(f"/proc/self/fd/{output_fd}") / "pinned-sentinel"
+            pinned.write_text("original\n", encoding="utf-8")
+            self.assertEqual(
+                (displaced / "pinned-sentinel").read_text(encoding="utf-8"),
+                "original\n",
+            )
+            self.assertFalse((output / "pinned-sentinel").exists())
+            with self.assertRaisesRegex(WorkspaceError, "identity changed"):
+                self.workspace._remove_runtime_state_output(
+                    output, generation, state_fd, output_identity
+                )
+            self.assertEqual(sentinel.read_text(encoding="utf-8"), "replacement\n")
+            self.assertTrue((displaced / MANAGED_MARKER).is_file())
+        finally:
+            os.close(output_fd)
+            os.close(state_fd)
+
+    def test_runtime_state_output_cleanup_rejects_fifo_marker_and_mount(self) -> None:
+        state = self.root / "state-output-invalid"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "d" * 32
+        output, output_fd, output_identity = self.workspace._prepare_runtime_state_output(
+            state, generation, state_fd
+        )
+        os.close(output_fd)
+        marker = output / MANAGED_MARKER
+        marker.unlink()
+        os.mkfifo(marker)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "ownership.*invalid"):
+                self.workspace._remove_runtime_state_output(
+                    output, generation, state_fd, output_identity
+                )
+            marker.unlink()
+            atomic_json(
+                marker,
+                {
+                    "schema_version": 1,
+                    "purpose": f"runtime-state-output:{generation}",
+                },
+            )
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace._descriptor_mount_id",
+                    side_effect=[1, 1, 2],
+                ),
+                self.assertRaisesRegex(WorkspaceError, "crosses a mount"),
+            ):
+                self.workspace._remove_runtime_state_output(
+                    output, generation, state_fd, output_identity
+                )
+            self.assertTrue(marker.is_file())
+        finally:
+            os.close(state_fd)
+
+    def test_runtime_state_output_cleanup_tracks_pending_renames(self) -> None:
+        topology = self.workspace._topology_directory(
+            "runtime-output-recovery", create=True
+        )
+        state = self.root / "runtime-output-recovery-state"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "e" * 64
+        output, output_fd, output_identity = (
+            self.workspace._prepare_runtime_state_output(
+                state, generation, state_fd
+            )
+        )
+        os.close(output_fd)
+        os.close(state_fd)
+        quarantine = state / "quarantine"
+        quarantine.mkdir()
+        displaced = quarantine / "operator-renamed-output"
+        output.rename(displaced)
+        status = {
+            "name": "runtime-output-recovery",
+            "state_policy": {
+                "mode": "named",
+                "path": str(state),
+                "identity": self.workspace._state_identity(state),
+            },
+            "control": {"generation": generation},
+            "runtime": {
+                "mutable_state_outputs": [str(output)],
+                "mutable_state_output_identities": [output_identity],
+            },
+        }
+        status_path = topology / "status.json"
+        atomic_json(status_path, status)
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            side_effect=lambda _name: load_json(status_path),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "ownership evidence is missing"
+            ):
+                self.workspace._cleanup_topology_mutable_state_outputs(status)
+            pending = load_json(status_path)
+            self.assertEqual(
+                pending["mutable_state_cleanup"]["entries"][0]["status"],
+                "pending",
+            )
+            displaced.rename(output)
+            completed = self.workspace._cleanup_topology_mutable_state_outputs(
+                pending
+            )
+        self.assertEqual(
+            completed["mutable_state_cleanup"]["entries"][0]["status"],
+            "complete",
+        )
+        self.assertFalse(output.exists())
+        output.mkdir()
+        with (
+            mock.patch.object(
+                self.workspace,
+                "topology_status",
+                side_effect=lambda _name: load_json(status_path),
+            ),
+            self.assertRaisesRegex(WorkspaceError, "output reappeared"),
+        ):
+            self.workspace._cleanup_topology_mutable_state_outputs(completed)
+
+    def test_interrupted_runtime_output_publication_is_recovered(self) -> None:
+        topology = self.workspace._topology_directory(
+            "runtime-output-transaction", create=True
+        )
+        state = self.root / "runtime-output-transaction-state"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "f" * 64
+        output, output_fd, output_identity = (
+            self.workspace._prepare_runtime_state_output(
+                state, generation, state_fd
+            )
+        )
+        os.close(output_fd)
+        os.close(state_fd)
+        transaction = topology / workspace_module.RUNTIME_STATE_OUTPUT_TRANSACTION
+        atomic_json(
+            transaction,
+            {
+                "schema_version": 1,
+                "generation": generation,
+                "state": str(state),
+                "state_identity": self.workspace._state_identity(state),
+                "phase": "prepared",
+                "output_identity": output_identity,
+            },
+        )
+        preview = self.workspace.cleanup(["topologies"], 0, [], False)
+        topology_item = next(
+            item
+            for item in preview["items"]
+            if item["path"] == str(topology)
+        )
+        self.assertEqual(topology_item["disposition"], "protected")
+        self.assertIn(
+            "runtime_state_output_transaction_pending",
+            topology_item["reasons"],
+        )
+
+        self.workspace._recover_runtime_state_output_transaction(
+            topology, "runtime-output-transaction"
+        )
+
+        self.assertFalse(output.exists())
+        self.assertFalse(transaction.exists())
+
+        atomic_json(
+            transaction,
+            {
+                "schema_version": 1,
+                "generation": "2" * 64,
+                "state": str(state),
+                "state_identity": self.workspace._state_identity(state),
+                "phase": "creating",
+                "output_identity": None,
+            },
+        )
+        with self.assertRaisesRegex(
+            WorkspaceError, "before exact ownership was recorded"
+        ):
+            self.workspace._recover_runtime_state_output_transaction(
+                topology, "runtime-output-transaction"
+            )
+        self.assertTrue(transaction.is_file())
+
+    def test_runtime_output_creation_marks_uncertainty_before_mkdir(self) -> None:
+        state = self.root / "runtime-output-mkdir-interruption"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "9" * 64
+        proof = [True]
+        real_mkdir = os.mkdir
+
+        def mkdir_then_interrupt(
+            name: str | bytes,
+            mode: int = 0o777,
+            *,
+            dir_fd: int | None = None,
+        ) -> None:
+            real_mkdir(name, mode, dir_fd=dir_fd)
+            if name == generation:
+                raise KeyboardInterrupt("simulated interruption after mkdir")
+
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.os.mkdir",
+                    side_effect=mkdir_then_interrupt,
+                ),
+                self.assertRaisesRegex(KeyboardInterrupt, "after mkdir"),
+            ):
+                self.workspace._prepare_runtime_state_output(
+                    state,
+                    generation,
+                    state_fd,
+                    cleanup_proof=proof,
+                )
+            self.assertFalse(proof[0])
+            self.assertTrue(
+                (state / "tmp" / "runtime-assets" / generation).is_dir()
+            )
+        finally:
+            os.close(state_fd)
+
+    def test_runtime_output_preparation_failure_removes_created_generation(self) -> None:
+        state = self.root / "runtime-output-preparation-failure"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "4" * 64
+        proof = [False]
+        real_open = os.open
+
+        def fail_marker_open(
+            path: str | bytes,
+            flags: int,
+            mode: int = 0o777,
+            *,
+            dir_fd: int | None = None,
+        ) -> int:
+            if path == MANAGED_MARKER and dir_fd is not None:
+                raise OSError("simulated marker publication failure")
+            return real_open(path, flags, mode, dir_fd=dir_fd)
+
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.os.open",
+                    side_effect=fail_marker_open,
+                ),
+                self.assertRaisesRegex(WorkspaceError, "marker publication failure"),
+            ):
+                self.workspace._prepare_runtime_state_output(
+                    state,
+                    generation,
+                    state_fd,
+                    cleanup_proof=proof,
+                )
+            self.assertTrue(proof[0])
+            self.assertFalse(
+                (state / "tmp" / "runtime-assets" / generation).exists()
+            )
+        finally:
+            os.close(state_fd)
+
+    def test_runtime_output_transaction_clear_restores_replacement(self) -> None:
+        topology = self.workspace._topology_directory(
+            "runtime-output-clear-race", create=True
+        )
+        transaction = topology / workspace_module.RUNTIME_STATE_OUTPUT_TRANSACTION
+        atomic_json(transaction, {"schema_version": 1, "value": "original"})
+        displaced = topology / "displaced-transaction"
+        real_rename_at = workspace_module.rename_no_replace_at
+        raced = False
+
+        def replace_before_rename(
+            source_fd: int,
+            source: str,
+            destination_fd: int,
+            destination: str,
+        ) -> None:
+            nonlocal raced
+            if source == workspace_module.RUNTIME_STATE_OUTPUT_TRANSACTION and not raced:
+                raced = True
+                os.rename(source, displaced.name, src_dir_fd=source_fd, dst_dir_fd=source_fd)
+                replacement_fd = os.open(
+                    source,
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                    0o600,
+                    dir_fd=source_fd,
+                )
+                try:
+                    os.write(replacement_fd, b'{"replacement": true}\n')
+                finally:
+                    os.close(replacement_fd)
+            real_rename_at(source_fd, source, destination_fd, destination)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=replace_before_rename,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "changed before removal"),
+        ):
+            self.workspace._clear_runtime_state_output_transaction(topology)
+        self.assertEqual(load_json(transaction), {"replacement": True})
+        self.assertEqual(
+            load_json(displaced), {"schema_version": 1, "value": "original"}
+        )
+
+    def test_pre_spawn_runtime_output_rollback_completes_transaction(self) -> None:
+        topology = self.workspace._topology_directory(
+            "runtime-output-pre-spawn", create=True
+        )
+        state = self.root / "runtime-output-pre-spawn-state"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "3" * 64
+        output, output_fd, output_identity = (
+            self.workspace._prepare_runtime_state_output(
+                state, generation, state_fd
+            )
+        )
+        os.close(output_fd)
+        transaction = topology / workspace_module.RUNTIME_STATE_OUTPUT_TRANSACTION
+        atomic_json(
+            transaction,
+            {
+                "schema_version": 1,
+                "generation": generation,
+                "state": str(state),
+                "state_identity": self.workspace._state_identity(state),
+                "phase": "prepared",
+                "output_identity": output_identity,
+            },
+        )
+        try:
+            self.workspace._rollback_runtime_state_output_transaction(
+                topology, output, generation, state_fd, output_identity
+            )
+            self.assertFalse(output.exists())
+            self.assertFalse(transaction.exists())
+            self.workspace._recover_runtime_state_output_transaction(
+                topology, "runtime-output-pre-spawn"
+            )
+        finally:
+            os.close(state_fd)
+
+    def test_runtime_output_removal_retries_from_empty_tombstone(self) -> None:
+        state = self.root / "runtime-output-removal-retry"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "1" * 64
+        output, output_fd, output_identity = (
+            self.workspace._prepare_runtime_state_output(
+                state, generation, state_fd
+            )
+        )
+        os.close(output_fd)
+        original_remove = workspace_module._remove_owned_tree_contents
+
+        def remove_then_interrupt(*args: object, **kwargs: object) -> None:
+            original_remove(*args, **kwargs)
+            raise WorkspaceError("simulated output removal interruption")
+
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace._remove_owned_tree_contents",
+                    side_effect=remove_then_interrupt,
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError, "simulated output removal interruption"
+                ),
+            ):
+                self.workspace._remove_runtime_state_output(
+                    output, generation, state_fd, output_identity
+                )
+            self.workspace._remove_runtime_state_output(
+                output, generation, state_fd, output_identity
+            )
+            self.assertFalse(output.exists())
+        finally:
+            os.close(state_fd)
+
+    def test_schema_two_restart_preserves_unowned_mutable_output(self) -> None:
+        topology = self.workspace._topology_directory(
+            "legacy-output", create=True
+        )
+        atomic_json(topology / "status.json", {})
+        output = self.root / "legacy-runtime-output"
+        output.mkdir()
+        previous = {
+            "schema_version": workspace_module.LEGACY_RUNTIME_TOPOLOGY_STATUS_SCHEMA_VERSION,
+            "supervisor": {"running": False},
+            "services": {"server": {"running": False}},
+            "runtime": {"mutable_state_outputs": [str(output)]},
+        }
+        with (
+            mock.patch.object(
+                self.workspace, "topology_status", return_value=previous
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "legacy mutable state output"
+            ),
+        ):
+            self.workspace.topology_up(
+                "legacy-output", "default", "default", ["server"], 0
+            )
+        output.rename(output.parent / "operator-renamed-legacy-output")
+        with (
+            mock.patch.object(
+                self.workspace, "topology_status", return_value=previous
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "legacy mutable state output"
+            ),
+        ):
+            self.workspace.topology_up(
+                "legacy-output", "default", "default", ["server"], 0
+            )
+
     def test_topology_runtime_set_copies_read_only_directories(self) -> None:
         topology = self.root / "topology"
         topology.mkdir()
@@ -5307,7 +5853,12 @@ class WorkspaceTests(unittest.TestCase):
                 if isinstance(directory_fd, int)
                 else None
             )
-            if path == "payload" and parent is not None and parent.name == "previous":
+            if (
+                isinstance(path, str)
+                and path.startswith(".remove-")
+                and parent is not None
+                and parent.name == "previous"
+            ):
                 raise PermissionError("read only")
             real_unlink(path, *args, **kwargs)
 
@@ -5851,6 +6402,151 @@ class WorkspaceTests(unittest.TestCase):
             )
             self.assertEqual(stat.S_IMODE(root.stat().st_mode), root_mode)
             self.assertEqual(stat.S_IMODE(nested.stat().st_mode), nested_mode)
+
+    def test_owned_tree_removal_rejects_root_rebinding(self) -> None:
+        for phase in ("before-contents", "before-rmdir"):
+            with self.subTest(phase=phase):
+                parent = self.root / phase
+                parent.mkdir()
+                owned = parent / "owned"
+                owned.mkdir()
+                (owned / "payload").write_text("owned\n", encoding="utf-8")
+                identity = self.workspace._state_identity(owned)
+                moved = parent / "moved"
+                real_prepare = workspace_module._prepare_owned_tree_removal
+                real_remove = workspace_module._remove_owned_tree_contents
+
+                def replace_before_contents(*args: object, **kwargs: object) -> None:
+                    real_prepare(*args, **kwargs)
+                    owned.rename(moved)
+                    owned.mkdir()
+                    (owned / "replacement").write_text(
+                        "preserve\n", encoding="utf-8"
+                    )
+
+                def replace_before_rmdir(*args: object, **kwargs: object) -> None:
+                    real_remove(*args, **kwargs)
+                    owned.rename(moved)
+                    owned.mkdir()
+                    (owned / "replacement").write_text(
+                        "preserve\n", encoding="utf-8"
+                    )
+
+                target = (
+                    "atrinik_workspace.workspace._prepare_owned_tree_removal"
+                    if phase == "before-contents"
+                    else "atrinik_workspace.workspace._remove_owned_tree_contents"
+                )
+                replacement = (
+                    replace_before_contents
+                    if phase == "before-contents"
+                    else replace_before_rmdir
+                )
+                with (
+                    mock.patch(target, side_effect=replacement),
+                    self.assertRaisesRegex(
+                        WorkspaceError, "owned removal root identity changed"
+                    ),
+                ):
+                    remove_owned_tree(owned, expected_identity=identity)
+                self.assertEqual(
+                    (owned / "replacement").read_text(encoding="utf-8"),
+                    "preserve\n",
+                )
+                if phase == "before-contents":
+                    self.assertEqual(
+                        (moved / "payload").read_text(encoding="utf-8"),
+                        "owned\n",
+                    )
+
+    def test_owned_tree_removal_recovers_identity_named_tombstones(self) -> None:
+        root = self.root / "recover-root-tombstone"
+        root.mkdir()
+        (root / "payload").write_text("owned\n", encoding="utf-8")
+        identity = self.workspace._state_identity(root)
+        root_tombstone = workspace_module._owned_tree_tombstone_path(
+            root, identity
+        )
+        root.rename(root_tombstone)
+        remove_owned_tree(root, expected_identity=identity)
+        self.assertFalse(root_tombstone.exists())
+
+        child_root = self.root / "recover-child-tombstone"
+        child_root.mkdir()
+        child = child_root / "payload"
+        child.write_text("owned\n", encoding="utf-8")
+        child_metadata = child.stat()
+        child_tombstone = child_root / workspace_module._owned_tree_tombstone_name(
+            child.name, child_metadata.st_dev, child_metadata.st_ino
+        )
+        child.rename(child_tombstone)
+        remove_owned_tree(
+            child_root,
+            expected_identity=self.workspace._state_identity(child_root),
+        )
+        self.assertFalse(child_root.exists())
+
+    def test_owned_tree_removal_rejects_unverified_tombstone(self) -> None:
+        root = self.root / "uncertain-child-tombstone"
+        root.mkdir()
+        original = root / "payload"
+        original.write_text("owned\n", encoding="utf-8")
+        metadata = original.stat()
+        tombstone = root / workspace_module._owned_tree_tombstone_name(
+            original.name, metadata.st_dev, metadata.st_ino
+        )
+        original.rename(self.root / "preserved-original")
+        tombstone.write_text("must survive\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "uncertain tombstone"):
+            remove_owned_tree(
+                root, expected_identity=self.workspace._state_identity(root)
+            )
+        self.assertEqual(tombstone.read_text(encoding="utf-8"), "must survive\n")
+
+    def test_owned_tree_removal_rechecks_links_after_tombstoning(self) -> None:
+        root = self.root / "linked-after-tombstone"
+        root.mkdir()
+        payload = root / "payload"
+        payload.write_text("preserve\n", encoding="utf-8")
+        external = self.root / "external-hard-link"
+        real_rename = workspace_module.rename_no_replace_at
+
+        def link_after_rename(
+            source_fd: int,
+            source: str,
+            destination_fd: int,
+            destination: str,
+        ) -> None:
+            real_rename(source_fd, source, destination_fd, destination)
+            if source == "payload":
+                os.link(
+                    destination,
+                    external,
+                    src_dir_fd=destination_fd,
+                    follow_symlinks=False,
+                )
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=link_after_rename,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "linked state"),
+        ):
+            remove_owned_tree(
+                root,
+                expected_identity=self.workspace._state_identity(root),
+                reject_links=True,
+            )
+        self.assertEqual(external.read_text(encoding="utf-8"), "preserve\n")
+
+    def test_owned_tree_removal_supports_name_max_entries(self) -> None:
+        root = self.root / "name-max-removal"
+        root.mkdir()
+        (root / ("f" * 255)).write_text("owned\n", encoding="utf-8")
+        (root / ("d" * 255)).mkdir()
+        remove_owned_tree(root, expected_identity=self.workspace._state_identity(root))
+        self.assertFalse(root.exists())
 
     def test_replaced_directory_recovery_rejects_invalid_states(self) -> None:
         def snapshot(parent: Path) -> dict[str, tuple[object, ...]]:
@@ -9340,7 +10036,7 @@ class WorkspaceTests(unittest.TestCase):
                 candidate.bind(("0.0.0.0", 0))
                 return int(candidate.getsockname()[1])
 
-        for mode in ("explicit", "automatic"):
+        for mode in ("explicit", "automatic", "temporary", "mixed-policy"):
             with self.subTest(mode=mode):
                 rendezvous = self.root / f"{mode}-port-rendezvous"
                 rendezvous.mkdir()
@@ -9352,9 +10048,16 @@ class WorkspaceTests(unittest.TestCase):
                     self.make_rendezvous_server_build(
                         root, rendezvous, f"{index}.bound"
                     )
-                states = [f"{mode}-state-{index}" for index in range(2)]
+                states: list[str | None]
+                if mode == "temporary":
+                    states = [None, None]
+                elif mode == "mixed-policy":
+                    states = [None, "mixed-policy-state"]
+                else:
+                    states = [f"{mode}-state-{index}" for index in range(2)]
                 for state in states:
-                    self.workspace.state_add(state, None)
+                    if state is not None:
+                        self.workspace.state_add(state, None)
                 names = [f"{mode}-topology-{index}" for index in range(2)]
                 if mode == "explicit":
                     ports: list[int | None] = [free_port(), free_port()]
@@ -9393,6 +10096,31 @@ class WorkspaceTests(unittest.TestCase):
                         {path.name for path in rendezvous.glob("*.bound")},
                         {"0.bound", "1.bound"},
                     )
+                    if mode == "temporary":
+                        state_paths = {
+                            status["state_policy"]["path"] for status in statuses
+                        }
+                        self.assertEqual(len(state_paths), 2)
+                        self.assertTrue(
+                            all(Path(path).is_dir() for path in state_paths)
+                        )
+                        registered = set(self.workspace._load_states().values())
+                        self.assertTrue(state_paths.isdisjoint(registered))
+                    elif mode == "mixed-policy":
+                        self.assertEqual(
+                            [
+                                status["state_policy"]["mode"]
+                                for status in statuses
+                            ],
+                            ["temporary", "named"],
+                        )
+                        registered = set(self.workspace._load_states().values())
+                        self.assertNotIn(
+                            statuses[0]["state_policy"]["path"], registered
+                        )
+                        self.assertIn(
+                            statuses[1]["state_policy"]["path"], registered
+                        )
                     observer = Workspace(self.wrapper)
                     for index, name in enumerate(names):
                         observed = observer.topology_status(name)
@@ -9637,6 +10365,8 @@ class WorkspaceTests(unittest.TestCase):
             ["client", "server"],
         )
         self.assertTrue(status["ready"])
+        self.assertEqual(status["state_policy"]["mode"], "default")
+        self.assertEqual(status["state_policy"]["lifecycle"], "persistent")
         self.assertEqual(status["endpoint"]["port"], 17300)
         self.assertEqual(status["port_reservation"]["port"], 17300)
         self.assertEqual(status["port_reservation"]["topology"], "server-review")
@@ -9729,8 +10459,10 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("'--port_quic=17300'", server_log.read_text())
         self.assertIn("'--port_mapping=off'", server_log.read_text())
         self.assertIn("'--stun_server=off'", server_log.read_text())
-        self.assertIn(
-            f"'--assetspath={mutable_asset_output}'", server_log.read_text()
+        self.assertRegex(server_log.read_text(), r"'--datapath=/proc/self/fd/\d+'")
+        self.assertRegex(
+            server_log.read_text(),
+            r"'--assetspath=/proc/self/fd/\d+'",
         )
         self.assertIn(
             f"'--server=127.0.0.1 17300 {'a' * 64}'", client_log.read_text()
@@ -9751,6 +10483,15 @@ class WorkspaceTests(unittest.TestCase):
             client_log.read_text(),
         )
         state = self.workspace._state_location("default")
+        identity = self.workspace._state_identity(state)
+        with self.assertRaisesRegex(WorkspaceError, "already in use"):
+            with exclusive_lock(
+                self.workspace._lease_namespace
+                / f"state-identity-{identity['device']}-{identity['inode']}.lock",
+                "live physical state",
+                nonblocking=True,
+            ):
+                self.fail("supervisor released the physical state lease")
         second_state = self.workspace.state_add("second", None)
         source_lock = resource_lock_path(
             self.workspace._lease_namespace,
@@ -9784,6 +10525,7 @@ class WorkspaceTests(unittest.TestCase):
                     "server-review-two", "default", "second", ["server"], 17301
                 )
             self.assertTrue(second["ready"])
+            self.assertEqual(second["state_policy"]["mode"], "named")
             self.assertEqual(second["endpoint"]["port"], 17301)
             self.assertIn("client", second["dependencies"])
             self.assertNotIn("client", second["services"])
@@ -9928,9 +10670,11 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 with exclusive_lock(path, description, nonblocking=True):
                     pass
-            descendant_path = Path(
-                server_only["services"]["server"]["cwd"]
-            ) / "data" / "tmp" / "descendant.pid"
+            descendant_path = (
+                self.workspace._state_location("default")
+                / "tmp"
+                / "descendant.pid"
+            )
             deadline = time.monotonic() + 5
             while time.monotonic() < deadline and not descendant_path.is_file():
                 time.sleep(0.05)
@@ -10006,6 +10750,1330 @@ class WorkspaceTests(unittest.TestCase):
             profile_lock, "profile build default", nonblocking=True
         ):
             pass
+
+    def test_temporary_topology_state_clean_retain_and_promote_lifecycle(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "temporary-state-rendezvous"
+        rendezvous.mkdir()
+        build_root = self.workspace.paths.builds / "temporary-state-server"
+        self.make_rendezvous_server_build(
+            build_root, rendezvous, "temporary.bound", peers=1
+        )
+
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            first = self.workspace.topology_up(
+                "temporary-clean", "default", None, ["server"], 0
+            )
+        first_path = Path(first["state_policy"]["path"])
+        self.assertEqual(first["state_policy"]["mode"], "temporary")
+        self.assertEqual(first["state_policy"]["lifecycle"], "disposable")
+        self.assertEqual(first["state"], str(first_path))
+        self.assertTrue(first_path.is_dir())
+        self.assertEqual(
+            (first_path / "rendezvous-state-proof").read_text(encoding="utf-8"),
+            "pinned\n",
+        )
+        self.assertNotIn(str(first_path), self.workspace._load_states().values())
+        tombstone = first_path.parent / f".{first_path.name}.removal-pending"
+        real_rename_no_replace_at = workspace_module.rename_no_replace_at
+
+        def interrupt_before_removal_rename(
+            source_parent: int,
+            source: str,
+            target_parent: int,
+            target: str,
+        ) -> None:
+            if source == first_path.name and target == tombstone.name:
+                raise WorkspaceError("simulated pre-rename interruption")
+            real_rename_no_replace_at(
+                source_parent, source, target_parent, target
+            )
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=interrupt_before_removal_rename,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "pre-rename interruption"),
+        ):
+            self.workspace.topology_down("temporary-clean", timeout=5)
+        self.assertEqual(
+            self.workspace.topology_status("temporary-clean")["state_policy"][
+                "lifecycle"
+            ],
+            "removal-pending",
+        )
+        with self.assertRaisesRegex(
+            WorkspaceError, "removal has already begun"
+        ):
+            self.workspace.topology_down(
+                "temporary-clean", timeout=5, retain_state=True
+            )
+        topology_preview = self.workspace.cleanup(
+            ["topologies"], 0, [], False
+        )
+        pending_topology_item = next(
+            item
+            for item in topology_preview["items"]
+            if item.get("name") == "temporary-clean"
+        )
+        self.assertEqual(pending_topology_item["disposition"], "protected")
+        self.assertIn(
+            "temporary_state_recovery_pending",
+            pending_topology_item["reasons"],
+        )
+        pending_link_target = self.root / "pending-link-target"
+        pending_link_target.write_text("preserve\n", encoding="utf-8")
+        pending_link = first_path / "pending-link"
+        pending_link.symlink_to(pending_link_target)
+        with self.assertRaisesRegex(WorkspaceError, "symbolic link"):
+            self.workspace.topology_down("temporary-clean", timeout=5)
+        self.assertTrue(first_path.is_dir())
+        self.assertTrue(pending_link.is_symlink())
+        pending_link.unlink()
+        displaced = self.root / "displaced-temporary-state"
+        first_path.rename(displaced)
+        with self.assertRaisesRegex(WorkspaceError, "ownership evidence is missing"):
+            self.workspace.topology_down("temporary-clean", timeout=5)
+        self.assertTrue(displaced.is_dir())
+        missing_evidence_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        missing_evidence_item = next(
+            item
+            for item in missing_evidence_preview["items"]
+            if item["path"] == str(first_path)
+        )
+        self.assertEqual(missing_evidence_item["disposition"], "protected")
+        self.assertIn(
+            "temporary_state_ownership_evidence_missing",
+            missing_evidence_item["reasons"],
+        )
+        missing_evidence_apply = self.workspace.cleanup(
+            ["temporary-states"], 0, [], True
+        )
+        missing_evidence_applied_item = next(
+            item
+            for item in missing_evidence_apply["items"]
+            if item["path"] == str(first_path)
+        )
+        self.assertEqual(
+            missing_evidence_applied_item["disposition"], "protected"
+        )
+        self.assertTrue(displaced.is_dir())
+        state_lock = Path(f"{first_path}.lock")
+        displaced_lock = self.root / "displaced-temporary-state.lock"
+        state_lock.rename(displaced_lock)
+        missing_all_evidence = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        missing_all_item = next(
+            item
+            for item in missing_all_evidence["items"]
+            if item["path"] == str(first_path)
+        )
+        self.assertEqual(missing_all_item["disposition"], "protected")
+        self.assertIn(
+            "temporary_state_ownership_evidence_missing",
+            missing_all_item["reasons"],
+        )
+        self.assertIn("state_lease_unverifiable", missing_all_item["reasons"])
+        pending_status_path = (
+            self.workspace.paths.topologies / "temporary-clean" / "status.json"
+        )
+        pending_status = load_json(pending_status_path)
+        malformed_created_at = copy.deepcopy(pending_status)
+        malformed_created_at["state_policy"]["created_at"] = "not-a-timestamp"
+        atomic_json(pending_status_path, malformed_created_at)
+        malformed_pending = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        malformed_pending_item = next(
+            item
+            for item in malformed_pending["items"]
+            if item["path"] == str(first_path)
+        )
+        self.assertEqual(malformed_pending_item["disposition"], "protected")
+        self.assertIn(
+            "invalid_temporary_state", malformed_pending_item["reasons"]
+        )
+        atomic_json(pending_status_path, pending_status)
+        container = first_path.parent
+        displaced_container = container.with_name("temporary-states.displaced")
+        container.rename(displaced_container)
+        missing_container = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        missing_container_item = next(
+            item
+            for item in missing_container["items"]
+            if item["path"] == str(first_path)
+        )
+        self.assertEqual(missing_container_item["disposition"], "protected")
+        self.assertIn(
+            "temporary_state_ownership_evidence_missing",
+            missing_container_item["reasons"],
+        )
+        displaced_container.rename(container)
+        displaced_lock.rename(state_lock)
+        displaced.rename(first_path)
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.remove_owned_tree",
+                side_effect=WorkspaceError("simulated removal interruption"),
+            ),
+            self.assertRaisesRegex(WorkspaceError, "simulated removal interruption"),
+        ):
+            self.workspace.topology_down("temporary-clean", timeout=5)
+        self.assertEqual(
+            self.workspace.topology_status("temporary-clean")["state_policy"][
+                "lifecycle"
+            ],
+            "removal-pending",
+        )
+        self.assertFalse(first_path.exists())
+        self.assertTrue(tombstone.is_dir())
+        tombstone_link = tombstone / "late-link"
+        tombstone_link.symlink_to(pending_link_target)
+        with self.assertRaisesRegex(WorkspaceError, "linked state"):
+            self.workspace.topology_down("temporary-clean", timeout=5)
+        self.assertTrue(tombstone.is_dir())
+        self.assertTrue(tombstone_link.is_symlink())
+        tombstone_link.unlink()
+        tombstone_hardlink = self.root / "pending-hardlink"
+        os.link(tombstone / "motd", tombstone_hardlink)
+        with self.assertRaisesRegex(WorkspaceError, "linked state"):
+            self.workspace.topology_down("temporary-clean", timeout=5)
+        self.assertTrue(tombstone.is_dir())
+        tombstone_hardlink.unlink()
+        stopped = self.workspace.topology_down("temporary-clean", timeout=5)
+        self.assertEqual(stopped["state_policy"]["lifecycle"], "removed")
+        self.assertFalse(first_path.exists())
+        self.assertFalse(tombstone.exists())
+        self.assertFalse(Path(f"{first_path}.lock").exists())
+        clean_status_path = (
+            self.workspace.paths.topologies / "temporary-clean" / "status.json"
+        )
+        clean_status_record = load_json(clean_status_path)
+        missing_server_state = copy.deepcopy(clean_status_record)
+        missing_server_state["state"] = None
+        missing_server_state["state_policy"] = None
+        with self.assertRaisesRegex(WorkspaceError, "state policy is invalid"):
+            self.workspace._validate_topology_state_policy(
+                "temporary-clean",
+                clean_status_path.parent,
+                missing_server_state,
+                missing_server_state["control"],
+            )
+        topology_preview = self.workspace.cleanup(["topologies"], 0, [], False)
+        temporary_clean_item = next(
+            item
+            for item in topology_preview["items"]
+            if item.get("name") == "temporary-clean"
+        )
+        self.assertEqual(
+            temporary_clean_item["disposition"], "eligible", temporary_clean_item
+        )
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            restarted_clean = self.workspace.topology_up(
+                "temporary-clean", "default", None, ["server"], 0
+            )
+        self.assertNotEqual(
+            restarted_clean["control"]["generation"],
+            first["control"]["generation"],
+        )
+        self.assertNotEqual(
+            restarted_clean["state_policy"]["path"],
+            first["state_policy"]["path"],
+        )
+        restarted_path = Path(restarted_clean["state_policy"]["path"])
+        unsafe_target = self.root / "temporary-clean-symlink-target"
+        unsafe_target.write_text("preserve\n", encoding="utf-8")
+        (restarted_path / "unsafe-link").symlink_to(unsafe_target)
+        with self.assertRaisesRegex(
+            WorkspaceError, "retained because its integrity could not be proved"
+        ):
+            self.workspace.topology_down("temporary-clean", timeout=5)
+        linked_down = self.workspace.topology_status("temporary-clean")
+        self.assertEqual(linked_down["state_policy"]["lifecycle"], "retained")
+        self.assertTrue(restarted_path.is_dir())
+        self.assertEqual(unsafe_target.read_text(encoding="utf-8"), "preserve\n")
+
+        (rendezvous / "temporary.bound").unlink()
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            hardlinked = self.workspace.topology_up(
+                "temporary-hardlinked", "default", None, ["server"], 0
+            )
+        hardlinked_path = Path(hardlinked["state_policy"]["path"])
+        hardlink_target = self.root / "temporary-clean-hardlink"
+        os.link(hardlinked_path / "motd", hardlink_target)
+        with self.assertRaisesRegex(
+            WorkspaceError, "retained because its integrity could not be proved"
+        ):
+            self.workspace.topology_down("temporary-hardlinked", timeout=5)
+        self.assertEqual(
+            self.workspace.topology_status("temporary-hardlinked")["state_policy"][
+                "lifecycle"
+            ],
+            "retained",
+        )
+        self.assertTrue(hardlinked_path.is_dir())
+        hardlink_target.unlink()
+
+        (rendezvous / "temporary.bound").unlink()
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            malformed = self.workspace.topology_up(
+                "temporary-malformed", "default", None, ["server"], 0
+            )
+        malformed_path = Path(malformed["state_policy"]["path"])
+        (malformed_path / "motd").unlink()
+        with self.assertRaisesRegex(
+            WorkspaceError, "retained because its integrity could not be proved"
+        ):
+            self.workspace.topology_down("temporary-malformed", timeout=5)
+        self.assertEqual(
+            self.workspace.topology_status("temporary-malformed")["state_policy"][
+                "lifecycle"
+            ],
+            "retained",
+        )
+        self.assertTrue(malformed_path.is_dir())
+
+        external_state = self.root / "external-supervised-state"
+        shutil.copytree(source / "install_data", external_state)
+        (external_state / "external-sentinel").write_text(
+            "preserve\n", encoding="utf-8"
+        )
+        self.workspace.state_add("external-supervised", external_state)
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            external_status = self.workspace.topology_up(
+                "external-supervised", "default", "external-supervised", ["server"], 0
+            )
+        self.assertEqual(
+            external_status["state_policy"]["owner"], {"kind": "external"}
+        )
+        self.assertEqual(
+            external_status["state_policy"]["lifecycle"],
+            "persistent-external",
+        )
+        external_runtime_output = Path(
+            external_status["runtime"]["mutable_state_outputs"][0]
+        )
+        self.assertTrue(external_runtime_output.is_dir())
+        self.workspace.topology_down("external-supervised", timeout=5)
+        self.assertFalse(external_runtime_output.exists())
+        self.assertEqual(
+            (external_state / "external-sentinel").read_text(encoding="utf-8"),
+            "preserve\n",
+        )
+
+        (rendezvous / "temporary.bound").unlink()
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            retained = self.workspace.topology_up(
+                "temporary-retained", "default", None, ["server"], 0
+            )
+        retained_path = Path(retained["state_policy"]["path"])
+        self.assertEqual(retained["state_policy"]["profile"], "default")
+        retained_status_path = (
+            self.workspace.paths.topologies / "temporary-retained" / "status.json"
+        )
+        implementation_marker = (
+            retained_path / workspace_module.STATE_IMPLEMENTATION_MARKER
+        )
+        implementation_payload = implementation_marker.read_bytes()
+        implementation_marker.unlink()
+        with self.assertRaisesRegex(
+            WorkspaceError, "retained because its integrity could not be proved"
+        ):
+            self.workspace.topology_down("temporary-retained", timeout=5)
+        self.assertTrue(retained_path.is_dir())
+        self.assertEqual(
+            load_json(retained_status_path)["state_policy"]["lifecycle"],
+            "retained",
+        )
+        implementation_marker.write_bytes(implementation_payload)
+        stopped = self.workspace.topology_down(
+            "temporary-retained", timeout=5, retain_state=True
+        )
+        self.assertEqual(stopped["state_policy"]["lifecycle"], "retained")
+        self.assertTrue(retained_path.is_dir())
+        with self.assertRaisesRegex(
+            WorkspaceError, "only be registered through state promote"
+        ):
+            self.workspace.state_add("unsafe-temporary-alias", retained_path)
+        retained_status_path = (
+            self.workspace.paths.topologies / "temporary-retained" / "status.json"
+        )
+        retained_record = load_json(retained_status_path)
+        invalid_removed = copy.deepcopy(retained_record)
+        invalid_removed["state_policy"]["lifecycle"] = "removed"
+        atomic_json(retained_status_path, invalid_removed)
+        with self.assertRaisesRegex(
+            WorkspaceError, "removed temporary topology state still exists"
+        ):
+            self.workspace.topology_status("temporary-retained")
+        atomic_json(retained_status_path, retained_record)
+        with (
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "retains temporary generation state"
+            ),
+        ):
+            self.workspace.topology_up(
+                "temporary-retained", "default", None, ["server"], 0
+            )
+        with mock.patch("builtins.print") as output:
+            self.workspace.topology_logs(
+                "temporary-retained", "server", 1, False
+            )
+        policy_header = output.call_args_list[0].args[0]
+        self.assertIn("state-policy mode=temporary", policy_header)
+        self.assertIn("lifecycle=retained", policy_header)
+        self.assertIn(str(retained_path), policy_header)
+        self.assertEqual(
+            load_json(
+                retained_path / workspace_module.TEMPORARY_STATE_METADATA
+            )["state_policy"]["lifecycle"],
+            "disposable",
+        )
+        self.assertEqual(
+            self.workspace.topology_down("temporary-retained", timeout=5)[
+                "state_policy"
+            ]["lifecycle"],
+            "retained",
+        )
+        retained_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        retained_item = next(
+            item
+            for item in retained_preview["items"]
+            if item["path"] == str(retained_path)
+        )
+        self.assertEqual(retained_item["disposition"], "protected")
+        self.assertIn("temporary_state_retained", retained_item["reasons"])
+        implementation_marker.unlink()
+        with self.assertRaisesRegex(
+            WorkspaceError, "implementation marker"
+        ):
+            self.workspace.state_promote(
+                "temporary-retained", "markerless-promotion"
+            )
+        self.assertNotIn("markerless-promotion", self.workspace._load_states())
+        implementation_marker.write_bytes(implementation_payload)
+        displaced_state = retained_path.with_name("promotion-displaced")
+        replacement_sentinel = retained_path / "replacement-sentinel"
+        real_durable_json_at = workspace_module.durable_atomic_json_at
+        swapped = False
+
+        def swap_before_provenance(
+            directory_fd: int, name: str, value: object
+        ) -> None:
+            nonlocal swapped
+            if name == workspace_module.PROMOTED_STATE_METADATA and not swapped:
+                swapped = True
+                retained_path.rename(displaced_state)
+                retained_path.mkdir()
+                replacement_sentinel.write_text(
+                    "replacement\n", encoding="utf-8"
+                )
+            real_durable_json_at(directory_fd, name, value)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.durable_atomic_json_at",
+                side_effect=swap_before_provenance,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "temporary state changed during promotion"
+            ),
+        ):
+            self.workspace.state_promote(
+                "temporary-retained", "promotion-swap-review"
+            )
+        self.assertTrue(swapped)
+        self.assertEqual(
+            replacement_sentinel.read_text(encoding="utf-8"), "replacement\n"
+        )
+        self.assertNotIn("promotion-swap-review", self.workspace._load_states())
+        shutil.rmtree(retained_path)
+        displaced_state.rename(retained_path)
+        (retained_path / workspace_module.PROMOTED_STATE_METADATA).unlink()
+        atomic_json(retained_status_path, retained_record)
+        real_policy_write = self.workspace._write_temporary_state_policy
+        final_swap = False
+
+        def swap_before_promoted_status(
+            topology_name: str,
+            current: dict[str, object],
+            policy: dict[str, object],
+        ) -> dict[str, object]:
+            nonlocal final_swap
+            if policy.get("lifecycle") == "promoted" and not final_swap:
+                final_swap = True
+                retained_path.rename(displaced_state)
+                retained_path.mkdir()
+                replacement_sentinel.write_text(
+                    "final replacement\n", encoding="utf-8"
+                )
+            return real_policy_write(topology_name, current, policy)
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_write_temporary_state_policy",
+                side_effect=swap_before_promoted_status,
+            ),
+            self.assertRaises(WorkspaceError),
+        ):
+            self.workspace.state_promote(
+                "temporary-retained", "promotion-final-swap-review"
+            )
+        self.assertTrue(final_swap)
+        self.assertNotIn(
+            "promotion-final-swap-review", self.workspace._load_states()
+        )
+        self.assertEqual(
+            load_json(retained_status_path)["state_policy"]["lifecycle"],
+            "promotion-pending",
+        )
+        shutil.rmtree(retained_path)
+        displaced_state.rename(retained_path)
+        (retained_path / workspace_module.PROMOTED_STATE_METADATA).unlink()
+        atomic_json(retained_status_path, retained_record)
+        sessions = [Workspace(self.wrapper), Workspace(self.wrapper)]
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            futures = [
+                executor.submit(
+                    sessions[index].state_promote,
+                    "temporary-retained",
+                    f"promoted-review-{index}",
+                )
+                for index in range(2)
+            ]
+            outcomes: list[dict[str, object] | WorkspaceError] = []
+            for future in futures:
+                try:
+                    outcomes.append(future.result(timeout=10))
+                except WorkspaceError as error:
+                    outcomes.append(error)
+        successes = [value for value in outcomes if isinstance(value, dict)]
+        failures = [value for value in outcomes if isinstance(value, WorkspaceError)]
+        self.assertEqual(len(successes), 1)
+        self.assertEqual(len(failures), 1)
+        promoted = successes[0]
+        self.assertEqual(promoted["path"], str(retained_path))
+        self.assertEqual(
+            promoted["state_policy"]["lifecycle"], "promoted"
+        )
+        self.assertEqual(
+            self.workspace._state_location(str(promoted["name"])), retained_path
+        )
+        self.assertEqual(
+            self.workspace.state_promote(
+                "temporary-retained", str(promoted["name"])
+            ),
+            promoted,
+        )
+        origin_status = (
+            self.workspace.paths.topologies / "temporary-retained" / "status.json"
+        )
+        hidden_status = origin_status.with_name("status.hidden")
+        origin_status.rename(hidden_status)
+        try:
+            promoted_summary = self.workspace.topology_summary(
+                "default", str(promoted["name"]), ["server"]
+            )
+        finally:
+            hidden_status.rename(origin_status)
+        self.assertEqual(
+            promoted_summary["state_policy"]["owner"],
+            {
+                "kind": "promoted-topology-state",
+                "topology": "temporary-retained",
+                "generation": retained["control"]["generation"],
+            },
+        )
+        self.assertEqual(
+            promoted_summary["state_policy"]["lifecycle"],
+            "persistent-promoted",
+        )
+        provenance = retained_path / workspace_module.PROMOTED_STATE_METADATA
+        replaced_promoted = retained_path.with_name("promoted-original")
+        retained_path.rename(replaced_promoted)
+        retained_path.mkdir()
+        shutil.copy2(
+            replaced_promoted / workspace_module.PROMOTED_STATE_METADATA,
+            provenance,
+        )
+        try:
+            with self.assertRaisesRegex(
+                WorkspaceError, "promoted state provenance is invalid"
+            ):
+                self.workspace.topology_summary(
+                    "default", str(promoted["name"]), ["server"]
+                )
+        finally:
+            shutil.rmtree(retained_path)
+            replaced_promoted.rename(retained_path)
+        provenance = retained_path / workspace_module.PROMOTED_STATE_METADATA
+        provenance.unlink()
+        origin_status.rename(hidden_status)
+        ownership_marker = retained_path / MANAGED_MARKER
+        hidden_ownership = retained_path / "managed.hidden"
+        ownership_marker.rename(hidden_ownership)
+        try:
+            with self.assertRaisesRegex(
+                WorkspaceError, "promoted state provenance is missing"
+            ):
+                self.workspace.topology_summary(
+                    "default", str(promoted["name"]), ["server"]
+                )
+        finally:
+            hidden_ownership.rename(ownership_marker)
+            hidden_status.rename(origin_status)
+        self.workspace.state_promote(
+            "temporary-retained", str(promoted["name"])
+        )
+        self.assertTrue(provenance.is_file())
+        (rendezvous / "temporary.bound").unlink()
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            retry = self.workspace.topology_up(
+                "temporary-promotion-retry", "default", None, ["server"], 0
+            )
+        retry_path = Path(retry["state_policy"]["path"])
+        self.workspace.topology_down(
+            "temporary-promotion-retry", timeout=10, retain_state=True
+        )
+        write_policy = self.workspace._write_temporary_state_policy
+        writes = 0
+
+        def interrupt_after_registry(
+            topology: str,
+            current: dict[str, object],
+            policy: dict[str, object],
+        ) -> dict[str, object]:
+            nonlocal writes
+            writes += 1
+            if writes == 2:
+                raise WorkspaceError("simulated promoted-status interruption")
+            return write_policy(topology, current, policy)
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_write_temporary_state_policy",
+                side_effect=interrupt_after_registry,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "simulated promoted-status interruption"
+            ),
+        ):
+            self.workspace.state_promote(
+                "temporary-promotion-retry", "promoted-retry"
+            )
+        with self.assertRaisesRegex(WorkspaceError, "state does not exist"):
+            self.workspace._state_location("promoted-retry")
+        self.assertEqual(
+            self.workspace.topology_status("temporary-promotion-retry")[
+                "state_policy"
+            ]["lifecycle"],
+            "promotion-pending",
+        )
+        with self.assertRaisesRegex(
+            WorkspaceError, "promotion target cannot change"
+        ):
+            self.workspace.state_promote(
+                "temporary-promotion-retry", "different-promoted-retry"
+            )
+        self.assertEqual(
+            self.workspace.topology_status("temporary-promotion-retry")[
+                "state_policy"
+            ]["name"],
+            "promoted-retry",
+        )
+        self.assertEqual(
+            self.workspace.state_promote(
+                "temporary-promotion-retry", "promoted-retry"
+            )["state_policy"]["lifecycle"],
+            "promoted",
+        )
+
+    def test_temporary_topology_state_is_retained_after_supervisor_crash(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "temporary-crash-rendezvous"
+        rendezvous.mkdir()
+        build_root = self.workspace.paths.builds / "temporary-crash-server"
+        self.make_rendezvous_server_build(
+            build_root, rendezvous, "temporary.bound", peers=1
+        )
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            status = self.workspace.topology_up(
+                "temporary-crash", "default", None, ["server"], 0
+            )
+        state = Path(status["state_policy"]["path"])
+        live_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        live_item = next(
+            item for item in live_preview["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(live_item["disposition"], "protected")
+        self.assertIn("live_topology", live_item["reasons"])
+        supervisor = status["supervisor"]
+        pidfd = os.pidfd_open(supervisor["pid"])
+        try:
+            signal.pidfd_send_signal(pidfd, signal.SIGKILL)
+        finally:
+            os.close(pidfd)
+        deadline = time.monotonic() + 15
+        while time.monotonic() < deadline:
+            crashed = self.workspace.topology_status("temporary-crash")
+            if crashed["observation"]["process_tree_lease"] == "released":
+                break
+            time.sleep(0.05)
+        self.assertEqual(crashed["state_policy"]["lifecycle"], "disposable")
+        self.assertTrue(state.is_dir())
+        recovered = self.workspace.topology_down("temporary-crash", timeout=5)
+        self.assertEqual(recovered["state_policy"]["lifecycle"], "disposable")
+        self.assertTrue(state.is_dir())
+        status_path = (
+            self.workspace.paths.topologies / "temporary-crash" / "status.json"
+        )
+        raw_status = load_json(status_path)
+        without_port_evidence = copy.deepcopy(recovered)
+        without_port_evidence["endpoint"] = None
+        without_port_evidence["services"] = {}
+        without_port_evidence["observation"]["port_reservation"] = None
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            return_value=without_port_evidence,
+        ):
+            missing_port = self.workspace.cleanup(
+                ["temporary-states"], 0, [], False
+            )
+        missing_port_item = next(
+            item for item in missing_port["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(missing_port_item["disposition"], "protected")
+        self.assertIn(
+            "port_reservation_lease_unverifiable",
+            missing_port_item["reasons"],
+        )
+        state_lock = Path(f"{state}.lock")
+        saved_state_lock = state_lock.with_suffix(".saved-lock")
+        state_lock.rename(saved_state_lock)
+        missing_lease = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        missing_item = next(
+            item for item in missing_lease["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(missing_item["disposition"], "protected")
+        self.assertIn("state_lease_unverifiable", missing_item["reasons"])
+        state_lock.touch(mode=0o600)
+        replaced_lease = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        replaced_item = next(
+            item for item in replaced_lease["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(replaced_item["disposition"], "protected")
+        self.assertIn(
+            "state_lease_identity_mismatch", replaced_item["reasons"]
+        )
+        state_lock.unlink()
+        saved_state_lock.rename(state_lock)
+        registered_alias = self.root / "registered-physical-alias"
+        registered_alias.mkdir()
+        real_state_identity = self.workspace._state_identity
+
+        def alias_identity(path: Path) -> dict[str, int]:
+            if path == registered_alias:
+                return crashed["state_policy"]["identity"]
+            return real_state_identity(path)
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_load_states",
+                return_value={"registered-alias": str(registered_alias)},
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_state_identity",
+                side_effect=alias_identity,
+            ),
+        ):
+            aliased = self.workspace.cleanup(
+                ["temporary-states"], 0, [], False
+            )
+        aliased_item = next(
+            item for item in aliased["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(aliased_item["disposition"], "protected")
+        self.assertIn("registered_state", aliased_item["reasons"])
+        real_mount_id = cleanup_module._descriptor_mount_id
+
+        def simulated_root_mount_id(
+            descriptor: int,
+        ) -> int | tuple[int, int]:
+            target = Path(os.readlink(f"/proc/self/fd/{descriptor}"))
+            if target == state:
+                return 999999997
+            return real_mount_id(descriptor)
+
+        with mock.patch.object(
+            cleanup_module,
+            "_descriptor_mount_id",
+            side_effect=simulated_root_mount_id,
+        ):
+            root_mount_preview = self.workspace.cleanup(
+                ["temporary-states"], 0, [], False
+            )
+        root_mount_item = next(
+            item
+            for item in root_mount_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(root_mount_item["disposition"], "protected")
+        self.assertIn(
+            "filesystem_traversal_error", root_mount_item["reasons"]
+        )
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            with (
+                mock.patch.object(
+                    workspace_module,
+                    "_descriptor_mount_id",
+                    side_effect=simulated_root_mount_id,
+                ),
+                self.assertRaisesRegex(WorkspaceError, "root.*mount"),
+            ):
+                self.workspace._validate_temporary_state_integrity(
+                    state_fd, state
+                )
+        finally:
+            os.close(state_fd)
+
+        def simulated_mount_id(descriptor: int) -> int | tuple[int, int]:
+            target = Path(os.readlink(f"/proc/self/fd/{descriptor}"))
+            if target == state / "keys":
+                return 999999999
+            return real_mount_id(descriptor)
+
+        with mock.patch.object(
+            cleanup_module,
+            "_descriptor_mount_id",
+            side_effect=simulated_mount_id,
+        ):
+            mounted_preview = self.workspace.cleanup(
+                ["temporary-states"], 0, [], False
+            )
+        mounted_item = next(
+            item
+            for item in mounted_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(mounted_item["disposition"], "protected")
+        self.assertIn("filesystem_traversal_error", mounted_item["reasons"])
+
+        def simulated_file_mount_id(
+            descriptor: int,
+        ) -> int | tuple[int, int]:
+            target = Path(os.readlink(f"/proc/self/fd/{descriptor}"))
+            if target == state / "motd":
+                return 999999998
+            return real_mount_id(descriptor)
+
+        with mock.patch.object(
+            cleanup_module,
+            "_descriptor_mount_id",
+            side_effect=simulated_file_mount_id,
+        ):
+            mounted_file_preview = self.workspace.cleanup(
+                ["temporary-states"], 0, [], False
+            )
+        mounted_file_item = next(
+            item
+            for item in mounted_file_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(mounted_file_item["disposition"], "protected")
+        self.assertIn(
+            "filesystem_traversal_error", mounted_file_item["reasons"]
+        )
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            with (
+                mock.patch.object(
+                    workspace_module,
+                    "_descriptor_mount_id",
+                    side_effect=simulated_file_mount_id,
+                ),
+                self.assertRaisesRegex(WorkspaceError, "crossed a mount"),
+            ):
+                self.workspace._validate_temporary_state_integrity(
+                    state_fd, state
+                )
+        finally:
+            os.close(state_fd)
+        required_file = state / "motd"
+        saved_required_file = state / "motd.saved"
+        required_file.rename(saved_required_file)
+        malformed_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        malformed_item = next(
+            item
+            for item in malformed_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(malformed_item["disposition"], "protected")
+        self.assertIn("malformed_state", malformed_item["reasons"])
+        malformed_apply = self.workspace.cleanup(
+            ["temporary-states"], 0, [], True
+        )
+        malformed_applied_item = next(
+            item
+            for item in malformed_apply["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(malformed_applied_item["disposition"], "protected")
+        self.assertTrue(state.is_dir())
+        saved_required_file.rename(required_file)
+        required_directory = state / "keys"
+        saved_required_directory = state / "keys.saved"
+        required_directory.rename(saved_required_directory)
+        missing_directory_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        missing_directory_item = next(
+            item
+            for item in missing_directory_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(missing_directory_item["disposition"], "protected")
+        self.assertIn("malformed_state", missing_directory_item["reasons"])
+        missing_directory_apply = self.workspace.cleanup(
+            ["temporary-states"], 0, [], True
+        )
+        missing_directory_applied_item = next(
+            item
+            for item in missing_directory_apply["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(
+            missing_directory_applied_item["disposition"], "protected"
+        )
+        self.assertTrue(state.is_dir())
+        saved_required_directory.rename(required_directory)
+        special = state / "unsafe-fifo"
+        os.mkfifo(special)
+        special_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        special_item = next(
+            item
+            for item in special_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(special_item["disposition"], "protected")
+        self.assertIn("malformed_state", special_item["reasons"])
+        special_apply = self.workspace.cleanup(
+            ["temporary-states"], 0, [], True
+        )
+        special_applied_item = next(
+            item
+            for item in special_apply["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(special_applied_item["disposition"], "protected")
+        self.assertTrue(state.is_dir())
+        special.unlink()
+        for metadata_path in (
+            state / MANAGED_MARKER,
+            state / workspace_module.TEMPORARY_STATE_METADATA,
+            state.parent / MANAGED_MARKER,
+            state.parent.parent / MANAGED_MARKER,
+        ):
+            metadata_payload = metadata_path.read_bytes()
+            metadata_path.unlink()
+            os.mkfifo(metadata_path)
+            fifo_preview = self.workspace.cleanup(
+                ["temporary-states"], 0, [], False
+            )
+            fifo_item = next(
+                item
+                for item in fifo_preview["items"]
+                if item["path"] == str(state)
+            )
+            self.assertEqual(fifo_item["disposition"], "protected")
+            self.assertTrue(
+                {"invalid_temporary_state", "invalid_temporary_state_container"}
+                & set(fifo_item["reasons"])
+            )
+            metadata_path.unlink()
+            metadata_path.write_bytes(metadata_payload)
+        state_identity = self.workspace._state_identity(state)
+        removal_tombstone = workspace_module._owned_tree_tombstone_path(
+            state, state_identity
+        )
+        state.rename(removal_tombstone)
+        creation_path = removal_tombstone / workspace_module.TEMPORARY_STATE_METADATA
+        creation_payload = creation_path.read_bytes()
+        creation_path.unlink()
+        os.mkfifo(creation_path)
+        tombstone_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        tombstone_item = next(
+            item
+            for item in tombstone_preview["items"]
+            if item["path"] == str(removal_tombstone)
+        )
+        self.assertEqual(tombstone_item["disposition"], "protected")
+        creation_path.unlink()
+        symlink_target = self.root / "temporary-state-creation-record"
+        symlink_target.write_bytes(creation_payload)
+        creation_path.symlink_to(symlink_target)
+        symlink_tombstone_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        symlink_tombstone_item = next(
+            item
+            for item in symlink_tombstone_preview["items"]
+            if item["path"] == str(removal_tombstone)
+        )
+        self.assertEqual(symlink_tombstone_item["disposition"], "protected")
+        creation_path.unlink()
+        creation_path.write_bytes(creation_payload)
+        removal_tombstone.rename(state)
+
+        status_path = state.parent.parent / "status.json"
+        status_payload = status_path.read_bytes()
+        status_path.unlink()
+        os.mkfifo(status_path)
+        invalid_status_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        invalid_status_item = next(
+            item
+            for item in invalid_status_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(invalid_status_item["disposition"], "protected")
+        status_path.unlink()
+        status_symlink_target = self.root / "temporary-topology-status"
+        status_symlink_target.write_bytes(status_payload)
+        status_path.symlink_to(status_symlink_target)
+        symlink_status_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        symlink_status_item = next(
+            item
+            for item in symlink_status_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(symlink_status_item["disposition"], "protected")
+        status_path.unlink()
+        status_path.write_bytes(status_payload)
+        linked_file = next(
+            path
+            for path in state.rglob("*")
+            if path.is_file()
+            and not path.is_symlink()
+            and path.name
+            not in {
+                MANAGED_MARKER,
+                workspace_module.TEMPORARY_STATE_METADATA,
+                workspace_module.STATE_IMPLEMENTATION_MARKER,
+            }
+        )
+        external_link = self.root / "temporary-state-hardlink"
+        os.link(linked_file, external_link)
+        symlink = state / "unsafe-link"
+        symlink.symlink_to(external_link)
+        linked_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        linked_item = next(
+            item for item in linked_preview["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(linked_item["disposition"], "protected")
+        self.assertIn("linked_state", linked_item["reasons"])
+        self.assertFalse(any(key.startswith("_") for key in linked_item))
+        symlink.unlink()
+        external_link.unlink()
+        preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        candidate = next(
+            item for item in preview["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(candidate["disposition"], "eligible")
+        pending_state = state.parent / f".{state.name}.removal-pending"
+
+        real_rmdir = os.rmdir
+
+        def interrupt_after_root_tombstone(
+            path: object, *args: object, **kwargs: object
+        ) -> None:
+            if Path(path).name == pending_state.name:
+                raise PermissionError("simulated cleanup removal interruption")
+            real_rmdir(path, *args, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.rmdir",
+            side_effect=interrupt_after_root_tombstone,
+        ):
+            interrupted = self.workspace.cleanup(
+                ["temporary-states"], 0, [], True
+            )
+        interrupted_item = next(
+            item for item in interrupted["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(interrupted_item["disposition"], "error")
+        self.assertEqual(
+            self.workspace.topology_status("temporary-crash")["state_policy"][
+                "lifecycle"
+            ],
+            "removed",
+        )
+        self.assertTrue(pending_state.is_dir())
+        self.assertEqual(list(pending_state.iterdir()), [])
+        with mock.patch.object(
+            self.workspace,
+            "_unlink_temporary_state_lock",
+            side_effect=WorkspaceError(
+                "simulated lease finalization interruption"
+            ),
+        ):
+            lease_interrupted = self.workspace.cleanup(
+                ["temporary-states"], 0, [], True
+            )
+        lease_interrupted_item = next(
+            item
+            for item in lease_interrupted["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(lease_interrupted_item["disposition"], "error")
+        self.assertFalse(pending_state.exists())
+        self.assertTrue(Path(f"{state}.lock").is_file())
+        applied = self.workspace.cleanup(
+            ["temporary-states"], 0, [], True
+        )
+        removed = next(
+            item for item in applied["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(removed["disposition"], "removed", applied)
+        self.assertFalse(state.exists())
+        cleaned = self.workspace.topology_status("temporary-crash")
+        self.assertEqual(cleaned["state_policy"]["lifecycle"], "removed")
+        self.assertFalse(Path(f"{state}.lock").exists())
+
+    def test_failed_post_spawn_temporary_startup_retains_diagnostic_state(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "failed-startup-rendezvous"
+        rendezvous.mkdir()
+        build_root = self.workspace.paths.builds / "failed-startup-server"
+        self.make_rendezvous_server_build(
+            build_root, rendezvous, "unused.bound", peers=1
+        )
+
+        @contextmanager
+        def fail_temporary_state_lease(
+            path: Path, **_kwargs: object
+        ):
+            with exclusive_lock(
+                Path(f"{path}.lock"), "simulated temporary state lease"
+            ):
+                raise WorkspaceError("simulated state lease admission failure")
+            yield
+
+        with (
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_topology_state_lock",
+                new=fail_temporary_state_lease,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "lease admission failure"),
+        ):
+            self.workspace.topology_up(
+                "temporary-lease-failure", "default", None, ["server"], 0
+            )
+        failed_container = (
+            self.workspace.paths.topologies
+            / "temporary-lease-failure"
+            / "temporary-states"
+        )
+        self.assertEqual(
+            {path.name for path in failed_container.iterdir()},
+            {MANAGED_MARKER},
+        )
+        executable = build_root / "build" / "server" / "atrinik-server"
+        executable.unlink()
+        with (
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            self.assertRaisesRegex(WorkspaceError, "supervisor failed"),
+        ):
+            self.workspace.topology_up(
+                "temporary-pre-service-failure",
+                "default",
+                None,
+                ["server"],
+                0,
+            )
+        pre_service = self.workspace.topology_status(
+            "temporary-pre-service-failure"
+        )
+        self.assertEqual(pre_service["services"], {})
+        self.assertEqual(pre_service["state_policy"]["mode"], "temporary")
+        self.assertIsNotNone(pre_service["error"])
+        pre_service_status_path = (
+            self.workspace.paths.topologies
+            / "temporary-pre-service-failure"
+            / "status.json"
+        )
+        raw_pre_service = load_json(pre_service_status_path)
+        invalid_without_error = {**raw_pre_service, "error": None}
+        atomic_json(pre_service_status_path, invalid_without_error)
+        with self.assertRaisesRegex(
+            WorkspaceError, "topology .*invalid"
+        ):
+            self.workspace.topology_status("temporary-pre-service-failure")
+        atomic_json(pre_service_status_path, raw_pre_service)
+        pre_service_state = Path(pre_service["state_policy"]["path"])
+        recovered_pre_service = self.workspace.topology_down(
+            "temporary-pre-service-failure", timeout=5
+        )
+        self.assertEqual(
+            recovered_pre_service["state_policy"]["lifecycle"], "disposable"
+        )
+        self.assertTrue(pre_service_state.is_dir())
+        executable.write_text(
+            "#!/usr/bin/env python3\n"
+            "import pathlib, sys\n"
+            "datapath = pathlib.Path(next(value.split('=', 1)[1] for value in "
+            "sys.argv if value.startswith('--datapath=')))\n"
+            "(datapath / 'failed-startup-proof').write_text('retained\\n', "
+            "encoding='utf-8')\n"
+            "raise SystemExit(23)\n",
+            encoding="utf-8",
+        )
+        executable.chmod(0o755)
+        with (
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            self.assertRaisesRegex(WorkspaceError, "topology supervisor failed"),
+        ):
+            self.workspace.topology_up(
+                "temporary-failed-startup", "default", None, ["server"], 0
+            )
+        failed = self.workspace.topology_status("temporary-failed-startup")
+        failed_state = Path(failed["state_policy"]["path"])
+        self.assertEqual(failed["state_policy"]["lifecycle"], "disposable")
+        self.assertTrue(failed_state.is_dir())
+        self.assertEqual(
+            (failed_state / "failed-startup-proof").read_text(encoding="utf-8"),
+            "retained\n",
+        )
+        self.assertNotIn(
+            str(failed_state), self.workspace._load_states().values()
+        )
+
+    def test_stop_acknowledgement_without_clean_shutdown_proof_retains_state(
+        self,
+    ) -> None:
+        control = {"generation": "a" * 64}
+        stopped = {
+            "control": control,
+            "shutdown": None,
+            "supervisor": {"running": False},
+            "services": {"server": {"running": False}},
+        }
+        self.workspace._topology_directory(
+            "acknowledged-then-crashed", create=True
+        )
+        with (
+            mock.patch.object(
+                self.workspace, "_topology_control_request", return_value=True
+            ),
+            mock.patch.object(
+                self.workspace, "_topology_process_tree_active", return_value=False
+            ),
+            mock.patch.object(
+                self.workspace, "topology_status", return_value=stopped
+            ),
+        ):
+            observed, confirmed_clean = self.workspace._controlled_topology_down(
+                "acknowledged-then-crashed",
+                {"control": control},
+                1,
+            )
+        self.assertIs(observed, stopped)
+        self.assertFalse(confirmed_clean)
+
+    def test_persisted_clean_shutdown_proof_allows_down_retry(self) -> None:
+        control = {"generation": "a" * 64}
+        stopped = {
+            "control": control,
+            "shutdown": {"control_requested": True, "clean": True},
+            "error": None,
+            "supervisor": {"running": False},
+            "services": {"server": {"running": False}},
+        }
+        self.workspace._topology_directory("clean-down-retry", create=True)
+        with (
+            mock.patch.object(
+                self.workspace, "_topology_control_request", return_value=False
+            ),
+            mock.patch.object(
+                self.workspace, "_topology_process_tree_active", return_value=False
+            ),
+            mock.patch.object(
+                self.workspace, "topology_status", return_value=stopped
+            ),
+        ):
+            observed, confirmed_clean = self.workspace._controlled_topology_down(
+                "clean-down-retry", {"control": control}, 1
+            )
+        self.assertIs(observed, stopped)
+        self.assertTrue(confirmed_clean)
 
     def test_topology_port_selection_rejects_unavailable_port(self) -> None:
         candidate = mock.MagicMock()
@@ -10220,6 +12288,1131 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace.state_add("bad", malformed)
         self.assertEqual((malformed / "unrelated").read_text(), "keep\n")
 
+    def test_state_paths_reject_links_and_incompatible_implementation_markers(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        state = self.workspace.state_path("default", server)
+        implementation = {
+            "stack": "classic",
+            "provider": "server",
+            "repository": "atrinik/server",
+        }
+        self.workspace.state_path(
+            "default",
+            server,
+            implementation=implementation,
+            write_implementation=True,
+        )
+        self.assertEqual(
+            load_json(state / workspace_module.STATE_IMPLEMENTATION_MARKER),
+            {"schema_version": 1, **implementation},
+        )
+        atomic_json(
+            state / workspace_module.STATE_IMPLEMENTATION_MARKER,
+            {
+                "schema_version": 1,
+                "stack": "replacement",
+                "provider": "server",
+                "repository": "atrinik/server",
+            },
+        )
+        with self.assertRaisesRegex(
+            WorkspaceError, "does not match the selected server"
+        ):
+            self.workspace.state_path(
+                "default",
+                server,
+                implementation=implementation,
+            )
+
+        linked = self.root / "linked-state"
+        linked.symlink_to(state, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "contains a symlink"):
+            self.workspace.state_add("linked", linked)
+
+    def test_prepared_state_rejects_directory_and_ancestor_replacement(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        implementation = {
+            "stack": "classic",
+            "provider": "server",
+            "repository": "atrinik/server",
+        }
+        state = self.workspace.state_path(
+            "default",
+            server,
+            implementation=implementation,
+            write_implementation=True,
+        )
+        identity = self.workspace._state_identity(state)
+        replacement = state.parent / "replacement"
+        shutil.copytree(state, replacement)
+        previous = state.parent / "previous"
+
+        def replace_state(*_args: object, **_kwargs: object) -> tuple[Path, int]:
+            state.rename(previous)
+            replacement.rename(state)
+            return state, os.open(previous, os.O_PATH | os.O_DIRECTORY)
+
+        with (
+            mock.patch.object(
+                self.workspace, "state_path", side_effect=replace_state
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "identity changed while preparing topology"
+            ),
+        ):
+            self.workspace._prepared_state_path(
+                "default", server, state, implementation, identity
+            )
+
+        external_parent = self.root / "external-parent"
+        external_parent.mkdir()
+        external_state = external_parent / "state"
+        shutil.copytree(previous, external_state)
+        attacker_parent = self.root / "attacker-parent"
+        attacker_parent.mkdir()
+        shutil.copytree(previous, attacker_parent / "state")
+        original_parent = self.root / "original-parent"
+        external_identity = self.workspace._state_identity(external_state)
+
+        def replace_ancestor(
+            *_args: object, **_kwargs: object
+        ) -> tuple[Path, int]:
+            external_parent.rename(original_parent)
+            external_parent.symlink_to(attacker_parent, target_is_directory=True)
+            return (
+                external_state,
+                os.open(original_parent / "state", os.O_PATH | os.O_DIRECTORY),
+            )
+
+        with (
+            mock.patch.object(
+                self.workspace, "state_path", side_effect=replace_ancestor
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "without following links|contains a symlink"
+            ),
+        ):
+            self.workspace._prepared_state_path(
+                "external",
+                server,
+                external_state,
+                implementation,
+                external_identity,
+            )
+
+    def test_state_lock_replacement_does_not_bypass_live_owner(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        state = self.workspace.state_path("default", server)
+        lock_path = Path(f"{state}.lock")
+        lock_path.touch(mode=0o600)
+        with exclusive_lock(lock_path, "original state") as original:
+            original_identity = os.fstat(original.fileno())
+            lock_path.unlink()
+            lock_path.touch(mode=0o600)
+            status = {
+                "name": "owner",
+                "state": str(state),
+                "control": {"generation": "a" * 64},
+                "observation": {"process_tree_lease": "retained"},
+                "state_policy": {
+                    "lease_identity": {
+                        "device": original_identity.st_dev,
+                        "inode": original_identity.st_ino,
+                    }
+                },
+            }
+            owner_root = self.workspace._topology_directory("owner", create=True)
+            atomic_json(owner_root / "status.json", {"state": str(state)})
+            with (
+                mock.patch.object(
+                    self.workspace, "topology_status", return_value=status
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError, "owned by topology owner generation"
+                ),
+            ):
+                with self.workspace._topology_state_lock(state):
+                    self.fail("replacement lock must not grant state ownership")
+
+    def test_physical_state_aliases_share_one_exclusive_lease(self) -> None:
+        first = self.root / "state-alias-first"
+        second = self.root / "state-alias-second"
+        first.mkdir()
+        second.mkdir()
+        shared_identity = {"device": 41, "inode": 73}
+        with (
+            mock.patch.object(
+                self.workspace, "_state_identity", return_value=shared_identity
+            ),
+            self.workspace._topology_state_lock(first),
+            self.assertRaisesRegex(WorkspaceError, "exact owner cannot be confirmed"),
+        ):
+            with self.workspace._topology_state_lock(second):
+                self.fail("physical aliases must not receive distinct leases")
+
+    def test_open_state_directory_retains_inode_bound_lease(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        state = self.workspace.state_path("default", server)
+        first = self.workspace._open_validated_state_directory(
+            state, None, write_implementation=False
+        )
+        try:
+            with self.assertRaisesRegex(
+                WorkspaceError, "physical server state is already in use"
+            ):
+                self.workspace._open_validated_state_directory(
+                    state, None, write_implementation=False
+                )
+        finally:
+            os.close(first)
+        reopened = self.workspace._open_validated_state_directory(
+            state, None, write_implementation=False
+        )
+        os.close(reopened)
+
+    def test_state_marker_no_replace_publication_retries_cleanly(self) -> None:
+        state = self.root / "marker-publication"
+        state.mkdir()
+        directory_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY)
+        marker = ".atrinik-state.json"
+        value = {"schema_version": 1, "stack": "classic", "provider": "server"}
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.rename_no_replace_at",
+                    side_effect=WorkspaceError("simulated publication interruption"),
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError, "simulated publication interruption"
+                ),
+            ):
+                self.workspace._write_state_json_no_replace_at(
+                    directory_fd, marker, value
+                )
+            self.assertFalse((state / marker).exists())
+            self.assertEqual(list(state.iterdir()), [])
+            self.workspace._write_state_json_no_replace_at(
+                directory_fd, marker, value
+            )
+            self.assertEqual(load_json(state / marker), value)
+            self.assertEqual((state / marker).stat().st_nlink, 1)
+        finally:
+            os.close(directory_fd)
+
+    def test_physical_state_alias_conflict_reports_live_owner(self) -> None:
+        first = self.root / "owner-alias"
+        second = self.root / "contender-alias"
+        first.mkdir()
+        second.mkdir()
+        shared_identity = {"device": 51, "inode": 83}
+        status = {
+            "name": "alias-owner",
+            "state": str(first),
+            "control": {"generation": "d" * 64},
+            "observation": {"process_tree_lease": "retained"},
+            "state_policy": {"identity": shared_identity},
+        }
+        with (
+            mock.patch.object(
+                self.workspace, "_state_identity", return_value=shared_identity
+            ),
+            self.workspace._topology_state_lock(first),
+            mock.patch.object(
+                self.workspace, "topology_statuses", return_value=[status]
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "owned by topology alias-owner generation"
+            ),
+        ):
+            with self.workspace._topology_state_lock(second):
+                self.fail("physical alias conflict must report its live owner")
+
+    def test_state_lease_rejects_identity_change_after_path_lock(self) -> None:
+        state = self.root / "state-before-lock"
+        state.mkdir()
+        original_identity = self.workspace._state_identity(state)
+        with self.workspace._topology_state_lock(state) as lease:
+            self.assertEqual(lease.physical_identity, original_identity)
+            state.rename(self.root / "state-after-lock")
+            state.mkdir()
+            with self.assertRaisesRegex(
+                WorkspaceError, "state identity changed"
+            ):
+                lease.bind(self.workspace._state_identity(state))
+
+    def test_temporary_lifecycle_rejects_replaced_state_lock(self) -> None:
+        state = self.root / "temporary-lock-aba"
+        state.mkdir()
+        lock = Path(f"{state}.lock")
+        lock.touch(mode=0o600)
+        with exclusive_lock(lock, "recorded temporary state") as recorded:
+            metadata = os.fstat(recorded.fileno())
+            identity = {"device": metadata.st_dev, "inode": metadata.st_ino}
+            lock.unlink()
+            lock.touch(mode=0o600)
+            with exclusive_lock(lock, "replacement temporary state") as replacement:
+                with self.assertRaisesRegex(
+                    WorkspaceError, "lease changed before lifecycle mutation"
+                ):
+                    self.workspace._validate_temporary_state_lock(
+                        state, replacement, identity
+                    )
+
+    def test_temporary_state_publication_interruption_leaves_no_partial_state(self) -> None:
+        topology = self.workspace._topology_directory("interrupted", create=True)
+        generation = "a" * 64
+        server = self.workspace.paths.repositories / "server"
+        coordinate = self.scenario_resolved_fixture()["server"]
+        real_rename_at = workspace_module.rename_no_replace_at
+
+        def interrupt_publication(
+            source_fd: int,
+            source: str,
+            destination_fd: int,
+            destination: str,
+        ) -> None:
+            if destination == generation:
+                raise WorkspaceError("simulated interruption")
+            real_rename_at(source_fd, source, destination_fd, destination)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.rename_no_replace_at",
+            side_effect=interrupt_publication,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "simulated interruption"):
+                self.workspace._create_temporary_state(
+                    topology,
+                    "interrupted",
+                    "default",
+                    generation,
+                    server,
+                    {
+                        "stack": "default",
+                        "provider": "server",
+                        "repository": "atrinik/server",
+                    },
+                    coordinate,
+                )
+        container = topology / "temporary-states"
+        self.assertEqual(
+            {path.name for path in container.iterdir()}, {MANAGED_MARKER}
+        )
+
+    def test_temporary_state_publication_rejects_container_replacement(self) -> None:
+        topology = self.workspace._topology_directory(
+            "container-replaced", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        generation = "b" * 64
+        original_copytree = shutil.copytree
+        displaced = topology / "displaced-temporary-states"
+        replacement = topology / "temporary-states"
+
+        def replace_container(*args: object, **kwargs: object) -> object:
+            result = original_copytree(*args, **kwargs)
+            if Path(args[0]) != server / "install_data":
+                return result
+            replacement.rename(displaced)
+            replacement.mkdir()
+            atomic_json(
+                replacement / MANAGED_MARKER,
+                {
+                    "schema_version": 1,
+                    "purpose": "topology-temporary-states",
+                },
+            )
+            (replacement / "sentinel").write_text(
+                "preserve\n", encoding="utf-8"
+            )
+            return result
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.shutil.copytree",
+                side_effect=replace_container,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "identity changed"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "container-replaced",
+                "default",
+                generation,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            (replacement / "sentinel").read_text(encoding="utf-8"),
+            "preserve\n",
+        )
+        self.assertEqual(
+            {path.name for path in displaced.iterdir()}, {MANAGED_MARKER}
+        )
+
+    def test_temporary_state_staging_rollback_rejects_replacement(self) -> None:
+        topology = self.workspace._topology_directory(
+            "staging-replaced", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        generation = "4" * 64
+        original_digest = workspace_module._tree_digest
+        displaced = topology / "displaced-state-staging"
+        replaced = False
+
+        def replace_staging(*args: object, **kwargs: object) -> str:
+            nonlocal replaced
+            digest = original_digest(*args, **kwargs)
+            if not replaced and Path(args[0]) == server / "install_data":
+                replaced = True
+                container = topology / "temporary-states"
+                staging = next(
+                    path
+                    for path in container.iterdir()
+                    if path.name.startswith(f".{generation}.")
+                )
+                staging.rename(displaced)
+                staging.mkdir()
+                (staging / "sentinel").write_text(
+                    "preserve\n", encoding="utf-8"
+                )
+            return digest
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._tree_digest",
+                side_effect=replace_staging,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "identity changed"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "staging-replaced",
+                "default",
+                generation,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        replacement = next(
+            path
+            for path in (topology / "temporary-states").iterdir()
+            if path.name.startswith(f".{generation}.")
+        )
+        self.assertEqual(
+            (replacement / "sentinel").read_text(encoding="utf-8"),
+            "preserve\n",
+        )
+        self.assertTrue(displaced.is_dir())
+
+    def test_temporary_state_staging_rejects_hardlinks(self) -> None:
+        topology = self.workspace._topology_directory(
+            "staging-hardlink", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        generation = "8" * 64
+        original_copytree = shutil.copytree
+
+        def link_copied_file(*args: object, **kwargs: object) -> object:
+            result = original_copytree(*args, **kwargs)
+            if Path(args[0]) == server / "install_data":
+                destination = Path(args[1])
+                copied = destination / "motd"
+                copied.unlink()
+                os.link(server / "install_data" / "motd", copied)
+            return result
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.shutil.copytree",
+                side_effect=link_copied_file,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "linked file"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "staging-hardlink",
+                "default",
+                generation,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            {path.name for path in (topology / "temporary-states").iterdir()},
+            {MANAGED_MARKER},
+        )
+
+    def test_temporary_state_revalidates_after_metadata_publication(self) -> None:
+        topology = self.workspace._topology_directory(
+            "staging-final-validation", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        generation = "7" * 64
+        original_atomic_json_at = workspace_module.durable_atomic_json_at
+
+        def add_late_link(
+            directory_fd: int,
+            name: str,
+            value: object,
+            **kwargs: object,
+        ) -> None:
+            original_atomic_json_at(directory_fd, name, value, **kwargs)
+            if name == workspace_module.TEMPORARY_STATE_METADATA:
+                os.symlink("motd", "late-link", dir_fd=directory_fd)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.durable_atomic_json_at",
+                side_effect=add_late_link,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "symbolic link"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "staging-final-validation",
+                "default",
+                generation,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            {path.name for path in (topology / "temporary-states").iterdir()},
+            {MANAGED_MARKER},
+        )
+
+    def test_temporary_state_revalidates_copied_bytes_before_publication(self) -> None:
+        topology = self.workspace._topology_directory(
+            "staging-content-validation", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        generation = "6" * 64
+        original_atomic_json_at = workspace_module.durable_atomic_json_at
+
+        def change_copied_file(
+            directory_fd: int,
+            name: str,
+            value: object,
+            **kwargs: object,
+        ) -> None:
+            original_atomic_json_at(directory_fd, name, value, **kwargs)
+            if name == workspace_module.TEMPORARY_STATE_METADATA:
+                motd_fd = os.open(
+                    "motd",
+                    os.O_WRONLY | os.O_TRUNC | os.O_NOFOLLOW,
+                    dir_fd=directory_fd,
+                )
+                try:
+                    os.write(motd_fd, b"changed after validation\n")
+                finally:
+                    os.close(motd_fd)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.durable_atomic_json_at",
+                side_effect=change_copied_file,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "changed before.*publication"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "staging-content-validation",
+                "default",
+                generation,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            {path.name for path in (topology / "temporary-states").iterdir()},
+            {MANAGED_MARKER},
+        )
+
+    def test_temporary_state_revalidates_metadata_at_publication(self) -> None:
+        topology = self.workspace._topology_directory(
+            "staging-metadata-validation", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        generation = "5" * 64
+        original_digest = workspace_module._tree_digest_descriptor
+        full_digest_calls = 0
+
+        def change_metadata_after_snapshot(
+            directory_fd: int,
+            display: Path,
+            root_exclusions: set[str] | None = None,
+        ) -> str:
+            nonlocal full_digest_calls
+            digest = original_digest(directory_fd, display, root_exclusions)
+            if root_exclusions is None:
+                full_digest_calls += 1
+                if full_digest_calls == 2:
+                    state_fd = os.open(
+                        workspace_module.TEMPORARY_STATE_METADATA,
+                        os.O_WRONLY | os.O_TRUNC | os.O_NOFOLLOW,
+                        dir_fd=directory_fd,
+                    )
+                    try:
+                        os.write(state_fd, b'{}\n')
+                    finally:
+                        os.close(state_fd)
+            return digest
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._tree_digest_descriptor",
+                side_effect=change_metadata_after_snapshot,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "metadata changed"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "staging-metadata-validation",
+                "default",
+                generation,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            {path.name for path in (topology / "temporary-states").iterdir()},
+            {MANAGED_MARKER},
+        )
+
+    def test_temporary_startup_rollback_removes_state_and_lease(self) -> None:
+        topology = self.workspace._topology_directory("rollback", create=True)
+        server = self.workspace.paths.repositories / "server"
+        state, policy = self.workspace._create_temporary_state(
+            topology,
+            "rollback",
+            "default",
+            "e" * 64,
+            server,
+            {
+                "stack": "default",
+                "provider": "server",
+                "repository": "atrinik/server",
+            },
+            self.scenario_resolved_fixture()["server"],
+        )
+        lock = Path(f"{state}.lock")
+        with exclusive_lock(lock, "temporary rollback") as state_lease:
+            metadata = os.fstat(state_lease.fileno())
+            self.workspace._rollback_temporary_state_creation(
+                state,
+                state_lease,
+                policy["identity"],
+                {"device": metadata.st_dev, "inode": metadata.st_ino},
+                implementation=policy["implementation"],
+            )
+        self.assertFalse(state.exists())
+        self.assertFalse(lock.exists())
+
+    def test_temporary_startup_rollback_orphan_lease_is_reclaimable(self) -> None:
+        topology = self.workspace._topology_directory(
+            "rollback-orphan", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        state, policy = self.workspace._create_temporary_state(
+            topology,
+            "rollback-orphan",
+            "default",
+            "d" * 64,
+            server,
+            {
+                "stack": "default",
+                "provider": "server",
+                "repository": "atrinik/server",
+            },
+            self.scenario_resolved_fixture()["server"],
+        )
+        lock = Path(f"{state}.lock")
+        with exclusive_lock(lock, "temporary rollback") as state_lease:
+            metadata = os.fstat(state_lease.fileno())
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.Workspace."
+                    "_unlink_temporary_state_lock",
+                    side_effect=WorkspaceError("simulated lease interruption"),
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError, "simulated lease interruption"
+                ),
+            ):
+                self.workspace._rollback_temporary_state_creation(
+                    state,
+                    state_lease,
+                    policy["identity"],
+                    {"device": metadata.st_dev, "inode": metadata.st_ino},
+                    implementation=policy["implementation"],
+                )
+        self.assertFalse(state.exists())
+        preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        item = next(
+            value for value in preview["items"] if value["path"] == str(state)
+        )
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertIn(
+            "stale_orphan_temporary_state_lease", item["reasons"]
+        )
+        container_marker = state.parent / MANAGED_MARKER
+        container_payload = container_marker.read_bytes()
+        container_marker.unlink()
+        unowned_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        unowned_item = next(
+            value
+            for value in unowned_preview["items"]
+            if value["path"] == str(state)
+        )
+        self.assertEqual(unowned_item["disposition"], "protected")
+        self.assertIn(
+            "invalid_orphan_temporary_state_lease", unowned_item["reasons"]
+        )
+        container_marker.write_bytes(container_payload)
+        with (
+            mock.patch(
+                "atrinik_workspace.cleanup._descriptor_mount_id",
+                side_effect=[1, 2],
+            ),
+            self.assertRaisesRegex(WorkspaceError, "crossed a mount"),
+        ):
+            cleanup_module.Cleanup(
+                self.workspace
+            )._open_temporary_state_container(topology)
+        cleanup = cleanup_module.Cleanup(self.workspace)
+        normal_item = next(
+            value
+            for value in cleanup._temporary_states(0)
+            if value["path"] == str(state)
+        )
+        cleanup._remove_temporary_state(normal_item, 0)
+        self.assertFalse(lock.exists())
+        with exclusive_lock(lock, "recreated orphan rollback lease"):
+            pass
+        lock_metadata = lock.stat(follow_symlinks=False)
+        lock_tombstone = lock.parent / (
+            f".{lock.name}.remove-{lock_metadata.st_dev:x}-"
+            f"{lock_metadata.st_ino:x}"
+        )
+        lock.rename(lock_tombstone)
+        tombstone_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        tombstone_item = next(
+            value
+            for value in tombstone_preview["items"]
+            if value["path"] == str(state)
+        )
+        self.assertEqual(tombstone_item["disposition"], "eligible")
+        applied = self.workspace.cleanup(
+            ["temporary-states"], 0, [], True
+        )
+        applied_item = next(
+            value for value in applied["items"] if value["path"] == str(state)
+        )
+        self.assertEqual(applied_item["disposition"], "removed")
+        self.assertFalse(lock.exists())
+        self.assertFalse(lock_tombstone.exists())
+
+    def test_orphan_temporary_lease_inventory_fails_closed(self) -> None:
+        topology = self.workspace._topology_directory(
+            "orphan-lease-uncertainty", create=True
+        )
+        container, container_fd = self.workspace._temporary_state_container(topology)
+        os.close(container_fd)
+        generation = "a" * 64
+        state = container / generation
+        lock = Path(f"{state}.lock")
+        with exclusive_lock(lock, "orphan lease fixture"):
+            pass
+        cleanup = cleanup_module.Cleanup(self.workspace)
+
+        with self.assertRaisesRegex(WorkspaceError, "tombstone is invalid"):
+            cleanup._orphan_temporary_state_lease_item(
+                topology, lock, 0, tombstone=True
+            )
+
+        invalid_tombstone = container / f".{lock.name}.remove-0-0"
+        invalid_tombstone.write_text("invalid\n", encoding="utf-8")
+        invalid_item = cleanup._orphan_temporary_state_lease_item(
+            topology, invalid_tombstone, 0, tombstone=True
+        )
+        self.assertIn(
+            "invalid_orphan_temporary_state_lease", invalid_item["reasons"]
+        )
+        invalid_tombstone.unlink()
+
+        state.mkdir()
+        state_item = cleanup._orphan_temporary_state_lease_item(
+            topology, lock, 0
+        )
+        self.assertIn(
+            "invalid_orphan_temporary_state_lease", state_item["reasons"]
+        )
+        state.rmdir()
+
+        with exclusive_lock(lock, "busy orphan lease"):
+            busy_item = cleanup._orphan_temporary_state_lease_item(
+                topology, lock, 0
+            )
+        self.assertIn("active_state_lease", busy_item["reasons"])
+
+        with mock.patch.object(
+            cleanup, "_lock_busy", return_value=(False, "invalid lease")
+        ):
+            lock_error_item = cleanup._orphan_temporary_state_lease_item(
+                topology, lock, 0
+            )
+        self.assertIn("state_lease_error", lock_error_item["reasons"])
+
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            return_value={"control": {"generation": generation}},
+        ):
+            current_item = cleanup._orphan_temporary_state_lease_item(
+                topology, lock, 0
+            )
+        self.assertIn("topology_generation_present", current_item["reasons"])
+
+        future_cleanup = cleanup_module.Cleanup(self.workspace)
+        future_cleanup.now = future_cleanup.now.replace(
+            year=1970, month=1, day=1
+        )
+        future_item = future_cleanup._orphan_temporary_state_lease_item(
+            topology, lock, 0
+        )
+        self.assertIn("future_creation_time", future_item["reasons"])
+        young_item = cleanup_module.Cleanup(
+            self.workspace
+        )._orphan_temporary_state_lease_item(topology, lock, 999)
+        self.assertIn("younger_than_grace_period", young_item["reasons"])
+
+        extra_link = self.root / "orphan-lease-extra-link"
+        os.link(lock, extra_link)
+        linked_item = cleanup._orphan_temporary_state_lease_item(
+            topology, lock, 0
+        )
+        self.assertIn(
+            "invalid_orphan_temporary_state_lease", linked_item["reasons"]
+        )
+        extra_link.unlink()
+
+        atomic_json(topology / "status.json", {})
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            side_effect=WorkspaceError("invalid topology status"),
+        ):
+            status_item = cleanup._orphan_temporary_state_lease_item(
+                topology, lock, 0
+            )
+        self.assertIn("topology_status_unverifiable", status_item["reasons"])
+
+    def test_detached_temporary_state_classifies_every_uncertainty(self) -> None:
+        topology = self.workspace._topology_directory(
+            "detached-state-uncertainty", create=True
+        )
+        container, container_fd = self.workspace._temporary_state_container(topology)
+        os.close(container_fd)
+        generation = "b" * 64
+        state = container / generation
+        state.mkdir()
+        cleanup = cleanup_module.Cleanup(self.workspace)
+        policy = {
+            "mode": "temporary",
+            "path": str(state),
+            "owner": {
+                "kind": "topology-generation",
+                "topology": topology.name,
+                "generation": generation,
+            },
+            "lifecycle": "removal-pending",
+            "lease_identity": {"device": 1, "inode": 2},
+            "created_at": "invalid",
+        }
+        uncertain = cleanup._detached_temporary_state_item(
+            topology.name,
+            {
+                "state_policy": policy,
+                "supervisor": {"liveness": "live"},
+                "services": {"server": {"liveness": "unreachable"}},
+                "observation": None,
+            },
+            0,
+        )
+        self.assertTrue(
+            {
+                "temporary_state_reappeared",
+                "temporary_state_ownership_evidence_missing",
+                "state_lease_unverifiable",
+                "topology_liveness_unverifiable",
+                "topology_observation_unverifiable",
+                "invalid_temporary_state",
+            }
+            <= set(uncertain["reasons"])
+        )
+        state.rmdir()
+
+        lock = Path(f"{state}.lock")
+        with exclusive_lock(lock, "detached lease fixture"):
+            pass
+        lock_metadata = lock.stat(follow_symlinks=False)
+        released_policy = {
+            **policy,
+            "lifecycle": "removed",
+            "lease_identity": {
+                "device": lock_metadata.st_dev,
+                "inode": lock_metadata.st_ino,
+            },
+            "created_at": cleanup.now.replace(
+                year=cleanup.now.year + 1, month=1, day=1
+            ).isoformat(),
+        }
+        observed_status = {
+            "state_policy": released_policy,
+            "supervisor": {"liveness": "stale"},
+            "services": {},
+            "observation": {
+                "control": "reachable",
+                "process_tree_lease": "retained",
+                "runtime_bundle_lease": "unverifiable",
+                "port_reservation": None,
+            },
+            "endpoint": None,
+        }
+        with mock.patch.object(
+            cleanup,
+            "_state_lock_observation",
+            return_value=(False, "invalid lease", None),
+        ):
+            lease_error = cleanup._detached_temporary_state_item(
+                topology.name, observed_status, 0
+            )
+        self.assertTrue(
+            {
+                "state_lease_error",
+                "reachable_topology_control",
+                "process_tree_lease_unverifiable",
+                "runtime_bundle_lease_unverifiable",
+                "port_reservation_lease_unverifiable",
+                "future_creation_time",
+            }
+            <= set(lease_error["reasons"])
+        )
+        with mock.patch.object(
+            cleanup,
+            "_state_lock_observation",
+            return_value=(True, None, released_policy["lease_identity"]),
+        ):
+            busy = cleanup._detached_temporary_state_item(
+                topology.name, observed_status, 0
+            )
+        self.assertIn("active_state_lease", busy["reasons"])
+        with mock.patch.object(
+            cleanup,
+            "_state_lock_observation",
+            return_value=(False, None, {"device": 9, "inode": 9}),
+        ):
+            mismatch = cleanup._detached_temporary_state_item(
+                topology.name, observed_status, 0
+            )
+        self.assertIn("state_lease_identity_mismatch", mismatch["reasons"])
+
+    def test_temporary_startup_rollback_retains_linked_state(self) -> None:
+        topology = self.workspace._topology_directory(
+            "linked-rollback", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        state, policy = self.workspace._create_temporary_state(
+            topology,
+            "linked-rollback",
+            "default",
+            "f" * 64,
+            server,
+            {
+                "stack": "default",
+                "provider": "server",
+                "repository": "atrinik/server",
+            },
+            self.scenario_resolved_fixture()["server"],
+        )
+        lock = Path(f"{state}.lock")
+        linked_target = self.root / "rollback-link-target"
+        linked_target.write_text("preserve\n", encoding="utf-8")
+        (state / "unsafe-link").symlink_to(linked_target)
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        with exclusive_lock(lock, "temporary rollback") as state_lease:
+            metadata = os.fstat(state_lease.fileno())
+            with self.assertRaisesRegex(WorkspaceError, "symbolic link"):
+                self.workspace._rollback_temporary_state_creation(
+                    state,
+                    state_lease,
+                    policy["identity"],
+                    {"device": metadata.st_dev, "inode": metadata.st_ino},
+                    state_fd,
+                )
+        os.close(state_fd)
+        self.assertTrue(state.is_dir())
+        self.assertTrue((state / "unsafe-link").is_symlink())
+
+    def test_temporary_startup_rollback_requires_exact_implementation(self) -> None:
+        topology = self.workspace._topology_directory(
+            "typed-rollback", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        state, policy = self.workspace._create_temporary_state(
+            topology,
+            "typed-rollback",
+            "default",
+            "9" * 64,
+            server,
+            {
+                "stack": "default",
+                "provider": "server",
+                "repository": "atrinik/server",
+            },
+            self.scenario_resolved_fixture()["server"],
+        )
+        replacement = dict(policy["implementation"])
+        replacement["provider"] = "replacement-server"
+        atomic_json(
+            state / workspace_module.STATE_IMPLEMENTATION_MARKER,
+            {
+                "schema_version": workspace_module.STATE_IMPLEMENTATION_SCHEMA_VERSION,
+                **replacement,
+            },
+        )
+        lock = Path(f"{state}.lock")
+        with exclusive_lock(lock, "temporary rollback") as state_lease:
+            metadata = os.fstat(state_lease.fileno())
+            with self.assertRaisesRegex(
+                WorkspaceError, "implementation marker is invalid"
+            ):
+                self.workspace._rollback_temporary_state_creation(
+                    state,
+                    state_lease,
+                    policy["identity"],
+                    {"device": metadata.st_dev, "inode": metadata.st_ino},
+                    implementation=policy["implementation"],
+                )
+        self.assertTrue(state.is_dir())
+        self.assertTrue(lock.is_file())
+
+    def test_temporary_mutation_refuses_live_physical_alias(self) -> None:
+        state = self.root / "temporary-physical-alias"
+        state.mkdir()
+        identity = self.workspace._state_identity(state)
+        alias_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            fcntl.flock(alias_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with self.assertRaisesRegex(
+                WorkspaceError, "temporary state is already in use"
+            ):
+                self.workspace._lock_state_directory_mutation(state, identity)
+        finally:
+            os.close(alias_fd)
+
+    def test_temporary_state_first_digest_failure_removes_staging(self) -> None:
+        topology = self.workspace._topology_directory("digest-failure", create=True)
+        server = self.workspace.paths.repositories / "server"
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._tree_digest",
+                side_effect=WorkspaceError("invalid install_data"),
+            ),
+            self.assertRaisesRegex(WorkspaceError, "invalid install_data"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "digest-failure",
+                "default",
+                "c" * 64,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            {path.name for path in (topology / "temporary-states").iterdir()},
+            {MANAGED_MARKER},
+        )
+
+    def test_temporary_state_rejects_install_data_mutation_during_copy(self) -> None:
+        topology = self.workspace._topology_directory("copy-race", create=True)
+        server = self.workspace.paths.repositories / "server"
+        original_tree_digest = workspace_module._tree_digest
+        digest_calls = 0
+
+        def digest_then_mutate(*args: object, **kwargs: object) -> str:
+            nonlocal digest_calls
+            digest_calls += 1
+            digest = original_tree_digest(*args, **kwargs)
+            if digest_calls == 2:
+                (server / "install_data" / "motd").write_text(
+                    "changed\n", encoding="utf-8"
+                )
+            return digest
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._tree_digest",
+                side_effect=digest_then_mutate,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "install_data changed during temporary state"
+            ),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "copy-race",
+                "default",
+                "b" * 64,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            {path.name for path in (topology / "temporary-states").iterdir()},
+            {MANAGED_MARKER},
+        )
+
     def test_scenario_lifecycle_owns_isolated_state_and_credentials(self) -> None:
         resolved = self.scenario_resolved_fixture()
         with mock.patch.object(
@@ -10246,6 +13439,17 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(credentials["account"], created["account"])
             self.assertEqual(credentials["character"], created["character"])
             self.assertTrue(credentials["password"])
+            scenario_summary = self.workspace.topology_summary(
+                "default", "scenario-issue-42", ["server"]
+            )
+            self.assertEqual(
+                scenario_summary["state_policy"]["owner"],
+                {"kind": "scenario", "name": "issue-42"},
+            )
+            self.assertEqual(
+                scenario_summary["state_policy"]["lifecycle"],
+                "scenario-owned",
+            )
 
             (state / "accounts").mkdir()
             reset = self.workspace.scenario_reset("issue-42")
@@ -10826,8 +14030,18 @@ class WorkspaceTests(unittest.TestCase):
 
         state = self.workspace.paths.scenarios / "locked" / "state"
         with exclusive_lock(Path(f"{state}.lock"), "test state"):
-            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+            with self.assertRaisesRegex(WorkspaceError, "already in use|busy"):
                 self.workspace.scenario_reset("locked")
+
+        descriptor = os.open(state, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with self.assertRaisesRegex(
+                WorkspaceError, "scenario server state is already in use"
+            ):
+                self.workspace.scenario_reset("locked")
+        finally:
+            os.close(descriptor)
 
     def test_foreground_client_pins_matching_server_state(self) -> None:
         server = self.workspace.paths.repositories / "server"
@@ -10975,8 +14189,13 @@ class WorkspaceTests(unittest.TestCase):
             descriptor = os.open(lease, os.O_RDWR | os.O_CREAT, 0o600)
             workspace_module.initialize_lease(descriptor, "a" * 64)
             fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            state_output = self.root / "foreground-server-state-output"
-            state_output.mkdir()
+            state_output = (
+                self.workspace._state_location("default")
+                / "tmp"
+                / "runtime-assets"
+                / "foreground-server-generation"
+            )
+            state_output.mkdir(parents=True)
             atomic_json(
                 state_output / MANAGED_MARKER,
                 {
@@ -10984,12 +14203,35 @@ class WorkspaceTests(unittest.TestCase):
                     "purpose": "runtime-state-output:foreground-server-generation",
                 },
             )
-            return generation_root, descriptor, {
-                "mutable_state_outputs": [str(state_output)],
-            }
+            return (
+                generation_root,
+                descriptor,
+                {
+                    "mutable_state_outputs": [str(state_output)],
+                    "mutable_state_output_identities": [
+                        self.workspace._state_identity(state_output)
+                    ],
+                },
+                os.open(
+                    state_output,
+                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                ),
+            )
 
         def execute_server(*_arguments: object, **_keywords: object) -> None:
-            self.assertEqual(len(_keywords["pass_fds"]), 2)
+            self.assertEqual(len(_keywords["pass_fds"]), 5)
+            asset_argument = next(
+                value
+                for value in reversed(_arguments[0])
+                if value.startswith("--assetspath=")
+            )
+            asset_path = Path(asset_argument.split("=", 1)[1])
+            self.assertEqual(asset_path.parent, Path("/proc/self/fd"))
+            self.assertIn(int(asset_path.name), _keywords["pass_fds"])
+            self.assertEqual(
+                load_json(asset_path / MANAGED_MARKER)["purpose"],
+                "runtime-state-output:foreground-server-generation",
+            )
             for path, description in (
                 (
                     resource_lock_path(
@@ -11038,7 +14280,13 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace, "_build_resolved", return_value=build_root
             ),
             mock.patch.object(
-                self.workspace, "_topology_resolved_status", return_value={}
+                self.workspace,
+                "_topology_resolved_status",
+                return_value={
+                    "server": {
+                        "repository": "https://github.com/atrinik/server.git"
+                    }
+                },
             ),
             mock.patch.object(
                 self.workspace,
@@ -11065,6 +14313,12 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(result.name, "atrinik-server")
         self.assertFalse(result.exists())
+        implementation = load_json(
+            self.workspace._state_location("default")
+            / workspace_module.STATE_IMPLEMENTATION_MARKER
+        )
+        self.assertEqual(implementation["stack"], "default")
+        self.assertEqual(implementation["provider"], "server")
         rendered = "\n".join(str(call.args[0]) for call in output.call_args_list)
         self.assertIn("--port_quic=1731", rendered)
         self.assertIn("--port_mapping=off", rendered)
@@ -11072,10 +14326,9 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("--no_console", rendered)
         self.assertLess(
             rendered.index("--assetspath=/tmp/untrusted"),
-            rendered.index(
-                f"--assetspath={self.root / 'foreground-server-state-output'}"
-            ),
+            rendered.index("--assetspath=/proc/self/fd/"),
         )
+        self.assertIn("--datapath=/proc/self/fd/", rendered)
 
     def test_foreground_launch_rejects_invalid_port(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "between 1 and 65535"):

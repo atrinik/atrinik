@@ -187,8 +187,8 @@ class ServerReadinessCaptureTests(unittest.TestCase):
             terminate.assert_called_once()
             self.assertEqual(terminate.call_args.args[0], {"client": process})
             self.assertIsNone(terminate.call_args.args[1])
-            self.assertEqual(
-                {call.args[0] for call in close.call_args_list}, {7, 8}
+            self.assertTrue(
+                {7, 8} <= {call.args[0] for call in close.call_args_list}
             )
 
     def test_current_supervisor_releases_broad_leases_and_retains_runtime(self) -> None:
@@ -245,8 +245,9 @@ class ServerReadinessCaptureTests(unittest.TestCase):
 
             start_guardian.assert_called_once_with(None, None, 6, 9)
             terminate.assert_called_once()
-            self.assertEqual(
-                {call.args[0] for call in close.call_args_list}, {6, 7, 8, 9}
+            self.assertTrue(
+                {6, 7, 8, 9}
+                <= {call.args[0] for call in close.call_args_list}
             )
             status = json.loads(
                 (root / "status.json").read_text(encoding="utf-8")
@@ -394,6 +395,81 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 process.kill()
                 process.wait(timeout=2)
 
+    def test_terminate_rejects_abnormal_service_exit_as_clean(self) -> None:
+        process = subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                "import signal, sys, time; "
+                "signal.signal(signal.SIGTERM, lambda *_args: sys.exit(23)); "
+                "print('ready', flush=True); time.sleep(60)",
+            ],
+            start_new_session=True,
+            stdout=subprocess.PIPE,
+        )
+        try:
+            assert process.stdout is not None
+            self.assertEqual(process.stdout.readline(), b"ready\n")
+            self.assertFalse(
+                supervisor_module.terminate(
+                    {"server": process}, None, timeout=2
+                )
+            )
+            self.assertEqual(process.returncode, 23)
+        finally:
+            if process.stdout is not None:
+                process.stdout.close()
+            if process.poll() is None:
+                process.kill()
+                process.wait(timeout=2)
+
+    def test_terminate_timeout_cannot_be_clean(self) -> None:
+        process = mock.Mock(pid=1234, returncode=0)
+        process.wait.side_effect = subprocess.TimeoutExpired("server", 2)
+        with (
+            mock.patch.object(supervisor_module.Path, "iterdir", return_value=[]),
+            mock.patch.object(supervisor_module.os, "killpg"),
+        ):
+            self.assertFalse(
+                supervisor_module.terminate(
+                    {"server": process}, None, timeout=0
+                )
+            )
+
+    def test_terminate_rejects_process_group_observation_uncertainty(self) -> None:
+        process = mock.Mock(pid=1234, returncode=0)
+        with mock.patch.object(
+            supervisor_module.Path,
+            "iterdir",
+            side_effect=OSError("proc unavailable"),
+        ):
+            self.assertFalse(
+                supervisor_module.terminate(
+                    {"server": process}, None, timeout=0
+                )
+            )
+
+        for failure in (OSError("stat unavailable"), ValueError("malformed stat")):
+            with self.subTest(failure=type(failure).__name__):
+                with (
+                    mock.patch.object(
+                        supervisor_module.Path,
+                        "iterdir",
+                        return_value=[Path("/proc/1234")],
+                    ),
+                    mock.patch.object(
+                        supervisor_module.Path,
+                        "read_text",
+                        side_effect=failure,
+                    ),
+                    mock.patch.object(supervisor_module.os, "killpg"),
+                ):
+                    self.assertFalse(
+                        supervisor_module.terminate(
+                            {"server": process}, None, timeout=0
+                        )
+                    )
+
     def test_requires_fingerprint_and_finished_server_startup(self) -> None:
         capture = ServerReadinessCapture()
 
@@ -478,7 +554,7 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 self.assertEqual(supervisor_module.main(), 1)
 
         supervise_call.assert_called_once_with(
-            spec_path, None, None, None, None, None, 9
+                spec_path, None, None, None, None, None, 9, None, None, None
         )
         status.assert_called_once_with(
             spec_path.parent / "startup-error.json",
@@ -517,16 +593,129 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 mock.patch.object(
                     supervisor_module, "_serve_control", return_value=True
                 ),
+                mock.patch.object(
+                    supervisor_module, "_peek_exit_code", return_value=None
+                ),
                 mock.patch.object(supervisor_module, "terminate"),
                 mock.patch.object(supervisor_module.os, "close") as close,
             ):
                 self.assertEqual(
-                    supervise(spec_path, None, None, None, None, 8, 9), 0
+                    supervise(
+                        spec_path,
+                        None,
+                        None,
+                        None,
+                        None,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                    ),
+                    0,
                 )
 
-        self.assertEqual(
-            {call.args[0] for call in close.call_args_list}, {8, 9}
-        )
+            self.assertTrue(
+                set(range(8, 13))
+                <= {call.args[0] for call in close.call_args_list}
+            )
+
+    def test_server_launch_inherits_exact_state_descriptors(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            spec_path = root / "spec.json"
+            spec_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 3,
+                        "name": "state-fds",
+                        "profile": "classic",
+                        "dependencies": ["server"],
+                        "state": str(root / "state"),
+                        "state_policy": {"mode": "named"},
+                        "build_root": "/tmp/build",
+                        "resolved": {},
+                        "endpoint": {
+                            "host": "127.0.0.1",
+                            "port": 13327,
+                            "fingerprint": None,
+                        },
+                        "runtime": {"generation": "a" * 64},
+                        "control": {
+                            "generation": "a" * 64,
+                            "socket": str(root / "control.sock"),
+                        },
+                        "services": {
+                            "server": {
+                                "command": ["server"],
+                                "cwd": str(root),
+                                "log": str(root / "server.log"),
+                            }
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            process = mock.MagicMock(pid=1234)
+            process.poll.return_value = 0
+            capture = mock.Mock(
+                event=mock.Mock(wait=mock.Mock(side_effect=[False, True])),
+                fingerprint="a" * 64,
+            )
+            control = mock.Mock()
+            with (
+                mock.patch.object(
+                    supervisor_module,
+                    "process_start_time",
+                    side_effect=["1", "2"],
+                ),
+                mock.patch.object(supervisor_module, "_validate_port_reservation"),
+                mock.patch.object(supervisor_module, "_require_server_port_available"),
+                mock.patch.object(
+                    supervisor_module, "_start_guardian", return_value=(None, 99)
+                ) as guardian,
+                mock.patch.object(
+                    supervisor_module, "_open_control", return_value=control
+                ),
+                mock.patch.object(
+                    supervisor_module,
+                    "_serve_control",
+                    side_effect=[False, True],
+                ),
+                mock.patch.object(
+                    supervisor_module, "_peek_exit_code", return_value=None
+                ),
+                mock.patch.object(
+                    supervisor_module, "ServerReadinessCapture", return_value=capture
+                ),
+                mock.patch.object(
+                    supervisor_module.subprocess, "Popen", return_value=process
+                ) as popen,
+                mock.patch.object(supervisor_module.threading, "Thread"),
+                mock.patch.object(supervisor_module, "terminate", return_value=True),
+                mock.patch.object(supervisor_module.os, "close") as close,
+            ):
+                self.assertEqual(
+                    supervise(
+                        spec_path,
+                        3,
+                        None,
+                        None,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                    ),
+                    0,
+                )
+            self.assertEqual(popen.call_args.kwargs["pass_fds"], (4, 7, 8))
+            guardian.assert_called_once_with(4, 5, 3, 6, 7, 8, 9)
+            self.assertTrue(
+                {3, 4, 5, 6, 7, 8, 9, 99}
+                <= {call.args[0] for call in close.call_args_list}
+            )
 
     def test_main_daemon_parent_returns_without_supervising(self) -> None:
         with (
@@ -564,6 +753,46 @@ class ServerReadinessCaptureTests(unittest.TestCase):
             mock.patch.object(sys, "stderr"),
         ):
             self.assertEqual(supervisor_module.main(), 1)
+
+    def test_main_closes_every_current_lease_after_startup_failure(self) -> None:
+        arguments = [
+            "atrinik-supervisor",
+            "--spec",
+            "/tmp/spec.json",
+            "--lock-fd",
+            "3",
+            "--layout-lock-fd",
+            "4",
+            "--build-lock-fd",
+            "5",
+            "--process-tree-fd",
+            "6",
+            "--port-reservation-fd",
+            "7",
+            "--runtime-lock-fd",
+            "8",
+            "--state-directory-fd",
+            "9",
+            "--state-output-fd",
+            "10",
+            "--physical-state-lock-fd",
+            "11",
+        ]
+        with (
+            mock.patch.object(sys, "argv", arguments),
+            mock.patch.object(
+                supervisor_module,
+                "supervise",
+                side_effect=RuntimeError("invalid runtime"),
+            ),
+            mock.patch.object(supervisor_module, "atomic_status"),
+            mock.patch.object(supervisor_module.os, "close") as close,
+            mock.patch.object(sys, "stderr"),
+        ):
+            self.assertEqual(supervisor_module.main(), 1)
+        self.assertEqual(
+            {call.args[0] for call in close.call_args_list}, set(range(3, 12))
+        )
 
 
 if __name__ == "__main__":

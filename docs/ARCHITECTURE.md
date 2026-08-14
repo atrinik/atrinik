@@ -138,6 +138,7 @@ workspace/
   build/compiler-cache/              bounded shared native compiler cache
   build/retention.json               optional strict build pin/rollback record
   topologies/<name>/                 supervised process state and rotated logs
+    temporary-states/<generation>/   disposable or retained exact state
   state/server/<name>/               persistent mutable server data
   states.json                        named external-state registry
 ~~~
@@ -635,11 +636,27 @@ match; dirty inputs deliberately regenerate.
 
 For the currently runnable classic profile, server launch preparation assembles
 a disposable working directory with links to the selected build, plugins,
-collected Classic-target `content@main`, resources, configuration, GPL tools, and named
-persistent state. GPL tools are not part of the replacement/default role graph.
-First use initializes a state atomically from the selected server's
-`install_data`; an existing directory is validated and never overlaid. State
-inside a server source worktree is rejected. Replacement runtime preparation
+collected Classic-target `content@main`, resources, configuration, GPL tools,
+and one explicit state policy. GPL tools are not part of the
+replacement/default role graph. `temporary` allocates a fresh topology-
+generation-owned state, `named` selects an existing registered persistent
+state, and `default` explicitly identifies the legacy managed persistent
+default. Scenario state remains registered and scenario-owned rather than
+becoming a fourth generic topology policy. Omitting a selector retains the
+legacy `default` behavior for human compatibility; automation can select
+`temporary` without creating a registry entry.
+
+Temporary initialization copies the exact selected server generation's
+validated `install_data` into a unique sibling below the marker-owned topology,
+writes topology/generation, stack/provider, server-coordinate, creation-time,
+path, device, and inode identity, validates the complete state shape, and uses
+an atomic no-replace rename to publish it. Named/default first use follows the
+same stage/validate/no-replace rule. Existing paths are never overlaid, state
+inside a server source worktree is rejected, existing symlinked paths fail
+closed, and an implementation marker rejects a known incompatible server
+format. First supervised use atomically binds an unmarked historical directory
+to the selected implementation under the exact state lock, so a later provider
+cannot silently reuse an untyped directory. Replacement runtime preparation
 remains unavailable until its native component contracts land.
 
 The server's configured `assetspath` is a disposable transport-neutral runtime
@@ -655,9 +672,30 @@ topology retention and are replaced on the next launch of that topology name.
 The coordinator takes an advisory exclusive lock next to the state directory
 before build/runtime preparation and holds it for the lifetime of a launched
 server. Profile builds have their own blocking lock, and server launch views are
-keyed by state path. Processes started outside the coordinator do not
+keyed by state path and, for existing persistent directories, by physical
+device/inode identity so alternate mounted names cannot obtain distinct
+leases. Physical state locks are flat entries in the already classified lease
+namespace, so replacing a dynamically created child directory cannot fork the
+identity coordinate. Processes started outside the coordinator do not
 participate in the state lock, so operators must not point those processes at
-the same state concurrently.
+the same state concurrently. Startup also opens the selected state directory
+without following links, verifies its recorded device/inode identity, and hands
+that descriptor and its physical-identity lease to the supervisor and guardian.
+The server consumes the pinned directory, including pre-option configuration
+reads and disposable runtime output, through its inherited descriptor even if
+an external path component is replaced after admission. Rollback removes that
+output relative to the same pinned descriptor and never follows the replaced
+lexical path. Before creating a topology-owned mutable output, startup durably
+records its generation and state identity; after creation it adds the output
+inode. A restart either adopts that evidence from a published status record or
+completes the exact tombstone transaction before creating another generation,
+so a hard interruption cannot silently orphan the output.
+
+The current topology record and human/JSON status surfaces retain the state
+policy, owner, exact path identity, implementation, and lifecycle. A same-state
+conflict names the owning topology and generation when that identity is
+observable. Different named states and generation-owned temporary states use
+different exact locks and can overlap.
 
 Profiles are stack-aware source-topology definitions for supervised runtime as
 well as builds. For a complete Classic profile, `up` resolves the common
@@ -691,10 +729,33 @@ holders and retain the generation until their absence is proven.
 Runtime-generation and state leases remain held by the supervisor and guardian
 rather than service-inherited, so a descendant that closes its process-tree
 identity cannot retain those resources. The guardian releases them only after exact
-process-tree recovery completes. Another namespace
-waits or fails closed with the owning topology and recovery action. Normal
-shutdown asks the supervisor to gracefully stop children before releasing
-state. For a paired topology it starts the server
+process-tree recovery completes. Another namespace waits or fails closed with
+the owning topology and recovery action. Normal shutdown asks the supervisor to
+gracefully stop children before releasing state. After a confirmed clean
+`down`, the caller reacquires and revalidates the exact temporary-state identity
+after every process/state lease is released, records a removal-pending
+lifecycle, then removes only a disposable state and finalizes it as removed.
+An interrupted removal is safe to retry without requiring another live
+generation. Clean proof includes expected service exit status, absence of forced
+termination, and exact lease release; the durable proof permits a later
+`down` invocation to finish an interrupted removal transaction.
+`down --retain-state` instead records a retained lifecycle. `state
+promote` requires that stopped retained identity, serializes
+topology/state/registry mutation, pins and revalidates the retained directory,
+publishes descriptor-relative provenance plus a promotion-pending record, and
+atomically adds the exact path under a previously unused persistent name before
+finalizing it as promoted. A raced path replacement rolls registry publication
+back before returning an error. Creation metadata remains immutable and status owns
+the mutable lifecycle, so interruption after either durable promotion write is
+recoverable by retry. Independent immutable promotion provenance binds the
+registered name and path to the source topology generation, including while the
+origin status is temporarily unavailable or promotion is pending. Its
+persistent policy therefore never collapses to generic external ownership. It
+never overwrites a name or directory. A crash,
+unreachable control endpoint, failed post-spawn startup, malformed identity,
+linked path, uncertain lock, or incomplete promotion remains on disk for
+diagnosis. Foreground and scenario state keep their separate lifecycles. For a
+paired topology it starts the server
 first, waits for its fingerprint and final ready signal, and then pins the
 client to that authenticated loopback endpoint. Omitted ports and explicit port
 zero use automatic allocation. A short workspace allocator transaction probes a
@@ -734,6 +795,28 @@ advance. Generation directories stay with the marker-owned topology record so
 the preview-first topology reclamation contract in #397 can remove only an
 inactive, released, fully validated record; malformed, linked, unreachable, or
 retained generations fail closed.
+Generation-owned state has its own `temporary-states` cleanup scope. Dry-run
+inventory reports exact topology/generation ownership and only classifies an
+old disposable state as eligible after proving its markers, metadata, path
+identity, registry absence, stopped matching topology generation, and released
+process-tree, runtime-bundle, port-reservation, and exact state leases.
+Apply repeats those checks while holding the topology operation and state
+locks. The topology root, `temporary-states` container, state, and lease are
+opened as one no-follow, same-mount descriptor chain; apply retains that chain
+through descriptor-relative rename and deletion. Registry exclusion compares
+physical directory identity as well as the canonical path. Owned deletion
+first moves each verified entry to a private
+no-replace tombstone and rechecks its inode before unlinking. Live, unreachable,
+busy, linked, malformed, registered, retained,
+promoted, or uncertain state is protected; missing or replaced lease evidence
+fails closed and cleanup never performs an implicit `down`.
+Persistent-state runtime outputs have a separate durable pending/complete
+cleanup record. It binds every output path to its creation inode before
+deletion, renames the exact inode to a deterministic tombstone before removing
+its contents, and lets a retry distinguish a completed removal from unresolved
+ownership evidence. A missing or arbitrarily renamed output remains pending;
+the wrapper never reacquires deletion ownership from a mutable pathname.
+Topology-record cleanup also protects an identity-derived removal tombstone.
 A topology may select one service, and distinct runtime names permit concurrent
 combinations as long as their server ports and mutable state directories do not
 conflict. When replacement runtime support lands, a concurrent `classic` and

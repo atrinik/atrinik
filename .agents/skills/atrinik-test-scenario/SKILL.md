@@ -9,7 +9,9 @@ Use scenarios for repeatable reproductions. Keep account creation in the server
 API and orchestration in the wrapper; never edit account/player files.
 
 Fresh state comes from Classic `install_data`; the wrapper creates disposable
-asset staging. Never add generated assets to scenario state.
+asset staging. Scenario state is registered, persistent, and scenario-owned;
+it is not generic temporary topology state and must still be selected with
+`--state scenario-NAME`. Never add generated assets to scenario state.
 
 1. Select the exact coherent classic-derived profile.
 2. Choose a lowercase issue/feature name and use `basic-player` unless a tested
