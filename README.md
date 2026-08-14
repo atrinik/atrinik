@@ -981,8 +981,16 @@ coordination. Every operation also retains its own wrapper-worktree source
 coordinate, preventing cleanup from removing the code and ignored component
 checkouts beneath an active wrapper view. Saved non-primary profile references
 are also registered in this physical namespace, so cleanup from a relocated
-state root observes references published by another root. Profile names, topology
-names, scenarios, states, build roots, and cache keys remain workspace-local.
+state root observes references published by another root. First-use registry
+backfill retains exact paths from missing profile and scenario sources as
+conservative historical references without changing the authored records.
+Those unbound records do not prevent `status`, `sync`, or unrelated commands
+from constructing the workspace, but they protect a source that later reappears
+at the same path. Genuine source-lease contention reports the exact coordinate,
+owning operation and supported recovery action; an authored record that changes
+during confirmation fails with a distinct retry diagnostic. Profile names,
+topology names, scenarios, states, build roots, and cache keys remain
+workspace-local.
 Requests acquire that deterministic order. A writer queued for one coordinate
 precedes later readers of that coordinate, while unrelated resources continue:
 two builds on different worktrees of one repository overlap, and init/sync for
