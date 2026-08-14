@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atrinik.org/schema/provenance-identities-v1.json",
+  "title": "Atrinik public provenance identity registry",
+  "description": "Public aliases with explicit authorization and privacy-preserving attestations backed by restricted evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "policy_version", "schema", "reviewers", "records"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "policy_version": {"const": 1},
+    "schema": {"const": "governance/provenance-identities/schema-v1.json"},
+    "reviewers": {"const": "governance/provenance-identities/reviewers.json"},
+    "records": {
+      "type": "array",
+      "items": {"oneOf": [
+        {"$ref": "#/$defs/publicAlias"},
+        {"$ref": "#/$defs/confidentialAttestation"}
+      ]}
+    }
+  },
+  "$defs": {
+    "recordId": {"type": "string", "pattern": "^pir-[cp]-[0-9a-f]{32}$"},
+    "publicRecordId": {"type": "string", "pattern": "^pir-p-[0-9a-f]{32}$"},
+    "confidentialRecordId": {"type": "string", "pattern": "^pir-c-[0-9a-f]{32}$"},
+    "reviewer": {"type": "string", "pattern": "^github:[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$"},
+    "date": {"type": "string", "format": "date"},
+    "claims": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["authorship", "identity", "rights-grant", "temporal-scope"]}
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "canonicalization", "digest"],
+      "properties": {
+        "algorithm": {"const": "sha256"},
+        "canonicalization": {"const": "atrinik-json-v1"},
+        "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key_id", "signature"],
+      "properties": {
+        "key_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{7,63}$"},
+        "signature": {"type": "string", "pattern": "^-----BEGIN SSH SIGNATURE-----\\n[A-Za-z0-9+/=\\n]+\\n-----END SSH SIGNATURE-----$"}
+      }
+    },
+    "statusDetail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effective_on"],
+      "properties": {
+        "effective_on": {"$ref": "#/$defs/date"},
+        "reason": {"enum": ["compromise", "correction", "dispute", "withdrawal"]},
+        "superseded_by": {"$ref": "#/$defs/recordId"}
+      }
+    },
+    "activeStatusDetail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effective_on"],
+      "properties": {"effective_on": {"$ref": "#/$defs/date"}}
+    },
+    "revokedStatusDetail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effective_on", "reason"],
+      "properties": {
+        "effective_on": {"$ref": "#/$defs/date"},
+        "reason": {"enum": ["compromise", "correction", "dispute", "withdrawal"]}
+      }
+    },
+    "supersededStatusDetail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effective_on", "superseded_by"],
+      "properties": {
+        "effective_on": {"$ref": "#/$defs/date"},
+        "superseded_by": {"$ref": "#/$defs/recordId"}
+      }
+    },
+    "publicAlias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_id", "record_type", "status", "status_detail", "synthetic", "policy_version", "reviewer", "reviewed_on", "expires_on", "claims", "display_name", "aliases", "publication_authorization", "approval", "integrity"],
+      "allOf": [
+        {"if": {"properties": {"status": {"const": "active"}}}, "then": {"properties": {"status_detail": {"$ref": "#/$defs/activeStatusDetail"}}}},
+        {"if": {"properties": {"status": {"const": "revoked"}}}, "then": {"properties": {"status_detail": {"$ref": "#/$defs/revokedStatusDetail"}}}},
+        {"if": {"properties": {"status": {"const": "superseded"}}}, "then": {"properties": {"status_detail": {"$ref": "#/$defs/supersededStatusDetail"}}}}
+      ],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/publicRecordId"},
+        "record_type": {"const": "public-alias"},
+        "status": {"enum": ["active", "revoked", "superseded"]},
+        "status_detail": {"$ref": "#/$defs/statusDetail"},
+        "synthetic": {"type": "boolean"},
+        "policy_version": {"const": 1},
+        "reviewer": {"$ref": "#/$defs/reviewer"},
+        "reviewed_on": {"$ref": "#/$defs/date"},
+        "expires_on": {"$ref": "#/$defs/date"},
+        "claims": {"$ref": "#/$defs/claims"},
+        "display_name": {"type": "string", "minLength": 1},
+        "aliases": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "publication_authorization": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["authorized_on", "fields", "restricted_record_id"],
+          "properties": {
+            "authorized_on": {"$ref": "#/$defs/date"},
+            "fields": {"const": ["aliases", "display_name"]},
+            "restricted_record_id": {"type": "string", "pattern": "^restricted-[0-9a-f]{32}$"}
+          }
+        },
+        "approval": {"$ref": "#/$defs/approval"},
+        "integrity": {"$ref": "#/$defs/integrity"}
+      }
+    },
+    "confidentialAttestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_id", "record_type", "status", "status_detail", "synthetic", "policy_version", "reviewer", "reviewed_on", "expires_on", "claims", "scope_binding", "restricted_evidence", "publication_review", "approval", "integrity"],
+      "allOf": [
+        {"if": {"properties": {"status": {"const": "active"}}}, "then": {"properties": {"status_detail": {"$ref": "#/$defs/activeStatusDetail"}}}},
+        {"if": {"properties": {"status": {"const": "revoked"}}}, "then": {"properties": {"status_detail": {"$ref": "#/$defs/revokedStatusDetail"}}}},
+        {"if": {"properties": {"status": {"const": "superseded"}}}, "then": {"properties": {"status_detail": {"$ref": "#/$defs/supersededStatusDetail"}}}}
+      ],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/confidentialRecordId"},
+        "record_type": {"const": "confidential-attestation"},
+        "status": {"enum": ["active", "revoked", "superseded"]},
+        "status_detail": {"$ref": "#/$defs/statusDetail"},
+        "synthetic": {"type": "boolean"},
+        "policy_version": {"const": 1},
+        "reviewer": {"$ref": "#/$defs/reviewer"},
+        "reviewed_on": {"$ref": "#/$defs/date"},
+        "expires_on": {"$ref": "#/$defs/date"},
+        "claims": {"$ref": "#/$defs/claims"},
+        "scope_binding": {"type": "string", "pattern": "^psb-[0-9a-f]{32}$"},
+        "restricted_evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["record_id", "integrity"],
+          "properties": {
+            "record_id": {"type": "string", "pattern": "^restricted-[0-9a-f]{32}$"},
+            "integrity": {"type": "string", "pattern": "^hmac-sha256:[0-9a-f]{64}$"}
+          }
+        },
+        "publication_review": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["correlation_risk", "fields_reviewed"],
+          "properties": {
+            "correlation_risk": {"const": "approved"},
+            "fields_reviewed": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}}
+          }
+        },
+        "approval": {"$ref": "#/$defs/approval"},
+        "integrity": {"$ref": "#/$defs/integrity"}
+      }
+    }
+  }
+}

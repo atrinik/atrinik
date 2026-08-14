@@ -116,6 +116,29 @@ top-level candidate query measured 63 ms cold and 61 ms warm median. The
 protocol is internal to the generated adapters; scripts should be obtained
 through `completion bash|zsh|fish` rather than hand-written against it.
 
+### MCP information-access contract
+
+[`mcp/contract/v1`](mcp/contract/v1/README.md) defines the common, versioned
+safety and measurement gates for future Atrinik MCP servers and evaluated
+connectors. It pins exact coordinates, stable failures, pagination, cache
+identity, hard record/byte/time/context limits, six known-answer domains, an
+adversarial corpus, and build/configure/defer/reject decisions. This repository
+does not yet ship or configure a production MCP server; direct wrapper,
+repository CLI, `rg`, Git, `gh`, and browser workflows remain authoritative.
+
+Validate or benchmark the contract without installing an MCP SDK:
+
+~~~sh
+python3 -m atrinik_workspace.mcp_contract validate
+python3 -m atrinik_workspace.mcp_contract benchmark \
+  --iterations 30 --output build/mcp/benchmark.json
+~~~
+
+The benchmark defaults offline and writes sanitized evidence under ignored
+`build/`. See [the safety and measurement contract](docs/MCP_INFORMATION_ACCESS.md)
+for bounds, threat coverage, capability ownership, optional live-GitHub
+measurement, and downstream consumer gates.
+
 ## Dependency and supply-chain ownership
 
 `supply-chain/inventory.json` records every supported repository and the owned
@@ -189,8 +212,12 @@ directory, so an unrelated or historical checkout cannot impersonate
 ### Historical MIT provenance grants
 
 [`docs/PROVENANCE.md`](docs/PROVENANCE.md) is the single exhaustive approved
-grantor registry and evidence contract. Do not duplicate its table in component
-guides or skills.
+grantor registry. The canonical privacy-preserving identity schema, public
+registry and operating policy are in
+[`governance/provenance-identities/`](governance/provenance-identities/) and
+[`docs/PROVENANCE_IDENTITIES.md`](docs/PROVENANCE_IDENTITIES.md). Component
+repositories keep exact material scope and an immutable pinned reference; they
+never duplicate aliases or canonical identity records.
 
 The cross-repository M1 evidence and exact reuse procedure are indexed in
 [`docs/REPLACEMENT_FOUNDATIONS.md`](docs/REPLACEMENT_FOUNDATIONS.md). The
@@ -209,6 +236,14 @@ provenance-approved reuse, not clean-room work. Later material needs
 contemporaneous compatible permission. The source license and unrelated
 dependencies, assets, and surrounding work do not change; destination evidence
 cites the exact wrapper revision containing the registry used.
+
+Validate the canonical registry and one or more component references through a
+bounded local checkout. This reads only the pinned registry/schema Git blobs and
+does not use the network:
+
+~~~sh
+./atrinik provenance validate --reference PATH
+~~~
 
 The MIT-by-default tools repository, its GPL-2.0-or-later `map-checker-qt/`
 exception, and user-facing replacement/retirement paths are inventoried in
@@ -244,7 +279,7 @@ Add the complete currently playable classic stack explicitly:
 ./atrinik status --json
 ./atrinik profile show classic
 ./atrinik build all --profile classic --test
-./atrinik up --name classic-local --profile classic --state default
+./atrinik up --name classic-local --profile classic --temporary-state
 ./atrinik ps classic-local --json
 ./atrinik logs classic-local server --follow
 # Press Ctrl-C to stop following logs; the services keep running.
@@ -464,20 +499,45 @@ process.
 
 Change handoffs should end with a copy-pasteable verification recipe that uses
 the thin wrapper instead of internal build paths or direct component binaries.
-Use the actual profile, topology, and state names for the change. A runtime
+Use the actual profile, topology, and state policy for the change. A runtime
 client/server review normally follows this shape; until replacement runtime
 contracts land, `PROFILE` must be `classic` or derived from it:
 
 ~~~sh
 ./atrinik profile show PROFILE
 ./atrinik build COMPONENT --profile PROFILE --test
-./atrinik topology show PROFILE --json
-./atrinik up --name TOPOLOGY --profile PROFILE --state STATE
+./atrinik topology show PROFILE --temporary-state --json
+./atrinik up --name TOPOLOGY --profile PROFILE --temporary-state
 ./atrinik ps TOPOLOGY --json
 ./atrinik logs TOPOLOGY client --follow
 # Perform the feature-specific checks described in the handoff.
 ./atrinik down TOPOLOGY
 ~~~
+
+Each current topology persists a random generation identity and a mode-0600
+filesystem control endpoint. `ps` and `down` therefore work from another
+supported devcontainer or sandbox that shares the workspace even when its PID
+namespace cannot see the namespace-local process numbers. JSON status reports
+`live`, `exited`, `stale`, or fail-closed `unreachable` liveness plus exact
+runtime-generation, process-tree, state-policy owner/path/lifecycle, and port
+observations and the safe next action. Text status prints the retained
+generation identity and action. A control response must match both the topology name and generation;
+`down` never falls back to signaling a mismatched or recycled PID.
+The runtime places the socket under a short generation-derived name in the
+shared workspace, avoiding ordinary managed-worktree and topology-name path
+growth. The process-tree lease is tied to both the generation and exact file
+identity; never replace,
+unlink, or repair it by hand because an invalid current lease fails closed.
+
+If a supervisor is killed rather than shut down, its same-namespace guardian
+terminates exact process-tree lease holders and retains the runtime generation
+and server state until their absence is proven. No layout or mutable build-root
+lease survives publication. During that
+interval another session reports `unreachable` and fails closed: wait, retry
+`./atrinik ps TOPOLOGY --json`, then retry `./atrinik down TOPOLOGY`. If the
+lease remains retained and control remains unreachable, preserve the exact
+record and lease for operator diagnosis; do not scan `/proc`, signal recorded
+PIDs, remove lease files, or reuse the topology name.
 
 The handoff should name any display or runtime prerequisite, list the exact
 manual actions and expected results, and include `down` for cleanup. When no
@@ -528,6 +588,19 @@ left in that worktree for normal Git resolution. Historical `content-1x`
 paths and records are inert and are never treated as `content@main`. Create new
 content review worktrees from the shared `content` checkout.
 
+A target build resolves only that target's transitive provider inputs. During
+its bounded preparation phase, each clean primary input is exported from its
+exact Git commit into a wrapper-owned, read-only source generation; the build
+then releases that primary's source lease before configure, compile, and tests.
+Consequently a long-running build from a Classic feature worktree does not
+block `sync --with classic` from advancing unrelated or snapshotted clean
+primaries. Dirty sources and selected worktrees remain live inputs and retain
+their exact source leases. The authored Classic content publisher still proves
+its target against a live Git checkout, so operations that consume it retain
+that exact content lease. `build all` requests the union of every target's
+dependency closure and retains or snapshots every input without weakening
+coherence.
+
 ## Checkout worktrees
 
 Create a branch and full-repository worktree from a checkout's remote default
@@ -565,8 +638,8 @@ inside it.
 
 Cleanup is always operator-invoked and preview-first. With no options it
 inventories registered worktrees and marker-owned profile builds older than
-seven days, including individually marker-owned Worker dependency entries,
-without changing the filesystem:
+seven days, including immutable source generations and individually
+marker-owned Worker dependency entries, without changing the filesystem:
 
 ~~~sh
 ./atrinik cleanup
@@ -574,14 +647,21 @@ without changing the filesystem:
 ./atrinik cleanup --scope worktrees classic-server --older-than 14
 ./atrinik cleanup --scope builds --scope npm-cache --scope compiler-cache --older-than 0
 ./atrinik cleanup --scope sound-cache --older-than 7 --dry-run --json
+./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
+./atrinik cleanup --scope topologies --older-than 7 --apply
+./atrinik cleanup --scope temporary-states --older-than 7 --dry-run --json
 ./atrinik cleanup --scope all --older-than 7 --apply
 ~~~
 
 `--dry-run` is the explicit spelling of the default mode; only `--apply`
 mutates. Repeated `--scope` options combine `worktrees`, `builds`, and the
-opt-in `npm-cache`, `compiler-cache`, and `sound-cache`; `all` selects all five.
+opt-in `temporary-states`, `npm-cache`, `compiler-cache`, and `sound-cache`;
+`all` selects all six.
+Topology history is a separate opt-in `topologies` scope and is deliberately
+excluded from both the default and `all`, so a broad cache/worktree cleanup
+cannot silently expand to runtime history.
 Positional checkout or logical component names narrow worktree and sound-cache
-inventory and still deduplicate
+inventory, exclude topology-owned temporary state, and still deduplicate
 aliases to one physical checkout. The special `atrinik` filter selects wrapper
 worktrees. JSON output is stable schema-versioned data and keeps Git/GitHub
 diagnostics off stdout; its byte fields remain exact integers. Text output uses
@@ -635,6 +715,15 @@ schema 1 and contains exactly `schema_version` plus an absolute `build_roots`
 array. A build sourced from a worktree eligible in the same plan may be
 reclaimed regardless of age unless another protection applies.
 
+Immutable source generations use the same default `builds` scope and grace
+period. Cleanup authenticates their checkout/key path, ownership marker,
+closed commit/tree/subpath metadata, and complete tree digest. An active build
+holds the generation's shared lock; apply takes its exclusive side and repeats
+identity, digest, and age validation before bounded removal. Generation staging
+transactions within the marker-owned container are separately inventoried,
+remain protected under an active generation lock, and are reclaimable after
+interruption and the normal grace period.
+
 Worker dependency entries under `workspace/build/worker-dependencies/` use the
 same default `builds` scope and grace period. Cleanup requires the exact parent
 and entry markers, strict metadata and last-used time, a safe direct-child key,
@@ -672,15 +761,38 @@ worktree removal holds its exclusive side from final proof through Git removal,
 so a producer cannot start in the removal window. A sound worktree without the
 versioned producer lease marker is not reclaimable by wrapper cleanup.
 
-Apply holds the repository-layout lock and performs one complete inventory and
-size recomputation. Immediately before each removal it freshly revalidates the
-target's safety dependencies without rescanning unrelated report-only payloads.
-Any new uncertainty fails closed. It removes eligible profile builds and
-explicit sound-cache entries first, exact Git worktrees second, other explicit
-caches next, and safely shared prunable Git metadata last. A pre-mutation race
-aborts without deletion; after the first
-successful mutation, the deterministic policy stops on the first error and
-reports exactly what was reclaimed without claiming rollback.
+The explicit `topologies` scope inventories direct marker-owned directories
+below `workspace/topologies/`. It reports liveness, control generation,
+process-tree, runtime, port, and legacy repository-layout lease state,
+conservative age, and every path apply would remove. Only old `exited` or
+legacy `stale` records with unreachable controls and released leases are
+eligible. Orderly records age from `stopped_at`; legacy stale records without
+it use the newest no-follow tree mtime. Live, unreachable, young, locked,
+linked, malformed, unowned, or unverifiable records remain protected. Apply
+takes the exact topology coordinate lease and operation lock, repeats
+identity/generation/lease/age/tree validation, and removes only that topology
+directory. It never invokes `down`, signals processes, reuses a name, removes
+build roots, or changes profiles, scenarios, source, or persistent state. A
+topology containing any generation-owned temporary state remains protected;
+reclaim eligible disposable state with the separate scope first.
+
+The explicit `temporary-states` scope inventories generation-named states
+below marker-owned topology records. An old disposable state becomes eligible
+only when its topology/generation metadata, directory identity, registry
+absence, and released exact lease all validate. Retained, promoted, live,
+unreachable, busy, linked, malformed, registered, or uncertain state remains
+protected. Apply holds the topology operation and state locks while repeating
+the proof and never stops a topology.
+
+Apply performs one complete inventory and size recomputation, then acquires the
+exact target/reference leases and freshly revalidates each stable-sorted
+candidate without rescanning unrelated report-only payloads. Any new uncertainty
+fails closed. Busy targets are skipped so they do not convoy unrelated cleanup.
+Eligible topology records come first, then profile builds and explicit
+sound-cache entries, exact Git worktrees, other explicit caches, and safely
+shared prunable Git metadata. `workspace/cleanup-journals/` records the ordered
+targets and is atomically refreshed after every completed action; interruption
+therefore preserves exact progress without claiming rollback.
 
 ## Composing coherent component sources
 
@@ -816,7 +928,12 @@ the selected server, creates the dedicated `scenario-issue-42` state, stores a
 generated password in a mode-0600 ignored file, and prints exact
 `topology show`/`up`/`ps`/`logs`/`down` commands. `show` and `list` never reveal
 the password; request it explicitly with `credentials` immediately before
-login.
+login. `scenario list` keeps the global inventory usable when a retained
+scenario can no longer resolve its profile or fails current validation. JSON
+output represents that entry with its `name`, `path`, `inert: true`, and a
+stable `inert_reason`; bounded human output labels the same entry `inert`.
+Control characters in inert names and paths are escaped. Exact `show`,
+credential, and reset operations continue to fail closed.
 
 Scenarios live below ignored `workspace/scenarios/`. Their metadata records the
 profile plus every resolved provisioning dependency's checkout, source root,
@@ -854,11 +971,50 @@ commands turn that selection into a Compose-like native development stack:
 
 ~~~sh
 ./atrinik topology show PROFILE
-./atrinik up --name TOPOLOGY --profile PROFILE --state STATE [--port UDP_PORT]
+./atrinik up --name TOPOLOGY --profile PROFILE --temporary-state [--port UDP_PORT]
 ./atrinik ps [TOPOLOGY]
 ./atrinik logs TOPOLOGY [server|client] [--follow]
 ./atrinik down TOPOLOGY
 ~~~
+
+Server topologies choose exactly one state policy: `--temporary-state` creates
+a fresh generation-owned state for isolated automation, `--state NAME` selects
+an existing registered persistent state, and `--default-state` explicitly
+selects the legacy managed persistent default. Omitting all three remains
+backward compatible with `--state default`. `topology show`, `up`, and
+`ps --json` report the policy, exact owner, path identity, and lifecycle. Bounded
+and followed service logs begin with the same policy context so captured output
+retains the state ownership boundary.
+Temporary state is never entered in `state list`; a confirmed clean `down`
+removes it after its process and state leases are released. Clean proof
+requires expected service exit status as well as released leases and remains
+durable so an interrupted `down` can safely retry finalization. A crash,
+unreachable supervisor, malformed record, or uncertain lease retains it for
+diagnosis.
+
+Retain a clean temporary state deliberately, then promote it without replacing
+an existing name:
+
+~~~sh
+./atrinik down TOPOLOGY --retain-state
+./atrinik state promote TOPOLOGY SAVED_NAME --json
+~~~
+
+Promotion registers the exact stopped directory in place and persistent policy
+surfaces retain its topology-generation provenance in independent durable
+metadata, including across a promotion retry or unavailable origin record.
+Retained and promoted states are protected, and a topology name with unfinished temporary
+state cannot be restarted until that state is promoted or explicitly reclaimed.
+Abandoned disposable states participate only in
+the explicit preview-first cleanup scope:
+
+~~~sh
+./atrinik cleanup --scope temporary-states --older-than 7 --dry-run --json
+./atrinik cleanup --scope temporary-states --older-than 7 --apply --json
+~~~
+
+Cleanup never stops a topology and never removes a live, busy, linked,
+malformed, registered, retained, promoted, or otherwise uncertain state.
 
 For a complete Classic profile, `up`, scenarios, and individual builds resolve
 one manifest-derived build-root selection across the `client`, `server`,
@@ -872,9 +1028,20 @@ runnable implementation; the `default` replacement profile will become
 runnable as its component contracts land. For a runnable profile, `up` builds
 the requested targets, reuses or refreshes content and resource caches, stages
 sound, prepares an isolated runtime, and starts both game processes under one
-supervisor. A server
-gets an available UDP port by default; use `--port` when a stable port is
-useful. The supervisor waits for both the QUIC certificate fingerprint and
+supervisor. A server gets an available UDP port by default; `--port 0` has the
+same automatic-allocation meaning, while `--port 1` through `--port 65535`
+requests that exact port. Automatic selection briefly holds the workspace
+allocator only while it chooses and publishes a unique generation-bound
+reservation. Every port uses a short mode-0600 transaction file, and every
+server retains its own immutable mode-0600 generation lease through
+supervisor and guardian recovery, so startup preparation and readiness waits
+for different ports overlap. An exact-port conflict fails without waiting for
+an unrelated port and names the owning topology and generation plus the safe
+retry action; once startup has published supervisor status, `ps` and `down`
+are available. The supervisor rechecks kernel availability immediately
+before launching the server; an external process that wins the bind race
+produces a bounded startup error without changing another topology's
+reservation. The supervisor waits for both the QUIC certificate fingerprint and
 completed server initialization, then gives the paired client an authenticated
 loopback endpoint, disables metaserver and STUN discovery in that client, and
 disables STUN discovery and automatic port mapping in the server before
@@ -882,31 +1049,92 @@ declaring the topology ready. Use
 `--service server` or `--service client` for a single service. Client startup
 requires a live forwarded display socket.
 
-Build, foreground run, and runtime-preparation commands hold a shared
-repository-layout lock.
-Different profile build roots may compile concurrently; an exclusive per-root
-lock still serializes the same root. Initialization, synchronization, worktree
-or profile changes, and cleanup apply take the layout lock exclusively, so they
-wait until every build or runtime reader finishes. Repository migration uses
-the same exclusive mode but reports a busy result instead of waiting. The
-wrapper fails closed when advisory shared locking is unavailable. The layout
-lock is always acquired before topology, scenario, state, build-root, port,
-registry, or cache locks. Foreground processes inherit their layout and exact
-build-root leases. Supervised services inherit both leases through the daemon
-and keep them until every service exits or `down` completes. Build and scenario
-subprocesses inherit every active layout, build-root, state, registry, and cache
-lease so an orphan cannot outlive its reader protection.
+Ordinary wrapper operations coordinate through fair, exact-resource leases,
+not the workspace-global layout lock. Workspace-local coordinates live under
+`workspace/leases/`; physical-checkout Git administration and source
+coordinates live under the wrapper's common-Git `atrinik-resource-leases/`
+namespace so wrapper worktrees or relocated state roots cannot split
+coordination. Every operation also retains its own wrapper-worktree source
+coordinate, preventing cleanup from removing the code and ignored component
+checkouts beneath an active wrapper view. Saved non-primary profile references
+are also registered in this physical namespace, so cleanup from a relocated
+state root observes references published by another root. First-use registry
+backfill retains exact paths from missing profile and scenario sources as
+conservative historical references without changing the authored records.
+Those unbound records do not prevent `status`, `sync`, or unrelated commands
+from constructing the workspace, but they protect a source that later reappears
+at the same path. Genuine source-lease contention reports the exact coordinate,
+owning operation and supported recovery action; an authored record that changes
+during confirmation fails with a distinct retry diagnostic. Profile names,
+topology names, scenarios, states, build roots, and cache keys remain
+workspace-local.
+Requests acquire that deterministic order. A writer queued for one coordinate
+precedes later readers of that coordinate, while unrelated resources continue:
+two builds on different worktrees of one repository overlap, and init/sync for
+distinct checkouts do not convoy.
+Multi-source writers use all-or-none retry, so waiting for one busy source does
+not retain earlier disjoint source coordinates. Distinct explicit topology
+ports use exact startup locks; only automatic port selection briefly uses the
+allocator mutex.
 
-The supervisor records exact source commits, build and state paths, and process
-start identities. `ps` without a name lists every recorded topology; a name
+A build holds its profile-name lease while deriving the requested target's
+transitive provider closure, then locks only those selected sources and
+revalidates them. Clean primary inputs are exported atomically into reusable,
+commit/tree/subpath-keyed read-only generations below
+`workspace/build/source-generations/`; reuse verifies ownership metadata and a
+complete tree digest plus the captured checkout, source, and common-Git
+filesystem identities. No generation links or hard-links back to mutable
+primary files. Every generated path is revalidated after the build takes its
+shared pin; only then are its primary source leases released. Dirty primaries
+and worktrees stay locked for as long as the build
+can read them. Cache and region-map coordinates come from the captured snapshot
+or generation metadata rather than rereading a released primary. The build
+persists original filesystem/Git observations and immutable generation paths
+and digests in
+`.atrinik-profile-resolution.json`, and does not reread a mutable profile by
+name. Profile or topology publication and worktree removal share any remaining
+live target source lease, so cleanup cannot race a newly published exact
+reference. Cleanup apply locks and revalidates one stable-sorted candidate at a
+time, skips busy candidates, and journals completed actions in
+`workspace/cleanup-journals/`.
+
+Waits longer than 10 seconds report the resource kind, stable coordinate, known
+owner operation, and supported recovery command without relying on a
+namespace-local PID. The wrapper fails closed when advisory shared locking or
+resource identity is unavailable. Active preparation leases are inherited by
+subprocesses. Build and startup hold profile, source, and build-root leases only
+until a sealed runtime generation is published. Foreground processes then
+retain the runtime-generation lease plus server state when applicable;
+supervisors and guardians retain only runtime-generation, process-tree,
+server-state, and generation-specific port-reservation leases.
+
+The common-Git `repository-layout.lock` is the bounded maintenance barrier for
+schema/layout migration apply or restore. Ordinary exact-lease operations share
+the barrier, so they overlap one another but cannot race an exclusive migration;
+subprocesses inherit it only while they retain their exact operation leases.
+Migration entry points require or derive this physical barrier rather than
+falling back to the state-root-local legacy lock.
+
+The supervisor records exact source commits/trees, build metadata, runtime
+digests, state paths, and process start identities. `ps` without a name lists every recorded topology; a name
 selects one. It distinguishes a live process from a reused PID, and `down`
 signals only processes holding that topology's identity lease, including
 orphaned services and descendants. The server state remains locked for the
 complete supervised lifetime. Each topology also has a persistent isolated
-client configuration/cache root and its own copies of the collected content and
-resource caches, so changing or removing one topology cannot affect another
-topology or the retained build caches. The inherited identity lease atomically
+client configuration/cache root and a complete sealed executable runtime, so
+rebuilding a profile or changing/removing a selected worktree cannot alter a
+live topology. Server-generated transport files live below a generation-named
+directory inside the exclusively leased state and are reached through the
+published state exception; copied maps are sealed beside that output and bound
+into the manifest, while other served inputs remain sealed inside the runtime
+generation. The inherited identity lease atomically
 prevents the same topology name from restarting while any generation remains.
+Server services do not inherit allocator, transaction, or generation
+reservation descriptors; the supervisor and same-generation guardian retain
+the exact reservation and release it after orderly shutdown or exact
+process-tree recovery. `ps --json`
+exposes its port, owner, generation, and retained/released observation without
+credentials. Reservation records are never reclaimed from recorded PIDs.
 Logs live below `workspace/topologies/`
 and rotate at 10 MiB with three backups.
 
@@ -921,7 +1149,7 @@ cd ~/atrinik
 ./atrinik init --with classic
 ./atrinik sync --with classic
 ./atrinik topology show classic
-./atrinik up --name classic-main --profile classic --state default
+./atrinik up --name classic-main --profile classic --default-state
 ./atrinik ps classic-main
 ./atrinik logs classic-main server --follow
 # Press Ctrl-C to stop following logs; the services keep running.
@@ -1125,6 +1353,8 @@ worktrees, so commit, stash, or otherwise preserve intentional edits first:
 
 ~~~sh
 ./atrinik down combined-review
+./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
+./atrinik cleanup --scope topologies --older-than 7 --apply
 ./atrinik profile set combined-review classic --primary
 ./atrinik profile set combined-review content --primary
 ./atrinik cleanup --scope worktrees --scope builds \
@@ -1135,11 +1365,14 @@ worktrees, so commit, stash, or otherwise preserve intentional edits first:
 
 The saved `combined-review` profile protects both selected worktrees until the
 explicit `profile set` commands repoint it. Do that only when the retained
-review selection is no longer useful, then preview cleanup. Cleanup never removes profiles,
-scenarios, topology records/logs, state, migration evidence, commits, or
-branches.
+review selection and stopped topology history are no longer useful, then
+preview each cleanup scope. Only the explicit `topologies` scope removes
+eligible topology records and logs. Cleanup never removes profiles, scenarios,
+registered or scenario state, migration evidence, commits, or branches. Only the explicit
+`temporary-states` scope can reclaim an abandoned, unregistered, disposable
+generation state after exact revalidation.
 
-## Persistent server state
+## Server state policies
 
 The built-in state named `default` is initialized once at
 `workspace/state/server/default` and then reused by every profile. Register a
@@ -1158,6 +1391,12 @@ useful:
 State contains player, key, unique-item, and other mutable runtime data. It is
 never regenerated over an existing directory. A nonblocking lock prevents two
 coordinator-launched servers from using the same state simultaneously.
+Managed default, named, scenario, and temporary state records preserve their
+distinct policy and owner identities; an optional implementation marker causes
+future Classic/replacement mismatches to fail closed instead of sharing an
+incompatible directory. Registered external paths remain outside wrapper
+deletion ownership. Scenario state remains registered, scenario-owned, and
+resettable only through `scenario reset`; it is not temporary topology state.
 Repository migration never moves, rewrites, or retags an existing state; state
 ownership evolution is a separate migration contract.
 
@@ -1180,7 +1419,10 @@ protocol, or network user-agent version data. Clients started outside the
 wrapper retain the ordinary package title. Start the server first
 so that its persistent `quic-identity.pem` exists. Additional arguments are
 appended after these defaults, and join-password arguments are redacted from
-command logging. Prefer `up` for routine use because it allocates a port,
+command logging. Each command first publishes a random command-owned immutable
+generation, releases source/layout/build leases, runs with only that generation
+lease (and server state for the server), then reclaims the exact generation on
+normal exit. Prefer `up` for routine use because it allocates a port,
 captures the fingerprint, and sequences both processes automatically.
 
 ## Workspace location and recovery

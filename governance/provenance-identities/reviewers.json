@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "reviewers": [
+    {
+      "key_id": "synthetic-component-reviewer-2026",
+      "identity": "github:synthetic-reviewer",
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJIxqjJr/zPvtDRRUyyBSt5LifOHeWRZFkL18ivkHoQ6",
+      "effective_on": "2026-08-13",
+      "expires_on": "2027-08-13",
+      "status": "active",
+      "synthetic": true
+    },
+    {
+      "key_id": "synthetic-reviewer-2026",
+      "identity": "github:synthetic-reviewer",
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAa7lVgb+BRLmh78l9c9d6kTvQVE1xA9AxgI02lg8dTQ",
+      "effective_on": "2026-08-13",
+      "expires_on": "2027-08-13",
+      "status": "active",
+      "synthetic": true
+    }
+  ]
+}

@@ -575,6 +575,68 @@
       ]
     },
     {
+      "id": "action/actions-cache-restore",
+      "name": "actions/cache/restore",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "classic"
+      ],
+      "required": true,
+      "version": "v6",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/cache",
+      "locator": "actions/cache/restore",
+      "commit": "55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade all cache consumers together or remove the explicit restore step",
+      "validation": "Actionlint plus complete-key verified dependency cache restore coverage",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/check.yml",
+          "contains": "actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6"
+        }
+      ]
+    },
+    {
+      "id": "action/actions-cache-save",
+      "name": "actions/cache/save",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "classic"
+      ],
+      "required": true,
+      "version": "v6",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/cache",
+      "locator": "actions/cache/save",
+      "commit": "55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade all cache consumers together or remove the explicit save step",
+      "validation": "Actionlint plus repaired-generation-only verified dependency cache save coverage",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/check.yml",
+          "contains": "actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6"
+        }
+      ]
+    },
+    {
       "id": "action/actions-checkout",
       "name": "actions/checkout",
       "kind": "github-action",
@@ -1287,6 +1349,49 @@
       ]
     },
     {
+      "id": "container/classic-dependencies",
+      "name": "Atrinik Classic durable dependency bundle",
+      "kind": "container-image",
+      "owner": "classic-server",
+      "scope": [
+        "classic",
+        "classic-client",
+        "classic-server"
+      ],
+      "required": true,
+      "version": "materials-c70422ac4df08fc013a6b1bf15d93fd19fbae724d871caa80793a5a73ac08865",
+      "version_source": "Classic dependencies.bundle.json material digest",
+      "license": "LicenseRef-Atrinik-Image-Contents",
+      "source_url": "https://github.com/atrinik/classic/pkgs/container/classic-dependencies",
+      "locator": "ghcr.io/atrinik/classic-dependencies@sha256:e8b84176046719785f768b45f513b29ab81c631b153454a025aa016cd82ee16f",
+      "commit": null,
+      "checksum": "sha256:e8b84176046719785f768b45f513b29ab81c631b153454a025aa016cd82ee16f",
+      "acquisition": "A trusted current-main workflow builds the deterministic OCI layout through the authoritative Classic fetcher and publishes its exact manifest digest",
+      "update_cadence_days": 30,
+      "update_mechanism": "Reviewed Classic lock or acquisition-contract update with a regenerated material and OCI descriptor",
+      "eol_response": "Retain every digest referenced by a supported release; publish and pin a verified replacement before retiring a bundle",
+      "validation": "GitHub-signed OCI attestation, outer OCI digest, closed manifest and materials statement, source-lock/material digests, exact archive set, sizes, inner SHA-256 values, offline consumer isolation contracts, and negative corruption tests",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/publish-dependency-bundle.yml",
+          "contains": "Publish exact verified OCI layout"
+        },
+        {
+          "repository": "classic",
+          "path": "dependencies.bundle.json",
+          "contains": "sha256:e8b84176046719785f768b45f513b29ab81c631b153454a025aa016cd82ee16f"
+        },
+        {
+          "repository": "classic",
+          "path": "tools/release/dependency_bundle.py",
+          "contains": "ghcr.io/atrinik/classic-dependencies"
+        }
+      ]
+    },
+    {
       "id": "container/classic-server",
       "name": "Atrinik Classic server image",
       "kind": "container-image",
@@ -1302,11 +1407,11 @@
       "locator": "ghcr.io/atrinik/classic-server",
       "commit": null,
       "checksum": null,
-      "acquisition": "The root release workflow builds server/Dockerfile from the monorepo context and publishes the version tag with provenance and an SBOM",
+      "acquisition": "The root release workflow verifies the durable dependency-bundle digest, builds server/Dockerfile offline from its inner archives, and publishes the version tag with provenance and an SBOM",
       "update_cadence_days": 30,
       "update_mechanism": "Classic Dockerfile and release-workflow review with every dependency update",
       "eol_response": "Publish a rebuilt supported image before retiring the current server image line",
-      "validation": "Read-only release-candidate image build plus production digest, provenance, and SBOM checks",
+      "validation": "Read-only offline release-candidate image build plus dependency-bundle, production digest, provenance, and SBOM checks",
       "disposition": "retain",
       "packages": [],
       "evidence": [
@@ -2511,39 +2616,64 @@
       ]
     },
     {
-      "id": "source/atrinik-content-runtime",
-      "name": "Atrinik content runtime archive",
+      "id": "source/atrinik-content-playtester-runtime",
+      "name": "Atrinik content runtime archive for Playtester",
       "kind": "source-archive",
       "owner": "content",
       "scope": [
-        "classic-server",
         "playtester"
       ],
       "required": true,
       "version": "v2.14.0",
-      "version_source": "Classic server and playtester dependencies.lock.json files",
+      "version_source": "Playtester dependencies.lock.json content runtime input",
       "license": "LicenseRef-Atrinik-Asset-Per-File",
       "source_url": "https://github.com/atrinik/content/releases/tag/v2.14.0",
       "locator": "pkg:github/atrinik/content@v2.14.0",
       "commit": "7dde0c0afe8840fc95dd26f404310e77d9c82621",
       "checksum": "sha256:f4ad326e20e221869897c72f7e33b533c408ce6654038dbfc4352da1c3391261",
-      "acquisition": "Classic server and playtester dependency tools download, checksum, safely extract, and atomically publish the release archive",
+      "acquisition": "Playtester obtains the archive through its verified atomic cache boundary",
       "update_cadence_days": 30,
-      "update_mechanism": "Daily fail-closed GitHub App proposal plus reviewed Classic and playtester compatibility updates",
-      "eol_response": "Update both locks to a supported content release or stop Classic packaging and Playtester operation",
-      "validation": "Lock validation, checksum, safe extraction, collection, Classic runtime tests, and playtester atomic/offline cache regressions",
+      "update_mechanism": "Reviewed Playtester compatibility update",
+      "eol_response": "Update the Playtester lock to a supported content release or stop Playtester operation",
+      "validation": "Lock validation, checksum, safe extraction, and playtester atomic/offline cache regressions",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "playtester",
+          "path": "dependencies.lock.json",
+          "contains": "f4ad326e20e221869897c72f7e33b533c408ce6654038dbfc4352da1c3391261"
+        }
+      ]
+    },
+    {
+      "id": "source/atrinik-content-runtime",
+      "name": "Atrinik content runtime archive",
+      "kind": "source-archive",
+      "owner": "content",
+      "scope": [
+        "classic-server"
+      ],
+      "required": true,
+      "version": "v3.0.1",
+      "version_source": "Classic server dependencies.lock.json content runtime input",
+      "license": "LicenseRef-Atrinik-Asset-Per-File",
+      "source_url": "https://github.com/atrinik/content/releases/tag/v3.0.1",
+      "locator": "pkg:github/atrinik/content@v3.0.1",
+      "commit": "65a88167d3a2bedcc2dc21508d94d7ca009a76d2",
+      "checksum": "sha256:2b49daee9d515a86323a5ef28a9f85a5098c96f72375155bb59dcdda50daeaf7",
+      "acquisition": "Classic release packaging obtains the archive from the exact durable dependency-bundle digest and rechecks it before safe extraction",
+      "update_cadence_days": 30,
+      "update_mechanism": "Daily fail-closed GitHub App proposal plus reviewed Classic compatibility update",
+      "eol_response": "Update the Classic lock to a supported content release or stop Classic packaging",
+      "validation": "Lock and dependency-bundle validation, checksum, safe extraction, and offline Classic rehearsal/runtime tests",
       "disposition": "isolate",
       "packages": [],
       "evidence": [
         {
           "repository": "classic-server",
           "path": "dependencies.lock.json",
-          "contains": "atrinik-content-2.14.0-classic-runtime.tar.gz"
-        },
-        {
-          "repository": "playtester",
-          "path": "dependencies.lock.json",
-          "contains": "f4ad326e20e221869897c72f7e33b533c408ce6654038dbfc4352da1c3391261"
+          "contains": "atrinik-content-3.0.1-classic-runtime.tar.gz"
         }
       ]
     },
@@ -2718,11 +2848,11 @@
       "locator": "pkg:github/atrinik/resources@v1.0.1",
       "commit": "a3bd8c8a2b746d15b397a67d9f641af7d97a6078",
       "checksum": "sha256:4db9ecdd74aa570bc7e20eccac980844f3aba8d668230502728b22146d3b2c54",
-      "acquisition": "Classic server dependency tool downloads and safely extracts the release archive",
+      "acquisition": "Classic release packaging obtains the archive from the exact durable dependency-bundle digest, rechecks it, and safely extracts it offline",
       "update_cadence_days": 30,
       "update_mechanism": "Weekly lock drift audit and reviewed release consumption",
       "eol_response": "Update the lock to a supported resource release or stop packaging the classic server",
-      "validation": "Lock validation, checksum, safe extraction, and runtime allowlist",
+      "validation": "Lock and dependency-bundle validation, checksum, safe extraction, offline rehearsal, and runtime allowlist",
       "disposition": "isolate",
       "packages": [],
       "evidence": [
@@ -2749,11 +2879,11 @@
       "locator": "pkg:github/atrinik/sound@v1.0.3",
       "commit": "18234cce19bf641f24d81333d8abcc0f1e34cd08",
       "checksum": "sha256:5427d2d2b5b73bad30c279ea5b7f012c380fd402249d45d9363b85ea7674e4bb",
-      "acquisition": "Classic client dependency tool downloads and safely extracts the release archive",
+      "acquisition": "Classic release packaging obtains the archive from the exact durable dependency-bundle digest, rechecks it, and safely extracts it offline",
       "update_cadence_days": 30,
       "update_mechanism": "Weekly lock drift audit and reviewed release consumption",
       "eol_response": "Update the lock to a supported sound release or disable packaging",
-      "validation": "Lock validation, checksum, safe extraction, and classic client package test",
+      "validation": "Lock and dependency-bundle validation, checksum, safe extraction, offline rehearsal, and classic client package test",
       "disposition": "isolate",
       "packages": [],
       "evidence": [
@@ -3033,11 +3163,11 @@
       "locator": "pkg:github/libpcpnatpmp/libpcpnatpmp@866d283da99f5e98eecff702a8df63e2ae57ffca",
       "commit": "866d283da99f5e98eecff702a8df63e2ae57ffca",
       "checksum": "sha256:65ab99547ecc8277434527607d24f8a1b02a2344ed4cea475bed751606e60202",
-      "acquisition": "CMake FetchContent downloads the commit archive and applies a reviewed MinGW patch",
+      "acquisition": "Classic release packaging obtains the commit archive from the exact durable dependency-bundle digest; CMake rechecks and extracts it offline before applying the reviewed MinGW patch",
       "update_cadence_days": 90,
       "update_mechanism": "Scheduled source-pin audit and sanitizer/network smoke review",
       "eol_response": "Update the isolated source or replace NAT-PMP support without a fallback copy",
-      "validation": "Checksum, idempotent patch, native tests, and Linux/MinGW builds",
+      "validation": "Dependency-bundle and checksum verification, idempotent patch, native tests, offline rehearsal, and Linux/MinGW builds",
       "disposition": "isolate",
       "packages": [],
       "evidence": [
@@ -4566,6 +4696,37 @@
           "repository": "website",
           "path": "package.json",
           "contains": "\"node\": \">=24.18.1 <25\""
+        }
+      ]
+    },
+    {
+      "id": "toolchain/oras",
+      "name": "ORAS CLI",
+      "kind": "toolchain",
+      "owner": "classic-server",
+      "scope": [
+        "classic"
+      ],
+      "required": true,
+      "version": "v1.3.3",
+      "version_source": "Classic dependency-bundle publisher workflow",
+      "license": "Apache-2.0",
+      "source_url": "https://github.com/oras-project/oras/releases/tag/v1.3.3",
+      "locator": "pkg:github/oras-project/oras@v1.3.3",
+      "commit": null,
+      "checksum": "sha256:9ce999f8d2de03fc03968b29d743077a58783e545e5eaa53917ca177352d0e59",
+      "acquisition": "The trusted Classic publisher downloads the exact official linux-amd64 release asset through GitHub CLI and verifies its GitHub-published SHA-256 before extraction",
+      "update_cadence_days": 90,
+      "update_mechanism": "Reviewed ORAS release and asset-digest update with deterministic OCI layout copy validation",
+      "eol_response": "Pin and validate a supported ORAS release before the current client loses required OCI distribution behavior",
+      "validation": "Exact archive SHA-256 and version plus digest-preserving OCI layout copy and registry postcondition",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "classic",
+          "path": ".github/workflows/publish-dependency-bundle.yml",
+          "contains": "9ce999f8d2de03fc03968b29d743077a58783e545e5eaa53917ca177352d0e59"
         }
       ]
     },

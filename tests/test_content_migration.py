@@ -12,6 +12,13 @@ from unittest import mock
 
 from atrinik_workspace import content_migration as migration_module
 from atrinik_workspace.content_migration import ContentMigration
+from atrinik_workspace.locking import (
+    exclusive_layout_lock,
+    exclusive_lock,
+    layout_writer_intent_path,
+    layout_writer_pending_path,
+)
+from atrinik_workspace.process_tree import control_socket_path, initialize_lease
 from atrinik_workspace.workspace import Workspace
 
 
@@ -19,6 +26,21 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ContentMigrationTests(unittest.TestCase):
+    def test_git_helper_inherits_all_exclusive_layout_descriptors(self) -> None:
+        completed = mock.MagicMock(returncode=0, stdout="", stderr="")
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            exclusive_layout_lock(
+                Path(directory) / "repository-layout.lock", "repository layout"
+            ),
+            mock.patch.object(
+                migration_module.subprocess, "run", return_value=completed
+            ) as invoke,
+        ):
+            migration_module._git(Path("/tmp/repository"), "status")
+
+        self.assertEqual(len(invoke.call_args.kwargs["pass_fds"]), 3)
+
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
@@ -100,6 +122,8 @@ class ContentMigrationTests(unittest.TestCase):
             self.workspace.paths.repository,
             self.workspace.paths,
             self.workspace.manifest,
+            self.workspace.paths.workspace / "physical-repository-layout.lock",
+            lambda _transitions=None: None,
         )
 
     def test_primary_profile_apply_audit_and_restore_preserve_legacy_checkout(self) -> None:
@@ -436,6 +460,19 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertEqual(result["status"], "refused")
         self.assertEqual(result["refusals"][0]["code"], "repository_layout_busy")
 
+    def test_restore_refuses_when_writer_admission_is_held(self) -> None:
+        self._legacy_profile()
+        self.assertEqual(self.migration().execute("apply")["status"], "complete")
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+
+        with exclusive_lock(
+            layout_writer_intent_path(layout), "competing writer admission"
+        ):
+            result = self.migration().execute("restore")
+
+        self.assertEqual(result["status"], "refused")
+        self.assertEqual(result["refusals"][0]["code"], "repository_layout_busy")
+
     def test_tampered_journal_cannot_redirect_profile_restore(self) -> None:
         self._legacy_profile()
         self.assertEqual(self.migration().execute("apply")["status"], "complete")
@@ -526,22 +563,46 @@ class ContentMigrationTests(unittest.TestCase):
         self._legacy_profile()
         topology = self.workspace.paths.topologies / "live-classic"
         topology.mkdir()
+        lease_fd = os.open(
+            topology / "process-tree.lease", os.O_RDWR | os.O_CREAT, 0o600
+        )
+        fcntl.flock(lease_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        generation = "a" * 64
+        lease = initialize_lease(lease_fd, generation)
         (topology / "status.json").write_text(
             json.dumps(
                 {
                     "stack": "classic",
                     "profile": "classic-review",
-                    "supervisor": {"pid": 100, "start_time": "1"},
+                    "control": {
+                        "socket": str(control_socket_path(topology, generation)),
+                        "generation": generation,
+                        "lease": lease,
+                    },
+                    "supervisor": {
+                        "pid": 100,
+                        "start_time": "1",
+                        "generation": generation,
+                    },
                     "services": {
-                        "server": {"pid": 101, "start_time": "2"}
+                        "server": {
+                            "pid": 101,
+                            "start_time": "2",
+                            "generation": generation,
+                        }
                     },
                 }
             ),
             encoding="utf-8",
         )
 
-        with mock.patch.object(migration_module, "process_matches", return_value=True):
-            result = self.migration().execute("apply")
+        try:
+            with mock.patch.object(
+                migration_module, "process_matches", return_value=True
+            ):
+                result = self.migration().execute("apply")
+        finally:
+            os.close(lease_fd)
 
         self.assertEqual(result["status"], "refused")
         self.assertIn("live_topology", {row["code"] for row in result["refusals"]})
@@ -626,9 +687,10 @@ class ContentMigrationTests(unittest.TestCase):
         unsafe = self.root / "unsafe-lock"
         unsafe.mkdir()
         with self.assertRaisesRegex(
-            migration_module.WorkspaceError, "cannot open repository layout lock"
+            migration_module.WorkspaceError, "repository layout lock"
         ):
-            migration_module._open_layout_lock(unsafe)
+            with exclusive_layout_lock(unsafe, "repository layout"):
+                self.fail("unsafe layout lock unexpectedly succeeded")
 
         self._legacy_profile()
         lock_path = self.workspace.paths.workspace / "repository-layout.lock"
@@ -640,6 +702,19 @@ class ContentMigrationTests(unittest.TestCase):
             os.close(descriptor)
         self.assertEqual(result["status"], "refused")
         self.assertEqual(result["refusals"][-1]["code"], "repository_layout_busy")
+
+    def test_apply_refuses_when_writer_admission_is_held(self) -> None:
+        self._legacy_profile()
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+
+        with exclusive_lock(
+            layout_writer_intent_path(layout), "competing writer admission"
+        ):
+            result = self.migration().execute("apply")
+
+        self.assertEqual(result["status"], "refused")
+        self.assertEqual(result["refusals"][-1]["code"], "repository_layout_busy")
+        self.assertFalse(self.migration().record_path.exists())
 
     def test_apply_is_idempotent_only_before_explicit_restore(self) -> None:
         self._legacy_profile()
@@ -716,6 +791,9 @@ class ContentMigrationTests(unittest.TestCase):
                                 workspace.paths.repository,
                                 workspace.paths,
                                 workspace.manifest,
+                                workspace.paths.workspace
+                                / "physical-repository-layout.lock",
+                                lambda _transitions=None: None,
                             ).execute("dry-run")
                         self.assertEqual(result["status"], "refused")
                         self.assertIn(
@@ -845,6 +923,8 @@ class ContentMigrationTests(unittest.TestCase):
         topologies.write_text("unsafe\n", encoding="utf-8")
         locks = self.workspace.paths.workspace / "repository-layout.lock"
         locks.symlink_to(self.root / "missing-lock")
+        layout_writer_intent_path(locks).mkdir()
+        layout_writer_pending_path(locks).symlink_to(self.root / "missing-pending")
 
         resources, refusals = self.migration()._resource_inventory(set())
 
@@ -852,7 +932,17 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertIn("invalid_builds_directory", codes)
         self.assertIn("invalid_topologies_directory", codes)
         self.assertIn("invalid_lock_path", codes)
-        self.assertEqual(resources["locks"][0]["status"], "unsafe")
+        unsafe_locks = {
+            row["path"] for row in resources["locks"] if row["status"] == "unsafe"
+        }
+        self.assertEqual(
+            unsafe_locks,
+            {
+                str(locks),
+                str(layout_writer_intent_path(locks)),
+                str(layout_writer_pending_path(locks)),
+            },
+        )
 
     def test_resource_inventory_rejects_bad_entries_and_process_records(self) -> None:
         build = self.workspace.paths.builds / "bad"
@@ -887,6 +977,14 @@ class ContentMigrationTests(unittest.TestCase):
         lock_directory.mkdir()
         lock = lock_directory / "busy.lock"
         lock.write_text("lock\n", encoding="utf-8")
+        layout = self.workspace.paths.workspace / "repository-layout.lock"
+        coordination_locks = (
+            layout,
+            layout_writer_intent_path(layout),
+            layout_writer_pending_path(layout),
+        )
+        for coordination_lock in coordination_locks:
+            coordination_lock.write_text("lock\n", encoding="utf-8")
         with (
             mock.patch.object(migration_module, "RESOURCE_RECORD_MAX_BYTES", 1),
             mock.patch.object(
@@ -901,6 +999,10 @@ class ContentMigrationTests(unittest.TestCase):
         )
         observed = next(row for row in resources["locks"] if row["path"] == str(lock))
         self.assertTrue(observed["active"])
+        observed_paths = {
+            row["path"] for row in resources["locks"] if row["active"]
+        }
+        self.assertTrue({str(path) for path in coordination_locks} <= observed_paths)
 
     def test_apply_rolls_back_when_profile_changes_after_preflight(self) -> None:
         profile, original = self._legacy_profile()
@@ -921,7 +1023,7 @@ class ContentMigrationTests(unittest.TestCase):
         profile, original = self._legacy_profile()
         migration = self.migration()
         plan = migration.execute("dry-run")
-        real_atomic_json = migration_module.atomic_json
+        real_atomic_json = migration_module.durable_atomic_json
         calls = 0
 
         def fail_record(path: Path, value: object) -> None:
@@ -931,7 +1033,9 @@ class ContentMigrationTests(unittest.TestCase):
                 raise OSError("record publication failed")
             real_atomic_json(path, value)
 
-        with mock.patch.object(migration_module, "atomic_json", side_effect=fail_record):
+        with mock.patch.object(
+            migration_module, "durable_atomic_json", side_effect=fail_record
+        ):
             with self.assertRaisesRegex(
                 migration_module.WorkspaceError, "record publication failed"
             ):
@@ -941,24 +1045,86 @@ class ContentMigrationTests(unittest.TestCase):
         self.assertFalse(migration.pending_path.exists())
         self.assertFalse(migration.record_path.exists())
 
+    def test_apply_does_not_rollback_visible_record_on_fsync_uncertainty(self) -> None:
+        profile, original = self._legacy_profile()
+        migration = self.migration()
+        plan = migration.execute("dry-run")
+        real_atomic_json = migration_module.durable_atomic_json
+
+        def uncertain_record(path: Path, value: object) -> None:
+            real_atomic_json(path, value)
+            if path == migration.record_path:
+                raise migration_module.AtomicJsonCommitUncertain(
+                    "simulated record durability uncertainty"
+                )
+
+        with (
+            mock.patch.object(
+                migration_module, "durable_atomic_json", side_effect=uncertain_record
+            ),
+            self.assertRaisesRegex(
+                migration_module.WorkspaceError, "durable record was published"
+            ),
+        ):
+            migration._apply(plan)
+
+        self.assertNotEqual(profile.read_bytes(), original)
+        self.assertTrue(migration.record_path.is_file())
+        self.assertTrue(migration.pending_path.is_file())
+
     def test_apply_reports_retained_pending_journal_after_commit(self) -> None:
         self._legacy_profile()
         migration = self.migration()
         plan = migration.execute("dry-run")
-        real_unlink = Path.unlink
-
-        def fail_pending(path: Path, *args: object, **kwargs: object) -> None:
-            if path == migration.pending_path:
-                raise OSError("retain journal")
-            real_unlink(path, *args, **kwargs)
-
-        with mock.patch.object(Path, "unlink", fail_pending):
+        with mock.patch.object(
+            migration_module,
+            "_durable_unlink",
+            side_effect=migration_module.WorkspaceError("retain journal"),
+        ):
             result = migration._apply(plan)
 
         self.assertEqual(result["status"], "complete")
         self.assertEqual(result["pending_journal_retained"], str(migration.pending_path))
         self.assertTrue(migration.record_path.is_file())
         self.assertTrue(migration.pending_path.is_file())
+
+        pending = json.loads(migration.pending_path.read_text(encoding="utf-8"))
+        truncated = dict(pending)
+        truncated.pop("resources")
+        migration_module.durable_atomic_json(migration.pending_path, truncated)
+        with self.assertRaisesRegex(
+            migration_module.WorkspaceError, "unexpected fields"
+        ):
+            migration.execute("apply")
+        migration_module.durable_atomic_json(migration.pending_path, pending)
+
+        retry = migration.execute("apply")
+
+        self.assertEqual(retry["status"], "already-applied")
+        self.assertFalse(migration.pending_path.exists())
+
+    def test_apply_reports_removed_pending_journal_durability_uncertainty(self) -> None:
+        self._legacy_profile()
+        migration = self.migration()
+        plan = migration.execute("dry-run")
+
+        def uncertain_unlink(path: Path, *, missing_ok: bool = False) -> None:
+            path.unlink(missing_ok=missing_ok)
+            raise migration_module.JsonUnlinkCommitUncertain(
+                "simulated unlink durability uncertainty"
+            )
+
+        with mock.patch.object(
+            migration_module, "_durable_unlink", side_effect=uncertain_unlink
+        ):
+            result = migration._apply(plan)
+
+        self.assertEqual(result["status"], "complete")
+        self.assertIn(
+            "simulated unlink durability uncertainty",
+            result["pending_journal_removed_durability_uncertain"],
+        )
+        self.assertFalse(migration.pending_path.exists())
 
     def test_journal_shape_and_digest_tampering_fail_closed(self) -> None:
         self._legacy_profile()

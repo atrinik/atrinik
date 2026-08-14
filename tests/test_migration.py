@@ -13,9 +13,15 @@ import unittest
 from unittest import mock
 
 from atrinik_workspace import migration as migration_module
-from atrinik_workspace.locking import inherit_lock_fds
+from atrinik_workspace.locking import (
+    exclusive_layout_lock,
+    exclusive_lock,
+    inherit_lock_fds,
+    layout_writer_intent_path,
+)
 from atrinik_workspace.migration import RepositoryMigration
 from atrinik_workspace.model import Paths, WorkspaceError
+from atrinik_workspace.process_tree import control_socket_path, initialize_lease
 
 
 def command(
@@ -56,6 +62,22 @@ SHARED = (
 
 
 class RepositoryMigrationTests(unittest.TestCase):
+    def test_git_helpers_inherit_all_exclusive_layout_descriptors(self) -> None:
+        completed = mock.MagicMock(returncode=0, stdout=b"", stderr=b"")
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            exclusive_layout_lock(
+                Path(directory) / "repository-layout.lock", "repository layout"
+            ),
+            mock.patch(
+                "atrinik_workspace.migration.subprocess.run",
+                return_value=completed,
+            ) as invoke,
+        ):
+            RepositoryMigration._git_process(Path("/tmp/repository"), "status")
+
+        self.assertEqual(len(invoke.call_args.kwargs["pass_fds"]), 3)
+
     def test_git_helpers_inherit_active_layout_descriptor(self) -> None:
         completed = mock.MagicMock(returncode=0, stdout=b"", stderr=b"")
         with (
@@ -130,7 +152,13 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def migration(self) -> RepositoryMigration:
-        return RepositoryMigration(self.wrapper, self.paths, self.manifest)
+        return RepositoryMigration(
+            self.wrapper,
+            self.paths,
+            self.manifest,
+            self.paths.workspace / "physical-repository-layout.lock",
+            lambda _transitions=None: None,
+        )
 
     def test_classic_profile_fallback_includes_playtester(self) -> None:
         migration = self.migration()
@@ -362,6 +390,69 @@ class RepositoryMigrationTests(unittest.TestCase):
         audit = self.migration().execute("audit")
         self.assertEqual(audit["status"], "complete", audit)
         self.assertEqual(self.migration().execute("apply")["status"], "already-applied")
+
+    def test_record_fsync_uncertainty_does_not_rollback_committed_layout(self) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        profile = self.write_profile(
+            "review",
+            {
+                "client": {"kind": "primary", "value": ""},
+                "content": {"kind": "primary", "value": ""},
+            },
+        )
+        migration = self.migration()
+        real_publish = migration._durable_atomic_json
+
+        def uncertain(path: Path, value: object) -> None:
+            real_publish(path, value)
+            if path == migration.record_path:
+                raise migration_module.AtomicJsonCommitUncertain(
+                    "simulated record durability uncertainty"
+                )
+
+        with (
+            mock.patch.object(migration, "_durable_atomic_json", side_effect=uncertain),
+            self.assertRaisesRegex(WorkspaceError, "migration committed"),
+        ):
+            migration.execute("apply")
+
+        self.assertTrue(migration.record_path.is_file())
+        self.assertFalse(source.exists())
+        self.assertNotEqual(json.loads(profile.read_text())["schema_version"], 1)
+
+    def test_already_applied_retry_rejects_symlinked_pending_journal(self) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        self.write_profile(
+            "review",
+            {
+                "client": {"kind": "primary", "value": ""},
+                "content": {"kind": "primary", "value": ""},
+            },
+        )
+        migration = self.migration()
+        real_unlink = migration_module.unlink_validated_json
+
+        def retain_pending(path: Path, validator: object) -> None:
+            if path == migration.pending_path:
+                raise WorkspaceError("retain journal")
+            real_unlink(path, validator)
+
+        with mock.patch.object(
+            migration_module,
+            "unlink_validated_json",
+            side_effect=retain_pending,
+        ):
+            self.assertEqual(migration.execute("apply")["status"], "applied")
+        external = self.root / "external-pending.json"
+        migration.pending_path.rename(external)
+        migration.pending_path.symlink_to(external)
+
+        with self.assertRaisesRegex(WorkspaceError, "cannot consume"):
+            migration.execute("apply")
+
+        self.assertTrue(external.is_file())
 
     def test_schema_v3_replacement_profile_is_valid_and_left_unchanged(self) -> None:
         profile = self.paths.profiles / "replacement.json"
@@ -1213,7 +1304,13 @@ class RepositoryMigrationTests(unittest.TestCase):
                                 / "client"
                             )
                             conflict.mkdir(parents=True)
-                        result = RepositoryMigration(wrapper, paths, self.manifest).execute("apply")
+                        result = RepositoryMigration(
+                            wrapper,
+                            paths,
+                            self.manifest,
+                            paths.workspace / "physical-repository-layout.lock",
+                            lambda _transitions=None: None,
+                        ).execute("apply")
                         self.assertEqual(result["status"], "refused")
                         self.assertTrue(result["refusals"])
                         self.assertTrue(source.is_dir())
@@ -1325,6 +1422,12 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.make_classic({"client": source})
         topology = self.paths.topologies / "live"
         topology.mkdir(parents=True)
+        lease_fd = os.open(
+            topology / "process-tree.lease", os.O_RDWR | os.O_CREAT, 0o600
+        )
+        fcntl.flock(lease_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        generation = "a" * 64
+        lease = initialize_lease(lease_fd, generation)
         (topology / "status.json").write_text(
             json.dumps(
                 {
@@ -1339,7 +1442,16 @@ class RepositoryMigrationTests(unittest.TestCase):
                     "ready": False,
                     "started_at": "now",
                     "stopped_at": None,
-                    "supervisor": {"pid": 123, "start_time": "1"},
+                    "control": {
+                        "socket": str(control_socket_path(topology, generation)),
+                        "generation": generation,
+                        "lease": lease,
+                    },
+                    "supervisor": {
+                        "pid": 123,
+                        "start_time": "1",
+                        "generation": generation,
+                    },
                     "services": {},
                 }
             )
@@ -1347,8 +1459,13 @@ class RepositoryMigrationTests(unittest.TestCase):
             encoding="utf-8",
         )
 
-        with mock.patch.object(migration_module, "process_matches", return_value=True):
-            result = self.migration().execute("apply")
+        try:
+            with mock.patch.object(
+                migration_module, "process_matches", return_value=True
+            ):
+                result = self.migration().execute("apply")
+        finally:
+            os.close(lease_fd)
 
         self.assertEqual(result["status"], "refused")
         self.assertIn("live_topology", {row["code"] for row in result["refusals"]})
@@ -1368,6 +1485,23 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.assertIn(
             "repository_layout_busy",
             {row["code"] for row in locked["refusals"]},
+        )
+        self.assertTrue(source.is_dir())
+
+    def test_apply_refuses_when_writer_admission_is_held(self) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        layout = self.workspace / "repository-layout.lock"
+
+        with exclusive_lock(
+            layout_writer_intent_path(layout), "competing writer admission"
+        ):
+            result = self.migration().execute("apply")
+
+        self.assertEqual(result["status"], "refused")
+        self.assertIn(
+            "repository_layout_busy",
+            {row["code"] for row in result["refusals"]},
         )
         self.assertTrue(source.is_dir())
 

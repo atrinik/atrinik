@@ -3,9 +3,9 @@ from __future__ import annotations
 import base64
 import copy
 import ctypes
+from contextlib import ExitStack
 from dataclasses import dataclass
 import errno
-import fcntl
 import hashlib
 import json
 import os
@@ -15,10 +15,18 @@ import shutil
 import stat
 import subprocess
 import tempfile
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
-from .locking import active_lock_fds, inherit_lock_fds
-from .model import WorkspaceError, atomic_json, load_json
+from .locking import LockBusyError, active_lock_fds, exclusive_layout_lock
+from .model import (
+    AtomicJsonCommitUncertain,
+    JsonUnlinkCommitUncertain,
+    WorkspaceError,
+    durable_atomic_json,
+    load_json,
+    unlink_validated_json,
+)
+from .process_tree import bound_lease_locked, control_socket_path, lease_locked
 from .supervisor import process_matches
 
 
@@ -28,6 +36,28 @@ LEGACY_PROFILE_SCHEMA_VERSION = 3
 MIGRATION_NAME = "repositories"
 MIGRATION_RECORD = "migrations/repositories.json"
 MIGRATION_PENDING = "migrations/repositories.pending.json"
+
+
+def physical_repository_lock_path(repository_root: Path) -> Path:
+    """Derive the mandatory maintenance barrier shared by wrapper worktrees."""
+
+    repository = Path(repository_root).resolve()
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repository), "rev-parse", "--git-common-dir"],
+            check=True,
+            capture_output=True,
+            text=True,
+            pass_fds=active_lock_fds(),
+        )
+    except (OSError, subprocess.CalledProcessError) as error:
+        raise WorkspaceError(
+            f"cannot derive physical repository maintenance lock: {repository}"
+        ) from error
+    common = Path(result.stdout.strip())
+    if not common.is_absolute():
+        common = repository / common
+    return common.resolve() / "atrinik-resource-leases" / "repository-layout.lock"
 
 # The two source names are deliberately retained.  A workspace may still use
 # the pre-rename canonical paths or may already have completed the earlier
@@ -380,7 +410,14 @@ class RepositoryMigration:
     state differs from the imported classic primary.
     """
 
-    def __init__(self, repository_root: Path, workspace_paths: Any, manifest: Any):
+    def __init__(
+        self,
+        repository_root: Path,
+        workspace_paths: Any,
+        manifest: Any,
+        physical_lock_path: Path,
+        reference_publisher: Callable[[dict[str, tuple[bytes, bytes]] | None], None],
+    ):
         self.repository_root = Path(repository_root).resolve()
         self.paths = workspace_paths
         self.manifest = manifest
@@ -388,6 +425,8 @@ class RepositoryMigration:
         self.record_path = self.workspace / MIGRATION_RECORD
         self.pending_path = self.workspace / MIGRATION_PENDING
         self.archive_root = self.workspace / "archive" / "classic-migration"
+        self.physical_lock_path = Path(physical_lock_path)
+        self.reference_publisher = reference_publisher
 
     def execute(self, mode: str) -> dict[str, Any]:
         if mode not in {"dry-run", "apply", "audit"}:
@@ -406,35 +445,79 @@ class RepositoryMigration:
             )
 
         lock_path = self.workspace / "repository-layout.lock"
-        flags = os.O_RDWR | os.O_CREAT | os.O_CLOEXEC
-        if hasattr(os, "O_NOFOLLOW"):
-            flags |= os.O_NOFOLLOW
+        lock_stack = ExitStack()
         try:
-            descriptor = os.open(lock_path, flags, 0o600)
-        except OSError as error:
-            raise WorkspaceError(f"cannot open repository migration lock: {error}") from error
-        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
-            os.close(descriptor)
-            raise WorkspaceError(
-                f"repository migration lock is not a regular file: {lock_path}"
-            )
-        with os.fdopen(descriptor, "a+") as lock, inherit_lock_fds(lock):
-            try:
-                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except BlockingIOError:
-                return self._with_refusal(
-                    inspection.plan,
-                    "repository_layout_busy",
-                    "the repository layout is in use by another wrapper operation",
-                    "wait for the active wrapper operation to finish, then rerun",
+            lock_stack.enter_context(
+                exclusive_layout_lock(
+                    self.physical_lock_path,
+                    "physical repository layout",
+                    nonblocking=True,
                 )
+            )
+            lock_stack.enter_context(
+                exclusive_layout_lock(
+                    lock_path, "repository layout", nonblocking=True
+                )
+            )
+        except LockBusyError:
+            lock_stack.close()
+            return self._with_refusal(
+                inspection.plan,
+                "repository_layout_busy",
+                "the repository layout is in use by another wrapper operation",
+                "wait for the active wrapper operation to finish, then rerun",
+            )
+        with lock_stack:
             if self.record_path.is_file() and not self.record_path.is_symlink():
                 audited = self._audit()
                 if audited["status"] == "complete":
+                    self.reference_publisher(None)
+                    if self.pending_path.exists() or self.pending_path.is_symlink():
+                        committed = load_json(self.record_path)
+                        committed_journal = (
+                            committed.get("journal", {})
+                            if isinstance(committed, dict)
+                            else {}
+                        )
+                        pending_sha256 = committed_journal.get("pending_sha256")
+                        if not isinstance(pending_sha256, str):
+                            raise WorkspaceError(
+                                "committed migration lacks pending-journal identity"
+                            )
+
+                        def validate_committed_pending(value: Any) -> None:
+                            if not isinstance(value, dict):
+                                raise WorkspaceError("pending journal is invalid")
+                            self._validate_pending_journal(value)
+                            encoded = json.dumps(
+                                value,
+                                sort_keys=True,
+                                separators=(",", ":"),
+                            ).encode()
+                            if hashlib.sha256(encoded).hexdigest() != pending_sha256:
+                                raise WorkspaceError(
+                                    "pending journal does not match the committed migration"
+                                )
+
+                        unlink_validated_json(
+                            self.pending_path, validate_committed_pending
+                        )
                     audited["status"] = "already-applied"
                     return audited
                 return audited
             if self.pending_path.exists() or self.pending_path.is_symlink():
+                try:
+                    self.reference_publisher(
+                        self._pending_reference_transitions()
+                    )
+                except WorkspaceError as error:
+                    return self._with_refusal(
+                        inspection.plan,
+                        "pending_migration",
+                        "an interrupted repository migration could not retain "
+                        f"both profile generations: {error}",
+                        "preserve the pending journal and repair only its exact recorded paths",
+                    )
                 recovery_errors = self._rollback_pending()
                 if recovery_errors:
                     return self._with_refusal(
@@ -444,6 +527,7 @@ class RepositoryMigration:
                         + "; ".join(recovery_errors),
                         "preserve the pending journal and repair only its exact recorded paths",
                     )
+                self.reference_publisher(None)
             inspection = self._inspect()
             if inspection.plan["refusals"]:
                 return inspection.plan
@@ -1448,7 +1532,6 @@ class RepositoryMigration:
         if inspection.classic is None:
             raise WorkspaceError("classic checkout disappeared before apply")
         journal = self._pending_value(inspection)
-        self.pending_path.parent.mkdir(parents=True, exist_ok=True)
         self._durable_atomic_json(self.pending_path, journal)
         created_worktrees: list[_Worktree] = []
         created_composites: list[_CompositeWorktree] = []
@@ -1457,6 +1540,12 @@ class RepositoryMigration:
         temporary_profiles: list[Path] = []
         record_installed = False
         try:
+            self.reference_publisher(
+                {
+                    action.name: (action.before, action.after)
+                    for action in inspection.profiles
+                }
+            )
             for source in inspection.sources:
                 for worktree in source.worktrees:
                     if worktree.destination is None:
@@ -1472,7 +1561,6 @@ class RepositoryMigration:
                 backup, mode = self._exchange_profile(action)
                 temporary_profiles.append(backup)
                 exchanged_profiles.append((action, backup, mode))
-
             for source in inspection.sources:
                 archived.append(source)
                 self._archive_source(source)
@@ -1500,6 +1588,13 @@ class RepositoryMigration:
                 row["status"] = "preserved"
             record = copy.deepcopy(result)
             record["journal"] = {
+                "pending_sha256": hashlib.sha256(
+                    json.dumps(
+                        journal,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ).encode()
+                ).hexdigest(),
                 "profiles": [
                     {
                         "after": self._encode_bytes(action.after),
@@ -1509,22 +1604,40 @@ class RepositoryMigration:
                     for action in inspection.profiles
                 ]
             }
-            self._durable_atomic_json(self.record_path, record)
-            record_installed = True
+            try:
+                self._durable_atomic_json(self.record_path, record)
+            except AtomicJsonCommitUncertain:
+                record_installed = True
+                raise
+            else:
+                record_installed = True
+            self.reference_publisher(None)
             # Once the durable record exists, cleanup failures must not trigger
             # rollback of a migration that has already committed successfully.
-            try:
-                self.pending_path.unlink(missing_ok=True)
-                self._fsync_directory(self.pending_path.parent)
-            except (OSError, WorkspaceError):
-                pass
+            pending_outcome: dict[str, str] = {}
+            if self.pending_path.exists() or self.pending_path.is_symlink():
+                try:
+                    unlink_validated_json(
+                        self.pending_path,
+                        self._validate_pending_journal,
+                    )
+                except JsonUnlinkCommitUncertain as error:
+                    pending_outcome["pending_journal_removed_durability_uncertain"] = str(error)
+                except WorkspaceError:
+                    pending_outcome["pending_journal_retained"] = str(self.pending_path)
             for path in temporary_profiles:
                 try:
                     path.unlink(missing_ok=True)
                 except OSError:
                     pass
-            return result
+            return {**result, **pending_outcome}
         except BaseException as error:
+            if record_installed:
+                raise WorkspaceError(
+                    "repository migration committed, but conservative physical "
+                    f"references could not be narrowed: {error}; preserve "
+                    f"{self.record_path} and rerun --apply"
+                ) from error
             rollback_errors: list[str] = []
             if not record_installed and (
                 self.record_path.exists() or self.record_path.is_symlink()
@@ -1546,6 +1659,12 @@ class RepositoryMigration:
                     self._rollback_profile(action, backup, mode)
                 except (OSError, WorkspaceError) as rollback_error:
                     rollback_errors.append(f"profile {action.path}: {rollback_error}")
+            try:
+                self.reference_publisher(None)
+            except WorkspaceError as rollback_error:
+                rollback_errors.append(
+                    f"physical profile references: {rollback_error}"
+                )
             for composite in reversed(created_composites):
                 try:
                     self._remove_composite_worktree(inspection.classic, composite)
@@ -2298,6 +2417,28 @@ class RepositoryMigration:
                 errors.append(f"cannot remove recovered pending journal: {error}")
         return errors
 
+    def _pending_reference_transitions(
+        self,
+    ) -> dict[str, tuple[bytes, bytes]]:
+        if self.pending_path.is_symlink():
+            raise WorkspaceError(f"pending journal is a symlink: {self.pending_path}")
+        pending = load_json(self.pending_path)
+        if (
+            not isinstance(pending, dict)
+            or pending.get("migration") != MIGRATION_NAME
+            or pending.get("schema_version") != PLAN_SCHEMA_VERSION
+        ):
+            raise WorkspaceError("pending journal has an unsupported shape")
+        self._validate_pending_journal(pending)
+        transitions: dict[str, tuple[bytes, bytes]] = {}
+        for raw in pending.get("profiles", []):
+            path = Path(str(raw["path"]))
+            transitions[path.stem] = (
+                self._decode_bytes(raw["before"]),
+                self._decode_bytes(raw["after"]),
+            )
+        return transitions
+
     def _validate_pending_journal(self, pending: dict[str, Any]) -> None:
         if set(pending) != {
             "migration",
@@ -2904,7 +3045,7 @@ class RepositoryMigration:
                     or status_value.get("name") != directory.name
                     or not required <= set(status_value)
                     or not set(status_value)
-                    <= required | {"stack", "providers", "error"}
+                    <= required | {"stack", "providers", "sound", "control", "error"}
                     or not isinstance(status_value.get("profile"), str)
                     or not isinstance(status_value.get("dependencies"), list)
                     or not isinstance(status_value.get("resolved"), dict)
@@ -2925,6 +3066,27 @@ class RepositoryMigration:
                     for name, value in status_value["services"].items()
                 )
                 running_records: list[str] = []
+                control = status_value.get("control")
+                if control is not None and (
+                    not isinstance(control, dict)
+                    or set(control) != {"socket", "generation", "lease"}
+                    or not isinstance(control.get("generation"), str)
+                    or re.fullmatch(r"[0-9a-f]{64}", control["generation"])
+                    is None
+                    or control.get("socket")
+                    != str(control_socket_path(directory, control["generation"]))
+                    or not isinstance(control.get("lease"), dict)
+                    or set(control["lease"]) != {"device", "inode"}
+                ):
+                    raise WorkspaceError("topology control identity is invalid")
+                generation = (
+                    control["generation"] if control is not None else None
+                )
+                process_keys = (
+                    {"pid", "start_time", "generation"}
+                    if control is not None
+                    else {"pid", "start_time"}
+                )
                 for label, record in records:
                     if (
                         not isinstance(record, dict)
@@ -2939,18 +3101,38 @@ class RepositoryMigration:
                         )
                     if label != "supervisor" and (
                         set(record)
-                        != {"pid", "start_time", "status", "exit_code", "log", "cwd"}
+                        != process_keys | {"status", "exit_code", "log", "cwd"}
                         or record.get("status") not in {"starting", "running", "exited"}
                         or not isinstance(record.get("log"), str)
                         or not Path(record["log"]).is_absolute()
                         or not isinstance(record.get("cwd"), str)
                         or not Path(record["cwd"]).is_absolute()
+                        or control is not None
+                        and record.get("generation") != generation
                     ):
                         raise WorkspaceError(f"topology {label} status is invalid")
-                    if label == "supervisor" and set(record) != {"pid", "start_time"}:
+                    if label == "supervisor" and (
+                        set(record) != process_keys
+                        or control is not None
+                        and record.get("generation") != generation
+                    ):
                         raise WorkspaceError("topology supervisor status is invalid")
-                    if process_matches(record["pid"], record["start_time"]):
+                    if control is None and process_matches(
+                        record["pid"], record["start_time"]
+                    ):
                         running_records.append(label)
+                lease_path = directory / "process-tree.lease"
+                if lease_path.is_symlink():
+                    raise WorkspaceError("topology process-tree lease is invalid")
+                lease_active = (
+                    bound_lease_locked(
+                        lease_path, control["generation"], control["lease"]
+                    )
+                    if control is not None
+                    else lease_path.is_file() and lease_locked(lease_path)
+                )
+                if lease_active and not running_records:
+                    running_records.append("namespace-independent process tree")
             except (OSError, WorkspaceError) as error:
                 refusals.append(
                     self._refusal(
@@ -3569,8 +3751,7 @@ class RepositoryMigration:
             raise
 
     def _durable_atomic_json(self, path: Path, value: Any) -> None:
-        atomic_json(path, value)
-        self._fsync_directory(path.parent)
+        durable_atomic_json(path, value)
 
     @staticmethod
     def _fsync_directory(path: Path) -> None:
@@ -3729,4 +3910,6 @@ def migrate_repositories(
 ) -> dict[str, Any]:
     """Convenience entry point for the workspace coordinator."""
 
-    return RepositoryMigration(repository_root, workspace_paths, manifest).execute(mode)
+    raise WorkspaceError(
+        "repository migration requires the Workspace coordinator to publish physical references"
+    )

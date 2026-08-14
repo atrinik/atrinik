@@ -16,6 +16,7 @@ from unittest import mock
 
 from atrinik_workspace.cli import main, parser
 from atrinik_workspace import completion
+from atrinik_workspace.process_tree import control_socket_path
 from atrinik_workspace.completion import classified_actions, complete, shell_script
 from atrinik_workspace.model import Manifest
 
@@ -143,6 +144,25 @@ class CompletionTests(unittest.TestCase):
         words = ["atrinik", "cleanup", "--scope", "builds", "-"]
         _, values = complete(parser(), self.wrapper, words, 4)
         self.assertIn("--scope", values)
+
+        _, values = self.candidates("up", "-")
+        self.assertTrue(
+            {"--state", "--temporary-state", "--default-state"} <= set(values)
+        )
+        _, values = self.candidates("up", "--temporary-state", "-")
+        self.assertTrue(
+            {"--state", "--temporary-state", "--default-state"}.isdisjoint(
+                values
+            )
+        )
+        _, values = self.candidates(
+            "topology", "show", "default", "--default-state", "-"
+        )
+        self.assertTrue(
+            {"--state", "--temporary-state", "--default-state"}.isdisjoint(
+                values
+            )
+        )
 
     def test_run_remainder_and_double_dash_stop_wrapper_completion(self) -> None:
         for words in (
@@ -369,9 +389,47 @@ class CompletionTests(unittest.TestCase):
             self.candidates("logs", ""),
             ("candidates", ["completion-review"]),
         )
+        self.assertEqual(
+            self.candidates("state", "promote", ""),
+            ("candidates", ["completion-review"]),
+        )
+        self.assertEqual(
+            self.candidates(
+                "state", "promote", "completion-review", ""
+            ),
+            ("candidates", []),
+        )
 
         status_path = self.workspace / "topologies" / "completion-review" / "status.json"
         status = json.loads(status_path.read_text(encoding="utf-8"))
+        generation = "d" * 64
+        status["control"] = {
+            "socket": str(
+                control_socket_path(
+                    self.workspace / "topologies" / "completion-review",
+                    generation,
+                )
+            ),
+            "generation": generation,
+            "lease": {"device": 1, "inode": 2},
+        }
+        status["supervisor"]["generation"] = generation
+        status["services"]["server"]["generation"] = generation
+        self.write_json(status_path, status)
+        self.assertEqual(
+            self.candidates("logs", ""),
+            ("candidates", ["completion-review"]),
+        )
+        status["control"]["socket"] = "/tmp/external/control.sock"
+        self.write_json(status_path, status)
+        self.assertEqual(self.candidates("logs", ""), ("candidates", []))
+        status["control"]["socket"] = str(
+            control_socket_path(
+                self.workspace / "topologies" / "completion-review",
+                generation,
+            )
+        )
+
         status["profile"] = "deleted-profile"
         self.write_json(status_path, status)
         self.assertEqual(

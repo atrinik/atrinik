@@ -1,0 +1,54 @@
+{
+  "$id": "https://atrinik.org/schemas/mcp/query-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "coordinate": {
+      "$ref": "result-v1.schema.json#/$defs/coordinate"
+    },
+    "cursor": {
+      "maxLength": 2048,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operation": {
+      "enum": [
+        "compare",
+        "inspect",
+        "list",
+        "read",
+        "search",
+        "validate"
+      ]
+    },
+    "page_size": {
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "query": {
+      "maxLength": 1024,
+      "type": "string"
+    },
+    "selector": {
+      "description": "A manifest or registry identity, never an arbitrary path.",
+      "maxLength": 1024,
+      "type": "string"
+    },
+    "timeout_ms": {
+      "maximum": 5000,
+      "minimum": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "coordinate",
+    "operation",
+    "page_size",
+    "timeout_ms"
+  ],
+  "title": "Atrinik MCP bounded query v1",
+  "type": "object"
+}

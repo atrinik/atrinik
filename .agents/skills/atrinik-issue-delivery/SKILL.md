@@ -101,11 +101,13 @@ Before provisioning, run the supported inventories as applicable:
 ./atrinik state list --json
 ./atrinik ps --json
 ./atrinik profile show PROFILE --json
-./atrinik topology show PROFILE --state STATE --json
+./atrinik topology show PROFILE --temporary-state --json
 ```
 
 Reuse rather than recreate a compatible issue profile, stopped issue topology,
-wrapper-owned state and server/client data, or issue-owned scenario. Reuse only
+wrapper-owned state and server/client data, or issue-owned scenario. Prefer a
+fresh generation-owned temporary state for automation; select named/default
+state only when persistence or an existing account is required. Reuse only
 resources
 whose immutable repository, branch, checkout, source, provider, commit, profile,
 generation, and state-owner coordinates match final HEAD; incomplete historical
@@ -123,7 +125,8 @@ is impractical.
 
 For Classic, compose the runtime/scenario skills and provide concrete
 copy-pasteable profile, build, scenario, credentials-local-only, topology,
-bounded-log, action/result, repeat, shutdown, and cleanup commands. Initial
+bounded-log, action/result, repeat, shutdown, and cleanup commands. State the
+temporary, named, default, or scenario policy explicitly. Initial
 `down` applies only to that exact running topology; reset only issue-owned data.
 State display/login prerequisites.
 
