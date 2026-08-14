@@ -708,6 +708,17 @@ def _remove_owned_tree_contents(
             raise WorkspaceError(
                 f"owned removal entry identity changed: {display / name}"
             )
+        if reject_links and (
+            stat.S_ISLNK(moved.st_mode)
+            or (stat.S_ISREG(moved.st_mode) and moved.st_nlink != 1)
+        ):
+            try:
+                rename_no_replace_at(descriptor, tombstone, descriptor, name)
+            except WorkspaceError:
+                pass
+            raise WorkspaceError(
+                f"owned removal encountered linked state: {display / name}"
+            )
         return tombstone
 
     for name in sorted(os.listdir(descriptor)):
@@ -9123,6 +9134,23 @@ class Workspace:
 
         root = os.fstat(directory_fd)
         root_mount = _descriptor_mount_id(directory_fd)
+        parent_fd = _open_directory_nofollow(
+            path.parent,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+        )
+        try:
+            visible = os.stat(
+                path.name, dir_fd=parent_fd, follow_symlinks=False
+            )
+            if (
+                (visible.st_dev, visible.st_ino) != (root.st_dev, root.st_ino)
+                or _descriptor_mount_id(parent_fd) != root_mount
+            ):
+                raise WorkspaceError(
+                    f"temporary server state root changed or crossed a mount: {path}"
+                )
+        finally:
+            os.close(parent_fd)
         for name in EXPECTED_SERVER_DATA["files"]:
             try:
                 metadata = os.stat(
@@ -10766,11 +10794,14 @@ class Workspace:
         policy = status.get("state_policy")
         state = status.get("state")
         services = status.get("services")
-        server_present = (
-            state is not None
-            or policy is not None
-            or isinstance(services, dict) and "server" in services
+        server_service = isinstance(services, dict) and "server" in services
+        pre_service_failure = (
+            bool(status.get("error"))
+            and services == {}
+            and state is not None
+            and policy is not None
         )
+        server_present = server_service or pre_service_failure
         if not server_present:
             if policy is not None or state is not None:
                 raise WorkspaceError(f"topology state policy is invalid: {name}")
@@ -12025,7 +12056,7 @@ class Workspace:
                 state_policy: dict[str, Any] | None = None
                 state_directory_fd: int | None = None
                 temporary_state_owner: list[
-                    tuple[Path, TextIO, dict[str, int], dict[str, int]]
+                    tuple[Path, TextIO, dict[str, int], dict[str, int], int]
                 ] = []
                 if "server" in selected_services:
                     assert implementation is not None
@@ -12104,22 +12135,6 @@ class Workspace:
                             "inode": lock_metadata.st_ino,
                         },
                     }
-                    if state_mode == "temporary":
-                        temporary_state_owner.append(
-                            (
-                                state,
-                                state_lock.path_lock,
-                                state_policy["identity"],
-                                state_policy["lease_identity"],
-                            )
-                        )
-                        stack.callback(
-                            lambda: self._rollback_temporary_state_creation(
-                                *temporary_state_owner.pop()
-                            )
-                            if temporary_state_owner
-                            else None
-                        )
                     try:
                         visible_lock = Path(f"{state}.lock").stat(
                             follow_symlinks=False
@@ -12145,6 +12160,23 @@ class Workspace:
                             write_implementation=False,
                         )
                         stack.callback(os.close, state_directory_fd)
+                    if state_mode == "temporary":
+                        temporary_state_owner.append(
+                            (
+                                state,
+                                state_lock.path_lock,
+                                state_policy["identity"],
+                                state_policy["lease_identity"],
+                                state_directory_fd,
+                            )
+                        )
+                        stack.callback(
+                            lambda: self._rollback_temporary_state_creation(
+                                *temporary_state_owner.pop()
+                            )
+                            if temporary_state_owner
+                            else None
+                        )
                     state_metadata = os.fstat(state_directory_fd)
                     if state_policy["identity"] != {
                         "device": state_metadata.st_dev,
@@ -12812,11 +12844,31 @@ class Workspace:
         state_lease: TextIO,
         state_identity: dict[str, int],
         lease_identity: dict[str, int],
+        state_directory_fd: int | None = None,
     ) -> None:
         Workspace._validate_temporary_state_lock(
             state, state_lease, lease_identity
         )
-        remove_owned_tree(state, expected_identity=state_identity)
+        owned_descriptor = state_directory_fd
+        close_descriptor = False
+        if owned_descriptor is None:
+            owned_descriptor = os.open(
+                state,
+                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+            )
+            close_descriptor = True
+        try:
+            Workspace._validate_temporary_state_integrity(
+                owned_descriptor, state
+            )
+            remove_owned_tree(
+                state,
+                expected_identity=state_identity,
+                reject_links=True,
+            )
+        finally:
+            if close_descriptor:
+                os.close(owned_descriptor)
         Workspace._unlink_temporary_state_lock(
             state, state_lease, lease_identity
         )

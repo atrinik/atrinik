@@ -42,6 +42,7 @@ from .workspace import (
     TEMPORARY_STATE_METADATA,
     TEMPORARY_STATE_SCHEMA_VERSION,
     _descriptor_mount_id,
+    _open_directory_nofollow,
     _owned_tree_tombstone_path,
     _remote_matches,
     exclusive_lock,
@@ -403,7 +404,26 @@ def _temporary_tree_usage(
             root,
             os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
         )
+        root_metadata = os.fstat(root_fd)
         root_mount = _descriptor_mount_id(root_fd)
+        parent_fd = _open_directory_nofollow(
+            root.parent,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+        )
+        try:
+            visible = os.stat(
+                root.name, dir_fd=parent_fd, follow_symlinks=False
+            )
+            if (
+                (visible.st_dev, visible.st_ino)
+                != (root_metadata.st_dev, root_metadata.st_ino)
+                or _descriptor_mount_id(parent_fd) != root_mount
+            ):
+                raise WorkspaceError(
+                    f"temporary state traversal encountered a root mount: {root}"
+                )
+        finally:
+            os.close(parent_fd)
         visited: set[tuple[int, int, int | tuple[int, int]]] = set()
 
         def walk(descriptor: int, display: Path) -> None:
@@ -3677,25 +3697,25 @@ class Cleanup:
             return []
         for topology in topologies:
             container = topology / "temporary-states"
-            if not container.exists() and not container.is_symlink():
-                continue
-            if container.is_symlink() or not container.is_dir():
+            children: list[Path] = []
+            if container.is_symlink() or (
+                container.exists() and not container.is_dir()
+            ):
                 item = _base_item(
                     "temporary-state", "atrinik", "atrinik/atrinik", container
                 )
                 item["reasons"] = ["invalid_temporary_state_container"]
                 items.append(item)
-                continue
-            try:
-                children = sorted(container.iterdir())
-            except OSError as error:
-                item = _base_item(
-                    "temporary-state", "atrinik", "atrinik/atrinik", container
-                )
-                item["reasons"] = ["temporary_state_inventory_error"]
-                item["error"] = str(error)
-                items.append(item)
-                continue
+            elif container.is_dir():
+                try:
+                    children = sorted(container.iterdir())
+                except OSError as error:
+                    item = _base_item(
+                        "temporary-state", "atrinik", "atrinik/atrinik", container
+                    )
+                    item["reasons"] = ["temporary_state_inventory_error"]
+                    item["error"] = str(error)
+                    items.append(item)
             for path in children:
                 if path.name == MANAGED_MARKER or path.name.endswith(".lock"):
                     continue
@@ -3864,14 +3884,21 @@ class Cleanup:
                 item["reasons"].append(
                     "port_reservation_lease_unverifiable"
                 )
-        created = _parse_time(policy.get("created_at"), "temporary state created_at")
-        age = max(0, int((self.now - created).total_seconds()))
-        item["age_seconds"] = age
-        item["age_basis"] = "created-at"
-        if created > self.now:
-            item["reasons"].append("future_creation_time")
-        elif age < older_than_days * 86400:
-            item["reasons"].append("younger_than_grace_period")
+        try:
+            created = _parse_time(
+                policy.get("created_at"), "temporary state created_at"
+            )
+        except WorkspaceError as error:
+            item["reasons"].append("invalid_temporary_state")
+            item["error"] = str(error)
+        else:
+            age = max(0, int((self.now - created).total_seconds()))
+            item["age_seconds"] = age
+            item["age_basis"] = "created-at"
+            if created > self.now:
+                item["reasons"].append("future_creation_time")
+            elif age < older_than_days * 86400:
+                item["reasons"].append("younger_than_grace_period")
         item["reasons"] = sorted(set(item["reasons"]))
         if not item["reasons"]:
             item["disposition"] = "eligible"
