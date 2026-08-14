@@ -20,6 +20,7 @@ import socket
 import stat
 import subprocess
 import sys
+import tarfile
 import tempfile
 import threading
 import time
@@ -29,6 +30,7 @@ from unittest import mock
 from atrinik_workspace import workspace as workspace_module
 from atrinik_workspace import cleanup as cleanup_module
 from atrinik_workspace import locking as locking_module
+from atrinik_workspace.cleanup import Cleanup
 from atrinik_workspace.locking import (
     LeaseRequest,
     active_lock_fds,
@@ -2033,6 +2035,146 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "ownership is invalid"):
             self.workspace._source_generation_record(forged)
 
+    def test_source_generation_archive_extraction_rejects_unsafe_entries(self) -> None:
+        def archive(name: str, entries: list[tuple[tarfile.TarInfo, bytes]]) -> Path:
+            path = self.root / f"{name}.tar"
+            with tarfile.open(path, "w") as output:
+                for member, payload in entries:
+                    member.size = len(payload)
+                    output.addfile(member, io.BytesIO(payload) if payload else None)
+            return path
+
+        directory = tarfile.TarInfo("dir")
+        directory.type = tarfile.DIRTYPE
+        directory.mode = 0o755
+        duplicate_directory = tarfile.TarInfo("dir")
+        duplicate_directory.type = tarfile.DIRTYPE
+        duplicate_directory.mode = 0o755
+        regular = tarfile.TarInfo("dir/file")
+        regular.mode = 0o644
+        link = tarfile.TarInfo("link")
+        link.type = tarfile.SYMTYPE
+        link.linkname = "dir/file"
+        valid = self.root / "valid-archive"
+        self.workspace._extract_git_source_archive(
+            archive(
+                "valid",
+                [
+                    (directory, b""),
+                    (duplicate_directory, b""),
+                    (regular, b"payload"),
+                    (link, b""),
+                ],
+            ),
+            valid,
+        )
+        self.assertEqual((valid / "dir" / "file").read_bytes(), b"payload")
+        self.assertEqual((valid / "link").readlink(), Path("dir/file"))
+
+        cases: list[tuple[str, list[tuple[tarfile.TarInfo, bytes]], str]] = []
+        for name in ("/absolute", "../escape"):
+            cases.append(
+                (
+                    name.strip("/.") or "unsafe",
+                    [(tarfile.TarInfo(name), b"x")],
+                    "unsafe path",
+                )
+            )
+        duplicate_a = tarfile.TarInfo("same")
+        duplicate_b = tarfile.TarInfo("same")
+        cases.append(
+            (
+                "duplicate",
+                [(duplicate_a, b"a"), (duplicate_b, b"b")],
+                "repeats a path",
+            )
+        )
+        absolute_link = tarfile.TarInfo("absolute-link")
+        absolute_link.type = tarfile.SYMTYPE
+        absolute_link.linkname = "/outside"
+        cases.append(("absolute-link", [(absolute_link, b"")], "unsafe link"))
+        escaping_link = tarfile.TarInfo("escaping-link")
+        escaping_link.type = tarfile.SYMTYPE
+        escaping_link.linkname = "../outside"
+        cases.append(
+            (
+                "escaping-link",
+                [(escaping_link, b"")],
+                "escapes its generation",
+            )
+        )
+        hard_link = tarfile.TarInfo("hard-link")
+        hard_link.type = tarfile.LNKTYPE
+        hard_link.linkname = "target"
+        cases.append(("hard-link", [(hard_link, b"")], "unsupported entry"))
+        linked_directory = tarfile.TarInfo("linked-dir")
+        linked_directory.type = tarfile.SYMTYPE
+        linked_directory.linkname = "dir"
+        linked_target = tarfile.TarInfo("dir/")
+        linked_target.type = tarfile.DIRTYPE
+        linked_target.mode = 0o755
+        traversed_file = tarfile.TarInfo("linked-dir/file")
+        cases.append(
+            (
+                "linked-parent",
+                [
+                    (linked_target, b""),
+                    (linked_directory, b""),
+                    (traversed_file, b"payload"),
+                ],
+                "traverses a symbolic link",
+            )
+        )
+        for index, (name, entries, message) in enumerate(cases):
+            with self.subTest(name=name), self.assertRaisesRegex(
+                WorkspaceError, message
+            ):
+                self.workspace._extract_git_source_archive(
+                    archive(f"invalid-{index}", entries),
+                    self.root / f"invalid-output-{index}",
+                )
+
+    def test_source_generation_archive_command_failures_are_bounded(self) -> None:
+        profile = self.workspace._load_profile("default", require_file=False)
+        selected = self.workspace._resolve_build_profile(
+            "default", {"client"}, trace=False, profile=profile
+        )
+        states = self.workspace._selected_checkout_states(
+            profile, selected, include_dirty=True, include_identity=True
+        )
+        component = self.workspace.manifest.stack(profile["stack"]).providers[
+            "client"
+        ]
+        checkout = self.workspace.paths.repositories / "client"
+        failures = (
+            (FileNotFoundError("git"), "required command not found"),
+            (
+                subprocess.CalledProcessError(1, ["git"], stderr=b"archive failed"),
+                "cannot export immutable source generation: archive failed",
+            ),
+        )
+        real_subprocess_run = subprocess.run
+        for failure, message in failures:
+            def fail_archive(arguments, *args, injected=failure, **kwargs):
+                if "archive" in arguments:
+                    raise injected
+                return real_subprocess_run(arguments, *args, **kwargs)
+
+            with (
+                self.subTest(message=message),
+                mock.patch(
+                    "atrinik_workspace.workspace.subprocess.run",
+                    side_effect=fail_archive,
+                ),
+                self.assertRaisesRegex(WorkspaceError, message),
+            ):
+                self.workspace._materialize_primary_source(
+                    component,
+                    checkout,
+                    selected["client"],
+                    states["client"],
+                )
+
     def test_source_generation_rejects_external_hard_link(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
@@ -2338,6 +2480,85 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(removed["disposition"], "removed")
         self.assertFalse(residue.exists())
+
+    def test_source_generation_transaction_uncertainty_is_protected(self) -> None:
+        container = self.workspace.paths.builds / "source-generations" / "client"
+        managed_directory(
+            container,
+            self.workspace.paths.builds,
+            "source-generations:client",
+        )
+        cleaner = Cleanup(self.workspace)
+        key = "b" * 64
+        missing = container / f"{key}-staging-missing"
+        missing_item = cleaner._source_generation_transaction_item(
+            missing, "client", 7
+        )
+        self.assertIn("filesystem_traversal_error", missing_item["reasons"])
+        self.assertIn("build_age_unavailable", missing_item["reasons"])
+
+        wrong_marker = container / f"{key}-staging-marker"
+        wrong_marker.mkdir()
+        atomic_json(wrong_marker / MANAGED_MARKER, {"purpose": "wrong"})
+        old_timestamp = cleaner.now.timestamp() - 8 * 86400
+        os.utime(wrong_marker / MANAGED_MARKER, (old_timestamp, old_timestamp))
+        os.utime(wrong_marker, (old_timestamp, old_timestamp))
+        marker_item = cleaner._source_generation_transaction_item(
+            wrong_marker, "client", 7, check_lock=False
+        )
+        self.assertIn(
+            "invalid_source_generation_transaction", marker_item["reasons"]
+        )
+
+        busy = container / f"{key}-staging-busy"
+        busy.mkdir()
+        os.utime(busy, (old_timestamp, old_timestamp))
+        with mock.patch.object(cleaner, "_lock_busy", return_value=(True, None)):
+            busy_item = cleaner._source_generation_transaction_item(
+                busy, "client", 7
+            )
+        self.assertIn("build_lock_busy", busy_item["reasons"])
+
+        lock_error = container / f"{key}-staging-lock_error"
+        lock_error.mkdir()
+        os.utime(lock_error, (old_timestamp, old_timestamp))
+        with mock.patch.object(
+            cleaner, "_lock_busy", return_value=(False, "cannot inspect lock")
+        ):
+            error_item = cleaner._source_generation_transaction_item(
+                lock_error, "client", 7
+            )
+        self.assertIn("build_lock_error", error_item["reasons"])
+
+        young = container / f"{key}-staging-young"
+        young.mkdir()
+        young_cleaner = Cleanup(self.workspace)
+        young_item = young_cleaner._source_generation_transaction_item(
+            young, "client", 7, check_lock=False
+        )
+        self.assertIn("younger_than_grace_period", young_item["reasons"])
+
+        future = container / f"{key}-staging-future"
+        future.mkdir()
+        future_file = future / "partial"
+        future_file.write_text("partial\n", encoding="utf-8")
+        future_timestamp = cleaner.now.timestamp() + 86400
+        os.utime(future_file, (future_timestamp, future_timestamp))
+        future_item = cleaner._source_generation_transaction_item(
+            future, "client", 7, check_lock=False
+        )
+        self.assertIn("future_tree_mtime", future_item["reasons"])
+
+        external = self.root / "transaction-external"
+        external.mkdir()
+        linked = container / f"{key}-staging-linked"
+        linked.symlink_to(external, target_is_directory=True)
+        linked_item = cleaner._source_generation_transaction_item(
+            linked, "client", 7, check_lock=False
+        )
+        self.assertIn(
+            "invalid_source_generation_transaction", linked_item["reasons"]
+        )
 
     def test_source_generation_metadata_and_cleanup_follow_generation_lease(
         self,
