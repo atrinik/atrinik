@@ -45,6 +45,7 @@ from .workspace import (
     TEMPORARY_STATE_METADATA,
     TEMPORARY_STATE_SCHEMA_VERSION,
     _descriptor_mount_id,
+    _descriptor_path,
     _open_directory_nofollow,
     _owned_tree_tombstone_path,
     _remote_matches,
@@ -406,6 +407,73 @@ def _tree_usage(
         return {}, None, str(error)
     observed = (
         datetime.fromtimestamp(maximum, timezone.utc) if maximum is not None else None
+    )
+    return sizes, observed, None
+
+
+def _tree_usage_descriptor(
+    root_fd: int, display: Path
+) -> tuple[dict[tuple[int, int], int], datetime | None, str | None]:
+    """Measure one pinned tree without following child links."""
+
+    sizes: dict[tuple[int, int], int] = {}
+    maximum: float | None = None
+    root = os.fstat(root_fd)
+    root_mount = _descriptor_mount_id(root_fd)
+
+    def record(metadata: os.stat_result) -> None:
+        nonlocal maximum
+        sizes.setdefault(
+            (metadata.st_dev, metadata.st_ino), metadata.st_blocks * 512
+        )
+        maximum = (
+            metadata.st_mtime
+            if maximum is None
+            else max(maximum, metadata.st_mtime)
+        )
+
+    def visit(directory_fd: int, relative: PurePosixPath) -> None:
+        for name in os.listdir(directory_fd):
+            child = os.stat(
+                name,
+                dir_fd=directory_fd,
+                follow_symlinks=False,
+            )
+            record(child)
+            if stat.S_ISDIR(child.st_mode):
+                descriptor = os.open(
+                    name,
+                    os.O_RDONLY
+                    | os.O_CLOEXEC
+                    | os.O_DIRECTORY
+                    | os.O_NOFOLLOW,
+                    dir_fd=directory_fd,
+                )
+                try:
+                    opened = os.fstat(descriptor)
+                    if (
+                        (opened.st_dev, opened.st_ino)
+                        != (child.st_dev, child.st_ino)
+                        or opened.st_dev != root.st_dev
+                        or _descriptor_mount_id(descriptor) != root_mount
+                    ):
+                        raise WorkspaceError(
+                            "source generation changed during usage inventory: "
+                            f"{display / (relative / name).as_posix()}"
+                        )
+                    visit(descriptor, relative / name)
+                finally:
+                    os.close(descriptor)
+
+    try:
+        record(root)
+        visit(root_fd, PurePosixPath())
+    except (OSError, RuntimeError, WorkspaceError) as error:
+        return {}, None, str(error)
+    observed = (
+        datetime.fromtimestamp(maximum, timezone.utc)
+        if maximum is not None
+        else None
     )
     return sizes, observed, None
 
@@ -2967,7 +3035,9 @@ class Cleanup:
             path,
         )
         item["checkout"] = checkout
-        inodes, observed, walk_error = _tree_usage(path)
+        inodes: dict[tuple[int, int], int] = {}
+        observed: datetime | None = None
+        walk_error: str | None = None
         item["_inodes"] = inodes
         try:
             path_status = path.lstat()
@@ -3058,14 +3128,34 @@ class Cleanup:
         key = path.name
         item["key"] = key
         item["checkout"] = checkout
-        if walk_error:
-            item["reasons"].append("filesystem_traversal_error")
-            item["error"] = walk_error
+        parent_fd: int | None = None
+        root_fd: int | None = None
         try:
-            root_status = path.stat(follow_symlinks=False)
-            marker = path / MANAGED_MARKER
-            metadata_path = path / SOURCE_GENERATION_METADATA
-            source = path / "source"
+            flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+            parent_fd = _open_directory_nofollow(path.parent, flags)
+            root_status = os.stat(
+                path.name,
+                dir_fd=parent_fd,
+                follow_symlinks=False,
+            )
+            root_fd = os.open(path.name, flags, dir_fd=parent_fd)
+            opened_root = os.fstat(root_fd)
+            if (
+                (opened_root.st_dev, opened_root.st_ino)
+                != (root_status.st_dev, root_status.st_ino)
+                or opened_root.st_dev != os.fstat(parent_fd).st_dev
+                or _descriptor_mount_id(root_fd)
+                != _descriptor_mount_id(parent_fd)
+            ):
+                raise WorkspaceError(
+                    "source generation root changed or is mounted"
+                )
+            stable_root = _descriptor_path(root_fd)
+            inodes, observed, walk_error = _tree_usage_descriptor(root_fd, path)
+            item["_inodes"] = inodes
+            marker = stable_root / MANAGED_MARKER
+            metadata_path = stable_root / SOURCE_GENERATION_METADATA
+            source = stable_root / "source"
             metadata = load_regular_json(
                 metadata_path, "immutable source generation metadata"
             )
@@ -3095,15 +3185,12 @@ class Cleanup:
             )
             if (
                 not re.fullmatch(r"[0-9a-f]{64}", key)
-                or not stat.S_ISDIR(root_status.st_mode)
-                or marker.is_symlink()
-                or load_json(marker)
+                or not stat.S_ISDIR(opened_root.st_mode)
+                or load_regular_json(marker, "source generation ownership marker")
                 != {
                     "schema_version": SCHEMA_VERSION,
                     "purpose": f"source-generation:{key}",
                 }
-                or metadata_path.is_symlink()
-                or not metadata_path.is_file()
                 or not isinstance(metadata, dict)
                 or set(metadata) != SOURCE_GENERATION_METADATA_KEYS
                 or metadata.get("schema_version")
@@ -3139,21 +3226,33 @@ class Cleanup:
             except (OSError, RuntimeError, WorkspaceError) as error:
                 item["reasons"].append("corrupt_source_generation")
                 item["content_error"] = str(error)
-            current_root = path.stat(follow_symlinks=False)
+            current_root = os.stat(
+                path.name,
+                dir_fd=parent_fd,
+                follow_symlinks=False,
+            )
             if (current_root.st_dev, current_root.st_ino) != (
-                root_status.st_dev,
-                root_status.st_ino,
+                opened_root.st_dev,
+                opened_root.st_ino,
             ):
                 raise WorkspaceError(
                     "source generation identity changed during validation"
                 )
             item["_identity"] = {
-                "device": root_status.st_dev,
-                "inode": root_status.st_ino,
+                "device": opened_root.st_dev,
+                "inode": opened_root.st_ino,
             }
         except (OSError, RuntimeError, WorkspaceError) as error:
             item["reasons"].append("invalid_source_generation")
             item["error"] = str(error)
+        finally:
+            if root_fd is not None:
+                os.close(root_fd)
+            if parent_fd is not None:
+                os.close(parent_fd)
+        if walk_error:
+            item["reasons"].append("filesystem_traversal_error")
+            item["error"] = walk_error
         if check_lock and re.fullmatch(r"[0-9a-f]{64}", key):
             busy, lock_error = self._lock_busy(
                 self.paths.builds / "locks" / f"source-generation-{key}.lock"

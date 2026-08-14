@@ -62,6 +62,7 @@ from atrinik_workspace.workspace import (
     display_arguments,
     exclusive_lock,
     exclusive_layout_lock,
+    load_regular_json,
     shared_lock,
     shared_layout_lock,
     remove_owned_tree,
@@ -2136,7 +2137,9 @@ class WorkspaceTests(unittest.TestCase):
                     record["source_tree"],
                 )
 
-    def test_source_generation_git_tree_rejects_directory_open_replacement(self) -> None:
+    def test_source_generation_git_tree_rejects_directory_open_replacement(
+        self,
+    ) -> None:
         with self.workspace._resolved_profile_operation(
             "default",
             {"resources"},
@@ -2181,6 +2184,74 @@ class WorkspaceTests(unittest.TestCase):
                     record["source_tree"],
                 )
 
+    def test_source_generation_git_tree_rechecks_prior_leaf_identity(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"resources"},
+            "build resources",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["resources"]
+        record = load_json(
+            source.parent / workspace_module.SOURCE_GENERATION_METADATA
+        )
+        external = self.root / "retained-readme-link"
+        real_open = os.open
+        linked = False
+
+        def link_prior_leaf(
+            path: object, flags: int, *args: object, **kwargs: object
+        ) -> int:
+            nonlocal linked
+            if path == "paintings" and flags & os.O_DIRECTORY and not linked:
+                linked = True
+                os.link(source / "README", external)
+            return real_open(path, flags, *args, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.open",
+            side_effect=link_prior_leaf,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed while reading"):
+                self.workspace._validate_source_generation_git_tree(
+                    self.workspace.paths.repositories / "resources",
+                    source,
+                    record["source_tree"],
+                )
+
+    def test_source_generation_git_tree_rejects_mounted_source_root(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["client"]
+        record = load_json(
+            source.parent / workspace_module.SOURCE_GENERATION_METADATA
+        )
+        parent_identity = source.parent.stat()
+
+        def mount_identity(descriptor: int) -> int:
+            opened = os.fstat(descriptor)
+            return (
+                1
+                if (opened.st_dev, opened.st_ino)
+                == (parent_identity.st_dev, parent_identity.st_ino)
+                else 2
+            )
+
+        with mock.patch(
+            "atrinik_workspace.workspace._descriptor_mount_id",
+            side_effect=mount_identity,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "root changed or is mounted"):
+                self.workspace._validate_source_generation_git_tree(
+                    self.workspace.paths.repositories / "client",
+                    source,
+                    record["source_tree"],
+                )
+
     def test_corrupt_source_generation_cleanup_recovers_preview_first(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
@@ -2203,7 +2274,7 @@ class WorkspaceTests(unittest.TestCase):
             for item in preview["items"]
             if item["kind"] == "source-generation"
         )
-        self.assertEqual(candidate["disposition"], "eligible")
+        self.assertEqual(candidate["disposition"], "eligible", candidate)
         self.assertEqual(candidate["reasons"], ["corrupt_source_generation"])
         self.assertTrue(generation.exists())
 
@@ -2263,6 +2334,53 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("identity changed", failed["error"])
         self.assertTrue(generation.is_dir())
         self.assertTrue(displaced.is_dir())
+
+    def test_source_generation_cleanup_pins_root_during_validation(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            generation = snapshot.paths()["client"].parent
+        replacement = generation.with_name(f"{generation.name}-replacement")
+        displaced = generation.with_name(f"{generation.name}-displaced")
+        shutil.copytree(generation, replacement, symlinks=True)
+        marker = generation / MANAGED_MARKER
+        generation.chmod(0o700)
+        marker.chmod(0o600)
+        atomic_json(
+            marker,
+            {"schema_version": 1, "purpose": "not-source-generation"},
+        )
+        real_load = load_regular_json
+        swapped = False
+
+        def swap_around_marker(path: Path, description: str, **kwargs: object) -> object:
+            nonlocal swapped
+            if description == "source generation ownership marker" and not swapped:
+                swapped = True
+                generation.rename(displaced)
+                replacement.rename(generation)
+                try:
+                    return real_load(path, description, **kwargs)
+                finally:
+                    generation.rename(replacement)
+                    displaced.rename(generation)
+            return real_load(path, description, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.cleanup.load_regular_json",
+            side_effect=swap_around_marker,
+        ):
+            report = self.workspace.cleanup(["builds"], 0, [], False)
+        item = next(
+            row
+            for row in report["items"]
+            if row["kind"] == "source-generation"
+        )
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("invalid_source_generation", item["reasons"])
 
     def test_source_generation_archive_extraction_rejects_unsafe_entries(self) -> None:
         def archive(name: str, entries: list[tuple[tarfile.TarInfo, bytes]]) -> Path:

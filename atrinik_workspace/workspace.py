@@ -2252,6 +2252,10 @@ class Workspace:
 
         algorithm = hashlib.sha1 if len(source_tree) == 40 else hashlib.sha256
         actual: dict[bytes, tuple[bytes, bytes, bytes]] = {}
+        retained_descriptors: list[tuple[int, os.stat_result, Path]] = []
+        retained_symlinks: list[
+            tuple[int, str, os.stat_result, str, Path]
+        ] = []
 
         def blob_id(payload: bytes) -> bytes:
             digest = algorithm()
@@ -2320,6 +2324,8 @@ class Workspace:
                                 "immutable source generation changed while "
                                 f"reading: {display}"
                             )
+                        retained_descriptors.append((descriptor, opened, display))
+                        descriptor = None
                     elif stat.S_ISREG(status.st_mode):
                         if status.st_nlink != 1:
                             raise WorkspaceError(
@@ -2359,6 +2365,8 @@ class Workspace:
                             )
                         mode = b"100755" if opened.st_mode & 0o111 else b"100644"
                         value = (mode, b"blob", digest.hexdigest().encode())
+                        retained_descriptors.append((descriptor, opened, display))
+                        descriptor = None
                     elif stat.S_ISLNK(status.st_mode):
                         target = os.fsencode(
                             os.readlink(entry_name, dir_fd=directory_fd)
@@ -2373,6 +2381,15 @@ class Workspace:
                                 "immutable source generation changed while "
                                 f"reading: {display}"
                             )
+                        retained_symlinks.append(
+                            (
+                                directory_fd,
+                                entry_name,
+                                status,
+                                os.fsdecode(target),
+                                display,
+                            )
+                        )
                         value = (b"120000", b"blob", blob_id(target))
                     else:
                         raise WorkspaceError(
@@ -2401,21 +2418,36 @@ class Workspace:
                     f"{source / os.fsdecode(prefix)}"
                 )
 
+        parent_fd: int | None = None
         root_fd: int | None = None
         try:
-            visible_root = source.stat(follow_symlinks=False)
-            root_fd = _open_directory_nofollow(
-                source,
-                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+            flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+            parent_fd = _open_directory_nofollow(source.parent, flags)
+            parent_status = os.fstat(parent_fd)
+            parent_mount = _descriptor_mount_id(parent_fd)
+            visible_root = os.stat(
+                source.name,
+                dir_fd=parent_fd,
+                follow_symlinks=False,
             )
+            root_fd = os.open(source.name, flags, dir_fd=parent_fd)
             root_status = os.fstat(root_fd)
             root_mount = _descriptor_mount_id(root_fd)
-            if changed(visible_root, root_status):
+            if (
+                changed(visible_root, root_status)
+                or root_status.st_dev != parent_status.st_dev
+                or root_mount != parent_mount
+            ):
                 raise WorkspaceError(
-                    f"immutable source generation changed while reading: {source}"
+                    "immutable source generation root changed or is mounted: "
+                    f"{source}"
                 )
             visit(root_fd, b"")
-            visible_after = source.stat(follow_symlinks=False)
+            visible_after = os.stat(
+                source.name,
+                dir_fd=parent_fd,
+                follow_symlinks=False,
+            )
             if (
                 changed(root_status, os.fstat(root_fd))
                 or changed(root_status, visible_after)
@@ -2423,6 +2455,25 @@ class Workspace:
                 raise WorkspaceError(
                     f"immutable source generation changed while reading: {source}"
                 )
+            for descriptor, opened, display in retained_descriptors:
+                if changed(opened, os.fstat(descriptor)):
+                    raise WorkspaceError(
+                        "immutable source generation changed while reading: "
+                        f"{display}"
+                    )
+            for directory_fd, name, before, target, display in retained_symlinks:
+                after = os.stat(
+                    name,
+                    dir_fd=directory_fd,
+                    follow_symlinks=False,
+                )
+                if changed(before, after) or os.readlink(
+                    name, dir_fd=directory_fd
+                ) != target:
+                    raise WorkspaceError(
+                        "immutable source generation changed while reading: "
+                        f"{display}"
+                    )
         except WorkspaceError:
             raise
         except OSError as error:
@@ -2430,8 +2481,12 @@ class Workspace:
                 f"cannot inspect immutable source generation {source}: {error}"
             ) from error
         finally:
+            for descriptor, _opened, _display in reversed(retained_descriptors):
+                os.close(descriptor)
             if root_fd is not None:
                 os.close(root_fd)
+            if parent_fd is not None:
+                os.close(parent_fd)
         if set(actual) != set(expected) or any(
             actual[path][:2] != expected[path][:2]
             or (actual[path][1] != b"tree" and actual[path][2] != expected[path][2])
