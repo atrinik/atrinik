@@ -230,7 +230,18 @@ class ProgramLedgerModel:
             raise StopClosed("ledger root is not an object")
         if not cls.value_is_bounded(record):
             raise StopClosed("ledger value exceeds a collection or string bound")
-        if set(record) != cls.KEYS or observed_inode != record.get("self_inode"):
+        self_inode = record.get("self_inode")
+        lock = record.get("lock")
+        if (
+            set(record) != cls.KEYS
+            or type(self_inode) is not int or self_inode <= 0
+            or type(observed_inode) is not int or observed_inode <= 0
+            or observed_inode != self_inode
+            or type(lock_inode) is not int or lock_inode <= 0
+            or not isinstance(lock, dict) or set(lock) != {"device", "inode"}
+            or type(lock["device"]) is not int or lock["device"] < 0
+            or type(lock["inode"]) is not int or lock["inode"] <= 0
+        ):
             raise StopClosed("schema or inode corruption")
         if (
             not isinstance(record["authority"], list)
@@ -247,7 +258,7 @@ class ProgramLedgerModel:
             or any(not isinstance(key, str) for key in record["leaf_snapshots"])
         ):
             raise StopClosed("ledger collection shape is corrupt")
-        if record["lock"] != {"device": 1, "inode": lock_inode}:
+        if lock != {"device": 1, "inode": lock_inode}:
             raise StopClosed("arbitration lock identity changed")
         if hashlib.sha256(cls.canonical(record)).hexdigest() != observed_sha256:
             raise StopClosed("byte corruption")
@@ -974,6 +985,29 @@ class ProgramLedgerModelTests(unittest.TestCase):
                         ProgramLedgerModel.canonical(corrupt_observation)
                     ).hexdigest(),
                     corrupt_observation["authority"],
+                )
+        inode_cases: list[tuple[dict[str, object], object, object]] = []
+        for value in (True, 0):
+            corrupt_inode = copy.deepcopy(model.record)
+            corrupt_inode["self_inode"] = value
+            inode_cases.append((corrupt_inode, 41, value))
+        corrupt_device = copy.deepcopy(model.record)
+        corrupt_device["lock"]["device"] = True
+        inode_cases.append((corrupt_device, 41, 101))
+        for value in (True, 0):
+            corrupt_lock = copy.deepcopy(model.record)
+            corrupt_lock["lock"]["inode"] = value
+            inode_cases.append((corrupt_lock, value, 101))
+        for corrupt_inode, live_lock, live_inode in inode_cases:
+            with self.subTest(
+                self_inode=corrupt_inode["self_inode"], lock=corrupt_inode["lock"]
+            ), self.assertRaises(StopClosed):
+                ProgramLedgerModel.resume(
+                    corrupt_inode, live_lock, live_inode,
+                    hashlib.sha256(
+                        ProgramLedgerModel.canonical(corrupt_inode)
+                    ).hexdigest(),
+                    corrupt_inode["authority"],
                 )
 
     def test_bound_slots_reject_retained_ephemeral_authority(self) -> None:
