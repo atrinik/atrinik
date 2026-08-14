@@ -2375,6 +2375,64 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(recreated, source)
         self.assertEqual((recreated / "README").read_text(encoding="utf-8"), "client\n")
 
+    def test_unreadable_source_generation_cleanup_recovers_preview_first(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        source.chmod(0o700)
+        (source / "README").chmod(0o000)
+
+        preview = self.workspace.cleanup(["builds"], 0, [], False)
+        candidate = next(
+            item for item in preview["items"] if item["path"] == str(generation)
+        )
+        self.assertEqual(candidate["disposition"], "eligible", candidate)
+        self.assertEqual(candidate["reasons"], ["corrupt_source_generation"])
+
+        with mock.patch(
+            "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
+            return_value=(set(), False),
+        ):
+            applied = self.workspace.cleanup(["builds"], 0, [], True)
+        removed = next(
+            item for item in applied["items"] if item["path"] == str(generation)
+        )
+        self.assertEqual(removed["disposition"], "removed")
+        recreated = resolve()
+        self.assertEqual((recreated / "README").read_text(encoding="utf-8"), "client\n")
+
+    def test_source_generation_cleanup_accepts_bounded_parent_symlink(self) -> None:
+        checkout = self.workspace.paths.repositories / "client"
+        (checkout / "targetdir").mkdir()
+        (checkout / "targetdir" / "file").write_text("target\n", encoding="utf-8")
+        (checkout / "sub").mkdir()
+        (checkout / "sub" / "linkdir").symlink_to("../targetdir")
+        command("git", "add", "targetdir", "sub", cwd=checkout)
+        command("git", "commit", "-m", "test: add bounded symlink", cwd=checkout)
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            generation = snapshot.paths()["client"].parent
+
+        preview = self.workspace.cleanup(["builds"], 0, [], False)
+        candidate = next(
+            item for item in preview["items"] if item["path"] == str(generation)
+        )
+        self.assertEqual(candidate["disposition"], "eligible", candidate)
+        self.assertEqual(candidate["reasons"], ["stale_source_generation"])
+
     def test_source_generation_cleanup_rejects_root_swap_before_removal(self) -> None:
         with self.workspace._resolved_profile_operation(
             "default",

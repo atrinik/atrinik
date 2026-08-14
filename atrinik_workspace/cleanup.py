@@ -500,11 +500,24 @@ def _tree_usage_descriptor(
                 finally:
                     os.close(descriptor)
             elif stat.S_ISREG(child.st_mode):
-                descriptor = os.open(
-                    name,
-                    os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
-                    dir_fd=directory_fd,
-                )
+                try:
+                    descriptor = os.open(
+                        name,
+                        os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                        dir_fd=directory_fd,
+                    )
+                except OSError as error:
+                    digest_record(
+                        evidence,
+                        "unreadable-file",
+                        *evidence_fields,
+                        error.errno,
+                    )
+                    content_errors.append(
+                        "cannot read generated source file: "
+                        f"{child_display}: {error}"
+                    )
+                    continue
                 try:
                     opened = os.fstat(descriptor)
                     if (
@@ -573,8 +586,19 @@ def _tree_usage_descriptor(
                     target,
                 )
                 target_path = PurePosixPath(target)
-                normalized = child_relative.parent.joinpath(target_path)
-                if target_path.is_absolute() or ".." in normalized.parts:
+                bounded = not target_path.is_absolute()
+                normalized_parts = list(child_relative.parent.parts)
+                for part in target_path.parts:
+                    if part in {"", "."}:
+                        continue
+                    if part == "..":
+                        if not normalized_parts:
+                            bounded = False
+                            break
+                        normalized_parts.pop()
+                    else:
+                        normalized_parts.append(part)
+                if not bounded:
                     content_errors.append(
                         f"source generation contains an unsafe link: {child_display}"
                     )
