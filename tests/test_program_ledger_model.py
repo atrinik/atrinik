@@ -415,12 +415,14 @@ class ProgramLedgerModel:
             ):
                 raise StopClosed("bound phase retains ephemeral authority")
             if name == "comment" and slot["phase"] == "bound" and (
-                not isinstance(slot["node"], str) or slot["prior"] is not None
+                not isinstance(slot["node"], str) or not slot["node"]
+                or slot["prior"] is not None
                 or slot["created_at"] is not None
             ):
                 raise StopClosed("bound result is incomplete")
             if name == "create" and slot["phase"] == "bound" and (
-                not isinstance(slot["node"], str) or slot["prior"] is not None
+                not isinstance(slot["node"], str) or not slot["node"]
+                or slot["prior"] is not None
                 or not cls.valid_timestamp(slot["created_at"])
             ):
                 raise StopClosed("bound child result is incomplete")
@@ -437,7 +439,8 @@ class ProgramLedgerModel:
             if name == "comment" and slot["phase"] in {"planned", "in-flight"} and not (
                 slot["created_at"] is None and (
                     (slot["node"] is None and slot["prior"] is None)
-                    or (isinstance(slot["node"], str) and slot["prior"] == "old-body")
+                    or (isinstance(slot["node"], str) and bool(slot["node"])
+                        and slot["prior"] == "old-body")
                 )
             ):
                 raise StopClosed("comment POST/PATCH intent is corrupt")
@@ -1109,6 +1112,28 @@ class ProgramLedgerModelTests(unittest.TestCase):
                     hashlib.sha256(ProgramLedgerModel.canonical(corrupt)).hexdigest(),
                     corrupt["authority"],
                 )
+            if slot in {"comment", "create"}:
+                empty_node = copy.deepcopy(model.record)
+                empty_node[slot]["node"] = ""
+                with self.subTest(slot=slot, defect="empty-node"), self.assertRaises(
+                    StopClosed
+                ):
+                    ProgramLedgerModel.resume(
+                        empty_node, 41, empty_node["self_inode"],
+                        hashlib.sha256(
+                            ProgramLedgerModel.canonical(empty_node)
+                        ).hexdigest(),
+                        empty_node["authority"],
+                    )
+        patch_intent = copy.deepcopy(comment)
+        patch_intent.observe_comment()
+        patch_intent.plan_comment()
+        patch_intent.record["comment"]["node"] = ""
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.resume(
+                patch_intent.record, 41, patch_intent.record["self_inode"],
+                patch_intent.digest(), patch_intent.record["authority"],
+            )
         corrupt_proof = copy.deepcopy(link.record)
         corrupt_proof["link"]["proof"] = "z" * 64
         with self.assertRaises(StopClosed):
