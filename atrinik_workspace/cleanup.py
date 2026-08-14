@@ -35,6 +35,8 @@ from .workspace import (
     BUILD_METADATA,
     BUILD_METADATA_SCHEMA_VERSION,
     CACHE_METADATA,
+    SOURCE_GENERATION_SCHEMA_VERSION,
+    SOURCE_GENERATION_METADATA,
     WORKER_DEPENDENCY_METADATA,
     WORKER_DEPENDENCY_SCHEMA_VERSION,
     COMPILER_CACHE_MAX_SIZE,
@@ -46,7 +48,9 @@ from .workspace import (
     _open_directory_nofollow,
     _owned_tree_tombstone_path,
     _remote_matches,
+    _tree_digest,
     exclusive_lock,
+    load_regular_json,
     remove_owned_tree,
 )
 
@@ -66,6 +70,7 @@ ALL_SCOPES = (
 SUPPORTED_SCOPES = (*ALL_SCOPES, "topologies")
 BUILD_RETENTION_RECORD = "retention.json"
 LEGACY_BUILD_METADATA_SCHEMA_VERSION = 1
+PRE_SOURCE_GENERATION_BUILD_METADATA_SCHEMA_VERSION = 2
 LEGACY_BUILD_METADATA_KEYS = {
     "schema_version",
     "profile",
@@ -85,6 +90,19 @@ BUILD_COORDINATE_KEYS = {
     "source_path",
     "head",
 }
+SOURCE_GENERATION_KEYS = {
+    "schema_version",
+    "repository",
+    "checkout",
+    "branch",
+    "commit",
+    "tree",
+    "source",
+    "source_tree",
+    "source_tree_sha256",
+    "path",
+}
+SOURCE_GENERATION_METADATA_KEYS = SOURCE_GENERATION_KEYS - {"path"}
 PROFILE_PURPOSE = re.compile(
     r"^profile:(?P<profile>[a-z0-9][a-z0-9._-]*):(?P<key>[0-9a-f]{12})$"
 )
@@ -1188,6 +1206,14 @@ class Cleanup:
                 references,
                 reference_errors,
             )
+        elif kind == "source-generation":
+            item = self._source_generation_item(
+                path, target["checkout"], older_than_days
+            )
+        elif kind == "source-generation-transaction":
+            item = self._source_generation_transaction_item(
+                path, target["checkout"], older_than_days
+            )
         elif kind == "worker-dependencies":
             item = self._worker_dependency_item(
                 path,
@@ -1240,6 +1266,7 @@ class Cleanup:
             self._strip_internal(item)
             if kind in {
                 "worker-dependency-transaction",
+                "source-generation-transaction",
                 "sound-cache",
                 "temporary-state",
             }:
@@ -2853,7 +2880,283 @@ class Cleanup:
                 older_than_days, registered, references, reference_errors
             )
         )
+        items.extend(self._source_generations(older_than_days))
         return items
+
+    def _source_generations(self, older_than_days: int) -> list[dict[str, Any]]:
+        root = self.paths.builds / "source-generations"
+        if not root.exists() and not root.is_symlink():
+            return []
+        items: list[dict[str, Any]] = []
+        try:
+            if root.is_symlink() or not root.is_dir():
+                raise WorkspaceError("source generation root is invalid")
+            checkout_roots = sorted(root.iterdir())
+        except (OSError, WorkspaceError) as error:
+            item = _base_item(
+                "unmanaged-build", "atrinik", "atrinik/atrinik", root
+            )
+            item["reasons"] = ["invalid_source_generation_root"]
+            item["error"] = str(error)
+            return [item]
+        for checkout_root in checkout_roots:
+            try:
+                checkout = checkout_root.name
+                marker = checkout_root / MANAGED_MARKER
+                if (
+                    checkout_root.is_symlink()
+                    or not checkout_root.is_dir()
+                    or checkout not in self.manifest.by_checkout
+                    or marker.is_symlink()
+                    or load_json(marker)
+                    != {
+                        "schema_version": SCHEMA_VERSION,
+                        "purpose": f"source-generations:{checkout}",
+                    }
+                ):
+                    raise WorkspaceError(
+                        "source generation checkout root is invalid"
+                    )
+                children = sorted(
+                    path
+                    for path in checkout_root.iterdir()
+                    if path.name != MANAGED_MARKER
+                )
+            except (OSError, WorkspaceError) as error:
+                item = _base_item(
+                    "unmanaged-build",
+                    "atrinik",
+                    "atrinik/atrinik",
+                    checkout_root,
+                )
+                item["reasons"] = ["invalid_source_generation_checkout_root"]
+                item["error"] = str(error)
+                items.append(item)
+                continue
+            for path in children:
+                if re.fullmatch(
+                    r"[0-9a-f]{64}-staging-[a-z0-9_]+", path.name
+                ):
+                    items.append(
+                        self._source_generation_transaction_item(
+                            path, checkout, older_than_days
+                        )
+                    )
+                else:
+                    items.append(
+                        self._source_generation_item(
+                            path, checkout, older_than_days
+                        )
+                    )
+        return items
+
+    def _source_generation_transaction_item(
+        self,
+        path: Path,
+        checkout: str,
+        older_than_days: int,
+        *,
+        check_lock: bool = True,
+    ) -> dict[str, Any]:
+        checkout_record = self.manifest.by_checkout[checkout]
+        item = _base_item(
+            "source-generation-transaction",
+            checkout,
+            checkout_record.repository,
+            path,
+        )
+        item["checkout"] = checkout
+        inodes, observed, walk_error = _tree_usage(path)
+        item["_inodes"] = inodes
+        try:
+            path_status = path.lstat()
+            item["_identity"] = (
+                path_status.st_dev,
+                path_status.st_ino,
+                path_status.st_ctime_ns,
+                stat.S_IFMT(path_status.st_mode),
+                stat.S_IMODE(path_status.st_mode),
+            )
+            created = datetime.fromtimestamp(path_status.st_ctime, timezone.utc)
+            observed = created if observed is None else max(observed, created)
+        except OSError as error:
+            item["reasons"].append("filesystem_traversal_error")
+            item["error"] = str(error)
+        match = re.fullmatch(r"([0-9a-f]{64})-staging-([a-z0-9_]+)", path.name)
+        if walk_error:
+            item["reasons"].append("filesystem_traversal_error")
+            item["error"] = walk_error
+        if match is None or path.is_symlink() or not path.is_dir():
+            item["reasons"].append("invalid_source_generation_transaction")
+        else:
+            key, _suffix = match.groups()
+            item["key"] = key
+            marker = path / MANAGED_MARKER
+            try:
+                if marker.exists() or marker.is_symlink():
+                    if (
+                        marker.is_symlink()
+                        or load_json(marker)
+                        != {
+                            "schema_version": SCHEMA_VERSION,
+                            "purpose": f"source-generation:{key}",
+                        }
+                    ):
+                        raise WorkspaceError(
+                            "source generation transaction marker is invalid"
+                        )
+            except (OSError, WorkspaceError) as error:
+                item["reasons"].append(
+                    "invalid_source_generation_transaction"
+                )
+                item["error"] = str(error)
+            if check_lock:
+                busy, lock_error = self._lock_busy(
+                    self.paths.builds
+                    / "locks"
+                    / f"source-generation-{key}.lock"
+                )
+                if lock_error:
+                    item["reasons"].append("build_lock_error")
+                    item["error"] = lock_error
+                elif busy:
+                    item["reasons"].append("build_lock_busy")
+        item["age_basis"] = "tree-mtime-or-root-ctime" if observed else None
+        if observed is None:
+            item["reasons"].append("build_age_unavailable")
+        else:
+            age = max(0, int((self.now - observed).total_seconds()))
+            item["age_seconds"] = age
+            if observed > self.now:
+                item["reasons"].append("future_tree_mtime")
+            elif age < older_than_days * 86400:
+                item["reasons"].append("younger_than_grace_period")
+        item["reasons"] = sorted(set(item["reasons"]))
+        if not item["reasons"]:
+            item["disposition"] = "eligible"
+            item["reasons"] = ["stale_source_generation_transaction"]
+        return item
+
+    def _source_generation_item(
+        self,
+        path: Path,
+        checkout: str,
+        older_than_days: int,
+        *,
+        check_lock: bool = True,
+    ) -> dict[str, Any]:
+        checkout_record = self.manifest.by_checkout.get(checkout)
+        repository = (
+            checkout_record.repository
+            if checkout_record is not None
+            else "atrinik/atrinik"
+        )
+        item = _base_item("source-generation", checkout, repository, path)
+        inodes, observed, walk_error = _tree_usage(path)
+        item["_inodes"] = inodes
+        key = path.name
+        item["key"] = key
+        item["checkout"] = checkout
+        if walk_error:
+            item["reasons"].append("filesystem_traversal_error")
+            item["error"] = walk_error
+        try:
+            marker = path / MANAGED_MARKER
+            metadata_path = path / SOURCE_GENERATION_METADATA
+            source = path / "source"
+            metadata = load_regular_json(
+                metadata_path, "immutable source generation metadata"
+            )
+            identity = (
+                {
+                    field: metadata.get(field)
+                    for field in SOURCE_GENERATION_METADATA_KEYS
+                    if field != "source_tree_sha256"
+                }
+                if isinstance(metadata, dict)
+                else {}
+            )
+            expected_key = hashlib.sha256(
+                json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest()
+            matching_components = (
+                [
+                    component
+                    for component in self.manifest.components
+                    if component.checkout_name == checkout
+                    and component.repository == metadata.get("repository")
+                    and component.branch == metadata.get("branch")
+                    and component.source == metadata.get("source")
+                ]
+                if isinstance(metadata, dict)
+                else []
+            )
+            if (
+                not re.fullmatch(r"[0-9a-f]{64}", key)
+                or path.is_symlink()
+                or not path.is_dir()
+                or marker.is_symlink()
+                or load_json(marker)
+                != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": f"source-generation:{key}",
+                }
+                or metadata_path.is_symlink()
+                or not metadata_path.is_file()
+                or not isinstance(metadata, dict)
+                or set(metadata) != SOURCE_GENERATION_METADATA_KEYS
+                or metadata.get("schema_version")
+                != SOURCE_GENERATION_SCHEMA_VERSION
+                or metadata.get("checkout") != checkout
+                or key != expected_key
+                or not matching_components
+                or not all(
+                    isinstance(metadata.get(field), str)
+                    and HEAD_PATTERN.fullmatch(metadata[field])
+                    for field in (
+                        "commit",
+                        "tree",
+                        "source_tree",
+                        "source_tree_sha256",
+                    )
+                )
+                or metadata.get("source_tree_sha256")
+                != _tree_digest(
+                    source,
+                    set(),
+                    bounded_symlinks=True,
+                    reject_hardlinks=True,
+                )
+            ):
+                raise WorkspaceError("source generation metadata is invalid")
+            item["source_tree_sha256"] = metadata["source_tree_sha256"]
+        except (OSError, RuntimeError, WorkspaceError) as error:
+            item["reasons"].append("invalid_source_generation")
+            item["error"] = str(error)
+        if check_lock and re.fullmatch(r"[0-9a-f]{64}", key):
+            busy, lock_error = self._lock_busy(
+                self.paths.builds / "locks" / f"source-generation-{key}.lock"
+            )
+            if lock_error:
+                item["reasons"].append("build_lock_error")
+                item["error"] = lock_error
+            elif busy:
+                item["reasons"].append("build_lock_busy")
+        item["age_basis"] = "tree-mtime" if observed else None
+        if observed is None:
+            item["reasons"].append("build_age_unavailable")
+        else:
+            age = max(0, int((self.now - observed).total_seconds()))
+            item["age_seconds"] = age
+            if observed > self.now:
+                item["reasons"].append("future_tree_mtime")
+            elif age < older_than_days * 86400:
+                item["reasons"].append("younger_than_grace_period")
+        item["reasons"] = sorted(set(item["reasons"]))
+        if not item["reasons"]:
+            item["disposition"] = "eligible"
+            item["reasons"] = ["stale_source_generation"]
+        return item
 
     def _worker_dependency_caches(
         self,
@@ -3302,6 +3605,7 @@ class Cleanup:
             schema_version
             not in {
                 LEGACY_BUILD_METADATA_SCHEMA_VERSION,
+                PRE_SOURCE_GENERATION_BUILD_METADATA_SCHEMA_VERSION,
                 BUILD_METADATA_SCHEMA_VERSION,
             }
             or value.get("profile") != item["profile"]
@@ -3315,8 +3619,14 @@ class Cleanup:
             if (
                 not isinstance(role, str)
                 or not isinstance(row, dict)
-                or set(row) != BUILD_COORDINATE_KEYS
-                or not all(isinstance(raw, str) and raw for raw in row.values())
+                or frozenset(row) not in {
+                    frozenset(BUILD_COORDINATE_KEYS),
+                    frozenset({*BUILD_COORDINATE_KEYS, "source_generation"}),
+                }
+                or not all(
+                    isinstance(row[key], str) and row[key]
+                    for key in BUILD_COORDINATE_KEYS
+                )
                 or not Path(row["checkout_path"]).is_absolute()
                 or not Path(row["source_path"]).is_absolute()
                 or not HEAD_PATTERN.fullmatch(row["head"])
@@ -3340,8 +3650,64 @@ class Cleanup:
                     if row["source"] == "."
                     else checkout_path.joinpath(*source.parts).resolve(strict=False)
                 )
-                if Path(row["source_path"]).resolve(strict=False) != expected_source:
-                    raise WorkspaceError("build coordinate source path is invalid")
+                generation = row.get("source_generation")
+                if generation is None:
+                    if Path(row["source_path"]).resolve(strict=False) != expected_source:
+                        raise WorkspaceError("build coordinate source path is invalid")
+                else:
+                    generation_identity = (
+                        {
+                            key: generation.get(key)
+                            for key in SOURCE_GENERATION_METADATA_KEYS
+                            if key != "source_tree_sha256"
+                        }
+                        if isinstance(generation, dict)
+                        else {}
+                    )
+                    generation_key = hashlib.sha256(
+                        json.dumps(
+                            generation_identity,
+                            sort_keys=True,
+                            separators=(",", ":"),
+                        ).encode()
+                    ).hexdigest()
+                    generation_path = (
+                        self.paths.builds
+                        / "source-generations"
+                        / component.checkout_name
+                        / generation_key
+                        / "source"
+                    ).resolve(strict=False)
+                    if (
+                        schema_version != BUILD_METADATA_SCHEMA_VERSION
+                        or not isinstance(generation, dict)
+                        or set(generation) != SOURCE_GENERATION_KEYS
+                        or generation.get("schema_version")
+                        != SOURCE_GENERATION_SCHEMA_VERSION
+                        or generation.get("repository") != component.repository
+                        or generation.get("checkout") != component.checkout_name
+                        or generation.get("branch") != component.branch
+                        or generation.get("commit") != row["head"]
+                        or generation.get("source") != component.source
+                        or not all(
+                            isinstance(generation.get(key), str)
+                            and HEAD_PATTERN.fullmatch(generation[key])
+                            for key in (
+                                "commit",
+                                "tree",
+                                "source_tree",
+                                "source_tree_sha256",
+                            )
+                        )
+                        or not Path(generation.get("path", "")).is_absolute()
+                        or Path(row["source_path"]).resolve(strict=False)
+                        != Path(generation["path"]).resolve(strict=False)
+                        or Path(generation["path"]).resolve(strict=False)
+                        != generation_path
+                    ):
+                        raise WorkspaceError(
+                            "build coordinate source generation is invalid"
+                        )
             except RuntimeError as error:
                 raise WorkspaceError("build coordinate path cannot be resolved") from error
         if schema_version == BUILD_METADATA_SCHEMA_VERSION:
@@ -3436,6 +3802,7 @@ class Cleanup:
                         "profiles",
                         "npm-cache",
                         "worker-dependencies",
+                        "source-generations",
                         "compiler-cache",
                     }:
                         continue
@@ -3708,6 +4075,7 @@ class Cleanup:
                     or metadata.get("schema_version")
                     not in {
                         LEGACY_BUILD_METADATA_SCHEMA_VERSION,
+                        PRE_SOURCE_GENERATION_BUILD_METADATA_SCHEMA_VERSION,
                         BUILD_METADATA_SCHEMA_VERSION,
                     }
                     or metadata.get("purpose") != purpose
@@ -4883,6 +5251,8 @@ class Cleanup:
             "profile-build": 0,
             "worker-dependencies": 0,
             "worker-dependency-transaction": 0,
+            "source-generation-transaction": 0,
+            "source-generation": 0,
             "worktree": 1,
             "npm-cache": 2,
             "compiler-cache": 2,
@@ -4978,6 +5348,89 @@ class Cleanup:
                 ):
                     raise WorkspaceError(
                         "Worker dependency cache ownership changed before removal"
+                    )
+                remove_owned_tree(path)
+        elif item["kind"] == "source-generation":
+            key = item["key"]
+            lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
+            with exclusive_lock(
+                lock,
+                f"immutable source generation {key}",
+                nonblocking=True,
+            ):
+                expected = (
+                    self.paths.builds
+                    / "source-generations"
+                    / item["checkout"]
+                    / key
+                ).resolve(strict=False)
+                if path.resolve(strict=False) != expected:
+                    raise WorkspaceError(
+                        "source generation path changed before removal"
+                    )
+                current = self._source_generation_item(
+                    path,
+                    item["checkout"],
+                    older_than_days,
+                    check_lock=False,
+                )
+                if (
+                    current["disposition"] != "eligible"
+                    or current.get("source_tree_sha256")
+                    != item.get("source_tree_sha256")
+                ):
+                    raise WorkspaceError(
+                        "source generation changed before removal"
+                    )
+                remove_owned_tree(path)
+        elif item["kind"] == "source-generation-transaction":
+            key = item["key"]
+            lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
+            with exclusive_lock(
+                lock,
+                f"immutable source generation {key}",
+                nonblocking=True,
+            ):
+                transaction_root = (
+                    self.paths.builds
+                    / "source-generations"
+                    / item["checkout"]
+                )
+                marker = transaction_root / MANAGED_MARKER
+                if (
+                    transaction_root.is_symlink()
+                    or not transaction_root.is_dir()
+                    or marker.is_symlink()
+                    or load_json(marker)
+                    != {
+                        "schema_version": SCHEMA_VERSION,
+                        "purpose": f"source-generations:{item['checkout']}",
+                    }
+                    or path.parent.resolve(strict=False)
+                    != transaction_root.resolve(strict=False)
+                    or not re.fullmatch(
+                        rf"{key}-staging-[a-z0-9_]+", path.name
+                    )
+                    or path.is_symlink()
+                    or not path.is_dir()
+                ):
+                    raise WorkspaceError(
+                        "source generation transaction changed before removal: "
+                        f"{path}"
+                    )
+                current = self._source_generation_transaction_item(
+                    path,
+                    item["checkout"],
+                    older_than_days,
+                    check_lock=False,
+                )
+                if (
+                    current.get("_identity") != item.get("_identity")
+                    or current["disposition"] != "eligible"
+                ):
+                    raise WorkspaceError(
+                        "source generation transaction changed before removal: "
+                        f"{path}"
                     )
                 remove_owned_tree(path)
         elif item["kind"] == "worker-dependency-transaction":

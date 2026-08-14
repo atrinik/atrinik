@@ -584,6 +584,19 @@ left in that worktree for normal Git resolution. Historical `content-1x`
 paths and records are inert and are never treated as `content@main`. Create new
 content review worktrees from the shared `content` checkout.
 
+A target build resolves only that target's transitive provider inputs. During
+its bounded preparation phase, each clean primary input is exported from its
+exact Git commit into a wrapper-owned, read-only source generation; the build
+then releases that primary's source lease before configure, compile, and tests.
+Consequently a long-running build from a Classic feature worktree does not
+block `sync --with classic` from advancing unrelated or snapshotted clean
+primaries. Dirty sources and selected worktrees remain live inputs and retain
+their exact source leases. The authored Classic content publisher still proves
+its target against a live Git checkout, so operations that consume it retain
+that exact content lease. `build all` requests the union of every target's
+dependency closure and retains or snapshots every input without weakening
+coherence.
+
 ## Checkout worktrees
 
 Create a branch and full-repository worktree from a checkout's remote default
@@ -621,8 +634,8 @@ inside it.
 
 Cleanup is always operator-invoked and preview-first. With no options it
 inventories registered worktrees and marker-owned profile builds older than
-seven days, including individually marker-owned Worker dependency entries,
-without changing the filesystem:
+seven days, including immutable source generations and individually
+marker-owned Worker dependency entries, without changing the filesystem:
 
 ~~~sh
 ./atrinik cleanup
@@ -697,6 +710,15 @@ a live topology, busy build lock, registered worktree, or the optional strict
 schema 1 and contains exactly `schema_version` plus an absolute `build_roots`
 array. A build sourced from a worktree eligible in the same plan may be
 reclaimed regardless of age unless another protection applies.
+
+Immutable source generations use the same default `builds` scope and grace
+period. Cleanup authenticates their checkout/key path, ownership marker,
+closed commit/tree/subpath metadata, and complete tree digest. An active build
+holds the generation's shared lock; apply takes its exclusive side and repeats
+identity, digest, and age validation before bounded removal. Generation staging
+transactions within the marker-owned container are separately inventoried,
+remain protected under an active generation lock, and are reclaimable after
+interruption and the normal grace period.
 
 Worker dependency entries under `workspace/build/worker-dependencies/` use the
 same default `builds` scope and grace period. Cleanup requires the exact parent
@@ -1051,14 +1073,25 @@ not retain earlier disjoint source coordinates. Distinct explicit topology
 ports use exact startup locks; only automatic port selection briefly uses the
 allocator mutex.
 
-A build holds its profile-name lease while resolving, then locks the selected
-sources, revalidates them, and captures one immutable generation containing the
-stack/providers, exact roots, Git identities, HEADs, and dirty observations.
-The build persists that generation in `.atrinik-profile-resolution.json` and
-does not reread a mutable profile by name. Profile or topology publication and
-worktree removal share the target source lease, so cleanup cannot race a newly
-published exact reference. Cleanup apply locks and revalidates one stable-sorted
-candidate at a time, skips busy candidates, and journals completed actions in
+A build holds its profile-name lease while deriving the requested target's
+transitive provider closure, then locks only those selected sources and
+revalidates them. Clean primary inputs are exported atomically into reusable,
+commit/tree/subpath-keyed read-only generations below
+`workspace/build/source-generations/`; reuse verifies ownership metadata and a
+complete tree digest plus the captured checkout, source, and common-Git
+filesystem identities. No generation links or hard-links back to mutable
+primary files. Every generated path is revalidated after the build takes its
+shared pin; only then are its primary source leases released. Dirty primaries
+and worktrees stay locked for as long as the build
+can read them. Cache and region-map coordinates come from the captured snapshot
+or generation metadata rather than rereading a released primary. The build
+persists original filesystem/Git observations and immutable generation paths
+and digests in
+`.atrinik-profile-resolution.json`, and does not reread a mutable profile by
+name. Profile or topology publication and worktree removal share any remaining
+live target source lease, so cleanup cannot race a newly published exact
+reference. Cleanup apply locks and revalidates one stable-sorted candidate at a
+time, skips busy candidates, and journals completed actions in
 `workspace/cleanup-journals/`.
 
 Waits longer than 10 seconds report the resource kind, stable coordinate, known

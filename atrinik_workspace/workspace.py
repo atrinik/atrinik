@@ -26,6 +26,7 @@ import ssl
 import stat
 import subprocess
 import sys
+import tarfile
 import tempfile
 import threading
 import time
@@ -184,9 +185,11 @@ SCENARIO_INERT_HISTORICAL_IDENTITY = "historical_identity"
 SCENARIO_INERT_PROFILE_UNRESOLVABLE = "profile_unresolvable"
 SCENARIO_INERT_INVALID_RECORD = "invalid_record"
 BUILD_METADATA = ".atrinik-build.json"
-BUILD_METADATA_SCHEMA_VERSION = 2
+BUILD_METADATA_SCHEMA_VERSION = 3
 PROFILE_RESOLUTION_METADATA = ".atrinik-profile-resolution.json"
-PROFILE_RESOLUTION_SCHEMA_VERSION = 1
+PROFILE_RESOLUTION_SCHEMA_VERSION = 3
+SOURCE_GENERATION_METADATA = ".atrinik-source-generation.json"
+SOURCE_GENERATION_SCHEMA_VERSION = 1
 CACHE_METADATA = ".atrinik-cache.json"
 WORKER_DEPENDENCY_METADATA = ".atrinik-worker-dependencies.json"
 WORKER_VIEW_METADATA = ".atrinik-worker-view.json"
@@ -1114,6 +1117,7 @@ def _tree_digest(
     exclusions: set[str],
     *,
     bounded_symlinks: bool = False,
+    reject_hardlinks: bool = False,
     reject_symlinks: bool = False,
     copied_metadata: bool = False,
     ignore_root_mtime: bool = False,
@@ -1178,6 +1182,10 @@ def _tree_digest(
                     )
                     visit(entry, child)
                 elif stat.S_ISREG(status.st_mode):
+                    if reject_hardlinks and status.st_nlink != 1:
+                        raise WorkspaceError(
+                            f"generated source contains a hard-linked file: {entry}"
+                        )
                     record(
                         "file",
                         child.as_posix(),
@@ -1992,12 +2000,495 @@ class Workspace:
     def _wrapper_git_admin_coordinate(self) -> str:
         return f"atrinik:{self._lease_namespace.parent}"
 
+    def _source_generation_record(self, source: Path) -> dict[str, Any] | None:
+        metadata = source.parent / SOURCE_GENERATION_METADATA
+        if source.name != "source" or not metadata.is_file() or metadata.is_symlink():
+            return None
+        value = load_regular_json(metadata, "immutable source generation")
+        if (
+            not isinstance(value, dict)
+            or set(value)
+            != {
+                "schema_version",
+                "repository",
+                "checkout",
+                "branch",
+                "commit",
+                "tree",
+                "source",
+                "source_tree",
+                "source_tree_sha256",
+            }
+            or value.get("schema_version") != SOURCE_GENERATION_SCHEMA_VERSION
+            or not all(
+                isinstance(value.get(field), str) and value[field]
+                for field in ("repository", "checkout", "branch", "source")
+            )
+            or not all(
+                isinstance(value.get(field), str)
+                and re.fullmatch(r"[0-9a-f]{40,64}", value[field])
+                for field in (
+                    "commit",
+                    "tree",
+                    "source_tree",
+                    "source_tree_sha256",
+                )
+            )
+            or not any(
+                component.checkout_name == value.get("checkout")
+                and component.repository == value.get("repository")
+                and component.branch == value.get("branch")
+                and component.source == value.get("source")
+                for component in self.manifest.components
+            )
+        ):
+            raise WorkspaceError(
+                f"immutable source generation metadata is invalid: {metadata}"
+            )
+        identity = {
+            field: value[field]
+            for field in value
+            if field != "source_tree_sha256"
+        }
+        key = hashlib.sha256(
+            json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        generation = source.parent
+        expected = (
+            self.paths.builds / "source-generations" / value["checkout"] / key
+        )
+        marker = generation / MANAGED_MARKER
+        try:
+            valid_path = (
+                not source.is_symlink()
+                and source.is_dir()
+                and not generation.is_symlink()
+                and generation.resolve(strict=False) == expected.resolve(strict=False)
+                and not (stat.S_IMODE(generation.lstat().st_mode) & 0o222)
+            )
+        except RuntimeError:
+            valid_path = False
+        if (
+            not valid_path
+            or not marker.is_file()
+            or marker.is_symlink()
+            or load_json(marker)
+            != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": f"source-generation:{key}",
+            }
+        ):
+            raise WorkspaceError(
+                f"immutable source generation ownership is invalid: {generation}"
+            )
+        return value
+
+    @staticmethod
+    def _extract_git_source_archive(archive_path: Path, output: Path) -> None:
+        """Extract a local Git archive without trusting archive paths or links."""
+
+        output.mkdir()
+        root = output.resolve()
+        try:
+            with tarfile.open(archive_path, mode="r:") as archive:
+                for member in archive:
+                    relative = PurePosixPath(member.name)
+                    if (
+                        not member.name
+                        or relative.is_absolute()
+                        or any(part in {"", ".", ".."} for part in relative.parts)
+                    ):
+                        raise WorkspaceError(
+                            f"Git source archive contains an unsafe path: {member.name!r}"
+                        )
+                    destination = output.joinpath(*relative.parts)
+                    parent = destination.parent
+                    parent.mkdir(parents=True, exist_ok=True)
+                    if any(
+                        candidate.is_symlink()
+                        for candidate in (parent, *parent.parents)
+                        if candidate == output or output in candidate.parents
+                    ):
+                        raise WorkspaceError(
+                            f"Git source archive traverses a symbolic link: {member.name}"
+                        )
+                    if destination.exists() or destination.is_symlink():
+                        if (
+                            member.isdir()
+                            and destination.is_dir()
+                            and not destination.is_symlink()
+                        ):
+                            continue
+                        raise WorkspaceError(
+                            f"Git source archive repeats a path: {member.name}"
+                        )
+                    permissions = member.mode & 0o777
+                    if member.isdir():
+                        destination.mkdir()
+                        destination.chmod(permissions)
+                    elif member.isreg():
+                        stream = archive.extractfile(member)
+                        if stream is None:
+                            raise WorkspaceError(
+                                f"Git source archive cannot read file: {member.name}"
+                            )
+                        descriptor = os.open(
+                            destination,
+                            os.O_WRONLY
+                            | os.O_CREAT
+                            | os.O_EXCL
+                            | getattr(os, "O_NOFOLLOW", 0),
+                            permissions,
+                        )
+                        try:
+                            with stream, os.fdopen(
+                                descriptor, "wb", closefd=False
+                            ) as target:
+                                shutil.copyfileobj(stream, target, 1024 * 1024)
+                        finally:
+                            os.close(descriptor)
+                        destination.chmod(permissions)
+                    elif member.issym():
+                        target = member.linkname
+                        if not target or Path(target).is_absolute():
+                            raise WorkspaceError(
+                                f"Git source archive contains an unsafe link: {member.name}"
+                            )
+                        resolved = destination.parent.joinpath(target).resolve(
+                            strict=False
+                        )
+                        try:
+                            resolved.relative_to(root)
+                        except ValueError as error:
+                            raise WorkspaceError(
+                                f"Git source archive link escapes its generation: {member.name}"
+                            ) from error
+                        destination.symlink_to(target)
+                    else:
+                        raise WorkspaceError(
+                            f"Git source archive contains an unsupported entry: {member.name}"
+                        )
+        except (OSError, tarfile.TarError) as error:
+            raise WorkspaceError(
+                f"cannot extract immutable Git source archive: {error}"
+            ) from error
+
+    def _materialize_primary_source(
+        self,
+        component: Component,
+        checkout: Path,
+        source: Path,
+        state: dict[str, Any],
+    ) -> Path:
+        checkout_identity = checkout.stat()
+        source_identity = source.stat()
+        git_common = self._git_common_directory(checkout, trace=False)
+        git_common_identity = git_common.stat()
+        expected_source_identity = state.get("sources", {}).get(component.source)
+        if (
+            (checkout_identity.st_dev, checkout_identity.st_ino)
+            != (state.get("device"), state.get("inode"))
+            or str(git_common) != state.get("git_common")
+            or (git_common_identity.st_dev, git_common_identity.st_ino)
+            != (
+                state.get("git_common_device"),
+                state.get("git_common_inode"),
+            )
+            or expected_source_identity
+            != {
+                "path": str(source.resolve()),
+                "device": source_identity.st_dev,
+                "inode": source_identity.st_ino,
+            }
+        ):
+            raise WorkspaceError(
+                f"clean primary source identity changed before materialization: {checkout}"
+            )
+        commit = state["head"]
+        tree = git(
+            checkout,
+            "rev-parse",
+            f"{commit}^{{tree}}",
+            capture=True,
+            trace=False,
+        )
+        source_tree = git(
+            checkout,
+            "rev-parse",
+            (
+                f"{commit}^{{tree}}"
+                if component.source == "."
+                else f"{commit}:{component.source}"
+            ),
+            capture=True,
+            trace=False,
+        )
+        identity = {
+            "schema_version": SOURCE_GENERATION_SCHEMA_VERSION,
+            "repository": component.repository,
+            "checkout": component.checkout_name,
+            "branch": component.branch,
+            "commit": commit,
+            "tree": tree,
+            "source": component.source,
+            "source_tree": source_tree,
+        }
+        key = hashlib.sha256(
+            json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        container = self.paths.builds / "source-generations" / component.checkout_name
+        container_lock = (
+            self.paths.builds
+            / "locks"
+            / f"source-generation-container-{component.checkout_name}.lock"
+        )
+        with exclusive_lock(
+            container_lock,
+            f"immutable source generation container {component.checkout_name}",
+        ):
+            managed_directory(
+                container,
+                self.paths.builds,
+                f"source-generations:{component.checkout_name}",
+            )
+        generation = container / key
+        lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
+        with exclusive_lock(lock, f"immutable source generation {component.name}"):
+            if generation.exists() or generation.is_symlink():
+                if generation.is_symlink() or not generation.is_dir():
+                    raise WorkspaceError(
+                        f"immutable source generation is invalid: {generation}"
+                    )
+                marker = generation / MANAGED_MARKER
+                record = self._source_generation_record(generation / "source")
+                expected_record = {
+                    **identity,
+                    "source_tree_sha256": _tree_digest(
+                        generation / "source",
+                        set(),
+                        bounded_symlinks=True,
+                        reject_hardlinks=True,
+                    ),
+                }
+                if (
+                    not marker.is_file()
+                    or marker.is_symlink()
+                    or load_json(marker)
+                    != {
+                        "schema_version": SCHEMA_VERSION,
+                        "purpose": f"source-generation:{key}",
+                    }
+                    or record != expected_record
+                ):
+                    raise WorkspaceError(
+                        f"immutable source generation is corrupt: {generation}"
+                    )
+                current_git_common = self._git_common_directory(
+                    checkout, trace=False
+                )
+                current_checkout = checkout.stat()
+                current_source = source.stat()
+                current_git_common_identity = current_git_common.stat()
+                if (
+                    (current_checkout.st_dev, current_checkout.st_ino)
+                    != (state["device"], state["inode"])
+                    or str(current_git_common) != state["git_common"]
+                    or (
+                        current_git_common_identity.st_dev,
+                        current_git_common_identity.st_ino,
+                    )
+                    != (
+                        state["git_common_device"],
+                        state["git_common_inode"],
+                    )
+                    or state["sources"][component.source]
+                    != {
+                        "path": str(source.resolve()),
+                        "device": current_source.st_dev,
+                        "inode": current_source.st_ino,
+                    }
+                    or not _is_clean(checkout, trace=False)
+                    or git(
+                        checkout,
+                        "rev-parse",
+                        "HEAD",
+                        capture=True,
+                        trace=False,
+                    )
+                    != commit
+                ):
+                    raise WorkspaceError(
+                        f"clean primary source changed before generation reuse: {checkout}"
+                    )
+                return generation / "source"
+
+            staging = Path(
+                tempfile.mkdtemp(prefix=f"{key}-staging-", dir=container)
+            )
+            archive_path = staging / "source.tar"
+            try:
+                atomic_json(
+                    staging / MANAGED_MARKER,
+                    {
+                        "schema_version": SCHEMA_VERSION,
+                        "purpose": f"source-generation:{key}",
+                    },
+                )
+                archive_ref = (
+                    commit
+                    if component.source == "."
+                    else f"{commit}:{component.source}"
+                )
+                try:
+                    subprocess.run(
+                        [
+                            "git",
+                            "-C",
+                            str(checkout),
+                            "archive",
+                            "--format=tar",
+                            f"--output={archive_path}",
+                            archive_ref,
+                        ],
+                        check=True,
+                        stderr=subprocess.PIPE,
+                        pass_fds=active_lock_fds(),
+                    )
+                except FileNotFoundError as error:
+                    raise WorkspaceError("required command not found: git") from error
+                except subprocess.CalledProcessError as error:
+                    detail = error.stderr.decode("utf-8", errors="replace").strip()
+                    suffix = f": {detail}" if detail else ""
+                    raise WorkspaceError(
+                        f"cannot export immutable source generation{suffix}"
+                    ) from error
+                self._extract_git_source_archive(archive_path, staging / "source")
+                archive_path.unlink()
+                current_checkout = checkout.stat()
+                current_source = source.stat()
+                current_git_common = self._git_common_directory(
+                    checkout, trace=False
+                )
+                current_git_common_identity = current_git_common.stat()
+                if (
+                    (checkout_identity.st_dev, checkout_identity.st_ino)
+                    != (current_checkout.st_dev, current_checkout.st_ino)
+                    or (source_identity.st_dev, source_identity.st_ino)
+                    != (current_source.st_dev, current_source.st_ino)
+                    or str(current_git_common) != state["git_common"]
+                    or (
+                        git_common_identity.st_dev,
+                        git_common_identity.st_ino,
+                    )
+                    != (
+                        current_git_common_identity.st_dev,
+                        current_git_common_identity.st_ino,
+                    )
+                    or not _is_clean(checkout, trace=False)
+                    or git(checkout, "rev-parse", "HEAD", capture=True, trace=False)
+                    != commit
+                    or git(
+                        checkout,
+                        "rev-parse",
+                        f"{commit}^{{tree}}",
+                        capture=True,
+                        trace=False,
+                    )
+                    != tree
+                ):
+                    raise WorkspaceError(
+                        f"clean primary source changed during materialization: {checkout}"
+                    )
+                self._seal_runtime_generation(staging / "source")
+                record = {
+                    **identity,
+                    "source_tree_sha256": _tree_digest(
+                        staging / "source",
+                        set(),
+                        bounded_symlinks=True,
+                        reject_hardlinks=True,
+                    ),
+                }
+                durable_atomic_json(staging / SOURCE_GENERATION_METADATA, record)
+                self._seal_runtime_generation(staging)
+                rename_no_replace(staging, generation)
+            except BaseException:
+                if staging.exists() and not staging.is_symlink():
+                    remove_owned_tree(staging)
+                raise
+        return generation / "source"
+
+    def _materialize_clean_primary_sources(
+        self,
+        profile: dict[str, Any],
+        selected: dict[str, Path],
+        states: dict[str, dict[str, Any]],
+    ) -> tuple[dict[str, Path], set[str], dict[Path, dict[str, Any]]]:
+        stack = self.manifest.stack(profile["stack"])
+        materialized = dict(selected)
+        checkout_results: dict[tuple[str, str], Path] = {}
+        for role in sorted(selected):
+            component = stack.providers[role]
+            selector = profile["components"][component.name]
+            checkout = self._selector_root(profile, component).resolve()
+            state = states[component.checkout_name]
+            # The authored content publisher currently proves its Classic
+            # target against a live Git checkout. Keep that exact source lease
+            # until the publisher accepts an immutable-generation identity.
+            if (
+                role == "content"
+                or selector["kind"] != "primary"
+                or state["dirty"]
+            ):
+                continue
+            cache_key = (component.checkout_name, component.source)
+            generated = checkout_results.get(cache_key)
+            if generated is None:
+                generated = self._materialize_primary_source(
+                    component, checkout, selected[role], state
+                )
+                checkout_results[cache_key] = generated
+            materialized[role] = generated
+        released: set[str] = set()
+        for checkout_name in {
+            stack.providers[role].checkout_name for role in selected
+        }:
+            checkout_roles = [
+                role
+                for role in selected
+                if stack.providers[role].checkout_name == checkout_name
+            ]
+            if all(materialized[role] != selected[role] for role in checkout_roles):
+                component = stack.providers[checkout_roles[0]]
+                checkout = self._selector_root(profile, component).resolve()
+                released.add(self._source_coordinate(checkout_name, checkout))
+        generation_records: dict[Path, dict[str, Any]] = {}
+        for role, path in materialized.items():
+            if path == selected[role] or path in generation_records:
+                continue
+            try:
+                record = self._source_generation_record(path)
+            except (OSError, WorkspaceError) as error:
+                raise WorkspaceError(
+                    "immutable source generation changed before lease handoff: "
+                    f"{path}"
+                ) from error
+            if record is None:
+                raise WorkspaceError(
+                    "immutable source generation changed before lease handoff: "
+                    f"{path}"
+                )
+            generation_records[path] = record
+        return materialized, released, generation_records
+
     @contextmanager
     def _resolved_profile_operation(
         self,
         profile_name: str,
         required: set[str],
         operation: str,
+        *,
+        materialize_clean_primaries: bool = False,
     ) -> Iterator[ProfileResolutionSnapshot]:
         """Capture and retain one exact profile/source resolution."""
 
@@ -2007,9 +2498,13 @@ class Workspace:
         with self._resource_locks([profile_request]):
             profile = self._load_profile_file(profile_name, require_file=False)
             stack = self.manifest.stack(profile["stack"])
+            roles = self._dependency_roles(profile, required)
+            components = {stack.providers[role].name for role in roles}
             source_requests: list[LeaseRequest] = []
             seen: set[str] = set()
             for component in stack.components:
+                if component.name not in components:
+                    continue
                 root = self._selector_root(profile, component)
                 coordinate = self._source_coordinate(component.checkout_name, root)
                 if coordinate in seen:
@@ -2018,7 +2513,32 @@ class Workspace:
                 source_requests.append(
                     self._lease_request("source", coordinate, "shared", operation)
                 )
-            with self._resource_locks(source_requests):
+            source_contexts: list[
+                tuple[str, AbstractContextManager[tuple[TextIO, ...]]]
+            ] = []
+            generation_contexts: list[AbstractContextManager[TextIO]] = []
+            try:
+                ordered_requests = sorted(
+                    source_requests, key=lambda item: item.sort_key
+                )
+                while True:
+                    waiting: LeaseRequest | None = None
+                    try:
+                        for request in ordered_requests:
+                            context = self._resource_locks(
+                                [request], nonblocking=True
+                            )
+                            context.__enter__()
+                            source_contexts.append((request.coordinate, context))
+                    except LockBusyError:
+                        waiting = request
+                    if waiting is None:
+                        break
+                    for _coordinate, context in reversed(source_contexts):
+                        context.__exit__(None, None, None)
+                    source_contexts = []
+                    with self._resource_locks([waiting]):
+                        pass
                 confirmed_profile = self._load_profile_file(
                     profile_name, require_file=False
                 )
@@ -2032,6 +2552,60 @@ class Workspace:
                 states = self._selected_checkout_states(
                     profile, selected, include_dirty=True, include_identity=True
                 )
+                released: set[str] = set()
+                if materialize_clean_primaries:
+                    (
+                        selected,
+                        released,
+                        generation_records,
+                    ) = self._materialize_clean_primary_sources(
+                        confirmed_profile, selected, states
+                    )
+                    generation_keys = sorted(
+                        {
+                            path.parent.name
+                            for path in generation_records
+                        }
+                    )
+                    for key in generation_keys:
+                        context = shared_lock(
+                            self.paths.builds
+                            / "locks"
+                            / f"source-generation-{key}.lock",
+                            f"immutable source generation {key}",
+                        )
+                        context.__enter__()
+                        generation_contexts.append(context)
+                    for path, expected_record in generation_records.items():
+                        try:
+                            current_record = self._source_generation_record(path)
+                            current_digest = _tree_digest(
+                                path,
+                                set(),
+                                bounded_symlinks=True,
+                                reject_hardlinks=True,
+                            )
+                        except (OSError, WorkspaceError) as error:
+                            raise WorkspaceError(
+                                "immutable source generation changed before lease handoff: "
+                                f"{path}"
+                            ) from error
+                        if (
+                            current_record != expected_record
+                            or current_digest
+                            != expected_record["source_tree_sha256"]
+                        ):
+                            raise WorkspaceError(
+                                "immutable source generation changed before lease handoff: "
+                                f"{path}"
+                            )
+                    retained = []
+                    for coordinate, context in reversed(source_contexts):
+                        if coordinate in released:
+                            context.__exit__(None, None, None)
+                        else:
+                            retained.append((coordinate, context))
+                    source_contexts = list(reversed(retained))
                 serializable_states = {
                     name: {**state, "path": str(state["path"])}
                     for name, state in states.items()
@@ -2062,6 +2636,11 @@ class Workspace:
                     yield snapshot
                 finally:
                     self._profile_snapshot = previous
+            finally:
+                for context in reversed(generation_contexts):
+                    context.__exit__(None, None, None)
+                for _coordinate, context in reversed(source_contexts):
+                    context.__exit__(None, None, None)
 
     def migrate_repositories(self, mode: str) -> dict[str, Any]:
         if mode == "apply":
@@ -4290,40 +4869,11 @@ class Workspace:
         if profile is None:
             profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
-        requested_roles = self._dependency_roles(profile, required)
-        build_targets = {
-            role
-            for role, component in stack.providers.items()
-            if self.manifest.effective_build(stack.name, component) != "none"
-        }
-        common_roles = self._dependency_roles(profile, build_targets)
-        common_components = {
-            stack.providers[role].name for role in common_roles
-        }
-
-        # Missing preferred checkouts identify a deliberately partial workspace.
-        # Any preferred checkout that is present must still pass full profile
-        # validation, so a malformed path cannot silently shrink the build key.
-        complete = True
-        present_components: set[str] = set()
-        for component in stack.components:
-            if component.name not in common_components:
-                continue
-            root = self._selector_root(profile, component)
-            if root.exists() or root.is_symlink():
-                present_components.add(component.name)
-            else:
-                complete = False
-        roles = (
-            common_roles | requested_roles if complete else requested_roles
-        )
+        roles = self._dependency_roles(profile, required)
         component_names = {stack.providers[role].name for role in roles}
-        # Resolve present preferred components and the required selection in one
-        # pass. This both fails closed for malformed optional checkouts and keeps
-        # validation deduplicated if initialization races the existence snapshot.
         present_paths = self.resolve_profile(
             profile_name,
-            present_components | component_names,
+            component_names,
             trace=trace,
             profile=profile,
         )
@@ -4345,7 +4895,10 @@ class Workspace:
         self.paths.ensure()
         targets = self._expand_build_target(target, profile_name)
         with self._resolved_profile_operation(
-            profile_name, set(targets), f"build {target}"
+            profile_name,
+            set(targets),
+            f"build {target}",
+            materialize_clean_primaries=True,
         ) as snapshot:
             return self._build_resolved(
                 target,
@@ -4407,7 +4960,7 @@ class Workspace:
             elif sound_root is not None:
                 profile = self._load_profile(profile_name, require_file=False)
                 if profile["sound_mode"] == SOURCE_MODE:
-                    sound_record = sound_source_record(sound_root)
+                    sound_record = self._sound_source_record(sound_root)
             self._refresh_build_metadata(
                 root, profile_name, key, selected, sound_record
             )
@@ -4464,7 +5017,7 @@ class Workspace:
         checkout_states = self._selected_checkout_states(
             profile, selected, include_dirty=False
         )
-        coordinates: dict[str, dict[str, str]] = {}
+        coordinates: dict[str, dict[str, Any]] = {}
         for role in sorted(selected):
             component = stack.providers[role]
             checkout_state = checkout_states[component.checkout_name]
@@ -4479,6 +5032,12 @@ class Workspace:
                 "source_path": str(selected[role].resolve()),
                 "head": checkout_state["head"],
             }
+            generation = self._source_generation_record(selected[role])
+            if generation is not None:
+                coordinates[role]["source_generation"] = {
+                    **generation,
+                    "path": str(selected[role].resolve()),
+                }
         atomic_json(
             root / BUILD_METADATA,
             {
@@ -4520,18 +5079,23 @@ class Workspace:
         profile = self._load_profile(profile_name, require_file=False)
         mode = profile["sound_mode"]
         if mode == SOURCE_MODE:
-            return source, sound_source_record(source)
+            return source, self._sound_source_record(source)
         if mode != PLAYTEST_MODE or profile["stack"] != "classic":
             raise WorkspaceError(
                 f"profile {profile_name} has unsupported sound mode {mode}"
             )
         source_identity = "unavailable"
         try:
-            inputs = clean_source_inputs(source)
+            inputs = self._clean_sound_source_inputs(source)
             source_identity = (
                 f"commit {inputs['source_commit']} tree {inputs['source_tree']}"
             )
-            output = source / "build" / "atrinik-workspace" / sound_cache_key(inputs)
+            if self._source_generation_record(source) is not None:
+                producer = root / "producers" / "sound"
+                producer.mkdir(parents=True, exist_ok=True)
+                output = producer / sound_cache_key(inputs)
+            else:
+                output = source / "build" / "atrinik-workspace" / sound_cache_key(inputs)
             builder = source / "tools" / "sound_release.py"
             if not builder.is_file() or builder.is_symlink():
                 raise WorkspaceError(
@@ -4557,7 +5121,7 @@ class Workspace:
                 cwd=source,
             )
             record = verify_playtest_tree(source, output, inputs)
-            if clean_source_inputs(source) != inputs:
+            if self._clean_sound_source_inputs(source) != inputs:
                 raise WorkspaceError(
                     "selected sound inputs changed after playtest-tree generation"
                 )
@@ -4603,7 +5167,7 @@ class Workspace:
                         raise WorkspaceError(
                             "local-playtest sound changed while creating the verified handoff"
                         )
-                    if clean_source_inputs(source) != inputs:
+                    if self._clean_sound_source_inputs(source) != inputs:
                         raise WorkspaceError(
                             "selected sound inputs changed while staging the verified handoff"
                         )
@@ -4625,6 +5189,41 @@ class Workspace:
             f"{record['output_tree_sha256']} at {output}"
         )
         return output, record
+
+    def _clean_sound_source_inputs(self, source: Path) -> dict[str, str]:
+        generation = self._source_generation_record(source)
+        if generation is None:
+            return clean_source_inputs(source)
+        files = {
+            "builder_sha256": source / "tools" / "sound_release.py",
+            "source_manifest_sha256": source / "manifests" / "source-assets.json",
+            "toolchain_sha256": source
+            / "manifests"
+            / "playtest-audio-toolchain.json",
+            "schema_sha256": source
+            / "schemas"
+            / "playtest-manifest-v1.schema.json",
+        }
+        return {
+            "source_commit": generation["commit"],
+            "source_tree": generation["tree"],
+            **{
+                name: _file_digest(path, name.replace("_", " "))
+                for name, path in files.items()
+            },
+        }
+
+    def _sound_source_record(self, source: Path) -> dict[str, Any]:
+        generation = self._source_generation_record(source)
+        if generation is None:
+            return sound_source_record(source)
+        return {
+            "mode": SOURCE_MODE,
+            "root": str(source.resolve()),
+            "source_commit": generation["commit"],
+            "source_tree": generation["tree"],
+            "source_clean": True,
+        }
 
     def _selected_checkout_states(
         self,
@@ -4662,18 +5261,31 @@ class Workspace:
             }
             if include_identity:
                 identity = checkout.stat()
+                git_common = self._git_common_directory(checkout, trace=False)
+                git_common_identity = git_common.stat()
                 state.update(
                     {
                         "device": identity.st_dev,
                         "inode": identity.st_ino,
-                        "git_common": str(
-                            self._git_common_directory(checkout, trace=False)
-                        ),
+                        "git_common": str(git_common),
+                        "git_common_device": git_common_identity.st_dev,
+                        "git_common_inode": git_common_identity.st_ino,
+                        "sources": {},
                     }
                 )
             if include_dirty:
                 state["dirty"] = not _is_clean(checkout, trace=False)
             states[component.checkout_name] = state
+        if include_identity:
+            for role in sorted(selected):
+                component = stack.providers[role]
+                source = selected[role].resolve()
+                identity = source.stat()
+                states[component.checkout_name]["sources"][component.source] = {
+                    "path": str(source),
+                    "device": identity.st_dev,
+                    "inode": identity.st_ino,
+                }
         return states
 
     def _profile_build_key(
@@ -4890,7 +5502,16 @@ class Workspace:
         profile = self._load_profile(profile_name, require_file=False)
         component = self.manifest.stack(profile["stack"]).providers[role]
         checkout = self._selector_root(profile, component).resolve()
-        clean = _is_clean(checkout, trace=False)
+        generation = self._source_generation_record(selected[role])
+        if generation is not None:
+            clean = True
+            head = generation["commit"]
+        else:
+            state = self._selected_checkout_states(
+                profile, selected, include_dirty=True
+            )[component.checkout_name]
+            clean = not state["dirty"]
+            head = state["head"]
         coordinate = {
             "component": component.name,
             "repository": component.repository,
@@ -4899,13 +5520,7 @@ class Workspace:
             "source": component.source,
             "checkout_path": str(checkout),
             "source_path": str(selected[role].resolve()),
-            "head": git(
-                checkout,
-                "rev-parse",
-                "HEAD",
-                capture=True,
-                trace=False,
-            ),
+            "head": head,
         }
         return (
             {
@@ -5443,8 +6058,7 @@ class Workspace:
             return False
         return True
 
-    @staticmethod
-    def _resource_runtime_files(source: Path) -> tuple[list[str], list[str]]:
+    def _resource_runtime_files(self, source: Path) -> tuple[list[str], list[str]]:
         manifest = source / RESOURCE_PATHS_MANIFEST
         try:
             lines = manifest.read_text(encoding="utf-8").splitlines()
@@ -5469,42 +6083,76 @@ class Workspace:
                 )
             runtime_paths.append(line)
 
-        try:
-            result = subprocess.run(
-                [
-                    "git",
-                    "-C",
-                    str(source),
-                    "ls-files",
-                    "-z",
-                    "--cached",
-                    "--",
-                    *runtime_paths,
-                ],
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                pass_fds=active_lock_fds(),
-            )
-        except FileNotFoundError as error:
-            raise WorkspaceError("required command not found: git") from error
-        except subprocess.CalledProcessError as error:
-            detail = error.stderr.decode("utf-8", errors="replace").strip()
-            suffix = f": {detail}" if detail else ""
-            raise WorkspaceError(
-                f"cannot list tracked runtime resources{suffix}"
-            ) from error
+        if self._source_generation_record(source) is not None:
+            tracked: list[str] = []
+            for runtime_path in runtime_paths:
+                selected = source.joinpath(*PurePosixPath(runtime_path).parts)
+                if not selected.exists() or selected.is_symlink():
+                    continue
+                if selected.is_file():
+                    tracked.append(runtime_path)
+                    continue
+                if not selected.is_dir():
+                    raise WorkspaceError(
+                        f"tracked runtime resource is not a regular path: {selected}"
+                    )
+                for directory, directories, files in os.walk(
+                    selected, followlinks=False
+                ):
+                    parent = Path(directory)
+                    directories.sort()
+                    files.sort()
+                    for name in directories:
+                        path = parent / name
+                        if path.is_symlink():
+                            raise WorkspaceError(
+                                f"tracked runtime resource is not a regular path: {path}"
+                            )
+                    for name in files:
+                        path = parent / name
+                        if path.is_symlink() or not path.is_file():
+                            raise WorkspaceError(
+                                f"tracked runtime resource is not a regular file: {path}"
+                            )
+                        tracked.append(path.relative_to(source).as_posix())
+            tracked = sorted(set(tracked))
+        else:
+            try:
+                result = subprocess.run(
+                    [
+                        "git",
+                        "-C",
+                        str(source),
+                        "ls-files",
+                        "-z",
+                        "--cached",
+                        "--",
+                        *runtime_paths,
+                    ],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    pass_fds=active_lock_fds(),
+                )
+            except FileNotFoundError as error:
+                raise WorkspaceError("required command not found: git") from error
+            except subprocess.CalledProcessError as error:
+                detail = error.stderr.decode("utf-8", errors="replace").strip()
+                suffix = f": {detail}" if detail else ""
+                raise WorkspaceError(
+                    f"cannot list tracked runtime resources{suffix}"
+                ) from error
 
-        try:
-            tracked = [
-                item.decode("utf-8")
-                for item in result.stdout.split(b"\0")
-                if item
-            ]
-        except UnicodeDecodeError as error:
-            raise WorkspaceError(
-                "runtime resource paths must use UTF-8 names"
-            ) from error
+            try:
+                tracked = [
+                    item.decode("utf-8")
+                    for item in result.stdout.split(b"\0")
+                    if item
+                ]
+            except UnicodeDecodeError as error:
+                raise WorkspaceError(
+                    "runtime resource paths must use UTF-8 names"
+                ) from error
         if not tracked:
             raise WorkspaceError(
                 f"resource runtime manifest selects no tracked files: {manifest}"
@@ -6664,23 +7312,21 @@ class Workspace:
         required = self._dependency_roles(profile, {"server"})
         coordinates: dict[str, dict[str, str]] = {}
         cacheable = True
-        checkout_states: dict[Path, tuple[bool, str]] = {}
+        checkout_states = self._selected_checkout_states(
+            profile, selected, include_dirty=True
+        )
         for role in sorted(required & set(selected)):
             source = selected[role]
             component = stack.providers[role]
             checkout = self._selector_root(profile, component).resolve()
-            if checkout not in checkout_states:
-                checkout_states[checkout] = (
-                    _is_clean(checkout, trace=False),
-                    git(
-                        checkout,
-                        "rev-parse",
-                        "HEAD",
-                        capture=True,
-                        trace=False,
-                    ),
-                )
-            clean, head = checkout_states[checkout]
+            generation = self._source_generation_record(source)
+            if generation is not None:
+                clean = True
+                head = generation["commit"]
+            else:
+                state = checkout_states[component.checkout_name]
+                clean = not state["dirty"]
+                head = state["head"]
             cacheable = cacheable and clean
             coordinates[role] = {
                 "component": component.name,
