@@ -418,6 +418,16 @@ class ProgramLedgerModel:
             )
             if set(slot) != expected_keys:
                 raise StopClosed("slot keys are corrupt")
+            expected_query = cls.CHILD_QUERY_SHA256 if name == "create" else None
+            for field in (
+                "plan_observation", "arm_observation", "retry_observation"
+            ):
+                epoch = slot[field]
+                if epoch is not None and (
+                    not valid_observation(epoch)
+                    or epoch["query_sha256"] != expected_query
+                ):
+                    raise StopClosed("slot observation query scope is corrupt")
             if slot["phase"] == "none" and (
                 slot.get("node") is not None or slot.get("prior") is not None
                 or slot.get("created_at") is not None
@@ -485,6 +495,7 @@ class ProgramLedgerModel:
                     or planned["stream"] != armed["stream"]
                     or planned["result_stream"] != armed["result_stream"]
                     or planned["count"] != armed["count"]
+                    or planned["query_sha256"] != armed["query_sha256"]
                     or armed["count"] != expected_count
                     or not valid_observation(current_observation)
                     or current_observation["generation"] < armed["generation"]
@@ -906,6 +917,7 @@ class ProgramLedgerModel:
             current["stream"] != planned["stream"]
             or current["result_stream"] != planned["result_stream"]
             or current["count"] != planned["count"]
+            or current["query_sha256"] != planned["query_sha256"]
         ):
             self.persist(
                 lambda record: record[slot].update(
@@ -1087,6 +1099,7 @@ class ProgramLedgerModel:
                 or observed["stream"] != recovery["stream"]
                 or observed["result_stream"] != recovery["result_stream"]
                 or observed["count"] != recovery["count"]
+                or observed["query_sha256"] != recovery["query_sha256"]
             ):
                 self.persist(
                     lambda record: record["comment"].update(
@@ -1768,6 +1781,31 @@ class ProgramLedgerModelTests(unittest.TestCase):
                         ).hexdigest(),
                         corrupt["authority"],
                     )
+        for slot, query in (
+            ("create", "0" * 64), ("comment", ProgramLedgerModel.CHILD_QUERY_SHA256)
+        ):
+            scoped = planned(slot)
+            corrupt = copy.deepcopy(scoped.record)
+            corrupt[slot]["plan_observation"]["query_sha256"] = query
+            with self.subTest(slot=slot, defect="planned-query"), self.assertRaises(
+                StopClosed
+            ):
+                ProgramLedgerModel.resume(
+                    corrupt, 41, corrupt["self_inode"],
+                    hashlib.sha256(ProgramLedgerModel.canonical(corrupt)).hexdigest(),
+                    corrupt["authority"],
+                )
+        in_flight = planned("create")
+        self.refresh_before_arm(in_flight, "create")
+        in_flight.arm("create")
+        corrupt_arm = copy.deepcopy(in_flight.record)
+        corrupt_arm["create"]["arm_observation"]["query_sha256"] = "0" * 64
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.resume(
+                corrupt_arm, 41, corrupt_arm["self_inode"],
+                hashlib.sha256(ProgramLedgerModel.canonical(corrupt_arm)).hexdigest(),
+                corrupt_arm["authority"],
+            )
 
     def test_retry_epochs_and_prospective_semantics_fail_closed(self) -> None:
         patch = ProgramLedgerModel()
@@ -1785,7 +1823,9 @@ class ProgramLedgerModelTests(unittest.TestCase):
         with self.assertRaises(StopClosed):
             patch.finish_patch("old-body", "comment-node")
 
-        for defect in ("future", "incomplete", "wrong-count", "wrong-result"):
+        for defect in (
+            "future", "incomplete", "wrong-count", "wrong-result", "wrong-query"
+        ):
             corrupt = copy.deepcopy(patch.record)
             retry = corrupt["comment"]["retry_observation"]
             if defect == "future":
@@ -1795,7 +1835,10 @@ class ProgramLedgerModelTests(unittest.TestCase):
             elif defect == "wrong-count":
                 retry["count"] = 2
             else:
-                retry["result_stream"] = "wrong"
+                if defect == "wrong-result":
+                    retry["result_stream"] = "wrong"
+                else:
+                    retry["query_sha256"] = ProgramLedgerModel.CHILD_QUERY_SHA256
             with self.subTest(defect=defect), self.assertRaises(StopClosed):
                 ProgramLedgerModel.resume(
                     corrupt, 41, corrupt["self_inode"],
