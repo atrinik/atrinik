@@ -217,6 +217,7 @@ def _lease_owner_summary(path: Path) -> str:
         owners_descriptor = os.open(
             owners.name, flags, dir_fd=parent_descriptor
         )
+        fcntl.flock(owners_descriptor, fcntl.LOCK_EX)
         paths = sorted(os.listdir(owners_descriptor))
     except (FileNotFoundError, NotADirectoryError, PermissionError, OSError, WorkspaceError):
         if owners_descriptor is not None:
@@ -665,22 +666,31 @@ def _resource_owner(
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
+    publication_locked = False
     try:
+        fcntl.flock(owner_descriptor, fcntl.LOCK_EX)
+        publication_locked = True
         descriptor = os.open(
             metadata_path.name, flags, 0o600, dir_fd=owner_descriptor
         )
-    except OSError:
-        os.close(owner_descriptor)
-        os.close(parent_descriptor)
-        raise WorkspaceError(
-            f"cannot create resource lease owner metadata {metadata_path}"
-        ) from None
-    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
         with os.fdopen(descriptor, "w+", encoding="utf-8", closefd=False) as stream:
             json.dump(value, stream, sort_keys=True)
             stream.write("\n")
             stream.flush()
-        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError as error:
+        if "descriptor" in locals():
+            os.close(descriptor)
+        publication_locked = False
+        os.close(owner_descriptor)
+        os.close(parent_descriptor)
+        raise WorkspaceError(
+            f"cannot publish resource lease owner metadata {metadata_path}: {error}"
+        ) from error
+    finally:
+        if publication_locked:
+            fcntl.flock(owner_descriptor, fcntl.LOCK_UN)
+    try:
         with os.fdopen(os.dup(descriptor), "a+") as owner_lease:
             if inherit:
                 with inherit_lock_fds(owner_lease):

@@ -1466,9 +1466,12 @@ class ScopeLifecycleTests(unittest.TestCase):
                 records: dict[str, dict[str, object]] = {}
                 provisioned = threading.Barrier(2)
                 operation_step = threading.Barrier(2)
-                operation_progress = [threading.Event() for _ in range(4)]
+                operation_progress = [threading.Condition() for _ in range(4)]
+                operation_transitions = [0 for _ in range(4)]
                 release_start = threading.Barrier(2)
-                release_progress = threading.Event()
+                release_progress = threading.Condition()
+                release_transitions = [0]
+                release_completed = [0]
 
                 def lifecycle(name: str) -> dict[str, object]:
                     workspace = Workspace(self.wrapper)
@@ -1505,6 +1508,8 @@ class ScopeLifecycleTests(unittest.TestCase):
                                 )
                             elif operation == "preview":
                                 while True:
+                                    with operation_progress[step]:
+                                        observed_before = operation_transitions[step]
                                     try:
                                         self.assertTrue(
                                             workspace.scope_release(
@@ -1517,12 +1522,21 @@ class ScopeLifecycleTests(unittest.TestCase):
                                             raise
                                         with coordination_lock:
                                             coordination["release_conflicts"] += 1
-                                        if not operation_progress[step].wait(
-                                            timeout=10
-                                        ):
-                                            self.fail(
-                                                "scope preview made no bounded progress"
-                                            )
+                                        with operation_progress[step]:
+                                            prior = operation_transitions[step]
+                                            operation_transitions[step] += 1
+                                            observed = operation_transitions[step]
+                                            operation_progress[step].notify_all()
+                                            if prior > observed_before:
+                                                continue
+                                            if not operation_progress[step].wait_for(
+                                                lambda: operation_transitions[step]
+                                                > observed,
+                                                timeout=10,
+                                            ):
+                                                self.fail(
+                                                    "scope preview made no bounded progress"
+                                                )
                             else:
                                 path = Path(record["worktrees"][0]["path"])
                                 other_path = Path(other["worktrees"][0]["path"])
@@ -1535,10 +1549,12 @@ class ScopeLifecycleTests(unittest.TestCase):
                                 probe.unlink()
                             with coordination_lock:
                                 coordination["observations"] += 1
-                            operation_progress[step].set()
+                            with operation_progress[step]:
+                                operation_transitions[step] += 1
+                                operation_progress[step].notify_all()
 
                         release_start.wait(timeout=10)
-                        while True:
+                        for _attempt in range(20):
                             try:
                                 preview = workspace.scope_release(name, apply=False)
                                 workspace.scope_release(
@@ -1546,19 +1562,32 @@ class ScopeLifecycleTests(unittest.TestCase):
                                     apply=True,
                                     plan_sha256=preview["plan_sha256"],
                                 )
-                                release_progress.set()
                                 with coordination_lock:
                                     coordination["releases"] += 1
+                                with release_progress:
+                                    release_completed[0] += 1
+                                    release_transitions[0] += 1
+                                    release_progress.notify_all()
                                 break
                             except WorkspaceError as error:
                                 if "active resource leases" not in str(error):
                                     raise
                                 with coordination_lock:
                                     coordination["release_conflicts"] += 1
-                                if not release_progress.wait(timeout=10):
-                                    self.fail(
-                                        "disjoint scope release made no bounded progress"
-                                    )
+                                with release_progress:
+                                    release_transitions[0] += 1
+                                    observed = release_transitions[0]
+                                    release_progress.notify_all()
+                                    if not release_progress.wait_for(
+                                        lambda: release_transitions[0] > observed
+                                        or release_completed[0] > 0,
+                                        timeout=10,
+                                    ):
+                                        self.fail(
+                                            "disjoint scope release made no bounded progress"
+                                        )
+                        else:
+                            self.fail("disjoint scope release exhausted bounded retries")
                         return record
                     finally:
                         workspace.close()
