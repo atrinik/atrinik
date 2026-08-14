@@ -2130,7 +2130,7 @@ class WorkspaceTests(unittest.TestCase):
             "atrinik_workspace.workspace.os.open",
             side_effect=replace_before_open,
         ):
-            with self.assertRaisesRegex(WorkspaceError, "changed while reading"):
+            with self.assertRaisesRegex(WorkspaceError, "hard-linked|changed"):
                 self.workspace._validate_source_generation_git_tree(
                     self.workspace.paths.repositories / "client",
                     source,
@@ -2212,7 +2212,7 @@ class WorkspaceTests(unittest.TestCase):
             "atrinik_workspace.workspace.os.open",
             side_effect=link_prior_leaf,
         ):
-            with self.assertRaisesRegex(WorkspaceError, "changed while reading"):
+            with self.assertRaisesRegex(WorkspaceError, "hard-linked|changed"):
                 self.workspace._validate_source_generation_git_tree(
                     self.workspace.paths.repositories / "resources",
                     source,
@@ -2230,15 +2230,15 @@ class WorkspaceTests(unittest.TestCase):
         record = load_json(
             source.parent / workspace_module.SOURCE_GENERATION_METADATA
         )
-        parent_identity = source.parent.stat()
+        source_identity = source.stat()
 
         def mount_identity(descriptor: int) -> int:
             opened = os.fstat(descriptor)
             return (
-                1
+                2
                 if (opened.st_dev, opened.st_ino)
-                == (parent_identity.st_dev, parent_identity.st_ino)
-                else 2
+                == (source_identity.st_dev, source_identity.st_ino)
+                else 1
             )
 
         with mock.patch(
@@ -2251,6 +2251,87 @@ class WorkspaceTests(unittest.TestCase):
                     source,
                     record["source_tree"],
                 )
+
+    def test_source_generation_git_tree_rejects_generation_parent_swap(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["client"]
+        generation = source.parent
+        replacement = generation.with_name(f"{generation.name}-replacement")
+        displaced = generation.with_name(f"{generation.name}-displaced")
+        shutil.copytree(generation, replacement, symlinks=True)
+        record = load_json(generation / workspace_module.SOURCE_GENERATION_METADATA)
+        real_open = os.open
+        swapped = False
+
+        def swap_parent(
+            path: object, flags: int, *args: object, **kwargs: object
+        ) -> int:
+            nonlocal swapped
+            if path == "README" and kwargs.get("dir_fd") is not None and not swapped:
+                swapped = True
+                generation.rename(displaced)
+                replacement.rename(generation)
+            return real_open(path, flags, *args, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.open", side_effect=swap_parent
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed while reading"):
+                self.workspace._validate_source_generation_git_tree(
+                    self.workspace.paths.repositories / "client",
+                    source,
+                    record["source_tree"],
+                )
+
+    def test_source_generation_git_tree_descriptor_use_is_depth_bounded(self) -> None:
+        checkout = self.workspace.paths.repositories / "client"
+        bulk = checkout / "bulk"
+        bulk.mkdir()
+        for index in range(64):
+            (bulk / f"entry-{index:03d}").write_text(
+                f"{index}\n", encoding="utf-8"
+            )
+        command("git", "add", "bulk", cwd=checkout)
+        command("git", "commit", "-m", "test: add bulk tree", cwd=checkout)
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["client"]
+        record = load_json(
+            source.parent / workspace_module.SOURCE_GENERATION_METADATA
+        )
+        real_open = os.open
+        real_close = os.close
+        active: set[int] = set()
+        maximum = 0
+
+        def track_open(*args: object, **kwargs: object) -> int:
+            nonlocal maximum
+            descriptor = real_open(*args, **kwargs)
+            active.add(descriptor)
+            maximum = max(maximum, len(active))
+            return descriptor
+
+        def track_close(descriptor: int) -> None:
+            active.discard(descriptor)
+            real_close(descriptor)
+
+        with (
+            mock.patch("atrinik_workspace.workspace.os.open", side_effect=track_open),
+            mock.patch("atrinik_workspace.workspace.os.close", side_effect=track_close),
+        ):
+            self.workspace._validate_source_generation_git_tree(
+                checkout, source, record["source_tree"]
+            )
+        self.assertLess(maximum, 16)
 
     def test_corrupt_source_generation_cleanup_recovers_preview_first(self) -> None:
         def resolve() -> Path:
@@ -2328,7 +2409,7 @@ class WorkspaceTests(unittest.TestCase):
         failed = next(
             item
             for item in applied["items"]
-            if item["kind"] == "source-generation"
+            if item["path"] == str(generation)
         )
         self.assertEqual(failed["disposition"], "error")
         self.assertIn("identity changed", failed["error"])
@@ -2381,6 +2462,67 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(item["disposition"], "protected")
         self.assertIn("invalid_source_generation", item["reasons"])
+
+    def test_source_generation_cleanup_rechecks_complete_corrupt_evidence(
+        self,
+    ) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["client"]
+        generation = source.parent
+        generation.chmod(0o700)
+        source.chmod(0o700)
+        external = self.root / "hardlink-evidence"
+        external.write_bytes(b"linked\n")
+        os.link(external, source / "A-hardlink")
+        later = source / "Z-later"
+        later.write_text("before\n", encoding="utf-8")
+        real_item = Cleanup._source_generation_item
+        calls = 0
+        evidence: list[object] = []
+
+        def mutate_after_revalidation(
+            cleaner: Cleanup,
+            path: Path,
+            checkout: str,
+            older_than_days: int,
+            **kwargs: object,
+        ) -> dict[str, object]:
+            nonlocal calls
+            result = real_item(
+                cleaner, path, checkout, older_than_days, **kwargs
+            )
+            if path == generation:
+                calls += 1
+                evidence.append(result.get("generation_evidence_sha256"))
+                if calls == 2:
+                    later.write_text("after\n", encoding="utf-8")
+            return result
+
+        with (
+            mock.patch(
+                "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
+                return_value=(set(), False),
+            ),
+            mock.patch.object(
+                Cleanup,
+                "_source_generation_item",
+                autospec=True,
+                side_effect=mutate_after_revalidation,
+            ),
+        ):
+            applied = self.workspace.cleanup(["builds"], 0, [], True)
+        failed = next(
+            item
+            for item in applied["items"]
+            if item["kind"] == "source-generation"
+        )
+        self.assertEqual(failed["disposition"], "error", (failed, calls, evidence))
+        self.assertIn("changed before removal", failed["error"])
 
     def test_source_generation_archive_extraction_rejects_unsafe_entries(self) -> None:
         def archive(name: str, entries: list[tuple[tarfile.TarInfo, bytes]]) -> Path:

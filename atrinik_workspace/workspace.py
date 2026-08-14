@@ -2252,10 +2252,6 @@ class Workspace:
 
         algorithm = hashlib.sha1 if len(source_tree) == 40 else hashlib.sha256
         actual: dict[bytes, tuple[bytes, bytes, bytes]] = {}
-        retained_descriptors: list[tuple[int, os.stat_result, Path]] = []
-        retained_symlinks: list[
-            tuple[int, str, os.stat_result, str, Path]
-        ] = []
 
         def blob_id(payload: bytes) -> bytes:
             digest = algorithm()
@@ -2324,8 +2320,6 @@ class Workspace:
                                 "immutable source generation changed while "
                                 f"reading: {display}"
                             )
-                        retained_descriptors.append((descriptor, opened, display))
-                        descriptor = None
                     elif stat.S_ISREG(status.st_mode):
                         if status.st_nlink != 1:
                             raise WorkspaceError(
@@ -2365,8 +2359,6 @@ class Workspace:
                             )
                         mode = b"100755" if opened.st_mode & 0o111 else b"100644"
                         value = (mode, b"blob", digest.hexdigest().encode())
-                        retained_descriptors.append((descriptor, opened, display))
-                        descriptor = None
                     elif stat.S_ISLNK(status.st_mode):
                         target = os.fsencode(
                             os.readlink(entry_name, dir_fd=directory_fd)
@@ -2381,15 +2373,6 @@ class Workspace:
                                 "immutable source generation changed while "
                                 f"reading: {display}"
                             )
-                        retained_symlinks.append(
-                            (
-                                directory_fd,
-                                entry_name,
-                                status,
-                                os.fsdecode(target),
-                                display,
-                            )
-                        )
                         value = (b"120000", b"blob", blob_id(target))
                     else:
                         raise WorkspaceError(
@@ -2418,13 +2401,35 @@ class Workspace:
                     f"{source / os.fsdecode(prefix)}"
                 )
 
+        container_fd: int | None = None
         parent_fd: int | None = None
         root_fd: int | None = None
         try:
             flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
-            parent_fd = _open_directory_nofollow(source.parent, flags)
+            container_fd = _open_directory_nofollow(source.parent.parent, flags)
+            container_status = os.fstat(container_fd)
+            container_mount = _descriptor_mount_id(container_fd)
+            visible_parent = os.stat(
+                source.parent.name,
+                dir_fd=container_fd,
+                follow_symlinks=False,
+            )
+            parent_fd = os.open(
+                source.parent.name,
+                flags,
+                dir_fd=container_fd,
+            )
             parent_status = os.fstat(parent_fd)
             parent_mount = _descriptor_mount_id(parent_fd)
+            if (
+                changed(visible_parent, parent_status)
+                or parent_status.st_dev != container_status.st_dev
+                or parent_mount != container_mount
+            ):
+                raise WorkspaceError(
+                    "immutable source generation parent changed or is mounted: "
+                    f"{source.parent}"
+                )
             visible_root = os.stat(
                 source.name,
                 dir_fd=parent_fd,
@@ -2443,6 +2448,14 @@ class Workspace:
                     f"{source}"
                 )
             visit(root_fd, b"")
+            first_inventory = dict(actual)
+            actual.clear()
+            visit(root_fd, b"")
+            if actual != first_inventory:
+                raise WorkspaceError(
+                    "immutable source generation changed between inventories: "
+                    f"{source}"
+                )
             if set(actual) != set(expected) or any(
                 actual[path][:2] != expected[path][:2]
                 or (
@@ -2460,32 +2473,20 @@ class Workspace:
                 dir_fd=parent_fd,
                 follow_symlinks=False,
             )
+            visible_parent_after = os.stat(
+                source.parent.name,
+                dir_fd=container_fd,
+                follow_symlinks=False,
+            )
             if (
                 changed(root_status, os.fstat(root_fd))
                 or changed(root_status, visible_after)
+                or changed(parent_status, os.fstat(parent_fd))
+                or changed(parent_status, visible_parent_after)
             ):
                 raise WorkspaceError(
                     f"immutable source generation changed while reading: {source}"
                 )
-            for descriptor, opened, display in retained_descriptors:
-                if changed(opened, os.fstat(descriptor)):
-                    raise WorkspaceError(
-                        "immutable source generation changed while reading: "
-                        f"{display}"
-                    )
-            for directory_fd, name, before, target, display in retained_symlinks:
-                after = os.stat(
-                    name,
-                    dir_fd=directory_fd,
-                    follow_symlinks=False,
-                )
-                if changed(before, after) or os.readlink(
-                    name, dir_fd=directory_fd
-                ) != target:
-                    raise WorkspaceError(
-                        "immutable source generation changed while reading: "
-                        f"{display}"
-                    )
         except WorkspaceError:
             raise
         except OSError as error:
@@ -2493,12 +2494,12 @@ class Workspace:
                 f"cannot inspect immutable source generation {source}: {error}"
             ) from error
         finally:
-            for descriptor, _opened, _display in reversed(retained_descriptors):
-                os.close(descriptor)
             if root_fd is not None:
                 os.close(root_fd)
             if parent_fd is not None:
                 os.close(parent_fd)
+            if container_fd is not None:
+                os.close(container_fd)
 
     def _materialize_primary_source(
         self,
