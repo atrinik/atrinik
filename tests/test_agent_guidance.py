@@ -265,9 +265,9 @@ class AgentGuidanceTests(unittest.TestCase):
         for mutation in {
             "claim an explicitly authorized issue",
             "push ordinary branches",
-            "create a draft PR in issue mode",
-            "update the selected PR",
-            "mark a draft ready after exit conditions",
+            "create draft PRs in issue mode",
+            "update selected or delivery-created PRs",
+            "mark drafts ready after exit conditions",
             "post brief delivery comments",
         }:
             with self.subTest(mutation=mutation):
@@ -290,19 +290,27 @@ class AgentGuidanceTests(unittest.TestCase):
         for contract in {
             "exactly one type-explicit `ENTRY_MODE`",
             "bare `owner/repository#number` is ambiguous",
-            "active PR already owns the work",
+            "active PRs already own the work",
+            "exact PR created and recorded by a prior run",
+            "sole exception to the fresh-delivery no-active-PR rule",
             "existing open, unmerged PR",
             "author, head repository",
             "reviews, conversations, checks, and mergeability",
             "Require a same-repository head",
             "zero or more incidental linked issues as read-only",
+            "Other linked issues remain incidental and read-only",
+            "their presence alone is not ambiguity",
             "make no linked-issue or Project mutation",
             "A PR without an issue is a complete valid input",
             "--from BASE_SHA",
             "HEAD` equals `BASE_SHA",
             "--existing",
             "HEAD` equals the recorded `HEAD_SHA`, not `BASE_SHA`",
+            "never resume or edit a dirty, detached, locked, active, referenced",
             "--base TARGET_BRANCH",
+            "one coherent draft per affected physical repository",
+            "update only the selected PR",
+            "does not authorize a companion PR",
             "wrapper-owned",
             "never reconstruct, copy",
             "skipped/neutral checks",
@@ -313,6 +321,10 @@ class AgentGuidanceTests(unittest.TestCase):
             "blocks merging, not the ready transition",
             "Never convert an already-ready PR to draft",
             "leave an already-ready PR ready",
+            "Refetch every selected or delivery-created PR",
+            "recompute every merge base",
+            "drift invalidates the affected review, validation, and checks",
+            "all expected pre-readiness checks",
             "issue-<number>.md",
             "pr-<number>.md",
             "only when issues actually exist",
@@ -326,11 +338,22 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("| ID | Severity | Location |", report)
         self.assertIn("Entry mode: `<issue|PR>`", report)
         self.assertIn("Selected issue(s): `<URL(s) or none>`", report)
+        self.assertIn("Selected pull request(s):", report)
         self.assertIn("Claim/linkage state:", report)
         self.assertIn("## Scale and performance", checklist)
         self.assertIn("## Safety, security, and supply chain", checklist)
         self.assertIn("never fabricate missing issue requirements", checklist)
         self.assertIn("require no synthetic or broadened closing reference", checklist)
+        normalized_checklist = " ".join(checklist.split())
+        self.assertIn("recomputed merge bases to match", normalized_checklist)
+        self.assertIn(
+            "every expected pre-readiness check pass",
+            normalized_checklist,
+        )
+        self.assertLess(
+            normalized_body.index("Wait for all expected pre-readiness checks"),
+            normalized_body.index("Only after stable final coordinates"),
+        )
 
         root_guide = " ".join(
             (ROOT / "AGENTS.md").read_text(encoding="utf-8").split()
@@ -464,6 +487,14 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("does not delegate PR-mode adoption", normalized_body)
         self.assertIn(
             "program delegation does not authorize switching to PR mode",
+            normalized_body,
+        )
+        self.assertIn(
+            "PRs created and recorded by the exact delegated issue-mode leaf",
+            normalized_body,
+        )
+        self.assertIn(
+            "Every other existing PR is a blocker or read-only traceability",
             normalized_body,
         )
 

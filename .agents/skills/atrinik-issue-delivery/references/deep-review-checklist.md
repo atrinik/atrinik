@@ -203,6 +203,10 @@ categories into invented findings.
   out-of-scope disposition; no status is stale.
 - Re-read the raw selected issue and/or PR requirements and acceptance criteria
   against final HEAD.
+- Refetch every selected or delivery-created PR and target/head ref. Require the
+  live repositories, branches, base/head SHAs, and recomputed merge bases to
+  match the reviewed coordinates; any drift restarts the affected complete-diff
+  review, validation, and check cycle.
 - Re-run a complete base-to-head review after the last fix; require zero known
   actionable findings and confirm no prior finding reopened.
 - Re-run required validation and verify it used final committed HEAD.
@@ -210,7 +214,10 @@ categories into invented findings.
   draft/ready state, and all expected checks at the same head SHA.
 - Explain skipped/neutral checks; block on expected missing, failed, or cancelled
   checks and on required human approval.
-- Confirm selected issues, if any, remain open; the PR remains unmerged; no
+- Mark a draft ready only after stable coordinates, the zero-finding review,
+  final-head validation, and every expected pre-readiness check pass. Leave an
+  already-ready PR ready; requery and wait for checks triggered by transition.
+- Confirm selected issues, if any, remain open; every PR remains unmerged; no
   self-approval/force-push/destructive reset/cleanup apply occurred; and
   worktrees/reports remain available.
 - Produce the exact capability-aware verification and cleanup handoff, with

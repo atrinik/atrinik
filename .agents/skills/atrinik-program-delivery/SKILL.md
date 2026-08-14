@@ -11,11 +11,12 @@ durable objective across multiple leaf deliveries and external merge gates.
 
 Explicit invocation authorizes assignment and Project updates for the master,
 ordinary branch pushes, child issue and draft PR creation when genuinely
-missing, updates to linked issues and PRs, ready transitions after exit
-conditions, and concise tracking comments. It does not authorize force-pushes,
-merges, issue closure, policy bypass, destructive resets, cleanup application,
-self-approval, or unrelated external changes. Do not infer merge authority from
-requests to finish, complete, or fully deliver a program.
+missing, updates to linked issues and to PRs created and recorded by the exact
+delegated issue-mode leaf, ready transitions after exit conditions, and concise
+tracking comments. It does not authorize force-pushes, merges, issue closure,
+policy bypass, destructive resets, cleanup application, self-approval, or
+unrelated external changes. Do not infer merge authority from requests to
+finish, complete, or fully deliver a program.
 
 ## Load the delivery contracts
 
@@ -55,9 +56,11 @@ objective rather than requiring a fresh goal on resumption.
    do not invent evidence.
 4. Build a stage matrix containing owner issue, target repository and release
    line, dependencies, existing branch/PR/head, acceptance, validation, and the
-   next human gate. Reuse existing issues, worktrees, branches, and PRs. Create
-   and link a child only when required work has no current owner after a live
-   duplicate search.
+   next human gate. Reuse existing issues. Reuse worktrees, branches, and PRs
+   only when they were created and recorded by that exact delegated issue-mode
+   leaf. Every other existing PR is a blocker or read-only traceability until
+   separately authorized. Create and link a child only when required work has
+   no current owner after a live duplicate search.
 5. Apply the issue-delivery claim contract to the master: assign `zoeyrose`, add
    it to **Atrinik work** when needed, and set the existing Status to
    **In progress** from `github-settings/config/planning.json`. Never invent an

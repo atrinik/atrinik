@@ -10,11 +10,12 @@ delivery or `PR` for adoption of one existing pull request. Both converge on
 the same implementation, complete-diff review, validation, readiness, and
 stop-before-merge contract.
 
-Explicit invocation authorizes ordinary branch pushes, updates to the selected
-PR, draft-to-ready transition after exit conditions, and brief delivery
-comments. Issue mode also authorizes draft PR creation and the issue claim
-below. PR mode authorizes that claim only when the invocation explicitly names
-both the PR and its associated issue and preflight verifies their relationship.
+Explicit invocation authorizes ordinary branch pushes, updates to selected or
+delivery-created PRs, draft-to-ready transition after exit conditions, and
+brief delivery comments. Issue mode also authorizes draft PR creation and the
+issue claim below. PR mode authorizes that claim only when the invocation
+explicitly names both the PR and its associated issue and preflight verifies
+their relationship.
 It does not authorize force-pushes, issue creation or closure, merges, policy
 bypass, destructive resets, cleanup application, self-approval, retargeting,
 unrelated external changes, or mutation of issues found only through a PR.
@@ -48,9 +49,11 @@ scenario procedures.
    coordinates, or a changed or unavailable selected head.
 3. In issue mode, require an existing open issue. Inspect assignees, labels,
    comments, native hierarchy, Project item, linked work, and all candidate
-   PRs. If an active PR already owns the work, stop with its exact coordinate
-   and require a type-explicit PR-mode invocation rather than creating a
-   competing branch or PR.
+   PRs. If active PRs already own the work, resume only when every one is an
+   exact PR created and recorded by a prior run of this same issue-mode delivery
+   and every coordinate in step 6 matches. Otherwise stop with the exact active
+   PR coordinates and require a type-explicit PR-mode invocation rather than
+   creating competing work.
 4. In PR mode, require an existing open, unmerged PR. Record its repository,
    author, head repository, target and head branches, base and head SHAs, merge
    base, draft state, linked issues, body and closing references, reviews,
@@ -61,11 +64,15 @@ scenario procedures.
 5. In PR-only mode, record zero or more incidental linked issues as read-only
    traceability. Do not require, synthesize, assign, move, close, comment on, or
    add a closing reference for any issue. When one issue is explicitly supplied
-   with the PR, require it to be open and verify an unambiguous existing
-   association; fail closed on contradictory or multiple candidate
-   associations and preserve the PR's existing closing scope.
-6. Resume only when `ENTRY_MODE`, selected issue/PR, repository, base, head,
-   branch, worktree, and report identity agree exactly with the prior delivery.
+   with the PR, require it to be open and verify that exact issue has an
+   unambiguous existing association. Other linked issues remain incidental and
+   read-only; their presence alone is not ambiguity. Fail closed when the exact
+   supplied relationship is contradictory or cannot be proved, and preserve the
+   PR's existing closing scope.
+6. Resume only when `ENTRY_MODE`, selected issue and/or complete PR set,
+   repositories, bases, heads, branches, worktrees, and report identity agree
+   exactly with the prior delivery. In issue mode, this exact recorded-delivery
+   match is the sole exception to the fresh-delivery no-active-PR rule.
 
 ## Claim only explicitly authorized issues
 
@@ -107,26 +114,31 @@ scenario procedures.
   HEAD_BRANCH` from the wrapper root. Verify the adopted worktree's initial
   `HEAD` equals the recorded `HEAD_SHA`, not `BASE_SHA`.
 - Reuse a registered worktree only when its immutable repository, branch, head,
-  ownership, mode, and report coordinates match and it is clean and safe to
-  continue. Give each physical repository its own worktree, branch, commits,
-  validation, and PR; keep implementation in its physical owner.
+  ownership, mode, and report coordinates match. Even with matching
+  coordinates, never resume or edit a dirty, detached, locked, active,
+  referenced, foreign, or uncertain worktree; stop and preserve it. Give each
+  physical repository its own worktree, branch, commits, validation, and PR;
+  keep implementation in its physical owner. In PR mode, this ownership rule
+  does not authorize a companion PR: stop and require an additional
+  type-explicit delivery coordinate and authority for another repository.
 
-## Implement and publish or update the PR
+## Implement and publish or update PRs
 
 Implement requirements with owner tests/contracts. Commit coherent Conventional
 Commit checkpoints, preserve published history, validate, and push normally.
 
-In issue mode, open one coherent draft against `TARGET_BRANCH` (for example,
-`--base TARGET_BRANCH`) and verify the returned base. In PR mode, update the
-selected PR without changing its base, head, draft state, or valid linkage as a
-shortcut. Never convert an already-ready PR to draft merely to replay this
-workflow. Preserve valid existing closing references and never invent or
-broaden them.
+In issue mode, open one coherent draft per affected physical repository against
+its `TARGET_BRANCH` (for example, `--base TARGET_BRANCH`) and verify every
+returned base. Keep one unambiguous canonical issue-closing path. In PR mode,
+update only the selected PR without changing its base, head, draft state, or
+valid linkage as a shortcut. Never convert an already-ready PR to draft merely
+to replay this workflow. Preserve valid existing closing references and never
+invent or broaden them.
 
 Use a Conventional Commit title and newline-preserving GitHub-Flavored Markdown
-body. Record available issue linkage, exact base/head branches and SHAs,
-worktree, commits, scope, validation, and verification. Inspect GitHub's
-rendered body after each material edit and keep it current.
+body for each PR. Record available issue linkage, exact base/head branches and
+SHAs, worktree, commits, scope, validation, and verification. Inspect GitHub's
+rendered bodies after each material edit and keep them current.
 
 ## Review and fix to the exit condition
 
@@ -202,24 +214,31 @@ same exact capability-aware recipe in a concise PR update and final handoff.
 
 ## Finish only on final HEAD
 
-Recheck the complete diff, commits, head SHA, mergeability, draft state, base
-and head repositories/branches, linkage, review threads/comments, and expected
-checks. Mark a draft ready only after final validation and the zero-finding
-review; leave an already-ready PR ready. Wait for all expected checks; required
-and applicable optional checks must pass. Explain skipped/neutral checks and
-block on an expected missing, failed, or cancelled check. Report required human
-approval as a blocker rather than claiming literal merge eligibility. New
-actionable feedback restarts the fix, validation, and whole-diff loop. Missing
-human approval blocks merging, not the ready transition after the stated exit
+Refetch every selected or delivery-created PR and its exact target and head
+refs. Recheck the complete diff, commits, mergeability, draft state, base and
+head repositories, branches and SHAs, linkage, review threads/comments, and
+expected checks; recompute every merge base. Any target/base/head or merge-base
+drift invalidates the affected review, validation, and checks and restarts the
+shared convergence loop at the new recorded coordinates.
+
+Wait for all expected pre-readiness checks; required and applicable optional
+checks must pass. Explain skipped/neutral checks and block on an expected
+missing, failed, or cancelled check. Only after stable final coordinates, final
+validation, a zero-finding review, and all such checks pass may a draft be
+marked ready; leave an already-ready PR ready. Requery after a ready transition
+and wait for any expected checks it triggers. Report required human approval as
+a blocker rather than claiming literal merge eligibility. New actionable
+feedback restarts the fix, validation, and whole-diff loop. Missing human
+approval blocks merging, not the ready transition after the stated exit
 conditions pass.
 
-Hand off the PR URL and exact per-target bases, head repositories, branches,
-SHAs, merge base, commits, worktree, review findings, validation/checks,
+Hand off the PR URLs and exact per-target bases, head repositories, branches,
+SHAs, merge bases, commits, worktrees, review findings, validation/checks,
 mergeability, runtime applicability, resources,
 verification/repeat/shutdown/cleanup commands, and blockers or `none`. Include
-issue URLs, claim state, and closing path only when issues actually exist; do
-not fabricate placeholders.
+issue URLs, claim state, and the canonical closing path only when issues
+actually exist; do not fabricate placeholders.
 
-Keep selected issues open, keep the PR unmerged, and preserve worktrees and
-reports while the PR is open. Cleanup requires a separate post-merge request
+Keep selected issues open, keep every PR unmerged, and preserve worktrees and
+reports while the PRs are open. Cleanup requires a separate post-merge request
 beginning with `./atrinik cleanup --dry-run --json`.

@@ -8,7 +8,7 @@ vulnerability detail. Do not commit or publish this report.
 
 - Entry mode: `<issue|PR>`
 - Selected issue(s): `<URL(s) or none>`
-- Selected pull request: `<URL or pending in issue mode>`
+- Selected pull request(s): `<one URL in PR mode; URL(s) or pending in issue mode>`
 - Claim/linkage state: `<claimed explicit issue | linked issues read-only | none>`
 - Issue-closing path: `<default-branch PR URL, manual post-merge close, or none>`
 - Review started / last refreshed: `<UTC timestamps>`
@@ -125,9 +125,12 @@ accessibility/localization, docs and manual verification>`
 - [ ] A fresh complete post-fix review found zero known actionable findings.
 - [ ] No prior finding reopened.
 - [ ] Required validation passed at final committed HEAD.
+- [ ] Live base/head refs and recomputed merge bases still match the reviewed
+      coordinates; every draft became ready only after review, validation, and
+      pre-readiness checks passed.
 - [ ] Rendered PR body, comments/threads, mergeability, and expected checks were
       rechecked at that same HEAD.
-- [ ] Selected issues, if any, remain open; the PR remains unmerged; no
+- [ ] Selected issues, if any, remain open; every PR remains unmerged; no
       self-approval, force-push, destructive reset, credential disclosure, or
       cleanup apply occurred.
 - [ ] Exact resources, verification, shutdown, repeat, cleanup, and blockers are
