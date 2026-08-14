@@ -7,8 +7,10 @@ report mirrors evidence and never authorizes a write.
 ## Canonical authority, paths, and bytes
 
 Create or resume one canonical ledger at
-`<workspace>/build/program-delivery/<coordinate-sha256>.ledger.json`, where the
-digest hashes canonical JSON containing exact repository/master node IDs. Prove
+`<workspace>/build/program-delivery/<coordinate-sha256>.ledger.json`. The digest
+hashes canonical JSON including its LF with exactly `domain` set to
+`atrinik-program-delivery-coordinate`, `schema_version` set to 1, and exact
+`repository_node_id` and `master_node_id`. Prove
 it and the report are ignored, regular, no-follow files under safe parents.
 Lock the master-coordinate `<coordinate-sha256>.publication.lock`, created mode
 `0600` without following links and never replaced or removed while retained.
