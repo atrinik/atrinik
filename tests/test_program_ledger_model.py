@@ -49,6 +49,7 @@ class ProgramLedgerModel:
             "leaf_snapshots": {"leaf-1": [1, "a" * 64]},
         }
         self.lock_inode = 41
+        self.path_lock_inode = 41
         self.remote_calls = {"comment": 0, "create": 0, "link": 0}
 
     @staticmethod
@@ -57,6 +58,11 @@ class ProgramLedgerModel:
 
     def digest(self) -> str:
         return hashlib.sha256(self.canonical(self.record)).hexdigest()
+
+    @staticmethod
+    def coordinate(repository_node: str, master_node: str) -> str:
+        payload = {"master_node_id": master_node, "repository_node_id": repository_node}
+        return hashlib.sha256(ProgramLedgerModel.canonical(payload)).hexdigest()
 
     @classmethod
     def fresh(cls, lock_exists: bool, ledger_exists: bool) -> "ProgramLedgerModel":
@@ -91,21 +97,55 @@ class ProgramLedgerModel:
             or (expected_previous is not None and previous != expected_previous)
         ):
             raise StopClosed("generation lineage is corrupt")
+        common_keys = {"phase", "node", "prior"}
         for name in ("comment", "create", "link"):
             slot = record[name]
             if not isinstance(slot, dict) or slot.get("phase") not in {
                 "none", "planned", "in-flight", "bound"
             }:
                 raise StopClosed("slot phase is corrupt")
+            expected_keys = (
+                common_keys | {"parent", "child", "proof"}
+                if name == "link" and slot["phase"] == "bound"
+                else common_keys
+            )
+            if set(slot) != expected_keys:
+                raise StopClosed("slot keys are corrupt")
             if slot["phase"] == "none" and (
                 slot.get("node") is not None or slot.get("prior") is not None
             ):
                 raise StopClosed("none phase contains result state")
+            if name in {"comment", "create"} and slot["phase"] == "bound" and (
+                not isinstance(slot["node"], str) or slot["prior"] is not None
+            ):
+                raise StopClosed("bound result is incomplete")
+            if name == "create" and slot["phase"] in {"planned", "in-flight"} and (
+                slot["node"] is not None or slot["prior"] is not None
+            ):
+                raise StopClosed("create intent contains a result")
+            if name == "link" and slot["phase"] == "bound" and (
+                slot["node"] is not None or slot["prior"] is not None
+                or slot["parent"] != "master" or slot["child"] != "issue-node"
+                or not isinstance(slot["proof"], str) or not slot["proof"]
+            ):
+                raise StopClosed("bound link proof is incomplete")
+        if record["link"]["phase"] != "none" and not (
+            record["create"]["phase"] == "bound"
+            and record["create"]["node"] == "issue-node"
+        ):
+            raise StopClosed("link exists without its bound child")
+        if record["next_graph"] is not None and not (
+            record["comment"]["phase"] in {"planned", "in-flight"}
+            and record["comment"]["node"] is not None
+            and record["comment"]["prior"] == "old-body"
+        ):
+            raise StopClosed("next graph lacks its PATCH intent")
         if not set(record["leaf_snapshots"]).issubset(set(record["graph"])):
             raise StopClosed("leaf snapshot is outside the graph")
         model = cls()
         model.record = copy.deepcopy(record)
         model.lock_inode = lock_inode
+        model.path_lock_inode = lock_inode
         return model
 
     def persist(
@@ -118,7 +158,7 @@ class ProgramLedgerModel:
             raise StopClosed("stale generation")
         if expected_digest is not None and expected_digest != old_digest:
             raise StopClosed("stale digest")
-        if expected_lock_inode != self.lock_inode:
+        if expected_lock_inode != self.lock_inode or self.path_lock_inode != self.lock_inode:
             raise StopClosed("substituted lock")
         if self.record["lock"] != {"device": 1, "inode": expected_lock_inode}:
             raise StopClosed("persisted lock identity changed")
@@ -126,6 +166,9 @@ class ProgramLedgerModel:
         self.record["previous_sha256"] = old_digest
         self.record["generation"] = generation + 1
         self.record["self_inode"] = int(self.record["self_inode"]) + 1
+
+    def replace_lock_path(self, inode: int) -> None:
+        self.path_lock_inode = inode
 
     @staticmethod
     def stable_scan(
@@ -181,6 +224,7 @@ class ProgramLedgerModel:
         if (
             permit.used or permit.generation != self.record["generation"]
             or self.record[permit.slot]["phase"] != "in-flight"
+            or self.path_lock_inode != self.lock_inode
         ):
             raise StopClosed("call permit is absent, stale, or already used")
         permit.used = True
@@ -261,6 +305,8 @@ class ProgramLedgerModel:
 class ProgramLedgerModelTests(unittest.TestCase):
     def test_fresh_and_persisted_resume_are_distinct(self) -> None:
         model = ProgramLedgerModel.fresh(False, False)
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.fresh(True, False)
         resumed = ProgramLedgerModel.resume(
             model.record, model.lock_inode, model.record["self_inode"],
             model.digest(), model.record["authority"],
@@ -282,6 +328,10 @@ class ProgramLedgerModelTests(unittest.TestCase):
         bad_phase["comment"]["phase"] = "garbage"
         bad_authority = copy.deepcopy(model.record)
         bad_authority["authority"] = ["other"] * 4
+        bad_bound = copy.deepcopy(model.record)
+        bad_bound["comment"]["phase"] = "bound"
+        bad_next = copy.deepcopy(model.record)
+        bad_next["next_graph"] = ["leaf-2"]
         cases = (
             (corrupt, 41, 101, model.digest(), model.record["authority"]),
             (model.record, 41, 999, model.digest(), model.record["authority"]),
@@ -292,6 +342,12 @@ class ProgramLedgerModelTests(unittest.TestCase):
              model.record["authority"]),
             (bad_authority, 41, 101,
              hashlib.sha256(ProgramLedgerModel.canonical(bad_authority)).hexdigest(),
+             model.record["authority"]),
+            (bad_bound, 41, 101,
+             hashlib.sha256(ProgramLedgerModel.canonical(bad_bound)).hexdigest(),
+             model.record["authority"]),
+            (bad_next, 41, 101,
+             hashlib.sha256(ProgramLedgerModel.canonical(bad_next)).hexdigest(),
              model.record["authority"]),
         )
         for args in cases:
@@ -341,6 +397,21 @@ class ProgramLedgerModelTests(unittest.TestCase):
             os.close(replacement_fd)
             os.replace(replacement, lock)
             self.assertNotEqual(os.stat(lock).st_ino, lock_inode)
+            model = ProgramLedgerModel()
+            model.replace_lock_path(os.stat(lock).st_ino)
+            with self.assertRaises(StopClosed):
+                model.persist(lambda record: None)
+            model = ProgramLedgerModel()
+            model.plan_comment()
+            permit = model.arm("comment")
+            model.replace_lock_path(os.stat(lock).st_ino)
+            with self.assertRaises(StopClosed):
+                model.execute(permit)
+
+    def test_coordinate_digest_is_injective_for_hyphen_name_collision(self) -> None:
+        first = ProgramLedgerModel.coordinate("R_foo-bar_baz", "I_1")
+        second = ProgramLedgerModel.coordinate("R_foo_bar-baz", "I_2")
+        self.assertNotEqual(first, second)
 
     def test_multi_page_bounds_and_stream_stability(self) -> None:
         ProgramLedgerModel.stable_scan(["a", "b"], ["1", "2"], "d", "d")
@@ -400,6 +471,20 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 with self.assertRaises(StopClosed):
                     resumed.arm(slot)
                 self.assertEqual(model.remote_calls[slot], 1)
+
+    def test_invisible_post_can_bind_later_from_persisted_intent(self) -> None:
+        model = ProgramLedgerModel()
+        model.plan_comment()
+        permit = model.arm("comment")
+        model.execute(permit)
+        resumed = ProgramLedgerModel.resume(
+            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record["authority"],
+        )
+        report_present = False
+        self.assertFalse(report_present)
+        resumed.bind("comment", ["comment-node"])
+        self.assertEqual(resumed.record["comment"]["phase"], "bound")
 
     def test_stale_generation_digest_and_lock_writers_stop(self) -> None:
         model = ProgramLedgerModel()

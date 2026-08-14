@@ -7,15 +7,20 @@ report mirrors evidence and never authorizes a write.
 ## Canonical authority, paths, and bytes
 
 Create or resume one canonical ledger at
-`<workspace>/build/program-delivery/<owner>-<repo>-<number>.ledger.json`. Prove
+`<workspace>/build/program-delivery/<coordinate-sha256>.ledger.json`, where the
+digest hashes canonical JSON containing exact repository/master node IDs. Prove
 it and the report are ignored, regular, no-follow files under safe parents.
-Lock the master-coordinate `<owner>-<repo>-<number>.publication.lock`, created mode
+Lock the master-coordinate `<coordinate-sha256>.publication.lock`, created mode
 `0600` without following links and never replaced or removed while retained.
 Every goal/objective for that master uses this arbitration lock; goal-specific
-locks are forbidden. Verify its device/inode after locking, require it equal
+locks are forbidden. This injective node-identity digest prevents owner/repo
+hyphen collisions. Verify its device/inode after locking, require it equal
 the ledger's `lock` identity, and hold that descriptor across ledger
 read, pagination, persistence, remote mutation, and reconciliation. A lock on
 the replaceable JSON inode is invalid.
+Immediately before and after each observation, durable replacement, or remote
+call, lstat/open the lock path no-follow and require its device/inode equal both
+the held descriptor and ledger identity. Path replacement stops the writer.
 
 Canonical JSON is UTF-8 with NFC strings, keys sorted by Unicode code point,
 no insignificant whitespace, JSON booleans/null, decimal integers, no floats,

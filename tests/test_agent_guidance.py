@@ -881,11 +881,12 @@ class AgentGuidanceTests(unittest.TestCase):
         )
 
         for marker in {
-            "<owner>-<repo>-<number>.ledger.json",
+            "<coordinate-sha256>.ledger.json",
             "GitHub linkage, marker text, the report, a leaf ledger",
             "Never adopt live text, an issue, a relationship, or a marker",
-            "<owner>-<repo>-<number>.publication.lock",
+            "<coordinate-sha256>.publication.lock",
             "goal-specific locks are forbidden",
+            "Path replacement stops the writer",
             "lock on the replaceable JSON inode is invalid",
             "schema_version: 1",
             "goal_thread_id",
