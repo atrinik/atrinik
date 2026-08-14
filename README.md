@@ -347,8 +347,9 @@ installer. Copied root metadata is authenticated before the wrapper temporarily
 restores owner-only write access needed by dependency-install and source-view
 transactions; the source mode is reapplied before view publication. Sealed
 immutable source generations therefore cannot block staging writes. Worker
-checks receive the same temporary owner-only access for allowed generated
-outputs, and the sealed root mode is restored afterward. A second
+checks receive temporary full owner access with group and other write access
+disabled for allowed generated outputs, and the sealed root mode is restored
+afterward. A second
 input-identical build reuses that installation and an unchanged profile source
 view. Because enabled dependency lifecycle scripts can observe root files, the
 complete non-generated source digest participates in every dependency key and

@@ -8525,8 +8525,8 @@ class Workspace:
                     )
                 # Clean primary sources are immutable generations whose root
                 # has no write bits. Authenticate that copied mode first, then
-                # restore access only for the effective owner of this
-                # wrapper-created transaction so npm can create node_modules.
+                # restore full effective-owner access while disabling group
+                # and other writes so npm can create node_modules.
                 _make_worker_staging_owner_writable(staging)
                 if (staging / ".npmrc").exists():
                     (staging / ".npmrc").chmod(0o600)
