@@ -442,11 +442,12 @@ are keyed; staging access times are normalized; and the
 staged source snapshot is authenticated before installation. A project `.npmrc`
 is a restrictive no-follow temporary copy that is removed before publication;
 after source authentication, dependency-install and source-view transaction
-roots restore read, write, and search access only for their effective owner so
+roots restore full effective-owner access while removing group and other write access so
 immutable source-generation modes cannot prevent `node_modules` staging; the
 source root mode is reapplied before view publication;
 the transaction marker is hidden during lifecycle execution and restored before
-publication. Worker checks similarly receive temporary owner-only root access
+publication. Worker checks similarly receive temporary full owner root access
+with group and other write access disabled
 for profile-local generated outputs, with the published source mode restored in
 their failure-safe control-repair path. Installed output containing the staging path is rejected as
 non-relocatable.
