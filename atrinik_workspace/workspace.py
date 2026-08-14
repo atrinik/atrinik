@@ -9764,6 +9764,7 @@ class Workspace:
         source: Path,
         destination: Path,
         exclusions: frozenset[str] = frozenset(),
+        pinned_destination_parent_fd: int | None = None,
     ) -> int:
         flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
         retained_destination_fd: int | None = None
@@ -9783,10 +9784,16 @@ class Workspace:
                 raise WorkspaceError(
                     f"topology runtime input changed during copy: {source}"
                 )
-            destination_parent_before = destination.parent.stat(
-                follow_symlinks=False
+            destination_parent_before = (
+                os.fstat(pinned_destination_parent_fd)
+                if pinned_destination_parent_fd is not None
+                else destination.parent.stat(follow_symlinks=False)
             )
-            destination_parent_fd = os.open(destination.parent, flags)
+            destination_parent_fd = (
+                os.dup(pinned_destination_parent_fd)
+                if pinned_destination_parent_fd is not None
+                else os.open(destination.parent, flags)
+            )
             if self._runtime_tree_identity(os.fstat(destination_parent_fd)) != (
                 self._runtime_tree_identity(destination_parent_before)
             ):
@@ -9890,9 +9897,13 @@ class Workspace:
         source: Path,
         destination: Path,
         exclusions: frozenset[str] = frozenset(),
+        pinned_destination_parent_fd: int | None = None,
     ) -> None:
         descriptor = self._copy_topology_runtime_tree(
-            source, destination, exclusions
+            source,
+            destination,
+            exclusions,
+            pinned_destination_parent_fd,
         )
         os.close(descriptor)
 
@@ -10039,7 +10050,7 @@ class Workspace:
     @staticmethod
     def _prepare_runtime_state_output(
         state: Path, generation: str, state_directory_fd: int | None = None
-    ) -> Path:
+    ) -> tuple[Path, int, dict[str, int]]:
         flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
         descriptors: list[int] = []
         created_generation = False
@@ -10130,7 +10141,12 @@ class Workspace:
                     os.fsync(stream.fileno())
             finally:
                 os.close(marker_fd)
-            return output
+            metadata = os.fstat(generation_fd)
+            result_fd = os.dup(generation_fd)
+            return output, result_fd, {
+                "device": metadata.st_dev,
+                "inode": metadata.st_ino,
+            }
         except BaseException as error:
             if created_generation and len(descriptors) >= 4:
                 generation_fd = descriptors[-1]
@@ -10441,7 +10457,7 @@ class Workspace:
         state: Path | None = None,
         state_directory_fd: int | None = None,
         sound_root: Path | None = None,
-    ) -> tuple[Path, int, dict[str, Any]]:
+    ) -> tuple[Path, int, dict[str, Any], int | None]:
         generations = owner_root / "generations"
         generations.mkdir(exist_ok=True)
         if generations.is_symlink() or not generations.is_dir():
@@ -10458,6 +10474,7 @@ class Workspace:
         state_output: Path | None = None
         state_output_access: Path | None = None
         state_output_identity: dict[str, int] | None = None
+        state_output_fd: int | None = None
         try:
             input_digests = self._runtime_publication_input_digests(
                 build_root, selected, services, sound_root
@@ -10525,29 +10542,21 @@ class Workspace:
                     ),
                     target_is_directory=True,
                 )
-                state_output = self._prepare_runtime_state_output(
+                (
+                    state_output,
+                    state_output_fd,
+                    state_output_identity,
+                ) = self._prepare_runtime_state_output(
                     state, generation, state_directory_fd
                 )
-                state_output_access = (
-                    Path(f"/proc/self/fd/{state_directory_fd}")
-                    / "tmp"
-                    / "runtime-assets"
-                    / generation
-                    if state_directory_fd is not None
-                    else state_output
-                )
-                state_output_identity = (
-                    self._runtime_state_output_identity_at(
-                        state_directory_fd, generation
-                    )
-                    if state_directory_fd is not None
-                    else self._state_identity(state_output_access)
-                )
-                (state_output_access / "data").mkdir()
+                state_output_access = Path(f"/proc/self/fd/{state_output_fd}")
+                os.mkdir("data", dir_fd=state_output_fd)
                 client_maps = build_root / "runtime" / "client-maps"
                 self._validate_region_maps(client_maps)
                 self._copy_runtime_tree(
-                    client_maps, state_output_access / "client-maps"
+                    client_maps,
+                    state_output / "client-maps",
+                    pinned_destination_parent_fd=state_output_fd,
                 )
                 state_output_entries = self._runtime_generation_entries(
                     state_output_access / "client-maps", None
@@ -10562,6 +10571,19 @@ class Workspace:
                 raise WorkspaceError(
                     "runtime publication inputs changed during staging"
                 )
+            if state_output is not None and state_output_identity is not None:
+                visible_output_identity = (
+                    self._runtime_state_output_identity_at(
+                        state_directory_fd, generation
+                    )
+                    if state_directory_fd is not None
+                    else self._state_identity(state_output)
+                )
+                if visible_output_identity != state_output_identity:
+                    raise WorkspaceError(
+                        "server runtime state output changed during publication: "
+                        f"{state_output}"
+                    )
 
             build_metadata = build_root / BUILD_METADATA
             source_trees: dict[str, str] = {}
@@ -10644,7 +10666,9 @@ class Workspace:
             }
             result_fd = lease_fd
             lease_fd = None
-            return published, result_fd, runtime_record
+            result_state_output_fd = state_output_fd
+            state_output_fd = None
+            return published, result_fd, runtime_record, result_state_output_fd
         except BaseException:
             if staging.exists():
                 remove_owned_tree(staging)
@@ -10667,6 +10691,8 @@ class Workspace:
         finally:
             if lease_fd is not None:
                 os.close(lease_fd)
+            if state_output_fd is not None:
+                os.close(state_output_fd)
 
     def _copy_topology_runtime_inputs(
         self,
@@ -11378,19 +11404,20 @@ class Workspace:
             if not current_control:
                 raise WorkspaceError(f"topology runtime identity is invalid: {name}")
             expected_runtime_path = root / "generations" / control["generation"]
+            runtime_keys = {
+                "schema_version",
+                "generation",
+                "path",
+                "manifest_sha256",
+                "lease",
+                "external_state",
+                "mutable_state_outputs",
+            }
+            if topology_schema == TOPOLOGY_STATUS_SCHEMA_VERSION:
+                runtime_keys.add("mutable_state_output_identities")
             if (
                 not isinstance(runtime, dict)
-                or set(runtime)
-                != {
-                    "schema_version",
-                    "generation",
-                    "path",
-                    "manifest_sha256",
-                    "lease",
-                    "external_state",
-                    "mutable_state_outputs",
-                    "mutable_state_output_identities",
-                }
+                or set(runtime) != runtime_keys
                 or runtime.get("schema_version")
                 != RUNTIME_GENERATION_SCHEMA_VERSION
                 or runtime.get("generation") != control["generation"]
@@ -11411,21 +11438,26 @@ class Workspace:
                     if status.get("state") is not None
                     else []
                 )
-                or not isinstance(
-                    runtime.get("mutable_state_output_identities"), list
-                )
-                or len(runtime["mutable_state_output_identities"])
-                != len(runtime["mutable_state_outputs"])
-                or any(
-                    not isinstance(identity, dict)
-                    or set(identity) != {"device", "inode"}
-                    or any(
-                        not isinstance(value, int)
-                        or isinstance(value, bool)
-                        or value < 0
-                        for value in identity.values()
+                or topology_schema == TOPOLOGY_STATUS_SCHEMA_VERSION
+                and (
+                    not isinstance(
+                        runtime.get("mutable_state_output_identities"), list
                     )
-                    for identity in runtime["mutable_state_output_identities"]
+                    or len(runtime["mutable_state_output_identities"])
+                    != len(runtime["mutable_state_outputs"])
+                    or any(
+                        not isinstance(identity, dict)
+                        or set(identity) != {"device", "inode"}
+                        or any(
+                            not isinstance(value, int)
+                            or isinstance(value, bool)
+                            or value < 0
+                            for value in identity.values()
+                        )
+                        for identity in runtime[
+                            "mutable_state_output_identities"
+                        ]
+                    )
                 )
                 or not isinstance(runtime.get("lease"), dict)
                 or set(runtime["lease"]) != {"device", "inode"}
@@ -11492,25 +11524,26 @@ class Workspace:
                 if isinstance(runtime_manifest, dict)
                 else None
             )
+            manifest_keys = {
+                "schema_version",
+                "generation",
+                "profile",
+                "identity",
+                "services",
+                "resolved",
+                "source_trees",
+                "input_digests",
+                "build",
+                "external_state",
+                "mutable_state_outputs",
+                "mutable_state_output_entries",
+                "entries",
+            }
+            if topology_schema == TOPOLOGY_STATUS_SCHEMA_VERSION:
+                manifest_keys.add("mutable_state_output_identities")
             if (
                 not isinstance(runtime_manifest, dict)
-                or set(runtime_manifest)
-                != {
-                    "schema_version",
-                    "generation",
-                    "profile",
-                    "identity",
-                    "services",
-                    "resolved",
-                    "source_trees",
-                    "input_digests",
-                    "build",
-                    "external_state",
-                    "mutable_state_outputs",
-                    "mutable_state_output_identities",
-                    "mutable_state_output_entries",
-                    "entries",
-                }
+                or set(runtime_manifest) != manifest_keys
                 or runtime_manifest.get("schema_version")
                 != RUNTIME_GENERATION_SCHEMA_VERSION
                 or runtime_manifest.get("generation") != control["generation"]
@@ -11520,7 +11553,8 @@ class Workspace:
                 or runtime_manifest.get("external_state") != status.get("state")
                 or runtime_manifest.get("mutable_state_outputs")
                 != runtime["mutable_state_outputs"]
-                or runtime_manifest.get("mutable_state_output_identities")
+                or topology_schema == TOPOLOGY_STATUS_SCHEMA_VERSION
+                and runtime_manifest.get("mutable_state_output_identities")
                 != runtime["mutable_state_output_identities"]
                 or not isinstance(manifest_services, list)
                 or not manifest_services
@@ -12057,6 +12091,23 @@ class Workspace:
                         f"topology {name} retains temporary generation state; "
                         "promote it or complete its safe cleanup before restart"
                     )
+                previous_runtime = previous.get("runtime")
+                if (
+                    isinstance(previous_policy, dict)
+                    and previous_policy.get("mode") != "temporary"
+                    and isinstance(previous_runtime, dict)
+                    and previous_runtime.get("mutable_state_outputs")
+                ):
+                    identities = previous_runtime.get(
+                        "mutable_state_output_identities"
+                    )
+                    if not isinstance(identities, list) or not identities:
+                        raise WorkspaceError(
+                            f"topology {name} retains legacy mutable state output "
+                            "without exact ownership evidence; choose a new "
+                            "topology name"
+                        )
+                    self._cleanup_topology_mutable_state_outputs(previous)
 
             if "client" in selected_services:
                 self._require_client_display()
@@ -12225,6 +12276,9 @@ class Workspace:
                                         "device": rollback_metadata.st_dev,
                                         "inode": rollback_metadata.st_ino,
                                     },
+                                    implementation=state_policy[
+                                        "implementation"
+                                    ],
                                 )
                             raise
                     else:
@@ -12350,7 +12404,12 @@ class Workspace:
                         raise WorkspaceError(
                             f"profile {profile_name} source sound root changed before topology preparation"
                         )
-                generation_root, runtime_lock_fd, runtime_record = (
+                (
+                    generation_root,
+                    runtime_lock_fd,
+                    runtime_record,
+                    state_output_fd,
+                ) = (
                     self._publish_runtime_generation(
                         topology_root,
                         generation,
@@ -12370,6 +12429,8 @@ class Workspace:
                         sound_root=sound_root,
                     )
                 )
+                if state_output_fd is not None:
+                    stack.callback(os.close, state_output_fd)
                 published_generation_owner = [generation_root]
                 stack.callback(
                     lambda: remove_owned_tree(published_generation_owner.pop())
@@ -12419,9 +12480,8 @@ class Workspace:
                             ),
                             "--assetspath="
                             + (
-                                f"/proc/self/fd/{state_directory_fd}/tmp/"
-                                f"runtime-assets/{generation}"
-                                if state_directory_fd is not None
+                                f"/proc/self/fd/{state_output_fd}"
+                                if state_output_fd is not None
                                 else runtime_record["mutable_state_outputs"][0]
                             ),
                             "--no_console",
@@ -12548,6 +12608,11 @@ class Workspace:
                             ["--state-directory-fd", str(state_directory_fd)]
                         )
                         inherited_locks.append(state_directory_fd)
+                    if state_output_fd is not None:
+                        command.extend(
+                            ["--state-output-fd", str(state_output_fd)]
+                        )
+                        inherited_locks.append(state_output_fd)
                     command.extend(
                         ["--runtime-lock-fd", str(runtime_lock_fd)]
                     )
@@ -13763,7 +13828,7 @@ class Workspace:
                 )
             resolved = self._topology_resolved_status(profile_name, selected)
             generation = secrets.token_hex(32)
-            generation_root, runtime_fd, _runtime_record = (
+            generation_root, runtime_fd, _runtime_record, state_output_fd = (
                 self._publish_runtime_generation(
                     self._foreground_runtime_owner(),
                     generation,
@@ -13783,6 +13848,8 @@ class Workspace:
                     sound_root=sound_root,
                 )
             )
+            if state_output_fd is not None:
+                os.close(state_output_fd)
             working = generation_root / "client"
             executable = working / "atrinik"
             command = [
@@ -13831,6 +13898,7 @@ class Workspace:
         state_fd = prepared["state_fd"]
         state_lock_fd = prepared["state_lock_fd"]
         physical_state_lock_fd = prepared["physical_state_lock_fd"]
+        state_output_fd = prepared["state_output_fd"]
         generation_root = prepared["generation_root"]
         state_output = prepared["state_output"]
         try:
@@ -13846,6 +13914,7 @@ class Workspace:
                             state_fd,
                             state_lock_fd,
                             physical_state_lock_fd,
+                            state_output_fd,
                         )
                         if descriptor is not None
                     ),
@@ -13863,6 +13932,7 @@ class Workspace:
             finally:
                 if physical_state_lock_fd is not None:
                     os.close(physical_state_lock_fd)
+                os.close(state_output_fd)
                 os.close(state_lock_fd)
                 os.close(state_fd)
                 os.close(runtime_fd)
@@ -13921,7 +13991,12 @@ class Workspace:
                     raise
                 generation = secrets.token_hex(32)
                 try:
-                    generation_root, runtime_fd, _runtime_record = (
+                    (
+                        generation_root,
+                        runtime_fd,
+                        _runtime_record,
+                        state_output_fd,
+                    ) = (
                         self._publish_runtime_generation(
                             self._foreground_runtime_owner(),
                             generation,
@@ -13952,6 +14027,7 @@ class Workspace:
                     if _runtime_record["mutable_state_output_identities"]
                     else None
                 )
+                assert state_output_fd is not None
                 state_lock_fd: int | None = None
                 physical_state_lock_fd: int | None = None
                 try:
@@ -13975,6 +14051,7 @@ class Workspace:
                                 state_output_identity,
                             )
                     finally:
+                        os.close(state_output_fd)
                         os.close(state_fd)
                         os.close(runtime_fd)
                         remove_owned_tree(generation_root)
@@ -13989,8 +14066,7 @@ class Workspace:
                     "--stun_server=off",
                     *arguments,
                     f"--datapath=/proc/self/fd/{state_fd}",
-                    "--assetspath="
-                    f"/proc/self/fd/{state_fd}/tmp/runtime-assets/{generation}",
+                    f"--assetspath=/proc/self/fd/{state_output_fd}",
                 ]
                 print(f"state: {state}")
                 print(f"cwd: {runtime}")
@@ -14007,6 +14083,7 @@ class Workspace:
                     "physical_state_lock_fd": physical_state_lock_fd,
                     "state_output": state_output,
                     "state_output_identity": state_output_identity,
+                    "state_output_fd": state_output_fd,
                 }
 
     def _foreground_runtime_owner(self) -> Path:

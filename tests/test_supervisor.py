@@ -520,7 +520,7 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 self.assertEqual(supervisor_module.main(), 1)
 
         supervise_call.assert_called_once_with(
-            spec_path, None, None, None, None, None, 9, None, None
+                spec_path, None, None, None, None, None, 9, None, None, None
         )
         status.assert_called_once_with(
             spec_path.parent / "startup-error.json",

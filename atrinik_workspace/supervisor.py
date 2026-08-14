@@ -515,6 +515,7 @@ def supervise(
     port_reservation_fd: int | None,
     runtime_lock_fd: int | None = None,
     state_directory_fd: int | None = None,
+    state_output_fd: int | None = None,
     physical_state_lock_fd: int | None = None,
 ) -> int:
     with spec_path.open(encoding="utf-8") as stream:
@@ -574,6 +575,8 @@ def supervise(
             inherited_locks.append(process_tree_fd)
         if state_directory_fd is not None and name == "server":
             inherited_locks.append(state_directory_fd)
+        if state_output_fd is not None and name == "server":
+            inherited_locks.append(state_output_fd)
         process = subprocess.Popen(
             command,
             cwd=service["cwd"],
@@ -625,6 +628,8 @@ def supervise(
         )
         if state_directory_fd is not None:
             retained_fds = (*retained_fds, state_directory_fd)
+        if state_output_fd is not None:
+            retained_fds = (*retained_fds, state_output_fd)
         if physical_state_lock_fd is not None:
             retained_fds = (*retained_fds, physical_state_lock_fd)
         guardian_pid, guardian_write_fd = _start_guardian(
@@ -755,6 +760,8 @@ def supervise(
             os.close(runtime_lock_fd)
         if state_directory_fd is not None:
             os.close(state_directory_fd)
+        if state_output_fd is not None:
+            os.close(state_output_fd)
         if physical_state_lock_fd is not None:
             os.close(physical_state_lock_fd)
     return 0
@@ -770,6 +777,7 @@ def main() -> int:
     parser.add_argument("--port-reservation-fd", type=int)
     parser.add_argument("--runtime-lock-fd", type=int)
     parser.add_argument("--state-directory-fd", type=int)
+    parser.add_argument("--state-output-fd", type=int)
     parser.add_argument("--physical-state-lock-fd", type=int)
     parser.add_argument("--daemonize", action="store_true")
     options = parser.parse_args()
@@ -788,6 +796,7 @@ def main() -> int:
         return supervise(
             *arguments,
             options.state_directory_fd,
+            options.state_output_fd,
             options.physical_state_lock_fd,
         )
     except BaseException as error:
@@ -830,6 +839,11 @@ def main() -> int:
         if options.state_directory_fd is not None:
             try:
                 os.close(options.state_directory_fd)
+            except OSError:
+                pass
+        if options.state_output_fd is not None:
+            try:
+                os.close(options.state_output_fd)
             except OSError:
                 pass
         if options.physical_state_lock_fd is not None:

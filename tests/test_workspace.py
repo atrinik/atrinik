@@ -5283,10 +5283,10 @@ class WorkspaceTests(unittest.TestCase):
         generation = "a" * 32
         relocated = self.root / "relocated-state"
         try:
-            output = self.workspace._prepare_runtime_state_output(
+            output, output_fd, output_identity = self.workspace._prepare_runtime_state_output(
                 state, generation, state_fd
             )
-            output_identity = self.workspace._state_identity(output)
+            os.close(output_fd)
             state.rename(relocated)
             state.mkdir()
             sentinel = state / "sentinel"
@@ -5309,10 +5309,10 @@ class WorkspaceTests(unittest.TestCase):
         state.mkdir()
         state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
         generation = "b" * 32
-        output = self.workspace._prepare_runtime_state_output(
+        output, output_fd, output_identity = self.workspace._prepare_runtime_state_output(
             state, generation, state_fd
         )
-        output_identity = self.workspace._state_identity(output)
+        os.close(output_fd)
         replacement = self.root / "replacement-output"
         replacement.mkdir()
         atomic_json(
@@ -5363,10 +5363,9 @@ class WorkspaceTests(unittest.TestCase):
         state.mkdir()
         state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
         generation = "c" * 32
-        output = self.workspace._prepare_runtime_state_output(
+        output, output_fd, output_identity = self.workspace._prepare_runtime_state_output(
             state, generation, state_fd
         )
-        output_identity = self.workspace._state_identity(output)
         displaced = self.root / "displaced-runtime-output"
         output.rename(displaced)
         output.mkdir()
@@ -5380,6 +5379,13 @@ class WorkspaceTests(unittest.TestCase):
         sentinel = output / "sentinel"
         sentinel.write_text("replacement\n", encoding="utf-8")
         try:
+            pinned = Path(f"/proc/self/fd/{output_fd}") / "pinned-sentinel"
+            pinned.write_text("original\n", encoding="utf-8")
+            self.assertEqual(
+                (displaced / "pinned-sentinel").read_text(encoding="utf-8"),
+                "original\n",
+            )
+            self.assertFalse((output / "pinned-sentinel").exists())
             with self.assertRaisesRegex(WorkspaceError, "identity changed"):
                 self.workspace._remove_runtime_state_output(
                     output, generation, state_fd, output_identity
@@ -5387,6 +5393,7 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(sentinel.read_text(encoding="utf-8"), "replacement\n")
             self.assertTrue((displaced / MANAGED_MARKER).is_file())
         finally:
+            os.close(output_fd)
             os.close(state_fd)
 
     def test_runtime_state_output_cleanup_rejects_fifo_marker_and_mount(self) -> None:
@@ -5394,10 +5401,10 @@ class WorkspaceTests(unittest.TestCase):
         state.mkdir()
         state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
         generation = "d" * 32
-        output = self.workspace._prepare_runtime_state_output(
+        output, output_fd, output_identity = self.workspace._prepare_runtime_state_output(
             state, generation, state_fd
         )
-        output_identity = self.workspace._state_identity(output)
+        os.close(output_fd)
         marker = output / MANAGED_MARKER
         marker.unlink()
         os.mkfifo(marker)
@@ -11335,10 +11342,38 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(special_applied_item["disposition"], "protected")
         self.assertTrue(state.is_dir())
         special.unlink()
+        for metadata_path in (
+            state / MANAGED_MARKER,
+            state / workspace_module.TEMPORARY_STATE_METADATA,
+            state.parent / MANAGED_MARKER,
+            state.parent.parent / MANAGED_MARKER,
+        ):
+            metadata_payload = metadata_path.read_bytes()
+            metadata_path.unlink()
+            os.mkfifo(metadata_path)
+            fifo_preview = self.workspace.cleanup(
+                ["temporary-states"], 0, [], False
+            )
+            fifo_item = next(
+                item
+                for item in fifo_preview["items"]
+                if item["path"] == str(state)
+            )
+            self.assertEqual(fifo_item["disposition"], "protected")
+            self.assertIn("invalid_temporary_state", fifo_item["reasons"])
+            metadata_path.unlink()
+            metadata_path.write_bytes(metadata_payload)
         linked_file = next(
             path
             for path in state.rglob("*")
-            if path.is_file() and not path.is_symlink()
+            if path.is_file()
+            and not path.is_symlink()
+            and path.name
+            not in {
+                MANAGED_MARKER,
+                workspace_module.TEMPORARY_STATE_METADATA,
+                workspace_module.STATE_IMPLEMENTATION_MARKER,
+            }
         )
         external_link = self.root / "temporary-state-hardlink"
         os.link(linked_file, external_link)
@@ -12135,8 +12170,67 @@ class WorkspaceTests(unittest.TestCase):
                 state_lease,
                 policy["identity"],
                 {"device": metadata.st_dev, "inode": metadata.st_ino},
+                implementation=policy["implementation"],
             )
         self.assertFalse(state.exists())
+        self.assertFalse(lock.exists())
+
+    def test_temporary_startup_rollback_orphan_lease_is_reclaimable(self) -> None:
+        topology = self.workspace._topology_directory(
+            "rollback-orphan", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        state, policy = self.workspace._create_temporary_state(
+            topology,
+            "rollback-orphan",
+            "default",
+            "d" * 64,
+            server,
+            {
+                "stack": "default",
+                "provider": "server",
+                "repository": "atrinik/server",
+            },
+            self.scenario_resolved_fixture()["server"],
+        )
+        lock = Path(f"{state}.lock")
+        with exclusive_lock(lock, "temporary rollback") as state_lease:
+            metadata = os.fstat(state_lease.fileno())
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.Workspace."
+                    "_unlink_temporary_state_lock",
+                    side_effect=WorkspaceError("simulated lease interruption"),
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError, "simulated lease interruption"
+                ),
+            ):
+                self.workspace._rollback_temporary_state_creation(
+                    state,
+                    state_lease,
+                    policy["identity"],
+                    {"device": metadata.st_dev, "inode": metadata.st_ino},
+                    implementation=policy["implementation"],
+                )
+        self.assertFalse(state.exists())
+        preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        item = next(
+            value for value in preview["items"] if value["path"] == str(state)
+        )
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertIn(
+            "stale_orphan_temporary_state_lease", item["reasons"]
+        )
+        applied = self.workspace.cleanup(
+            ["temporary-states"], 0, [], True
+        )
+        applied_item = next(
+            value for value in applied["items"] if value["path"] == str(state)
+        )
+        self.assertEqual(applied_item["disposition"], "removed")
         self.assertFalse(lock.exists())
 
     def test_temporary_startup_rollback_retains_linked_state(self) -> None:
@@ -12175,6 +12269,49 @@ class WorkspaceTests(unittest.TestCase):
         os.close(state_fd)
         self.assertTrue(state.is_dir())
         self.assertTrue((state / "unsafe-link").is_symlink())
+
+    def test_temporary_startup_rollback_requires_exact_implementation(self) -> None:
+        topology = self.workspace._topology_directory(
+            "typed-rollback", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        state, policy = self.workspace._create_temporary_state(
+            topology,
+            "typed-rollback",
+            "default",
+            "9" * 64,
+            server,
+            {
+                "stack": "default",
+                "provider": "server",
+                "repository": "atrinik/server",
+            },
+            self.scenario_resolved_fixture()["server"],
+        )
+        replacement = dict(policy["implementation"])
+        replacement["provider"] = "replacement-server"
+        atomic_json(
+            state / workspace_module.STATE_IMPLEMENTATION_MARKER,
+            {
+                "schema_version": workspace_module.STATE_IMPLEMENTATION_SCHEMA_VERSION,
+                **replacement,
+            },
+        )
+        lock = Path(f"{state}.lock")
+        with exclusive_lock(lock, "temporary rollback") as state_lease:
+            metadata = os.fstat(state_lease.fileno())
+            with self.assertRaisesRegex(
+                WorkspaceError, "implementation marker is invalid"
+            ):
+                self.workspace._rollback_temporary_state_creation(
+                    state,
+                    state_lease,
+                    policy["identity"],
+                    {"device": metadata.st_dev, "inode": metadata.st_ino},
+                    implementation=policy["implementation"],
+                )
+        self.assertTrue(state.is_dir())
+        self.assertTrue(lock.is_file())
 
     def test_temporary_mutation_refuses_live_physical_alias(self) -> None:
         state = self.root / "temporary-physical-alias"
@@ -13051,15 +13188,35 @@ class WorkspaceTests(unittest.TestCase):
                     "purpose": "runtime-state-output:foreground-server-generation",
                 },
             )
-            return generation_root, descriptor, {
-                "mutable_state_outputs": [str(state_output)],
-                "mutable_state_output_identities": [
-                    self.workspace._state_identity(state_output)
-                ],
-            }
+            return (
+                generation_root,
+                descriptor,
+                {
+                    "mutable_state_outputs": [str(state_output)],
+                    "mutable_state_output_identities": [
+                        self.workspace._state_identity(state_output)
+                    ],
+                },
+                os.open(
+                    state_output,
+                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                ),
+            )
 
         def execute_server(*_arguments: object, **_keywords: object) -> None:
-            self.assertEqual(len(_keywords["pass_fds"]), 4)
+            self.assertEqual(len(_keywords["pass_fds"]), 5)
+            asset_argument = next(
+                value
+                for value in reversed(_arguments[0])
+                if value.startswith("--assetspath=")
+            )
+            asset_path = Path(asset_argument.split("=", 1)[1])
+            self.assertEqual(asset_path.parent, Path("/proc/self/fd"))
+            self.assertIn(int(asset_path.name), _keywords["pass_fds"])
+            self.assertEqual(
+                load_json(asset_path / MANAGED_MARKER)["purpose"],
+                "runtime-state-output:foreground-server-generation",
+            )
             for path, description in (
                 (
                     resource_lock_path(
