@@ -35,8 +35,8 @@ cannot prove alone.
   intended/current SHA-256 digests, marker identity, mutation kind, and remote
   node ID at the required boundaries?
 - After a first `POST` becomes `in-flight`, does no exact result stop without
-  reposting? For `PATCH`, is retry limited to the same recorded node and bytes
-  when the remote body is exactly the prior or intended digest?
+  reposting? For `PATCH`, does exact prior body permit only the identical retry,
+  exact intended body bind without retry, and every other body stop?
 - Do crash-point tests cover before/after every durable transition and remote
   call, including an accepted-but-not-yet-visible result and resumption?
 - Do concurrency, stale-CAS, marker, full-pagination, ledger/report loss,

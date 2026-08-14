@@ -30,11 +30,11 @@ a program.
    audits and the
    [master-publication ledger contract](references/master-publication-ledger.md)
    before master-comment or missing-child mutation.
-4. Copy [the program report template](assets/program-delivery-report.md) to an
-   ignored path such as
-   `<workspace>/build/program-delivery/<owner>-<repo>-<number>.md`. Prove the
-   destination is ignored. Preserve it across resumes; it is human-only and
-   schema-v1 leaf sidecars remain authoritative.
+4. Copy [the program report template](assets/program-delivery-report.md) to
+   ignored `<workspace>/build/program-delivery/<coordinate-sha256>.md`. Prove the
+   destination is ignored before writing. Preserve and update it across
+   resumptions; never delete it implicitly. It is human-only; the master ledger
+   and schema-v1 leaf sidecars remain authoritative.
 
 ## Establish the live program
 

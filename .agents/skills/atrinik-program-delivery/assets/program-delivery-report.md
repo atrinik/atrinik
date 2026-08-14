@@ -11,6 +11,7 @@
 ## Machine ledger mirror (evidence only)
 
 - Canonical ledger path:
+- Repository/master coordinate SHA-256:
 - Schema / generation / inode / canonical byte digest:
 - Goal authority / exact objective SHA-256:
 - Repository node / master node / authenticated actor:

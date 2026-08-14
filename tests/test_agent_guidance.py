@@ -933,6 +933,7 @@ class AgentGuidanceTests(unittest.TestCase):
         for marker in {
             "## Machine ledger mirror (evidence only)",
             "Canonical ledger path:",
+            "Repository/master coordinate SHA-256:",
             "Goal authority / exact objective SHA-256:",
             "Remote comment node ID:",
             "## Leaf ledger composition",

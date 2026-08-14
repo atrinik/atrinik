@@ -51,6 +51,7 @@ class ProgramLedgerModel:
         self.lock_inode = 41
         self.path_lock_inode = 41
         self.remote_calls = {"comment": 0, "create": 0, "link": 0}
+        self.report_present = False
 
     @staticmethod
     def canonical(record: dict[str, object]) -> bytes:
@@ -75,6 +76,8 @@ class ProgramLedgerModel:
         cls, record: dict[str, object] | None, lock_inode: int | None,
         observed_inode: int | None, observed_sha256: str | None,
         expected_authority: list[str], expected_previous: str | None = None,
+        report_present: bool = False,
+        remote_calls: dict[str, int] | None = None,
     ) -> "ProgramLedgerModel":
         if record is None or lock_inode is None:
             raise StopClosed("ledger or stable lock was lost")
@@ -123,6 +126,15 @@ class ProgramLedgerModel:
                 slot["node"] is not None or slot["prior"] is not None
             ):
                 raise StopClosed("create intent contains a result")
+            if name == "link" and slot["phase"] in {"planned", "in-flight"} and (
+                slot["node"] is not None or slot["prior"] is not None
+            ):
+                raise StopClosed("link intent contains a result")
+            if name == "comment" and slot["phase"] in {"planned", "in-flight"} and not (
+                (slot["node"] is None and slot["prior"] is None)
+                or (isinstance(slot["node"], str) and slot["prior"] == "old-body")
+            ):
+                raise StopClosed("comment POST/PATCH intent is corrupt")
             if name == "link" and slot["phase"] == "bound" and (
                 slot["node"] is not None or slot["prior"] is not None
                 or slot["parent"] != "master" or slot["child"] != "issue-node"
@@ -146,6 +158,9 @@ class ProgramLedgerModel:
         model.record = copy.deepcopy(record)
         model.lock_inode = lock_inode
         model.path_lock_inode = lock_inode
+        model.report_present = report_present
+        if remote_calls is not None:
+            model.remote_calls = remote_calls
         return model
 
     def persist(
@@ -332,6 +347,9 @@ class ProgramLedgerModelTests(unittest.TestCase):
         bad_bound["comment"]["phase"] = "bound"
         bad_next = copy.deepcopy(model.record)
         bad_next["next_graph"] = ["leaf-2"]
+        bad_link = copy.deepcopy(model.record)
+        bad_link["create"].update(phase="bound", node="issue-node")
+        bad_link["link"].update(phase="planned", node="result", prior="unexpected")
         cases = (
             (corrupt, 41, 101, model.digest(), model.record["authority"]),
             (model.record, 41, 999, model.digest(), model.record["authority"]),
@@ -348,6 +366,9 @@ class ProgramLedgerModelTests(unittest.TestCase):
              model.record["authority"]),
             (bad_next, 41, 101,
              hashlib.sha256(ProgramLedgerModel.canonical(bad_next)).hexdigest(),
+             model.record["authority"]),
+            (bad_link, 41, 101,
+             hashlib.sha256(ProgramLedgerModel.canonical(bad_link)).hexdigest(),
              model.record["authority"]),
         )
         for args in cases:
@@ -466,25 +487,50 @@ class ProgramLedgerModelTests(unittest.TestCase):
                     model.execute(permit)
                 resumed = ProgramLedgerModel.resume(
                     model.record, 41, model.record["self_inode"], model.digest(),
-                    model.record["authority"],
+                    model.record["authority"], remote_calls=model.remote_calls,
                 )
                 with self.assertRaises(StopClosed):
                     resumed.arm(slot)
                 self.assertEqual(model.remote_calls[slot], 1)
 
     def test_invisible_post_can_bind_later_from_persisted_intent(self) -> None:
+        for report_present in (False, True):
+            with self.subTest(report_present=report_present):
+                model = ProgramLedgerModel()
+                model.plan_comment()
+                permit = model.arm("comment")
+                model.execute(permit)
+                resumed = ProgramLedgerModel.resume(
+                    model.record, 41, model.record["self_inode"], model.digest(),
+                    model.record["authority"], report_present=report_present,
+                    remote_calls=model.remote_calls,
+                )
+                self.assertEqual(resumed.report_present, report_present)
+                with self.assertRaises(StopClosed):
+                    resumed.arm("comment")
+                resumed.bind("comment", ["comment-node"])
+                self.assertEqual(resumed.record["comment"]["phase"], "bound")
+                self.assertEqual(resumed.remote_calls["comment"], 1)
+
+    def test_invisible_child_create_and_link_bind_after_restart(self) -> None:
         model = ProgramLedgerModel()
-        model.plan_comment()
-        permit = model.arm("comment")
-        model.execute(permit)
+        model.plan_create()
+        create = model.arm("create")
+        model.execute(create)
         resumed = ProgramLedgerModel.resume(
             model.record, 41, model.record["self_inode"], model.digest(),
-            model.record["authority"],
+            model.record["authority"], remote_calls=model.remote_calls,
         )
-        report_present = False
-        self.assertFalse(report_present)
-        resumed.bind("comment", ["comment-node"])
-        self.assertEqual(resumed.record["comment"]["phase"], "bound")
+        resumed.bind("create", ["issue-node"])
+        resumed.plan_link()
+        link = resumed.arm("link")
+        resumed.execute(link)
+        again = ProgramLedgerModel.resume(
+            resumed.record, 41, resumed.record["self_inode"], resumed.digest(),
+            resumed.record["authority"], remote_calls=resumed.remote_calls,
+        )
+        again.bind_link("master", ["issue-node"], "parent-stream")
+        self.assertEqual(again.remote_calls, {"comment": 0, "create": 1, "link": 1})
 
     def test_stale_generation_digest_and_lock_writers_stop(self) -> None:
         model = ProgramLedgerModel()
@@ -505,6 +551,10 @@ class ProgramLedgerModelTests(unittest.TestCase):
         model.rekey(model.record["authority"], ["leaf-1", "leaf-2"], "comment-node")
         patch = model.arm("comment")
         model.execute(patch)
+        model = ProgramLedgerModel.resume(
+            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record["authority"], remote_calls=model.remote_calls,
+        )
         with self.assertRaises(StopClosed):
             model.finish_patch("drifted-body", "comment-node")
         retry = model.finish_patch("old-body", "comment-node")
@@ -512,6 +562,10 @@ class ProgramLedgerModelTests(unittest.TestCase):
         self.assertEqual(model.record["graph"], ["leaf-1"])
         self.assertEqual(model.record["next_graph"], ["leaf-1", "leaf-2"])
         model.execute(retry)
+        model = ProgramLedgerModel.resume(
+            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record["authority"], remote_calls=model.remote_calls,
+        )
         model.finish_patch("intended-body", "comment-node")
         self.assertEqual(model.record["comment"]["node"], "comment-node")
         self.assertEqual(model.record["graph"], ["leaf-1", "leaf-2"])

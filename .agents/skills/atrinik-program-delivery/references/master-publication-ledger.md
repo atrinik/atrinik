@@ -225,10 +225,12 @@ must never permit POST, absent-ledger adoption, or a second node.
 Record the exact proposal before searching. Exhaustively paginate repository
 issues in open and closed states and the master's native subissue graph using
 the bounds above. Deterministically inspect every bounded issue client-side;
-a candidate is any issue containing the child-marker namespace (valid or
-malformed), exact title SHA-256, exact final body SHA-256, exact master backlink,
-or exact native parent. The query digest covers those literal predicates and
-fields. Record every candidate in API order. Any candidate,
+a candidate has an exact title SHA-256, final body SHA-256, master backlink,
+native parent, or valid child marker whose payload matches this authority and
+proposal. A malformed or unrelated child marker is a candidate only when one
+of those other predicates matches; otherwise record it as bounded noncandidate
+evidence. The query digest covers these literal predicates and fields. Record
+every candidate in API order. Any candidate,
 incomplete scan, or changing stream means `proven_missing: false` and stops.
 
 Only a stable zero-candidate search may persist create `planned` with the exact
