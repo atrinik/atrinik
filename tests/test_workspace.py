@@ -3290,6 +3290,40 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace._worker_dependencies(source, {"PATH": "/bin"})
         self.assertEqual(installs, [])
 
+    def test_worker_staging_writable_failures_are_bounded(self) -> None:
+        staging = self.root / "worker-staging"
+        staging.mkdir(mode=0o700)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.os.open",
+                side_effect=PermissionError(errno.EPERM, "simulated open denial"),
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "cannot make Worker staging root writable"
+            ),
+        ):
+            workspace_module._make_worker_staging_owner_writable(staging)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.os.fchmod",
+                side_effect=PermissionError(errno.EPERM, "simulated denial"),
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "cannot make Worker staging root writable"
+            ),
+        ):
+            workspace_module._make_worker_staging_owner_writable(staging)
+
+        staging.chmod(0o500)
+        with (
+            mock.patch("atrinik_workspace.workspace.os.fchmod"),
+            self.assertRaisesRegex(WorkspaceError, "is not owner-writable"),
+        ):
+            workspace_module._make_worker_staging_owner_writable(staging)
+        staging.chmod(0o700)
+
     def test_worker_dependencies_reuse_exact_inputs_and_rebuild_corruption(self) -> None:
         source = self.make_worker_source()
         installs: list[Path] = []
@@ -4361,6 +4395,22 @@ class WorkspaceTests(unittest.TestCase):
                 root, source, dependencies, "c" * 64, metadata
             )[1]
         )
+
+        displaced = sealed[0].with_name("metaserver-worker-displaced")
+
+        def displace_view(arguments: list[str], **kwargs: object) -> str:
+            self.assertEqual(arguments, ["npm", "run", "check"])
+            sealed[0].rename(displaced)
+            return ""
+
+        with mock.patch(
+            "atrinik_workspace.workspace.run", side_effect=displace_view
+        ):
+            self.workspace._run_worker_checks(
+                sealed[0], {}, "c" * 64, metadata
+            )
+        self.assertFalse(sealed[0].exists())
+        self.assertEqual(stat.S_IMODE(displaced.stat().st_mode), 0o555)
 
     def test_source_view_reconciles_links_copies_and_stale_entries_in_place(self) -> None:
         source = self.workspace.paths.repositories / "server"
