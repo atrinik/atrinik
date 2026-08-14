@@ -2443,6 +2443,18 @@ class Workspace:
                     f"{source}"
                 )
             visit(root_fd, b"")
+            if set(actual) != set(expected) or any(
+                actual[path][:2] != expected[path][:2]
+                or (
+                    actual[path][1] != b"tree"
+                    and actual[path][2] != expected[path][2]
+                )
+                for path in actual.keys() & expected.keys()
+            ):
+                raise WorkspaceError(
+                    "immutable source generation does not match its recorded "
+                    f"Git tree: {source}"
+                )
             visible_after = os.stat(
                 source.name,
                 dir_fd=parent_fd,
@@ -2487,15 +2499,6 @@ class Workspace:
                 os.close(root_fd)
             if parent_fd is not None:
                 os.close(parent_fd)
-        if set(actual) != set(expected) or any(
-            actual[path][:2] != expected[path][:2]
-            or (actual[path][1] != b"tree" and actual[path][2] != expected[path][2])
-            for path in actual.keys() & expected.keys()
-        ):
-            raise WorkspaceError(
-                "immutable source generation does not match its recorded Git tree: "
-                f"{source}"
-            )
 
     def _materialize_primary_source(
         self,
