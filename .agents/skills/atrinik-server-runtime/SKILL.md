@@ -66,6 +66,12 @@ This scope is excluded from defaults and `all`. It accepts only old `exited` or
 legacy `stale` marker-owned records with unreachable controls and released
 leases; it never acts as `down` or touches persistent state, scenarios, builds,
 profiles, or source.
+For a scope-owned topology, clean `down` is followed by the scope's fresh
+release preview and hash-bound apply. The exact stopped topology record remains
+under the separate cleanup lifecycle, but its released runtime/state/port
+coordinates do not pin the owning scope's profile or worktree. A mismatched
+profile, live/unreachable control, retained generation/state, or unrelated
+reference still blocks release.
 The wrapper uses a short generation-derived endpoint in the shared workspace
 and binds both process-tree and immutable runtime-bundle leases to the exact
 generation and file identities. Missing, replaced, linked, or malformed
@@ -77,4 +83,6 @@ and runtime bytes remain unchanged.
 Let `up` allocate a port unless a distinct fixed port is required. Diagnose
 build, state, plugin, network, and gameplay failures separately. Use
 `atrinik-test-scenario` for accounts; never handcraft saves. Record actions and
-logs, stop the topology, reset only scenario state, and run owner validation.
+logs, stop the topology, release only its exact scope with a fresh preview when
+applicable, reset only scenario state, and run owner validation. Prove parallel
+startup with readiness/ownership transitions, never an elapsed-time threshold.

@@ -1208,6 +1208,7 @@ class ScopeLifecycle:
         from .workspace import BUILD_METADATA, _is_clean, git
 
         items: list[dict[str, Any]] = []
+        allowed_topology_reference: str | None = None
         topology_path = Path(record["topology"]["path"])
         if topology_path.exists() or topology_path.is_symlink():
             try:
@@ -1229,7 +1230,10 @@ class ScopeLifecycle:
                     and state_policy.get("mode") == "temporary"
                     and state_policy.get("lifecycle") == "retained"
                 )
-                if unreachable:
+                profile_mismatch = status.get("profile") != record["profile"]["name"]
+                if profile_mismatch:
+                    reasons = ["unexpected_topology_profile"]
+                elif unreachable:
                     reasons = ["unreachable_topology"]
                 elif running:
                     reasons = ["live_topology"]
@@ -1238,8 +1242,14 @@ class ScopeLifecycle:
                 else:
                     reasons = ["stopped_topology_history_retained"]
                 disposition = (
-                    "protected" if running or unreachable or retained or retained_state else "retained"
+                    "protected"
+                    if profile_mismatch or running or unreachable or retained or retained_state
+                    else "retained"
                 )
+                if disposition == "retained":
+                    allowed_topology_reference = (
+                        f"topology:{record['topology']['name']}"
+                    )
             except (OSError, WorkspaceError) as error:
                 reasons = [f"unreachable_topology:{error}"]
                 disposition = "protected"
@@ -1364,6 +1374,7 @@ class ScopeLifecycle:
                             if reference != f"profile:{record['profile']['name']}"
                             and reference != record["profile"]["name"]
                             and reference != f"scope:{record['name']}"
+                            and reference != allowed_topology_reference
                         ]
                         if unexpected:
                             reasons.append("unexpected_references:" + ",".join(unexpected))
@@ -1419,6 +1430,7 @@ class ScopeLifecycle:
             "updated_at": _now(),
         }
         durable_atomic_json(self._release_path(record["name"]), journal)
+        self._maybe_fail("release:journal")
         for item in plan["items"]:
             if item["kind"] != "build" or item["disposition"] != "eligible":
                 continue
@@ -1445,6 +1457,7 @@ class ScopeLifecycle:
                 journal["completed"].append(action)
             journal["updated_at"] = _now()
             durable_atomic_json(self._release_path(record["name"]), journal)
+            self._maybe_fail(f"release:build:{root.name}")
 
         profile_path = Path(record["profile"]["path"])
         if any(item["kind"] == "profile" and item["disposition"] == "eligible" for item in plan["items"]):
@@ -1468,6 +1481,7 @@ class ScopeLifecycle:
                 journal["completed"].append("profile")
             journal["updated_at"] = _now()
             durable_atomic_json(self._release_path(record["name"]), journal)
+            self._maybe_fail("release:profile")
 
         by_checkout = {
             item["checkout"]: item
@@ -1501,6 +1515,7 @@ class ScopeLifecycle:
                 reference
                 for reference in self.workspace._source_references(path)
                 if reference != f"scope:{record['name']}"
+                and reference != f"topology:{record['topology']['name']}"
             ]:
                 raise WorkspaceError(f"scope worktree became referenced during release: {path}")
             primary = Path(row["primary_path"])
@@ -1511,7 +1526,9 @@ class ScopeLifecycle:
                 journal["completed"].append(action)
             journal["updated_at"] = _now()
             durable_atomic_json(self._release_path(record["name"]), journal)
+            self._maybe_fail(f"release:worktree:{row['checkout']}")
         journal["status"] = "complete"
         journal["updated_at"] = _now()
         durable_atomic_json(self._release_path(record["name"]), journal)
+        self._maybe_fail("release:complete")
         return {**plan, "mode": "apply", "released": True, "journal": str(self._release_path(record["name"]))}

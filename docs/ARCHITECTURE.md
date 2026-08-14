@@ -222,6 +222,26 @@ busy resources, changed identities, dirty/detached Git state, replacement,
 unexpected references, and uncertain ownership fail closed. The completed
 scope and release journal remain durable evidence after release.
 
+The complete concurrency acceptance matrix composes the focused contracts
+rather than duplicating them:
+
+| Contract row | Deterministic evidence |
+| --- | --- |
+| Exact same/different resource conflicts, queued-writer fairness, and disjoint progress | `test_exact_resource_matrix_scopes_conflicts_to_coordinates` and `test_incremental_harness_isolates_live_topology_conflicts` |
+| Two scope-owned worktrees from one physical checkout, two builds, two server readiness rendezvous, independent inspection/stop/release, and A live through B | `test_complete_dual_scope_server_lifecycle_is_independent` |
+| Same name/label/branch/profile races and complete winner ownership | `test_same_scope_race_has_one_winner_and_no_unowned_partial` and `test_same_explicit_label_and_branch_race_has_one_complete_winner` |
+| Every creation and release publication boundary, rollback, preservation, and resume | `test_failure_after_each_publication_boundary_is_journaled`, the uncertainty tests, and `test_every_release_publication_boundary_recovers_from_interruption` |
+| Temporary, named, default, retained, promoted, managed-external, and scenario state | `test_temporary_topology_state_clean_retain_and_promote_lifecycle`, `test_persistent_scope_state_is_deliberate_and_never_released`, and `test_scenario_lifecycle_owns_isolated_state_and_credentials` |
+| Explicit/automatic ports, same-port conflict, external bind, and supervisor loss | port-reservation tests plus `test_concurrent_server_topologies_overlap_through_readiness` and `test_supervisor_loss_before_server_bind_releases_reservation` |
+| Immutable runtime through source/build mutation and exact guardian ownership | `test_incremental_harness_isolates_live_topology_conflicts`, supervisor lease tests, and runtime-publication interruption tests |
+| Cleanup versus profile/topology/scope/runtime/state references | profile-publication, topology-cleanup, source-generation-cleanup, temporary-state, and scope-release race tests |
+| Current versus historical profile/topology/state/scenario/scope records | schema namespace, inert topology/scenario, detached-state, and scope-schema tests |
+| Bounded randomized progress with no partial records, cross-scope mutation, marker damage, secret exposure, starvation, or leaked leases | six seeded repetitions in `test_randomized_scope_lifecycle_stress_leaves_no_cross_scope_debris` |
+
+Coordination metrics are rendezvous arrivals, admitted/completed operations,
+published ownership transitions, and bounded conflict outcomes. Compiler wall
+clock and short sleeps are never acceptance thresholds.
+
 ## Cleanup inventory and retention
 
 `cleanup` is an explicit garbage-collection boundary, never an implicit step

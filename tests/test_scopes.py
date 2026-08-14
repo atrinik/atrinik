@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+import random
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import shlex
@@ -13,9 +14,15 @@ import threading
 import unittest
 from unittest import mock
 
-from atrinik_workspace.model import AtomicJsonCommitUncertain, MANAGED_MARKER, WorkspaceError
+from atrinik_workspace.model import (
+    AtomicJsonCommitUncertain,
+    MANAGED_MARKER,
+    WorkspaceError,
+    atomic_json,
+)
 from atrinik_workspace.cli import main
 from atrinik_workspace.cleanup import Cleanup
+import atrinik_workspace.locking as locking_module
 import atrinik_workspace.scopes as scopes_module
 from atrinik_workspace.scopes import SCOPE_FAILURE_BOUNDARIES_ENV
 from atrinik_workspace.scopes import ScopeLifecycle
@@ -73,6 +80,20 @@ class ScopeLifecycleTests(unittest.TestCase):
                 continue
             (seed / component.source).mkdir(parents=True, exist_ok=True)
             (seed / component.source / ".keep").write_text("\n", encoding="utf-8")
+        if checkout_name == "classic":
+            server = seed / "server"
+            (server / "tools").mkdir()
+            (server / "tools" / ".keep").write_text("\n", encoding="utf-8")
+            for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+                (server / name).write_text("test\n", encoding="utf-8")
+            for name in ("keys", "unique-items"):
+                directory = server / "install_data" / name
+                directory.mkdir(parents=True, exist_ok=True)
+                (directory / ".keep").write_text("\n", encoding="utf-8")
+            (server / "install_data" / "bans").write_text("", encoding="utf-8")
+            (server / "install_data" / "motd").write_text(
+                "Welcome\n", encoding="utf-8"
+            )
         command("git", "add", ".", cwd=seed)
         command("git", "commit", "-m", "feat: seed", cwd=seed)
         command("git", "remote", "add", "origin", str(origin), cwd=seed)
@@ -81,6 +102,92 @@ class ScopeLifecycleTests(unittest.TestCase):
         destination = self.wrapper / checkout.path
         command("git", "clone", str(origin), str(destination), cwd=self.root)
         return destination
+
+    def make_scope_server_build(
+        self,
+        root: Path,
+        profile: str,
+        key: str,
+        rendezvous: Path,
+        marker: str,
+    ) -> None:
+        binary = root / "build" / "server"
+        binary.mkdir(parents=True)
+        executable = binary / "atrinik-server"
+        executable.write_text(
+            "#!/usr/bin/env python3\n"
+            "import os, pathlib, socket, sys, time\n"
+            "port = int(next(value.split('=', 1)[1] for value in sys.argv "
+            "if value.startswith('--port_quic=')))\n"
+            "datapath = pathlib.Path(next(value.split('=', 1)[1] for value in "
+            "sys.argv if value.startswith('--datapath=')))\n"
+            "(datapath / 'scope-state-proof').write_text('isolated\\n', "
+            "encoding='utf-8')\n"
+            f"rendezvous = pathlib.Path({str(rendezvous)!r})\n"
+            f"marker = rendezvous / {marker!r}\n"
+            "udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)\n"
+            "udp.bind(('0.0.0.0', port))\n"
+            "marker.write_text('bound\\n', encoding='utf-8')\n"
+            "deadline = time.monotonic() + 10\n"
+            "while len(list(rendezvous.glob('*.bound'))) != 2:\n"
+            "    if time.monotonic() >= deadline:\n"
+            "        raise RuntimeError('scope readiness rendezvous timed out')\n"
+            "    time.sleep(0.01)\n"
+            f"print('QUIC certificate SHA-256: {'d' * 64}', flush=True)\n"
+            "print('Server ready. Waiting for connections...', flush=True)\n"
+            "while True:\n"
+            "    time.sleep(0.1)\n",
+            encoding="utf-8",
+        )
+        executable.chmod(0o755)
+        for name in ("libplugin_arena.so", "libplugin_python.so"):
+            (binary / name).write_text("test\n", encoding="utf-8")
+        for path, purpose in (
+            (root / "runtime" / "content", "collected-content"),
+            (root / "runtime" / "resources", "resource-view"),
+            (root / "runtime" / "client-maps", "region-map-cache"),
+        ):
+            path.mkdir(parents=True, exist_ok=True)
+            atomic_json(
+                path / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": purpose},
+            )
+        (root / "runtime" / "content" / "lib").mkdir()
+        (root / "runtime" / "content" / "maps").mkdir()
+        (root / "runtime" / "client-maps" / "incuna_-1.png").write_bytes(
+            b"\x89PNG\r\n\x1a\n"
+        )
+        (root / "runtime" / "client-maps" / "incuna_-1.def").write_text(
+            "pixel_size 4\n", encoding="utf-8"
+        )
+        atomic_json(root / BUILD_METADATA, {"profile": profile, "key": key})
+        atomic_json(
+            root / MANAGED_MARKER,
+            {"schema_version": 1, "purpose": f"profile:{profile}:{key}"},
+        )
+
+    def release_scope(self, name: str) -> dict[str, object]:
+        preview = self.workspace.scope_release(name, apply=False)
+        self.assertTrue(preview["can_apply"], preview["items"])
+        return self.workspace.scope_release(
+            name, apply=True, plan_sha256=preview["plan_sha256"]
+        )
+
+    def stop_topology_after_guardian_handoff(self, name: str) -> dict[str, object]:
+        retry_gate = threading.Event()
+        observations = 0
+        while observations < 100:
+            try:
+                return self.workspace.topology_down(name, timeout=10)
+            except locking_module.LockBusyError:
+                status = self.workspace.topology_status(name)
+                self.assertIn(
+                    status["observation"]["process_tree_lease"],
+                    {"retained", "released"},
+                )
+                observations += 1
+                retry_gate.wait(0.01)
+        self.fail(f"guardian did not release the exact state lease for {name}")
 
     def test_completed_retry_is_exact_and_conflicts_do_not_overwrite(self) -> None:
         self.make_checkout("client")
@@ -353,6 +460,163 @@ class ScopeLifecycleTests(unittest.TestCase):
             observed[second["profile"]["name"]],
             second["worktrees"][0]["path"],
         )
+
+    def test_complete_dual_scope_server_lifecycle_is_independent(self) -> None:
+        self.make_checkout("classic")
+        self.make_checkout("content")
+        self.make_checkout("resources")
+        scopes = [
+            self.workspace.scope_create(
+                ["classic-server"], name=f"complete-{suffix}", base_profile="classic"
+            )
+            for suffix in ("a", "b")
+        ]
+        self.assertEqual(
+            len({record["worktrees"][0]["path"] for record in scopes}), 2
+        )
+        self.assertEqual(
+            len({record["worktrees"][0]["common_git_dir"] for record in scopes}),
+            1,
+        )
+
+        rendezvous = self.root / "complete-scope-readiness"
+        rendezvous.mkdir()
+        roots: dict[str, Path] = {}
+        for index, record in enumerate(scopes):
+            profile = record["profile"]["name"]
+            key = str(index + 1) * 64
+            root = self.workspace.paths.builds / "profiles" / f"{profile}-{key}"
+            self.make_scope_server_build(
+                root, profile, key, rendezvous, f"{record['name']}.bound"
+            )
+            roots[profile] = root
+
+        build_rendezvous = threading.Barrier(2)
+        coordination: list[tuple[str, str]] = []
+        coordination_lock = threading.Lock()
+        build_calls: dict[str, int] = {}
+
+        def controlled_build(
+            workspace: Workspace,
+            target: str,
+            profile: str,
+            tests: bool,
+            targets: list[str],
+            selected: dict[str, Path],
+            **_options: object,
+        ) -> Path:
+            self.assertIn("server", selected)
+            with coordination_lock:
+                phase = "build" if build_calls.get(profile, 0) == 0 else "startup-build"
+                build_calls[profile] = build_calls.get(profile, 0) + 1
+                coordination.append((phase, profile))
+            if phase == "build":
+                self.assertEqual(target, "server")
+                self.assertTrue(tests)
+            else:
+                self.assertEqual(target, "topology")
+                self.assertFalse(tests)
+            build_rendezvous.wait(timeout=10)
+            return roots[profile]
+
+        sessions = [Workspace(self.wrapper), Workspace(self.wrapper)]
+        names = [record["topology"]["name"] for record in scopes]
+        try:
+            with mock.patch.object(Workspace, "_build_resolved", controlled_build):
+                with ThreadPoolExecutor(max_workers=2) as executor:
+                    builds = [
+                        executor.submit(
+                            sessions[index].build,
+                            "server",
+                            scopes[index]["profile"]["name"],
+                            True,
+                        )
+                        for index in range(2)
+                    ]
+                    self.assertEqual(
+                        {future.result(timeout=20) for future in builds}, set(roots.values())
+                    )
+                with ThreadPoolExecutor(max_workers=2) as executor:
+                    startups = [
+                        executor.submit(
+                            sessions[index].topology_up,
+                            names[index],
+                            scopes[index]["profile"]["name"],
+                            None,
+                            ["server"],
+                            None,
+                            "temporary",
+                        )
+                        for index in range(2)
+                    ]
+                    statuses = [future.result(timeout=30) for future in startups]
+
+            self.assertEqual(
+                coordination.count(("build", scopes[0]["profile"]["name"])), 1
+            )
+            self.assertEqual(
+                coordination.count(("build", scopes[1]["profile"]["name"])), 1
+            )
+            self.assertEqual(
+                coordination.count(
+                    ("startup-build", scopes[0]["profile"]["name"])
+                ),
+                1,
+            )
+            self.assertEqual(
+                coordination.count(
+                    ("startup-build", scopes[1]["profile"]["name"])
+                ),
+                1,
+            )
+            self.assertEqual(
+                {path.name for path in rendezvous.glob("*.bound")},
+                {f"{record['name']}.bound" for record in scopes},
+            )
+            self.assertTrue(all(status["ready"] for status in statuses))
+            self.assertEqual(
+                len({status["endpoint"]["port"] for status in statuses}), 2
+            )
+            self.assertEqual(
+                len({status["state_policy"]["path"] for status in statuses}), 2
+            )
+
+            observed = [self.workspace.topology_status(name) for name in names]
+            a_generation = observed[0]["runtime"]["generation"]
+            a_manifest = observed[0]["runtime"]["manifest_sha256"]
+            self.assertTrue(observed[0]["supervisor"]["running"])
+            self.assertTrue(observed[1]["supervisor"]["running"])
+
+            stopped_b = self.stop_topology_after_guardian_handoff(names[1])
+            self.assertFalse(stopped_b["supervisor"]["running"])
+            released_b = self.release_scope(scopes[1]["name"])
+            self.assertTrue(released_b["released"])
+
+            live_a = self.workspace.topology_status(names[0])
+            self.assertTrue(live_a["supervisor"]["running"])
+            self.assertEqual(live_a["runtime"]["generation"], a_generation)
+            self.assertEqual(live_a["runtime"]["manifest_sha256"], a_manifest)
+            self.assertTrue(Path(scopes[0]["worktrees"][0]["path"]).is_dir())
+            self.assertTrue(Path(scopes[0]["profile"]["path"]).is_file())
+            self.assertFalse(Path(scopes[1]["worktrees"][0]["path"]).exists())
+            self.assertFalse(Path(scopes[1]["profile"]["path"]).exists())
+
+            stopped_a = self.stop_topology_after_guardian_handoff(names[0])
+            self.assertFalse(stopped_a["supervisor"]["running"])
+            released_a = self.release_scope(scopes[0]["name"])
+            self.assertTrue(released_a["released"])
+        finally:
+            for name in names:
+                try:
+                    status = self.workspace.topology_status(name)
+                    if status["supervisor"]["running"] or any(
+                        service["running"] for service in status["services"].values()
+                    ):
+                        self.stop_topology_after_guardian_handoff(name)
+                except (OSError, WorkspaceError):
+                    pass
+            for session in sessions:
+                session.close()
 
     def test_same_scope_race_has_one_winner_and_no_unowned_partial(self) -> None:
         self.make_checkout("client")
@@ -663,6 +927,66 @@ class ScopeLifecycleTests(unittest.TestCase):
         self.assertIn("profile", journal["completed"])
         self.assertIn("worktree:client", journal["completed"])
 
+    def test_every_release_publication_boundary_recovers_from_interruption(self) -> None:
+        self.make_checkout("client")
+        for index, boundary_kind in enumerate(
+            ("journal", "build", "profile", "worktree", "complete")
+        ):
+            name = f"release-boundary-{index}"
+            record = self.workspace.scope_create(["client"], name=name)
+            profile = record["profile"]["name"]
+            key = str(index + 1) * 64
+            root = self.workspace.paths.builds / "profiles" / f"{profile}-{key}"
+            root.mkdir(parents=True)
+            atomic_json(root / BUILD_METADATA, {"profile": profile, "key": key})
+            atomic_json(
+                root / MANAGED_MARKER,
+                {"schema_version": 1, "purpose": f"profile:{profile}:{key}"},
+            )
+            expected = {
+                "journal": "release:journal",
+                "build": f"release:build:{root.name}",
+                "profile": "release:profile",
+                "worktree": "release:worktree:client",
+                "complete": "release:complete",
+            }[boundary_kind]
+            preview = self.workspace.scope_release(name, apply=False)
+            observed: list[str] = []
+
+            def interrupt(boundary: str) -> None:
+                observed.append(boundary)
+                if boundary == expected:
+                    raise WorkspaceError(
+                        f"injected release failure after publication boundary: {boundary}"
+                    )
+
+            with self.subTest(boundary=expected), mock.patch.object(
+                ScopeLifecycle, "_maybe_fail", side_effect=interrupt
+            ):
+                with self.assertRaisesRegex(
+                    WorkspaceError, "injected release failure"
+                ):
+                    self.workspace.scope_release(
+                        name,
+                        apply=True,
+                        plan_sha256=preview["plan_sha256"],
+                    )
+            self.assertIn(expected, observed)
+            retry = self.workspace.scope_release(name, apply=False)
+            released = self.workspace.scope_release(
+                name, apply=True, plan_sha256=retry["plan_sha256"]
+            )
+            self.assertTrue(released["released"])
+            journal = json.loads(
+                Path(record["cleanup"]["release_journal"]).read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(journal["status"], "complete")
+            self.assertFalse(root.exists())
+            self.assertFalse(Path(record["profile"]["path"]).exists())
+            self.assertFalse(Path(record["worktrees"][0]["path"]).exists())
+
     def test_release_removes_only_exact_scope_build_ownership(self) -> None:
         self.make_checkout("client")
         record = self.workspace.scope_create(["client"], name="build-release")
@@ -723,6 +1047,7 @@ class ScopeLifecycleTests(unittest.TestCase):
             self.workspace,
             "topology_status",
             return_value={
+                "profile": live["profile"]["name"],
                 "supervisor": {"running": True, "liveness": "live"},
                 "services": {},
                 "observation": {},
@@ -732,6 +1057,26 @@ class ScopeLifecycleTests(unittest.TestCase):
         self.assertIn(
             "live_topology",
             next(item for item in preview["items"] if item["kind"] == "topology")["reasons"],
+        )
+
+        mismatched = self.workspace.scope_create(["client"], name="mismatched")
+        Path(mismatched["topology"]["path"]).mkdir()
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            return_value={
+                "profile": "outside-profile",
+                "supervisor": {"running": False, "liveness": "exited"},
+                "services": {},
+                "observation": {},
+            },
+        ):
+            preview = self.workspace.scope_release("mismatched", apply=False)
+        self.assertIn(
+            "unexpected_topology_profile",
+            next(item for item in preview["items"] if item["kind"] == "topology")[
+                "reasons"
+            ],
         )
 
         referenced = self.workspace.scope_create(["client"], name="referenced")
@@ -773,6 +1118,7 @@ class ScopeLifecycleTests(unittest.TestCase):
             self.workspace,
             "topology_status",
             return_value={
+                "profile": unreachable["profile"]["name"],
                 "supervisor": {"running": True, "liveness": "unreachable"},
                 "services": {},
                 "observation": {"process_tree_lease": "retained"},
@@ -790,6 +1136,7 @@ class ScopeLifecycleTests(unittest.TestCase):
             self.workspace,
             "topology_status",
             return_value={
+                "profile": retained["profile"]["name"],
                 "supervisor": {"running": False, "liveness": "exited"},
                 "services": {},
                 "observation": {"runtime_bundle_lease": "retained"},
@@ -847,6 +1194,110 @@ class ScopeLifecycleTests(unittest.TestCase):
         )
         self.assertEqual(default["state_policy"]["mode"], "default")
         self.assertIn("--default-state", default["commands"]["up"])
+
+    def test_randomized_scope_lifecycle_stress_leaves_no_cross_scope_debris(
+        self,
+    ) -> None:
+        self.make_checkout("client")
+        workspace_marker = self.workspace.paths.marker.read_bytes()
+        coordination = {
+            "provisions": 0,
+            "observations": 0,
+            "releases": 0,
+        }
+        secret = "scope-stress-secret-must-not-leak"
+        with mock.patch.dict(os.environ, {"ATRINIK_SCOPE_STRESS_SENTINEL": secret}):
+            for repetition in range(6):
+                names = [f"stress-{repetition}-{suffix}" for suffix in ("a", "b")]
+
+                def create(name: str) -> dict[str, object]:
+                    workspace = Workspace(self.wrapper)
+                    try:
+                        return workspace.scope_create(["client"], name=name)
+                    finally:
+                        workspace.close()
+
+                with ThreadPoolExecutor(max_workers=2) as executor:
+                    futures = [executor.submit(create, name) for name in names]
+                    records = [future.result(timeout=20) for future in futures]
+                coordination["provisions"] += len(records)
+                self.assertEqual(
+                    len({record["worktrees"][0]["path"] for record in records}),
+                    2,
+                )
+
+                operations: list[tuple[str, dict[str, object]]] = [
+                    (operation, record)
+                    for record in records
+                    for operation in ("show", "path", "preview", "mutation-proof")
+                ]
+                random.Random(404_000 + repetition).shuffle(operations)
+                for operation, record in operations:
+                    if operation == "show":
+                        self.assertEqual(
+                            self.workspace.scope_show(record["name"]), record
+                        )
+                    elif operation == "path":
+                        self.assertEqual(
+                            self.workspace.component_path(
+                                "client", record["profile"]["name"]
+                            ),
+                            Path(record["worktrees"][0]["path"]),
+                        )
+                    elif operation == "preview":
+                        self.assertTrue(
+                            self.workspace.scope_release(
+                                record["name"], apply=False
+                            )["can_apply"]
+                        )
+                    else:
+                        path = Path(record["worktrees"][0]["path"])
+                        other = next(
+                            Path(candidate["worktrees"][0]["path"])
+                            for candidate in records
+                            if candidate["name"] != record["name"]
+                        )
+                        probe = path / f"scope-{record['name']}.probe"
+                        probe.write_text(record["name"], encoding="utf-8")
+                        self.assertFalse((other / probe.name).exists())
+                        self.assertEqual(probe.read_text(encoding="utf-8"), record["name"])
+                        probe.unlink()
+                    coordination["observations"] += 1
+
+                random.Random(404_100 + repetition).shuffle(records)
+                for record in records:
+                    self.assertTrue(self.release_scope(record["name"])["released"])
+                    coordination["releases"] += 1
+
+        self.assertEqual(
+            coordination,
+            {"provisions": 12, "observations": 48, "releases": 12},
+        )
+        self.assertEqual(self.workspace.paths.marker.read_bytes(), workspace_marker)
+        for root in sorted(self.workspace.paths.scopes.iterdir()):
+            self.assertTrue((root / "scope.json").is_file())
+            creation = json.loads(
+                (root / "creation-journal.json").read_text(encoding="utf-8")
+            )
+            release = json.loads(
+                (root / "release-journal.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(creation["status"], "complete")
+            self.assertEqual(release["status"], "complete")
+            self.workspace.scope_show(root.name)
+            for evidence in root.glob("*.json"):
+                self.assertNotIn(secret, evidence.read_text(encoding="utf-8"))
+        self.workspace.close()
+        for owners in self.workspace._lease_namespace.rglob("*.owners"):
+            locking_module._lease_owner_summary(
+                owners.with_name(owners.name.removesuffix(".owners"))
+            )
+            remaining = list(owners.iterdir())
+            self.assertEqual(
+                remaining,
+                [],
+                [json.loads(path.read_text(encoding="utf-8")) for path in remaining],
+            )
 
     def test_live_scope_a_does_not_block_scope_b_release(self) -> None:
         self.make_checkout("client")

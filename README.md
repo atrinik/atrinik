@@ -655,6 +655,15 @@ created worktrees and profiles that remain clean, unchanged, and unreferenced;
 changed or uncertain inputs and the durable journal remain as explicit cleanup
 references for recovery.
 
+The returned commands form one complete lifecycle: build the scope profile,
+start only its reserved topology with its recorded state policy, inspect it,
+stop it, then preview and apply release. Two scopes may select distinct
+worktrees of one physical checkout and run that lifecycle concurrently. A live
+scope A does not prevent a disjoint scope B from stopping and releasing. Use
+readiness markers, lease ownership, and published status transitions when
+testing concurrency; timeouts bound failure but elapsed compiler or startup
+time is not correctness evidence.
+
 Scope release is explicit and hash-bound preview-first:
 
 ~~~sh
@@ -667,8 +676,14 @@ live or unreachable topology, retained generation, active lease, dirty,
 detached, replaced, ambiguously owned, or unexpectedly referenced worktree,
 changed profile, or uncertain build root. Named and default persistent state
 is always retained. Stopped topology history remains owned by the separate
-topology-cleanup lifecycle. The completed scope record and release journal are
-retained as recovery evidence.
+topology-cleanup lifecycle; its exact stopped scope-owned reference does not
+prevent release after all runtime, port, and state leases are released. A
+mismatched or unrelated topology reference still fails closed. Release
+journals its initial publication and every build, profile, worktree, and final
+completion boundary. After interruption, run a fresh preview and resume with
+that new digest; completed removals are not repeated. The completed scope
+record and release journal are retained as recovery evidence and remain
+available to bounded, secret-free shell completion.
 
 ## Checkout worktrees
 

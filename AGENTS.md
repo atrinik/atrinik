@@ -49,7 +49,9 @@
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.
 - Prefer `scope create` for agents; use JSON handoff and
-  preview/apply release. Primitives remain.
+  preview/apply release. Stop its exact topology first; released runtime/state
+  leases and exact stopped history permit scope release, while mismatched or
+  uncertain references fail closed. Primitives remain.
 - Use wrapper commands and paths; never reconstruct managed paths. Give
   concurrent topologies distinct names, states, ports, and client config;
   prefer temporary state.

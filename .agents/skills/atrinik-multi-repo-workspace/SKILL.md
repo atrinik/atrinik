@@ -59,7 +59,12 @@ remain supported. Release only with the freshly previewed plan digest:
 ```
 
 Release never stops topologies or deletes persistent state. Unsafe or uncertain
-coordinates fail closed and retain their recovery journals.
+coordinates fail closed and retain their recovery journals. After a clean
+scope topology `down`, its exact stopped history remains for topology cleanup
+but does not block release once runtime, port, and state leases are released;
+unrelated or mismatched topology references still block. If release is
+interrupted after any journaled build/profile/worktree action, preview again
+and apply only the new digest. The retry preserves completed actions.
 
 Reclaim review data only through preview-first cleanup:
 
@@ -107,6 +112,13 @@ content/resources and cleanup. Completion is bounded, local, read-only,
 secret-free and parser-driven before `Workspace`; stops at `--` or a `run`
 remainder.
 
+Concurrency verification composes the returned scope commands. Use two scopes
+with different worktrees of one physical checkout, overlap their builds and
+server readiness through observable rendezvous markers, keep A live while B is
+inspected/stopped/released, then finish A independently. Count rendezvous
+arrivals, ownership transitions, completed operations, and exact conflicts;
+timeouts are failure bounds, not compiler-wall-clock gates.
+
 For classic server execution or diagnosis, load `atrinik-server-runtime`. For
 a ready account and character, also load `atrinik-test-scenario`; never
 handcraft saves or expose credentials. Keep every concurrent topology on a
@@ -126,6 +138,8 @@ names and follows this lifecycle:
 ./atrinik ps TOPOLOGY --json
 ./atrinik logs TOPOLOGY [server|client] --follow
 ./atrinik down TOPOLOGY
+./atrinik scope release SCOPE --dry-run --json
+./atrinik scope release SCOPE --apply --plan PLAN_SHA256 --json
 ```
 
 Record prerequisites, actions, expected results, and cleanup. If runtime is
