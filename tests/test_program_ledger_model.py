@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import copy
+from datetime import datetime
 import fcntl
 import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import tempfile
 import unittest
 
@@ -28,6 +30,10 @@ class CallPermit:
 class ProgramLedgerModel:
     """Reference reducer with distinct persistence and remote-call boundaries."""
 
+    MAX_LEDGER_BYTES = 8 * 1024 * 1024
+    MAX_COLLECTION = 10_000
+    MAX_STRING_BYTES = 65_536
+
     KEYS = {
         "generation", "self_inode", "lock", "previous_sha256", "authority", "graph",
         "next_graph", "comment", "create", "link", "leaf_snapshots", "observation",
@@ -36,6 +42,7 @@ class ProgramLedgerModel:
     def __init__(self) -> None:
         empty = {
             "phase": "none", "node": None, "prior": None,
+            "created_at": None,
             "plan_observation": None, "arm_observation": None,
             "retry_observation": None,
         }
@@ -61,6 +68,63 @@ class ProgramLedgerModel:
     @staticmethod
     def canonical(record: dict[str, object]) -> bytes:
         return (json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n").encode()
+
+    @classmethod
+    def decode(cls, raw: bytes) -> dict[str, object]:
+        if not cls.raw_size_allowed(len(raw)):
+            raise StopClosed("ledger exceeds its pre-parse byte ceiling")
+        try:
+            value = json.loads(raw)
+        except (UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise StopClosed("ledger JSON is invalid") from error
+        if (
+            not isinstance(value, dict) or not cls.value_is_bounded(value)
+            or len(cls.canonical(value)) > cls.MAX_LEDGER_BYTES
+        ):
+            raise StopClosed("canonical ledger exceeds its byte ceiling")
+        return value
+
+    @classmethod
+    def raw_size_allowed(cls, size: object) -> bool:
+        return (
+            isinstance(size, int) and not isinstance(size, bool)
+            and 0 <= size <= cls.MAX_LEDGER_BYTES
+        )
+
+    @classmethod
+    def value_is_bounded(cls, value: object) -> bool:
+        if isinstance(value, str):
+            return len(value.encode()) <= cls.MAX_STRING_BYTES
+        if isinstance(value, dict):
+            return len(value) <= cls.MAX_COLLECTION and all(
+                cls.value_is_bounded(key)
+                and (
+                    cls.path_is_bounded(item)
+                    if key.endswith("_path") else cls.value_is_bounded(item)
+                )
+                for key, item in value.items()
+            )
+        if isinstance(value, list):
+            return len(value) <= cls.MAX_COLLECTION and all(
+                cls.value_is_bounded(item) for item in value
+            )
+        return value is None or type(value) in {bool, int}
+
+    @staticmethod
+    def path_is_bounded(value: object) -> bool:
+        return isinstance(value, str) and len(value.encode()) <= 4_096
+
+    @staticmethod
+    def valid_timestamp(value: object) -> bool:
+        if not isinstance(value, str) or not re.fullmatch(
+            r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z", value
+        ):
+            return False
+        try:
+            parsed = datetime.fromisoformat(value[:-1] + "+00:00")
+        except ValueError:
+            return False
+        return parsed.tzinfo is not None and parsed.utcoffset().total_seconds() == 0
 
     def digest(self) -> str:
         return hashlib.sha256(self.canonical(self.record)).hexdigest()
@@ -95,6 +159,8 @@ class ProgramLedgerModel:
     ) -> "ProgramLedgerModel":
         if record is None or lock_inode is None:
             raise StopClosed("ledger or stable lock was lost")
+        if not cls.value_is_bounded(record):
+            raise StopClosed("ledger value exceeds a collection or string bound")
         if set(record) != cls.KEYS or observed_inode != record.get("self_inode"):
             raise StopClosed("schema or inode corruption")
         if record["lock"] != {"device": 1, "inode": lock_inode}:
@@ -115,8 +181,8 @@ class ProgramLedgerModel:
         ):
             raise StopClosed("generation lineage is corrupt")
         common_keys = {
-            "phase", "node", "prior", "plan_observation", "arm_observation",
-            "retry_observation",
+            "phase", "node", "prior", "created_at", "plan_observation",
+            "arm_observation", "retry_observation",
         }
 
         def valid_observation(value: object) -> bool:
@@ -150,6 +216,7 @@ class ProgramLedgerModel:
                 raise StopClosed("slot keys are corrupt")
             if slot["phase"] == "none" and (
                 slot.get("node") is not None or slot.get("prior") is not None
+                or slot.get("created_at") is not None
                 or slot["plan_observation"] is not None
                 or slot["arm_observation"] is not None
                 or slot["retry_observation"] is not None
@@ -176,27 +243,42 @@ class ProgramLedgerModel:
                 )
             ):
                 raise StopClosed("PATCH retry observation is corrupt")
-            if slot["phase"] == "bound" and slot["retry_observation"] is not None:
-                raise StopClosed("bound phase retains retry authority")
-            if name in {"comment", "create"} and slot["phase"] == "bound" and (
+            if slot["phase"] == "bound" and any(
+                slot[field] is not None for field in (
+                    "plan_observation", "arm_observation", "retry_observation"
+                )
+            ):
+                raise StopClosed("bound phase retains ephemeral authority")
+            if name == "comment" and slot["phase"] == "bound" and (
                 not isinstance(slot["node"], str) or slot["prior"] is not None
+                or slot["created_at"] is not None
             ):
                 raise StopClosed("bound result is incomplete")
+            if name == "create" and slot["phase"] == "bound" and (
+                not isinstance(slot["node"], str) or slot["prior"] is not None
+                or not cls.valid_timestamp(slot["created_at"])
+            ):
+                raise StopClosed("bound child result is incomplete")
             if name == "create" and slot["phase"] in {"planned", "in-flight"} and (
                 slot["node"] is not None or slot["prior"] is not None
+                or slot["created_at"] is not None
             ):
                 raise StopClosed("create intent contains a result")
             if name == "link" and slot["phase"] in {"planned", "in-flight"} and (
                 slot["node"] is not None or slot["prior"] is not None
+                or slot["created_at"] is not None
             ):
                 raise StopClosed("link intent contains a result")
             if name == "comment" and slot["phase"] in {"planned", "in-flight"} and not (
-                (slot["node"] is None and slot["prior"] is None)
-                or (isinstance(slot["node"], str) and slot["prior"] == "old-body")
+                slot["created_at"] is None and (
+                    (slot["node"] is None and slot["prior"] is None)
+                    or (isinstance(slot["node"], str) and slot["prior"] == "old-body")
+                )
             ):
                 raise StopClosed("comment POST/PATCH intent is corrupt")
             if name == "link" and slot["phase"] == "bound" and (
                 slot["node"] is not None or slot["prior"] is not None
+                or slot["created_at"] is not None
                 or slot["parent"] != "master" or slot["child"] != "issue-node"
                 or not isinstance(slot["proof"], str) or not slot["proof"]
             ):
@@ -255,10 +337,17 @@ class ProgramLedgerModel:
         cursors: list[str], node_ids: list[str], first_digest: str,
         second_digest: str, complete: bool = True, pages: int = 1,
         nodes: int = 0, body_bytes: int = 0, timed_out: bool = False,
+        body_sizes: list[int] | None = None,
     ) -> None:
+        body_sizes = [] if body_sizes is None else body_sizes
         if (
-            not complete or timed_out or pages > 100 or nodes > 10_000
+            not complete or timed_out or pages < 0 or pages > 100
+            or nodes < 0 or nodes > 10_000 or body_bytes < 0
             or body_bytes > 16 * 1024 * 1024
+            or any(
+                not isinstance(size, int) or isinstance(size, bool)
+                or size < 0 or size > 65_536 for size in body_sizes
+            )
             or len(cursors) != len(set(cursors))
             or len(node_ids) != len(set(node_ids))
             or first_digest != second_digest
@@ -428,7 +517,10 @@ class ProgramLedgerModel:
         permit.used = True
         self.remote_calls[permit.slot] += 1
 
-    def _bind(self, slot: str, exact_results: list[str], result_stream: str) -> None:
+    def _bind(
+        self, slot: str, exact_results: list[str], result_stream: str,
+        created_at: str | None = None,
+    ) -> None:
         kind = {"comment": "comment", "create": "child"}[slot]
         observed = self.record["observation"][kind]
         armed = self.record[slot]["arm_observation"]
@@ -443,6 +535,7 @@ class ProgramLedgerModel:
         self.persist(
             lambda r: r[slot].update(
                 phase="bound", node=exact_results[0], prior=None,
+                created_at=created_at,
                 plan_observation=None, arm_observation=None, retry_observation=None,
             )
         )
@@ -473,10 +566,12 @@ class ProgramLedgerModel:
             and item["node"] == "issue-node" and item["creator"] == "actor"
             and item["title"] == "title" and item["body"] == "body"
             and item["child_marker"] == "program-child-marker"
+            and self.valid_timestamp(item["created_at"])
         ]
         self._bind(
             "create", [item["node"] for item in exact],
             self.result_stream(candidates),
+            exact[0]["created_at"] if exact else None,
         )
 
     def bind_link(self, child_parent: str, parent_subissues: list[str]) -> None:
@@ -687,6 +782,50 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 retry.record["authority"],
             )
 
+    def test_bound_slots_reject_retained_ephemeral_authority(self) -> None:
+        models: list[tuple[ProgramLedgerModel, str]] = []
+
+        comment = ProgramLedgerModel()
+        comment.observe_comment()
+        comment.plan_comment()
+        self.refresh_before_arm(comment, "comment")
+        comment.execute(comment.arm("comment"))
+        self.observe_result(comment, "comment")
+        comment.bind_comment([self.exact_comment()])
+        models.append((comment, "comment"))
+
+        child = ProgramLedgerModel()
+        child.classify_child([])
+        child.plan_create()
+        self.refresh_before_arm(child, "create")
+        child.execute(child.arm("create"))
+        self.observe_result(child, "create")
+        child.bind_create([self.exact_child()])
+        models.append((child, "create"))
+
+        link = copy.deepcopy(child)
+        link.observe_parent()
+        link.plan_link()
+        self.refresh_before_arm(link, "link")
+        link.execute(link.arm("link"))
+        self.observe_result(link, "link")
+        link.bind_link("master", ["issue-node"])
+        models.append((link, "link"))
+
+        for model, slot in models:
+            corrupt = copy.deepcopy(model.record)
+            evidence = copy.deepcopy(corrupt["observation"][{
+                "comment": "comment", "create": "child", "link": "parent"
+            }[slot]])
+            corrupt[slot]["plan_observation"] = evidence
+            corrupt[slot]["arm_observation"] = evidence
+            with self.subTest(slot=slot), self.assertRaises(StopClosed):
+                ProgramLedgerModel.resume(
+                    corrupt, 41, corrupt["self_inode"],
+                    hashlib.sha256(ProgramLedgerModel.canonical(corrupt)).hexdigest(),
+                    corrupt["authority"],
+                )
+
     def test_filesystem_lock_is_stable_across_atomic_ledger_replace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -753,9 +892,14 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
     def test_multi_page_bounds_and_stream_stability(self) -> None:
         ProgramLedgerModel.stable_scan(["a", "b"], ["1", "2"], "d", "d")
+        ProgramLedgerModel.stable_scan(
+            [], [], "d", "d", body_bytes=65_536, body_sizes=[65_536]
+        )
         cases = (
             {"complete": False}, {"timed_out": True}, {"pages": 101},
             {"nodes": 10_001}, {"body_bytes": 16 * 1024 * 1024 + 1},
+            {"pages": -1}, {"nodes": -1}, {"body_bytes": -1},
+            {"body_sizes": [65_537]}, {"body_sizes": [-1]},
         )
         for kwargs in cases:
             with self.subTest(kwargs=kwargs), self.assertRaises(StopClosed):
@@ -764,6 +908,33 @@ class ProgramLedgerModelTests(unittest.TestCase):
             ProgramLedgerModel.stable_scan(["a", "a"], ["1"], "d", "d")
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.stable_scan([], [], "before", "after")
+
+    def test_ledger_size_and_nested_value_bounds_precede_parsing(self) -> None:
+        maximum = ProgramLedgerModel.MAX_LEDGER_BYTES
+        self.assertTrue(ProgramLedgerModel.raw_size_allowed(maximum))
+        self.assertFalse(ProgramLedgerModel.raw_size_allowed(maximum + 1))
+        self.assertEqual(ProgramLedgerModel.decode(b'{"x":"ok"}\n'), {"x": "ok"})
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.decode(b" " * (maximum + 1))
+
+        model = ProgramLedgerModel()
+        corrupt = copy.deepcopy(model.record)
+        corrupt["graph"] = ["x" * (ProgramLedgerModel.MAX_STRING_BYTES + 1)]
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.resume(
+                corrupt, 41, corrupt["self_inode"],
+                hashlib.sha256(ProgramLedgerModel.canonical(corrupt)).hexdigest(),
+                corrupt["authority"],
+            )
+        self.assertTrue(ProgramLedgerModel.value_is_bounded(
+            {"ledger_path": "p" * 4_096, "items": [None] * 10_000}
+        ))
+        self.assertFalse(ProgramLedgerModel.value_is_bounded(
+            {"ledger_path": "p" * 4_097}
+        ))
+        self.assertFalse(ProgramLedgerModel.value_is_bounded(
+            {"items": [None] * 10_001}
+        ))
 
     def test_marker_namespace_actor_and_duplicates_fail_closed(self) -> None:
         ProgramLedgerModel.validate_marker([], "actor", False)
@@ -848,7 +1019,9 @@ class ProgramLedgerModelTests(unittest.TestCase):
             create.arm("create")
 
         link = ProgramLedgerModel()
-        link.record["create"].update(phase="bound", node="issue-node")
+        link.record["create"].update(
+            phase="bound", node="issue-node", created_at="2026-08-14T00:00:00Z"
+        )
         link.observe_parent()
         link.plan_link()
         link.observe_parent(["issue-node"], stream="blocked")
@@ -869,7 +1042,10 @@ class ProgramLedgerModelTests(unittest.TestCase):
                     model.classify_child([])
                     model.plan_create()
                 else:
-                    model.record["create"].update(phase="bound", node="issue-node")
+                    model.record["create"].update(
+                        phase="bound", node="issue-node",
+                        created_at="2026-08-14T00:00:00Z",
+                    )
                     model.observe_parent()
                     model.plan_link()
                 self.refresh_before_arm(model, slot)
@@ -1013,12 +1189,31 @@ class ProgramLedgerModelTests(unittest.TestCase):
         exact_stream = model.result_stream([exact])
         model.classify_child([exact], exact_stream, exact_stream)
         model.bind_create([exact])
+        self.assertEqual(model.record["create"]["created_at"], exact["created_at"])
+
+        for timestamp in (
+            "", "2026-08-14T00:00:00", "2026-08-14T00:00:00+01:00",
+            "not-a-time",
+        ):
+            with self.subTest(timestamp=timestamp):
+                rejected = ProgramLedgerModel()
+                rejected.classify_child([])
+                rejected.plan_create()
+                self.refresh_before_arm(rejected, "create")
+                rejected.execute(rejected.arm("create"))
+                child = dict(self.exact_child(), created_at=timestamp)
+                stream = rejected.result_stream([child])
+                rejected.classify_child([child], stream, stream)
+                with self.assertRaises(StopClosed):
+                    rejected.bind_create([child])
 
     def test_native_link_binds_parent_child_pair_without_edge_node(self) -> None:
         model = ProgramLedgerModel()
         with self.assertRaises(StopClosed):
             model.plan_link()
-        model.record["create"].update(phase="bound", node="issue-node")
+        model.record["create"].update(
+            phase="bound", node="issue-node", created_at="2026-08-14T00:00:00Z"
+        )
         model.observe_parent()
         model.plan_link()
         self.refresh_before_arm(model, "link")

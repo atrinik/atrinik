@@ -34,6 +34,17 @@ missing keys, booleans where integers are required, non-NFC strings, invalid
 URLs/node IDs/digests, and out-of-range values. Nullable fields are explicit
 JSON `null`.
 
+The ledger is bounded independently of remote pagination. Before reading or
+JSON decoding, `fstat` the open no-follow descriptor and reject a size above
+8,388,608 bytes; read through that descriptor with an 8,388,609-byte ceiling
+and reject excess or size drift. The validated canonical serialization must
+also be at most 8,388,608 bytes. Each array or object has at most 10,000
+members, every UTF-8 string is at most 65,536 bytes, and a ledger path is at
+most 4,096 UTF-8 bytes. These limits apply recursively, including graph,
+snapshot, dependency, observation, body, and evidence values. Check them
+before digesting or allocating derived canonical collections. A limit failure
+is corrupt state and stops; never truncate, partially parse, or rewrite it.
+
 ## Closed schema
 
 The top-level object has exactly:
