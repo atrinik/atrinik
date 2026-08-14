@@ -674,7 +674,9 @@ before build/runtime preparation and holds it for the lifetime of a launched
 server. Profile builds have their own blocking lock, and server launch views are
 keyed by state path and, for existing persistent directories, by physical
 device/inode identity so alternate mounted names cannot obtain distinct
-leases. Processes started outside the coordinator do not
+leases. Physical state locks are flat entries in the already classified lease
+namespace, so replacing a dynamically created child directory cannot fork the
+identity coordinate. Processes started outside the coordinator do not
 participate in the state lock, so operators must not point those processes at
 the same state concurrently. Startup also opens the selected state directory
 without following links, verifies its recorded device/inode identity, and hands
@@ -795,7 +797,10 @@ old disposable state as eligible after proving its markers, metadata, path
 identity, registry absence, stopped matching topology generation, and released
 process-tree, runtime-bundle, port-reservation, and exact state leases.
 Apply repeats those checks while holding the topology operation and state
-locks. Live, unreachable, busy, linked, malformed, registered, retained,
+locks. Registry exclusion compares physical directory identity as well as the
+canonical path. Owned deletion first moves each verified entry to a private
+no-replace tombstone and rechecks its inode before unlinking. Live, unreachable,
+busy, linked, malformed, registered, retained,
 promoted, or uncertain state is protected; missing or replaced lease evidence
 fails closed and cleanup never performs an implicit `down`.
 A topology may select one service, and distinct runtime names permit concurrent

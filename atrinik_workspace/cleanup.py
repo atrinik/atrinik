@@ -3675,11 +3675,19 @@ class Cleanup:
             item["generation"] = generation
             policy = creation_policy
             observed_lease_identity = held_lease_identity
-            registered = {
-                self.workspace._canonical_state_path(Path(value))
-                for value in self.workspace._load_states().values()
-            }
-            if path in registered:
+            registered_state = False
+            for value in self.workspace._load_states().values():
+                registered = self.workspace._canonical_state_path(Path(value))
+                if registered == path:
+                    registered_state = True
+                    break
+                if registered.exists() and not registered.is_symlink() and (
+                    self.workspace._state_identity(registered)
+                    == {"device": metadata.st_dev, "inode": metadata.st_ino}
+                ):
+                    registered_state = True
+                    break
+            if registered_state:
                 item["reasons"].append("registered_state")
             if check_lock:
                 state_lock = Path(f"{path}.lock")

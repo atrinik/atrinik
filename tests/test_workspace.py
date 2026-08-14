@@ -9493,7 +9493,7 @@ class WorkspaceTests(unittest.TestCase):
                 candidate.bind(("0.0.0.0", 0))
                 return int(candidate.getsockname()[1])
 
-        for mode in ("explicit", "automatic", "temporary"):
+        for mode in ("explicit", "automatic", "temporary", "mixed-policy"):
             with self.subTest(mode=mode):
                 rendezvous = self.root / f"{mode}-port-rendezvous"
                 rendezvous.mkdir()
@@ -9505,11 +9505,13 @@ class WorkspaceTests(unittest.TestCase):
                     self.make_rendezvous_server_build(
                         root, rendezvous, f"{index}.bound"
                     )
-                states: list[str | None] = (
-                    [None, None]
-                    if mode == "temporary"
-                    else [f"{mode}-state-{index}" for index in range(2)]
-                )
+                states: list[str | None]
+                if mode == "temporary":
+                    states = [None, None]
+                elif mode == "mixed-policy":
+                    states = [None, "mixed-policy-state"]
+                else:
+                    states = [f"{mode}-state-{index}" for index in range(2)]
                 for state in states:
                     if state is not None:
                         self.workspace.state_add(state, None)
@@ -9561,6 +9563,21 @@ class WorkspaceTests(unittest.TestCase):
                         )
                         registered = set(self.workspace._load_states().values())
                         self.assertTrue(state_paths.isdisjoint(registered))
+                    elif mode == "mixed-policy":
+                        self.assertEqual(
+                            [
+                                status["state_policy"]["mode"]
+                                for status in statuses
+                            ],
+                            ["temporary", "named"],
+                        )
+                        registered = set(self.workspace._load_states().values())
+                        self.assertNotIn(
+                            statuses[0]["state_policy"]["path"], registered
+                        )
+                        self.assertIn(
+                            statuses[1]["state_policy"]["path"], registered
+                        )
                     observer = Workspace(self.wrapper)
                     for index, name in enumerate(names):
                         observed = observer.topology_status(name)
@@ -9929,8 +9946,7 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "already in use"):
             with exclusive_lock(
                 self.workspace._lease_namespace
-                / "state-identities"
-                / f"{identity['device']}-{identity['inode']}.lock",
+                / f"state-identity-{identity['device']}-{identity['inode']}.lock",
                 "live physical state",
                 nonblocking=True,
             ):
@@ -10403,6 +10419,47 @@ class WorkspaceTests(unittest.TestCase):
         displaced_state.rename(retained_path)
         (retained_path / workspace_module.PROMOTED_STATE_METADATA).unlink()
         atomic_json(retained_status_path, retained_record)
+        real_policy_write = self.workspace._write_temporary_state_policy
+        final_swap = False
+
+        def swap_before_promoted_status(
+            topology_name: str,
+            current: dict[str, object],
+            policy: dict[str, object],
+        ) -> dict[str, object]:
+            nonlocal final_swap
+            if policy.get("lifecycle") == "promoted" and not final_swap:
+                final_swap = True
+                retained_path.rename(displaced_state)
+                retained_path.mkdir()
+                replacement_sentinel.write_text(
+                    "final replacement\n", encoding="utf-8"
+                )
+            return real_policy_write(topology_name, current, policy)
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_write_temporary_state_policy",
+                side_effect=swap_before_promoted_status,
+            ),
+            self.assertRaises(WorkspaceError),
+        ):
+            self.workspace.state_promote(
+                "temporary-retained", "promotion-final-swap-review"
+            )
+        self.assertTrue(final_swap)
+        self.assertNotIn(
+            "promotion-final-swap-review", self.workspace._load_states()
+        )
+        self.assertEqual(
+            load_json(retained_status_path)["state_policy"]["lifecycle"],
+            "promotion-pending",
+        )
+        shutil.rmtree(retained_path)
+        displaced_state.rename(retained_path)
+        (retained_path / workspace_module.PROMOTED_STATE_METADATA).unlink()
+        atomic_json(retained_status_path, retained_record)
         sessions = [Workspace(self.wrapper), Workspace(self.wrapper)]
         with ThreadPoolExecutor(max_workers=2) as executor:
             futures = [
@@ -10463,6 +10520,9 @@ class WorkspaceTests(unittest.TestCase):
         provenance = retained_path / workspace_module.PROMOTED_STATE_METADATA
         provenance.unlink()
         origin_status.rename(hidden_status)
+        ownership_marker = retained_path / MANAGED_MARKER
+        hidden_ownership = retained_path / "managed.hidden"
+        ownership_marker.rename(hidden_ownership)
         try:
             with self.assertRaisesRegex(
                 WorkspaceError, "promoted state provenance is missing"
@@ -10471,6 +10531,7 @@ class WorkspaceTests(unittest.TestCase):
                     "default", str(promoted["name"]), ["server"]
                 )
         finally:
+            hidden_ownership.rename(ownership_marker)
             hidden_status.rename(origin_status)
         self.workspace.state_promote(
             "temporary-retained", str(promoted["name"])
@@ -10514,9 +10575,8 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace.state_promote(
                 "temporary-promotion-retry", "promoted-retry"
             )
-        self.assertEqual(
-            self.workspace._state_location("promoted-retry"), retry_path
-        )
+        with self.assertRaisesRegex(WorkspaceError, "state does not exist"):
+            self.workspace._state_location("promoted-retry")
         self.assertEqual(
             self.workspace.topology_status("temporary-promotion-retry")[
                 "state_policy"
@@ -10621,6 +10681,35 @@ class WorkspaceTests(unittest.TestCase):
         )
         state_lock.unlink()
         saved_state_lock.rename(state_lock)
+        registered_alias = self.root / "registered-physical-alias"
+        registered_alias.mkdir()
+        real_state_identity = self.workspace._state_identity
+
+        def alias_identity(path: Path) -> dict[str, int]:
+            if path == registered_alias:
+                return crashed["state_policy"]["identity"]
+            return real_state_identity(path)
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_load_states",
+                return_value={"registered-alias": str(registered_alias)},
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_state_identity",
+                side_effect=alias_identity,
+            ),
+        ):
+            aliased = self.workspace.cleanup(
+                ["temporary-states"], 0, [], False
+            )
+        aliased_item = next(
+            item for item in aliased["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(aliased_item["disposition"], "protected")
+        self.assertIn("registered_state", aliased_item["reasons"])
         preview = self.workspace.cleanup(
             ["temporary-states"], 0, [], False
         )
@@ -11178,6 +11267,24 @@ class WorkspaceTests(unittest.TestCase):
                 WorkspaceError, "state identity changed"
             ):
                 lease.bind(self.workspace._state_identity(state))
+
+    def test_temporary_lifecycle_rejects_replaced_state_lock(self) -> None:
+        state = self.root / "temporary-lock-aba"
+        state.mkdir()
+        lock = Path(f"{state}.lock")
+        lock.touch(mode=0o600)
+        with exclusive_lock(lock, "recorded temporary state") as recorded:
+            metadata = os.fstat(recorded.fileno())
+            identity = {"device": metadata.st_dev, "inode": metadata.st_ino}
+            lock.unlink()
+            lock.touch(mode=0o600)
+            with exclusive_lock(lock, "replacement temporary state") as replacement:
+                with self.assertRaisesRegex(
+                    WorkspaceError, "lease changed before lifecycle mutation"
+                ):
+                    self.workspace._validate_temporary_state_lock(
+                        state, replacement, identity
+                    )
 
     def test_temporary_state_publication_interruption_leaves_no_partial_state(self) -> None:
         topology = self.workspace._topology_directory("interrupted", create=True)

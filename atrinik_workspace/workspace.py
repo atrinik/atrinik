@@ -658,6 +658,23 @@ def _remove_owned_tree_contents(
     mount_id: int | tuple[int, int],
     display: Path,
 ) -> None:
+    def move_to_tombstone(name: str, child: os.stat_result) -> str:
+        tombstone = f".{name}.remove-{secrets.token_hex(16)}"
+        rename_no_replace_at(descriptor, name, descriptor, tombstone)
+        moved = os.stat(tombstone, dir_fd=descriptor, follow_symlinks=False)
+        if (moved.st_dev, moved.st_ino) != (
+            child.st_dev,
+            child.st_ino,
+        ):
+            try:
+                rename_no_replace_at(descriptor, tombstone, descriptor, name)
+            except WorkspaceError:
+                pass
+            raise WorkspaceError(
+                f"owned removal entry identity changed: {display / name}"
+            )
+        return tombstone
+
     for name in sorted(os.listdir(descriptor)):
         child_display = display / name
         child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
@@ -675,12 +692,14 @@ def _remove_owned_tree_contents(
                 )
             finally:
                 os.close(child_descriptor)
-            os.rmdir(name, dir_fd=descriptor)
+            tombstone = move_to_tombstone(name, child)
+            os.rmdir(tombstone, dir_fd=descriptor)
         else:
             _probe_owned_tree_entry_mount(
                 descriptor, name, child, mount_id, child_display
             )
-            os.unlink(name, dir_fd=descriptor)
+            tombstone = move_to_tombstone(name, child)
+            os.unlink(tombstone, dir_fd=descriptor)
 
 
 def remove_owned_tree(
@@ -1341,12 +1360,19 @@ def durable_atomic_json_at(directory_fd: int, name: str, value: Any) -> None:
             stream.write("\n")
             stream.flush()
             os.fsync(stream.fileno())
-        os.rename(
-            temporary,
-            name,
-            src_dir_fd=directory_fd,
-            dst_dir_fd=directory_fd,
-        )
+        try:
+            os.link(
+                temporary,
+                name,
+                src_dir_fd=directory_fd,
+                dst_dir_fd=directory_fd,
+                follow_symlinks=False,
+            )
+        except FileExistsError as error:
+            raise WorkspaceError(
+                f"descriptor-relative JSON appeared before publication: {name}"
+            ) from error
+        os.unlink(temporary, dir_fd=directory_fd)
         os.fsync(directory_fd)
     except BaseException:
         try:
@@ -1357,6 +1383,46 @@ def durable_atomic_json_at(directory_fd: int, name: str, value: Any) -> None:
     finally:
         if descriptor is not None:
             os.close(descriptor)
+
+
+def rename_no_replace_at(
+    source_directory_fd: int,
+    source: str,
+    destination_directory_fd: int,
+    destination: str,
+) -> None:
+    try:
+        renameat2 = ctypes.CDLL(None, use_errno=True).renameat2
+    except AttributeError as error:
+        raise WorkspaceError("atomic descriptor-relative rename is unsupported") from error
+    renameat2.argtypes = [
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_uint,
+    ]
+    renameat2.restype = ctypes.c_int
+    if (
+        renameat2(
+            source_directory_fd,
+            os.fsencode(source),
+            destination_directory_fd,
+            os.fsencode(destination),
+            1,
+        )
+        == 0
+    ):
+        return
+    error_number = ctypes.get_errno()
+    if error_number == errno.EEXIST:
+        raise WorkspaceError(
+            f"descriptor-relative destination already exists: {destination}"
+        )
+    raise WorkspaceError(
+        "cannot move descriptor-relative path without replacement: "
+        f"{source} -> {destination}: {os.strerror(error_number)}"
+    )
 
 
 def load_regular_json_at(
@@ -8570,26 +8636,33 @@ class Workspace:
                     f"promoted state provenance is missing: {record_path}; "
                     "retry its originating state promote command"
                 )
-            if self.paths.topologies.is_dir() and not self.paths.topologies.is_symlink():
-                for topology in self.paths.topologies.iterdir():
-                    status_path = topology / "status.json"
-                    if status_path.is_symlink() or not status_path.is_file():
-                        continue
-                    status = load_regular_json(
-                        status_path, "promoted state origin status"
+            creation_path = path / TEMPORARY_STATE_METADATA
+            if creation_path.is_symlink():
+                raise WorkspaceError(
+                    f"promoted state creation metadata is invalid: {creation_path}"
+                )
+            if creation_path.is_file():
+                creation = load_regular_json(
+                    creation_path, "promoted state creation metadata"
+                )
+                creation_policy = (
+                    creation.get("state_policy")
+                    if isinstance(creation, dict)
+                    else None
+                )
+                if (
+                    isinstance(creation, dict)
+                    and
+                    creation.get("schema_version")
+                    == TEMPORARY_STATE_SCHEMA_VERSION
+                    and isinstance(creation_policy, dict)
+                    and creation_policy.get("mode") == "temporary"
+                    and creation_policy.get("path") == str(path)
+                ):
+                    raise WorkspaceError(
+                        f"promoted state provenance is missing: {record_path}; "
+                        "retry its originating state promote command"
                     )
-                    policy = status.get("state_policy") if isinstance(status, dict) else None
-                    if (
-                        isinstance(policy, dict)
-                        and policy.get("mode") == "temporary"
-                        and policy.get("lifecycle") in {"promotion-pending", "promoted"}
-                        and policy.get("name") == state_name
-                        and policy.get("path") == str(path)
-                    ):
-                        raise WorkspaceError(
-                            f"promoted state provenance is missing: {record_path}; "
-                            f"retry ./atrinik state promote {topology.name} {state_name}"
-                        )
             return None
         record = load_regular_json(record_path, "promoted state provenance")
         if (
@@ -8653,12 +8726,11 @@ class Workspace:
                 def bind_identity(identity: dict[str, int]) -> TextIO | None:
                     if not physical_identity:
                         return None
-                    identity_root = self._lease_namespace / "state-identities"
-                    identity_root.mkdir(exist_ok=True)
                     return leases.enter_context(
                         exclusive_lock(
-                            identity_root
-                            / f"{identity['device']}-{identity['inode']}.lock",
+                            self._lease_namespace
+                            / f"state-identity-{identity['device']}-"
+                            f"{identity['inode']}.lock",
                             f"physical server state {path}",
                             nonblocking=True,
                         )
@@ -9704,7 +9776,28 @@ class Workspace:
                 _remove_owned_tree_contents(
                     generation_fd, metadata.st_dev, mount_id, output
                 )
-                os.rmdir(generation, dir_fd=descriptors[-2])
+                parent_fd = descriptors[-2]
+                tombstone = f".{generation}.remove-{secrets.token_hex(16)}"
+                rename_no_replace_at(
+                    parent_fd, generation, parent_fd, tombstone
+                )
+                moved = os.stat(
+                    tombstone, dir_fd=parent_fd, follow_symlinks=False
+                )
+                if (moved.st_dev, moved.st_ino) != (
+                    metadata.st_dev,
+                    metadata.st_ino,
+                ):
+                    try:
+                        rename_no_replace_at(
+                            parent_fd, tombstone, parent_fd, generation
+                        )
+                    except WorkspaceError:
+                        pass
+                    raise WorkspaceError(
+                        f"server runtime state output path changed: {output}"
+                    )
+                os.rmdir(tombstone, dir_fd=parent_fd)
             if isinstance(error, WorkspaceError):
                 raise
             if not isinstance(error, (OSError, ValueError)):
@@ -9786,7 +9879,27 @@ class Workspace:
                     raise WorkspaceError(
                         f"server runtime state output path changed: {path}"
                     )
-                os.rmdir(generation, dir_fd=parent_fd)
+                tombstone = f".{generation}.remove-{secrets.token_hex(16)}"
+                rename_no_replace_at(
+                    parent_fd, generation, parent_fd, tombstone
+                )
+                moved = os.stat(
+                    tombstone, dir_fd=parent_fd, follow_symlinks=False
+                )
+                if (moved.st_dev, moved.st_ino) != (
+                    opened.st_dev,
+                    opened.st_ino,
+                ):
+                    try:
+                        rename_no_replace_at(
+                            parent_fd, tombstone, parent_fd, generation
+                        )
+                    except WorkspaceError:
+                        pass
+                    raise WorkspaceError(
+                        f"server runtime state output path changed: {path}"
+                    )
+                os.rmdir(tombstone, dir_fd=parent_fd)
                 return
             finally:
                 for descriptor in reversed(descriptors):
@@ -12163,22 +12276,11 @@ class Workspace:
         state_lease: TextIO,
         lease_identity: dict[str, int],
     ) -> None:
+        Workspace._validate_temporary_state_lock(
+            state, state_lease, lease_identity
+        )
         lock = Path(f"{state}.lock")
-        try:
-            visible = lock.stat(follow_symlinks=False)
-        except FileNotFoundError:
-            return
-        opened = os.fstat(state_lease.fileno())
-        expected = (lease_identity["device"], lease_identity["inode"])
-        if (
-            not stat.S_ISREG(visible.st_mode)
-            or visible.st_nlink != 1
-            or (visible.st_dev, visible.st_ino) != expected
-            or (opened.st_dev, opened.st_ino) != expected
-        ):
-            raise WorkspaceError(
-                f"temporary topology state lease changed before removal: {lock}"
-            )
+
         parent_fd = os.open(
             lock.parent,
             os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
@@ -12188,6 +12290,32 @@ class Workspace:
             os.fsync(parent_fd)
         finally:
             os.close(parent_fd)
+
+    @staticmethod
+    def _validate_temporary_state_lock(
+        state: Path,
+        state_lease: TextIO,
+        lease_identity: dict[str, int],
+    ) -> None:
+        lock = Path(f"{state}.lock")
+        try:
+            visible = lock.stat(follow_symlinks=False)
+        except FileNotFoundError as error:
+            raise WorkspaceError(
+                f"temporary topology state lease is missing: {lock}"
+            ) from error
+        opened = os.fstat(state_lease.fileno())
+        expected = (lease_identity["device"], lease_identity["inode"])
+        if (
+            not stat.S_ISREG(visible.st_mode)
+            or visible.st_nlink != 1
+            or (visible.st_dev, visible.st_ino) != expected
+            or (opened.st_dev, opened.st_ino) != expected
+        ):
+            raise WorkspaceError(
+                "temporary topology state lease changed before lifecycle "
+                f"mutation: {lock}"
+            )
 
     def _commit_temporary_state_removal(
         self,
@@ -12278,6 +12406,9 @@ class Workspace:
             f"temporary topology state {state}",
             nonblocking=True,
         ) as state_lease:
+            self._validate_temporary_state_lock(
+                state, state_lease, policy["lease_identity"]
+            )
             current = self.topology_status(name)
             if current.get("state_policy") != policy:
                 raise WorkspaceError(
@@ -12344,12 +12475,15 @@ class Workspace:
                 )
             state = Path(policy["path"])
             with ExitStack() as promotion:
-                promotion.enter_context(
+                state_lease = promotion.enter_context(
                     exclusive_lock(
                         Path(f"{state}.lock"),
                         f"temporary topology state {state}",
                         nonblocking=True,
                     )
+                )
+                self._validate_temporary_state_lock(
+                    state, state_lease, policy["lease_identity"]
                 )
                 state_fd = os.open(
                     state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
@@ -12465,9 +12599,31 @@ class Workspace:
                             )
                         raise
                     promoted = {**pending, "lifecycle": "promoted"}
-                    status = self._write_temporary_state_policy(
-                        topology_name, status, promoted
-                    )
+                    try:
+                        status = self._write_temporary_state_policy(
+                            topology_name, status, promoted
+                        )
+                        verify_visible_state()
+                    except BaseException:
+                        status_path = root / "status.json"
+                        raw_status = load_regular_json(
+                            status_path, "temporary state promotion status"
+                        )
+                        if raw_status.get("state_policy") == promoted:
+                            durable_atomic_json(
+                                status_path,
+                                {**raw_status, "state_policy": pending},
+                            )
+                        if registry_added and states.get(state_name) is not None:
+                            del states[state_name]
+                            durable_atomic_json(
+                                self.paths.states_file,
+                                {
+                                    "schema_version": SCHEMA_VERSION,
+                                    "states": states,
+                                },
+                            )
+                        raise
                     return {
                         "topology": topology_name,
                         "name": state_name,
@@ -12897,12 +13053,16 @@ class Workspace:
                 assert isinstance(prepared_state, tuple)
                 state, state_fd = prepared_state
                 opened_state = os.fstat(state_fd)
-                state_lock.bind(
-                    {
-                        "device": opened_state.st_dev,
-                        "inode": opened_state.st_ino,
-                    }
-                )
+                try:
+                    state_lock.bind(
+                        {
+                            "device": opened_state.st_dev,
+                            "inode": opened_state.st_ino,
+                        }
+                    )
+                except BaseException:
+                    os.close(state_fd)
+                    raise
                 generation = secrets.token_hex(32)
                 try:
                     generation_root, runtime_fd, _runtime_record = (
