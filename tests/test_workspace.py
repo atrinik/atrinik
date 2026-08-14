@@ -2007,7 +2007,7 @@ class WorkspaceTests(unittest.TestCase):
         for checkout in ("sound", "libatrinik", "protocol"):
             self.assertEqual(states[checkout]["head"], prior_heads[checkout])
 
-    def test_clean_primary_source_generation_reuses_and_rejects_corruption(self) -> None:
+    def test_clean_primary_source_generation_reuses_and_recovers_corruption(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
                 "default",
@@ -2027,8 +2027,32 @@ class WorkspaceTests(unittest.TestCase):
         atomic_json(metadata, record)
         first.parent.chmod(0o500)
 
-        with self.assertRaisesRegex(WorkspaceError, "source generation is corrupt"):
-            resolve()
+        recovered = resolve()
+        self.assertEqual(recovered, first)
+        self.assertNotEqual(
+            load_json(metadata)["source_tree_sha256"],
+            "0" * 64,
+        )
+        quarantined = [
+            path
+            for path in first.parent.parent.iterdir()
+            if path.name.startswith(f"{first.parent.name}-staging-recovery_")
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertEqual(
+            load_json(quarantined[0] / workspace_module.SOURCE_GENERATION_METADATA)[
+                "source_tree_sha256"
+            ],
+            "0" * 64,
+        )
+        preview = self.workspace.cleanup(["builds"], 7, [], False)
+        retained = next(
+            item for item in preview["items"] if item["path"] == str(quarantined[0])
+        )
+        self.assertEqual(retained["kind"], "source-generation-transaction")
+        self.assertEqual(retained["disposition"], "protected")
+        self.assertIn("younger_than_grace_period", retained["reasons"])
+        self.assertTrue(quarantined[0].exists())
 
         forged = self.root / "forged" / "source"
         forged.mkdir(parents=True)
@@ -2036,7 +2060,45 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "ownership is invalid"):
             self.workspace._source_generation_record(forged)
 
-    def test_source_generation_reuse_rejects_coherent_missing_git_entry(self) -> None:
+    def test_source_generation_recovery_preserves_uncertain_ownership(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        marker = generation / MANAGED_MARKER
+        generation.chmod(0o700)
+        marker.chmod(0o600)
+        atomic_json(
+            marker,
+            {"schema_version": 1, "purpose": "unverified-user-data"},
+        )
+        generation.chmod(0o500)
+
+        with self.assertRaisesRegex(
+            WorkspaceError, "cannot be recovered safely"
+        ):
+            resolve()
+
+        self.assertTrue(generation.is_dir())
+        self.assertEqual(
+            load_json(marker),
+            {"schema_version": 1, "purpose": "unverified-user-data"},
+        )
+        self.assertFalse(
+            any(
+                path.name.startswith(f"{generation.name}-staging-recovery_")
+                for path in generation.parent.iterdir()
+            )
+        )
+
+    def test_source_generation_reuse_recovers_coherent_missing_git_entry(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
                 "default",
@@ -2065,10 +2127,160 @@ class WorkspaceTests(unittest.TestCase):
         atomic_json(metadata, record)
         self.workspace._seal_runtime_generation(generation)
 
-        with self.assertRaisesRegex(
-            WorkspaceError, "does not match its recorded Git tree"
+        recovered = resolve()
+        self.assertEqual(recovered, source)
+        self.assertEqual(
+            (recovered / "README").read_text(encoding="utf-8"),
+            "client\n",
+        )
+        quarantined = [
+            path
+            for path in generation.parent.iterdir()
+            if path.name.startswith(f"{generation.name}-staging-recovery_")
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertFalse((quarantined[0] / "source" / "README").exists())
+
+    def test_source_generation_recovery_serializes_concurrent_consumers(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["resources"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        source.chmod(0o700)
+        (source / "runtime-paths.txt").unlink()
+        self.workspace._seal_runtime_generation(generation)
+        extracted = threading.Event()
+        release = threading.Event()
+        real_extract = self.workspace._extract_git_source_archive
+        calls = 0
+        guard = threading.Lock()
+
+        def pause_recovery(archive: Path, output: Path) -> None:
+            nonlocal calls
+            real_extract(archive, output)
+            with guard:
+                calls += 1
+                first = calls == 1
+            if first:
+                extracted.set()
+                self.assertTrue(release.wait(10))
+
+        with mock.patch.object(
+            self.workspace,
+            "_extract_git_source_archive",
+            side_effect=pause_recovery,
         ):
-            resolve()
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                consumers = [executor.submit(resolve) for _unused in range(2)]
+                self.assertTrue(extracted.wait(10))
+                self.assertFalse(generation.exists())
+                self.assertFalse(any(consumer.done() for consumer in consumers))
+                quarantined = [
+                    path
+                    for path in generation.parent.iterdir()
+                    if path.name.startswith(
+                        f"{generation.name}-staging-recovery_"
+                    )
+                ]
+                self.assertEqual(len(quarantined), 1)
+                self.assertFalse(
+                    (quarantined[0] / "source" / "runtime-paths.txt").exists()
+                )
+                release.set()
+                recovered = [consumer.result(timeout=10) for consumer in consumers]
+
+        self.assertEqual(recovered, [source, source])
+        self.assertEqual(calls, 1)
+        self.assertTrue((source / "runtime-paths.txt").is_file())
+
+    def test_server_build_recovers_incomplete_resources_before_cmake(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"resources"},
+            "build resources",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["resources"]
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        generation.chmod(0o700)
+        source.chmod(0o700)
+        (source / "runtime-paths.txt").unlink()
+        record = load_json(metadata)
+        record["source_tree_sha256"] = _tree_digest(
+            source,
+            set(),
+            bounded_symlinks=True,
+            reject_hardlinks=True,
+        )
+        metadata.chmod(0o600)
+        atomic_json(metadata, record)
+        self.workspace._seal_runtime_generation(generation)
+        configure_calls: list[tuple[Path, bool]] = []
+
+        def collect_content(
+            root: Path,
+            _selected: dict[str, Path],
+            _profile_name: str,
+        ) -> Path:
+            output = root / "runtime" / "content"
+            (output / "lib").mkdir(parents=True)
+            (output / "maps").mkdir()
+            return output
+
+        def configure_server(
+            root: Path,
+            _selected: dict[str, Path],
+            tests: bool,
+        ) -> None:
+            configure_calls.append((root, tests))
+            self.assertTrue(
+                (root / "runtime" / "resources" / "paintings").is_dir()
+            )
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_collect_content",
+                side_effect=collect_content,
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_build_server",
+                side_effect=configure_server,
+            ),
+            mock.patch.object(self.workspace, "_generate_region_maps"),
+        ):
+            build_root = self.workspace.build(
+                "server",
+                "default",
+                True,
+                use_ccache=False,
+            )
+
+        self.assertEqual(len(configure_calls), 1)
+        self.assertEqual(configure_calls[0][0], build_root)
+        self.assertTrue(configure_calls[0][1])
+        self.assertTrue((source / "runtime-paths.txt").is_file())
+        quarantined = [
+            path
+            for path in generation.parent.iterdir()
+            if path.name.startswith(f"{generation.name}-staging-recovery_")
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertFalse(
+            (quarantined[0] / "source" / "runtime-paths.txt").exists()
+        )
 
     def test_source_generation_git_tree_ignores_replacement_objects(self) -> None:
         def resolve() -> Path:
@@ -2840,7 +3052,7 @@ class WorkspaceTests(unittest.TestCase):
                     states["client"],
                 )
 
-    def test_source_generation_rejects_external_hard_link(self) -> None:
+    def test_source_generation_recovers_external_hard_link(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
                 "default",
@@ -2851,6 +3063,7 @@ class WorkspaceTests(unittest.TestCase):
                 return snapshot.paths()["client"]
 
         source = resolve()
+        generation = source.parent
         target = source / "README"
         external = self.root / "external-hard-link"
         external.write_bytes(target.read_bytes())
@@ -2864,23 +3077,60 @@ class WorkspaceTests(unittest.TestCase):
         source.chmod(source_mode)
         source.parent.chmod(generation_mode)
 
-        with self.assertRaisesRegex(WorkspaceError, "hard-linked file"):
-            resolve()
+        recovered = resolve()
+        self.assertEqual(recovered, source)
+        self.assertEqual(
+            (recovered / "README").read_text(encoding="utf-8"),
+            "client\n",
+        )
+        self.assertEqual((recovered / "README").stat().st_nlink, 1)
+        quarantined = [
+            path
+            for path in generation.parent.iterdir()
+            if path.name.startswith(f"{generation.name}-staging-recovery_")
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertEqual(
+            (quarantined[0] / "source" / "README").stat().st_nlink,
+            2,
+        )
 
         report = self.workspace.cleanup(["builds"], 0, [], False)
         item = next(
             row
             for row in report["items"]
-            if row["kind"] == "source-generation"
+            if row["path"] == str(quarantined[0])
         )
+        self.assertEqual(item["kind"], "source-generation-transaction")
         self.assertEqual(item["disposition"], "eligible")
-        self.assertEqual(item["reasons"], ["corrupt_source_generation"])
+        self.assertEqual(
+            item["reasons"],
+            ["stale_source_generation_transaction"],
+        )
+        self.assertTrue(quarantined[0].exists())
 
     def test_source_generation_publication_failure_leaves_no_partial_generation(self) -> None:
+        real_rename = workspace_module.rename_no_replace_at
+
+        def fail_publication(
+            source_directory_fd: int,
+            source: str,
+            destination_directory_fd: int,
+            destination: str,
+        ) -> None:
+            if re.fullmatch(r"[0-9a-f]{64}", destination):
+                raise WorkspaceError("injected publication failure")
+            real_rename(
+                source_directory_fd,
+                source,
+                destination_directory_fd,
+                destination,
+            )
+
         with (
             mock.patch(
-                "atrinik_workspace.workspace.rename_no_replace",
-                side_effect=WorkspaceError("injected publication failure"),
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=fail_publication,
             ),
             self.assertRaisesRegex(WorkspaceError, "injected publication failure"),
         ):
@@ -2903,13 +3153,26 @@ class WorkspaceTests(unittest.TestCase):
         )
 
     def test_source_generation_is_sealed_before_atomic_publication(self) -> None:
-        def publish_then_interrupt(source: Path, destination: Path) -> None:
-            real_rename_no_replace(source, destination)
-            raise WorkspaceError("injected post-publication interruption")
+        real_rename = workspace_module.rename_no_replace_at
+
+        def publish_then_interrupt(
+            source_directory_fd: int,
+            source: str,
+            destination_directory_fd: int,
+            destination: str,
+        ) -> None:
+            real_rename(
+                source_directory_fd,
+                source,
+                destination_directory_fd,
+                destination,
+            )
+            if re.fullmatch(r"[0-9a-f]{64}", destination):
+                raise WorkspaceError("injected post-publication interruption")
 
         with (
             mock.patch(
-                "atrinik_workspace.workspace.rename_no_replace",
+                "atrinik_workspace.workspace.rename_no_replace_at",
                 side_effect=publish_then_interrupt,
             ),
             self.assertRaisesRegex(
@@ -2932,6 +3195,117 @@ class WorkspaceTests(unittest.TestCase):
         ) as snapshot:
             generation = snapshot.paths()["resources"].parent
             self.assertFalse(stat.S_IMODE(generation.stat().st_mode) & 0o222)
+
+    def test_source_generation_is_durable_before_atomic_publication(self) -> None:
+        observed = False
+
+        def interrupt_after_sync(staging: Path) -> None:
+            nonlocal observed
+            observed = True
+            container = staging.parent
+            key = staging.name.split("-staging-", 1)[0]
+            self.assertFalse((container / key).exists())
+            self.assertTrue((staging / "source" / "runtime-paths.txt").is_file())
+            self.assertTrue(
+                (staging / workspace_module.SOURCE_GENERATION_METADATA).is_file()
+            )
+            self.assertFalse(stat.S_IMODE(staging.stat().st_mode) & 0o222)
+            raise WorkspaceError("injected post-durability interruption")
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_sync_source_generation",
+                side_effect=interrupt_after_sync,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "post-durability interruption"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("interrupted source generation was yielded")
+
+        self.assertTrue(observed)
+        container = self.workspace.paths.builds / "source-generations" / "resources"
+        self.assertEqual(
+            [path.name for path in container.iterdir() if path.name != MANAGED_MARKER],
+            [],
+        )
+
+    def test_source_generation_fsyncs_tree_before_publication_and_container_after(
+        self,
+    ) -> None:
+        events: list[str] = []
+        syncing = False
+        real_sync = self.workspace._durably_sync_source_generation
+        real_fsync = os.fsync
+        real_rename = workspace_module.rename_no_replace_at
+
+        def observe_sync(staging: Path) -> tuple[int, int]:
+            nonlocal syncing
+            syncing = True
+            identity = real_sync(staging)
+            events.append("tree-synced")
+            return identity
+
+        def observe_fsync(descriptor: int) -> None:
+            if syncing:
+                metadata = os.fstat(descriptor)
+                events.append(
+                    "directory-fsync"
+                    if stat.S_ISDIR(metadata.st_mode)
+                    else "file-fsync"
+                )
+            real_fsync(descriptor)
+
+        def observe_rename(
+            source_directory_fd: int,
+            source: str,
+            destination_directory_fd: int,
+            destination: str,
+        ) -> None:
+            if re.fullmatch(r"[0-9a-f]{64}", destination):
+                events.append("published")
+            real_rename(
+                source_directory_fd,
+                source,
+                destination_directory_fd,
+                destination,
+            )
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_sync_source_generation",
+                side_effect=observe_sync,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.os.fsync",
+                side_effect=observe_fsync,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=observe_rename,
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                self.assertTrue(snapshot.paths()["resources"].is_dir())
+
+        publication = events.index("published")
+        self.assertEqual(events[publication - 1], "tree-synced")
+        self.assertIn("file-fsync", events[:publication])
+        self.assertIn("directory-fsync", events[:publication])
+        self.assertEqual(events[publication + 1 :], ["directory-fsync"])
 
     def test_source_generation_rejects_checkout_change_during_staging(self) -> None:
         primary = self.workspace.paths.repositories / "client"

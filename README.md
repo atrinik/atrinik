@@ -790,17 +790,19 @@ period. Cleanup authenticates their checkout/key path, ownership marker,
 and closed commit/tree/subpath metadata before considering removal. Build
 selection separately proves the complete tree digest and exact path,
 entry-type, executable-mode, symlink-target, and blob identity against the
-recorded Git source tree; a mismatch fails the build without deleting the
-generation. Once ownership is unambiguous, cleanup reports content-digest
-corruption as an explicitly eligible `corrupt_source_generation`. Inspect
-recovery with `./atrinik cleanup --scope builds
+recorded Git source tree. A mismatch under exact descriptor-verified marker
+ownership atomically retains the generation as a recovery transaction and
+rebuilds the canonical key; uncertain ownership fails the build without moving
+data. Cleanup reports an owned canonical content-digest mismatch as an eligible
+`corrupt_source_generation`, while recovery transactions remain independently
+previewable. Inspect retained data with `./atrinik cleanup --scope builds
 --older-than 0 --dry-run --json`; after reviewing the exact protected or
 eligible generation, use the same scoped command with `--apply`. An active
 build holds the generation's shared lock; apply takes its exclusive side and
 repeats ownership, content state, and age validation before bounded removal.
-Generation staging transactions within the marker-owned container are
+Recovery and staging transactions within the marker-owned container are
 separately inventoried, remain protected under an active generation lock, and
-are reclaimable after interruption and the normal grace period.
+are reclaimable only after the normal grace period.
 
 Worker dependency entries under `workspace/build/worker-dependencies/` use the
 same default `builds` scope and grace period. Cleanup requires the exact parent
@@ -1200,12 +1202,18 @@ A build holds its profile-name lease while deriving the requested target's
 transitive provider closure, then locks only those selected sources and
 revalidates them. Clean primary inputs are exported atomically into reusable,
 commit/tree/subpath-keyed read-only generations below
-`workspace/build/source-generations/`; reuse verifies ownership metadata and a
-complete tree digest plus the captured checkout, source, and common-Git
-filesystem identities. No generation links or hard-links back to mutable
-primary files. Every generated path is revalidated after the build takes its
-shared pin; only then are its primary source leases released. Dirty primaries
-and worktrees stay locked for as long as the build
+`workspace/build/source-generations/`. Publication flushes every sealed source
+file and directory before the no-replace rename, then flushes the containing
+directory; reuse verifies ownership metadata and a
+complete tree digest plus the exact recorded Git tree and the captured checkout,
+source, and common-Git filesystem identities. An incomplete generation with
+exact marker ownership is atomically retained as a recovery transaction and
+rebuilt at its canonical key; uncertain ownership fails closed. Recovery
+transactions remain visible to preview-first `builds` cleanup and its normal
+grace period. No generation links or hard-links back to mutable primary files.
+Every generated path is revalidated after the build takes its shared pin; only
+then are its primary source leases released. Dirty primaries and worktrees stay
+locked for as long as the build
 can read them. Cache and region-map coordinates come from the captured snapshot
 or generation metadata rather than rereading a released primary. The build
 persists original filesystem/Git observations and immutable generation paths

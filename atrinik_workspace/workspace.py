@@ -2605,6 +2605,245 @@ class Workspace:
             if container_fd is not None:
                 os.close(container_fd)
 
+    @staticmethod
+    def _quarantine_source_generation(
+        container: Path, generation: Path, key: str
+    ) -> Path:
+        """Atomically retain an owned corrupt generation outside its key."""
+
+        container_fd: int | None = None
+        generation_fd: int | None = None
+        try:
+            flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+            container_fd = _open_directory_nofollow(container, flags)
+            visible = os.stat(key, dir_fd=container_fd, follow_symlinks=False)
+            generation_fd = os.open(key, flags, dir_fd=container_fd)
+            opened = os.fstat(generation_fd)
+            marker = os.stat(
+                MANAGED_MARKER,
+                dir_fd=generation_fd,
+                follow_symlinks=False,
+            )
+            marker_value = load_regular_json_at(
+                generation_fd,
+                MANAGED_MARKER,
+                "source generation ownership marker",
+            )
+            confirmed_marker = os.stat(
+                MANAGED_MARKER,
+                dir_fd=generation_fd,
+                follow_symlinks=False,
+            )
+            if (
+                (visible.st_dev, visible.st_ino)
+                != (opened.st_dev, opened.st_ino)
+                or opened.st_dev != os.fstat(container_fd).st_dev
+                or _descriptor_mount_id(generation_fd)
+                != _descriptor_mount_id(container_fd)
+                or not stat.S_ISREG(marker.st_mode)
+                or marker.st_nlink != 1
+                or marker.st_dev != opened.st_dev
+                or (
+                    marker.st_dev,
+                    marker.st_ino,
+                    marker.st_mode,
+                    marker.st_nlink,
+                    marker.st_size,
+                    marker.st_mtime_ns,
+                    marker.st_ctime_ns,
+                )
+                != (
+                    confirmed_marker.st_dev,
+                    confirmed_marker.st_ino,
+                    confirmed_marker.st_mode,
+                    confirmed_marker.st_nlink,
+                    confirmed_marker.st_size,
+                    confirmed_marker.st_mtime_ns,
+                    confirmed_marker.st_ctime_ns,
+                )
+                or marker_value
+                != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": f"source-generation:{key}",
+                }
+            ):
+                raise WorkspaceError(
+                    f"immutable source generation ownership is invalid: {generation}"
+                )
+            confirmed = os.stat(key, dir_fd=container_fd, follow_symlinks=False)
+            if (
+                confirmed.st_dev,
+                confirmed.st_ino,
+                confirmed.st_mode,
+                confirmed.st_nlink,
+                confirmed.st_size,
+                confirmed.st_mtime_ns,
+                confirmed.st_ctime_ns,
+            ) != (
+                opened.st_dev,
+                opened.st_ino,
+                opened.st_mode,
+                opened.st_nlink,
+                opened.st_size,
+                opened.st_mtime_ns,
+                opened.st_ctime_ns,
+            ):
+                raise WorkspaceError(
+                    f"immutable source generation changed before recovery: {generation}"
+                )
+            quarantine_name = (
+                f"{key}-staging-recovery_{secrets.token_hex(12)}"
+            )
+            rename_no_replace_at(
+                container_fd,
+                key,
+                container_fd,
+                quarantine_name,
+            )
+            os.fsync(container_fd)
+            quarantined = os.stat(
+                quarantine_name,
+                dir_fd=container_fd,
+                follow_symlinks=False,
+            )
+            if (quarantined.st_dev, quarantined.st_ino) != (
+                opened.st_dev,
+                opened.st_ino,
+            ):
+                raise WorkspaceError(
+                    "recovered source generation identity is uncertain: "
+                    f"{container / quarantine_name}"
+                )
+            return container / quarantine_name
+        except WorkspaceError:
+            raise
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot quarantine corrupt source generation {generation}: {error}"
+            ) from error
+        finally:
+            if generation_fd is not None:
+                os.close(generation_fd)
+            if container_fd is not None:
+                os.close(container_fd)
+
+    @staticmethod
+    def _durably_sync_source_generation(root: Path) -> tuple[int, int]:
+        """Flush a sealed source tree before its atomic publication."""
+
+        def stable_identity(metadata: os.stat_result) -> tuple[int, ...]:
+            return (
+                metadata.st_dev,
+                metadata.st_ino,
+                metadata.st_mode,
+                metadata.st_nlink,
+                metadata.st_size,
+                metadata.st_mtime_ns,
+                metadata.st_ctime_ns,
+            )
+
+        def sync_directory(directory_fd: int, display: Path) -> None:
+            directory_before = os.fstat(directory_fd)
+            try:
+                entries = sorted(os.listdir(directory_fd))
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inventory source generation durability: {display}: {error}"
+                ) from error
+            for name in entries:
+                path = display / name
+                descriptor: int | None = None
+                try:
+                    metadata = os.stat(
+                        name,
+                        dir_fd=directory_fd,
+                        follow_symlinks=False,
+                    )
+                    if stat.S_ISDIR(metadata.st_mode):
+                        descriptor = os.open(
+                            name,
+                            os.O_RDONLY
+                            | os.O_CLOEXEC
+                            | os.O_DIRECTORY
+                            | os.O_NOFOLLOW,
+                            dir_fd=directory_fd,
+                        )
+                        opened = os.fstat(descriptor)
+                        if stable_identity(opened) != stable_identity(metadata):
+                            raise WorkspaceError(
+                                "source generation changed before durability: "
+                                f"{path}"
+                            )
+                        sync_directory(descriptor, path)
+                        if stable_identity(os.fstat(descriptor)) != stable_identity(
+                            opened
+                        ):
+                            raise WorkspaceError(
+                                "source generation changed during durability: "
+                                f"{path}"
+                            )
+                    elif stat.S_ISREG(metadata.st_mode):
+                        descriptor = os.open(
+                            name,
+                            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                            dir_fd=directory_fd,
+                        )
+                        opened = os.fstat(descriptor)
+                        if stable_identity(opened) != stable_identity(metadata):
+                            raise WorkspaceError(
+                                "source generation changed before durability: "
+                                f"{path}"
+                            )
+                        os.fsync(descriptor)
+                        if stable_identity(os.fstat(descriptor)) != stable_identity(
+                            opened
+                        ):
+                            raise WorkspaceError(
+                                "source generation changed during durability: "
+                                f"{path}"
+                            )
+                    elif not stat.S_ISLNK(metadata.st_mode):
+                        raise WorkspaceError(
+                            f"source generation contains a special entry: {path}"
+                        )
+                except WorkspaceError:
+                    raise
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot make source generation durable: {path}: {error}"
+                    ) from error
+                finally:
+                    if descriptor is not None:
+                        os.close(descriptor)
+            try:
+                os.fsync(directory_fd)
+                if stable_identity(os.fstat(directory_fd)) != stable_identity(
+                    directory_before
+                ):
+                    raise WorkspaceError(
+                        "source generation changed during durability: "
+                        f"{display}"
+                    )
+            except WorkspaceError:
+                raise
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot make source generation durable: {display}: {error}"
+                ) from error
+
+        descriptor: int | None = None
+        try:
+            descriptor = _open_directory_nofollow(
+                root,
+                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+            )
+            sync_directory(descriptor, root)
+            metadata = os.fstat(descriptor)
+            return metadata.st_dev, metadata.st_ino
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
+
     def _materialize_primary_source(
         self,
         component: Component,
@@ -2693,30 +2932,6 @@ class Workspace:
                     raise WorkspaceError(
                         f"immutable source generation is invalid: {generation}"
                     )
-                marker = generation / MANAGED_MARKER
-                record = self._source_generation_record(generation / "source")
-                expected_record = {
-                    **identity,
-                    "source_tree_sha256": _tree_digest(
-                        generation / "source",
-                        set(),
-                        bounded_symlinks=True,
-                        reject_hardlinks=True,
-                    ),
-                }
-                if (
-                    not marker.is_file()
-                    or marker.is_symlink()
-                    or load_json(marker)
-                    != {
-                        "schema_version": SCHEMA_VERSION,
-                        "purpose": f"source-generation:{key}",
-                    }
-                    or record != expected_record
-                ):
-                    raise WorkspaceError(
-                        f"immutable source generation is corrupt: {generation}"
-                    )
                 current_git_common = self._git_common_directory(
                     checkout, trace=False
                 )
@@ -2754,12 +2969,48 @@ class Workspace:
                     raise WorkspaceError(
                         f"clean primary source changed before generation reuse: {checkout}"
                     )
-                self._validate_source_generation_git_tree(
-                    checkout,
-                    generation / "source",
-                    source_tree,
-                )
-                return generation / "source"
+                try:
+                    marker = generation / MANAGED_MARKER
+                    record = self._source_generation_record(generation / "source")
+                    expected_record = {
+                        **identity,
+                        "source_tree_sha256": _tree_digest(
+                            generation / "source",
+                            set(),
+                            bounded_symlinks=True,
+                            reject_hardlinks=True,
+                        ),
+                    }
+                    if (
+                        not marker.is_file()
+                        or marker.is_symlink()
+                        or load_json(marker)
+                        != {
+                            "schema_version": SCHEMA_VERSION,
+                            "purpose": f"source-generation:{key}",
+                        }
+                        or record != expected_record
+                    ):
+                        raise WorkspaceError(
+                            f"immutable source generation is corrupt: {generation}"
+                        )
+                    self._validate_source_generation_git_tree(
+                        checkout,
+                        generation / "source",
+                        source_tree,
+                    )
+                except WorkspaceError as error:
+                    try:
+                        self._quarantine_source_generation(
+                            container, generation, key
+                        )
+                    except WorkspaceError as recovery_error:
+                        raise WorkspaceError(
+                            f"immutable source generation is corrupt and cannot "
+                            f"be recovered safely: {generation}: {recovery_error}"
+                        ) from error
+                else:
+                    return generation / "source"
 
             staging = Path(
                 tempfile.mkdtemp(prefix=f"{key}-staging-", dir=container)
@@ -2852,7 +3103,42 @@ class Workspace:
                 }
                 durable_atomic_json(staging / SOURCE_GENERATION_METADATA, record)
                 self._seal_runtime_generation(staging)
-                rename_no_replace(staging, generation)
+                durable_identity = self._durably_sync_source_generation(staging)
+                container_fd: int | None = None
+                try:
+                    container_fd = _open_directory_nofollow(
+                        container,
+                        os.O_RDONLY
+                        | os.O_CLOEXEC
+                        | os.O_DIRECTORY
+                        | os.O_NOFOLLOW,
+                    )
+                    visible = os.stat(
+                        staging.name,
+                        dir_fd=container_fd,
+                        follow_symlinks=False,
+                    )
+                    if (visible.st_dev, visible.st_ino) != durable_identity:
+                        raise WorkspaceError(
+                            "source generation changed before publication: "
+                            f"{staging}"
+                        )
+                    rename_no_replace_at(
+                        container_fd,
+                        staging.name,
+                        container_fd,
+                        generation.name,
+                    )
+                    try:
+                        os.fsync(container_fd)
+                    except OSError as error:
+                        raise AtomicJsonCommitUncertain(
+                            "immutable source generation is visible but its "
+                            f"container durability is uncertain: {generation}: {error}"
+                        ) from error
+                finally:
+                    if container_fd is not None:
+                        os.close(container_fd)
             except BaseException:
                 if staging.exists() and not staging.is_symlink():
                     remove_owned_tree(staging)
