@@ -145,6 +145,7 @@ RUNTIME_GENERATION_MANIFEST = "manifest.json"
 STATE_IMPLEMENTATION_MARKER = ".atrinik-state.json"
 STATE_IMPLEMENTATION_SCHEMA_VERSION = 1
 TEMPORARY_STATE_METADATA = "state.json"
+PROMOTED_STATE_METADATA = ".atrinik-promoted-state.json"
 TEMPORARY_STATE_SCHEMA_VERSION = 1
 PRE_MONOREPO_REPOSITORIES = {
     "client": "legacy-client",
@@ -214,6 +215,20 @@ WORKER_NPM_FILE_CONFIG_KEYS = {
 }
 RUNTIME_INPUT_METADATA = ".atrinik-dependency.json"
 RUNTIME_INPUT_SCHEMA_VERSION = 1
+
+
+@dataclass
+class StateLease:
+    path_lock: TextIO
+    bind_identity: Callable[[dict[str, int]], TextIO | None]
+    physical_lock: TextIO | None = None
+
+    def fileno(self) -> int:
+        return self.path_lock.fileno()
+
+    def bind(self, identity: dict[str, int]) -> None:
+        if self.physical_lock is None:
+            self.physical_lock = self.bind_identity(identity)
 
 
 @dataclass(frozen=True)
@@ -7519,7 +7534,20 @@ class Workspace:
         if resolved.exists():
             self._validate_state(resolved)
             temporary_marker = resolved / TEMPORARY_STATE_METADATA
-            if temporary_marker.is_file() and not temporary_marker.is_symlink():
+            ownership_marker = resolved / MANAGED_MARKER
+            ownership = (
+                load_json(ownership_marker)
+                if ownership_marker.is_file() and not ownership_marker.is_symlink()
+                else None
+            )
+            if (
+                temporary_marker.exists()
+                or temporary_marker.is_symlink()
+                or (
+                    isinstance(ownership, dict)
+                    and ownership.get("purpose") == "temporary-topology-state"
+                )
+            ):
                 raise WorkspaceError(
                     "temporary topology state can only be registered through "
                     "state promote"
@@ -8460,35 +8488,27 @@ class Workspace:
     def _promoted_state_owner(
         self, state_name: str, path: Path
     ) -> dict[str, str] | None:
-        if self.paths.topologies.is_symlink() or not self.paths.topologies.is_dir():
+        record_path = path / PROMOTED_STATE_METADATA
+        if record_path.is_symlink() or not record_path.is_file():
             return None
-        for topology in sorted(self.paths.topologies.iterdir()):
-            status_path = topology / "status.json"
-            if status_path.is_symlink() or not status_path.is_file():
-                continue
-            try:
-                status = load_regular_json(status_path, "promoted state status")
-            except WorkspaceError:
-                continue
-            policy = status.get("state_policy") if isinstance(status, dict) else None
-            owner = policy.get("owner") if isinstance(policy, dict) else None
-            if (
-                isinstance(policy, dict)
-                and policy.get("mode") == "temporary"
-                and policy.get("lifecycle") == "promoted"
-                and policy.get("name") == state_name
-                and policy.get("path") == str(path)
-                and isinstance(owner, dict)
-                and owner.get("kind") == "topology-generation"
-                and owner.get("topology") == topology.name
-                and isinstance(owner.get("generation"), str)
-            ):
-                return {
-                    "kind": "promoted-topology-state",
-                    "topology": topology.name,
-                    "generation": owner["generation"],
-                }
-        return None
+        record = load_regular_json(record_path, "promoted state provenance")
+        if (
+            not isinstance(record, dict)
+            or record.get("schema_version") != SCHEMA_VERSION
+            or record.get("name") != state_name
+            or record.get("path") != str(path)
+            or not isinstance(record.get("topology"), str)
+            or not isinstance(record.get("generation"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", record["generation"])
+        ):
+            raise WorkspaceError(
+                f"promoted state provenance is invalid: {record_path}"
+            )
+        return {
+            "kind": "promoted-topology-state",
+            "topology": record["topology"],
+            "generation": record["generation"],
+        }
 
     def _temporary_state_container(self, topology_root: Path) -> Path:
         container = topology_root / "temporary-states"
@@ -8520,14 +8540,17 @@ class Workspace:
         *,
         preparing_topology: str | None = None,
         physical_identity: bool = True,
-    ) -> Iterator[TextIO]:
+    ) -> Iterator[StateLease]:
         try:
             with ExitStack() as leases:
-                if physical_identity and path.exists() and not path.is_symlink():
-                    identity = self._state_identity(path)
+                state_lease: StateLease
+
+                def bind_identity(identity: dict[str, int]) -> TextIO | None:
+                    if not physical_identity:
+                        return None
                     identity_root = self._lease_namespace / "state-identities"
                     identity_root.mkdir(exist_ok=True)
-                    leases.enter_context(
+                    return leases.enter_context(
                         exclusive_lock(
                             identity_root
                             / f"{identity['device']}-{identity['inode']}.lock",
@@ -8535,13 +8558,16 @@ class Workspace:
                             nonblocking=True,
                         )
                     )
-                lock = leases.enter_context(
+                path_lock = leases.enter_context(
                     exclusive_lock(
                         Path(f"{path}.lock"),
                         f"server state {path}",
                         nonblocking=True,
                     )
                 )
+                state_lease = StateLease(path_lock, bind_identity)
+                if physical_identity and path.exists() and not path.is_symlink():
+                    state_lease.bind(self._state_identity(path))
                 for topology in sorted(self.paths.topologies.iterdir()):
                     if topology.name == preparing_topology:
                         continue
@@ -8592,7 +8618,7 @@ class Workspace:
                             f"{status['name']} generation {control['generation']}; "
                             f"run ./atrinik down {status['name']} and retry"
                         )
-                yield lock
+                yield state_lease
                 return
         except LockBusyError as error:
             owner: tuple[str, str] | None = None
@@ -8640,8 +8666,10 @@ class Workspace:
         )
         created_at = datetime.now(timezone.utc).isoformat()
         install_data = server_source / "install_data"
-        source_digest = _tree_digest(install_data, set(), reject_symlinks=True)
         try:
+            source_digest = _tree_digest(
+                install_data, set(), reject_symlinks=True
+            )
             shutil.copytree(
                 install_data, staging, dirs_exist_ok=True
             )
@@ -9533,8 +9561,21 @@ class Workspace:
                 os.close(marker_fd)
             return output
         except BaseException as error:
-            if created_generation and output.is_dir() and not output.is_symlink():
-                remove_owned_tree(output)
+            if created_generation and len(descriptors) >= 4:
+                generation_fd = descriptors[-1]
+                metadata = os.fstat(generation_fd)
+                mount_id = _descriptor_mount_id(generation_fd)
+                _prepare_owned_tree_removal(
+                    generation_fd,
+                    metadata.st_dev,
+                    mount_id,
+                    output,
+                    stat.S_IMODE(metadata.st_mode),
+                )
+                _remove_owned_tree_contents(
+                    generation_fd, metadata.st_dev, mount_id, output
+                )
+                os.rmdir(generation, dir_fd=descriptors[-2])
             if isinstance(error, WorkspaceError):
                 raise
             if not isinstance(error, (OSError, ValueError)):
@@ -9547,7 +9588,53 @@ class Workspace:
                 os.close(descriptor)
 
     @staticmethod
-    def _remove_runtime_state_output(path: Path, generation: str) -> None:
+    def _remove_runtime_state_output(
+        path: Path,
+        generation: str,
+        state_directory_fd: int | None = None,
+    ) -> None:
+        if state_directory_fd is not None:
+            flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+            descriptors = [os.dup(state_directory_fd)]
+            try:
+                for name in ("tmp", "runtime-assets"):
+                    descriptors.append(os.open(name, flags, dir_fd=descriptors[-1]))
+                parent_fd = descriptors[-1]
+                metadata = os.stat(
+                    generation, dir_fd=parent_fd, follow_symlinks=False
+                )
+                generation_fd = os.open(generation, flags, dir_fd=parent_fd)
+                descriptors.append(generation_fd)
+                marker_fd = os.open(
+                    MANAGED_MARKER,
+                    os.O_RDONLY | os.O_NOFOLLOW,
+                    dir_fd=generation_fd,
+                )
+                with os.fdopen(marker_fd, encoding="utf-8") as stream:
+                    marker = json.load(stream)
+                if marker != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": f"runtime-state-output:{generation}",
+                }:
+                    raise WorkspaceError(
+                        f"server runtime state output ownership is invalid: {path}"
+                    )
+                mount_id = _descriptor_mount_id(generation_fd)
+                _prepare_owned_tree_removal(
+                    generation_fd,
+                    metadata.st_dev,
+                    mount_id,
+                    path,
+                    stat.S_IMODE(metadata.st_mode),
+                )
+                _remove_owned_tree_contents(
+                    generation_fd, metadata.st_dev, mount_id, path
+                )
+                os.rmdir(generation, dir_fd=parent_fd)
+                return
+            finally:
+                for descriptor in reversed(descriptors):
+                    os.close(descriptor)
         marker = path / MANAGED_MARKER
         if (
             path.is_symlink()
@@ -9743,7 +9830,12 @@ class Workspace:
                     server_runtime / "resources",
                 )
                 (server_runtime / "data").symlink_to(
-                    state, target_is_directory=True
+                    (
+                        Path(f"/proc/self/fd/{state_directory_fd}")
+                        if state_directory_fd is not None
+                        else state
+                    ),
+                    target_is_directory=True,
                 )
                 state_output = self._prepare_runtime_state_output(
                     state, generation, state_directory_fd
@@ -9851,8 +9943,13 @@ class Workspace:
         except BaseException:
             if staging.exists():
                 remove_owned_tree(staging)
-            if state_output is not None and state_output.exists():
-                self._remove_runtime_state_output(state_output, generation)
+            cleanup_output = state_output_access or state_output
+            if cleanup_output is not None and cleanup_output.exists():
+                self._remove_runtime_state_output(
+                    state_output or cleanup_output,
+                    generation,
+                    state_directory_fd,
+                )
             raise
         finally:
             if lease_fd is not None:
@@ -11370,6 +11467,13 @@ class Workspace:
                             state_expected_identity,
                         )
                         stack.callback(os.close, state_directory_fd)
+                        opened_state = os.fstat(state_directory_fd)
+                        state_lock.bind(
+                            {
+                                "device": opened_state.st_dev,
+                                "inode": opened_state.st_ino,
+                            }
+                        )
                         state_policy = self._persistent_state_policy(
                             state_name, state, implementation
                         )
@@ -11485,11 +11589,20 @@ class Workspace:
                     else None
                 )
                 published_state_output_owner = [
-                    Path(runtime_record["mutable_state_outputs"][0])
+                    (
+                        Path(f"/proc/self/fd/{state_directory_fd}")
+                        / "tmp"
+                        / "runtime-assets"
+                        / generation
+                        if state_directory_fd is not None
+                        else Path(runtime_record["mutable_state_outputs"][0])
+                    )
                 ] if runtime_record["mutable_state_outputs"] else []
                 stack.callback(
                     lambda: self._remove_runtime_state_output(
-                        published_state_output_owner.pop(), generation
+                        published_state_output_owner.pop(),
+                        generation,
+                        state_directory_fd,
                     )
                     if published_state_output_owner
                     else None
@@ -11631,6 +11744,16 @@ class Workspace:
                     if state_lock is not None:
                         command.extend(["--lock-fd", str(state_lock.fileno())])
                         inherited_locks.append(state_lock.fileno())
+                        if state_lock.physical_lock is not None:
+                            command.extend(
+                                [
+                                    "--physical-state-lock-fd",
+                                    str(state_lock.physical_lock.fileno()),
+                                ]
+                            )
+                            inherited_locks.append(
+                                state_lock.physical_lock.fileno()
+                            )
                     if state_directory_fd is not None:
                         command.extend(
                             ["--state-directory-fd", str(state_directory_fd)]
@@ -12093,6 +12216,35 @@ class Workspace:
                         status = self._write_temporary_state_policy(
                             topology_name, status, pending
                         )
+                    owner = pending.get("owner")
+                    if not isinstance(owner, dict) or not isinstance(
+                        owner.get("generation"), str
+                    ):
+                        raise WorkspaceError(
+                            "temporary state promotion owner is invalid"
+                        )
+                    provenance = {
+                        "schema_version": SCHEMA_VERSION,
+                        "name": state_name,
+                        "path": str(state),
+                        "topology": topology_name,
+                        "generation": owner["generation"],
+                    }
+                    provenance_path = state / PROMOTED_STATE_METADATA
+                    if provenance_path.exists() or provenance_path.is_symlink():
+                        if (
+                            provenance_path.is_symlink()
+                            or not provenance_path.is_file()
+                            or load_regular_json(
+                                provenance_path, "promoted state provenance"
+                            )
+                            != provenance
+                        ):
+                            raise WorkspaceError(
+                                f"promoted state provenance is invalid: {provenance_path}"
+                            )
+                    else:
+                        durable_atomic_json(provenance_path, provenance)
                     if existing is None:
                         states[state_name] = str(state)
                         durable_atomic_json(
@@ -12454,6 +12606,7 @@ class Workspace:
         runtime_fd = prepared["runtime_fd"]
         state_fd = prepared["state_fd"]
         state_lock_fd = prepared["state_lock_fd"]
+        physical_state_lock_fd = prepared["physical_state_lock_fd"]
         generation_root = prepared["generation_root"]
         state_output = prepared["state_output"]
         try:
@@ -12462,18 +12615,33 @@ class Workspace:
                     prepared["command"],
                     cwd=prepared["cwd"],
                     diagnostics_to_stderr=False,
-                    pass_fds=(runtime_fd, state_fd, state_lock_fd),
+                    pass_fds=tuple(
+                        descriptor
+                        for descriptor in (
+                            runtime_fd,
+                            state_fd,
+                            state_lock_fd,
+                            physical_state_lock_fd,
+                        )
+                        if descriptor is not None
+                    ),
                 )
             return prepared["executable"]
         finally:
-            os.close(state_lock_fd)
-            os.close(state_fd)
-            os.close(runtime_fd)
-            remove_owned_tree(generation_root)
-            if state_output is not None:
-                self._remove_runtime_state_output(
-                    state_output, generation_root.name
-                )
+            try:
+                if state_output is not None:
+                    self._remove_runtime_state_output(
+                        state_output,
+                        generation_root.name,
+                        state_fd,
+                    )
+            finally:
+                if physical_state_lock_fd is not None:
+                    os.close(physical_state_lock_fd)
+                os.close(state_lock_fd)
+                os.close(state_fd)
+                os.close(runtime_fd)
+                remove_owned_tree(generation_root)
 
     def _run_server(
         self,
@@ -12515,6 +12683,13 @@ class Workspace:
                 )
                 assert isinstance(prepared_state, tuple)
                 state, state_fd = prepared_state
+                opened_state = os.fstat(state_fd)
+                state_lock.bind(
+                    {
+                        "device": opened_state.st_dev,
+                        "inode": opened_state.st_ino,
+                    }
+                )
                 generation = secrets.token_hex(32)
                 try:
                     generation_root, runtime_fd, _runtime_record = (
@@ -12539,6 +12714,11 @@ class Workspace:
                     os.close(state_fd)
                     raise
                 state_lock_fd = os.dup(state_lock.fileno())
+                physical_state_lock_fd = (
+                    os.dup(state_lock.physical_lock.fileno())
+                    if state_lock.physical_lock is not None
+                    else None
+                )
                 runtime = generation_root / "server"
                 executable = runtime / "atrinik-server"
                 command = [
@@ -12563,6 +12743,7 @@ class Workspace:
                     "runtime_fd": runtime_fd,
                     "state_fd": state_fd,
                     "state_lock_fd": state_lock_fd,
+                    "physical_state_lock_fd": physical_state_lock_fd,
                     "state_output": (
                         Path(_runtime_record["mutable_state_outputs"][0])
                         if _runtime_record["mutable_state_outputs"]

@@ -975,8 +975,9 @@ an existing name:
 ~~~
 
 Promotion registers the exact stopped directory in place and persistent policy
-surfaces retain its topology-generation provenance. Retained and promoted
-states are protected, and a topology name with unfinished temporary
+surfaces retain its topology-generation provenance in independent durable
+metadata, including across a promotion retry or unavailable origin record.
+Retained and promoted states are protected, and a topology name with unfinished temporary
 state cannot be restarted until that state is promoted or explicitly reclaimed.
 Abandoned disposable states participate only in
 the explicit preview-first cleanup scope:

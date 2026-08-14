@@ -678,9 +678,12 @@ leases. Processes started outside the coordinator do not
 participate in the state lock, so operators must not point those processes at
 the same state concurrently. Startup also opens the selected state directory
 without following links, verifies its recorded device/inode identity, and hands
-that descriptor to the supervisor and server. The server consumes the pinned
-directory through its inherited descriptor even if an external path component
-is replaced after admission.
+that descriptor and its physical-identity lease to the supervisor and guardian.
+The server consumes the pinned directory, including pre-option configuration
+reads and disposable runtime output, through its inherited descriptor even if
+an external path component is replaced after admission. Rollback removes that
+output relative to the same pinned descriptor and never follows the replaced
+lexical path.
 
 The current topology record and human/JSON status surfaces retain the state
 policy, owner, exact path identity, implementation, and lifecycle. A same-state
@@ -736,8 +739,10 @@ topology/state/registry mutation, publishes a promotion-pending record, and
 atomically adds the exact path under a previously unused persistent name before
 finalizing it as promoted. Creation metadata remains immutable and status owns
 the mutable lifecycle, so interruption after either durable promotion write is
-recoverable by retry. Its persistent policy continues to identify the source
-topology generation rather than collapsing to generic external ownership. It
+recoverable by retry. Independent immutable promotion provenance binds the
+registered name and path to the source topology generation, including while the
+origin status is temporarily unavailable or promotion is pending. Its
+persistent policy therefore never collapses to generic external ownership. It
 never overwrites a name or directory. A crash,
 unreachable control endpoint, failed post-spawn startup, malformed identity,
 linked path, uncertain lock, or incomplete promotion remains on disk for

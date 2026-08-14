@@ -108,6 +108,7 @@ def terminate(
         for process in processes.values()
         if process.returncode is None
     ]
+    group_observation_certain = True
 
     def signal_groups(signum: signal.Signals) -> None:
         for process_group in process_groups:
@@ -117,10 +118,12 @@ def terminate(
                 pass
 
     def groups_exist() -> bool:
+        nonlocal group_observation_certain
         groups = set(process_groups)
         try:
             entries = list(Path("/proc").iterdir())
         except OSError:
+            group_observation_certain = False
             entries = []
         for entry in entries:
             if not entry.name.isdigit():
@@ -129,7 +132,13 @@ def terminate(
                 fields = (entry / "stat").read_text().rsplit(")", 1)[1].split()
                 state = fields[0]
                 process_group = int(fields[2])
-            except (OSError, IndexError, ValueError):
+            except FileNotFoundError:
+                continue
+            except OSError:
+                group_observation_certain = False
+                continue
+            except (IndexError, ValueError):
+                group_observation_certain = False
                 continue
             if process_group in groups and state != "Z":
                 return True
@@ -153,7 +162,7 @@ def terminate(
         if not running:
             break
         time.sleep(0.1)
-    clean = not groups_exist()
+    clean = not groups_exist() and group_observation_certain
     if process_tree_fd is not None:
         clean = clean and not holders_exist(
             process_tree_fd,
@@ -188,6 +197,7 @@ def terminate(
             clean = False
         if process.returncode not in {0, -signal.SIGTERM}:
             clean = False
+    clean = clean and group_observation_certain
     return clean
 
 
@@ -505,6 +515,7 @@ def supervise(
     port_reservation_fd: int | None,
     runtime_lock_fd: int | None = None,
     state_directory_fd: int | None = None,
+    physical_state_lock_fd: int | None = None,
 ) -> int:
     with spec_path.open(encoding="utf-8") as stream:
         spec = json.load(stream)
@@ -614,6 +625,8 @@ def supervise(
         )
         if state_directory_fd is not None:
             retained_fds = (*retained_fds, state_directory_fd)
+        if physical_state_lock_fd is not None:
+            retained_fds = (*retained_fds, physical_state_lock_fd)
         guardian_pid, guardian_write_fd = _start_guardian(
             process_tree_fd,
             *retained_fds,
@@ -742,6 +755,8 @@ def supervise(
             os.close(runtime_lock_fd)
         if state_directory_fd is not None:
             os.close(state_directory_fd)
+        if physical_state_lock_fd is not None:
+            os.close(physical_state_lock_fd)
     return 0
 
 
@@ -755,6 +770,7 @@ def main() -> int:
     parser.add_argument("--port-reservation-fd", type=int)
     parser.add_argument("--runtime-lock-fd", type=int)
     parser.add_argument("--state-directory-fd", type=int)
+    parser.add_argument("--physical-state-lock-fd", type=int)
     parser.add_argument("--daemonize", action="store_true")
     options = parser.parse_args()
     if options.daemonize and os.fork() != 0:
@@ -769,10 +785,10 @@ def main() -> int:
             options.port_reservation_fd,
             options.runtime_lock_fd,
         )
-        return (
-            supervise(*arguments, options.state_directory_fd)
-            if options.state_directory_fd is not None
-            else supervise(*arguments)
+        return supervise(
+            *arguments,
+            options.state_directory_fd,
+            options.physical_state_lock_fd,
         )
     except BaseException as error:
         message = f"{type(error).__name__}: {error}"
@@ -814,6 +830,11 @@ def main() -> int:
         if options.state_directory_fd is not None:
             try:
                 os.close(options.state_directory_fd)
+            except OSError:
+                pass
+        if options.physical_state_lock_fd is not None:
+            try:
+                os.close(options.physical_state_lock_fd)
             except OSError:
                 pass
         return 1

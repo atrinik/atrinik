@@ -423,6 +423,19 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 process.kill()
                 process.wait(timeout=2)
 
+    def test_terminate_rejects_process_group_observation_uncertainty(self) -> None:
+        process = mock.Mock(pid=1234, returncode=0)
+        with mock.patch.object(
+            supervisor_module.Path,
+            "iterdir",
+            side_effect=OSError("proc unavailable"),
+        ):
+            self.assertFalse(
+                supervisor_module.terminate(
+                    {"server": process}, None, timeout=0
+                )
+            )
+
     def test_requires_fingerprint_and_finished_server_startup(self) -> None:
         capture = ServerReadinessCapture()
 
@@ -507,7 +520,7 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 self.assertEqual(supervisor_module.main(), 1)
 
         supervise_call.assert_called_once_with(
-            spec_path, None, None, None, None, None, 9
+            spec_path, None, None, None, None, None, 9, None, None
         )
         status.assert_called_once_with(
             spec_path.parent / "startup-error.json",

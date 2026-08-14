@@ -3760,7 +3760,7 @@ class Cleanup:
                                 item["reasons"].append(
                                     "runtime_bundle_lease_unverifiable"
                                 )
-                            if "server" in status.get("services", {}):
+                            if status.get("endpoint") is not None:
                                 endpoint = status.get("endpoint")
                                 port = observation.get("port_reservation")
                                 if (

@@ -5273,6 +5273,35 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(sorted(path.name for path in external.iterdir()), ["sentinel"])
         self.assertEqual(list(topology.iterdir()), [])
 
+    def test_runtime_state_output_cleanup_remains_bound_to_pinned_state(
+        self,
+    ) -> None:
+        state = self.root / "external-state"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "a" * 32
+        relocated = self.root / "relocated-state"
+        try:
+            output = self.workspace._prepare_runtime_state_output(
+                state, generation, state_fd
+            )
+            state.rename(relocated)
+            state.mkdir()
+            sentinel = state / "sentinel"
+            sentinel.write_text("replacement\n", encoding="utf-8")
+
+            self.workspace._remove_runtime_state_output(
+                output, generation, state_fd
+            )
+
+            self.assertFalse(
+                (relocated / "tmp" / "runtime-assets" / generation).exists()
+            )
+            self.assertEqual(sentinel.read_text(encoding="utf-8"), "replacement\n")
+            self.assertEqual(sorted(path.name for path in state.iterdir()), ["sentinel"])
+        finally:
+            os.close(state_fd)
+
     def test_topology_runtime_set_copies_read_only_directories(self) -> None:
         topology = self.root / "topology"
         topology.mkdir()
@@ -9843,6 +9872,16 @@ class WorkspaceTests(unittest.TestCase):
             client_log.read_text(),
         )
         state = self.workspace._state_location("default")
+        identity = self.workspace._state_identity(state)
+        with self.assertRaisesRegex(WorkspaceError, "already in use"):
+            with exclusive_lock(
+                self.workspace._lease_namespace
+                / "state-identities"
+                / f"{identity['device']}-{identity['inode']}.lock",
+                "live physical state",
+                nonblocking=True,
+            ):
+                self.fail("supervisor released the physical state lease")
         second_state = self.workspace.state_add("second", None)
         source_lock = resource_lock_path(
             self.workspace._lease_namespace,
@@ -10021,9 +10060,11 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 with exclusive_lock(path, description, nonblocking=True):
                     pass
-            descendant_path = Path(
-                server_only["services"]["server"]["cwd"]
-            ) / "data" / "tmp" / "descendant.pid"
+            descendant_path = (
+                self.workspace._state_location("default")
+                / "tmp"
+                / "descendant.pid"
+            )
             deadline = time.monotonic() + 5
             while time.monotonic() < deadline and not descendant_path.is_file():
                 time.sleep(0.05)
@@ -10298,9 +10339,23 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(
             self.workspace._state_location(str(promoted["name"])), retained_path
         )
-        promoted_summary = self.workspace.topology_summary(
-            "default", str(promoted["name"]), ["server"]
+        self.assertEqual(
+            self.workspace.state_promote(
+                "temporary-retained", str(promoted["name"])
+            ),
+            promoted,
         )
+        origin_status = (
+            self.workspace.paths.topologies / "temporary-retained" / "status.json"
+        )
+        hidden_status = origin_status.with_name("status.hidden")
+        origin_status.rename(hidden_status)
+        try:
+            promoted_summary = self.workspace.topology_summary(
+                "default", str(promoted["name"]), ["server"]
+            )
+        finally:
+            hidden_status.rename(origin_status)
         self.assertEqual(
             promoted_summary["state_policy"]["owner"],
             {
@@ -10313,13 +10368,6 @@ class WorkspaceTests(unittest.TestCase):
             promoted_summary["state_policy"]["lifecycle"],
             "persistent-promoted",
         )
-        self.assertEqual(
-            self.workspace.state_promote(
-                "temporary-retained", str(promoted["name"])
-            ),
-            promoted,
-        )
-
         (rendezvous / "temporary.bound").unlink()
         with mock.patch.object(
             self.workspace, "_build_resolved", return_value=build_root
@@ -11002,6 +11050,33 @@ class WorkspaceTests(unittest.TestCase):
         container = topology / "temporary-states"
         self.assertEqual(
             {path.name for path in container.iterdir()}, {MANAGED_MARKER}
+        )
+
+    def test_temporary_state_first_digest_failure_removes_staging(self) -> None:
+        topology = self.workspace._topology_directory("digest-failure", create=True)
+        server = self.workspace.paths.repositories / "server"
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._tree_digest",
+                side_effect=WorkspaceError("invalid install_data"),
+            ),
+            self.assertRaisesRegex(WorkspaceError, "invalid install_data"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "digest-failure",
+                "c" * 64,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            {path.name for path in (topology / "temporary-states").iterdir()},
+            {MANAGED_MARKER},
         )
 
     def test_temporary_state_rejects_install_data_mutation_during_copy(self) -> None:
@@ -11812,8 +11887,13 @@ class WorkspaceTests(unittest.TestCase):
             descriptor = os.open(lease, os.O_RDWR | os.O_CREAT, 0o600)
             workspace_module.initialize_lease(descriptor, "a" * 64)
             fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            state_output = self.root / "foreground-server-state-output"
-            state_output.mkdir()
+            state_output = (
+                self.workspace._state_location("default")
+                / "tmp"
+                / "runtime-assets"
+                / "foreground-server-generation"
+            )
+            state_output.mkdir(parents=True)
             atomic_json(
                 state_output / MANAGED_MARKER,
                 {
@@ -11826,7 +11906,7 @@ class WorkspaceTests(unittest.TestCase):
             }
 
         def execute_server(*_arguments: object, **_keywords: object) -> None:
-            self.assertEqual(len(_keywords["pass_fds"]), 3)
+            self.assertEqual(len(_keywords["pass_fds"]), 4)
             for path, description in (
                 (
                     resource_lock_path(
