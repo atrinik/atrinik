@@ -17,6 +17,7 @@ import time
 from typing import Any, BinaryIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
+from .model import durable_atomic_json
 from .process_tree import control_socket_path, holders_exist, signal_holders
 from .port_reservation import PortReservationError, validate_held
 
@@ -98,7 +99,7 @@ def terminate(
     timeout: float = 10,
     *,
     exclude: tuple[int | None, ...] = (),
-) -> None:
+) -> bool:
     # An unreaped session leader pins its numeric process-group identity, so
     # these groups remain safe to signal until the final waits below. The lease
     # additionally finds descendants whose recorded leader was already reaped.
@@ -107,6 +108,7 @@ def terminate(
         for process in processes.values()
         if process.returncode is None
     ]
+    group_observation_certain = True
 
     def signal_groups(signum: signal.Signals) -> None:
         for process_group in process_groups:
@@ -116,10 +118,12 @@ def terminate(
                 pass
 
     def groups_exist() -> bool:
+        nonlocal group_observation_certain
         groups = set(process_groups)
         try:
             entries = list(Path("/proc").iterdir())
         except OSError:
+            group_observation_certain = False
             entries = []
         for entry in entries:
             if not entry.name.isdigit():
@@ -128,7 +132,13 @@ def terminate(
                 fields = (entry / "stat").read_text().rsplit(")", 1)[1].split()
                 state = fields[0]
                 process_group = int(fields[2])
-            except (OSError, IndexError, ValueError):
+            except FileNotFoundError:
+                continue
+            except OSError:
+                group_observation_certain = False
+                continue
+            except (IndexError, ValueError):
+                group_observation_certain = False
                 continue
             if process_group in groups and state != "Z":
                 return True
@@ -152,6 +162,12 @@ def terminate(
         if not running:
             break
         time.sleep(0.1)
+    clean = not groups_exist() and group_observation_certain
+    if process_tree_fd is not None:
+        clean = clean and not holders_exist(
+            process_tree_fd,
+            exclude=(os.getpid(), *(pid for pid in exclude if pid is not None)),
+        )
     signal_groups(signal.SIGKILL)
     if process_tree_fd is not None:
         signal_holders(
@@ -178,7 +194,11 @@ def terminate(
         try:
             process.wait(timeout=2)
         except subprocess.TimeoutExpired:
-            pass
+            clean = False
+        if process.returncode not in {0, -signal.SIGTERM}:
+            clean = False
+    clean = clean and group_observation_certain
+    return clean
 
 
 class RotatingLog:
@@ -257,6 +277,11 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
         "profile": spec["profile"],
         "dependencies": spec["dependencies"],
         "state": spec["state"],
+        **(
+            {"state_policy": spec["state_policy"]}
+            if "state_policy" in spec
+            else {}
+        ),
         "build_root": spec["build_root"],
         "resolved": spec["resolved"],
         "endpoint": (
@@ -267,6 +292,7 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
         "ready": False,
         "started_at": datetime.now(timezone.utc).isoformat(),
         "stopped_at": None,
+        **({"shutdown": None} if spec.get("schema_version") == 3 else {}),
         "supervisor": {
             "pid": os.getpid(),
             "start_time": supervisor_start_time,
@@ -488,10 +514,13 @@ def supervise(
     process_tree_fd: int | None,
     port_reservation_fd: int | None,
     runtime_lock_fd: int | None = None,
+    state_directory_fd: int | None = None,
+    state_output_fd: int | None = None,
+    physical_state_lock_fd: int | None = None,
 ) -> int:
     with spec_path.open(encoding="utf-8") as stream:
         spec = json.load(stream)
-    if spec.get("schema_version") == 2:
+    if spec.get("schema_version") in {2, 3}:
         for descriptor in (layout_lock_fd, build_lock_fd):
             if descriptor is not None:
                 os.close(descriptor)
@@ -499,6 +528,7 @@ def supervise(
         build_lock_fd = None
     status_path = spec_path.parent / "status.json"
     stop = False
+    control_stop_requested = False
     control_socket: socket.socket | None = None
     guardian_pid: int | None = None
     guardian_write_fd: int | None = None
@@ -543,6 +573,10 @@ def supervise(
         inherited_locks: list[int] = []
         if process_tree_fd is not None:
             inherited_locks.append(process_tree_fd)
+        if state_directory_fd is not None and name == "server":
+            inherited_locks.append(state_directory_fd)
+        if state_output_fd is not None and name == "server":
+            inherited_locks.append(state_output_fd)
         process = subprocess.Popen(
             command,
             cwd=service["cwd"],
@@ -584,7 +618,7 @@ def supervise(
     try:
         retained_fds = (
             (port_reservation_fd, lock_fd, runtime_lock_fd)
-            if spec.get("schema_version") == 2
+            if spec.get("schema_version") in {2, 3}
             else (
                 lock_fd,
                 layout_lock_fd,
@@ -592,6 +626,12 @@ def supervise(
                 port_reservation_fd,
             )
         )
+        if state_directory_fd is not None:
+            retained_fds = (*retained_fds, state_directory_fd)
+        if state_output_fd is not None:
+            retained_fds = (*retained_fds, state_output_fd)
+        if physical_state_lock_fd is not None:
+            retained_fds = (*retained_fds, physical_state_lock_fd)
         guardian_pid, guardian_write_fd = _start_guardian(
             process_tree_fd,
             *retained_fds,
@@ -603,7 +643,9 @@ def supervise(
             server = start_service("server", capture=capture)
             deadline = time.monotonic() + SERVER_READY_TIMEOUT
             while not capture.event.wait(timeout=0.1):
-                stop = stop or _serve_control(control_socket, spec)
+                requested = _serve_control(control_socket, spec)
+                control_stop_requested = control_stop_requested or requested
+                stop = stop or requested
                 code = _peek_exit_code(server)
                 if code is not None:
                     raise RuntimeError(
@@ -637,7 +679,9 @@ def supervise(
         atomic_status(status_path, status)
 
         while not stop:
-            stop = _serve_control(control_socket, spec)
+            requested = _serve_control(control_socket, spec)
+            control_stop_requested = control_stop_requested or requested
+            stop = requested
             changed = False
             running = True
             for name, process in processes.items():
@@ -658,7 +702,9 @@ def supervise(
         atomic_status(status_path, status)
         return 1
     finally:
-        terminate(processes, process_tree_fd, exclude=(guardian_pid,))
+        clean_termination = terminate(
+            processes, process_tree_fd, exclude=(guardian_pid,)
+        )
         for pump in pumps:
             pump.join(timeout=2)
         for name, process in processes.items():
@@ -670,7 +716,15 @@ def supervise(
             service_status["exit_code"] = code
         status["stopped_at"] = datetime.now(timezone.utc).isoformat()
         status["ready"] = False
-        atomic_status(status_path, status)
+        status["shutdown"] = {
+            "control_requested": control_stop_requested,
+            "clean": (
+                control_stop_requested
+                and clean_termination
+                and "error" not in status
+            ),
+        }
+        durable_atomic_json(status_path, status)
         for output in logs:
             output.close()
         if control_socket is not None:
@@ -704,6 +758,12 @@ def supervise(
             os.close(port_reservation_fd)
         if runtime_lock_fd is not None:
             os.close(runtime_lock_fd)
+        if state_directory_fd is not None:
+            os.close(state_directory_fd)
+        if state_output_fd is not None:
+            os.close(state_output_fd)
+        if physical_state_lock_fd is not None:
+            os.close(physical_state_lock_fd)
     return 0
 
 
@@ -716,12 +776,15 @@ def main() -> int:
     parser.add_argument("--process-tree-fd", type=int)
     parser.add_argument("--port-reservation-fd", type=int)
     parser.add_argument("--runtime-lock-fd", type=int)
+    parser.add_argument("--state-directory-fd", type=int)
+    parser.add_argument("--state-output-fd", type=int)
+    parser.add_argument("--physical-state-lock-fd", type=int)
     parser.add_argument("--daemonize", action="store_true")
     options = parser.parse_args()
     if options.daemonize and os.fork() != 0:
         return 0
     try:
-        return supervise(
+        arguments = (
             options.spec,
             options.lock_fd,
             options.layout_lock_fd,
@@ -729,6 +792,12 @@ def main() -> int:
             options.process_tree_fd,
             options.port_reservation_fd,
             options.runtime_lock_fd,
+        )
+        return supervise(
+            *arguments,
+            options.state_directory_fd,
+            options.state_output_fd,
+            options.physical_state_lock_fd,
         )
     except BaseException as error:
         message = f"{type(error).__name__}: {error}"
@@ -765,6 +834,21 @@ def main() -> int:
         if options.runtime_lock_fd is not None:
             try:
                 os.close(options.runtime_lock_fd)
+            except OSError:
+                pass
+        if options.state_directory_fd is not None:
+            try:
+                os.close(options.state_directory_fd)
+            except OSError:
+                pass
+        if options.state_output_fd is not None:
+            try:
+                os.close(options.state_output_fd)
+            except OSError:
+                pass
+        if options.physical_state_lock_fd is not None:
+            try:
+                os.close(options.physical_state_lock_fd)
             except OSError:
                 pass
         return 1

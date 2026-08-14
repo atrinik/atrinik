@@ -145,6 +145,25 @@ class CompletionTests(unittest.TestCase):
         _, values = complete(parser(), self.wrapper, words, 4)
         self.assertIn("--scope", values)
 
+        _, values = self.candidates("up", "-")
+        self.assertTrue(
+            {"--state", "--temporary-state", "--default-state"} <= set(values)
+        )
+        _, values = self.candidates("up", "--temporary-state", "-")
+        self.assertTrue(
+            {"--state", "--temporary-state", "--default-state"}.isdisjoint(
+                values
+            )
+        )
+        _, values = self.candidates(
+            "topology", "show", "default", "--default-state", "-"
+        )
+        self.assertTrue(
+            {"--state", "--temporary-state", "--default-state"}.isdisjoint(
+                values
+            )
+        )
+
     def test_run_remainder_and_double_dash_stop_wrapper_completion(self) -> None:
         for words in (
             ["atrinik", "run", "server", "--", "--ver"],
@@ -369,6 +388,16 @@ class CompletionTests(unittest.TestCase):
         self.assertEqual(
             self.candidates("logs", ""),
             ("candidates", ["completion-review"]),
+        )
+        self.assertEqual(
+            self.candidates("state", "promote", ""),
+            ("candidates", ["completion-review"]),
+        )
+        self.assertEqual(
+            self.candidates(
+                "state", "promote", "completion-review", ""
+            ),
+            ("candidates", []),
         )
 
         status_path = self.workspace / "topologies" / "completion-review" / "status.json"

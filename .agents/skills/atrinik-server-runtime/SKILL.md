@@ -17,27 +17,43 @@ HTTP(S) origin; never restore a bundled HTTP listener.
 
 1. Read the workspace and selected server/content/resource guides.
 2. Inspect a coherent classic-derived profile and topology.
-3. Give concurrent topologies distinct registered states. Never replace source,
-   share live state, or edit managed runtime files.
+3. Give isolated automation generation-owned temporary state. Use a distinct
+   named state or explicit default state only when persistence is required.
+   Never replace source, share live state, or edit managed runtime files.
 
 ```sh
 ./atrinik build server --profile PROFILE --test
-./atrinik topology show PROFILE --state STATE --json
-./atrinik up --name NAME --profile PROFILE --state STATE
+./atrinik topology show PROFILE --temporary-state --json
+./atrinik up --name NAME --profile PROFILE --temporary-state
 ./atrinik ps NAME --json
 ./atrinik logs NAME server --follow
 ./atrinik down NAME
 ```
 
+`--state NAME` selects a registered persistent state; `--default-state`
+explicitly selects the legacy managed default. The three selectors are
+mutually exclusive. A confirmed clean `down` removes temporary state only
+after expected service exit and exact process/state lease release; persisted
+clean proof makes interrupted finalization retryable. Use `down NAME
+--retain-state` and
+`state promote NAME SAVED_NAME` to preserve it without overwrite. Crash,
+unreachable, malformed, linked, busy, or uncertain state remains for diagnosis;
+inventory it with `cleanup --scope temporary-states --dry-run --json` and never
+apply cleanup without the matching preview. Do not reuse a topology name while
+its temporary state is retained or has an unfinished lifecycle; promote or
+explicitly reclaim that state first.
+
 `ps --json` reports generation-bound `live`, `exited`, `stale`, or
-`unreachable` liveness and exact runtime-generation, process-tree, state, and
-port observations. A ready topology retains no repository-layout or mutable
+`unreachable` liveness and exact runtime-generation, process-tree, state-policy
+owner/path/lifecycle, and port observations. A ready topology retains no repository-layout or mutable
 build-root lease. Cross-session `down` uses the matching filesystem
 control endpoint, never a PID from the caller's namespace. For `unreachable`,
 follow the reported safe action: wait for bounded guardian recovery and retry
 `ps` and `down`; preserve an exact retained lease for operator diagnosis.
 Never inspect `/proc`, signal the recorded PIDs, unlink control or lease files,
 or reuse the name as recovery.
+`logs` prefixes service output with the same state-policy context. Preserve that
+header with bounded diagnostic excerpts and handoffs.
 After `down`, retain the record for diagnosis or reclaim it only through the
 separate preview-first lifecycle:
 
