@@ -26,7 +26,11 @@ import atrinik_workspace.locking as locking_module
 import atrinik_workspace.scopes as scopes_module
 from atrinik_workspace.scopes import SCOPE_FAILURE_BOUNDARIES_ENV
 from atrinik_workspace.scopes import ScopeLifecycle
-from atrinik_workspace.workspace import BUILD_METADATA, Workspace
+from atrinik_workspace.workspace import (
+    BUILD_METADATA,
+    TOPOLOGY_STATUS_SCHEMA_VERSION,
+    Workspace,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1139,6 +1143,74 @@ class ScopeLifecycleTests(unittest.TestCase):
         record = self.workspace.scope_create(["client"], name="immutable")
         with self.assertRaisesRegex(WorkspaceError, "immutable"):
             self.workspace.set_profile(record["profile"]["name"], "client", "primary")
+
+    def test_clean_subset_topology_does_not_bind_unresolved_scope_worktree(
+        self,
+    ) -> None:
+        self.make_checkout("client")
+        self.make_checkout("server")
+        record = self.workspace.scope_create(
+            ["client", "server"], name="subset-topology"
+        )
+        rows = {row["checkout"]: row for row in record["worktrees"]}
+        topology_root = Path(record["topology"]["path"])
+        topology_root.mkdir()
+        resolved = {
+            "server": {
+                "path": rows["server"]["path"],
+                "checkout_path": rows["server"]["path"],
+                "checkout": "server",
+                "repository": rows["server"]["repository"],
+                "branch": "main",
+                "source": ".",
+                "head": rows["server"]["commit"],
+                "dirty": False,
+            }
+        }
+        service = {"running": False, "status": "exited", "liveness": "exited"}
+        spec = {
+            "schema_version": TOPOLOGY_STATUS_SCHEMA_VERSION,
+            "name": record["topology"]["name"],
+            "profile": record["profile"]["name"],
+            "stack": "default",
+            "providers": {"server": "server"},
+            "dependencies": ["server"],
+            "state": "default",
+            "build_root": str(self.workspace.paths.builds / "subset"),
+            "resolved": resolved,
+            "control": None,
+            "runtime": {"generation": "a" * 64},
+            "services": {"server": service},
+            "endpoint": None,
+        }
+        persisted = {
+            **copy.deepcopy(spec),
+            "stopped_at": "2026-08-14T00:00:00Z",
+            "shutdown": {"control_requested": True, "clean": True},
+            "error": None,
+            "supervisor": {"running": False, "liveness": "exited"},
+            "observation": {
+                "process_tree_lease": "released",
+                "runtime_bundle_lease": "released",
+            },
+        }
+        atomic_json(topology_root / "spec.json", spec)
+        atomic_json(topology_root / "status.json", persisted)
+        with mock.patch.object(
+            self.workspace, "topology_status", return_value=persisted
+        ):
+            preview = self.workspace.scope_release(
+                record["name"], apply=False
+            )
+            self.assertTrue(preview["can_apply"], preview["items"])
+            result = self.workspace.scope_release(
+                record["name"],
+                apply=True,
+                plan_sha256=preview["plan_sha256"],
+            )
+        self.assertTrue(result["released"])
+        self.assertFalse(Path(rows["client"]["path"]).exists())
+        self.assertFalse(Path(rows["server"]["path"]).exists())
 
     def test_release_refuses_identical_profile_path_replacement(self) -> None:
         self.make_checkout("client")

@@ -1375,12 +1375,13 @@ class ScopeLifecycle:
                                     coordinate["checkout"], []
                                 ).append(coordinate)
                     scope_coordinates_match = all(
-                        row["checkout"] in resolved_by_checkout
-                        and all(
+                        all(
                             coordinate.get("checkout_path") == row["path"]
                             and coordinate.get("head") == row["commit"]
                             and coordinate.get("dirty") is False
-                            for coordinate in resolved_by_checkout[row["checkout"]]
+                            for coordinate in resolved_by_checkout.get(
+                                row["checkout"], []
+                            )
                         )
                         for row in scope_worktrees.values()
                     )
