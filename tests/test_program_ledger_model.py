@@ -667,6 +667,16 @@ class ProgramLedgerModel:
         self.path_lock_inode = inode
 
     @classmethod
+    def scan_stream(
+        cls, node_ids: list[str], body_sizes: list[int], content_digest: str,
+    ) -> str:
+        return hashlib.sha256(cls.canonical({
+            "node_ids": node_ids,
+            "body_sizes": body_sizes,
+            "content_digest": content_digest,
+        })).hexdigest()
+
+    @classmethod
     def stable_scan(
         cls, cursors: list[str], node_ids: list[str], first_digest: str,
         second_digest: str, complete: bool = True, pages: int | None = None,
@@ -715,7 +725,7 @@ class ProgramLedgerModel:
             or first_digest != second_digest
         ):
             raise StopClosed("pagination is incomplete, excessive, or changed")
-        stream = hashlib.sha256(first_digest.encode("utf-8")).hexdigest()
+        stream = cls.scan_stream(node_ids, body_sizes, first_digest)
         evidence = {
             "pages": pages, "nodes": nodes, "body_bytes": body_bytes,
             "terminal_cursor": cursors[-1] if node_ids else None,
@@ -784,7 +794,7 @@ class ProgramLedgerModel:
             else:
                 scan = self._issue_scan_permit(
                     kind,
-                    hashlib.sha256(stream.encode("utf-8")).hexdigest(),
+                    self.scan_stream(node_ids, body_sizes, stream),
                     {
                         "pages": pages, "nodes": len(node_ids),
                         "body_bytes": sum(body_sizes),
@@ -799,7 +809,7 @@ class ProgramLedgerModel:
         )
         if (
             not isinstance(scan, ScanPermit) or scan.used
-            or scan.stream != hashlib.sha256(stream.encode("utf-8")).hexdigest()
+            or scan.stream != self.scan_stream(node_ids, body_sizes, stream)
             or scan.seal != hashlib.sha256(
                 json.dumps(
                     scan.evidence, sort_keys=True, separators=(",", ":")
@@ -993,6 +1003,7 @@ class ProgramLedgerModel:
         if (
             current["stream"] != planned["stream"]
             or current["result_stream"] != planned["result_stream"]
+            or current["node_ids"] != planned["node_ids"]
             or current["count"] != planned["count"]
             or current["query_sha256"] != planned["query_sha256"]
         ):
@@ -1184,6 +1195,7 @@ class ProgramLedgerModel:
                 observed["generation"] <= recovery["generation"]
                 or observed["stream"] != recovery["stream"]
                 or observed["result_stream"] != recovery["result_stream"]
+                or observed["node_ids"] != recovery["node_ids"]
                 or observed["count"] != recovery["count"]
                 or observed["query_sha256"] != recovery["query_sha256"]
             ):
@@ -2370,6 +2382,17 @@ class ProgramLedgerModelTests(unittest.TestCase):
         with self.assertRaises(StopClosed):
             model.bind_create([exact])
         self.assertEqual(model.remote_calls["create"], 1)
+
+        changed = ProgramLedgerModel()
+        changed.classify_child([preexisting], "stable", "stable")
+        changed.plan_create()
+        changed.classify_child(
+            [{"node": "other-node", "marker": "unrelated"}],
+            "stable", "stable",
+        )
+        with self.assertRaises(StopClosed):
+            changed.arm("create")
+        self.assertEqual(changed.remote_calls["create"], 0)
 
     def test_stale_generation_digest_and_lock_writers_stop(self) -> None:
         model = ProgramLedgerModel()

@@ -123,12 +123,13 @@ intended body/digest, `current_sha256 == intended_sha256`, and prior null.
 proposal: {position, dependencies, repository, repository_node_id, title, body,
            body_sha256, child_marker, parent_repository, parent_number,
            parent_node_id}
-search: null | {query_sha256, pages, issues, terminal_cursor, completed_at,
-         stream_sha256, candidates, proven_missing}
-create: {phase, mutation, pre_call_stream_sha256,
+search: null | {query_sha256, pages, issues, issue_node_ids, terminal_cursor,
+         completed_at, stream_sha256, candidates, proven_missing}
+create: {phase, mutation, pre_call_stream_sha256, pre_call_issue_node_ids,
          issue_number, issue_node_id, issue_url, creator_node_id,
          created_at, intended_sha256}
 link: {phase, mutation, parent_node_id, child_node_id,
+       pre_call_parent_stream_sha256, pre_call_subissue_node_ids,
        bound_parent_stream_sha256, intended_sha256}
 ```
 
@@ -149,22 +150,35 @@ are `none`; a create plan requires a non-null proven-missing search. Create/link
 use the four phases. `none` requires mutation and all call/result/intended
 fields null. `planned` requires mutation `POST`, exact canonical request digest,
 and null call/result fields. `in-flight` additionally requires the exact stable
-pre-call issue-stream digest. Bound create requires mutation null, every issue
-result including server `created_at`, creator equal to authority, and clears
-the pre-call field. Bound link requires mutation null, the proposal's exact
+pre-call issue-stream digest and ordered issue-node vector. Bound create requires
+mutation null, every issue result including server `created_at`, creator equal
+to authority, and clears the pre-call fields. Link planned/in-flight likewise
+retain the complete pre-call subissue-node vector and stream digest. Bound link
+requires mutation null, the proposal's exact
 parent and bound child IDs, and the digest of the complete parent stream that
 proves the pair. GitHub exposes no relationship node ID; never invent one.
 Link cannot leave `none`
 until create is bound. `child: null` means the execution plan proves no missing
 child is proposed and permits no child mutation.
 
-`comment_scan` has exactly `pages`, `comments`, `body_bytes`,
+`comment_scan` has exactly `pages`, `comments`, `body_bytes`, `node_ids`,
 `terminal_cursor`, `completed_at`, and `stream_sha256`; `child_scan` is exactly
 the search object; `parent_scan` has exactly `pages`, `relationships`,
+`target_occurrences`, `child_parent_node_id`, `subissue_node_ids`,
 `terminal_cursor`, `completed_at`, and `stream_sha256`. Counts are bounded
 nonnegative integers, time is UTC RFC 3339 ending `Z`, cursor is non-empty after
 a nonempty scan and otherwise null, and hashes are lowercase 64-hex. Any phase
 matrix mismatch or impossible cross-field combination is corrupt and stops.
+Every node-ID vector contains non-empty unique IDs in canonical API order, has
+at most 10,000 entries, and has length equal to its corresponding count. Store
+IDs only, never bodies or other unnecessary private data. Parent
+`relationships` counts the complete subissue stream while
+`target_occurrences` counts only the proposed child (zero before link and
+exactly one when bound); `child_parent_node_id` is null before link and equals
+the master node when bound. Retain full scan evidence in each planned and
+in-flight intent generation so recovery can compare observations and prove a
+create result node or target link pair was absent. Clear the pre-call identity
+vectors only in the durably bound phase.
 
 ## Durable replacement and initialization
 
@@ -200,11 +214,14 @@ nodes with advancing unique cursors/node IDs. Allow at most 100 pages, 10,000
 nodes, 65,536 UTF-8 bytes per body, 16 MiB total body bytes, a 30-second request
 timeout, and three read retries honoring `Retry-After`. Limit excess, timeout,
 retry exhaustion, cursor inconsistency, or `hasNextPage` without a usable
-cursor means incomplete pagination and stops. Persist counts, terminal cursor,
-completion time, and stream digest. A stream digest hashes the canonical
+cursor means incomplete pagination and stops. Persist counts, ordered node-ID
+vectors, terminal cursor, completion time, and stream digest. A stream digest
+hashes the canonical
 API-order array of node ID, actor/creator node ID, and exact relevant body/title
-digests. Before mutation require two consecutive complete scans with identical
-stream digests and candidate results.
+digests. Derive it from that array; never accept a caller-supplied digest label
+or compare a digest without its retained node vector. Before mutation require
+two consecutive complete scans with identical stream digests, node vectors,
+and candidate results.
 
 For fresh comment `none`/first-POST planning, require zero occurrences of the
 `<!-- atrinik-program-delivery:` namespace across every comment, regardless of

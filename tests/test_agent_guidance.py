@@ -916,6 +916,9 @@ class AgentGuidanceTests(unittest.TestCase):
             "GitHub exposes no relationship node ID",
             "atrinik-program-child",
             "proposal's recorded position",
+            "pre_call_issue_node_ids",
+            "pre_call_subissue_node_ids",
+            "never accept a caller-supplied digest label",
         }:
             with self.subTest(marker=marker):
                 self.assertIn(marker, ledger)
