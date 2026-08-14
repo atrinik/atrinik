@@ -10658,7 +10658,7 @@ class WorkspaceTests(unittest.TestCase):
             "inspect review",
             "remove the unsafe lease namespace",
         )
-        for level in ("kind", "owners"):
+        for level in ("kind", "owners", "pending"):
             with self.subTest(level=level):
                 root = self.root / f"lease-{level}"
                 kind = root / "leases" / "source"
@@ -10672,9 +10672,14 @@ class WorkspaceTests(unittest.TestCase):
                     lock = resource_lock_path(
                         root, request.kind, request.coordinate
                     )
-                    lock.with_name(f"{lock.name}.owners").symlink_to(
-                        external, target_is_directory=True
-                    )
+                    owners = lock.with_name(f"{lock.name}.owners")
+                    if level == "owners":
+                        owners.symlink_to(external, target_is_directory=True)
+                    else:
+                        owners.mkdir()
+                        (owners / ".pending").symlink_to(
+                            external, target_is_directory=True
+                        )
 
                 with self.assertRaisesRegex(
                     WorkspaceError, "directory is unsafe|cannot open.*directory"
@@ -10699,7 +10704,31 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace.paths.workspace, request.kind, request.coordinate
         )
         owners = lock.with_name(f"{lock.name}.owners")
-        self.assertEqual(list(owners.iterdir()), [])
+        self.assertEqual(list(owners.glob("*.json")), [])
+        self.assertEqual(list((owners / ".pending").iterdir()), [])
+
+    def test_resource_owner_scan_reaps_interrupted_staging(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "shared",
+            "inspect review",
+            "wait for review",
+        )
+        with resource_locks(self.workspace.paths.workspace, [request]):
+            pass
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        staging = lock.with_name(f"{lock.name}.owners") / ".pending"
+        interrupted = staging / "interrupted.json"
+        interrupted.write_text("{}\n", encoding="utf-8")
+
+        self.assertEqual(
+            locking_module._lease_owner_summary(lock),
+            "owner metadata unavailable",
+        )
+        self.assertFalse(interrupted.exists())
 
     def test_resource_owner_publication_is_atomic_with_diagnostic_scan(self) -> None:
         request = LeaseRequest(
@@ -10763,22 +10792,22 @@ class WorkspaceTests(unittest.TestCase):
             publisher = threading.Thread(target=publish_owner)
             publisher.start()
             self.assertTrue(publication_visible.wait(2))
-            self.assertEqual(len(list(owners.iterdir())), 1)
+            self.assertEqual(list(owners.glob("*.json")), [])
 
             scanner = threading.Thread(
                 target=scan_owner, name="owner-summary-scan"
             )
             scanner.start()
             self.assertTrue(scan_attempted.wait(2))
-            self.assertFalse(scan_completed.wait(0.1))
+            self.assertTrue(scan_completed.wait(2))
+            summary = results.get_nowait()
+            self.assertEqual(summary, "owner metadata unavailable")
 
             continue_publication.set()
             self.assertTrue(lease_entered.wait(2))
-            self.assertTrue(scan_completed.wait(2))
-            summary = results.get_nowait()
-            self.assertIsInstance(summary, str)
+            summary = locking_module._lease_owner_summary(lock)
             self.assertIn("shared inspect review by", summary)
-            self.assertEqual(len(list(owners.iterdir())), 1)
+            self.assertEqual(len(list(owners.glob("*.json"))), 1)
 
             release_lease.set()
             publisher.join(2)
@@ -10787,7 +10816,160 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(publisher.is_alive())
         self.assertFalse(scanner.is_alive())
         self.assertIsNone(results.get_nowait())
-        self.assertEqual(list(owners.iterdir()), [])
+        self.assertEqual(list(owners.glob("*.json")), [])
+        self.assertEqual(list((owners / ".pending").iterdir()), [])
+
+    def test_new_resource_owner_is_atomic_for_legacy_diagnostic_scan(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "shared",
+            "inspect review",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        publication_staged = threading.Event()
+        continue_publication = threading.Event()
+        lease_entered = threading.Event()
+        release_lease = threading.Event()
+        results: queue.Queue[object] = queue.Queue()
+        real_dump = locking_module.json.dump
+
+        def pause_staged_publication(*args: object, **kwargs: object) -> None:
+            real_dump(*args, **kwargs)
+            publication_staged.set()
+            if not continue_publication.wait(5):
+                raise TimeoutError("owner publication was not released")
+
+        def publish_owner() -> None:
+            try:
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    lease_entered.set()
+                    if not release_lease.wait(5):
+                        raise TimeoutError("resource lease was not released")
+                results.put(None)
+            except BaseException as error:
+                results.put(error)
+
+        def legacy_scan() -> list[str]:
+            visible: list[str] = []
+            owner_descriptor = os.open(
+                owners, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC
+            )
+            try:
+                for metadata_name in sorted(os.listdir(owner_descriptor)):
+                    descriptor: int | None = None
+                    try:
+                        descriptor = os.open(
+                            metadata_name,
+                            os.O_RDWR | os.O_CLOEXEC,
+                            dir_fd=owner_descriptor,
+                        )
+                        fcntl.flock(
+                            descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
+                        )
+                        visible.append(metadata_name)
+                    except OSError:
+                        continue
+                    finally:
+                        if descriptor is not None:
+                            os.close(descriptor)
+            finally:
+                os.close(owner_descriptor)
+            return visible
+
+        with mock.patch.object(
+            locking_module.json, "dump", side_effect=pause_staged_publication
+        ):
+            publisher = threading.Thread(target=publish_owner)
+            publisher.start()
+            self.assertTrue(publication_staged.wait(2))
+            self.assertEqual(legacy_scan(), [])
+            self.assertEqual(list(owners.glob("*.json")), [])
+
+            continue_publication.set()
+            self.assertTrue(lease_entered.wait(2))
+            self.assertEqual(len(list(owners.glob("*.json"))), 1)
+            self.assertEqual(legacy_scan(), [])
+            self.assertEqual(len(list(owners.glob("*.json"))), 1)
+            release_lease.set()
+            publisher.join(2)
+
+        self.assertFalse(publisher.is_alive())
+        self.assertIsNone(results.get_nowait())
+
+    def test_legacy_resource_owner_survives_new_diagnostic_scan(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "shared",
+            "inspect legacy review",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        lock.parent.mkdir(parents=True, exist_ok=True)
+        owners = lock.with_name(f"{lock.name}.owners")
+        owners.mkdir()
+        metadata = owners / "legacy.json"
+        publication_visible = threading.Event()
+        continue_publication = threading.Event()
+        owner_locked = threading.Event()
+        release_owner = threading.Event()
+        results: queue.Queue[object] = queue.Queue()
+
+        def legacy_publish() -> None:
+            descriptor = os.open(
+                metadata, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600
+            )
+            try:
+                with os.fdopen(
+                    descriptor, "w+", encoding="utf-8", closefd=False
+                ) as stream:
+                    json.dump(
+                        {
+                            "schema_version": 1,
+                            "mode": request.mode,
+                            "operation": request.operation,
+                            "owner": "legacy wrapper",
+                        },
+                        stream,
+                    )
+                    stream.flush()
+                publication_visible.set()
+                if not continue_publication.wait(5):
+                    raise TimeoutError("legacy publication was not released")
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                owner_locked.set()
+                if not release_owner.wait(5):
+                    raise TimeoutError("legacy owner was not released")
+                results.put(None)
+            except BaseException as error:
+                results.put(error)
+            finally:
+                os.close(descriptor)
+                metadata.unlink(missing_ok=True)
+
+        publisher = threading.Thread(target=legacy_publish)
+        publisher.start()
+        self.assertTrue(publication_visible.wait(2))
+
+        summary = locking_module._lease_owner_summary(lock)
+        self.assertIn("shared inspect legacy review by legacy wrapper", summary)
+        self.assertTrue(metadata.exists())
+
+        continue_publication.set()
+        self.assertTrue(owner_locked.wait(2))
+        self.assertTrue(metadata.exists())
+        release_owner.set()
+        publisher.join(2)
+
+        self.assertFalse(publisher.is_alive())
+        self.assertIsNone(results.get_nowait())
 
     def test_resource_owner_metadata_survives_inherited_child(self) -> None:
         request = LeaseRequest(
@@ -10807,11 +10989,12 @@ class WorkspaceTests(unittest.TestCase):
                 pass_fds=active_lock_fds(),
             )
         owners = lock.with_name(f"{lock.name}.owners")
-        self.assertEqual(len(list(owners.iterdir())), 1)
+        self.assertEqual(len(list(owners.glob("*.json"))), 1)
         child.terminate()
         child.wait(timeout=5)
         locking_module._lease_owner_summary(lock)
-        self.assertEqual(list(owners.iterdir()), [])
+        self.assertEqual(list(owners.glob("*.json")), [])
+        self.assertEqual(list((owners / ".pending").iterdir()), [])
 
     def test_relocated_workspace_roots_share_physical_lease_namespace(self) -> None:
         alternate_root = self.root / "alternate-workspace"

@@ -1219,9 +1219,11 @@ time, skips busy candidates, and journals completed actions in
 
 Waits longer than 10 seconds report the resource kind, stable coordinate, known
 owner operation, and supported recovery command without relying on a
-namespace-local PID. Owner publication and stale-record reaping share a brief
-directory fence, so diagnostics cannot remove a newly visible record before
-its live-owner lock is established. The wrapper fails closed when advisory
+namespace-local PID. Owner records are written and locked in a private staging
+directory, then linked atomically into the diagnostic namespace; stale-record
+scans therefore never observe a new record before its live-owner lock is
+established. Legacy records are retained conservatively because their visible
+publication predates that invariant. The wrapper fails closed when advisory
 shared locking or resource identity is unavailable. Active preparation leases
 are inherited by subprocesses. Build and startup hold profile, source, and
 build-root leases only until a sealed runtime generation is published.
