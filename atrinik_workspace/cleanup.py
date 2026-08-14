@@ -1115,6 +1115,7 @@ class Cleanup:
         item.pop("_physical_path", None)
         item.pop("_lease_only", None)
         item.pop("_orphan_rollback_lease", None)
+        item.pop("_temporary_state_container_identity", None)
 
     def _revalidate_target(
         self,
@@ -1151,11 +1152,15 @@ class Cleanup:
             physical = item.get("_physical_path")
             lease_only = item.get("_lease_only")
             orphan_rollback_lease = item.get("_orphan_rollback_lease")
+            container_identity = item.get(
+                "_temporary_state_container_identity"
+            )
             self._strip_internal(item)
             item["_identity"] = filesystem_identity
             item["_physical_path"] = physical
             item["_lease_only"] = lease_only
             item["_orphan_rollback_lease"] = orphan_rollback_lease
+            item["_temporary_state_container_identity"] = container_identity
             return item
         references, reference_errors = self._references()
         registered, registered_error = self._registered_worktree_paths()
@@ -1382,13 +1387,36 @@ class Cleanup:
                 if isinstance(runtime, dict)
                 else None
             )
+            mutable_output_identities = (
+                runtime.get("mutable_state_output_identities")
+                if isinstance(runtime, dict)
+                else None
+            )
             if isinstance(mutable_outputs, list):
                 try:
-                    if any(
-                        Path(value).exists() or Path(value).is_symlink()
-                        for value in mutable_outputs
-                        if isinstance(value, str)
-                    ):
+                    output_evidence = False
+                    for index, value in enumerate(mutable_outputs):
+                        if not isinstance(value, str):
+                            output_evidence = True
+                            break
+                        output = Path(value)
+                        if output.exists() or output.is_symlink():
+                            output_evidence = True
+                            break
+                        if (
+                            isinstance(mutable_output_identities, list)
+                            and index < len(mutable_output_identities)
+                            and isinstance(
+                                mutable_output_identities[index], dict
+                            )
+                        ):
+                            tombstone = _owned_tree_tombstone_path(
+                                output, mutable_output_identities[index]
+                            )
+                            if tombstone.exists() or tombstone.is_symlink():
+                                output_evidence = True
+                                break
+                    if output_evidence:
                         reasons.append("mutable_state_outputs_present")
                 except (OSError, ValueError) as error:
                     reasons.append("mutable_state_output_inventory_unverifiable")
@@ -3714,19 +3742,123 @@ class Cleanup:
             item["reasons"] = [f"stale_{kind.replace('-', '_')}"]
         return item
 
+    def _load_bounded_json(self, path: Path, description: str) -> Any:
+        parent_fd = _open_directory_nofollow(
+            path.parent,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+        )
+        try:
+            return self.workspace._load_state_json_at(
+                parent_fd, path.name, description
+            )
+        finally:
+            os.close(parent_fd)
+
+    def _open_temporary_state_container(
+        self, topology: Path
+    ) -> tuple[int, tuple[int, int, int | tuple[int, int]]]:
+        if (
+            topology.parent.resolve(strict=False)
+            != self.paths.topologies.resolve(strict=False)
+        ):
+            raise WorkspaceError("temporary state topology path is invalid")
+        flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        topology_fd = _open_directory_nofollow(topology, flags)
+        container_fd: int | None = None
+        try:
+            topology_metadata = os.fstat(topology_fd)
+            if self.workspace._load_state_json_at(
+                topology_fd,
+                MANAGED_MARKER,
+                "temporary state topology marker",
+            ) != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": f"topology:{topology.name}",
+            }:
+                raise WorkspaceError("temporary state topology marker is invalid")
+            visible = os.stat(
+                "temporary-states",
+                dir_fd=topology_fd,
+                follow_symlinks=False,
+            )
+            if not stat.S_ISDIR(visible.st_mode):
+                raise WorkspaceError("temporary state container is invalid")
+            container_fd = os.open(
+                "temporary-states", flags, dir_fd=topology_fd
+            )
+            container_metadata = os.fstat(container_fd)
+            topology_mount = _descriptor_mount_id(topology_fd)
+            container_mount = _descriptor_mount_id(container_fd)
+            if (
+                (visible.st_dev, visible.st_ino)
+                != (container_metadata.st_dev, container_metadata.st_ino)
+                or container_mount != topology_mount
+                or container_metadata.st_dev != topology_metadata.st_dev
+            ):
+                raise WorkspaceError(
+                    "temporary state container changed or crossed a mount"
+                )
+            if self.workspace._load_state_json_at(
+                container_fd,
+                MANAGED_MARKER,
+                "temporary state container marker",
+            ) != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": "topology-temporary-states",
+            }:
+                raise WorkspaceError("temporary state container marker is invalid")
+            result = container_fd
+            container_fd = None
+            return result, (
+                container_metadata.st_dev,
+                container_metadata.st_ino,
+                container_mount,
+            )
+        finally:
+            if container_fd is not None:
+                os.close(container_fd)
+            os.close(topology_fd)
+
     def _orphan_temporary_state_lease_item(
-        self, topology: Path, lock: Path, older_than_days: int
+        self,
+        topology: Path,
+        lock: Path,
+        older_than_days: int,
+        *,
+        tombstone: bool = False,
     ) -> dict[str, Any]:
-        generation = lock.name.removesuffix(".lock")
+        if tombstone:
+            match = re.fullmatch(
+                r"\.([0-9a-f]{64})\.lock\.remove-([0-9a-f]+)-([0-9a-f]+)",
+                lock.name,
+            )
+            if match is None:
+                raise WorkspaceError("orphan temporary state lease tombstone is invalid")
+            generation = match.group(1)
+            expected_tombstone_identity = (
+                int(match.group(2), 16),
+                int(match.group(3), 16),
+            )
+        else:
+            generation = lock.name.removesuffix(".lock")
+            expected_tombstone_identity = None
         state = lock.parent / generation
         item = _base_item(
             "temporary-state", "atrinik", "atrinik/atrinik", state
         )
         item["topology"] = topology.name
         item["generation"] = generation
-        item["_orphan_rollback_lease"] = True
+        item["_physical_path"] = str(lock)
+        item["_orphan_rollback_lease"] = (
+            "tombstone" if tombstone else "lock"
+        )
         reasons: list[str] = []
         try:
+            container_fd, container_identity = (
+                self._open_temporary_state_container(topology)
+            )
+            os.close(container_fd)
+            item["_temporary_state_container_identity"] = container_identity
             metadata = lock.stat(follow_symlinks=False)
             item["_identity"] = (
                 metadata.st_dev,
@@ -3736,6 +3868,13 @@ class Cleanup:
             )
             if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
                 raise WorkspaceError("orphan temporary state lease is invalid")
+            if expected_tombstone_identity is not None and (
+                metadata.st_dev,
+                metadata.st_ino,
+            ) != expected_tombstone_identity:
+                raise WorkspaceError(
+                    "orphan temporary state lease tombstone identity is invalid"
+                )
             for candidate in (
                 state,
                 state.parent / f".{generation}.removal-pending",
@@ -3752,28 +3891,16 @@ class Cleanup:
                 reasons.append("active_state_lease")
             try:
                 status = self.workspace.topology_status(topology.name)
-            except (OSError, RuntimeError, WorkspaceError):
+            except (OSError, RuntimeError, WorkspaceError) as status_error:
                 status_path = topology / "status.json"
                 if status_path.exists() or status_path.is_symlink():
-                    topology_fd = _open_directory_nofollow(
-                        topology,
-                        os.O_RDONLY
-                        | os.O_CLOEXEC
-                        | os.O_DIRECTORY
-                        | os.O_NOFOLLOW,
+                    self._load_bounded_json(
+                        status_path,
+                        "orphan temporary state topology status",
                     )
-                    try:
-                        status = self.workspace._load_state_json_at(
-                            topology_fd,
-                            status_path.name,
-                            "orphan temporary state topology status",
-                        )
-                    finally:
-                        os.close(topology_fd)
-                    if not isinstance(status, dict):
-                        raise WorkspaceError(
-                            "orphan temporary state topology status is invalid"
-                        )
+                    reasons.append("topology_status_unverifiable")
+                    item["error"] = str(status_error)
+                    status = None
                 else:
                     status = None
             control = status.get("control") if isinstance(status, dict) else None
@@ -3857,6 +3984,19 @@ class Cleanup:
                                 )
                             )
                     continue
+                if re.fullmatch(
+                    r"\.[0-9a-f]{64}\.lock\.remove-[0-9a-f]+-[0-9a-f]+",
+                    path.name,
+                ):
+                    items.append(
+                        self._orphan_temporary_state_lease_item(
+                            topology,
+                            path,
+                            older_than_days,
+                            tombstone=True,
+                        )
+                    )
+                    continue
                 if path.name.endswith(".lock"):
                     continue
                 pending = re.fullmatch(
@@ -3874,7 +4014,10 @@ class Cleanup:
                 ):
                     try:
                         try:
-                            creation = load_json(path / TEMPORARY_STATE_METADATA)
+                            creation = self._load_bounded_json(
+                                path / TEMPORARY_STATE_METADATA,
+                                "temporary state removal metadata",
+                            )
                             policy = creation["state_policy"]
                         except (OSError, WorkspaceError):
                             status = self.workspace.topology_status(topology.name)
@@ -3942,7 +4085,10 @@ class Cleanup:
                         )
             except (KeyError, OSError, TypeError, ValueError, WorkspaceError) as error:
                 try:
-                    raw_status = load_json(topology / "status.json")
+                    raw_status = self._load_bounded_json(
+                        topology / "status.json",
+                        "temporary state topology status",
+                    )
                     raw_policy = (
                         raw_status.get("state_policy")
                         if isinstance(raw_status, dict)
@@ -3993,6 +4139,15 @@ class Cleanup:
         item["_lease_only"] = lifecycle == "removed"
         item["_identity"] = None
         item["_physical_path"] = None
+        try:
+            container_fd, container_identity = (
+                self._open_temporary_state_container(path.parent.parent)
+            )
+            os.close(container_fd)
+            item["_temporary_state_container_identity"] = container_identity
+        except (OSError, RuntimeError, ValueError, WorkspaceError) as error:
+            item["reasons"].append("invalid_temporary_state_container")
+            item["error"] = str(error)
         if path.exists() or path.is_symlink():
             item["reasons"].append("temporary_state_reappeared")
         if lifecycle == "removal-pending":
@@ -4098,23 +4253,21 @@ class Cleanup:
             else path
         )
         item["_physical_path"] = str(physical)
+        try:
+            container_fd, container_identity = (
+                self._open_temporary_state_container(path.parent.parent)
+            )
+            os.close(container_fd)
+            item["_temporary_state_container_identity"] = container_identity
+        except (OSError, RuntimeError, ValueError, WorkspaceError) as error:
+            item["reasons"] = ["invalid_temporary_state_container"]
+            item["error"] = str(error)
+            return item
         inodes, observed, walk_error = _temporary_tree_usage(physical)
         item["_inodes"] = inodes
         if walk_error:
             item["reasons"].append("filesystem_traversal_error")
             item["error"] = walk_error
-
-        def load_bounded_json(path_value: Path, description: str) -> Any:
-            parent_fd = _open_directory_nofollow(
-                path_value.parent,
-                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
-            )
-            try:
-                return self.workspace._load_state_json_at(
-                    parent_fd, path_value.name, description
-                )
-            finally:
-                os.close(parent_fd)
 
         try:
             metadata = physical.lstat()
@@ -4137,7 +4290,7 @@ class Cleanup:
                 != self.paths.topologies.resolve(strict=False)
             ):
                 raise WorkspaceError("temporary state path identity is invalid")
-            if load_bounded_json(
+            if self._load_bounded_json(
                 container / MANAGED_MARKER,
                 "temporary state container marker",
             ) != {
@@ -4145,7 +4298,7 @@ class Cleanup:
                 "purpose": "topology-temporary-states",
             }:
                 raise WorkspaceError("temporary state container marker is invalid")
-            if load_bounded_json(
+            if self._load_bounded_json(
                 topology / MANAGED_MARKER,
                 "temporary state topology marker",
             ) != {
@@ -4190,7 +4343,7 @@ class Cleanup:
                     "state_policy": creation_policy,
                 }
             else:
-                if load_bounded_json(
+                if self._load_bounded_json(
                     physical / MANAGED_MARKER,
                     "temporary state ownership marker",
                 ) != {
@@ -4200,7 +4353,7 @@ class Cleanup:
                     "generation": generation,
                 }:
                     raise WorkspaceError("temporary state ownership marker is invalid")
-                record = load_bounded_json(
+                record = self._load_bounded_json(
                     physical / TEMPORARY_STATE_METADATA,
                     "temporary state creation metadata",
                 )
@@ -4415,38 +4568,47 @@ class Cleanup:
                 f"topology {topology} operation",
                 nonblocking=True,
             ):
+                container_fd, container_identity = (
+                    self._open_temporary_state_container(root)
+                )
+                expected_container = item.get(
+                    "_temporary_state_container_identity"
+                )
+                if container_identity != expected_container:
+                    os.close(container_fd)
+                    raise WorkspaceError(
+                        "temporary state container changed before cleanup"
+                    )
                 for candidate in (
                     path,
                     path.parent / f".{generation}.removal-pending",
                 ):
-                    if candidate.exists() or candidate.is_symlink():
+                    try:
+                        os.stat(
+                            candidate.name,
+                            dir_fd=container_fd,
+                            follow_symlinks=False,
+                        )
+                    except FileNotFoundError:
+                        continue
+                    else:
+                        os.close(container_fd)
                         raise WorkspaceError(
                             "orphan temporary state lease gained state evidence"
                         )
                 try:
                     status = self.workspace.topology_status(topology)
-                except (OSError, RuntimeError, WorkspaceError):
+                except (OSError, RuntimeError, WorkspaceError) as error:
                     status_path = root / "status.json"
                     if status_path.exists() or status_path.is_symlink():
-                        root_fd = _open_directory_nofollow(
-                            root,
-                            os.O_RDONLY
-                            | os.O_CLOEXEC
-                            | os.O_DIRECTORY
-                            | os.O_NOFOLLOW,
+                        self._load_bounded_json(
+                            status_path,
+                            "orphan temporary state topology status",
                         )
-                        try:
-                            status = self.workspace._load_state_json_at(
-                                root_fd,
-                                status_path.name,
-                                "orphan temporary state topology status",
-                            )
-                        finally:
-                            os.close(root_fd)
-                        if not isinstance(status, dict):
-                            raise WorkspaceError(
-                                "orphan temporary state topology status is invalid"
-                            )
+                        os.close(container_fd)
+                        raise WorkspaceError(
+                            "orphan temporary state topology status is invalid"
+                        ) from error
                     else:
                         status = None
                 control = (
@@ -4456,30 +4618,75 @@ class Cleanup:
                     isinstance(control, dict)
                     and control.get("generation") == generation
                 ):
+                    os.close(container_fd)
                     raise WorkspaceError(
                         "orphan temporary state generation became current"
                     )
-                with exclusive_lock(
-                    lock,
-                    f"orphan temporary topology state {path}",
-                    nonblocking=True,
-                ) as state_lease:
-                    metadata = os.fstat(state_lease.fileno())
-                    expected = item.get("_identity")
-                    if (
-                        not isinstance(expected, tuple)
-                        or expected[:2] != (metadata.st_dev, metadata.st_ino)
-                        or not stat.S_ISREG(metadata.st_mode)
-                        or metadata.st_nlink != 1
-                    ):
-                        raise WorkspaceError(
-                            "orphan temporary state lease identity changed"
+                if item.get("_orphan_rollback_lease") == "tombstone":
+                    try:
+                        evidence = Path(item["_physical_path"])
+                        metadata = os.stat(
+                            evidence.name,
+                            dir_fd=container_fd,
+                            follow_symlinks=False,
                         )
-                    self.workspace._unlink_temporary_state_lock(
-                        path,
-                        state_lease,
-                        {"device": metadata.st_dev, "inode": metadata.st_ino},
-                    )
+                        expected = item.get("_identity")
+                        if (
+                            not isinstance(expected, tuple)
+                            or expected[:2]
+                            != (metadata.st_dev, metadata.st_ino)
+                            or not stat.S_ISREG(metadata.st_mode)
+                            or metadata.st_nlink != 1
+                        ):
+                            raise WorkspaceError(
+                                "orphan temporary state lease tombstone changed"
+                            )
+                        if not self.workspace._finish_temporary_state_lock_tombstone(
+                            path,
+                            {
+                                "device": metadata.st_dev,
+                                "inode": metadata.st_ino,
+                            },
+                            container_fd,
+                        ):
+                            raise WorkspaceError(
+                                "orphan temporary state lease tombstone disappeared"
+                            )
+                    finally:
+                        os.close(container_fd)
+                    return
+                try:
+                    with exclusive_lock(
+                        lock,
+                        f"orphan temporary topology state {path}",
+                        nonblocking=True,
+                    ) as state_lease:
+                        metadata = os.fstat(state_lease.fileno())
+                        visible = os.stat(
+                            lock.name,
+                            dir_fd=container_fd,
+                            follow_symlinks=False,
+                        )
+                        expected = item.get("_identity")
+                        if (
+                            not isinstance(expected, tuple)
+                            or expected[:2] != (metadata.st_dev, metadata.st_ino)
+                            or (visible.st_dev, visible.st_ino)
+                            != (metadata.st_dev, metadata.st_ino)
+                            or not stat.S_ISREG(metadata.st_mode)
+                            or metadata.st_nlink != 1
+                        ):
+                            raise WorkspaceError(
+                                "orphan temporary state lease identity changed"
+                            )
+                        self.workspace._unlink_temporary_state_lock(
+                            path,
+                            state_lease,
+                            {"device": metadata.st_dev, "inode": metadata.st_ino},
+                            container_fd,
+                        )
+                finally:
+                    os.close(container_fd)
             return
         if item.get("_lease_only"):
             with exclusive_lock(
@@ -4487,33 +4694,50 @@ class Cleanup:
                 f"topology {topology} operation",
                 nonblocking=True,
             ):
-                status = self.workspace.topology_status(topology)
-                policy = status.get("state_policy")
-                if (
-                    not isinstance(policy, dict)
-                    or policy.get("mode") != "temporary"
-                    or policy.get("lifecycle") != "removed"
-                    or policy.get("path") != str(path)
+                container_fd, container_identity = (
+                    self._open_temporary_state_container(root)
+                )
+                if container_identity != item.get(
+                    "_temporary_state_container_identity"
                 ):
+                    os.close(container_fd)
                     raise WorkspaceError(
-                        "removed temporary state lease status changed before cleanup"
+                        "temporary state container changed before lease cleanup"
                     )
-                lock = Path(f"{path}.lock")
-                if lock.exists() or lock.is_symlink():
-                    with exclusive_lock(
-                        lock,
-                        f"temporary topology state {path}",
-                        nonblocking=True,
-                    ) as state_lease:
-                        self.workspace._unlink_temporary_state_lock(
-                            path, state_lease, policy["lease_identity"]
+                try:
+                    status = self.workspace.topology_status(topology)
+                    policy = status.get("state_policy")
+                    if (
+                        not isinstance(policy, dict)
+                        or policy.get("mode") != "temporary"
+                        or policy.get("lifecycle") != "removed"
+                        or policy.get("path") != str(path)
+                    ):
+                        raise WorkspaceError(
+                            "removed temporary state lease status changed before "
+                            "cleanup"
                         )
-                elif not self.workspace._finish_temporary_state_lock_tombstone(
-                    path, policy["lease_identity"]
-                ):
-                    raise WorkspaceError(
-                        f"removed temporary state lease is missing: {lock}"
-                    )
+                    lock = Path(f"{path}.lock")
+                    if lock.exists() or lock.is_symlink():
+                        with exclusive_lock(
+                            lock,
+                            f"temporary topology state {path}",
+                            nonblocking=True,
+                        ) as state_lease:
+                            self.workspace._unlink_temporary_state_lock(
+                                path,
+                                state_lease,
+                                policy["lease_identity"],
+                                container_fd,
+                            )
+                    elif not self.workspace._finish_temporary_state_lock_tombstone(
+                        path, policy["lease_identity"], container_fd
+                    ):
+                        raise WorkspaceError(
+                            f"removed temporary state lease is missing: {lock}"
+                        )
+                finally:
+                    os.close(container_fd)
             return
         with exclusive_lock(
             root / "operation.lock",
@@ -4569,18 +4793,35 @@ class Cleanup:
                     ),
                     None,
                 )
-                mutation_fd = (
-                    self.workspace._lock_state_directory_mutation(
-                        mutation_path, policy["identity"]
-                    )
-                    if mutation_path is not None
-                    else None
-                )
+                mutation_fd: int | None = None
+                container_fd: int | None = None
                 try:
+                    mutation_fd = (
+                        self.workspace._lock_state_directory_mutation(
+                            mutation_path, policy["identity"]
+                        )
+                        if mutation_path is not None
+                        else None
+                    )
+                    container_fd, container_identity = (
+                        self._open_temporary_state_container(root)
+                    )
+                    if container_identity != item.get(
+                        "_temporary_state_container_identity"
+                    ):
+                        raise WorkspaceError(
+                            "temporary state container changed before removal"
+                        )
                     self.workspace._commit_temporary_state_removal(
-                        topology, status, state_lease, mutation_fd
+                        topology,
+                        status,
+                        state_lease,
+                        mutation_fd,
+                        container_fd,
                     )
                 finally:
+                    if container_fd is not None:
+                        os.close(container_fd)
                     if mutation_fd is not None:
                         os.close(mutation_fd)
 

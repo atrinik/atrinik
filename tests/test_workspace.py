@@ -5435,6 +5435,85 @@ class WorkspaceTests(unittest.TestCase):
         finally:
             os.close(state_fd)
 
+    def test_runtime_state_output_cleanup_tracks_pending_renames(self) -> None:
+        topology = self.workspace._topology_directory(
+            "runtime-output-recovery", create=True
+        )
+        state = self.root / "runtime-output-recovery-state"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "e" * 64
+        output, output_fd, output_identity = (
+            self.workspace._prepare_runtime_state_output(
+                state, generation, state_fd
+            )
+        )
+        os.close(output_fd)
+        os.close(state_fd)
+        displaced = output.parent / "operator-renamed-output"
+        output.rename(displaced)
+        status = {
+            "name": "runtime-output-recovery",
+            "state_policy": {
+                "mode": "named",
+                "path": str(state),
+                "identity": self.workspace._state_identity(state),
+            },
+            "control": {"generation": generation},
+            "runtime": {
+                "mutable_state_outputs": [str(output)],
+                "mutable_state_output_identities": [output_identity],
+            },
+        }
+        status_path = topology / "status.json"
+        atomic_json(status_path, status)
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            side_effect=lambda _name: load_json(status_path),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "was renamed"):
+                self.workspace._cleanup_topology_mutable_state_outputs(status)
+            pending = load_json(status_path)
+            self.assertEqual(
+                pending["mutable_state_cleanup"]["entries"][0]["status"],
+                "pending",
+            )
+            displaced.rename(output)
+            completed = self.workspace._cleanup_topology_mutable_state_outputs(
+                pending
+            )
+        self.assertEqual(
+            completed["mutable_state_cleanup"]["entries"][0]["status"],
+            "complete",
+        )
+        self.assertFalse(output.exists())
+
+    def test_schema_two_restart_preserves_unowned_mutable_output(self) -> None:
+        topology = self.workspace._topology_directory(
+            "legacy-output", create=True
+        )
+        atomic_json(topology / "status.json", {})
+        output = self.root / "legacy-runtime-output"
+        output.mkdir()
+        previous = {
+            "schema_version": workspace_module.LEGACY_RUNTIME_TOPOLOGY_STATUS_SCHEMA_VERSION,
+            "supervisor": {"running": False},
+            "services": {"server": {"running": False}},
+            "runtime": {"mutable_state_outputs": [str(output)]},
+        }
+        with (
+            mock.patch.object(
+                self.workspace, "topology_status", return_value=previous
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "legacy mutable state output"
+            ),
+        ):
+            self.workspace.topology_up(
+                "legacy-output", "default", "default", ["server"], 0
+            )
+
     def test_topology_runtime_set_copies_read_only_directories(self) -> None:
         topology = self.root / "topology"
         topology.mkdir()
@@ -10093,9 +10172,7 @@ class WorkspaceTests(unittest.TestCase):
         self.assertRegex(server_log.read_text(), r"'--datapath=/proc/self/fd/\d+'")
         self.assertRegex(
             server_log.read_text(),
-            r"'--assetspath=/proc/self/fd/\d+/tmp/runtime-assets/"
-            + status["control"]["generation"]
-            + r"'",
+            r"'--assetspath=/proc/self/fd/\d+'",
         )
         self.assertIn(
             f"'--server=127.0.0.1 17300 {'a' * 64}'", client_log.read_text()
@@ -10413,16 +10490,23 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertNotIn(str(first_path), self.workspace._load_states().values())
         tombstone = first_path.parent / f".{first_path.name}.removal-pending"
-        real_rename_no_replace = workspace_module.rename_no_replace
+        real_rename_no_replace_at = workspace_module.rename_no_replace_at
 
-        def interrupt_before_removal_rename(source: Path, target: Path) -> None:
-            if source == first_path and target == tombstone:
+        def interrupt_before_removal_rename(
+            source_parent: int,
+            source: str,
+            target_parent: int,
+            target: str,
+        ) -> None:
+            if source == first_path.name and target == tombstone.name:
                 raise WorkspaceError("simulated pre-rename interruption")
-            real_rename_no_replace(source, target)
+            real_rename_no_replace_at(
+                source_parent, source, target_parent, target
+            )
 
         with (
             mock.patch(
-                "atrinik_workspace.workspace.rename_no_replace",
+                "atrinik_workspace.workspace.rename_no_replace_at",
                 side_effect=interrupt_before_removal_rename,
             ),
             self.assertRaisesRegex(WorkspaceError, "pre-rename interruption"),
@@ -11360,9 +11444,75 @@ class WorkspaceTests(unittest.TestCase):
                 if item["path"] == str(state)
             )
             self.assertEqual(fifo_item["disposition"], "protected")
-            self.assertIn("invalid_temporary_state", fifo_item["reasons"])
+            self.assertTrue(
+                {"invalid_temporary_state", "invalid_temporary_state_container"}
+                & set(fifo_item["reasons"])
+            )
             metadata_path.unlink()
             metadata_path.write_bytes(metadata_payload)
+        state_identity = self.workspace._state_identity(state)
+        removal_tombstone = workspace_module._owned_tree_tombstone_path(
+            state, state_identity
+        )
+        state.rename(removal_tombstone)
+        creation_path = removal_tombstone / workspace_module.TEMPORARY_STATE_METADATA
+        creation_payload = creation_path.read_bytes()
+        creation_path.unlink()
+        os.mkfifo(creation_path)
+        tombstone_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        tombstone_item = next(
+            item
+            for item in tombstone_preview["items"]
+            if item["path"] == str(removal_tombstone)
+        )
+        self.assertEqual(tombstone_item["disposition"], "protected")
+        creation_path.unlink()
+        symlink_target = self.root / "temporary-state-creation-record"
+        symlink_target.write_bytes(creation_payload)
+        creation_path.symlink_to(symlink_target)
+        symlink_tombstone_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        symlink_tombstone_item = next(
+            item
+            for item in symlink_tombstone_preview["items"]
+            if item["path"] == str(removal_tombstone)
+        )
+        self.assertEqual(symlink_tombstone_item["disposition"], "protected")
+        creation_path.unlink()
+        creation_path.write_bytes(creation_payload)
+        removal_tombstone.rename(state)
+
+        status_path = state.parent.parent / "status.json"
+        status_payload = status_path.read_bytes()
+        status_path.unlink()
+        os.mkfifo(status_path)
+        invalid_status_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        invalid_status_item = next(
+            item
+            for item in invalid_status_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(invalid_status_item["disposition"], "protected")
+        status_path.unlink()
+        status_symlink_target = self.root / "temporary-topology-status"
+        status_symlink_target.write_bytes(status_payload)
+        status_path.symlink_to(status_symlink_target)
+        symlink_status_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        symlink_status_item = next(
+            item
+            for item in symlink_status_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(symlink_status_item["disposition"], "protected")
+        status_path.unlink()
+        status_path.write_bytes(status_payload)
         linked_file = next(
             path
             for path in state.rglob("*")
@@ -12224,6 +12374,47 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn(
             "stale_orphan_temporary_state_lease", item["reasons"]
         )
+        container_marker = state.parent / MANAGED_MARKER
+        container_payload = container_marker.read_bytes()
+        container_marker.unlink()
+        unowned_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        unowned_item = next(
+            value
+            for value in unowned_preview["items"]
+            if value["path"] == str(state)
+        )
+        self.assertEqual(unowned_item["disposition"], "protected")
+        self.assertIn(
+            "invalid_orphan_temporary_state_lease", unowned_item["reasons"]
+        )
+        container_marker.write_bytes(container_payload)
+        with (
+            mock.patch(
+                "atrinik_workspace.cleanup._descriptor_mount_id",
+                side_effect=[1, 2],
+            ),
+            self.assertRaisesRegex(WorkspaceError, "crossed a mount"),
+        ):
+            cleanup_module.Cleanup(
+                self.workspace
+            )._open_temporary_state_container(topology)
+        lock_metadata = lock.stat(follow_symlinks=False)
+        lock_tombstone = lock.parent / (
+            f".{lock.name}.remove-{lock_metadata.st_dev:x}-"
+            f"{lock_metadata.st_ino:x}"
+        )
+        lock.rename(lock_tombstone)
+        tombstone_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        tombstone_item = next(
+            value
+            for value in tombstone_preview["items"]
+            if value["path"] == str(state)
+        )
+        self.assertEqual(tombstone_item["disposition"], "eligible")
         applied = self.workspace.cleanup(
             ["temporary-states"], 0, [], True
         )
@@ -12232,6 +12423,7 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(applied_item["disposition"], "removed")
         self.assertFalse(lock.exists())
+        self.assertFalse(lock_tombstone.exists())
 
     def test_temporary_startup_rollback_retains_linked_state(self) -> None:
         topology = self.workspace._topology_directory(

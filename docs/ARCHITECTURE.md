@@ -797,12 +797,20 @@ old disposable state as eligible after proving its markers, metadata, path
 identity, registry absence, stopped matching topology generation, and released
 process-tree, runtime-bundle, port-reservation, and exact state leases.
 Apply repeats those checks while holding the topology operation and state
-locks. Registry exclusion compares physical directory identity as well as the
-canonical path. Owned deletion first moves each verified entry to a private
+locks. The topology root, `temporary-states` container, state, and lease are
+opened as one no-follow, same-mount descriptor chain; apply retains that chain
+through descriptor-relative rename and deletion. Registry exclusion compares
+physical directory identity as well as the canonical path. Owned deletion
+first moves each verified entry to a private
 no-replace tombstone and rechecks its inode before unlinking. Live, unreachable,
 busy, linked, malformed, registered, retained,
 promoted, or uncertain state is protected; missing or replaced lease evidence
 fails closed and cleanup never performs an implicit `down`.
+Persistent-state runtime outputs have a separate durable pending/complete
+cleanup record. It binds every output path to its creation inode before
+deletion, detects an output renamed under another sibling name, and lets a
+retry distinguish a completed removal from unresolved ownership evidence.
+Topology-record cleanup also protects an identity-derived removal tombstone.
 A topology may select one service, and distinct runtime names permit concurrent
 combinations as long as their server ports and mutable state directories do not
 conflict. When replacement runtime support lands, a concurrent `classic` and
