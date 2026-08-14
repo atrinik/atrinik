@@ -4542,6 +4542,26 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertFalse(readme.exists())
 
+    def test_mutable_source_copy_restores_owner_permissions(self) -> None:
+        root = self.root / "mutable-copy"
+        directory = root / "unique-items"
+        directory.mkdir(parents=True)
+        regular = directory / "state"
+        regular.write_text("test\n", encoding="utf-8")
+        executable = root / "tool"
+        executable.write_text("test\n", encoding="utf-8")
+        regular.chmod(0o444)
+        executable.chmod(0o555)
+        directory.chmod(0o555)
+        root.chmod(0o555)
+
+        self.workspace._make_tree_owner_writable(root)
+
+        self.assertEqual(stat.S_IMODE(root.stat().st_mode), 0o755)
+        self.assertEqual(stat.S_IMODE(directory.stat().st_mode), 0o755)
+        self.assertEqual(stat.S_IMODE(regular.stat().st_mode), 0o644)
+        self.assertEqual(stat.S_IMODE(executable.stat().st_mode), 0o755)
+
     def test_source_view_retains_unchanged_entries_and_rejects_escaping_symlink(
         self,
     ) -> None:

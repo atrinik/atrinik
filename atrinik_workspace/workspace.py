@@ -8173,6 +8173,7 @@ class Workspace:
             working.mkdir()
             data = staging_root / "data"
             shutil.copytree(selected["server"] / "install_data", data)
+            self._make_tree_owner_writable(data)
             (data / "tmp").mkdir(exist_ok=True)
             assets = staging_root / "assets"
             assets.mkdir()
@@ -10112,6 +10113,7 @@ class Workspace:
             staging = Path(tempfile.mkdtemp(prefix=f".{path.name}.", dir=path.parent))
             try:
                 shutil.copytree(server_source / "install_data", staging, dirs_exist_ok=True)
+                self._make_tree_owner_writable(staging)
                 (staging / "tmp").mkdir()
                 if implementation is not None and write_implementation:
                     durable_atomic_json(
@@ -12462,6 +12464,32 @@ class Workspace:
                 self._clear_runtime_state_output_transaction(topology_root)
             finally:
                 os.close(descriptor)
+
+    @staticmethod
+    def _make_tree_owner_writable(root: Path) -> None:
+        directories: list[Path] = []
+        for directory, names, files in os.walk(root, followlinks=False):
+            current = Path(directory)
+            directories.append(current)
+            for name in names:
+                path = current / name
+                metadata = path.lstat()
+                if stat.S_ISLNK(metadata.st_mode):
+                    continue
+                if not stat.S_ISDIR(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"mutable source copy contains a special entry: {path}"
+                    )
+            for name in files:
+                path = current / name
+                metadata = path.lstat()
+                if not stat.S_ISREG(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"mutable source copy contains a special entry: {path}"
+                    )
+                path.chmod(stat.S_IMODE(metadata.st_mode) | 0o600)
+        for directory in directories:
+            directory.chmod(stat.S_IMODE(directory.lstat().st_mode) | 0o700)
 
     @staticmethod
     def _seal_runtime_generation(root: Path) -> None:
