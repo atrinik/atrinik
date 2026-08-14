@@ -10,6 +10,7 @@ from typing import Any, Iterable
 
 from .model import MANAGED_MARKER, Manifest, Paths, WorkspaceError, validate_name
 from .process_tree import control_socket_path
+from .sound import validate_release_coordinates
 
 
 _PROTOCOL_COMMAND = "__complete"
@@ -21,6 +22,24 @@ _MAX_RECORD_ENTRIES = 64
 _MAX_RECORD_BYTES = 64 * 1024
 _MAX_MARKER_BYTES = 1024
 _PROFILE_KEYS = {"schema_version", "name", "stack", "components"}
+_PROFILE_SOUND_KEYS = {*_PROFILE_KEYS, "sound_mode"}
+_PROFILE_RELEASE_KEYS = {*_PROFILE_SOUND_KEYS, "sound_release"}
+_SOUND_RELEASE_KEYS = {
+    "archive_sha256",
+    "asset_url",
+    "manifest_schema_version",
+    "output_tree_sha256",
+    "product",
+    "product_version",
+    "release_manifest_sha256",
+    "repository",
+    "schema_sha256",
+    "source_commit",
+    "source_manifest_sha256",
+    "source_tree",
+    "tag",
+    "toolchain_sha256",
+}
 _SCENARIO_KEYS = {
     "schema_version",
     "name",
@@ -421,17 +440,49 @@ def _profile_value(
     if not _valid_name(name):
         return None
     value = _json_at(profiles, f"{name}.json", _MAX_RECORD_BYTES)
-    if not isinstance(value, dict) or set(value) != _PROFILE_KEYS:
+    if not isinstance(value, dict):
+        return None
+    schema_version = value.get("schema_version")
+    expected_keys = {
+        3: _PROFILE_KEYS,
+        4: _PROFILE_SOUND_KEYS,
+        5: _PROFILE_RELEASE_KEYS,
+    }.get(schema_version)
+    if expected_keys is None or set(value) != expected_keys:
         return None
     stack_name = value.get("stack")
     if (
-        value.get("schema_version") != 3
-        or value.get("name") != name
+        value.get("name") != name
         or not isinstance(stack_name, str)
         or stack_name not in manifest.stacks
         or not isinstance(value.get("components"), dict)
     ):
         return None
+    if schema_version >= 4:
+        sound_mode = value.get("sound_mode")
+        allowed_modes = (
+            {"source", "local-playtest"}
+            if schema_version == 4
+            else {"source", "local-playtest", "released"}
+        )
+        if sound_mode not in allowed_modes:
+            return None
+        if sound_mode != "source" and stack_name != "classic":
+            return None
+        if schema_version == 5:
+            sound_release = value.get("sound_release")
+            if sound_mode == "released":
+                if (
+                    not isinstance(sound_release, dict)
+                    or set(sound_release) != _SOUND_RELEASE_KEYS
+                ):
+                    return None
+                try:
+                    validate_release_coordinates(sound_release)
+                except WorkspaceError:
+                    return None
+            elif sound_release is not None:
+                return None
     expected = {component.name for component in manifest.stacks[stack_name].components}
     if set(value["components"]) != expected:
         return None

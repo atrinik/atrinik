@@ -34,6 +34,7 @@ from .process_tree import (
     holders_exist,
     lease_locked,
 )
+from .sound import validate_release_coordinates
 from .supervisor import process_matches
 
 
@@ -46,8 +47,12 @@ CERTIFIED_1X_COMMIT = "566bd25f78b80b08d5f75f4b02017ab2429204db"
 PROFILE_MAX_BYTES = 1024 * 1024
 RESOURCE_RECORD_MAX_BYTES = 4 * 1024 * 1024
 MIGRATION_RECORD_MAX_BYTES = 64 * 1024 * 1024
-PROFILE_KEYS = {"schema_version", "name", "stack", "components", "sound_mode"}
-LEGACY_PROFILE_KEYS = {"schema_version", "name", "stack", "components"}
+PROFILE_KEYS = {
+    "schema_version", "name", "stack", "components", "sound_mode",
+    "sound_release",
+}
+LEGACY_PROFILE_KEYS = {"schema_version", "name", "stack", "components", "sound_mode"}
+OLDEST_PROFILE_KEYS = {"schema_version", "name", "stack", "components"}
 NAME_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 OPERATION_PATHS = (
     "BISECT_LOG",
@@ -506,16 +511,33 @@ class ContentMigration:
                 if not isinstance(value, dict) or value.get("name") != path.stem:
                     raise WorkspaceError("profile identity is invalid")
                 schema_version = value.get("schema_version")
-                expected_keys = (
-                    LEGACY_PROFILE_KEYS if schema_version == 3 else PROFILE_KEYS
-                )
-                if schema_version not in {3, 4} or set(value) != expected_keys:
+                expected_keys = {
+                    3: OLDEST_PROFILE_KEYS,
+                    4: LEGACY_PROFILE_KEYS,
+                    5: PROFILE_KEYS,
+                }.get(schema_version)
+                if expected_keys is None or set(value) != expected_keys:
                     raise WorkspaceError("profile schema is unsupported")
-                if schema_version == 4 and value.get("sound_mode") not in {
-                    "source",
-                    "local-playtest",
-                }:
+                allowed_sound_modes = {
+                    4: {"source", "local-playtest"},
+                    5: {"source", "local-playtest", "released"},
+                }.get(schema_version)
+                if allowed_sound_modes is not None and value.get("sound_mode") not in allowed_sound_modes:
                     raise WorkspaceError("profile sound mode is invalid")
+                if (
+                    allowed_sound_modes is not None
+                    and value.get("sound_mode") != "source"
+                    and value.get("stack") != "classic"
+                ):
+                    raise WorkspaceError(
+                        "non-source sound modes require the classic stack"
+                    )
+                if schema_version == 5:
+                    release = value.get("sound_release")
+                    if (value.get("sound_mode") == "released") != isinstance(release, dict):
+                        raise WorkspaceError("profile sound release coordinates are invalid")
+                    if isinstance(release, dict):
+                        validate_release_coordinates(release)
                 components = value.get("components")
                 if value.get("stack") != "classic":
                     rows.append(
