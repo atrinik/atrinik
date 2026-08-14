@@ -388,6 +388,9 @@ source digest, and a framed digest of the complete source-plus-includes closure.
 Reuse additionally enumerates recorded Git trees without replacement-object
 indirection and proves generated paths, entry types, executable modes, symlink
 targets, and blob object IDs through pinned, no-follow descriptor traversal.
+The exporter completes any paths suppressed by `export-ignore` before that
+proof, and mutation-based CMake tests operate on writable profile-local views
+rather than weakening the shared generation.
 Schema-1 generations remain recognizable to preview-first cleanup but cannot be
 reused as current build inputs. A mismatch fails closed and leaves recovery to
 the explicit `builds` cleanup boundary. Once path, marker, key, and closed

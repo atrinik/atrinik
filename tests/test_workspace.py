@@ -2038,6 +2038,34 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "ownership is invalid"):
             self.workspace._source_generation_record(forged)
 
+    def test_source_generation_restores_export_ignored_git_entries(self) -> None:
+        checkout = self.workspace.paths.repositories / "client"
+        (checkout / ".gitattributes").write_text(
+            "/README export-ignore\n", encoding="utf-8"
+        )
+        command("git", "add", ".gitattributes", cwd=checkout)
+        command("git", "commit", "-m", "test: ignore README in archives", cwd=checkout)
+
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["client"]
+            self.assertEqual(
+                (source / "README").read_text(encoding="utf-8"), "client\n"
+            )
+            record = self.workspace._source_generation_record(source)
+            assert record is not None
+            self.workspace._validate_source_generation_git_closure(
+                checkout,
+                source.parent,
+                record["source_tree"],
+                record["tree"],
+                record["source_includes"],
+            )
+
     def test_scoped_classic_sources_include_shared_cmake_inputs(self) -> None:
         production_manifest = Path(__file__).parents[1] / "components.json"
         self.workspace.manifest = Manifest.load(production_manifest)
@@ -5390,6 +5418,26 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(stat.S_IMODE(directory.stat().st_mode), 0o755)
         self.assertEqual(stat.S_IMODE(regular.stat().st_mode), 0o644)
         self.assertEqual(stat.S_IMODE(executable.stat().st_mode), 0o755)
+
+    def test_mutable_cmake_view_copies_sealed_generated_sources(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            protocol = snapshot.paths()["protocol"]
+            root = self.workspace.paths.builds / "profiles" / "mutable-cmake"
+            managed_directory(root, self.workspace.paths.builds, "test-profile")
+            view = self.workspace._mutable_cmake_source_view(
+                root, "protocol", protocol
+            )
+
+        self.assertNotEqual(view, protocol)
+        readme = view / "README"
+        self.assertTrue(readme.stat().st_mode & stat.S_IWUSR)
+        readme.write_text("mutable\n", encoding="utf-8")
+        self.assertEqual(readme.read_text(encoding="utf-8"), "mutable\n")
 
     def test_source_view_link_rejects_symlinked_nested_parent(self) -> None:
         view = self.workspace.paths.builds / "profiles" / "test" / "sources"

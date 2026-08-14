@@ -2363,6 +2363,150 @@ class Workspace:
             ) from error
 
     @staticmethod
+    def _complete_git_source_archive(
+        checkout: Path,
+        archive: Path,
+        object_id: str,
+        prefix: str | None,
+        mode: bytes = b"040000",
+        kind: bytes = b"tree",
+    ) -> None:
+        """Restore entries omitted by Git archive's export-ignore attributes."""
+
+        expected: dict[str, tuple[bytes, bytes, bytes]] = {}
+        if kind == b"tree":
+            try:
+                result = subprocess.run(
+                    [
+                        "git",
+                        "--no-replace-objects",
+                        "-C",
+                        str(checkout),
+                        "ls-tree",
+                        "-r",
+                        "-t",
+                        "--full-tree",
+                        "-z",
+                        object_id,
+                    ],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    pass_fds=active_lock_fds(),
+                )
+            except FileNotFoundError as error:
+                raise WorkspaceError("required command not found: git") from error
+            except subprocess.CalledProcessError as error:
+                detail = error.stderr.decode("utf-8", errors="replace").strip()
+                suffix = f": {detail}" if detail else ""
+                raise WorkspaceError(
+                    "cannot inspect immutable Git source archive" + suffix
+                ) from error
+            if prefix is not None:
+                expected[prefix] = (b"040000", b"tree", object_id.encode())
+            for entry in result.stdout.split(b"\0"):
+                if not entry:
+                    continue
+                try:
+                    metadata, relative_bytes = entry.split(b"\t", 1)
+                    entry_mode, entry_kind, entry_object = metadata.split(b" ", 2)
+                    relative = os.fsdecode(relative_bytes)
+                except ValueError as error:
+                    raise WorkspaceError(
+                        "recorded immutable Git archive listing is invalid"
+                    ) from error
+                name = f"{prefix}/{relative}" if prefix is not None else relative
+                expected[name] = (entry_mode, entry_kind, entry_object)
+        else:
+            if prefix is None:
+                raise WorkspaceError("recorded immutable Git archive listing is invalid")
+            expected[prefix] = (mode, kind, object_id.encode())
+
+        try:
+            with tarfile.open(archive, "r:") as stream:
+                present = {member.name.rstrip("/") for member in stream}
+            with tarfile.open(archive, "a:") as stream:
+                for name, (entry_mode, entry_kind, entry_object) in expected.items():
+                    if name in present:
+                        continue
+                    relative = PurePosixPath(name)
+                    if (
+                        not name
+                        or relative.is_absolute()
+                        or any(part in {"", ".", ".."} for part in relative.parts)
+                        or entry_mode
+                        not in {b"040000", b"100644", b"100755", b"120000"}
+                        or entry_kind not in {b"tree", b"blob"}
+                    ):
+                        raise WorkspaceError(
+                            "recorded immutable Git archive listing is invalid"
+                        )
+                    member = tarfile.TarInfo(name)
+                    member.uid = member.gid = 0
+                    member.uname = member.gname = ""
+                    member.mtime = 0
+                    if entry_kind == b"tree":
+                        if entry_mode != b"040000":
+                            raise WorkspaceError(
+                                "recorded immutable Git archive listing is invalid"
+                            )
+                        member.type = tarfile.DIRTYPE
+                        member.mode = 0o755
+                        stream.addfile(member)
+                        continue
+                    payload = tempfile.TemporaryFile()
+                    try:
+                        try:
+                            subprocess.run(
+                                [
+                                    "git",
+                                    "--no-replace-objects",
+                                    "-C",
+                                    str(checkout),
+                                    "cat-file",
+                                    "blob",
+                                    entry_object.decode(),
+                                ],
+                                check=True,
+                                stdout=payload,
+                                stderr=subprocess.PIPE,
+                                pass_fds=active_lock_fds(),
+                            )
+                        except FileNotFoundError as error:
+                            raise WorkspaceError(
+                                "required command not found: git"
+                            ) from error
+                        except subprocess.CalledProcessError as error:
+                            detail = error.stderr.decode(
+                                "utf-8", errors="replace"
+                            ).strip()
+                            suffix = f": {detail}" if detail else ""
+                            raise WorkspaceError(
+                                "cannot read immutable Git source object" + suffix
+                            ) from error
+                        member.size = payload.tell()
+                        payload.seek(0)
+                        if entry_mode == b"120000":
+                            target = payload.read()
+                            member.type = tarfile.SYMTYPE
+                            member.linkname = os.fsdecode(target)
+                            member.size = 0
+                            stream.addfile(member)
+                        else:
+                            member.mode = (
+                                0o755 if entry_mode == b"100755" else 0o644
+                            )
+                            stream.addfile(member, payload)
+                    finally:
+                        payload.close()
+        except WorkspaceError:
+            raise
+        except (OSError, tarfile.TarError, UnicodeError) as error:
+            raise WorkspaceError(
+                f"cannot complete immutable Git source archive: {error}"
+            ) from error
+
+    @staticmethod
     def _validate_source_generation_git_tree(
         checkout: Path, source: Path, source_tree: str
     ) -> None:
@@ -2887,17 +3031,41 @@ class Workspace:
             capture=True,
             trace=False,
         )
-        source_includes = {
-            include: git(
+        source_includes: dict[str, str] = {}
+        source_include_entries: dict[str, tuple[bytes, bytes, bytes]] = {}
+        for include in component.source_includes:
+            listing = git(
                 checkout,
                 "--no-replace-objects",
-                "rev-parse",
-                f"{commit}:{include}",
+                "ls-tree",
+                tree,
+                "--",
+                include,
                 capture=True,
                 trace=False,
             )
-            for include in component.source_includes
-        }
+            try:
+                metadata, listed_path = listing.split("\t", 1)
+                include_mode, include_kind, include_object = metadata.split(" ", 2)
+            except ValueError as error:
+                raise WorkspaceError(
+                    f"recorded immutable Git source include is invalid: {include}"
+                ) from error
+            if (
+                listed_path != include
+                or include_mode not in {"040000", "100644", "100755"}
+                or include_kind not in {"tree", "blob"}
+                or not re.fullmatch(r"[0-9a-f]{40,64}", include_object)
+            ):
+                raise WorkspaceError(
+                    f"recorded immutable Git source include is invalid: {include}"
+                )
+            source_includes[include] = include_object
+            source_include_entries[include] = (
+                include_mode.encode(),
+                include_kind.encode(),
+                include_object.encode(),
+            )
         identity = {
             "schema_version": SOURCE_GENERATION_SCHEMA_VERSION,
             "repository": component.repository,
@@ -3019,12 +3187,27 @@ class Workspace:
                         "purpose": f"source-generation:{key}",
                     },
                 )
-                exports: list[tuple[str, str | None, Path, bool]] = [
+                exports: list[
+                    tuple[
+                        str,
+                        str | None,
+                        Path,
+                        bool,
+                        str,
+                        str | None,
+                        bytes,
+                        bytes,
+                    ]
+                ] = [
                     (
                         source_tree,
                         None,
                         staging / "source",
                         False,
+                        source_tree,
+                        None,
+                        b"040000",
+                        b"tree",
                     ),
                     *(
                         (
@@ -3032,6 +3215,10 @@ class Workspace:
                             include,
                             staging,
                             True,
+                            source_includes[include],
+                            include,
+                            source_include_entries[include][0],
+                            source_include_entries[include][1],
                         )
                         for include in component.source_includes
                     ),
@@ -3041,6 +3228,10 @@ class Workspace:
                     archive_pathspec,
                     destination,
                     existing_output,
+                    archive_object,
+                    archive_prefix,
+                    archive_mode,
+                    archive_kind,
                 ) in enumerate(exports):
                     archive_descriptor, archive_name = tempfile.mkstemp(
                         prefix=f"atrinik-source-{export_index}-", suffix=".tar"
@@ -3079,6 +3270,14 @@ class Workspace:
                             raise WorkspaceError(
                                 f"cannot export immutable source generation{suffix}"
                             ) from error
+                        self._complete_git_source_archive(
+                            checkout,
+                            archive_path,
+                            archive_object,
+                            archive_prefix,
+                            archive_mode,
+                            archive_kind,
+                        )
                         self._extract_git_source_archive(
                             archive_path,
                             destination,
@@ -8288,7 +8487,25 @@ class Workspace:
         return identity
 
     def _build_protocol(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
-        self._cmake(selected["protocol"], root / "build" / "protocol", [], tests)
+        source = self._mutable_cmake_source_view(
+            root, "protocol", selected["protocol"]
+        )
+        self._cmake(source, root / "build" / "protocol", [], tests)
+
+    def _mutable_cmake_source_view(
+        self, root: Path, role: str, source: Path
+    ) -> Path:
+        """Copy sealed generated CMake inputs whose tests mutate local fixtures."""
+
+        if self._source_generation_record(source) is None:
+            return source
+        return self._profile_source_view(
+            root,
+            role,
+            source,
+            set(),
+            copy_all=True,
+        )
 
     @staticmethod
     def _uses_integrated_classic_build(
@@ -8529,14 +8746,20 @@ class Workspace:
             sound_root or selected["sound"],
             target_is_directory=True,
         )
+        protocol = self._mutable_cmake_source_view(
+            root, "protocol", selected["protocol"]
+        )
+        library = self._mutable_cmake_source_view(
+            root, "libatrinik", selected["libatrinik"]
+        )
         self._cmake(
             view,
             root / "build" / "client",
             [
                 "-DENABLE_WARNING_ERRORS=ON",
                 "-DPACKAGE_TYPE=none",
-                f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={selected['protocol']}",
-                f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={selected['libatrinik']}",
+                f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
+                f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
             ],
             tests,
         )
@@ -8591,14 +8814,20 @@ class Workspace:
             root / "runtime" / "resources",
             target_is_directory=True,
         )
+        protocol = self._mutable_cmake_source_view(
+            root, "protocol", selected["protocol"]
+        )
+        library = self._mutable_cmake_source_view(
+            root, "libatrinik", selected["libatrinik"]
+        )
         self._cmake(
             view,
             root / "build" / "server",
             [
                 "-DENABLE_WARNING_ERRORS=ON",
                 "-DPACKAGE_TYPE=none",
-                f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={selected['protocol']}",
-                f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={selected['libatrinik']}",
+                f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
+                f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
                 "-DENABLE_PYTHON_PLUGIN=ON",
             ],
             tests,

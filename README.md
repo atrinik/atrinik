@@ -607,6 +607,10 @@ Classic client and server both declare the repository-root `cmake/` modules,
 license, and attributions this way, so their supported scoped builds retain
 `client/` and `server/` as the paths printed by `atrinik path` while using one
 authoritative copy of each shared input.
+Generation export restores paths hidden by Git `export-ignore` attributes so
+the published bytes still match the recorded tree. CMake dependencies that
+run mutation-based tests receive writable profile-local copies; the shared
+generation itself remains sealed.
 Consequently a long-running build from a Classic feature worktree does not
 block `sync --with classic` from advancing unrelated or snapshotted clean
 primaries. Dirty sources and selected worktrees remain live inputs and retain
