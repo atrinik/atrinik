@@ -5973,6 +5973,55 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(list((owner / "generations").iterdir()), [])
 
+    def test_runtime_generation_ignores_client_build_headers(self) -> None:
+        owner = self.root / "runtime-owner"
+        owner.mkdir()
+        client = self.root / "runtime-client"
+        sound = self.root / "runtime-sound"
+        binary = self.root / "runtime-client-binary"
+        (client / "src").mkdir(parents=True)
+        (sound / "sound").mkdir(parents=True)
+        (binary / "src" / "include").mkdir(parents=True)
+        (client / "src" / "main.c").write_text("source\n", encoding="utf-8")
+        (binary / "src" / "include" / "version.h").write_text(
+            "generated\n", encoding="utf-8"
+        )
+        executable = binary / "atrinik"
+        executable.write_text("client\n", encoding="utf-8")
+        executable.chmod(0o755)
+
+        with mock.patch.object(
+            self.workspace, "_classic_binary_directory", return_value=binary
+        ):
+            published, lease_fd, _record, state_output_fd = (
+                self.workspace._publish_runtime_generation(
+                    owner,
+                    "a" * 64,
+                    "default",
+                    self.root / "build",
+                    {"client": client, "sound": sound},
+                    {},
+                    ["client"],
+                    identity={"kind": "test"},
+                    sound_root=sound,
+                )
+            )
+
+        try:
+            self.assertIsNone(state_output_fd)
+            self.assertEqual(
+                (published / "client" / "src" / "main.c").read_text(
+                    encoding="utf-8"
+                ),
+                "source\n",
+            )
+            self.assertFalse(
+                (published / "client" / "src" / "include" / "version.h").exists()
+            )
+            self.assertTrue((published / "client" / "atrinik").is_file())
+        finally:
+            os.close(lease_fd)
+
     def test_topology_runtime_set_copy_failure_preserves_all_snapshots(self) -> None:
         topology = self.root / "topology"
         runtime = topology / "runtime"

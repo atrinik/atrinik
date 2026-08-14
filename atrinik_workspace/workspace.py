@@ -11789,7 +11789,7 @@ class Workspace:
                     ),
                     "client-binary": (
                         self._classic_binary_directory(build_root, "client"),
-                        set(),
+                        {"src"},
                     ),
                     "sound": (
                         sound_root or selected["sound"],
@@ -11892,6 +11892,7 @@ class Workspace:
                 self._copy_runtime_directory_contents(
                     self._classic_binary_directory(build_root, "client"),
                     client_runtime,
+                    frozenset({"src"}),
                 )
             if "server" in services:
                 if state is None:
