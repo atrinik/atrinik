@@ -2105,6 +2105,204 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 self.fail("corrupt retained manifest was yielded")
 
+    def test_archive_omission_restores_directories_and_executables(self) -> None:
+        primary = self.workspace.paths.repositories / "client"
+        omitted = primary / "omitted"
+        omitted.mkdir()
+        executable = omitted / "run"
+        executable.write_text("#!/bin/sh\n", encoding="utf-8")
+        executable.chmod(0o755)
+        (primary / ".gitattributes").write_text(
+            "/omitted export-ignore\n", encoding="utf-8"
+        )
+        command("git", "add", ".gitattributes", "omitted", cwd=primary)
+        command(
+            "git",
+            "commit",
+            "-m",
+            "test: exclude executable tree from archives",
+            cwd=primary,
+        )
+
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["client"]
+            restored = source / "omitted" / "run"
+            self.assertEqual(restored.read_text(encoding="utf-8"), "#!/bin/sh\n")
+            self.assertEqual(stat.S_IMODE(restored.stat().st_mode), 0o555)
+
+    def test_source_generation_git_entries_reject_unsafe_output_and_git_failures(
+        self,
+    ) -> None:
+        object_id = b"a" * 40
+        invalid_outputs = (
+            b"invalid\0",
+            b"100644 blob " + object_id + b"\t/absolute\0",
+            b"100644 blob " + object_id + b"\tnested/../entry\0",
+        )
+        for output in invalid_outputs:
+            with self.subTest(output=output):
+                result = subprocess.CompletedProcess([], 0, stdout=output, stderr=b"")
+                with mock.patch(
+                    "atrinik_workspace.workspace.subprocess.run",
+                    return_value=result,
+                ):
+                    with self.assertRaisesRegex(WorkspaceError, "listing is invalid"):
+                        self.workspace._source_generation_git_entries(
+                            self.root, "b" * 40
+                        )
+
+        failures: tuple[BaseException, str] = (
+            (FileNotFoundError(), "required command not found"),
+            (
+                subprocess.CalledProcessError(1, ["git"], stderr=b"denied"),
+                "cannot inspect recorded.*denied",
+            ),
+        )
+        for failure, message in failures:
+            with self.subTest(failure=type(failure).__name__):
+                with mock.patch(
+                    "atrinik_workspace.workspace.subprocess.run",
+                    side_effect=failure,
+                ):
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        self.workspace._source_generation_git_entries(
+                            self.root, "b" * 40
+                        )
+
+    def test_archive_omission_rejects_unsafe_shapes_and_git_failures(self) -> None:
+        object_id = b"a" * 40
+        checkout = self.root / "synthetic-checkout"
+
+        def restore(
+            source: Path,
+            entries: dict[bytes, tuple[bytes, bytes, bytes]],
+            *,
+            payload: bytes | None = None,
+            failure: BaseException | None = None,
+        ) -> None:
+            def git_result(*args: object, **kwargs: object) -> object:
+                if failure is not None:
+                    raise failure
+                descriptor = kwargs.get("stdout")
+                if isinstance(descriptor, int) and descriptor >= 0:
+                    os.write(
+                        descriptor,
+                        payload if payload is not None else b"file\n",
+                    )
+                    return subprocess.CompletedProcess([], 0, stdout=None, stderr=b"")
+                return subprocess.CompletedProcess(
+                    [],
+                    0,
+                    stdout=payload if payload is not None else b"target",
+                    stderr=b"",
+                )
+
+            with (
+                mock.patch.object(
+                    Workspace,
+                    "_source_generation_git_entries",
+                    return_value=entries,
+                ),
+                mock.patch(
+                    "atrinik_workspace.workspace.subprocess.run",
+                    side_effect=git_result,
+                ),
+            ):
+                self.workspace._restore_source_generation_archive_omissions(
+                    checkout, source, "b" * 40
+                )
+
+        invalid_parent = self.root / "invalid-parent-source"
+        invalid_parent.mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "invalid parent"):
+            restore(
+                invalid_parent,
+                {b"missing/entry": (b"100644", b"blob", object_id)},
+            )
+
+        escaped_parent = self.root / "escaped-parent-source"
+        escaped_parent.mkdir()
+        (escaped_parent / "outside").symlink_to(self.root)
+        with self.assertRaisesRegex(WorkspaceError, "escapes its generation"):
+            restore(
+                escaped_parent,
+                {b"outside/entry": (b"100644", b"blob", object_id)},
+            )
+
+        gitlink_source = self.root / "gitlink-source"
+        gitlink_source.mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "unsupported Git link"):
+            restore(
+                gitlink_source,
+                {b"linked": (b"160000", b"commit", object_id)},
+            )
+
+        valid_link_source = self.root / "valid-link-source"
+        valid_link_source.mkdir()
+        restore(
+            valid_link_source,
+            {b"link": (b"120000", b"blob", object_id)},
+            payload=b"target",
+        )
+        self.assertEqual(os.readlink(valid_link_source / "link"), "target")
+
+        for payload, message in (
+            (b"", "invalid link"),
+            (b"bad\0target", "invalid link"),
+            (b"/outside", "unsafe link"),
+            (b"../outside", "link escapes its generation"),
+        ):
+            with self.subTest(payload=payload):
+                source = Path(tempfile.mkdtemp(dir=self.root))
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    restore(
+                        source,
+                        {b"link": (b"120000", b"blob", object_id)},
+                        payload=payload,
+                    )
+
+        for failure, message in (
+            (FileNotFoundError(), "required command not found"),
+            (
+                subprocess.CalledProcessError(1, ["git"], stderr=b"missing blob"),
+                "cannot restore immutable.*missing blob",
+            ),
+        ):
+            with self.subTest(failure=type(failure).__name__):
+                source = Path(tempfile.mkdtemp(dir=self.root))
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    restore(
+                        source,
+                        {b"entry": (b"100644", b"blob", object_id)},
+                        failure=failure,
+                    )
+                self.assertFalse((source / "entry").exists())
+
+        open_failure_source = self.root / "open-failure-source"
+        open_failure_source.mkdir()
+        with (
+            mock.patch.object(
+                Workspace,
+                "_source_generation_git_entries",
+                return_value={b"entry": (b"100644", b"blob", object_id)},
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.os.open",
+                side_effect=PermissionError("denied"),
+            ),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot restore immutable Git source entry.*denied"
+            ):
+                self.workspace._restore_source_generation_archive_omissions(
+                    checkout, open_failure_source, "b" * 40
+                )
+
     def test_source_generation_reuse_rejects_coherent_missing_git_entry(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
