@@ -35,6 +35,7 @@ class ProgramLedgerModel:
     MAX_COLLECTION = 10_000
     MAX_STRING_BYTES = 65_536
     MAX_DEPTH = 16
+    MAX_INTEGER = (1 << 64) - 1
 
     KEYS = {
         "generation", "self_inode", "lock", "previous_sha256", "authority", "graph",
@@ -78,7 +79,13 @@ class ProgramLedgerModel:
             )
         except (TypeError, ValueError, RecursionError) as error:
             raise StopClosed("canonical serialization failed") from error
-        return (text + "\n").encode("utf-8")
+        try:
+            encoded = (text + "\n").encode("utf-8")
+        except UnicodeEncodeError as error:
+            raise StopClosed("canonical value contains a non-scalar string") from error
+        if len(encoded) > cls.MAX_LEDGER_BYTES:
+            raise StopClosed("canonical value exceeds its byte ceiling")
+        return encoded
 
     @classmethod
     def decode(cls, raw: bytes) -> dict[str, object]:
@@ -93,8 +100,21 @@ class ProgramLedgerModel:
                     result[key] = item
                 return result
 
-            value = json.loads(raw, object_pairs_hook=unique_object)
-        except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as error:
+            def bounded_integer(token: str) -> int:
+                if len(token) > 20:
+                    raise StopClosed("ledger integer token exceeds uint64")
+                value = int(token)
+                if value < 0 or value > cls.MAX_INTEGER:
+                    raise StopClosed("ledger integer exceeds uint64")
+                return value
+
+            value = json.loads(
+                raw, object_pairs_hook=unique_object, parse_int=bounded_integer
+            )
+        except (
+            UnicodeDecodeError, UnicodeEncodeError, json.JSONDecodeError,
+            RecursionError, ValueError,
+        ) as error:
             raise StopClosed("ledger JSON is invalid") from error
         if not isinstance(value, dict) or not cls.value_is_bounded(value):
             raise StopClosed("canonical ledger exceeds its byte ceiling")
@@ -118,11 +138,9 @@ class ProgramLedgerModel:
             if depth > cls.MAX_DEPTH:
                 return False
             if isinstance(current, str):
-                if (
-                    unicodedata.normalize("NFC", current) != current
-                    or len(current.encode("utf-8")) > cls.MAX_STRING_BYTES
-                    or (field is not None and field.endswith("_path")
-                        and not cls.path_is_bounded(current))
+                if not cls.string_is_bounded(current) or (
+                    field is not None and field.endswith("_path")
+                    and not cls.path_is_bounded(current)
                 ):
                     return False
             elif isinstance(current, dict):
@@ -131,8 +149,7 @@ class ProgramLedgerModel:
                 for key, item in current.items():
                     if (
                         not isinstance(key, str)
-                        or unicodedata.normalize("NFC", key) != key
-                        or len(key.encode("utf-8")) > cls.MAX_STRING_BYTES
+                        or not cls.string_is_bounded(key)
                     ):
                         return False
                     pending.append((item, depth + 1, key))
@@ -140,13 +157,29 @@ class ProgramLedgerModel:
                 if len(current) > cls.MAX_COLLECTION:
                     return False
                 pending.extend((item, depth + 1, field) for item in current)
-            elif current is not None and type(current) not in {bool, int}:
-                return False
+            elif current is not None:
+                if type(current) is bool:
+                    continue
+                if type(current) is not int or not 0 <= current <= cls.MAX_INTEGER:
+                    return False
         return True
+
+    @classmethod
+    def string_is_bounded(cls, value: str) -> bool:
+        try:
+            return (
+                unicodedata.normalize("NFC", value) == value
+                and len(value.encode("utf-8")) <= cls.MAX_STRING_BYTES
+            )
+        except UnicodeEncodeError:
+            return False
 
     @staticmethod
     def path_is_bounded(value: object) -> bool:
-        return isinstance(value, str) and len(value.encode()) <= 4_096
+        try:
+            return isinstance(value, str) and len(value.encode("utf-8")) <= 4_096
+        except UnicodeEncodeError:
+            return False
 
     @staticmethod
     def valid_timestamp(value: object) -> bool:
@@ -277,6 +310,38 @@ class ProgramLedgerModel:
                 )
             ):
                 raise StopClosed("PATCH retry observation is corrupt")
+            kind = {"comment": "comment", "create": "child", "link": "parent"}[name]
+            current_observation = record["observation"][kind]
+            expected_count = (
+                1 if name == "comment" and slot["node"] is not None else 0
+            )
+            if slot["phase"] == "planned" and (
+                slot["plan_observation"]["generation"] >= generation
+                or not slot["plan_observation"]["complete"]
+                or slot["plan_observation"]["count"] != expected_count
+                or not valid_observation(current_observation)
+                or current_observation["generation"]
+                < slot["plan_observation"]["generation"]
+            ):
+                raise StopClosed("planned observation epochs are unreachable")
+            if slot["phase"] == "in-flight":
+                planned = slot["plan_observation"]
+                armed = slot["arm_observation"]
+                if (
+                    not planned["complete"] or not armed["complete"]
+                    or not planned["generation"] < armed["generation"] < generation
+                    or planned["stream"] != armed["stream"]
+                    or planned["result_stream"] != armed["result_stream"]
+                    or planned["count"] != armed["count"]
+                    or armed["count"] != expected_count
+                    or not valid_observation(current_observation)
+                    or current_observation["generation"] < armed["generation"]
+                    or (
+                        current_observation["generation"] == armed["generation"]
+                        and current_observation != armed
+                    )
+                ):
+                    raise StopClosed("in-flight observation epochs are unreachable")
             if slot["phase"] == "bound" and any(
                 slot[field] is not None for field in (
                     "plan_observation", "arm_observation", "retry_observation"
@@ -333,7 +398,10 @@ class ProgramLedgerModel:
         if record["observation"].keys() != {"comment", "child", "parent"}:
             raise StopClosed("observation evidence is corrupt")
         for observation in record["observation"].values():
-            if observation is not None and not valid_observation(observation):
+            if observation is not None and (
+                not valid_observation(observation)
+                or observation["generation"] > generation
+            ):
                 raise StopClosed("observation evidence is corrupt")
         model = cls()
         model.record = copy.deepcopy(record)
@@ -358,10 +426,13 @@ class ProgramLedgerModel:
             raise StopClosed("substituted lock")
         if self.record["lock"] != {"device": 1, "inode": expected_lock_inode}:
             raise StopClosed("persisted lock identity changed")
-        mutate(self.record)
-        self.record["previous_sha256"] = old_digest
-        self.record["generation"] = generation + 1
-        self.record["self_inode"] = int(self.record["self_inode"]) + 1
+        candidate = copy.deepcopy(self.record)
+        mutate(candidate)
+        candidate["previous_sha256"] = old_digest
+        candidate["generation"] = generation + 1
+        candidate["self_inode"] = int(candidate["self_inode"]) + 1
+        self.canonical(candidate)
+        self.record = candidate
 
     def replace_lock_path(self, inode: int) -> None:
         self.path_lock_inode = inode
@@ -1013,6 +1084,111 @@ class ProgramLedgerModelTests(unittest.TestCase):
         ).encode()
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.decode(over_limit_bytes)
+
+    def test_integer_and_surrogate_tokens_fail_closed(self) -> None:
+        maximum = ProgramLedgerModel.MAX_INTEGER
+        self.assertEqual(
+            ProgramLedgerModel.decode(f'{{"x":{maximum}}}\n'.encode()),
+            {"x": maximum},
+        )
+        invalid_integers = (
+            f'{{"x":{maximum + 1}}}\n'.encode(),
+            b'{"x":-' + str(maximum).encode() + b'}\n',
+            b'{"x":' + (b"9" * 5_000) + b'}\n',
+        )
+        for raw in invalid_integers:
+            with self.subTest(raw_length=len(raw)), self.assertRaises(StopClosed):
+                ProgramLedgerModel.decode(raw)
+        for raw in (
+            b'{"x":"\\ud800"}\n', b'{"x":"\\udfff"}\n',
+            b'{"\\ud800":1}\n', b'{"\\udfff":1}\n',
+        ):
+            with self.subTest(raw=raw), self.assertRaises(StopClosed):
+                ProgramLedgerModel.decode(raw)
+        for value in ({"x": "\ud800"}, {"\udfff": 1}):
+            with self.subTest(value=value), self.assertRaises(StopClosed):
+                ProgramLedgerModel.canonical(value)
+
+    def test_canonical_size_is_atomic_at_persistence_boundary(self) -> None:
+        model = ProgramLedgerModel()
+        items = ["x" * ProgramLedgerModel.MAX_STRING_BYTES for _ in range(127)]
+        items.append("")
+        candidate = copy.deepcopy(model.record)
+        candidate["graph"] = items
+        candidate["previous_sha256"] = model.digest()
+        candidate["generation"] += 1
+        candidate["self_inode"] += 1
+        unbounded = (
+            json.dumps(
+                candidate, ensure_ascii=False, allow_nan=False, sort_keys=True,
+                separators=(",", ":"),
+            ) + "\n"
+        ).encode()
+        gap = ProgramLedgerModel.MAX_LEDGER_BYTES - len(unbounded)
+        self.assertGreaterEqual(gap, 0)
+        self.assertLessEqual(gap, ProgramLedgerModel.MAX_STRING_BYTES)
+        items[-1] = "x" * gap
+        model.persist(lambda record: record.update(graph=copy.deepcopy(items)))
+        self.assertEqual(len(model.canonical(model.record)), model.MAX_LEDGER_BYTES)
+        retained = copy.deepcopy(model.record)
+        with self.assertRaises(StopClosed):
+            model.persist(lambda record: record["graph"].__setitem__(-1, items[-1] + "x"))
+        self.assertEqual(model.record, retained)
+
+    def test_resume_rejects_unreachable_observation_epochs(self) -> None:
+        def planned(slot: str) -> ProgramLedgerModel:
+            model = ProgramLedgerModel()
+            if slot == "comment":
+                model.observe_comment()
+                model.plan_comment()
+            elif slot == "create":
+                model.classify_child([])
+                model.plan_create()
+            else:
+                model.record["create"].update(
+                    phase="bound", node="issue-node",
+                    created_at="2026-08-14T00:00:00Z",
+                )
+                model.observe_parent()
+                model.plan_link()
+            return model
+
+        for slot in ("comment", "create", "link"):
+            base = planned(slot)
+            kind = {"comment": "comment", "create": "child", "link": "parent"}[slot]
+            future = copy.deepcopy(base.record)
+            future["observation"][kind]["generation"] = future["generation"] + 1
+            with self.subTest(slot=slot, defect="future"), self.assertRaises(StopClosed):
+                ProgramLedgerModel.resume(
+                    future, 41, future["self_inode"],
+                    hashlib.sha256(ProgramLedgerModel.canonical(future)).hexdigest(),
+                    future["authority"],
+                )
+
+            self.refresh_before_arm(base, slot)
+            base.arm(slot)
+            for defect in ("equal", "future-arm", "reversed"):
+                corrupt = copy.deepcopy(base.record)
+                if defect == "equal":
+                    corrupt[slot]["plan_observation"]["generation"] = corrupt[slot][
+                        "arm_observation"
+                    ]["generation"]
+                elif defect == "future-arm":
+                    corrupt[slot]["arm_observation"]["generation"] = (
+                        corrupt["generation"]
+                    )
+                else:
+                    corrupt[slot]["plan_observation"]["generation"] = corrupt[slot][
+                        "arm_observation"
+                    ]["generation"] + 1
+                with self.subTest(slot=slot, defect=defect), self.assertRaises(StopClosed):
+                    ProgramLedgerModel.resume(
+                        corrupt, 41, corrupt["self_inode"],
+                        hashlib.sha256(
+                            ProgramLedgerModel.canonical(corrupt)
+                        ).hexdigest(),
+                        corrupt["authority"],
+                    )
 
     def test_marker_namespace_actor_and_duplicates_fail_closed(self) -> None:
         ProgramLedgerModel.validate_marker([], "actor", False)

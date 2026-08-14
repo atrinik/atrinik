@@ -32,7 +32,10 @@ separators=(",", ":")) + "\n"` after schema/NFC validation. SHA-256 always
 hashes these exact bytes unless an exact UTF-8 body is named. Reject unknown or
 missing keys, booleans where integers are required, non-NFC strings, invalid
 URLs/node IDs/digests, and out-of-range values. Nullable fields are explicit
-JSON `null`.
+JSON `null`. All integers are unsigned 64-bit (`0` through
+`18446744073709551615`) before the narrower per-field rules apply; reject an
+overlong token before converting it. Strings and object keys must contain only
+Unicode scalar values, so lone surrogate code points are corrupt.
 
 The ledger is bounded independently of remote pagination. Before reading or
 JSON decoding, `fstat` the open no-follow descriptor and reject a size above
@@ -171,6 +174,9 @@ the old ledger's fstat, generation, and canonical byte digest against
 `previous`, atomically replace, then fsync the parent. On resume require the
 canonical ledger fstat to equal `self`; generation zero has `previous: null`,
 and each later generation names the immediately replaced identity/digest.
+Construct and fully validate the prospective next record, including canonical
+size and all epoch invariants, before writing any byte or changing the retained
+in-memory record; validation failure preserves the prior generation exactly.
 
 Fresh initialization is only `(lock absent, ledger absent)`: atomically create
 the lock, acquire it, prove the ledger remains absent, perform the complete
