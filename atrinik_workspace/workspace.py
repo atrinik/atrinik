@@ -12031,7 +12031,6 @@ class Workspace:
         sound_root: Path | None,
     ) -> dict[str, str]:
         directories: dict[str, tuple[Path, set[str]]] = {}
-        files: dict[str, Path] = {}
         if "client" in services:
             directories.update(
                 {
@@ -12039,14 +12038,15 @@ class Workspace:
                         selected["client"],
                         {".git", "build", "sound", MANAGED_MARKER},
                     ),
+                    "client-binary": (
+                        self._classic_binary_directory(build_root, "client"),
+                        {"src"},
+                    ),
                     "sound": (
                         sound_root or selected["sound"],
                         {".git", "build", MANAGED_MARKER},
                     ),
                 }
-            )
-            files["client-executable"] = (
-                self._classic_binary_directory(build_root, "client") / "atrinik"
             )
         if "server" in services:
             source = selected["server"]
@@ -12069,16 +12069,8 @@ class Workspace:
             if custom.is_file() and not custom.is_symlink():
                 files["server-server-custom.cfg"] = custom
         return {
-            **{
-                name: _tree_digest(
-                    path, exclusions, reject_symlinks=True
-                )
-                for name, (path, exclusions) in sorted(directories.items())
-            },
-            **{
-                name: _file_digest(path, "runtime publication input")
-                for name, path in sorted(files.items())
-            },
+            name: _tree_digest(path, exclusions, reject_symlinks=True)
+            for name, (path, exclusions) in sorted(directories.items())
         }
 
     def _publish_runtime_generation(
@@ -12140,9 +12132,10 @@ class Workspace:
                     client_runtime / "sound",
                     frozenset({".git", "build", MANAGED_MARKER}),
                 )
-                self._copy_runtime_regular_file(
-                    self._classic_binary_directory(build_root, "client") / "atrinik",
-                    client_runtime / "atrinik",
+                self._copy_runtime_directory_contents(
+                    self._classic_binary_directory(build_root, "client"),
+                    client_runtime,
+                    frozenset({"src"}),
                 )
             if "server" in services:
                 if state is None:
