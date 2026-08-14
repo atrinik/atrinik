@@ -9024,14 +9024,15 @@ class Workspace:
                 except BaseException:
                     if staging_fd is not None:
                         os.close(staging_fd)
-                    try:
-                        remove_owned_tree(
-                            topology_root / staging,
-                            expected_identity=staging_identity,
-                            parent_directory_fd=root_fd,
-                        )
-                    except FileNotFoundError:
-                        pass
+                    if staging_identity is not None:
+                        try:
+                            remove_owned_tree(
+                                topology_root / staging,
+                                expected_identity=staging_identity,
+                                parent_directory_fd=root_fd,
+                            )
+                        except FileNotFoundError:
+                            pass
                     raise
                 else:
                     if staging_fd is not None:
@@ -9258,7 +9259,7 @@ class Workspace:
                     "temporary topology state staging changed"
                 )
         except BaseException:
-            if staging is not None:
+            if staging is not None and staging_identity is not None:
                 try:
                     remove_owned_tree(
                         staging,
