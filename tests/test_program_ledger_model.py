@@ -28,6 +28,18 @@ class CallPermit:
         self.used = False
 
 
+class ScanPermit:
+    """One-use proof returned only by a complete bounded pagination pass."""
+
+    def __init__(self, stream: str, evidence: dict[str, object]) -> None:
+        self.stream = stream
+        self.evidence = evidence
+        self.seal = hashlib.sha256(
+            json.dumps(evidence, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        self.used = False
+
+
 class ProgramLedgerModel:
     """Reference reducer with distinct persistence and remote-call boundaries."""
 
@@ -36,6 +48,7 @@ class ProgramLedgerModel:
     MAX_STRING_BYTES = 65_536
     MAX_DEPTH = 16
     MAX_INTEGER = (1 << 64) - 1
+    AUTO_SCAN = object()
 
     KEYS = {
         "generation", "self_inode", "lock", "previous_sha256", "authority", "graph",
@@ -302,7 +315,8 @@ class ProgramLedgerModel:
         def valid_observation(value: object) -> bool:
             return isinstance(value, dict) and (
                 set(value) == {
-                    "generation", "stream", "result_stream", "complete", "count"
+                    "generation", "stream", "result_stream", "complete", "count",
+                    "pages", "nodes", "body_bytes", "terminal_cursor", "completed_at",
                 }
                 and isinstance(value["generation"], int)
                 and not isinstance(value["generation"], bool)
@@ -313,6 +327,16 @@ class ProgramLedgerModel:
                 and isinstance(value["count"], int)
                 and not isinstance(value["count"], bool)
                 and value["count"] >= 0
+                and type(value["pages"]) is int and 1 <= value["pages"] <= 100
+                and type(value["nodes"]) is int and 0 <= value["nodes"] <= 10_000
+                and type(value["body_bytes"]) is int
+                and 0 <= value["body_bytes"] <= 16 * 1024 * 1024
+                and (
+                    (value["nodes"] == 0 and value["terminal_cursor"] is None)
+                    or (value["nodes"] > 0 and isinstance(value["terminal_cursor"], str)
+                        and bool(value["terminal_cursor"]))
+                )
+                and cls.valid_timestamp(value["completed_at"])
             )
 
         observations = record.get("observation")
@@ -496,9 +520,15 @@ class ProgramLedgerModel:
         generation = int(self.record["generation"])
         old_digest = self.digest()
         expected_authority = copy.deepcopy(self.record["authority"])
-        if expected_generation is not None and expected_generation != generation:
+        if expected_generation is not None and (
+            type(expected_generation) is not int
+            or not 0 <= expected_generation <= self.MAX_INTEGER
+            or expected_generation != generation
+        ):
             raise StopClosed("stale generation")
-        if expected_digest is not None and expected_digest != old_digest:
+        if expected_digest is not None and (
+            not self.digest_is_valid(expected_digest) or expected_digest != old_digest
+        ):
             raise StopClosed("stale digest")
         if expected_lock_inode != self.lock_inode or self.path_lock_inode != self.lock_inode:
             raise StopClosed("substituted lock")
@@ -527,7 +557,7 @@ class ProgramLedgerModel:
         nodes: int | None = None, body_bytes: int | None = None,
         timed_out: bool = False,
         body_sizes: list[int] | None = None,
-    ) -> None:
+    ) -> ScanPermit:
         body_sizes = [] if body_sizes is None else body_sizes
         if (
             not isinstance(cursors, list) or not isinstance(node_ids, list)
@@ -553,6 +583,7 @@ class ProgramLedgerModel:
             or body_bytes > 16 * 1024 * 1024
             or pages != max(1, len(cursors)) or len(cursors) > 100
             or nodes != len(node_ids) or len(node_ids) > 10_000
+            or (bool(node_ids) != bool(cursors))
             or body_bytes != sum(body_sizes)
             or any(
                 not isinstance(size, int) or isinstance(size, bool)
@@ -563,6 +594,12 @@ class ProgramLedgerModel:
             or first_digest != second_digest
         ):
             raise StopClosed("pagination is incomplete, excessive, or changed")
+        stream = hashlib.sha256(first_digest.encode("utf-8")).hexdigest()
+        return ScanPermit(stream, {
+            "pages": pages, "nodes": nodes, "body_bytes": body_bytes,
+            "terminal_cursor": cursors[-1] if node_ids else None,
+            "completed_at": "2026-08-14T00:00:00Z", "complete": True,
+        })
 
     @staticmethod
     def validate_marker(namespace: list[tuple[str, str]], actor: str, bound: bool) -> None:
@@ -573,25 +610,65 @@ class ProgramLedgerModel:
 
     def _observe(
         self, kind: str, stream: str, result_stream: str, count: int,
-        complete: bool = True,
+        complete: bool, scan: object, body_sizes: list[int],
     ) -> None:
+        if scan is self.AUTO_SCAN:
+            node_ids = [
+                f"node-{index}" for index in range(max(count, len(body_sizes)))
+            ]
+            pages = max(1, (len(node_ids) + 99) // 100)
+            cursors = [f"cursor-{index}" for index in range(pages)] if node_ids else []
+            if complete:
+                scan = self.stable_scan(
+                    cursors, node_ids, stream, stream, body_sizes=body_sizes
+                )
+            else:
+                scan = ScanPermit(
+                    hashlib.sha256(stream.encode("utf-8")).hexdigest(),
+                    {
+                        "pages": pages, "nodes": len(node_ids),
+                        "body_bytes": sum(body_sizes),
+                        "terminal_cursor": cursors[-1] if cursors else None,
+                        "completed_at": "2026-08-14T00:00:00Z", "complete": False,
+                    },
+                )
+        if (
+            not isinstance(scan, ScanPermit) or scan.used
+            or scan.stream != hashlib.sha256(stream.encode("utf-8")).hexdigest()
+            or scan.seal != hashlib.sha256(
+                json.dumps(
+                    scan.evidence, sort_keys=True, separators=(",", ":")
+                ).encode()
+            ).hexdigest()
+            or set(scan.evidence) != {
+                "pages", "nodes", "body_bytes", "terminal_cursor", "completed_at",
+                "complete",
+            }
+            or scan.evidence["complete"] is not complete
+            or type(scan.evidence["nodes"]) is not int
+            or scan.evidence["nodes"] < count
+        ):
+            raise StopClosed("observation lacks a matching bounded scan permit")
         generation = int(self.record["generation"]) + 1
+        evidence = copy.deepcopy(scan.evidence)
         self.persist(
             lambda record: record["observation"].update({
                 kind: {
                     "generation": generation,
-                    "stream": hashlib.sha256(stream.encode("utf-8")).hexdigest(),
+                    "stream": scan.stream,
                     "result_stream": result_stream,
-                    "complete": complete, "count": count,
+                    "count": count, **evidence,
                 }
             })
         )
+        scan.used = True
 
     def observe_comment(
         self, stream: str = "comment-stable", count: int | None = None,
         complete: bool = True,
         namespace: list[tuple[str, str, str, str]] | None = None,
         body: str = "old-body",
+        scan: object = AUTO_SCAN,
     ) -> None:
         marker_required = (
             self.record["comment"]["phase"] == "bound"
@@ -612,12 +689,13 @@ class ProgramLedgerModel:
         ]
         self._observe(
             "comment", stream, self.result_stream(results),
-            int(marker_required) if count is None else count, complete
+            int(marker_required) if count is None else count, complete, scan,
+            [len(result["body"].encode("utf-8")) for result in results],
         )
 
     def classify_child(
         self, issues: list[dict[str, object]], first_digest: str = "stable",
-        second_digest: str = "stable",
+        second_digest: str = "stable", scan: object = AUTO_SCAN,
     ) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
         if first_digest != second_digest:
             raise StopClosed("duplicate-search streams changed")
@@ -632,18 +710,21 @@ class ProgramLedgerModel:
             else:
                 evidence.append(issue)
         self._observe(
-            "child", first_digest, self.result_stream(candidates), len(candidates)
+            "child", first_digest, self.result_stream(candidates), len(candidates),
+            True, scan, [0] * len(issues),
         )
         return candidates, evidence
 
     def observe_parent(
         self, relationships: list[str] | None = None, stream: str = "parent-stable",
         complete: bool = True, child_parent: str = "master",
+        scan: object = AUTO_SCAN,
     ) -> None:
         relationships = relationships or []
         proof = [{"child_parent": child_parent, "parent_subissues": relationships}]
         self._observe(
-            "parent", stream, self.result_stream(proof), len(relationships), complete
+            "parent", stream, self.result_stream(proof), len(relationships), complete,
+            scan, [],
         )
 
     def _plan(self, slot: str, node: str | None = None, prior: str | None = None) -> None:
@@ -889,7 +970,13 @@ class ProgramLedgerModel:
 
     def compose_leaf(self, position: str, generation: int, digest: str) -> None:
         snapshot = self.record["leaf_snapshots"].get(position)
-        if snapshot != [generation, digest] or position not in self.record["graph"]:
+        if (
+            not isinstance(position, str) or not position
+            or type(generation) is not int or generation < 0
+            or not self.digest_is_valid(digest)
+            or snapshot != [generation, digest]
+            or position not in self.record["graph"]
+        ):
             raise StopClosed("leaf ownership or evidence does not match graph")
 
 
@@ -1273,6 +1360,35 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 ProgramLedgerModel.stable_scan(
                     bypass.pop("cursors"), bypass.pop("node_ids"), "d", "d", **bypass
                 )
+
+    def test_mutations_require_consumed_bounded_scan_evidence(self) -> None:
+        comment = ProgramLedgerModel()
+        with self.assertRaises(StopClosed):
+            comment.observe_comment(scan=None)
+        permit = ProgramLedgerModel.stable_scan([], [], "comment-stable", "comment-stable")
+        permit.evidence["pages"] = 0
+        with self.assertRaises(StopClosed):
+            comment.observe_comment(scan=permit)
+        self.assertIsNone(comment.record["observation"]["comment"])
+
+        comment.observe_comment()
+        comment.plan_comment()
+        with self.assertRaises(StopClosed):
+            comment.observe_comment(scan=None)
+        with self.assertRaises(StopClosed):
+            comment.arm("comment")
+        self.assertEqual(comment.remote_calls["comment"], 0)
+
+        child = ProgramLedgerModel()
+        with self.assertRaises(StopClosed):
+            child.classify_child([], scan=None)
+        child.classify_child([])
+        child.plan_create()
+        with self.assertRaises(StopClosed):
+            child.classify_child([], scan=None)
+        with self.assertRaises(StopClosed):
+            child.arm("create")
+        self.assertEqual(child.remote_calls["create"], 0)
 
     def test_ledger_size_and_nested_value_bounds_precede_parsing(self) -> None:
         maximum = ProgramLedgerModel.MAX_LEDGER_BYTES
@@ -1748,6 +1864,16 @@ class ProgramLedgerModelTests(unittest.TestCase):
                      (model.record["generation"], model.digest(), 99)):
             with self.subTest(args=args), self.assertRaises(StopClosed):
                 model.persist(lambda record: None, *args)
+        model = ProgramLedgerModel()
+        model.persist(lambda record: None)
+        retained = copy.deepcopy(model.record)
+        for value in (True, False):
+            with self.subTest(expected_generation=value), self.assertRaises(StopClosed):
+                model.persist(lambda record: None, expected_generation=value)
+            self.assertEqual(model.record, retained)
+        for value in (True, False):
+            with self.subTest(leaf_generation=value), self.assertRaises(StopClosed):
+                model.compose_leaf("leaf-1", value, "a" * 64)
 
     def test_patch_and_rekey_keep_one_comment_node_and_authority(self) -> None:
         model = ProgramLedgerModel()
