@@ -70,14 +70,21 @@ categories into invented findings.
   failure leaves recoverable state.
 - Check backward/forward compatibility and mixed-version or migrated state when
   the contract crosses versions or processes.
-- Exercise neither-report, new-only, legacy-only, and both-report states. For a
-  legacy issue-only report, require the sole exact old path and an absent new
-  path before migration; verify every recorded artifact and creator/push
-  identity live, then atomically record its path/digest and complete slot states
-  in the new ledger while preserving the old bytes. If both paths exist, accept
-  only a completed explicitly linked migration whose digest and coordinates
-  still match. Any partial multi-owner set, ambiguity, mismatch, or overlapping
-  PR-mode use stops; an unrelated legacy report remains read-only.
+- Exercise absent, fresh-canonical, legacy-only, planned-migration, and completed
+  migration states. Freeze the legacy bytes, parsed source coordinates, and
+  creator/push identity separately from mutable current slots. Persist planned
+  intent in a no-clobber sidecar before canonical-ledger creation and completion
+  afterward; resume only the exact planned transition. A completed migration
+  requires its legacy source, canonical ledger, and sidecar, and disappearance
+  of any member stops. Compare the legacy source only to its immutable snapshot
+  while comparing current slots to live state; accept ordinary descendant head
+  advancement but not rewritten history. Exercise repeated resume, source or
+  canonical loss, partial multi-owner sets, and digest/coordinate mismatch.
+- Before any PR-mode claim or artifact mutation, boundedly inventory and parse
+  only regular no-follow legacy candidates under the exact ignored review root.
+  Block any selected issue, PR, repository/head-branch, or worktree intersection
+  even without native linkage or a local worktree; leave true nonmatches
+  untouched and read-only. An incomplete or unsafe inventory stops.
 - Confirm idempotency where commands or external mutations may be retried.
 - Inspect platform-sensitive paths, quoting, case sensitivity, separators,
   symlinks, permissions, terminals, shells, and line endings.

@@ -295,7 +295,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "uniquely matches a pre-recorded pending PR slot",
             "sole exception to the fresh-delivery no-active-PR rule",
             "existing open, unmerged PR",
-            "author, head repository",
+            "author/head repository",
             "reviews, conversations, checks, and mergeability",
             "Require a same-repository head",
             "zero or more incidental linked issues as read-only",
@@ -340,15 +340,15 @@ class AgentGuidanceTests(unittest.TestCase):
             "Unknown or conflicting mergeability",
             "issue-<number>.md",
             "pr-<number>.md",
-            "exact `<owner>-<repository>-<issue>.md`",
+            "sole legacy `<owner>-<repository>-<issue>.md`",
             "it alone claims the issue/artifacts",
-            "verify live/local all recorded issues, PRs, repositories",
+            "Verify live/local every recorded issue, PR, repository",
             "authenticated creator/push identity",
-            "atomically no-clobber create a new ledger",
+            "atomically no-clobber write `<legacy-path>.migrated`",
             "existing slots created/adopted",
             "future absent slots planned",
             "preserve old bytes",
-            "mode never uses legacy",
+            "mode never adopts legacy",
             "only when issues actually exist",
             "do not fabricate placeholders",
         }:
@@ -361,9 +361,10 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("Entry mode: `<issue|PR>`", report)
         self.assertIn("Selected issue(s): `<URL(s) or none>`", report)
         self.assertIn("Selected pull request(s):", report)
-        self.assertIn("Artifact ledger state:", report)
+        self.assertIn("Current artifact ledger:", report)
         self.assertIn("Report identity:", report)
-        self.assertIn("Legacy migration:", report)
+        self.assertIn("Immutable migration snapshot:", report)
+        self.assertIn("Migration sidecar:", report)
         self.assertIn("Claim/linkage state:", report)
         self.assertIn("## Scale and performance", checklist)
         self.assertIn("## Safety, security, and supply chain", checklist)
@@ -383,12 +384,10 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("created-or-adopted/exact reuses", normalized_checklist)
         self.assertIn("persisted around every mutation", normalized_checklist)
         self.assertIn("existing-branch path", normalized_checklist)
-        self.assertIn(
-            "sole exact old path and an absent new path",
-            normalized_checklist,
-        )
-        self.assertIn("preserving the old bytes", normalized_checklist)
-        self.assertIn("PR-mode use stops", normalized_checklist)
+        self.assertIn("planned-migration", normalized_checklist)
+        self.assertIn("immutable snapshot", normalized_checklist)
+        self.assertIn("any member stops", normalized_checklist)
+        self.assertIn("Before any PR-mode claim", normalized_checklist)
         self.assertIn(
             "determinate conflict-free mergeability",
             normalized_checklist,
@@ -438,47 +437,62 @@ class AgentGuidanceTests(unittest.TestCase):
         )
 
         for marker in {
-            "derive and inspect both canonical and legacy report paths",
-            "regular non-symlink reports and safe parents",
-            "Neither path means fresh collision rules",
-            "new-only uses its state machine",
-            "Legacy-only may migrate solely in issue mode",
-            "when the new path is absent",
+            "issue mode inspects both report paths",
+            "PR mode no-follow inventories/parses bounded regular legacy candidates",
+            "regular no-follow report/sidecar paths and safe parents",
+            "None means fresh rules",
+            "fresh canonical-only uses its state machine",
+            "migrates only in issue mode",
             "no extra, duplicate, unrecorded, or colliding artifact exists",
-            "authenticated creator/push identity, and safe state",
-            "Any gap, ambiguity, mismatch, or unproved fact",
-            "Recheck the digest",
-            "atomically no-clobber create a new ledger",
-            "existing slots created/adopted, and future absent slots planned",
+            "authenticated creator/push identity and safe state",
+            "atomically no-clobber write `<legacy-path>.migrated` as planned",
+            "immutable source path, SHA-256, coordinates/identity snapshot",
+            "atomically no-clobber create the canonical ledger linking it",
+            "copying the snapshot",
+            "existing slots created/adopted and future absent slots planned",
             "preserve old bytes",
-            (
-                "Both paths continue only when the new ledger proves "
-                "completed migration"
-            ),
-            "selected-PR/artifact overlap requires issue-mode resumption",
-            "unrelated reports stay read-only",
+            "Completed migration requires exact legacy, canonical, and marker files",
+            "any disappearance stops",
+            "Compare legacy bytes and coordinates only to the snapshot",
+            "mutable canonical slots to live",
+            "allowing ordinary descendant head updates but no rewrite",
+            "incomplete/unsafe inventory stops",
+            "any selected issue, PR, repository/head-branch",
+            "worktree intersection blocks while nonmatches stay read-only",
         }:
             with self.subTest(marker=marker):
                 self.assertIn(marker, body)
 
         self.assertLess(
-            body.index("derive and inspect both canonical and legacy report paths"),
+            body.index("issue mode inspects both report paths"),
             body.index("If active PRs already own the work"),
+        )
+        self.assertLess(
+            body.index(
+                "PR mode no-follow inventories/parses bounded regular legacy candidates"
+            ),
+            body.index("## Claim only explicitly authorized issues"),
         )
         self.assertLess(
             body.index("`<owner>-<repository>-<issue>.md`"),
             body.index("Pre-record the complete planned physical target set"),
         )
         self.assertIn("Report identity:", report)
-        self.assertIn("Legacy migration:", report)
+        self.assertIn("Current artifact ledger:", report)
+        self.assertIn("Immutable migration snapshot:", report)
+        self.assertIn("Migration sidecar:", report)
         for marker in {
-            "neither-report, new-only, legacy-only, and both-report states",
+            "absent, fresh-canonical, legacy-only, planned-migration, and completed",
+            "disappearance of any member stops",
+            "ordinary descendant head advancement",
             "partial multi-owner set",
-            "overlapping PR-mode use stops",
-            "unrelated legacy report remains read-only",
+            "Before any PR-mode claim or artifact mutation",
+            "even without native linkage or a local worktree",
+            "leave true nonmatches untouched and read-only",
+            "incomplete or unsafe inventory stops",
         }:
             self.assertIn(marker, checklist)
-        self.assertIn("including only verified legacy migration", program)
+        self.assertIn("including only marker-complete legacy migration", program)
         self.assertIn("current ledger records them as created/adopted", program)
 
     def test_content_issue_delivery_uses_main_as_sole_authored_source(self) -> None:
@@ -607,7 +621,10 @@ class AgentGuidanceTests(unittest.TestCase):
             "program delegation does not authorize switching to PR mode",
             normalized_body,
         )
-        self.assertIn("including only verified legacy migration", normalized_body)
+        self.assertIn(
+            "including only marker-complete legacy migration",
+            normalized_body,
+        )
         self.assertIn(
             "current ledger records them as created/adopted",
             normalized_body,

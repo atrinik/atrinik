@@ -9,20 +9,18 @@ Choose exactly one type-explicit `ENTRY_MODE`: `issue` for new issue-first
 work or `PR` for one existing pull request. Both share the delivery loop and
 stop before merge.
 
-Explicit invocation authorizes ordinary branch pushes, selected or
-delivery-created PR updates, ready transitions after exit gates, and brief
-comments. Issue mode also authorizes draft creation and the claim below; PR mode
-authorizes that claim only for an explicitly named, preflight-verified
-associated issue. It does not authorize force-pushes, issue creation or closure,
-merges, policy bypass, destructive resets, cleanup application, self-approval,
-retargeting, unrelated changes, or mutation of PR-discovered issues. Create or
-resume a persistent goal only when explicitly asked.
+Explicit invocation authorizes ordinary pushes, selected/delivery-created PR
+updates, ready transitions after exit gates, and brief comments. Issue mode also
+authorizes draft creation/claim; PR mode authorizes a claim only for an
+explicitly named, preflight-verified issue. It does not authorize force-pushes,
+issue creation/closure, merges, policy bypass, destructive resets, cleanup
+application, self-approval, retargeting, unrelated changes, or PR-discovered
+issue mutation. Create/resume a persistent goal only when explicitly asked.
 
-For an ordered master with merge-dependent leaves, use explicit
+For an ordered master with dependent leaves, use explicit
 `$atrinik-program-delivery`. A program-delivery invocation delegates this
-contract only in issue mode to each dependency-ready child in the live graph;
-it never delegates PR mode or unrelated-PR authority. Do not create a nested
-leaf goal.
+contract only in issue mode to dependency-ready children in the live graph;
+never PR mode or unrelated-PR authority. Do not create a nested leaf goal.
 
 Load `atrinik-multi-repo-workspace`, `atrinik-github-governance`, and only the
 applicable implementation skill. Add `atrinik-server-runtime` and
@@ -42,33 +40,29 @@ scenario procedures.
    the live default and target branches, coordinate state, linked work, and
    collisions. Never expose credentials. Stop for repository mismatch,
    ambiguous implementation, competing work, unsafe branch/worktree/report
-   coordinates, or a changed or unavailable selected head. In issue mode,
-   derive and inspect both canonical and legacy report paths before the
-   active-PR rule or any mutation.
-3. In issue mode, require an existing open issue. Inspect assignees, labels,
-   comments, native hierarchy, Project item, linked work, and all candidate
-   PRs. If active PRs already own the work, resume only when every one is
-   recorded by this same issue-mode delivery, named by the sole exact legacy
-   report candidate permitted below, or uniquely matches a pre-recorded pending
-   PR slot, and every coordinate in step 6 matches. Complete legacy migration
-   or bind any exact pending-slot match before further mutation. Otherwise stop
-   with the exact active PR coordinates and require a type-explicit PR-mode
-   invocation rather than creating competing work.
+   coordinates, or a changed or unavailable selected head. Before an active-PR
+   decision, claim, or artifact mutation, issue mode inspects both report paths;
+   PR mode no-follow inventories/parses bounded regular legacy candidates under
+   the proven exact ignored review root.
+3. Issue mode requires an open issue; inspect assignees, labels, comments,
+   hierarchy, Project item, links, and candidate PRs. If active PRs already own
+   the work, resume only when each is recorded by this same issue-mode delivery,
+   named by the sole permitted legacy report, or uniquely matches a pre-recorded
+   pending PR slot, and step 6 matches. Complete migration or binding before
+   mutation; otherwise stop at the exact PR and require type-explicit PR mode.
 4. In PR mode, require an existing open, unmerged PR. Record its repository,
-   author, head repository, target and head branches, base and head SHAs, merge
-   base, draft state, linked issues, body and closing references, reviews,
-   conversations, checks, and mergeability. Require a same-repository head and
-   verify ordinary push authority before edits. Treat a fork, foreign or
-   protected head, unavailable ref, or failed push-authority proof as a blocker
-   or read-only review surface, never as authority to take over the branch.
+   author/head repository, target/head branches, base/head SHAs, merge base,
+   draft state, links/closing references, body, reviews, conversations, checks,
+   and mergeability. Require a same-repository head and ordinary push authority.
+   A fork, foreign/protected head, unavailable ref, or failed authority proof is
+   a blocker/read-only surface, never branch-takeover authority.
 5. In PR-only mode, record zero or more incidental linked issues as read-only
    traceability. Do not require, synthesize, assign, move, close, comment on, or
    add a closing reference for any issue. When one issue is explicitly supplied
    with the PR, require it to be open and verify that exact issue has an
    unambiguous existing association. Other linked issues remain incidental and
-   read-only; their presence alone is not ambiguity. Fail closed when the exact
-   supplied relationship is contradictory or cannot be proved, and preserve the
-   PR's existing closing scope.
+   read-only; their presence alone is not ambiguity. Stop on a contradictory or
+   unproved exact relationship; preserve the PR's closing scope.
 6. Resume only when `ENTRY_MODE`, selected issue and/or complete recorded or
    pre-recorded PR set, repositories, bases, heads, branches, worktrees, and
    report identity agree exactly with the prior delivery. The narrow legacy
@@ -106,22 +100,28 @@ scenario procedures.
   <wrapper-root>/build/reviews/<owner>-<repository>-pr-<number>.md
   ```
 
-  Require regular non-symlink reports and safe parents. Neither path means
-  fresh collision rules; new-only uses its state machine. Legacy-only may
-  migrate solely in issue mode from the exact
-  `<owner>-<repository>-<issue>.md` when the new path is absent, it alone
-  claims the issue/artifacts, both are ignored, and no extra, duplicate,
-  unrecorded, or colliding artifact exists. Fully parse and verify live/local
-  all recorded issues, PRs, repositories, targets/bases/heads/merge-bases,
-  branches, worktrees, closing scope, authenticated creator/push identity, and
-  safe state. Any gap, ambiguity, mismatch, or unproved fact stops and preserves
-  all. Recheck the digest, then atomically no-clobber create a new ledger with
-  its path/SHA-256, identity/completion, all targets, existing slots
-  created/adopted, and future absent slots planned; preserve old bytes. Both
-  paths continue only when the new ledger proves completed migration from that
-  old path and matching digest/coordinates; otherwise stop. PR mode never uses
-  legacy: selected-PR/artifact overlap requires issue-mode resumption; unrelated
-  reports stay read-only.
+  Require regular no-follow report/sidecar paths and safe parents. None means
+  fresh rules; fresh canonical-only uses its state machine. A sole legacy
+  `<owner>-<repository>-<issue>.md` migrates only in issue mode when it alone
+  claims the issue/artifacts, both paths are ignored, and no extra, duplicate,
+  unrecorded, or colliding artifact exists. Verify live/local every recorded
+  issue, PR, repository, base/head/merge-base, branch, worktree, and closing
+  scope plus authenticated creator/push identity and safe state. First
+  atomically no-clobber write
+  `<legacy-path>.migrated` as planned with immutable source path, SHA-256,
+  coordinates/identity snapshot, and intended canonical path. Recheck, atomically
+  no-clobber create the canonical ledger linking it and copying the snapshot;
+  record existing slots created/adopted and future absent slots planned,
+  preserve old bytes, then durably mark the sidecar complete. A planned marker
+  resumes only that exact
+  transition. Completed migration requires exact legacy,
+  canonical, and marker files; any disappearance stops. Compare legacy bytes
+  and coordinates only to the snapshot and mutable canonical slots to live,
+  allowing ordinary descendant head updates but no rewrite. Any gap, ambiguity,
+  mismatch, or unproved fact stops and preserves all. PR mode never adopts legacy;
+  incomplete/unsafe inventory stops; any selected issue, PR,
+  repository/head-branch, or worktree intersection blocks while nonmatches stay
+  read-only.
 
   Pre-record the complete planned physical target set: entry mode, selected
   issue/PR or issue-mode pending PR slots, repositories, target/base and
@@ -216,15 +216,13 @@ Before provisioning, run the supported inventories as applicable:
 ```
 
 Reuse rather than recreate a compatible delivery profile, stopped topology,
-wrapper-owned state and server/client data, or delivery-owned scenario. Prefer
-a fresh generation-owned temporary state for automation; select named/default
-state only when persistence or an existing account is required. Reuse only
-resources whose immutable repository, branch, checkout, source, provider,
-commit, profile, generation, and state-owner coordinates match final HEAD;
-incomplete historical records are inert. Scenarios must also be dedicated to
-the delivery, stopped, and unlocked. Ordinary state/data may be used only when
-safe to mutate for the test and the reviewer already has an appropriate
-account; never reset it.
+wrapper-owned state/data, or delivery-owned scenario. Prefer fresh
+generation-owned temporary state; use named/default only for persistence or an
+existing account. Reuse only when immutable repository, branch, checkout,
+source, provider, commit, profile, generation, and state-owner coordinates match
+final HEAD; incomplete records are inert. Scenarios must be delivery-dedicated,
+stopped, and unlocked. Use ordinary state/data only when safe for the test and
+the reviewer has an appropriate account; never reset it.
 
 Let wrapper metadata choose generated paths/builds; never reconstruct, copy,
 edit, delete, or manually select internal generated paths. Never stop unrelated

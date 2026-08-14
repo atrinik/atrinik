@@ -12,8 +12,9 @@ vulnerability detail. Do not commit or publish this report.
 - Claim/linkage state: `<claimed explicit issue | linked issues read-only | none>`
 - Issue-closing path: `<default-branch PR URL, manual post-merge close, or none>`
 - Report identity: `<canonical issue | canonical PR | legacy-migrated issue>`
-- Artifact ledger state: `<planned/created/adopted per branch/worktree/PR slot>`
-- Legacy migration: `<none or preserved source path, SHA-256 digest, verified identity, and completion>`
+- Current artifact ledger: `<mutable planned/created/adopted branch/worktree/PR slots>`
+- Immutable migration snapshot: `<none or legacy path/SHA-256 and source coordinates/identity>`
+- Migration sidecar: `<none or exact path and planned/complete state>`
 - Review started / last refreshed: `<UTC timestamps>`
 
 | Release line / owner | Target / fetched base | Head branch / SHA | Merge base | Worktree | Commits reviewed |
