@@ -382,16 +382,22 @@ helper repeats containment, symlink, marker, schema, and purpose validation
 immediately before deletion.
 
 Commit-keyed source generations have closed repository/branch/checkout/tree/
-subpath metadata. Generation schema 3 separately records the Git object for each
-declared source include, the logical-source digest, and a framed digest of the
-complete source-plus-includes closure. Schema-1 generations remain recognizable
-to preview-first cleanup but cannot be reused as current build inputs. Builds
-hold a per-key shared lock; default `builds` cleanup revalidates identity and
-age under its exclusive side before bounded removal. First-use container
-publication is checkout-serialized.
-Interrupted staging remains a recognized child of its marker-owned container,
-is protected while its generation lock is busy, and becomes independently
-reclaimable after the normal grace period.
+subpath metadata and authenticated closure digests. Generation schema 3 records
+the Git object for each declared sibling file or directory input, the logical
+source digest, and a framed digest of the complete source-plus-includes closure.
+Reuse additionally enumerates recorded Git trees without replacement-object
+indirection and proves generated paths, entry types, executable modes, symlink
+targets, and blob object IDs through pinned, no-follow descriptor traversal.
+Schema-1 generations remain recognizable to preview-first cleanup but cannot be
+reused as current build inputs. A mismatch fails closed and leaves recovery to
+the explicit `builds` cleanup boundary. Once path, marker, key, and closed
+metadata ownership are exact, cleanup classifies a content-digest mismatch as
+removable corruption. Builds hold a per-key shared lock; cleanup apply
+revalidates ownership, closure content, identity, and age under its exclusive
+side before bounded removal. First-use container publication is
+checkout-serialized. Interrupted staging remains a recognized child of its
+marker-owned container, is protected while its generation lock is busy, and
+becomes independently reclaimable after the normal grace period.
 
 The npm and compiler caches have exact purpose markers and atomically refreshed
 `.atrinik-cache.json` timestamps. The compiler cache metadata also fixes its
@@ -447,8 +453,15 @@ is hashed. Copied modification times, filesystem flags, and extended metadata
 are keyed; staging access times are normalized; and the
 staged source snapshot is authenticated before installation. A project `.npmrc`
 is a restrictive no-follow temporary copy that is removed before publication;
+after source authentication, dependency-install and source-view transaction
+roots restore full effective-owner access while removing group and other write access so
+immutable source-generation modes cannot prevent `node_modules` staging; the
+source root mode is reapplied before view publication;
 the transaction marker is hidden during lifecycle execution and restored before
-publication; installed output containing the staging path is rejected as
+publication. Worker checks similarly receive temporary full owner root access
+with group and other write access disabled
+for profile-local generated outputs, with the published source mode restored in
+their failure-safe control-repair path. Installed output containing the staging path is rejected as
 non-relocatable.
 A missing canonical entry recovers the newest structurally valid matching
 backup under the per-key lock before falling back to a new `npm ci`.

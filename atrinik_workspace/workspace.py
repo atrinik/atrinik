@@ -1477,6 +1477,51 @@ def _copy_worker_source_metadata(source: Path, destination: Path) -> None:
     visit(source, destination, True)
 
 
+def _worker_owner_writable_mode(mode: int) -> int:
+    """Return a mode with owner access and no group or other write bits."""
+
+    return mode & ~(stat.S_IWGRP | stat.S_IWOTH) | stat.S_IRWXU
+
+
+def _make_worker_staging_owner_writable(staging: Path) -> None:
+    """Restore owner access after authenticating copied source metadata."""
+
+    descriptor: int | None = None
+    try:
+        descriptor = os.open(
+            staging,
+            os.O_RDONLY | os.O_DIRECTORY | getattr(os, "O_NOFOLLOW", 0),
+        )
+        opened = os.fstat(descriptor)
+        visible = staging.stat(follow_symlinks=False)
+        if (
+            not stat.S_ISDIR(opened.st_mode)
+            or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+            or opened.st_uid != os.geteuid()
+        ):
+            raise WorkspaceError(
+                f"Worker staging root ownership is unsafe: {staging}"
+            )
+        os.fchmod(
+            descriptor,
+            _worker_owner_writable_mode(stat.S_IMODE(opened.st_mode)),
+        )
+        writable = os.fstat(descriptor)
+        if stat.S_IMODE(writable.st_mode) & stat.S_IRWXU != stat.S_IRWXU:
+            raise WorkspaceError(
+                f"Worker staging root is not owner-writable: {staging}"
+            )
+    except WorkspaceError:
+        raise
+    except OSError as error:
+        raise WorkspaceError(
+            f"cannot make Worker staging root writable {staging}: {error}"
+        ) from error
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+
+
 def _copy_regular_file(
     source: Path,
     destination: Path,
@@ -2317,6 +2362,479 @@ class Workspace:
                 f"cannot extract immutable Git source archive: {error}"
             ) from error
 
+    @staticmethod
+    def _validate_source_generation_git_tree(
+        checkout: Path, source: Path, source_tree: str
+    ) -> None:
+        """Prove a materialized source has the recorded Git tree identity."""
+
+        try:
+            result = subprocess.run(
+                [
+                    "git",
+                    "--no-replace-objects",
+                    "-C",
+                    str(checkout),
+                    "ls-tree",
+                    "-r",
+                    "-t",
+                    "--full-tree",
+                    "-z",
+                    source_tree,
+                ],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                pass_fds=active_lock_fds(),
+            )
+        except FileNotFoundError as error:
+            raise WorkspaceError("required command not found: git") from error
+        except subprocess.CalledProcessError as error:
+            detail = error.stderr.decode("utf-8", errors="replace").strip()
+            suffix = f": {detail}" if detail else ""
+            raise WorkspaceError(
+                "cannot inspect recorded immutable Git source tree" + suffix
+            ) from error
+
+        expected: dict[bytes, tuple[bytes, bytes, bytes]] = {}
+        for entry in result.stdout.split(b"\0"):
+            if not entry:
+                continue
+            try:
+                metadata, relative = entry.split(b"\t", 1)
+                mode, kind, object_id = metadata.split(b" ", 2)
+            except ValueError as error:
+                raise WorkspaceError(
+                    "recorded immutable Git source tree listing is invalid"
+                ) from error
+            if (
+                not relative
+                or relative in expected
+                or kind not in {b"blob", b"tree", b"commit"}
+                or mode
+                not in {b"040000", b"100644", b"100755", b"120000", b"160000"}
+                or len(object_id) not in {40, 64}
+                or not re.fullmatch(b"[0-9a-f]+", object_id)
+            ):
+                raise WorkspaceError(
+                    "recorded immutable Git source tree listing is invalid"
+                )
+            expected[relative] = (mode, kind, object_id)
+
+        algorithm = hashlib.sha1 if len(source_tree) == 40 else hashlib.sha256
+        actual: dict[bytes, tuple[bytes, bytes, bytes]] = {}
+
+        def blob_id(payload: bytes) -> bytes:
+            digest = algorithm()
+            digest.update(f"blob {len(payload)}\0".encode())
+            digest.update(payload)
+            return digest.hexdigest().encode()
+
+        def stable_identity(value: os.stat_result) -> tuple[int, ...]:
+            return (
+                value.st_dev,
+                value.st_ino,
+                value.st_mode,
+                value.st_nlink,
+                value.st_size,
+                value.st_mtime_ns,
+                value.st_ctime_ns,
+            )
+
+        def changed(
+            before: os.stat_result, after: os.stat_result
+        ) -> bool:
+            return stable_identity(before) != stable_identity(after)
+
+        def visit(directory_fd: int, prefix: bytes) -> None:
+            directory_before = os.fstat(directory_fd)
+            try:
+                entries = sorted(os.listdir(directory_fd))
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect immutable source generation {source}: {error}"
+                ) from error
+            for entry_name in entries:
+                name = os.fsencode(entry_name)
+                relative = prefix + (b"/" if prefix else b"") + name
+                display = source / os.fsdecode(relative)
+                descriptor: int | None = None
+                try:
+                    status = os.stat(
+                        entry_name,
+                        dir_fd=directory_fd,
+                        follow_symlinks=False,
+                    )
+                    if stat.S_ISDIR(status.st_mode):
+                        descriptor = os.open(
+                            entry_name,
+                            os.O_RDONLY
+                            | os.O_CLOEXEC
+                            | os.O_DIRECTORY
+                            | os.O_NOFOLLOW,
+                            dir_fd=directory_fd,
+                        )
+                        opened = os.fstat(descriptor)
+                        if (
+                            changed(status, opened)
+                            or opened.st_dev != root_status.st_dev
+                            or _descriptor_mount_id(descriptor) != root_mount
+                        ):
+                            raise WorkspaceError(
+                                "immutable source generation changed while "
+                                f"reading: {display}"
+                            )
+                        value = (b"040000", b"tree", b"")
+                        visit(descriptor, relative)
+                        if changed(opened, os.fstat(descriptor)):
+                            raise WorkspaceError(
+                                "immutable source generation changed while "
+                                f"reading: {display}"
+                            )
+                    elif stat.S_ISREG(status.st_mode):
+                        if status.st_nlink != 1:
+                            raise WorkspaceError(
+                                "generated source contains a hard-linked file: "
+                                f"{display}"
+                            )
+                        descriptor = os.open(
+                            entry_name,
+                            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                            dir_fd=directory_fd,
+                        )
+                        opened = os.fstat(descriptor)
+                        if (
+                            changed(status, opened)
+                            or not stat.S_ISREG(opened.st_mode)
+                            or opened.st_nlink != 1
+                            or opened.st_dev != root_status.st_dev
+                            or _descriptor_mount_id(descriptor) != root_mount
+                        ):
+                            raise WorkspaceError(
+                                "immutable source generation changed while "
+                                f"reading: {display}"
+                            )
+                        digest = algorithm()
+                        digest.update(f"blob {opened.st_size}\0".encode())
+                        observed = 0
+                        while chunk := os.read(descriptor, 1024 * 1024):
+                            observed += len(chunk)
+                            digest.update(chunk)
+                        if (
+                            observed != opened.st_size
+                            or changed(opened, os.fstat(descriptor))
+                        ):
+                            raise WorkspaceError(
+                                "immutable source generation changed while "
+                                f"reading: {display}"
+                            )
+                        mode = b"100755" if opened.st_mode & 0o111 else b"100644"
+                        value = (mode, b"blob", digest.hexdigest().encode())
+                    elif stat.S_ISLNK(status.st_mode):
+                        target = os.fsencode(
+                            os.readlink(entry_name, dir_fd=directory_fd)
+                        )
+                        after = os.stat(
+                            entry_name,
+                            dir_fd=directory_fd,
+                            follow_symlinks=False,
+                        )
+                        if changed(status, after):
+                            raise WorkspaceError(
+                                "immutable source generation changed while "
+                                f"reading: {display}"
+                            )
+                        value = (b"120000", b"blob", blob_id(target))
+                    else:
+                        raise WorkspaceError(
+                            "immutable source generation contains an unsupported "
+                            f"entry: {display}"
+                        )
+                except WorkspaceError:
+                    raise
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot inspect immutable source generation {display}: {error}"
+                    ) from error
+                finally:
+                    if descriptor is not None:
+                        os.close(descriptor)
+                if relative in actual:
+                    raise WorkspaceError(
+                        "immutable source generation repeats a path: "
+                        f"{os.fsdecode(relative)}"
+                    )
+                actual[relative] = value
+
+            if changed(directory_before, os.fstat(directory_fd)):
+                raise WorkspaceError(
+                    "immutable source generation changed while reading: "
+                    f"{source / os.fsdecode(prefix)}"
+                )
+
+        container_fd: int | None = None
+        parent_fd: int | None = None
+        root_fd: int | None = None
+        try:
+            flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+            container_fd = _open_directory_nofollow(source.parent.parent, flags)
+            container_status = os.fstat(container_fd)
+            container_mount = _descriptor_mount_id(container_fd)
+            visible_parent = os.stat(
+                source.parent.name,
+                dir_fd=container_fd,
+                follow_symlinks=False,
+            )
+            parent_fd = os.open(
+                source.parent.name,
+                flags,
+                dir_fd=container_fd,
+            )
+            parent_status = os.fstat(parent_fd)
+            parent_mount = _descriptor_mount_id(parent_fd)
+            if (
+                changed(visible_parent, parent_status)
+                or parent_status.st_dev != container_status.st_dev
+                or parent_mount != container_mount
+            ):
+                raise WorkspaceError(
+                    "immutable source generation parent changed or is mounted: "
+                    f"{source.parent}"
+                )
+            visible_root = os.stat(
+                source.name,
+                dir_fd=parent_fd,
+                follow_symlinks=False,
+            )
+            root_fd = os.open(source.name, flags, dir_fd=parent_fd)
+            root_status = os.fstat(root_fd)
+            root_mount = _descriptor_mount_id(root_fd)
+            if (
+                changed(visible_root, root_status)
+                or root_status.st_dev != parent_status.st_dev
+                or root_mount != parent_mount
+            ):
+                raise WorkspaceError(
+                    "immutable source generation root changed or is mounted: "
+                    f"{source}"
+                )
+            visit(root_fd, b"")
+            first_inventory = dict(actual)
+            actual.clear()
+            visit(root_fd, b"")
+            if actual != first_inventory:
+                raise WorkspaceError(
+                    "immutable source generation changed between inventories: "
+                    f"{source}"
+                )
+            if set(actual) != set(expected) or any(
+                actual[path][:2] != expected[path][:2]
+                or (
+                    actual[path][1] != b"tree"
+                    and actual[path][2] != expected[path][2]
+                )
+                for path in actual.keys() & expected.keys()
+            ):
+                raise WorkspaceError(
+                    "immutable source generation does not match its recorded "
+                    f"Git tree: {source}"
+                )
+            visible_after = os.stat(
+                source.name,
+                dir_fd=parent_fd,
+                follow_symlinks=False,
+            )
+            visible_parent_after = os.stat(
+                source.parent.name,
+                dir_fd=container_fd,
+                follow_symlinks=False,
+            )
+            if (
+                changed(root_status, os.fstat(root_fd))
+                or changed(root_status, visible_after)
+                or changed(parent_status, os.fstat(parent_fd))
+                or changed(parent_status, visible_parent_after)
+            ):
+                raise WorkspaceError(
+                    f"immutable source generation changed while reading: {source}"
+                )
+        except WorkspaceError:
+            raise
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect immutable source generation {source}: {error}"
+            ) from error
+        finally:
+            if root_fd is not None:
+                os.close(root_fd)
+            if parent_fd is not None:
+                os.close(parent_fd)
+            if container_fd is not None:
+                os.close(container_fd)
+
+    @staticmethod
+    def _validate_source_generation_git_closure(
+        checkout: Path,
+        generation: Path,
+        source_tree: str,
+        root_tree: str,
+        source_includes: dict[str, str],
+    ) -> None:
+        """Prove every materialized closure input has its recorded Git identity."""
+
+        Workspace._validate_source_generation_git_tree(
+            checkout, generation / "source", source_tree
+        )
+        algorithm = hashlib.sha1 if len(root_tree) == 40 else hashlib.sha256
+        for include, expected_object in sorted(source_includes.items()):
+            try:
+                result = subprocess.run(
+                    [
+                        "git",
+                        "--no-replace-objects",
+                        "-C",
+                        str(checkout),
+                        "ls-tree",
+                        "-z",
+                        root_tree,
+                        "--",
+                        include,
+                    ],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    pass_fds=active_lock_fds(),
+                )
+            except FileNotFoundError as error:
+                raise WorkspaceError("required command not found: git") from error
+            except subprocess.CalledProcessError as error:
+                detail = error.stderr.decode("utf-8", errors="replace").strip()
+                suffix = f": {detail}" if detail else ""
+                raise WorkspaceError(
+                    "cannot inspect recorded immutable Git source include" + suffix
+                ) from error
+            entries = [entry for entry in result.stdout.split(b"\0") if entry]
+            try:
+                metadata, relative = entries[0].split(b"\t", 1)
+                mode, kind, object_id = metadata.split(b" ", 2)
+            except (IndexError, ValueError) as error:
+                raise WorkspaceError(
+                    "recorded immutable Git source include is invalid"
+                ) from error
+            if (
+                len(entries) != 1
+                or os.fsdecode(relative) != include
+                or object_id.decode("ascii", errors="replace") != expected_object
+                or len(object_id) not in {40, 64}
+                or not re.fullmatch(b"[0-9a-f]+", object_id)
+            ):
+                raise WorkspaceError(
+                    "recorded immutable Git source include is invalid"
+                )
+
+            include_path = generation.joinpath(*PurePosixPath(include).parts)
+            try:
+                include_status = include_path.lstat()
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect immutable source include {include_path}: {error}"
+                ) from error
+            if stat.S_ISDIR(include_status.st_mode):
+                if mode != b"040000" or kind != b"tree":
+                    raise WorkspaceError(
+                        "immutable source include does not match its recorded "
+                        f"Git entry: {include_path}"
+                    )
+                Workspace._validate_source_generation_git_tree(
+                    checkout, include_path, expected_object
+                )
+                continue
+            if (
+                not stat.S_ISREG(include_status.st_mode)
+                or kind != b"blob"
+                or mode not in {b"100644", b"100755"}
+            ):
+                raise WorkspaceError(
+                    "immutable source include does not match its recorded "
+                    f"Git entry: {include_path}"
+                )
+
+            parent_fd: int | None = None
+            descriptor: int | None = None
+            try:
+                flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+                parent_fd = _open_directory_nofollow(include_path.parent, flags)
+                visible = os.stat(
+                    include_path.name,
+                    dir_fd=parent_fd,
+                    follow_symlinks=False,
+                )
+                descriptor = os.open(
+                    include_path.name,
+                    os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                    dir_fd=parent_fd,
+                )
+                opened = os.fstat(descriptor)
+                def file_identity(value: os.stat_result) -> tuple[int, ...]:
+                    return (
+                        value.st_dev,
+                        value.st_ino,
+                        value.st_mode,
+                        value.st_nlink,
+                        value.st_size,
+                        value.st_mtime_ns,
+                        value.st_ctime_ns,
+                    )
+
+                if (
+                    file_identity(visible) != file_identity(opened)
+                    or not stat.S_ISREG(opened.st_mode)
+                    or opened.st_nlink != 1
+                    or _descriptor_mount_id(descriptor)
+                    != _descriptor_mount_id(parent_fd)
+                ):
+                    raise WorkspaceError(
+                        f"immutable source include changed while reading: {include_path}"
+                    )
+                digest = algorithm()
+                digest.update(f"blob {opened.st_size}\0".encode())
+                observed = 0
+                while chunk := os.read(descriptor, 1024 * 1024):
+                    observed += len(chunk)
+                    digest.update(chunk)
+                after = os.fstat(descriptor)
+                actual_mode = b"100755" if opened.st_mode & 0o111 else b"100644"
+                if (
+                    observed != opened.st_size
+                    or file_identity(opened) != file_identity(after)
+                    or actual_mode != mode
+                    or digest.hexdigest().encode() != object_id
+                ):
+                    raise WorkspaceError(
+                        "immutable source include does not match its recorded "
+                        f"Git entry: {include_path}"
+                    )
+                visible_after = os.stat(
+                    include_path.name,
+                    dir_fd=parent_fd,
+                    follow_symlinks=False,
+                )
+                if file_identity(visible) != file_identity(visible_after):
+                    raise WorkspaceError(
+                        f"immutable source include changed while reading: {include_path}"
+                    )
+            except WorkspaceError:
+                raise
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect immutable source include {include_path}: {error}"
+                ) from error
+            finally:
+                if descriptor is not None:
+                    os.close(descriptor)
+                if parent_fd is not None:
+                    os.close(parent_fd)
+
     def _materialize_primary_source(
         self,
         component: Component,
@@ -2351,6 +2869,7 @@ class Workspace:
         commit = state["head"]
         tree = git(
             checkout,
+            "--no-replace-objects",
             "rev-parse",
             f"{commit}^{{tree}}",
             capture=True,
@@ -2358,6 +2877,7 @@ class Workspace:
         )
         source_tree = git(
             checkout,
+            "--no-replace-objects",
             "rev-parse",
             (
                 f"{commit}^{{tree}}"
@@ -2370,6 +2890,7 @@ class Workspace:
         source_includes = {
             include: git(
                 checkout,
+                "--no-replace-objects",
                 "rev-parse",
                 f"{commit}:{include}",
                 capture=True,
@@ -2478,6 +2999,13 @@ class Workspace:
                     raise WorkspaceError(
                         f"clean primary source changed before generation reuse: {checkout}"
                     )
+                self._validate_source_generation_git_closure(
+                    checkout,
+                    generation,
+                    source_tree,
+                    tree,
+                    source_includes,
+                )
                 return generation / "source"
 
             staging = Path(
@@ -2493,16 +3021,14 @@ class Workspace:
                 )
                 exports: list[tuple[str, str | None, Path, bool]] = [
                     (
-                        commit
-                        if component.source == "."
-                        else f"{commit}:{component.source}",
+                        source_tree,
                         None,
                         staging / "source",
                         False,
                     ),
                     *(
                         (
-                            commit,
+                            tree,
                             include,
                             staging,
                             True,
@@ -2525,6 +3051,7 @@ class Workspace:
                         try:
                             archive_command = [
                                 "git",
+                                "--no-replace-objects",
                                 "-C",
                                 str(checkout),
                                 "archive",
@@ -2584,6 +3111,7 @@ class Workspace:
                     != commit
                     or git(
                         checkout,
+                        "--no-replace-objects",
                         "rev-parse",
                         f"{commit}^{{tree}}",
                         capture=True,
@@ -2594,6 +3122,13 @@ class Workspace:
                     raise WorkspaceError(
                         f"clean primary source changed during materialization: {checkout}"
                     )
+                self._validate_source_generation_git_closure(
+                    checkout,
+                    staging,
+                    source_tree,
+                    tree,
+                    source_includes,
+                )
                 self._seal_runtime_generation(staging / "source")
                 for include in component.source_includes:
                     include_path = staging.joinpath(
@@ -2825,6 +3360,14 @@ class Workspace:
                                 "immutable source generation changed before lease handoff: "
                                 f"{path}"
                             )
+                        checkout = states[expected_record["checkout"]]["path"]
+                        self._validate_source_generation_git_closure(
+                            checkout,
+                            path.parent,
+                            expected_record["source_tree"],
+                            expected_record["tree"],
+                            expected_record["source_includes"],
+                        )
                     retained = []
                     for coordinate, context in reversed(source_contexts):
                         if coordinate in released:
@@ -8810,6 +9353,11 @@ class Workspace:
                     raise WorkspaceError(
                         "staged Worker lifecycle source does not match its cache key"
                     )
+                # Clean primary sources are immutable generations whose root
+                # has no write bits. Authenticate that copied mode first, then
+                # restore full effective-owner access while disabling group
+                # and other writes so npm can create node_modules.
+                _make_worker_staging_owner_writable(staging)
                 if (staging / ".npmrc").exists():
                     (staging / ".npmrc").chmod(0o600)
                     if (
@@ -9027,6 +9575,7 @@ class Workspace:
                 raise WorkspaceError(
                     "staged Worker view source does not match its fingerprint"
                 )
+            _make_worker_staging_owner_writable(staging)
             shutil.copytree(dependencies, staging / "node_modules", symlinks=True)
             if (
                 _tree_digest(
@@ -9053,6 +9602,7 @@ class Workspace:
                 },
             )
             atomic_json(staging / WORKER_VIEW_METADATA, expected)
+            shutil.copystat(source, staging, follow_symlinks=False)
             replace_directory(
                 view,
                 staging,
@@ -9211,6 +9761,10 @@ class Workspace:
                 != dependency_metadata["node_modules_lock_sha256"]
             ):
                 raise WorkspaceError("Worker view controls are invalid before checks")
+            if opened_status.st_uid != os.geteuid():
+                raise WorkspaceError("Worker view ownership is unsafe before checks")
+            original_mode = stat.S_IMODE(opened_status.st_mode)
+            os.fchmod(descriptor, _worker_owner_writable_mode(original_mode))
             try:
                 run(
                     ["npm", "run", "check"],
@@ -9219,23 +9773,26 @@ class Workspace:
                 )
             finally:
                 try:
-                    current_status = view.lstat()
-                except OSError:
-                    current_status = None
-                if (
-                    current_status is not None
-                    and not view.is_symlink()
-                    and stat.S_ISDIR(current_status.st_mode)
-                    and (current_status.st_dev, current_status.st_ino)
-                    == (opened_status.st_dev, opened_status.st_ino)
-                ):
-                    for control_path in (marker_path, metadata_path):
-                        if control_path.is_symlink() or not control_path.is_dir():
-                            control_path.unlink(missing_ok=True)
-                        else:
-                            remove_owned_tree(control_path)
-                    atomic_json(marker_path, expected_marker)
-                    atomic_json(metadata_path, control_metadata)
+                    try:
+                        current_status = view.lstat()
+                    except OSError:
+                        current_status = None
+                    if (
+                        current_status is not None
+                        and not view.is_symlink()
+                        and stat.S_ISDIR(current_status.st_mode)
+                        and (current_status.st_dev, current_status.st_ino)
+                        == (opened_status.st_dev, opened_status.st_ino)
+                    ):
+                        for control_path in (marker_path, metadata_path):
+                            if control_path.is_symlink() or not control_path.is_dir():
+                                control_path.unlink(missing_ok=True)
+                            else:
+                                remove_owned_tree(control_path)
+                        atomic_json(marker_path, expected_marker)
+                        atomic_json(metadata_path, control_metadata)
+                finally:
+                    os.fchmod(descriptor, original_mode)
         finally:
             os.close(descriptor)
 
