@@ -68,10 +68,10 @@ leases; it never acts as `down` or touches persistent state, scenarios, builds,
 profiles, or source.
 For a scope-owned topology, clean `down` is followed by the scope's fresh
 release preview and hash-bound apply. The exact stopped topology record remains
-under the separate cleanup lifecycle, but its released runtime/state/port
-coordinates do not pin the owning scope's profile or worktree. A mismatched
-profile, live/unreachable control, retained generation/state, or unrelated
-reference still blocks release.
+under the separate cleanup lifecycle. Only current matching regular spec/status
+records with a control-requested clean shutdown and released runtime/state/port
+coordinates stop pinning the owning scope. Stale, historical, mismatched,
+live/unreachable, retained, or unrelated evidence blocks release.
 The wrapper uses a short generation-derived endpoint in the shared workspace
 and binds both process-tree and immutable runtime-bundle leases to the exact
 generation and file identities. Missing, replaced, linked, or malformed

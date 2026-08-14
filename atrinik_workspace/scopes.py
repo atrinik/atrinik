@@ -1205,10 +1205,16 @@ class ScopeLifecycle:
         return requests
 
     def _release_plan(self, record: dict[str, Any]) -> dict[str, Any]:
-        from .workspace import BUILD_METADATA, _is_clean, git
+        from .workspace import (
+            BUILD_METADATA,
+            TOPOLOGY_STATUS_SCHEMA_VERSION,
+            _is_clean,
+            git,
+        )
 
         items: list[dict[str, Any]] = []
         allowed_topology_reference: str | None = None
+        topology_evidence: dict[str, int | str] = {}
         topology_path = Path(record["topology"]["path"])
         if topology_path.exists() or topology_path.is_symlink():
             try:
@@ -1239,11 +1245,180 @@ class ScopeLifecycle:
                     reasons = ["live_topology"]
                 elif retained or retained_state:
                     reasons = ["retained_generation"]
+                elif (
+                    status.get("schema_version") != TOPOLOGY_STATUS_SCHEMA_VERSION
+                    or status.get("supervisor", {}).get("liveness") != "exited"
+                    or any(
+                        service.get("liveness") != "exited"
+                        for service in status.get("services", {}).values()
+                    )
+                ):
+                    reasons = ["unproven_clean_topology_stop"]
                 else:
-                    reasons = ["stopped_topology_history_retained"]
+                    spec_path = topology_path / "spec.json"
+                    status_path = topology_path / "status.json"
+                    spec_before = spec_path.stat(follow_symlinks=False)
+                    status_before = status_path.stat(follow_symlinks=False)
+                    spec_sha256 = _file_sha256(spec_path)
+                    status_sha256 = _file_sha256(status_path)
+                    spec = load_regular_json(spec_path, "scope topology spec")
+                    persisted = load_regular_json(
+                        status_path, "scope topology status"
+                    )
+                    spec_after = spec_path.stat(follow_symlinks=False)
+                    status_after = status_path.stat(follow_symlinks=False)
+                    records_stable = (
+                        (spec_before.st_dev, spec_before.st_ino)
+                        == (spec_after.st_dev, spec_after.st_ino)
+                        and (status_before.st_dev, status_before.st_ino)
+                        == (status_after.st_dev, status_after.st_ino)
+                        and spec_sha256 == _file_sha256(spec_path)
+                        and status_sha256 == _file_sha256(status_path)
+                    )
+                    common = (
+                        "schema_version",
+                        "name",
+                        "profile",
+                        "stack",
+                        "providers",
+                        "dependencies",
+                        "state",
+                        "build_root",
+                        "resolved",
+                        "control",
+                        "runtime",
+                    )
+                    spec_endpoint = (
+                        spec.get("endpoint") if isinstance(spec, dict) else None
+                    )
+                    persisted_endpoint = (
+                        persisted.get("endpoint")
+                        if isinstance(persisted, dict)
+                        else None
+                    )
+                    endpoint_matches = (
+                        spec_endpoint is None
+                        and persisted_endpoint is None
+                        or isinstance(spec_endpoint, dict)
+                        and isinstance(persisted_endpoint, dict)
+                        and {
+                            key: persisted_endpoint.get(key)
+                            for key in ("host", "port")
+                        }
+                        == {
+                            key: spec_endpoint.get(key)
+                            for key in ("host", "port")
+                        }
+                    )
+                    spec_policy = (
+                        spec.get("state_policy")
+                        if isinstance(spec, dict)
+                        else None
+                    )
+                    persisted_policy = (
+                        persisted.get("state_policy")
+                        if isinstance(persisted, dict)
+                        else None
+                    )
+                    policy_matches = spec_policy == persisted_policy
+                    if isinstance(spec_policy, dict) and isinstance(
+                        persisted_policy, dict
+                    ):
+                        policy_matches = all(
+                            spec_policy.get(key) == persisted_policy.get(key)
+                            for key in set(spec_policy) | set(persisted_policy)
+                            if key not in {"lifecycle", "name"}
+                        )
+                    observation = status.get("observation", {})
+                    shutdown = status.get("shutdown")
+                    observed_port = observation.get("port_reservation")
+                    port_released = observed_port is None or (
+                        isinstance(observed_port, dict)
+                        and observed_port.get("lease") == "released"
+                    )
+                    records_match = (
+                        records_stable
+                        and isinstance(spec, dict)
+                        and isinstance(persisted, dict)
+                        and all(key in spec and key in persisted for key in common)
+                        and all(spec.get(key) == persisted.get(key) for key in common)
+                        and spec.get("schema_version")
+                        == TOPOLOGY_STATUS_SCHEMA_VERSION
+                        and spec.get("name") == record["topology"]["name"]
+                        and spec.get("profile") == record["profile"]["name"]
+                        and isinstance(spec.get("services"), dict)
+                        and isinstance(persisted.get("services"), dict)
+                        and set(spec["services"]) == set(persisted["services"])
+                        and "endpoint" in spec
+                        and "endpoint" in persisted
+                        and endpoint_matches
+                        and ("state_policy" in spec)
+                        == ("state_policy" in persisted)
+                        and all(
+                            (key in spec) == (key in persisted)
+                            and spec.get(key) == persisted.get(key)
+                            for key in ("port_reservation", "sound")
+                        )
+                        and policy_matches
+                    )
+                    stopped_cleanly = (
+                        isinstance(persisted, dict)
+                        and isinstance(persisted.get("stopped_at"), str)
+                        and bool(persisted["stopped_at"])
+                        and persisted.get("error") is None
+                        and shutdown
+                        == {"control_requested": True, "clean": True}
+                        and status.get("shutdown") == shutdown
+                        and status.get("error") is None
+                        and observation.get("process_tree_lease") == "released"
+                        and observation.get("runtime_bundle_lease") == "released"
+                        and port_released
+                        and all(
+                            not service.get("running")
+                            and service.get("status") == "exited"
+                            for service in status.get("services", {}).values()
+                        )
+                    )
+                    state_disposed = (
+                        not isinstance(state_policy, dict)
+                        or state_policy.get("mode") != "temporary"
+                        or state_policy.get("lifecycle") in {"removed", "promoted"}
+                    )
+                    clean = records_match and stopped_cleanly and state_disposed
+                    if clean:
+                        topology_evidence = {
+                            "spec_device": spec_after.st_dev,
+                            "spec_inode": spec_after.st_ino,
+                            "spec_sha256": spec_sha256,
+                            "status_device": status_after.st_dev,
+                            "status_inode": status_after.st_ino,
+                            "status_sha256": status_sha256,
+                        }
+                    reasons = (
+                        ["stopped_topology_history_retained"]
+                        if clean
+                        else [
+                            "unproven_clean_topology_stop",
+                            *(
+                                []
+                                if records_match
+                                else ["mismatched_topology_records"]
+                            ),
+                            *(
+                                []
+                                if stopped_cleanly
+                                else ["unclean_topology_shutdown"]
+                            ),
+                            *(
+                                []
+                                if state_disposed
+                                else ["retained_temporary_state"]
+                            ),
+                        ]
+                    )
                 disposition = (
                     "protected"
-                    if profile_mismatch or running or unreachable or retained or retained_state
+                    if reasons != ["stopped_topology_history_retained"]
                     else "retained"
                 )
                 if disposition == "retained":
@@ -1254,7 +1429,13 @@ class ScopeLifecycle:
                 reasons = [f"unreachable_topology:{error}"]
                 disposition = "protected"
             items.append(
-                {"kind": "topology", "path": str(topology_path), "disposition": disposition, "reasons": reasons}
+                {
+                    "kind": "topology",
+                    "path": str(topology_path),
+                    "disposition": disposition,
+                    "reasons": reasons,
+                    **topology_evidence,
+                }
             )
         else:
             items.append(
@@ -1348,6 +1529,7 @@ class ScopeLifecycle:
         for row in record["worktrees"]:
             path = Path(row["path"])
             reasons: list[str] = []
+            branch_head: str | None = None
             if path.exists() or path.is_symlink():
                 if path.is_symlink() or not path.is_dir():
                     reasons.append("replaced_path")
@@ -1382,10 +1564,51 @@ class ScopeLifecycle:
                         reasons.append(f"ambiguous_git_state:{error}")
                 disposition = "protected" if reasons else "eligible"
             else:
-                disposition = "absent"
-                reasons.append("already_removed")
+                try:
+                    branch_head = git(
+                        Path(row["primary_path"]),
+                        "for-each-ref",
+                        "--format=%(objectname)",
+                        f"refs/heads/{row['branch']}",
+                        capture=True,
+                        trace=False,
+                    )
+                    if branch_head and branch_head != row["commit"]:
+                        disposition = "protected"
+                        reasons.append("changed_scope_branch")
+                    else:
+                        unexpected = [
+                            reference
+                            for reference in self.workspace._source_references(path)
+                            if reference != f"profile:{record['profile']['name']}"
+                            and reference != record["profile"]["name"]
+                            and reference != f"scope:{record['name']}"
+                            and reference != allowed_topology_reference
+                        ]
+                        if unexpected:
+                            disposition = "protected"
+                            reasons.append(
+                                "unexpected_references:" + ",".join(unexpected)
+                            )
+                        else:
+                            disposition = "absent"
+                            reasons.append(
+                                "worktree_removed_branch_pending"
+                                if branch_head
+                                else "already_removed"
+                            )
+                except (OSError, WorkspaceError) as error:
+                    disposition = "protected"
+                    reasons.append(f"ambiguous_scope_branch:{error}")
             items.append(
-                {"kind": "worktree", "checkout": row["checkout"], "path": str(path), "disposition": disposition, "reasons": reasons or ["scope_owned_clean_exact"]}
+                {
+                    "kind": "worktree",
+                    "checkout": row["checkout"],
+                    "path": str(path),
+                    "branch_head": branch_head,
+                    "disposition": disposition,
+                    "reasons": reasons or ["scope_owned_clean_exact"],
+                }
             )
 
         identity = {
@@ -1452,6 +1675,7 @@ class ScopeLifecycle:
                 root,
                 expected_identity={"device": item["device"], "inode": item["inode"]},
             )
+            self._maybe_fail(f"release:build-tree:{root.name}")
             action = f"build:{item['path']}"
             if action not in journal["completed"]:
                 journal["completed"].append(action)
@@ -1460,7 +1684,10 @@ class ScopeLifecycle:
             self._maybe_fail(f"release:build:{root.name}")
 
         profile_path = Path(record["profile"]["path"])
-        if any(item["kind"] == "profile" and item["disposition"] == "eligible" for item in plan["items"]):
+        profile_item = next(
+            item for item in plan["items"] if item["kind"] == "profile"
+        )
+        if profile_item["disposition"] == "eligible":
             if (
                 profile_path.is_symlink()
                 or not profile_path.is_file()
@@ -1476,6 +1703,8 @@ class ScopeLifecycle:
             ):
                 raise WorkspaceError("scope profile changed during release")
             profile_path.unlink()
+            self._maybe_fail("release:profile-file")
+        if profile_item["disposition"] in {"eligible", "absent"}:
             self.workspace._remove_physical_reference(profile_path)
             if "profile" not in journal["completed"]:
                 journal["completed"].append("profile")
@@ -1490,37 +1719,52 @@ class ScopeLifecycle:
         }
         for row in reversed(record["worktrees"]):
             item = by_checkout[row["checkout"]]
-            if item["disposition"] != "eligible":
+            if item["disposition"] not in {"eligible", "absent"}:
                 continue
             path = Path(row["path"])
-            if path.is_symlink() or not path.is_dir():
-                raise WorkspaceError(f"scope worktree changed during release: {path}")
-            identity = path.stat(follow_symlinks=False)
-            if (
-                (identity.st_dev, identity.st_ino)
-                != (row["path_device"], row["path_inode"])
-                or self.workspace._git_common_directory(path, trace=False)
-                != Path(row["common_git_dir"])
-                or git(path, "rev-parse", "HEAD", capture=True, trace=False)
-                != row["commit"]
-                or git(path, "branch", "--show-current", capture=True, trace=False)
-                != row["branch"]
-            ):
-                raise WorkspaceError(f"scope worktree changed during release: {path}")
-            from .workspace import _is_clean
-
-            if not _is_clean(path):
-                raise WorkspaceError(f"scope worktree became dirty during release: {path}")
-            if [
-                reference
-                for reference in self.workspace._source_references(path)
-                if reference != f"scope:{record['name']}"
-                and reference != f"topology:{record['topology']['name']}"
-            ]:
-                raise WorkspaceError(f"scope worktree became referenced during release: {path}")
             primary = Path(row["primary_path"])
-            git(primary, "worktree", "remove", str(path), trace=False)
-            git(primary, "branch", "-d", row["branch"], trace=False)
+            if item["disposition"] == "eligible":
+                if path.is_symlink() or not path.is_dir():
+                    raise WorkspaceError(f"scope worktree changed during release: {path}")
+                identity = path.stat(follow_symlinks=False)
+                if (
+                    (identity.st_dev, identity.st_ino)
+                    != (row["path_device"], row["path_inode"])
+                    or self.workspace._git_common_directory(path, trace=False)
+                    != Path(row["common_git_dir"])
+                    or git(path, "rev-parse", "HEAD", capture=True, trace=False)
+                    != row["commit"]
+                    or git(path, "branch", "--show-current", capture=True, trace=False)
+                    != row["branch"]
+                ):
+                    raise WorkspaceError(f"scope worktree changed during release: {path}")
+                from .workspace import _is_clean
+
+                if not _is_clean(path):
+                    raise WorkspaceError(f"scope worktree became dirty during release: {path}")
+                if [
+                    reference
+                    for reference in self.workspace._source_references(path)
+                    if reference != f"scope:{record['name']}"
+                    and reference != f"topology:{record['topology']['name']}"
+                ]:
+                    raise WorkspaceError(f"scope worktree became referenced during release: {path}")
+                git(primary, "worktree", "remove", str(path), trace=False)
+                self._maybe_fail(f"release:worktree-path:{row['checkout']}")
+            branch_head = git(
+                primary,
+                "for-each-ref",
+                "--format=%(objectname)",
+                f"refs/heads/{row['branch']}",
+                capture=True,
+                trace=False,
+            )
+            if branch_head:
+                if branch_head != row["commit"]:
+                    raise WorkspaceError(
+                        f"scope branch changed during release: {row['branch']}"
+                    )
+                git(primary, "branch", "-d", row["branch"], trace=False)
             action = f"worktree:{row['checkout']}"
             if action not in journal["completed"]:
                 journal["completed"].append(action)

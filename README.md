@@ -677,12 +677,14 @@ detached, replaced, ambiguously owned, or unexpectedly referenced worktree,
 changed profile, or uncertain build root. Named and default persistent state
 is always retained. Stopped topology history remains owned by the separate
 topology-cleanup lifecycle; its exact stopped scope-owned reference does not
-prevent release after all runtime, port, and state leases are released. A
-mismatched or unrelated topology reference still fails closed. Release
-journals its initial publication and every build, profile, worktree, and final
-completion boundary. After interruption, run a fresh preview and resume with
-that new digest; completed removals are not repeated. The completed scope
-record and release journal are retained as recovery evidence and remain
+prevent release only when current regular spec/status records bind the same
+profile, generation, and resolved coordinates and prove a control-requested
+clean shutdown with released runtime, port, and state leases. Stale, historical,
+mismatched, or unrelated records fail closed. Release journals initial,
+destructive-substep, build, profile, worktree, and final completion boundaries.
+After interruption, run a fresh preview and resume with that new digest;
+completed removals and exact pending reference/branch cleanup are recovered.
+The completed scope record and release journal remain recovery evidence and
 available to bounded, secret-free shell completion.
 
 ## Checkout worktrees

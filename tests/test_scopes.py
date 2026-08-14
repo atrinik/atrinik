@@ -589,6 +589,24 @@ class ScopeLifecycleTests(unittest.TestCase):
 
             stopped_b = self.stop_topology_after_guardian_handoff(names[1])
             self.assertFalse(stopped_b["supervisor"]["running"])
+            spec_path = Path(scopes[1]["topology"]["path"]) / "spec.json"
+            spec = json.loads(spec_path.read_text(encoding="utf-8"))
+            divergent = copy.deepcopy(spec)
+            coordinate = next(iter(divergent["resolved"].values()))
+            coordinate["checkout_path"] = scopes[0]["worktrees"][0]["path"]
+            atomic_json(spec_path, divergent)
+            divergent_preview = self.workspace.scope_release(
+                scopes[1]["name"], apply=False
+            )
+            self.assertIn(
+                "unproven_clean_topology_stop",
+                next(
+                    item
+                    for item in divergent_preview["items"]
+                    if item["kind"] == "topology"
+                )["reasons"],
+            )
+            atomic_json(spec_path, spec)
             released_b = self.release_scope(scopes[1]["name"])
             self.assertTrue(released_b["released"])
 
@@ -930,7 +948,16 @@ class ScopeLifecycleTests(unittest.TestCase):
     def test_every_release_publication_boundary_recovers_from_interruption(self) -> None:
         self.make_checkout("client")
         for index, boundary_kind in enumerate(
-            ("journal", "build", "profile", "worktree", "complete")
+            (
+                "journal",
+                "build-tree",
+                "build",
+                "profile-file",
+                "profile",
+                "worktree-path",
+                "worktree",
+                "complete",
+            )
         ):
             name = f"release-boundary-{index}"
             record = self.workspace.scope_create(["client"], name=name)
@@ -945,8 +972,11 @@ class ScopeLifecycleTests(unittest.TestCase):
             )
             expected = {
                 "journal": "release:journal",
+                "build-tree": f"release:build-tree:{root.name}",
                 "build": f"release:build:{root.name}",
+                "profile-file": "release:profile-file",
                 "profile": "release:profile",
+                "worktree-path": "release:worktree-path:client",
                 "worktree": "release:worktree:client",
                 "complete": "release:complete",
             }[boundary_kind]
@@ -986,6 +1016,22 @@ class ScopeLifecycleTests(unittest.TestCase):
             self.assertFalse(root.exists())
             self.assertFalse(Path(record["profile"]["path"]).exists())
             self.assertFalse(Path(record["worktrees"][0]["path"]).exists())
+            self.assertFalse(
+                any(
+                    reference.get("reference") == profile
+                    for reference in self.workspace._physical_reference_records()
+                )
+            )
+            self.assertEqual(
+                command(
+                    "git",
+                    "for-each-ref",
+                    "--format=%(objectname)",
+                    f"refs/heads/{record['worktrees'][0]['branch']}",
+                    cwd=Path(record["worktrees"][0]["primary_path"]),
+                ),
+                "",
+            )
 
     def test_release_removes_only_exact_scope_build_ownership(self) -> None:
         self.make_checkout("client")
@@ -1148,6 +1194,47 @@ class ScopeLifecycleTests(unittest.TestCase):
             next(item for item in preview["items"] if item["kind"] == "topology")["reasons"],
         )
 
+        for name, status in (
+            (
+                "stale",
+                {
+                    "schema_version": 3,
+                    "profile": "scope-stale",
+                    "supervisor": {"running": False, "liveness": "stale"},
+                    "services": {},
+                    "observation": {
+                        "process_tree_lease": "released",
+                        "runtime_bundle_lease": "released",
+                    },
+                },
+            ),
+            (
+                "historical",
+                {
+                    "schema_version": 1,
+                    "profile": "scope-historical",
+                    "supervisor": {"running": False, "liveness": "exited"},
+                    "services": {},
+                    "observation": {
+                        "process_tree_lease": "released",
+                        "runtime_bundle_lease": "historical",
+                    },
+                },
+            ),
+        ):
+            record = self.workspace.scope_create(["client"], name=name)
+            Path(record["topology"]["path"]).mkdir()
+            with mock.patch.object(
+                self.workspace, "topology_status", return_value=status
+            ):
+                preview = self.workspace.scope_release(name, apply=False)
+            self.assertIn(
+                "unproven_clean_topology_stop",
+                next(
+                    item for item in preview["items"] if item["kind"] == "topology"
+                )["reasons"],
+            )
+
         busy = self.workspace.scope_create(["client"], name="busy")
         row = busy["worktrees"][0]
         request = self.workspace._lease_request(
@@ -1204,73 +1291,131 @@ class ScopeLifecycleTests(unittest.TestCase):
             "provisions": 0,
             "observations": 0,
             "releases": 0,
+            "release_conflicts": 0,
         }
+        coordination_lock = threading.Lock()
         secret = "scope-stress-secret-must-not-leak"
         with mock.patch.dict(os.environ, {"ATRINIK_SCOPE_STRESS_SENTINEL": secret}):
             for repetition in range(6):
                 names = [f"stress-{repetition}-{suffix}" for suffix in ("a", "b")]
+                records: dict[str, dict[str, object]] = {}
+                provisioned = threading.Barrier(2)
+                operation_step = threading.Barrier(2)
+                operation_progress = [threading.Event() for _ in range(4)]
+                release_start = threading.Barrier(2)
+                release_progress = threading.Event()
 
-                def create(name: str) -> dict[str, object]:
+                def lifecycle(name: str) -> dict[str, object]:
                     workspace = Workspace(self.wrapper)
                     try:
-                        return workspace.scope_create(["client"], name=name)
+                        record = workspace.scope_create(["client"], name=name)
+                        with coordination_lock:
+                            records[name] = record
+                            coordination["provisions"] += 1
+                        provisioned.wait(timeout=10)
+                        other = next(
+                            candidate
+                            for candidate_name, candidate in records.items()
+                            if candidate_name != name
+                        )
+                        operations = [
+                            "show",
+                            "path",
+                            "preview",
+                            "mutation-proof",
+                        ]
+                        random.Random(
+                            404_000 + repetition * 10 + names.index(name)
+                        ).shuffle(operations)
+                        for step, operation in enumerate(operations):
+                            operation_step.wait(timeout=10)
+                            if operation == "show":
+                                self.assertEqual(workspace.scope_show(name), record)
+                            elif operation == "path":
+                                self.assertEqual(
+                                    workspace.component_path(
+                                        "client", record["profile"]["name"]
+                                    ),
+                                    Path(record["worktrees"][0]["path"]),
+                                )
+                            elif operation == "preview":
+                                while True:
+                                    try:
+                                        self.assertTrue(
+                                            workspace.scope_release(
+                                                name, apply=False
+                                            )["can_apply"]
+                                        )
+                                        break
+                                    except WorkspaceError as error:
+                                        if "active resource leases" not in str(error):
+                                            raise
+                                        with coordination_lock:
+                                            coordination["release_conflicts"] += 1
+                                        if not operation_progress[step].wait(
+                                            timeout=10
+                                        ):
+                                            self.fail(
+                                                "scope preview made no bounded progress"
+                                            )
+                            else:
+                                path = Path(record["worktrees"][0]["path"])
+                                other_path = Path(other["worktrees"][0]["path"])
+                                probe = path / f"scope-{name}.probe"
+                                probe.write_text(name, encoding="utf-8")
+                                self.assertFalse((other_path / probe.name).exists())
+                                self.assertEqual(
+                                    probe.read_text(encoding="utf-8"), name
+                                )
+                                probe.unlink()
+                            with coordination_lock:
+                                coordination["observations"] += 1
+                            operation_progress[step].set()
+
+                        release_start.wait(timeout=10)
+                        while True:
+                            try:
+                                preview = workspace.scope_release(name, apply=False)
+                                workspace.scope_release(
+                                    name,
+                                    apply=True,
+                                    plan_sha256=preview["plan_sha256"],
+                                )
+                                release_progress.set()
+                                with coordination_lock:
+                                    coordination["releases"] += 1
+                                break
+                            except WorkspaceError as error:
+                                if "active resource leases" not in str(error):
+                                    raise
+                                with coordination_lock:
+                                    coordination["release_conflicts"] += 1
+                                if not release_progress.wait(timeout=10):
+                                    self.fail(
+                                        "disjoint scope release made no bounded progress"
+                                    )
+                        return record
                     finally:
                         workspace.close()
 
                 with ThreadPoolExecutor(max_workers=2) as executor:
-                    futures = [executor.submit(create, name) for name in names]
-                    records = [future.result(timeout=20) for future in futures]
-                coordination["provisions"] += len(records)
+                    futures = [executor.submit(lifecycle, name) for name in names]
+                    completed = [future.result(timeout=30) for future in futures]
                 self.assertEqual(
-                    len({record["worktrees"][0]["path"] for record in records}),
+                    len(
+                        {
+                            record["worktrees"][0]["path"]
+                            for record in completed
+                        }
+                    ),
                     2,
                 )
 
-                operations: list[tuple[str, dict[str, object]]] = [
-                    (operation, record)
-                    for record in records
-                    for operation in ("show", "path", "preview", "mutation-proof")
-                ]
-                random.Random(404_000 + repetition).shuffle(operations)
-                for operation, record in operations:
-                    if operation == "show":
-                        self.assertEqual(
-                            self.workspace.scope_show(record["name"]), record
-                        )
-                    elif operation == "path":
-                        self.assertEqual(
-                            self.workspace.component_path(
-                                "client", record["profile"]["name"]
-                            ),
-                            Path(record["worktrees"][0]["path"]),
-                        )
-                    elif operation == "preview":
-                        self.assertTrue(
-                            self.workspace.scope_release(
-                                record["name"], apply=False
-                            )["can_apply"]
-                        )
-                    else:
-                        path = Path(record["worktrees"][0]["path"])
-                        other = next(
-                            Path(candidate["worktrees"][0]["path"])
-                            for candidate in records
-                            if candidate["name"] != record["name"]
-                        )
-                        probe = path / f"scope-{record['name']}.probe"
-                        probe.write_text(record["name"], encoding="utf-8")
-                        self.assertFalse((other / probe.name).exists())
-                        self.assertEqual(probe.read_text(encoding="utf-8"), record["name"])
-                        probe.unlink()
-                    coordination["observations"] += 1
-
-                random.Random(404_100 + repetition).shuffle(records)
-                for record in records:
-                    self.assertTrue(self.release_scope(record["name"])["released"])
-                    coordination["releases"] += 1
-
         self.assertEqual(
-            coordination,
+            {
+                key: coordination[key]
+                for key in ("provisions", "observations", "releases")
+            },
             {"provisions": 12, "observations": 48, "releases": 12},
         )
         self.assertEqual(self.workspace.paths.marker.read_bytes(), workspace_marker)

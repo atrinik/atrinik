@@ -58,10 +58,9 @@ remain supported. Release only with the freshly previewed plan digest:
 ./atrinik scope release REVIEW --apply --plan PLAN_SHA256 --json
 ```
 
-Release never stops topologies or deletes persistent state. After `down`, exact
-stopped scope history permits release; mismatched or uncertain references fail
-closed. Interrupted journaled actions are retained: preview again, apply the
-new digest, and resume completed actions.
+Release never stops topologies or deletes persistent state. Exact
+clean-down history permits release. Interrupted substeps resume after a fresh
+preview/digest; uncertainty fails closed and journals remain.
 
 Reclaim review data only through preview-first cleanup:
 
@@ -74,7 +73,7 @@ Reclaim review data only through preview-first cleanup:
 
 Repeat a scoped command with `--apply` after review. Defaults cover worktrees
 and builds; caches and topology history are opt-in, and `all` excludes
-topologies. Reclaim only stopped, released, marker-owned records; uncertainty
+topologies. Reclaim only stopped, released, exact marker-owned records; uncertainty
 fails closed. Apply sound-cache before its worktree. See `README.md` and
 `docs/ARCHITECTURE.md` for historical proof and apply-time revalidation.
 
@@ -98,17 +97,18 @@ pin snapshots before releasing primaries; caches use snapshot identity. Live
 inputs retain leases; cleanup owns interrupted staging.
 
 Lease order is registry, profile, Git-admin, source, topology/scenario, state,
-build, cache. Writers gate matching coordinates; multi-source writers retry
-all-or-none. Only migration takes the barrier exclusively. Published runtimes
-retain generation, process-tree, state, and port leases. Incomplete coordinates
-are inert; wrapper owns generated resources and cleanup. Completion is bounded,
-local, read-only, secret-free, parser-driven before `Workspace`, and stops at
-`--` or a `run` remainder.
+build, cache. Writers gate matching coordinates; physical leases span state
+roots and multi-source writers retry all-or-none. Only migration takes the
+barrier exclusively. Published runtimes retain sealed generation, process-tree,
+state, and port leases, not preparation leases. Fail closed without sharing.
+Incomplete coordinates are inert; wrapper owns paths, locks, state, PIDs, logs,
+content/resources and cleanup. Completion is bounded, local, read-only,
+secret-free and parser-driven before `Workspace`; stops at `--` or a `run`
+remainder.
 
-Concurrency verification composes returned scope commands: use distinct
-worktrees of one checkout, rendezvous on observable build/readiness markers,
-keep A live through B's release, then release A. Count ownership transitions
-and conflicts; timeouts bound failure, not compiler speed.
+Verify concurrency with distinct worktrees, observable build/readiness
+rendezvous, and A live through B's release. Count ownership transitions and
+conflicts; timeouts bound failure, not compiler speed.
 
 For classic execution load `atrinik-server-runtime`; for a ready character also
 load `atrinik-test-scenario`. Never handcraft saves or expose credentials. Give
@@ -116,7 +116,7 @@ concurrent topologies distinct names and state; prefer temporary state.
 
 ## Validate and hand off
 
-Use concrete names and wrapper-native lifecycle commands:
+Use wrapper-native commands and concrete lifecycle names:
 
 ```sh
 ./atrinik profile show PROFILE
@@ -126,12 +126,12 @@ Use concrete names and wrapper-native lifecycle commands:
 ./atrinik ps TOPOLOGY --json
 ./atrinik logs TOPOLOGY [server|client] --follow
 ./atrinik down TOPOLOGY
-./atrinik scope release SCOPE --dry-run --json
-./atrinik scope release SCOPE --apply --plan PLAN_SHA256 --json
 ```
 
-Record prerequisites, results, and cleanup. Do not substitute internal paths
-for wrapper operations.
+Record prerequisites, actions, expected results, and cleanup. If runtime is
+irrelevant, hand off applicable build/test/inspection commands. Do not
+substitute internal executables or generated paths for supported wrapper
+operations.
 
 ## Coordinate publication and policy
 
