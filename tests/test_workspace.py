@@ -963,6 +963,10 @@ class WorkspaceTests(unittest.TestCase):
             "import os, pathlib, socket, sys, time\n"
             "port = int(next(value.split('=', 1)[1] for value in sys.argv "
             "if value.startswith('--port_quic=')))\n"
+            "datapath = pathlib.Path(next(value.split('=', 1)[1] for value in "
+            "sys.argv if value.startswith('--datapath=')))\n"
+            "(datapath / 'rendezvous-state-proof').write_text('pinned\\n', "
+            "encoding='utf-8')\n"
             f"rendezvous = pathlib.Path({str(rendezvous)!r})\n"
             f"marker = rendezvous / {marker!r}\n"
             "udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)\n"
@@ -9746,6 +9750,7 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("'--port_quic=17300'", server_log.read_text())
         self.assertIn("'--port_mapping=off'", server_log.read_text())
         self.assertIn("'--stun_server=off'", server_log.read_text())
+        self.assertRegex(server_log.read_text(), r"'--datapath=/proc/self/fd/\d+'")
         self.assertIn(
             f"'--assetspath={mutable_asset_output}'", server_log.read_text()
         )
@@ -10048,7 +10053,26 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(first["state_policy"]["lifecycle"], "disposable")
         self.assertEqual(first["state"], str(first_path))
         self.assertTrue(first_path.is_dir())
+        self.assertEqual(
+            (first_path / "rendezvous-state-proof").read_text(encoding="utf-8"),
+            "pinned\n",
+        )
         self.assertNotIn(str(first_path), self.workspace._load_states().values())
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.remove_owned_tree",
+                side_effect=WorkspaceError("simulated removal interruption"),
+            ),
+            self.assertRaisesRegex(WorkspaceError, "simulated removal interruption"),
+        ):
+            self.workspace.topology_down("temporary-clean", timeout=5)
+        self.assertEqual(
+            self.workspace.topology_status("temporary-clean")["state_policy"][
+                "lifecycle"
+            ],
+            "removal-pending",
+        )
+        self.assertTrue(first_path.is_dir())
         stopped = self.workspace.topology_down("temporary-clean", timeout=5)
         self.assertEqual(stopped["state_policy"]["lifecycle"], "removed")
         self.assertFalse(first_path.exists())
@@ -10066,6 +10090,31 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(stopped["state_policy"]["lifecycle"], "retained")
         self.assertTrue(retained_path.is_dir())
+        with (
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "retains temporary generation state"
+            ),
+        ):
+            self.workspace.topology_up(
+                "temporary-retained", "default", None, ["server"], 0
+            )
+        with mock.patch("builtins.print") as output:
+            self.workspace.topology_logs(
+                "temporary-retained", "server", 1, False
+            )
+        policy_header = output.call_args_list[0].args[0]
+        self.assertIn("state-policy mode=temporary", policy_header)
+        self.assertIn("lifecycle=retained", policy_header)
+        self.assertIn(str(retained_path), policy_header)
+        self.assertEqual(
+            load_json(
+                retained_path / workspace_module.TEMPORARY_STATE_METADATA
+            )["state_policy"]["lifecycle"],
+            "disposable",
+        )
         self.assertEqual(
             self.workspace.topology_down("temporary-retained", timeout=5)[
                 "state_policy"
@@ -10117,6 +10166,60 @@ class WorkspaceTests(unittest.TestCase):
             promoted,
         )
 
+        (rendezvous / "temporary.bound").unlink()
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            retry = self.workspace.topology_up(
+                "temporary-promotion-retry", "default", None, ["server"], 0
+            )
+        retry_path = Path(retry["state_policy"]["path"])
+        self.workspace.topology_down(
+            "temporary-promotion-retry", timeout=5, retain_state=True
+        )
+        write_policy = self.workspace._write_temporary_state_policy
+        writes = 0
+
+        def interrupt_after_registry(
+            topology: str,
+            current: dict[str, object],
+            policy: dict[str, object],
+        ) -> dict[str, object]:
+            nonlocal writes
+            writes += 1
+            if writes == 2:
+                raise WorkspaceError("simulated promoted-status interruption")
+            return write_policy(topology, current, policy)
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_write_temporary_state_policy",
+                side_effect=interrupt_after_registry,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "simulated promoted-status interruption"
+            ),
+        ):
+            self.workspace.state_promote(
+                "temporary-promotion-retry", "promoted-retry"
+            )
+        self.assertEqual(
+            self.workspace._state_location("promoted-retry"), retry_path
+        )
+        self.assertEqual(
+            self.workspace.topology_status("temporary-promotion-retry")[
+                "state_policy"
+            ]["lifecycle"],
+            "promotion-pending",
+        )
+        self.assertEqual(
+            self.workspace.state_promote(
+                "temporary-promotion-retry", "promoted-retry"
+            )["state_policy"]["lifecycle"],
+            "promoted",
+        )
+
     def test_temporary_topology_state_is_retained_after_supervisor_crash(self) -> None:
         source = self.workspace.paths.repositories / "server"
         (source / "tools").mkdir()
@@ -10135,6 +10238,14 @@ class WorkspaceTests(unittest.TestCase):
                 "temporary-crash", "default", None, ["server"], 0
             )
         state = Path(status["state_policy"]["path"])
+        live_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        live_item = next(
+            item for item in live_preview["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(live_item["disposition"], "protected")
+        self.assertIn("live_topology", live_item["reasons"])
         supervisor = status["supervisor"]
         pidfd = os.pidfd_open(supervisor["pid"])
         try:
@@ -10152,6 +10263,30 @@ class WorkspaceTests(unittest.TestCase):
         recovered = self.workspace.topology_down("temporary-crash", timeout=5)
         self.assertEqual(recovered["state_policy"]["lifecycle"], "disposable")
         self.assertTrue(state.is_dir())
+        state_lock = Path(f"{state}.lock")
+        saved_state_lock = state_lock.with_suffix(".saved-lock")
+        state_lock.rename(saved_state_lock)
+        missing_lease = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        missing_item = next(
+            item for item in missing_lease["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(missing_item["disposition"], "protected")
+        self.assertIn("state_lease_unverifiable", missing_item["reasons"])
+        state_lock.touch(mode=0o600)
+        replaced_lease = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        replaced_item = next(
+            item for item in replaced_lease["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(replaced_item["disposition"], "protected")
+        self.assertIn(
+            "state_lease_identity_mismatch", replaced_item["reasons"]
+        )
+        state_lock.unlink()
+        saved_state_lock.rename(state_lock)
         preview = self.workspace.cleanup(
             ["temporary-states"], 0, [], False
         )
@@ -10384,6 +10519,21 @@ class WorkspaceTests(unittest.TestCase):
     def test_state_paths_reject_links_and_incompatible_implementation_markers(self) -> None:
         server = self.workspace.paths.repositories / "server"
         state = self.workspace.state_path("default", server)
+        implementation = {
+            "stack": "classic",
+            "provider": "server",
+            "repository": "atrinik/server",
+        }
+        self.workspace.state_path(
+            "default",
+            server,
+            implementation=implementation,
+            write_implementation=True,
+        )
+        self.assertEqual(
+            load_json(state / workspace_module.STATE_IMPLEMENTATION_MARKER),
+            {"schema_version": 1, **implementation},
+        )
         atomic_json(
             state / workspace_module.STATE_IMPLEMENTATION_MARKER,
             {
@@ -10399,11 +10549,7 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace.state_path(
                 "default",
                 server,
-                implementation={
-                    "stack": "classic",
-                    "provider": "server",
-                    "repository": "atrinik/server",
-                },
+                implementation=implementation,
             )
 
         linked = self.root / "linked-state"
@@ -10464,6 +10610,17 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(credentials["account"], created["account"])
             self.assertEqual(credentials["character"], created["character"])
             self.assertTrue(credentials["password"])
+            scenario_summary = self.workspace.topology_summary(
+                "default", "scenario-issue-42", ["server"]
+            )
+            self.assertEqual(
+                scenario_summary["state_policy"]["owner"],
+                {"kind": "scenario", "name": "issue-42"},
+            )
+            self.assertEqual(
+                scenario_summary["state_policy"]["lifecycle"],
+                "scenario-owned",
+            )
 
             (state / "accounts").mkdir()
             reset = self.workspace.scenario_reset("issue-42")

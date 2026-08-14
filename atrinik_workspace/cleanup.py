@@ -3154,6 +3154,31 @@ class Cleanup:
         except OSError as error:
             return False, str(error)
 
+    @staticmethod
+    def _state_lock_observation(
+        path: Path,
+    ) -> tuple[bool, str | None, dict[str, int] | None]:
+        flags = os.O_RDWR | os.O_CLOEXEC
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        try:
+            descriptor = os.open(path, flags)
+            metadata = os.fstat(descriptor)
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
+                os.close(descriptor)
+                return False, f"state lock identity is invalid: {path}", None
+            identity = {"device": metadata.st_dev, "inode": metadata.st_ino}
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                os.close(descriptor)
+                return True, None, identity
+            fcntl.flock(descriptor, fcntl.LOCK_UN)
+            os.close(descriptor)
+            return False, None, identity
+        except OSError as error:
+            return False, str(error), None
+
     def _unmanaged_builds(self, registered: set[Path]) -> list[dict[str, Any]]:
         items: list[dict[str, Any]] = []
         roots: list[tuple[Path, list[Path]]] = []
@@ -3539,6 +3564,7 @@ class Cleanup:
         older_than_days: int,
         *,
         check_lock: bool = True,
+        held_lease_identity: dict[str, int] | None = None,
     ) -> dict[str, Any]:
         item = _base_item(
             "temporary-state", "atrinik", "atrinik/atrinik", path
@@ -3587,31 +3613,31 @@ class Cleanup:
             }:
                 raise WorkspaceError("temporary state ownership marker is invalid")
             record = load_json(path / TEMPORARY_STATE_METADATA)
-            policy = record.get("state_policy") if isinstance(record, dict) else None
+            creation_policy = (
+                record.get("state_policy") if isinstance(record, dict) else None
+            )
             if (
                 not isinstance(record, dict)
                 or record.get("schema_version") != TEMPORARY_STATE_SCHEMA_VERSION
-                or not isinstance(policy, dict)
-                or policy.get("mode") != "temporary"
-                or policy.get("path") != str(path)
-                or policy.get("owner")
+                or not isinstance(creation_policy, dict)
+                or creation_policy.get("mode") != "temporary"
+                or creation_policy.get("name") is not None
+                or creation_policy.get("lifecycle") != "disposable"
+                or creation_policy.get("path") != str(path)
+                or creation_policy.get("owner")
                 != {
                     "kind": "topology-generation",
                     "topology": topology_name,
                     "generation": generation,
                 }
-                or policy.get("identity")
+                or creation_policy.get("identity")
                 != {"device": metadata.st_dev, "inode": metadata.st_ino}
             ):
                 raise WorkspaceError("temporary state metadata is invalid")
             item["topology"] = topology_name
             item["generation"] = generation
-            item["state_policy"] = policy
-            lifecycle = policy.get("lifecycle")
-            if lifecycle in {"retained", "promotion-pending", "promoted"}:
-                item["reasons"].append(f"temporary_state_{lifecycle.replace('-', '_')}")
-            elif lifecycle != "disposable":
-                item["reasons"].append("invalid_temporary_state_lifecycle")
+            policy = creation_policy
+            observed_lease_identity = held_lease_identity
             registered = {
                 self.workspace._canonical_state_path(Path(value))
                 for value in self.workspace._load_states().values()
@@ -3619,33 +3645,101 @@ class Cleanup:
             if path in registered:
                 item["reasons"].append("registered_state")
             if check_lock:
-                busy, lock_error = self._lock_busy(Path(f"{path}.lock"))
-                if lock_error:
-                    item["reasons"].append("state_lease_error")
-                    item["error"] = lock_error
-                elif busy:
-                    item["reasons"].append("active_state_lease")
+                state_lock = Path(f"{path}.lock")
+                if not state_lock.exists() and not state_lock.is_symlink():
+                    item["reasons"].append("state_lease_unverifiable")
+                else:
+                    busy, lock_error, observed_lease_identity = (
+                        self._state_lock_observation(state_lock)
+                    )
+                    if lock_error:
+                        item["reasons"].append("state_lease_error")
+                        item["error"] = lock_error
+                    elif busy:
+                        item["reasons"].append("active_state_lease")
             status_path = topology / "status.json"
-            if status_path.exists() or status_path.is_symlink():
+            if not status_path.exists() and not status_path.is_symlink():
+                item["reasons"].append("topology_status_uncertain")
+            else:
                 try:
-                    if status_path.is_symlink() or not status_path.is_file():
-                        raise WorkspaceError("topology status is invalid")
-                    status = load_json(status_path)
-                    control = status.get("control") if isinstance(status, dict) else None
+                    status = self.workspace.topology_status(topology_name)
+                    control = status.get("control")
+                    observation = status.get("observation")
                     current_generation = (
                         control.get("generation")
                         if isinstance(control, dict)
                         else None
                     )
-                    if (
-                        isinstance(status, dict)
-                        and current_generation == generation
-                        and status.get("state_policy") != policy
-                    ):
-                        item["reasons"].append("topology_state_record_mismatch")
-                except (OSError, WorkspaceError) as error:
+                    if current_generation != generation:
+                        item["reasons"].append("topology_generation_mismatch")
+                    else:
+                        status_policy = status.get("state_policy")
+                        if not isinstance(status_policy, dict) or not (
+                            self.workspace._temporary_state_metadata_matches(
+                                status_policy, creation_policy
+                            )
+                        ):
+                            item["reasons"].append(
+                                "topology_state_record_mismatch"
+                            )
+                        else:
+                            policy = status_policy
+                            if (
+                                observed_lease_identity is None
+                                or status_policy.get("lease_identity")
+                                != observed_lease_identity
+                            ):
+                                item["reasons"].append(
+                                    "state_lease_identity_mismatch"
+                                )
+                        liveness = [
+                            status["supervisor"].get("liveness"),
+                            *(
+                                service.get("liveness")
+                                for service in status["services"].values()
+                            ),
+                        ]
+                        if any(value == "live" for value in liveness):
+                            item["reasons"].append("live_topology")
+                        if any(value == "unreachable" for value in liveness):
+                            item["reasons"].append("unreachable_topology")
+                        if not isinstance(observation, dict):
+                            item["reasons"].append(
+                                "topology_observation_unverifiable"
+                            )
+                        else:
+                            if observation.get("control") == "reachable":
+                                item["reasons"].append(
+                                    "reachable_topology_control"
+                                )
+                            if observation.get("process_tree_lease") != "released":
+                                item["reasons"].append(
+                                    "process_tree_lease_unverifiable"
+                                )
+                            if observation.get("runtime_bundle_lease") not in {
+                                "released",
+                                "historical",
+                            }:
+                                item["reasons"].append(
+                                    "runtime_bundle_lease_unverifiable"
+                                )
+                            port = observation.get("port_reservation")
+                            if port is not None and (
+                                not isinstance(port, dict)
+                                or port.get("lease") != "released"
+                            ):
+                                item["reasons"].append(
+                                    "port_reservation_lease_unverifiable"
+                                )
+                except (OSError, RuntimeError, WorkspaceError) as error:
                     item["reasons"].append("topology_status_uncertain")
                     item["error"] = str(error)
+            item["state_policy"] = policy
+            lifecycle = policy.get("lifecycle")
+            if lifecycle in {"retained", "promotion-pending", "promoted"}:
+                item["reasons"].append(f"temporary_state_{lifecycle.replace('-', '_')}")
+            elif lifecycle != "disposable":
+                item["reasons"].append("invalid_temporary_state_lifecycle")
             created = _parse_time(policy.get("created_at"), "temporary state created_at")
             age = max(0, int((self.now - created).total_seconds()))
             item["age_seconds"] = age
@@ -3685,9 +3779,23 @@ class Cleanup:
                 Path(f"{path}.lock"),
                 f"temporary topology state {path}",
                 nonblocking=True,
-            ):
+            ) as state_lease:
+                lease_metadata = os.fstat(state_lease.fileno())
+                if (
+                    not stat.S_ISREG(lease_metadata.st_mode)
+                    or lease_metadata.st_nlink != 1
+                ):
+                    raise WorkspaceError(
+                        f"temporary state lease identity is invalid: {path}.lock"
+                    )
                 current = self._temporary_state_item(
-                    path, older_than_days, check_lock=False
+                    path,
+                    older_than_days,
+                    check_lock=False,
+                    held_lease_identity={
+                        "device": lease_metadata.st_dev,
+                        "inode": lease_metadata.st_ino,
+                    },
                 )
                 if (
                     current.get("_identity") != item.get("_identity")

@@ -493,6 +493,7 @@ def supervise(
     process_tree_fd: int | None,
     port_reservation_fd: int | None,
     runtime_lock_fd: int | None = None,
+    state_directory_fd: int | None = None,
 ) -> int:
     with spec_path.open(encoding="utf-8") as stream:
         spec = json.load(stream)
@@ -548,6 +549,8 @@ def supervise(
         inherited_locks: list[int] = []
         if process_tree_fd is not None:
             inherited_locks.append(process_tree_fd)
+        if state_directory_fd is not None and name == "server":
+            inherited_locks.append(state_directory_fd)
         process = subprocess.Popen(
             command,
             cwd=service["cwd"],
@@ -597,6 +600,8 @@ def supervise(
                 port_reservation_fd,
             )
         )
+        if state_directory_fd is not None:
+            retained_fds = (*retained_fds, state_directory_fd)
         guardian_pid, guardian_write_fd = _start_guardian(
             process_tree_fd,
             *retained_fds,
@@ -709,6 +714,8 @@ def supervise(
             os.close(port_reservation_fd)
         if runtime_lock_fd is not None:
             os.close(runtime_lock_fd)
+        if state_directory_fd is not None:
+            os.close(state_directory_fd)
     return 0
 
 
@@ -721,12 +728,13 @@ def main() -> int:
     parser.add_argument("--process-tree-fd", type=int)
     parser.add_argument("--port-reservation-fd", type=int)
     parser.add_argument("--runtime-lock-fd", type=int)
+    parser.add_argument("--state-directory-fd", type=int)
     parser.add_argument("--daemonize", action="store_true")
     options = parser.parse_args()
     if options.daemonize and os.fork() != 0:
         return 0
     try:
-        return supervise(
+        arguments = (
             options.spec,
             options.lock_fd,
             options.layout_lock_fd,
@@ -734,6 +742,11 @@ def main() -> int:
             options.process_tree_fd,
             options.port_reservation_fd,
             options.runtime_lock_fd,
+        )
+        return (
+            supervise(*arguments, options.state_directory_fd)
+            if options.state_directory_fd is not None
+            else supervise(*arguments)
         )
     except BaseException as error:
         message = f"{type(error).__name__}: {error}"
@@ -770,6 +783,11 @@ def main() -> int:
         if options.runtime_lock_fd is not None:
             try:
                 os.close(options.runtime_lock_fd)
+            except OSError:
+                pass
+        if options.state_directory_fd is not None:
+            try:
+                os.close(options.state_directory_fd)
             except OSError:
                 pass
         return 1

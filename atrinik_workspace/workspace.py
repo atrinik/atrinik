@@ -8056,6 +8056,29 @@ class Workspace:
                 f"server state implementation does not match the selected server: {path}"
             )
 
+    @staticmethod
+    def _temporary_state_metadata_matches(
+        policy: dict[str, Any], creation_policy: object
+    ) -> bool:
+        """Match mutable lifecycle policy to its immutable creation record."""
+
+        immutable = {
+            "mode",
+            "path",
+            "owner",
+            "created_at",
+            "identity",
+            "implementation",
+            "server",
+        }
+        return bool(
+            isinstance(creation_policy, dict)
+            and set(creation_policy) == immutable | {"name", "lifecycle"}
+            and creation_policy.get("name") is None
+            and creation_policy.get("lifecycle") == "disposable"
+            and all(creation_policy.get(key) == policy.get(key) for key in immutable)
+        )
+
     def list_states(self) -> dict[str, str]:
         self.paths.ensure()
         states = self._load_states()
@@ -8115,6 +8138,25 @@ class Workspace:
                 raise
         self._validate_state(path)
         if implementation is not None:
+            marker = path / STATE_IMPLEMENTATION_MARKER
+            if write_implementation and not marker.exists() and not marker.is_symlink():
+                descriptor, temporary_name = tempfile.mkstemp(
+                    prefix=f".{STATE_IMPLEMENTATION_MARKER}.", dir=path
+                )
+                os.close(descriptor)
+                temporary = Path(temporary_name)
+                try:
+                    durable_atomic_json(
+                        temporary,
+                        {
+                            "schema_version": STATE_IMPLEMENTATION_SCHEMA_VERSION,
+                            **implementation,
+                        },
+                    )
+                    rename_no_replace(temporary, marker)
+                except BaseException:
+                    temporary.unlink(missing_ok=True)
+                    raise
             self._validate_state_implementation(path, implementation)
         (path / "tmp").mkdir(exist_ok=True)
         return path
@@ -8125,6 +8167,20 @@ class Workspace:
         path: Path,
         implementation: dict[str, str],
     ) -> dict[str, Any]:
+        owner, lifecycle = self._persistent_state_ownership(state_name, path)
+        return {
+            "mode": "default" if state_name == "default" else "named",
+            "name": state_name,
+            "path": str(path),
+            "owner": owner,
+            "lifecycle": lifecycle,
+            "identity": self._state_identity(path),
+            "implementation": implementation,
+        }
+
+    def _persistent_state_ownership(
+        self, state_name: str, path: Path
+    ) -> tuple[dict[str, str], str]:
         registered = self._load_states()
         scenario_root = self.paths.scenarios / state_name.removeprefix("scenario-")
         scenario_path = scenario_root / "state"
@@ -8141,15 +8197,7 @@ class Workspace:
         else:
             owner = {"kind": "external"}
             lifecycle = "persistent-external"
-        return {
-            "mode": "default" if state_name == "default" else "named",
-            "name": state_name,
-            "path": str(path),
-            "owner": owner,
-            "lifecycle": lifecycle,
-            "identity": self._state_identity(path),
-            "implementation": implementation,
-        }
+        return owner, lifecycle
 
     def _temporary_state_container(self, topology_root: Path) -> Path:
         container = topology_root / "temporary-states"
@@ -8338,20 +8386,15 @@ class Workspace:
             else:
                 assert state_name is not None
                 state = str(self._state_location(state_name))
+                owner, lifecycle = self._persistent_state_ownership(
+                    state_name, Path(state)
+                )
                 state_policy = {
                     "mode": state_mode,
                     "name": state_name,
                     "path": state,
-                    "owner": {
-                        "kind": (
-                            "workspace"
-                            if Path(state).is_relative_to(
-                                self.paths.state.resolve(strict=False)
-                            )
-                            else "external"
-                        )
-                    },
-                    "lifecycle": "persistent",
+                    "owner": owner,
+                    "lifecycle": lifecycle,
                 }
         return {
             "profile": profile_name,
@@ -8987,7 +9030,7 @@ class Workspace:
                         raise WorkspaceError(
                             f"runtime publication contains a link: {path}"
                         )
-                    if path.resolve(strict=False) != target.resolve(strict=False):
+                    if path.resolve(strict=False) != state.resolve(strict=False):
                         raise WorkspaceError(
                             f"runtime publication state link changed: {path}"
                         )
@@ -9314,7 +9357,9 @@ class Workspace:
                     build_root / "runtime" / "resources",
                     server_runtime / "resources",
                 )
-                (server_runtime / "data").symlink_to(state, target_is_directory=True)
+                (server_runtime / "data").symlink_to(
+                    state, target_is_directory=True
+                )
                 state_output = self._prepare_runtime_state_output(
                     state, generation
                 )
@@ -9660,11 +9705,13 @@ class Workspace:
             "owner",
             "lifecycle",
             "identity",
+            "lease_identity",
             "implementation",
         }
         mode = policy.get("mode")
         expected_keys = common | ({"created_at", "server"} if mode == "temporary" else set())
         identity = policy.get("identity")
+        lease_identity = policy.get("lease_identity")
         implementation = policy.get("implementation")
         providers = status.get("providers")
         resolved = status.get("resolved")
@@ -9679,6 +9726,12 @@ class Workspace:
             or not all(
                 isinstance(value, int) and not isinstance(value, bool) and value >= 0
                 for value in identity.values()
+            )
+            or not isinstance(lease_identity, dict)
+            or set(lease_identity) != {"device", "inode"}
+            or not all(
+                isinstance(value, int) and not isinstance(value, bool) and value >= 0
+                for value in lease_identity.values()
             )
             or not isinstance(implementation, dict)
             or set(implementation) != {"stack", "provider", "repository"}
@@ -9718,6 +9771,7 @@ class Workspace:
                 not in {
                     "disposable",
                     "retained",
+                    "removal-pending",
                     "promotion-pending",
                     "promoted",
                     "removed",
@@ -9727,7 +9781,11 @@ class Workspace:
                 or policy.get("server") != resolved[providers["server"]]
             ):
                 raise WorkspaceError(f"temporary topology state policy is invalid: {name}")
-            if lifecycle != "removed":
+            if (
+                lifecycle not in {"removed", "removal-pending"}
+                or path.exists()
+                or path.is_symlink()
+            ):
                 marker = path / MANAGED_MARKER
                 metadata_path = path / TEMPORARY_STATE_METADATA
                 if (
@@ -9754,7 +9812,9 @@ class Workspace:
                     not isinstance(metadata, dict)
                     or metadata.get("schema_version")
                     != TEMPORARY_STATE_SCHEMA_VERSION
-                    or metadata.get("state_policy") != policy
+                    or not self._temporary_state_metadata_matches(
+                        policy, metadata.get("state_policy")
+                    )
                 ):
                     raise WorkspaceError(
                         f"temporary topology state metadata is invalid: {name}"
@@ -9766,7 +9826,7 @@ class Workspace:
                     raise WorkspaceError(
                         f"promoted temporary state registration is invalid: {name}"
                     )
-            elif path.exists() or path.is_symlink():
+            elif lifecycle == "removed" and (path.exists() or path.is_symlink()):
                 raise WorkspaceError(
                     f"removed temporary topology state still exists: {name}"
                 )
@@ -10739,6 +10799,17 @@ class Workspace:
                     service["running"] for service in previous["services"].values()
                 ):
                     raise WorkspaceError(f"topology is already running: {name}")
+                previous_policy = previous.get("state_policy")
+                if (
+                    isinstance(previous_policy, dict)
+                    and previous_policy.get("mode") == "temporary"
+                    and previous_policy.get("lifecycle")
+                    not in {"removed", "promoted"}
+                ):
+                    raise WorkspaceError(
+                        f"topology {name} retains temporary generation state; "
+                        "promote it or complete its safe cleanup before restart"
+                    )
 
             if "client" in selected_services:
                 self._require_client_display()
@@ -10852,6 +10923,7 @@ class Workspace:
                 )
                 state: Path | None = None
                 state_policy: dict[str, Any] | None = None
+                state_directory_fd: int | None = None
                 temporary_state_owner: list[Path] = []
                 if "server" in selected_services:
                     assert implementation is not None
@@ -10882,12 +10954,39 @@ class Workspace:
                             selected["server"],
                             resolved_path=state_location,
                             implementation=implementation,
-                            write_implementation=state_location.is_relative_to(
-                                self.paths.state.resolve(strict=False)
-                            ),
+                            write_implementation=True,
                         )
                         state_policy = self._persistent_state_policy(
                             state_name, state, implementation
+                        )
+                    assert state_lock is not None
+                    lock_metadata = os.fstat(state_lock.fileno())
+                    if (
+                        not stat.S_ISREG(lock_metadata.st_mode)
+                        or lock_metadata.st_nlink != 1
+                    ):
+                        raise WorkspaceError(
+                            f"server state lease identity is invalid: {state}.lock"
+                        )
+                    state_policy = {
+                        **state_policy,
+                        "lease_identity": {
+                            "device": lock_metadata.st_dev,
+                            "inode": lock_metadata.st_ino,
+                        },
+                    }
+                    state_directory_fd = os.open(
+                        state,
+                        os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW,
+                    )
+                    stack.callback(os.close, state_directory_fd)
+                    state_metadata = os.fstat(state_directory_fd)
+                    if state_policy["identity"] != {
+                        "device": state_metadata.st_dev,
+                        "inode": state_metadata.st_ino,
+                    }:
+                        raise WorkspaceError(
+                            f"server state identity changed before runtime publication: {state}"
                         )
                 build_lock = stack.enter_context(
                     self._profile_build_lock(root, profile_name)
@@ -10976,6 +11075,11 @@ class Workspace:
                             f"--port_quic={endpoint['port']}",
                             "--port_mapping=off",
                             "--stun_server=off",
+                            *(
+                                [f"--datapath=/proc/self/fd/{state_directory_fd}"]
+                                if state_directory_fd is not None
+                                else []
+                            ),
                             "--assetspath="
                             f"{runtime_record['mutable_state_outputs'][0]}",
                             "--no_console",
@@ -11071,6 +11175,11 @@ class Workspace:
                     if state_lock is not None:
                         command.extend(["--lock-fd", str(state_lock.fileno())])
                         inherited_locks.append(state_lock.fileno())
+                    if state_directory_fd is not None:
+                        command.extend(
+                            ["--state-directory-fd", str(state_directory_fd)]
+                        )
+                        inherited_locks.append(state_directory_fd)
                     command.extend(
                         ["--runtime-lock-fd", str(runtime_lock_fd)]
                     )
@@ -11288,15 +11397,6 @@ class Workspace:
         policy: dict[str, Any],
     ) -> dict[str, Any]:
         root = self._topology_directory(name)
-        state = Path(policy["path"])
-        metadata_path = state / TEMPORARY_STATE_METADATA
-        durable_atomic_json(
-            metadata_path,
-            {
-                "schema_version": TEMPORARY_STATE_SCHEMA_VERSION,
-                "state_policy": policy,
-            },
-        )
         status_path = root / "status.json"
         raw_status = load_json(status_path)
         if (
@@ -11326,7 +11426,7 @@ class Workspace:
             "retained",
         }:
             return status
-        if not confirmed_clean:
+        if not confirmed_clean and policy.get("lifecycle") != "removal-pending":
             if retain_state:
                 raise WorkspaceError(
                     f"topology {name} did not complete a confirmed clean down; "
@@ -11347,14 +11447,20 @@ class Workspace:
             if retain_state:
                 retained = {**policy, "lifecycle": "retained"}
                 return self._write_temporary_state_policy(name, current, retained)
-            remove_owned_tree(state)
-            removed = {**policy, "lifecycle": "removed"}
+            pending = {**policy, "lifecycle": "removal-pending"}
+            if policy != pending:
+                current = self._write_temporary_state_policy(
+                    name, current, pending
+                )
+            if state.exists() or state.is_symlink():
+                remove_owned_tree(state)
+            removed = {**pending, "lifecycle": "removed"}
             raw_status = load_json(
                 self._topology_directory(name) / "status.json"
             )
             if (
                 not isinstance(raw_status, dict)
-                or raw_status.get("state_policy") != policy
+                or raw_status.get("state_policy") != pending
             ):
                 raise WorkspaceError(
                     f"temporary topology state status changed before removal: {name}"
@@ -11558,6 +11664,13 @@ class Workspace:
         paths = [(item, path) for item, path in paths if path.is_file()]
         if not paths:
             raise WorkspaceError(f"topology has no matching logs: {name}")
+        policy = self.topology_status(name).get("state_policy")
+        if isinstance(policy, dict):
+            print(
+                "==> state-policy "
+                f"mode={policy['mode']} owner={json.dumps(policy['owner'], sort_keys=True)} "
+                f"path={policy['path']} lifecycle={policy['lifecycle']} <=="
+            )
         positions: dict[Path, tuple[int, int, int]] = {}
         for item, path in paths:
             with os.fdopen(

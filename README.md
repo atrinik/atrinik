@@ -956,7 +956,9 @@ a fresh generation-owned state for isolated automation, `--state NAME` selects
 an existing registered persistent state, and `--default-state` explicitly
 selects the legacy managed persistent default. Omitting all three remains
 backward compatible with `--state default`. `topology show`, `up`, and
-`ps --json` report the policy, exact owner, path identity, and lifecycle.
+`ps --json` report the policy, exact owner, path identity, and lifecycle. Bounded
+and followed service logs begin with the same policy context so captured output
+retains the state ownership boundary.
 Temporary state is never entered in `state list`; a confirmed clean `down`
 removes it after its process and state leases are released. A crash,
 unreachable supervisor, malformed record, or uncertain lease retains it for
@@ -971,7 +973,9 @@ an existing name:
 ~~~
 
 Promotion registers the exact stopped directory in place. Retained and
-promoted states are protected. Abandoned disposable states participate only in
+promoted states are protected, and a topology name with unfinished temporary
+state cannot be restarted until that state is promoted or explicitly reclaimed.
+Abandoned disposable states participate only in
 the explicit preview-first cleanup scope:
 
 ~~~sh
