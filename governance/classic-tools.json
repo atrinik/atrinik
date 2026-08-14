@@ -19,8 +19,8 @@
       "path": "docs/PROVENANCE_IDENTITIES.md"
     },
     "transition_target": {
-      "revision": "9f2c77f029c028ebc7b9cd1b4007db58711aefee",
-      "tree": "85dd88e6a7b0d23af0a958ed12262542e310b112",
+      "revision": "256b39a62fdac5483abdaac05a8e670b371d4ba3",
+      "tree": "7653411466297ddf6b516fa51d45df07a1e38ee6",
       "license": "LicenseRef-Atrinik-Tools-Mixed",
       "default_license": "MIT",
       "license_exceptions": [
