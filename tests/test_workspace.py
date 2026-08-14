@@ -13105,7 +13105,9 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("topology_generation_present", current_item["reasons"])
 
         future_cleanup = cleanup_module.Cleanup(self.workspace)
-        future_cleanup.now = future_cleanup.now.replace(year=1970)
+        future_cleanup.now = future_cleanup.now.replace(
+            year=1970, month=1, day=1
+        )
         future_item = future_cleanup._orphan_temporary_state_lease_item(
             topology, lock, 0
         )
