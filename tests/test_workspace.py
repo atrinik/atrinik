@@ -335,7 +335,6 @@ def resource_lease_process(
     results: object,
     attempting: object | None = None,
     entered_event: object | None = None,
-    admission_attempting: object | None = None,
 ) -> None:
     try:
         request = LeaseRequest(
@@ -347,30 +346,12 @@ def resource_lease_process(
         )
         if attempting is not None:
             attempting.set()
-        original_advisory_lock = locking_module._advisory_lock
-
-        @contextmanager
-        def observed_advisory_lock(*args: object, **kwargs: object):
-            if (
-                admission_attempting is not None
-                and Path(args[0])
-                == locking_module.layout_writer_intent_path(
-                    resource_lock_path(Path(workspace_directory), kind, coordinate)
-                )
-            ):
-                admission_attempting.set()
-            with original_advisory_lock(*args, **kwargs) as lock:
-                yield lock
-
-        with mock.patch.object(
-            locking_module, "_advisory_lock", observed_advisory_lock
-        ):
-            with resource_locks(Path(workspace_directory), [request]):
-                if entered_event is not None:
-                    entered_event.set()
-                entered.put(name)
-                if release is not None and not release.wait(60):
-                    raise TimeoutError(f"{name} was not released")
+        with resource_locks(Path(workspace_directory), [request]):
+            if entered_event is not None:
+                entered_event.set()
+            entered.put(name)
+            if release is not None and not release.wait(60):
+                raise TimeoutError(f"{name} was not released")
         results.put(None)
     except BaseException as error:
         results.put(f"{type(error).__name__}: {error}")
@@ -407,6 +388,61 @@ def public_profile_mutation_process(
                 workspace.set_profile(
                     "profile-a", "client", "worktree", "source-a"
                 )
+        results.put(None)
+    except BaseException as error:
+        results.put(f"{type(error).__name__}: {error}")
+        raise
+
+
+def public_profile_reader_process(
+    wrapper: str,
+    workspace_directory: str,
+    build_root: str,
+    admission_attempting: object,
+    entered: object,
+    release: object,
+    results: object,
+) -> None:
+    try:
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
+        ):
+            workspace = Workspace(Path(wrapper))
+            profile_intent = locking_module.layout_writer_intent_path(
+                resource_lock_path(
+                    workspace._lease_root(
+                        LeaseRequest(
+                            "profile", "profile-a", "shared", "build", "wait"
+                        )
+                    ),
+                    "profile",
+                    "profile-a",
+                )
+            )
+            original_advisory_lock = locking_module._advisory_lock
+
+            @contextmanager
+            def observed_advisory_lock(*args: object, **kwargs: object):
+                if Path(args[0]) == profile_intent:
+                    admission_attempting.set()
+                with original_advisory_lock(*args, **kwargs) as lock:
+                    yield lock
+
+            def paused_build(*args: object, **kwargs: object) -> Path:
+                entered.set()
+                if not release.wait(60):
+                    raise TimeoutError("profile reader was not released")
+                return Path(build_root)
+
+            with (
+                mock.patch.object(
+                    locking_module, "_advisory_lock", observed_advisory_lock
+                ),
+                mock.patch.object(
+                    workspace, "_build_resolved", side_effect=paused_build
+                ),
+            ):
+                workspace.build("client", "profile-a", False)
         results.put(None)
     except BaseException as error:
         results.put(f"{type(error).__name__}: {error}")
@@ -823,6 +859,9 @@ class WorkspaceTests(unittest.TestCase):
         self.remote_matcher.start()
 
     def tearDown(self) -> None:
+        # Test-owned process cleanup must run before its temporary lease paths
+        # are removed; unittest's default ordering runs cleanups after tearDown.
+        self.doCleanups()
         self.remote_matcher.stop()
         self.environment.stop()
         self.temporary.cleanup()
@@ -7019,19 +7058,15 @@ class WorkspaceTests(unittest.TestCase):
             ),
         )
         late_reader = context.Process(
-            target=resource_lease_process,
+            target=public_profile_reader_process,
             args=(
-                str(lease_root),
-                "profile",
-                coordinate_a,
-                "shared",
-                "late-reader-a",
-                exact_entered,
+                str(self.wrapper),
+                str(self.workspace_directory),
+                str(topology_a_root),
+                late_reader_attempting,
+                late_reader_entered,
                 release_late_reader,
                 results,
-                None,
-                late_reader_entered,
-                late_reader_attempting,
             ),
         )
         readers = [
