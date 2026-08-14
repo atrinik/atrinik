@@ -131,6 +131,7 @@ so an absent opt-in checkout is not mistaken for a broken default workspace.
   <checkout-destination>/           primary independent Git checkouts
 workspace/
   worktrees/<checkout>/<label>/      physical-checkout Git worktrees
+  scopes/<name>/                     durable development-scope records/journals
   profiles/<name>.json               logical component -> checkout selectors
   build/profiles/<name>-<key>/       isolated sources, builds, and runtime
   build/source-generations/<checkout>/<key>/ immutable primary exports
@@ -188,6 +189,38 @@ exact physical checkouts through either checkout or logical-component
 identities. One checkout is synchronized only once. A missing optional
 repository is reported and skipped rather than cloned as a synchronization
 side effect.
+
+Agent development scopes compose existing physical repository, profile,
+topology, state, and lease contracts without introducing a second path model.
+The transaction preflights its stable or collision-resistant generated name,
+base profile, deduplicated physical checkouts, labels, branches and exact start
+commits, destination paths, immutable profile, topology namespace, and state
+policy before reserving the name. It takes the name reservation first, then
+acquires profile, Git-admin, source, topology, and state coordinates in the
+global lease order. Distinct names may overlap except for bounded Git-admin
+publication on one physical checkout; identical names or explicit branch/path
+coordinates have one creator.
+
+`reservation.json` and `creation-journal.json` are durable before the first
+resource publication. Each full worktree, profile-reference, immutable profile,
+and completed-record publication is journaled in order. The schema-validated
+`scope.json` is last, so readers cannot observe a completed scope backed by a
+partial profile. Exact completed retries return that record. Conflicting or
+incomplete reservations never overwrite their existing evidence. Rollback
+requires the recorded path, common-Git directory, branch, commit, cleanliness,
+and reference set to remain exact; any uncertainty converts the journal to
+recovery-required. Complete and recoverable scope journals contribute exact
+cleanup references until release journals prove each worktree removed.
+
+Release computes a canonical SHA-256 plan over the completed scope generation
+and every observed topology, state, build, profile, worktree, and reference
+disposition. Apply requires that preview digest and recomputes it under the
+same exact leases. Dependency-ordered removal journals each completed action.
+Persistent named/default state and stopped topology history are retained, and
+live/unreachable topologies, retained runtime or temporary-state generations,
+busy resources, changed identities, dirty/detached Git state, replacement,
+unexpected references, and uncertain ownership fail closed. The completed
+scope and release journal remain durable evidence after release.
 
 ## Cleanup inventory and retention
 
@@ -495,6 +528,12 @@ identity. Resolution verifies that every selected root is a Git worktree whose
 checkouts additionally require the manifest branch; feature-worktree and
 explicit-path selectors may use review branches. Only after validation does
 resolution append the logical component's declared source path.
+
+A scope-owned saved profile uses the same schema and resolution path but is
+immutable for the scope lifetime. Its exact bytes are hashed into the scope
+record, and primitive profile mutation refuses the owner. This keeps the JSON
+handoff's path/build/topology commands stable while preserving ordinary mutable
+saved profiles for manual workflows.
 
 Worktrees are always full physical repositories and are keyed by checkout, so
 every classic worktree lives below `workspace/worktrees/classic/<label>` and

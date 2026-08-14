@@ -171,6 +171,68 @@ def parser() -> argparse.ArgumentParser:
     mark(worktree_list.add_argument("components", nargs="*"), "component")
     worktree_list.add_argument("--json", action="store_true")
 
+    scope = commands.add_parser(
+        "scope", help="provision and release isolated agent development scopes"
+    )
+    scope_commands = scope.add_subparsers(dest="scope_command", required=True)
+    scope_create = scope_commands.add_parser(
+        "create", help="atomically provision one complete development scope"
+    )
+    mark(scope_create.add_argument("components", nargs="+"), "component")
+    mark(scope_create.add_argument("--name"), "none")
+    mark(scope_create.add_argument("--from", dest="base_profile", default="default"), "profile")
+    mark(
+        scope_create.add_argument(
+            "--label", action="append", default=[], metavar="CHECKOUT=LABEL"
+        ),
+        "none",
+    )
+    mark(
+        scope_create.add_argument(
+            "--branch", action="append", default=[], metavar="CHECKOUT=BRANCH"
+        ),
+        "none",
+    )
+    mark(
+        scope_create.add_argument(
+            "--start-point", action="append", default=[], metavar="CHECKOUT=REF"
+        ),
+        "none",
+    )
+    mark(scope_create.add_argument("--topology"), "none")
+    scope_state = scope_create.add_mutually_exclusive_group()
+    scope_state.add_argument(
+        "--temporary-state",
+        dest="state_mode",
+        action="store_const",
+        const="temporary",
+        help="use generation-owned temporary state (default)",
+    )
+    mark(scope_state.add_argument("--state", dest="state_name"), "state")
+    scope_state.add_argument(
+        "--default-state",
+        dest="state_mode",
+        action="store_const",
+        const="default",
+        help="deliberately select shared persistent default state",
+    )
+    scope_create.set_defaults(state_mode="temporary")
+    scope_create.add_argument("--json", action="store_true")
+    scope_show = scope_commands.add_parser("show")
+    mark(scope_show.add_argument("name"), "scope")
+    scope_show.add_argument("--json", action="store_true")
+    scope_list = scope_commands.add_parser("list")
+    scope_list.add_argument("--json", action="store_true")
+    scope_release = scope_commands.add_parser(
+        "release", help="preview or apply exact scope release"
+    )
+    mark(scope_release.add_argument("name"), "scope")
+    scope_release_mode = scope_release.add_mutually_exclusive_group(required=True)
+    scope_release_mode.add_argument("--dry-run", action="store_true")
+    scope_release_mode.add_argument("--apply", action="store_true")
+    mark(scope_release.add_argument("--plan"), "none")
+    scope_release.add_argument("--json", action="store_true")
+
     cleanup = commands.add_parser(
         "cleanup", help="preview or reclaim stale workspace data"
     )
@@ -742,6 +804,56 @@ def main(arguments: list[str] | None = None) -> int:
                             "refs/heads/"
                         )
                         print(f"{component}\t{branch}\t{record['worktree']}")
+        elif options.command == "scope":
+            if options.scope_command == "create":
+                state_mode = "named" if options.state_name is not None else options.state_mode
+                result = workspace.scope_create(
+                    options.components,
+                    name=options.name,
+                    base_profile=options.base_profile,
+                    labels=options.label,
+                    branches=options.branch,
+                    start_points=options.start_point,
+                    topology=options.topology,
+                    state_mode=state_mode,
+                    state_name=options.state_name,
+                )
+            elif options.scope_command == "show":
+                result = workspace.scope_show(options.name)
+            elif options.scope_command == "list":
+                result = workspace.scope_list()
+            else:
+                if options.dry_run and options.plan is not None:
+                    raise WorkspaceError("--plan is accepted only with --apply")
+                result = workspace.scope_release(
+                    options.name,
+                    apply=options.apply,
+                    plan_sha256=options.plan,
+                )
+            if options.json:
+                print(json.dumps(result, indent=2, sort_keys=True))
+            elif isinstance(result, list):
+                for record in result:
+                    print(
+                        f"{record['name']}\t{record['status']}\t"
+                        f"{record['profile']['name']}\t{record['topology']['name']}"
+                    )
+            elif options.scope_command == "release":
+                print(f"scope\t{result['scope']}\t{result['mode']}")
+                print(f"plan\t{result['plan_sha256']}")
+                for item in result["items"]:
+                    print(
+                        f"{item['disposition']}\t{item['kind']}\t"
+                        f"{item.get('path') or '-'}\t{','.join(item['reasons'])}"
+                    )
+            else:
+                print(f"scope\t{result['name']}\t{result['generation']}")
+                print(f"profile\t{result['profile']['name']}\t{result['profile']['path']}")
+                print(f"topology\t{result['topology']['name']}\t{result['topology']['path']}")
+                for row in result["worktrees"]:
+                    print(
+                        f"worktree\t{row['checkout']}\t{row['branch']}\t{row['path']}"
+                    )
         elif options.command == "cleanup":
             report = workspace.cleanup(
                 options.scope,

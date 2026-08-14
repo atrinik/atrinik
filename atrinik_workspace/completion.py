@@ -357,7 +357,44 @@ def _dynamic_candidates(
         return _scenario_names(manifest, paths)
     if kind == "topology":
         return _topology_names(manifest, paths)
+    if kind == "scope":
+        return _scope_names(paths)
     return []
+
+
+def _scope_names(paths: Paths | None) -> list[str]:
+    if paths is None:
+        return []
+    root = _workspace_descriptor(paths)
+    if root is None:
+        return []
+    scopes = _directory_descriptor("scopes", dir_fd=root)
+    try:
+        if scopes is None:
+            return []
+        names: list[str] = []
+        for name in _entry_names(scopes, file_type="directory"):
+            if not _valid_name(name):
+                continue
+            scope = _directory_descriptor(name, dir_fd=scopes)
+            if scope is None:
+                continue
+            try:
+                value = _json_at(scope, "scope.json", _MAX_RECORD_BYTES)
+                if (
+                    isinstance(value, dict)
+                    and value.get("schema_version") == 1
+                    and value.get("status") == "complete"
+                    and value.get("name") == name
+                ):
+                    names.append(name)
+            finally:
+                os.close(scope)
+        return names
+    finally:
+        if scopes is not None:
+            os.close(scopes)
+        os.close(root)
 
 
 def _manifest(repository: Path) -> Manifest | None:

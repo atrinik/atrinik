@@ -41,12 +41,25 @@ clones.
 ./atrinik init [COMPONENT...]
 ./atrinik init --with classic
 ./atrinik sync [COMPONENT...]
+./atrinik scope create COMPONENT... --name REVIEW --from PROFILE --json
 ./atrinik worktree create COMPONENT LABEL --branch TYPE/TOPIC
 ```
 
 Sync only clean primaries; never replace, move, or remove dirty sources.
 Classic selectors create the full repository under
 `workspace/worktrees/classic/LABEL`. Commit and push in its owning worktree.
+Prefer atomic scopes for concurrent agents; generated names are
+collision-resistant, exact retries idempotent, and JSON commands secret-free.
+Temporary state is the default; persistent state is deliberate. Primitives
+remain supported. Release only with the freshly previewed plan digest:
+
+```sh
+./atrinik scope release REVIEW --dry-run --json
+./atrinik scope release REVIEW --apply --plan PLAN_SHA256 --json
+```
+
+Release never stops topologies or deletes persistent state. Unsafe or uncertain
+coordinates fail closed and retain their recovery journals.
 
 Reclaim review data only through preview-first cleanup:
 
@@ -59,15 +72,10 @@ Reclaim review data only through preview-first cleanup:
 
 Repeat a scoped command with `--apply` after review. Defaults cover
 worktrees/builds; caches and topology history are opt-in, and topologies are
-excluded from `all`. Reclaim only stopped, released, marker-owned records.
-Apply sound-cache before worktrees because each cache protects its worktree.
-Missing, replaced, invalid, busy, referenced, or unsafe targets fail closed.
-The sole historical-base exception is the frozen
-`atrinik/atrinik@main` `build/worktrees/` contract at
-`ee5ba2096c94bce0161629423d4962a966bc61d8`. Apply locks and revalidates each
-exact target with its reference-publication coordinates, journals completed
-actions, skips busy targets, and uses non-force Git while preserving refs,
-state, records, objects, reports, and unmarked paths.
+excluded from `all`. Reclaim only stopped, released, exact marker-owned records;
+unsafe or uncertain targets fail closed. Apply sound-cache before its worktree.
+See `README.md` and `docs/ARCHITECTURE.md` for historical wrapper-worktree proof
+and exact apply-time revalidation.
 
 ## Compose coherent sources
 
@@ -127,20 +135,14 @@ operations.
 
 ## Coordinate publication and policy
 
-- Use `atrinik-github-governance` for PR publication or policy; compare live and
-  desired state before authorized policy mutations.
-- PR titles use `type(optional-scope)!: concise description`; bodies use
-  renderable GitHub-Flavored Markdown and actual line breaks, never visible
-  literal `\n` separators. Give multi-section bodies by file or stdin; after
-  create/edit, verify remote rendering.
-- Keep physical repositories independently releasable; semantic-release owns
-  versions, tags, notes, and recovery. Never publish manually. Dependency
-  changes require `supply-chain/inventory.json` and a
-  complete-profile audit; overrides stay mandatory and only aggregate roots own
-  workflows/Dependabot.
-- Follow [`docs/PROVENANCE.md`](../../../docs/PROVENANCE.md) for grant-proven
-  Classic source reference, copy, migration/port, translation/adaptation, or
-  MIT relicensing. Fail temporal, authorship, or separability uncertainty closed.
+Use `atrinik-github-governance` for PRs or policy. PR titles use
+`type(optional-scope)!: concise description`; bodies require renderable
+GitHub-Flavored Markdown and actual line breaks, never visible literal `\n`
+separators. Feed multi-section bodies by file or standard input; after
+create/edit, verify the remote GitHub render.
+Semantic-release owns publication. Dependency changes update the inventory and
+audit a complete profile. Follow `docs/PROVENANCE.md` for Classic reuse and
+fail uncertainty closed.
 
 ## Maintain guidance
 
