@@ -4562,6 +4562,26 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(stat.S_IMODE(regular.stat().st_mode), 0o644)
         self.assertEqual(stat.S_IMODE(executable.stat().st_mode), 0o755)
 
+    def test_source_view_link_rejects_symlinked_nested_parent(self) -> None:
+        view = self.workspace.paths.builds / "profiles" / "test" / "sources"
+        managed_directory(view, self.workspace.paths.builds, "test-sources")
+        outside = self.root / "outside-source-view"
+        outside.mkdir()
+        sentinel = outside / "LICENSE.md"
+        sentinel.write_text("preserved\n", encoding="utf-8")
+        (view / "docs").symlink_to(outside, target_is_directory=True)
+
+        with self.assertRaisesRegex(WorkspaceError, "link parent is unsafe"):
+            self.workspace._source_view_link(
+                view,
+                "docs/LICENSE.md",
+                self.root / "target-license",
+                target_is_directory=False,
+            )
+
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "preserved\n")
+        self.assertTrue((view / "docs").is_symlink())
+
     def test_source_view_retains_unchanged_entries_and_rejects_escaping_symlink(
         self,
     ) -> None:

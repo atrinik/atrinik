@@ -6141,11 +6141,27 @@ class Workspace:
         *,
         target_is_directory: bool,
     ) -> Path:
-        destination = view / relative
+        relative_path = PurePosixPath(relative)
+        if (
+            relative_path.is_absolute()
+            or not relative_path.parts
+            or any(part in {"", ".", ".."} for part in relative_path.parts)
+        ):
+            raise WorkspaceError(f"invalid source-view link path: {relative}")
+        destination = view.joinpath(*relative_path.parts)
+        parent = destination.parent
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+        try:
+            descriptor = _open_directory_nofollow(parent, flags, create=True)
+        except OSError as error:
+            raise WorkspaceError(
+                f"source-view link parent is unsafe: {parent}: {error}"
+            ) from error
+        else:
+            os.close(descriptor)
         expected = str(target)
         if not destination.is_symlink() or os.readlink(destination) != expected:
             self._remove_source_view_entry(destination)
-            destination.parent.mkdir(parents=True, exist_ok=True)
             destination.symlink_to(expected, target_is_directory=target_is_directory)
             self._source_view_unchanged[str(view.resolve())] = False
         return destination
