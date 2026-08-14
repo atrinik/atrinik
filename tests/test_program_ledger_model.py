@@ -193,6 +193,10 @@ class ProgramLedgerModel:
             return False
         return parsed.tzinfo is not None and parsed.utcoffset().total_seconds() == 0
 
+    @staticmethod
+    def digest_is_valid(value: object) -> bool:
+        return isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value) is not None
+
     def digest(self) -> str:
         return hashlib.sha256(self.canonical(self.record)).hexdigest()
 
@@ -260,7 +264,10 @@ class ProgramLedgerModel:
             raise StopClosed("ledger collection shape is corrupt")
         if lock != {"device": 1, "inode": lock_inode}:
             raise StopClosed("arbitration lock identity changed")
-        if hashlib.sha256(cls.canonical(record)).hexdigest() != observed_sha256:
+        if (
+            not cls.digest_is_valid(observed_sha256)
+            or hashlib.sha256(cls.canonical(record)).hexdigest() != observed_sha256
+        ):
             raise StopClosed("byte corruption")
         if record["authority"] != expected_authority:
             raise StopClosed("live authority changed")
@@ -270,9 +277,13 @@ class ProgramLedgerModel:
             not isinstance(generation, int) or isinstance(generation, bool)
             or generation < 0 or (generation == 0 and previous is not None)
             or (generation > 0 and (
-                not isinstance(previous, str) or len(previous) != 64
+                not cls.digest_is_valid(previous)
             ))
-            or (expected_previous is not None and previous != expected_previous)
+            or (
+                expected_previous is not None
+                and (not cls.digest_is_valid(expected_previous)
+                     or previous != expected_previous)
+            )
         ):
             raise StopClosed("generation lineage is corrupt")
         common_keys = {
@@ -288,8 +299,8 @@ class ProgramLedgerModel:
                 and isinstance(value["generation"], int)
                 and not isinstance(value["generation"], bool)
                 and value["generation"] >= 0
-                and isinstance(value["stream"], str)
-                and isinstance(value["result_stream"], str)
+                and cls.digest_is_valid(value["stream"])
+                and cls.digest_is_valid(value["result_stream"])
                 and type(value["complete"]) is bool
                 and isinstance(value["count"], int)
                 and not isinstance(value["count"], bool)
@@ -434,7 +445,7 @@ class ProgramLedgerModel:
                 slot["node"] is not None or slot["prior"] is not None
                 or slot["created_at"] is not None
                 or slot["parent"] != "master" or slot["child"] != "issue-node"
-                or not isinstance(slot["proof"], str) or not slot["proof"]
+                or not cls.digest_is_valid(slot["proof"])
             ):
                 raise StopClosed("bound link proof is incomplete")
         if record["link"]["phase"] != "none" and not (
@@ -448,7 +459,15 @@ class ProgramLedgerModel:
             and record["comment"]["prior"] == "old-body"
         ):
             raise StopClosed("next graph lacks its PATCH intent")
-        if not set(record["leaf_snapshots"]).issubset(set(record["graph"])):
+        if (
+            any(
+                not isinstance(snapshot, list) or len(snapshot) != 2
+                or type(snapshot[0]) is not int or snapshot[0] < 0
+                or not cls.digest_is_valid(snapshot[1])
+                for snapshot in record["leaf_snapshots"].values()
+            )
+            or not set(record["leaf_snapshots"]).issubset(set(record["graph"]))
+        ):
             raise StopClosed("leaf snapshot is outside the graph")
         model = cls()
         model.record = copy.deepcopy(record)
@@ -538,7 +557,8 @@ class ProgramLedgerModel:
         self.persist(
             lambda record: record["observation"].update({
                 kind: {
-                    "generation": generation, "stream": stream,
+                    "generation": generation,
+                    "stream": hashlib.sha256(stream.encode("utf-8")).hexdigest(),
                     "result_stream": result_stream,
                     "complete": complete, "count": count,
                 }
@@ -1009,6 +1029,42 @@ class ProgramLedgerModelTests(unittest.TestCase):
                     ).hexdigest(),
                     corrupt_inode["authority"],
                 )
+        lineage = ProgramLedgerModel()
+        lineage.persist(lambda record: None)
+        for digest in ("g" * 64, "A" * 64, "0" * 63 + "!", "0" * 63, "0" * 65):
+            corrupt_lineage = copy.deepcopy(lineage.record)
+            corrupt_lineage["previous_sha256"] = digest
+            with self.subTest(lineage=digest), self.assertRaises(StopClosed):
+                ProgramLedgerModel.resume(
+                    corrupt_lineage, 41, corrupt_lineage["self_inode"],
+                    hashlib.sha256(
+                        ProgramLedgerModel.canonical(corrupt_lineage)
+                    ).hexdigest(),
+                    corrupt_lineage["authority"],
+                )
+        observed = ProgramLedgerModel()
+        observed.observe_comment()
+        for field in ("stream", "result_stream"):
+            corrupt_observation = copy.deepcopy(observed.record)
+            corrupt_observation["observation"]["comment"][field] = "z" * 64
+            with self.subTest(observation_digest=field), self.assertRaises(StopClosed):
+                ProgramLedgerModel.resume(
+                    corrupt_observation, 41, corrupt_observation["self_inode"],
+                    hashlib.sha256(
+                        ProgramLedgerModel.canonical(corrupt_observation)
+                    ).hexdigest(),
+                    corrupt_observation["authority"],
+                )
+        corrupt_snapshot = copy.deepcopy(model.record)
+        corrupt_snapshot["leaf_snapshots"]["leaf-1"][1] = "z" * 64
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.resume(
+                corrupt_snapshot, 41, corrupt_snapshot["self_inode"],
+                hashlib.sha256(
+                    ProgramLedgerModel.canonical(corrupt_snapshot)
+                ).hexdigest(),
+                corrupt_snapshot["authority"],
+            )
 
     def test_bound_slots_reject_retained_ephemeral_authority(self) -> None:
         models: list[tuple[ProgramLedgerModel, str]] = []
@@ -1053,6 +1109,16 @@ class ProgramLedgerModelTests(unittest.TestCase):
                     hashlib.sha256(ProgramLedgerModel.canonical(corrupt)).hexdigest(),
                     corrupt["authority"],
                 )
+        corrupt_proof = copy.deepcopy(link.record)
+        corrupt_proof["link"]["proof"] = "z" * 64
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.resume(
+                corrupt_proof, 41, corrupt_proof["self_inode"],
+                hashlib.sha256(
+                    ProgramLedgerModel.canonical(corrupt_proof)
+                ).hexdigest(),
+                corrupt_proof["authority"],
+            )
 
     def test_filesystem_lock_is_stable_across_atomic_ledger_replace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
