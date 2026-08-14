@@ -20,12 +20,20 @@ class StopClosed(RuntimeError):
 
 
 _SCAN_FACTORY = object()
+_CALL_FACTORY = object()
 
 
 class CallPermit:
     """Ephemeral authority returned only by the durable in-flight transition."""
 
-    def __init__(self, slot: str, generation: int) -> None:
+    def __init__(
+        self, factory: object, owner: object, token: int, slot: str,
+        generation: int,
+    ) -> None:
+        if factory is not _CALL_FACTORY:
+            raise StopClosed("call permits are issued only by durable transitions")
+        self.owner = owner
+        self.token = token
         self.slot = slot
         self.generation = generation
         self.used = False
@@ -35,11 +43,12 @@ class ScanPermit:
     """One-use proof returned only by a complete bounded pagination pass."""
 
     def __init__(
-        self, factory: object, token: int, stream: str,
+        self, factory: object, owner: object, token: int, stream: str,
         evidence: dict[str, object],
     ) -> None:
         if factory is not _SCAN_FACTORY:
             raise StopClosed("scan permits are issued only by bounded pagination")
+        self.owner = owner
         self.token = token
         self.stream = stream
         self.evidence = evidence
@@ -47,6 +56,19 @@ class ScanPermit:
             json.dumps(evidence, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()
         self.used = False
+
+
+class ScanTranscript:
+    """Validated pagination data that is not itself mutation authority."""
+
+    def __init__(
+        self, stream: str, evidence: dict[str, object], node_ids: list[str],
+        body_sizes: list[int],
+    ) -> None:
+        self.stream = stream
+        self.evidence = evidence
+        self.node_ids = tuple(node_ids)
+        self.body_sizes = tuple(body_sizes)
 
 
 class ProgramLedgerModel:
@@ -58,8 +80,6 @@ class ProgramLedgerModel:
     MAX_DEPTH = 16
     MAX_INTEGER = (1 << 64) - 1
     AUTO_SCAN = object()
-    SCAN_SEQUENCE = 0
-    SCAN_REGISTRY: dict[int, tuple[str, str, tuple[str, ...], tuple[int, ...]]] = {}
 
     KEYS = {
         "generation", "self_inode", "lock", "previous_sha256", "authority", "graph",
@@ -91,6 +111,12 @@ class ProgramLedgerModel:
         self.path_lock_inode = 41
         self.remote_calls = {"comment": 0, "create": 0, "link": 0}
         self.report_present = False
+        self.scan_owner = object()
+        self.scan_sequence = 0
+        self.scan_registry: dict[int, tuple[object, ...]] = {}
+        self.call_owner = object()
+        self.call_sequence = 0
+        self.call_registry: dict[int, tuple[object, ...]] = {}
 
     @classmethod
     def canonical(cls, value: object) -> bytes:
@@ -568,7 +594,7 @@ class ProgramLedgerModel:
         nodes: int | None = None, body_bytes: int | None = None,
         timed_out: bool = False,
         body_sizes: list[int] | None = None,
-    ) -> ScanPermit:
+    ) -> ScanTranscript:
         body_sizes = [] if body_sizes is None else body_sizes
         if (
             not isinstance(cursors, list) or not isinstance(node_ids, list)
@@ -611,16 +637,34 @@ class ProgramLedgerModel:
             "terminal_cursor": cursors[-1] if node_ids else None,
             "completed_at": "2026-08-14T00:00:00Z", "complete": True,
         }
-        return cls._issue_scan_permit(stream, evidence, node_ids, body_sizes)
+        return ScanTranscript(stream, evidence, node_ids, body_sizes)
 
-    @classmethod
-    def _issue_scan_permit(
-        cls, stream: str, evidence: dict[str, object], node_ids: list[str],
-        body_sizes: list[int],
+    def issue_scan(
+        self, kind: str, cursors: list[str], node_ids: list[str],
+        first_digest: str, second_digest: str, *, body_sizes: list[int],
     ) -> ScanPermit:
-        cls.SCAN_SEQUENCE += 1
-        permit = ScanPermit(_SCAN_FACTORY, cls.SCAN_SEQUENCE, stream, evidence)
-        cls.SCAN_REGISTRY[permit.token] = (
+        if kind not in {"comment", "child", "parent"}:
+            raise StopClosed("scan kind is not a publication connection")
+        transcript = self.stable_scan(
+            cursors, node_ids, first_digest, second_digest, body_sizes=body_sizes
+        )
+        return self._issue_scan_permit(
+            kind, transcript.stream, transcript.evidence,
+            list(transcript.node_ids), list(transcript.body_sizes),
+        )
+
+    def _issue_scan_permit(
+        self, kind: str, stream: str, evidence: dict[str, object],
+        node_ids: list[str], body_sizes: list[int],
+    ) -> ScanPermit:
+        if len(self.scan_registry) >= 8:
+            raise StopClosed("too many outstanding scan permits")
+        self.scan_sequence += 1
+        permit = ScanPermit(
+            _SCAN_FACTORY, self.scan_owner, self.scan_sequence, stream, evidence
+        )
+        self.scan_registry[permit.token] = (
+            self.scan_owner, tuple(self.record["authority"]), kind,
             stream, permit.seal, tuple(node_ids), tuple(body_sizes)
         )
         return permit
@@ -640,11 +684,12 @@ class ProgramLedgerModel:
             pages = max(1, (len(node_ids) + 99) // 100)
             cursors = [f"cursor-{index}" for index in range(pages)] if node_ids else []
             if complete:
-                scan = self.stable_scan(
-                    cursors, node_ids, stream, stream, body_sizes=body_sizes
+                scan = self.issue_scan(
+                    kind, cursors, node_ids, stream, stream, body_sizes=body_sizes
                 )
             else:
-                scan = type(self)._issue_scan_permit(
+                scan = self._issue_scan_permit(
+                    kind,
                     hashlib.sha256(stream.encode("utf-8")).hexdigest(),
                     {
                         "pages": pages, "nodes": len(node_ids),
@@ -655,7 +700,7 @@ class ProgramLedgerModel:
                     node_ids, body_sizes,
                 )
         registered = (
-            type(self).SCAN_REGISTRY.get(scan.token)
+            self.scan_registry.get(scan.token)
             if isinstance(scan, ScanPermit) else None
         )
         if (
@@ -667,8 +712,10 @@ class ProgramLedgerModel:
                 ).encode()
             ).hexdigest()
             or registered != (
+                self.scan_owner, tuple(self.record["authority"]), kind,
                 scan.stream, scan.seal, tuple(node_ids), tuple(body_sizes)
             )
+            or scan.owner is not self.scan_owner
             or set(scan.evidence) != {
                 "pages", "nodes", "body_bytes", "terminal_cursor", "completed_at",
                 "complete",
@@ -677,6 +724,9 @@ class ProgramLedgerModel:
             or type(scan.evidence["nodes"]) is not int
             or scan.evidence["nodes"] < count
         ):
+            if isinstance(scan, ScanPermit) and scan.owner is self.scan_owner:
+                self.scan_registry.pop(scan.token, None)
+                scan.used = True
             raise StopClosed("observation lacks a matching bounded scan permit")
         generation = int(self.record["generation"]) + 1
         evidence = copy.deepcopy(scan.evidence)
@@ -690,7 +740,7 @@ class ProgramLedgerModel:
                 }
             })
         )
-        del type(self).SCAN_REGISTRY[scan.token]
+        del self.scan_registry[scan.token]
         scan.used = True
 
     def observe_comment(
@@ -839,15 +889,40 @@ class ProgramLedgerModel:
         self.persist(lambda r: r[slot].update(
             phase="in-flight", arm_observation=copy.deepcopy(current)
         ))
-        return CallPermit(slot, int(self.record["generation"]))
+        return self._issue_call_permit(slot)
+
+    def _issue_call_permit(self, slot: str) -> CallPermit:
+        if self.call_registry:
+            raise StopClosed("a remote call permit is already outstanding")
+        self.call_sequence += 1
+        generation = int(self.record["generation"])
+        permit = CallPermit(
+            _CALL_FACTORY, self.call_owner, self.call_sequence, slot, generation
+        )
+        self.call_registry[permit.token] = (
+            self.call_owner, tuple(self.record["authority"]), slot, generation,
+            self.lock_inode,
+        )
+        return permit
 
     def execute(self, permit: CallPermit) -> None:
+        registered = (
+            self.call_registry.get(permit.token)
+            if isinstance(permit, CallPermit) else None
+        )
         if (
-            permit.used or permit.generation != self.record["generation"]
+            not isinstance(permit, CallPermit) or permit.used
+            or permit.owner is not self.call_owner
+            or registered != (
+                self.call_owner, tuple(self.record["authority"]), permit.slot,
+                permit.generation, self.lock_inode,
+            )
+            or permit.generation != self.record["generation"]
             or self.record[permit.slot]["phase"] != "in-flight"
             or self.path_lock_inode != self.lock_inode
         ):
             raise StopClosed("call permit is absent, stale, or already used")
+        del self.call_registry[permit.token]
         permit.used = True
         self.remote_calls[permit.slot] += 1
 
@@ -990,7 +1065,7 @@ class ProgramLedgerModel:
                     )
                 )
                 raise StopClosed("PATCH retry needs a second identical observation")
-            return CallPermit("comment", int(self.record["generation"]))
+            return self._issue_call_permit("comment")
         if remote_body != "intended-body":
             raise StopClosed("PATCH result or prior body drifted")
         def bind(record: dict[str, object]) -> None:
@@ -1402,7 +1477,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
     def test_mutations_require_consumed_bounded_scan_evidence(self) -> None:
         with self.assertRaises(StopClosed):
             ScanPermit(
-                object(), 999, "0" * 64,
+                object(), object(), 999, "0" * 64,
                 {"pages": 1, "nodes": 0, "body_bytes": 0,
                  "terminal_cursor": None, "completed_at": "2026-08-14T00:00:00Z",
                  "complete": True},
@@ -1410,7 +1485,9 @@ class ProgramLedgerModelTests(unittest.TestCase):
         comment = ProgramLedgerModel()
         with self.assertRaises(StopClosed):
             comment.observe_comment(scan=None)
-        permit = ProgramLedgerModel.stable_scan([], [], "comment-stable", "comment-stable")
+        permit = comment.issue_scan(
+            "comment", [], [], "comment-stable", "comment-stable", body_sizes=[]
+        )
         permit.evidence["pages"] = 0
         with self.assertRaises(StopClosed):
             comment.observe_comment(scan=permit)
@@ -1436,8 +1513,8 @@ class ProgramLedgerModelTests(unittest.TestCase):
         self.assertEqual(child.remote_calls["create"], 0)
 
         replayed = ProgramLedgerModel()
-        first = ProgramLedgerModel.stable_scan(
-            [], [], "comment-stable", "comment-stable"
+        first = replayed.issue_scan(
+            "comment", [], [], "comment-stable", "comment-stable", body_sizes=[]
         )
         replay = copy.deepcopy(first)
         replayed.observe_comment(scan=first)
@@ -1449,19 +1526,45 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
         body_mismatch = ProgramLedgerModel()
         body_mismatch.record["comment"].update(phase="bound", node="comment-node")
-        incomplete_body = ProgramLedgerModel.stable_scan(
-            ["cursor"], ["comment-node"], "comment-stable", "comment-stable",
+        incomplete_body = body_mismatch.issue_scan(
+            "comment", ["cursor"], ["comment-node"],
+            "comment-stable", "comment-stable",
             body_sizes=[],
         )
         with self.assertRaises(StopClosed):
             body_mismatch.observe_comment(scan=incomplete_body)
 
         child_mismatch = ProgramLedgerModel()
-        partial_child = ProgramLedgerModel.stable_scan(
-            ["cursor"], ["issue-0"], "stable", "stable", body_sizes=[0]
+        partial_child = child_mismatch.issue_scan(
+            "child", ["cursor"], ["issue-0"], "stable", "stable",
+            body_sizes=[0],
         )
         with self.assertRaises(StopClosed):
             child_mismatch.classify_child([{}, {}], scan=partial_child)
+
+        scoped = ProgramLedgerModel()
+        wrong_kind = scoped.issue_scan(
+            "comment", [], [], "stable", "stable", body_sizes=[]
+        )
+        with self.assertRaises(StopClosed):
+            scoped.classify_child([], scan=wrong_kind)
+        source = ProgramLedgerModel()
+        cross_authority = source.issue_scan(
+            "comment", [], [], "comment-stable", "comment-stable", body_sizes=[]
+        )
+        target = ProgramLedgerModel()
+        with self.assertRaises(StopClosed):
+            target.observe_comment(scan=cross_authority)
+
+        bounded = ProgramLedgerModel()
+        for _ in range(8):
+            bounded.issue_scan(
+                "comment", [], [], "comment-stable", "comment-stable", body_sizes=[]
+            )
+        with self.assertRaises(StopClosed):
+            bounded.issue_scan(
+                "comment", [], [], "comment-stable", "comment-stable", body_sizes=[]
+            )
 
     def test_ledger_size_and_nested_value_bounds_precede_parsing(self) -> None:
         maximum = ProgramLedgerModel.MAX_LEDGER_BYTES
@@ -1729,7 +1832,10 @@ class ProgramLedgerModelTests(unittest.TestCase):
         model.observe_comment(stream="ordinary-old", count=1)
         retry = model.finish_patch("old-body", "comment-node")
         self.assertIsNotNone(retry)
+        copied_retry = copy.deepcopy(retry)
         model.execute(retry)
+        with self.assertRaises(StopClosed):
+            model.execute(copied_retry)
         model = ProgramLedgerModel.resume(
             model.record, 41, model.record["self_inode"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
@@ -1791,14 +1897,30 @@ class ProgramLedgerModelTests(unittest.TestCase):
         model.observe_comment()
         model.plan_comment()
         self.refresh_before_arm(model, "comment")
-        model.arm("comment")
+        permit = model.arm("comment")
+        with self.assertRaises(StopClosed):
+            CallPermit(object(), object(), 999, "comment", model.record["generation"])
         resumed = ProgramLedgerModel.resume(
             model.record, 41, model.record["self_inode"], model.digest(),
             model.record["authority"],
         )
         with self.assertRaises(StopClosed):
             resumed.arm("comment")
+        with self.assertRaises(StopClosed):
+            resumed.execute(permit)
         self.assertEqual(resumed.remote_calls["comment"], 0)
+
+        live = ProgramLedgerModel()
+        live.observe_comment()
+        live.plan_comment()
+        self.refresh_before_arm(live, "comment")
+        issued = live.arm("comment")
+        copied = copy.deepcopy(issued)
+        live.execute(issued)
+        with self.assertRaises(StopClosed):
+            live.execute(copied)
+        with self.assertRaises(StopClosed):
+            live.execute(issued)
 
     def test_arm_requires_new_identical_post_plan_observation(self) -> None:
         model = ProgramLedgerModel()
