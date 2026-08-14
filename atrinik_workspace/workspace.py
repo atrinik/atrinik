@@ -1757,6 +1757,62 @@ class Workspace:
             self._wrapper_lease = None
             wrapper_lease.__exit__(None, None, None)
 
+    def scope_create(
+        self,
+        components: list[str],
+        *,
+        name: str | None = None,
+        base_profile: str = "default",
+        labels: list[str] | None = None,
+        branches: list[str] | None = None,
+        start_points: list[str] | None = None,
+        topology: str | None = None,
+        state_mode: str = "temporary",
+        state_name: str | None = None,
+    ) -> dict[str, Any]:
+        from .scopes import ScopeLifecycle
+
+        return ScopeLifecycle(self).create(
+            components,
+            name=name,
+            base_profile=base_profile,
+            labels=labels,
+            branches=branches,
+            start_points=start_points,
+            topology=topology,
+            state_mode=state_mode,
+            state_name=state_name,
+        )
+
+    def scope_show(self, name: str) -> dict[str, Any]:
+        from .scopes import ScopeLifecycle
+
+        return ScopeLifecycle(self).show(name)
+
+    def scope_list(self) -> list[dict[str, Any]]:
+        from .scopes import ScopeLifecycle
+
+        return ScopeLifecycle(self).list()
+
+    def scope_release(
+        self, name: str, *, apply: bool, plan_sha256: str | None = None
+    ) -> dict[str, Any]:
+        from .scopes import ScopeLifecycle
+
+        return ScopeLifecycle(self).release(
+            name, apply=apply, plan_sha256=plan_sha256
+        )
+
+    def _scope_profile_owner(self, name: str) -> str | None:
+        from .scopes import ScopeLifecycle
+
+        return ScopeLifecycle(self).profile_owner(name)
+
+    def _scope_topology_owner(self, name: str) -> dict[str, Any] | None:
+        from .scopes import ScopeLifecycle
+
+        return ScopeLifecycle(self).topology_owner(name)
+
     def __del__(self) -> None:
         try:
             self.close()
@@ -1965,6 +2021,7 @@ class Workspace:
         requests: list[LeaseRequest] | tuple[LeaseRequest, ...],
         *,
         nonblocking: bool = False,
+        include_wrapper: bool = True,
     ) -> Iterator[tuple[TextIO, ...]]:
         """Acquire exact leases beneath the shared migration barrier."""
 
@@ -1974,7 +2031,9 @@ class Workspace:
             "shared",
             "use wrapper worktree",
         )
-        protected_requests = (*requests, wrapper_request)
+        protected_requests = (
+            (*requests, wrapper_request) if include_wrapper else tuple(requests)
+        )
         with shared_maintenance_lock(
             self._lease_namespace / "repository-layout.lock"
         ):
@@ -3356,6 +3415,8 @@ class Workspace:
         start_point: str | None,
         existing: bool,
         stable_destination: Path | None = None,
+        *,
+        announce: bool = True,
     ) -> Path:
         self.paths.ensure()
         validate_name(label, "worktree label")
@@ -3416,7 +3477,8 @@ class Workspace:
                         f"be rolled back: {rollback_error}"
                     ) from error
             raise
-        print(reported_destination)
+        if announce:
+            print(reported_destination)
         return reported_destination
 
     def remove_worktree(self, component_name: str, label: str) -> None:
@@ -3633,7 +3695,7 @@ class Workspace:
         """Return exact persisted references while the caller holds source exclusive."""
 
         target = source_root.resolve()
-        references: list[str] = []
+        references: list[str] = self._scope_source_references(target)
         for record in self._physical_reference_records():
             if (
                 not isinstance(record, dict)
@@ -3703,6 +3765,105 @@ class Workspace:
                         break
         return sorted(set(references))
 
+    def _scope_source_references(self, target: Path) -> list[str]:
+        """Keep complete or recoverable scope inputs visible to cleanup."""
+
+        return [
+            f"scope:{name}"
+            for name, path in self._scope_reference_records()
+            if path.resolve(strict=False) == target
+        ]
+
+    def _scope_reference_records(self) -> list[tuple[str, Path]]:
+        """Return exact source paths retained by complete or recoverable scopes."""
+
+        from .scopes import (
+            SCOPE_JOURNAL_SCHEMA_VERSION,
+            SCOPE_RELEASE_SCHEMA_VERSION,
+            ScopeLifecycle,
+        )
+
+        root = self.paths.scopes
+        if not root.exists():
+            return []
+        if root.is_symlink() or not root.is_dir():
+            raise WorkspaceError(f"cannot prove scope references: {root}")
+        references: list[tuple[str, Path]] = []
+        lifecycle = ScopeLifecycle(self)
+        for directory in sorted(root.iterdir()):
+            if (
+                directory.name.startswith(".")
+                or directory.is_symlink()
+                or not directory.is_dir()
+            ):
+                raise WorkspaceError(
+                    f"cannot prove scope reference directory: {directory}"
+                )
+            record_path = directory / "scope.json"
+            journal_path = directory / "creation-journal.json"
+            release_path = directory / "release-journal.json"
+            completed: set[str] = set()
+            if release_path.exists() or release_path.is_symlink():
+                release = load_regular_json(
+                    release_path, f"scope release {directory.name}"
+                )
+                if (
+                    not isinstance(release, dict)
+                    or release.get("schema_version")
+                    != SCOPE_RELEASE_SCHEMA_VERSION
+                    or release.get("scope") != directory.name
+                    or not isinstance(release.get("completed"), list)
+                    or not all(
+                        isinstance(item, str) for item in release["completed"]
+                    )
+                ):
+                    raise WorkspaceError(
+                        f"cannot prove scope release references: {release_path}"
+                    )
+                completed = set(release["completed"])
+            if record_path.exists() or record_path.is_symlink():
+                record = lifecycle._load_record(directory.name)
+                rows = [
+                    row
+                    for row in record["worktrees"]
+                    if f"worktree:{row['checkout']}" not in completed
+                ]
+            elif journal_path.exists() or journal_path.is_symlink():
+                journal = load_regular_json(
+                    journal_path, f"scope creation journal {directory.name}"
+                )
+                if (
+                    not isinstance(journal, dict)
+                    or journal.get("schema_version")
+                    != SCOPE_JOURNAL_SCHEMA_VERSION
+                    or journal.get("name") != directory.name
+                    or not isinstance(journal.get("worktrees"), list)
+                ):
+                    raise WorkspaceError(
+                        f"cannot prove scope creation references: {journal_path}"
+                    )
+                rows = [
+                    row
+                    for row in journal["worktrees"]
+                    if isinstance(row, dict)
+                    and row.get("status")
+                    in {"created", "preserved-changed", "preserved-uncertain"}
+                ]
+                if any(
+                    not isinstance(row, dict)
+                    or not isinstance(row.get("path"), str)
+                    for row in journal["worktrees"]
+                ):
+                    raise WorkspaceError(
+                        f"cannot prove scope creation references: {journal_path}"
+                    )
+            else:
+                continue
+            references.extend(
+                (directory.name, Path(row["path"])) for row in rows
+            )
+        return references
+
     def list_worktrees(self, names: list[str] | None = None) -> list[tuple[str, dict[str, str]]]:
         self.paths.ensure()
         result: list[tuple[str, dict[str, str]]] = []
@@ -3726,6 +3887,11 @@ class Workspace:
         self.paths.ensure()
         validate_name(name, "profile name")
         validate_name(source, "profile name")
+        scope_owner = self._scope_profile_owner(name)
+        if scope_owner is not None:
+            raise WorkspaceError(
+                f"profile name is reserved by scope {scope_owner}: {name}"
+            )
         requests = [
             self._lease_request(
                 "profile", name, "exclusive", f"create profile {name}"
@@ -3807,6 +3973,11 @@ class Workspace:
     ) -> None:
         self.paths.ensure()
         validate_name(name, "profile name")
+        scope_owner = self._scope_profile_owner(name)
+        if scope_owner is not None:
+            raise WorkspaceError(
+                f"profile is immutable while owned by scope {scope_owner}: {name}"
+            )
         profile_request = self._lease_request(
             "profile", name, "exclusive", f"update profile {name}"
         )
@@ -4427,6 +4598,11 @@ class Workspace:
         release_coordinates: dict[str, Any] | None = None,
     ) -> None:
         self.paths.ensure()
+        scope_owner = self._scope_profile_owner(name)
+        if scope_owner is not None:
+            raise WorkspaceError(
+                f"profile is immutable while owned by scope {scope_owner}: {name}"
+            )
         with self._resource_locks(
             [
                 self._lease_request(
@@ -13744,6 +13920,23 @@ class Workspace:
     ) -> dict[str, Any]:
         self.paths.ensure()
         selected_services = self._topology_services(services)
+        normalized_mode, normalized_state = self._normalize_topology_state_request(
+            state_mode, state_name, selected_services
+        )
+        scope = self._scope_topology_owner(name)
+        if scope is not None:
+            policy = scope["state_policy"]
+            if (
+                profile_name != scope["profile"]["name"]
+                or "server" in selected_services
+                and (
+                    normalized_mode != policy["mode"]
+                    or normalized_state != policy["name"]
+                )
+            ):
+                raise WorkspaceError(
+                    f"topology name is reserved by scope {scope['name']} with exact profile and state coordinates: {name}"
+                )
         with self._resolved_profile_operation(
             profile_name,
             set(selected_services),
@@ -13759,10 +13952,10 @@ class Workspace:
                 return self._topology_up(
                     name,
                     profile_name,
-                    state_name,
+                    normalized_state,
                     services,
                     port,
-                    state_mode,
+                    normalized_mode,
                 )
 
     def _topology_resolved_status(

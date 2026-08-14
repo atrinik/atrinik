@@ -108,10 +108,15 @@ class CompletionTests(unittest.TestCase):
         self.assertEqual(mode, "candidates")
         self.assertIn("completion", values)
         self.assertIn("worktree", values)
+        self.assertIn("scope", values)
 
         self.assertEqual(
             self.candidates("worktree", ""),
             ("candidates", ["create", "list", "remove"]),
+        )
+        self.assertEqual(
+            self.candidates("scope", ""),
+            ("candidates", ["create", "list", "release", "show"]),
         )
         self.assertEqual(
             self.candidates("topology", "show", "default", "--service", "s"),
@@ -128,6 +133,20 @@ class CompletionTests(unittest.TestCase):
         mode, values = self.candidates("logs", "default", "server", "--f")
         self.assertEqual(mode, "candidates")
         self.assertEqual(values, ["--follow"])
+
+    def test_completed_scope_names_refresh_without_loading_workspace(self) -> None:
+        self.write_json(
+            self.workspace / "scopes" / "review" / "scope.json",
+            {"schema_version": 1, "status": "complete", "name": "review"},
+        )
+        self.write_json(
+            self.workspace / "scopes" / "partial" / "scope.json",
+            {"schema_version": 1, "status": "creating", "name": "partial"},
+        )
+        self.assertEqual(
+            self.candidates("scope", "show", ""),
+            ("candidates", ["review"]),
+        )
 
     def test_consumed_and_mutually_exclusive_options_are_suppressed(self) -> None:
         mode, values = self.candidates("cleanup", "--dry-run", "--", "")
