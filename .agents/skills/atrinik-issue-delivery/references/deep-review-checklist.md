@@ -73,18 +73,27 @@ categories into invented findings.
 - Exercise absent, fresh-canonical, legacy-only, planned-migration, and completed
   migration states. Freeze the legacy bytes, parsed source coordinates, and
   creator/push identity separately from mutable current slots. Persist planned
-  intent in a no-clobber sidecar before canonical-ledger creation and completion
-  afterward; resume only the exact planned transition. A completed migration
+  intent in a no-clobber sidecar before canonical-ledger creation, then
+  atomically/durably compare-and-swap exact planned bytes to complete through a
+  pre-recorded no-clobber same-directory temp and parent fsync. An interruption
+  must leave a valid planned or complete marker; test before/during/after the
+  transition and safe exact-temp resume. Unrecorded debris or concurrent change
+  stops. A
+  completed migration
   requires its legacy source, canonical ledger, and sidecar, and disappearance
   of any member stops. Compare the legacy source only to its immutable snapshot
   while comparing current slots to live state; accept ordinary descendant head
   advancement but not rewritten history. Exercise repeated resume, source or
   canonical loss, partial multi-owner sets, and digest/coordinate mismatch.
 - Before any PR-mode claim or artifact mutation, boundedly inventory and parse
-  only regular no-follow legacy candidates under the exact ignored review root.
+  all regular no-follow current or legacy issue-mode ledgers and migration
+  sidecars under the exact ignored review root.
   Block any selected issue, PR, repository/head-branch, or worktree intersection
   even without native linkage or a local worktree; leave true nonmatches
-  untouched and read-only. An incomplete or unsafe inventory stops.
+  untouched and read-only. Exercise canonical-only ownership, the same explicit
+  issue with different artifacts, a missing migration member, descendant-head
+  overlap, and unrelated canonical reports. An incomplete or unsafe inventory
+  stops.
 - Confirm idempotency where commands or external mutations may be retried.
 - Inspect platform-sensitive paths, quoting, case sensitivity, separators,
   symlinks, permissions, terminals, shells, and line endings.

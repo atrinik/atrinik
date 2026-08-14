@@ -5,51 +5,48 @@ description: Deliver an open Atrinik issue or existing PR through isolated work,
 
 # Deliver an Atrinik issue or pull request
 
-Choose exactly one type-explicit `ENTRY_MODE`: `issue` for new issue-first
-work or `PR` for one existing pull request. Both share the delivery loop and
-stop before merge.
+Choose exactly one type-explicit `ENTRY_MODE`: `issue` for new issue-first work
+or `PR` for one existing pull request. Both stop before merge.
 
-Explicit invocation authorizes ordinary pushes, selected/delivery-created PR
-updates, ready transitions after exit gates, and brief comments. Issue mode also
-authorizes draft creation/claim; PR mode authorizes a claim only for an
-explicitly named, preflight-verified issue. It does not authorize force-pushes,
-issue creation/closure, merges, policy bypass, destructive resets, cleanup
-application, self-approval, retargeting, unrelated changes, or PR-discovered
-issue mutation. Create/resume a persistent goal only when explicitly asked.
+Invocation permits ordinary pushes, authorized PR updates, gated
+readiness, and brief comments; issue mode also draft creation/claim, while PR
+mode claims only explicitly named, preflight-verified issues. It does not authorize
+force-push, issue creation/closure, merges, bypass, destructive reset, cleanup,
+self-approval, retargeting, unrelated work, or PR-discovered issue mutation.
+Create/resume a persistent goal only when explicitly asked.
 
-For an ordered master with dependent leaves, use explicit
-`$atrinik-program-delivery`. A program-delivery invocation delegates this
-contract only in issue mode to dependency-ready children in the live graph;
-never PR mode or unrelated-PR authority. Do not create a nested leaf goal.
+For an ordered master, use explicit `$atrinik-program-delivery`. A
+program-delivery invocation delegates this contract only in issue mode to
+dependency-ready live children, never PR mode or unrelated PRs. Do not create a
+nested leaf goal.
 
 Load `atrinik-multi-repo-workspace`, `atrinik-github-governance`, and only the
-applicable implementation skill. Add `atrinik-server-runtime` and
-`atrinik-test-scenario` only when verification needs them. Follow those skills
-and each physical owner's nearest `AGENTS.md`; do not duplicate their runtime or
-scenario procedures.
+applicable implementation skill. Add `atrinik-server-runtime`/
+`atrinik-test-scenario` only as needed; follow them and the owner's nearest
+`AGENTS.md` without duplicating procedures.
 
 ## Select and verify the entry mode
 
-1. Require the invocation to say `issue` or `PR` with its
-   `owner/repository#number`, or prove the type from equally unambiguous
-   structured context. A bare `owner/repository#number` is ambiguous: stop
+1. Require `issue` or `PR` with its `owner/repository#number`, or prove the type
+   from equally unambiguous structured context. A bare
+   `owner/repository#number` is ambiguous: stop
    before mutation instead of querying both types and guessing. When both an
    issue and PR are supplied, keep PR mode explicit and verify they describe
    the same work before mutation.
-2. With the requested GitHub access path, verify identity, repository/remotes,
-   the live default and target branches, coordinate state, linked work, and
-   collisions. Never expose credentials. Stop for repository mismatch,
-   ambiguous implementation, competing work, unsafe branch/worktree/report
-   coordinates, or a changed or unavailable selected head. Before an active-PR
-   decision, claim, or artifact mutation, issue mode inspects both report paths;
-   PR mode no-follow inventories/parses bounded regular legacy candidates under
-   the proven exact ignored review root.
+2. Using the requested GitHub path, verify identity, repository/remotes, live
+   default/target branches, coordinates, linked work, and collisions without
+   exposing credentials. Stop on repository mismatch, ambiguous/competing work,
+   unsafe branch/worktree/report coordinates, or a changed/unavailable head.
+   Before an active-PR decision, claim, or artifact mutation, issue mode inspects
+   both report paths; PR mode boundedly inventories/parses all regular no-follow
+   issue-mode ledgers/sidecars and validates migration sets in the proven exact
+   ignored review root.
 3. Issue mode requires an open issue; inspect assignees, labels, comments,
-   hierarchy, Project item, links, and candidate PRs. If active PRs already own
+   hierarchy, Project, links, and candidate PRs. If active PRs already own
    the work, resume only when each is recorded by this same issue-mode delivery,
    named by the sole permitted legacy report, or uniquely matches a pre-recorded
-   pending PR slot, and step 6 matches. Complete migration or binding before
-   mutation; otherwise stop at the exact PR and require type-explicit PR mode.
+   pending PR slot, and step 6 matches. Migrate or bind before mutation;
+   otherwise stop at the exact PR and require type-explicit PR mode.
 4. In PR mode, require an existing open, unmerged PR. Record its repository,
    author/head repository, target/head branches, base/head SHAs, merge base,
    draft state, links/closing references, body, reviews, conversations, checks,
@@ -106,19 +103,23 @@ scenario procedures.
   claims the issue/artifacts, both paths are ignored, and no extra, duplicate,
   unrecorded, or colliding artifact exists. Verify live/local every recorded
   issue, PR, repository, base/head/merge-base, branch, worktree, and closing
-  scope plus authenticated creator/push identity and safe state. First
-  atomically no-clobber write
-  `<legacy-path>.migrated` as planned with immutable source path, SHA-256,
-  coordinates/identity snapshot, and intended canonical path. Recheck, atomically
-  no-clobber create the canonical ledger linking it and copying the snapshot;
-  record existing slots created/adopted and future absent slots planned,
-  preserve old bytes, then durably mark the sidecar complete. A planned marker
-  resumes only that exact
-  transition. Completed migration requires exact legacy,
+  scope, authenticated creator/push identity, and safe state. Atomically
+  no-clobber write `<legacy-path>.migrated` as planned with immutable source
+  path, SHA-256, coordinates/identity snapshot, and intended canonical and
+  completion-temp paths.
+  Recheck; atomically no-clobber create the canonical ledger linking and copying
+  the snapshot; record existing slots created/adopted and future absent slots
+  planned; preserve old bytes. Revalidate source, snapshot, ledger, and marker;
+  no-clobber write/fsync the recorded same-directory complete temp, compare the
+  exact planned bytes, atomically replace the sidecar, and fsync its parent.
+  Interruption leaves a valid planned or complete marker; resume only the exact
+  recorded transition/temp. Mismatch, unrecorded debris, or concurrent change
+  stops.
+  Completed migration requires exact legacy,
   canonical, and marker files; any disappearance stops. Compare legacy bytes
   and coordinates only to the snapshot and mutable canonical slots to live,
   allowing ordinary descendant head updates but no rewrite. Any gap, ambiguity,
-  mismatch, or unproved fact stops and preserves all. PR mode never adopts legacy;
+  mismatch, or unproved fact stops. PR mode never adopts issue-mode artifacts;
   incomplete/unsafe inventory stops; any selected issue, PR,
   repository/head-branch, or worktree intersection blocks while nonmatches stay
   read-only.
