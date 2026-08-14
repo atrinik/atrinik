@@ -383,15 +383,22 @@ Commit-keyed source generations have closed repository/branch/checkout/tree/
 subpath metadata and a complete tree digest. Reuse additionally enumerates the
 exact recorded Git tree without replacement-object indirection and proves every
 generated path, entry type, executable mode, symlink target, and blob object ID
-through a pinned, no-follow descriptor traversal before selection. A mismatch
-fails closed and leaves recovery to the explicit preview-first `builds` cleanup
-boundary. Once path, marker, key, and closed metadata ownership are exact,
-cleanup classifies a content-digest mismatch as removable corruption. Builds
-hold a per-key shared lock; cleanup apply revalidates ownership, content state,
-and age under its exclusive side before bounded removal. First-use container
-publication is checkout-serialized. Interrupted staging remains a recognized
-child of its marker-owned container, is protected while its generation lock is
-busy, and becomes independently reclaimable after the normal grace period.
+through a pinned, no-follow descriptor traversal before selection. New staging
+trees are complete and sealed before descriptor-relative flushing of every file
+and directory; only then does a no-replace rename expose the canonical key, and
+the container is flushed before success. A mismatch
+under descriptor-verified exact marker ownership atomically moves the complete
+generation identity to a retained recovery transaction, then rebuilds the
+canonical key through the ordinary staging and no-replace publication path.
+Uncertain ownership fails closed without moving data. Recovery and interrupted
+staging remain recognized children of the marker-owned container, are protected
+while their generation lock is busy, and become independently reclaimable only
+through preview-first `builds` cleanup after the normal grace period. Once path,
+marker, key, and closed metadata ownership are exact, cleanup classifies a
+content-digest mismatch as removable corruption. Builds hold a per-key shared
+lock; cleanup apply revalidates ownership, content state, and age under its
+exclusive side before bounded removal. First-use container publication is
+checkout-serialized.
 
 The npm and compiler caches have exact purpose markers and atomically refreshed
 `.atrinik-cache.json` timestamps. The compiler cache metadata also fixes its
