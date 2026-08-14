@@ -40,10 +40,15 @@ JSON decoding, `fstat` the open no-follow descriptor and reject a size above
 and reject excess or size drift. The validated canonical serialization must
 also be at most 8,388,608 bytes. Each array or object has at most 10,000
 members, every UTF-8 string is at most 65,536 bytes, and a ledger path is at
-most 4,096 UTF-8 bytes. These limits apply recursively, including graph,
+most 4,096 UTF-8 bytes. JSON value depth is at most 16, counting the top-level
+object as depth 1. These limits apply recursively, including graph,
 snapshot, dependency, observation, body, and evidence values. Check them
-before digesting or allocating derived canonical collections. A limit failure
-is corrupt state and stops; never truncate, partially parse, or rewrite it.
+iteratively before digesting or allocating derived canonical collections;
+parser or serializer recursion exhaustion is corrupt state. A limit failure
+stops; never truncate, partially parse, or rewrite it. Reject duplicate object
+keys and require the retained bytes themselves to equal the canonical
+serialization exactly, so whitespace, BOM, escapes, or a missing LF cannot be
+silently normalized.
 
 ## Closed schema
 

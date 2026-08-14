@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 import tempfile
 import unittest
+import unicodedata
 
 
 class StopClosed(RuntimeError):
@@ -33,6 +34,7 @@ class ProgramLedgerModel:
     MAX_LEDGER_BYTES = 8 * 1024 * 1024
     MAX_COLLECTION = 10_000
     MAX_STRING_BYTES = 65_536
+    MAX_DEPTH = 16
 
     KEYS = {
         "generation", "self_inode", "lock", "previous_sha256", "authority", "graph",
@@ -65,23 +67,40 @@ class ProgramLedgerModel:
         self.remote_calls = {"comment": 0, "create": 0, "link": 0}
         self.report_present = False
 
-    @staticmethod
-    def canonical(record: dict[str, object]) -> bytes:
-        return (json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n").encode()
+    @classmethod
+    def canonical(cls, value: object) -> bytes:
+        if not cls.value_is_bounded(value):
+            raise StopClosed("canonical value violates type, NFC, or size bounds")
+        try:
+            text = json.dumps(
+                value, ensure_ascii=False, allow_nan=False, sort_keys=True,
+                separators=(",", ":"),
+            )
+        except (TypeError, ValueError, RecursionError) as error:
+            raise StopClosed("canonical serialization failed") from error
+        return (text + "\n").encode("utf-8")
 
     @classmethod
     def decode(cls, raw: bytes) -> dict[str, object]:
         if not cls.raw_size_allowed(len(raw)):
             raise StopClosed("ledger exceeds its pre-parse byte ceiling")
         try:
-            value = json.loads(raw)
-        except (UnicodeDecodeError, json.JSONDecodeError) as error:
+            def unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+                result: dict[str, object] = {}
+                for key, item in pairs:
+                    if key in result:
+                        raise StopClosed("ledger contains a duplicate object key")
+                    result[key] = item
+                return result
+
+            value = json.loads(raw, object_pairs_hook=unique_object)
+        except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as error:
             raise StopClosed("ledger JSON is invalid") from error
-        if (
-            not isinstance(value, dict) or not cls.value_is_bounded(value)
-            or len(cls.canonical(value)) > cls.MAX_LEDGER_BYTES
-        ):
+        if not isinstance(value, dict) or not cls.value_is_bounded(value):
             raise StopClosed("canonical ledger exceeds its byte ceiling")
+        canonical = cls.canonical(value)
+        if len(canonical) > cls.MAX_LEDGER_BYTES or raw != canonical:
+            raise StopClosed("retained ledger bytes are not canonical")
         return value
 
     @classmethod
@@ -93,22 +112,37 @@ class ProgramLedgerModel:
 
     @classmethod
     def value_is_bounded(cls, value: object) -> bool:
-        if isinstance(value, str):
-            return len(value.encode()) <= cls.MAX_STRING_BYTES
-        if isinstance(value, dict):
-            return len(value) <= cls.MAX_COLLECTION and all(
-                cls.value_is_bounded(key)
-                and (
-                    cls.path_is_bounded(item)
-                    if key.endswith("_path") else cls.value_is_bounded(item)
-                )
-                for key, item in value.items()
-            )
-        if isinstance(value, list):
-            return len(value) <= cls.MAX_COLLECTION and all(
-                cls.value_is_bounded(item) for item in value
-            )
-        return value is None or type(value) in {bool, int}
+        pending: list[tuple[object, int, str | None]] = [(value, 1, None)]
+        while pending:
+            current, depth, field = pending.pop()
+            if depth > cls.MAX_DEPTH:
+                return False
+            if isinstance(current, str):
+                if (
+                    unicodedata.normalize("NFC", current) != current
+                    or len(current.encode("utf-8")) > cls.MAX_STRING_BYTES
+                    or (field is not None and field.endswith("_path")
+                        and not cls.path_is_bounded(current))
+                ):
+                    return False
+            elif isinstance(current, dict):
+                if len(current) > cls.MAX_COLLECTION:
+                    return False
+                for key, item in current.items():
+                    if (
+                        not isinstance(key, str)
+                        or unicodedata.normalize("NFC", key) != key
+                        or len(key.encode("utf-8")) > cls.MAX_STRING_BYTES
+                    ):
+                        return False
+                    pending.append((item, depth + 1, key))
+            elif isinstance(current, list):
+                if len(current) > cls.MAX_COLLECTION:
+                    return False
+                pending.extend((item, depth + 1, field) for item in current)
+            elif current is not None and type(current) not in {bool, int}:
+                return False
+        return True
 
     @staticmethod
     def path_is_bounded(value: object) -> bool:
@@ -889,6 +923,18 @@ class ProgramLedgerModelTests(unittest.TestCase):
             "ba30abf23ca48a0aeec077633e1fdfed9aca308ed41295faed046198085fa4ee",
         )
         self.assertNotEqual(first, second)
+        self.assertEqual(
+            ProgramLedgerModel.coordinate("R_é", "I_ß"),
+            "e45d2af641903f03a0a4acbe30aa15a1929f0b928861a4ece834f4d8a53d7355",
+        )
+        self.assertEqual(
+            ProgramLedgerModel.result_stream([{"body": "é"}]),
+            "54cc82f0270ab5b28544fd482dee4783da86df0c27133ac870ddf8bb5473f2c4",
+        )
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.coordinate("R_e\N{COMBINING ACUTE ACCENT}", "I_1")
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.result_stream([{"body": "e\N{COMBINING ACUTE ACCENT}"}])
 
     def test_multi_page_bounds_and_stream_stability(self) -> None:
         ProgramLedgerModel.stable_scan(["a", "b"], ["1", "2"], "d", "d")
@@ -935,6 +981,38 @@ class ProgramLedgerModelTests(unittest.TestCase):
         self.assertFalse(ProgramLedgerModel.value_is_bounded(
             {"items": [None] * 10_001}
         ))
+
+    def test_canonical_bytes_nfc_duplicates_and_depth_fail_closed(self) -> None:
+        self.assertEqual(
+            ProgramLedgerModel.canonical({"x": "é"}), b'{"x":"\xc3\xa9"}\n'
+        )
+        self.assertEqual(ProgramLedgerModel.decode(b'{"x":"\xc3\xa9"}\n'), {"x": "é"})
+        invalid = (
+            b'{ "x" : "ok" }\n', b'{"x":"ok"}', b'\xef\xbb\xbf{"x":"ok"}\n',
+            b'{"x":1,"x":2}\n', b'{"x":"\\u00e9"}\n',
+            '{"x":"e\N{COMBINING ACUTE ACCENT}"}\n'.encode("utf-8"),
+        )
+        for raw in invalid:
+            with self.subTest(raw=raw), self.assertRaises(StopClosed):
+                ProgramLedgerModel.decode(raw)
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.canonical({"x": "e\N{COMBINING ACUTE ACCENT}"})
+
+        at_limit: object = 0
+        for _ in range(14):
+            at_limit = [at_limit]
+        self.assertTrue(ProgramLedgerModel.value_is_bounded({"x": at_limit}))
+        at_limit_bytes = ProgramLedgerModel.canonical({"x": at_limit})
+        ProgramLedgerModel.decode(at_limit_bytes)
+        over_limit = [at_limit]
+        self.assertFalse(ProgramLedgerModel.value_is_bounded({"x": over_limit}))
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.canonical({"x": over_limit})
+        over_limit_bytes = (
+            json.dumps({"x": over_limit}, separators=(",", ":")) + "\n"
+        ).encode()
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.decode(over_limit_bytes)
 
     def test_marker_namespace_actor_and_duplicates_fail_closed(self) -> None:
         ProgramLedgerModel.validate_marker([], "actor", False)
