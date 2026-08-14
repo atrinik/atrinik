@@ -290,7 +290,7 @@ class ProgramLedgerModel:
     def observe_comment(
         self, stream: str = "comment-stable", count: int | None = None,
         complete: bool = True,
-        namespace: list[tuple[str, str]] | None = None,
+        namespace: list[tuple[str, str, str, str]] | None = None,
         body: str = "old-body",
     ) -> None:
         marker_required = (
@@ -299,13 +299,17 @@ class ProgramLedgerModel:
             or bool(count)
         )
         if namespace is None:
-            namespace = [("marker", "actor")] if marker_required else []
-        self.validate_marker(namespace, "actor", marker_required)
-        results = (
-            [{"node": "comment-node", "author": "actor", "body": body,
-              "marker": "program-marker"}]
-            if marker_required else []
-        )
+            namespace = (
+                [("comment-node", "actor", "program-marker", body)]
+                if marker_required else []
+            )
+        expected = [("comment-node", "actor", "program-marker", body)]
+        if (marker_required and namespace != expected) or (not marker_required and namespace):
+            raise StopClosed("comment marker/node/author/body is not exact")
+        results = [
+            {"node": node, "author": author, "marker": marker, "body": text}
+            for node, author, marker, text in namespace
+        ]
         self._observe(
             "comment", stream, self.result_stream(results),
             int(marker_required) if count is None else count, complete
@@ -388,7 +392,10 @@ class ProgramLedgerModel:
         kind = {"comment": "comment", "create": "child", "link": "parent"}[slot]
         current = self.record["observation"][kind]
         planned = self.record[slot]["plan_observation"]
-        if not current or not current["complete"] or current["generation"] <= planned["generation"]:
+        if (
+            not planned["complete"] or not current or not current["complete"]
+            or current["generation"] <= planned["generation"]
+        ):
             raise StopClosed("persisted observation evidence changed")
         expected_count = (
             1 if slot == "comment" and self.record[slot]["node"] is not None else 0
@@ -501,7 +508,8 @@ class ProgramLedgerModel:
             or self.record["comment"]["node"] != node
         ):
             raise StopClosed("rekey changes authority or comment node")
-        if not self.record["observation"]["comment"]:
+        observation = self.record["observation"]["comment"]
+        if not observation or not observation["complete"] or observation["count"] != 1:
             raise StopClosed("rekey lacks complete comment observation")
         self.persist(lambda r: r.update(next_graph=copy.deepcopy(next_graph)))
         self._plan("comment", node=node, prior="old-body")
@@ -944,10 +952,17 @@ class ProgramLedgerModelTests(unittest.TestCase):
         model.execute(permit)
         self.observe_result(model, "comment")
         model.bind_comment([self.exact_comment()])
+        model.observe_comment(complete=False)
+        with self.assertRaises(StopClosed):
+            model.rekey(
+                model.record["authority"], ["leaf-1", "leaf-2"], "comment-node"
+            )
         model.observe_comment()
         model.rekey(model.record["authority"], ["leaf-1", "leaf-2"], "comment-node")
         for namespace in ([], [("marker", "other")],
-                          [("marker", "actor"), ("second", "actor")]):
+                          [("marker", "actor"), ("second", "actor")],
+                          [("wrong-node", "actor", "program-marker", "old-body")],
+                          [("comment-node", "actor", "wrong-marker", "old-body")]):
             with self.subTest(namespace=namespace), self.assertRaises(StopClosed):
                 model.observe_comment(namespace=namespace, count=len(namespace))
         self.refresh_before_arm(model, "comment")
