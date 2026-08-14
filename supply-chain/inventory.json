@@ -1356,13 +1356,13 @@
         "classic-server"
       ],
       "required": true,
-      "version": "materials-428265fcc11e9e3f7fc534659b55008cd26e9da6c74da054074279b7bc4af2e9",
+      "version": "materials-c70422ac4df08fc013a6b1bf15d93fd19fbae724d871caa80793a5a73ac08865",
       "version_source": "Classic dependencies.bundle.json material digest",
       "license": "LicenseRef-Atrinik-Image-Contents",
       "source_url": "https://github.com/atrinik/classic/pkgs/container/classic-dependencies",
-      "locator": "ghcr.io/atrinik/classic-dependencies@sha256:ffe1fa8d28a323d502d01400e2260b7b5eec37842e762c439b88bd9ee823923e",
+      "locator": "ghcr.io/atrinik/classic-dependencies@sha256:e8b84176046719785f768b45f513b29ab81c631b153454a025aa016cd82ee16f",
       "commit": null,
-      "checksum": "sha256:ffe1fa8d28a323d502d01400e2260b7b5eec37842e762c439b88bd9ee823923e",
+      "checksum": "sha256:e8b84176046719785f768b45f513b29ab81c631b153454a025aa016cd82ee16f",
       "acquisition": "A trusted current-main workflow builds the deterministic OCI layout through the authoritative Classic fetcher and publishes its exact manifest digest",
       "update_cadence_days": 30,
       "update_mechanism": "Reviewed Classic lock or acquisition-contract update with a regenerated material and OCI descriptor",
@@ -1379,7 +1379,7 @@
         {
           "repository": "classic",
           "path": "dependencies.bundle.json",
-          "contains": "sha256:ffe1fa8d28a323d502d01400e2260b7b5eec37842e762c439b88bd9ee823923e"
+          "contains": "sha256:e8b84176046719785f768b45f513b29ab81c631b153454a025aa016cd82ee16f"
         },
         {
           "repository": "classic",
@@ -2613,39 +2613,64 @@
       ]
     },
     {
-      "id": "source/atrinik-content-runtime",
-      "name": "Atrinik content runtime archive",
+      "id": "source/atrinik-content-playtester-runtime",
+      "name": "Atrinik content runtime archive for Playtester",
       "kind": "source-archive",
       "owner": "content",
       "scope": [
-        "classic-server",
         "playtester"
       ],
       "required": true,
       "version": "v2.14.0",
-      "version_source": "Classic server and playtester dependencies.lock.json files",
+      "version_source": "Playtester dependencies.lock.json content runtime input",
       "license": "LicenseRef-Atrinik-Asset-Per-File",
       "source_url": "https://github.com/atrinik/content/releases/tag/v2.14.0",
       "locator": "pkg:github/atrinik/content@v2.14.0",
       "commit": "7dde0c0afe8840fc95dd26f404310e77d9c82621",
       "checksum": "sha256:f4ad326e20e221869897c72f7e33b533c408ce6654038dbfc4352da1c3391261",
-      "acquisition": "Classic release packaging obtains the archive from the exact durable dependency-bundle digest and rechecks it before safe extraction; Playtester retains its own verified atomic cache boundary",
+      "acquisition": "Playtester obtains the archive through its verified atomic cache boundary",
       "update_cadence_days": 30,
-      "update_mechanism": "Daily fail-closed GitHub App proposal plus reviewed Classic and playtester compatibility updates",
-      "eol_response": "Update both locks to a supported content release or stop Classic packaging and Playtester operation",
-      "validation": "Lock and dependency-bundle validation, checksum, safe extraction, offline Classic rehearsal/runtime tests, and playtester atomic/offline cache regressions",
+      "update_mechanism": "Reviewed Playtester compatibility update",
+      "eol_response": "Update the Playtester lock to a supported content release or stop Playtester operation",
+      "validation": "Lock validation, checksum, safe extraction, and playtester atomic/offline cache regressions",
+      "disposition": "isolate",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "playtester",
+          "path": "dependencies.lock.json",
+          "contains": "f4ad326e20e221869897c72f7e33b533c408ce6654038dbfc4352da1c3391261"
+        }
+      ]
+    },
+    {
+      "id": "source/atrinik-content-runtime",
+      "name": "Atrinik content runtime archive",
+      "kind": "source-archive",
+      "owner": "content",
+      "scope": [
+        "classic-server"
+      ],
+      "required": true,
+      "version": "v3.0.1",
+      "version_source": "Classic server dependencies.lock.json content runtime input",
+      "license": "LicenseRef-Atrinik-Asset-Per-File",
+      "source_url": "https://github.com/atrinik/content/releases/tag/v3.0.1",
+      "locator": "pkg:github/atrinik/content@v3.0.1",
+      "commit": "65a88167d3a2bedcc2dc21508d94d7ca009a76d2",
+      "checksum": "sha256:2b49daee9d515a86323a5ef28a9f85a5098c96f72375155bb59dcdda50daeaf7",
+      "acquisition": "Classic release packaging obtains the archive from the exact durable dependency-bundle digest and rechecks it before safe extraction",
+      "update_cadence_days": 30,
+      "update_mechanism": "Daily fail-closed GitHub App proposal plus reviewed Classic compatibility update",
+      "eol_response": "Update the Classic lock to a supported content release or stop Classic packaging",
+      "validation": "Lock and dependency-bundle validation, checksum, safe extraction, and offline Classic rehearsal/runtime tests",
       "disposition": "isolate",
       "packages": [],
       "evidence": [
         {
           "repository": "classic-server",
           "path": "dependencies.lock.json",
-          "contains": "atrinik-content-2.14.0-classic-runtime.tar.gz"
-        },
-        {
-          "repository": "playtester",
-          "path": "dependencies.lock.json",
-          "contains": "f4ad326e20e221869897c72f7e33b533c408ce6654038dbfc4352da1c3391261"
+          "contains": "atrinik-content-3.0.1-classic-runtime.tar.gz"
         }
       ]
     },
