@@ -5549,6 +5549,63 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(output.exists())
         self.assertFalse(transaction.exists())
 
+        atomic_json(
+            transaction,
+            {
+                "schema_version": 1,
+                "generation": "2" * 64,
+                "state": str(state),
+                "state_identity": self.workspace._state_identity(state),
+                "phase": "creating",
+                "output_identity": None,
+            },
+        )
+        with self.assertRaisesRegex(
+            WorkspaceError, "before exact ownership was recorded"
+        ):
+            self.workspace._recover_runtime_state_output_transaction(
+                topology, "runtime-output-transaction"
+            )
+        self.assertTrue(transaction.is_file())
+
+    def test_pre_spawn_runtime_output_rollback_completes_transaction(self) -> None:
+        topology = self.workspace._topology_directory(
+            "runtime-output-pre-spawn", create=True
+        )
+        state = self.root / "runtime-output-pre-spawn-state"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "3" * 64
+        output, output_fd, output_identity = (
+            self.workspace._prepare_runtime_state_output(
+                state, generation, state_fd
+            )
+        )
+        os.close(output_fd)
+        transaction = topology / workspace_module.RUNTIME_STATE_OUTPUT_TRANSACTION
+        atomic_json(
+            transaction,
+            {
+                "schema_version": 1,
+                "generation": generation,
+                "state": str(state),
+                "state_identity": self.workspace._state_identity(state),
+                "phase": "prepared",
+                "output_identity": output_identity,
+            },
+        )
+        try:
+            self.workspace._rollback_runtime_state_output_transaction(
+                topology, output, generation, state_fd, output_identity
+            )
+            self.assertFalse(output.exists())
+            self.assertFalse(transaction.exists())
+            self.workspace._recover_runtime_state_output_transaction(
+                topology, "runtime-output-pre-spawn"
+            )
+        finally:
+            os.close(state_fd)
+
     def test_runtime_output_removal_retries_from_empty_tombstone(self) -> None:
         state = self.root / "runtime-output-removal-retry"
         state.mkdir()
@@ -5610,8 +5667,7 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace.topology_up(
                 "legacy-output", "default", "default", ["server"], 0
             )
-        digest = hashlib.sha256(output.name.encode("utf-8")).hexdigest()[:16]
-        output.rename(output.parent / f".remove-{digest}-1-2")
+        output.rename(output.parent / "operator-renamed-legacy-output")
         with (
             mock.patch.object(
                 self.workspace, "topology_status", return_value=previous
@@ -12473,6 +12529,65 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(
             {path.name for path in displaced.iterdir()}, {MANAGED_MARKER}
         )
+
+    def test_temporary_state_staging_rollback_rejects_replacement(self) -> None:
+        topology = self.workspace._topology_directory(
+            "staging-replaced", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        generation = "4" * 64
+        original_digest = workspace_module._tree_digest
+        displaced = topology / "displaced-state-staging"
+        replaced = False
+
+        def replace_staging(*args: object, **kwargs: object) -> str:
+            nonlocal replaced
+            digest = original_digest(*args, **kwargs)
+            if not replaced and Path(args[0]) == server / "install_data":
+                replaced = True
+                container = topology / "temporary-states"
+                staging = next(
+                    path
+                    for path in container.iterdir()
+                    if path.name.startswith(f".{generation}.")
+                )
+                staging.rename(displaced)
+                staging.mkdir()
+                (staging / "sentinel").write_text(
+                    "preserve\n", encoding="utf-8"
+                )
+            return digest
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._tree_digest",
+                side_effect=replace_staging,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "identity changed"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "staging-replaced",
+                "default",
+                generation,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        replacement = next(
+            path
+            for path in (topology / "temporary-states").iterdir()
+            if path.name.startswith(f".{generation}.")
+        )
+        self.assertEqual(
+            (replacement / "sentinel").read_text(encoding="utf-8"),
+            "preserve\n",
+        )
+        self.assertTrue(displaced.is_dir())
 
     def test_temporary_startup_rollback_removes_state_and_lease(self) -> None:
         topology = self.workspace._topology_directory("rollback", create=True)

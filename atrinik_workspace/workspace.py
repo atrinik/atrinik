@@ -1243,6 +1243,93 @@ def _tree_digest(
     return digest.hexdigest()
 
 
+def _tree_digest_descriptor(root_fd: int, display: Path) -> str:
+    """Hash an exact pinned regular tree without following child links."""
+
+    digest = hashlib.sha256()
+
+    def record(*fields: object) -> None:
+        encoded = json.dumps(
+            fields, ensure_ascii=True, separators=(",", ":")
+        ).encode()
+        digest.update(len(encoded).to_bytes(8, "big"))
+        digest.update(encoded)
+
+    def visit(directory_fd: int, relative: PurePosixPath) -> None:
+        for name in sorted(os.listdir(directory_fd)):
+            child = relative / name
+            child_display = display / child.as_posix()
+            metadata = os.stat(
+                name, dir_fd=directory_fd, follow_symlinks=False
+            )
+            mode = stat.S_IMODE(metadata.st_mode)
+            if stat.S_ISDIR(metadata.st_mode):
+                record("directory", child.as_posix(), mode)
+                descriptor = os.open(
+                    name,
+                    os.O_RDONLY
+                    | os.O_CLOEXEC
+                    | os.O_DIRECTORY
+                    | os.O_NOFOLLOW,
+                    dir_fd=directory_fd,
+                )
+                try:
+                    opened = os.fstat(descriptor)
+                    if (opened.st_dev, opened.st_ino) != (
+                        metadata.st_dev,
+                        metadata.st_ino,
+                    ):
+                        raise WorkspaceError(
+                            f"Worker source changed during inventory: {child_display}"
+                        )
+                    visit(descriptor, child)
+                finally:
+                    os.close(descriptor)
+            elif stat.S_ISREG(metadata.st_mode):
+                descriptor = os.open(
+                    name,
+                    os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                    dir_fd=directory_fd,
+                )
+                try:
+                    opened = os.fstat(descriptor)
+                    if (
+                        not stat.S_ISREG(opened.st_mode)
+                        or (opened.st_dev, opened.st_ino)
+                        != (metadata.st_dev, metadata.st_ino)
+                    ):
+                        raise WorkspaceError(
+                            f"Worker source changed during inventory: {child_display}"
+                        )
+                    file_digest = hashlib.sha256()
+                    while chunk := os.read(descriptor, 1024 * 1024):
+                        file_digest.update(chunk)
+                    record(
+                        "file",
+                        child.as_posix(),
+                        mode,
+                        metadata.st_size,
+                        file_digest.hexdigest(),
+                    )
+                finally:
+                    os.close(descriptor)
+            elif stat.S_ISLNK(metadata.st_mode):
+                raise WorkspaceError(
+                    f"Worker source contains a symbolic link: {child_display}"
+                )
+            else:
+                raise WorkspaceError(
+                    f"Worker source contains an unsupported file type: {child_display}"
+                )
+
+    root = os.fstat(root_fd)
+    if not stat.S_ISDIR(root.st_mode):
+        raise WorkspaceError(f"Worker source is not a regular directory: {display}")
+    record("root", stat.S_IMODE(root.st_mode))
+    visit(root_fd, PurePosixPath())
+    return digest.hexdigest()
+
+
 def _copy_worker_source(
     source: Path,
     destination: Path,
@@ -8897,12 +8984,39 @@ class Workspace:
             except FileNotFoundError:
                 staging = f".temporary-states.{secrets.token_hex(12)}.tmp"
                 staging_fd: int | None = None
+                staging_identity: dict[str, int] | None = None
                 try:
                     os.mkdir(staging, mode=0o700, dir_fd=root_fd)
+                    created = os.stat(
+                        staging, dir_fd=root_fd, follow_symlinks=False
+                    )
+                    staging_identity = {
+                        "device": created.st_dev,
+                        "inode": created.st_ino,
+                    }
                     staging_fd = os.open(staging, flags, dir_fd=root_fd)
+                    opened_staging = os.fstat(staging_fd)
+                    if (
+                        not stat.S_ISDIR(created.st_mode)
+                        or (opened_staging.st_dev, opened_staging.st_ino)
+                        != (created.st_dev, created.st_ino)
+                    ):
+                        raise WorkspaceError(
+                            "temporary state container staging changed"
+                        )
                     durable_atomic_json_at(
                         staging_fd, MANAGED_MARKER, expected
                     )
+                    visible_staging = os.stat(
+                        staging, dir_fd=root_fd, follow_symlinks=False
+                    )
+                    if (visible_staging.st_dev, visible_staging.st_ino) != (
+                        created.st_dev,
+                        created.st_ino,
+                    ):
+                        raise WorkspaceError(
+                            "temporary state container staging changed"
+                        )
                     rename_no_replace_at(
                         root_fd, staging, root_fd, "temporary-states"
                     )
@@ -8913,6 +9027,7 @@ class Workspace:
                     try:
                         remove_owned_tree(
                             topology_root / staging,
+                            expected_identity=staging_identity,
                             parent_directory_fd=root_fd,
                         )
                     except FileNotFoundError:
@@ -9115,21 +9230,40 @@ class Workspace:
                 f"temporary topology state already exists for generation {generation}"
             )
         staging: Path | None = None
+        staging_identity: dict[str, int] | None = None
         try:
             staging = Path(tempfile.mkdtemp(
                 prefix=f".{generation}.", dir=f"/proc/self/fd/{container_fd}"
             ))
             staging_name = staging.name
+            created = os.stat(
+                staging_name, dir_fd=container_fd, follow_symlinks=False
+            )
+            staging_identity = {
+                "device": created.st_dev,
+                "inode": created.st_ino,
+            }
             staging_fd = os.open(
                 staging_name,
                 os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
                 dir_fd=container_fd,
             )
+            opened_staging = os.fstat(staging_fd)
+            if (
+                not stat.S_ISDIR(created.st_mode)
+                or (opened_staging.st_dev, opened_staging.st_ino)
+                != (created.st_dev, created.st_ino)
+            ):
+                raise WorkspaceError(
+                    "temporary topology state staging changed"
+                )
         except BaseException:
             if staging is not None:
                 try:
                     remove_owned_tree(
-                        staging, parent_directory_fd=container_fd
+                        staging,
+                        expected_identity=staging_identity,
+                        parent_directory_fd=container_fd,
                     )
                 except FileNotFoundError:
                     pass
@@ -9138,15 +9272,18 @@ class Workspace:
         published_identity: dict[str, int] | None = None
         created_at = datetime.now(timezone.utc).isoformat()
         install_data = server_source / "install_data"
+        staging_access = Path(f"/proc/self/fd/{staging_fd}")
         try:
             source_digest = _tree_digest(
                 install_data, set(), reject_symlinks=True
             )
             shutil.copytree(
-                install_data, staging, dirs_exist_ok=True
+                install_data, staging_access, dirs_exist_ok=True
             )
             if (
-                _tree_digest(staging, set(), reject_symlinks=True) != source_digest
+                _tree_digest_descriptor(staging_fd, destination) != source_digest
+                or _tree_digest(install_data, set(), reject_symlinks=True)
+                != source_digest
                 or _tree_digest(install_data, set(), reject_symlinks=True)
                 != source_digest
             ):
@@ -9208,6 +9345,15 @@ class Workspace:
                     "state_policy": policy,
                 },
             )
+            visible_staging = os.stat(
+                staging_name, dir_fd=container_fd, follow_symlinks=False
+            )
+            if (visible_staging.st_dev, visible_staging.st_ino) != (
+                identity["device"], identity["inode"]
+            ):
+                raise WorkspaceError(
+                    "temporary topology state staging changed before publication"
+                )
             rename_no_replace_at(
                 container_fd, staging_name, container_fd, generation
             )
@@ -9246,6 +9392,7 @@ class Workspace:
                 else:
                     remove_owned_tree(
                         staging,
+                        expected_identity=staging_identity,
                         parent_directory_fd=container_fd,
                     )
             raise
@@ -10184,11 +10331,16 @@ class Workspace:
 
     @staticmethod
     def _prepare_runtime_state_output(
-        state: Path, generation: str, state_directory_fd: int | None = None
+        state: Path,
+        generation: str,
+        state_directory_fd: int | None = None,
+        cleanup_proof: list[bool] | None = None,
     ) -> tuple[Path, int, dict[str, int]]:
         flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
         descriptors: list[int] = []
         created_generation = False
+        if cleanup_proof is not None:
+            cleanup_proof[0] = True
         output = state / "tmp" / "runtime-assets" / generation
         state_mount_id: int | None = None
 
@@ -10253,6 +10405,8 @@ class Workspace:
                     f"server runtime state output already exists: {output}"
                 ) from error
             created_generation = True
+            if cleanup_proof is not None:
+                cleanup_proof[0] = False
             generation_fd = open_directory(container_fd, generation, False)
             descriptors.append(generation_fd)
             marker = json.dumps(
@@ -10321,6 +10475,9 @@ class Workspace:
                         f"server runtime state output path changed: {output}"
                     )
                 os.rmdir(tombstone, dir_fd=parent_fd)
+                os.fsync(parent_fd)
+                if cleanup_proof is not None:
+                    cleanup_proof[0] = True
             if isinstance(error, WorkspaceError):
                 raise
             if not isinstance(error, (OSError, ValueError)):
@@ -10601,23 +10758,102 @@ class Workspace:
     @staticmethod
     def _clear_runtime_state_output_transaction(topology_root: Path) -> None:
         transaction = topology_root / RUNTIME_STATE_OUTPUT_TRANSACTION
-        try:
-            metadata = transaction.stat(follow_symlinks=False)
-        except FileNotFoundError:
-            return
-        if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
-            raise WorkspaceError(
-                f"runtime state output transaction is invalid: {transaction}"
-            )
-        transaction.unlink()
         descriptor = _open_directory_nofollow(
             topology_root,
             os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
         )
         try:
+            try:
+                visible = os.stat(
+                    RUNTIME_STATE_OUTPUT_TRANSACTION,
+                    dir_fd=descriptor,
+                    follow_symlinks=False,
+                )
+            except FileNotFoundError:
+                return
+            if not stat.S_ISREG(visible.st_mode) or visible.st_nlink != 1:
+                raise WorkspaceError(
+                    f"runtime state output transaction is invalid: {transaction}"
+                )
+            opened_fd = os.open(
+                RUNTIME_STATE_OUTPUT_TRANSACTION,
+                os.O_PATH | os.O_CLOEXEC | os.O_NOFOLLOW,
+                dir_fd=descriptor,
+            )
+            try:
+                opened = os.fstat(opened_fd)
+                if (opened.st_dev, opened.st_ino) != (
+                    visible.st_dev,
+                    visible.st_ino,
+                ):
+                    raise WorkspaceError(
+                        "runtime state output transaction changed before removal"
+                    )
+                tombstone = (
+                    f".{RUNTIME_STATE_OUTPUT_TRANSACTION}.remove-"
+                    f"{opened.st_dev:x}-{opened.st_ino:x}"
+                )
+                rename_no_replace_at(
+                    descriptor,
+                    RUNTIME_STATE_OUTPUT_TRANSACTION,
+                    descriptor,
+                    tombstone,
+                )
+                moved = os.stat(
+                    tombstone, dir_fd=descriptor, follow_symlinks=False
+                )
+                if (moved.st_dev, moved.st_ino) != (
+                    opened.st_dev,
+                    opened.st_ino,
+                ):
+                    raise WorkspaceError(
+                        "runtime state output transaction changed before removal"
+                    )
+                os.unlink(tombstone, dir_fd=descriptor)
+            finally:
+                os.close(opened_fd)
             os.fsync(descriptor)
         finally:
             os.close(descriptor)
+
+    def _rollback_runtime_state_output_transaction(
+        self,
+        topology_root: Path,
+        output: Path,
+        generation: str,
+        state_directory_fd: int,
+        output_identity: dict[str, int],
+    ) -> None:
+        transaction_path = topology_root / RUNTIME_STATE_OUTPUT_TRANSACTION
+        transaction = load_regular_json(
+            transaction_path, "runtime state output transaction"
+        )
+        if (
+            not isinstance(transaction, dict)
+            or transaction.get("generation") != generation
+            or transaction.get("phase") != "prepared"
+            or transaction.get("output_identity") != output_identity
+        ):
+            raise WorkspaceError(
+                f"runtime state output transaction is invalid: {transaction_path}"
+            )
+        self._remove_runtime_state_output(
+            output,
+            generation,
+            state_directory_fd,
+            output_identity,
+            keep_tombstone=True,
+        )
+        durable_atomic_json(
+            transaction_path, {**transaction, "phase": "complete"}
+        )
+        if not self._finish_runtime_state_output_tombstone(
+            state_directory_fd, generation, output_identity
+        ):
+            raise WorkspaceError(
+                f"runtime state output cleanup tombstone is missing: {output}"
+            )
+        self._clear_runtime_state_output_transaction(topology_root)
 
     def _recover_runtime_state_output_transaction(
         self, topology_root: Path, topology_name: str
@@ -10689,16 +10925,11 @@ class Workspace:
             try:
                 lease.bind(identity)
                 if transaction["phase"] == "creating":
-                    if self._runtime_state_output_entry_exists(
-                        descriptor, generation
-                    ):
-                        raise WorkspaceError(
-                            "runtime state output creation was interrupted before "
-                            "exact ownership was recorded; preserve the state and "
-                            f"inspect {transaction_path}"
-                        )
-                    self._clear_runtime_state_output_transaction(topology_root)
-                    return
+                    raise WorkspaceError(
+                        "runtime state output creation was interrupted before "
+                        "exact ownership was recorded; preserve the state and "
+                        f"inspect {transaction_path}"
+                    )
                 output = state / "tmp" / "runtime-assets" / generation
                 output_identity = transaction["output_identity"]
                 if transaction["phase"] == "prepared":
@@ -10844,6 +11075,7 @@ class Workspace:
         state_output_access: Path | None = None
         state_output_identity: dict[str, int] | None = None
         state_output_fd: int | None = None
+        preparation_cleanup_proof = [False]
         output_transaction = owner_root / RUNTIME_STATE_OUTPUT_TRANSACTION
         topology_output = identity.get("kind") == "topology" and "server" in services
         try:
@@ -10938,7 +11170,10 @@ class Workspace:
                     state_output_fd,
                     state_output_identity,
                 ) = self._prepare_runtime_state_output(
-                    state, generation, state_directory_fd
+                    state,
+                    generation,
+                    state_directory_fd,
+                    preparation_cleanup_proof,
                 )
                 if topology_output:
                     durable_atomic_json(
@@ -11079,7 +11314,9 @@ class Workspace:
             if staging.exists():
                 remove_owned_tree(staging)
             cleanup_output = state_output_access or state_output
-            output_cleanup_complete = state_output is None
+            output_cleanup_complete = (
+                state_output is None and preparation_cleanup_proof[0]
+            )
             if cleanup_output is not None and cleanup_output.exists():
                 if (
                     state_output_identity is None
@@ -12580,45 +12817,12 @@ class Workspace:
                         "mutable_state_output_identities"
                     )
                     if not isinstance(identities, list) or not identities:
-                        legacy_outputs = previous_runtime[
-                            "mutable_state_outputs"
-                        ]
-                        legacy_evidence = False
-                        for value in legacy_outputs:
-                            output = Path(value)
-                            if output.exists() or output.is_symlink():
-                                legacy_evidence = True
-                                break
-                            digest = hashlib.sha256(
-                                output.name.encode("utf-8")
-                            ).hexdigest()[:16]
-                            try:
-                                if any(
-                                    re.fullmatch(
-                                        rf"\.remove-{digest}-[0-9a-f]+-"
-                                        r"[0-9a-f]+",
-                                        candidate.name,
-                                    )
-                                    for candidate in output.parent.iterdir()
-                                ):
-                                    legacy_evidence = True
-                                    break
-                            except OSError as error:
-                                raise WorkspaceError(
-                                    "legacy mutable state output inventory is "
-                                    f"unverifiable: {output}"
-                                ) from error
-                        if legacy_evidence:
-                            raise WorkspaceError(
-                                f"topology {name} retains legacy mutable state "
-                                "output without exact ownership evidence; remove "
-                                "it through the pre-upgrade wrapper or choose a "
-                                "new topology name"
-                            )
-                        continue_cleanup = False
+                        raise WorkspaceError(
+                            f"topology {name} retains legacy mutable state "
+                            "output without exact ownership evidence; preserve "
+                            "the historical record and choose a new topology name"
+                        )
                     else:
-                        continue_cleanup = True
-                    if continue_cleanup:
                         previous = self._cleanup_topology_mutable_state_outputs(
                             previous
                         )
@@ -12961,16 +13165,27 @@ class Workspace:
                         else Path(runtime_record["mutable_state_outputs"][0])
                     )
                 ] if runtime_record["mutable_state_outputs"] else []
-                stack.callback(
-                    lambda: self._remove_runtime_state_output(
-                        published_state_output_owner.pop(),
-                        generation,
-                        state_directory_fd,
-                        runtime_record["mutable_state_output_identities"][0],
-                    )
-                    if published_state_output_owner
-                    else None
-                )
+
+                def rollback_published_state_output() -> None:
+                    if not published_state_output_owner:
+                        return
+                    assert state_directory_fd is not None
+                    output = published_state_output_owner.pop()
+                    try:
+                        self._rollback_runtime_state_output_transaction(
+                            topology_root,
+                            output,
+                            generation,
+                            state_directory_fd,
+                            runtime_record[
+                                "mutable_state_output_identities"
+                            ][0],
+                        )
+                    except BaseException:
+                        temporary_state_owner.clear()
+                        raise
+
+                stack.callback(rollback_published_state_output)
                 runtime_lock_owner = [runtime_lock_fd]
                 stack.callback(
                     lambda: os.close(runtime_lock_owner.pop())
