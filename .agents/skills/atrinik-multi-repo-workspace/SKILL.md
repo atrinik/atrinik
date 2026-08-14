@@ -58,13 +58,10 @@ remain supported. Release only with the freshly previewed plan digest:
 ./atrinik scope release REVIEW --apply --plan PLAN_SHA256 --json
 ```
 
-Release never stops topologies or deletes persistent state. Unsafe or uncertain
-coordinates fail closed and retain their recovery journals. After a clean
-scope topology `down`, its exact stopped history remains for topology cleanup
-but does not block release once runtime, port, and state leases are released;
-unrelated or mismatched topology references still block. If release is
-interrupted after any journaled build/profile/worktree action, preview again
-and apply only the new digest. The retry preserves completed actions.
+Release never stops topologies or deletes persistent state. After `down`, exact
+stopped scope history permits release; mismatched or uncertain references fail
+closed. Interrupted journaled actions are retained: preview again, apply the
+new digest, and resume completed actions.
 
 Reclaim review data only through preview-first cleanup:
 
@@ -75,12 +72,11 @@ Reclaim review data only through preview-first cleanup:
 ./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
 ```
 
-Repeat a scoped command with `--apply` after review. Defaults cover
-worktrees/builds; caches and topology history are opt-in, and topologies are
-excluded from `all`. Reclaim only stopped, released, exact marker-owned records;
-unsafe or uncertain targets fail closed. Apply sound-cache before its worktree.
-See `README.md` and `docs/ARCHITECTURE.md` for historical wrapper-worktree proof
-and exact apply-time revalidation.
+Repeat a scoped command with `--apply` after review. Defaults cover worktrees
+and builds; caches and topology history are opt-in, and `all` excludes
+topologies. Reclaim only stopped, released, marker-owned records; uncertainty
+fails closed. Apply sound-cache before its worktree. See `README.md` and
+`docs/ARCHITECTURE.md` for historical proof and apply-time revalidation.
 
 ## Compose coherent sources
 
@@ -97,38 +93,30 @@ wrapper replacement build/runtime closure yet.
 ./atrinik build COMPONENT --profile REVIEW --test
 ```
 
-Classic selection is checkout-wide; subdirectories are not worktrees. Clean
-target builds pin generated snapshots before releasing primaries; caches
-use snapshot identity. Live inputs retain leases; interrupted staging is
-cleanup-owned.
+Classic selection is checkout-wide; subdirectories are not worktrees. Builds
+pin snapshots before releasing primaries; caches use snapshot identity. Live
+inputs retain leases; cleanup owns interrupted staging.
 
 Lease order is registry, profile, Git-admin, source, topology/scenario, state,
-build, cache. Writers gate matching coordinates; physical leases span state
-roots and multi-source writers retry all-or-none. Only migration takes the
-barrier exclusively. Published runtimes retain sealed generation, process-tree,
-state, and port leases, not preparation leases. Fail closed without sharing.
-Incomplete coordinates are inert; wrapper owns paths, locks, state, PIDs, logs,
-content/resources and cleanup. Completion is bounded, local, read-only,
-secret-free and parser-driven before `Workspace`; stops at `--` or a `run`
-remainder.
+build, cache. Writers gate matching coordinates; multi-source writers retry
+all-or-none. Only migration takes the barrier exclusively. Published runtimes
+retain generation, process-tree, state, and port leases. Incomplete coordinates
+are inert; wrapper owns generated resources and cleanup. Completion is bounded,
+local, read-only, secret-free, parser-driven before `Workspace`, and stops at
+`--` or a `run` remainder.
 
-Concurrency verification composes the returned scope commands. Use two scopes
-with different worktrees of one physical checkout, overlap their builds and
-server readiness through observable rendezvous markers, keep A live while B is
-inspected/stopped/released, then finish A independently. Count rendezvous
-arrivals, ownership transitions, completed operations, and exact conflicts;
-timeouts are failure bounds, not compiler-wall-clock gates.
+Concurrency verification composes returned scope commands: use distinct
+worktrees of one checkout, rendezvous on observable build/readiness markers,
+keep A live through B's release, then release A. Count ownership transitions
+and conflicts; timeouts bound failure, not compiler speed.
 
-For classic server execution or diagnosis, load `atrinik-server-runtime`. For
-a ready account and character, also load `atrinik-test-scenario`; never
-handcraft saves or expose credentials. Keep every concurrent topology on a
-distinct name and state policy; prefer generation-owned temporary state for
-isolated automation.
+For classic execution load `atrinik-server-runtime`; for a ready character also
+load `atrinik-test-scenario`. Never handcraft saves or expose credentials. Give
+concurrent topologies distinct names and state; prefer temporary state.
 
 ## Validate and hand off
 
-Use wrapper-native commands wherever supported; a runtime handoff uses concrete
-names and follows this lifecycle:
+Use concrete names and wrapper-native lifecycle commands:
 
 ```sh
 ./atrinik profile show PROFILE
@@ -142,10 +130,8 @@ names and follows this lifecycle:
 ./atrinik scope release SCOPE --apply --plan PLAN_SHA256 --json
 ```
 
-Record prerequisites, actions, expected results, and cleanup. If runtime is
-irrelevant, hand off applicable build/test/inspection commands. Do not
-substitute internal executables or generated paths for supported wrapper
-operations.
+Record prerequisites, results, and cleanup. Do not substitute internal paths
+for wrapper operations.
 
 ## Coordinate publication and policy
 

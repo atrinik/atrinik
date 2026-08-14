@@ -32,8 +32,8 @@
 ## Core behaviors and patterns
 
 - Use `atrinik-multi-repo-workspace` for wrapper ownership, profiles, worktrees,
-  migration, cleanup, releases, CLI, or layout. Add only applicable specialist
-  skills; use `atrinik-guidance-maintenance` for guidance audits.
+  migration, cleanup, releases, CLI, or layout; use
+  `atrinik-guidance-maintenance` for guidance audits.
 - Use `atrinik-issue-delivery` only when explicitly invoked for
   issue-to-ready-PR delivery; it stops before merge.
 - Use `atrinik-program-delivery` only when explicitly invoked for an ordered
@@ -48,17 +48,16 @@
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.
-- Prefer `scope create` for agents; use JSON handoff and
-  preview/apply release. Stop its exact topology first; released runtime/state
-  leases and exact stopped history permit scope release, while mismatched or
-  uncertain references fail closed. Primitives remain.
+- Prefer `scope create`; use JSON handoff and preview/apply release. Stop its
+  topology first; exact stopped history permits release, but uncertainty fails
+  closed. Primitives remain.
 - Use wrapper commands and paths; never reconstruct managed paths. Give
   concurrent topologies distinct names, states, ports, and client config;
   prefer temporary state.
 - Keep completion bounded, local, parser-driven, secret-free, and ahead of
   `Workspace` construction.
 - Lease in order; gate same-coordinate readers; share the migration barrier.
-- Unbound persisted records are historical and inert.
+- Unbound records are inert.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket
   holders per `CONTRIBUTING.md`; preserve precise attribution.
 - MIT reuse follows `docs/PROVENANCE.md` and its canonical identity registry;
@@ -121,7 +120,7 @@ Run ShellCheck for shell changes, actionlint for workflows, and
 `./atrinik supply-chain audit --profile PROFILE` when dependency inputs change.
 Preserve `.coveragerc` and OIDC Codecov boundaries.
 
-Handoffs must name exact profiles, worktrees, topologies, services, states, and
-scenarios, plus prerequisites, results, validation, and cleanup. Synchronize
+Handoffs name exact profiles, worktrees, topologies, services, states, and
+scenarios, plus results, validation, and cleanup. Synchronize
 this guide, affected skills, README, architecture, and contributor guidance
 with contract changes; treat stale guidance as a defect.
