@@ -13,6 +13,7 @@ import re
 import secrets
 import stat
 import subprocess
+import sys
 from typing import Any, Iterable, Iterator
 
 from .locking import LockBusyError, active_lock_fds
@@ -396,18 +397,17 @@ def _temporary_tree_usage(
 
     sizes: dict[tuple[int, int], int] = {}
     maximum: float | None = None
-    descriptors: list[int] = []
+    root_fd: int | None = None
     try:
         root_fd = os.open(
             root,
             os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
         )
-        descriptors.append(root_fd)
         root_mount = _descriptor_mount_id(root_fd)
-        stack: list[tuple[int, Path]] = [(root_fd, root)]
         visited: set[tuple[int, int, int | tuple[int, int]]] = set()
-        while stack:
-            descriptor, display = stack.pop()
+
+        def walk(descriptor: int, display: Path) -> None:
+            nonlocal maximum
             directory = os.fstat(descriptor)
             coordinate = (directory.st_dev, directory.st_ino, root_mount)
             if coordinate in visited:
@@ -433,6 +433,27 @@ def _temporary_tree_usage(
                     if maximum is None
                     else max(maximum, child.st_mtime)
                 )
+                if stat.S_ISREG(child.st_mode):
+                    flags = os.O_NOFOLLOW
+                    if sys.platform == "linux":
+                        flags |= os.O_PATH
+                    else:
+                        flags |= os.O_RDONLY | os.O_NONBLOCK
+                    file_fd = os.open(name, flags, dir_fd=descriptor)
+                    try:
+                        opened = os.fstat(file_fd)
+                        if (
+                            (opened.st_dev, opened.st_ino)
+                            != (child.st_dev, child.st_ino)
+                            or _descriptor_mount_id(file_fd) != root_mount
+                        ):
+                            raise WorkspaceError(
+                                "temporary state traversal encountered a mount: "
+                                f"{display / name}"
+                            )
+                    finally:
+                        os.close(file_fd)
+                    continue
                 if not stat.S_ISDIR(child.st_mode):
                     continue
                 child_fd = os.open(
@@ -443,18 +464,22 @@ def _temporary_tree_usage(
                     | os.O_NOFOLLOW,
                     dir_fd=descriptor,
                 )
-                descriptors.append(child_fd)
-                opened = os.fstat(child_fd)
-                if (
-                    (opened.st_dev, opened.st_ino)
-                    != (child.st_dev, child.st_ino)
-                    or _descriptor_mount_id(child_fd) != root_mount
-                ):
-                    raise WorkspaceError(
-                        f"temporary state traversal encountered a mount: "
-                        f"{display / name}"
-                    )
-                stack.append((child_fd, display / name))
+                try:
+                    opened = os.fstat(child_fd)
+                    if (
+                        (opened.st_dev, opened.st_ino)
+                        != (child.st_dev, child.st_ino)
+                        or _descriptor_mount_id(child_fd) != root_mount
+                    ):
+                        raise WorkspaceError(
+                            f"temporary state traversal encountered a mount: "
+                            f"{display / name}"
+                        )
+                    walk(child_fd, display / name)
+                finally:
+                    os.close(child_fd)
+
+        walk(root_fd, root)
         observed = (
             datetime.fromtimestamp(maximum, timezone.utc)
             if maximum is not None
@@ -469,8 +494,8 @@ def _temporary_tree_usage(
         )
         return sizes, observed, str(error)
     finally:
-        for descriptor in reversed(descriptors):
-            os.close(descriptor)
+        if root_fd is not None:
+            os.close(root_fd)
 
 
 def _topology_tree_snapshot(
@@ -3731,7 +3756,8 @@ class Cleanup:
                 if (
                     isinstance(policy, dict)
                     and policy.get("mode") == "temporary"
-                    and policy.get("lifecycle") == "removed"
+                    and policy.get("lifecycle")
+                    in {"removal-pending", "removed"}
                     and policy.get("path") not in represented
                 ):
                     logical = Path(policy["path"])
@@ -3748,7 +3774,7 @@ class Cleanup:
                         or lock_tombstone.is_symlink()
                     ):
                         items.append(
-                            self._removed_temporary_state_lease_item(
+                            self._detached_temporary_state_item(
                                 topology.name, status, older_than_days
                             )
                         )
@@ -3756,7 +3782,7 @@ class Cleanup:
                 pass
         return items
 
-    def _removed_temporary_state_lease_item(
+    def _detached_temporary_state_item(
         self,
         topology: str,
         status: dict[str, Any],
@@ -3770,11 +3796,16 @@ class Cleanup:
         item["topology"] = topology
         item["generation"] = policy["owner"]["generation"]
         item["state_policy"] = policy
-        item["_lease_only"] = True
+        lifecycle = policy["lifecycle"]
+        item["_lease_only"] = lifecycle == "removed"
         item["_identity"] = None
         item["_physical_path"] = None
         if path.exists() or path.is_symlink():
             item["reasons"].append("temporary_state_reappeared")
+        if lifecycle == "removal-pending":
+            item["reasons"].append(
+                "temporary_state_ownership_evidence_missing"
+            )
         lock = Path(f"{path}.lock")
         lease_identity = policy["lease_identity"]
         lock_tombstone = lock.parent / (
@@ -3928,6 +3959,7 @@ class Cleanup:
                         "created_at",
                         "identity",
                         "implementation",
+                        "profile",
                         "server",
                     )
                 }

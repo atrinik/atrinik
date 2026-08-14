@@ -8570,6 +8570,7 @@ class Workspace:
             "created_at",
             "identity",
             "implementation",
+            "profile",
             "server",
         }
         return bool(
@@ -8810,6 +8811,7 @@ class Workspace:
                         )
             return None
         record = load_regular_json(record_path, "promoted state provenance")
+        identity = record.get("identity") if isinstance(record, dict) else None
         if (
             not isinstance(record, dict)
             or record.get("schema_version") != SCHEMA_VERSION
@@ -8818,6 +8820,27 @@ class Workspace:
             or not isinstance(record.get("topology"), str)
             or not isinstance(record.get("generation"), str)
             or not re.fullmatch(r"[0-9a-f]{64}", record["generation"])
+            or not isinstance(identity, dict)
+            or set(identity) != {"device", "inode"}
+            or not all(
+                isinstance(value, int)
+                and not isinstance(value, bool)
+                and value >= 0
+                for value in identity.values()
+            )
+        ):
+            raise WorkspaceError(
+                f"promoted state provenance is invalid: {record_path}"
+            )
+        try:
+            visible = path.stat(follow_symlinks=False)
+        except OSError as error:
+            raise WorkspaceError(
+                f"promoted state provenance is invalid: {record_path}: {error}"
+            ) from error
+        if (
+            not stat.S_ISDIR(visible.st_mode)
+            or {"device": visible.st_dev, "inode": visible.st_ino} != identity
         ):
             raise WorkspaceError(
                 f"promoted state provenance is invalid: {record_path}"
@@ -8996,6 +9019,7 @@ class Workspace:
         self,
         topology_root: Path,
         topology_name: str,
+        profile_name: str,
         generation: str,
         server_source: Path,
         implementation: dict[str, str],
@@ -9051,6 +9075,7 @@ class Workspace:
                 "created_at": created_at,
                 "identity": identity,
                 "implementation": implementation,
+                "profile": profile_name,
                 "server": server_coordinate,
             }
             durable_atomic_json(
@@ -9144,6 +9169,25 @@ class Workspace:
                             f"temporary server state contains a hard-linked file: "
                             f"{child_display}"
                         )
+                    flags = os.O_NOFOLLOW
+                    if sys.platform == "linux":
+                        flags |= os.O_PATH
+                    else:
+                        flags |= os.O_RDONLY | os.O_NONBLOCK
+                    child_fd = os.open(name, flags, dir_fd=descriptor)
+                    try:
+                        opened = os.fstat(child_fd)
+                        if (
+                            (opened.st_dev, opened.st_ino)
+                            != (metadata.st_dev, metadata.st_ino)
+                            or _descriptor_mount_id(child_fd) != root_mount
+                        ):
+                            raise WorkspaceError(
+                                "temporary server state file changed or crossed "
+                                f"a mount during validation: {child_display}"
+                            )
+                    finally:
+                        os.close(child_fd)
                     continue
                 if not stat.S_ISDIR(metadata.st_mode):
                     raise WorkspaceError(
@@ -10722,7 +10766,11 @@ class Workspace:
         policy = status.get("state_policy")
         state = status.get("state")
         services = status.get("services")
-        server_present = isinstance(services, dict) and "server" in services
+        server_present = (
+            state is not None
+            or policy is not None
+            or isinstance(services, dict) and "server" in services
+        )
         if not server_present:
             if policy is not None or state is not None:
                 raise WorkspaceError(f"topology state policy is invalid: {name}")
@@ -10740,7 +10788,11 @@ class Workspace:
             "implementation",
         }
         mode = policy.get("mode")
-        expected_keys = common | ({"created_at", "server"} if mode == "temporary" else set())
+        expected_keys = common | (
+            {"created_at", "profile", "server"}
+            if mode == "temporary"
+            else set()
+        )
         identity = policy.get("identity")
         lease_identity = policy.get("lease_identity")
         implementation = policy.get("implementation")
@@ -10809,6 +10861,7 @@ class Workspace:
                 }
                 or not isinstance(policy.get("created_at"), str)
                 or not policy["created_at"]
+                or policy.get("profile") != status.get("profile")
                 or policy.get("server") != resolved[providers["server"]]
             ):
                 raise WorkspaceError(f"temporary topology state policy is invalid: {name}")
@@ -11981,6 +12034,7 @@ class Workspace:
                         state, state_policy = self._create_temporary_state(
                             topology_root,
                             name,
+                            profile_name,
                             generation,
                             selected["server"],
                             implementation,
@@ -13094,6 +13148,7 @@ class Workspace:
                         "path": str(state),
                         "topology": topology_name,
                         "generation": owner["generation"],
+                        "identity": policy["identity"],
                     }
                     provenance_path = state / PROMOTED_STATE_METADATA
                     try:

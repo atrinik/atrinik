@@ -10332,6 +10332,31 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "ownership evidence is missing"):
             self.workspace.topology_down("temporary-clean", timeout=5)
         self.assertTrue(displaced.is_dir())
+        missing_evidence_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        missing_evidence_item = next(
+            item
+            for item in missing_evidence_preview["items"]
+            if item["path"] == str(first_path)
+        )
+        self.assertEqual(missing_evidence_item["disposition"], "protected")
+        self.assertIn(
+            "temporary_state_ownership_evidence_missing",
+            missing_evidence_item["reasons"],
+        )
+        missing_evidence_apply = self.workspace.cleanup(
+            ["temporary-states"], 0, [], True
+        )
+        missing_evidence_applied_item = next(
+            item
+            for item in missing_evidence_apply["items"]
+            if item["path"] == str(first_path)
+        )
+        self.assertEqual(
+            missing_evidence_applied_item["disposition"], "protected"
+        )
+        self.assertTrue(displaced.is_dir())
         displaced.rename(first_path)
         with (
             mock.patch(
@@ -10499,6 +10524,7 @@ class WorkspaceTests(unittest.TestCase):
                 "temporary-retained", "default", None, ["server"], 0
             )
         retained_path = Path(retained["state_policy"]["path"])
+        self.assertEqual(retained["state_policy"]["profile"], "default")
         stopped = self.workspace.topology_down(
             "temporary-retained", timeout=5, retain_state=True
         )
@@ -10698,6 +10724,24 @@ class WorkspaceTests(unittest.TestCase):
             promoted_summary["state_policy"]["lifecycle"],
             "persistent-promoted",
         )
+        provenance = retained_path / workspace_module.PROMOTED_STATE_METADATA
+        replaced_promoted = retained_path.with_name("promoted-original")
+        retained_path.rename(replaced_promoted)
+        retained_path.mkdir()
+        shutil.copy2(
+            replaced_promoted / workspace_module.PROMOTED_STATE_METADATA,
+            provenance,
+        )
+        try:
+            with self.assertRaisesRegex(
+                WorkspaceError, "promoted state provenance is invalid"
+            ):
+                self.workspace.topology_summary(
+                    "default", str(promoted["name"]), ["server"]
+                )
+        finally:
+            shutil.rmtree(retained_path)
+            replaced_promoted.rename(retained_path)
         provenance = retained_path / workspace_module.PROMOTED_STATE_METADATA
         provenance.unlink()
         origin_status.rename(hidden_status)
@@ -10914,6 +10958,47 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(mounted_item["disposition"], "protected")
         self.assertIn("filesystem_traversal_error", mounted_item["reasons"])
+
+        def simulated_file_mount_id(
+            descriptor: int,
+        ) -> int | tuple[int, int]:
+            target = Path(os.readlink(f"/proc/self/fd/{descriptor}"))
+            if target == state / "motd":
+                return 999999998
+            return real_mount_id(descriptor)
+
+        with mock.patch.object(
+            cleanup_module,
+            "_descriptor_mount_id",
+            side_effect=simulated_file_mount_id,
+        ):
+            mounted_file_preview = self.workspace.cleanup(
+                ["temporary-states"], 0, [], False
+            )
+        mounted_file_item = next(
+            item
+            for item in mounted_file_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(mounted_file_item["disposition"], "protected")
+        self.assertIn(
+            "filesystem_traversal_error", mounted_file_item["reasons"]
+        )
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            with (
+                mock.patch.object(
+                    workspace_module,
+                    "_descriptor_mount_id",
+                    side_effect=simulated_file_mount_id,
+                ),
+                self.assertRaisesRegex(WorkspaceError, "crossed a mount"),
+            ):
+                self.workspace._validate_temporary_state_integrity(
+                    state_fd, state
+                )
+        finally:
+            os.close(state_fd)
         required_file = state / "motd"
         saved_required_file = state / "motd.saved"
         required_file.rename(saved_required_file)
@@ -11120,6 +11205,34 @@ class WorkspaceTests(unittest.TestCase):
             {MANAGED_MARKER},
         )
         executable = build_root / "build" / "server" / "atrinik-server"
+        executable.unlink()
+        with (
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            self.assertRaisesRegex(WorkspaceError, "supervisor failed"),
+        ):
+            self.workspace.topology_up(
+                "temporary-pre-service-failure",
+                "default",
+                None,
+                ["server"],
+                0,
+            )
+        pre_service = self.workspace.topology_status(
+            "temporary-pre-service-failure"
+        )
+        self.assertEqual(pre_service["services"], {})
+        self.assertEqual(pre_service["state_policy"]["mode"], "temporary")
+        self.assertIsNotNone(pre_service["error"])
+        pre_service_state = Path(pre_service["state_policy"]["path"])
+        recovered_pre_service = self.workspace.topology_down(
+            "temporary-pre-service-failure", timeout=5
+        )
+        self.assertEqual(
+            recovered_pre_service["state_policy"]["lifecycle"], "disposable"
+        )
+        self.assertTrue(pre_service_state.is_dir())
         executable.write_text(
             "#!/usr/bin/env python3\n"
             "import pathlib, sys\n"
@@ -11707,6 +11820,7 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace._create_temporary_state(
                     topology,
                     "interrupted",
+                    "default",
                     generation,
                     server,
                     {
@@ -11727,6 +11841,7 @@ class WorkspaceTests(unittest.TestCase):
         state, policy = self.workspace._create_temporary_state(
             topology,
             "rollback",
+            "default",
             "e" * 64,
             server,
             {
@@ -11775,6 +11890,7 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace._create_temporary_state(
                 topology,
                 "digest-failure",
+                "default",
                 "c" * 64,
                 server,
                 {
@@ -11817,6 +11933,7 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace._create_temporary_state(
                 topology,
                 "copy-race",
+                "default",
                 "b" * 64,
                 server,
                 {
