@@ -1180,6 +1180,7 @@ class Paths:
     workspace: Path
     repositories: Path
     worktrees: Path
+    scopes: Path
     profiles: Path
     builds: Path
     topologies: Path
@@ -1205,6 +1206,7 @@ class Paths:
             workspace=workspace,
             repositories=repository,
             worktrees=workspace / "worktrees",
+            scopes=workspace / "scopes",
             profiles=workspace / "profiles",
             builds=workspace / "build",
             topologies=workspace / "topologies",
@@ -1316,6 +1318,7 @@ class Paths:
                         )
                 for directory in (
                     self.worktrees,
+                    self.scopes,
                     self.profiles,
                     self.builds,
                     self.topologies,

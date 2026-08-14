@@ -1666,6 +1666,7 @@ class Cleanup:
     def _references(self) -> tuple[dict[str, Any], set[str]]:
         references: dict[str, Any] = {
             "profiles": {},
+            "scopes": {},
             "scenarios": {},
             "topologies": {},
             "live_builds": {},
@@ -1675,6 +1676,7 @@ class Cleanup:
         errors: set[str] = set()
         collectors = (
             (self._profile_references, "profile_inventory_error"),
+            (self._scope_references, "scope_inventory_error"),
             (self._scenario_references, "scenario_inventory_error"),
             (self._topology_references, "topology_inventory_error"),
             (self._migration_references, "migration_inventory_error"),
@@ -1854,6 +1856,13 @@ class Cleanup:
                     self._add_reference(references["profiles"], selected, path.stem)
             except (OSError, WorkspaceError):
                 errors.add("profile_inventory_error")
+
+    def _scope_references(self, references: dict[str, Any], errors: set[str]) -> None:
+        try:
+            for name, path in self.workspace._scope_reference_records():
+                self._add_reference(references["scopes"], path, name)
+        except (OSError, RuntimeError, WorkspaceError):
+            errors.add("scope_inventory_error")
 
     def _scenario_references(self, references: dict[str, Any], errors: set[str]) -> None:
         if not self.paths.scenarios.is_dir() or self.paths.scenarios.is_symlink():
@@ -2295,6 +2304,7 @@ class Cleanup:
             item["reasons"].append("active_wrapper_view")
         reference_reasons = {
             "profiles": "profile_reference",
+            "scopes": "scope_reference",
             "scenarios": "scenario_reference",
             "topologies": "topology_reference",
             "migration": "migration_reference",
