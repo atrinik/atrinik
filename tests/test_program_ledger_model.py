@@ -372,6 +372,7 @@ class ProgramLedgerModel:
                 and value["count"] <= value["nodes"]
                 and type(value["body_bytes"]) is int
                 and 0 <= value["body_bytes"] <= 16 * 1024 * 1024
+                and value["body_bytes"] <= value["nodes"] * 65_536
                 and (
                     (value["nodes"] == 0 and value["terminal_cursor"] is None)
                     or (value["nodes"] > 0 and isinstance(value["terminal_cursor"], str)
@@ -631,7 +632,10 @@ class ProgramLedgerModel:
         if (
             not isinstance(cursors, list) or not isinstance(node_ids, list)
             or not isinstance(body_sizes, list)
-            or any(not isinstance(value, str) for value in cursors + node_ids)
+            or any(
+                not isinstance(value, str) or not value
+                for value in cursors + node_ids
+            )
             or any(
                 type(size) is not int or size < 0 or size > 65_536
                 for size in body_sizes
@@ -655,6 +659,7 @@ class ProgramLedgerModel:
             or nodes > pages * 100
             or (bool(node_ids) != bool(cursors))
             or body_bytes != sum(body_sizes)
+            or len(body_sizes) > nodes or body_bytes > nodes * 65_536
             or any(
                 not isinstance(size, int) or isinstance(size, bool)
                 or size < 0 or size > 65_536 for size in body_sizes
@@ -1488,7 +1493,8 @@ class ProgramLedgerModelTests(unittest.TestCase):
     def test_multi_page_bounds_and_stream_stability(self) -> None:
         ProgramLedgerModel.stable_scan(["a", "b"], ["1", "2"], "d", "d")
         ProgramLedgerModel.stable_scan(
-            [], [], "d", "d", body_bytes=65_536, body_sizes=[65_536]
+            ["cursor"], ["node"], "d", "d",
+            body_bytes=65_536, body_sizes=[65_536]
         )
         ProgramLedgerModel.stable_scan(
             ["cursor"], [str(index) for index in range(100)], "d", "d"
@@ -1512,6 +1518,11 @@ class ProgramLedgerModelTests(unittest.TestCase):
             ProgramLedgerModel.stable_scan(
                 ["cursor"], [str(index) for index in range(101)], "d", "d"
             )
+        for cursors, nodes in (([""], ["node"]), (["cursor"], [""])):
+            with self.subTest(cursors=cursors, nodes=nodes), self.assertRaises(
+                StopClosed
+            ):
+                ProgramLedgerModel.stable_scan(cursors, nodes, "d", "d")
         bypasses = (
             {"cursors": [], "node_ids": [], "body_sizes": [65_536] * 257,
              "body_bytes": 0},
@@ -1881,6 +1892,16 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 ).hexdigest(),
                 bad_geometry["authority"],
             )
+        bad_body = copy.deepcopy(result.record)
+        bad_body["observation"]["child"].update(
+            nodes=1, body_bytes=65_537, terminal_cursor="cursor"
+        )
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.resume(
+                bad_body, 41, bad_body["self_inode"],
+                hashlib.sha256(ProgramLedgerModel.canonical(bad_body)).hexdigest(),
+                bad_body["authority"],
+            )
 
     def test_retry_epochs_and_prospective_semantics_fail_closed(self) -> None:
         patch = ProgramLedgerModel()
@@ -2037,6 +2058,8 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 with self.assertRaises(StopClosed):
                     model.plan_create()
         model = ProgramLedgerModel()
+        with self.assertRaises(StopClosed):
+            model.classify_child([{"node": ""}])
         unrelated = [{"marker": "unrelated"}, {"marker": "malformed"}]
         candidates, evidence = model.classify_child(unrelated)
         self.assertEqual(candidates, [])
