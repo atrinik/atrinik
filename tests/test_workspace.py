@@ -4316,8 +4316,7 @@ class WorkspaceTests(unittest.TestCase):
             view = kwargs["cwd"]
             assert isinstance(view, Path)
             mode = stat.S_IMODE(view.stat().st_mode)
-            self.assertEqual(mode & stat.S_IRWXU, stat.S_IRWXU)
-            self.assertEqual(mode & (stat.S_IWGRP | stat.S_IWOTH), 0)
+            self.assertEqual(mode, 0o755)
             (view / "worker-runtime.d.ts").write_text(
                 "generated\n", encoding="utf-8"
             )
