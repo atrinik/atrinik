@@ -226,10 +226,27 @@ class ProgramLedgerModel:
     ) -> "ProgramLedgerModel":
         if record is None or lock_inode is None:
             raise StopClosed("ledger or stable lock was lost")
+        if not isinstance(record, dict):
+            raise StopClosed("ledger root is not an object")
         if not cls.value_is_bounded(record):
             raise StopClosed("ledger value exceeds a collection or string bound")
         if set(record) != cls.KEYS or observed_inode != record.get("self_inode"):
             raise StopClosed("schema or inode corruption")
+        if (
+            not isinstance(record["authority"], list)
+            or not isinstance(record["graph"], list)
+            or any(not isinstance(item, str) for item in record["graph"])
+            or (
+                record["next_graph"] is not None
+                and (
+                    not isinstance(record["next_graph"], list)
+                    or any(not isinstance(item, str) for item in record["next_graph"])
+                )
+            )
+            or not isinstance(record["leaf_snapshots"], dict)
+            or any(not isinstance(key, str) for key in record["leaf_snapshots"])
+        ):
+            raise StopClosed("ledger collection shape is corrupt")
         if record["lock"] != {"device": 1, "inode": lock_inode}:
             raise StopClosed("arbitration lock identity changed")
         if hashlib.sha256(cls.canonical(record)).hexdigest() != observed_sha256:
@@ -268,6 +285,18 @@ class ProgramLedgerModel:
                 and value["count"] >= 0
             )
 
+        observations = record.get("observation")
+        if not isinstance(observations, dict) or set(observations) != {
+            "comment", "child", "parent"
+        }:
+            raise StopClosed("observation container is corrupt")
+        for observation in observations.values():
+            if observation is not None and (
+                not valid_observation(observation)
+                or observation["generation"] > generation
+            ):
+                raise StopClosed("observation evidence is corrupt")
+
         for name in ("comment", "create", "link"):
             slot = record[name]
             if not isinstance(slot, dict) or slot.get("phase") not in {
@@ -305,8 +334,23 @@ class ProgramLedgerModel:
                 and not (
                     name == "comment" and slot["node"] is not None
                     and valid_observation(slot["retry_observation"])
-                    and slot["retry_observation"]["generation"]
-                    > slot["arm_observation"]["generation"]
+                    and slot["arm_observation"]["generation"]
+                    < slot["retry_observation"]["generation"] < generation
+                    and slot["retry_observation"]["complete"]
+                    and slot["retry_observation"]["count"] == 1
+                    and slot["retry_observation"]["result_stream"]
+                    == cls.result_stream([{
+                        "node": slot["node"], "author": "actor",
+                        "body": "old-body", "marker": "program-marker",
+                    }])
+                    and valid_observation(observations["comment"])
+                    and observations["comment"]["generation"]
+                    >= slot["retry_observation"]["generation"]
+                    and (
+                        observations["comment"]["generation"]
+                        != slot["retry_observation"]["generation"]
+                        or observations["comment"] == slot["retry_observation"]
+                    )
                 )
             ):
                 raise StopClosed("PATCH retry observation is corrupt")
@@ -395,14 +439,6 @@ class ProgramLedgerModel:
             raise StopClosed("next graph lacks its PATCH intent")
         if not set(record["leaf_snapshots"]).issubset(set(record["graph"])):
             raise StopClosed("leaf snapshot is outside the graph")
-        if record["observation"].keys() != {"comment", "child", "parent"}:
-            raise StopClosed("observation evidence is corrupt")
-        for observation in record["observation"].values():
-            if observation is not None and (
-                not valid_observation(observation)
-                or observation["generation"] > generation
-            ):
-                raise StopClosed("observation evidence is corrupt")
         model = cls()
         model.record = copy.deepcopy(record)
         model.lock_inode = lock_inode
@@ -431,7 +467,12 @@ class ProgramLedgerModel:
         candidate["previous_sha256"] = old_digest
         candidate["generation"] = generation + 1
         candidate["self_inode"] = int(candidate["self_inode"]) + 1
-        self.canonical(candidate)
+        candidate_bytes = self.canonical(candidate)
+        type(self).resume(
+            candidate, self.lock_inode, candidate["self_inode"],
+            hashlib.sha256(candidate_bytes).hexdigest(), candidate["authority"],
+            expected_previous=old_digest,
+        )
         self.record = candidate
 
     def replace_lock_path(self, inode: int) -> None:
@@ -446,7 +487,18 @@ class ProgramLedgerModel:
     ) -> None:
         body_sizes = [] if body_sizes is None else body_sizes
         if (
-            not complete or timed_out or pages < 0 or pages > 100
+            not isinstance(cursors, list) or not isinstance(node_ids, list)
+            or not isinstance(body_sizes, list)
+            or any(not isinstance(value, str) for value in cursors + node_ids)
+            or not isinstance(first_digest, str) or not isinstance(second_digest, str)
+        ):
+            raise StopClosed("pagination evidence has the wrong type")
+        if (
+            type(complete) is not bool or type(timed_out) is not bool
+            or not complete or timed_out
+            or type(pages) is not int or type(nodes) is not int
+            or type(body_bytes) is not int
+            or pages < 0 or pages > 100
             or nodes < 0 or nodes > 10_000 or body_bytes < 0
             or body_bytes > 16 * 1024 * 1024
             or any(
@@ -563,7 +615,11 @@ class ProgramLedgerModel:
             or observation["count"] != expected_count
         ):
             raise StopClosed("comment scan evidence is absent")
-        self._plan("comment")
+        self._plan(
+            "comment",
+            node=self.record["comment"]["node"] if phase == "bound" else None,
+            prior="old-body" if phase == "bound" else None,
+        )
 
     def plan_create(self) -> None:
         observation = self.record["observation"]["child"]
@@ -711,8 +767,14 @@ class ProgramLedgerModel:
         observation = self.record["observation"]["comment"]
         if not observation or not observation["complete"] or observation["count"] != 1:
             raise StopClosed("rekey lacks complete comment observation")
-        self.persist(lambda r: r.update(next_graph=copy.deepcopy(next_graph)))
-        self._plan("comment", node=node, prior="old-body")
+        self.persist(lambda record: (
+            record.update(next_graph=copy.deepcopy(next_graph)),
+            record["comment"].update(
+                phase="planned", node=node, prior="old-body",
+                plan_observation=copy.deepcopy(observation),
+                arm_observation=None, retry_observation=None,
+            ),
+        ))
 
     def finish_patch(self, remote_body: str, result_node: str) -> CallPermit | None:
         if (
@@ -839,6 +901,8 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
     def test_corrupt_lost_or_inode_substituted_ledger_stops(self) -> None:
         model = ProgramLedgerModel()
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.resume(7, 41, 101, "0" * 64, model.record["authority"])
         corrupt = copy.deepcopy(model.record)
         corrupt["unknown"] = True
         bad_phase = copy.deepcopy(model.record)
@@ -852,6 +916,10 @@ class ProgramLedgerModelTests(unittest.TestCase):
         bad_link = copy.deepcopy(model.record)
         bad_link["create"].update(phase="bound", node="issue-node")
         bad_link["link"].update(phase="planned", node="result", prior="unexpected")
+        bad_graph = copy.deepcopy(model.record)
+        bad_graph["graph"] = None
+        bad_snapshots = copy.deepcopy(model.record)
+        bad_snapshots["leaf_snapshots"] = None
         cases = (
             (corrupt, 41, 101, model.digest(), model.record["authority"]),
             (model.record, 41, 999, model.digest(), model.record["authority"]),
@@ -872,6 +940,12 @@ class ProgramLedgerModelTests(unittest.TestCase):
             (bad_link, 41, 101,
              hashlib.sha256(ProgramLedgerModel.canonical(bad_link)).hexdigest(),
              model.record["authority"]),
+            (bad_graph, 41, 101,
+             hashlib.sha256(ProgramLedgerModel.canonical(bad_graph)).hexdigest(),
+             model.record["authority"]),
+            (bad_snapshots, 41, 101,
+             hashlib.sha256(ProgramLedgerModel.canonical(bad_snapshots)).hexdigest(),
+             model.record["authority"]),
         )
         for args in cases:
             with self.subTest(args=args):
@@ -886,6 +960,22 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 retry.record, 41, retry.record["self_inode"], retry.digest(),
                 retry.record["authority"],
             )
+        malformed_observations: tuple[object, ...] = (
+            None, 7, {}, {"comment": None},
+            {"comment": None, "child": None, "parent": None, "extra": None},
+            {"comment": "wrong", "child": None, "parent": None},
+        )
+        for observation in malformed_observations:
+            corrupt_observation = copy.deepcopy(model.record)
+            corrupt_observation["observation"] = observation
+            with self.subTest(observation=observation), self.assertRaises(StopClosed):
+                ProgramLedgerModel.resume(
+                    corrupt_observation, 41, corrupt_observation["self_inode"],
+                    hashlib.sha256(
+                        ProgramLedgerModel.canonical(corrupt_observation)
+                    ).hexdigest(),
+                    corrupt_observation["authority"],
+                )
 
     def test_bound_slots_reject_retained_ephemeral_authority(self) -> None:
         models: list[tuple[ProgramLedgerModel, str]] = []
@@ -1017,6 +1107,8 @@ class ProgramLedgerModelTests(unittest.TestCase):
             {"nodes": 10_001}, {"body_bytes": 16 * 1024 * 1024 + 1},
             {"pages": -1}, {"nodes": -1}, {"body_bytes": -1},
             {"body_sizes": [65_537]}, {"body_sizes": [-1]},
+            {"pages": True}, {"nodes": False}, {"body_bytes": True},
+            {"complete": 1}, {"timed_out": 0},
         )
         for kwargs in cases:
             with self.subTest(kwargs=kwargs), self.assertRaises(StopClosed):
@@ -1111,7 +1203,10 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
     def test_canonical_size_is_atomic_at_persistence_boundary(self) -> None:
         model = ProgramLedgerModel()
-        items = ["x" * ProgramLedgerModel.MAX_STRING_BYTES for _ in range(127)]
+        items = ["leaf-1"]
+        items.extend(
+            "x" * ProgramLedgerModel.MAX_STRING_BYTES for _ in range(127)
+        )
         items.append("")
         candidate = copy.deepcopy(model.record)
         candidate["graph"] = items
@@ -1189,6 +1284,58 @@ class ProgramLedgerModelTests(unittest.TestCase):
                         ).hexdigest(),
                         corrupt["authority"],
                     )
+
+    def test_retry_epochs_and_prospective_semantics_fail_closed(self) -> None:
+        patch = ProgramLedgerModel()
+        patch.observe_comment()
+        patch.plan_comment()
+        self.refresh_before_arm(patch, "comment")
+        patch.execute(patch.arm("comment"))
+        self.observe_result(patch, "comment")
+        patch.bind_comment([self.exact_comment()])
+        patch.observe_comment()
+        patch.rekey(patch.record["authority"], ["leaf-1", "leaf-2"], "comment-node")
+        self.refresh_before_arm(patch, "comment")
+        patch.execute(patch.arm("comment"))
+        patch.observe_comment(stream="old-recovery", count=1)
+        with self.assertRaises(StopClosed):
+            patch.finish_patch("old-body", "comment-node")
+
+        for defect in ("future", "incomplete", "wrong-count", "wrong-result"):
+            corrupt = copy.deepcopy(patch.record)
+            retry = corrupt["comment"]["retry_observation"]
+            if defect == "future":
+                retry["generation"] = corrupt["generation"] + 1
+            elif defect == "incomplete":
+                retry["complete"] = False
+            elif defect == "wrong-count":
+                retry["count"] = 2
+            else:
+                retry["result_stream"] = "wrong"
+            with self.subTest(defect=defect), self.assertRaises(StopClosed):
+                ProgramLedgerModel.resume(
+                    corrupt, 41, corrupt["self_inode"],
+                    hashlib.sha256(ProgramLedgerModel.canonical(corrupt)).hexdigest(),
+                    corrupt["authority"],
+                )
+
+        invalid = ProgramLedgerModel()
+        retained = copy.deepcopy(invalid.record)
+        with self.assertRaises(StopClosed):
+            invalid.persist(lambda record: record["comment"].update(phase="garbage"))
+        self.assertEqual(invalid.record, retained)
+        with self.assertRaises(StopClosed):
+            invalid.persist(lambda record: record["link"].update(phase="planned"))
+        self.assertEqual(invalid.record, retained)
+
+        invalid.observe_comment()
+        invalid.plan_comment()
+        retained = copy.deepcopy(invalid.record)
+        with self.assertRaises(StopClosed):
+            invalid.persist(lambda record: record["comment"]["plan_observation"].update(
+                generation=record["generation"] + 1
+            ))
+        self.assertEqual(invalid.record, retained)
 
     def test_marker_namespace_actor_and_duplicates_fail_closed(self) -> None:
         ProgramLedgerModel.validate_marker([], "actor", False)
