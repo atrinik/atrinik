@@ -4298,6 +4298,19 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(sealed[1])
         self.assertEqual(stat.S_IMODE(sealed[0].stat().st_mode), 0o555)
 
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.os.geteuid",
+                return_value=os.geteuid() + 1,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "Worker staging root ownership is unsafe"
+            ),
+        ):
+            self.workspace._worker_view(
+                root, source, dependencies, "d" * 64, metadata
+            )
+
         def generate_types(arguments: list[str], **kwargs: object) -> str:
             self.assertEqual(arguments, ["npm", "run", "check"])
             view = kwargs["cwd"]
@@ -4319,6 +4332,35 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(stat.S_IMODE(sealed[0].stat().st_mode), 0o555)
         self.workspace._reconcile_worker_view_after_checks(
             source, sealed[0], "c" * 64, metadata
+        )
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.os.geteuid",
+                return_value=os.geteuid() + 1,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "view ownership is unsafe"),
+        ):
+            self.workspace._run_worker_checks(
+                sealed[0], {}, "c" * 64, metadata
+            )
+        self.assertEqual(stat.S_IMODE(sealed[0].stat().st_mode), 0o555)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.run",
+                side_effect=WorkspaceError("simulated check failure"),
+            ),
+            self.assertRaisesRegex(WorkspaceError, "simulated check failure"),
+        ):
+            self.workspace._run_worker_checks(
+                sealed[0], {}, "c" * 64, metadata
+            )
+        self.assertEqual(stat.S_IMODE(sealed[0].stat().st_mode), 0o555)
+        self.assertTrue(
+            self.workspace._worker_view(
+                root, source, dependencies, "c" * 64, metadata
+            )[1]
         )
 
     def test_source_view_reconciles_links_copies_and_stale_entries_in_place(self) -> None:

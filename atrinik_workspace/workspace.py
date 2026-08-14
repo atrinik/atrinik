@@ -1453,7 +1453,7 @@ def _make_worker_staging_owner_writable(staging: Path) -> None:
             or opened.st_uid != os.geteuid()
         ):
             raise WorkspaceError(
-                f"Worker dependency staging root ownership is unsafe: {staging}"
+                f"Worker staging root ownership is unsafe: {staging}"
             )
         os.fchmod(
             descriptor,
@@ -1462,13 +1462,13 @@ def _make_worker_staging_owner_writable(staging: Path) -> None:
         writable = os.fstat(descriptor)
         if stat.S_IMODE(writable.st_mode) & stat.S_IRWXU != stat.S_IRWXU:
             raise WorkspaceError(
-                f"Worker dependency staging root is not owner-writable: {staging}"
+                f"Worker staging root is not owner-writable: {staging}"
             )
     except WorkspaceError:
         raise
     except OSError as error:
         raise WorkspaceError(
-            f"cannot make Worker dependency staging root writable {staging}: {error}"
+            f"cannot make Worker staging root writable {staging}: {error}"
         ) from error
     finally:
         if descriptor is not None:
