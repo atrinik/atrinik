@@ -597,6 +597,8 @@ content review worktrees from the shared `content` checkout.
 A target build resolves only that target's transitive provider inputs. During
 its bounded preparation phase, each clean primary input is exported from its
 exact Git commit into a wrapper-owned, read-only source generation; the build
+restores entries omitted by repository-owned `export-ignore` release rules
+directly from their recorded Git blob IDs before validating the complete tree;
 then releases that primary's source lease before configure, compile, and tests.
 Consequently a long-running build from a Classic feature worktree does not
 block `sync --with classic` from advancing unrelated or snapshotted clean

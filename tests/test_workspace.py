@@ -2036,6 +2036,75 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "ownership is invalid"):
             self.workspace._source_generation_record(forged)
 
+    def test_export_ignored_resource_manifest_is_restored_and_staged(self) -> None:
+        primary = self.workspace.paths.repositories / "resources"
+        (primary / ".gitattributes").write_text(
+            "/runtime-paths.txt export-ignore\n", encoding="utf-8"
+        )
+        command("git", "add", ".gitattributes", cwd=primary)
+        command(
+            "git",
+            "commit",
+            "-m",
+            "test: exclude runtime manifest from archives",
+            cwd=primary,
+        )
+
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"resources"},
+            "build resources",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["resources"]
+            self.assertNotEqual(source, primary)
+            self.assertEqual(
+                (source / "runtime-paths.txt").read_text(encoding="utf-8"),
+                "paintings\n",
+            )
+            output = self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(
+                (output / "paintings" / "scene.jpg").read_text(encoding="utf-8"),
+                "resource\n",
+            )
+
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        source_mode = stat.S_IMODE(source.stat().st_mode)
+        manifest_mode = stat.S_IMODE(
+            (source / "runtime-paths.txt").stat().st_mode
+        )
+        generation.chmod(0o700)
+        source.chmod(0o700)
+        manifest = source / "runtime-paths.txt"
+        manifest.chmod(0o600)
+        manifest.write_text("changed\n", encoding="utf-8")
+        manifest.chmod(manifest_mode)
+        source.chmod(source_mode)
+        record = load_json(metadata)
+        record["source_tree_sha256"] = _tree_digest(
+            source,
+            set(),
+            bounded_symlinks=True,
+            reject_hardlinks=True,
+        )
+        metadata.chmod(0o600)
+        atomic_json(metadata, record)
+        self.workspace._seal_runtime_generation(generation)
+
+        with self.assertRaisesRegex(
+            WorkspaceError, "does not match its recorded Git tree"
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("corrupt retained manifest was yielded")
+
     def test_source_generation_reuse_rejects_coherent_missing_git_entry(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(

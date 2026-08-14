@@ -2296,10 +2296,10 @@ class Workspace:
             ) from error
 
     @staticmethod
-    def _validate_source_generation_git_tree(
-        checkout: Path, source: Path, source_tree: str
-    ) -> None:
-        """Prove a materialized source has the recorded Git tree identity."""
+    def _source_generation_git_entries(
+        checkout: Path, source_tree: str
+    ) -> dict[bytes, tuple[bytes, bytes, bytes]]:
+        """Return the complete, replacement-free entry inventory for a Git tree."""
 
         try:
             result = subprocess.run(
@@ -2342,6 +2342,11 @@ class Workspace:
                 ) from error
             if (
                 not relative
+                or relative.startswith(b"/")
+                or any(
+                    part in {b"", b".", b".."}
+                    for part in relative.split(b"/")
+                )
                 or relative in expected
                 or kind not in {b"blob", b"tree", b"commit"}
                 or mode
@@ -2353,6 +2358,133 @@ class Workspace:
                     "recorded immutable Git source tree listing is invalid"
                 )
             expected[relative] = (mode, kind, object_id)
+        return expected
+
+    @classmethod
+    def _restore_source_generation_archive_omissions(
+        cls, checkout: Path, source: Path, source_tree: str
+    ) -> None:
+        """Restore tracked entries omitted by release-oriented archive attributes."""
+
+        expected = cls._source_generation_git_entries(checkout, source_tree)
+        root = source.resolve()
+
+        def git_blob(
+            object_id: bytes, *, descriptor: int | None = None
+        ) -> bytes | None:
+            try:
+                result = subprocess.run(
+                    [
+                        "git",
+                        "--no-replace-objects",
+                        "-C",
+                        str(checkout),
+                        "cat-file",
+                        "blob",
+                        object_id.decode("ascii"),
+                    ],
+                    check=True,
+                    stdout=(
+                        descriptor if descriptor is not None else subprocess.PIPE
+                    ),
+                    stderr=subprocess.PIPE,
+                    pass_fds=active_lock_fds(),
+                )
+            except FileNotFoundError as error:
+                raise WorkspaceError("required command not found: git") from error
+            except subprocess.CalledProcessError as error:
+                detail = error.stderr.decode("utf-8", errors="replace").strip()
+                suffix = f": {detail}" if detail else ""
+                raise WorkspaceError(
+                    "cannot restore immutable Git source entry" + suffix
+                ) from error
+            return None if descriptor is not None else result.stdout
+
+        for relative, (mode, kind, object_id) in expected.items():
+            destination = source.joinpath(
+                *(os.fsdecode(part) for part in relative.split(b"/"))
+            )
+            if destination.exists() or destination.is_symlink():
+                continue
+            parent = destination.parent
+            try:
+                parent.resolve(strict=False).relative_to(root)
+            except (OSError, RuntimeError, ValueError) as error:
+                raise WorkspaceError(
+                    "Git source archive omission escapes its generation: "
+                    f"{os.fsdecode(relative)}"
+                ) from error
+            if not parent.is_dir() or parent.is_symlink():
+                raise WorkspaceError(
+                    "Git source archive omission has an invalid parent: "
+                    f"{os.fsdecode(relative)}"
+                )
+            try:
+                if kind == b"tree":
+                    destination.mkdir(mode=0o755)
+                elif kind == b"commit":
+                    raise WorkspaceError(
+                        "immutable Git source tree contains an unsupported Git link: "
+                        f"{os.fsdecode(relative)}"
+                    )
+                elif mode == b"120000":
+                    payload = git_blob(object_id)
+                    assert payload is not None
+                    if not payload or b"\0" in payload:
+                        raise WorkspaceError(
+                            "immutable Git source tree contains an invalid link: "
+                            f"{os.fsdecode(relative)}"
+                        )
+                    target = os.fsdecode(payload)
+                    if Path(target).is_absolute():
+                        raise WorkspaceError(
+                            "immutable Git source tree contains an unsafe link: "
+                            f"{os.fsdecode(relative)}"
+                        )
+                    resolved = destination.parent.joinpath(target).resolve(
+                        strict=False
+                    )
+                    try:
+                        resolved.relative_to(root)
+                    except ValueError as error:
+                        raise WorkspaceError(
+                            "immutable Git source tree link escapes its generation: "
+                            f"{os.fsdecode(relative)}"
+                        ) from error
+                    destination.symlink_to(target)
+                else:
+                    permissions = 0o755 if mode == b"100755" else 0o644
+                    descriptor = os.open(
+                        destination,
+                        os.O_WRONLY
+                        | os.O_CREAT
+                        | os.O_EXCL
+                        | getattr(os, "O_NOFOLLOW", 0),
+                        permissions,
+                    )
+                    try:
+                        git_blob(object_id, descriptor=descriptor)
+                    except BaseException:
+                        destination.unlink(missing_ok=True)
+                        raise
+                    finally:
+                        os.close(descriptor)
+                    destination.chmod(permissions)
+            except WorkspaceError:
+                raise
+            except OSError as error:
+                raise WorkspaceError(
+                    "cannot restore immutable Git source entry "
+                    f"{os.fsdecode(relative)}: {error}"
+                ) from error
+
+    @classmethod
+    def _validate_source_generation_git_tree(
+        cls, checkout: Path, source: Path, source_tree: str
+    ) -> None:
+        """Prove a materialized source has the recorded Git tree identity."""
+
+        expected = cls._source_generation_git_entries(checkout, source_tree)
 
         algorithm = hashlib.sha1 if len(source_tree) == 40 else hashlib.sha256
         actual: dict[bytes, tuple[bytes, bytes, bytes]] = {}
@@ -2799,6 +2931,11 @@ class Workspace:
                     ) from error
                 self._extract_git_source_archive(archive_path, staging / "source")
                 archive_path.unlink()
+                self._restore_source_generation_archive_omissions(
+                    checkout,
+                    staging / "source",
+                    source_tree,
+                )
                 current_checkout = checkout.stat()
                 current_source = source.stat()
                 current_git_common = self._git_common_directory(

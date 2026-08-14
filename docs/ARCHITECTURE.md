@@ -383,7 +383,10 @@ Commit-keyed source generations have closed repository/branch/checkout/tree/
 subpath metadata and a complete tree digest. Reuse additionally enumerates the
 exact recorded Git tree without replacement-object indirection and proves every
 generated path, entry type, executable mode, symlink target, and blob object ID
-through a pinned, no-follow descriptor traversal before selection. A mismatch
+through a pinned, no-follow descriptor traversal before selection. Initial
+materialization restores paths omitted from `git archive` by repository-owned
+`export-ignore` release rules from their exact recorded blob IDs before that
+same complete-tree validation. A mismatch
 fails closed and leaves recovery to the explicit preview-first `builds` cleanup
 boundary. Once path, marker, key, and closed metadata ownership are exact,
 cleanup classifies a content-digest mismatch as removable corruption. Builds
