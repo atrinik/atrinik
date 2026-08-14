@@ -2035,6 +2035,40 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "ownership is invalid"):
             self.workspace._source_generation_record(forged)
 
+    def test_source_generation_reuse_rejects_coherent_missing_git_entry(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        source_mode = stat.S_IMODE(source.stat().st_mode)
+        generation.chmod(0o700)
+        source.chmod(0o700)
+        (source / "README").unlink()
+        source.chmod(source_mode)
+        record = load_json(metadata)
+        record["source_tree_sha256"] = _tree_digest(
+            source,
+            set(),
+            bounded_symlinks=True,
+            reject_hardlinks=True,
+        )
+        metadata.chmod(0o600)
+        atomic_json(metadata, record)
+        self.workspace._seal_runtime_generation(generation)
+
+        with self.assertRaisesRegex(
+            WorkspaceError, "does not match its recorded Git tree"
+        ):
+            resolve()
+
     def test_source_generation_archive_extraction_rejects_unsafe_entries(self) -> None:
         def archive(name: str, entries: list[tuple[tarfile.TarInfo, bytes]]) -> Path:
             path = self.root / f"{name}.tar"
