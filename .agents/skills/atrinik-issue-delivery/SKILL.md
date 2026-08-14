@@ -109,10 +109,17 @@ scenario procedures.
   Pre-record the complete planned physical target set: entry mode, selected
   issue/PR or issue-mode pending PR slots, repositories, target/base and
   existing/planned heads, branches, worktree labels/paths, authenticated creator
-  or push identity, and closing scope. Durably refresh the ledger immediately
-  after each artifact creation and before the next mutation. After interruption,
-  bind or reuse only one exact live/local artifact matching each planned slot;
-  stop on an absent, duplicate, incomplete, or mismatched coordinate.
+  or push identity, and closing scope. Treat each branch, worktree, and PR as a
+  separate artifact slot; persist its intent before mutation and durably refresh
+  its result before the next mutation. After interruption, resolve every
+  artifact slot by its recorded state: a planned slot with no artifact may be
+  created after collision rechecks; a planned slot with one exact artifact must
+  be bound before mutation; a created/adopted slot with its exact artifact may
+  be reused. If an issue-mode branch is bound while its worktree remains
+  planned/absent, attach that exact branch through manifest-owner `--existing`
+  or the wrapper-self non-`-b` path instead of recreating it. Stop and preserve
+  work for duplicates, mismatches, incomplete coordinates, or a created/adopted
+  slot whose artifact disappeared.
 - In issue mode, set `TARGET_BRANCH` to an explicit valid target or otherwise
   the manifest/live target. Fetch it, record the exact commit as `BASE_SHA`, and
   choose safe lowercase mode-coordinate-derived branch and label names. Reject

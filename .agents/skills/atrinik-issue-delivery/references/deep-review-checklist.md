@@ -141,8 +141,13 @@ categories into invented findings.
 - Check external mutations are ordered, idempotent where possible, permission-
   scoped, and observable without leaking secrets.
 - Confirm a complete ignored coordinate ledger is pre-recorded before branch,
-  worktree, or PR mutation and refreshed after each artifact creation. Exercise
-  interruption between creations; bind only exact unique planned-slot matches.
+  worktree, or PR mutation, with separate artifact slots whose intent/result is
+  persisted around every mutation. Exercise interruption before, during, and
+  after each creation: planned/absent creates after rechecks, planned/one exact
+  match binds, created-or-adopted/exact reuses, and every duplicate, mismatch,
+  incomplete coordinate, or disappeared recorded artifact stops and preserves
+  work. A bound issue-mode branch with no worktree must attach via the exact
+  existing-branch path rather than recreate the branch.
 - Confirm PR-only delivery does not mutate incidental linked issues or Project
   items, and that any issue claim came from an explicitly supplied, verified
   issue coordinate.

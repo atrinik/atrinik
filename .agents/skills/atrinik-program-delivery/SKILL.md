@@ -12,11 +12,12 @@ durable objective across multiple leaf deliveries and external merge gates.
 Explicit invocation authorizes assignment and Project updates for the master,
 ordinary branch pushes, child issue and draft PR creation when genuinely
 missing, updates to linked issues and to PRs created and recorded by the exact
-delegated issue-mode leaf, ready transitions after exit conditions, and concise
-tracking comments. It does not authorize force-pushes, merges, issue closure,
-policy bypass, destructive resets, cleanup application, self-approval, or
-unrelated external changes. Do not infer merge authority from requests to
-finish, complete, or fully deliver a program.
+delegated issue-mode leaf or uniquely bound to its pre-recorded pending slot,
+ready transitions after exit conditions, and concise tracking comments. It does
+not authorize force-pushes, merges, issue closure, policy bypass, destructive
+resets, cleanup application, self-approval, or unrelated external changes.
+Do not infer merge authority from requests to finish, complete, or fully deliver
+a program.
 
 ## Load the delivery contracts
 
@@ -58,9 +59,10 @@ objective rather than requiring a fresh goal on resumption.
    line, dependencies, existing branch/PR/head, acceptance, validation, and the
    next human gate. Reuse existing issues. Reuse worktrees, branches, and PRs
    only when they were created and recorded by that exact delegated issue-mode
-   leaf. Every other existing PR is a blocker or read-only traceability until
-   separately authorized. Create and link a child only when required work has
-   no current owner after a live duplicate search.
+   leaf or uniquely match its pre-recorded pending slot and are bound in the
+   ledger before mutation. Every other existing PR is a blocker or read-only
+   traceability until separately authorized. Create and link a child only when
+   required work has no current owner after a live duplicate search.
 5. Apply the issue-delivery claim contract to the master: assign `zoeyrose`, add
    it to **Atrinik work** when needed, and set the existing Status to
    **In progress** from `github-settings/config/planning.json`. Never invent an
@@ -75,13 +77,15 @@ A merge-ready leaf is progress, not goal completion.
    shared base, schema, ledger, generated baseline, authored path, or closing
    path.
 2. Apply the issue-delivery workflow completely to the leaf in issue mode.
-   Resume only work created and recorded by that exact leaf delivery rather
-   than creating a replacement PR. If fresh issue-mode preflight finds a
-   different active PR, stop with its coordinate; program delegation does not
-   authorize switching to PR mode or adopting it. For paired release lines,
-   keep separate bases, commits, validation, and PRs; preserve the declared
-   merge order and canonical issue-closing path. Do not mark a draft ready until
-   both its leaf review and the cumulative program review below converge.
+   Resume only work created and recorded by that exact leaf delivery or the one
+   exact artifact uniquely matching a pre-recorded pending slot; bind the latter
+   before mutation rather than creating a replacement PR. If fresh issue-mode
+   preflight finds a different active PR, stop with its coordinate; program
+   delegation does not authorize switching to PR mode or adopting it. For
+   paired release lines, keep separate bases, commits, validation, and PRs;
+   preserve the declared merge order and canonical issue-closing path. Do not
+   mark a draft ready until both its leaf review and the cumulative program
+   review below converge.
 3. Reconcile every head onto its current required base before relying on
    validation. A prior green check proves only the old head/base combination.
    Never bulk-merge or bulk-refresh a queue whose earlier merges change later

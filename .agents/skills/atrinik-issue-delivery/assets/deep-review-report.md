@@ -11,7 +11,7 @@ vulnerability detail. Do not commit or publish this report.
 - Selected pull request(s): `<one URL in PR mode; URL(s) or pending in issue mode>`
 - Claim/linkage state: `<claimed explicit issue | linked issues read-only | none>`
 - Issue-closing path: `<default-branch PR URL, manual post-merge close, or none>`
-- Artifact ledger state: `<planned/created/adopted per exact target; pending slots>`
+- Artifact ledger state: `<planned/created/adopted per branch/worktree/PR slot>`
 - Review started / last refreshed: `<UTC timestamps>`
 
 | Release line / owner | Target / fetched base | Head branch / SHA | Merge base | Worktree | Commits reviewed |

@@ -310,8 +310,14 @@ class AgentGuidanceTests(unittest.TestCase):
             "never resume or edit a dirty, detached, locked, active, referenced",
             "Before any branch, worktree, or PR mutation",
             "Pre-record the complete planned physical target set",
-            "Durably refresh the ledger immediately after each artifact creation",
-            "bind or reuse only one exact live/local artifact",
+            "Treat each branch, worktree, and PR as a separate artifact slot",
+            "persist its intent before mutation and durably refresh its result",
+            "a planned slot with no artifact may be created",
+            "a planned slot with one exact artifact must be bound",
+            "a created/adopted slot with its exact artifact may be reused",
+            "a created/adopted slot whose artifact disappeared",
+            "attach that exact branch through manifest-owner `--existing`",
+            "wrapper-self non-`-b` path",
             "--base TARGET_BRANCH",
             "one coherent draft per affected physical repository",
             "update only the selected PR",
@@ -362,6 +368,10 @@ class AgentGuidanceTests(unittest.TestCase):
             "coordinate ledger is pre-recorded before branch",
             normalized_checklist,
         )
+        self.assertIn("planned/absent creates after rechecks", normalized_checklist)
+        self.assertIn("created-or-adopted/exact reuses", normalized_checklist)
+        self.assertIn("persisted around every mutation", normalized_checklist)
+        self.assertIn("existing-branch path", normalized_checklist)
         self.assertIn(
             "determinate conflict-free mergeability",
             normalized_checklist,
@@ -523,6 +533,14 @@ class AgentGuidanceTests(unittest.TestCase):
         )
         self.assertIn(
             "Every other existing PR is a blocker or read-only traceability",
+            normalized_body,
+        )
+        self.assertIn(
+            "uniquely bound to its pre-recorded pending slot",
+            normalized_body,
+        )
+        self.assertIn(
+            "one exact artifact uniquely matching a pre-recorded pending slot",
             normalized_body,
         )
 
