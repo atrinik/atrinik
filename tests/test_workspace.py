@@ -3234,6 +3234,96 @@ class WorkspaceTests(unittest.TestCase):
         ]
         self.assertEqual(entries, [])
 
+    def test_worker_dependency_reopens_sealed_restrictive_source_root(self) -> None:
+        source = self.make_worker_source()
+        source.chmod(0o700)
+        source.chmod(stat.S_IMODE(source.stat().st_mode) & ~0o222)
+        self.assertEqual(stat.S_IMODE(source.stat().st_mode), 0o500)
+        installs: list[Path] = []
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        runner = self.fake_worker_run(installs, versions, threading.Lock())
+
+        def writable_run(arguments: list[str], **kwargs: object) -> str:
+            if arguments == ["npm", "ci"]:
+                staging = kwargs["cwd"]
+                assert isinstance(staging, Path)
+                self.assertEqual(
+                    stat.S_IMODE(staging.stat().st_mode) & stat.S_IRWXU,
+                    stat.S_IRWXU,
+                )
+                self.assertEqual(
+                    stat.S_IMODE(staging.stat().st_mode)
+                    & (stat.S_IWGRP | stat.S_IWOTH),
+                    0,
+                )
+            return runner(arguments, **kwargs)
+
+        try:
+            with mock.patch(
+                "atrinik_workspace.workspace.run", side_effect=writable_run
+            ):
+                dependencies = self.workspace._worker_dependencies(
+                    source, {"PATH": "/bin"}
+                )
+        finally:
+            source.chmod(0o700)
+        self.assertEqual(len(installs), 1)
+        self.assertTrue(dependencies[0].is_dir())
+
+    def test_worker_dependency_rejects_foreign_owned_staging_root(self) -> None:
+        source = self.make_worker_source()
+        versions = {"node": "v22.0.0", "npm": "11.0.0"}
+        installs: list[Path] = []
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.run",
+                side_effect=self.fake_worker_run(
+                    installs, versions, threading.Lock()
+                ),
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.os.geteuid",
+                return_value=os.geteuid() + 1,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "staging root ownership is unsafe"),
+        ):
+            self.workspace._worker_dependencies(source, {"PATH": "/bin"})
+        self.assertEqual(installs, [])
+
+    def test_worker_staging_writable_failures_are_bounded(self) -> None:
+        staging = self.root / "worker-staging"
+        staging.mkdir(mode=0o700)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.os.open",
+                side_effect=PermissionError(errno.EPERM, "simulated open denial"),
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "cannot make Worker staging root writable"
+            ),
+        ):
+            workspace_module._make_worker_staging_owner_writable(staging)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.os.fchmod",
+                side_effect=PermissionError(errno.EPERM, "simulated denial"),
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "cannot make Worker staging root writable"
+            ),
+        ):
+            workspace_module._make_worker_staging_owner_writable(staging)
+
+        staging.chmod(0o500)
+        with (
+            mock.patch("atrinik_workspace.workspace.os.fchmod"),
+            self.assertRaisesRegex(WorkspaceError, "is not owner-writable"),
+        ):
+            workspace_module._make_worker_staging_owner_writable(staging)
+        staging.chmod(0o700)
+
     def test_worker_dependencies_reuse_exact_inputs_and_rebuild_corruption(self) -> None:
         source = self.make_worker_source()
         installs: list[Path] = []
@@ -4227,6 +4317,101 @@ class WorkspaceTests(unittest.TestCase):
             "export const value = 2;\n",
         )
         self.assertFalse((changed[0] / "node_modules" / "alpha" / "local").exists())
+
+        source.chmod(0o555)
+        self.addCleanup(source.chmod, 0o700)
+        metadata["inputs"]["lifecycle_source_sha256"] = _tree_digest(
+            source,
+            WORKER_SOURCE_EXCLUSIONS,
+            reject_symlinks=True,
+            copied_metadata=True,
+        )
+        sealed = self.workspace._worker_view(
+            root, source, dependencies, "c" * 64, metadata
+        )
+        self.assertFalse(sealed[1])
+        self.assertEqual(stat.S_IMODE(sealed[0].stat().st_mode), 0o555)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.os.geteuid",
+                return_value=os.geteuid() + 1,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "Worker staging root ownership is unsafe"
+            ),
+        ):
+            self.workspace._worker_view(
+                root, source, dependencies, "d" * 64, metadata
+            )
+
+        def generate_types(arguments: list[str], **kwargs: object) -> str:
+            self.assertEqual(arguments, ["npm", "run", "check"])
+            view = kwargs["cwd"]
+            assert isinstance(view, Path)
+            mode = stat.S_IMODE(view.stat().st_mode)
+            self.assertEqual(mode, 0o755)
+            (view / "worker-runtime.d.ts").write_text(
+                "generated\n", encoding="utf-8"
+            )
+            return ""
+
+        with mock.patch(
+            "atrinik_workspace.workspace.run", side_effect=generate_types
+        ):
+            self.workspace._run_worker_checks(
+                sealed[0], {}, "c" * 64, metadata
+            )
+        self.assertEqual(stat.S_IMODE(sealed[0].stat().st_mode), 0o555)
+        self.workspace._reconcile_worker_view_after_checks(
+            source, sealed[0], "c" * 64, metadata
+        )
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.os.geteuid",
+                return_value=os.geteuid() + 1,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "view ownership is unsafe"),
+        ):
+            self.workspace._run_worker_checks(
+                sealed[0], {}, "c" * 64, metadata
+            )
+        self.assertEqual(stat.S_IMODE(sealed[0].stat().st_mode), 0o555)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.run",
+                side_effect=WorkspaceError("simulated check failure"),
+            ),
+            self.assertRaisesRegex(WorkspaceError, "simulated check failure"),
+        ):
+            self.workspace._run_worker_checks(
+                sealed[0], {}, "c" * 64, metadata
+            )
+        self.assertEqual(stat.S_IMODE(sealed[0].stat().st_mode), 0o555)
+        self.assertTrue(
+            self.workspace._worker_view(
+                root, source, dependencies, "c" * 64, metadata
+            )[1]
+        )
+
+        displaced = sealed[0].with_name("metaserver-worker-displaced")
+
+        def displace_view(arguments: list[str], **kwargs: object) -> str:
+            self.assertEqual(arguments, ["npm", "run", "check"])
+            sealed[0].rename(displaced)
+            return ""
+
+        with mock.patch(
+            "atrinik_workspace.workspace.run", side_effect=displace_view
+        ):
+            self.workspace._run_worker_checks(
+                sealed[0], {}, "c" * 64, metadata
+            )
+        self.assertFalse(sealed[0].exists())
+        self.assertEqual(stat.S_IMODE(displaced.stat().st_mode), 0o555)
+
     def test_source_view_reconciles_links_copies_and_stale_entries_in_place(self) -> None:
         source = self.workspace.paths.repositories / "server"
         copied_source = source / "install_data"
