@@ -118,11 +118,27 @@ class ProgramLedgerModel:
         if bound and (len(namespace) != 1 or namespace[0][1] != actor):
             raise StopClosed("marker is missing, duplicate, or wrong-author")
 
-    def plan(self, slot: str, node: str | None = None, prior: str | None = None) -> None:
+    def _plan(self, slot: str, node: str | None = None, prior: str | None = None) -> None:
         current = self.record[slot]
-        if current["phase"] not in {"none", "bound"}:
+        if current["phase"] != "none" and not (
+            slot == "comment" and current["phase"] == "bound"
+        ):
             raise StopClosed("slot already owns an intent")
         self.persist(lambda r: r[slot].update(phase="planned", node=node, prior=prior))
+
+    def plan_comment(self) -> None:
+        self._plan("comment")
+
+    def plan_create(self, proven_missing: bool = True) -> None:
+        if not proven_missing:
+            raise StopClosed("child is not proven missing")
+        self._plan("create")
+
+    def plan_link(self) -> None:
+        create = self.record["create"]
+        if create["phase"] != "bound" or create["node"] != "issue-node":
+            raise StopClosed("link lacks the exact bound child")
+        self._plan("link")
 
     def arm(self, slot: str) -> CallPermit:
         if self.record[slot]["phase"] != "planned":
@@ -148,13 +164,15 @@ class ProgramLedgerModel:
             )
         )
 
-    def bind_create(self, candidates: list[dict[str, str]], boundary: str) -> None:
+    def bind_create(self, candidates: list[dict[str, str]]) -> None:
         exact = [
             item for item in candidates
-            if set(item) == {"node", "creator", "title", "body", "created_at"}
+            if set(item) == {
+                "node", "creator", "title", "body", "child_marker", "created_at"
+            }
             and item["node"] == "issue-node" and item["creator"] == "actor"
             and item["title"] == "title" and item["body"] == "body"
-            and item["created_at"] >= boundary
+            and item["child_marker"] == "program-child-marker"
         ]
         self.bind("create", [item["node"] for item in exact])
 
@@ -180,7 +198,24 @@ class ProgramLedgerModel:
         ):
             raise StopClosed("rekey changes authority or comment node")
         self.persist(lambda r: r.update(next_graph=copy.deepcopy(next_graph)))
-        self.plan("comment", node=node, prior="old-body")
+        self._plan("comment", node=node, prior="old-body")
+
+    def finish_patch(self, remote_body: str, result_node: str) -> None:
+        if (
+            self.record["comment"]["phase"] != "in-flight"
+            or remote_body not in {"old-body", "intended-body"}
+            or result_node != self.record["comment"]["node"]
+            or self.record["next_graph"] is None
+        ):
+            raise StopClosed("PATCH result or prior body drifted")
+        self.persist(
+            lambda record: (
+                record["comment"].update(phase="bound", prior=None),
+                record.update(
+                    graph=copy.deepcopy(record["next_graph"]), next_graph=None
+                ),
+            )
+        )
 
     def compose_leaf(self, position: str, generation: int, digest: str) -> None:
         snapshot = self.record["leaf_snapshots"].get(position)
@@ -219,15 +254,38 @@ class ProgramLedgerModelTests(unittest.TestCase):
             root = Path(directory)
             lock = root / "ledger.lock"
             ledger = root / "ledger.json"
-            lock.touch(mode=0o600)
-            with lock.open("r+") as descriptor:
-                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                lock_inode = os.fstat(descriptor.fileno()).st_ino
-                ledger.write_text("old", encoding="utf-8")
-                temporary = root / "ledger.tmp"
-                temporary.write_text("new", encoding="utf-8")
-                os.replace(temporary, ledger)
-                self.assertEqual(os.stat(lock).st_ino, lock_inode)
+            flags = os.O_CREAT | os.O_EXCL | os.O_RDWR | os.O_NOFOLLOW
+            lock_fd = os.open(lock, flags, 0o600)
+            self.addCleanup(os.close, lock_fd)
+            with self.assertRaises(FileExistsError):
+                os.open(lock, flags, 0o600)
+            fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            self.assertEqual(os.fstat(lock_fd).st_mode & 0o777, 0o600)
+            competing_fd = os.open(lock, os.O_RDWR | os.O_NOFOLLOW)
+            self.addCleanup(os.close, competing_fd)
+            with self.assertRaises(BlockingIOError):
+                fcntl.flock(competing_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            lock_inode = os.fstat(lock_fd).st_ino
+            ledger_fd = os.open(ledger, flags, 0o600)
+            os.write(ledger_fd, b"old")
+            os.fsync(ledger_fd)
+            old_inode = os.fstat(ledger_fd).st_ino
+            os.close(ledger_fd)
+            temporary = root / "ledger.tmp"
+            temporary_fd = os.open(temporary, flags, 0o600)
+            os.write(temporary_fd, b"new")
+            os.fsync(temporary_fd)
+            new_inode = os.fstat(temporary_fd).st_ino
+            os.close(temporary_fd)
+            self.assertNotEqual(old_inode, new_inode)
+            with self.assertRaises(FileExistsError):
+                os.open(temporary, flags, 0o600)
+            os.replace(temporary, ledger)
+            directory_fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+            os.fsync(directory_fd)
+            os.close(directory_fd)
+            self.assertEqual(os.stat(lock).st_ino, lock_inode)
+            self.assertEqual(os.stat(ledger).st_ino, new_inode)
 
     def test_multi_page_bounds_and_stream_stability(self) -> None:
         ProgramLedgerModel.stable_scan(["a", "b"], ["1", "2"], "d", "d")
@@ -255,7 +313,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
     def test_crash_before_remote_call_loses_permit_and_never_calls(self) -> None:
         model = ProgramLedgerModel()
-        model.plan("comment")
+        model.plan_comment()
         model.arm("comment")
         resumed = ProgramLedgerModel.resume(
             model.record, 41, model.record["self_inode"], model.digest()
@@ -268,7 +326,13 @@ class ProgramLedgerModelTests(unittest.TestCase):
         for slot in ("comment", "create", "link"):
             with self.subTest(slot=slot):
                 model = ProgramLedgerModel()
-                model.plan(slot)
+                if slot == "comment":
+                    model.plan_comment()
+                elif slot == "create":
+                    model.plan_create()
+                else:
+                    model.record["create"].update(phase="bound", node="issue-node")
+                    model.plan_link()
                 permit = model.arm(slot)
                 model.execute(permit)
                 with self.assertRaises(StopClosed):
@@ -292,34 +356,41 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
     def test_patch_and_rekey_keep_one_comment_node_and_authority(self) -> None:
         model = ProgramLedgerModel()
-        model.plan("comment")
+        model.plan_comment()
         permit = model.arm("comment")
         model.execute(permit)
         model.bind("comment", ["comment-node"])
         model.rekey(model.record["authority"], ["leaf-1", "leaf-2"], "comment-node")
         patch = model.arm("comment")
         model.execute(patch)
-        model.bind("comment", ["comment-node"])
+        with self.assertRaises(StopClosed):
+            model.finish_patch("drifted-body", "comment-node")
+        model.finish_patch("old-body", "comment-node")
         self.assertEqual(model.record["comment"]["node"], "comment-node")
+        self.assertEqual(model.record["graph"], ["leaf-1", "leaf-2"])
+        self.assertIsNone(model.record["next_graph"])
         with self.assertRaises(StopClosed):
             model.rekey(["other"] * 4, ["bad"], "comment-node")
 
     def test_create_result_requires_exact_actor_bytes_and_time_boundary(self) -> None:
         model = ProgramLedgerModel()
-        model.plan("create")
+        model.plan_create()
         permit = model.arm("create")
         model.execute(permit)
-        boundary = "2026-08-14T00:00:00Z"
         wrong = {"node": "issue-node", "creator": "other", "title": "title",
-                 "body": "body", "created_at": boundary}
+                 "body": "body", "child_marker": "program-child-marker",
+                 "created_at": "2026-08-14T00:00:00.123Z"}
         with self.assertRaises(StopClosed):
-            model.bind_create([wrong], boundary)
+            model.bind_create([wrong])
         exact = dict(wrong, creator="actor")
-        model.bind_create([exact], boundary)
+        model.bind_create([exact])
 
     def test_native_link_binds_parent_child_pair_without_edge_node(self) -> None:
         model = ProgramLedgerModel()
-        model.plan("link")
+        with self.assertRaises(StopClosed):
+            model.plan_link()
+        model.record["create"].update(phase="bound", node="issue-node")
+        model.plan_link()
         permit = model.arm("link")
         model.execute(permit)
         with self.assertRaises(StopClosed):
@@ -332,13 +403,33 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
     def test_duplicate_uncertain_results_stop_without_repost(self) -> None:
         model = ProgramLedgerModel()
-        model.plan("create")
+        model.plan_create()
         permit = model.arm("create")
         model.execute(permit)
         for results in ([], ["one", "two"]):
             with self.subTest(results=results), self.assertRaises(StopClosed):
                 model.bind("create", results)
         self.assertEqual(model.remote_calls["create"], 1)
+
+    def test_create_and_link_cannot_plan_twice_or_out_of_order(self) -> None:
+        model = ProgramLedgerModel()
+        with self.assertRaises(StopClosed):
+            model.plan_create(False)
+        with self.assertRaises(StopClosed):
+            model.plan_link()
+        model.plan_create()
+        create_permit = model.arm("create")
+        model.execute(create_permit)
+        model.bind("create", ["issue-node"])
+        with self.assertRaises(StopClosed):
+            model.plan_create()
+        model.plan_link()
+        link_permit = model.arm("link")
+        model.execute(link_permit)
+        model.bind_link("master", ["issue-node"], "digest")
+        with self.assertRaises(StopClosed):
+            model.plan_link()
+        self.assertEqual(model.remote_calls, {"comment": 0, "create": 1, "link": 1})
 
     def test_leaf_composition_rejects_overlap_reorder_and_drift(self) -> None:
         model = ProgramLedgerModel()

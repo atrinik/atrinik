@@ -881,10 +881,10 @@ class AgentGuidanceTests(unittest.TestCase):
         )
 
         for marker in {
-            "<owner>-<repo>-<number>.ledger.json",
+            "<owner>-<repo>-<number>-<goal-sha256>.ledger.json",
             "GitHub linkage, marker text, the report, a leaf ledger",
             "Never adopt live text, an issue, a relationship, or a marker",
-            "`<owner>-<repo>-<number>.ledger.lock`",
+            "same-stem `.ledger.lock`",
             "lock on the replaceable JSON inode is invalid",
             "schema_version: 1",
             "goal_thread_id",
@@ -912,7 +912,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "never link again",
             "ProgramLedgerModelTests",
             "GitHub exposes no relationship node ID",
-            "call_not_before",
+            "atrinik-program-child",
             "proposal's recorded position",
         }:
             with self.subTest(marker=marker):

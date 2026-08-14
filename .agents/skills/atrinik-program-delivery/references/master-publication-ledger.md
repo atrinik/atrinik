@@ -7,9 +7,10 @@ report mirrors evidence and never authorizes a write.
 ## Canonical authority, paths, and bytes
 
 Create or resume one canonical ledger at
-`<workspace>/build/program-delivery/<owner>-<repo>-<number>.ledger.json`; prove
+`<workspace>/build/program-delivery/<owner>-<repo>-<number>-<goal-sha256>.ledger.json`;
+the final component is the full objective digest. Prove
 it and the report are ignored, regular, no-follow files under safe parents.
-Lock the separate stable `<owner>-<repo>-<number>.ledger.lock`, created mode
+Lock its separate stable same-stem `.ledger.lock`, created mode
 `0600` without following links and never replaced or removed while retained.
 Verify its device/inode after locking and hold that descriptor across ledger
 read, pagination, persistence, remote mutation, and reconciliation. A lock on
@@ -60,9 +61,11 @@ Positions are contiguous integers from 1; issue numbers are positive;
 dependencies are sorted unique earlier positions; all other values are
 non-empty strings. `graph_sha256` hashes canonical `ordered_graph` only, so
 ordinary leaf progress does not rekey it. Each `leaf_snapshot` has exactly
-`position`, `ledger_path`, `generation`, and `ledger_sha256`; positions map
-one-to-one to the graph, paths are absolute regular no-follow issue-delivery
-ledgers, generations are nonnegative, and digests are lowercase 64-hex.
+`position`, `ledger_path`, `generation`, and `ledger_sha256`; positions form a
+unique subset of dependency-ready graph positions. Absence means that position
+is not ready and authorizes nothing. Paths are absolute regular no-follow
+issue-delivery ledgers, generations are nonnegative, and digests are lowercase
+64-hex.
 
 The marker payload has exactly `schema_version`, `repository_node_id`,
 `master_node_id`, `goal_thread_id`, `objective_sha256`, `actor_node_id`, and
@@ -90,10 +93,11 @@ intended body/digest, `current_sha256 == intended_sha256`, and prior null.
 
 ```text
 proposal: {position, dependencies, repository, repository_node_id, title, body,
-           body_sha256, parent_repository, parent_number, parent_node_id}
+           body_sha256, child_marker, parent_repository, parent_number,
+           parent_node_id}
 search: null | {query_sha256, pages, issues, terminal_cursor, completed_at,
          stream_sha256, candidates, proven_missing}
-create: {phase, mutation, call_not_before, pre_call_stream_sha256,
+create: {phase, mutation, pre_call_stream_sha256,
          issue_number, issue_node_id, issue_url, creator_node_id,
          created_at, intended_sha256}
 link: {phase, mutation, parent_node_id, child_node_id,
@@ -107,15 +111,19 @@ candidate has exactly `repository`, `issue_number`, `issue_node_id`, `state`,
 `creator_node_id`, `created_at`, `title_sha256`, and `body_sha256`. Candidates
 remain in canonical API order. Search counts are
 bounded nonnegative integers, cursor/time are validated as below, and
-`proven_missing` is boolean. Null search is allowed only while create and link
+`proven_missing` is boolean. `child_marker` uses the comment marker grammar with
+namespace `atrinik-program-child`; its payload contains authority's repository,
+master, goal, objective, and actor IDs plus proposal position, dependencies,
+target repository, and title SHA-256. It occurs exactly once as the final body
+line and makes the exact intended child unique without trusting client time.
+Null search is allowed only while create and link
 are `none`; a create plan requires a non-null proven-missing search. Create/link
 use the four phases. `none` requires mutation and all call/result/intended
 fields null. `planned` requires mutation `POST`, exact canonical request digest,
-and null call/result fields. `in-flight` additionally requires a UTC
-`call_not_before` captured immediately before persistence and the exact stable
+and null call/result fields. `in-flight` additionally requires the exact stable
 pre-call issue-stream digest. Bound create requires mutation null, every issue
 result including server `created_at`, creator equal to authority, and clears
-call-boundary fields. Bound link requires mutation null, the proposal's exact
+the pre-call field. Bound link requires mutation null, the proposal's exact
 parent and bound child IDs, and the digest of the complete parent stream that
 proves the pair. GitHub exposes no relationship node ID; never invent one.
 Link cannot leave `none`
@@ -143,11 +151,11 @@ Fresh initialization is only `(lock absent, ledger absent)`: atomically create
 the lock, acquire it, prove the ledger remains absent, perform the complete
 remote namespace scans below, and write generation zero. `(lock present,
 ledger absent)` is ambiguous, including a crash before generation zero, and
-stops. An operator may recover only by proving from filesystem history that no
-ledger existed, completing two fresh identical empty remote scans, archiving
-the unused lock identity, and restarting at a new explicitly recorded
-coordinate. Never delete/reuse a lock-only artifact or infer freshness from
-remote state alone.
+stops. Recovery requires restoring the exact ledger from durable backup or an
+explicitly new goal objective/digest, whose distinct canonical stem is created
+only after two fresh identical empty namespace scans and archival of the old
+lock-only coordinate. Never delete/reuse a lock-only artifact, reuse its goal
+digest, or infer freshness from remote state alone.
 
 Reject stale CAS, inode substitution, corrupt/missing ledger, changed
 goal/actor/master coordinate, or unrecorded temporary artifact. The durable
@@ -210,17 +218,19 @@ must never permit POST, absent-ledger adoption, or a second node.
 
 Record the exact proposal before searching. Exhaustively paginate repository
 issues in open and closed states and the master's native subissue graph using
-the bounds above. The query covers exact and normalized title variants, body
-digests/marker clues, master backlinks, and native parent relationships; record
-its canonical query digest and every plausible candidate. Any candidate,
+the bounds above. Deterministically inspect every bounded issue client-side;
+a candidate is any issue containing the child-marker namespace (valid or
+malformed), exact title SHA-256, exact final body SHA-256, exact master backlink,
+or exact native parent. The query digest covers those literal predicates and
+fields. Record every candidate in API order. Any candidate,
 incomplete scan, or changing stream means `proven_missing: false` and stops.
 
 Only a stable zero-candidate search may persist create `planned` with the exact
 proposal and request digest. Recheck search and CAS, persist create `in-flight`,
 then call issue creation once. Bind only one issue in the proposed repository
-whose creator, exact title/body, and identity match, whose server `created_at`
-is not earlier than durable `call_not_before`, and which was absent from the
-recorded pre-call stream. If none is visible after in-flight create, stop as uncertain
+whose creator, exact title/body/child marker, and identity match and which was
+absent from the recorded pre-call stream. Server `created_at` remains evidence,
+not a client-clock authority. If none is visible after in-flight create, stop as uncertain
 and never create again. Later resumptions repeat the full search and may bind
 one exact result; zero or multiple results stop.
 
