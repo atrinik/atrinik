@@ -133,6 +133,7 @@ workspace/
   worktrees/<checkout>/<label>/      physical-checkout Git worktrees
   profiles/<name>.json               logical component -> checkout selectors
   build/profiles/<name>-<key>/       isolated sources, builds, and runtime
+  build/source-generations/<checkout>/<key>/ immutable primary exports
   build/npm-cache/                   shared package download cache
   build/worker-dependencies/<key>/   shared validated Worker installations
   build/compiler-cache/              bounded shared native compiler cache
@@ -207,11 +208,21 @@ waiting on a busy later source. A queued writer precedes later readers only for
 that coordinate, and waits longer than 10 seconds report its owner operation
 and supported recovery action.
 
-Profile consumers lock the profile, derive candidate source coordinates,
-acquire the exact sources, revalidate, and capture immutable profile bytes,
-provider selections, Git identities, paths, HEADs, dirtiness, and filesystem
-identity. Build preparation persists that snapshot and never rereads a mutable
-profile generation. Publication and removal share the same source coordinate.
+Profile consumers lock the profile, derive the requested operation's transitive
+provider closure, acquire only those exact sources, revalidate, and capture
+immutable profile bytes, provider selections, Git identities, paths, HEADs,
+dirtiness, and filesystem identity. A target build exports each clean primary
+component subpath from the captured Git commit into an atomic, read-only source
+generation keyed by repository, branch, checkout, commit, tree, subpath, and
+generation schema. Reuse authenticates the marker, closed metadata, and full
+tree digest. Published generations contain no links or hard links to mutable
+primary files. Build preparation then releases those primary source leases
+before configure/compile/test, while dirty sources, worktrees, and the Classic
+content publisher retain their exact live-source leases. `build all` uses the
+union of all target closures. Build metadata preserves both original source
+identity and immutable generation identity and never rereads a mutable profile
+generation. Publication and removal share every retained live source
+coordinate.
 Physical profile/scenario reference records make completed publications visible
 to cleanup and explicit removal from every relocated state root.
 Initial registry backfill publishes absent source paths as conservative
@@ -330,6 +341,11 @@ locks, registered Git worktrees, and exact absolute roots in strict schema-1
 `workspace/build/retention.json` protect a build. A shared `managed_remove()`
 helper repeats containment, symlink, marker, schema, and purpose validation
 immediately before deletion.
+
+Commit-keyed source generations have closed repository/branch/checkout/tree/
+subpath metadata and a complete tree digest. Builds hold a per-key shared lock;
+default `builds` cleanup revalidates identity and age under its exclusive side
+before bounded removal.
 
 The npm and compiler caches have exact purpose markers and atomically refreshed
 `.atrinik-cache.json` timestamps. The compiler cache metadata also fixes its
@@ -628,8 +644,8 @@ and the expected `incuna_-1` pair exists. It then installs the marker-owned
 cache atomically, preserving the previous valid cache on failure. Cache
 metadata records provider, repository, branch, checkout, source, path, and
 commit coordinates for the server dependency closure consumed by the
-worldmaker. Unrelated roles in the common profile build root do not invalidate
-that cache. It is reusable only for clean input checkouts with an exact metadata
+worldmaker. Roles outside that target closure do not invalidate that cache. It
+is reusable only for clean input checkouts with an exact metadata
 match; dirty inputs deliberately regenerate.
 
 ## Runtime and state
@@ -698,10 +714,10 @@ observable. Different named states and generation-owned temporary states use
 different exact locks and can overlap.
 
 Profiles are stack-aware source-topology definitions for supervised runtime as
-well as builds. For a complete Classic profile, `up` resolves the common
-manifest-derived build-root selection once while building only the requested
-service targets; a partial profile retains the requested service's dependency
-closure. It records the exact paths, commits, and build root, prepares the same
+well as builds. `up` resolves the requested services' combined transitive
+provider closure once and builds only those service targets; unrelated complete
+profile roles do not enter the build key. It records the exact paths, commits,
+and target-specific build root, prepares the same
 isolated views used by foreground launches, and hands the state-lock file
 descriptor through a short forking bootstrap to a detached native supervisor
 and its server child. The lock remains held for the server lifetime without a
@@ -790,7 +806,7 @@ Each successful startup atomically renames a new sealed directory into
 `generations/<generation>` and publishes status only afterward. Failure removes
 only its exact staging directory and leaves every previously complete stopped
 generation and status intact. Distinct topology names and generations remain
-independent while the shared build root is rebuilt or selected worktrees
+independent while a target-specific build root is rebuilt or selected worktrees
 advance. Generation directories stay with the marker-owned topology record so
 the preview-first topology reclamation contract in #397 can remove only an
 inactive, released, fully validated record; malformed, linked, unreachable, or

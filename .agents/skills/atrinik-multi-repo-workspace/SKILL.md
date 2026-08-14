@@ -86,8 +86,8 @@ wrapper replacement build/runtime closure yet.
 ```
 
 Classic selection is checkout-wide; subdirectories are not worktrees. Clean
-exact-coordinate content, resource, and region-map caches are reused; runtimes
-copy independent topology-owned snapshots.
+Target builds snapshot clean primaries; other inputs retain exact leases. Caches
+stay exact and runtimes copy.
 
 Lease order is registry, profile, Git-admin, source, topology/scenario, state,
 build, cache. Writers gate matching coordinates; physical leases span state

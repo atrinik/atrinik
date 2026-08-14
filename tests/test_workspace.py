@@ -124,6 +124,11 @@ def synthetic_build_process(
                     return_value=synthetic_checkout_states(Path(wrapper)),
                 ),
                 mock.patch.object(
+                    workspace,
+                    "_materialize_clean_primary_sources",
+                    side_effect=lambda _profile, selected, _states: (selected, set()),
+                ),
+                mock.patch.object(
                     workspace, "_profile_build_key", return_value="a" * 12
                 ),
                 mock.patch.object(
@@ -260,6 +265,11 @@ def timed_public_build_process(
                     workspace,
                     "_selected_checkout_states",
                     return_value=synthetic_checkout_states(Path(wrapper)),
+                ),
+                mock.patch.object(
+                    workspace,
+                    "_materialize_clean_primary_sources",
+                    side_effect=lambda _profile, selected, _states: (selected, set()),
                 ),
                 mock.patch.object(
                     workspace, "_profile_build_key", return_value="a" * 12
@@ -730,6 +740,14 @@ def mixed_layout_operation_process(
                 with (
                     mock.patch.object(
                         workspace, "_expand_build_target", return_value=["client"]
+                    ),
+                    mock.patch.object(
+                        workspace,
+                        "_materialize_clean_primary_sources",
+                        side_effect=lambda _profile, selected, _states: (
+                            selected,
+                            set(),
+                        ),
                     ),
                     mock.patch.object(
                         workspace, "_build_client", side_effect=compile_client
@@ -1750,6 +1768,339 @@ class WorkspaceTests(unittest.TestCase):
                 displaced.rename(source)
             snapshot = resolution.result(timeout=5)
             self.assertEqual(snapshot.paths()["client"], source.resolve())
+
+    def test_profile_resolution_wait_does_not_retain_earlier_source(self) -> None:
+        client = self.workspace.paths.repositories / "client"
+        protocol = self.workspace.paths.repositories / "protocol"
+        client_writer = self.workspace._lease_request(
+            "source",
+            self.workspace._source_coordinate("client", client),
+            "exclusive",
+            "synchronize client",
+        )
+        protocol_writer = self.workspace._lease_request(
+            "source",
+            self.workspace._source_coordinate("protocol", protocol),
+            "exclusive",
+            "synchronize protocol",
+        )
+        entered = threading.Event()
+
+        def resolve() -> None:
+            with self.workspace._resolved_profile_operation(
+                "default", {"client"}, "build client"
+            ):
+                entered.set()
+
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            with self.workspace._resource_locks([protocol_writer]):
+                resolution = executor.submit(resolve)
+                time.sleep(0.05)
+                with self.workspace._resource_locks(
+                    [client_writer], nonblocking=True
+                ):
+                    self.assertFalse(entered.is_set())
+            resolution.result(timeout=5)
+        self.assertTrue(entered.is_set())
+
+    def test_clean_primary_build_snapshot_releases_source_and_stays_immutable(self) -> None:
+        primary = self.workspace.paths.repositories / "client"
+        original = (primary / "README").read_bytes()
+        coordinate = self.workspace._source_coordinate("client", primary)
+        request = self.workspace._lease_request(
+            "source", coordinate, "exclusive", "advance clean client primary"
+        )
+
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            generated = snapshot.paths()["client"]
+            self.assertNotEqual(generated, primary.resolve())
+            self.assertEqual((generated / "README").read_bytes(), original)
+            self.assertFalse(generated.lstat().st_mode & 0o222)
+            with self.workspace._resource_locks([request], nonblocking=True):
+                (primary / "README").write_text("advanced\n", encoding="utf-8")
+                command("git", "add", "README", cwd=primary)
+                command("git", "commit", "-m", "test: advance primary", cwd=primary)
+            self.assertEqual((generated / "README").read_bytes(), original)
+            self.assertEqual(
+                snapshot.checkout_states()["client"]["head"],
+                command("git", "rev-parse", "HEAD^", cwd=primary),
+            )
+
+    def test_dirty_primary_build_retains_exact_source_lease(self) -> None:
+        primary = self.workspace.paths.repositories / "client"
+        (primary / "README").write_text("dirty\n", encoding="utf-8")
+        coordinate = self.workspace._source_coordinate("client", primary)
+        request = self.workspace._lease_request(
+            "source", coordinate, "exclusive", "synchronize dirty client"
+        )
+        entered = threading.Event()
+
+        def acquire_writer() -> None:
+            with self.workspace._resource_locks([request]):
+                entered.set()
+
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            self.assertEqual(snapshot.paths()["client"], primary.resolve())
+            writer = threading.Thread(target=acquire_writer)
+            writer.start()
+            time.sleep(0.05)
+            self.assertFalse(entered.is_set())
+        writer.join(2)
+        self.assertFalse(writer.is_alive())
+        self.assertTrue(entered.is_set())
+
+    def test_worktree_build_retains_exact_source_lease(self) -> None:
+        path = self.workspace.create_worktree(
+            "client", "build-client", "perf/build-client", None, False
+        )
+        (path / "dirty-build-input").write_text("dirty\n", encoding="utf-8")
+        self.workspace.create_profile("worktree-build")
+        self.workspace.set_profile(
+            "worktree-build", "client", "worktree", "build-client"
+        )
+        coordinate = self.workspace._source_coordinate("client", path)
+        request = self.workspace._lease_request(
+            "source", coordinate, "exclusive", "synchronize client worktree"
+        )
+        entered = threading.Event()
+
+        def acquire_writer() -> None:
+            with self.workspace._resource_locks([request]):
+                entered.set()
+
+        with self.workspace._resolved_profile_operation(
+            "worktree-build",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            self.assertEqual(snapshot.paths()["client"], path.resolve())
+            writer = threading.Thread(target=acquire_writer)
+            writer.start()
+            time.sleep(0.05)
+            self.assertFalse(entered.is_set())
+        writer.join(2)
+        self.assertFalse(writer.is_alive())
+        self.assertTrue(entered.is_set())
+
+    def test_worktree_build_allows_every_clean_primary_to_synchronize(self) -> None:
+        path = self.workspace.create_worktree(
+            "client", "sync-client", "perf/sync-client", None, False
+        )
+        self.workspace.create_profile("sync-build")
+        self.workspace.set_profile(
+            "sync-build", "client", "worktree", "sync-client"
+        )
+        prior_heads = {
+            name: command(
+                "git",
+                "rev-parse",
+                "HEAD",
+                cwd=self.workspace.paths.repositories / name,
+            )
+            for name, _build in COMPONENTS
+        }
+        for name, _build in COMPONENTS:
+            seed = self.seeds[name]
+            (seed / "sync-generation").write_text("advanced\n", encoding="utf-8")
+            command("git", "add", "sync-generation", cwd=seed)
+            command("git", "commit", "-m", "test: advance primary", cwd=seed)
+            command("git", "push", "origin", "main", cwd=seed)
+
+        prepared = threading.Event()
+        release = threading.Event()
+        observations: dict[str, object] = {}
+
+        def hold_build() -> None:
+            with self.workspace._resolved_profile_operation(
+                "sync-build",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                selected = snapshot.paths()
+                observations["selected"] = selected
+                observations["bytes"] = {
+                    role: (source / "README").read_bytes()
+                    for role, source in selected.items()
+                }
+                observations["states"] = snapshot.checkout_states()
+                prepared.set()
+                self.assertTrue(release.wait(10))
+                self.assertEqual(
+                    {
+                        role: (source / "README").read_bytes()
+                        for role, source in selected.items()
+                    },
+                    observations["bytes"],
+                )
+
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            build = executor.submit(hold_build)
+            self.assertTrue(prepared.wait(10))
+            try:
+                self.workspace.sync([name for name, _build in COMPONENTS], "none")
+            finally:
+                release.set()
+            build.result(timeout=10)
+        selected = observations["selected"]
+        self.assertEqual(selected["client"], path.resolve())
+        for role in ("sound", "libatrinik", "protocol"):
+            self.assertNotEqual(
+                selected[role], self.workspace.paths.repositories / role
+            )
+        states = observations["states"]
+        for name, _build in COMPONENTS:
+            primary = self.workspace.paths.repositories / name
+            self.assertNotEqual(
+                command("git", "rev-parse", "HEAD", cwd=primary),
+                prior_heads[name],
+            )
+        for checkout in ("sound", "libatrinik", "protocol"):
+            self.assertEqual(states[checkout]["head"], prior_heads[checkout])
+
+    def test_clean_primary_source_generation_reuses_and_rejects_corruption(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        first = resolve()
+        self.assertEqual(resolve(), first)
+        metadata = first.parent / workspace_module.SOURCE_GENERATION_METADATA
+        first.parent.chmod(0o700)
+        metadata.chmod(0o600)
+        record = load_json(metadata)
+        record["source_tree_sha256"] = "0" * 64
+        atomic_json(metadata, record)
+
+        with self.assertRaisesRegex(WorkspaceError, "source generation is corrupt"):
+            resolve()
+
+        forged = self.root / "forged" / "source"
+        forged.mkdir(parents=True)
+        shutil.copy2(metadata, forged.parent / metadata.name)
+        with self.assertRaisesRegex(WorkspaceError, "ownership is invalid"):
+            self.workspace._source_generation_record(forged)
+
+    def test_source_generation_publication_failure_leaves_no_partial_generation(self) -> None:
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace",
+                side_effect=WorkspaceError("injected publication failure"),
+            ),
+            self.assertRaisesRegex(WorkspaceError, "injected publication failure"),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("failed source generation was yielded")
+
+        container = self.workspace.paths.builds / "source-generations" / "client"
+        self.assertEqual(
+            [path.name for path in container.iterdir() if path.name != MANAGED_MARKER],
+            [],
+        )
+
+    def test_source_generation_rejects_checkout_change_during_staging(self) -> None:
+        primary = self.workspace.paths.repositories / "client"
+        extract = self.workspace._extract_git_source_archive
+
+        def advance(archive: Path, output: Path) -> None:
+            extract(archive, output)
+            (primary / "advanced-during-export").write_text(
+                "changed\n", encoding="utf-8"
+            )
+            command("git", "add", "advanced-during-export", cwd=primary)
+            command("git", "commit", "-m", "test: race generation", cwd=primary)
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_extract_git_source_archive",
+                side_effect=advance,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed during materialization"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("changed source generation was yielded")
+
+    def test_source_generation_metadata_and_cleanup_follow_generation_lease(
+        self,
+    ) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"resources"},
+            "build resources",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            selected = snapshot.paths()
+            key = "a" * 12
+            root = self.workspace.paths.builds / "profiles" / f"default-{key}"
+            managed_directory(root, self.workspace.paths.builds, f"profile:default:{key}")
+            self.workspace._refresh_build_metadata(
+                root, "default", key, selected
+            )
+            coordinate = load_json(root / workspace_module.BUILD_METADATA)[
+                "coordinates"
+            ]["resources"]
+            generation = coordinate["source_generation"]
+            self.assertEqual(coordinate["source_path"], generation["path"])
+            self.assertEqual(generation["commit"], coordinate["head"])
+            report = self.workspace.cleanup(["builds"], 0, [], False)
+            active = next(
+                item
+                for item in report["items"]
+                if item["kind"] == "source-generation"
+            )
+            self.assertEqual(active["disposition"], "protected")
+            self.assertIn("build_lock_busy", active["reasons"])
+
+        report = self.workspace.cleanup(["builds"], 0, [], False)
+        stale = next(
+            item
+            for item in report["items"]
+            if item["kind"] == "source-generation"
+        )
+        self.assertEqual(stale["disposition"], "eligible")
+        self.assertEqual(stale["reasons"], ["stale_source_generation"])
+        generation_path = Path(stale["path"])
+        with mock.patch(
+            "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
+            return_value=(set(), False),
+        ):
+            applied = self.workspace.cleanup(["builds"], 0, [], True)
+        removed = next(
+            item
+            for item in applied["items"]
+            if item["kind"] == "source-generation"
+        )
+        self.assertEqual(removed["disposition"], "removed")
+        self.assertFalse(generation_path.exists())
 
     def test_clean_referenced_worktree_cannot_be_removed(self) -> None:
         path = self.workspace.create_worktree(
@@ -9607,7 +9958,7 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "asset staging path is invalid"):
             self.workspace._prepare_asset_staging_directory(invalid_link)
 
-    def test_topology_summary_uses_complete_profile_build_roles(self) -> None:
+    def test_topology_summary_uses_target_specific_build_roles(self) -> None:
         summary = self.workspace.topology_summary(
             "default", "default", ["client"]
         )
@@ -9618,10 +9969,7 @@ class WorkspaceTests(unittest.TestCase):
             set(summary["dependencies"]),
             {
                 "client",
-                "server",
                 "sound",
-                "content",
-                "resources",
                 "libatrinik",
                 "protocol",
             },
@@ -9630,10 +9978,7 @@ class WorkspaceTests(unittest.TestCase):
             set(summary["components"]),
             {
                 "client",
-                "server",
                 "sound",
-                "content",
-                "resources",
                 "libatrinik",
                 "protocol",
             },
@@ -9961,6 +10306,11 @@ class WorkspaceTests(unittest.TestCase):
             ),
             mock.patch.object(self.workspace, "_require_classic_contracts"),
             mock.patch.object(self.workspace, "_require_client_display"),
+            mock.patch.object(
+                self.workspace,
+                "_dependency_roles",
+                return_value=set(selected),
+            ),
             mock.patch.object(
                 self.workspace, "_resolve_build_profile", return_value=selected
             ),
@@ -10527,7 +10877,7 @@ class WorkspaceTests(unittest.TestCase):
             self.assertTrue(second["ready"])
             self.assertEqual(second["state_policy"]["mode"], "named")
             self.assertEqual(second["endpoint"]["port"], 17301)
-            self.assertIn("client", second["dependencies"])
+            self.assertNotIn("client", second["dependencies"])
             self.assertNotIn("client", second["services"])
             self.assertNotIn("sound", second)
             for topology_status in (status, second):
