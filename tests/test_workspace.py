@@ -13138,6 +13138,116 @@ class WorkspaceTests(unittest.TestCase):
             )
         self.assertIn("topology_status_unverifiable", status_item["reasons"])
 
+    def test_detached_temporary_state_classifies_every_uncertainty(self) -> None:
+        topology = self.workspace._topology_directory(
+            "detached-state-uncertainty", create=True
+        )
+        container, container_fd = self.workspace._temporary_state_container(topology)
+        os.close(container_fd)
+        generation = "b" * 64
+        state = container / generation
+        state.mkdir()
+        cleanup = cleanup_module.Cleanup(self.workspace)
+        policy = {
+            "mode": "temporary",
+            "path": str(state),
+            "owner": {
+                "kind": "topology-generation",
+                "topology": topology.name,
+                "generation": generation,
+            },
+            "lifecycle": "removal-pending",
+            "lease_identity": {"device": 1, "inode": 2},
+            "created_at": "invalid",
+        }
+        uncertain = cleanup._detached_temporary_state_item(
+            topology.name,
+            {
+                "state_policy": policy,
+                "supervisor": {"liveness": "live"},
+                "services": {"server": {"liveness": "unreachable"}},
+                "observation": None,
+            },
+            0,
+        )
+        self.assertTrue(
+            {
+                "temporary_state_reappeared",
+                "temporary_state_ownership_evidence_missing",
+                "state_lease_unverifiable",
+                "topology_liveness_unverifiable",
+                "topology_observation_unverifiable",
+                "invalid_temporary_state",
+            }
+            <= set(uncertain["reasons"])
+        )
+        state.rmdir()
+
+        lock = Path(f"{state}.lock")
+        with exclusive_lock(lock, "detached lease fixture"):
+            pass
+        lock_metadata = lock.stat(follow_symlinks=False)
+        released_policy = {
+            **policy,
+            "lifecycle": "removed",
+            "lease_identity": {
+                "device": lock_metadata.st_dev,
+                "inode": lock_metadata.st_ino,
+            },
+            "created_at": cleanup.now.replace(
+                year=cleanup.now.year + 1, month=1, day=1
+            ).isoformat(),
+        }
+        observed_status = {
+            "state_policy": released_policy,
+            "supervisor": {"liveness": "stale"},
+            "services": {},
+            "observation": {
+                "control": "reachable",
+                "process_tree_lease": "retained",
+                "runtime_bundle_lease": "unverifiable",
+                "port_reservation": None,
+            },
+            "endpoint": None,
+        }
+        with mock.patch.object(
+            cleanup,
+            "_state_lock_observation",
+            return_value=(False, "invalid lease", None),
+        ):
+            lease_error = cleanup._detached_temporary_state_item(
+                topology.name, observed_status, 0
+            )
+        self.assertTrue(
+            {
+                "state_lease_error",
+                "reachable_topology_control",
+                "process_tree_lease_unverifiable",
+                "runtime_bundle_lease_unverifiable",
+                "port_reservation_lease_unverifiable",
+                "future_creation_time",
+            }
+            <= set(lease_error["reasons"])
+        )
+        with mock.patch.object(
+            cleanup,
+            "_state_lock_observation",
+            return_value=(True, None, released_policy["lease_identity"]),
+        ):
+            busy = cleanup._detached_temporary_state_item(
+                topology.name, observed_status, 0
+            )
+        self.assertIn("active_state_lease", busy["reasons"])
+        with mock.patch.object(
+            cleanup,
+            "_state_lock_observation",
+            return_value=(False, None, {"device": 9, "inode": 9}),
+        ):
+            mismatch = cleanup._detached_temporary_state_item(
+                topology.name, observed_status, 0
+            )
+        self.assertIn("state_lease_identity_mismatch", mismatch["reasons"])
+
     def test_temporary_startup_rollback_retains_linked_state(self) -> None:
         topology = self.workspace._topology_directory(
             "linked-rollback", create=True
