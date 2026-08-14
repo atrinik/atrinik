@@ -140,6 +140,9 @@ categories into invented findings.
 - Confirm cleanup targets exact proven ownership and fails closed on ambiguity.
 - Check external mutations are ordered, idempotent where possible, permission-
   scoped, and observable without leaking secrets.
+- Confirm a complete ignored coordinate ledger is pre-recorded before branch,
+  worktree, or PR mutation and refreshed after each artifact creation. Exercise
+  interruption between creations; bind only exact unique planned-slot matches.
 - Confirm PR-only delivery does not mutate incidental linked issues or Project
   items, and that any issue claim came from an explicitly supplied, verified
   issue coordinate.
@@ -215,8 +218,11 @@ categories into invented findings.
 - Explain skipped/neutral checks; block on expected missing, failed, or cancelled
   checks and on required human approval.
 - Mark a draft ready only after stable coordinates, the zero-finding review,
-  final-head validation, and every expected pre-readiness check pass. Leave an
-  already-ready PR ready; requery and wait for checks triggered by transition.
+  final-head validation, every expected pre-readiness check, and determinate
+  conflict-free mergeability with no non-human blocker other than draft state.
+  Leave an already-ready PR ready; requery mergeability and wait for checks
+  triggered by transition. Unknown, conflicting, or otherwise blocked states
+  stop; missing human approval blocks merging rather than the ready transition.
 - Confirm selected issues, if any, remain open; every PR remains unmerged; no
   self-approval/force-push/destructive reset/cleanup apply occurred; and
   worktrees/reports remain available.

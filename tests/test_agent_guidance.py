@@ -291,7 +291,8 @@ class AgentGuidanceTests(unittest.TestCase):
             "exactly one type-explicit `ENTRY_MODE`",
             "bare `owner/repository#number` is ambiguous",
             "active PRs already own the work",
-            "exact PR created and recorded by a prior run",
+            "recorded as created by this same issue-mode delivery",
+            "uniquely matches a pre-recorded pending PR slot",
             "sole exception to the fresh-delivery no-active-PR rule",
             "existing open, unmerged PR",
             "author, head repository",
@@ -307,6 +308,10 @@ class AgentGuidanceTests(unittest.TestCase):
             "--existing",
             "HEAD` equals the recorded `HEAD_SHA`, not `BASE_SHA`",
             "never resume or edit a dirty, detached, locked, active, referenced",
+            "Before any branch, worktree, or PR mutation",
+            "Pre-record the complete planned physical target set",
+            "Durably refresh the ledger immediately after each artifact creation",
+            "bind or reuse only one exact live/local artifact",
             "--base TARGET_BRANCH",
             "one coherent draft per affected physical repository",
             "update only the selected PR",
@@ -325,6 +330,8 @@ class AgentGuidanceTests(unittest.TestCase):
             "recompute every merge base",
             "drift invalidates the affected review, validation, and checks",
             "all expected pre-readiness checks",
+            "live mergeability is determinate and conflict-free",
+            "Unknown or conflicting mergeability",
             "issue-<number>.md",
             "pr-<number>.md",
             "only when issues actually exist",
@@ -339,6 +346,7 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("Entry mode: `<issue|PR>`", report)
         self.assertIn("Selected issue(s): `<URL(s) or none>`", report)
         self.assertIn("Selected pull request(s):", report)
+        self.assertIn("Artifact ledger state:", report)
         self.assertIn("Claim/linkage state:", report)
         self.assertIn("## Scale and performance", checklist)
         self.assertIn("## Safety, security, and supply chain", checklist)
@@ -347,12 +355,32 @@ class AgentGuidanceTests(unittest.TestCase):
         normalized_checklist = " ".join(checklist.split())
         self.assertIn("recomputed merge bases to match", normalized_checklist)
         self.assertIn(
-            "every expected pre-readiness check pass",
+            "every expected pre-readiness check",
             normalized_checklist,
+        )
+        self.assertIn(
+            "coordinate ledger is pre-recorded before branch",
+            normalized_checklist,
+        )
+        self.assertIn(
+            "determinate conflict-free mergeability",
+            normalized_checklist,
+        )
+        ledger_gate = normalized_body.index(
+            "Before any branch, worktree, or PR mutation"
+        )
+        self.assertLess(ledger_gate, normalized_body.index("--from BASE_SHA"))
+        self.assertLess(
+            ledger_gate,
+            normalized_body.index("open one coherent draft per affected"),
         )
         self.assertLess(
             normalized_body.index("Wait for all expected pre-readiness checks"),
             normalized_body.index("Only after stable final coordinates"),
+        )
+        self.assertLess(
+            normalized_body.index("live mergeability is determinate"),
+            normalized_body.index("may a draft be marked ready"),
         )
 
         root_guide = " ".join(

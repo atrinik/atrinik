@@ -49,11 +49,12 @@ scenario procedures.
    coordinates, or a changed or unavailable selected head.
 3. In issue mode, require an existing open issue. Inspect assignees, labels,
    comments, native hierarchy, Project item, linked work, and all candidate
-   PRs. If active PRs already own the work, resume only when every one is an
-   exact PR created and recorded by a prior run of this same issue-mode delivery
-   and every coordinate in step 6 matches. Otherwise stop with the exact active
-   PR coordinates and require a type-explicit PR-mode invocation rather than
-   creating competing work.
+   PRs. If active PRs already own the work, resume only when every one is either
+   recorded as created by this same issue-mode delivery or uniquely matches a
+   pre-recorded pending PR slot, and every coordinate in step 6 matches. Bind
+   any exact pending-slot match in the ledger before further mutation. Otherwise
+   stop with the exact active PR coordinates and require a type-explicit PR-mode
+   invocation rather than creating competing work.
 4. In PR mode, require an existing open, unmerged PR. Record its repository,
    author, head repository, target and head branches, base and head SHAs, merge
    base, draft state, linked issues, body and closing references, reviews,
@@ -69,10 +70,11 @@ scenario procedures.
    read-only; their presence alone is not ambiguity. Fail closed when the exact
    supplied relationship is contradictory or cannot be proved, and preserve the
    PR's existing closing scope.
-6. Resume only when `ENTRY_MODE`, selected issue and/or complete PR set,
-   repositories, bases, heads, branches, worktrees, and report identity agree
-   exactly with the prior delivery. In issue mode, this exact recorded-delivery
-   match is the sole exception to the fresh-delivery no-active-PR rule.
+6. Resume only when `ENTRY_MODE`, selected issue and/or complete recorded or
+   pre-recorded PR set, repositories, bases, heads, branches, worktrees, and
+   report identity agree exactly with the prior delivery. In issue mode, this
+   exact recorded-delivery match is the sole exception to the fresh-delivery
+   no-active-PR rule.
 
 ## Claim only explicitly authorized issues
 
@@ -95,6 +97,22 @@ scenario procedures.
   `components.json`, read every physical owner's guide, and inspect primary and
   registered worktrees. Preserve dirty, detached, locked, active, referenced,
   foreign, or uncertain work.
+- Before any branch, worktree, or PR mutation, prove Git ignores the mode-stable
+  report path and instantiate [the report asset](assets/deep-review-report.md)
+  as a durable coordinate ledger at one of:
+
+  ```text
+  <wrapper-root>/build/reviews/<owner>-<repository>-issue-<number>.md
+  <wrapper-root>/build/reviews/<owner>-<repository>-pr-<number>.md
+  ```
+
+  Pre-record the complete planned physical target set: entry mode, selected
+  issue/PR or issue-mode pending PR slots, repositories, target/base and
+  existing/planned heads, branches, worktree labels/paths, authenticated creator
+  or push identity, and closing scope. Durably refresh the ledger immediately
+  after each artifact creation and before the next mutation. After interruption,
+  bind or reuse only one exact live/local artifact matching each planned slot;
+  stop on an absent, duplicate, incomplete, or mismatched coordinate.
 - In issue mode, set `TARGET_BRANCH` to an explicit valid target or otherwise
   the manifest/live target. Fetch it, record the exact commit as `BASE_SHA`, and
   choose safe lowercase mode-coordinate-derived branch and label names. Reject
@@ -142,16 +160,10 @@ rendered bodies after each material edit and keep them current.
 
 ## Review and fix to the exit condition
 
-Verify Git ignores the mode-stable report path, then instantiate
-[the report asset](assets/deep-review-report.md) at one of:
-
-```text
-<wrapper-root>/build/reviews/<owner>-<repository>-issue-<number>.md
-<wrapper-root>/build/reviews/<owner>-<repository>-pr-<number>.md
-```
-
-Never commit or publish it, and exclude credentials, confidential data, and
-unnecessarily actionable vulnerability detail.
+Continue the durable coordinate ledger instantiated before artifact mutation,
+completing its review sections against current reality. Never commit or publish
+it, and exclude credentials, confidential data, and unnecessarily actionable
+vulnerability detail.
 
 Read [the checklist](references/deep-review-checklist.md) in full. Review the
 complete current base-to-head diff against the selected issue and/or PR
@@ -224,13 +236,15 @@ shared convergence loop at the new recorded coordinates.
 Wait for all expected pre-readiness checks; required and applicable optional
 checks must pass. Explain skipped/neutral checks and block on an expected
 missing, failed, or cancelled check. Only after stable final coordinates, final
-validation, a zero-finding review, and all such checks pass may a draft be
-marked ready; leave an already-ready PR ready. Requery after a ready transition
-and wait for any expected checks it triggers. Report required human approval as
-a blocker rather than claiming literal merge eligibility. New actionable
-feedback restarts the fix, validation, and whole-diff loop. Missing human
-approval blocks merging, not the ready transition after the stated exit
-conditions pass.
+validation, a zero-finding review, all such checks pass, and live mergeability
+is determinate and conflict-free with no non-human blocker other than draft
+state may a draft be marked ready; leave an already-ready PR ready. Unknown or
+conflicting mergeability and any other non-human blocker wait or block. Requery
+after a ready transition, recheck mergeability, and wait for any expected checks
+it triggers. Report required human approval as a blocker rather than claiming
+literal merge eligibility. New actionable feedback restarts the fix,
+validation, and whole-diff loop. Missing human approval blocks merging, not the
+ready transition after the stated exit conditions pass.
 
 Hand off the PR URLs and exact per-target bases, head repositories, branches,
 SHAs, merge bases, commits, worktrees, review findings, validation/checks,

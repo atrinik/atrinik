@@ -11,6 +11,7 @@ vulnerability detail. Do not commit or publish this report.
 - Selected pull request(s): `<one URL in PR mode; URL(s) or pending in issue mode>`
 - Claim/linkage state: `<claimed explicit issue | linked issues read-only | none>`
 - Issue-closing path: `<default-branch PR URL, manual post-merge close, or none>`
+- Artifact ledger state: `<planned/created/adopted per exact target; pending slots>`
 - Review started / last refreshed: `<UTC timestamps>`
 
 | Release line / owner | Target / fetched base | Head branch / SHA | Merge base | Worktree | Commits reviewed |
@@ -127,7 +128,8 @@ accessibility/localization, docs and manual verification>`
 - [ ] Required validation passed at final committed HEAD.
 - [ ] Live base/head refs and recomputed merge bases still match the reviewed
       coordinates; every draft became ready only after review, validation, and
-      pre-readiness checks passed.
+      pre-readiness checks passed with determinate conflict-free mergeability
+      and no non-human blocker other than its draft state.
 - [ ] Rendered PR body, comments/threads, mergeability, and expected checks were
       rechecked at that same HEAD.
 - [ ] Selected issues, if any, remain open; every PR remains unmerged; no
