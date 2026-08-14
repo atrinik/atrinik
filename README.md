@@ -608,7 +608,9 @@ license, and attributions this way, so their supported scoped builds retain
 `client/` and `server/` as the paths printed by `atrinik path` while using one
 authoritative copy of each shared input.
 Generation export restores paths hidden by Git `export-ignore` attributes so
-the published bytes still match the recorded tree. CMake dependencies that
+the published bytes still match the recorded tree. Archive publication retains
+its temporary descriptor, and extraction creates entries and applies modes
+relative to pinned, no-follow generation directories. CMake dependencies that
 run mutation-based tests receive writable profile-local copies; the shared
 generation itself remains sealed.
 Consequently a long-running build from a Classic feature worktree does not

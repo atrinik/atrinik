@@ -3008,6 +3008,112 @@ class WorkspaceTests(unittest.TestCase):
                     self.root / f"invalid-output-{index}",
                 )
 
+    def test_source_archive_extraction_pins_ancestors_and_file_modes(self) -> None:
+        archive = self.root / "raced-source.tar"
+        directory = tarfile.TarInfo("dir")
+        directory.type = tarfile.DIRTYPE
+        directory.mode = 0o755
+        regular = tarfile.TarInfo("dir/file")
+        regular.mode = 0o777
+        regular.size = len(b"payload")
+        with tarfile.open(archive, "w") as output:
+            output.addfile(directory)
+            output.addfile(regular, io.BytesIO(b"payload"))
+
+        output = self.root / "raced-output"
+        outside = self.root / "outside-archive"
+        outside.mkdir()
+        sentinel = outside / "sentinel"
+        sentinel.write_text("preserved\n", encoding="utf-8")
+        sentinel.chmod(0o600)
+        real_open = os.open
+        swapped = False
+
+        def swap_ancestor(
+            path: object, flags: int, *args: object, **kwargs: object
+        ) -> int:
+            nonlocal swapped
+            if path == "dir" and kwargs.get("dir_fd") is not None and not swapped:
+                swapped = True
+                (output / "dir").rename(output / "displaced")
+                (output / "dir").symlink_to(outside, target_is_directory=True)
+            return real_open(path, flags, *args, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.open", side_effect=swap_ancestor
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed|symbolic link"):
+                self.workspace._extract_git_source_archive(archive, output)
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "preserved\n")
+        self.assertFalse((outside / "file").exists())
+
+        stable_output = self.root / "stable-output"
+        displaced = self.root / "displaced-file"
+        real_fchmod = os.fchmod
+        replaced = False
+
+        def replace_leaf(descriptor: int, mode: int) -> None:
+            nonlocal replaced
+            if mode == 0o777 and not replaced:
+                replaced = True
+                (stable_output / "dir" / "file").rename(displaced)
+                (stable_output / "dir" / "file").symlink_to(sentinel)
+            real_fchmod(descriptor, mode)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.fchmod", side_effect=replace_leaf
+        ):
+            self.workspace._extract_git_source_archive(archive, stable_output)
+        self.assertEqual(stat.S_IMODE(sentinel.stat().st_mode), 0o600)
+        self.assertEqual(stat.S_IMODE(displaced.stat().st_mode), 0o777)
+
+    def test_source_archive_generation_retains_its_temporary_descriptor(self) -> None:
+        sentinel = self.root / "archive-output-sentinel"
+        sentinel.write_text("preserved\n", encoding="utf-8")
+        real_run = subprocess.run
+        real_mkstemp = tempfile.mkstemp
+        archives: list[Path] = []
+
+        def remember_archive(*args: object, **kwargs: object) -> tuple[int, str]:
+            descriptor, name = real_mkstemp(*args, **kwargs)
+            if str(kwargs.get("prefix", "")).startswith("atrinik-source-"):
+                archives.append(Path(name))
+            return descriptor, name
+
+        def replace_archive_path(*args: object, **kwargs: object) -> object:
+            command_value = args[0] if args else kwargs.get("args")
+            if (
+                isinstance(command_value, list)
+                and "archive" in command_value
+                and archives
+                and archives[-1].exists()
+            ):
+                archives[-1].unlink()
+                archives[-1].symlink_to(sentinel)
+            return real_run(*args, **kwargs)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.tempfile.mkstemp",
+                side_effect=remember_archive,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.subprocess.run",
+                side_effect=replace_archive_path,
+            ),
+            self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot,
+        ):
+            self.assertEqual(
+                (snapshot.paths()["client"] / "README").read_text(encoding="utf-8"),
+                "client\n",
+            )
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "preserved\n")
+
     def test_source_generation_archive_command_failures_are_bounded(self) -> None:
         profile = self.workspace._load_profile("default", require_file=False)
         selected = self.workspace._resolve_build_profile(

@@ -2266,20 +2266,52 @@ class Workspace:
 
     @staticmethod
     def _extract_git_source_archive(
-        archive_path: Path, output: Path, *, existing_output: bool = False
+        archive_path: Path | int, output: Path, *, existing_output: bool = False
     ) -> None:
         """Extract a local Git archive without trusting archive paths or links."""
 
-        if existing_output:
-            if output.is_symlink() or not output.is_dir():
+        flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        parent_fd: int | None = None
+        root_fd: int | None = None
+        archive_file: Any = None
+        try:
+            parent_fd = _open_directory_nofollow(output.parent, flags, create=True)
+            if not existing_output:
+                try:
+                    os.mkdir(output.name, 0o755, dir_fd=parent_fd)
+                except FileExistsError as error:
+                    raise WorkspaceError(
+                        f"Git source archive output already exists: {output}"
+                    ) from error
+            visible_root = os.stat(
+                output.name, dir_fd=parent_fd, follow_symlinks=False
+            )
+            root_fd = os.open(output.name, flags, dir_fd=parent_fd)
+            opened_root = os.fstat(root_fd)
+            root_mount = _descriptor_mount_id(root_fd)
+            if (
+                (visible_root.st_dev, visible_root.st_ino)
+                != (opened_root.st_dev, opened_root.st_ino)
+                or not stat.S_ISDIR(opened_root.st_mode)
+                or _descriptor_mount_id(parent_fd) != root_mount
+            ):
                 raise WorkspaceError(
                     f"Git source archive output is not a regular directory: {output}"
                 )
-        else:
-            output.mkdir(parents=True)
-        root = output.resolve()
-        try:
-            with tarfile.open(archive_path, mode="r:") as archive:
+            archive_file = (
+                os.fdopen(os.dup(archive_path), "rb")
+                if isinstance(archive_path, int)
+                else None
+            )
+            if isinstance(archive_path, int):
+                os.lseek(archive_path, 0, os.SEEK_SET)
+                archive_file.seek(0)
+            seen: set[str] = set()
+            with tarfile.open(
+                archive_path if archive_file is None else None,
+                mode="r:",
+                fileobj=archive_file,
+            ) as archive:
                 for member in archive:
                     relative = PurePosixPath(member.name)
                     if (
@@ -2290,82 +2322,201 @@ class Workspace:
                         raise WorkspaceError(
                             f"Git source archive contains an unsafe path: {member.name!r}"
                         )
-                    destination = output.joinpath(*relative.parts)
-                    parent = destination.parent
-                    parent.mkdir(parents=True, exist_ok=True)
-                    if any(
-                        candidate.is_symlink()
-                        for candidate in (parent, *parent.parents)
-                        if candidate == output or output in candidate.parents
-                    ):
-                        raise WorkspaceError(
-                            f"Git source archive traverses a symbolic link: {member.name}"
-                        )
-                    if destination.exists() or destination.is_symlink():
-                        if (
-                            member.isdir()
-                            and destination.is_dir()
-                            and not destination.is_symlink()
-                        ):
-                            continue
+                    repeated = relative.as_posix() in seen
+                    if repeated and not member.isdir():
                         raise WorkspaceError(
                             f"Git source archive repeats a path: {member.name}"
                         )
-                    permissions = member.mode & 0o777
-                    if member.isdir():
-                        destination.mkdir()
-                        destination.chmod(permissions)
-                    elif member.isreg():
-                        stream = archive.extractfile(member)
-                        if stream is None:
-                            raise WorkspaceError(
-                                f"Git source archive cannot read file: {member.name}"
-                            )
-                        descriptor = os.open(
-                            destination,
-                            os.O_WRONLY
-                            | os.O_CREAT
-                            | os.O_EXCL
-                            | getattr(os, "O_NOFOLLOW", 0),
-                            permissions,
-                        )
+                    seen.add(relative.as_posix())
+                    directory_fd = os.dup(root_fd)
+                    try:
+                        for part in relative.parts[:-1]:
+                            try:
+                                child = os.stat(
+                                    part,
+                                    dir_fd=directory_fd,
+                                    follow_symlinks=False,
+                                )
+                            except FileNotFoundError:
+                                os.mkdir(part, 0o755, dir_fd=directory_fd)
+                                child = os.stat(
+                                    part,
+                                    dir_fd=directory_fd,
+                                    follow_symlinks=False,
+                                )
+                            if not stat.S_ISDIR(child.st_mode):
+                                if stat.S_ISLNK(child.st_mode):
+                                    raise WorkspaceError(
+                                        "Git source archive traverses a symbolic "
+                                        f"link: {member.name}"
+                                    )
+                                raise WorkspaceError(
+                                    "Git source archive ancestor is not a directory: "
+                                    f"{member.name}"
+                                )
+                            try:
+                                next_fd = os.open(part, flags, dir_fd=directory_fd)
+                            except OSError as error:
+                                raise WorkspaceError(
+                                    "Git source archive ancestor changed or cannot "
+                                    f"be opened safely: {member.name}"
+                                ) from error
+                            opened = os.fstat(next_fd)
+                            if (
+                                (opened.st_dev, opened.st_ino)
+                                != (child.st_dev, child.st_ino)
+                                or opened.st_dev != opened_root.st_dev
+                                or _descriptor_mount_id(next_fd) != root_mount
+                            ):
+                                os.close(next_fd)
+                                raise WorkspaceError(
+                                    "Git source archive ancestor changed or is "
+                                    f"mounted: {member.name}"
+                                )
+                            os.close(directory_fd)
+                            directory_fd = next_fd
+                        name = relative.parts[-1]
                         try:
-                            with stream, os.fdopen(
-                                descriptor, "wb", closefd=False
-                            ) as target:
-                                shutil.copyfileobj(stream, target, 1024 * 1024)
-                        finally:
-                            os.close(descriptor)
-                        destination.chmod(permissions)
-                    elif member.issym():
-                        target = member.linkname
-                        if not target or Path(target).is_absolute():
-                            raise WorkspaceError(
-                                f"Git source archive contains an unsafe link: {member.name}"
+                            existing = os.stat(
+                                name,
+                                dir_fd=directory_fd,
+                                follow_symlinks=False,
                             )
-                        resolved = destination.parent.joinpath(target).resolve(
-                            strict=False
-                        )
-                        try:
-                            resolved.relative_to(root)
-                        except ValueError as error:
+                        except FileNotFoundError:
+                            existing = None
+                        permissions = member.mode & 0o777
+                        if member.isdir():
+                            if existing is None:
+                                os.mkdir(name, permissions, dir_fd=directory_fd)
+                                existing = os.stat(
+                                    name,
+                                    dir_fd=directory_fd,
+                                    follow_symlinks=False,
+                                )
+                            elif (
+                                not (existing_output or repeated)
+                                or not stat.S_ISDIR(existing.st_mode)
+                            ):
+                                raise WorkspaceError(
+                                    f"Git source archive repeats a path: {member.name}"
+                                )
+                            try:
+                                descriptor = os.open(
+                                    name, flags, dir_fd=directory_fd
+                                )
+                            except OSError as error:
+                                raise WorkspaceError(
+                                    "Git source archive directory changed or cannot "
+                                    f"be opened safely: {member.name}"
+                                ) from error
+                            try:
+                                opened = os.fstat(descriptor)
+                                if (
+                                    (opened.st_dev, opened.st_ino)
+                                    != (existing.st_dev, existing.st_ino)
+                                    or opened.st_dev != opened_root.st_dev
+                                    or _descriptor_mount_id(descriptor) != root_mount
+                                ):
+                                    raise WorkspaceError(
+                                        "Git source archive directory changed or is "
+                                        f"mounted: {member.name}"
+                                    )
+                                os.fchmod(descriptor, permissions)
+                            finally:
+                                os.close(descriptor)
+                        elif member.isreg():
+                            if existing is not None:
+                                raise WorkspaceError(
+                                    f"Git source archive repeats a path: {member.name}"
+                                )
+                            stream = archive.extractfile(member)
+                            if stream is None:
+                                raise WorkspaceError(
+                                    f"Git source archive cannot read file: {member.name}"
+                                )
+                            descriptor = os.open(
+                                name,
+                                os.O_WRONLY
+                                | os.O_CREAT
+                                | os.O_EXCL
+                                | os.O_NOFOLLOW,
+                                permissions,
+                                dir_fd=directory_fd,
+                            )
+                            try:
+                                with stream, os.fdopen(
+                                    descriptor, "wb", closefd=False
+                                ) as target:
+                                    shutil.copyfileobj(stream, target, 1024 * 1024)
+                                    os.fchmod(descriptor, permissions)
+                            finally:
+                                os.close(descriptor)
+                        elif member.issym():
+                            if existing is not None:
+                                raise WorkspaceError(
+                                    f"Git source archive repeats a path: {member.name}"
+                                )
+                            target = member.linkname
+                            if not target or Path(target).is_absolute():
+                                raise WorkspaceError(
+                                    "Git source archive contains an unsafe link: "
+                                    f"{member.name}"
+                                )
+                            normalized = list(relative.parent.parts)
+                            bounded = True
+                            for part in PurePosixPath(target).parts:
+                                if part in {"", "."}:
+                                    continue
+                                if part == "..":
+                                    if not normalized:
+                                        bounded = False
+                                        break
+                                    normalized.pop()
+                                else:
+                                    normalized.append(part)
+                            if not bounded:
+                                raise WorkspaceError(
+                                    "Git source archive link escapes its generation: "
+                                    f"{member.name}"
+                                )
+                            os.symlink(target, name, dir_fd=directory_fd)
+                        else:
                             raise WorkspaceError(
-                                f"Git source archive link escapes its generation: {member.name}"
-                            ) from error
-                        destination.symlink_to(target)
-                    else:
-                        raise WorkspaceError(
-                            f"Git source archive contains an unsupported entry: {member.name}"
-                        )
+                                "Git source archive contains an unsupported entry: "
+                                f"{member.name}"
+                            )
+                    finally:
+                        os.close(directory_fd)
+            current_root = os.stat(
+                output.name, dir_fd=parent_fd, follow_symlinks=False
+            )
+            if (
+                (current_root.st_dev, current_root.st_ino)
+                != (opened_root.st_dev, opened_root.st_ino)
+                or (os.fstat(root_fd).st_dev, os.fstat(root_fd).st_ino)
+                != (opened_root.st_dev, opened_root.st_ino)
+            ):
+                raise WorkspaceError(
+                    f"Git source archive output changed during extraction: {output}"
+                )
+        except WorkspaceError:
+            raise
         except (OSError, tarfile.TarError) as error:
             raise WorkspaceError(
                 f"cannot extract immutable Git source archive: {error}"
             ) from error
+        finally:
+            if archive_file is not None:
+                archive_file.close()
+            if root_fd is not None:
+                os.close(root_fd)
+            if parent_fd is not None:
+                os.close(parent_fd)
 
     @staticmethod
     def _complete_git_source_archive(
         checkout: Path,
-        archive: Path,
+        archive: Path | int,
         object_id: str,
         prefix: str | None,
         mode: bytes = b"040000",
@@ -2422,10 +2573,29 @@ class Workspace:
                 raise WorkspaceError("recorded immutable Git archive listing is invalid")
             expected[prefix] = (mode, kind, object_id.encode())
 
+        archive_file: Any = None
         try:
-            with tarfile.open(archive, "r:") as stream:
+            archive_file = (
+                os.fdopen(os.dup(archive), "r+b")
+                if isinstance(archive, int)
+                else None
+            )
+            if isinstance(archive, int):
+                os.lseek(archive, 0, os.SEEK_SET)
+                archive_file.seek(0)
+            with tarfile.open(
+                archive if archive_file is None else None,
+                "r:",
+                fileobj=archive_file,
+            ) as stream:
                 present = {member.name.rstrip("/") for member in stream}
-            with tarfile.open(archive, "a:") as stream:
+            if archive_file is not None:
+                archive_file.seek(0)
+            with tarfile.open(
+                archive if archive_file is None else None,
+                "a:",
+                fileobj=archive_file,
+            ) as stream:
                 for name, (entry_mode, entry_kind, entry_object) in expected.items():
                     if name in present:
                         continue
@@ -2505,6 +2675,9 @@ class Workspace:
             raise WorkspaceError(
                 f"cannot complete immutable Git source archive: {error}"
             ) from error
+        finally:
+            if archive_file is not None:
+                archive_file.close()
 
     @staticmethod
     def _validate_source_generation_git_tree(
@@ -3236,7 +3409,6 @@ class Workspace:
                     archive_descriptor, archive_name = tempfile.mkstemp(
                         prefix=f"atrinik-source-{export_index}-", suffix=".tar"
                     )
-                    os.close(archive_descriptor)
                     archive_path = Path(archive_name)
                     try:
                         try:
@@ -3247,7 +3419,6 @@ class Workspace:
                                 str(checkout),
                                 "archive",
                                 "--format=tar",
-                                f"--output={archive_path}",
                                 archive_ref,
                             ]
                             if archive_pathspec is not None:
@@ -3255,6 +3426,7 @@ class Workspace:
                             subprocess.run(
                                 archive_command,
                                 check=True,
+                                stdout=archive_descriptor,
                                 stderr=subprocess.PIPE,
                                 pass_fds=active_lock_fds(),
                             )
@@ -3272,18 +3444,19 @@ class Workspace:
                             ) from error
                         self._complete_git_source_archive(
                             checkout,
-                            archive_path,
+                            archive_descriptor,
                             archive_object,
                             archive_prefix,
                             archive_mode,
                             archive_kind,
                         )
                         self._extract_git_source_archive(
-                            archive_path,
+                            archive_descriptor,
                             destination,
                             existing_output=existing_output,
                         )
                     finally:
+                        os.close(archive_descriptor)
                         archive_path.unlink(missing_ok=True)
                 current_checkout = checkout.stat()
                 current_source = source.stat()
