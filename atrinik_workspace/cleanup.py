@@ -983,6 +983,7 @@ class Cleanup:
         item.pop("_sound_worktree_identity", None)
         item.pop("_sound_producer_identity", None)
         item.pop("_physical_path", None)
+        item.pop("_lease_only", None)
 
     def _revalidate_target(
         self,
@@ -1017,9 +1018,11 @@ class Cleanup:
             )
             filesystem_identity = item.get("_identity")
             physical = item.get("_physical_path")
+            lease_only = item.get("_lease_only")
             self._strip_internal(item)
             item["_identity"] = filesystem_identity
             item["_physical_path"] = physical
+            item["_lease_only"] = lease_only
             return item
         references, reference_errors = self._references()
         registered, registered_error = self._registered_worktree_paths()
@@ -3636,7 +3639,128 @@ class Cleanup:
                         )
                 else:
                     items.append(self._temporary_state_item(path, older_than_days))
+            represented = {item["path"] for item in items}
+            try:
+                status = self.workspace.topology_status(topology.name)
+                policy = status.get("state_policy")
+                if (
+                    isinstance(policy, dict)
+                    and policy.get("mode") == "temporary"
+                    and policy.get("lifecycle") == "removed"
+                    and policy.get("path") not in represented
+                ):
+                    logical = Path(policy["path"])
+                    lock = Path(f"{logical}.lock")
+                    lease_identity = policy["lease_identity"]
+                    lock_tombstone = lock.parent / (
+                        f".{lock.name}.remove-{lease_identity['device']:x}-"
+                        f"{lease_identity['inode']:x}"
+                    )
+                    if (
+                        lock.exists()
+                        or lock.is_symlink()
+                        or lock_tombstone.exists()
+                        or lock_tombstone.is_symlink()
+                    ):
+                        items.append(
+                            self._removed_temporary_state_lease_item(
+                                topology.name, status, older_than_days
+                            )
+                        )
+            except (KeyError, OSError, TypeError, WorkspaceError):
+                pass
         return items
+
+    def _removed_temporary_state_lease_item(
+        self,
+        topology: str,
+        status: dict[str, Any],
+        older_than_days: int,
+    ) -> dict[str, Any]:
+        policy = status["state_policy"]
+        path = Path(policy["path"])
+        item = _base_item(
+            "temporary-state", "atrinik", "atrinik/atrinik", path
+        )
+        item["topology"] = topology
+        item["generation"] = policy["owner"]["generation"]
+        item["state_policy"] = policy
+        item["_lease_only"] = True
+        item["_identity"] = None
+        item["_physical_path"] = None
+        if path.exists() or path.is_symlink():
+            item["reasons"].append("temporary_state_reappeared")
+        lock = Path(f"{path}.lock")
+        lease_identity = policy["lease_identity"]
+        lock_tombstone = lock.parent / (
+            f".{lock.name}.remove-{lease_identity['device']:x}-"
+            f"{lease_identity['inode']:x}"
+        )
+        if lock.exists() or lock.is_symlink():
+            busy, lock_error, observed_identity = self._state_lock_observation(lock)
+            if lock_error:
+                item["reasons"].append("state_lease_error")
+                item["error"] = lock_error
+            elif busy:
+                item["reasons"].append("active_state_lease")
+            elif observed_identity != lease_identity:
+                item["reasons"].append("state_lease_identity_mismatch")
+        elif lock_tombstone.exists() or lock_tombstone.is_symlink():
+            metadata = lock_tombstone.stat(follow_symlinks=False)
+            if (
+                not stat.S_ISREG(metadata.st_mode)
+                or metadata.st_nlink != 1
+                or {"device": metadata.st_dev, "inode": metadata.st_ino}
+                != lease_identity
+            ):
+                item["reasons"].append("state_lease_identity_mismatch")
+        else:
+            item["reasons"].append("state_lease_unverifiable")
+        observation = status.get("observation")
+        liveness = [
+            status["supervisor"].get("liveness"),
+            *(service.get("liveness") for service in status["services"].values()),
+        ]
+        if any(value in {"live", "unreachable"} for value in liveness):
+            item["reasons"].append("topology_liveness_unverifiable")
+        if not isinstance(observation, dict):
+            item["reasons"].append("topology_observation_unverifiable")
+        else:
+            if observation.get("control") == "reachable":
+                item["reasons"].append("reachable_topology_control")
+            if observation.get("process_tree_lease") != "released":
+                item["reasons"].append("process_tree_lease_unverifiable")
+            if observation.get("runtime_bundle_lease") not in {
+                "released",
+                "historical",
+            }:
+                item["reasons"].append("runtime_bundle_lease_unverifiable")
+            endpoint = status.get("endpoint")
+            port = observation.get("port_reservation")
+            if (
+                not isinstance(endpoint, dict)
+                or not isinstance(port, dict)
+                or port.get("port") != endpoint.get("port")
+                or port.get("owner") != topology
+                or port.get("generation") != item["generation"]
+                or port.get("lease") != "released"
+            ):
+                item["reasons"].append(
+                    "port_reservation_lease_unverifiable"
+                )
+        created = _parse_time(policy.get("created_at"), "temporary state created_at")
+        age = max(0, int((self.now - created).total_seconds()))
+        item["age_seconds"] = age
+        item["age_basis"] = "created-at"
+        if created > self.now:
+            item["reasons"].append("future_creation_time")
+        elif age < older_than_days * 86400:
+            item["reasons"].append("younger_than_grace_period")
+        item["reasons"] = sorted(set(item["reasons"]))
+        if not item["reasons"]:
+            item["disposition"] = "eligible"
+            item["reasons"] = ["stale_removed_temporary_state_lease"]
+        return item
 
     def _temporary_state_item(
         self,
@@ -3778,22 +3902,36 @@ class Cleanup:
             if registered_state:
                 item["reasons"].append("registered_state")
             if not empty_removal_tombstone:
-                for directory, names, files in os.walk(
-                    physical, followlinks=False
-                ):
-                    current = Path(directory)
-                    linked = False
-                    for entry_name in (*names, *files):
-                        entry_metadata = (current / entry_name).lstat()
-                        if stat.S_ISLNK(entry_metadata.st_mode) or (
-                            stat.S_ISREG(entry_metadata.st_mode)
-                            and entry_metadata.st_nlink != 1
-                        ):
-                            item["reasons"].append("linked_state")
-                            linked = True
-                            break
-                    if linked:
-                        break
+                state_fd = os.open(
+                    physical,
+                    os.O_RDONLY
+                    | os.O_CLOEXEC
+                    | os.O_DIRECTORY
+                    | os.O_NOFOLLOW,
+                )
+                try:
+                    opened = os.fstat(state_fd)
+                    if (opened.st_dev, opened.st_ino) != (
+                        metadata.st_dev,
+                        metadata.st_ino,
+                    ):
+                        raise WorkspaceError(
+                            "temporary state changed during integrity validation"
+                        )
+                    try:
+                        self.workspace._validate_temporary_state_integrity(
+                            state_fd, physical
+                        )
+                    except WorkspaceError as error:
+                        message = str(error)
+                        item["reasons"].append(
+                            "linked_state"
+                            if "link" in message or "mounted" in message
+                            else "malformed_state"
+                        )
+                        item["error"] = message
+                finally:
+                    os.close(state_fd)
             if check_lock:
                 state_lock = Path(f"{path}.lock")
                 if not state_lock.exists() and not state_lock.is_symlink():
@@ -3927,6 +4065,40 @@ class Cleanup:
         if not isinstance(topology, str):
             raise WorkspaceError("temporary state topology identity is missing")
         root = self.workspace._topology_directory(topology)
+        if item.get("_lease_only"):
+            with exclusive_lock(
+                root / "operation.lock",
+                f"topology {topology} operation",
+                nonblocking=True,
+            ):
+                status = self.workspace.topology_status(topology)
+                policy = status.get("state_policy")
+                if (
+                    not isinstance(policy, dict)
+                    or policy.get("mode") != "temporary"
+                    or policy.get("lifecycle") != "removed"
+                    or policy.get("path") != str(path)
+                ):
+                    raise WorkspaceError(
+                        "removed temporary state lease status changed before cleanup"
+                    )
+                lock = Path(f"{path}.lock")
+                if lock.exists() or lock.is_symlink():
+                    with exclusive_lock(
+                        lock,
+                        f"temporary topology state {path}",
+                        nonblocking=True,
+                    ) as state_lease:
+                        self.workspace._unlink_temporary_state_lock(
+                            path, state_lease, policy["lease_identity"]
+                        )
+                elif not self.workspace._finish_temporary_state_lock_tombstone(
+                    path, policy["lease_identity"]
+                ):
+                    raise WorkspaceError(
+                        f"removed temporary state lease is missing: {lock}"
+                    )
+            return
         with exclusive_lock(
             root / "operation.lock",
             f"topology {topology} operation",
@@ -3990,7 +4162,7 @@ class Cleanup:
                 )
                 try:
                     self.workspace._commit_temporary_state_removal(
-                        topology, status, state_lease
+                        topology, status, state_lease, mutation_fd
                     )
                 finally:
                     if mutation_fd is not None:

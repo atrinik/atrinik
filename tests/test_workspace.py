@@ -10340,7 +10340,62 @@ class WorkspaceTests(unittest.TestCase):
             restarted_clean["state_policy"]["path"],
             first["state_policy"]["path"],
         )
-        self.workspace.topology_down("temporary-clean", timeout=5)
+        restarted_path = Path(restarted_clean["state_policy"]["path"])
+        unsafe_target = self.root / "temporary-clean-symlink-target"
+        unsafe_target.write_text("preserve\n", encoding="utf-8")
+        (restarted_path / "unsafe-link").symlink_to(unsafe_target)
+        with self.assertRaisesRegex(
+            WorkspaceError, "retained because its integrity could not be proved"
+        ):
+            self.workspace.topology_down("temporary-clean", timeout=5)
+        linked_down = self.workspace.topology_status("temporary-clean")
+        self.assertEqual(linked_down["state_policy"]["lifecycle"], "retained")
+        self.assertTrue(restarted_path.is_dir())
+        self.assertEqual(unsafe_target.read_text(encoding="utf-8"), "preserve\n")
+
+        (rendezvous / "temporary.bound").unlink()
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            hardlinked = self.workspace.topology_up(
+                "temporary-hardlinked", "default", None, ["server"], 0
+            )
+        hardlinked_path = Path(hardlinked["state_policy"]["path"])
+        hardlink_target = self.root / "temporary-clean-hardlink"
+        os.link(hardlinked_path / "motd", hardlink_target)
+        with self.assertRaisesRegex(
+            WorkspaceError, "retained because its integrity could not be proved"
+        ):
+            self.workspace.topology_down("temporary-hardlinked", timeout=5)
+        self.assertEqual(
+            self.workspace.topology_status("temporary-hardlinked")["state_policy"][
+                "lifecycle"
+            ],
+            "retained",
+        )
+        self.assertTrue(hardlinked_path.is_dir())
+        hardlink_target.unlink()
+
+        (rendezvous / "temporary.bound").unlink()
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            malformed = self.workspace.topology_up(
+                "temporary-malformed", "default", None, ["server"], 0
+            )
+        malformed_path = Path(malformed["state_policy"]["path"])
+        (malformed_path / "motd").unlink()
+        with self.assertRaisesRegex(
+            WorkspaceError, "retained because its integrity could not be proved"
+        ):
+            self.workspace.topology_down("temporary-malformed", timeout=5)
+        self.assertEqual(
+            self.workspace.topology_status("temporary-malformed")["state_policy"][
+                "lifecycle"
+            ],
+            "retained",
+        )
+        self.assertTrue(malformed_path.is_dir())
 
         external_state = self.root / "external-supervised-state"
         shutil.copytree(source / "install_data", external_state)
@@ -10772,6 +10827,79 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(aliased_item["disposition"], "protected")
         self.assertIn("registered_state", aliased_item["reasons"])
+        required_file = state / "motd"
+        saved_required_file = state / "motd.saved"
+        required_file.rename(saved_required_file)
+        malformed_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        malformed_item = next(
+            item
+            for item in malformed_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(malformed_item["disposition"], "protected")
+        self.assertIn("malformed_state", malformed_item["reasons"])
+        malformed_apply = self.workspace.cleanup(
+            ["temporary-states"], 0, [], True
+        )
+        malformed_applied_item = next(
+            item
+            for item in malformed_apply["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(malformed_applied_item["disposition"], "protected")
+        self.assertTrue(state.is_dir())
+        saved_required_file.rename(required_file)
+        required_directory = state / "keys"
+        saved_required_directory = state / "keys.saved"
+        required_directory.rename(saved_required_directory)
+        missing_directory_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        missing_directory_item = next(
+            item
+            for item in missing_directory_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(missing_directory_item["disposition"], "protected")
+        self.assertIn("malformed_state", missing_directory_item["reasons"])
+        missing_directory_apply = self.workspace.cleanup(
+            ["temporary-states"], 0, [], True
+        )
+        missing_directory_applied_item = next(
+            item
+            for item in missing_directory_apply["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(
+            missing_directory_applied_item["disposition"], "protected"
+        )
+        self.assertTrue(state.is_dir())
+        saved_required_directory.rename(required_directory)
+        special = state / "unsafe-fifo"
+        os.mkfifo(special)
+        special_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        special_item = next(
+            item
+            for item in special_preview["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(special_item["disposition"], "protected")
+        self.assertIn("malformed_state", special_item["reasons"])
+        special_apply = self.workspace.cleanup(
+            ["temporary-states"], 0, [], True
+        )
+        special_applied_item = next(
+            item
+            for item in special_apply["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(special_applied_item["disposition"], "protected")
+        self.assertTrue(state.is_dir())
+        special.unlink()
         linked_file = next(
             path
             for path in state.rglob("*")
@@ -10829,6 +10957,24 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertTrue(pending_state.is_dir())
         self.assertEqual(list(pending_state.iterdir()), [])
+        with mock.patch.object(
+            self.workspace,
+            "_unlink_temporary_state_lock",
+            side_effect=WorkspaceError(
+                "simulated lease finalization interruption"
+            ),
+        ):
+            lease_interrupted = self.workspace.cleanup(
+                ["temporary-states"], 0, [], True
+            )
+        lease_interrupted_item = next(
+            item
+            for item in lease_interrupted["items"]
+            if item["path"] == str(state)
+        )
+        self.assertEqual(lease_interrupted_item["disposition"], "error")
+        self.assertFalse(pending_state.exists())
+        self.assertTrue(Path(f"{state}.lock").is_file())
         applied = self.workspace.cleanup(
             ["temporary-states"], 0, [], True
         )

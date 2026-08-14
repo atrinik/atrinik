@@ -9063,6 +9063,94 @@ class Workspace:
             if not (path / name).is_dir():
                 raise WorkspaceError(f"server state lacks required directory {name}: {path}")
 
+    @staticmethod
+    def _validate_temporary_state_integrity(
+        directory_fd: int, path: Path
+    ) -> None:
+        """Fail closed before deleting wrapper-owned mutable server state."""
+
+        root = os.fstat(directory_fd)
+        for name in EXPECTED_SERVER_DATA["files"]:
+            try:
+                metadata = os.stat(
+                    name, dir_fd=directory_fd, follow_symlinks=False
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    f"temporary server state lacks required file {name}: {path}"
+                ) from error
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
+                raise WorkspaceError(
+                    f"temporary server state required file is linked or invalid "
+                    f"{name}: {path}"
+                )
+        for name in EXPECTED_SERVER_DATA["directories"]:
+            try:
+                metadata = os.stat(
+                    name, dir_fd=directory_fd, follow_symlinks=False
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    f"temporary server state lacks required directory {name}: {path}"
+                ) from error
+            if not stat.S_ISDIR(metadata.st_mode):
+                raise WorkspaceError(
+                    "temporary server state required directory is linked or "
+                    f"invalid {name}: {path}"
+                )
+
+        def validate_directory(descriptor: int, display: Path) -> None:
+            for name in os.listdir(descriptor):
+                child_display = display / name
+                metadata = os.stat(
+                    name, dir_fd=descriptor, follow_symlinks=False
+                )
+                if stat.S_ISLNK(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"temporary server state contains a symbolic link: "
+                        f"{child_display}"
+                    )
+                if stat.S_ISREG(metadata.st_mode):
+                    if metadata.st_nlink != 1:
+                        raise WorkspaceError(
+                            f"temporary server state contains a hard-linked file: "
+                            f"{child_display}"
+                        )
+                    continue
+                if not stat.S_ISDIR(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"temporary server state contains a special entry: "
+                        f"{child_display}"
+                    )
+                if metadata.st_dev != root.st_dev:
+                    raise WorkspaceError(
+                        f"temporary server state contains a mounted directory: "
+                        f"{child_display}"
+                    )
+                child_fd = os.open(
+                    name,
+                    os.O_RDONLY
+                    | os.O_CLOEXEC
+                    | os.O_DIRECTORY
+                    | os.O_NOFOLLOW,
+                    dir_fd=descriptor,
+                )
+                try:
+                    opened = os.fstat(child_fd)
+                    if (opened.st_dev, opened.st_ino) != (
+                        metadata.st_dev,
+                        metadata.st_ino,
+                    ):
+                        raise WorkspaceError(
+                            "temporary server state entry changed during "
+                            f"validation: {child_display}"
+                        )
+                    validate_directory(child_fd, child_display)
+                finally:
+                    os.close(child_fd)
+
+        validate_directory(directory_fd, path)
+
     def _topology_services(self, services: list[str] | None) -> list[str]:
         requested = set(services or TOPOLOGY_SERVICES)
         unknown = sorted(requested - set(TOPOLOGY_SERVICES))
@@ -12629,6 +12717,7 @@ class Workspace:
         name: str,
         status: dict[str, Any],
         state_lease: TextIO,
+        state_directory_fd: int | None = None,
     ) -> dict[str, Any]:
         policy = status["state_policy"]
         state = Path(policy["path"])
@@ -12637,6 +12726,13 @@ class Workspace:
         lifecycle = policy["lifecycle"]
         current = status
         if lifecycle not in {"removal-pending", "removed"}:
+            if state_directory_fd is None:
+                raise WorkspaceError(
+                    "temporary state integrity lease is missing before removal"
+                )
+            self._validate_temporary_state_integrity(
+                state_directory_fd, state
+            )
             pending = {**policy, "lifecycle": "removal-pending"}
             current = self._write_temporary_state_policy(name, current, pending)
             policy = current["state_policy"]
@@ -12766,8 +12862,25 @@ class Workspace:
                 mutation_path, policy["identity"]
             )
             try:
+                if policy.get("lifecycle") not in {
+                    "removal-pending",
+                    "removed",
+                }:
+                    try:
+                        self._validate_temporary_state_integrity(
+                            mutation_fd, state
+                        )
+                    except WorkspaceError as error:
+                        retained = {**policy, "lifecycle": "retained"}
+                        self._write_temporary_state_policy(
+                            name, current, retained
+                        )
+                        raise WorkspaceError(
+                            f"temporary state was retained because its integrity "
+                            f"could not be proved: {state}: {error}"
+                        ) from error
                 return self._commit_temporary_state_removal(
-                    name, current, state_lease
+                    name, current, state_lease, mutation_fd
                 )
             finally:
                 os.close(mutation_fd)
