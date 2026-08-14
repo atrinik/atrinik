@@ -982,6 +982,7 @@ class Cleanup:
         item.pop("_git_common", None)
         item.pop("_sound_worktree_identity", None)
         item.pop("_sound_producer_identity", None)
+        item.pop("_physical_path", None)
 
     def _revalidate_target(
         self,
@@ -1006,19 +1007,19 @@ class Cleanup:
                 )
             return item
         if kind == "temporary-state":
-            physical = target.get("_physical_path")
-            item = self._temporary_state_item(
-                path,
-                older_than_days,
-                physical_path=(
-                    Path(physical)
-                    if isinstance(physical, str) and not path.exists()
-                    else None
+            item = next(
+                (
+                    candidate
+                    for candidate in self._temporary_states(older_than_days)
+                    if candidate["path"] == str(path)
                 ),
+                self._temporary_state_item(path, older_than_days),
             )
             filesystem_identity = item.get("_identity")
+            physical = item.get("_physical_path")
             self._strip_internal(item)
             item["_identity"] = filesystem_identity
+            item["_physical_path"] = physical
             return item
         references, reference_errors = self._references()
         registered, registered_error = self._registered_worktree_paths()
@@ -3599,8 +3600,19 @@ class Cleanup:
                     r"\.remove-[0-9a-f]{16}-[0-9a-f]+-[0-9a-f]+", path.name
                 ):
                     try:
-                        creation = load_json(path / TEMPORARY_STATE_METADATA)
-                        policy = creation["state_policy"]
+                        try:
+                            creation = load_json(path / TEMPORARY_STATE_METADATA)
+                            policy = creation["state_policy"]
+                        except (OSError, WorkspaceError):
+                            status = self.workspace.topology_status(topology.name)
+                            policy = status["state_policy"]
+                            if policy.get("lifecycle") not in {
+                                "removal-pending",
+                                "removed",
+                            }:
+                                raise WorkspaceError(
+                                    "temporary state removal status is invalid"
+                                )
                         logical = Path(policy["path"])
                         identity = policy["identity"]
                         pending_path = logical.parent / (
@@ -3682,17 +3694,53 @@ class Cleanup:
                 "purpose": f"topology:{topology_name}",
             }:
                 raise WorkspaceError("temporary state topology marker is invalid")
-            if load_json(physical / MANAGED_MARKER) != {
-                "schema_version": SCHEMA_VERSION,
-                "purpose": "temporary-topology-state",
-                "topology": topology_name,
-                "generation": generation,
-            }:
-                raise WorkspaceError("temporary state ownership marker is invalid")
-            record = load_json(physical / TEMPORARY_STATE_METADATA)
-            creation_policy = (
-                record.get("state_policy") if isinstance(record, dict) else None
+            empty_removal_tombstone = physical != path and not any(
+                physical.iterdir()
             )
+            if empty_removal_tombstone:
+                status = self.workspace.topology_status(topology_name)
+                status_policy = status.get("state_policy")
+                if (
+                    not isinstance(status_policy, dict)
+                    or status_policy.get("lifecycle")
+                    not in {"removal-pending", "removed"}
+                    or status_policy.get("identity")
+                    != {"device": metadata.st_dev, "inode": metadata.st_ino}
+                ):
+                    raise WorkspaceError(
+                        "temporary state removal status is invalid"
+                    )
+                creation_policy = {
+                    key: status_policy[key]
+                    for key in (
+                        "mode",
+                        "path",
+                        "owner",
+                        "created_at",
+                        "identity",
+                        "implementation",
+                        "server",
+                    )
+                }
+                creation_policy.update(
+                    {"name": None, "lifecycle": "disposable"}
+                )
+                record: object = {
+                    "schema_version": TEMPORARY_STATE_SCHEMA_VERSION,
+                    "state_policy": creation_policy,
+                }
+            else:
+                if load_json(physical / MANAGED_MARKER) != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": "temporary-topology-state",
+                    "topology": topology_name,
+                    "generation": generation,
+                }:
+                    raise WorkspaceError("temporary state ownership marker is invalid")
+                record = load_json(physical / TEMPORARY_STATE_METADATA)
+                creation_policy = (
+                    record.get("state_policy") if isinstance(record, dict) else None
+                )
             if (
                 not isinstance(record, dict)
                 or record.get("schema_version") != TEMPORARY_STATE_SCHEMA_VERSION
@@ -3729,6 +3777,23 @@ class Cleanup:
                     break
             if registered_state:
                 item["reasons"].append("registered_state")
+            if not empty_removal_tombstone:
+                for directory, names, files in os.walk(
+                    physical, followlinks=False
+                ):
+                    current = Path(directory)
+                    linked = False
+                    for entry_name in (*names, *files):
+                        entry_metadata = (current / entry_name).lstat()
+                        if stat.S_ISLNK(entry_metadata.st_mode) or (
+                            stat.S_ISREG(entry_metadata.st_mode)
+                            and entry_metadata.st_nlink != 1
+                        ):
+                            item["reasons"].append("linked_state")
+                            linked = True
+                            break
+                    if linked:
+                        break
             if check_lock:
                 state_lock = Path(f"{path}.lock")
                 if not state_lock.exists() and not state_lock.is_symlink():
@@ -3828,7 +3893,7 @@ class Cleanup:
             lifecycle = policy.get("lifecycle")
             if lifecycle in {"retained", "promotion-pending", "promoted"}:
                 item["reasons"].append(f"temporary_state_{lifecycle.replace('-', '_')}")
-            elif lifecycle == "removal-pending" and physical != path:
+            elif lifecycle in {"removal-pending", "removed"} and physical != path:
                 pass
             elif lifecycle != "disposable":
                 item["reasons"].append("invalid_temporary_state_lifecycle")
@@ -3903,9 +3968,33 @@ class Cleanup:
                         f"{current.get('error', current['reasons'])}"
                     )
                 status = self.workspace.topology_status(topology)
-                self.workspace._commit_temporary_state_removal(
-                    topology, status, state_lease
+                policy = status["state_policy"]
+                pending = self.workspace._temporary_state_removal_path(policy)
+                removal_tombstone = _owned_tree_tombstone_path(
+                    pending, policy["identity"]
                 )
+                mutation_path = next(
+                    (
+                        candidate
+                        for candidate in (path, pending, removal_tombstone)
+                        if candidate.exists() or candidate.is_symlink()
+                    ),
+                    None,
+                )
+                mutation_fd = (
+                    self.workspace._lock_state_directory_mutation(
+                        mutation_path, policy["identity"]
+                    )
+                    if mutation_path is not None
+                    else None
+                )
+                try:
+                    self.workspace._commit_temporary_state_removal(
+                        topology, status, state_lease
+                    )
+                finally:
+                    if mutation_fd is not None:
+                        os.close(mutation_fd)
 
     def _any_build_lock_busy(self) -> tuple[bool, str | None]:
         locks = self.paths.builds / "locks"

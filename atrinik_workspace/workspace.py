@@ -665,6 +665,16 @@ def _owned_tree_tombstone_path(
     )
 
 
+def _fsync_directory(path: Path) -> None:
+    descriptor = _open_directory_nofollow(
+        path, os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+    )
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
 def _remove_owned_tree_contents(
     descriptor: int,
     device: int,
@@ -728,7 +738,10 @@ def _remove_owned_tree_contents(
 
 
 def remove_owned_tree(
-    path: Path, *, expected_identity: dict[str, int] | None = None
+    path: Path,
+    *,
+    expected_identity: dict[str, int] | None = None,
+    keep_root: bool = False,
 ) -> None:
     if expected_identity is not None and (
         set(expected_identity) != {"device", "inode"}
@@ -813,6 +826,9 @@ def remove_owned_tree(
         )
         if (visible.st_dev, visible.st_ino) != expected:
             raise WorkspaceError(f"owned removal root identity changed: {path}")
+        if keep_root:
+            os.fsync(parent_descriptor)
+            return
         tombstone = root_tombstone_name(expected)
         if not already_tombstoned:
             rename_no_replace_at(
@@ -12284,6 +12300,8 @@ class Workspace:
                 stopped, confirmed_clean = self._controlled_topology_down(
                     name, status, timeout
                 )
+                if confirmed_clean:
+                    self._cleanup_topology_mutable_state_outputs(stopped)
                 return self._finish_temporary_state_down(
                     name, stopped, retain_state, confirmed_clean
                 )
@@ -12361,6 +12379,45 @@ class Workspace:
             raise WorkspaceError(
                 f"topology did not stop within {timeout:g} seconds: {name}"
             )
+
+    def _cleanup_topology_mutable_state_outputs(
+        self, status: dict[str, Any]
+    ) -> None:
+        policy = status.get("state_policy")
+        runtime = status.get("runtime")
+        control = status.get("control")
+        if (
+            not isinstance(policy, dict)
+            or policy.get("mode") == "temporary"
+            or not isinstance(runtime, dict)
+            or not isinstance(control, dict)
+        ):
+            return
+        outputs = runtime.get("mutable_state_outputs")
+        if not isinstance(outputs, list) or not outputs:
+            return
+        state = Path(policy["path"])
+        descriptor = self._open_validated_state_directory(
+            state, policy["implementation"], write_implementation=False
+        )
+        try:
+            opened = os.fstat(descriptor)
+            if {"device": opened.st_dev, "inode": opened.st_ino} != policy.get(
+                "identity"
+            ):
+                raise WorkspaceError(
+                    f"server state identity changed before runtime cleanup: {state}"
+                )
+            for value in outputs:
+                output = Path(value)
+                try:
+                    self._remove_runtime_state_output(
+                        output, control["generation"], descriptor
+                    )
+                except FileNotFoundError:
+                    continue
+        finally:
+            os.close(descriptor)
 
     def _controlled_topology_down(
         self, name: str, status: dict[str, Any], timeout: float
@@ -12513,7 +12570,7 @@ class Workspace:
                 f"temporary topology state lease tombstone is invalid: {tombstone}"
             )
         tombstone.unlink()
-        fsync_directory(tombstone.parent)
+        _fsync_directory(tombstone.parent)
         return True
 
     @staticmethod
@@ -12616,12 +12673,27 @@ class Workspace:
                         f"temporary state removal identity is invalid: {tombstone}"
                     )
             if tombstone_present or removal_tombstone_present:
-                remove_owned_tree(tombstone, expected_identity=identity)
+                remove_owned_tree(
+                    tombstone, expected_identity=identity, keep_root=True
+                )
+                if removal_tombstone_present and not tombstone.exists():
+                    rename_no_replace(removal_tombstone, tombstone)
             removed = {**policy, "lifecycle": "removed"}
             current = self._write_temporary_state_policy(name, current, removed)
             policy = current["state_policy"]
-        elif tombstone.exists() or tombstone.is_symlink():
-            remove_owned_tree(tombstone, expected_identity=identity)
+        if tombstone.exists() or tombstone.is_symlink():
+            metadata = tombstone.stat(follow_symlinks=False)
+            if (
+                not stat.S_ISDIR(metadata.st_mode)
+                or (metadata.st_dev, metadata.st_ino)
+                != (identity["device"], identity["inode"])
+                or any(tombstone.iterdir())
+            ):
+                raise WorkspaceError(
+                    f"temporary state removal root is invalid: {tombstone}"
+                )
+            tombstone.rmdir()
+            _fsync_directory(tombstone.parent)
         self._unlink_temporary_state_lock(
             state, state_lease, policy["lease_identity"]
         )

@@ -10361,7 +10361,12 @@ class WorkspaceTests(unittest.TestCase):
             external_status["state_policy"]["lifecycle"],
             "persistent-external",
         )
+        external_runtime_output = Path(
+            external_status["runtime"]["mutable_state_outputs"][0]
+        )
+        self.assertTrue(external_runtime_output.is_dir())
         self.workspace.topology_down("external-supervised", timeout=5)
+        self.assertFalse(external_runtime_output.exists())
         self.assertEqual(
             (external_state / "external-sentinel").read_text(encoding="utf-8"),
             "preserve\n",
@@ -10767,6 +10772,26 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(aliased_item["disposition"], "protected")
         self.assertIn("registered_state", aliased_item["reasons"])
+        linked_file = next(
+            path
+            for path in state.rglob("*")
+            if path.is_file() and not path.is_symlink()
+        )
+        external_link = self.root / "temporary-state-hardlink"
+        os.link(linked_file, external_link)
+        symlink = state / "unsafe-link"
+        symlink.symlink_to(external_link)
+        linked_preview = self.workspace.cleanup(
+            ["temporary-states"], 0, [], False
+        )
+        linked_item = next(
+            item for item in linked_preview["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(linked_item["disposition"], "protected")
+        self.assertIn("linked_state", linked_item["reasons"])
+        self.assertFalse(any(key.startswith("_") for key in linked_item))
+        symlink.unlink()
+        external_link.unlink()
         preview = self.workspace.cleanup(
             ["temporary-states"], 0, [], False
         )
@@ -10775,16 +10800,18 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(candidate["disposition"], "eligible")
         pending_state = state.parent / f".{state.name}.removal-pending"
-        removal_tombstone = workspace_module._owned_tree_tombstone_path(
-            pending_state, crashed["state_policy"]["identity"]
-        )
 
-        def interrupt_after_root_tombstone(*_args: object, **_kwargs: object) -> None:
-            pending_state.rename(removal_tombstone)
-            raise WorkspaceError("simulated cleanup removal interruption")
+        real_rmdir = os.rmdir
+
+        def interrupt_after_root_tombstone(
+            path: object, *args: object, **kwargs: object
+        ) -> None:
+            if Path(path).name == pending_state.name:
+                raise PermissionError("simulated cleanup removal interruption")
+            real_rmdir(path, *args, **kwargs)
 
         with mock.patch(
-            "atrinik_workspace.workspace.remove_owned_tree",
+            "atrinik_workspace.workspace.os.rmdir",
             side_effect=interrupt_after_root_tombstone,
         ):
             interrupted = self.workspace.cleanup(
@@ -10798,9 +10825,10 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace.topology_status("temporary-crash")["state_policy"][
                 "lifecycle"
             ],
-            "removal-pending",
+            "removed",
         )
-        self.assertTrue(removal_tombstone.is_dir())
+        self.assertTrue(pending_state.is_dir())
+        self.assertEqual(list(pending_state.iterdir()), [])
         applied = self.workspace.cleanup(
             ["temporary-states"], 0, [], True
         )
