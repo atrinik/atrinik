@@ -5404,7 +5404,12 @@ class WorkspaceTests(unittest.TestCase):
                 if isinstance(directory_fd, int)
                 else None
             )
-            if path == "payload" and parent is not None and parent.name == "previous":
+            if (
+                isinstance(path, str)
+                and path.startswith(".remove-")
+                and parent is not None
+                and parent.name == "previous"
+            ):
                 raise PermissionError("read only")
             real_unlink(path, *args, **kwargs)
 
