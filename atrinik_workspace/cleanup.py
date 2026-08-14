@@ -405,12 +405,20 @@ def _topology_tree_snapshot(
     parent_descriptor: int | None = None
     root_descriptor: int | None = None
 
-    def record(metadata: os.stat_result, relative: str, display: Path) -> None:
+    def record(
+        metadata: os.stat_result,
+        relative: str,
+        display: Path,
+        *,
+        allow_runtime_state_link: bool = False,
+    ) -> None:
         nonlocal maximum
         if metadata.st_dev != root_device:
             raise WorkspaceError(f"topology tree contains a mount: {display}")
         if not (
-            stat.S_ISDIR(metadata.st_mode) or stat.S_ISREG(metadata.st_mode)
+            stat.S_ISDIR(metadata.st_mode)
+            or stat.S_ISREG(metadata.st_mode)
+            or allow_runtime_state_link and stat.S_ISLNK(metadata.st_mode)
         ):
             raise WorkspaceError(f"topology tree contains a special file: {display}")
         if stat.S_ISREG(metadata.st_mode) and metadata.st_nlink != 1:
@@ -446,9 +454,19 @@ def _topology_tree_snapshot(
             child_relative = name if relative == "." else f"{relative}/{name}"
             metadata = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
             if stat.S_ISLNK(metadata.st_mode):
-                raise WorkspaceError(
-                    f"topology tree contains a symbolic link: {child_display}"
+                if not re.fullmatch(
+                    r"generations/[0-9a-f]{64}/server/data", child_relative
+                ):
+                    raise WorkspaceError(
+                        f"topology tree contains a symbolic link: {child_display}"
+                    )
+                record(
+                    metadata,
+                    child_relative,
+                    child_display,
+                    allow_runtime_state_link=True,
                 )
+                continue
             if stat.S_ISDIR(metadata.st_mode):
                 child_descriptor = os.open(
                     name,
@@ -3555,7 +3573,18 @@ class Cleanup:
             for path in children:
                 if path.name == MANAGED_MARKER or path.name.endswith(".lock"):
                     continue
-                items.append(self._temporary_state_item(path, older_than_days))
+                pending = re.fullmatch(
+                    r"\.([0-9a-f]{64})\.removal-pending", path.name
+                )
+                if pending:
+                    logical = path.parent / pending.group(1)
+                    items.append(
+                        self._temporary_state_item(
+                            logical, older_than_days, physical_path=path
+                        )
+                    )
+                else:
+                    items.append(self._temporary_state_item(path, older_than_days))
         return items
 
     def _temporary_state_item(
@@ -3565,24 +3594,32 @@ class Cleanup:
         *,
         check_lock: bool = True,
         held_lease_identity: dict[str, int] | None = None,
+        physical_path: Path | None = None,
     ) -> dict[str, Any]:
         item = _base_item(
             "temporary-state", "atrinik", "atrinik/atrinik", path
         )
-        inodes, observed, walk_error = _tree_usage(path)
+        pending_path = path.parent / f".{path.name}.removal-pending"
+        physical = physical_path or (
+            pending_path
+            if not (path.exists() or path.is_symlink())
+            and (pending_path.exists() or pending_path.is_symlink())
+            else path
+        )
+        inodes, observed, walk_error = _tree_usage(physical)
         item["_inodes"] = inodes
         if walk_error:
             item["reasons"].append("filesystem_traversal_error")
             item["error"] = walk_error
         try:
-            metadata = path.lstat()
+            metadata = physical.lstat()
             item["_identity"] = (
                 metadata.st_dev,
                 metadata.st_ino,
                 metadata.st_ctime_ns,
                 stat.S_IFMT(metadata.st_mode),
             )
-            if path.is_symlink() or not stat.S_ISDIR(metadata.st_mode):
+            if physical.is_symlink() or not stat.S_ISDIR(metadata.st_mode):
                 raise WorkspaceError("temporary state is not a normal directory")
             container = path.parent
             topology = container.parent
@@ -3605,14 +3642,14 @@ class Cleanup:
                 "purpose": f"topology:{topology_name}",
             }:
                 raise WorkspaceError("temporary state topology marker is invalid")
-            if load_json(path / MANAGED_MARKER) != {
+            if load_json(physical / MANAGED_MARKER) != {
                 "schema_version": SCHEMA_VERSION,
                 "purpose": "temporary-topology-state",
                 "topology": topology_name,
                 "generation": generation,
             }:
                 raise WorkspaceError("temporary state ownership marker is invalid")
-            record = load_json(path / TEMPORARY_STATE_METADATA)
+            record = load_json(physical / TEMPORARY_STATE_METADATA)
             creation_policy = (
                 record.get("state_policy") if isinstance(record, dict) else None
             )
@@ -3738,6 +3775,8 @@ class Cleanup:
             lifecycle = policy.get("lifecycle")
             if lifecycle in {"retained", "promotion-pending", "promoted"}:
                 item["reasons"].append(f"temporary_state_{lifecycle.replace('-', '_')}")
+            elif lifecycle == "removal-pending" and physical != path:
+                pass
             elif lifecycle != "disposable":
                 item["reasons"].append("invalid_temporary_state_lifecycle")
             created = _parse_time(policy.get("created_at"), "temporary state created_at")
@@ -3796,6 +3835,13 @@ class Cleanup:
                         "device": lease_metadata.st_dev,
                         "inode": lease_metadata.st_ino,
                     },
+                    physical_path=(
+                        self.workspace._temporary_state_removal_path(
+                            self.workspace.topology_status(topology)["state_policy"]
+                        )
+                        if not path.exists()
+                        else None
+                    ),
                 )
                 if (
                     current.get("_identity") != item.get("_identity")
@@ -3804,7 +3850,10 @@ class Cleanup:
                     raise WorkspaceError(
                         f"temporary state changed before removal: {path}"
                     )
-                remove_owned_tree(path)
+                status = self.workspace.topology_status(topology)
+                self.workspace._commit_temporary_state_removal(
+                    topology, status, state_lease
+                )
 
     def _any_build_lock_busy(self) -> tuple[bool, str | None]:
         locks = self.paths.builds / "locks"

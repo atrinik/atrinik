@@ -17,6 +17,7 @@ import time
 from typing import Any, BinaryIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
+from .model import durable_atomic_json
 from .process_tree import control_socket_path, holders_exist, signal_holders
 from .port_reservation import PortReservationError, validate_held
 
@@ -98,7 +99,7 @@ def terminate(
     timeout: float = 10,
     *,
     exclude: tuple[int | None, ...] = (),
-) -> None:
+) -> bool:
     # An unreaped session leader pins its numeric process-group identity, so
     # these groups remain safe to signal until the final waits below. The lease
     # additionally finds descendants whose recorded leader was already reaped.
@@ -152,6 +153,12 @@ def terminate(
         if not running:
             break
         time.sleep(0.1)
+    clean = not groups_exist()
+    if process_tree_fd is not None:
+        clean = clean and not holders_exist(
+            process_tree_fd,
+            exclude=(os.getpid(), *(pid for pid in exclude if pid is not None)),
+        )
     signal_groups(signal.SIGKILL)
     if process_tree_fd is not None:
         signal_holders(
@@ -178,7 +185,8 @@ def terminate(
         try:
             process.wait(timeout=2)
         except subprocess.TimeoutExpired:
-            pass
+            clean = False
+    return clean
 
 
 class RotatingLog:
@@ -272,6 +280,7 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
         "ready": False,
         "started_at": datetime.now(timezone.utc).isoformat(),
         "stopped_at": None,
+        **({"shutdown": None} if spec.get("schema_version") == 3 else {}),
         "supervisor": {
             "pid": os.getpid(),
             "start_time": supervisor_start_time,
@@ -505,6 +514,7 @@ def supervise(
         build_lock_fd = None
     status_path = spec_path.parent / "status.json"
     stop = False
+    control_stop_requested = False
     control_socket: socket.socket | None = None
     guardian_pid: int | None = None
     guardian_write_fd: int | None = None
@@ -613,7 +623,9 @@ def supervise(
             server = start_service("server", capture=capture)
             deadline = time.monotonic() + SERVER_READY_TIMEOUT
             while not capture.event.wait(timeout=0.1):
-                stop = stop or _serve_control(control_socket, spec)
+                requested = _serve_control(control_socket, spec)
+                control_stop_requested = control_stop_requested or requested
+                stop = stop or requested
                 code = _peek_exit_code(server)
                 if code is not None:
                     raise RuntimeError(
@@ -647,7 +659,9 @@ def supervise(
         atomic_status(status_path, status)
 
         while not stop:
-            stop = _serve_control(control_socket, spec)
+            requested = _serve_control(control_socket, spec)
+            control_stop_requested = control_stop_requested or requested
+            stop = requested
             changed = False
             running = True
             for name, process in processes.items():
@@ -668,7 +682,9 @@ def supervise(
         atomic_status(status_path, status)
         return 1
     finally:
-        terminate(processes, process_tree_fd, exclude=(guardian_pid,))
+        clean_termination = terminate(
+            processes, process_tree_fd, exclude=(guardian_pid,)
+        )
         for pump in pumps:
             pump.join(timeout=2)
         for name, process in processes.items():
@@ -680,7 +696,15 @@ def supervise(
             service_status["exit_code"] = code
         status["stopped_at"] = datetime.now(timezone.utc).isoformat()
         status["ready"] = False
-        atomic_status(status_path, status)
+        status["shutdown"] = {
+            "control_requested": control_stop_requested,
+            "clean": (
+                control_stop_requested
+                and clean_termination
+                and "error" not in status
+            ),
+        }
+        durable_atomic_json(status_path, status)
         for output in logs:
             output.close()
         if control_socket is not None:

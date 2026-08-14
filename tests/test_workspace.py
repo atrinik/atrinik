@@ -5856,6 +5856,62 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(stat.S_IMODE(root.stat().st_mode), root_mode)
             self.assertEqual(stat.S_IMODE(nested.stat().st_mode), nested_mode)
 
+    def test_owned_tree_removal_rejects_root_rebinding(self) -> None:
+        for phase in ("before-contents", "before-rmdir"):
+            with self.subTest(phase=phase):
+                parent = self.root / phase
+                parent.mkdir()
+                owned = parent / "owned"
+                owned.mkdir()
+                (owned / "payload").write_text("owned\n", encoding="utf-8")
+                identity = self.workspace._state_identity(owned)
+                moved = parent / "moved"
+                real_prepare = workspace_module._prepare_owned_tree_removal
+                real_remove = workspace_module._remove_owned_tree_contents
+
+                def replace_before_contents(*args: object, **kwargs: object) -> None:
+                    real_prepare(*args, **kwargs)
+                    owned.rename(moved)
+                    owned.mkdir()
+                    (owned / "replacement").write_text(
+                        "preserve\n", encoding="utf-8"
+                    )
+
+                def replace_before_rmdir(*args: object, **kwargs: object) -> None:
+                    real_remove(*args, **kwargs)
+                    owned.rename(moved)
+                    owned.mkdir()
+                    (owned / "replacement").write_text(
+                        "preserve\n", encoding="utf-8"
+                    )
+
+                target = (
+                    "atrinik_workspace.workspace._prepare_owned_tree_removal"
+                    if phase == "before-contents"
+                    else "atrinik_workspace.workspace._remove_owned_tree_contents"
+                )
+                replacement = (
+                    replace_before_contents
+                    if phase == "before-contents"
+                    else replace_before_rmdir
+                )
+                with (
+                    mock.patch(target, side_effect=replacement),
+                    self.assertRaisesRegex(
+                        WorkspaceError, "owned removal root identity changed"
+                    ),
+                ):
+                    remove_owned_tree(owned, expected_identity=identity)
+                self.assertEqual(
+                    (owned / "replacement").read_text(encoding="utf-8"),
+                    "preserve\n",
+                )
+                if phase == "before-contents":
+                    self.assertEqual(
+                        (moved / "payload").read_text(encoding="utf-8"),
+                        "owned\n",
+                    )
+
     def test_replaced_directory_recovery_rejects_invalid_states(self) -> None:
         def snapshot(parent: Path) -> dict[str, tuple[object, ...]]:
             result: dict[str, tuple[object, ...]] = {}
@@ -10072,10 +10128,38 @@ class WorkspaceTests(unittest.TestCase):
             ],
             "removal-pending",
         )
-        self.assertTrue(first_path.is_dir())
+        tombstone = first_path.parent / f".{first_path.name}.removal-pending"
+        self.assertFalse(first_path.exists())
+        self.assertTrue(tombstone.is_dir())
         stopped = self.workspace.topology_down("temporary-clean", timeout=5)
         self.assertEqual(stopped["state_policy"]["lifecycle"], "removed")
         self.assertFalse(first_path.exists())
+        self.assertFalse(tombstone.exists())
+        self.assertFalse(Path(f"{first_path}.lock").exists())
+        topology_preview = self.workspace.cleanup(["topologies"], 0, [], False)
+        temporary_clean_item = next(
+            item
+            for item in topology_preview["items"]
+            if item.get("name") == "temporary-clean"
+        )
+        self.assertEqual(
+            temporary_clean_item["disposition"], "eligible", temporary_clean_item
+        )
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            restarted_clean = self.workspace.topology_up(
+                "temporary-clean", "default", None, ["server"], 0
+            )
+        self.assertNotEqual(
+            restarted_clean["control"]["generation"],
+            first["control"]["generation"],
+        )
+        self.assertNotEqual(
+            restarted_clean["state_policy"]["path"],
+            first["state_policy"]["path"],
+        )
+        self.workspace.topology_down("temporary-clean", timeout=5)
 
         (rendezvous / "temporary.bound").unlink()
         with mock.patch.object(
@@ -10090,6 +10174,18 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(stopped["state_policy"]["lifecycle"], "retained")
         self.assertTrue(retained_path.is_dir())
+        retained_status_path = (
+            self.workspace.paths.topologies / "temporary-retained" / "status.json"
+        )
+        retained_record = load_json(retained_status_path)
+        invalid_removed = copy.deepcopy(retained_record)
+        invalid_removed["state_policy"]["lifecycle"] = "removed"
+        atomic_json(retained_status_path, invalid_removed)
+        with self.assertRaisesRegex(
+            WorkspaceError, "removed temporary topology state still exists"
+        ):
+            self.workspace.topology_status("temporary-retained")
+        atomic_json(retained_status_path, retained_record)
         with (
             mock.patch.object(
                 self.workspace, "_build_resolved", return_value=build_root
@@ -10294,6 +10390,26 @@ class WorkspaceTests(unittest.TestCase):
             item for item in preview["items"] if item["path"] == str(state)
         )
         self.assertEqual(candidate["disposition"], "eligible")
+        with mock.patch(
+            "atrinik_workspace.workspace.remove_owned_tree",
+            side_effect=WorkspaceError("simulated cleanup removal interruption"),
+        ):
+            interrupted = self.workspace.cleanup(
+                ["temporary-states"], 0, [], True
+            )
+        interrupted_item = next(
+            item for item in interrupted["items"] if item["path"] == str(state)
+        )
+        self.assertEqual(interrupted_item["disposition"], "error")
+        self.assertEqual(
+            self.workspace.topology_status("temporary-crash")["state_policy"][
+                "lifecycle"
+            ],
+            "removal-pending",
+        )
+        self.assertTrue(
+            (state.parent / f".{state.name}.removal-pending").is_dir()
+        )
         applied = self.workspace.cleanup(
             ["temporary-states"], 0, [], True
         )
@@ -10302,6 +10418,41 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(removed["disposition"], "removed", applied)
         self.assertFalse(state.exists())
+        cleaned = self.workspace.topology_status("temporary-crash")
+        self.assertEqual(cleaned["state_policy"]["lifecycle"], "removed")
+        self.assertFalse(Path(f"{state}.lock").exists())
+
+    def test_stop_acknowledgement_without_clean_shutdown_proof_retains_state(
+        self,
+    ) -> None:
+        control = {"generation": "a" * 64}
+        stopped = {
+            "control": control,
+            "shutdown": None,
+            "supervisor": {"running": False},
+            "services": {"server": {"running": False}},
+        }
+        self.workspace._topology_directory(
+            "acknowledged-then-crashed", create=True
+        )
+        with (
+            mock.patch.object(
+                self.workspace, "_topology_control_request", return_value=True
+            ),
+            mock.patch.object(
+                self.workspace, "_topology_process_tree_active", return_value=False
+            ),
+            mock.patch.object(
+                self.workspace, "topology_status", return_value=stopped
+            ),
+        ):
+            observed, confirmed_clean = self.workspace._controlled_topology_down(
+                "acknowledged-then-crashed",
+                {"control": control},
+                1,
+            )
+        self.assertIs(observed, stopped)
+        self.assertFalse(confirmed_clean)
 
     def test_topology_port_selection_rejects_unavailable_port(self) -> None:
         candidate = mock.MagicMock()
@@ -10556,6 +10707,111 @@ class WorkspaceTests(unittest.TestCase):
         linked.symlink_to(state, target_is_directory=True)
         with self.assertRaisesRegex(WorkspaceError, "contains a symlink"):
             self.workspace.state_add("linked", linked)
+
+    def test_prepared_state_rejects_directory_and_ancestor_replacement(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        implementation = {
+            "stack": "classic",
+            "provider": "server",
+            "repository": "atrinik/server",
+        }
+        state = self.workspace.state_path(
+            "default",
+            server,
+            implementation=implementation,
+            write_implementation=True,
+        )
+        identity = self.workspace._state_identity(state)
+        replacement = state.parent / "replacement"
+        shutil.copytree(state, replacement)
+        previous = state.parent / "previous"
+
+        def replace_state(*_args: object, **_kwargs: object) -> tuple[Path, int]:
+            state.rename(previous)
+            replacement.rename(state)
+            return state, os.open(previous, os.O_PATH | os.O_DIRECTORY)
+
+        with (
+            mock.patch.object(
+                self.workspace, "state_path", side_effect=replace_state
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "identity changed while preparing topology"
+            ),
+        ):
+            self.workspace._prepared_state_path(
+                "default", server, state, implementation, identity
+            )
+
+        external_parent = self.root / "external-parent"
+        external_parent.mkdir()
+        external_state = external_parent / "state"
+        shutil.copytree(previous, external_state)
+        attacker_parent = self.root / "attacker-parent"
+        attacker_parent.mkdir()
+        shutil.copytree(previous, attacker_parent / "state")
+        original_parent = self.root / "original-parent"
+        external_identity = self.workspace._state_identity(external_state)
+
+        def replace_ancestor(
+            *_args: object, **_kwargs: object
+        ) -> tuple[Path, int]:
+            external_parent.rename(original_parent)
+            external_parent.symlink_to(attacker_parent, target_is_directory=True)
+            return (
+                external_state,
+                os.open(original_parent / "state", os.O_PATH | os.O_DIRECTORY),
+            )
+
+        with (
+            mock.patch.object(
+                self.workspace, "state_path", side_effect=replace_ancestor
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "without following links|contains a symlink"
+            ),
+        ):
+            self.workspace._prepared_state_path(
+                "external",
+                server,
+                external_state,
+                implementation,
+                external_identity,
+            )
+
+    def test_state_lock_replacement_does_not_bypass_live_owner(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        state = self.workspace.state_path("default", server)
+        lock_path = Path(f"{state}.lock")
+        lock_path.touch(mode=0o600)
+        with exclusive_lock(lock_path, "original state") as original:
+            original_identity = os.fstat(original.fileno())
+            lock_path.unlink()
+            lock_path.touch(mode=0o600)
+            status = {
+                "name": "owner",
+                "state": str(state),
+                "control": {"generation": "a" * 64},
+                "observation": {"process_tree_lease": "retained"},
+                "state_policy": {
+                    "lease_identity": {
+                        "device": original_identity.st_dev,
+                        "inode": original_identity.st_ino,
+                    }
+                },
+            }
+            owner_root = self.workspace._topology_directory("owner", create=True)
+            atomic_json(owner_root / "status.json", {"state": str(state)})
+            with (
+                mock.patch.object(
+                    self.workspace, "topology_status", return_value=status
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError, "owned by topology owner generation"
+                ),
+            ):
+                with self.workspace._topology_state_lock(state):
+                    self.fail("replacement lock must not grant state ownership")
 
     def test_temporary_state_publication_interruption_leaves_no_partial_state(self) -> None:
         topology = self.workspace._topology_directory("interrupted", create=True)

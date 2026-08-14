@@ -790,7 +790,12 @@ class ParserTests(unittest.TestCase):
 
         self.assertEqual(result, 0)
         workspace_type.return_value.topology_up.assert_called_once_with(
-            "review", "review", "shared", ["server"], 17300
+            "review",
+            "review",
+            "shared",
+            ["server"],
+            17300,
+            state_mode=None,
         )
         output.assert_called_once_with("topology review: started at 127.0.0.1:17300")
 
@@ -801,12 +806,152 @@ class ParserTests(unittest.TestCase):
         explicit_default = parser().parse_args(
             ["topology", "show", "review", "--default-state"]
         )
-        self.assertIsNone(temporary.state)
+        self.assertEqual(temporary.state, "default")
+        self.assertEqual(temporary.state_mode, "temporary")
         self.assertEqual(explicit_default.state, "default")
+        self.assertEqual(explicit_default.state_mode, "default")
         with self.assertRaises(SystemExit):
             parser().parse_args(
                 ["up", "--temporary-state", "--state", "shared"]
             )
+
+    def test_client_only_temporary_state_selector_is_not_silently_ignored(
+        self,
+    ) -> None:
+        error = WorkspaceError("temporary state requires the server service")
+        cases = (
+            (
+                [
+                    "topology",
+                    "show",
+                    "review",
+                    "--temporary-state",
+                    "--service",
+                    "client",
+                ],
+                "topology_summary",
+                mock.call(
+                    "review", None, ["client"], state_mode="temporary"
+                ),
+            ),
+            (
+                [
+                    "up",
+                    "--name",
+                    "client-only",
+                    "--profile",
+                    "review",
+                    "--temporary-state",
+                    "--service",
+                    "client",
+                ],
+                "topology_up",
+                mock.call(
+                    "client-only",
+                    "review",
+                    None,
+                    ["client"],
+                    None,
+                    state_mode="temporary",
+                ),
+            ),
+        )
+        for arguments, method_name, expected_call in cases:
+            with self.subTest(command=arguments[0]):
+                with mock.patch(
+                    "atrinik_workspace.cli.Workspace"
+                ) as workspace_type:
+                    method = getattr(workspace_type.return_value, method_name)
+                    method.side_effect = error
+                    with mock.patch("builtins.print"):
+                        self.assertEqual(main(arguments), 1)
+                self.assertEqual(method.call_args, expected_call)
+
+    def test_human_topology_state_policy_output_includes_stable_owner(self) -> None:
+        generation = "a" * 64
+        summary = {
+            "profile": "review",
+            "stack": "classic",
+            "sound": {"mode": "source"},
+            "services": ["server"],
+            "dependencies": ["server"],
+            "providers": {"server": "classic-server"},
+            "state": None,
+            "state_policy": {
+                "mode": "temporary",
+                "owner": {"kind": "topology-generation"},
+                "lifecycle": "disposable",
+                "path": None,
+            },
+            "build_root": "/workspace/build/review",
+            "components": {},
+        }
+        status = {
+            "endpoint": None,
+            "state_policy": {
+                "mode": "temporary",
+                "owner": {
+                    "topology": "review",
+                    "kind": "topology-generation",
+                    "generation": generation,
+                },
+                "lifecycle": "disposable",
+                "path": "/workspace/topologies/review/temporary-states/abc",
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace = workspace_type.return_value
+            workspace.topology_summary.return_value = summary
+            workspace.topology_up.return_value = status
+            with mock.patch("builtins.print") as output:
+                self.assertEqual(
+                    main(
+                        [
+                            "topology",
+                            "show",
+                            "review",
+                            "--temporary-state",
+                            "--service",
+                            "server",
+                        ]
+                    ),
+                    0,
+                )
+                self.assertIn(
+                    mock.call(
+                        'state-policy\ttemporary\t'
+                        '{"kind": "topology-generation"}\t'
+                        "disposable\tallocated-on-start"
+                    ),
+                    output.call_args_list,
+                )
+                output.reset_mock()
+                self.assertEqual(
+                    main(
+                        [
+                            "up",
+                            "--name",
+                            "review",
+                            "--profile",
+                            "review",
+                            "--temporary-state",
+                            "--service",
+                            "server",
+                        ]
+                    ),
+                    0,
+                )
+                self.assertEqual(
+                    output.call_args_list[-1],
+                    mock.call(
+                        'state-policy\ttemporary\t'
+                        f'{{"generation": "{generation}", '
+                        '"kind": "topology-generation", '
+                        '"topology": "review"}\t'
+                        "disposable\t/workspace/topologies/review/"
+                        "temporary-states/abc"
+                    ),
+                )
 
     def test_temporary_state_start_retain_and_promotion_dispatch(self) -> None:
         status = {
@@ -814,6 +959,11 @@ class ParserTests(unittest.TestCase):
             "endpoint": None,
             "state_policy": {
                 "mode": "temporary",
+                "owner": {
+                    "kind": "topology-generation",
+                    "topology": "review",
+                    "generation": "a" * 64,
+                },
                 "lifecycle": "disposable",
                 "path": "/workspace/topologies/review/temporary-states/abc",
             },
@@ -848,7 +998,12 @@ class ParserTests(unittest.TestCase):
                     main(["state", "promote", "review", "saved-review"]), 0
                 )
         workspace.topology_up.assert_called_once_with(
-            "review", "review", None, ["server"], None
+            "review",
+            "review",
+            None,
+            ["server"],
+            None,
+            state_mode="temporary",
         )
         workspace.topology_down.assert_called_once_with(
             "review", retain_state=True
@@ -875,7 +1030,7 @@ class ParserTests(unittest.TestCase):
 
         self.assertEqual(result, 0)
         workspace_type.return_value.topology_summary.assert_called_once_with(
-            "review", "default", ["server"]
+            "review", "default", ["server"], state_mode=None
         )
         self.assertEqual(json.loads(output.call_args.args[0]), summary)
 

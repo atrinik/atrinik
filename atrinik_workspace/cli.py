@@ -253,14 +253,14 @@ def parser() -> argparse.ArgumentParser:
     )
     topology_state.add_argument(
         "--temporary-state",
-        dest="state",
+        dest="state_mode",
         action="store_const",
-        const=None,
+        const="temporary",
         help="use a fresh disposable state owned by the topology generation",
     )
     topology_state.add_argument(
         "--default-state",
-        dest="state",
+        dest="state_mode",
         action="store_const",
         const="default",
         help="use the legacy managed persistent default state explicitly",
@@ -277,14 +277,14 @@ def parser() -> argparse.ArgumentParser:
     mark(up_state.add_argument("--state", default="default"), "state")
     up_state.add_argument(
         "--temporary-state",
-        dest="state",
+        dest="state_mode",
         action="store_const",
-        const=None,
+        const="temporary",
         help="use a fresh disposable state owned by this topology generation",
     )
     up_state.add_argument(
         "--default-state",
-        dest="state",
+        dest="state_mode",
         action="store_const",
         const="default",
         help="use the legacy managed persistent default state explicitly",
@@ -812,8 +812,12 @@ def main(arguments: list[str] | None = None) -> int:
                 )
             )
         elif options.command == "topology":
+            state = None if options.state_mode == "temporary" else options.state
             summary = workspace.topology_summary(
-                options.profile, options.state, options.service
+                options.profile,
+                state,
+                options.service,
+                state_mode=options.state_mode,
             )
             if options.json:
                 print(json.dumps(summary, indent=2, sort_keys=True))
@@ -831,7 +835,9 @@ def main(arguments: list[str] | None = None) -> int:
                 if isinstance(state_policy, dict):
                     print(
                         "state-policy\t"
-                        f"{state_policy['mode']}\t{state_policy['lifecycle']}\t"
+                        f"{state_policy['mode']}\t"
+                        f"{json.dumps(state_policy['owner'], sort_keys=True)}\t"
+                        f"{state_policy['lifecycle']}\t"
                         f"{state_policy.get('path') or 'allocated-on-start'}"
                     )
                 print(f"build\t{summary['build_root']}")
@@ -843,8 +849,14 @@ def main(arguments: list[str] | None = None) -> int:
                     )
         elif options.command == "up":
             name = options.name or options.profile
+            state = None if options.state_mode == "temporary" else options.state
             status = workspace.topology_up(
-                name, options.profile, options.state, options.service, options.port
+                name,
+                options.profile,
+                state,
+                options.service,
+                options.port,
+                state_mode=options.state_mode,
             )
             if options.json:
                 print(json.dumps(status, indent=2, sort_keys=True))
@@ -860,7 +872,9 @@ def main(arguments: list[str] | None = None) -> int:
                 if isinstance(state_policy, dict):
                     print(
                         "state-policy\t"
-                        f"{state_policy['mode']}\t{state_policy['lifecycle']}\t"
+                        f"{state_policy['mode']}\t"
+                        f"{json.dumps(state_policy['owner'], sort_keys=True)}\t"
+                        f"{state_policy['lifecycle']}\t"
                         f"{state_policy['path']}"
                     )
         elif options.command == "ps":

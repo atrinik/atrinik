@@ -82,6 +82,7 @@ from .model import (
     durable_atomic_json,
     load_json,
     _managed_path_no_symlinks,
+    _open_directory_nofollow,
     managed_directory,
     managed_reset,
     profile_key,
@@ -659,15 +660,24 @@ def _remove_owned_tree_contents(
             os.unlink(name, dir_fd=descriptor)
 
 
-def remove_owned_tree(path: Path) -> None:
+def remove_owned_tree(
+    path: Path, *, expected_identity: dict[str, int] | None = None
+) -> None:
     if path.is_symlink() or not path.is_dir():
         raise WorkspaceError(f"owned removal root is invalid: {path}")
-    parent_descriptor = os.open(
-        path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    parent_descriptor = _open_directory_nofollow(
+        path.parent,
+        os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
     )
     descriptor: int | None = None
     try:
         before = os.stat(path.name, dir_fd=parent_descriptor, follow_symlinks=False)
+        if expected_identity is not None and (
+            set(expected_identity) != {"device", "inode"}
+            or (before.st_dev, before.st_ino)
+            != (expected_identity["device"], expected_identity["inode"])
+        ):
+            raise WorkspaceError(f"owned removal root identity changed: {path}")
         parent_mount_id = _descriptor_mount_id(parent_descriptor)
         descriptor = _open_owned_tree_directory(
             parent_descriptor,
@@ -678,6 +688,7 @@ def remove_owned_tree(path: Path) -> None:
             root=True,
         )
         opened = os.fstat(descriptor)
+        expected = (opened.st_dev, opened.st_ino)
         root_mount_id = _descriptor_mount_id(descriptor)
         _prepare_owned_tree_removal(
             descriptor,
@@ -686,12 +697,22 @@ def remove_owned_tree(path: Path) -> None:
             path,
             stat.S_IMODE(before.st_mode),
         )
+        visible = os.stat(
+            path.name, dir_fd=parent_descriptor, follow_symlinks=False
+        )
+        if (visible.st_dev, visible.st_ino) != expected:
+            raise WorkspaceError(f"owned removal root identity changed: {path}")
         os.fchmod(descriptor, stat.S_IRWXU)
         _remove_owned_tree_contents(
             descriptor, opened.st_dev, root_mount_id, path
         )
         os.close(descriptor)
         descriptor = None
+        visible = os.stat(
+            path.name, dir_fd=parent_descriptor, follow_symlinks=False
+        )
+        if (visible.st_dev, visible.st_ino) != expected:
+            raise WorkspaceError(f"owned removal root identity changed: {path}")
         os.rmdir(path.name, dir_fd=parent_descriptor)
     finally:
         if descriptor is not None:
@@ -8057,6 +8078,205 @@ class Workspace:
             )
 
     @staticmethod
+    def _load_state_json_at(
+        directory_fd: int, name: str, description: str
+    ) -> Any:
+        descriptor: int | None = None
+        try:
+            descriptor = os.open(
+                name, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                dir_fd=directory_fd,
+            )
+            metadata = os.fstat(descriptor)
+            if (
+                not stat.S_ISREG(metadata.st_mode)
+                or metadata.st_nlink != 1
+                or metadata.st_size > 4 * 1024 * 1024
+            ):
+                raise WorkspaceError(f"{description} is invalid")
+            with os.fdopen(descriptor, encoding="utf-8", closefd=False) as stream:
+                return json.load(stream, object_pairs_hook=_reject_duplicate_keys)
+        except (OSError, UnicodeError, ValueError, RecursionError) as error:
+            raise WorkspaceError(f"cannot read {description}: {error}") from error
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
+
+    @staticmethod
+    def _write_state_json_no_replace_at(
+        directory_fd: int, name: str, value: Any
+    ) -> None:
+        temporary = f".{name}.{secrets.token_hex(12)}.tmp"
+        descriptor: int | None = None
+        linked = False
+        try:
+            descriptor = os.open(
+                temporary,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC | os.O_NOFOLLOW,
+                0o600,
+                dir_fd=directory_fd,
+            )
+            with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+                descriptor = None
+                json.dump(value, stream, indent=2, sort_keys=True)
+                stream.write("\n")
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.link(
+                temporary,
+                name,
+                src_dir_fd=directory_fd,
+                dst_dir_fd=directory_fd,
+                follow_symlinks=False,
+            )
+            linked = True
+            os.unlink(temporary, dir_fd=directory_fd)
+            os.fsync(directory_fd)
+        except FileExistsError as error:
+            raise WorkspaceError(
+                "server state implementation marker appeared during publication"
+            ) from error
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot publish server state implementation marker: {error}"
+            ) from error
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
+            if not linked:
+                try:
+                    os.unlink(temporary, dir_fd=directory_fd)
+                except FileNotFoundError:
+                    pass
+
+    def _validate_state_descriptor(
+        self,
+        directory_fd: int,
+        path: Path,
+        implementation: dict[str, str] | None,
+        *,
+        write_implementation: bool,
+    ) -> None:
+        for name in EXPECTED_SERVER_DATA["files"]:
+            try:
+                metadata = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+            except OSError as error:
+                raise WorkspaceError(
+                    f"server state lacks required file {name}: {path}"
+                ) from error
+            if not stat.S_ISREG(metadata.st_mode):
+                raise WorkspaceError(f"server state lacks required file {name}: {path}")
+        for name in EXPECTED_SERVER_DATA["directories"]:
+            try:
+                metadata = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+            except OSError as error:
+                raise WorkspaceError(
+                    f"server state lacks required directory {name}: {path}"
+                ) from error
+            if not stat.S_ISDIR(metadata.st_mode):
+                raise WorkspaceError(
+                    f"server state lacks required directory {name}: {path}"
+                )
+        marker_missing = False
+        try:
+            marker_metadata = os.stat(
+                STATE_IMPLEMENTATION_MARKER,
+                dir_fd=directory_fd,
+                follow_symlinks=False,
+            )
+        except FileNotFoundError:
+            marker_missing = True
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect server state implementation marker: {path}: {error}"
+            ) from error
+        if marker_missing and implementation is not None and write_implementation:
+            self._write_state_json_no_replace_at(
+                directory_fd,
+                STATE_IMPLEMENTATION_MARKER,
+                {
+                    "schema_version": STATE_IMPLEMENTATION_SCHEMA_VERSION,
+                    **implementation,
+                },
+            )
+            marker_metadata = os.stat(
+                STATE_IMPLEMENTATION_MARKER,
+                dir_fd=directory_fd,
+                follow_symlinks=False,
+            )
+            marker_missing = False
+        if not marker_missing:
+            if not stat.S_ISREG(marker_metadata.st_mode):
+                raise WorkspaceError(
+                    f"server state implementation marker is invalid: {path}"
+                )
+            expected = (
+                {
+                    "schema_version": STATE_IMPLEMENTATION_SCHEMA_VERSION,
+                    **implementation,
+                }
+                if implementation is not None
+                else None
+            )
+            if self._load_state_json_at(
+                directory_fd,
+                STATE_IMPLEMENTATION_MARKER,
+                f"server state implementation marker {path}",
+            ) != expected:
+                raise WorkspaceError(
+                    "server state implementation does not match the selected "
+                    f"server: {path}"
+                )
+        try:
+            os.mkdir("tmp", dir_fd=directory_fd)
+        except FileExistsError:
+            pass
+        tmp_metadata = os.stat("tmp", dir_fd=directory_fd, follow_symlinks=False)
+        if not stat.S_ISDIR(tmp_metadata.st_mode):
+            raise WorkspaceError(f"server state tmp path is invalid: {path}")
+
+    def _open_validated_state_directory(
+        self,
+        path: Path,
+        implementation: dict[str, str] | None,
+        *,
+        write_implementation: bool,
+    ) -> int:
+        flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        try:
+            descriptor = _open_directory_nofollow(path, flags)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot open server state without following links: {path}: {error}"
+            ) from error
+        try:
+            opened = os.fstat(descriptor)
+            visible = path.stat(follow_symlinks=False)
+            if (
+                not stat.S_ISDIR(opened.st_mode)
+                or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+                or self._canonical_state_path(path) != path
+            ):
+                raise WorkspaceError(
+                    f"server state identity changed during validation: {path}"
+                )
+            self._validate_state_descriptor(
+                descriptor,
+                path,
+                implementation,
+                write_implementation=write_implementation,
+            )
+            visible = path.stat(follow_symlinks=False)
+            if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+                raise WorkspaceError(
+                    f"server state identity changed during validation: {path}"
+                )
+            return descriptor
+        except BaseException:
+            os.close(descriptor)
+            raise
+
+    @staticmethod
     def _temporary_state_metadata_matches(
         policy: dict[str, Any], creation_policy: object
     ) -> bool:
@@ -8108,7 +8328,8 @@ class Workspace:
         *,
         implementation: dict[str, str] | None = None,
         write_implementation: bool = False,
-    ) -> Path:
+        keep_descriptor: bool = False,
+    ) -> Path | tuple[Path, int]:
         validate_name(name, "state name")
         path = resolved_path or self._state_location(name)
         path = self._canonical_state_path(path)
@@ -8136,30 +8357,58 @@ class Workspace:
             except BaseException:
                 shutil.rmtree(staging, ignore_errors=True)
                 raise
-        self._validate_state(path)
-        if implementation is not None:
-            marker = path / STATE_IMPLEMENTATION_MARKER
-            if write_implementation and not marker.exists() and not marker.is_symlink():
-                descriptor, temporary_name = tempfile.mkstemp(
-                    prefix=f".{STATE_IMPLEMENTATION_MARKER}.", dir=path
-                )
-                os.close(descriptor)
-                temporary = Path(temporary_name)
-                try:
-                    durable_atomic_json(
-                        temporary,
-                        {
-                            "schema_version": STATE_IMPLEMENTATION_SCHEMA_VERSION,
-                            **implementation,
-                        },
-                    )
-                    rename_no_replace(temporary, marker)
-                except BaseException:
-                    temporary.unlink(missing_ok=True)
-                    raise
-            self._validate_state_implementation(path, implementation)
-        (path / "tmp").mkdir(exist_ok=True)
+        descriptor = self._open_validated_state_directory(
+            path,
+            implementation,
+            write_implementation=write_implementation,
+        )
+        if keep_descriptor:
+            return path, descriptor
+        os.close(descriptor)
         return path
+
+    def _prepared_state_path(
+        self,
+        name: str,
+        server_source: Path,
+        resolved_path: Path,
+        implementation: dict[str, str],
+        expected_identity: dict[str, int] | None,
+    ) -> tuple[Path, int]:
+        prepared = self.state_path(
+            name,
+            server_source,
+            resolved_path=resolved_path,
+            implementation=implementation,
+            write_implementation=True,
+            keep_descriptor=True,
+        )
+        assert isinstance(prepared, tuple)
+        path, descriptor = prepared
+        opened = os.fstat(descriptor)
+        try:
+            visible = path.stat(follow_symlinks=False)
+            canonical = self._canonical_state_path(path)
+        except BaseException:
+            os.close(descriptor)
+            raise
+        if (
+            canonical != path
+            or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+        ):
+            os.close(descriptor)
+            raise WorkspaceError(
+                f"server state identity changed while preparing topology: {path}"
+            )
+        if expected_identity is not None and expected_identity != {
+            "device": opened.st_dev,
+            "inode": opened.st_ino,
+        }:
+            os.close(descriptor)
+            raise WorkspaceError(
+                f"server state identity changed while preparing topology: {path}"
+            )
+        return path, descriptor
 
     def _persistent_state_policy(
         self,
@@ -8223,13 +8472,65 @@ class Workspace:
         return container
 
     @contextmanager
-    def _topology_state_lock(self, path: Path) -> Iterator[TextIO]:
+    def _topology_state_lock(
+        self, path: Path, *, preparing_topology: str | None = None
+    ) -> Iterator[TextIO]:
         try:
             with exclusive_lock(
                 Path(f"{path}.lock"),
                 f"server state {path}",
                 nonblocking=True,
             ) as lock:
+                for topology in sorted(self.paths.topologies.iterdir()):
+                    if topology.name == preparing_topology:
+                        continue
+                    if topology.is_symlink() or not topology.is_dir():
+                        continue
+                    status_path = topology / "status.json"
+                    if not status_path.is_file() or status_path.is_symlink():
+                        continue
+                    try:
+                        raw_status = load_regular_json(
+                            status_path, "topology state ownership status"
+                        )
+                    except WorkspaceError as error:
+                        raise WorkspaceError(
+                            "cannot confirm exact server state ownership while "
+                            f"topology status is uncertain: {path}"
+                        ) from error
+                    if (
+                        not isinstance(raw_status, dict)
+                        or raw_status.get("state") != str(path)
+                    ):
+                        continue
+                    try:
+                        status = self.topology_status(topology.name)
+                    except WorkspaceError as error:
+                        control = raw_status.get("control")
+                        if (
+                            isinstance(control, dict)
+                            and not self._topology_process_tree_active(
+                                topology, control
+                            )
+                        ):
+                            continue
+                        raise WorkspaceError(
+                            "cannot confirm exact server state ownership while "
+                            f"topology {topology.name} status is uncertain: {path}"
+                        ) from error
+                    observation = status.get("observation")
+                    control = status.get("control")
+                    if (
+                        status.get("state") == str(path)
+                        and isinstance(observation, dict)
+                        and observation.get("process_tree_lease") == "retained"
+                        and isinstance(control, dict)
+                    ):
+                        raise WorkspaceError(
+                            f"server state {path} is owned by topology "
+                            f"{status['name']} generation {control['generation']}; "
+                            f"run ./atrinik down {status['name']} and retry"
+                        )
                 yield lock
                 return
         except LockBusyError as error:
@@ -9786,6 +10087,10 @@ class Workspace:
                 or path.exists()
                 or path.is_symlink()
             ):
+                if lifecycle == "removed":
+                    raise WorkspaceError(
+                        f"removed temporary topology state still exists: {name}"
+                    )
                 marker = path / MANAGED_MARKER
                 metadata_path = path / TEMPORARY_STATE_METADATA
                 if (
@@ -9826,10 +10131,6 @@ class Workspace:
                     raise WorkspaceError(
                         f"promoted temporary state registration is invalid: {name}"
                     )
-            elif lifecycle == "removed" and (path.exists() or path.is_symlink()):
-                raise WorkspaceError(
-                    f"removed temporary topology state still exists: {name}"
-                )
         else:
             expected_name = "default" if mode == "default" else policy.get("name")
             expected_persistent = (
@@ -9880,6 +10181,7 @@ class Workspace:
             "port_reservation",
             "runtime",
             "state_policy",
+            "shutdown",
         }
         topology_schema = status.get("schema_version") if isinstance(status, dict) else None
         current_runtime_record = topology_schema in {
@@ -9978,6 +10280,16 @@ class Workspace:
                 validate_sound_record(status["sound"])
             except WorkspaceError as error:
                 raise WorkspaceError(f"topology status is invalid: {name}") from error
+        shutdown = status.get("shutdown")
+        if shutdown is not None and (
+            not isinstance(shutdown, dict)
+            or set(shutdown) != {"control_requested", "clean"}
+            or not isinstance(shutdown.get("control_requested"), bool)
+            or not isinstance(shutdown.get("clean"), bool)
+            or shutdown["clean"] and not shutdown["control_requested"]
+            or shutdown["clean"] and status.get("error") is not None
+        ):
+            raise WorkspaceError(f"topology shutdown status is invalid: {name}")
         if historical_record:
             status["stack"] = "classic"
             status["providers"] = {
@@ -10901,12 +11213,17 @@ class Workspace:
 
                 state_location: Path | None = None
                 state_lock: TextIO | None = None
+                state_expected_identity: dict[str, int] | None = None
                 if "server" in selected_services and state_mode != "temporary":
                     assert state_name is not None
                     state_location = self._state_location(state_name)
                     state_lock = stack.enter_context(
-                        self._topology_state_lock(state_location)
+                        self._topology_state_lock(
+                            state_location, preparing_topology=name
+                        )
                     )
+                    if state_location.exists() or state_location.is_symlink():
+                        state_expected_identity = self._state_identity(state_location)
 
                 root = self._build_resolved(
                     "topology", profile_name, False, targets, selected
@@ -10945,17 +11262,20 @@ class Workspace:
                             else None
                         )
                         state_lock = stack.enter_context(
-                            self._topology_state_lock(state_location)
+                            self._topology_state_lock(
+                                state_location, preparing_topology=name
+                            )
                         )
                     else:
                         assert state_name is not None and state_location is not None
-                        state = self.state_path(
+                        state, state_directory_fd = self._prepared_state_path(
                             state_name,
                             selected["server"],
-                            resolved_path=state_location,
-                            implementation=implementation,
-                            write_implementation=True,
+                            state_location,
+                            implementation,
+                            state_expected_identity,
                         )
+                        stack.callback(os.close, state_directory_fd)
                         state_policy = self._persistent_state_policy(
                             state_name, state, implementation
                         )
@@ -10975,11 +11295,31 @@ class Workspace:
                             "inode": lock_metadata.st_ino,
                         },
                     }
-                    state_directory_fd = os.open(
-                        state,
-                        os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW,
-                    )
-                    stack.callback(os.close, state_directory_fd)
+                    try:
+                        visible_lock = Path(f"{state}.lock").stat(
+                            follow_symlinks=False
+                        )
+                    except OSError as error:
+                        raise WorkspaceError(
+                            f"server state lease changed before publication: {state}.lock"
+                        ) from error
+                    if (
+                        visible_lock.st_dev,
+                        visible_lock.st_ino,
+                    ) != (
+                        lock_metadata.st_dev,
+                        lock_metadata.st_ino,
+                    ):
+                        raise WorkspaceError(
+                            f"server state lease changed before publication: {state}.lock"
+                        )
+                    if state_directory_fd is None:
+                        state_directory_fd = self._open_validated_state_directory(
+                            state,
+                            implementation,
+                            write_implementation=False,
+                        )
+                        stack.callback(os.close, state_directory_fd)
                     state_metadata = os.fstat(state_directory_fd)
                     if state_policy["identity"] != {
                         "device": state_metadata.st_dev,
@@ -11377,7 +11717,15 @@ class Workspace:
             if not active and not current["supervisor"]["running"] and not any(
                 service["running"] for service in current["services"].values()
             ):
-                return current, requested
+                shutdown = current.get("shutdown")
+                confirmed_clean = bool(
+                    requested
+                    and isinstance(shutdown, dict)
+                    and shutdown.get("control_requested") is True
+                    and shutdown.get("clean") is True
+                    and current.get("error") is None
+                )
+                return current, confirmed_clean
             time.sleep(0.1)
         if not requested:
             raise WorkspaceError(
@@ -11409,6 +11757,99 @@ class Workspace:
         durable_atomic_json(status_path, {**raw_status, "state_policy": policy})
         return self.topology_status(name)
 
+    @staticmethod
+    def _temporary_state_removal_path(policy: dict[str, Any]) -> Path:
+        state = Path(policy["path"])
+        generation = policy["owner"]["generation"]
+        return state.parent / f".{generation}.removal-pending"
+
+    @staticmethod
+    def _unlink_temporary_state_lock(
+        state: Path,
+        state_lease: TextIO,
+        lease_identity: dict[str, int],
+    ) -> None:
+        lock = Path(f"{state}.lock")
+        try:
+            visible = lock.stat(follow_symlinks=False)
+        except FileNotFoundError:
+            return
+        opened = os.fstat(state_lease.fileno())
+        expected = (lease_identity["device"], lease_identity["inode"])
+        if (
+            not stat.S_ISREG(visible.st_mode)
+            or visible.st_nlink != 1
+            or (visible.st_dev, visible.st_ino) != expected
+            or (opened.st_dev, opened.st_ino) != expected
+        ):
+            raise WorkspaceError(
+                f"temporary topology state lease changed before removal: {lock}"
+            )
+        parent_fd = os.open(
+            lock.parent,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+        )
+        try:
+            os.unlink(lock.name, dir_fd=parent_fd)
+            os.fsync(parent_fd)
+        finally:
+            os.close(parent_fd)
+
+    def _commit_temporary_state_removal(
+        self,
+        name: str,
+        status: dict[str, Any],
+        state_lease: TextIO,
+    ) -> dict[str, Any]:
+        policy = status["state_policy"]
+        state = Path(policy["path"])
+        tombstone = self._temporary_state_removal_path(policy)
+        identity = policy["identity"]
+        lifecycle = policy["lifecycle"]
+        current = status
+        if lifecycle not in {"removal-pending", "removed"}:
+            pending = {**policy, "lifecycle": "removal-pending"}
+            current = self._write_temporary_state_policy(name, current, pending)
+            policy = current["state_policy"]
+            lifecycle = "removal-pending"
+        if lifecycle == "removal-pending":
+            state_present = state.exists() or state.is_symlink()
+            tombstone_present = tombstone.exists() or tombstone.is_symlink()
+            if state_present and tombstone_present:
+                raise WorkspaceError(
+                    f"temporary state removal paths conflict: {state}"
+                )
+            if state_present:
+                if self._state_identity(state) != identity:
+                    raise WorkspaceError(
+                        f"temporary state identity changed before removal: {state}"
+                    )
+                rename_no_replace(state, tombstone)
+                tombstone_present = True
+            if tombstone_present:
+                tombstone_metadata = tombstone.stat(follow_symlinks=False)
+                if (
+                    not stat.S_ISDIR(tombstone_metadata.st_mode)
+                    or {
+                        "device": tombstone_metadata.st_dev,
+                        "inode": tombstone_metadata.st_ino,
+                    }
+                    != identity
+                ):
+                    raise WorkspaceError(
+                        f"temporary state removal identity is invalid: {tombstone}"
+                    )
+                remove_owned_tree(tombstone, expected_identity=identity)
+            removed = {**policy, "lifecycle": "removed"}
+            current = self._write_temporary_state_policy(name, current, removed)
+            policy = current["state_policy"]
+        elif tombstone.exists() or tombstone.is_symlink():
+            remove_owned_tree(tombstone, expected_identity=identity)
+        self._unlink_temporary_state_lock(
+            state, state_lease, policy["lease_identity"]
+        )
+        return self.topology_status(name)
+
     def _finish_temporary_state_down(
         self,
         name: str,
@@ -11422,7 +11863,6 @@ class Workspace:
         if policy.get("lifecycle") in {
             "promoted",
             "promotion-pending",
-            "removed",
             "retained",
         }:
             return status
@@ -11434,11 +11874,16 @@ class Workspace:
                 )
             return status
         state = Path(policy["path"])
+        lock_path = Path(f"{state}.lock")
+        if policy.get("lifecycle") == "removed" and not (
+            lock_path.exists() or lock_path.is_symlink()
+        ):
+            return status
         with exclusive_lock(
-            Path(f"{state}.lock"),
+            lock_path,
             f"temporary topology state {state}",
             nonblocking=True,
-        ):
+        ) as state_lease:
             current = self.topology_status(name)
             if current.get("state_policy") != policy:
                 raise WorkspaceError(
@@ -11447,29 +11892,9 @@ class Workspace:
             if retain_state:
                 retained = {**policy, "lifecycle": "retained"}
                 return self._write_temporary_state_policy(name, current, retained)
-            pending = {**policy, "lifecycle": "removal-pending"}
-            if policy != pending:
-                current = self._write_temporary_state_policy(
-                    name, current, pending
-                )
-            if state.exists() or state.is_symlink():
-                remove_owned_tree(state)
-            removed = {**pending, "lifecycle": "removed"}
-            raw_status = load_json(
-                self._topology_directory(name) / "status.json"
+            return self._commit_temporary_state_removal(
+                name, current, state_lease
             )
-            if (
-                not isinstance(raw_status, dict)
-                or raw_status.get("state_policy") != pending
-            ):
-                raise WorkspaceError(
-                    f"temporary topology state status changed before removal: {name}"
-                )
-            updated = {**raw_status, "state_policy": removed}
-            durable_atomic_json(
-                self._topology_directory(name) / "status.json", updated
-            )
-            return self.topology_status(name)
 
     def state_promote(self, topology_name: str, state_name: str) -> dict[str, Any]:
         """Promote one stopped, explicitly retained temporary state in place."""
@@ -11664,8 +12089,13 @@ class Workspace:
         paths = [(item, path) for item, path in paths if path.is_file()]
         if not paths:
             raise WorkspaceError(f"topology has no matching logs: {name}")
-        policy = self.topology_status(name).get("state_policy")
-        if isinstance(policy, dict):
+        policy: object = None
+        status_path = root / "status.json"
+        if status_path.is_file() and not status_path.is_symlink():
+            raw_status = load_regular_json(status_path, "topology status")
+            if isinstance(raw_status, dict):
+                policy = raw_status.get("state_policy")
+        if isinstance(policy, dict) and self._log_state_policy_is_safe(policy):
             print(
                 "==> state-policy "
                 f"mode={policy['mode']} owner={json.dumps(policy['owner'], sort_keys=True)} "
@@ -11724,6 +12154,31 @@ class Workspace:
             if not running and not changed:
                 break
             time.sleep(0.25)
+
+    @staticmethod
+    def _log_state_policy_is_safe(policy: dict[str, Any]) -> bool:
+        mode = policy.get("mode")
+        path = policy.get("path")
+        owner = policy.get("owner")
+        lifecycle = policy.get("lifecycle")
+        return bool(
+            mode in {"temporary", "named", "default"}
+            and isinstance(path, str)
+            and Path(path).is_absolute()
+            and "\n" not in path
+            and "\r" not in path
+            and isinstance(owner, dict)
+            and all(
+                isinstance(key, str)
+                and isinstance(value, str)
+                and "\n" not in value
+                and "\r" not in value
+                for key, value in owner.items()
+            )
+            and isinstance(lifecycle, str)
+            and "\n" not in lifecycle
+            and "\r" not in lifecycle
+        )
 
     def run_client(
         self,
