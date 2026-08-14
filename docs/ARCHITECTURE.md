@@ -382,7 +382,7 @@ helper repeats containment, symlink, marker, schema, and purpose validation
 immediately before deletion.
 
 Commit-keyed source generations have closed repository/branch/checkout/tree/
-subpath metadata. Generation schema 2 separately records the Git tree for each
+subpath metadata. Generation schema 3 separately records the Git object for each
 declared source include, the logical-source digest, and a framed digest of the
 complete source-plus-includes closure. Schema-1 generations remain recognizable
 to preview-first cleanup but cannot be reused as current build inputs. Builds

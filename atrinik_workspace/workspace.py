@@ -208,7 +208,7 @@ BUILD_METADATA_SCHEMA_VERSION = 3
 PROFILE_RESOLUTION_METADATA = ".atrinik-profile-resolution.json"
 PROFILE_RESOLUTION_SCHEMA_VERSION = 3
 SOURCE_GENERATION_METADATA = ".atrinik-source-generation.json"
-SOURCE_GENERATION_SCHEMA_VERSION = 2
+SOURCE_GENERATION_SCHEMA_VERSION = 3
 CACHE_METADATA = ".atrinik-cache.json"
 WORKER_DEPENDENCY_METADATA = ".atrinik-worker-dependencies.json"
 WORKER_VIEW_METADATA = ".atrinik-worker-view.json"
@@ -2595,6 +2595,22 @@ class Workspace:
                         f"clean primary source changed during materialization: {checkout}"
                     )
                 self._seal_runtime_generation(staging / "source")
+                for include in component.source_includes:
+                    include_path = staging.joinpath(
+                        *PurePosixPath(include).parts
+                    )
+                    include_status = include_path.lstat()
+                    if stat.S_ISDIR(include_status.st_mode):
+                        self._seal_runtime_generation(include_path)
+                    elif stat.S_ISREG(include_status.st_mode):
+                        include_path.chmod(
+                            stat.S_IMODE(include_status.st_mode) & ~0o222
+                        )
+                    else:
+                        raise WorkspaceError(
+                            "generated source include is not a regular file or "
+                            f"directory: {include_path}"
+                        )
                 record = {
                     **identity,
                     "source_tree_sha256": _tree_digest(
@@ -5933,6 +5949,7 @@ class Workspace:
             SOURCE_INCLUDE_VIEW_METADATA,
         }
         copied_directories = copied_directories or set()
+        mutable_copies = self._source_generation_record(source) is not None
         try:
             source_head: str | None = git(
                 source, "rev-parse", "HEAD", capture=True, trace=False
@@ -5971,9 +5988,12 @@ class Workspace:
                         exclusions if copy_all else set(),
                         view,
                         exclusions,
+                        mutable_copies,
                     )
                 elif stat.S_ISREG(mode):
                     permissions = stat.S_IMODE(mode)
+                    if mutable_copies:
+                        permissions |= 0o600
                     value = hashlib.sha256(entry.read_bytes()).hexdigest()
                     same = (
                         destination.is_file()
@@ -5985,6 +6005,7 @@ class Workspace:
                         self._source_view_changed = True
                         self._remove_source_view_entry(destination)
                         shutil.copy2(entry, destination, follow_symlinks=False)
+                        destination.chmod(permissions)
                     digest = f"{permissions:o}:{value}"
                 elif stat.S_ISLNK(mode):
                     target, resolved_target = self._copied_source_symlink_target(
@@ -6221,6 +6242,7 @@ class Workspace:
         exclusions: set[str],
         view: Path,
         top_level_exclusions: set[str],
+        mutable_copies: bool = False,
     ) -> str:
         if destination.is_symlink() or (destination.exists() and not destination.is_dir()):
             self._remove_source_view_entry(destination)
@@ -6228,11 +6250,15 @@ class Workspace:
             self._source_view_changed = True
         destination.mkdir(parents=True, exist_ok=True)
         source_permissions = stat.S_IMODE(source.lstat().st_mode)
-        if stat.S_IMODE(destination.lstat().st_mode) != source_permissions:
-            destination.chmod(source_permissions)
+        target_permissions = source_permissions | 0o700 if mutable_copies else source_permissions
+        destination_permissions = stat.S_IMODE(destination.lstat().st_mode)
+        if destination_permissions != target_permissions:
             self._source_view_changed = True
+        working_permissions = target_permissions | 0o700
+        if destination_permissions != working_permissions:
+            destination.chmod(working_permissions)
         digest = hashlib.sha256()
-        digest.update(f"directory:{source_permissions:o}\0".encode())
+        digest.update(f"directory:{target_permissions:o}\0".encode())
         expected: set[str] = set()
         for entry in sorted(source.iterdir(), key=lambda path: path.name):
             if entry.name in exclusions:
@@ -6256,10 +6282,13 @@ class Workspace:
                         exclusions,
                         view,
                         top_level_exclusions,
+                        mutable_copies,
                     ).encode()
                 )
             elif stat.S_ISREG(mode):
                 permissions = stat.S_IMODE(mode)
+                if mutable_copies:
+                    permissions |= 0o600
                 file_digest = hashlib.sha256()
                 try:
                     with entry.open("rb") as stream:
@@ -6288,6 +6317,7 @@ class Workspace:
                     self._source_view_changed = True
                     self._remove_source_view_entry(output)
                     shutil.copy2(entry, output, follow_symlinks=False)
+                    output.chmod(permissions)
             elif stat.S_ISLNK(mode):
                 target, resolved_target = self._copied_source_symlink_target(
                     entry,
@@ -6310,6 +6340,7 @@ class Workspace:
         for output in sorted(destination.iterdir(), key=lambda path: path.name):
             if output.name not in expected:
                 self._remove_source_view_entry(output)
+        destination.chmod(target_permissions)
         return digest.hexdigest()
 
     @classmethod

@@ -2041,6 +2041,13 @@ class WorkspaceTests(unittest.TestCase):
             with self.subTest(role=role):
                 checkout = self.workspace.paths.repositories / role
                 (checkout / role).mkdir()
+                if role == "server":
+                    (checkout / role / "install_data" / "unique-items").mkdir(
+                        parents=True
+                    )
+                    (checkout / role / "install_data" / "bans").write_text(
+                        "", encoding="utf-8"
+                    )
                 (checkout / "cmake").mkdir()
                 (checkout / "cmake" / "AtrinikVersion.cmake").write_text(
                     "function(atrinik_resolve_version output)\n"
@@ -2140,10 +2147,19 @@ class WorkspaceTests(unittest.TestCase):
                     role,
                     generated,
                     set(),
+                    {"install_data"} if role == "server" else set(),
                     preserved_entries={
                         workspace_module.SOURCE_INCLUDE_VIEW_METADATA
                     },
                 )
+                if role == "server":
+                    self.assertTrue(
+                        (view / "install_data").stat().st_mode & stat.S_IWUSR
+                    )
+                    self.assertTrue(
+                        (view / "install_data" / "bans").stat().st_mode
+                        & stat.S_IWUSR
+                    )
                 self.workspace._prepare_component_source_includes(
                     build_root, component, generated, view
                 )
@@ -2161,6 +2177,7 @@ class WorkspaceTests(unittest.TestCase):
                     role,
                     generated,
                     set(),
+                    {"install_data"} if role == "server" else set(),
                     preserved_entries={
                         workspace_module.SOURCE_INCLUDE_VIEW_METADATA
                     },
@@ -2176,6 +2193,7 @@ class WorkspaceTests(unittest.TestCase):
                     role,
                     generated,
                     set(),
+                    {"install_data"} if role == "server" else set(),
                     preserved_entries={
                         workspace_module.SOURCE_INCLUDE_VIEW_METADATA
                     },
@@ -2189,6 +2207,15 @@ class WorkspaceTests(unittest.TestCase):
                     build_root / "build" / role,
                     [],
                     True,
+                )
+                self.assertEqual(
+                    self.workspace._materialize_primary_source(
+                        component,
+                        checkout,
+                        checkout / role,
+                        state,
+                    ),
+                    generated,
                 )
 
                 generation_mode = stat.S_IMODE(generated.parent.stat().st_mode)
@@ -4468,8 +4495,16 @@ class WorkspaceTests(unittest.TestCase):
         root = self.workspace.paths.builds / "profiles" / "test"
         managed_directory(root, self.workspace.paths.builds, "test-profile")
 
-        view = self.workspace._profile_source_view(
-            root, "server", source, set(), {"install_data"}
+        source_permissions = stat.S_IMODE(copied_source.stat().st_mode)
+        copied_source.chmod(0o555)
+        try:
+            view = self.workspace._profile_source_view(
+                root, "server", source, set(), {"install_data"}
+            )
+        finally:
+            copied_source.chmod(source_permissions)
+        self.assertEqual(
+            stat.S_IMODE((view / "install_data").stat().st_mode), 0o555
         )
         readme = view / "README"
         copied = view / "install_data" / "keys" / "test.pub"
