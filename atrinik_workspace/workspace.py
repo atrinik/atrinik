@@ -6157,13 +6157,35 @@ class Workspace:
             raise WorkspaceError(
                 f"source-view link parent is unsafe: {parent}: {error}"
             ) from error
-        else:
-            os.close(descriptor)
         expected = str(target)
-        if not destination.is_symlink() or os.readlink(destination) != expected:
-            self._remove_source_view_entry(destination)
-            destination.symlink_to(expected, target_is_directory=target_is_directory)
+        name = relative_path.name
+        try:
+            try:
+                metadata = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+            except FileNotFoundError:
+                metadata = None
+            if (
+                metadata is not None
+                and stat.S_ISLNK(metadata.st_mode)
+                and os.readlink(name, dir_fd=descriptor) == expected
+            ):
+                return destination
+            if metadata is not None:
+                if stat.S_ISDIR(metadata.st_mode):
+                    raise WorkspaceError(
+                        "source-view link destination is an unexpected directory: "
+                        f"{destination}"
+                    )
+                os.unlink(name, dir_fd=descriptor)
+            os.symlink(
+                expected,
+                name,
+                target_is_directory=target_is_directory,
+                dir_fd=descriptor,
+            )
             self._source_view_unchanged[str(view.resolve())] = False
+        finally:
+            os.close(descriptor)
         return destination
 
     def _source_view_directory(

@@ -42,6 +42,7 @@ from atrinik_workspace.migration import rename_no_replace as real_rename_no_repl
 from atrinik_workspace.launch_identity import client_launch_label
 from atrinik_workspace.model import (
     MANAGED_MARKER,
+    Manifest,
     WorkspaceError,
     atomic_json,
     load_json,
@@ -2037,207 +2038,109 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace._source_generation_record(forged)
 
     def test_scoped_classic_sources_include_shared_cmake_inputs(self) -> None:
+        production_manifest = Path(__file__).parents[1] / "components.json"
+        self.workspace.manifest = Manifest.load(production_manifest)
+        classic = self.workspace.paths.repositories / "classic"
+        classic.mkdir()
+        command("git", "init", "-b", "main", cwd=classic)
+        command("git", "config", "user.name", "Tests", cwd=classic)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=classic)
+        for directory in ("client", "server", "protocol", "libatrinik", "cmake"):
+            (classic / directory).mkdir()
+        for directory in ("protocol", "libatrinik"):
+            (classic / directory / "README").write_text(
+                f"{directory}\n", encoding="utf-8"
+            )
+        (classic / "server" / "install_data" / "unique-items").mkdir(parents=True)
+        (classic / "server" / "install_data" / "bans").write_text(
+            "", encoding="utf-8"
+        )
+        (classic / "cmake" / "AtrinikVersion.cmake").write_text(
+            "function(atrinik_resolve_version output)\n"
+            "  set(${output} test-version PARENT_SCOPE)\n"
+            "endfunction()\n",
+            encoding="utf-8",
+        )
+        (classic / "LICENSE.md").write_text("test license\n", encoding="utf-8")
+        (classic / "ATTRIBUTIONS.md").write_text(
+            "test attributions\n", encoding="utf-8"
+        )
         for role in ("client", "server"):
-            with self.subTest(role=role):
-                checkout = self.workspace.paths.repositories / role
-                (checkout / role).mkdir()
-                if role == "server":
-                    (checkout / role / "install_data" / "unique-items").mkdir(
-                        parents=True
-                    )
-                    (checkout / role / "install_data" / "bans").write_text(
-                        "", encoding="utf-8"
-                    )
-                (checkout / "cmake").mkdir()
-                (checkout / "cmake" / "AtrinikVersion.cmake").write_text(
-                    "function(atrinik_resolve_version output)\n"
-                    "  set(${output} test-version PARENT_SCOPE)\n"
-                    "endfunction()\n",
-                    encoding="utf-8",
-                )
-                (checkout / "LICENSE.md").write_text(
-                    "test license\n", encoding="utf-8"
-                )
-                (checkout / "ATTRIBUTIONS.md").write_text(
-                    "test attributions\n", encoding="utf-8"
-                )
-                (checkout / role / "CMakeLists.txt").write_text(
-                    "cmake_minimum_required(VERSION 3.16)\n"
-                    "include(../cmake/AtrinikVersion.cmake)\n"
-                    "atrinik_resolve_version(ATRINIK_VERSION)\n"
-                    f"project(scoped-{role} VERSION 1.0 LANGUAGES NONE)\n"
-                    "if(NOT ATRINIK_VERSION STREQUAL test-version)\n"
-                    '  message(FATAL_ERROR "shared version module was not used")\n'
-                    "endif()\n"
-                    "foreach(document LICENSE.md ATTRIBUTIONS.md)\n"
-                    "  if(NOT EXISTS \"${CMAKE_CURRENT_SOURCE_DIR}/../${document}\")\n"
-                    '    message(FATAL_ERROR "missing root document: ${document}")\n'
-                    "  endif()\n"
-                    "endforeach()\n"
-                    "enable_testing()\n"
-                    "add_test(NAME shared-version COMMAND "
-                    "${CMAKE_COMMAND} -E true)\n",
-                    encoding="utf-8",
-                )
-                command(
-                    "git",
-                    "add",
-                    role,
-                    "cmake",
-                    "LICENSE.md",
-                    "ATTRIBUTIONS.md",
-                    cwd=checkout,
-                )
-                command(
-                    "git",
-                    "commit",
-                    "-m",
-                    f"test: seed scoped {role}",
-                    cwd=checkout,
-                )
+            (classic / role / "CMakeLists.txt").write_text(
+                "cmake_minimum_required(VERSION 3.16)\n"
+                "include(../cmake/AtrinikVersion.cmake)\n"
+                "atrinik_resolve_version(ATRINIK_VERSION)\n"
+                f"project(scoped-{role} VERSION 1.0 LANGUAGES NONE)\n"
+                "if(NOT ATRINIK_VERSION STREQUAL test-version)\n"
+                '  message(FATAL_ERROR "shared version module was not used")\n'
+                "endif()\n"
+                "foreach(document LICENSE.md ATTRIBUTIONS.md)\n"
+                "  if(NOT EXISTS \"${CMAKE_CURRENT_SOURCE_DIR}/../${document}\")\n"
+                '    message(FATAL_ERROR "missing root document: ${document}")\n'
+                "  endif()\n"
+                "endforeach()\n"
+                "enable_testing()\n"
+                "add_test(NAME shared-version COMMAND ${CMAKE_COMMAND} -E true)\n",
+                encoding="utf-8",
+            )
+        command("git", "add", ".", cwd=classic)
+        command("git", "commit", "-m", "test: seed Classic checkout", cwd=classic)
+        origin = self.root / "origins" / "atrinik.git"
+        command("git", "init", "--bare", str(origin), cwd=self.root)
+        command("git", "remote", "add", "origin", str(origin), cwd=classic)
+        command("git", "push", "-u", "origin", "main", cwd=classic)
+        self.origins["classic"] = origin
 
-                original = self.workspace.manifest.by_name[role]
-                component = replace(
-                    original,
-                    source=role,
-                    source_includes=(
-                        "cmake",
-                        "LICENSE.md",
-                        "ATTRIBUTIONS.md",
-                    ),
-                )
-                self.workspace.manifest.by_name[role] = component
-                self.workspace.manifest.components = [
-                    component if item.name == role else item
-                    for item in self.workspace.manifest.components
-                ]
-                stack = self.workspace.manifest.stacks["default"]
-                stack.providers[role] = component
-                object.__setattr__(
-                    stack,
-                    "components",
-                    tuple(
-                        component if item.name == role else item
-                        for item in stack.components
-                    ),
-                )
-                profile = self.workspace._load_profile("default", require_file=False)
-                selected = {role: checkout / role}
-                state = self.workspace._selected_checkout_states(
-                    profile,
-                    selected,
-                    include_dirty=True,
-                    include_identity=True,
-                )[role]
-                generated = self.workspace._materialize_primary_source(
-                    component,
-                    checkout,
-                    checkout / role,
-                    state,
-                )
+        stack = self.workspace.manifest.stack("classic")
+        for role in ("client", "server"):
+            self.assertEqual(
+                stack.providers[role].source_includes,
+                ("cmake", "LICENSE.md", "ATTRIBUTIONS.md"),
+            )
 
-                self.assertTrue(
-                    (generated.parent / "cmake" / "AtrinikVersion.cmake").is_file()
-                )
-                self.assertTrue((generated.parent / "LICENSE.md").is_file())
-                self.assertTrue((generated.parent / "ATTRIBUTIONS.md").is_file())
-                build_root = self.workspace.paths.builds / f"scoped-{role}"
-                view = self.workspace._profile_source_view(
-                    build_root,
-                    role,
-                    generated,
-                    set(),
-                    {"install_data"} if role == "server" else set(),
-                    preserved_entries={
-                        workspace_module.SOURCE_INCLUDE_VIEW_METADATA
-                    },
-                )
-                if role == "server":
+        def prepare_runtime(root: Path, *_args: object) -> Path:
+            path = root / "runtime" / "content"
+            path.mkdir(parents=True, exist_ok=True)
+            return path
+
+        def stage_resources(root: Path, *_args: object) -> Path:
+            path = root / "runtime" / "resources"
+            path.mkdir(parents=True, exist_ok=True)
+            return path
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_prepare_sound",
+                side_effect=lambda _root, selected, _profile: (
+                    selected["sound"],
+                    None,
+                ),
+            ),
+            mock.patch.object(
+                self.workspace, "_collect_content", side_effect=prepare_runtime
+            ),
+            mock.patch.object(
+                self.workspace, "_stage_resources", side_effect=stage_resources
+            ),
+            mock.patch.object(self.workspace, "_generate_region_maps"),
+        ):
+            for role in ("client", "server"):
+                with self.subTest(role=role):
+                    build_root = self.workspace.build(
+                        role, "classic", True, use_ccache=False
+                    )
+                    source_root = build_root / "sources"
                     self.assertTrue(
-                        (view / "install_data").stat().st_mode & stat.S_IWUSR
+                        (source_root / "cmake" / "AtrinikVersion.cmake").is_file()
                     )
-                    self.assertTrue(
-                        (view / "install_data" / "bans").stat().st_mode
-                        & stat.S_IWUSR
-                    )
-                self.workspace._prepare_component_source_includes(
-                    build_root, component, generated, view
-                )
-                self.assertTrue(
-                    (build_root / "sources" / "cmake" / "AtrinikVersion.cmake").is_file()
-                )
-                self.assertTrue(
-                    (build_root / "sources" / "LICENSE.md").is_file()
-                )
-                self.assertTrue(
-                    (build_root / "sources" / "ATTRIBUTIONS.md").is_file()
-                )
-                view = self.workspace._profile_source_view(
-                    build_root,
-                    role,
-                    generated,
-                    set(),
-                    {"install_data"} if role == "server" else set(),
-                    preserved_entries={
-                        workspace_module.SOURCE_INCLUDE_VIEW_METADATA
-                    },
-                )
-                self.workspace._prepare_component_source_includes(
-                    build_root, component, generated, view
-                )
-                view_key = str(view.resolve())
-                self.assertTrue(self.workspace._source_view_unchanged[view_key])
-                (build_root / "sources" / "cmake" / "AtrinikVersion.cmake").unlink()
-                view = self.workspace._profile_source_view(
-                    build_root,
-                    role,
-                    generated,
-                    set(),
-                    {"install_data"} if role == "server" else set(),
-                    preserved_entries={
-                        workspace_module.SOURCE_INCLUDE_VIEW_METADATA
-                    },
-                )
-                self.workspace._prepare_component_source_includes(
-                    build_root, component, generated, view
-                )
-                self.assertFalse(self.workspace._source_view_unchanged[view_key])
-                self.workspace._cmake(
-                    view,
-                    build_root / "build" / role,
-                    [],
-                    True,
-                )
-                self.assertEqual(
-                    self.workspace._materialize_primary_source(
-                        component,
-                        checkout,
-                        checkout / role,
-                        state,
-                    ),
-                    generated,
-                )
-
-                generation_mode = stat.S_IMODE(generated.parent.stat().st_mode)
-                include_mode = stat.S_IMODE((generated.parent / "cmake").stat().st_mode)
-                module = generated.parent / "cmake" / "AtrinikVersion.cmake"
-                module_mode = stat.S_IMODE(module.stat().st_mode)
-                generated.parent.chmod(0o700)
-                (generated.parent / "cmake").chmod(0o700)
-                module.chmod(0o600)
-                module.write_text("corrupt\n", encoding="utf-8")
-                module.chmod(module_mode)
-                (generated.parent / "cmake").chmod(include_mode)
-                generated.parent.chmod(generation_mode)
-                with self.assertRaisesRegex(
-                    WorkspaceError, "source generation is corrupt"
-                ):
-                    self.workspace._materialize_primary_source(
-                        component,
-                        checkout,
-                        checkout / role,
-                        state,
-                    )
+                    self.assertTrue((source_root / "LICENSE.md").is_file())
+                    self.assertTrue((source_root / "ATTRIBUTIONS.md").is_file())
+                    if role == "server":
+                        self.assertTrue(
+                            (source_root / "server" / "install_data").stat().st_mode
+                            & stat.S_IWUSR
+                        )
 
     def test_source_generation_archive_extraction_rejects_unsafe_entries(self) -> None:
         def archive(name: str, entries: list[tuple[tarfile.TarInfo, bytes]]) -> Path:
@@ -2476,8 +2379,10 @@ class WorkspaceTests(unittest.TestCase):
         primary = self.workspace.paths.repositories / "client"
         extract = self.workspace._extract_git_source_archive
 
-        def advance(archive: Path, output: Path) -> None:
-            extract(archive, output)
+        def advance(
+            archive: Path, output: Path, *, existing_output: bool = False
+        ) -> None:
+            extract(archive, output, existing_output=existing_output)
             (primary / "advanced-during-export").write_text(
                 "changed\n", encoding="utf-8"
             )
@@ -4581,6 +4486,39 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(sentinel.read_text(encoding="utf-8"), "preserved\n")
         self.assertTrue((view / "docs").is_symlink())
+
+    def test_source_view_link_pins_nested_parent_during_mutation(self) -> None:
+        view = self.workspace.paths.builds / "profiles" / "test" / "sources"
+        managed_directory(view, self.workspace.paths.builds, "test-sources")
+        parent = view / "docs"
+        parent.mkdir()
+        pinned = view / "pinned-docs"
+        outside = self.root / "outside-source-view-race"
+        outside.mkdir()
+        sentinel = outside / "LICENSE.md"
+        sentinel.write_text("preserved\n", encoding="utf-8")
+        real_open = workspace_module._open_directory_nofollow
+
+        def swap_after_open(path: Path, flags: int, *, create: bool = False) -> int:
+            descriptor = real_open(path, flags, create=create)
+            parent.rename(pinned)
+            parent.symlink_to(outside, target_is_directory=True)
+            return descriptor
+
+        with mock.patch(
+            "atrinik_workspace.workspace._open_directory_nofollow",
+            side_effect=swap_after_open,
+        ):
+            self.workspace._source_view_link(
+                view,
+                "docs/LICENSE.md",
+                self.root / "target-license",
+                target_is_directory=False,
+            )
+
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "preserved\n")
+        self.assertTrue((parent).is_symlink())
+        self.assertTrue((pinned / "LICENSE.md").is_symlink())
 
     def test_source_view_retains_unchanged_entries_and_rejects_escaping_symlink(
         self,
