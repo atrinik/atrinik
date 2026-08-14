@@ -29,7 +29,7 @@ a program.
 3. Read the [program checklist](references/program-review-checklist.md) before
    audits and the
    [master-publication ledger contract](references/master-publication-ledger.md)
-   before master-comment mutation.
+   before master-comment or missing-child mutation.
 4. Copy [the program report template](assets/program-delivery-report.md) to an
    ignored path such as
    `<workspace>/build/program-delivery/<owner>-<repo>-<number>.md`. Prove the
@@ -92,14 +92,15 @@ A merge-ready leaf is progress, not goal completion.
    prior green check proves only the old head/base combination. Never bulk-merge
    or bulk-refresh a queue whose earlier merges change later baselines.
 4. Run leaf whole-diff reviews to convergence, then review the cumulative
-   program state against merged work, in-flight heads, master invariants, and
-   the checklist. Give findings stable program IDs, fix every actionable item,
-   rerun affected validation, and record exact reviewed heads.
+   program state against already merged work, other in-flight heads, master
+   invariants, and the program checklist. Give findings stable program IDs, fix
+   every actionable item, rerun affected validation, and record exact reviewed
+   heads in the persistent report.
 5. After both leaf and cumulative reviews converge, run issue delivery's
-   latest-head/check/readiness section completely. Update the ignored matrix on
-   durable change. Each leaf ledger alone owns its PR writes; keep generic issue
-   bodies and incidental issues read-only. Publish the master summary only
-   through the master ledger's bound comment; verify rendering and avoid noise.
+   latest-head/check/readiness section completely. Update only ledger-owned leaf
+   PR bodies when durable state changes; generic master and leaf issue bodies
+   remain read-only. Publish the master summary only through the master ledger's
+   bound comment; verify rendering and avoid noise.
 
 ## Stop at every merge or human gate
 

@@ -12,7 +12,7 @@
 
 - Canonical ledger path:
 - Schema / generation / inode / canonical byte digest:
-- Goal authority / normalized objective SHA-256:
+- Goal authority / exact objective SHA-256:
 - Repository node / master node / authenticated actor:
 - Ordered leaf graph SHA-256:
 - Comment marker digest / phase / mutation kind:
@@ -21,6 +21,10 @@
 - Complete pagination observation:
 - Stable lock path / device / inode:
 - Current / next authority and graph-rekey phase:
+- Proposed child repository / exact title / body SHA-256 / parent node:
+- Duplicate-search query / stream digest / candidates / proven-missing:
+- Child create phase / intent digest / issue number / node / URL:
+- Native link phase / intent digest / relationship node:
 - Last CAS and durable-write result:
 
 This section never authorizes publication. The ignored machine-readable ledger

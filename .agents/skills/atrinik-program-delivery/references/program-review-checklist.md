@@ -15,7 +15,7 @@ cannot prove alone.
 - Are closed, transferred, superseded, and maintainer-attested items described
   accurately?
 - Does the machine ledger bind the exact repository/master nodes, durable goal
-  authority, authenticated actor, normalized objective digest, and complete
+  authority, authenticated actor, exact objective digest, and complete
   ordered leaf graph rather than trusting linkage, marker text, or the report?
 - Is every composed leaf ledger regular, no-follow, coordinate-exact, current,
   read-only, and limited to its declared position and owned artifacts?
@@ -48,6 +48,10 @@ cannot prove alone.
   identity, streaming limits, and ordered-graph same-node rekeying exact?
 - When no durable goal exists, do summaries remain local with no ledger or
   master-comment mutation?
+- Is a proposed child recorded with exact repository/title/body/parent bytes,
+  two stable complete duplicate scans, and separate create/link state slots?
+- After create or link becomes `in-flight`, does an absent result stop without
+  reposting until one exact issue or native relationship can be bound?
 
 ## Order and gates
 

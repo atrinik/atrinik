@@ -882,16 +882,16 @@ class AgentGuidanceTests(unittest.TestCase):
 
         for marker in {
             "<owner>-<repo>-<number>.ledger.json",
-            "GitHub linkage, marker text, the human report, a leaf ledger",
-            "Never adopt live text or a matching marker into an absent ledger",
+            "GitHub linkage, marker text, the report, a leaf ledger",
+            "Never adopt live text, an issue, a relationship, or a marker",
             "`<owner>-<repo>-<number>.ledger.lock`",
             "lock on the replaceable JSON inode is invalid",
             "schema_version: 1",
             "goal_thread_id",
             "exact UTF-8 objective returned by the goal API",
             "contiguous integers from 1",
-            "ordinary leaf-ledger progress does not rekey the marker",
-            "next_ordered_graph: null | [graph entry]",
+            "ordinary leaf progress does not rekey it",
+            "next_ordered_graph: null | [graph_entry]",
             "json.dumps(value, ensure_ascii=False",
             "<!-- atrinik-program-delivery:v1 sha256=<64 lowercase hex> -->",
             "final line of `intended_body`",
@@ -901,34 +901,42 @@ class AgentGuidanceTests(unittest.TestCase):
             "incomplete pagination and stops",
             "two consecutive complete scans",
             "newly visible exact result",
-            "## Ordered-graph rekey",
-            "never creates a new comment",
+            "## Ordered-graph same-node rekey",
+            "Graph changes never create a new comment",
             "`next_authority`/`next_ordered_graph`",
-            "Interruption must never permit `POST`",
+            "interruption must never permit POST",
+            "one proposed missing-child publication",
+            "zero occurrences of the",
+            "## Missing-child creation and native linking",
+            "never create again",
+            "never link again",
+            "ProgramLedgerModelTests",
         }:
             with self.subTest(marker=marker):
                 self.assertIn(marker, ledger)
 
         self.assertIn("references/master-publication-ledger.md", body)
-        self.assertIn("before master-comment mutation", body)
+        self.assertIn("before master-comment or missing-child mutation", body)
         self.assertLess(
             ledger.index("persist `planned` with exact intended body"),
-            ledger.index("persist `in-flight` before the first `POST`"),
+            ledger.index("persist `in-flight` before the first POST"),
         )
         self.assertLess(
-            ledger.index("persist `in-flight` before the first `POST`"),
+            ledger.index("persist `in-flight` before the first POST"),
             ledger.index("Call once"),
         )
         for marker in {
             "## Machine ledger mirror (evidence only)",
             "Canonical ledger path:",
-            "Goal authority / normalized objective SHA-256:",
+            "Goal authority / exact objective SHA-256:",
             "Remote comment node ID:",
             "## Leaf ledger composition",
             "Final master-comment generation / node / body digests:",
             "never authorizes publication",
             "Stable lock path / device / inode:",
             "Current / next authority and graph-rekey phase:",
+            "Child create phase / intent digest / issue number / node / URL:",
+            "Native link phase / intent digest / relationship node:",
         }:
             self.assertIn(marker, report)
         for marker in {
@@ -942,6 +950,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "stable non-replaced lock file",
             "ordered-graph same-node rekeying",
             "summaries remain local",
+            "separate create/link state slots",
         }:
             self.assertIn(marker, checklist)
         self.assertIn("machine-readable program ledger", interface)
