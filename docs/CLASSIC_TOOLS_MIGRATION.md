@@ -5,8 +5,8 @@ every retained top-level entry point in `atrinik/tools`. Its GPL audit baseline 
 `7777cf9f9ab6deb58de8a481dfccd6b05d86e3e1` and tree
 `daeb2eb5771d3f90ecf70ccfa2d9e1e4d768f6e4`; it is not the transitioned
 tree. The reviewed transition target is
-`256b39a62fdac5483abdaac05a8e670b371d4ba3` (tree
-`7653411466297ddf6b516fa51d45df07a1e38ee6`): MIT by default with a
+`0d6d802fcfb1879eeb6ccfcf4b369baee6b80812` (tree
+`3b1dcb8e56778602b2bb41883951df89de77852e`): MIT by default with a
 GPL-2.0-or-later `map-checker-qt/` exception. Complete-checkout metadata uses
 `LicenseRef-Atrinik-Tools-Mixed` until the checker is removed.
 The repository remains an explicit optional member of the classic cohort only;
