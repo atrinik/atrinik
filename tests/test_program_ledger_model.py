@@ -523,8 +523,9 @@ class ProgramLedgerModel:
     @staticmethod
     def stable_scan(
         cursors: list[str], node_ids: list[str], first_digest: str,
-        second_digest: str, complete: bool = True, pages: int = 1,
-        nodes: int = 0, body_bytes: int = 0, timed_out: bool = False,
+        second_digest: str, complete: bool = True, pages: int | None = None,
+        nodes: int | None = None, body_bytes: int | None = None,
+        timed_out: bool = False,
         body_sizes: list[int] | None = None,
     ) -> None:
         body_sizes = [] if body_sizes is None else body_sizes
@@ -532,9 +533,16 @@ class ProgramLedgerModel:
             not isinstance(cursors, list) or not isinstance(node_ids, list)
             or not isinstance(body_sizes, list)
             or any(not isinstance(value, str) for value in cursors + node_ids)
+            or any(
+                type(size) is not int or size < 0 or size > 65_536
+                for size in body_sizes
+            )
             or not isinstance(first_digest, str) or not isinstance(second_digest, str)
         ):
             raise StopClosed("pagination evidence has the wrong type")
+        pages = max(1, len(cursors)) if pages is None else pages
+        nodes = len(node_ids) if nodes is None else nodes
+        body_bytes = sum(body_sizes) if body_bytes is None else body_bytes
         if (
             type(complete) is not bool or type(timed_out) is not bool
             or not complete or timed_out
@@ -543,6 +551,9 @@ class ProgramLedgerModel:
             or pages < 0 or pages > 100
             or nodes < 0 or nodes > 10_000 or body_bytes < 0
             or body_bytes > 16 * 1024 * 1024
+            or pages != max(1, len(cursors)) or len(cursors) > 100
+            or nodes != len(node_ids) or len(node_ids) > 10_000
+            or body_bytes != sum(body_sizes)
             or any(
                 not isinstance(size, int) or isinstance(size, bool)
                 or size < 0 or size > 65_536 for size in body_sizes
@@ -1249,6 +1260,19 @@ class ProgramLedgerModelTests(unittest.TestCase):
             ProgramLedgerModel.stable_scan(["a", "a"], ["1"], "d", "d")
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.stable_scan([], [], "before", "after")
+        bypasses = (
+            {"cursors": [], "node_ids": [], "body_sizes": [65_536] * 257,
+             "body_bytes": 0},
+            {"cursors": [], "node_ids": [str(index) for index in range(10_001)],
+             "nodes": 0},
+            {"cursors": [str(index) for index in range(101)], "node_ids": [],
+             "pages": 0},
+        )
+        for bypass in bypasses:
+            with self.subTest(bypass=tuple(bypass)), self.assertRaises(StopClosed):
+                ProgramLedgerModel.stable_scan(
+                    bypass.pop("cursors"), bypass.pop("node_ids"), "d", "d", **bypass
+                )
 
     def test_ledger_size_and_nested_value_bounds_precede_parsing(self) -> None:
         maximum = ProgramLedgerModel.MAX_LEDGER_BYTES
