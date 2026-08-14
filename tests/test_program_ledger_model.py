@@ -368,6 +368,7 @@ class ProgramLedgerModel:
                 and value["count"] >= 0
                 and type(value["pages"]) is int and 1 <= value["pages"] <= 100
                 and type(value["nodes"]) is int and 0 <= value["nodes"] <= 10_000
+                and value["count"] <= value["nodes"]
                 and type(value["body_bytes"]) is int
                 and 0 <= value["body_bytes"] <= 16 * 1024 * 1024
                 and (
@@ -1806,6 +1807,59 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 hashlib.sha256(ProgramLedgerModel.canonical(corrupt_arm)).hexdigest(),
                 corrupt_arm["authority"],
             )
+
+        patch = ProgramLedgerModel()
+        patch.observe_comment()
+        patch.plan_comment()
+        self.refresh_before_arm(patch, "comment")
+        patch.execute(patch.arm("comment"))
+        self.observe_result(patch, "comment")
+        patch.bind_comment([self.exact_comment()])
+        patch.observe_comment()
+        patch.plan_comment()
+        corrupt_plan = copy.deepcopy(patch.record)
+        corrupt_plan["comment"]["plan_observation"].update(
+            nodes=0, terminal_cursor=None
+        )
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.resume(
+                corrupt_plan, 41, corrupt_plan["self_inode"],
+                hashlib.sha256(ProgramLedgerModel.canonical(corrupt_plan)).hexdigest(),
+                corrupt_plan["authority"],
+            )
+        self.refresh_before_arm(patch, "comment")
+        patch.arm("comment")
+        corrupt_armed = copy.deepcopy(patch.record)
+        corrupt_armed["comment"]["arm_observation"].update(
+            nodes=0, terminal_cursor=None
+        )
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.resume(
+                corrupt_armed, 41, corrupt_armed["self_inode"],
+                hashlib.sha256(ProgramLedgerModel.canonical(corrupt_armed)).hexdigest(),
+                corrupt_armed["authority"],
+            )
+
+        result = ProgramLedgerModel()
+        result.classify_child([])
+        result.plan_create()
+        self.refresh_before_arm(result, "create")
+        result.execute(result.arm("create"))
+        self.observe_result(result, "create")
+        for count, nodes in ((1, 0), (10_001, 10_000)):
+            corrupt_result = copy.deepcopy(result.record)
+            corrupt_result["observation"]["child"].update(
+                count=count, nodes=nodes,
+                terminal_cursor=None if nodes == 0 else "cursor",
+            )
+            with self.subTest(count=count, nodes=nodes), self.assertRaises(StopClosed):
+                ProgramLedgerModel.resume(
+                    corrupt_result, 41, corrupt_result["self_inode"],
+                    hashlib.sha256(
+                        ProgramLedgerModel.canonical(corrupt_result)
+                    ).hexdigest(),
+                    corrupt_result["authority"],
+                )
 
     def test_retry_epochs_and_prospective_semantics_fail_closed(self) -> None:
         patch = ProgramLedgerModel()
