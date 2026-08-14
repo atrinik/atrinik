@@ -67,7 +67,15 @@ input.
 
 Source provenance is also a cross-repository contract.
 [`PROVENANCE.md`](PROVENANCE.md) is the single exhaustive historical MIT
-grantor registry and evidence procedure. Exact independently separable Classic
+grantor registry and rights procedure. The coordinator also owns the only
+versioned public identity registry and schema under
+`governance/provenance-identities/`; components hold exact material scope and a
+full-commit reference rather than copied identities. Restricted mappings stay
+outside public Git while opaque, digest-bound attestations join an approved
+identity review to a destination record. The bounded validator resolves only
+size-limited blobs from the pinned local Git revision and fails closed on
+unsafe fields, stale/revoked records, version drift, or broken integrity.
+Exact independently separable Classic
 material proven to fall within an applicable approved historical grant,
 including its temporal and sole-original-authorship scope, may be inspected as
 source reference, copied, migrated or ported, translated or adapted, and
@@ -125,11 +133,13 @@ workspace/
   worktrees/<checkout>/<label>/      physical-checkout Git worktrees
   profiles/<name>.json               logical component -> checkout selectors
   build/profiles/<name>-<key>/       isolated sources, builds, and runtime
+  build/source-generations/<checkout>/<key>/ immutable primary exports
   build/npm-cache/                   shared package download cache
   build/worker-dependencies/<key>/   shared validated Worker installations
   build/compiler-cache/              bounded shared native compiler cache
   build/retention.json               optional strict build pin/rollback record
   topologies/<name>/                 supervised process state and rotated logs
+    temporary-states/<generation>/   disposable or retained exact state
   state/server/<name>/               persistent mutable server data
   states.json                        named external-state registry
 ~~~
@@ -182,56 +192,101 @@ side effect.
 
 `cleanup` is an explicit garbage-collection boundary, never an implicit step
 of initialization, synchronization, build, or startup. Default and explicit
-`--dry-run` modes are read-only. `--apply` first takes the exclusive mode of the
-repository-layout lock, then performs one complete inventory and size
-recomputation. Immediately before each removal it freshly revalidates that
-target's safety dependencies without rescanning unrelated report-only
-payloads; any new ambiguity fails closed. Build roots are removed before Git
-worktrees; the explicitly selected npm cache and safe prunable Git metadata
-come last. A race before the first mutation aborts the plan. A later failure
-stops the ordered sequence and reports completed reclamation without attempting
-to reconstruct generated data.
+`--dry-run` modes are read-only. `--apply` inventories once, then takes only the
+exact candidate leases and freshly revalidates that target immediately before
+removal. Busy or newly ambiguous candidates are preserved; completed removals
+are journaled before the ordered sequence continues.
 
-The repository-layout lock is a workspace-wide interprocess read/write boundary.
-Initialization, synchronization, worktree and profile mutation, cleanup apply,
-and repository migration take it exclusively. Builds, topology startup,
-foreground client and server runs, and scenario create/reset take it in shared
-mode while they consume selected checkout and profile coordinates. Independent
-build roots can therefore compile concurrently, while each root's existing
-exclusive build lock still serializes identical profile/key work. An exclusive
-writer cannot advance or remove a selected checkout until all readers exit. If
-the platform cannot provide a working advisory shared lock, the consuming
-operation fails closed.
+Ordinary operations use fair exact-coordinate leases. Workspace-local
+coordinates live below `workspace/leases/`; physical Git-administration,
+source, port, and persistent-reference coordination lives below the wrapper's
+common-Git `atrinik-resource-leases/`, so linked wrapper worktrees and relocated
+state roots cannot split exclusion. Profile, Git-admin, source, topology,
+scenario, state, build-root, and cache requests are deduplicated and sorted.
+Multi-source writers retry all-or-none, releasing earlier coordinates before
+waiting on a busy later source. A queued writer precedes later readers only for
+that coordinate, and waits longer than 10 seconds report its owner operation
+and supported recovery action.
 
-A supervised topology transfers its shared layout and exact build-root lock
-descriptors through the daemon supervisor into every service. Client runtimes
-retain links to selected client and sound checkouts, while server runtimes link
-selected server configuration and tool inputs. Inherited descriptors preserve
-both leases if the supervisor dies; topology shutdown terminates orphaned
-services and releases the last descriptors. A topology-unique inherited
-process-tree lease is also held as an advisory generation lock, so a topology
-name cannot restart until its prior process tree releases the lease. Shutdown
-uses the same lease identity to find and pidfd-signal surviving descendants
-without trusting recycled process or process-group numbers. Foreground client
-and server processes inherit the same applicable leases from the wrapper. The
-common command runner also inherits every active advisory-lock descriptor into
-build and scenario subprocesses, preserving layout, build-root, state,
-registry, and cache protection if their wrapper exits unexpectedly.
+Profile consumers lock the profile, derive the requested operation's transitive
+provider closure, acquire only those exact sources, revalidate, and capture
+immutable profile bytes, provider selections, Git identities, paths, HEADs,
+dirtiness, and filesystem identity. A target build exports each clean primary
+component subpath from the captured Git commit into an atomic, read-only source
+generation keyed by repository, branch, checkout, commit, tree, subpath, and
+generation schema. Reuse authenticates the marker, closed metadata, and full
+tree digest, then revalidates captured checkout, source, and common-Git
+filesystem identities. Published generations contain no links or hard links to
+mutable primary files. Every generation is revalidated after acquiring its
+shared pin and before source-lease handoff; build preparation then releases
+those primary source leases before configure/compile/test, while dirty
+sources, worktrees, and the Classic
+content publisher retain their exact live-source leases. `build all` uses the
+union of all target closures. Build metadata preserves both original source
+identity and immutable generation identity and never rereads a mutable profile
+generation. Publication and removal share every retained live source
+coordinate.
+Physical profile/scenario reference records make completed publications visible
+to cleanup and explicit removal from every relocated state root.
+Initial registry backfill publishes absent source paths as conservative
+historical references while holding the authored-record and exact source
+leases. It then marks that state root classified without rewriting or removing
+the profile or scenario. A later source at the same path remains protected
+across relocated roots. Exact lease contention propagates its coordinate,
+operation, owner metadata and recovery action; a record that changes between
+read and confirmation fails separately and leaves the backfill marker absent.
+Because an inert scenario can retain a pre-migration checkout name, a common-Git
+physical-reference registry lease spans the complete one-time classification;
+worktree removal and cleanup take it exclusively, so they cannot reach an
+unprocessed path under any current owner between publications. Backfill
+publishes each scenario's complete conservative path set once, keeping
+descriptor use and durable I/O bounded. An exclusive per-state-root registry
+lease serializes first-use backfills, and every waiter rechecks the completion
+marker before publishing, so a lagging constructor cannot regress a completed
+record.
 
-The layout lock is always outermost; private helpers never reacquire it. A
-direct build or foreground client then takes its build-root lock and subordinate
-cache locks; the foreground process retains that root lease. Topology startup
-takes the topology-operation lock, the server-state lock when needed, the
-build-root lock, and finally the port-allocation lock, and transfers the layout
-and build-root leases into its services.
+The common-Git `repository-layout.lock` is only the maintenance barrier for
+schema/layout migration apply or restore. Ordinary operations share it while
+active; an exclusive migration waits for them to drain. Migration publication
+keeps old and new profile sources conservatively referenced until the durable
+transition commits or rolls back.
+
+A supervised topology stages its complete executable closure below a random
+topology-owned generation directory before publishing schema-2 spec/status.
+The sealed generation contains copied executables, plugins, client data,
+sound, server configuration and tools, content, resources, and generated maps;
+descriptor-relative no-follow copying rejects links, special files, and source
+identity changes. Its manifest binds topology/profile/provider identity,
+source commits and trees, build metadata, per-file digests, external state, and
+generation. The server state link is the only mutable external runtime input.
+The server's generated asset listing and compressed transport cache occupy a
+generation-named directory below that same exclusively leased state; a sealed
+client-map subtree is copied beside its writable `data` sibling and bound into
+the manifest, while all other asset inputs remain copied into the immutable
+runtime generation. The server receives that exact state-owned asset root.
+After publication, services retain no repository-layout or mutable build-root
+lease. The supervisor and guardian retain exact state, runtime-generation,
+process-tree, and generation-specific port-reservation leases; shutdown uses
+those identities without trusting recycled process or process-group numbers.
+Services inherit only the process-tree identity needed for exact descendant
+recovery. Foreground runs use an equivalent temporary sealed generation and
+retain only its lease plus server state when applicable.
+The common command runner still inherits active advisory-lock descriptors into
+build and scenario subprocesses so an interrupted wrapper cannot strand an
+unprotected mutation.
+
+Lease order is maintenance (migration only), registry, profile, Git admin,
+source, topology, scenario, state, build root, then cache. Runtime publication
+releases profile/source/build preparation leases after sealing the generation.
+Topology startup transfers only exact state, runtime-generation, process-tree,
+and generation-specific port leases into the supervisor/guardian; foreground
+processes retain only their runtime generation and server state when applicable.
 Independent CMake roots briefly serialize first-use compiler-cache marker and
 metadata publication, then release that cache lock before compilation.
-Scenario create takes the scenario-operation lock, then build-root and
-state-registry locks; reset takes scenario-operation, state, and build-root locks.
-Foreground server launch takes state before build-root. Layout writers take the
-exclusive layout lock before any cleanup build-lock probes or mutation-specific
-work. Operations use only the applicable suffix of these orders and never acquire
-the layout lock from inside a finer-grained lock.
+Scenario create/reset use a per-scenario operation coordinate rather than one
+global scenario lock. Foreground server launch takes state before build-root.
+Operations use only the applicable ordered suffix and never acquire a broader
+resource from inside a finer one.
 
 Inventory records are stable-sorted and carry a kind, physical owner and
 repository, exact path, no-follow allocated size, age and age basis,
@@ -290,6 +345,14 @@ locks, registered Git worktrees, and exact absolute roots in strict schema-1
 helper repeats containment, symlink, marker, schema, and purpose validation
 immediately before deletion.
 
+Commit-keyed source generations have closed repository/branch/checkout/tree/
+subpath metadata and a complete tree digest. Builds hold a per-key shared lock;
+default `builds` cleanup revalidates identity and age under its exclusive side
+before bounded removal. First-use container publication is checkout-serialized.
+Interrupted staging remains a recognized child of its marker-owned container,
+is protected while its generation lock is busy, and becomes independently
+reclaimable after the normal grace period.
+
 The npm and compiler caches have exact purpose markers and atomically refreshed
 `.atrinik-cache.json` timestamps. The compiler cache metadata also fixes its
 5 GiB bound. Both scopes are opt-in. One pre-marker npm cache at its fixed path
@@ -299,8 +362,25 @@ adopts the marker before calling the common removal helper. No other unmarked
 path receives that exception. Unmarked profile roots, unknown
 `workspace/build` children, and the mixed top-level `build/` tree remain
 visible report-only `unmanaged-build` records. Cleanup never targets profiles,
-scenarios, state, topology records/logs, migration archives/evidence, branches,
-Git objects, or arbitrary unmarked paths.
+scenarios, state, migration archives/evidence, branches, Git objects, or
+arbitrary unmarked paths. Topology records and logs belong only to the separate
+opt-in `topologies` scope, which is excluded from the default and `all`
+expansion.
+
+Topology cleanup inventories only direct marker-owned children of
+`workspace/topologies/` and uses the runtime status validator as the authority
+for control generation, liveness, process-tree/runtime/port leases, and legacy
+identity. It reports a no-follow metadata identity and the complete set of
+paths in the topology directory. Orderly records use `stopped_at`; legacy stale
+records without it use the newest tree mtime. Only old `exited` or `stale`
+records with unreachable controls and every applicable lease released are
+eligible. Apply takes the exact topology coordinate lease and then the topology
+operation lock, and repeats ownership, generation, lease, timestamp, and
+tree-identity validation before descriptor-bounded removal. This makes a
+concurrent `up`, `down`, `ps`, replacement, link, or file change fail closed.
+The removal boundary is exactly the topology directory, including its transient
+runtime snapshots. External persistent state, profiles, scenarios, source, and
+build roots are not cleanup targets.
 
 Worker dependency entries are direct key children of the marker-owned
 `worker-dependencies` container; its reserved `.transactions` child owns
@@ -377,7 +457,12 @@ state directories, build trees, collected runtimes, scenario data, topology
 records, or logs. Typed state ownership is a separate migration boundary.
 Scenario metadata records its stack and exact checkout/component/source
 providers. An old scenario without that immutable identity is kept as an inert
-record and cannot inherit the current meaning of a reused profile name.
+record and cannot inherit the current meaning of a reused profile name. Global
+scenario inventory isolates resolution and validation failures per record and
+emits only a stable inert-reason code; it never rewrites the scenario, profile,
+state, worktree, or mutable data while listing. Shared workspace registries are
+validated once and still fail the complete inventory closed. Exact scenario
+operations validate the complete record and fail closed.
 
 Content selector retirement has its own preview/apply/audit transaction. Its
 certified anchors bind the merged consolidation commits on `main` and the final
@@ -588,19 +673,35 @@ and the expected `incuna_-1` pair exists. It then installs the marker-owned
 cache atomically, preserving the previous valid cache on failure. Cache
 metadata records provider, repository, branch, checkout, source, path, and
 commit coordinates for the server dependency closure consumed by the
-worldmaker. Unrelated roles in the common profile build root do not invalidate
-that cache. It is reusable only for clean input checkouts with an exact metadata
+worldmaker. Roles outside that target closure do not invalidate that cache. It
+is reusable only for clean input checkouts with an exact metadata
 match; dirty inputs deliberately regenerate.
 
 ## Runtime and state
 
 For the currently runnable classic profile, server launch preparation assembles
 a disposable working directory with links to the selected build, plugins,
-collected Classic-target `content@main`, resources, configuration, GPL tools, and named
-persistent state. GPL tools are not part of the replacement/default role graph.
-First use initializes a state atomically from the selected server's
-`install_data`; an existing directory is validated and never overlaid. State
-inside a server source worktree is rejected. Replacement runtime preparation
+collected Classic-target `content@main`, resources, configuration, GPL tools,
+and one explicit state policy. GPL tools are not part of the
+replacement/default role graph. `temporary` allocates a fresh topology-
+generation-owned state, `named` selects an existing registered persistent
+state, and `default` explicitly identifies the legacy managed persistent
+default. Scenario state remains registered and scenario-owned rather than
+becoming a fourth generic topology policy. Omitting a selector retains the
+legacy `default` behavior for human compatibility; automation can select
+`temporary` without creating a registry entry.
+
+Temporary initialization copies the exact selected server generation's
+validated `install_data` into a unique sibling below the marker-owned topology,
+writes topology/generation, stack/provider, server-coordinate, creation-time,
+path, device, and inode identity, validates the complete state shape, and uses
+an atomic no-replace rename to publish it. Named/default first use follows the
+same stage/validate/no-replace rule. Existing paths are never overlaid, state
+inside a server source worktree is rejected, existing symlinked paths fail
+closed, and an implementation marker rejects a known incompatible server
+format. First supervised use atomically binds an unmarked historical directory
+to the selected implementation under the exact state lock, so a later provider
+cannot silently reuse an untyped directory. Replacement runtime preparation
 remains unavailable until its native component contracts land.
 
 The server's configured `assetspath` is a disposable transport-neutral runtime
@@ -616,51 +717,151 @@ topology retention and are replaced on the next launch of that topology name.
 The coordinator takes an advisory exclusive lock next to the state directory
 before build/runtime preparation and holds it for the lifetime of a launched
 server. Profile builds have their own blocking lock, and server launch views are
-keyed by state path. Processes started outside the coordinator do not
+keyed by state path and, for existing persistent directories, by physical
+device/inode identity so alternate mounted names cannot obtain distinct
+leases. Physical state locks are flat entries in the already classified lease
+namespace, so replacing a dynamically created child directory cannot fork the
+identity coordinate. Processes started outside the coordinator do not
 participate in the state lock, so operators must not point those processes at
-the same state concurrently.
+the same state concurrently. Startup also opens the selected state directory
+without following links, verifies its recorded device/inode identity, and hands
+that descriptor and its physical-identity lease to the supervisor and guardian.
+The server consumes the pinned directory, including pre-option configuration
+reads and disposable runtime output, through its inherited descriptor even if
+an external path component is replaced after admission. Rollback removes that
+output relative to the same pinned descriptor and never follows the replaced
+lexical path. Before creating a topology-owned mutable output, startup durably
+records its generation and state identity; after creation it adds the output
+inode. A restart either adopts that evidence from a published status record or
+completes the exact tombstone transaction before creating another generation,
+so a hard interruption cannot silently orphan the output.
+
+The current topology record and human/JSON status surfaces retain the state
+policy, owner, exact path identity, implementation, and lifecycle. A same-state
+conflict names the owning topology and generation when that identity is
+observable. Different named states and generation-owned temporary states use
+different exact locks and can overlap.
 
 Profiles are stack-aware source-topology definitions for supervised runtime as
-well as builds. For a complete Classic profile, `up` resolves the common
-manifest-derived build-root selection once while building only the requested
-service targets; a partial profile retains the requested service's dependency
-closure. It records the exact paths, commits, and build root, prepares the same
+well as builds. `up` resolves the requested services' combined transitive
+provider closure once and builds only those service targets; unrelated complete
+profile roles do not enter the build key. It records the exact paths, commits,
+and target-specific build root, prepares the same
 isolated views used by foreground launches, and hands the state-lock file
 descriptor through a short forking bootstrap to a detached native supervisor
 and its server child. The lock remains held for the server lifetime without a
 long-lived invoking CLI process.
 
-The supervisor owns child lifetimes and size-bounded rotating logs. Status
-records include Linux process start ticks in addition to PIDs; `ps` and `down`
-require both to match, preventing an old status file from targeting an
-unrelated reused PID. Shutdown signals the supervisor, which gracefully stops
-children before releasing state. For a paired topology it starts the server
+The supervisor owns child lifetimes and size-bounded rotating logs. Each
+current status record binds the namespace-local supervisor and service
+PID/start-tick coordinates to one random topology generation and mode-0600
+filesystem Unix control endpoint. `ps` probes that name/generation endpoint,
+so another supported sandbox sharing the workspace can distinguish `live`,
+`exited`, `stale`, and fail-closed `unreachable` processes without resolving
+their PID namespace. The endpoint uses a short generation-derived name in the
+shared workspace, avoiding topology-name and ordinary managed-worktree path
+growth. The independently observable process-tree lease
+is bound to the status generation and exact file identity. Missing, replaced,
+or malformed current leases fail closed instead of allowing topology-name
+reuse while holders of an unlinked lease remain alive.
+
+`down` requests shutdown only through an exact matching current-generation
+endpoint; it never signals a namespace-local, recycled, or unrelated PID.
+Legacy records retain the PID/start-tick fallback. A same-namespace guardian
+holds the process-tree generation until every inherited descendant is gone. If
+the supervisor dies, pipe closure makes the guardian terminate exact lease
+holders and retain the generation until their absence is proven.
+Runtime-generation and state leases remain held by the supervisor and guardian
+rather than service-inherited, so a descendant that closes its process-tree
+identity cannot retain those resources. The guardian releases them only after exact
+process-tree recovery completes. Another namespace waits or fails closed with
+the owning topology and recovery action. Normal shutdown asks the supervisor to
+gracefully stop children before releasing state. After a confirmed clean
+`down`, the caller reacquires and revalidates the exact temporary-state identity
+after every process/state lease is released, records a removal-pending
+lifecycle, then removes only a disposable state and finalizes it as removed.
+An interrupted removal is safe to retry without requiring another live
+generation. Clean proof includes expected service exit status, absence of forced
+termination, and exact lease release; the durable proof permits a later
+`down` invocation to finish an interrupted removal transaction.
+`down --retain-state` instead records a retained lifecycle. `state
+promote` requires that stopped retained identity, serializes
+topology/state/registry mutation, pins and revalidates the retained directory,
+publishes descriptor-relative provenance plus a promotion-pending record, and
+atomically adds the exact path under a previously unused persistent name before
+finalizing it as promoted. A raced path replacement rolls registry publication
+back before returning an error. Creation metadata remains immutable and status owns
+the mutable lifecycle, so interruption after either durable promotion write is
+recoverable by retry. Independent immutable promotion provenance binds the
+registered name and path to the source topology generation, including while the
+origin status is temporarily unavailable or promotion is pending. Its
+persistent policy therefore never collapses to generic external ownership. It
+never overwrites a name or directory. A crash,
+unreachable control endpoint, failed post-spawn startup, malformed identity,
+linked path, uncertain lock, or incomplete promotion remains on disk for
+diagnosis. Foreground and scenario state keep their separate lifecycles. For a
+paired topology it starts the server
 first, waits for its fingerprint and final ready signal, and then pins the
-client to that authenticated loopback endpoint. Available UDP ports are
-allocated under a workspace-wide lock, or callers may request an explicit
-port. Each runtime name owns an isolated persistent client configuration base.
+client to that authenticated loopback endpoint. Omitted ports and explicit port
+zero use automatic allocation. A short workspace allocator transaction probes a
+candidate and publishes its unique immutable generation lease, then releases the
+allocator before state, build, runtime-copy, supervisor-launch, or readiness
+work. Explicit nonzero ports bypass the allocator and contend only on their own
+short per-port transaction. Each mode-0600 generation record binds port,
+topology, generation, path, verified directory identity, and lease identity;
+descriptor-relative no-follow opens, single-link validation, and a final
+supervisor identity check reject symlink, hard-link, record-replacement, and
+generation substitution. The supervisor revalidates kernel availability before
+server launch and reports an external bind winner as a bounded startup failure.
+The short per-port transaction descriptor is released before preparation. An
+immutable generation-specific descriptor is retained by the supervisor and
+guardian, never the service, until orderly shutdown or exact process-tree
+recovery. Shared status probes of released generations neither conflict with
+one another nor resemble an owner. Same-port contenders fail with the exact
+owning topology/generation and a truthful retry action;
+status reports the reservation identity and retained/released disposition.
+Immutable generation records are never overwritten or reclaimed from PID
+observations. Lock order is repository layout, topology operation/process-tree
+identity, automatic allocator when applicable, per-port transaction,
+generation lease, state, then build root; independent exact ports therefore
+overlap through readiness. Each runtime name owns an isolated persistent client
+configuration base.
 A supervised client also receives a bounded, process-only launch label naming
 its topology and profile; a foreground client receives its profile and direct
 run mode. The client uses this label only for its native window title. It is
 not part of persisted settings, package or protocol identity, or network
 metadata, and unmanaged launches receive no label.
-A server topology copies the collected-content and staged-resource caches after
-the shared incremental build. The profile build retains its source caches, and
-each topology owns independent immutable-at-startup copies, so later builds and
-other topology removal or mutation cannot change the filesystem seen by a
-running process. Content, resources, and generated client maps are staged and
-installed as one runtime-input transaction, so a copy or validation failure
-before installation retains the complete previous snapshot set and status.
-Snapshot traversal opens every directory and regular file descriptor-relative
-with no-follow semantics and rejects identity changes, links, and special files;
-retained descriptors bind a complete source/destination comparison through
-installation.
-Atomic replacement keeps at most one marker-owned prior-output backup; failed
-reclamation is retried before another replacement may change the output, and
-an interrupted move is restored before a later replacement attempt.
-Because the caches remain below the marker-owned profile build, existing build
-retention and marker-safe cleanup own their lifecycle; topology copies follow
-topology retention.
+Each successful startup atomically renames a new sealed directory into
+`generations/<generation>` and publishes status only afterward. Failure removes
+only its exact staging directory and leaves every previously complete stopped
+generation and status intact. Distinct topology names and generations remain
+independent while a target-specific build root is rebuilt or selected worktrees
+advance. Generation directories stay with the marker-owned topology record so
+the preview-first topology reclamation contract in #397 can remove only an
+inactive, released, fully validated record; malformed, linked, unreachable, or
+retained generations fail closed.
+Generation-owned state has its own `temporary-states` cleanup scope. Dry-run
+inventory reports exact topology/generation ownership and only classifies an
+old disposable state as eligible after proving its markers, metadata, path
+identity, registry absence, stopped matching topology generation, and released
+process-tree, runtime-bundle, port-reservation, and exact state leases.
+Apply repeats those checks while holding the topology operation and state
+locks. The topology root, `temporary-states` container, state, and lease are
+opened as one no-follow, same-mount descriptor chain; apply retains that chain
+through descriptor-relative rename and deletion. Registry exclusion compares
+physical directory identity as well as the canonical path. Owned deletion
+first moves each verified entry to a private
+no-replace tombstone and rechecks its inode before unlinking. Live, unreachable,
+busy, linked, malformed, registered, retained,
+promoted, or uncertain state is protected; missing or replaced lease evidence
+fails closed and cleanup never performs an implicit `down`.
+Persistent-state runtime outputs have a separate durable pending/complete
+cleanup record. It binds every output path to its creation inode before
+deletion, renames the exact inode to a deterministic tombstone before removing
+its contents, and lets a retry distinguish a completed removal from unresolved
+ownership evidence. A missing or arbitrarily renamed output remains pending;
+the wrapper never reacquires deletion ownership from a mutable pathname.
+Topology-record cleanup also protects an identity-derived removal tombstone.
 A topology may select one service, and distinct runtime names permit concurrent
 combinations as long as their server ports and mutable state directories do not
 conflict. When replacement runtime support lands, a concurrent `classic` and
@@ -715,6 +916,25 @@ CMake, Python collection, sound-tree generation, npm, and runtime commands
 execute code from the
 selected profile. Review a pull request before selecting its worktree.
 Profiles do not provide a security sandbox.
+
+MCP information access has a separate versioned contract under
+`mcp/contract/v1`; no production server is enabled by that contract alone.
+Future local adapters receive an explicit configured root and resolve only
+manifest or wrapper-registry identities. MCP Roots, implicit CWD, caller paths,
+tool annotations, prompts, and confirmation UI are not authorization. Every
+result is revision/worktree/dirty/authorization-qualified, schema-validated,
+deterministically paginated, and hard-capped. Reads use descriptor-relative
+no-follow regular-file inspection, and initial caches are bounded memory whose
+keys include every effective parameter and identity. Source, guidance, authored
+content, issues, comments, logs, and tool metadata remain untrusted data.
+
+The contract admits read-only compare, inspect, list, read, search, and validate
+operations. It excludes arbitrary paths, credentials, mutable state, ignored or
+generated state, command execution, Git/workspace/runtime/GitHub mutation,
+source upload, and persistent cross-worktree indexes. It checks distinct tool
+catalog, schema, instruction, routine-result, and hard output ceilings while
+continuing to enforce the separate guidance-inventory budget. Direct CLI, `rg`,
+Git, `gh`, and browser paths are the offline fallback and source of truth.
 
 Shell completion is a separate read-only path ahead of `Workspace`
 construction and normal command dispatch. One bounded line-oriented protocol

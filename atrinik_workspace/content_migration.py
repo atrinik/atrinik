@@ -2,21 +2,38 @@ from __future__ import annotations
 
 import base64
 import binascii
+from contextlib import ExitStack
 from datetime import datetime, timezone
-import fcntl
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
-import stat
 import subprocess
 import tempfile
-from typing import Any, TextIO
+from typing import Any, Callable
 
-from .locking import inherit_lock_fds
-from .model import WorkspaceError, atomic_json, load_json
-from .process_tree import holders_exist
+from .locking import (
+    LockBusyError,
+    active_lock_fds,
+    exclusive_layout_lock,
+    layout_writer_intent_path,
+    layout_writer_pending_path,
+)
+from .model import (
+    AtomicJsonCommitUncertain,
+    JsonUnlinkCommitUncertain,
+    WorkspaceError,
+    durable_atomic_json,
+    load_json,
+    unlink_validated_json,
+)
+from .process_tree import (
+    bound_lease_locked,
+    control_socket_path,
+    holders_exist,
+    lease_locked,
+)
 from .sound import validate_release_coordinates
 from .supervisor import process_matches
 
@@ -63,6 +80,12 @@ def _certified_parity() -> dict[str, str]:
     }
 
 
+def _durable_unlink(path: Path, *, missing_ok: bool = False) -> None:
+    if missing_ok and not path.exists() and not path.is_symlink():
+        return
+    unlink_validated_json(path, lambda _value: None)
+
+
 def _git(path: Path, *arguments: str, check: bool = True) -> str:
     try:
         result = subprocess.run(
@@ -70,7 +93,7 @@ def _git(path: Path, *arguments: str, check: bool = True) -> str:
             check=check,
             capture_output=True,
             text=True,
-            pass_fds=(),
+            pass_fds=active_lock_fds(),
         )
     except FileNotFoundError as error:
         raise WorkspaceError("required command not found: git") from error
@@ -90,7 +113,7 @@ def _git_succeeds(path: Path, *arguments: str) -> bool:
             check=False,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            pass_fds=(),
+            pass_fds=active_lock_fds(),
         ).returncode == 0
     except FileNotFoundError as error:
         raise WorkspaceError("required command not found: git") from error
@@ -146,24 +169,17 @@ def _atomic_bytes(path: Path, value: bytes) -> None:
         raise
 
 
-def _open_layout_lock(path: Path) -> TextIO:
-    flags = os.O_RDWR | os.O_CREAT | os.O_CLOEXEC
-    if hasattr(os, "O_NOFOLLOW"):
-        flags |= os.O_NOFOLLOW
-    try:
-        descriptor = os.open(path, flags, 0o600)
-    except OSError as error:
-        raise WorkspaceError(f"cannot open repository layout lock {path}: {error}") from error
-    if not stat.S_ISREG(os.fstat(descriptor).st_mode):
-        os.close(descriptor)
-        raise WorkspaceError(f"repository layout lock is not a regular file: {path}")
-    return os.fdopen(descriptor, "a+")
-
-
 class ContentMigration:
     """Retire active ``content-1x`` selectors without rewriting history."""
 
-    def __init__(self, repository_root: Path, workspace_paths: Any, manifest: Any):
+    def __init__(
+        self,
+        repository_root: Path,
+        workspace_paths: Any,
+        manifest: Any,
+        physical_lock_path: Path,
+        reference_publisher: Callable[[dict[str, tuple[bytes, bytes]] | None], None],
+    ):
         self.repository_root = Path(repository_root).resolve()
         self.paths = workspace_paths
         self.manifest = manifest
@@ -172,6 +188,8 @@ class ContentMigration:
         self.pending_path = self.workspace / CONTENT_MIGRATION_PENDING
         self.canonical = self.repository_root / "content"
         self.legacy = self.repository_root / "content-1x"
+        self.physical_lock_path = Path(physical_lock_path)
+        self.reference_publisher = reference_publisher
 
     def execute(self, mode: str) -> dict[str, Any]:
         if mode not in {"dry-run", "apply", "audit", "restore"}:
@@ -186,25 +204,69 @@ class ContentMigration:
 
     def _locked_apply(self) -> dict[str, Any]:
         lock_path = self.workspace / "repository-layout.lock"
-        with _open_layout_lock(lock_path) as lock, inherit_lock_fds(lock):
-            try:
-                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except BlockingIOError:
-                plan = self._inspect()
-                plan["refusals"].append(
-                    _refusal(
-                        "repository_layout_busy",
-                        "the repository layout is in use by another wrapper operation",
-                        "wait for that operation to finish and rerun the migration",
-                    )
+        lock_stack = ExitStack()
+        try:
+            lock_stack.enter_context(
+                exclusive_layout_lock(
+                    self.physical_lock_path,
+                    "physical repository layout",
+                    nonblocking=True,
                 )
-                plan["status"] = "refused"
-                return plan
+            )
+            lock_stack.enter_context(
+                exclusive_layout_lock(
+                    lock_path, "repository layout", nonblocking=True
+                )
+            )
+        except LockBusyError:
+            lock_stack.close()
+            plan = self._inspect()
+            plan["refusals"].append(
+                _refusal(
+                    "repository_layout_busy",
+                    "the repository layout is in use by another wrapper operation",
+                    "wait for that operation to finish and rerun the migration",
+                )
+            )
+            plan["status"] = "refused"
+            return plan
+        with lock_stack:
             if self.record_path.is_file() and not self.record_path.is_symlink():
                 result = self._audit()
                 if result["status"] == "complete":
+                    self.reference_publisher(None)
+                    if self.pending_path.exists() or self.pending_path.is_symlink():
+                        def validate_committed_pending(value: Any) -> None:
+                            if not isinstance(value, dict):
+                                raise WorkspaceError("pending migration journal is invalid")
+                            expected_keys = (
+                                set(result) - {"applied_at", "restore"}
+                            ) | {"started_at"}
+                            if set(value) != expected_keys:
+                                raise WorkspaceError(
+                                    "pending migration journal has unexpected fields"
+                                )
+                            if value["status"] != "pending" or not isinstance(
+                                value["started_at"], str
+                            ):
+                                raise WorkspaceError(
+                                    "pending migration journal state is invalid"
+                                )
+                            ignored = {"status", "started_at"}
+                            for key, pending_value in value.items():
+                                if key in ignored:
+                                    continue
+                                if key not in result or result[key] != pending_value:
+                                    raise WorkspaceError(
+                                        "pending journal does not match the committed migration"
+                                    )
+
+                        unlink_validated_json(
+                            self.pending_path, validate_committed_pending
+                        )
                     result["status"] = "already-applied"
                 elif result["status"] == "restored":
+                    self.reference_publisher(None)
                     result["status"] = "refused"
                     result["refusals"] = [
                         _refusal(
@@ -249,22 +311,35 @@ class ContentMigration:
 
     def _locked_restore(self) -> dict[str, Any]:
         lock_path = self.workspace / "repository-layout.lock"
-        with _open_layout_lock(lock_path) as lock, inherit_lock_fds(lock):
-            try:
-                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except BlockingIOError:
-                return {
-                    "migration": CONTENT_MIGRATION_NAME,
-                    "schema_version": CONTENT_MIGRATION_SCHEMA_VERSION,
-                    "status": "refused",
-                    "refusals": [
-                        _refusal(
-                            "repository_layout_busy",
-                            "the repository layout is in use by another wrapper operation",
-                            "wait for that operation to finish and rerun the restore",
-                        )
-                    ],
-                }
+        lock_stack = ExitStack()
+        try:
+            lock_stack.enter_context(
+                exclusive_layout_lock(
+                    self.physical_lock_path,
+                    "physical repository layout",
+                    nonblocking=True,
+                )
+            )
+            lock_stack.enter_context(
+                exclusive_layout_lock(
+                    lock_path, "repository layout", nonblocking=True
+                )
+            )
+        except LockBusyError:
+            lock_stack.close()
+            return {
+                "migration": CONTENT_MIGRATION_NAME,
+                "schema_version": CONTENT_MIGRATION_SCHEMA_VERSION,
+                "status": "refused",
+                "refusals": [
+                    _refusal(
+                        "repository_layout_busy",
+                        "the repository layout is in use by another wrapper operation",
+                        "wait for that operation to finish and rerun the restore",
+                    )
+                ],
+            }
+        with lock_stack:
             return self._restore()
 
     def _inspect(self) -> dict[str, Any]:
@@ -814,8 +889,42 @@ class ContentMigration:
                             or not start.isdigit()
                         ):
                             raise WorkspaceError("invalid topology process identity")
-                        if process_matches(pid, start):
+                        if value.get("control") is None and process_matches(pid, start):
                             running.append(pid)
+                    lease_path = directory / "process-tree.lease"
+                    if lease_path.is_symlink():
+                        raise WorkspaceError("invalid topology process-tree lease")
+                    control = value.get("control")
+                    if control is not None:
+                        if (
+                            not isinstance(control, dict)
+                            or set(control)
+                            != {"socket", "generation", "lease"}
+                            or not isinstance(control.get("generation"), str)
+                            or re.fullmatch(
+                                r"[0-9a-f]{64}", control["generation"]
+                            )
+                            is None
+                            or control.get("socket")
+                            != str(
+                                control_socket_path(
+                                    directory, control["generation"]
+                                )
+                            )
+                            or not isinstance(control.get("lease"), dict)
+                        ):
+                            raise WorkspaceError(
+                                "invalid topology control identity"
+                            )
+                        lease_active = bound_lease_locked(
+                            lease_path,
+                            control["generation"],
+                            control["lease"],
+                        )
+                    else:
+                        lease_active = (
+                            lease_path.is_file() and lease_locked(lease_path)
+                        )
                     affected = (
                         value.get("profile") in changed_profiles
                         or "content-1x" in json.dumps(value, sort_keys=True)
@@ -827,10 +936,10 @@ class ContentMigration:
                             "profile": value.get("profile"),
                             "affected": affected,
                             "running_pids": running,
-                            "status": "blocked" if affected and running else "historical-inert",
+                            "status": "blocked" if affected and (running or lease_active) else "historical-inert",
                         }
                     )
-                    if affected and running:
+                    if affected and (running or lease_active):
                         refusals.append(
                             _refusal(
                                 "live_topology",
@@ -846,13 +955,16 @@ class ContentMigration:
                             "stop or repair the topology before migration",
                         )
                     )
+        layout_lock = self.workspace / "repository-layout.lock"
         lock_roots = [
-            self.workspace / "repository-layout.lock",
-            Path(self.paths.builds) / "locks",
+            (layout_lock, False),
+            (layout_writer_intent_path(layout_lock), False),
+            (layout_writer_pending_path(layout_lock), False),
+            (Path(self.paths.builds) / "locks", True),
         ]
-        for root in lock_roots:
+        for root, allow_directory in lock_roots:
             if root.is_symlink() or root.exists() and not (
-                root.is_file() or root.is_dir()
+                root.is_file() or allow_directory and root.is_dir()
             ):
                 resources["locks"].append(
                     {"path": str(root), "active": True, "status": "unsafe"}
@@ -869,7 +981,7 @@ class ContentMigration:
                 [root]
                 if root.is_file()
                 else sorted(root.glob("*"))
-                if root.is_dir()
+                if allow_directory and root.is_dir()
                 else []
             )
             for path in paths:
@@ -905,11 +1017,21 @@ class ContentMigration:
             "status": "pending",
             "started_at": datetime.now(timezone.utc).isoformat(),
         }
-        atomic_json(self.pending_path, journal)
+        durable_atomic_json(self.pending_path, journal)
         applied_profiles: list[dict[str, Any]] = []
         applied_moves: list[dict[str, Any]] = []
         published = False
         try:
+            self.reference_publisher(
+                {
+                    Path(row["path"]).stem: (
+                        base64.b64decode(row["original_base64"], validate=True),
+                        base64.b64decode(row["replacement_base64"], validate=True),
+                    )
+                    for row in inspection["profiles"]
+                    if row["status"] == "rewrite"
+                }
+            )
             for move in inspection["worktree_moves"]:
                 source, destination = self._managed_worktree_paths(
                     Path(move["source"]).name
@@ -947,26 +1069,48 @@ class ContentMigration:
                     ),
                 },
             }
-            atomic_json(self.record_path, record)
-            published = True
             try:
-                self.pending_path.unlink()
-            except OSError:
+                durable_atomic_json(self.record_path, record)
+            except AtomicJsonCommitUncertain:
+                published = True
+                raise
+            else:
+                published = True
+            self.reference_publisher(None)
+            try:
+                _durable_unlink(self.pending_path)
+            except JsonUnlinkCommitUncertain as error:
                 return {
                     **record,
-                    "pending_journal_retained": str(self.pending_path),
+                    "pending_journal_removed_durability_uncertain": str(error),
                 }
+            except WorkspaceError as error:
+                field = (
+                    "pending_journal_retained"
+                    if self.pending_path.exists() or self.pending_path.is_symlink()
+                    else "pending_journal_removed_durability_uncertain"
+                )
+                value = (
+                    str(self.pending_path)
+                    if field == "pending_journal_retained"
+                    else str(error)
+                )
+                return {**record, field: value}
             return record
         except BaseException as error:
             if published:
                 raise WorkspaceError(
                     "content migration completed and its durable record was published, "
                     f"but final journal cleanup failed: {error}; preserve {self.record_path} "
-                    f"and {self.pending_path} and run --audit"
+                    f"and {self.pending_path} and rerun --apply"
                 ) from error
             rollback_errors = self._rollback(applied_profiles, applied_moves)
+            try:
+                self.reference_publisher(None)
+            except WorkspaceError as publish_error:
+                rollback_errors.append(str(publish_error))
             if not rollback_errors:
-                self.pending_path.unlink(missing_ok=True)
+                _durable_unlink(self.pending_path, missing_ok=True)
             detail = f"content migration failed: {error}"
             if rollback_errors:
                 detail += "; rollback failed: " + "; ".join(rollback_errors)
@@ -1267,7 +1411,21 @@ class ContentMigration:
             return {**audit, "status": "refused", "resources": resources, "refusals": refusals}
         restored_profiles: list[dict[str, Any]] = []
         restored_moves: list[dict[str, Any]] = []
+        record_visible = False
         try:
+            # Retain both durable generations before changing either profiles
+            # or worktree paths. A crash at any later instruction therefore
+            # leaves cleanup conservatively protecting both sides.
+            self.reference_publisher(
+                {
+                    Path(row["path"]).stem: (
+                        base64.b64decode(row["original_base64"], validate=True),
+                        base64.b64decode(row["replacement_base64"], validate=True),
+                    )
+                    for row in audit["profiles"]
+                    if row.get("status") == "rewrite"
+                }
+            )
             for row in audit["profiles"]:
                 if row.get("status") != "rewrite":
                     continue
@@ -1296,12 +1454,29 @@ class ContentMigration:
                 "restored_at": datetime.now(timezone.utc).isoformat(),
                 "refusals": [],
             }
-            atomic_json(self.record_path, restored)
+            try:
+                durable_atomic_json(self.record_path, restored)
+            except AtomicJsonCommitUncertain:
+                record_visible = True
+                raise
+            record_visible = True
+            self.reference_publisher(None)
             return restored
         except BaseException as error:
+            if record_visible:
+                raise WorkspaceError(
+                    "content migration restore completed and its restored record is "
+                    f"visible, but directory durability is uncertain: {error}; "
+                    "preserve the record, repair the reported registry problem, "
+                    "then rerun --apply to finish reference reconciliation"
+                ) from error
             rollback_errors = self._rollback_restore(
                 restored_profiles, restored_moves, audit["canonical"]
             )
+            try:
+                self.reference_publisher(None)
+            except WorkspaceError as publish_error:
+                rollback_errors.append(str(publish_error))
             detail = (
                 "content migration restore stopped after a changed precondition: "
                 f"{error}; preserve the journal and all paths"

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 import sys
@@ -43,6 +44,12 @@ def version_report(*arguments: object, **keywords: object) -> object:
 
 def write_generated(*arguments: object, **keywords: object) -> object:
     from .supply_chain import write_generated as implementation
+
+    return implementation(*arguments, **keywords)
+
+
+def validate_provenance_identity(*arguments: object, **keywords: object) -> object:
+    from .provenance_identity import validate_paths as implementation
 
     return implementation(*arguments, **keywords)
 
@@ -176,8 +183,8 @@ def parser() -> argparse.ArgumentParser:
         "--scope",
         action="append",
         choices=[
-            "worktrees", "builds", "npm-cache", "compiler-cache",
-            "sound-cache", "all",
+            "worktrees", "builds", "temporary-states", "npm-cache",
+            "compiler-cache", "sound-cache", "topologies", "all",
         ],
         default=[],
     )
@@ -254,7 +261,25 @@ def parser() -> argparse.ArgumentParser:
     )
     topology_show = topology_commands.add_parser("show")
     mark(topology_show.add_argument("profile", nargs="?", default="default"), "profile")
-    mark(topology_show.add_argument("--state", default="default"), "state")
+    topology_state = topology_show.add_mutually_exclusive_group()
+    mark(
+        topology_state.add_argument("--state", default="default"),
+        "state",
+    )
+    topology_state.add_argument(
+        "--temporary-state",
+        dest="state_mode",
+        action="store_const",
+        const="temporary",
+        help="use a fresh disposable state owned by the topology generation",
+    )
+    topology_state.add_argument(
+        "--default-state",
+        dest="state_mode",
+        action="store_const",
+        const="default",
+        help="use the legacy managed persistent default state explicitly",
+    )
     topology_show.add_argument(
         "--service", choices=["server", "client"], action="append"
     )
@@ -263,7 +288,22 @@ def parser() -> argparse.ArgumentParser:
     up = commands.add_parser("up", help="build and start a supervised topology")
     mark(up.add_argument("--name"), "none")
     mark(up.add_argument("--profile", default="default"), "profile")
-    mark(up.add_argument("--state", default="default"), "state")
+    up_state = up.add_mutually_exclusive_group()
+    mark(up_state.add_argument("--state", default="default"), "state")
+    up_state.add_argument(
+        "--temporary-state",
+        dest="state_mode",
+        action="store_const",
+        const="temporary",
+        help="use a fresh disposable state owned by this topology generation",
+    )
+    up_state.add_argument(
+        "--default-state",
+        dest="state_mode",
+        action="store_const",
+        const="default",
+        help="use the legacy managed persistent default state explicitly",
+    )
     mark(up.add_argument(
         "--port",
         type=int,
@@ -284,6 +324,11 @@ def parser() -> argparse.ArgumentParser:
 
     down = commands.add_parser("down", help="stop a supervised topology")
     mark(down.add_argument("name", nargs="?", default="default"), "topology")
+    down.add_argument(
+        "--retain-state",
+        action="store_true",
+        help="retain a cleanly stopped temporary state for later promotion",
+    )
     down.add_argument("--json", action="store_true")
 
     state = commands.add_parser("state", help="register persistent server state")
@@ -293,6 +338,12 @@ def parser() -> argparse.ArgumentParser:
     mark(state_add.add_argument("--path", type=Path), "path")
     state_list = state_commands.add_parser("list")
     state_list.add_argument("--json", action="store_true")
+    state_promote = state_commands.add_parser(
+        "promote", help="promote a stopped retained temporary topology state"
+    )
+    mark(state_promote.add_argument("topology"), "topology")
+    mark(state_promote.add_argument("name"), "none")
+    state_promote.add_argument("--json", action="store_true")
 
     scenario = commands.add_parser(
         "scenario", help="manage deterministic local test scenarios"
@@ -344,6 +395,52 @@ def parser() -> argparse.ArgumentParser:
     mark(supply_chain_report.add_argument("--output", type=Path), "path")
     supply_chain_versions = supply_chain_commands.add_parser("versions")
     mark(supply_chain_versions.add_argument("--output", type=Path), "path")
+
+    provenance = commands.add_parser(
+        "provenance", help="validate the canonical public identity registry"
+    )
+    provenance_commands = provenance.add_subparsers(
+        dest="provenance_command", required=True
+    )
+    provenance_validate = provenance_commands.add_parser("validate")
+    mark(
+        provenance_validate.add_argument(
+            "--registry",
+            type=Path,
+            default=ROOT / "governance/provenance-identities/registry.json",
+        ),
+        "path",
+    )
+    mark(
+        provenance_validate.add_argument(
+            "--schema",
+            type=Path,
+            default=ROOT / "governance/provenance-identities/schema-v1.json",
+        ),
+        "path",
+    )
+    mark(
+        provenance_validate.add_argument(
+            "--reviewers",
+            type=Path,
+            default=ROOT / "governance/provenance-identities/reviewers.json",
+        ),
+        "path",
+    )
+    mark(
+        provenance_validate.add_argument(
+            "--reference", type=Path, action="append", default=[]
+        ),
+        "path",
+    )
+    mark(
+        provenance_validate.add_argument(
+            "--non-authorizing-audit-ref",
+            metavar="REF",
+            help="audit a pre-merge ref; output is not approval for production reuse",
+        ),
+        "none",
+    )
 
     launch = commands.add_parser("run", help="build and run client or server")
     launch_commands = launch.add_subparsers(dest="target", required=True)
@@ -400,6 +497,8 @@ def main(arguments: list[str] | None = None) -> int:
     if raw_arguments and raw_arguments[0] == protocol_command():
         return protocol(root_parser, ROOT, raw_arguments[1:])
     options = root_parser.parse_args(raw_arguments)
+    workspace: Any = None
+    command_maintenance: Any = None
     try:
         if options.command == "completion":
             print(shell_script(options.shell), end="")
@@ -408,11 +507,47 @@ def main(arguments: list[str] | None = None) -> int:
             manifest = Manifest.load(ROOT / "components.json")
             print(f"components.json: valid ({len(manifest.components)} components)")
             return 0
+        if options.command == "provenance":
+            count = validate_provenance_identity(
+                ROOT,
+                registry_path=options.registry,
+                schema_path=options.schema,
+                reviewers_path=options.reviewers,
+                reference_paths=options.reference,
+                as_of=datetime.now(timezone.utc).date(),
+                trusted_ref=options.non_authorizing_audit_ref or "origin/main",
+            )
+            prefix = (
+                "NON-AUTHORIZING AUDIT: "
+                if options.non_authorizing_audit_ref
+                else ""
+            )
+            print(
+                prefix + "governance/provenance-identities/registry.json: valid "
+                f"({count} records, {len(options.reference)} references)"
+            )
+            return 0
 
         workspace_type = Workspace
         if workspace_type is None:
             from .workspace import Workspace as workspace_type
-        workspace = workspace_type(ROOT)
+        read_only_dry_run = (
+            options.command == "cleanup" and not options.apply
+        ) or (
+            options.command == "migrate"
+            and options.migrate_command in {"repositories", "content"}
+            and (options.dry_run or options.audit)
+        )
+        workspace = workspace_type(
+            ROOT, backfill_references=not read_only_dry_run
+        )
+        # Foreground runs acquire the maintenance barrier only while resolving,
+        # building, and publishing their sealed runtime generation. Keeping the
+        # CLI-wide reader after publication would needlessly block migration for
+        # the lifetime of an immutable client/server process.
+        if options.command not in {"migrate", "run"}:
+            command_maintenance = workspace.command_maintenance()
+            command_maintenance.__enter__()
         if options.command == "supply-chain":
             inventory = Inventory.load(
                 ROOT / "supply-chain" / "inventory.json", ROOT / "components.json"
@@ -637,6 +772,22 @@ def main(arguments: list[str] | None = None) -> int:
                         f"{size_fields}\t{age}\t{item['path']}\t"
                         f"{reasons}"
                     )
+                    if item["kind"] == "topology":
+                        generation = item["generation"] or "-"
+                        print(
+                            f"topology-observation\t{item['name']}\t"
+                            f"liveness={item['liveness']}\t"
+                            f"control={item['control_observation']}\t"
+                            f"generation={generation}\t"
+                            f"process-tree={item['process_tree_lease']}\t"
+                            f"runtime-bundle={item['runtime_bundle_lease']}\t"
+                            f"port-reservation={item['port_reservation_lease']}\t"
+                            f"repository-layout={item['repository_layout_lease']}\t"
+                            f"age-basis={item['age_basis'] or '-'}\t"
+                            f"age-observed-at={item['age_observed_at'] or '-'}"
+                        )
+                        for deletion_path in item["deletion_paths"]:
+                            print(f"delete\t{item['name']}\t{deletion_path}")
                 summary = report["summary"]
                 print(
                     "summary\t"
@@ -736,8 +887,12 @@ def main(arguments: list[str] | None = None) -> int:
                 )
             )
         elif options.command == "topology":
+            state = None if options.state_mode == "temporary" else options.state
             summary = workspace.topology_summary(
-                options.profile, options.state, options.service
+                options.profile,
+                state,
+                options.service,
+                state_mode=options.state_mode,
             )
             if options.json:
                 print(json.dumps(summary, indent=2, sort_keys=True))
@@ -751,6 +906,15 @@ def main(arguments: list[str] | None = None) -> int:
                 for role, provider in sorted(summary["providers"].items()):
                     print(f"provider\t{role}\t{provider}")
                 print(f"state\t{summary['state'] or '-'}")
+                state_policy = summary.get("state_policy")
+                if isinstance(state_policy, dict):
+                    print(
+                        "state-policy\t"
+                        f"{state_policy['mode']}\t"
+                        f"{json.dumps(state_policy['owner'], sort_keys=True)}\t"
+                        f"{state_policy['lifecycle']}\t"
+                        f"{state_policy.get('path') or 'allocated-on-start'}"
+                    )
                 print(f"build\t{summary['build_root']}")
                 for component, row in summary["components"].items():
                     cleanliness = "dirty" if row["dirty"] else "clean"
@@ -760,8 +924,14 @@ def main(arguments: list[str] | None = None) -> int:
                     )
         elif options.command == "up":
             name = options.name or options.profile
+            state = None if options.state_mode == "temporary" else options.state
             status = workspace.topology_up(
-                name, options.profile, options.state, options.service, options.port
+                name,
+                options.profile,
+                state,
+                options.service,
+                options.port,
+                state_mode=options.state_mode,
             )
             if options.json:
                 print(json.dumps(status, indent=2, sort_keys=True))
@@ -773,6 +943,15 @@ def main(arguments: list[str] | None = None) -> int:
                     else ""
                 )
                 print(f"topology {name}: started{suffix}")
+                state_policy = status.get("state_policy")
+                if isinstance(state_policy, dict):
+                    print(
+                        "state-policy\t"
+                        f"{state_policy['mode']}\t"
+                        f"{json.dumps(state_policy['owner'], sort_keys=True)}\t"
+                        f"{state_policy['lifecycle']}\t"
+                        f"{state_policy['path']}"
+                    )
         elif options.command == "ps":
             statuses = (
                 [workspace.topology_status(options.name)]
@@ -789,8 +968,9 @@ def main(arguments: list[str] | None = None) -> int:
                             print()
                         print(f"==> {status['name']} <==")
                     supervisor = status["supervisor"]
-                    supervisor_state = (
-                        "running" if supervisor["running"] else "stopped"
+                    supervisor_state = supervisor.get(
+                        "liveness",
+                        "running" if supervisor["running"] else "stopped",
                     )
                     print(
                         f"supervisor\t{supervisor_state}\t{supervisor['pid']}\t"
@@ -802,17 +982,53 @@ def main(arguments: list[str] | None = None) -> int:
                             f"endpoint\t{endpoint['host']}:{endpoint['port']}\t"
                             f"{endpoint['fingerprint']}"
                         )
+                    state_policy = status.get("state_policy")
+                    if isinstance(state_policy, dict):
+                        owner = state_policy.get("owner", {})
+                        owner_kind = (
+                            owner.get("kind", "unknown")
+                            if isinstance(owner, dict)
+                            else "unknown"
+                        )
+                        print(
+                            "state-policy\t"
+                            f"{state_policy['mode']}\t{owner_kind}\t"
+                            f"{state_policy['lifecycle']}\t{state_policy['path']}"
+                        )
                     for service, row in status["services"].items():
                         print(
-                            f"{service}\t{row['status']}\t{row['pid']}\t"
+                            f"{service}\t{row.get('liveness', row['status'])}\t"
+                            f"{row['pid']}\t"
                             f"{row['log']}"
                         )
+                    observation = status.get("observation")
+                    if (
+                        isinstance(observation, dict)
+                        and observation.get("process_tree_lease") == "retained"
+                    ):
+                        if observation.get("runtime_generation") is not None:
+                            print(
+                                "runtime-generation\t"
+                                f"{observation['runtime_bundle_lease']}\t"
+                                f"{observation['runtime_generation']}\t"
+                                f"{observation['safe_action']}"
+                            )
+                        else:
+                            print(
+                                "repository-layout-lease\tretained\t"
+                                f"{observation['repository_layout_lease_owner']}\t"
+                                f"{observation['safe_action']}"
+                            )
         elif options.command == "logs":
             workspace.topology_logs(
                 options.name, options.service, options.tail, options.follow
             )
         elif options.command == "down":
-            status = workspace.topology_down(options.name)
+            status = (
+                workspace.topology_down(options.name, retain_state=True)
+                if options.retain_state
+                else workspace.topology_down(options.name)
+            )
             if options.json:
                 print(json.dumps(status, indent=2, sort_keys=True))
             else:
@@ -820,7 +1036,7 @@ def main(arguments: list[str] | None = None) -> int:
         elif options.command == "state":
             if options.state_command == "add":
                 workspace.state_add(options.name, options.path)
-            else:
+            elif options.state_command == "list":
                 states = workspace.list_states()
                 if options.json:
                     print(
@@ -833,6 +1049,17 @@ def main(arguments: list[str] | None = None) -> int:
                 else:
                     for name, path in sorted(states.items()):
                         print(f"{name}\t{path}")
+            else:
+                promoted = workspace.state_promote(
+                    options.topology, options.name
+                )
+                if options.json:
+                    print(json.dumps(promoted, indent=2, sort_keys=True))
+                else:
+                    print(
+                        f"state {options.name}: promoted from topology "
+                        f"{options.topology} at {promoted['path']}"
+                    )
         elif options.command == "scenario":
             if options.scenario_command == "create":
                 summary = workspace.scenario_create(
@@ -849,10 +1076,18 @@ def main(arguments: list[str] | None = None) -> int:
                     print(json.dumps(summaries, indent=2, sort_keys=True))
                 else:
                     for summary in summaries:
-                        print(
-                            f"{summary['name']}\t{summary['profile']}\t"
-                            f"{summary['preset']}\t{summary['state']}"
-                        )
+                        if summary.get("inert"):
+                            name = json.dumps(str(summary["name"]))[1:-1]
+                            path = json.dumps(str(summary["path"]))[1:-1]
+                            print(
+                                f"{name}\tinert\t"
+                                f"{summary['inert_reason']}\t{path}"
+                            )
+                        else:
+                            print(
+                                f"{summary['name']}\t{summary['profile']}\t"
+                                f"{summary['preset']}\t{summary['state']}"
+                            )
             elif options.scenario_command == "show":
                 summary = workspace.scenario_show(options.name)
                 if options.json:
@@ -900,6 +1135,11 @@ def main(arguments: list[str] | None = None) -> int:
     except KeyboardInterrupt:
         print("interrupted", file=sys.stderr)
         return 130
+    finally:
+        if command_maintenance is not None:
+            command_maintenance.__exit__(None, None, None)
+        if workspace is not None:
+            workspace.close()
 
 
 if __name__ == "__main__":

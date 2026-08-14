@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import re
 import signal
+import socket
 import stat
 import subprocess
 import sys
@@ -16,7 +17,9 @@ import time
 from typing import Any, BinaryIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
-from .process_tree import holders_exist, signal_holders
+from .model import durable_atomic_json
+from .process_tree import control_socket_path, holders_exist, signal_holders
+from .port_reservation import PortReservationError, validate_held
 
 
 LOG_LIMIT = 10 * 1024 * 1024
@@ -94,7 +97,9 @@ def terminate(
     processes: dict[str, subprocess.Popen[bytes]],
     process_tree_fd: int | None,
     timeout: float = 10,
-) -> None:
+    *,
+    exclude: tuple[int | None, ...] = (),
+) -> bool:
     # An unreaped session leader pins its numeric process-group identity, so
     # these groups remain safe to signal until the final waits below. The lease
     # additionally finds descendants whose recorded leader was already reaped.
@@ -103,6 +108,7 @@ def terminate(
         for process in processes.values()
         if process.returncode is None
     ]
+    group_observation_certain = True
 
     def signal_groups(signum: signal.Signals) -> None:
         for process_group in process_groups:
@@ -112,10 +118,12 @@ def terminate(
                 pass
 
     def groups_exist() -> bool:
+        nonlocal group_observation_certain
         groups = set(process_groups)
         try:
             entries = list(Path("/proc").iterdir())
         except OSError:
+            group_observation_certain = False
             entries = []
         for entry in entries:
             if not entry.name.isdigit():
@@ -124,7 +132,13 @@ def terminate(
                 fields = (entry / "stat").read_text().rsplit(")", 1)[1].split()
                 state = fields[0]
                 process_group = int(fields[2])
-            except (OSError, IndexError, ValueError):
+            except FileNotFoundError:
+                continue
+            except OSError:
+                group_observation_certain = False
+                continue
+            except (IndexError, ValueError):
+                group_observation_certain = False
                 continue
             if process_group in groups and state != "Z":
                 return True
@@ -133,38 +147,58 @@ def terminate(
     signal_groups(signal.SIGTERM)
     if process_tree_fd is not None:
         signal_holders(
-            process_tree_fd, signal.SIGTERM, exclude=(os.getpid(),)
+            process_tree_fd,
+            signal.SIGTERM,
+            exclude=(os.getpid(), *(pid for pid in exclude if pid is not None)),
         )
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         running = groups_exist()
         if process_tree_fd is not None:
             running = running or holders_exist(
-                process_tree_fd, exclude=(os.getpid(),)
+                process_tree_fd,
+                exclude=(os.getpid(), *(pid for pid in exclude if pid is not None)),
             )
         if not running:
             break
         time.sleep(0.1)
+    clean = not groups_exist() and group_observation_certain
+    if process_tree_fd is not None:
+        clean = clean and not holders_exist(
+            process_tree_fd,
+            exclude=(os.getpid(), *(pid for pid in exclude if pid is not None)),
+        )
     signal_groups(signal.SIGKILL)
     if process_tree_fd is not None:
         signal_holders(
-            process_tree_fd, signal.SIGKILL, exclude=(os.getpid(),)
+            process_tree_fd,
+            signal.SIGKILL,
+            exclude=(os.getpid(), *(pid for pid in exclude if pid is not None)),
         )
         kill_deadline = time.monotonic() + 2
         while time.monotonic() < kill_deadline and (
             groups_exist()
-            or holders_exist(process_tree_fd, exclude=(os.getpid(),))
+            or holders_exist(
+                process_tree_fd,
+                exclude=(os.getpid(), *(pid for pid in exclude if pid is not None)),
+            )
         ):
             signal_groups(signal.SIGKILL)
             signal_holders(
-                process_tree_fd, signal.SIGKILL, exclude=(os.getpid(),)
+                process_tree_fd,
+                signal.SIGKILL,
+                exclude=(os.getpid(), *(pid for pid in exclude if pid is not None)),
             )
             time.sleep(0.05)
     for process in processes.values():
         try:
             process.wait(timeout=2)
         except subprocess.TimeoutExpired:
-            pass
+            clean = False
+        if process.returncode not in {0, -signal.SIGTERM}:
+            clean = False
+    clean = clean and group_observation_certain
+    return clean
 
 
 class RotatingLog:
@@ -235,12 +269,19 @@ def pump_output(
 
 
 def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[str, Any]:
+    control = spec.get("control")
+    generation = control.get("generation") if isinstance(control, dict) else None
     status: dict[str, Any] = {
-        "schema_version": 1,
+        "schema_version": spec.get("schema_version", 1),
         "name": spec["name"],
         "profile": spec["profile"],
         "dependencies": spec["dependencies"],
         "state": spec["state"],
+        **(
+            {"state_policy": spec["state_policy"]}
+            if "state_policy" in spec
+            else {}
+        ),
         "build_root": spec["build_root"],
         "resolved": spec["resolved"],
         "endpoint": (
@@ -251,12 +292,18 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
         "ready": False,
         "started_at": datetime.now(timezone.utc).isoformat(),
         "stopped_at": None,
+        **({"shutdown": None} if spec.get("schema_version") == 3 else {}),
         "supervisor": {
             "pid": os.getpid(),
             "start_time": supervisor_start_time,
+            **({"generation": generation} if generation is not None else {}),
         },
         "services": {},
     }
+    if control is not None:
+        status["control"] = control
+    if "runtime" in spec:
+        status["runtime"] = spec["runtime"]
     if "stack" in spec or "providers" in spec:
         if not isinstance(spec.get("stack"), str) or not isinstance(
             spec.get("providers"), dict
@@ -266,7 +313,197 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
         status["providers"] = spec["providers"]
     if "sound" in spec:
         status["sound"] = spec["sound"]
+    if "port_reservation" in spec:
+        status["port_reservation"] = spec["port_reservation"]
     return status
+
+
+def _validate_port_reservation(
+    spec: dict[str, Any], descriptor: int | None, _topology_root: Path
+) -> None:
+    reservation = spec.get("port_reservation")
+    if reservation is None and descriptor is None:
+        return
+    if reservation is None or descriptor is None:
+        raise RuntimeError("topology port reservation descriptor is incomplete")
+    try:
+        validated = validate_held(descriptor, reservation)
+    except PortReservationError as error:
+        raise RuntimeError(str(error)) from error
+    control = spec.get("control")
+    endpoint = spec.get("endpoint")
+    if (
+        not isinstance(control, dict)
+        or validated["topology"] != spec.get("name")
+        or validated["generation"] != control.get("generation")
+        or not isinstance(endpoint, dict)
+        or validated["port"] != endpoint.get("port")
+    ):
+        raise RuntimeError("topology port reservation does not match the topology")
+
+
+def _require_server_port_available(spec: dict[str, Any]) -> None:
+    endpoint = spec.get("endpoint")
+    if not isinstance(endpoint, dict) or not isinstance(endpoint.get("port"), int):
+        raise RuntimeError("topology server endpoint is invalid")
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as candidate:
+            candidate.bind(("0.0.0.0", endpoint["port"]))
+    except OSError as error:
+        raise RuntimeError(
+            f"reserved topology UDP port {endpoint['port']} was claimed by an "
+            f"external process before server startup: {error}"
+        ) from error
+
+
+def _guardian(
+    read_fd: int,
+    process_tree_fd: int,
+    retained_fds: tuple[int | None, ...],
+) -> None:
+    """Release one orphaned topology tree after its supervisor disappears."""
+    try:
+        while os.read(read_fd, 4096):
+            pass
+    except OSError:
+        pass
+    finally:
+        os.close(read_fd)
+
+    # Pipe EOF proves the supervisor is gone. Do not exclude its bare numeric
+    # PID: it may already have been reused by an exact lease-holding descendant.
+    excluded = (os.getpid(),)
+    signal_holders(process_tree_fd, signal.SIGTERM, exclude=excluded)
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline and (
+        holders_exist(process_tree_fd, exclude=excluded)
+    ):
+        time.sleep(0.1)
+    signal_holders(process_tree_fd, signal.SIGKILL, exclude=excluded)
+    deadline = time.monotonic() + 2
+    while time.monotonic() < deadline and (
+        holders_exist(process_tree_fd, exclude=excluded)
+    ):
+        signal_holders(process_tree_fd, signal.SIGKILL, exclude=excluded)
+        time.sleep(0.05)
+    while holders_exist(process_tree_fd, exclude=excluded):
+        time.sleep(0.5)
+    os.close(process_tree_fd)
+    for descriptor in retained_fds:
+        if descriptor is not None:
+            os.close(descriptor)
+
+
+def _start_guardian(
+    process_tree_fd: int | None,
+    *retained_fds: int | None,
+) -> tuple[int | None, int | None]:
+    if process_tree_fd is None:
+        return None, None
+    read_fd, write_fd = os.pipe2(os.O_CLOEXEC)
+    guardian_pid = os.fork()
+    if guardian_pid:
+        os.close(read_fd)
+        return guardian_pid, write_fd
+
+    os.close(write_fd)
+    try:
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        _guardian(read_fd, process_tree_fd, retained_fds)
+    finally:
+        os._exit(0)
+
+
+def _open_control(spec: dict[str, Any], topology_root: Path) -> socket.socket | None:
+    control = spec.get("control")
+    if control is None:
+        return None
+    if (
+        not isinstance(control, dict)
+        or set(control) != {"socket", "generation", "lease"}
+        or not isinstance(control.get("socket"), str)
+        or not isinstance(control.get("generation"), str)
+        or not re.fullmatch(r"[0-9a-f]{64}", control["generation"])
+        or control["socket"]
+        != str(control_socket_path(topology_root, control["generation"]))
+        or not isinstance(control.get("lease"), dict)
+        or set(control["lease"]) != {"device", "inode"}
+        or not all(
+            isinstance(value, int)
+            and not isinstance(value, bool)
+            and value >= 0
+            for value in control["lease"].values()
+        )
+    ):
+        raise RuntimeError("topology control identity is invalid")
+    endpoint = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    try:
+        endpoint.bind(control["socket"])
+        os.chmod(control["socket"], 0o600)
+        endpoint.listen(32)
+        endpoint.setblocking(False)
+    except BaseException:
+        endpoint.close()
+        raise
+    return endpoint
+
+
+def _receive_control(connection: socket.socket) -> Any:
+    payload = bytearray()
+    while len(payload) <= 4096:
+        chunk = connection.recv(4097 - len(payload))
+        if not chunk:
+            break
+        payload.extend(chunk)
+        if b"\n" in chunk:
+            break
+    if len(payload) > 4096:
+        raise ValueError("control message is too large")
+    return json.loads(payload)
+
+
+def _serve_control(
+    endpoint: socket.socket | None,
+    spec: dict[str, Any],
+) -> bool:
+    """Serve at most one bounded request and return whether shutdown was asked."""
+    if endpoint is None:
+        return False
+    stop = False
+    deadline = time.monotonic() + 0.2
+    for _request_index in range(32):
+        try:
+            connection, _address = endpoint.accept()
+        except BlockingIOError:
+            return stop
+        with connection:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return stop
+            connection.settimeout(min(0.05, remaining))
+            try:
+                request = _receive_control(connection)
+                control = spec["control"]
+                valid = (
+                    isinstance(request, dict)
+                    and set(request) == {"action", "name", "generation"}
+                    and request.get("action") in {"status", "stop"}
+                    and request.get("name") == spec["name"]
+                    and request.get("generation") == control["generation"]
+                )
+                response = {
+                    "ok": valid,
+                    "name": spec["name"],
+                    "generation": control["generation"],
+                }
+                connection.sendall(
+                    json.dumps(response, sort_keys=True).encode() + b"\n"
+                )
+                stop = stop or bool(valid and request["action"] == "stop")
+            except (OSError, TimeoutError, ValueError, json.JSONDecodeError):
+                continue
+    return stop
 
 
 def supervise(
@@ -275,11 +512,26 @@ def supervise(
     layout_lock_fd: int | None,
     build_lock_fd: int | None,
     process_tree_fd: int | None,
+    port_reservation_fd: int | None,
+    runtime_lock_fd: int | None = None,
+    state_directory_fd: int | None = None,
+    state_output_fd: int | None = None,
+    physical_state_lock_fd: int | None = None,
 ) -> int:
     with spec_path.open(encoding="utf-8") as stream:
         spec = json.load(stream)
+    if spec.get("schema_version") in {2, 3}:
+        for descriptor in (layout_lock_fd, build_lock_fd):
+            if descriptor is not None:
+                os.close(descriptor)
+        layout_lock_fd = None
+        build_lock_fd = None
     status_path = spec_path.parent / "status.json"
     stop = False
+    control_stop_requested = False
+    control_socket: socket.socket | None = None
+    guardian_pid: int | None = None
+    guardian_write_fd: int | None = None
 
     def request_stop(_signum: int, _frame: object) -> None:
         nonlocal stop
@@ -292,6 +544,7 @@ def supervise(
     if supervisor_start_time is None:
         raise RuntimeError("cannot identify topology supervisor process")
     status = _initial_status(spec, supervisor_start_time)
+    _validate_port_reservation(spec, port_reservation_fd, spec_path.parent)
     processes: dict[str, subprocess.Popen[bytes]] = {}
     logs: list[RotatingLog] = []
     pumps: list[threading.Thread] = []
@@ -318,14 +571,12 @@ def supervise(
                 spec["profile"], spec["name"]
             )
         inherited_locks: list[int] = []
-        if name == "server" and lock_fd is not None:
-            inherited_locks.append(lock_fd)
-        if layout_lock_fd is not None:
-            inherited_locks.append(layout_lock_fd)
-        if build_lock_fd is not None:
-            inherited_locks.append(build_lock_fd)
         if process_tree_fd is not None:
             inherited_locks.append(process_tree_fd)
+        if state_directory_fd is not None and name == "server":
+            inherited_locks.append(state_directory_fd)
+        if state_output_fd is not None and name == "server":
+            inherited_locks.append(state_output_fd)
         process = subprocess.Popen(
             command,
             cwd=service["cwd"],
@@ -351,6 +602,11 @@ def supervise(
         status["services"][name] = {
             "pid": process.pid,
             "start_time": start_time,
+            **(
+                {"generation": spec["control"]["generation"]}
+                if "control" in spec
+                else {}
+            ),
             "status": "starting" if capture is not None else "running",
             "exit_code": None,
             "log": str(log),
@@ -360,11 +616,36 @@ def supervise(
         return process
 
     try:
+        retained_fds = (
+            (port_reservation_fd, lock_fd, runtime_lock_fd)
+            if spec.get("schema_version") in {2, 3}
+            else (
+                lock_fd,
+                layout_lock_fd,
+                build_lock_fd,
+                port_reservation_fd,
+            )
+        )
+        if state_directory_fd is not None:
+            retained_fds = (*retained_fds, state_directory_fd)
+        if state_output_fd is not None:
+            retained_fds = (*retained_fds, state_output_fd)
+        if physical_state_lock_fd is not None:
+            retained_fds = (*retained_fds, physical_state_lock_fd)
+        guardian_pid, guardian_write_fd = _start_guardian(
+            process_tree_fd,
+            *retained_fds,
+        )
+        control_socket = _open_control(spec, spec_path.parent)
         if "server" in spec["services"]:
+            _require_server_port_available(spec)
             capture = ServerReadinessCapture()
             server = start_service("server", capture=capture)
             deadline = time.monotonic() + SERVER_READY_TIMEOUT
             while not capture.event.wait(timeout=0.1):
+                requested = _serve_control(control_socket, spec)
+                control_stop_requested = control_stop_requested or requested
+                stop = stop or requested
                 code = _peek_exit_code(server)
                 if code is not None:
                     raise RuntimeError(
@@ -398,6 +679,9 @@ def supervise(
         atomic_status(status_path, status)
 
         while not stop:
+            requested = _serve_control(control_socket, spec)
+            control_stop_requested = control_stop_requested or requested
+            stop = requested
             changed = False
             running = True
             for name, process in processes.items():
@@ -418,7 +702,9 @@ def supervise(
         atomic_status(status_path, status)
         return 1
     finally:
-        terminate(processes, process_tree_fd)
+        clean_termination = terminate(
+            processes, process_tree_fd, exclude=(guardian_pid,)
+        )
         for pump in pumps:
             pump.join(timeout=2)
         for name, process in processes.items():
@@ -430,17 +716,54 @@ def supervise(
             service_status["exit_code"] = code
         status["stopped_at"] = datetime.now(timezone.utc).isoformat()
         status["ready"] = False
-        atomic_status(status_path, status)
+        status["shutdown"] = {
+            "control_requested": control_stop_requested,
+            "clean": (
+                control_stop_requested
+                and clean_termination
+                and "error" not in status
+            ),
+        }
+        durable_atomic_json(status_path, status)
         for output in logs:
             output.close()
+        if control_socket is not None:
+            control_socket.close()
+            control_path = Path(spec["control"]["socket"])
+            try:
+                if stat.S_ISSOCK(control_path.lstat().st_mode):
+                    control_path.unlink()
+            except FileNotFoundError:
+                pass
+        # On orderly shutdown stop being a lease holder before telling the
+        # guardian to perform its final exact-holder sweep. On a crash the
+        # kernel closes this descriptor before pipe EOF instead.
+        if process_tree_fd is not None:
+            os.close(process_tree_fd)
+            process_tree_fd = None
+        if guardian_write_fd is not None:
+            os.close(guardian_write_fd)
+        if guardian_pid is not None:
+            try:
+                os.waitpid(guardian_pid, 0)
+            except ChildProcessError:
+                pass
         if lock_fd is not None:
             os.close(lock_fd)
         if layout_lock_fd is not None:
             os.close(layout_lock_fd)
         if build_lock_fd is not None:
             os.close(build_lock_fd)
-        if process_tree_fd is not None:
-            os.close(process_tree_fd)
+        if port_reservation_fd is not None:
+            os.close(port_reservation_fd)
+        if runtime_lock_fd is not None:
+            os.close(runtime_lock_fd)
+        if state_directory_fd is not None:
+            os.close(state_directory_fd)
+        if state_output_fd is not None:
+            os.close(state_output_fd)
+        if physical_state_lock_fd is not None:
+            os.close(physical_state_lock_fd)
     return 0
 
 
@@ -451,17 +774,30 @@ def main() -> int:
     parser.add_argument("--layout-lock-fd", type=int)
     parser.add_argument("--build-lock-fd", type=int)
     parser.add_argument("--process-tree-fd", type=int)
+    parser.add_argument("--port-reservation-fd", type=int)
+    parser.add_argument("--runtime-lock-fd", type=int)
+    parser.add_argument("--state-directory-fd", type=int)
+    parser.add_argument("--state-output-fd", type=int)
+    parser.add_argument("--physical-state-lock-fd", type=int)
     parser.add_argument("--daemonize", action="store_true")
     options = parser.parse_args()
     if options.daemonize and os.fork() != 0:
         return 0
     try:
-        return supervise(
+        arguments = (
             options.spec,
             options.lock_fd,
             options.layout_lock_fd,
             options.build_lock_fd,
             options.process_tree_fd,
+            options.port_reservation_fd,
+            options.runtime_lock_fd,
+        )
+        return supervise(
+            *arguments,
+            options.state_directory_fd,
+            options.state_output_fd,
+            options.physical_state_lock_fd,
         )
     except BaseException as error:
         message = f"{type(error).__name__}: {error}"
@@ -488,6 +824,31 @@ def main() -> int:
         if options.process_tree_fd is not None:
             try:
                 os.close(options.process_tree_fd)
+            except OSError:
+                pass
+        if options.port_reservation_fd is not None:
+            try:
+                os.close(options.port_reservation_fd)
+            except OSError:
+                pass
+        if options.runtime_lock_fd is not None:
+            try:
+                os.close(options.runtime_lock_fd)
+            except OSError:
+                pass
+        if options.state_directory_fd is not None:
+            try:
+                os.close(options.state_directory_fd)
+            except OSError:
+                pass
+        if options.state_output_fd is not None:
+            try:
+                os.close(options.state_output_fd)
+            except OSError:
+                pass
+        if options.physical_state_lock_fd is not None:
+            try:
+                os.close(options.physical_state_lock_fd)
             except OSError:
                 pass
         return 1

@@ -10,6 +10,10 @@ from atrinik_workspace.model import WorkspaceError
 
 
 class ParserTests(unittest.TestCase):
+    def test_cleanup_accepts_the_explicit_topologies_scope(self) -> None:
+        options = parser().parse_args(["cleanup", "--scope", "topologies"])
+        self.assertEqual(options.scope, ["topologies"])
+
     def test_human_bytes_uses_compact_iec_units_and_promotes_rounding(self) -> None:
         self.assertEqual(
             [_human_bytes(value) for value in (0, 1023, 1024, 1536)],
@@ -172,6 +176,60 @@ class ParserTests(unittest.TestCase):
             "summary\tcandidates=1 candidate_bytes=4KiB protected=0 "
             "protected_bytes=0B removed=0 removed_bytes=0B errors=0",
             lines,
+        )
+
+    def test_cleanup_text_report_includes_topology_observation_and_paths(self) -> None:
+        report = {
+            "items": [
+                {
+                    "disposition": "eligible",
+                    "kind": "topology",
+                    "allocated_bytes": 512,
+                    "age_seconds": 8 * 86400,
+                    "path": "/workspace/topologies/old",
+                    "reasons": ["inactive_topology"],
+                    "name": "old",
+                    "liveness": "exited",
+                    "control_observation": "legacy",
+                    "generation": None,
+                    "process_tree_lease": "released",
+                    "runtime_bundle_lease": "historical",
+                    "port_reservation_lease": "released",
+                    "repository_layout_lease": "released",
+                    "age_basis": "stopped-at",
+                    "age_observed_at": "2026-08-01T00:00:00+00:00",
+                    "deletion_paths": [
+                        "/workspace/topologies/old",
+                        "/workspace/topologies/old/status.json",
+                    ],
+                }
+            ],
+            "summary": {
+                "candidate_count": 1,
+                "candidate_bytes": 512,
+                "protected_count": 0,
+                "protected_bytes": 0,
+                "removed_count": 0,
+                "removed_bytes": 0,
+                "error_count": 0,
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.cleanup.return_value = report
+            with mock.patch("builtins.print") as output:
+                result = main(["cleanup", "--scope", "topologies"])
+
+        lines = [call.args[0] for call in output.call_args_list]
+        self.assertEqual(result, 0)
+        self.assertIn(
+            "topology-observation\told\tliveness=exited\tcontrol=legacy\t"
+            "generation=-\tprocess-tree=released\truntime-bundle=historical\t"
+            "port-reservation=released\trepository-layout=released\t"
+            "age-basis=stopped-at\tage-observed-at=2026-08-01T00:00:00+00:00",
+            lines,
+        )
+        self.assertIn(
+            "delete\told\t/workspace/topologies/old/status.json", lines
         )
 
     def test_cleanup_text_report_uses_concise_iec_byte_units(self) -> None:
@@ -732,6 +790,7 @@ class ParserTests(unittest.TestCase):
         workspace_type.return_value.run_client.assert_called_once_with(
             "review", "shared", 1731, [], True
         )
+        workspace_type.return_value.command_maintenance.assert_not_called()
 
     def test_up_defaults_runtime_name_to_profile(self) -> None:
         status = {
@@ -761,9 +820,227 @@ class ParserTests(unittest.TestCase):
 
         self.assertEqual(result, 0)
         workspace_type.return_value.topology_up.assert_called_once_with(
-            "review", "review", "shared", ["server"], 17300
+            "review",
+            "review",
+            "shared",
+            ["server"],
+            17300,
+            state_mode=None,
         )
         output.assert_called_once_with("topology review: started at 127.0.0.1:17300")
+
+    def test_topology_state_policy_options_are_mutually_exclusive(self) -> None:
+        temporary = parser().parse_args(
+            ["up", "--profile", "review", "--temporary-state"]
+        )
+        explicit_default = parser().parse_args(
+            ["topology", "show", "review", "--default-state"]
+        )
+        self.assertEqual(temporary.state, "default")
+        self.assertEqual(temporary.state_mode, "temporary")
+        self.assertEqual(explicit_default.state, "default")
+        self.assertEqual(explicit_default.state_mode, "default")
+        with self.assertRaises(SystemExit):
+            parser().parse_args(
+                ["up", "--temporary-state", "--state", "shared"]
+            )
+
+    def test_client_only_temporary_state_selector_is_not_silently_ignored(
+        self,
+    ) -> None:
+        error = WorkspaceError("temporary state requires the server service")
+        cases = (
+            (
+                [
+                    "topology",
+                    "show",
+                    "review",
+                    "--temporary-state",
+                    "--service",
+                    "client",
+                ],
+                "topology_summary",
+                mock.call(
+                    "review", None, ["client"], state_mode="temporary"
+                ),
+            ),
+            (
+                [
+                    "up",
+                    "--name",
+                    "client-only",
+                    "--profile",
+                    "review",
+                    "--temporary-state",
+                    "--service",
+                    "client",
+                ],
+                "topology_up",
+                mock.call(
+                    "client-only",
+                    "review",
+                    None,
+                    ["client"],
+                    None,
+                    state_mode="temporary",
+                ),
+            ),
+        )
+        for arguments, method_name, expected_call in cases:
+            with self.subTest(command=arguments[0]):
+                with mock.patch(
+                    "atrinik_workspace.cli.Workspace"
+                ) as workspace_type:
+                    method = getattr(workspace_type.return_value, method_name)
+                    method.side_effect = error
+                    with mock.patch("builtins.print"):
+                        self.assertEqual(main(arguments), 1)
+                self.assertEqual(method.call_args, expected_call)
+
+    def test_human_topology_state_policy_output_includes_stable_owner(self) -> None:
+        generation = "a" * 64
+        summary = {
+            "profile": "review",
+            "stack": "classic",
+            "sound": {"mode": "source"},
+            "services": ["server"],
+            "dependencies": ["server"],
+            "providers": {"server": "classic-server"},
+            "state": None,
+            "state_policy": {
+                "mode": "temporary",
+                "owner": {"kind": "topology-generation"},
+                "lifecycle": "disposable",
+                "path": None,
+            },
+            "build_root": "/workspace/build/review",
+            "components": {},
+        }
+        status = {
+            "endpoint": None,
+            "state_policy": {
+                "mode": "temporary",
+                "owner": {
+                    "topology": "review",
+                    "kind": "topology-generation",
+                    "generation": generation,
+                },
+                "lifecycle": "disposable",
+                "path": "/workspace/topologies/review/temporary-states/abc",
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace = workspace_type.return_value
+            workspace.topology_summary.return_value = summary
+            workspace.topology_up.return_value = status
+            with mock.patch("builtins.print") as output:
+                self.assertEqual(
+                    main(
+                        [
+                            "topology",
+                            "show",
+                            "review",
+                            "--temporary-state",
+                            "--service",
+                            "server",
+                        ]
+                    ),
+                    0,
+                )
+                self.assertIn(
+                    mock.call(
+                        'state-policy\ttemporary\t'
+                        '{"kind": "topology-generation"}\t'
+                        "disposable\tallocated-on-start"
+                    ),
+                    output.call_args_list,
+                )
+                output.reset_mock()
+                self.assertEqual(
+                    main(
+                        [
+                            "up",
+                            "--name",
+                            "review",
+                            "--profile",
+                            "review",
+                            "--temporary-state",
+                            "--service",
+                            "server",
+                        ]
+                    ),
+                    0,
+                )
+                self.assertEqual(
+                    output.call_args_list[-1],
+                    mock.call(
+                        'state-policy\ttemporary\t'
+                        f'{{"generation": "{generation}", '
+                        '"kind": "topology-generation", '
+                        '"topology": "review"}\t'
+                        "disposable\t/workspace/topologies/review/"
+                        "temporary-states/abc"
+                    ),
+                )
+
+    def test_temporary_state_start_retain_and_promotion_dispatch(self) -> None:
+        status = {
+            "supervisor": {"running": True},
+            "endpoint": None,
+            "state_policy": {
+                "mode": "temporary",
+                "owner": {
+                    "kind": "topology-generation",
+                    "topology": "review",
+                    "generation": "a" * 64,
+                },
+                "lifecycle": "disposable",
+                "path": "/workspace/topologies/review/temporary-states/abc",
+            },
+        }
+        promoted = {
+            "topology": "review",
+            "name": "saved-review",
+            "path": status["state_policy"]["path"],
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace = workspace_type.return_value
+            workspace.topology_up.return_value = status
+            workspace.state_promote.return_value = promoted
+            with mock.patch("builtins.print"):
+                self.assertEqual(
+                    main(
+                        [
+                            "up",
+                            "--name",
+                            "review",
+                            "--profile",
+                            "review",
+                            "--temporary-state",
+                            "--service",
+                            "server",
+                        ]
+                    ),
+                    0,
+                )
+                self.assertEqual(main(["down", "review", "--retain-state"]), 0)
+                self.assertEqual(
+                    main(["state", "promote", "review", "saved-review"]), 0
+                )
+        workspace.topology_up.assert_called_once_with(
+            "review",
+            "review",
+            None,
+            ["server"],
+            None,
+            state_mode="temporary",
+        )
+        workspace.topology_down.assert_called_once_with(
+            "review", retain_state=True
+        )
+        workspace.state_promote.assert_called_once_with(
+            "review", "saved-review"
+        )
 
     def test_topology_show_supports_json(self) -> None:
         summary = {
@@ -783,7 +1060,7 @@ class ParserTests(unittest.TestCase):
 
         self.assertEqual(result, 0)
         workspace_type.return_value.topology_summary.assert_called_once_with(
-            "review", "default", ["server"]
+            "review", "default", ["server"], state_mode=None
         )
         self.assertEqual(json.loads(output.call_args.args[0]), summary)
 
@@ -797,6 +1074,48 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(result, 0)
         workspace_type.return_value.topology_statuses.assert_called_once_with()
         self.assertEqual(json.loads(output.call_args.args[0]), statuses)
+
+    def test_ps_reports_current_and_historical_retained_leases(self) -> None:
+        common = {
+            "profile": "review",
+            "endpoint": None,
+            "services": {},
+            "supervisor": {"running": True, "pid": 1234},
+        }
+        statuses = [
+            {
+                **common,
+                "name": "current",
+                "observation": {
+                    "process_tree_lease": "retained",
+                    "runtime_bundle_lease": "retained",
+                    "runtime_generation": "a" * 64,
+                    "safe_action": "run ./atrinik down current",
+                },
+            },
+            {
+                **common,
+                "name": "historical",
+                "observation": {
+                    "process_tree_lease": "retained",
+                    "repository_layout_lease_owner": "supervisor 1234",
+                    "safe_action": "run ./atrinik down historical",
+                },
+            },
+        ]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.topology_statuses.return_value = statuses
+            with mock.patch("builtins.print") as output:
+                result = main(["ps"])
+
+        self.assertEqual(result, 0)
+        rendered = "\n".join(
+            str(call.args[0]) if call.args else "" for call in output.call_args_list
+        )
+        self.assertIn(f"runtime-generation\tretained\t{'a' * 64}", rendered)
+        self.assertIn(
+            "repository-layout-lease\tretained\tsupervisor 1234", rendered
+        )
 
     def test_relative_external_profile_path_is_not_silently_absolutized(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
@@ -899,6 +1218,79 @@ class ParserTests(unittest.TestCase):
 
         self.assertEqual(result, 0)
         self.assertEqual(json.loads(output.call_args.args[0]), summary)
+
+    def test_scenario_list_human_output_identifies_inert_records(self) -> None:
+        summaries = [
+            {
+                "name": "current",
+                "profile": "default",
+                "preset": "basic-player",
+                "state": "scenario-current",
+            },
+            {
+                "name": "historical",
+                "path": "/workspace/scenarios/historical",
+                "inert": True,
+                "inert_reason": "profile_unresolvable",
+            },
+        ]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_list.return_value = summaries
+            with mock.patch("builtins.print") as output:
+                result = main(["scenario", "list"])
+
+        self.assertEqual(result, 0)
+        self.assertEqual(
+            [call.args[0] for call in output.call_args_list],
+            [
+                "current\tdefault\tbasic-player\tscenario-current",
+                "historical\tinert\tprofile_unresolvable\t"
+                "/workspace/scenarios/historical",
+            ],
+        )
+
+    def test_scenario_list_json_preserves_valid_and_inert_records(self) -> None:
+        summaries = [
+            {
+                "name": "current",
+                "profile": "default",
+                "preset": "basic-player",
+                "state": "scenario-current",
+            },
+            {
+                "name": "historical",
+                "path": "/workspace/scenarios/historical",
+                "inert": True,
+                "inert_reason": "profile_unresolvable",
+            },
+        ]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_list.return_value = summaries
+            with mock.patch("builtins.print") as output:
+                result = main(["scenario", "list", "--json"])
+
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.call_args.args[0]), summaries)
+
+    def test_scenario_list_human_output_escapes_inert_control_characters(self) -> None:
+        summaries = [
+            {
+                "name": "unsafe\nname",
+                "path": "/workspace/scenarios/unsafe\tname",
+                "inert": True,
+                "inert_reason": "invalid_record",
+            }
+        ]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_list.return_value = summaries
+            with mock.patch("builtins.print") as output:
+                result = main(["scenario", "list"])
+
+        self.assertEqual(result, 0)
+        output.assert_called_once_with(
+            "unsafe\\nname\tinert\tinvalid_record\t"
+            "/workspace/scenarios/unsafe\\tname"
+        )
 
 
 if __name__ == "__main__":

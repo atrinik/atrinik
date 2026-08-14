@@ -113,7 +113,9 @@ python3 -m coverage run -m unittest discover -v
 python3 -m coverage report --show-missing
 python3 -m compileall -q atrinik atrinik_workspace tests
 python3 -m atrinik_workspace.guidance_inventory --check
+python3 -m atrinik_workspace.mcp_contract validate
 ./atrinik manifest validate
+./atrinik provenance validate
 ./atrinik supply-chain validate
 git diff --check
 ~~~
@@ -128,6 +130,13 @@ classic client and server with `--profile classic --test`. Replacement
 components use their repository-owned aggregate validation today and remain
 inspectable through wrapper manifest/profile contracts until wrapper build
 adapters are implemented.
+
+For lease-graph, profile publication, Git administration, or cleanup changes,
+add process-rendezvous coverage for same-coordinate exclusion and fairness,
+disjoint-coordinate overlap, immutable profile generations, descriptor
+inheritance, reference-publication/removal races, and fail-closed diagnostics.
+Run the cleanup dry-run required by `AGENTS.md`; never use cleanup apply as
+validation.
 
 For CMake/cache changes, also repeat an unchanged build, exercise
 `--force-reconfigure` and `--no-ccache`, inspect `ccache --show-stats` when the

@@ -143,7 +143,7 @@ class PlaytestSoundTests(unittest.TestCase):
         }
         (self.output / PLAYTEST_BLOCKERS).write_bytes(canonical(blockers))
         tree_hash = hashlib.sha256()
-        for asset in playtest_assets:
+        for asset in sorted(playtest_assets, key=lambda value: str(value["logical_path"])):
             logical = str(asset["logical_path"])
             tree_hash.update(f"{digest(self.output / logical)}  {logical}\n".encode())
         self.inputs = {
@@ -218,6 +218,16 @@ class PlaytestSoundTests(unittest.TestCase):
         incomplete.pop("blocker_report_sha256")
         with self.assertRaisesRegex(WorkspaceError, "fields are invalid"):
             validate_sound_record(incomplete)
+
+    def test_output_tree_digest_is_independent_of_manifest_asset_order(self) -> None:
+        self.manifest["assets"] = list(reversed(self.manifest["assets"]))
+        self.rewrite_manifest(self.manifest)
+
+        record = verify_playtest_tree(self.source, self.output, self.inputs)
+
+        self.assertEqual(
+            record["output_tree_sha256"], self.manifest["output_tree_sha256"]
+        )
 
     def test_sound_record_validation_rejects_each_invalid_identity(self) -> None:
         record = verify_playtest_tree(self.source, self.output, self.inputs)
@@ -1659,28 +1669,70 @@ class ReleasedSoundTests(unittest.TestCase):
             (build_root / BUILD_METADATA).write_text(
                 json.dumps({"sound": sound_record}), encoding="utf-8"
             )
-            client = self.root / "client"
-            client.mkdir()
-            (client / "tracked").write_text("fixture\n", encoding="utf-8")
-            selected = {"client": client, "sound": self.root / "unused-source"}
-            resolved = {
-                role: {
+            classic = self.root / "classic"
+            sound = self.root / "unused-source"
+            for source in ("client", "libatrinik", "protocol"):
+                component_path = classic / source
+                component_path.mkdir(parents=True, exist_ok=True)
+                (component_path / "tracked").write_text(
+                    "fixture\n", encoding="utf-8"
+                )
+            heads: dict[str, str] = {}
+            for checkout, path in (("classic", classic), ("sound", sound)):
+                path.mkdir(exist_ok=True)
+                (path / "tracked").write_text("fixture\n", encoding="utf-8")
+                subprocess.run(["git", "init", "-q", str(path)], check=True)
+                subprocess.run(["git", "-C", str(path), "add", "."], check=True)
+                subprocess.run(
+                    [
+                        "git",
+                        "-C",
+                        str(path),
+                        "-c",
+                        "user.name=Fixture",
+                        "-c",
+                        "user.email=fixture@example.invalid",
+                        "commit",
+                        "-qm",
+                        "test: seed fixture",
+                    ],
+                    check=True,
+                )
+                heads[checkout] = subprocess.run(
+                    ["git", "-C", str(path), "rev-parse", "HEAD"],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                ).stdout.strip()
+            selected = {
+                "client": classic / "client",
+                "libatrinik": classic / "libatrinik",
+                "protocol": classic / "protocol",
+                "sound": sound,
+            }
+            resolved: dict[str, dict[str, object]] = {}
+            for role, path in selected.items():
+                component = workspace.manifest.by_name[
+                    role if role == "sound" else f"classic-{role}"
+                ]
+                checkout_path = sound if role == "sound" else classic
+                resolved[component.name] = {
                     "path": str(path),
-                    "checkout_path": str(path),
-                    "checkout": role,
-                    "repository": f"atrinik/{role}",
+                    "checkout_path": str(checkout_path),
+                    "checkout": component.checkout_name,
+                    "repository": component.repository,
                     "branch": "main",
-                    "source": ".",
-                    "head": ("a" if role == "client" else "b") * 40,
+                    "source": component.source,
+                    "head": heads[component.checkout_name],
                     "dirty": False,
                 }
-                for role, path in selected.items()
-            }
             classic_stack = mock.Mock()
             classic_stack.name = "classic"
             classic_stack.components = workspace.manifest.stack("classic").components
             classic_stack.providers = {
-                "client": workspace.manifest.by_name["client"],
+                "client": workspace.manifest.by_name["classic-client"],
+                "libatrinik": workspace.manifest.by_name["classic-libatrinik"],
+                "protocol": workspace.manifest.by_name["classic-protocol"],
                 "sound": workspace.manifest.by_name["sound"],
             }
             with (
@@ -1692,6 +1744,22 @@ class ReleasedSoundTests(unittest.TestCase):
                 mock.patch.object(
                     workspace, "_resolve_build_profile", return_value=selected
                 ),
+                mock.patch.object(
+                    workspace,
+                    "_selected_checkout_states",
+                    return_value={
+                        "classic": {
+                            "path": classic,
+                            "head": heads["classic"],
+                            "dirty": False,
+                        },
+                        "sound": {
+                            "path": sound,
+                            "head": heads["sound"],
+                            "dirty": False,
+                        },
+                    },
+                ),
                 mock.patch.object(workspace, "_build_resolved", return_value=build_root),
                 mock.patch.object(
                     workspace, "_topology_resolved_status", return_value=resolved
@@ -1702,7 +1770,11 @@ class ReleasedSoundTests(unittest.TestCase):
                 )
             self.assertEqual(status["sound"], sound_record)
             runtime = Path(status["services"]["client"]["cwd"])
-            self.assertEqual((runtime / "sound").resolve(), sound_root.resolve())
+            runtime_sound = verify_release_tree(runtime / "sound", self.coordinates)
+            self.assertEqual(
+                {**runtime_sound, "root": "<verified-root>"},
+                {**sound_record, "root": "<verified-root>"},
+            )
             spec = json.loads(
                 (workspace.paths.topologies / topology_name / "spec.json").read_text()
             )

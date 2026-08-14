@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 import json
 import fcntl
@@ -8,10 +9,13 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import threading
 import unittest
 from unittest import mock
 
+from atrinik_workspace import cleanup as cleanup_module
 from atrinik_workspace.cleanup import (
+    ALL_SCOPES,
     Cleanup,
     _base_item,
     _command,
@@ -24,7 +28,12 @@ from atrinik_workspace.cleanup import (
     _worktree_records,
     _workspace_owned,
 )
-from atrinik_workspace.locking import active_lock_fds, inherit_lock_fds
+from atrinik_workspace.locking import (
+    LeaseRequest,
+    active_lock_fds,
+    inherit_lock_fds,
+    resource_locks,
+)
 from atrinik_workspace.model import (
     MANAGED_MARKER,
     SCHEMA_VERSION,
@@ -33,6 +42,7 @@ from atrinik_workspace.model import (
     managed_directory,
     managed_remove as real_managed_remove,
 )
+from atrinik_workspace.process_tree import control_socket_path, initialize_lease
 from atrinik_workspace.workspace import (
     WORKER_DEPENDENCY_SCHEMA_VERSION,
     Workspace,
@@ -148,6 +158,448 @@ class CleanupTests(unittest.TestCase):
         )
         (cache / "playtest-manifest.json").write_text("{}\n", encoding="utf-8")
         return sound, cache
+
+    def make_topology_record(
+        self,
+        name: str,
+        *,
+        stopped_at: str | None = "2026-07-01T00:00:00+00:00",
+        old: bool = True,
+    ) -> Path:
+        root = self.workspace._topology_directory(name, create=True)
+        (root / "operation.lock").touch(mode=0o600)
+        (root / "process-tree.lease").touch(mode=0o600)
+        (root / "server.log").write_text("stopped\n", encoding="utf-8")
+        runtime = root / "runtime"
+        runtime.mkdir()
+        (runtime / "snapshot").write_text("transient\n", encoding="utf-8")
+        atomic_json(
+            root / "status.json",
+            {
+                "schema_version": SCHEMA_VERSION,
+                "name": name,
+                "profile": "default",
+                "dependencies": [],
+                "state": None,
+                "build_root": str(self.workspace.paths.builds / "profiles" / "fixture"),
+                "resolved": {},
+                "endpoint": None,
+                "ready": False,
+                "started_at": "2026-06-01T00:00:00+00:00",
+                "stopped_at": stopped_at,
+                "supervisor": {"pid": 999999, "start_time": "1"},
+                "services": {},
+                "error": "fixture",
+            },
+        )
+        if old:
+            timestamp = self.old.timestamp()
+            for path in sorted(root.rglob("*"), reverse=True):
+                os.utime(path, (timestamp, timestamp), follow_symlinks=False)
+            os.utime(root, (timestamp, timestamp))
+        return root
+
+    def topology_observation(
+        self,
+        liveness: str,
+        *,
+        generation: str | None = None,
+        process_tree_lease: str = "released",
+        runtime_bundle_lease: str = "released",
+        control: str = "unreachable",
+        stopped_at: str | None = "2026-07-01T00:00:00+00:00",
+        port_reservation: object = None,
+        repository_layout_lease_owner: str | None = None,
+    ) -> dict[str, object]:
+        return {
+            "supervisor": {"liveness": liveness},
+            "services": {},
+            "stopped_at": stopped_at,
+            "observation": {
+                "control": control,
+                "generation": generation,
+                "process_tree_lease": process_tree_lease,
+                "runtime_bundle_lease": runtime_bundle_lease,
+                "port_reservation": port_reservation,
+                "repository_layout_lease_owner": repository_layout_lease_owner,
+            },
+        }
+
+    def test_topology_cleanup_is_explicit_and_excluded_from_all(self) -> None:
+        root = self.make_topology_record("retained-history")
+
+        self.assertFalse(
+            any(item["kind"] == "topology" for item in self.plan([])["items"])
+        )
+        self.assertFalse(
+            any(item["kind"] == "topology" for item in self.plan(["all"])["items"])
+        )
+        combined = self.plan(["all", "topologies"])
+        self.assertTrue(any(item["kind"] == "topology" for item in combined["items"]))
+        self.assertEqual(combined["scopes"], [*ALL_SCOPES, "topologies"])
+        report = self.workspace.cleanup(["topologies"], 7, [], False)
+
+        self.assertEqual(report["scopes"], ["topologies"])
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["inactive_topology"])
+        self.assertEqual(item["liveness"], "exited")
+        self.assertEqual(item["age_basis"], "stopped-at")
+
+    def test_topology_cleanup_preserves_generation_owned_state(self) -> None:
+        root = self.make_topology_record("stateful-history")
+        container = root / "temporary-states"
+        container.mkdir()
+        atomic_json(
+            container / MANAGED_MARKER,
+            {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": "topology-temporary-states",
+            },
+        )
+        (container / ("a" * 64)).mkdir()
+
+        report = self.workspace.cleanup(["topologies"], 7, [], False)
+
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("temporary_states_present", item["reasons"])
+
+    def test_missing_topology_container_is_an_empty_inventory(self) -> None:
+        self.workspace.paths.topologies.rmdir()
+
+        report = self.workspace.cleanup(["topologies"], 7, [], False)
+
+        self.assertEqual(report["items"], [])
+        self.assertEqual(report["summary"]["error_count"], 0)
+
+    def test_invalid_topology_container_has_a_complete_protected_record(self) -> None:
+        self.workspace.paths.topologies.rmdir()
+        self.workspace.paths.topologies.symlink_to(self.root)
+
+        report = self.workspace.cleanup(["topologies"], 7, [], False)
+
+        self.assertEqual(len(report["items"]), 1)
+        item = report["items"][0]
+        self.assertEqual(item["disposition"], "protected")
+        self.assertEqual(item["reasons"], ["invalid_topology_container"])
+        self.assertEqual(item["liveness"], "unverifiable")
+        self.assertEqual(item["deletion_paths"], [])
+
+    def test_topology_only_scope_does_not_inventory_unrelated_resources(self) -> None:
+        root = self.make_topology_record("isolated-history")
+
+        with (
+            mock.patch.object(
+                Cleanup, "_references", side_effect=AssertionError("unrelated inventory")
+            ),
+            mock.patch.object(
+                Cleanup,
+                "_registered_worktree_paths",
+                side_effect=AssertionError("unrelated Git inventory"),
+            ),
+        ):
+            report = self.workspace.cleanup(["topologies"], 7, [], False)
+            applied = self.workspace.cleanup(["topologies"], 7, [], True)
+
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(report["inventory_errors"], [])
+        removed = next(row for row in applied["items"] if row["path"] == str(root))
+        self.assertEqual(removed["disposition"], "removed")
+
+    def test_topology_cleanup_removes_only_the_record_and_is_idempotent(self) -> None:
+        root = self.make_topology_record("old-exit")
+        state = self.workspace.paths.state / "preserved"
+        build = self.workspace.paths.builds / "preserved"
+        profile = self.workspace.paths.profiles / "preserved.txt"
+        for path in (state, build):
+            path.mkdir()
+            (path / "sentinel").write_text("preserve\n", encoding="utf-8")
+        profile.write_text("{}\n", encoding="utf-8")
+
+        earlier_builds = self.workspace.cleanup(["builds"], 7, [], False)
+        self.assertNotIn("topology_inventory_error", earlier_builds["inventory_errors"])
+
+        preview = self.workspace.cleanup(["topologies"], 7, [], False)
+        item = next(row for row in preview["items"] if row["path"] == str(root))
+        self.assertIn(str(root / "status.json"), item["deletion_paths"])
+        self.assertIn(str(root / "server.log"), item["deletion_paths"])
+        self.assertIn(str(root / "runtime" / "snapshot"), item["deletion_paths"])
+        self.assertTrue(root.is_dir())
+
+        applied = self.workspace.cleanup(["topologies"], 7, [], True)
+        removed = next(row for row in applied["items"] if row["path"] == str(root))
+        self.assertEqual(removed["disposition"], "removed")
+        self.assertFalse(root.exists())
+        self.assertEqual(self.workspace.topology_statuses(), [])
+        self.assertEqual((state / "sentinel").read_text(), "preserve\n")
+        self.assertEqual((build / "sentinel").read_text(), "preserve\n")
+        self.assertEqual(profile.read_text(), "{}\n")
+
+        later_builds = self.workspace.cleanup(["builds"], 7, [], False)
+        self.assertNotIn("topology_inventory_error", later_builds["inventory_errors"])
+
+        repeated = self.workspace.cleanup(["topologies"], 7, [], True)
+        self.assertEqual(repeated["summary"]["removed_count"], 0)
+        self.assertFalse(repeated["mutated"])
+
+    def test_legacy_stale_topology_uses_conservative_tree_age(self) -> None:
+        old = self.make_topology_record("old-stale", stopped_at=None)
+        young = self.make_topology_record("young-stale", stopped_at=None, old=False)
+        orderly_young = self.make_topology_record(
+            "young-exit", stopped_at=datetime.now(timezone.utc).isoformat()
+        )
+
+        report = self.workspace.cleanup(["topologies"], 7, [], False)
+        old_item = next(row for row in report["items"] if row["path"] == str(old))
+        young_item = next(row for row in report["items"] if row["path"] == str(young))
+        self.assertEqual(old_item["liveness"], "stale")
+        self.assertEqual(old_item["age_basis"], "legacy-tree-mtime")
+        self.assertEqual(old_item["disposition"], "eligible")
+        self.assertEqual(young_item["disposition"], "protected")
+        self.assertIn("topology_younger_than_grace_period", young_item["reasons"])
+        orderly_item = next(
+            row for row in report["items"] if row["path"] == str(orderly_young)
+        )
+        self.assertEqual(orderly_item["age_basis"], "stopped-at")
+        self.assertIn(
+            "topology_younger_than_grace_period", orderly_item["reasons"]
+        )
+
+    def test_exited_topology_without_stopped_at_does_not_use_legacy_age(self) -> None:
+        root = self.make_topology_record("invalid-orderly-exit", stopped_at=None)
+
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            return_value=self.topology_observation("exited", stopped_at=None),
+        ):
+            report = self.workspace.cleanup(["topologies"], 7, [], False)
+
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertIsNone(item["age_basis"])
+        self.assertIn("topology_stopped_at_unavailable", item["reasons"])
+        self.assertEqual(item["disposition"], "protected")
+
+    def test_topology_cleanup_protects_liveness_leases_links_and_operations(self) -> None:
+        live = self.make_topology_record("live")
+        unreachable = self.make_topology_record("unreachable")
+        retained = self.make_topology_record("retained")
+        linked = self.make_topology_record("linked")
+        (linked / "unsafe-link").symlink_to(self.root)
+        missing_lock = self.make_topology_record("missing-operation-lock")
+        (missing_lock / "operation.lock").unlink()
+        active = self.make_topology_record("active-operation")
+        descriptor = os.open(active / "operation.lock", os.O_RDWR)
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+        def status(name: str) -> dict[str, object]:
+            if name == "live":
+                return self.topology_observation("live", control="reachable")
+            if name == "unreachable":
+                return self.topology_observation("unreachable")
+            if name == "retained":
+                return self.topology_observation(
+                    "stale", process_tree_lease="retained"
+                )
+            return self.topology_observation("exited")
+
+        try:
+            with mock.patch.object(self.workspace, "topology_status", side_effect=status):
+                report = self.workspace.cleanup(["topologies"], 7, [], False)
+        finally:
+            os.close(descriptor)
+        items = {row["name"]: row for row in report["items"]}
+        self.assertIn("live_topology", items["live"]["reasons"])
+        self.assertIn("reachable_topology_control", items["live"]["reasons"])
+        self.assertIn("unreachable_topology", items["unreachable"]["reasons"])
+        self.assertIn("process_tree_lease_retained", items["retained"]["reasons"])
+        self.assertIn("invalid_topology_tree", items["linked"]["reasons"])
+        self.assertIn(
+            "topology_operation_lock_unavailable",
+            items["missing-operation-lock"]["reasons"],
+        )
+        self.assertIn("active_topology_operation", items["active-operation"]["reasons"])
+        self.assertTrue(all(row["disposition"] == "protected" for row in items.values()))
+
+    def test_topology_cleanup_rejects_special_and_hard_linked_files(self) -> None:
+        special = self.make_topology_record("special-file")
+        os.mkfifo(special / "unsafe-fifo")
+        linked = self.make_topology_record("hard-linked")
+        os.link(linked / "server.log", linked / "server-copy.log")
+
+        report = self.workspace.cleanup(["topologies"], 7, [], False)
+        items = {row["name"]: row for row in report["items"]}
+
+        self.assertIn("invalid_topology_tree", items["special-file"]["reasons"])
+        self.assertIn("special file", items["special-file"]["error"])
+        self.assertIn("invalid_topology_tree", items["hard-linked"]["reasons"])
+        self.assertIn("linked file", items["hard-linked"]["error"])
+
+    def test_topology_cleanup_protects_unverifiable_runtime_and_port_leases(self) -> None:
+        runtime = self.make_topology_record("runtime-unknown")
+        port = self.make_topology_record("port-unknown")
+
+        def status(name: str) -> dict[str, object]:
+            if name == runtime.name:
+                return self.topology_observation(
+                    "exited", runtime_bundle_lease="unverifiable"
+                )
+            return self.topology_observation("exited", port_reservation={})
+
+        with mock.patch.object(self.workspace, "topology_status", side_effect=status):
+            report = self.workspace.cleanup(["topologies"], 7, [], False)
+        items = {row["name"]: row for row in report["items"]}
+
+        self.assertIn(
+            "runtime_bundle_lease_unverifiable", items[runtime.name]["reasons"]
+        )
+        self.assertIn(
+            "port_reservation_lease_unverifiable", items[port.name]["reasons"]
+        )
+
+    def test_current_generation_and_invalid_records_are_reported_fail_closed(self) -> None:
+        self.make_topology_record("current-generation")
+        malformed = self.make_topology_record("invalid-lease")
+        status = json.loads((malformed / "status.json").read_text(encoding="utf-8"))
+        status["control"] = {
+            "socket": "/wrong/control",
+            "generation": "b" * 64,
+            "lease": {"device": 1, "inode": 2},
+        }
+        atomic_json(malformed / "status.json", status)
+        unowned = self.workspace.paths.topologies / "unowned"
+        unowned.mkdir()
+        (unowned / "status.json").write_text("{}\n", encoding="utf-8")
+
+        actual_status = self.workspace.topology_status
+
+        def observe(name: str) -> dict[str, object]:
+            if name == "current-generation":
+                return self.topology_observation("exited", generation="a" * 64)
+            return actual_status(name)
+
+        with mock.patch.object(self.workspace, "topology_status", side_effect=observe):
+            report = self.workspace.cleanup(["topologies"], 7, [], False)
+        items = {row["name"]: row for row in report["items"]}
+        self.assertEqual(items["current-generation"]["generation"], "a" * 64)
+        self.assertEqual(items["current-generation"]["disposition"], "eligible")
+        self.assertIn("topology_status_unverifiable", items["invalid-lease"]["reasons"])
+        self.assertIn("invalid_topology_ownership", items["unowned"]["reasons"])
+        self.assertEqual(items["invalid-lease"]["disposition"], "protected")
+        self.assertEqual(items["unowned"]["disposition"], "protected")
+
+    def test_topology_preview_reports_a_retained_legacy_layout_lease(self) -> None:
+        root = self.make_topology_record("layout-reader")
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            return_value=self.topology_observation(
+                "exited", repository_layout_lease_owner="layout-reader"
+            ),
+        ):
+            report = self.workspace.cleanup(["topologies"], 7, [], False)
+
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertEqual(item["repository_layout_lease"], "retained")
+        self.assertIn("repository_layout_lease_retained", item["reasons"])
+        self.assertEqual(item["disposition"], "protected")
+
+    def test_topology_apply_skips_a_busy_exact_topology_lease(self) -> None:
+        root = self.make_topology_record("busy-coordinate")
+        request = self.workspace._lease_request(
+            "topology",
+            "busy-coordinate",
+            "shared",
+            "inspect topology busy-coordinate",
+        )
+
+        with self.workspace._resource_locks([request]):
+            report = self.workspace.cleanup(["topologies"], 7, [], True)
+
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "skipped")
+        self.assertEqual(item["reasons"], ["resource_busy"])
+        self.assertTrue(root.is_dir())
+
+    def test_topology_apply_rejects_a_post_revalidation_restart_race(self) -> None:
+        root = self.make_topology_record("restart-race")
+        original = Cleanup._revalidate_target
+
+        def restart_after_revalidation(
+            cleanup: Cleanup, *arguments: object
+        ) -> dict[str, object] | None:
+            item = original(cleanup, *arguments)
+            if item is not None and item["kind"] == "topology":
+                (root / "restart-evidence").write_text("changed\n", encoding="utf-8")
+            return item
+
+        with mock.patch.object(
+            Cleanup, "_revalidate_target", new=restart_after_revalidation
+        ):
+            report = self.workspace.cleanup(["topologies"], 7, [], True)
+
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["removal_failed"])
+        self.assertIn("changed before removal", item["error"])
+        self.assertTrue(root.is_dir())
+
+    def test_topology_apply_rejects_a_change_during_revalidation(self) -> None:
+        root = self.make_topology_record("revalidation-race")
+
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            side_effect=(
+                self.topology_observation("exited"),
+                self.topology_observation("stale"),
+            ),
+        ):
+            report = self.workspace.cleanup(["topologies"], 7, [], True)
+
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["revalidation_error"])
+        self.assertIn("changed during apply revalidation", item["error"])
+        self.assertTrue(root.is_dir())
+
+    def test_topology_preview_protects_a_change_during_inventory(self) -> None:
+        root = self.make_topology_record("inventory-race")
+
+        def change_during_status(_name: str) -> dict[str, object]:
+            (root / "late-log").write_text("changed\n", encoding="utf-8")
+            return self.topology_observation("exited")
+
+        with mock.patch.object(
+            self.workspace, "topology_status", side_effect=change_during_status
+        ):
+            report = self.workspace.cleanup(["topologies"], 7, [], False)
+
+        item = next(row for row in report["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("topology_changed_during_inventory", item["reasons"])
+        self.assertIsNone(item["tree_identity"])
+
+    def test_topology_cleanup_preserves_an_interrupted_record_for_retry(self) -> None:
+        root = self.make_topology_record("interrupted-removal")
+
+        with mock.patch(
+            "atrinik_workspace.cleanup.remove_owned_tree",
+            side_effect=WorkspaceError("simulated interruption"),
+        ):
+            interrupted = self.workspace.cleanup(["topologies"], 7, [], True)
+
+        item = next(row for row in interrupted["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["removal_failed"])
+        self.assertTrue(root.is_dir())
+
+        retried = self.workspace.cleanup(["topologies"], 7, [], True)
+        item = next(row for row in retried["items"] if row["path"] == str(root))
+        self.assertEqual(item["disposition"], "removed")
+        self.assertFalse(root.exists())
 
     @staticmethod
     def write_sound_producer_lease(worktree: Path) -> Path:
@@ -1392,9 +1844,217 @@ class CleanupTests(unittest.TestCase):
         item = next(row for row in report["items"] if row["path"] == str(worktree))
         self.assertEqual(item["disposition"], "removed")
         self.assertFalse(worktree.exists())
+        journal = json.loads(Path(report["journal"]).read_text(encoding="utf-8"))
+        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(
+            journal["completed"],
+            [{"kind": "worktree", "path": str(worktree)}],
+        )
         self.assertEqual(
             command("git", "branch", "--list", branch, cwd=self.wrapper).strip(),
             f"{branch}",
+        )
+
+    def test_apply_skips_busy_target_and_continues_with_disjoint_target(self) -> None:
+        busy = self.make_wrapper_worktree("busy")
+        removable = self.make_wrapper_worktree("removable")
+        request = LeaseRequest(
+            "source",
+            self.workspace._source_coordinate("atrinik", busy),
+            "shared",
+            "build busy worktree",
+            "wait for the build to finish",
+        )
+
+        with resource_locks(
+            self.workspace._lease_root, [request]
+        ), mock.patch.object(
+            Cleanup,
+            "_github_pulls",
+            side_effect=lambda _repository, head: self.merged_pull(head),
+        ):
+            report = self.workspace.cleanup(["worktrees"], 7, [], True)
+
+        by_path = {row["path"]: row for row in report["items"]}
+        self.assertEqual(by_path[str(busy)]["reasons"], ["resource_busy"])
+        self.assertTrue(busy.is_dir())
+        self.assertEqual(by_path[str(removable)]["disposition"], "removed")
+        self.assertFalse(removable.exists())
+        journal = json.loads(Path(report["journal"]).read_text(encoding="utf-8"))
+        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(
+            journal["completed"],
+            [{"kind": "worktree", "path": str(removable)}],
+        )
+
+    def test_apply_skips_worktree_during_relocated_reference_backfill(self) -> None:
+        target = self.make_component_worktree("backfill-race", component="client")
+        alternate_root = self.root / "alternate-backfill-workspace"
+        scenario = alternate_root / "scenarios" / "cleanup-race"
+        scenario.mkdir(parents=True)
+        atomic_json(
+            scenario / "scenario.json",
+            {
+                "resolved": {
+                    "client": {
+                        "checkout": "retired-client-owner",
+                        "checkout_path": str(target),
+                    }
+                }
+            },
+        )
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": str(alternate_root)}
+        ):
+            alternate = Workspace(self.wrapper, backfill_references=False)
+        entered = threading.Event()
+        release = threading.Event()
+        publish = alternate._publish_scenario_references
+
+        def pause_publication(name: str, metadata: dict[str, object]) -> None:
+            entered.set()
+            self.assertTrue(release.wait(5))
+            publish(name, metadata)
+
+        try:
+            with (
+                mock.patch.object(
+                    alternate,
+                    "_publish_scenario_references",
+                    side_effect=pause_publication,
+                ),
+                mock.patch.object(
+                    Cleanup,
+                    "_github_pulls",
+                    side_effect=lambda _repository, head: self.merged_pull(head),
+                ),
+                ThreadPoolExecutor(max_workers=1) as executor,
+            ):
+                backfill = executor.submit(alternate._backfill_physical_references)
+                self.assertTrue(entered.wait(5))
+                report = self.workspace.cleanup(["worktrees"], 7, ["client"], True)
+                item = next(
+                    row for row in report["items"] if row["path"] == str(target)
+                )
+                self.assertEqual(item["disposition"], "skipped")
+                self.assertEqual(item["reasons"], ["resource_busy"])
+                self.assertIn(
+                    "registry physical-references is already in use by shared "
+                    "backfill physical references",
+                    item["error"],
+                )
+                self.assertTrue(target.is_dir())
+                release.set()
+                backfill.result(timeout=5)
+        finally:
+            release.set()
+            alternate.close()
+
+    def test_apply_skips_wrapper_worktree_running_public_operation(self) -> None:
+        busy = self.make_wrapper_worktree("active-wrapper")
+        with mock.patch.dict(
+            os.environ,
+            {"ATRINIK_WORKSPACE_DIR": str(self.root / "active-workspace")},
+        ):
+            active_workspace = Workspace(busy)
+            active_workspace.paths.ensure()
+        entered = threading.Event()
+        release = threading.Event()
+
+        def hold_create(*_arguments: object) -> Path:
+            entered.set()
+            self.assertTrue(release.wait(5))
+            return active_workspace.paths.profiles / "active.json"
+
+        with (
+            mock.patch.object(
+                active_workspace, "_create_profile", side_effect=hold_create
+            ),
+            mock.patch.object(
+                Cleanup,
+                "_github_pulls",
+                side_effect=lambda _repository, head: self.merged_pull(head),
+            ),
+            ThreadPoolExecutor(max_workers=1) as executor,
+        ):
+            operation = executor.submit(active_workspace.create_profile, "active")
+            if not entered.wait(2):
+                operation.result(timeout=1)
+                self.fail("wrapper operation did not acquire its source lease")
+            report = self.workspace.cleanup(["worktrees"], 7, [], True)
+            item = next(row for row in report["items"] if row["path"] == str(busy))
+            self.assertEqual(item["reasons"], ["resource_busy"])
+            self.assertTrue(busy.is_dir())
+            release.set()
+            operation.result(timeout=5)
+
+    def test_apply_from_wrapper_worktree_preserves_invoking_view(self) -> None:
+        current = self.make_wrapper_worktree("invoking-wrapper")
+        with mock.patch.dict(
+            os.environ,
+            {"ATRINIK_WORKSPACE_DIR": str(self.root / "invoking-workspace")},
+        ):
+            workspace = Workspace(current)
+            workspace.paths.ensure()
+            with mock.patch.object(
+                Cleanup,
+                "_github_pulls",
+                side_effect=lambda _repository, head: self.merged_pull(head),
+            ):
+                report = workspace.cleanup(["worktrees"], 7, [], True)
+
+        item = next(row for row in report["items"] if row["path"] == str(current))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("active_wrapper_view", item["reasons"])
+        self.assertTrue(current.is_dir())
+
+    def test_profile_reference_in_other_state_root_protects_worktree(self) -> None:
+        target = self.make_component_worktree("cross-state", component="client")
+        with mock.patch.dict(
+            os.environ,
+            {"ATRINIK_WORKSPACE_DIR": str(self.root / "other-workspace")},
+        ):
+            other = Workspace(self.wrapper)
+            other.paths.ensure()
+            other.create_profile("cross-state")
+            other.set_profile("cross-state", "client", "path", str(target))
+
+        with mock.patch.object(
+            Cleanup,
+            "_github_pulls",
+            side_effect=lambda _repository, head: self.merged_pull(head),
+        ):
+            report = self.workspace.cleanup(["worktrees"], 7, [], True)
+
+        item = next(row for row in report["items"] if row["path"] == str(target))
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("profile_reference", item["reasons"])
+        self.assertTrue(target.is_dir())
+
+    def test_apply_removes_worktrees_from_two_physical_owners(self) -> None:
+        client = self.make_component_worktree("client-review", component="client")
+        server = self.make_component_worktree("server-review", component="server")
+
+        with mock.patch.object(
+            Cleanup,
+            "_github_pulls",
+            side_effect=lambda _repository, head: self.merged_pull(head),
+        ):
+            report = self.workspace.cleanup(["worktrees"], 7, [], True)
+
+        by_path = {row["path"]: row for row in report["items"]}
+        self.assertEqual(by_path[str(client)]["disposition"], "removed")
+        self.assertEqual(by_path[str(server)]["disposition"], "removed")
+        self.assertFalse(client.exists())
+        self.assertFalse(server.exists())
+        journal = json.loads(Path(report["journal"]).read_text(encoding="utf-8"))
+        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(
+            journal["completed"],
+            [
+                {"kind": "worktree", "path": str(client)},
+                {"kind": "worktree", "path": str(server)},
+            ],
         )
 
     def test_populated_submodule_worktree_is_protected_in_preview_and_apply(
@@ -1888,6 +2548,35 @@ class CleanupTests(unittest.TestCase):
         self.assertTrue(second.exists())
         self.assertTrue(report["aborted"])
 
+    def test_apply_reports_progress_journal_failure_after_removal(self) -> None:
+        first = self.make_build("first", "a" * 12)
+        second = self.make_build("second", "b" * 12)
+        real_atomic_json = atomic_json
+        publications = 0
+
+        def publish(path: Path, value: object) -> None:
+            nonlocal publications
+            publications += 1
+            if publications > 1:
+                raise WorkspaceError("injected journal failure")
+            real_atomic_json(path, value)
+
+        with mock.patch(
+            "atrinik_workspace.cleanup.durable_atomic_json", side_effect=publish
+        ):
+            report = self.workspace.cleanup(["builds"], 7, [], True)
+
+        by_path = {row["path"]: row for row in report["items"]}
+        self.assertEqual(by_path[str(first)]["disposition"], "removed")
+        self.assertFalse(first.exists())
+        self.assertTrue(second.exists())
+        self.assertEqual(
+            report["completed_actions"],
+            [{"kind": "profile-build", "path": str(first)}],
+        )
+        self.assertTrue(report["aborted"])
+        self.assertIn("journal failure", report["journal_error"])
+
     def test_apply_reports_revalidation_error_after_a_completed_mutation(self) -> None:
         first = self.make_build("first", "a" * 12)
         second = self.make_build("second", "b" * 12)
@@ -2132,6 +2821,12 @@ class CleanupTests(unittest.TestCase):
         worktree = self.make_component_worktree()
         topology = self.workspace.paths.topologies / "live-current"
         topology.mkdir()
+        lease_fd = os.open(
+            topology / "process-tree.lease", os.O_RDWR | os.O_CREAT, 0o600
+        )
+        fcntl.flock(lease_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        generation = "a" * 64
+        lease = initialize_lease(lease_fd, generation)
         atomic_json(
             topology / MANAGED_MARKER,
             {"schema_version": SCHEMA_VERSION, "purpose": "topology:live-current"},
@@ -2144,7 +2839,16 @@ class CleanupTests(unittest.TestCase):
                 "stack": "default",
                 "providers": {"client": "client"},
                 "dependencies": ["client"],
-                "supervisor": {"pid": 123, "start_time": "1"},
+                "control": {
+                    "socket": str(control_socket_path(topology, generation)),
+                    "generation": generation,
+                    "lease": lease,
+                },
+                "supervisor": {
+                    "pid": 123,
+                    "start_time": "1",
+                    "generation": generation,
+                },
                 "services": {},
                 "build_root": str(self.workspace.paths.builds / "profiles" / "live"),
                 "resolved": {
@@ -2162,10 +2866,15 @@ class CleanupTests(unittest.TestCase):
             },
         )
 
-        with mock.patch(
-            "atrinik_workspace.cleanup.process_matches", return_value=True
-        ), mock.patch.object(Cleanup, "_github_pulls") as pulls:
-            report = self.workspace.cleanup(["worktrees"], 0, ["client"], False)
+        try:
+            with mock.patch(
+                "atrinik_workspace.cleanup.process_matches", return_value=True
+            ), mock.patch.object(Cleanup, "_github_pulls") as pulls:
+                report = self.workspace.cleanup(
+                    ["worktrees"], 0, ["client"], False
+                )
+        finally:
+            os.close(lease_fd)
 
         item = next(row for row in report["items"] if row["path"] == str(worktree))
         self.assertIn("topology_reference", item["reasons"])
@@ -2782,50 +3491,60 @@ class CleanupTests(unittest.TestCase):
     def test_physical_aliases_deduplicate_and_content_branches_stay_distinct(
         self,
     ) -> None:
-        repository = Path(__file__).resolve().parents[1]
+        repository = self.root / "full-wrapper"
+        repository.mkdir()
+        shutil.copy2(Path(__file__).resolve().parents[1] / "components.json", repository)
+        command("git", "init", "-b", "main", cwd=repository)
         actual_workspace = Workspace(repository)
-        cleanup = Cleanup(actual_workspace)
-        self.assertEqual(
-            cleanup._normalize_scopes(["all"]),
-            [
-                "worktrees", "builds", "npm-cache", "compiler-cache",
-                "sound-cache",
-            ],
-        )
-        self.assertEqual(cleanup._normalize_names(["atrinik"]), {"atrinik"})
-        with self.assertRaisesRegex(WorkspaceError, "unknown components"):
-            cleanup._normalize_names(["not-a-component"])
-        self.assertEqual(
-            cleanup._normalize_names(
-                ["classic", "classic-client", "classic-server", "classic-protocol"]
-            ),
-            {"classic"},
-        )
-        self.assertEqual(cleanup._normalize_names(["content"]), {"content"})
-        with self.assertRaisesRegex(WorkspaceError, "unknown components"):
-            cleanup._normalize_names(["content-1x"])
+        try:
+            cleanup = Cleanup(actual_workspace)
+            self.assertEqual(
+                cleanup._normalize_scopes(["all"]),
+                [
+                    "worktrees",
+                    "builds",
+                    "temporary-states",
+                    "npm-cache",
+                    "compiler-cache",
+                    "sound-cache",
+                ],
+            )
+            self.assertEqual(cleanup._normalize_names(["atrinik"]), {"atrinik"})
+            with self.assertRaisesRegex(WorkspaceError, "unknown components"):
+                cleanup._normalize_names(["not-a-component"])
+            self.assertEqual(
+                cleanup._normalize_names(
+                    ["classic", "classic-client", "classic-server", "classic-protocol"]
+                ),
+                {"classic"},
+            )
+            self.assertEqual(cleanup._normalize_names(["content"]), {"content"})
+            with self.assertRaisesRegex(WorkspaceError, "unknown components"):
+                cleanup._normalize_names(["content-1x"])
 
-        head = "a" * 40
-        pulls = self.merged_pull(head, base="main")
-        reason, _, _ = Cleanup._pull_evidence(pulls, head, "main")
-        self.assertIsNone(reason)
-        reason, _, _ = Cleanup._pull_evidence(pulls, head, "1.x")
-        self.assertEqual(reason, "wrong_base_branch")
+            head = "a" * 40
+            pulls = self.merged_pull(head, base="main")
+            reason, _, _ = Cleanup._pull_evidence(pulls, head, "main")
+            self.assertIsNone(reason)
+            reason, _, _ = Cleanup._pull_evidence(pulls, head, "1.x")
+            self.assertEqual(reason, "wrong_base_branch")
 
-        profile = actual_workspace._load_profile("classic", require_file=False)
-        migrated = actual_workspace.paths.worktrees / "content" / "classic-maps"
-        profile["name"] = "migrated"
-        profile["components"]["content-1x"] = {
-            "kind": "migrated-worktree",
-            "value": str(migrated),
-        }
-        profile["components"].pop("content")
-        atomic_json(actual_workspace.paths.profiles / "migrated.json", profile)
-        references: dict[str, object] = {"profiles": {}}
-        errors: set[str] = set()
-        cleanup._profile_references(references, errors)
-        self.assertEqual(errors, set())
-        self.assertEqual(references["profiles"], {migrated: ["migrated"]})
+            profile = actual_workspace._load_profile("classic", require_file=False)
+            migrated = actual_workspace.paths.worktrees / "content" / "classic-maps"
+            profile["name"] = "migrated"
+            profile["components"]["content-1x"] = {
+                "kind": "migrated-worktree",
+                "value": str(migrated),
+            }
+            profile["components"].pop("content")
+            atomic_json(actual_workspace.paths.profiles / "migrated.json", profile)
+            references: dict[str, object] = {"profiles": {}}
+            errors: set[str] = set()
+            cleanup._profile_references(references, errors)
+            self.assertEqual(errors, set())
+            self.assertEqual(references["profiles"], {migrated: ["migrated"]})
+        finally:
+            actual_workspace.close()
 
     def test_allocated_size_credit_deduplicates_shared_inodes(self) -> None:
         first = _base_item("worktree", "atrinik", "atrinik/atrinik", self.root / "a")
@@ -2840,6 +3559,45 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(
             first["allocated_bytes"] + second["allocated_bytes"], 16384
         )
+
+    def test_temporary_tree_usage_bounds_open_descriptors_for_wide_tree(self) -> None:
+        state = self.root / "wide-temporary-state"
+        state.mkdir()
+        for index in range(80):
+            child = state / f"child-{index}"
+            child.mkdir()
+            (child / "payload").write_text("data\n", encoding="utf-8")
+        real_open = os.open
+        real_close = os.close
+        active: set[int] = set()
+        maximum = 0
+
+        def tracked_open(*args: object, **kwargs: object) -> int:
+            nonlocal maximum
+            descriptor = real_open(*args, **kwargs)
+            active.add(descriptor)
+            maximum = max(maximum, len(active))
+            if maximum > 4:
+                real_close(descriptor)
+                active.remove(descriptor)
+                raise OSError("simulated descriptor exhaustion")
+            return descriptor
+
+        def tracked_close(descriptor: int) -> None:
+            active.discard(descriptor)
+            real_close(descriptor)
+
+        with (
+            mock.patch.object(cleanup_module.os, "open", side_effect=tracked_open),
+            mock.patch.object(cleanup_module.os, "close", side_effect=tracked_close),
+        ):
+            sizes, observed, error = cleanup_module._temporary_tree_usage(state)
+
+        self.assertIsNone(error)
+        self.assertIsNotNone(observed)
+        self.assertTrue(sizes)
+        self.assertLessEqual(maximum, 4)
+        self.assertEqual(active, set())
 
 
 if __name__ == "__main__":

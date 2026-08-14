@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import binascii
+import copy
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from contextlib import ExitStack, contextmanager
+from contextlib import AbstractContextManager, ExitStack, contextmanager
 from contextvars import copy_context
 import ctypes
+from dataclasses import dataclass
 from datetime import datetime, timezone
 import errno
 import fcntl
@@ -24,6 +26,7 @@ import ssl
 import stat
 import subprocess
 import sys
+import tarfile
 import tempfile
 import threading
 import time
@@ -31,8 +34,40 @@ from typing import Any, Callable, Iterator, TextIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
-from .locking import active_lock_fds, inherit_lock_fds
-from .process_tree import holders_exist, signal_holders
+from .locking import (
+    LeaseRequest,
+    LockBusyError,
+    active_lock_fds,
+    exclusive_layout_lock,
+    exclusive_lock,
+    inherit_lock_fds,
+    layout_writer_intent_path as _layout_writer_intent_path,
+    resource_lock_path,
+    resource_lifetime_reader,
+    resource_locks,
+    shared_maintenance_lock,
+    shared_layout_lock,
+    shared_lock,
+)
+from .process_tree import (
+    bound_lease_locked,
+    control_socket_path,
+    holders_exist,
+    initialize_lease,
+    lease_locked,
+    signal_holders,
+)
+from .port_reservation import (
+    PORT_RESERVATION_DIRECTORY,
+    PortReservationError,
+    active_owner as active_port_reservation,
+    create_lease as create_port_reservation,
+    open_transaction as open_port_transaction,
+    reservation_locked as port_reservation_locked,
+    try_lock as try_lock_port_reservation,
+    validate_transaction as validate_port_transaction,
+    validate_record as validate_port_reservation,
+)
 
 from .model import (
     MANAGED_MARKER,
@@ -41,10 +76,14 @@ from .model import (
     Component,
     Manifest,
     Paths,
+    AtomicJsonCommitUncertain,
     WorkspaceError,
+    _reject_duplicate_keys,
     atomic_json,
+    durable_atomic_json,
     load_json,
     _managed_path_no_symlinks,
+    _open_directory_nofollow,
     managed_directory,
     managed_reset,
     profile_key,
@@ -53,6 +92,7 @@ from .model import (
 )
 from .migration import (
     MIGRATED_CONTENT_WORKTREE_KIND,
+    PROFILE_IDENTITIES,
     RepositoryMigration,
     classic_lineage,
     rename_no_replace,
@@ -115,6 +155,18 @@ COMPILER_CACHE_PURPOSE = "compiler-cache"
 COMPILER_CACHE_MAX_SIZE = "5G"
 TOPOLOGY_SERVICES = ("server", "client")
 TOPOLOGY_PROCESS_TREE_LEASE = "process-tree.lease"
+TOPOLOGY_PORT_RESERVATION_RECORD = "port-reservation.json"
+TOPOLOGY_STATUS_SCHEMA_VERSION = 3
+LEGACY_RUNTIME_TOPOLOGY_STATUS_SCHEMA_VERSION = 2
+RUNTIME_GENERATION_SCHEMA_VERSION = 1
+RUNTIME_GENERATION_LEASE = "generation.lease"
+RUNTIME_GENERATION_MANIFEST = "manifest.json"
+RUNTIME_STATE_OUTPUT_TRANSACTION = "runtime-state-output-transaction.json"
+STATE_IMPLEMENTATION_MARKER = ".atrinik-state.json"
+STATE_IMPLEMENTATION_SCHEMA_VERSION = 1
+TEMPORARY_STATE_METADATA = "state.json"
+PROMOTED_STATE_METADATA = ".atrinik-promoted-state.json"
+TEMPORARY_STATE_SCHEMA_VERSION = 1
 PRE_MONOREPO_REPOSITORIES = {
     "client": "legacy-client",
     "server": "legacy-server",
@@ -147,8 +199,15 @@ SCENARIO_PRESETS = {
     "lighting-radiance-inside": {"archetype": "human_male"},
 }
 SCENARIO_PASSWORD_MAX_SIZE = 128
+SCENARIO_INERT_HISTORICAL_IDENTITY = "historical_identity"
+SCENARIO_INERT_PROFILE_UNRESOLVABLE = "profile_unresolvable"
+SCENARIO_INERT_INVALID_RECORD = "invalid_record"
 BUILD_METADATA = ".atrinik-build.json"
-BUILD_METADATA_SCHEMA_VERSION = 2
+BUILD_METADATA_SCHEMA_VERSION = 3
+PROFILE_RESOLUTION_METADATA = ".atrinik-profile-resolution.json"
+PROFILE_RESOLUTION_SCHEMA_VERSION = 3
+SOURCE_GENERATION_METADATA = ".atrinik-source-generation.json"
+SOURCE_GENERATION_SCHEMA_VERSION = 1
 CACHE_METADATA = ".atrinik-cache.json"
 WORKER_DEPENDENCY_METADATA = ".atrinik-worker-dependencies.json"
 WORKER_VIEW_METADATA = ".atrinik-worker-view.json"
@@ -178,9 +237,63 @@ WORKER_NPM_FILE_CONFIG_KEYS = {
 }
 RUNTIME_INPUT_METADATA = ".atrinik-dependency.json"
 RUNTIME_INPUT_SCHEMA_VERSION = 1
+
+
+@dataclass
+class StateLease:
+    path_lock: TextIO
+    bind_identity: Callable[[dict[str, int]], TextIO | None]
+    physical_lock: TextIO | None = None
+    physical_identity: dict[str, int] | None = None
+
+    def fileno(self) -> int:
+        return self.path_lock.fileno()
+
+    def bind(self, identity: dict[str, int]) -> None:
+        if self.physical_lock is not None:
+            if self.physical_identity != identity:
+                raise WorkspaceError(
+                    "server state identity changed while acquiring its lease"
+                )
+            return
+        self.physical_lock = self.bind_identity(identity)
+        if self.physical_lock is not None:
+            self.physical_identity = dict(identity)
+
+
+@dataclass(frozen=True)
+class ProfileResolutionSnapshot:
+    """Immutable profile bytes and exact source observations for one operation."""
+
+    name: str
+    generation: str
+    profile_json: str
+    selected: tuple[tuple[str, str], ...]
+    checkout_states_json: str
+
+    def profile(self) -> dict[str, Any]:
+        value = json.loads(self.profile_json)
+        assert isinstance(value, dict)
+        return value
+
+    def paths(self) -> dict[str, Path]:
+        return {role: Path(path) for role, path in self.selected}
+
+    def checkout_states(self) -> dict[str, dict[str, Any]]:
+        value = json.loads(self.checkout_states_json)
+        assert isinstance(value, dict)
+        for state in value.values():
+            state["path"] = Path(state["path"])
+        return value
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
 REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
+
+
+class _InertScenarioError(WorkspaceError):
+    def __init__(self, reason: str, message: str) -> None:
+        super().__init__(message)
+        self.reason = reason
 
 
 def display_arguments(arguments: list[str]) -> str:
@@ -309,6 +422,20 @@ def _descriptor_mount_id(descriptor: int) -> int | tuple[int, int]:
         raise WorkspaceError(
             f"filesystem mount identity is unavailable on {sys.platform}"
         )
+
+
+def _descriptor_path(descriptor: int) -> Path:
+    """Return the host's stable pathname for an open directory descriptor."""
+
+    root = Path("/proc/self/fd") if sys.platform == "linux" else Path("/dev/fd")
+    path = root / str(descriptor)
+    try:
+        path.resolve(strict=True)
+    except OSError as error:
+        raise WorkspaceError(
+            f"open-descriptor paths are unavailable on {sys.platform}: {path}"
+        ) from error
+    return path
 
 
 def _linux_fchmod_path_descriptor(descriptor: int, mode: int) -> None:
@@ -500,6 +627,7 @@ def _prepare_owned_tree_removal(
     mount_id: int | tuple[int, int],
     display: Path,
     original_mode: int | None = None,
+    reject_links: bool = False,
 ) -> None:
     root = os.fstat(descriptor)
     if (
@@ -520,6 +648,13 @@ def _prepare_owned_tree_removal(
                 raise WorkspaceError(
                     f"owned removal encountered a mount: {child_display}"
                 )
+            if reject_links and not (
+                stat.S_ISDIR(child.st_mode)
+                or (stat.S_ISREG(child.st_mode) and child.st_nlink == 1)
+            ):
+                raise WorkspaceError(
+                    f"owned removal encountered linked state: {child_display}"
+                )
             if stat.S_ISDIR(child.st_mode):
                 child_descriptor = _open_owned_tree_directory(
                     descriptor, name, child, mount_id, child_display
@@ -531,6 +666,7 @@ def _prepare_owned_tree_removal(
                         mount_id,
                         child_display,
                         stat.S_IMODE(child.st_mode),
+                        reject_links,
                     )
                 finally:
                     os.close(child_descriptor)
@@ -547,18 +683,89 @@ def _prepare_owned_tree_removal(
             ) from restore_error
 
 
+def _owned_tree_tombstone_name(name: str, device: int, inode: int) -> str:
+    digest = hashlib.sha256(name.encode("utf-8")).hexdigest()[:16]
+    return f".remove-{digest}-{device:x}-{inode:x}"
+
+
+def _owned_tree_tombstone_path(
+    path: Path, identity: dict[str, int]
+) -> Path:
+    return path.parent / _owned_tree_tombstone_name(
+        path.name, identity["device"], identity["inode"]
+    )
+
+
+def _fsync_directory(path: Path) -> None:
+    descriptor = _open_directory_nofollow(
+        path, os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+    )
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
 def _remove_owned_tree_contents(
     descriptor: int,
     device: int,
     mount_id: int | tuple[int, int],
     display: Path,
+    reject_links: bool = False,
 ) -> None:
+    def move_to_tombstone(name: str, child: os.stat_result) -> str:
+        tombstone = _owned_tree_tombstone_name(
+            name, child.st_dev, child.st_ino
+        )
+        rename_no_replace_at(descriptor, name, descriptor, tombstone)
+        moved = os.stat(tombstone, dir_fd=descriptor, follow_symlinks=False)
+        if (moved.st_dev, moved.st_ino) != (
+            child.st_dev,
+            child.st_ino,
+        ):
+            try:
+                rename_no_replace_at(descriptor, tombstone, descriptor, name)
+            except WorkspaceError:
+                pass
+            raise WorkspaceError(
+                f"owned removal entry identity changed: {display / name}"
+            )
+        if reject_links and not (
+            stat.S_ISDIR(moved.st_mode)
+            or (stat.S_ISREG(moved.st_mode) and moved.st_nlink == 1)
+        ):
+            try:
+                rename_no_replace_at(descriptor, tombstone, descriptor, name)
+            except WorkspaceError:
+                pass
+            raise WorkspaceError(
+                f"owned removal encountered linked state: {display / name}"
+            )
+        return tombstone
+
     for name in sorted(os.listdir(descriptor)):
         child_display = display / name
         child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+        tombstone_match = re.fullmatch(
+            r"\.remove-[0-9a-f]{16}-([0-9a-f]+)-([0-9a-f]+)", name
+        )
+        if tombstone_match and (child.st_dev, child.st_ino) != (
+            int(tombstone_match.group(1), 16),
+            int(tombstone_match.group(2), 16),
+        ):
+            raise WorkspaceError(
+                f"owned removal has an uncertain tombstone: {child_display}"
+            )
         if child.st_dev != device:
             raise WorkspaceError(
                 f"owned removal encountered a mount: {child_display}"
+            )
+        if reject_links and not (
+            stat.S_ISDIR(child.st_mode)
+            or (stat.S_ISREG(child.st_mode) and child.st_nlink == 1)
+        ):
+            raise WorkspaceError(
+                f"owned removal encountered linked state: {child_display}"
             )
         if stat.S_ISDIR(child.st_mode):
             child_descriptor = _open_owned_tree_directory(
@@ -566,37 +773,95 @@ def _remove_owned_tree_contents(
             )
             try:
                 _remove_owned_tree_contents(
-                    child_descriptor, device, mount_id, child_display
+                    child_descriptor,
+                    device,
+                    mount_id,
+                    child_display,
+                    reject_links,
                 )
             finally:
                 os.close(child_descriptor)
-            os.rmdir(name, dir_fd=descriptor)
+            tombstone = name if tombstone_match else move_to_tombstone(name, child)
+            os.rmdir(tombstone, dir_fd=descriptor)
         else:
             _probe_owned_tree_entry_mount(
                 descriptor, name, child, mount_id, child_display
             )
-            os.unlink(name, dir_fd=descriptor)
+            tombstone = name if tombstone_match else move_to_tombstone(name, child)
+            os.unlink(tombstone, dir_fd=descriptor)
 
 
-def remove_owned_tree(path: Path) -> None:
-    if path.is_symlink() or not path.is_dir():
-        raise WorkspaceError(f"owned removal root is invalid: {path}")
-    parent_descriptor = os.open(
-        path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+def remove_owned_tree(
+    path: Path,
+    *,
+    expected_identity: dict[str, int] | None = None,
+    keep_root: bool = False,
+    reject_links: bool = False,
+    parent_directory_fd: int | None = None,
+) -> None:
+    if expected_identity is not None and (
+        set(expected_identity) != {"device", "inode"}
+        or any(
+            not isinstance(value, int) or isinstance(value, bool) or value < 0
+            for value in expected_identity.values()
+        )
+    ):
+        raise WorkspaceError(f"owned removal root identity is invalid: {path}")
+    def root_tombstone_name(identity: dict[str, int] | tuple[int, int]) -> str:
+        device, inode = (
+            (identity["device"], identity["inode"])
+            if isinstance(identity, dict)
+            else identity
+        )
+        return _owned_tree_tombstone_name(path.name, device, inode)
+
+    parent_descriptor = (
+        os.dup(parent_directory_fd)
+        if parent_directory_fd is not None
+        else _open_directory_nofollow(
+            path.parent,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+        )
     )
     descriptor: int | None = None
     try:
-        before = os.stat(path.name, dir_fd=parent_descriptor, follow_symlinks=False)
+        entry_name = path.name
+        already_tombstoned = False
+        try:
+            before = os.stat(
+                entry_name, dir_fd=parent_descriptor, follow_symlinks=False
+            )
+        except FileNotFoundError:
+            if expected_identity is None:
+                raise WorkspaceError(f"owned removal root is invalid: {path}")
+            entry_name = root_tombstone_name(expected_identity)
+            try:
+                before = os.stat(
+                    entry_name, dir_fd=parent_descriptor, follow_symlinks=False
+                )
+            except FileNotFoundError as error:
+                raise WorkspaceError(
+                    f"owned removal root is invalid: {path}"
+                ) from error
+            already_tombstoned = True
+        if not stat.S_ISDIR(before.st_mode):
+            raise WorkspaceError(f"owned removal root is invalid: {path}")
+        if expected_identity is not None and (before.st_dev, before.st_ino) != (
+            expected_identity["device"],
+            expected_identity["inode"],
+        ):
+            raise WorkspaceError(f"owned removal root identity changed: {path}")
         parent_mount_id = _descriptor_mount_id(parent_descriptor)
         descriptor = _open_owned_tree_directory(
             parent_descriptor,
-            path.name,
+            entry_name,
             before,
             parent_mount_id,
             path,
             root=True,
         )
         opened = os.fstat(descriptor)
+        expected = (opened.st_dev, opened.st_ino)
         root_mount_id = _descriptor_mount_id(descriptor)
         _prepare_owned_tree_removal(
             descriptor,
@@ -604,14 +869,54 @@ def remove_owned_tree(path: Path) -> None:
             root_mount_id,
             path,
             stat.S_IMODE(before.st_mode),
+            reject_links,
         )
+        visible = os.stat(
+            entry_name, dir_fd=parent_descriptor, follow_symlinks=False
+        )
+        if (visible.st_dev, visible.st_ino) != expected:
+            raise WorkspaceError(f"owned removal root identity changed: {path}")
         os.fchmod(descriptor, stat.S_IRWXU)
         _remove_owned_tree_contents(
-            descriptor, opened.st_dev, root_mount_id, path
+            descriptor,
+            opened.st_dev,
+            root_mount_id,
+            path,
+            reject_links,
         )
         os.close(descriptor)
         descriptor = None
-        os.rmdir(path.name, dir_fd=parent_descriptor)
+        visible = os.stat(
+            entry_name, dir_fd=parent_descriptor, follow_symlinks=False
+        )
+        if (visible.st_dev, visible.st_ino) != expected:
+            raise WorkspaceError(f"owned removal root identity changed: {path}")
+        if keep_root:
+            os.fsync(parent_descriptor)
+            return
+        tombstone = root_tombstone_name(expected)
+        if not already_tombstoned:
+            rename_no_replace_at(
+                parent_descriptor,
+                path.name,
+                parent_descriptor,
+                tombstone,
+            )
+        moved = os.stat(
+            tombstone, dir_fd=parent_descriptor, follow_symlinks=False
+        )
+        if (moved.st_dev, moved.st_ino) != expected:
+            try:
+                rename_no_replace_at(
+                    parent_descriptor,
+                    tombstone,
+                    parent_descriptor,
+                    path.name,
+                )
+            except WorkspaceError:
+                pass
+            raise WorkspaceError(f"owned removal root identity changed: {path}")
+        os.rmdir(tombstone, dir_fd=parent_descriptor)
     finally:
         if descriptor is not None:
             os.close(descriptor)
@@ -830,6 +1135,7 @@ def _tree_digest(
     exclusions: set[str],
     *,
     bounded_symlinks: bool = False,
+    reject_hardlinks: bool = False,
     reject_symlinks: bool = False,
     copied_metadata: bool = False,
     ignore_root_mtime: bool = False,
@@ -894,6 +1200,10 @@ def _tree_digest(
                     )
                     visit(entry, child)
                 elif stat.S_ISREG(status.st_mode):
+                    if reject_hardlinks and status.st_nlink != 1:
+                        raise WorkspaceError(
+                            f"generated source contains a hard-linked file: {entry}"
+                        )
                     record(
                         "file",
                         child.as_posix(),
@@ -956,6 +1266,110 @@ def _tree_digest(
     )
     record("root", stat.S_IMODE(root_status.st_mode), *root_metadata)
     visit(root, PurePosixPath())
+    return digest.hexdigest()
+
+
+def _tree_digest_descriptor(
+    root_fd: int,
+    display: Path,
+    root_exclusions: set[str] | None = None,
+) -> str:
+    """Hash an exact pinned regular tree without following child links."""
+
+    digest = hashlib.sha256()
+    root = os.fstat(root_fd)
+    root_mount = _descriptor_mount_id(root_fd)
+
+    def record(*fields: object) -> None:
+        encoded = json.dumps(
+            fields, ensure_ascii=True, separators=(",", ":")
+        ).encode()
+        digest.update(len(encoded).to_bytes(8, "big"))
+        digest.update(encoded)
+
+    def visit(directory_fd: int, relative: PurePosixPath) -> None:
+        for name in sorted(os.listdir(directory_fd)):
+            if not relative.parts and name in (root_exclusions or set()):
+                continue
+            child = relative / name
+            child_display = display / child.as_posix()
+            metadata = os.stat(
+                name, dir_fd=directory_fd, follow_symlinks=False
+            )
+            mode = stat.S_IMODE(metadata.st_mode)
+            if stat.S_ISDIR(metadata.st_mode):
+                if metadata.st_dev != root.st_dev:
+                    raise WorkspaceError(
+                        f"Worker source contains a mounted directory: {child_display}"
+                    )
+                record("directory", child.as_posix(), mode)
+                descriptor = os.open(
+                    name,
+                    os.O_RDONLY
+                    | os.O_CLOEXEC
+                    | os.O_DIRECTORY
+                    | os.O_NOFOLLOW,
+                    dir_fd=directory_fd,
+                )
+                try:
+                    opened = os.fstat(descriptor)
+                    if (opened.st_dev, opened.st_ino) != (
+                        metadata.st_dev,
+                        metadata.st_ino,
+                    ) or _descriptor_mount_id(descriptor) != root_mount:
+                        raise WorkspaceError(
+                            f"Worker source changed during inventory: {child_display}"
+                        )
+                    visit(descriptor, child)
+                finally:
+                    os.close(descriptor)
+            elif stat.S_ISREG(metadata.st_mode):
+                if metadata.st_nlink != 1 or metadata.st_dev != root.st_dev:
+                    raise WorkspaceError(
+                        f"Worker source contains a linked file: {child_display}"
+                    )
+                descriptor = os.open(
+                    name,
+                    os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                    dir_fd=directory_fd,
+                )
+                try:
+                    opened = os.fstat(descriptor)
+                    if (
+                        not stat.S_ISREG(opened.st_mode)
+                        or opened.st_nlink != 1
+                        or (opened.st_dev, opened.st_ino)
+                        != (metadata.st_dev, metadata.st_ino)
+                        or _descriptor_mount_id(descriptor) != root_mount
+                    ):
+                        raise WorkspaceError(
+                            f"Worker source changed during inventory: {child_display}"
+                        )
+                    file_digest = hashlib.sha256()
+                    while chunk := os.read(descriptor, 1024 * 1024):
+                        file_digest.update(chunk)
+                    record(
+                        "file",
+                        child.as_posix(),
+                        mode,
+                        metadata.st_size,
+                        file_digest.hexdigest(),
+                    )
+                finally:
+                    os.close(descriptor)
+            elif stat.S_ISLNK(metadata.st_mode):
+                raise WorkspaceError(
+                    f"Worker source contains a symbolic link: {child_display}"
+                )
+            else:
+                raise WorkspaceError(
+                    f"Worker source contains an unsupported file type: {child_display}"
+                )
+
+    if not stat.S_ISDIR(root.st_mode):
+        raise WorkspaceError(f"Worker source is not a regular directory: {display}")
+    record("root", stat.S_IMODE(root.st_mode))
+    visit(root_fd, PurePosixPath())
     return digest.hexdigest()
 
 
@@ -1176,63 +1590,178 @@ def open_regular_file(
         raise WorkspaceError(f"cannot open {description} {path}: {error}") from error
 
 
-@contextmanager
-def exclusive_lock(
-    path: Path, description: str, nonblocking: bool = False
-) -> Iterator[TextIO]:
-    with _advisory_lock(
-        path, description, fcntl.LOCK_EX, nonblocking=nonblocking
-    ) as lock:
-        with inherit_lock_fds(lock):
-            yield lock
+def load_regular_json(path: Path, description: str, *, limit: int = 4 * 1024 * 1024) -> Any:
+    """Read one identity-bound regular JSON file without following links."""
+
+    descriptor = open_regular_file(path, os.O_RDONLY, description)
+    try:
+        opened = os.fstat(descriptor)
+        visible = path.stat(follow_symlinks=False)
+        if (
+            (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+            or opened.st_size > limit
+        ):
+            raise WorkspaceError(f"{description} identity is unsafe: {path}")
+        with os.fdopen(descriptor, encoding="utf-8", closefd=False) as stream:
+            return json.load(stream, object_pairs_hook=_reject_duplicate_keys)
+    except (OSError, UnicodeError, ValueError, RecursionError) as error:
+        raise WorkspaceError(f"cannot read {description} {path}: {error}") from error
+    finally:
+        os.close(descriptor)
 
 
-@contextmanager
-def shared_lock(path: Path, description: str) -> Iterator[TextIO]:
-    operation = getattr(fcntl, "LOCK_SH", None)
-    if not isinstance(operation, int):
-        raise WorkspaceError(
-            f"shared locking is unavailable for {description}; refusing to continue"
+def durable_atomic_json_at(directory_fd: int, name: str, value: Any) -> None:
+    """Durably replace one JSON file relative to an already pinned directory."""
+
+    if Path(name).name != name:
+        raise WorkspaceError(f"descriptor-relative JSON name is invalid: {name}")
+    temporary = f".{name}.{secrets.token_hex(12)}.tmp"
+    descriptor: int | None = None
+    try:
+        descriptor = os.open(
+            temporary,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+            0o600,
+            dir_fd=directory_fd,
         )
-    with _advisory_lock(path, description, operation) as lock:
-        with inherit_lock_fds(lock):
-            yield lock
-
-
-@contextmanager
-def _advisory_lock(
-    path: Path,
-    description: str,
-    operation: int,
-    *,
-    nonblocking: bool = False,
-) -> Iterator[TextIO]:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor = open_regular_file(
-        path, os.O_RDWR | os.O_CREAT, f"{description} lock"
-    )
-    with os.fdopen(descriptor, "a+") as lock:
-        operation |= fcntl.LOCK_NB if nonblocking else 0
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            descriptor = None
+            json.dump(value, stream, indent=2, sort_keys=True)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        rename_no_replace_at(
+            directory_fd, temporary, directory_fd, name
+        )
+        os.fsync(directory_fd)
+    except BaseException:
         try:
-            fcntl.flock(lock, operation)
-        except BlockingIOError as error:
-            raise WorkspaceError(f"{description} is already in use") from error
-        except OSError as error:
-            raise WorkspaceError(
-                f"cannot acquire {description} lock: {error}"
-            ) from error
-        yield lock
+            os.unlink(temporary, dir_fd=directory_fd)
+        except FileNotFoundError:
+            pass
+        raise
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+
+
+def rename_no_replace_at(
+    source_directory_fd: int,
+    source: str,
+    destination_directory_fd: int,
+    destination: str,
+) -> None:
+    try:
+        renameat2 = ctypes.CDLL(None, use_errno=True).renameat2
+    except AttributeError as error:
+        raise WorkspaceError("atomic descriptor-relative rename is unsupported") from error
+    renameat2.argtypes = [
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_uint,
+    ]
+    renameat2.restype = ctypes.c_int
+    if (
+        renameat2(
+            source_directory_fd,
+            os.fsencode(source),
+            destination_directory_fd,
+            os.fsencode(destination),
+            1,
+        )
+        == 0
+    ):
+        return
+    error_number = ctypes.get_errno()
+    if error_number == errno.EEXIST:
+        raise WorkspaceError(
+            f"descriptor-relative destination already exists: {destination}"
+        )
+    raise WorkspaceError(
+        "cannot move descriptor-relative path without replacement: "
+        f"{source} -> {destination}: {os.strerror(error_number)}"
+    )
+
+
+def load_regular_json_at(
+    directory_fd: int, name: str, description: str, *, limit: int = 4 * 1024 * 1024
+) -> Any:
+    descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=directory_fd)
+    try:
+        metadata = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_nlink != 1
+            or metadata.st_size > limit
+        ):
+            raise WorkspaceError(f"{description} identity is unsafe: {name}")
+        with os.fdopen(descriptor, encoding="utf-8", closefd=False) as stream:
+            return json.load(stream, object_pairs_hook=_reject_duplicate_keys)
+    except (OSError, UnicodeError, ValueError, RecursionError) as error:
+        raise WorkspaceError(f"cannot read {description} {name}: {error}") from error
+    finally:
+        os.close(descriptor)
 
 
 class Workspace:
-    def __init__(self, repository: Path):
+    def __init__(self, repository: Path, *, backfill_references: bool = True):
         self.paths = Paths.discover(repository)
         self.manifest = Manifest.load(self.paths.repository / "components.json")
+        self._wrapper_lease: Any = None
         self._build_state = threading.local()
         self._prefix_map_support: dict[
             tuple[str, str, str | None, str | None], bool
         ] = {}
         self._prefix_map_support_lock = threading.Lock()
+        repository_identity = self.paths.repository.stat()
+        common_identity = self._lease_namespace.parent.stat()
+        namespace_identity = self._establish_lease_namespace_identity()
+        wrapper_request = self._lease_request(
+            "source",
+            self._source_coordinate("atrinik", self.paths.repository),
+            "shared",
+            "use wrapper worktree",
+        )
+        self._wrapper_lease = resource_lifetime_reader(
+            self._lease_namespace, wrapper_request
+        )
+        self._wrapper_lease.__enter__()
+        if not self.paths.repository.is_dir():
+            raise WorkspaceError(
+                f"wrapper worktree disappeared while acquiring its lease: {self.paths.repository}"
+            )
+        current_repository = self.paths.repository.stat()
+        current_common = self._lease_namespace.parent.stat()
+        current_namespace = self._lease_namespace.stat(follow_symlinks=False)
+        if (
+            (repository_identity.st_dev, repository_identity.st_ino)
+            != (current_repository.st_dev, current_repository.st_ino)
+            or (common_identity.st_dev, common_identity.st_ino)
+            != (current_common.st_dev, current_common.st_ino)
+            or namespace_identity
+            != (current_namespace.st_dev, current_namespace.st_ino)
+        ):
+            raise WorkspaceError("wrapper worktree identity changed while acquiring its lease")
+        self.manifest = Manifest.load(self.paths.repository / "components.json")
+        self._physical_lease_namespace_identity = namespace_identity
+        if backfill_references:
+            self._backfill_physical_references()
+
+    def close(self) -> None:
+        """Release the command-lifetime wrapper and maintenance leases."""
+
+        wrapper_lease = self._wrapper_lease
+        if wrapper_lease is not None:
+            self._wrapper_lease = None
+            wrapper_lease.__exit__(None, None, None)
+
+    def __del__(self) -> None:
+        try:
+            self.close()
+        except BaseException:
+            pass
 
     @property
     def _force_reconfigure(self) -> bool:
@@ -1270,19 +1799,890 @@ class Workspace:
     def _source_view_unchanged(self, value: dict[str, bool]) -> None:
         self._build_state.source_view_unchanged = value
 
+    @property
+    def _profile_snapshot(self) -> ProfileResolutionSnapshot | None:
+        return getattr(self._build_state, "profile_snapshot", None)
+
+    @_profile_snapshot.setter
+    def _profile_snapshot(self, value: ProfileResolutionSnapshot | None) -> None:
+        self._build_state.profile_snapshot = value
+
+    @staticmethod
+    def _lease_recovery(kind: str, coordinate: str) -> str:
+        if kind == "profile":
+            return f"inspect `./atrinik profile show {coordinate} --json` and retry"
+        if kind in {"source", "git-admin"}:
+            return "inspect `./atrinik worktree list --json` and retry after the exact operation finishes"
+        if kind == "topology":
+            return f"inspect `./atrinik ps {coordinate} --json` and stop only that topology when appropriate"
+        return "inspect the exact resource owner and retry after its operation finishes"
+
+    def _lease_request(
+        self,
+        kind: str,
+        coordinate: str,
+        mode: str,
+        operation: str,
+    ) -> LeaseRequest:
+        return LeaseRequest(
+            kind,
+            coordinate,
+            mode,
+            operation,
+            self._lease_recovery(kind, coordinate),
+        )
+
+    @staticmethod
+    def _source_coordinate(checkout_name: str, root: Path) -> str:
+        return f"{checkout_name}:{Path(os.path.abspath(root))}"
+
+    @staticmethod
+    def _physical_source_coordinate(root: Path) -> str:
+        return f"physical-path:{Path(os.path.abspath(root))}"
+
+    @property
+    def _lease_namespace(self) -> Path:
+        """Return the common-Git namespace shared by physical wrapper views."""
+
+        cached = getattr(self, "_physical_lease_namespace", None)
+        if isinstance(cached, Path):
+            self._assert_lease_namespace_identity(cached)
+            return cached
+        fallback = getattr(self, "_fallback_lease_namespace", None)
+        if isinstance(fallback, Path) and not (
+            self.paths.repository / ".git"
+        ).exists():
+            self._assert_lease_namespace_identity(fallback)
+            return fallback
+        try:
+            anchor = self._git_common_directory(
+                self.paths.repository, trace=False
+            )
+        except WorkspaceError:
+            # Unit fixtures and a not-yet-materialized wrapper still need a
+            # stable pre-Git anchor. A production wrapper is itself a checkout.
+            git_marker = self.paths.repository / ".git"
+            if git_marker.exists() or git_marker.is_symlink():
+                raise
+            anchor = self.paths.repository.resolve(strict=False)
+        namespace = anchor / "atrinik-resource-leases"
+        if (self.paths.repository / ".git").exists():
+            if isinstance(fallback, Path) and fallback != namespace:
+                raise WorkspaceError(
+                    "wrapper Git identity materialized after workspace construction; "
+                    "recreate the Workspace before continuing"
+                )
+            self._physical_lease_namespace = namespace
+        else:
+            self._fallback_lease_namespace = namespace
+        return namespace
+
+    def _establish_lease_namespace_identity(self) -> tuple[int, int]:
+        namespace = self._lease_namespace
+        namespace.mkdir(mode=0o700, exist_ok=True)
+        visible = namespace.stat(follow_symlinks=False)
+        if not stat.S_ISDIR(visible.st_mode) or stat.S_IMODE(visible.st_mode) != 0o700:
+            raise WorkspaceError(f"physical lease namespace is unsafe: {namespace}")
+        identity = (visible.st_dev, visible.st_ino)
+        if not (self.paths.repository / ".git").exists():
+            return identity
+        record_path = namespace.parent / "atrinik-resource-leases.identity.json"
+        lock_path = namespace.parent / "atrinik-resource-leases.identity.lock"
+        with exclusive_lock(lock_path, "physical lease namespace identity"):
+            if record_path.exists() or record_path.is_symlink():
+                record = load_regular_json(
+                    record_path, "physical lease namespace identity"
+                )
+                if (
+                    not isinstance(record, dict)
+                    or set(record) != {"schema_version", "device", "inode"}
+                    or record.get("schema_version") != 1
+                    or record.get("device") != identity[0]
+                    or record.get("inode") != identity[1]
+                ):
+                    raise WorkspaceError(
+                        "physical lease namespace identity changed; restore the "
+                        f"original namespace: {namespace}"
+                    )
+            else:
+                durable_atomic_json(
+                    record_path,
+                    {
+                        "schema_version": 1,
+                        "device": identity[0],
+                        "inode": identity[1],
+                    },
+                )
+        return identity
+
+    def _assert_lease_namespace_identity(self, namespace: Path) -> None:
+        expected = getattr(self, "_physical_lease_namespace_identity", None)
+        if expected is None:
+            return
+        try:
+            visible = namespace.stat(follow_symlinks=False)
+        except OSError as error:
+            raise WorkspaceError(
+                f"physical lease namespace is unavailable: {namespace}: {error}"
+            ) from error
+        if (
+            not stat.S_ISDIR(visible.st_mode)
+            or (visible.st_dev, visible.st_ino) != expected
+        ):
+            raise WorkspaceError(
+                "physical lease namespace identity changed; restore the original "
+                f"namespace: {namespace}"
+            )
+
+    def command_maintenance(self) -> AbstractContextManager[None]:
+        """Protect one non-migration CLI command from physical layout writers."""
+
+        return shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
+        )
+
+    def _lease_root(self, request: LeaseRequest) -> Path:
+        """Route physical and workspace-local coordinates to stable namespaces."""
+
+        if request.kind in {"registry", "git-admin", "source"}:
+            return self._lease_namespace
+        return self.paths.workspace
+
+    def _assert_physical_namespace_fd(self, descriptor: int) -> None:
+        expected = getattr(self, "_physical_lease_namespace_identity", None)
+        if expected is None:
+            return
+        opened = os.fstat(descriptor)
+        if (opened.st_dev, opened.st_ino) != expected:
+            raise WorkspaceError(
+                "physical lease namespace identity changed; restore the original "
+                f"namespace: {self._lease_namespace}"
+            )
+
+    @contextmanager
+    def _resource_locks(
+        self,
+        requests: list[LeaseRequest] | tuple[LeaseRequest, ...],
+        *,
+        nonblocking: bool = False,
+    ) -> Iterator[tuple[TextIO, ...]]:
+        """Acquire exact leases beneath the shared migration barrier."""
+
+        wrapper_request = self._lease_request(
+            "source",
+            self._source_coordinate("atrinik", self.paths.repository),
+            "shared",
+            "use wrapper worktree",
+        )
+        protected_requests = (*requests, wrapper_request)
+        with shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
+        ):
+            with resource_locks(
+                self._lease_root, protected_requests, nonblocking=nonblocking
+            ) as leases:
+                self._assert_lease_namespace_identity(self._lease_namespace)
+                yield leases
+                self._assert_lease_namespace_identity(self._lease_namespace)
+
+    @contextmanager
+    def _resource_locks_all_or_none(
+        self, requests: list[LeaseRequest] | tuple[LeaseRequest, ...]
+    ) -> Iterator[tuple[TextIO, ...]]:
+        """Acquire a set without retaining earlier coordinates while waiting."""
+
+        ordered = tuple(sorted(requests, key=lambda request: request.sort_key))
+        while True:
+            try:
+                with self._resource_locks(ordered, nonblocking=True) as leases:
+                    yield leases
+                    return
+            except LockBusyError:
+                pass
+            for request in ordered:
+                try:
+                    with self._resource_locks([request], nonblocking=True):
+                        continue
+                except LockBusyError:
+                    with self._resource_locks([request]):
+                        pass
+                    break
+
+    def _git_admin_coordinate(self, checkout: Checkout, primary: Path) -> str:
+        # Every wrapper-managed worktree for a physical checkout is anchored to
+        # its canonical primary. The stable primary coordinate remains usable
+        # before clone and avoids reading mutable Git administration state just
+        # to discover the lease that protects that state.
+        return f"{checkout.name}:{primary.resolve(strict=False)}"
+
+    def _wrapper_git_admin_coordinate(self) -> str:
+        return f"atrinik:{self._lease_namespace.parent}"
+
+    def _source_generation_record(self, source: Path) -> dict[str, Any] | None:
+        metadata = source.parent / SOURCE_GENERATION_METADATA
+        if source.name != "source" or not metadata.is_file() or metadata.is_symlink():
+            return None
+        value = load_regular_json(metadata, "immutable source generation")
+        if (
+            not isinstance(value, dict)
+            or set(value)
+            != {
+                "schema_version",
+                "repository",
+                "checkout",
+                "branch",
+                "commit",
+                "tree",
+                "source",
+                "source_tree",
+                "source_tree_sha256",
+            }
+            or value.get("schema_version") != SOURCE_GENERATION_SCHEMA_VERSION
+            or not all(
+                isinstance(value.get(field), str) and value[field]
+                for field in ("repository", "checkout", "branch", "source")
+            )
+            or not all(
+                isinstance(value.get(field), str)
+                and re.fullmatch(r"[0-9a-f]{40,64}", value[field])
+                for field in (
+                    "commit",
+                    "tree",
+                    "source_tree",
+                    "source_tree_sha256",
+                )
+            )
+            or not any(
+                component.checkout_name == value.get("checkout")
+                and component.repository == value.get("repository")
+                and component.branch == value.get("branch")
+                and component.source == value.get("source")
+                for component in self.manifest.components
+            )
+        ):
+            raise WorkspaceError(
+                f"immutable source generation metadata is invalid: {metadata}"
+            )
+        identity = {
+            field: value[field]
+            for field in value
+            if field != "source_tree_sha256"
+        }
+        key = hashlib.sha256(
+            json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        generation = source.parent
+        expected = (
+            self.paths.builds / "source-generations" / value["checkout"] / key
+        )
+        marker = generation / MANAGED_MARKER
+        try:
+            valid_path = (
+                not source.is_symlink()
+                and source.is_dir()
+                and not generation.is_symlink()
+                and generation.resolve(strict=False) == expected.resolve(strict=False)
+                and not (stat.S_IMODE(generation.lstat().st_mode) & 0o222)
+            )
+        except RuntimeError:
+            valid_path = False
+        if (
+            not valid_path
+            or not marker.is_file()
+            or marker.is_symlink()
+            or load_json(marker)
+            != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": f"source-generation:{key}",
+            }
+        ):
+            raise WorkspaceError(
+                f"immutable source generation ownership is invalid: {generation}"
+            )
+        return value
+
+    @staticmethod
+    def _extract_git_source_archive(archive_path: Path, output: Path) -> None:
+        """Extract a local Git archive without trusting archive paths or links."""
+
+        output.mkdir()
+        root = output.resolve()
+        try:
+            with tarfile.open(archive_path, mode="r:") as archive:
+                for member in archive:
+                    relative = PurePosixPath(member.name)
+                    if (
+                        not member.name
+                        or relative.is_absolute()
+                        or any(part in {"", ".", ".."} for part in relative.parts)
+                    ):
+                        raise WorkspaceError(
+                            f"Git source archive contains an unsafe path: {member.name!r}"
+                        )
+                    destination = output.joinpath(*relative.parts)
+                    parent = destination.parent
+                    parent.mkdir(parents=True, exist_ok=True)
+                    if any(
+                        candidate.is_symlink()
+                        for candidate in (parent, *parent.parents)
+                        if candidate == output or output in candidate.parents
+                    ):
+                        raise WorkspaceError(
+                            f"Git source archive traverses a symbolic link: {member.name}"
+                        )
+                    if destination.exists() or destination.is_symlink():
+                        if (
+                            member.isdir()
+                            and destination.is_dir()
+                            and not destination.is_symlink()
+                        ):
+                            continue
+                        raise WorkspaceError(
+                            f"Git source archive repeats a path: {member.name}"
+                        )
+                    permissions = member.mode & 0o777
+                    if member.isdir():
+                        destination.mkdir()
+                        destination.chmod(permissions)
+                    elif member.isreg():
+                        stream = archive.extractfile(member)
+                        if stream is None:
+                            raise WorkspaceError(
+                                f"Git source archive cannot read file: {member.name}"
+                            )
+                        descriptor = os.open(
+                            destination,
+                            os.O_WRONLY
+                            | os.O_CREAT
+                            | os.O_EXCL
+                            | getattr(os, "O_NOFOLLOW", 0),
+                            permissions,
+                        )
+                        try:
+                            with stream, os.fdopen(
+                                descriptor, "wb", closefd=False
+                            ) as target:
+                                shutil.copyfileobj(stream, target, 1024 * 1024)
+                        finally:
+                            os.close(descriptor)
+                        destination.chmod(permissions)
+                    elif member.issym():
+                        target = member.linkname
+                        if not target or Path(target).is_absolute():
+                            raise WorkspaceError(
+                                f"Git source archive contains an unsafe link: {member.name}"
+                            )
+                        resolved = destination.parent.joinpath(target).resolve(
+                            strict=False
+                        )
+                        try:
+                            resolved.relative_to(root)
+                        except ValueError as error:
+                            raise WorkspaceError(
+                                f"Git source archive link escapes its generation: {member.name}"
+                            ) from error
+                        destination.symlink_to(target)
+                    else:
+                        raise WorkspaceError(
+                            f"Git source archive contains an unsupported entry: {member.name}"
+                        )
+        except (OSError, tarfile.TarError) as error:
+            raise WorkspaceError(
+                f"cannot extract immutable Git source archive: {error}"
+            ) from error
+
+    def _materialize_primary_source(
+        self,
+        component: Component,
+        checkout: Path,
+        source: Path,
+        state: dict[str, Any],
+    ) -> Path:
+        checkout_identity = checkout.stat()
+        source_identity = source.stat()
+        git_common = self._git_common_directory(checkout, trace=False)
+        git_common_identity = git_common.stat()
+        expected_source_identity = state.get("sources", {}).get(component.source)
+        if (
+            (checkout_identity.st_dev, checkout_identity.st_ino)
+            != (state.get("device"), state.get("inode"))
+            or str(git_common) != state.get("git_common")
+            or (git_common_identity.st_dev, git_common_identity.st_ino)
+            != (
+                state.get("git_common_device"),
+                state.get("git_common_inode"),
+            )
+            or expected_source_identity
+            != {
+                "path": str(source.resolve()),
+                "device": source_identity.st_dev,
+                "inode": source_identity.st_ino,
+            }
+        ):
+            raise WorkspaceError(
+                f"clean primary source identity changed before materialization: {checkout}"
+            )
+        commit = state["head"]
+        tree = git(
+            checkout,
+            "rev-parse",
+            f"{commit}^{{tree}}",
+            capture=True,
+            trace=False,
+        )
+        source_tree = git(
+            checkout,
+            "rev-parse",
+            (
+                f"{commit}^{{tree}}"
+                if component.source == "."
+                else f"{commit}:{component.source}"
+            ),
+            capture=True,
+            trace=False,
+        )
+        identity = {
+            "schema_version": SOURCE_GENERATION_SCHEMA_VERSION,
+            "repository": component.repository,
+            "checkout": component.checkout_name,
+            "branch": component.branch,
+            "commit": commit,
+            "tree": tree,
+            "source": component.source,
+            "source_tree": source_tree,
+        }
+        key = hashlib.sha256(
+            json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        container = self.paths.builds / "source-generations" / component.checkout_name
+        container_lock = (
+            self.paths.builds
+            / "locks"
+            / f"source-generation-container-{component.checkout_name}.lock"
+        )
+        with exclusive_lock(
+            container_lock,
+            f"immutable source generation container {component.checkout_name}",
+        ):
+            managed_directory(
+                container,
+                self.paths.builds,
+                f"source-generations:{component.checkout_name}",
+            )
+        generation = container / key
+        lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
+        with exclusive_lock(lock, f"immutable source generation {component.name}"):
+            if generation.exists() or generation.is_symlink():
+                if generation.is_symlink() or not generation.is_dir():
+                    raise WorkspaceError(
+                        f"immutable source generation is invalid: {generation}"
+                    )
+                marker = generation / MANAGED_MARKER
+                record = self._source_generation_record(generation / "source")
+                expected_record = {
+                    **identity,
+                    "source_tree_sha256": _tree_digest(
+                        generation / "source",
+                        set(),
+                        bounded_symlinks=True,
+                        reject_hardlinks=True,
+                    ),
+                }
+                if (
+                    not marker.is_file()
+                    or marker.is_symlink()
+                    or load_json(marker)
+                    != {
+                        "schema_version": SCHEMA_VERSION,
+                        "purpose": f"source-generation:{key}",
+                    }
+                    or record != expected_record
+                ):
+                    raise WorkspaceError(
+                        f"immutable source generation is corrupt: {generation}"
+                    )
+                current_git_common = self._git_common_directory(
+                    checkout, trace=False
+                )
+                current_checkout = checkout.stat()
+                current_source = source.stat()
+                current_git_common_identity = current_git_common.stat()
+                if (
+                    (current_checkout.st_dev, current_checkout.st_ino)
+                    != (state["device"], state["inode"])
+                    or str(current_git_common) != state["git_common"]
+                    or (
+                        current_git_common_identity.st_dev,
+                        current_git_common_identity.st_ino,
+                    )
+                    != (
+                        state["git_common_device"],
+                        state["git_common_inode"],
+                    )
+                    or state["sources"][component.source]
+                    != {
+                        "path": str(source.resolve()),
+                        "device": current_source.st_dev,
+                        "inode": current_source.st_ino,
+                    }
+                    or not _is_clean(checkout, trace=False)
+                    or git(
+                        checkout,
+                        "rev-parse",
+                        "HEAD",
+                        capture=True,
+                        trace=False,
+                    )
+                    != commit
+                ):
+                    raise WorkspaceError(
+                        f"clean primary source changed before generation reuse: {checkout}"
+                    )
+                return generation / "source"
+
+            staging = Path(
+                tempfile.mkdtemp(prefix=f"{key}-staging-", dir=container)
+            )
+            archive_path = staging / "source.tar"
+            try:
+                atomic_json(
+                    staging / MANAGED_MARKER,
+                    {
+                        "schema_version": SCHEMA_VERSION,
+                        "purpose": f"source-generation:{key}",
+                    },
+                )
+                archive_ref = (
+                    commit
+                    if component.source == "."
+                    else f"{commit}:{component.source}"
+                )
+                try:
+                    subprocess.run(
+                        [
+                            "git",
+                            "-C",
+                            str(checkout),
+                            "archive",
+                            "--format=tar",
+                            f"--output={archive_path}",
+                            archive_ref,
+                        ],
+                        check=True,
+                        stderr=subprocess.PIPE,
+                        pass_fds=active_lock_fds(),
+                    )
+                except FileNotFoundError as error:
+                    raise WorkspaceError("required command not found: git") from error
+                except subprocess.CalledProcessError as error:
+                    detail = error.stderr.decode("utf-8", errors="replace").strip()
+                    suffix = f": {detail}" if detail else ""
+                    raise WorkspaceError(
+                        f"cannot export immutable source generation{suffix}"
+                    ) from error
+                self._extract_git_source_archive(archive_path, staging / "source")
+                archive_path.unlink()
+                current_checkout = checkout.stat()
+                current_source = source.stat()
+                current_git_common = self._git_common_directory(
+                    checkout, trace=False
+                )
+                current_git_common_identity = current_git_common.stat()
+                if (
+                    (checkout_identity.st_dev, checkout_identity.st_ino)
+                    != (current_checkout.st_dev, current_checkout.st_ino)
+                    or (source_identity.st_dev, source_identity.st_ino)
+                    != (current_source.st_dev, current_source.st_ino)
+                    or str(current_git_common) != state["git_common"]
+                    or (
+                        git_common_identity.st_dev,
+                        git_common_identity.st_ino,
+                    )
+                    != (
+                        current_git_common_identity.st_dev,
+                        current_git_common_identity.st_ino,
+                    )
+                    or not _is_clean(checkout, trace=False)
+                    or git(checkout, "rev-parse", "HEAD", capture=True, trace=False)
+                    != commit
+                    or git(
+                        checkout,
+                        "rev-parse",
+                        f"{commit}^{{tree}}",
+                        capture=True,
+                        trace=False,
+                    )
+                    != tree
+                ):
+                    raise WorkspaceError(
+                        f"clean primary source changed during materialization: {checkout}"
+                    )
+                self._seal_runtime_generation(staging / "source")
+                record = {
+                    **identity,
+                    "source_tree_sha256": _tree_digest(
+                        staging / "source",
+                        set(),
+                        bounded_symlinks=True,
+                        reject_hardlinks=True,
+                    ),
+                }
+                durable_atomic_json(staging / SOURCE_GENERATION_METADATA, record)
+                self._seal_runtime_generation(staging)
+                rename_no_replace(staging, generation)
+            except BaseException:
+                if staging.exists() and not staging.is_symlink():
+                    remove_owned_tree(staging)
+                raise
+        return generation / "source"
+
+    def _materialize_clean_primary_sources(
+        self,
+        profile: dict[str, Any],
+        selected: dict[str, Path],
+        states: dict[str, dict[str, Any]],
+    ) -> tuple[dict[str, Path], set[str], dict[Path, dict[str, Any]]]:
+        stack = self.manifest.stack(profile["stack"])
+        materialized = dict(selected)
+        checkout_results: dict[tuple[str, str], Path] = {}
+        for role in sorted(selected):
+            component = stack.providers[role]
+            selector = profile["components"][component.name]
+            checkout = self._selector_root(profile, component).resolve()
+            state = states[component.checkout_name]
+            # The authored content publisher currently proves its Classic
+            # target against a live Git checkout. Keep that exact source lease
+            # until the publisher accepts an immutable-generation identity.
+            if (
+                role == "content"
+                or selector["kind"] != "primary"
+                or state["dirty"]
+            ):
+                continue
+            cache_key = (component.checkout_name, component.source)
+            generated = checkout_results.get(cache_key)
+            if generated is None:
+                generated = self._materialize_primary_source(
+                    component, checkout, selected[role], state
+                )
+                checkout_results[cache_key] = generated
+            materialized[role] = generated
+        released: set[str] = set()
+        for checkout_name in {
+            stack.providers[role].checkout_name for role in selected
+        }:
+            checkout_roles = [
+                role
+                for role in selected
+                if stack.providers[role].checkout_name == checkout_name
+            ]
+            if all(materialized[role] != selected[role] for role in checkout_roles):
+                component = stack.providers[checkout_roles[0]]
+                checkout = self._selector_root(profile, component).resolve()
+                released.add(self._source_coordinate(checkout_name, checkout))
+        generation_records: dict[Path, dict[str, Any]] = {}
+        for role, path in materialized.items():
+            if path == selected[role] or path in generation_records:
+                continue
+            try:
+                record = self._source_generation_record(path)
+            except (OSError, WorkspaceError) as error:
+                raise WorkspaceError(
+                    "immutable source generation changed before lease handoff: "
+                    f"{path}"
+                ) from error
+            if record is None:
+                raise WorkspaceError(
+                    "immutable source generation changed before lease handoff: "
+                    f"{path}"
+                )
+            generation_records[path] = record
+        return materialized, released, generation_records
+
+    @contextmanager
+    def _resolved_profile_operation(
+        self,
+        profile_name: str,
+        required: set[str],
+        operation: str,
+        *,
+        materialize_clean_primaries: bool = False,
+    ) -> Iterator[ProfileResolutionSnapshot]:
+        """Capture and retain one exact profile/source resolution."""
+
+        profile_request = self._lease_request(
+            "profile", profile_name, "shared", operation
+        )
+        with self._resource_locks([profile_request]):
+            profile = self._load_profile_file(profile_name, require_file=False)
+            stack = self.manifest.stack(profile["stack"])
+            roles = self._dependency_roles(profile, required)
+            components = {stack.providers[role].name for role in roles}
+            source_requests: list[LeaseRequest] = []
+            seen: set[str] = set()
+            for component in stack.components:
+                if component.name not in components:
+                    continue
+                root = self._selector_root(profile, component)
+                coordinate = self._source_coordinate(component.checkout_name, root)
+                if coordinate in seen:
+                    continue
+                seen.add(coordinate)
+                source_requests.append(
+                    self._lease_request("source", coordinate, "shared", operation)
+                )
+            source_contexts: list[
+                tuple[str, AbstractContextManager[tuple[TextIO, ...]]]
+            ] = []
+            generation_contexts: list[AbstractContextManager[TextIO]] = []
+            try:
+                ordered_requests = sorted(
+                    source_requests, key=lambda item: item.sort_key
+                )
+                while True:
+                    waiting: LeaseRequest | None = None
+                    try:
+                        for request in ordered_requests:
+                            context = self._resource_locks(
+                                [request], nonblocking=True
+                            )
+                            context.__enter__()
+                            source_contexts.append((request.coordinate, context))
+                    except LockBusyError:
+                        waiting = request
+                    if waiting is None:
+                        break
+                    for _coordinate, context in reversed(source_contexts):
+                        context.__exit__(None, None, None)
+                    source_contexts = []
+                    with self._resource_locks([waiting]):
+                        pass
+                confirmed_profile = self._load_profile_file(
+                    profile_name, require_file=False
+                )
+                if confirmed_profile != profile:
+                    raise WorkspaceError(
+                        f"profile {profile_name} changed while its exact sources were being locked; retry"
+                    )
+                selected = self._resolve_build_profile(
+                    profile_name, required, trace=False, profile=confirmed_profile
+                )
+                states = self._selected_checkout_states(
+                    profile, selected, include_dirty=True, include_identity=True
+                )
+                released: set[str] = set()
+                if materialize_clean_primaries:
+                    (
+                        selected,
+                        released,
+                        generation_records,
+                    ) = self._materialize_clean_primary_sources(
+                        confirmed_profile, selected, states
+                    )
+                    generation_keys = sorted(
+                        {
+                            path.parent.name
+                            for path in generation_records
+                        }
+                    )
+                    for key in generation_keys:
+                        context = shared_lock(
+                            self.paths.builds
+                            / "locks"
+                            / f"source-generation-{key}.lock",
+                            f"immutable source generation {key}",
+                        )
+                        context.__enter__()
+                        generation_contexts.append(context)
+                    for path, expected_record in generation_records.items():
+                        try:
+                            current_record = self._source_generation_record(path)
+                            current_digest = _tree_digest(
+                                path,
+                                set(),
+                                bounded_symlinks=True,
+                                reject_hardlinks=True,
+                            )
+                        except (OSError, WorkspaceError) as error:
+                            raise WorkspaceError(
+                                "immutable source generation changed before lease handoff: "
+                                f"{path}"
+                            ) from error
+                        if (
+                            current_record != expected_record
+                            or current_digest
+                            != expected_record["source_tree_sha256"]
+                        ):
+                            raise WorkspaceError(
+                                "immutable source generation changed before lease handoff: "
+                                f"{path}"
+                            )
+                    retained = []
+                    for coordinate, context in reversed(source_contexts):
+                        if coordinate in released:
+                            context.__exit__(None, None, None)
+                        else:
+                            retained.append((coordinate, context))
+                    source_contexts = list(reversed(retained))
+                serializable_states = {
+                    name: {**state, "path": str(state["path"])}
+                    for name, state in states.items()
+                }
+                profile_json = json.dumps(
+                    profile, sort_keys=True, separators=(",", ":")
+                )
+                selected_rows = tuple(
+                    (role, str(path.resolve()))
+                    for role, path in sorted(selected.items())
+                )
+                state_json = json.dumps(
+                    serializable_states, sort_keys=True, separators=(",", ":")
+                )
+                generation = hashlib.sha256(
+                    f"{profile_json}\0{selected_rows!r}\0{state_json}".encode()
+                ).hexdigest()
+                snapshot = ProfileResolutionSnapshot(
+                    profile_name,
+                    generation,
+                    profile_json,
+                    selected_rows,
+                    state_json,
+                )
+                previous = self._profile_snapshot
+                self._profile_snapshot = snapshot
+                try:
+                    yield snapshot
+                finally:
+                    self._profile_snapshot = previous
+            finally:
+                for context in reversed(generation_contexts):
+                    context.__exit__(None, None, None)
+                for _coordinate, context in reversed(source_contexts):
+                    context.__exit__(None, None, None)
+
     def migrate_repositories(self, mode: str) -> dict[str, Any]:
         if mode == "apply":
             self.paths.ensure()
-        return RepositoryMigration(
-            self.paths.repository, self.paths, self.manifest
+        result = RepositoryMigration(
+            self.paths.repository,
+            self.paths,
+            self.manifest,
+            self._lease_namespace / "repository-layout.lock",
+            self._publish_migration_profile_references,
         ).execute(mode)
+        return result
 
     def migrate_content(self, mode: str) -> dict[str, Any]:
         if mode in {"apply", "restore"}:
             self.paths.ensure()
-        return ContentMigration(
-            self.paths.repository, self.paths, self.manifest
+        result = ContentMigration(
+            self.paths.repository,
+            self.paths,
+            self.manifest,
+            self._lease_namespace / "repository-layout.lock",
+            self._publish_migration_profile_references,
         ).execute(mode)
+        return result
 
     def cleanup(
         self,
@@ -1295,7 +2695,12 @@ class Workspace:
         # helpers without creating a module import cycle.
         from .cleanup import Cleanup
 
-        return Cleanup(self).execute(scopes, older_than_days, names, apply)
+        if not apply:
+            return Cleanup(self).execute(scopes, older_than_days, names, False)
+        with shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
+        ):
+            return Cleanup(self).execute(scopes, older_than_days, names, True)
 
     def _checkout_identity(self, value: Checkout | Component) -> Checkout:
         if isinstance(value, Checkout):
@@ -1346,34 +2751,47 @@ class Workspace:
         self.paths.ensure()
         checkouts = self._operation_checkouts(names, include_classic)
         failures: list[str] = []
-        with exclusive_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ):
-            # Validate every occupied destination before starting any clone.
-            # A pre-split classic checkout at a canonical replacement path
-            # must stop the entire operation without leaving a partially
-            # initialized replacement cohort behind.
-            for checkout in checkouts:
-                destination = self._primary_path(checkout)
-                if destination.exists() or destination.is_symlink():
-                    self._validate_primary_checkout(checkout, destination)
-            with ThreadPoolExecutor(
-                max_workers=max(1, min(jobs, len(checkouts)))
-            ) as executor:
-                futures = {
-                    executor.submit(
-                        copy_context().run, self._ensure_repository, checkout
-                    ): checkout
-                    for checkout in checkouts
-                }
-                for future in as_completed(futures):
-                    checkout = futures[future]
-                    try:
-                        future.result()
-                        print(f"{checkout.name}: ready")
-                    except Exception as error:
-                        failures.append(f"{checkout.name}: {error}")
+        # Validate every occupied destination before starting any clone. This
+        # preserves all-or-nothing preflight while the actual operations use
+        # disjoint checkout leases and may overlap.
+        for checkout in checkouts:
+            destination = self._primary_path(checkout)
+            if destination.exists() or destination.is_symlink():
+                self._validate_primary_checkout(checkout, destination)
+
+        def initialize_checkout(checkout: Checkout) -> Path:
+            destination = self._primary_path(checkout)
+            requests = [
+                self._lease_request(
+                    "git-admin",
+                    self._git_admin_coordinate(checkout, destination),
+                    "exclusive",
+                    f"initialize {checkout.name}",
+                ),
+                self._lease_request(
+                    "source",
+                    self._source_coordinate(checkout.name, destination),
+                    "exclusive",
+                    f"initialize {checkout.name}",
+                ),
+            ]
+            with self._resource_locks(requests):
+                return self._ensure_repository(checkout)
+
+        with ThreadPoolExecutor(
+            max_workers=max(1, min(jobs, len(checkouts)))
+        ) as executor:
+            futures = {
+                executor.submit(copy_context().run, initialize_checkout, checkout): checkout
+                for checkout in checkouts
+            }
+            for future in as_completed(futures):
+                checkout = futures[future]
+                try:
+                    future.result()
+                    print(f"{checkout.name}: ready")
+                except Exception as error:
+                    failures.append(f"{checkout.name}: {error}")
         if failures:
             raise WorkspaceError(
                 "repository initialization failed:\n" + "\n".join(sorted(failures))
@@ -1640,11 +3058,111 @@ class Workspace:
         if worktree_strategy not in {"none", "merge", "rebase"}:
             raise WorkspaceError(f"unknown worktree strategy: {worktree_strategy}")
         checkouts = self._operation_checkouts(names, include_classic)
-        with exclusive_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ):
-            self._sync_components(checkouts, names, worktree_strategy)
+        failures: list[str] = []
+
+        # Preserve the command's all-checkout preflight guarantee before any
+        # parallel worker can fetch or advance a checkout. Workers repeat this
+        # validation under their exact Git-admin/source leases to close races.
+        explicitly_requested = {
+            checkout.name
+            for checkout in self._operation_checkouts(names, False)
+        } if names else set()
+        migrated_content = (
+            self._migrated_content_worktree_paths()
+            if worktree_strategy != "none"
+            and any(checkout.name == "content" for checkout in checkouts)
+            else set()
+        )
+        for checkout in checkouts:
+            repository = self._primary_path(checkout)
+            if not repository.exists() and not repository.is_symlink():
+                if checkout.name in explicitly_requested:
+                    raise WorkspaceError(
+                        "component is not initialized; run ./atrinik init "
+                        f"{checkout.name}: {repository}"
+                    )
+                continue
+            self._validate_primary_checkout(checkout, repository)
+            if not _is_clean(repository):
+                raise WorkspaceError(
+                    f"refusing to update dirty primary checkout: {repository}"
+                )
+            self._canonical_remote(checkout, repository)
+            if worktree_strategy != "none":
+                self._component_worktrees(
+                    repository,
+                    migrated_content if checkout.name == "content" else set(),
+                )
+
+        def sync_checkout(checkout: Checkout) -> None:
+            repository = self._primary_path(checkout)
+            admin_request = self._lease_request(
+                "git-admin",
+                self._git_admin_coordinate(checkout, repository),
+                "exclusive",
+                f"synchronize {checkout.name}",
+            )
+            def source_roots() -> tuple[Path, ...]:
+                roots = [repository]
+                if repository.is_dir() and worktree_strategy != "none":
+                    roots.extend(
+                        Path(record["worktree"])
+                        for record in _worktree_records(repository, trace=False)
+                        if "branch" in record
+                    )
+                return tuple(
+                    sorted(
+                        {root.resolve(strict=False) for root in roots},
+                        key=str,
+                    )
+                )
+
+            while True:
+                with self._resource_locks([admin_request]):
+                    roots = source_roots()
+                requests = [
+                    self._lease_request(
+                        "source",
+                        self._source_coordinate(checkout.name, root),
+                        "exclusive",
+                        f"synchronize {checkout.name}",
+                    )
+                    for root in roots
+                ]
+                with self._resource_locks_all_or_none(requests):
+                    try:
+                        with self._resource_locks(
+                            [admin_request],
+                            nonblocking=True,
+                        ):
+                            if source_roots() != roots:
+                                continue
+                            self._sync_components(
+                                [checkout], names, worktree_strategy
+                            )
+                            return
+                    except LockBusyError:
+                        pass
+                # Never wait for Git administration while retaining a source
+                # lease: let the conflicting bounded mutation complete, then
+                # resnapshot and retry the ordered exact set.
+                with self._resource_locks([admin_request]):
+                    pass
+
+        with ThreadPoolExecutor(max_workers=max(1, len(checkouts))) as executor:
+            futures = {
+                executor.submit(copy_context().run, sync_checkout, checkout): checkout
+                for checkout in checkouts
+            }
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as error:
+                    failures.append(f"{futures[future].name}: {error}")
+        if failures:
+            raise WorkspaceError(
+                "repository synchronization failed:\n" + "\n".join(sorted(failures))
+            )
 
     def _sync_components(
         self,
@@ -1786,13 +3304,49 @@ class Workspace:
         existing: bool,
     ) -> Path:
         self.paths.ensure()
-        with exclusive_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        validate_name(label, "worktree label")
+        checkout = self._resolve_checkout(component_name)
+        repository = self._primary_path(checkout)
+        destination = self.paths.worktrees / checkout.name / label
+        with shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
         ):
-            return self._create_worktree(
-                component_name, label, branch, start_point, existing
-            )
+            with self._open_managed_worktree_parent(destination) as (
+                stable_destination,
+                physical_destination,
+            ):
+                requests = [
+                    self._lease_request(
+                        "git-admin",
+                        self._git_admin_coordinate(checkout, repository),
+                        "exclusive",
+                        f"create worktree {checkout.name}/{label}",
+                    ),
+                    self._lease_request(
+                        "source",
+                        self._source_coordinate(checkout.name, physical_destination),
+                        "exclusive",
+                        f"create worktree {checkout.name}/{label}",
+                    ),
+                ]
+                if not repository.exists() and not repository.is_symlink():
+                    requests.append(
+                        self._lease_request(
+                            "source",
+                            self._source_coordinate(checkout.name, repository),
+                            "exclusive",
+                            f"initialize {checkout.name} for worktree creation",
+                        )
+                    )
+                with self._resource_locks(requests):
+                    return self._create_worktree(
+                        component_name,
+                        label,
+                        branch,
+                        start_point,
+                        existing,
+                        stable_destination,
+                    )
 
     def _create_worktree(
         self,
@@ -1801,6 +3355,7 @@ class Workspace:
         branch: str,
         start_point: str | None,
         existing: bool,
+        stable_destination: Path | None = None,
     ) -> Path:
         self.paths.ensure()
         validate_name(label, "worktree label")
@@ -1808,66 +3363,345 @@ class Workspace:
         repository = self._ensure_repository(checkout)
         remote = self._canonical_remote(checkout, repository)
         run(["git", "check-ref-format", "--branch", branch], capture=True)
-        destination = self.paths.worktrees / checkout.name / label
+        reported_destination = self.paths.worktrees / checkout.name / label
+        destination = stable_destination or reported_destination
         if destination.exists():
-            raise WorkspaceError(f"worktree destination already exists: {destination}")
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        if existing:
-            git(repository, "worktree", "add", "--", str(destination), branch)
-        else:
-            if start_point is not None and start_point.startswith("-"):
-                raise WorkspaceError("worktree start point must not begin with '-'")
-            point = start_point or f"{remote}/{checkout.branch}"
-            git(repository, "fetch", "--prune", remote)
-            commit = git(
-                repository,
-                "rev-parse",
-                "--verify",
-                "--end-of-options",
-                f"{point}^{{commit}}",
-                capture=True,
+            raise WorkspaceError(
+                f"worktree destination already exists: {reported_destination}"
             )
-            git(
-                repository,
-                "worktree",
-                "add",
-                "-b",
-                branch,
-                "--",
-                str(destination),
-                commit,
-            )
-        self._validate_checkout(checkout, destination)
-        print(destination)
-        return destination
+        if stable_destination is None:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+        installed = False
+        try:
+            if existing:
+                git(repository, "worktree", "add", "--", str(destination), branch)
+            else:
+                if start_point is not None and start_point.startswith("-"):
+                    raise WorkspaceError("worktree start point must not begin with '-'")
+                point = start_point or f"{remote}/{checkout.branch}"
+                git(repository, "fetch", "--prune", remote)
+                commit = git(
+                    repository,
+                    "rev-parse",
+                    "--verify",
+                    "--end-of-options",
+                    f"{point}^{{commit}}",
+                    capture=True,
+                )
+                git(
+                    repository,
+                    "worktree",
+                    "add",
+                    "-b",
+                    branch,
+                    "--",
+                    str(destination),
+                    commit,
+                )
+            installed = True
+            self._validate_checkout(checkout, destination)
+            if stable_destination is not None:
+                self._require_visible_worktree_identity(
+                    reported_destination, destination
+                )
+        except BaseException as error:
+            if installed:
+                try:
+                    git(repository, "worktree", "remove", "--force", str(destination))
+                    if not existing:
+                        git(repository, "branch", "-D", branch)
+                except BaseException as rollback_error:
+                    raise WorkspaceError(
+                        "worktree creation failed and its Git registration could not "
+                        f"be rolled back: {rollback_error}"
+                    ) from error
+            raise
+        print(reported_destination)
+        return reported_destination
 
     def remove_worktree(self, component_name: str, label: str) -> None:
         self.paths.ensure()
-        with exclusive_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        validate_name(label, "worktree label")
+        checkout = self._resolve_checkout(component_name)
+        destination = self.paths.worktrees / checkout.name / label
+        repository = self._primary_path(checkout)
+        if not repository.is_dir() or repository.is_symlink():
+            raise WorkspaceError(
+                "component is not initialized; run ./atrinik init "
+                f"{checkout.name}: {repository}"
+            )
+        admin_request = self._lease_request(
+            "git-admin",
+            self._git_admin_coordinate(checkout, repository),
+            "exclusive",
+            f"remove worktree {checkout.name}/{label}",
+        )
+        registry_request = self._lease_request(
+            "registry",
+            "physical-references",
+            "exclusive",
+            f"remove worktree {checkout.name}/{label}",
+        )
+        with self._open_managed_worktree(destination) as (
+            stable_destination,
+            physical_destination,
         ):
-            self._remove_worktree(component_name, label)
+            source_request = self._lease_request(
+                "source",
+                self._source_coordinate(checkout.name, physical_destination),
+                "exclusive",
+                f"remove worktree {checkout.name}/{label}",
+            )
+            physical_request = self._lease_request(
+                "source",
+                self._physical_source_coordinate(physical_destination),
+                "exclusive",
+                f"remove worktree {checkout.name}/{label}",
+            )
+            while True:
+                with self._resource_locks(
+                    [registry_request, source_request, physical_request]
+                ):
+                    try:
+                        with self._resource_locks(
+                            [admin_request], nonblocking=True
+                        ):
+                            self._remove_worktree(
+                                component_name, label, stable_destination
+                            )
+                            return
+                    except LockBusyError:
+                        pass
+                with self._resource_locks([admin_request]):
+                    pass
 
-    def _remove_worktree(self, component_name: str, label: str) -> None:
+    def _remove_worktree(
+        self, component_name: str, label: str, stable_destination: Path
+    ) -> None:
         self.paths.ensure()
         validate_name(label, "worktree label")
         checkout = self._resolve_checkout(component_name)
-        repository = self._ensure_repository(checkout)
+        repository = self._primary_path(checkout)
+        self._validate_primary_checkout(checkout, repository)
         candidates = [self.paths.worktrees / checkout.name / label]
-        existing = [candidate.resolve() for candidate in candidates if candidate.is_dir()]
-        if len(existing) != 1:
-            rendered = ", ".join(str(candidate) for candidate in candidates)
-            raise WorkspaceError(f"worktree does not exist unambiguously: {rendered}")
-        destination = existing[0]
-        expected_parents = {
-            (self.paths.worktrees / checkout.name).resolve(),
-        }
-        if destination.parent not in expected_parents:
-            raise WorkspaceError(f"invalid managed worktree path: {destination}")
+        destination = stable_destination
+        if any(candidate.is_symlink() for candidate in candidates):
+            raise WorkspaceError(
+                "worktree does not exist unambiguously: "
+                + ", ".join(str(candidate) for candidate in candidates)
+            )
+        self._require_visible_worktree_identity(candidates[0], destination)
         if not _is_clean(destination):
             raise WorkspaceError(f"refusing to remove dirty worktree: {destination}")
+        references = self._source_references(destination)
+        if references:
+            raise WorkspaceError(
+                f"refusing to remove referenced worktree {destination}: "
+                + ", ".join(references)
+            )
+        self._require_visible_worktree_identity(candidates[0], destination)
         git(repository, "worktree", "remove", str(destination))
+
+    @staticmethod
+    def _require_visible_worktree_identity(visible: Path, stable: Path) -> None:
+        try:
+            visible_identity = visible.stat(follow_symlinks=False)
+            stable_identity = stable.stat()
+        except OSError as error:
+            raise WorkspaceError(
+                f"managed worktree path was replaced: {visible}"
+            ) from error
+        if (
+            not stat.S_ISDIR(visible_identity.st_mode)
+            or (visible_identity.st_dev, visible_identity.st_ino)
+            != (stable_identity.st_dev, stable_identity.st_ino)
+        ):
+            raise WorkspaceError(f"managed worktree path was replaced: {visible}")
+
+    @contextmanager
+    def _open_managed_worktree(
+        self, destination: Path
+    ) -> Iterator[tuple[Path, Path]]:
+        """Retain a no-follow target descriptor through destructive Git use."""
+
+        root = Path(os.path.abspath(self.paths.worktrees))
+        candidate = Path(os.path.abspath(destination))
+        try:
+            relative = candidate.relative_to(root)
+        except ValueError as error:
+            raise WorkspaceError(f"invalid managed worktree path: {candidate}") from error
+        if len(relative.parts) != 2:
+            raise WorkspaceError(f"invalid managed worktree path: {candidate}")
+        flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        descriptors: list[int] = []
+        try:
+            current_fd = os.open(root, flags)
+            descriptors.append(current_fd)
+            current_path = root
+            for part in relative.parts:
+                next_fd = os.open(part, flags, dir_fd=current_fd)
+                descriptors.append(next_fd)
+                current_fd = next_fd
+                current_path /= part
+                opened = os.fstat(current_fd)
+                visible = current_path.stat(follow_symlinks=False)
+                if (
+                    not stat.S_ISDIR(opened.st_mode)
+                    or (opened.st_dev, opened.st_ino)
+                    != (visible.st_dev, visible.st_ino)
+                ):
+                    raise WorkspaceError(
+                        f"managed worktree path was replaced: {current_path}"
+                    )
+            retained = os.dup(current_fd)
+            try:
+                stable = _descriptor_path(retained)
+                physical = stable.resolve(strict=True)
+                with inherit_lock_fds(retained):
+                    yield stable, physical
+            finally:
+                os.close(retained)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot open managed worktree path {candidate}: {error}"
+            ) from error
+        finally:
+            for descriptor in reversed(descriptors):
+                os.close(descriptor)
+
+    @contextmanager
+    def _open_managed_worktree_parent(
+        self, destination: Path
+    ) -> Iterator[tuple[Path, Path]]:
+        """Retain the destination parent without following managed-path links."""
+
+        root = Path(os.path.abspath(self.paths.worktrees))
+        candidate = Path(os.path.abspath(destination))
+        try:
+            relative = candidate.relative_to(root)
+        except ValueError as error:
+            raise WorkspaceError(f"invalid managed worktree path: {candidate}") from error
+        if len(relative.parts) != 2:
+            raise WorkspaceError(f"invalid managed worktree path: {candidate}")
+        checkout_name, label = relative.parts
+        flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        descriptors: list[int] = []
+        try:
+            root_fd = os.open(root, flags)
+            descriptors.append(root_fd)
+            try:
+                os.mkdir(checkout_name, dir_fd=root_fd)
+            except FileExistsError:
+                pass
+            parent_fd = os.open(checkout_name, flags, dir_fd=root_fd)
+            descriptors.append(parent_fd)
+            opened = os.fstat(parent_fd)
+            visible_path = root / checkout_name
+            visible = visible_path.stat(follow_symlinks=False)
+            if (
+                not stat.S_ISDIR(opened.st_mode)
+                or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+            ):
+                raise WorkspaceError(
+                    f"managed worktree path was replaced: {visible_path}"
+                )
+            try:
+                os.stat(label, dir_fd=parent_fd, follow_symlinks=False)
+            except FileNotFoundError:
+                pass
+            else:
+                raise WorkspaceError(f"worktree destination already exists: {candidate}")
+            retained = os.dup(parent_fd)
+            try:
+                stable_parent = _descriptor_path(retained)
+                physical_parent = stable_parent.resolve(strict=True)
+                with inherit_lock_fds(retained):
+                    yield stable_parent / label, physical_parent / label
+            finally:
+                os.close(retained)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot open managed worktree parent {candidate.parent}: {error}"
+            ) from error
+        finally:
+            for descriptor in reversed(descriptors):
+                os.close(descriptor)
+
+    def _source_references(self, source_root: Path) -> list[str]:
+        """Return exact persisted references while the caller holds source exclusive."""
+
+        target = source_root.resolve()
+        references: list[str] = []
+        for record in self._physical_reference_records():
+            if (
+                not isinstance(record, dict)
+                or set(record) != {"schema_version", "kind", "reference", "sources"}
+                or record["schema_version"] != 1
+                or record["kind"] not in {"profiles", "scenarios"}
+                or not isinstance(record["reference"], str)
+                or not isinstance(record["sources"], list)
+            ):
+                raise WorkspaceError("cannot prove physical reference record")
+            if any(
+                not isinstance(source, str) or not Path(source).is_absolute()
+                for source in record["sources"]
+            ):
+                raise WorkspaceError("cannot prove physical reference record")
+            if target in {
+                Path(source).resolve(strict=False) for source in record["sources"]
+            }:
+                references.append(f"{record['kind'][:-1]}:{record['reference']}")
+        if self.paths.profiles.exists():
+            for path in sorted(self.paths.profiles.glob("*.json")):
+                profile = self._load_profile_file(path.stem, require_file=True)
+                stack = self.manifest.stack(profile["stack"])
+                roots = {
+                    self._selector_root(profile, component).resolve(strict=False)
+                    for component in stack.components
+                }
+                if target in roots:
+                    references.append(f"profile:{profile['name']}")
+        for container, record_name in (
+            (self.paths.topologies, "topology"),
+            (self.paths.scenarios, "scenario"),
+        ):
+            if not container.exists():
+                continue
+            for directory in sorted(container.iterdir()):
+                if (
+                    directory.name.startswith(".")
+                    or not directory.is_dir()
+                    or directory.is_symlink()
+                ):
+                    continue
+                candidates = (
+                    (directory / "spec.json", directory / "status.json")
+                    if record_name == "topology"
+                    else (directory / "scenario.json",)
+                )
+                for record_path in candidates:
+                    if not record_path.exists():
+                        continue
+                    value = load_json(record_path)
+                    resolved = value.get("resolved") if isinstance(value, dict) else None
+                    if not isinstance(resolved, dict):
+                        raise WorkspaceError(
+                            f"cannot prove {record_name} references: {record_path}"
+                        )
+                    for coordinate in resolved.values():
+                        if not isinstance(coordinate, dict):
+                            continue
+                        raw_path = coordinate.get("checkout_path") or coordinate.get("path")
+                        if isinstance(raw_path, str) and Path(raw_path).resolve(
+                            strict=False
+                        ) == target:
+                            references.append(f"{record_name}:{directory.name}")
+                            break
+                    if references and references[-1] == f"{record_name}:{directory.name}":
+                        break
+        return sorted(set(references))
 
     def list_worktrees(self, names: list[str] | None = None) -> list[tuple[str, dict[str, str]]]:
         self.paths.ensure()
@@ -1890,13 +3724,49 @@ class Workspace:
 
     def create_profile(self, name: str, source: str = "default") -> Path:
         self.paths.ensure()
-        with exclusive_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ):
-            return self._create_profile(name, source)
+        validate_name(name, "profile name")
+        validate_name(source, "profile name")
+        requests = [
+            self._lease_request(
+                "profile", name, "exclusive", f"create profile {name}"
+            ),
+            self._lease_request(
+                "profile", source, "shared", f"copy profile {source} to {name}"
+            ),
+        ]
+        with self._resource_locks(requests):
+            source_profile = self._load_profile_file(source, require_file=False)
+            stack = self.manifest.stack(source_profile["stack"])
+            source_requests: list[LeaseRequest] = []
+            seen: set[str] = set()
+            for component in stack.components:
+                root = self._selector_root(source_profile, component)
+                coordinate = self._source_coordinate(
+                    component.checkout_name, root
+                )
+                if coordinate in seen:
+                    continue
+                seen.add(coordinate)
+                source_requests.append(
+                    self._lease_request(
+                        "source", coordinate, "shared", f"create profile {name}"
+                    )
+                )
+            with self._resource_locks(source_requests):
+                confirmed_profile = self._load_profile_file(
+                    source, require_file=False
+                )
+                if confirmed_profile != source_profile:
+                    raise WorkspaceError(
+                        f"profile {source} changed while its exact sources were being locked; retry"
+                    )
+                return self._create_profile(name, confirmed_profile)
 
-    def _create_profile(self, name: str, source: str = "default") -> Path:
+    def _create_profile(
+        self,
+        name: str,
+        source_profile: dict[str, Any],
+    ) -> Path:
         self.paths.ensure()
         validate_name(name, "profile name")
         if name in self.manifest.stacks:
@@ -1904,7 +3774,6 @@ class Workspace:
         path = self.paths.profiles / f"{name}.json"
         if path.exists():
             raise WorkspaceError(f"profile already exists: {name}")
-        source_profile = self._load_profile(source, require_file=False)
         value = {
             "schema_version": PROFILE_SCHEMA_VERSION,
             "name": name,
@@ -1920,7 +3789,16 @@ class Workspace:
                 for component_name, selector in source_profile["components"].items()
             },
         }
-        atomic_json(path, value)
+        self._publish_profile_references(name, value)
+        try:
+            durable_atomic_json(path, value)
+        except AtomicJsonCommitUncertain:
+            # The authored profile is visible. Keep its conservative physical
+            # references rather than pretending publication did not occur.
+            raise
+        except BaseException:
+            self._remove_physical_reference(path)
+            raise
         print(path)
         return path
 
@@ -1928,17 +3806,588 @@ class Workspace:
         self, name: str, component_name: str, kind: str, value: str = ""
     ) -> None:
         self.paths.ensure()
-        with exclusive_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        validate_name(name, "profile name")
+        profile_request = self._lease_request(
+            "profile", name, "exclusive", f"update profile {name}"
+        )
+        with self._resource_locks([profile_request]):
+            profile = self._load_profile_file(name, require_file=True)
+            components = self._profile_components(profile, component_name)
+            checkout_names = {component.checkout_name for component in components}
+            if len(checkout_names) != 1:
+                raise WorkspaceError(
+                    f"profile selection spans multiple checkouts: {component_name}"
+                )
+            checkout_name = checkout_names.pop()
+            checkout = self.manifest.by_checkout[checkout_name]
+            if kind == "primary":
+                selected_root = self._primary_path(checkout)
+            elif kind == "worktree":
+                validate_name(value, "worktree label")
+                selected_root = self.paths.worktrees / checkout_name / value
+            elif kind == "path":
+                selected_root = Path(value).expanduser()
+                if not selected_root.is_absolute():
+                    raise WorkspaceError("profile checkout path must be absolute")
+                if selected_root.is_symlink():
+                    raise WorkspaceError(
+                        f"component checkout is not a directory: {selected_root}"
+                    )
+                selected_root = selected_root.resolve(strict=False)
+                value = str(selected_root)
+            else:
+                raise WorkspaceError(f"invalid profile selector kind: {kind}")
+            source_request = self._lease_request(
+                "source",
+                self._source_coordinate(checkout_name, selected_root),
+                "shared",
+                f"publish profile {name}",
+            )
+            with self._resource_locks([source_request]):
+                self._set_profile(name, component_name, kind, value)
+
+    def _backfill_profile_references(self, *, already_locked: bool = False) -> None:
+        if not self.paths.profiles.is_dir() or self.paths.profiles.is_symlink():
+            return
+        for path in sorted(self.paths.profiles.glob("*.json")):
+            if already_locked:
+                profile = self._load_profile_file(path.stem, require_file=True)
+                self._publish_profile_references(path.stem, profile)
+                continue
+            profile = load_regular_json(path, f"profile {path.stem}")
+            sources = self._raw_profile_reference_sources(path.stem, profile)
+            requests = [
+                self._lease_request(
+                    "profile", path.stem, "shared", "backfill profile reference"
+                ),
+                *[
+                    self._lease_request(
+                        "source",
+                        self._source_coordinate(checkout, source),
+                        "shared",
+                        "backfill profile reference",
+                    )
+                    for checkout, source in sources
+                ],
+            ]
+            with resource_locks(self._lease_root, requests, nonblocking=True):
+                confirmed = load_regular_json(path, f"profile {path.stem}")
+                if confirmed != profile:
+                    raise WorkspaceError(
+                        "profile changed during physical reference backfill: "
+                        f"{path.stem}; stop editing that profile and retry"
+                    )
+                # Missing selectors are historical authored coordinates. Publish
+                # them conservatively so construction can finish without making
+                # a source at that exact path eligible for later reclamation.
+                self._publish_raw_profile_references(
+                    path.stem, path, profile=confirmed
+                )
+
+    def _raw_profile_reference_sources(
+        self, name: str, profile: Any
+    ) -> list[tuple[str, Path]]:
+        if not isinstance(profile, dict) or not isinstance(profile.get("components"), dict):
+            raise WorkspaceError(f"profile must be an object with components: {name}")
+        sources: dict[tuple[str, str], tuple[str, Path]] = {}
+        for component_name, selector in profile["components"].items():
+            if not isinstance(selector, dict) or selector.get("kind") == "primary":
+                continue
+            component = self.manifest.by_name.get(component_name)
+            kind, value = selector.get("kind"), selector.get("value")
+            legacy_component = component is None and (
+                component_name == "content-1x" or component_name in PROFILE_IDENTITIES
+            )
+            if (component is None and not legacy_component) or not isinstance(value, str):
+                raise WorkspaceError(f"profile selector is invalid: {name}/{component_name}")
+            legacy_checkout = (
+                "content-1x"
+                if component_name in {"content", "content-1x"}
+                else component_name.removeprefix("legacy-")
+            )
+            root = (
+                self.paths.worktrees
+                / (component.checkout_name if component is not None else legacy_checkout)
+                / value
+                if kind == "worktree"
+                else Path(value)
+            )
+            if not root.is_absolute():
+                raise WorkspaceError(f"profile selector is invalid: {name}/{component_name}")
+            resolved = root.resolve(strict=False)
+            checkout_name = (
+                component.checkout_name if component is not None else legacy_checkout
+            )
+            sources[(checkout_name, str(resolved))] = (
+                checkout_name,
+                resolved,
+            )
+        return [sources[key] for key in sorted(sources)]
+
+    def _publish_raw_profile_references(
+        self, name: str, path: Path, *, profile: Any | None = None
+    ) -> None:
+        if profile is None:
+            profile = load_regular_json(path, f"profile {name}")
+        sources = self._raw_profile_reference_sources(name, profile)
+        identity = hashlib.sha256(str(path.resolve()).encode()).hexdigest()
+        self._atomic_physical_reference(
+            f"{identity}.json",
+            {
+                "schema_version": 1,
+                "kind": "profiles",
+                "reference": name,
+                "sources": sorted(str(source) for _checkout, source in sources),
+            },
+        )
+
+    def _publish_migration_profile_references(
+        self, transitions: dict[str, tuple[bytes, bytes]] | None = None
+    ) -> None:
+        """Publish conservative profile refs while a migration owns the barrier."""
+
+        retained: dict[str, set[str]] = {}
+        for name, generations in (transitions or {}).items():
+            sources: set[str] = set()
+            for raw in generations:
+                try:
+                    profile = json.loads(
+                        raw, object_pairs_hook=_reject_duplicate_keys
+                    )
+                    sources.update(
+                        str(source)
+                        for _checkout, source in self._raw_profile_reference_sources(
+                            name, profile
+                        )
+                    )
+                except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
+                    raise WorkspaceError(
+                        f"cannot publish migration references for profile {name}: {error}"
+                    ) from error
+            retained[name] = sources
+        if not self.paths.profiles.is_dir():
+            return
+        for path in sorted(self.paths.profiles.glob("*.json")):
+            profile = load_regular_json(path, f"profile {path.stem}")
+            current = {
+                str(source)
+                for _checkout, source in self._raw_profile_reference_sources(
+                    path.stem, profile
+                )
+            }
+            identity = hashlib.sha256(str(path.resolve()).encode()).hexdigest()
+            self._atomic_physical_reference(
+                f"{identity}.json",
+                {
+                    "schema_version": 1,
+                    "kind": "profiles",
+                    "reference": path.stem,
+                    "sources": sorted(current | retained.get(path.stem, set())),
+                },
+            )
+
+    def _backfill_physical_references(self) -> None:
+        state_identity = hashlib.sha256(
+            str(self.paths.workspace.resolve()).encode()
+        ).hexdigest()
+        marker_reference = f"__backfill__:{state_identity}"
+        if self._physical_backfill_complete(state_identity, marker_reference):
+            return
+        registry_request = self._lease_request(
+            "registry",
+            f"physical-reference-backfill:{state_identity}",
+            "exclusive",
+            "backfill physical references",
+        )
+        publication_request = self._lease_request(
+            "registry",
+            "physical-references",
+            "shared",
+            "backfill physical references",
+        )
+        with shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
         ):
-            self._set_profile(name, component_name, kind, value)
+            with resource_locks(
+                self._lease_root,
+                [publication_request, registry_request],
+            ):
+                if self._physical_backfill_complete(
+                    state_identity, marker_reference
+                ):
+                    return
+                self._backfill_profile_references()
+                self._backfill_scenario_references()
+                self._atomic_physical_reference(
+                    f"{state_identity}.json",
+                    {
+                        "schema_version": 1,
+                        "kind": "profiles",
+                        "reference": marker_reference,
+                        "sources": [],
+                    },
+                )
+
+    def _physical_backfill_complete(
+        self, state_identity: str, marker_reference: str
+    ) -> bool:
+        for marker in self._physical_reference_records(
+            only=f"{state_identity}.json"
+        ):
+            if not isinstance(marker, dict):
+                raise WorkspaceError("physical reference backfill marker is invalid")
+            if (
+                set(marker)
+                == {"schema_version", "kind", "reference", "sources"}
+                and marker.get("schema_version") == 1
+                and marker.get("kind") == "profiles"
+                and marker.get("reference") == marker_reference
+                and marker.get("sources") == []
+            ):
+                return True
+            raise WorkspaceError("physical reference backfill marker is invalid")
+        return False
+
+    def _atomic_physical_reference(
+        self, name: str, value: dict[str, Any]
+    ) -> None:
+        namespace = self._lease_namespace
+        flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        parent_fd = os.open(namespace, flags)
+        directory_fd: int | None = None
+        temporary = f".{name}.{secrets.token_hex(12)}.tmp"
+        try:
+            self._assert_physical_namespace_fd(parent_fd)
+            self._validate_physical_reference_directory(
+                parent_fd, namespace, "physical lease namespace"
+            )
+            try:
+                os.mkdir("profile-references", mode=0o700, dir_fd=parent_fd)
+            except FileExistsError:
+                pass
+            directory_fd = os.open("profile-references", flags, dir_fd=parent_fd)
+            registry = namespace / "profile-references"
+            self._validate_physical_reference_directory(
+                directory_fd,
+                registry,
+                "physical reference registry",
+                expected_mode=0o700,
+            )
+            # Persist (or re-prove) the registry directory entry before any
+            # reference is accepted as durable within it. This is required on
+            # EEXIST too: a prior creator may have failed before its parent
+            # fsync completed.
+            os.fsync(parent_fd)
+            descriptor = os.open(
+                temporary,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC,
+                0o600,
+                dir_fd=directory_fd,
+            )
+            try:
+                with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+                    json.dump(value, stream, indent=2, sort_keys=True)
+                    stream.write("\n")
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                os.rename(temporary, name, src_dir_fd=directory_fd, dst_dir_fd=directory_fd)
+                os.fsync(directory_fd)
+                self._validate_physical_reference_directory(
+                    directory_fd,
+                    registry,
+                    "physical reference registry",
+                    expected_mode=0o700,
+                )
+                self._validate_physical_reference_directory(
+                    parent_fd, namespace, "physical lease namespace"
+                )
+            except BaseException:
+                try:
+                    os.unlink(temporary, dir_fd=directory_fd)
+                except FileNotFoundError:
+                    pass
+                raise
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot publish physical reference {name}: {error}"
+            ) from error
+        finally:
+            if directory_fd is not None:
+                os.close(directory_fd)
+            os.close(parent_fd)
+
+    @staticmethod
+    def _validate_physical_reference_directory(
+        descriptor: int,
+        path: Path,
+        description: str,
+        *,
+        expected_mode: int | None = None,
+    ) -> None:
+        opened = os.fstat(descriptor)
+        visible = path.stat(follow_symlinks=False)
+        if (
+            not stat.S_ISDIR(opened.st_mode)
+            or not stat.S_ISDIR(visible.st_mode)
+            or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+            or opened.st_uid != os.geteuid()
+            or (
+                expected_mode is not None
+                and stat.S_IMODE(opened.st_mode) != expected_mode
+            )
+        ):
+            raise WorkspaceError(f"{description} was replaced or is unsafe: {path}")
+
+    def _physical_reference_records(
+        self, *, only: str | None = None
+    ) -> list[dict[str, Any]]:
+        registry = self._lease_namespace / "profile-references"
+        flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        namespace_fd: int | None = None
+        try:
+            namespace_fd = os.open(self._lease_namespace, flags)
+            self._assert_physical_namespace_fd(namespace_fd)
+            self._validate_physical_reference_directory(
+                namespace_fd, self._lease_namespace, "physical lease namespace"
+            )
+            try:
+                directory_fd = os.open(
+                    "profile-references", flags, dir_fd=namespace_fd
+                )
+            except FileNotFoundError:
+                self._validate_physical_reference_directory(
+                    namespace_fd,
+                    self._lease_namespace,
+                    "physical lease namespace",
+                )
+                os.close(namespace_fd)
+                return []
+            self._validate_physical_reference_directory(
+                directory_fd,
+                registry,
+                "physical reference registry",
+                expected_mode=0o700,
+            )
+        except (OSError, WorkspaceError) as error:
+            if namespace_fd is not None:
+                os.close(namespace_fd)
+            if isinstance(error, WorkspaceError):
+                raise
+            raise WorkspaceError(
+                f"cannot open physical reference registry {registry}: {error}"
+            ) from error
+        records: list[dict[str, Any]] = []
+        try:
+            names = [only] if only is not None else sorted(os.listdir(directory_fd))
+            for name in names:
+                if re.fullmatch(r"\.[0-9a-f]{64}\.json\.[0-9a-f]{24}\.tmp", name):
+                    continue
+                if not re.fullmatch(r"[0-9a-f]{64}\.json", name):
+                    raise WorkspaceError(
+                        f"cannot prove physical reference registry entry: {name}"
+                    )
+                try:
+                    descriptor = os.open(
+                        name,
+                        os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_NOFOLLOW", 0),
+                        dir_fd=directory_fd,
+                    )
+                except FileNotFoundError:
+                    if only is not None:
+                        continue
+                    raise
+                try:
+                    metadata = os.fstat(descriptor)
+                    visible = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+                    if (
+                        not stat.S_ISREG(metadata.st_mode)
+                        or (metadata.st_dev, metadata.st_ino)
+                        != (visible.st_dev, visible.st_ino)
+                        or metadata.st_size > 4 * 1024 * 1024
+                    ):
+                        raise WorkspaceError(
+                            f"cannot prove physical reference registry entry: {name}"
+                        )
+                    with os.fdopen(descriptor, encoding="utf-8", closefd=False) as stream:
+                        records.append(
+                            json.load(
+                                stream, object_pairs_hook=_reject_duplicate_keys
+                            )
+                        )
+                finally:
+                    os.close(descriptor)
+            self._validate_physical_reference_directory(
+                directory_fd,
+                registry,
+                "physical reference registry",
+                expected_mode=0o700,
+            )
+            self._validate_physical_reference_directory(
+                namespace_fd,
+                self._lease_namespace,
+                "physical lease namespace",
+            )
+        except (OSError, UnicodeError, ValueError, RecursionError) as error:
+            raise WorkspaceError(
+                f"cannot read physical reference registry {registry}: {error}"
+            ) from error
+        finally:
+            os.close(directory_fd)
+            os.close(namespace_fd)
+        return records
+
+    def _remove_physical_reference(self, authored_path: Path) -> None:
+        """Roll back a prepublished reference when authored creation fails."""
+
+        name = hashlib.sha256(str(authored_path.resolve()).encode()).hexdigest() + ".json"
+        namespace = self._lease_namespace
+        registry = namespace / "profile-references"
+        flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        namespace_fd: int | None = None
+        try:
+            namespace_fd = os.open(namespace, flags)
+            self._assert_physical_namespace_fd(namespace_fd)
+            self._validate_physical_reference_directory(
+                namespace_fd, namespace, "physical lease namespace"
+            )
+            directory_fd = os.open("profile-references", flags, dir_fd=namespace_fd)
+            try:
+                self._validate_physical_reference_directory(
+                    directory_fd,
+                    registry,
+                    "physical reference registry",
+                    expected_mode=0o700,
+                )
+                try:
+                    os.unlink(name, dir_fd=directory_fd)
+                except FileNotFoundError:
+                    return
+                os.fsync(directory_fd)
+                self._validate_physical_reference_directory(
+                    directory_fd,
+                    registry,
+                    "physical reference registry",
+                    expected_mode=0o700,
+                )
+                self._assert_physical_namespace_fd(namespace_fd)
+                self._validate_physical_reference_directory(
+                    namespace_fd, namespace, "physical lease namespace"
+                )
+            finally:
+                os.close(directory_fd)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot roll back physical reference {name}: {error}"
+            ) from error
+        finally:
+            if namespace_fd is not None:
+                os.close(namespace_fd)
+
+    def _publish_profile_references(
+        self,
+        name: str,
+        profile: dict[str, Any],
+        retained_sources: set[str] | None = None,
+    ) -> None:
+        stack = self.manifest.stack(profile["stack"])
+        sources = sorted(
+            ({
+                str(self._selector_root(profile, component).resolve(strict=False))
+                for component in stack.components
+                if profile["components"][component.name]["kind"] != "primary"
+            } | (retained_sources or set()))
+        )
+        identity = hashlib.sha256(
+            str((self.paths.profiles / f"{name}.json").resolve()).encode()
+        ).hexdigest()
+        self._atomic_physical_reference(
+            f"{identity}.json",
+            {
+                "schema_version": 1,
+                "kind": "profiles",
+                "reference": name,
+                "sources": sources,
+            },
+        )
+
+    def _publish_scenario_references(
+        self,
+        name: str,
+        metadata: dict[str, Any],
+        retained_sources: set[str] | None = None,
+    ) -> None:
+        resolved = metadata.get("resolved")
+        if not isinstance(resolved, dict):
+            raise WorkspaceError(f"scenario resolved references are invalid: {name}")
+        if any(
+            not isinstance(value, dict)
+            or not isinstance(value.get("checkout"), str)
+            or not isinstance(value.get("checkout_path"), str)
+            for value in resolved.values()
+        ):
+            raise WorkspaceError(f"scenario resolved references are invalid: {name}")
+        sources = sorted(
+            {
+                str(Path(value["checkout_path"]).resolve(strict=False))
+                for value in resolved.values()
+            }
+            | (retained_sources or set())
+        )
+        self._publish_scenario_reference_sources(name, sources)
+
+    def _publish_scenario_reference_sources(
+        self, name: str, sources: list[str] | set[str]
+    ) -> None:
+        record = (self.paths.scenarios / name / "scenario.json").resolve()
+        identity = hashlib.sha256(str(record).encode()).hexdigest()
+        self._atomic_physical_reference(
+            f"{identity}.json",
+            {
+                "schema_version": 1,
+                "kind": "scenarios",
+                "reference": name,
+                "sources": sorted(sources),
+            },
+        )
+
+    def _backfill_scenario_references(self) -> None:
+        if not self.paths.scenarios.is_dir() or self.paths.scenarios.is_symlink():
+            return
+        for root in sorted(self.paths.scenarios.iterdir()):
+            record = root / "scenario.json"
+            if root.is_dir() and not root.is_symlink() and record.is_file():
+                metadata = load_regular_json(record, "scenario metadata")
+                resolved = metadata.get("resolved") if isinstance(metadata, dict) else None
+                if not isinstance(resolved, dict):
+                    raise WorkspaceError(
+                        f"scenario resolved references are invalid: {root.name}"
+                    )
+                scenario_request = self._lease_request(
+                    "scenario", root.name, "shared", "backfill scenario reference"
+                )
+                with resource_locks(
+                    self._lease_root, [scenario_request], nonblocking=True
+                ):
+                    confirmed = load_regular_json(record, "scenario metadata")
+                    if confirmed != metadata:
+                        raise WorkspaceError(
+                            "scenario changed during physical reference backfill: "
+                            f"{root.name}; stop editing that scenario and retry"
+                        )
+                    # The caller holds the common physical-reference registry
+                    # barrier against removal, so the complete source set can be
+                    # published once without retaining one descriptor per path.
+                    self._publish_scenario_references(root.name, confirmed)
 
     def _set_profile(
         self, name: str, component_name: str, kind: str, value: str = ""
     ) -> None:
         self.paths.ensure()
         profile = self._load_profile(name, require_file=True)
+        old_profile = copy.deepcopy(profile)
         components = self._profile_components(profile, component_name)
         checkout_names = {component.checkout_name for component in components}
         if len(checkout_names) != 1:
@@ -1962,7 +4411,14 @@ class Workspace:
             raise WorkspaceError(f"invalid profile selector kind: {kind}")
         for component in components:
             profile["components"][component.name] = {"kind": kind, "value": value}
-        atomic_json(self.paths.profiles / f"{name}.json", profile)
+        old_sources = {
+            str(self._selector_root(old_profile, component).resolve(strict=False))
+            for component in self.manifest.stack(old_profile["stack"]).components
+            if old_profile["components"][component.name]["kind"] != "primary"
+        }
+        self._publish_profile_references(name, profile, old_sources)
+        durable_atomic_json(self.paths.profiles / f"{name}.json", profile)
+        self._publish_profile_references(name, profile)
 
     def set_profile_sound_mode(
         self,
@@ -1971,9 +4427,12 @@ class Workspace:
         release_coordinates: dict[str, Any] | None = None,
     ) -> None:
         self.paths.ensure()
-        with exclusive_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        with self._resource_locks(
+            [
+                self._lease_request(
+                    "profile", name, "exclusive", f"update profile {name} sound mode"
+                )
+            ],
         ):
             if name in self.manifest.stacks:
                 raise WorkspaceError(
@@ -2083,9 +4542,11 @@ class Workspace:
         component_names: set[str] | None = None,
         *,
         trace: bool = True,
+        profile: dict[str, Any] | None = None,
     ) -> dict[str, Path]:
         self.paths.ensure()
-        profile = self._load_profile(name, require_file=False)
+        if profile is None:
+            profile = self._load_profile(name, require_file=False)
         result: dict[str, Path] = {}
         stack = self.manifest.stack(profile["stack"])
         stack_components = {component.name: component for component in stack.components}
@@ -2203,6 +4664,12 @@ class Workspace:
         return value.resolve() if value.is_absolute() else (path / value).resolve()
 
     def _load_profile(self, name: str, require_file: bool) -> dict[str, Any]:
+        snapshot = self._profile_snapshot
+        if snapshot is not None and snapshot.name == name and not require_file:
+            return snapshot.profile()
+        return self._load_profile_file(name, require_file)
+
+    def _load_profile_file(self, name: str, require_file: bool) -> dict[str, Any]:
         validate_name(name, "profile name")
         if name in self.manifest.stacks and not require_file:
             stack = self.manifest.stack(name)
@@ -2218,9 +4685,9 @@ class Workspace:
                 },
             }
         path = self.paths.profiles / f"{name}.json"
-        if not path.is_file():
+        if path.is_symlink() or not path.is_file():
             raise WorkspaceError(f"profile does not exist: {name}")
-        profile = load_json(path)
+        profile = load_regular_json(path, f"profile {name}")
         if not isinstance(profile, dict):
             raise WorkspaceError(f"profile must be an object: {name}")
         schema_version = profile.get("schema_version")
@@ -2243,7 +4710,10 @@ class Workspace:
             require_keys(profile, PROFILE_KEYS, f"profile {name}")
         if profile["schema_version"] != PROFILE_SCHEMA_VERSION or profile["name"] != name:
             raise WorkspaceError(f"profile identity/schema mismatch: {name}")
-        if profile["sound_mode"] not in SOUND_MODES:
+        if (
+            not isinstance(profile["sound_mode"], str)
+            or profile["sound_mode"] not in SOUND_MODES
+        ):
             raise WorkspaceError(f"profile sound mode is invalid: {name}")
         stack_name = profile["stack"]
         if not isinstance(stack_name, str) or stack_name not in self.manifest.stacks:
@@ -2275,26 +4745,45 @@ class Workspace:
             require_keys(selector, SELECTOR_KEYS, f"profile selector {component_name}")
             kind = selector["kind"]
             value = selector["value"]
-            if kind not in {
-                "primary",
-                "worktree",
-                "path",
-                MIGRATED_CONTENT_WORKTREE_KIND,
-            } or not isinstance(value, str):
+            if (
+                not isinstance(kind, str)
+                or kind
+                not in {
+                    "primary",
+                    "worktree",
+                    "path",
+                    MIGRATED_CONTENT_WORKTREE_KIND,
+                }
+                or not isinstance(value, str)
+            ):
                 raise WorkspaceError(f"invalid profile selector: {component_name}")
             if kind == "primary" and value:
                 raise WorkspaceError(f"primary selector must not have a value: {component_name}")
             if kind == "worktree":
                 validate_name(value, f"profile selector {component_name}")
-            if kind == "path" and not Path(value).is_absolute():
-                raise WorkspaceError(f"profile path must be absolute: {component_name}")
+            selected_path: Path | None = None
+            if kind in {"path", MIGRATED_CONTENT_WORKTREE_KIND}:
+                selected_path = Path(value)
+                if kind == "path" and not selected_path.is_absolute():
+                    raise WorkspaceError(
+                        f"profile path must be absolute: {component_name}"
+                    )
+                try:
+                    selected_path = selected_path.resolve(strict=False)
+                except (OSError, RuntimeError, ValueError) as error:
+                    raise WorkspaceError(
+                        f"invalid profile selector: {component_name}"
+                    ) from error
+                if kind == "path":
+                    selector = {"kind": kind, "value": str(selected_path)}
+                    profile["components"][component_name] = selector
             if kind == MIGRATED_CONTENT_WORKTREE_KIND:
-                migrated = Path(value)
                 expected_parent = (self.paths.worktrees / "content").resolve()
                 if (
                     component_name != "content-1x"
-                    or not migrated.is_absolute()
-                    or migrated.resolve(strict=False).parent != expected_parent
+                    or selected_path is None
+                    or not Path(value).is_absolute()
+                    or selected_path.parent != expected_parent
                 ):
                     raise WorkspaceError(
                         "invalid migrated content worktree selector: "
@@ -2436,43 +4925,23 @@ class Workspace:
                 )
 
     def _resolve_build_profile(
-        self, profile_name: str, required: set[str]
+        self,
+        profile_name: str,
+        required: set[str],
+        *,
+        trace: bool = True,
+        profile: dict[str, Any] | None = None,
     ) -> dict[str, Path]:
-        profile = self._load_profile(profile_name, require_file=False)
+        if profile is None:
+            profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
-        requested_roles = self._dependency_roles(profile, required)
-        build_targets = {
-            role
-            for role, component in stack.providers.items()
-            if self.manifest.effective_build(stack.name, component) != "none"
-        }
-        common_roles = self._dependency_roles(profile, build_targets)
-        common_components = {
-            stack.providers[role].name for role in common_roles
-        }
-
-        # Missing preferred checkouts identify a deliberately partial workspace.
-        # Any preferred checkout that is present must still pass full profile
-        # validation, so a malformed path cannot silently shrink the build key.
-        complete = True
-        present_components: set[str] = set()
-        for component in stack.components:
-            if component.name not in common_components:
-                continue
-            root = self._selector_root(profile, component)
-            if root.exists() or root.is_symlink():
-                present_components.add(component.name)
-            else:
-                complete = False
-        roles = (
-            common_roles | requested_roles if complete else requested_roles
-        )
+        roles = self._dependency_roles(profile, required)
         component_names = {stack.providers[role].name for role in roles}
-        # Resolve present preferred components and the required selection in one
-        # pass. This both fails closed for malformed optional checkouts and keeps
-        # validation deduplicated if initialization races the existence snapshot.
         present_paths = self.resolve_profile(
-            profile_name, present_components | component_names
+            profile_name,
+            component_names,
+            trace=trace,
+            profile=profile,
         )
         paths = {
             component_name: present_paths[component_name]
@@ -2490,14 +4959,19 @@ class Workspace:
         use_ccache: bool = True,
     ) -> Path:
         self.paths.ensure()
-        with shared_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ):
-            return self._build(
+        targets = self._expand_build_target(target, profile_name)
+        with self._resolved_profile_operation(
+            profile_name,
+            set(targets),
+            f"build {target}",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            return self._build_resolved(
                 target,
                 profile_name,
                 tests,
+                targets,
+                snapshot.paths(),
                 force_reconfigure=force_reconfigure,
                 use_ccache=use_ccache,
             )
@@ -2552,7 +5026,7 @@ class Workspace:
             elif sound_root is not None:
                 profile = self._load_profile(profile_name, require_file=False)
                 if profile["sound_mode"] == SOURCE_MODE:
-                    sound_record = sound_source_record(sound_root)
+                    sound_record = self._sound_source_record(sound_root)
             self._refresh_build_metadata(
                 root, profile_name, key, selected, sound_record
             )
@@ -2609,7 +5083,7 @@ class Workspace:
         checkout_states = self._selected_checkout_states(
             profile, selected, include_dirty=False
         )
-        coordinates: dict[str, dict[str, str]] = {}
+        coordinates: dict[str, dict[str, Any]] = {}
         for role in sorted(selected):
             component = stack.providers[role]
             checkout_state = checkout_states[component.checkout_name]
@@ -2624,6 +5098,12 @@ class Workspace:
                 "source_path": str(selected[role].resolve()),
                 "head": checkout_state["head"],
             }
+            generation = self._source_generation_record(selected[role])
+            if generation is not None:
+                coordinates[role]["source_generation"] = {
+                    **generation,
+                    "path": str(selected[role].resolve()),
+                }
         atomic_json(
             root / BUILD_METADATA,
             {
@@ -2636,6 +5116,24 @@ class Workspace:
                 "last_used_at": datetime.now(timezone.utc).isoformat(),
             },
         )
+        snapshot = self._profile_snapshot
+        if snapshot is not None and snapshot.name == profile_name:
+            atomic_json(
+                root / PROFILE_RESOLUTION_METADATA,
+                {
+                    "schema_version": PROFILE_RESOLUTION_SCHEMA_VERSION,
+                    "profile": profile_name,
+                    "generation": snapshot.generation,
+                    "stack": stack.name,
+                    "stack_generation": stack.generation,
+                    "sound_mode": profile["sound_mode"],
+                    "selected": coordinates,
+                    "checkouts": {
+                        name: {**state, "path": str(state["path"])}
+                        for name, state in snapshot.checkout_states().items()
+                    },
+                },
+            )
 
     def _prepare_sound(
         self,
@@ -2647,7 +5145,7 @@ class Workspace:
         profile = self._load_profile(profile_name, require_file=False)
         mode = profile["sound_mode"]
         if mode == SOURCE_MODE:
-            return source, sound_source_record(source)
+            return source, self._sound_source_record(source)
         if profile["stack"] != "classic":
             raise WorkspaceError(
                 f"profile {profile_name} has unsupported sound mode {mode}"
@@ -2763,11 +5261,16 @@ class Workspace:
             )
         source_identity = "unavailable"
         try:
-            inputs = clean_source_inputs(source)
+            inputs = self._clean_sound_source_inputs(source)
             source_identity = (
                 f"commit {inputs['source_commit']} tree {inputs['source_tree']}"
             )
-            output = source / "build" / "atrinik-workspace" / sound_cache_key(inputs)
+            if self._source_generation_record(source) is not None:
+                producer = root / "producers" / "sound"
+                producer.mkdir(parents=True, exist_ok=True)
+                output = producer / sound_cache_key(inputs)
+            else:
+                output = source / "build" / "atrinik-workspace" / sound_cache_key(inputs)
             builder = source / "tools" / "sound_release.py"
             if not builder.is_file() or builder.is_symlink():
                 raise WorkspaceError(
@@ -2793,7 +5296,7 @@ class Workspace:
                 cwd=source,
             )
             record = verify_playtest_tree(source, output, inputs)
-            if clean_source_inputs(source) != inputs:
+            if self._clean_sound_source_inputs(source) != inputs:
                 raise WorkspaceError(
                     "selected sound inputs changed after playtest-tree generation"
                 )
@@ -2839,7 +5342,7 @@ class Workspace:
                         raise WorkspaceError(
                             "local-playtest sound changed while creating the verified handoff"
                         )
-                    if clean_source_inputs(source) != inputs:
+                    if self._clean_sound_source_inputs(source) != inputs:
                         raise WorkspaceError(
                             "selected sound inputs changed while staging the verified handoff"
                         )
@@ -2862,13 +5365,58 @@ class Workspace:
         )
         return output, record
 
+    def _clean_sound_source_inputs(self, source: Path) -> dict[str, str]:
+        generation = self._source_generation_record(source)
+        if generation is None:
+            return clean_source_inputs(source)
+        files = {
+            "builder_sha256": source / "tools" / "sound_release.py",
+            "source_manifest_sha256": source / "manifests" / "source-assets.json",
+            "toolchain_sha256": source
+            / "manifests"
+            / "playtest-audio-toolchain.json",
+            "schema_sha256": source
+            / "schemas"
+            / "playtest-manifest-v1.schema.json",
+        }
+        return {
+            "source_commit": generation["commit"],
+            "source_tree": generation["tree"],
+            **{
+                name: _file_digest(path, name.replace("_", " "))
+                for name, path in files.items()
+            },
+        }
+
+    def _sound_source_record(self, source: Path) -> dict[str, Any]:
+        generation = self._source_generation_record(source)
+        if generation is None:
+            return sound_source_record(source)
+        return {
+            "mode": SOURCE_MODE,
+            "root": str(source.resolve()),
+            "source_commit": generation["commit"],
+            "source_tree": generation["tree"],
+            "source_clean": True,
+        }
+
     def _selected_checkout_states(
         self,
         profile: dict[str, Any],
         selected: dict[str, Path],
         *,
         include_dirty: bool,
+        include_identity: bool = False,
     ) -> dict[str, dict[str, Any]]:
+        snapshot = self._profile_snapshot
+        if snapshot is not None and snapshot.paths() == {
+            role: path.resolve() for role, path in selected.items()
+        }:
+            states = snapshot.checkout_states()
+            if not include_dirty:
+                for state in states.values():
+                    state.pop("dirty", None)
+            return states
         stack = self.manifest.stack(profile["stack"])
         states: dict[str, dict[str, Any]] = {}
         for role in sorted(selected):
@@ -2886,9 +5434,33 @@ class Workspace:
                     trace=False,
                 ),
             }
+            if include_identity:
+                identity = checkout.stat()
+                git_common = self._git_common_directory(checkout, trace=False)
+                git_common_identity = git_common.stat()
+                state.update(
+                    {
+                        "device": identity.st_dev,
+                        "inode": identity.st_ino,
+                        "git_common": str(git_common),
+                        "git_common_device": git_common_identity.st_dev,
+                        "git_common_inode": git_common_identity.st_ino,
+                        "sources": {},
+                    }
+                )
             if include_dirty:
                 state["dirty"] = not _is_clean(checkout, trace=False)
             states[component.checkout_name] = state
+        if include_identity:
+            for role in sorted(selected):
+                component = stack.providers[role]
+                source = selected[role].resolve()
+                identity = source.stat()
+                states[component.checkout_name]["sources"][component.source] = {
+                    "path": str(source),
+                    "device": identity.st_dev,
+                    "inode": identity.st_ino,
+                }
         return states
 
     def _profile_build_key(
@@ -3107,7 +5679,16 @@ class Workspace:
         profile = self._load_profile(profile_name, require_file=False)
         component = self.manifest.stack(profile["stack"]).providers[role]
         checkout = self._selector_root(profile, component).resolve()
-        clean = _is_clean(checkout, trace=False)
+        generation = self._source_generation_record(selected[role])
+        if generation is not None:
+            clean = True
+            head = generation["commit"]
+        else:
+            state = self._selected_checkout_states(
+                profile, selected, include_dirty=True
+            )[component.checkout_name]
+            clean = not state["dirty"]
+            head = state["head"]
         coordinate = {
             "component": component.name,
             "repository": component.repository,
@@ -3116,13 +5697,7 @@ class Workspace:
             "source": component.source,
             "checkout_path": str(checkout),
             "source_path": str(selected[role].resolve()),
-            "head": git(
-                checkout,
-                "rev-parse",
-                "HEAD",
-                capture=True,
-                trace=False,
-            ),
+            "head": head,
         }
         return (
             {
@@ -3660,8 +6235,7 @@ class Workspace:
             return False
         return True
 
-    @staticmethod
-    def _resource_runtime_files(source: Path) -> tuple[list[str], list[str]]:
+    def _resource_runtime_files(self, source: Path) -> tuple[list[str], list[str]]:
         manifest = source / RESOURCE_PATHS_MANIFEST
         try:
             lines = manifest.read_text(encoding="utf-8").splitlines()
@@ -3686,42 +6260,76 @@ class Workspace:
                 )
             runtime_paths.append(line)
 
-        try:
-            result = subprocess.run(
-                [
-                    "git",
-                    "-C",
-                    str(source),
-                    "ls-files",
-                    "-z",
-                    "--cached",
-                    "--",
-                    *runtime_paths,
-                ],
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                pass_fds=active_lock_fds(),
-            )
-        except FileNotFoundError as error:
-            raise WorkspaceError("required command not found: git") from error
-        except subprocess.CalledProcessError as error:
-            detail = error.stderr.decode("utf-8", errors="replace").strip()
-            suffix = f": {detail}" if detail else ""
-            raise WorkspaceError(
-                f"cannot list tracked runtime resources{suffix}"
-            ) from error
+        if self._source_generation_record(source) is not None:
+            tracked: list[str] = []
+            for runtime_path in runtime_paths:
+                selected = source.joinpath(*PurePosixPath(runtime_path).parts)
+                if not selected.exists() or selected.is_symlink():
+                    continue
+                if selected.is_file():
+                    tracked.append(runtime_path)
+                    continue
+                if not selected.is_dir():
+                    raise WorkspaceError(
+                        f"tracked runtime resource is not a regular path: {selected}"
+                    )
+                for directory, directories, files in os.walk(
+                    selected, followlinks=False
+                ):
+                    parent = Path(directory)
+                    directories.sort()
+                    files.sort()
+                    for name in directories:
+                        path = parent / name
+                        if path.is_symlink():
+                            raise WorkspaceError(
+                                f"tracked runtime resource is not a regular path: {path}"
+                            )
+                    for name in files:
+                        path = parent / name
+                        if path.is_symlink() or not path.is_file():
+                            raise WorkspaceError(
+                                f"tracked runtime resource is not a regular file: {path}"
+                            )
+                        tracked.append(path.relative_to(source).as_posix())
+            tracked = sorted(set(tracked))
+        else:
+            try:
+                result = subprocess.run(
+                    [
+                        "git",
+                        "-C",
+                        str(source),
+                        "ls-files",
+                        "-z",
+                        "--cached",
+                        "--",
+                        *runtime_paths,
+                    ],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    pass_fds=active_lock_fds(),
+                )
+            except FileNotFoundError as error:
+                raise WorkspaceError("required command not found: git") from error
+            except subprocess.CalledProcessError as error:
+                detail = error.stderr.decode("utf-8", errors="replace").strip()
+                suffix = f": {detail}" if detail else ""
+                raise WorkspaceError(
+                    f"cannot list tracked runtime resources{suffix}"
+                ) from error
 
-        try:
-            tracked = [
-                item.decode("utf-8")
-                for item in result.stdout.split(b"\0")
-                if item
-            ]
-        except UnicodeDecodeError as error:
-            raise WorkspaceError(
-                "runtime resource paths must use UTF-8 names"
-            ) from error
+            try:
+                tracked = [
+                    item.decode("utf-8")
+                    for item in result.stdout.split(b"\0")
+                    if item
+                ]
+            except UnicodeDecodeError as error:
+                raise WorkspaceError(
+                    "runtime resource paths must use UTF-8 names"
+                ) from error
         if not tracked:
             raise WorkspaceError(
                 f"resource runtime manifest selects no tracked files: {manifest}"
@@ -4881,23 +7489,21 @@ class Workspace:
         required = self._dependency_roles(profile, {"server"})
         coordinates: dict[str, dict[str, str]] = {}
         cacheable = True
-        checkout_states: dict[Path, tuple[bool, str]] = {}
+        checkout_states = self._selected_checkout_states(
+            profile, selected, include_dirty=True
+        )
         for role in sorted(required & set(selected)):
             source = selected[role]
             component = stack.providers[role]
             checkout = self._selector_root(profile, component).resolve()
-            if checkout not in checkout_states:
-                checkout_states[checkout] = (
-                    _is_clean(checkout, trace=False),
-                    git(
-                        checkout,
-                        "rev-parse",
-                        "HEAD",
-                        capture=True,
-                        trace=False,
-                    ),
-                )
-            clean, head = checkout_states[checkout]
+            generation = self._source_generation_record(source)
+            if generation is not None:
+                clean = True
+                head = generation["commit"]
+            else:
+                state = checkout_states[component.checkout_name]
+                clean = not state["dirty"]
+                head = state["head"]
             cacheable = cacheable and clean
             coordinates[role] = {
                 "component": component.name,
@@ -6095,19 +8701,46 @@ class Workspace:
 
     def state_add(self, name: str, path: Path | None) -> Path:
         self.paths.ensure()
+        with shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
+        ):
+            return self._state_add(name, path)
+
+    def _state_add(self, name: str, path: Path | None) -> Path:
         validate_name(name, "state name")
         if path is None:
-            resolved = (self.paths.state / "server" / name).resolve(strict=False)
+            resolved = self._canonical_state_path(
+                self.paths.state / "server" / name
+            )
         else:
             if not path.is_absolute():
                 raise WorkspaceError("state path must be absolute")
-            resolved = path.expanduser().resolve(strict=False)
+            resolved = self._canonical_state_path(path)
         if resolved == Path("/") or resolved == self.paths.repository:
             raise WorkspaceError(f"refusing unsafe state path: {resolved}")
         if resolved.exists() and not resolved.is_dir():
             raise WorkspaceError(f"state path is not a directory: {resolved}")
         if resolved.exists():
             self._validate_state(resolved)
+            temporary_marker = resolved / TEMPORARY_STATE_METADATA
+            ownership_marker = resolved / MANAGED_MARKER
+            ownership = (
+                load_json(ownership_marker)
+                if ownership_marker.is_file() and not ownership_marker.is_symlink()
+                else None
+            )
+            if (
+                temporary_marker.exists()
+                or temporary_marker.is_symlink()
+                or (
+                    isinstance(ownership, dict)
+                    and ownership.get("purpose") == "temporary-topology-state"
+                )
+            ):
+                raise WorkspaceError(
+                    "temporary topology state can only be registered through "
+                    "state promote"
+                )
         self._register_state(name, resolved)
         print(resolved)
         return resolved
@@ -6186,13 +8819,17 @@ class Workspace:
             raise WorkspaceError(f"scenario password file is invalid: {path}")
         return password
 
-    def _load_scenario(self, name: str) -> dict[str, Any]:
+    def _load_scenario(
+        self,
+        name: str,
+        registered_states: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
         self.paths.ensure()
         root = self._scenario_directory(name)
         if not root.is_dir() or root.is_symlink():
             raise WorkspaceError(f"scenario does not exist: {name}")
         marker = root / MANAGED_MARKER
-        if marker.is_symlink() or load_json(marker) != {
+        if marker.is_symlink() or load_regular_json(marker, "scenario ownership marker") != {
             "schema_version": SCHEMA_VERSION,
             "purpose": "test-scenario",
         }:
@@ -6200,7 +8837,7 @@ class Workspace:
         metadata_path = root / "scenario.json"
         if metadata_path.is_symlink():
             raise WorkspaceError(f"scenario metadata is invalid: {name}")
-        metadata = load_json(metadata_path)
+        metadata = load_regular_json(metadata_path, "scenario metadata")
         if not isinstance(metadata, dict):
             raise WorkspaceError(f"scenario metadata must be an object: {name}")
         actual_keys = set(metadata)
@@ -6209,19 +8846,28 @@ class Workspace:
             actual_keys == historical_keys
             and metadata.get("schema_version") == SCHEMA_VERSION
         ):
-            raise WorkspaceError(
+            raise _InertScenarioError(
+                SCENARIO_INERT_HISTORICAL_IDENTITY,
                 "historical scenario lacks immutable stack/provider identity and is "
                 f"inert; recreate it explicitly: {name}"
             )
         if actual_keys != SCENARIO_KEYS:
             raise WorkspaceError(f"scenario fields are invalid: {name}")
         if metadata.get("schema_version") != SCENARIO_SCHEMA_VERSION:
-            raise WorkspaceError(
+            raise _InertScenarioError(
+                SCENARIO_INERT_HISTORICAL_IDENTITY,
                 "historical scenario lacks immutable repository/branch identity and "
                 f"is inert; recreate it explicitly: {name}"
             )
         resolved = metadata.get("resolved")
-        profile = self._load_profile(metadata.get("profile", ""), require_file=False)
+        try:
+            profile = self._load_profile(
+                metadata.get("profile", ""), require_file=False
+            )
+        except WorkspaceError as error:
+            raise _InertScenarioError(
+                SCENARIO_INERT_PROFILE_UNRESOLVABLE, str(error)
+            ) from error
         stack = self.manifest.stack(profile["stack"])
         required = self._dependency_roles(profile, {"server"})
         expected_providers = {
@@ -6230,7 +8876,8 @@ class Workspace:
         if (
             metadata.get("name") != name
             or not isinstance(metadata.get("profile"), str)
-            or metadata.get("preset") not in SCENARIO_PRESETS
+            or not isinstance(metadata.get("preset"), str)
+            or metadata["preset"] not in SCENARIO_PRESETS
             or metadata.get("state") != f"scenario-{name}"
             or not isinstance(metadata.get("account"), str)
             or not isinstance(metadata.get("character"), str)
@@ -6273,18 +8920,26 @@ class Workspace:
                     f"scenario component metadata is invalid: {name}/{component}"
                 )
             provider = stack.providers[component]
-            checkout_path = Path(record["checkout_path"]).resolve(strict=False)
-            expected_path = (
-                checkout_path
-                if provider.source == "."
-                else checkout_path.joinpath(*PurePosixPath(provider.source).parts)
-            ).resolve(strict=False)
+            try:
+                checkout_path = Path(record["checkout_path"]).resolve(strict=False)
+                expected_path = (
+                    checkout_path
+                    if provider.source == "."
+                    else checkout_path.joinpath(
+                        *PurePosixPath(provider.source).parts
+                    )
+                ).resolve(strict=False)
+                resolved_path = Path(record["path"]).resolve(strict=False)
+            except (OSError, RuntimeError, ValueError) as error:
+                raise WorkspaceError(
+                    f"scenario component metadata is invalid: {name}/{component}"
+                ) from error
             if (
                 record["checkout"] != provider.checkout_name
                 or record["repository"] != provider.repository
                 or record["branch"] != provider.branch
                 or record["source"] != provider.source
-                or Path(record["path"]).resolve(strict=False) != expected_path
+                or resolved_path != expected_path
             ):
                 raise WorkspaceError(
                     f"scenario component identity is invalid: {name}/{component}"
@@ -6293,8 +8948,21 @@ class Workspace:
         if state.is_symlink():
             raise WorkspaceError(f"scenario state is invalid: {name}")
         self._validate_state(state)
-        registered = self._load_states().get(metadata["state"])
-        if registered is None or Path(registered).resolve(strict=False) != state.resolve():
+        states = (
+            self._load_states() if registered_states is None else registered_states
+        )
+        registered = states.get(metadata["state"])
+        try:
+            registered_path = (
+                None
+                if registered is None
+                else Path(registered).resolve(strict=False)
+            )
+        except (OSError, RuntimeError, ValueError) as error:
+            raise WorkspaceError(
+                f"scenario state registration is invalid: {name}"
+            ) from error
+        if registered_path is None or registered_path != state.resolve():
             raise WorkspaceError(f"scenario state registration is invalid: {name}")
         os.close(self._open_scenario_password(root / "password"))
         return metadata
@@ -6357,11 +9025,18 @@ class Workspace:
         self, name: str, profile: str, preset: str = "basic-player"
     ) -> dict[str, Any]:
         self.paths.ensure()
-        with shared_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        validate_name(name, "scenario name")
+        with self._resolved_profile_operation(
+            profile, {"server"}, f"create scenario {name}"
         ):
-            return self._scenario_create(name, profile, preset)
+            with self._resource_locks(
+                [
+                    self._lease_request(
+                        "scenario", name, "exclusive", f"create scenario {name}"
+                    )
+                ],
+            ):
+                return self._scenario_create(name, profile, preset)
 
     def _scenario_create(
         self, name: str, profile: str, preset: str = "basic-player"
@@ -6393,7 +9068,7 @@ class Workspace:
         metadata["providers"] = {
             role: selected_stack.providers[role].name for role in sorted(required)
         }
-        operation_lock = self.paths.scenarios / "operation.lock"
+        operation_lock = self.paths.scenarios / ".locks" / f"{name}.lock"
         with exclusive_lock(operation_lock, "scenario operation"):
             if root.exists() or root.is_symlink():
                 raise WorkspaceError(f"scenario already exists: {name}")
@@ -6418,12 +9093,17 @@ class Workspace:
                     metadata, state, password_file
                 )
                 metadata["provisioned_at"] = datetime.now(timezone.utc).isoformat()
-                atomic_json(staging / "scenario.json", metadata)
-                staging.replace(root)
+                self._publish_scenario_references(name, metadata)
                 try:
-                    self._register_state(state_name, (root / "state").resolve())
+                    durable_atomic_json(staging / "scenario.json", metadata)
+                    staging.replace(root)
+                    try:
+                        self._register_state(state_name, (root / "state").resolve())
+                    except BaseException:
+                        shutil.rmtree(root)
+                        raise
                 except BaseException:
-                    shutil.rmtree(root)
+                    self._remove_physical_reference(root / "scenario.json")
                     raise
             except BaseException:
                 if staging.exists():
@@ -6437,10 +9117,33 @@ class Workspace:
 
     def scenario_list(self) -> list[dict[str, Any]]:
         self.paths.ensure()
+        registered_states = self._load_states()
         scenarios: list[dict[str, Any]] = []
         for path in sorted(self.paths.scenarios.iterdir()):
             if path.is_dir() and not path.name.startswith("."):
-                scenarios.append(self.scenario_show(path.name))
+                scenario_path = path
+                try:
+                    scenario_path = self._scenario_directory(path.name)
+                    metadata = self._load_scenario(path.name, registered_states)
+                    scenarios.append({**metadata, "path": str(scenario_path)})
+                except _InertScenarioError as error:
+                    scenarios.append(
+                        {
+                            "name": path.name,
+                            "path": str(scenario_path),
+                            "inert": True,
+                            "inert_reason": error.reason,
+                        }
+                    )
+                except WorkspaceError:
+                    scenarios.append(
+                        {
+                            "name": path.name,
+                            "path": str(scenario_path),
+                            "inert": True,
+                            "inert_reason": SCENARIO_INERT_INVALID_RECORD,
+                        }
+                    )
         return scenarios
 
     def scenario_credentials(self, name: str) -> dict[str, str]:
@@ -6455,28 +9158,45 @@ class Workspace:
 
     def scenario_reset(self, name: str) -> dict[str, Any]:
         self.paths.ensure()
-        with shared_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
+        validate_name(name, "scenario name")
+        metadata = self._load_scenario(name)
+        with self._resolved_profile_operation(
+            metadata["profile"], {"server"}, f"reset scenario {name}"
         ):
-            return self._scenario_reset(name)
+            with self._resource_locks(
+                [
+                    self._lease_request(
+                        "scenario", name, "exclusive", f"reset scenario {name}"
+                    )
+                ],
+            ):
+                return self._scenario_reset(name)
 
     def _scenario_reset(self, name: str) -> dict[str, Any]:
         self.paths.ensure()
         root = self._scenario_directory(name)
-        operation_lock = self.paths.scenarios / "operation.lock"
+        operation_lock = self.paths.scenarios / ".locks" / f"{name}.lock"
         with exclusive_lock(operation_lock, "scenario operation"):
             metadata = self._load_scenario(name)
+            old_sources = {
+                str(Path(value["checkout_path"]).resolve(strict=False))
+                for value in metadata["resolved"].values()
+                if isinstance(value, dict)
+                and isinstance(value.get("checkout_path"), str)
+            }
             state = root / "state"
-            with exclusive_lock(
-                Path(f"{state}.lock"),
-                f"server state {state}",
-                nonblocking=True,
-            ):
-                staging_root = Path(
-                    tempfile.mkdtemp(prefix=f".{name}-reset-", dir=self.paths.scenarios)
+            with self._topology_state_lock(state):
+                state_identity = self._state_identity(state)
+                state_fd = self._lock_state_directory_mutation(
+                    state, state_identity, "scenario server state"
                 )
+                staging_root: Path | None = None
                 try:
+                    staging_root = Path(
+                        tempfile.mkdtemp(
+                            prefix=f".{name}-reset-", dir=self.paths.scenarios
+                        )
+                    )
                     server_source = self.component_path("server", metadata["profile"])
                     staging_state = self.state_path(
                         metadata["state"],
@@ -6487,10 +9207,15 @@ class Workspace:
                         metadata, staging_state, root / "password"
                     )
                     metadata["provisioned_at"] = datetime.now(timezone.utc).isoformat()
+                    self._publish_scenario_references(
+                        name, metadata, old_sources
+                    )
                     replace_directory(state, staging_state, f".{name}-state-previous-")
-                    atomic_json(root / "scenario.json", metadata)
+                    durable_atomic_json(root / "scenario.json", metadata)
+                    self._publish_scenario_references(name, metadata)
                 finally:
-                    if staging_root.exists():
+                    os.close(state_fd)
+                    if staging_root is not None and staging_root.exists():
                         shutil.rmtree(staging_root)
         return self.scenario_show(name)
 
@@ -6511,6 +9236,297 @@ class Workspace:
             states[name] = path
         return states
 
+    @staticmethod
+    def _canonical_state_path(path: Path) -> Path:
+        """Return a lexical absolute state path after rejecting existing links."""
+
+        candidate = Path(os.path.abspath(path.expanduser()))
+        current = Path(candidate.anchor)
+        for part in candidate.parts[1:]:
+            current /= part
+            try:
+                metadata = current.lstat()
+            except FileNotFoundError:
+                break
+            except (OSError, ValueError) as error:
+                raise WorkspaceError(
+                    f"cannot inspect server state path {current}: {error}"
+                ) from error
+            if stat.S_ISLNK(metadata.st_mode):
+                raise WorkspaceError(f"server state path contains a symlink: {current}")
+            if current != candidate and not stat.S_ISDIR(metadata.st_mode):
+                raise WorkspaceError(
+                    f"server state parent is not a directory: {current}"
+                )
+        return candidate
+
+    @staticmethod
+    def _state_identity(path: Path) -> dict[str, int]:
+        metadata = path.stat(follow_symlinks=False)
+        if not stat.S_ISDIR(metadata.st_mode):
+            raise WorkspaceError(f"server state is not a directory: {path}")
+        return {"device": metadata.st_dev, "inode": metadata.st_ino}
+
+    @staticmethod
+    def _state_implementation(
+        stack: str,
+        providers: dict[str, str],
+        resolved: dict[str, dict[str, Any]],
+    ) -> dict[str, str]:
+        provider = providers["server"]
+        coordinate = resolved[provider]
+        return {
+            "stack": stack,
+            "provider": provider,
+            "repository": coordinate["repository"],
+        }
+
+    @staticmethod
+    def _validate_state_implementation(
+        path: Path,
+        implementation: dict[str, str] | None,
+    ) -> None:
+        marker = path / STATE_IMPLEMENTATION_MARKER
+        if not marker.exists() and not marker.is_symlink():
+            return
+        if marker.is_symlink() or not marker.is_file():
+            raise WorkspaceError(f"server state implementation marker is invalid: {path}")
+        value = load_json(marker)
+        expected = (
+            {
+                "schema_version": STATE_IMPLEMENTATION_SCHEMA_VERSION,
+                **implementation,
+            }
+            if implementation is not None
+            else None
+        )
+        if expected is None or value != expected:
+            raise WorkspaceError(
+                f"server state implementation does not match the selected server: {path}"
+            )
+
+    @staticmethod
+    def _load_state_json_at(
+        directory_fd: int, name: str, description: str
+    ) -> Any:
+        descriptor: int | None = None
+        try:
+            descriptor = os.open(
+                name,
+                os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC | os.O_NOFOLLOW,
+                dir_fd=directory_fd,
+            )
+            metadata = os.fstat(descriptor)
+            if (
+                not stat.S_ISREG(metadata.st_mode)
+                or metadata.st_nlink != 1
+                or metadata.st_size > 4 * 1024 * 1024
+            ):
+                raise WorkspaceError(f"{description} is invalid")
+            with os.fdopen(descriptor, encoding="utf-8", closefd=False) as stream:
+                return json.load(stream, object_pairs_hook=_reject_duplicate_keys)
+        except (OSError, UnicodeError, ValueError, RecursionError) as error:
+            raise WorkspaceError(f"cannot read {description}: {error}") from error
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
+
+    @staticmethod
+    def _write_state_json_no_replace_at(
+        directory_fd: int, name: str, value: Any
+    ) -> None:
+        temporary = f".{name}.{secrets.token_hex(12)}.tmp"
+        descriptor: int | None = None
+        try:
+            descriptor = os.open(
+                temporary,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC | os.O_NOFOLLOW,
+                0o600,
+                dir_fd=directory_fd,
+            )
+            with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+                descriptor = None
+                json.dump(value, stream, indent=2, sort_keys=True)
+                stream.write("\n")
+                stream.flush()
+                os.fsync(stream.fileno())
+            rename_no_replace_at(
+                directory_fd, temporary, directory_fd, name
+            )
+            os.fsync(directory_fd)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot publish server state implementation marker: {error}"
+            ) from error
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
+            try:
+                os.unlink(temporary, dir_fd=directory_fd)
+            except FileNotFoundError:
+                pass
+
+    def _validate_state_descriptor(
+        self,
+        directory_fd: int,
+        path: Path,
+        implementation: dict[str, str] | None,
+        *,
+        write_implementation: bool,
+    ) -> None:
+        for name in EXPECTED_SERVER_DATA["files"]:
+            try:
+                metadata = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+            except OSError as error:
+                raise WorkspaceError(
+                    f"server state lacks required file {name}: {path}"
+                ) from error
+            if not stat.S_ISREG(metadata.st_mode):
+                raise WorkspaceError(f"server state lacks required file {name}: {path}")
+        for name in EXPECTED_SERVER_DATA["directories"]:
+            try:
+                metadata = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+            except OSError as error:
+                raise WorkspaceError(
+                    f"server state lacks required directory {name}: {path}"
+                ) from error
+            if not stat.S_ISDIR(metadata.st_mode):
+                raise WorkspaceError(
+                    f"server state lacks required directory {name}: {path}"
+                )
+        marker_missing = False
+        try:
+            marker_metadata = os.stat(
+                STATE_IMPLEMENTATION_MARKER,
+                dir_fd=directory_fd,
+                follow_symlinks=False,
+            )
+        except FileNotFoundError:
+            marker_missing = True
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect server state implementation marker: {path}: {error}"
+            ) from error
+        if marker_missing and implementation is not None and write_implementation:
+            self._write_state_json_no_replace_at(
+                directory_fd,
+                STATE_IMPLEMENTATION_MARKER,
+                {
+                    "schema_version": STATE_IMPLEMENTATION_SCHEMA_VERSION,
+                    **implementation,
+                },
+            )
+            marker_metadata = os.stat(
+                STATE_IMPLEMENTATION_MARKER,
+                dir_fd=directory_fd,
+                follow_symlinks=False,
+            )
+            marker_missing = False
+        if not marker_missing:
+            if not stat.S_ISREG(marker_metadata.st_mode):
+                raise WorkspaceError(
+                    f"server state implementation marker is invalid: {path}"
+                )
+            expected = (
+                {
+                    "schema_version": STATE_IMPLEMENTATION_SCHEMA_VERSION,
+                    **implementation,
+                }
+                if implementation is not None
+                else None
+            )
+            if self._load_state_json_at(
+                directory_fd,
+                STATE_IMPLEMENTATION_MARKER,
+                f"server state implementation marker {path}",
+            ) != expected:
+                raise WorkspaceError(
+                    "server state implementation does not match the selected "
+                    f"server: {path}"
+                )
+        try:
+            os.mkdir("tmp", dir_fd=directory_fd)
+        except FileExistsError:
+            pass
+        tmp_metadata = os.stat("tmp", dir_fd=directory_fd, follow_symlinks=False)
+        if not stat.S_ISDIR(tmp_metadata.st_mode):
+            raise WorkspaceError(f"server state tmp path is invalid: {path}")
+
+    def _open_validated_state_directory(
+        self,
+        path: Path,
+        implementation: dict[str, str] | None,
+        *,
+        write_implementation: bool,
+    ) -> int:
+        flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        try:
+            descriptor = _open_directory_nofollow(path, flags)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot open server state without following links: {path}: {error}"
+            ) from error
+        try:
+            opened = os.fstat(descriptor)
+            visible = path.stat(follow_symlinks=False)
+            if (
+                not stat.S_ISDIR(opened.st_mode)
+                or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+                or self._canonical_state_path(path) != path
+            ):
+                raise WorkspaceError(
+                    f"server state identity changed during validation: {path}"
+                )
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as error:
+                if error.errno in {errno.EACCES, errno.EAGAIN}:
+                    raise WorkspaceError(
+                        f"physical server state is already in use: {path}"
+                    ) from error
+                raise WorkspaceError(
+                    f"cannot lock physical server state: {path}: {error}"
+                ) from error
+            self._validate_state_descriptor(
+                descriptor,
+                path,
+                implementation,
+                write_implementation=write_implementation,
+            )
+            visible = path.stat(follow_symlinks=False)
+            if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+                raise WorkspaceError(
+                    f"server state identity changed during validation: {path}"
+                )
+            return descriptor
+        except BaseException:
+            os.close(descriptor)
+            raise
+
+    @staticmethod
+    def _temporary_state_metadata_matches(
+        policy: dict[str, Any], creation_policy: object
+    ) -> bool:
+        """Match mutable lifecycle policy to its immutable creation record."""
+
+        immutable = {
+            "mode",
+            "path",
+            "owner",
+            "created_at",
+            "identity",
+            "implementation",
+            "profile",
+            "server",
+        }
+        return bool(
+            isinstance(creation_policy, dict)
+            and set(creation_policy) == immutable | {"name", "lifecycle"}
+            and creation_policy.get("name") is None
+            and creation_policy.get("lifecycle") == "disposable"
+            and all(creation_policy.get(key) == policy.get(key) for key in immutable)
+        )
+
     def list_states(self) -> dict[str, str]:
         self.paths.ensure()
         states = self._load_states()
@@ -6525,17 +9541,26 @@ class Workspace:
         validate_name(name, "state name")
         states = self._load_states()
         if name in states:
-            return Path(states[name]).resolve(strict=False)
+            return self._canonical_state_path(Path(states[name]))
         if name == "default":
-            return (self.paths.state / "server" / "default").resolve(strict=False)
+            return self._canonical_state_path(
+                self.paths.state / "server" / "default"
+            )
         raise WorkspaceError(f"state does not exist: {name}")
 
     def state_path(
-        self, name: str, server_source: Path, resolved_path: Path | None = None
-    ) -> Path:
+        self,
+        name: str,
+        server_source: Path,
+        resolved_path: Path | None = None,
+        *,
+        implementation: dict[str, str] | None = None,
+        write_implementation: bool = False,
+        keep_descriptor: bool = False,
+    ) -> Path | tuple[Path, int]:
         validate_name(name, "state name")
         path = resolved_path or self._state_location(name)
-        path = path.resolve(strict=False)
+        path = self._canonical_state_path(path)
         server_source = server_source.resolve()
         if server_source == path or server_source in path.parents:
             raise WorkspaceError(f"server state must be outside its source worktree: {path}")
@@ -6545,15 +9570,781 @@ class Workspace:
             try:
                 shutil.copytree(server_source / "install_data", staging, dirs_exist_ok=True)
                 (staging / "tmp").mkdir()
+                if implementation is not None and write_implementation:
+                    durable_atomic_json(
+                        staging / STATE_IMPLEMENTATION_MARKER,
+                        {
+                            "schema_version": STATE_IMPLEMENTATION_SCHEMA_VERSION,
+                            **implementation,
+                        },
+                    )
+                self._validate_state(staging)
                 if path.exists():
                     raise WorkspaceError(f"state appeared during initialization: {path}")
-                staging.replace(path)
+                rename_no_replace(staging, path)
             except BaseException:
                 shutil.rmtree(staging, ignore_errors=True)
                 raise
-        self._validate_state(path)
-        (path / "tmp").mkdir(exist_ok=True)
-        return path.resolve()
+        descriptor = self._open_validated_state_directory(
+            path,
+            implementation,
+            write_implementation=write_implementation,
+        )
+        if keep_descriptor:
+            return path, descriptor
+        os.close(descriptor)
+        return path
+
+    def _prepared_state_path(
+        self,
+        name: str,
+        server_source: Path,
+        resolved_path: Path,
+        implementation: dict[str, str],
+        expected_identity: dict[str, int] | None,
+    ) -> tuple[Path, int]:
+        prepared = self.state_path(
+            name,
+            server_source,
+            resolved_path=resolved_path,
+            implementation=implementation,
+            write_implementation=True,
+            keep_descriptor=True,
+        )
+        assert isinstance(prepared, tuple)
+        path, descriptor = prepared
+        opened = os.fstat(descriptor)
+        try:
+            visible = path.stat(follow_symlinks=False)
+            canonical = self._canonical_state_path(path)
+        except BaseException:
+            os.close(descriptor)
+            raise
+        if (
+            canonical != path
+            or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+        ):
+            os.close(descriptor)
+            raise WorkspaceError(
+                f"server state identity changed while preparing topology: {path}"
+            )
+        if expected_identity is not None and expected_identity != {
+            "device": opened.st_dev,
+            "inode": opened.st_ino,
+        }:
+            os.close(descriptor)
+            raise WorkspaceError(
+                f"server state identity changed while preparing topology: {path}"
+            )
+        return path, descriptor
+
+    def _persistent_state_policy(
+        self,
+        state_name: str,
+        path: Path,
+        implementation: dict[str, str],
+    ) -> dict[str, Any]:
+        owner, lifecycle = self._persistent_state_ownership(state_name, path)
+        return {
+            "mode": "default" if state_name == "default" else "named",
+            "name": state_name,
+            "path": str(path),
+            "owner": owner,
+            "lifecycle": lifecycle,
+            "identity": self._state_identity(path),
+            "implementation": implementation,
+        }
+
+    def _persistent_state_ownership(
+        self, state_name: str, path: Path
+    ) -> tuple[dict[str, str], str]:
+        registered = self._load_states()
+        scenario_root = self.paths.scenarios / state_name.removeprefix("scenario-")
+        scenario_path = scenario_root / "state"
+        if (
+            state_name.startswith("scenario-")
+            and state_name in registered
+            and self._canonical_state_path(scenario_path) == path
+        ):
+            owner = {"kind": "scenario", "name": state_name.removeprefix("scenario-")}
+            lifecycle = "scenario-owned"
+        elif (promoted := self._promoted_state_owner(state_name, path)) is not None:
+            owner = promoted
+            lifecycle = "persistent-promoted"
+        elif path.is_relative_to(self.paths.state.resolve(strict=False)):
+            owner = {"kind": "workspace"}
+            lifecycle = "persistent"
+        else:
+            owner = {"kind": "external"}
+            lifecycle = "persistent-external"
+        return owner, lifecycle
+
+    def _promoted_state_owner(
+        self, state_name: str, path: Path
+    ) -> dict[str, str] | None:
+        record_path = path / PROMOTED_STATE_METADATA
+        if record_path.is_symlink() or not record_path.is_file():
+            ownership_path = path / MANAGED_MARKER
+            ownership = (
+                load_regular_json(ownership_path, "promoted state ownership")
+                if ownership_path.is_file() and not ownership_path.is_symlink()
+                else None
+            )
+            if (
+                isinstance(ownership, dict)
+                and ownership.get("purpose") == "temporary-topology-state"
+            ):
+                raise WorkspaceError(
+                    f"promoted state provenance is missing: {record_path}; "
+                    "retry its originating state promote command"
+                )
+            creation_path = path / TEMPORARY_STATE_METADATA
+            if creation_path.exists() or creation_path.is_symlink():
+                if creation_path.is_symlink() or not creation_path.is_file():
+                    raise WorkspaceError(
+                        f"promoted state creation metadata is invalid: {creation_path}"
+                    )
+                creation = load_regular_json(
+                    creation_path, "promoted state creation metadata"
+                )
+                creation_policy = (
+                    creation.get("state_policy")
+                    if isinstance(creation, dict)
+                    else None
+                )
+                if (
+                    not isinstance(creation, dict)
+                    or creation.get("schema_version")
+                    != TEMPORARY_STATE_SCHEMA_VERSION
+                    or not isinstance(creation_policy, dict)
+                    or creation_policy.get("mode") != "temporary"
+                    or creation_policy.get("path") != str(path)
+                ):
+                    raise WorkspaceError(
+                        f"promoted state creation metadata is invalid: {creation_path}"
+                    )
+                raise WorkspaceError(
+                    f"promoted state provenance is missing: {record_path}; "
+                    "retry its originating state promote command"
+                )
+            if self.paths.topologies.is_dir() and not self.paths.topologies.is_symlink():
+                for topology in self.paths.topologies.iterdir():
+                    status_path = topology / "status.json"
+                    if status_path.is_symlink() or not status_path.is_file():
+                        continue
+                    try:
+                        status = load_regular_json(
+                            status_path, "promoted state origin status"
+                        )
+                    except WorkspaceError:
+                        continue
+                    policy = (
+                        status.get("state_policy")
+                        if isinstance(status, dict)
+                        else None
+                    )
+                    if (
+                        isinstance(policy, dict)
+                        and policy.get("mode") == "temporary"
+                        and policy.get("lifecycle")
+                        in {"promotion-pending", "promoted"}
+                        and policy.get("name") == state_name
+                        and policy.get("path") == str(path)
+                    ):
+                        raise WorkspaceError(
+                            f"promoted state provenance is missing: {record_path}; "
+                            f"retry ./atrinik state promote {topology.name} {state_name}"
+                        )
+            return None
+        record = load_regular_json(record_path, "promoted state provenance")
+        identity = record.get("identity") if isinstance(record, dict) else None
+        if (
+            not isinstance(record, dict)
+            or record.get("schema_version") != SCHEMA_VERSION
+            or record.get("name") != state_name
+            or record.get("path") != str(path)
+            or not isinstance(record.get("topology"), str)
+            or not isinstance(record.get("generation"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", record["generation"])
+            or not isinstance(identity, dict)
+            or set(identity) != {"device", "inode"}
+            or not all(
+                isinstance(value, int)
+                and not isinstance(value, bool)
+                and value >= 0
+                for value in identity.values()
+            )
+        ):
+            raise WorkspaceError(
+                f"promoted state provenance is invalid: {record_path}"
+            )
+        try:
+            visible = path.stat(follow_symlinks=False)
+        except OSError as error:
+            raise WorkspaceError(
+                f"promoted state provenance is invalid: {record_path}: {error}"
+            ) from error
+        if (
+            not stat.S_ISDIR(visible.st_mode)
+            or {"device": visible.st_dev, "inode": visible.st_ino} != identity
+        ):
+            raise WorkspaceError(
+                f"promoted state provenance is invalid: {record_path}"
+            )
+        return {
+            "kind": "promoted-topology-state",
+            "topology": record["topology"],
+            "generation": record["generation"],
+        }
+
+    def _temporary_state_container(self, topology_root: Path) -> tuple[Path, int]:
+        container = topology_root / "temporary-states"
+        expected = {
+            "schema_version": SCHEMA_VERSION,
+            "purpose": "topology-temporary-states",
+        }
+        flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        root_fd = _open_directory_nofollow(topology_root, flags)
+        container_fd: int | None = None
+        try:
+            root_marker = self._load_state_json_at(
+                root_fd, MANAGED_MARKER, "topology ownership marker"
+            )
+            if root_marker != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": f"topology:{topology_root.name}",
+            }:
+                raise WorkspaceError(
+                    f"topology ownership marker is invalid: {topology_root}"
+                )
+            try:
+                visible = os.stat(
+                    "temporary-states", dir_fd=root_fd, follow_symlinks=False
+                )
+            except FileNotFoundError:
+                staging = f".temporary-states.{secrets.token_hex(12)}.tmp"
+                staging_fd: int | None = None
+                staging_identity: dict[str, int] | None = None
+                try:
+                    os.mkdir(staging, mode=0o700, dir_fd=root_fd)
+                    created = os.stat(
+                        staging, dir_fd=root_fd, follow_symlinks=False
+                    )
+                    staging_identity = {
+                        "device": created.st_dev,
+                        "inode": created.st_ino,
+                    }
+                    staging_fd = os.open(staging, flags, dir_fd=root_fd)
+                    opened_staging = os.fstat(staging_fd)
+                    if (
+                        not stat.S_ISDIR(created.st_mode)
+                        or (opened_staging.st_dev, opened_staging.st_ino)
+                        != (created.st_dev, created.st_ino)
+                    ):
+                        raise WorkspaceError(
+                            "temporary state container staging changed"
+                        )
+                    durable_atomic_json_at(
+                        staging_fd, MANAGED_MARKER, expected
+                    )
+                    visible_staging = os.stat(
+                        staging, dir_fd=root_fd, follow_symlinks=False
+                    )
+                    if (visible_staging.st_dev, visible_staging.st_ino) != (
+                        created.st_dev,
+                        created.st_ino,
+                    ):
+                        raise WorkspaceError(
+                            "temporary state container staging changed"
+                        )
+                    rename_no_replace_at(
+                        root_fd, staging, root_fd, "temporary-states"
+                    )
+                    os.fsync(root_fd)
+                except BaseException:
+                    if staging_fd is not None:
+                        os.close(staging_fd)
+                    if staging_identity is not None:
+                        try:
+                            remove_owned_tree(
+                                topology_root / staging,
+                                expected_identity=staging_identity,
+                                parent_directory_fd=root_fd,
+                            )
+                        except FileNotFoundError:
+                            pass
+                    raise
+                else:
+                    if staging_fd is not None:
+                        os.close(staging_fd)
+                visible = os.stat(
+                    "temporary-states", dir_fd=root_fd, follow_symlinks=False
+                )
+                container_fd = os.open("temporary-states", flags, dir_fd=root_fd)
+            else:
+                container_fd = os.open("temporary-states", flags, dir_fd=root_fd)
+            opened = os.fstat(container_fd)
+            if (
+                not stat.S_ISDIR(visible.st_mode)
+                or (visible.st_dev, visible.st_ino)
+                != (opened.st_dev, opened.st_ino)
+                or _descriptor_mount_id(container_fd)
+                != _descriptor_mount_id(root_fd)
+                or self._load_state_json_at(
+                    container_fd,
+                    MANAGED_MARKER,
+                    "temporary state container marker",
+                )
+                != expected
+            ):
+                raise WorkspaceError(
+                    f"temporary state container is invalid: {container}"
+                )
+            result = container_fd
+            container_fd = None
+            return container, result
+        finally:
+            if container_fd is not None:
+                os.close(container_fd)
+            os.close(root_fd)
+
+    @contextmanager
+    def _topology_state_lock(
+        self,
+        path: Path,
+        *,
+        preparing_topology: str | None = None,
+        physical_identity: bool = True,
+    ) -> Iterator[StateLease]:
+        requested_identity = (
+            self._state_identity(path)
+            if physical_identity and path.exists() and not path.is_symlink()
+            else None
+        )
+        try:
+            with ExitStack() as leases:
+                state_lease: StateLease
+
+                def bind_identity(identity: dict[str, int]) -> TextIO | None:
+                    if not physical_identity:
+                        return None
+                    return leases.enter_context(
+                        exclusive_lock(
+                            self._lease_namespace
+                            / f"state-identity-{identity['device']}-"
+                            f"{identity['inode']}.lock",
+                            f"physical server state {path}",
+                            nonblocking=True,
+                        )
+                    )
+                path_lock = leases.enter_context(
+                    exclusive_lock(
+                        Path(f"{path}.lock"),
+                        f"server state {path}",
+                        nonblocking=True,
+                    )
+                )
+                state_lease = StateLease(path_lock, bind_identity)
+                if requested_identity is not None:
+                    state_lease.bind(requested_identity)
+                for topology in sorted(self.paths.topologies.iterdir()):
+                    if topology.name == preparing_topology:
+                        continue
+                    if topology.is_symlink() or not topology.is_dir():
+                        continue
+                    status_path = topology / "status.json"
+                    if not status_path.is_file() or status_path.is_symlink():
+                        continue
+                    try:
+                        raw_status = load_regular_json(
+                            status_path, "topology state ownership status"
+                        )
+                    except WorkspaceError as error:
+                        raise WorkspaceError(
+                            "cannot confirm exact server state ownership while "
+                            f"topology status is uncertain: {path}"
+                        ) from error
+                    raw_policy = (
+                        raw_status.get("state_policy")
+                        if isinstance(raw_status, dict)
+                        else None
+                    )
+                    same_state = isinstance(raw_status, dict) and (
+                        raw_status.get("state") == str(path)
+                        or (
+                            requested_identity is not None
+                            and isinstance(raw_policy, dict)
+                            and raw_policy.get("identity") == requested_identity
+                        )
+                    )
+                    if not same_state:
+                        continue
+                    try:
+                        status = self.topology_status(topology.name)
+                    except WorkspaceError as error:
+                        control = raw_status.get("control")
+                        if (
+                            isinstance(control, dict)
+                            and not self._topology_process_tree_active(
+                                topology, control
+                            )
+                        ):
+                            continue
+                        raise WorkspaceError(
+                            "cannot confirm exact server state ownership while "
+                            f"topology {topology.name} status is uncertain: {path}"
+                        ) from error
+                    observation = status.get("observation")
+                    control = status.get("control")
+                    if (
+                        (
+                            status.get("state") == str(path)
+                            or (
+                                requested_identity is not None
+                                and status.get("state_policy", {}).get("identity")
+                                == requested_identity
+                            )
+                        )
+                        and isinstance(observation, dict)
+                        and observation.get("process_tree_lease") == "retained"
+                        and isinstance(control, dict)
+                    ):
+                        raise WorkspaceError(
+                            f"server state {path} is owned by topology "
+                            f"{status['name']} generation {control['generation']}; "
+                            f"run ./atrinik down {status['name']} and retry"
+                        )
+                yield state_lease
+                return
+        except LockBusyError as error:
+            owner: tuple[str, str] | None = None
+            try:
+                for status in self.topology_statuses():
+                    observation = status.get("observation")
+                    control = status.get("control")
+                    if (
+                        (
+                            status.get("state") == str(path)
+                            or (
+                                requested_identity is not None
+                                and status.get("state_policy", {}).get("identity")
+                                == requested_identity
+                            )
+                        )
+                        and isinstance(observation, dict)
+                        and observation.get("process_tree_lease") == "retained"
+                        and isinstance(control, dict)
+                    ):
+                        owner = (status["name"], control["generation"])
+                        break
+            except WorkspaceError:
+                pass
+            if owner is not None:
+                raise WorkspaceError(
+                    f"server state {path} is owned by topology {owner[0]} "
+                    f"generation {owner[1]}; run ./atrinik down {owner[0]} and retry"
+                ) from error
+            raise WorkspaceError(
+                f"server state {path} is busy but its exact owner cannot be "
+                "confirmed; inspect ./atrinik ps --json and preserve the state"
+            ) from error
+
+    def _create_temporary_state(
+        self,
+        topology_root: Path,
+        topology_name: str,
+        profile_name: str,
+        generation: str,
+        server_source: Path,
+        implementation: dict[str, str],
+        server_coordinate: dict[str, Any],
+    ) -> tuple[Path, dict[str, Any]]:
+        container, container_fd = self._temporary_state_container(topology_root)
+        destination = container / generation
+        try:
+            os.stat(generation, dir_fd=container_fd, follow_symlinks=False)
+        except FileNotFoundError:
+            pass
+        else:
+            os.close(container_fd)
+            raise WorkspaceError(
+                f"temporary topology state already exists for generation {generation}"
+            )
+        staging: Path | None = None
+        staging_identity: dict[str, int] | None = None
+        try:
+            staging = Path(tempfile.mkdtemp(
+                prefix=f".{generation}.", dir=f"/proc/self/fd/{container_fd}"
+            ))
+            staging_name = staging.name
+            created = os.stat(
+                staging_name, dir_fd=container_fd, follow_symlinks=False
+            )
+            staging_identity = {
+                "device": created.st_dev,
+                "inode": created.st_ino,
+            }
+            staging_fd = os.open(
+                staging_name,
+                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+                dir_fd=container_fd,
+            )
+            opened_staging = os.fstat(staging_fd)
+            if (
+                not stat.S_ISDIR(created.st_mode)
+                or (opened_staging.st_dev, opened_staging.st_ino)
+                != (created.st_dev, created.st_ino)
+            ):
+                raise WorkspaceError(
+                    "temporary topology state staging changed"
+                )
+        except BaseException:
+            if staging is not None and staging_identity is not None:
+                try:
+                    remove_owned_tree(
+                        staging,
+                        expected_identity=staging_identity,
+                        parent_directory_fd=container_fd,
+                    )
+                except FileNotFoundError:
+                    pass
+            os.close(container_fd)
+            raise
+        published_identity: dict[str, int] | None = None
+        created_at = datetime.now(timezone.utc).isoformat()
+        install_data = server_source / "install_data"
+        staging_access = Path(f"/proc/self/fd/{staging_fd}")
+        try:
+            source_digest = _tree_digest(
+                install_data, set(), reject_symlinks=True
+            )
+            shutil.copytree(
+                install_data, staging_access, dirs_exist_ok=True
+            )
+            if (
+                _tree_digest_descriptor(staging_fd, destination) != source_digest
+                or _tree_digest(install_data, set(), reject_symlinks=True)
+                != source_digest
+                or _tree_digest(install_data, set(), reject_symlinks=True)
+                != source_digest
+            ):
+                raise WorkspaceError(
+                    "selected server install_data changed during temporary state "
+                    "initialization"
+                )
+            os.mkdir("tmp", dir_fd=staging_fd)
+            durable_atomic_json_at(
+                staging_fd,
+                STATE_IMPLEMENTATION_MARKER,
+                {
+                    "schema_version": STATE_IMPLEMENTATION_SCHEMA_VERSION,
+                    **implementation,
+                },
+            )
+            self._validate_state_descriptor(
+                staging_fd,
+                destination,
+                implementation,
+                write_implementation=False,
+            )
+            staging_metadata = os.fstat(staging_fd)
+            identity = {
+                "device": staging_metadata.st_dev,
+                "inode": staging_metadata.st_ino,
+            }
+            policy = {
+                "mode": "temporary",
+                "name": None,
+                "path": str(destination),
+                "owner": {
+                    "kind": "topology-generation",
+                    "topology": topology_name,
+                    "generation": generation,
+                },
+                "lifecycle": "disposable",
+                "created_at": created_at,
+                "identity": identity,
+                "implementation": implementation,
+                "profile": profile_name,
+                "server": server_coordinate,
+            }
+            durable_atomic_json_at(
+                staging_fd,
+                MANAGED_MARKER,
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": "temporary-topology-state",
+                    "topology": topology_name,
+                    "generation": generation,
+                },
+            )
+            durable_atomic_json_at(
+                staging_fd,
+                TEMPORARY_STATE_METADATA,
+                {
+                    "schema_version": TEMPORARY_STATE_SCHEMA_VERSION,
+                    "state_policy": policy,
+                },
+            )
+            managed_record = {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": "temporary-topology-state",
+                "topology": topology_name,
+                "generation": generation,
+            }
+            creation_record = {
+                "schema_version": TEMPORARY_STATE_SCHEMA_VERSION,
+                "state_policy": policy,
+            }
+
+            def validate_publication_state() -> None:
+                self._validate_temporary_state_integrity(
+                    staging_fd,
+                    destination,
+                    implementation,
+                    container_fd,
+                    staging_name if published_identity is None else generation,
+                )
+                if self._load_state_json_at(
+                    staging_fd,
+                    MANAGED_MARKER,
+                    "temporary state ownership marker",
+                ) != managed_record or self._load_state_json_at(
+                    staging_fd,
+                    TEMPORARY_STATE_METADATA,
+                    "temporary state creation record",
+                ) != creation_record:
+                    raise WorkspaceError(
+                        "temporary topology state metadata changed before publication"
+                    )
+                tmp_fd = os.open(
+                    "tmp",
+                    os.O_RDONLY
+                    | os.O_CLOEXEC
+                    | os.O_DIRECTORY
+                    | os.O_NOFOLLOW,
+                    dir_fd=staging_fd,
+                )
+                try:
+                    tmp_metadata = os.fstat(tmp_fd)
+                    if (
+                        tmp_metadata.st_dev != staging_metadata.st_dev
+                        or _descriptor_mount_id(tmp_fd)
+                        != _descriptor_mount_id(staging_fd)
+                        or os.listdir(tmp_fd)
+                    ):
+                        raise WorkspaceError(
+                            "temporary topology state mutable output is not empty"
+                        )
+                finally:
+                    os.close(tmp_fd)
+
+            validate_publication_state()
+            copied_exclusions = {
+                "tmp",
+                STATE_IMPLEMENTATION_MARKER,
+                MANAGED_MARKER,
+                TEMPORARY_STATE_METADATA,
+            }
+            if (
+                _tree_digest_descriptor(
+                    staging_fd,
+                    destination,
+                    copied_exclusions,
+                )
+                != source_digest
+                or _tree_digest(install_data, set(), reject_symlinks=True)
+                != source_digest
+            ):
+                raise WorkspaceError(
+                    "selected server install_data changed before temporary state "
+                    "publication"
+                )
+            full_tree_digest = _tree_digest_descriptor(staging_fd, destination)
+            validate_publication_state()
+            if (
+                _tree_digest_descriptor(staging_fd, destination)
+                != full_tree_digest
+            ):
+                raise WorkspaceError(
+                    "temporary topology state changed before publication"
+                )
+            visible_staging = os.stat(
+                staging_name, dir_fd=container_fd, follow_symlinks=False
+            )
+            if (visible_staging.st_dev, visible_staging.st_ino) != (
+                identity["device"], identity["inode"]
+            ):
+                raise WorkspaceError(
+                    "temporary topology state staging changed before publication"
+                )
+            rename_no_replace_at(
+                container_fd, staging_name, container_fd, generation
+            )
+            published_identity = identity
+            if (
+                _tree_digest_descriptor(
+                    staging_fd,
+                    destination,
+                    copied_exclusions,
+                )
+                != source_digest
+                or _tree_digest(install_data, set(), reject_symlinks=True)
+                != source_digest
+            ):
+                raise WorkspaceError(
+                    "selected server install_data changed during temporary state "
+                    "publication"
+                )
+            validate_publication_state()
+            if (
+                _tree_digest_descriptor(staging_fd, destination)
+                != full_tree_digest
+            ):
+                raise WorkspaceError(
+                    "temporary topology state changed during publication"
+                )
+            published = os.stat(
+                generation, dir_fd=container_fd, follow_symlinks=False
+            )
+            visible_container = container.stat(follow_symlinks=False)
+            opened_container = os.fstat(container_fd)
+            if (
+                (published.st_dev, published.st_ino)
+                != (identity["device"], identity["inode"])
+                or (visible_container.st_dev, visible_container.st_ino)
+                != (opened_container.st_dev, opened_container.st_ino)
+            ):
+                raise WorkspaceError(
+                    f"temporary topology state identity changed during publication: {destination}"
+                )
+            return destination, policy
+        except BaseException:
+            if published_identity is not None:
+                remove_owned_tree(
+                    destination,
+                    expected_identity=published_identity,
+                    parent_directory_fd=container_fd,
+                )
+            else:
+                try:
+                    os.stat(
+                        staging_name,
+                        dir_fd=container_fd,
+                        follow_symlinks=False,
+                    )
+                except FileNotFoundError:
+                    pass
+                else:
+                    remove_owned_tree(
+                        staging,
+                        expected_identity=staging_identity,
+                        parent_directory_fd=container_fd,
+                    )
+            raise
+        finally:
+            os.close(staging_fd)
+            os.close(container_fd)
 
     def _validate_state(self, path: Path) -> None:
         if not path.is_dir():
@@ -6564,6 +10355,169 @@ class Workspace:
         for name in EXPECTED_SERVER_DATA["directories"]:
             if not (path / name).is_dir():
                 raise WorkspaceError(f"server state lacks required directory {name}: {path}")
+
+    @staticmethod
+    def _validate_temporary_state_integrity(
+        directory_fd: int,
+        path: Path,
+        implementation: dict[str, str] | None = None,
+        parent_directory_fd: int | None = None,
+        entry_name: str | None = None,
+    ) -> None:
+        """Fail closed before deleting wrapper-owned mutable server state."""
+
+        root = os.fstat(directory_fd)
+        root_mount = _descriptor_mount_id(directory_fd)
+        parent_fd = (
+            os.dup(parent_directory_fd)
+            if parent_directory_fd is not None
+            else _open_directory_nofollow(
+                path.parent,
+                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+            )
+        )
+        try:
+            visible = os.stat(
+                entry_name or path.name,
+                dir_fd=parent_fd,
+                follow_symlinks=False,
+            )
+            if (
+                (visible.st_dev, visible.st_ino) != (root.st_dev, root.st_ino)
+                or _descriptor_mount_id(parent_fd) != root_mount
+            ):
+                raise WorkspaceError(
+                    f"temporary server state root changed or crossed a mount: {path}"
+                )
+        finally:
+            os.close(parent_fd)
+        marker = Workspace._load_state_json_at(
+            directory_fd,
+            STATE_IMPLEMENTATION_MARKER,
+            "temporary state implementation marker",
+        )
+        if implementation is None:
+            marker_valid = bool(
+                isinstance(marker, dict)
+                and set(marker)
+                == {"schema_version", "stack", "provider", "repository"}
+                and marker.get("schema_version")
+                == STATE_IMPLEMENTATION_SCHEMA_VERSION
+                and all(
+                    isinstance(marker.get(key), str) and marker[key]
+                    for key in ("stack", "provider", "repository")
+                )
+            )
+        else:
+            marker_valid = marker == {
+                "schema_version": STATE_IMPLEMENTATION_SCHEMA_VERSION,
+                **implementation,
+            }
+        if not marker_valid:
+            raise WorkspaceError(
+                f"temporary state implementation marker is invalid: {path}"
+            )
+        for name in EXPECTED_SERVER_DATA["files"]:
+            try:
+                metadata = os.stat(
+                    name, dir_fd=directory_fd, follow_symlinks=False
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    f"temporary server state lacks required file {name}: {path}"
+                ) from error
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
+                raise WorkspaceError(
+                    f"temporary server state required file is linked or invalid "
+                    f"{name}: {path}"
+                )
+        for name in EXPECTED_SERVER_DATA["directories"]:
+            try:
+                metadata = os.stat(
+                    name, dir_fd=directory_fd, follow_symlinks=False
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    f"temporary server state lacks required directory {name}: {path}"
+                ) from error
+            if not stat.S_ISDIR(metadata.st_mode):
+                raise WorkspaceError(
+                    "temporary server state required directory is linked or "
+                    f"invalid {name}: {path}"
+                )
+
+        def validate_directory(descriptor: int, display: Path) -> None:
+            for name in os.listdir(descriptor):
+                child_display = display / name
+                metadata = os.stat(
+                    name, dir_fd=descriptor, follow_symlinks=False
+                )
+                if stat.S_ISLNK(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"temporary server state contains a symbolic link: "
+                        f"{child_display}"
+                    )
+                if stat.S_ISREG(metadata.st_mode):
+                    if metadata.st_nlink != 1:
+                        raise WorkspaceError(
+                            f"temporary server state contains a hard-linked file: "
+                            f"{child_display}"
+                        )
+                    flags = os.O_NOFOLLOW
+                    if sys.platform == "linux":
+                        flags |= os.O_PATH
+                    else:
+                        flags |= os.O_RDONLY | os.O_NONBLOCK
+                    child_fd = os.open(name, flags, dir_fd=descriptor)
+                    try:
+                        opened = os.fstat(child_fd)
+                        if (
+                            opened.st_nlink != 1
+                            or (opened.st_dev, opened.st_ino)
+                            != (metadata.st_dev, metadata.st_ino)
+                            or _descriptor_mount_id(child_fd) != root_mount
+                        ):
+                            raise WorkspaceError(
+                                "temporary server state file changed or crossed "
+                                f"a mount during validation: {child_display}"
+                            )
+                    finally:
+                        os.close(child_fd)
+                    continue
+                if not stat.S_ISDIR(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"temporary server state contains a special entry: "
+                        f"{child_display}"
+                    )
+                if metadata.st_dev != root.st_dev:
+                    raise WorkspaceError(
+                        f"temporary server state contains a mounted directory: "
+                        f"{child_display}"
+                    )
+                child_fd = os.open(
+                    name,
+                    os.O_RDONLY
+                    | os.O_CLOEXEC
+                    | os.O_DIRECTORY
+                    | os.O_NOFOLLOW,
+                    dir_fd=descriptor,
+                )
+                try:
+                    opened = os.fstat(child_fd)
+                    if (opened.st_dev, opened.st_ino) != (
+                        metadata.st_dev,
+                        metadata.st_ino,
+                    ) or _descriptor_mount_id(child_fd) != root_mount:
+                        raise WorkspaceError(
+                            "temporary server state entry changed or crossed a "
+                            "mount during "
+                            f"validation: {child_display}"
+                        )
+                    validate_directory(child_fd, child_display)
+                finally:
+                    os.close(child_fd)
+
+        validate_directory(directory_fd, path)
 
     def _topology_services(self, services: list[str] | None) -> list[str]:
         requested = set(services or TOPOLOGY_SERVICES)
@@ -6577,10 +10531,14 @@ class Workspace:
     def topology_summary(
         self,
         profile_name: str,
-        state_name: str,
+        state_name: str | None,
         services: list[str] | None = None,
+        state_mode: str | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
+        state_mode, state_name = self._normalize_topology_state_request(
+            state_mode, state_name, selected_services
+        )
         requested = set(selected_services)
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
@@ -6590,11 +10548,30 @@ class Workspace:
         checkout_states = self._selected_checkout_states(
             profile, resolved, include_dirty=True
         )
-        state = (
-            str(self._state_location(state_name))
-            if "server" in selected_services
-            else None
-        )
+        state: str | None = None
+        state_policy: dict[str, Any] | None = None
+        if "server" in selected_services:
+            if state_mode == "temporary":
+                state_policy = {
+                    "mode": "temporary",
+                    "name": None,
+                    "path": None,
+                    "owner": {"kind": "topology-generation"},
+                    "lifecycle": "disposable",
+                }
+            else:
+                assert state_name is not None
+                state = str(self._state_location(state_name))
+                owner, lifecycle = self._persistent_state_ownership(
+                    state_name, Path(state)
+                )
+                state_policy = {
+                    "mode": state_mode,
+                    "name": state_name,
+                    "path": state,
+                    "owner": owner,
+                    "lifecycle": lifecycle,
+                }
         return {
             "profile": profile_name,
             "stack": stack.name,
@@ -6611,6 +10588,7 @@ class Workspace:
                 role: stack.providers[role].name for role in sorted(required)
             },
             "state": state,
+            "state_policy": state_policy,
             "build_root": str(
                 self.paths.builds / "profiles" / f"{profile_name}-{key}"
             ),
@@ -6631,6 +10609,39 @@ class Workspace:
                 for role, path in sorted(resolved.items())
             },
         }
+
+    @staticmethod
+    def _normalize_topology_state_request(
+        state_mode: str | None,
+        state_name: str | None,
+        services: list[str],
+    ) -> tuple[str, str | None]:
+        if "server" not in services:
+            if state_mode == "temporary":
+                raise WorkspaceError("temporary state requires the server service")
+            return "default", None
+        if state_mode is None:
+            state_mode = (
+                "temporary"
+                if state_name is None
+                else "default"
+                if state_name == "default"
+                else "named"
+            )
+        if state_mode not in {"temporary", "named", "default"}:
+            raise WorkspaceError(f"unknown topology state policy: {state_mode}")
+        if state_mode == "temporary":
+            if state_name is not None:
+                raise WorkspaceError("temporary state cannot also name persistent state")
+            return state_mode, None
+        if state_mode == "default":
+            if state_name not in {None, "default"}:
+                raise WorkspaceError("default state cannot also name persistent state")
+            return state_mode, "default"
+        if state_name is None or state_name == "default":
+            raise WorkspaceError("named state policy requires a non-default state name")
+        validate_name(state_name, "state name")
+        return state_mode, state_name
 
     def _topology_directory(self, name: str, create: bool = False) -> Path:
         validate_name(name, "topology name")
@@ -6842,6 +10853,7 @@ class Workspace:
         source_display: Path,
         destination_fd: int,
         destination_display: Path,
+        exclusions: frozenset[str] = frozenset(),
     ) -> None:
         directory_before = os.fstat(source_fd)
         if not stat.S_ISDIR(directory_before.st_mode):
@@ -6855,6 +10867,8 @@ class Workspace:
                 f"cannot list topology runtime input {source_display}: {error}"
             ) from error
         for name in names:
+            if name in exclusions:
+                continue
             source_child = source_display / name
             destination_child = destination_display / name
             try:
@@ -6901,6 +10915,7 @@ class Workspace:
                             source_child,
                             destination_child_fd,
                             destination_child,
+                            frozenset(),
                         )
                     finally:
                         os.close(destination_child_fd)
@@ -6983,7 +10998,11 @@ class Workspace:
         )
 
     def _copy_topology_runtime_tree(
-        self, source: Path, destination: Path
+        self,
+        source: Path,
+        destination: Path,
+        exclusions: frozenset[str] = frozenset(),
+        pinned_destination_parent_fd: int | None = None,
     ) -> int:
         flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
         retained_destination_fd: int | None = None
@@ -7003,10 +11022,16 @@ class Workspace:
                 raise WorkspaceError(
                     f"topology runtime input changed during copy: {source}"
                 )
-            destination_parent_before = destination.parent.stat(
-                follow_symlinks=False
+            destination_parent_before = (
+                os.fstat(pinned_destination_parent_fd)
+                if pinned_destination_parent_fd is not None
+                else destination.parent.stat(follow_symlinks=False)
             )
-            destination_parent_fd = os.open(destination.parent, flags)
+            destination_parent_fd = (
+                os.dup(pinned_destination_parent_fd)
+                if pinned_destination_parent_fd is not None
+                else os.open(destination.parent, flags)
+            )
             if self._runtime_tree_identity(os.fstat(destination_parent_fd)) != (
                 self._runtime_tree_identity(destination_parent_before)
             ):
@@ -7031,7 +11056,11 @@ class Workspace:
                     f"{destination}"
                 ) from error
             self._copy_topology_runtime_directory(
-                source_fd, source, destination_fd, destination
+                source_fd,
+                source,
+                destination_fd,
+                destination,
+                exclusions,
             )
             destination_parent_after = os.fstat(destination_parent_fd)
             if (
@@ -7057,6 +11086,1240 @@ class Workspace:
             if destination_parent_fd is not None:
                 os.close(destination_parent_fd)
             os.close(source_fd)
+
+    def _copy_runtime_directory_contents(
+        self,
+        source: Path,
+        destination: Path,
+        exclusions: frozenset[str] = frozenset(),
+    ) -> None:
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        source_fd: int | None = None
+        destination_fd: int | None = None
+        try:
+            source_before = source.stat(follow_symlinks=False)
+            source_fd = os.open(source, flags)
+            destination_before = destination.stat(follow_symlinks=False)
+            destination_fd = os.open(destination, flags)
+        except OSError as error:
+            if destination_fd is not None:
+                os.close(destination_fd)
+            if source_fd is not None:
+                os.close(source_fd)
+            raise WorkspaceError(
+                f"cannot open runtime publication directory: {error}"
+            ) from error
+        try:
+            if (
+                self._runtime_tree_identity(os.fstat(source_fd))
+                != self._runtime_tree_identity(source_before)
+                or self._runtime_tree_identity(os.fstat(destination_fd))
+                != self._runtime_tree_identity(destination_before)
+            ):
+                raise WorkspaceError(
+                    "runtime publication directory changed before copy"
+                )
+            self._copy_topology_runtime_directory(
+                source_fd,
+                source,
+                destination_fd,
+                destination,
+                exclusions,
+            )
+        finally:
+            os.close(destination_fd)
+            os.close(source_fd)
+
+    def _copy_runtime_tree(
+        self,
+        source: Path,
+        destination: Path,
+        exclusions: frozenset[str] = frozenset(),
+        pinned_destination_parent_fd: int | None = None,
+    ) -> None:
+        descriptor = self._copy_topology_runtime_tree(
+            source,
+            destination,
+            exclusions,
+            pinned_destination_parent_fd,
+        )
+        os.close(descriptor)
+
+    def _copy_runtime_regular_file(self, source: Path, destination: Path) -> None:
+        flags = os.O_RDONLY | os.O_NOFOLLOW
+        source_fd: int | None = None
+        destination_fd: int | None = None
+        try:
+            before = source.stat(follow_symlinks=False)
+            source_fd = os.open(source, flags)
+            opened = os.fstat(source_fd)
+            if (
+                not stat.S_ISREG(opened.st_mode)
+                or self._runtime_tree_identity(opened)
+                != self._runtime_tree_identity(before)
+            ):
+                raise WorkspaceError(
+                    f"runtime publication input changed or is not regular: {source}"
+                )
+            destination_fd = os.open(
+                destination,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                stat.S_IMODE(opened.st_mode),
+            )
+            with os.fdopen(source_fd, "rb", closefd=False) as source_stream:
+                with os.fdopen(
+                    destination_fd, "wb", closefd=False
+                ) as destination_stream:
+                    shutil.copyfileobj(source_stream, destination_stream)
+                    destination_stream.flush()
+                    os.fsync(destination_stream.fileno())
+            if self._runtime_tree_identity(os.fstat(source_fd)) != (
+                self._runtime_tree_identity(opened)
+            ):
+                raise WorkspaceError(
+                    f"runtime publication input changed during copy: {source}"
+                )
+            os.fchmod(destination_fd, stat.S_IMODE(opened.st_mode))
+            os.utime(
+                destination,
+                ns=(opened.st_atime_ns, opened.st_mtime_ns),
+                follow_symlinks=False,
+            )
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot copy runtime publication input {source}: {error}"
+            ) from error
+        finally:
+            if destination_fd is not None:
+                os.close(destination_fd)
+            if source_fd is not None:
+                os.close(source_fd)
+
+    def _runtime_generation_entries(
+        self,
+        root: Path,
+        state: Path | None,
+    ) -> list[dict[str, Any]]:
+        entries: list[dict[str, Any]] = []
+        for directory, names, files in os.walk(root, followlinks=False):
+            current = Path(directory)
+            names.sort()
+            files.sort()
+            linked_directories: set[str] = set()
+            for name in list(names):
+                path = current / name
+                relative = path.relative_to(root).as_posix()
+                metadata = path.lstat()
+                if stat.S_ISLNK(metadata.st_mode):
+                    if state is not None and relative == "server/data":
+                        target = state
+                        kind = "external-state"
+                    else:
+                        raise WorkspaceError(
+                            f"runtime publication contains a link: {path}"
+                        )
+                    if path.resolve(strict=False) != state.resolve(strict=False):
+                        raise WorkspaceError(
+                            f"runtime publication state link changed: {path}"
+                        )
+                    linked_directories.add(name)
+                    entries.append(
+                        {
+                            "kind": kind,
+                            "path": relative,
+                            "target": str(target),
+                        }
+                    )
+                elif not stat.S_ISDIR(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"runtime publication contains a special file: {path}"
+                    )
+                else:
+                    entries.append(
+                        {
+                            "kind": "directory",
+                            "path": relative,
+                            "mode": stat.S_IMODE(metadata.st_mode),
+                        }
+                    )
+            names[:] = [name for name in names if name not in linked_directories]
+            for name in files:
+                path = current / name
+                relative = path.relative_to(root).as_posix()
+                metadata = path.lstat()
+                if not stat.S_ISREG(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"runtime publication contains a link or special file: {path}"
+                    )
+                entries.append(
+                    {
+                        "kind": "file",
+                        "path": relative,
+                        "mode": stat.S_IMODE(metadata.st_mode),
+                        "size": metadata.st_size,
+                        "sha256": _file_digest(path, "runtime publication file"),
+                    }
+                )
+        return sorted(entries, key=lambda entry: entry["path"])
+
+    @staticmethod
+    def _runtime_state_output_identity_at(
+        state_directory_fd: int, generation: str
+    ) -> dict[str, int]:
+        flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        descriptors: list[int] = []
+        state_mount_id = _descriptor_mount_id(state_directory_fd)
+        try:
+            parent = state_directory_fd
+            for name in ("tmp", "runtime-assets", generation):
+                descriptor = os.open(name, flags, dir_fd=parent)
+                descriptors.append(descriptor)
+                if _descriptor_mount_id(descriptor) != state_mount_id:
+                    raise WorkspaceError(
+                        "server runtime state output crosses a mount"
+                    )
+                parent = descriptor
+            metadata = os.fstat(descriptors[-1])
+            return {"device": metadata.st_dev, "inode": metadata.st_ino}
+        finally:
+            for descriptor in reversed(descriptors):
+                os.close(descriptor)
+
+    @staticmethod
+    def _prepare_runtime_state_output(
+        state: Path,
+        generation: str,
+        state_directory_fd: int | None = None,
+        cleanup_proof: list[bool] | None = None,
+    ) -> tuple[Path, int, dict[str, int]]:
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        descriptors: list[int] = []
+        created_generation = False
+        if cleanup_proof is not None:
+            cleanup_proof[0] = True
+        output = state / "tmp" / "runtime-assets" / generation
+        state_mount_id: int | None = None
+
+        def open_directory(parent: int, name: str, create: bool) -> int:
+            if create:
+                try:
+                    os.mkdir(name, 0o700, dir_fd=parent)
+                except FileExistsError:
+                    pass
+            metadata = os.stat(
+                name, dir_fd=parent, follow_symlinks=False
+            )
+            if not stat.S_ISDIR(metadata.st_mode):
+                raise WorkspaceError(
+                    f"server runtime state output path is invalid: {output}"
+                )
+            descriptor = os.open(name, flags, dir_fd=parent)
+            if Workspace._runtime_tree_identity(os.fstat(descriptor)) != (
+                Workspace._runtime_tree_identity(metadata)
+            ):
+                os.close(descriptor)
+                raise WorkspaceError(
+                    f"server runtime state output path changed: {output}"
+                )
+            if (
+                state_mount_id is not None
+                and _descriptor_mount_id(descriptor) != state_mount_id
+            ):
+                os.close(descriptor)
+                raise WorkspaceError(
+                    f"server runtime state output crosses a mount: {output}"
+                )
+            return descriptor
+
+        try:
+            state_fd = (
+                os.dup(state_directory_fd)
+                if state_directory_fd is not None
+                else os.open(state, flags)
+            )
+            descriptors.append(state_fd)
+            state_metadata = os.fstat(state_fd)
+            state_mount_id = _descriptor_mount_id(state_fd)
+            if not stat.S_ISDIR(state_metadata.st_mode):
+                raise WorkspaceError(f"server state is invalid: {state}")
+            if state_directory_fd is None and Workspace._runtime_tree_identity(
+                state_metadata
+            ) != Workspace._runtime_tree_identity(
+                state.stat(follow_symlinks=False)
+            ):
+                raise WorkspaceError(
+                    f"server state changed before runtime publication: {state}"
+                )
+            tmp_fd = open_directory(state_fd, "tmp", True)
+            descriptors.append(tmp_fd)
+            container_fd = open_directory(tmp_fd, "runtime-assets", True)
+            descriptors.append(container_fd)
+            if cleanup_proof is not None:
+                cleanup_proof[0] = False
+            try:
+                os.mkdir(generation, 0o700, dir_fd=container_fd)
+            except FileExistsError as error:
+                raise WorkspaceError(
+                    f"server runtime state output already exists: {output}"
+                ) from error
+            created_generation = True
+            generation_fd = open_directory(container_fd, generation, False)
+            descriptors.append(generation_fd)
+            marker = json.dumps(
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": f"runtime-state-output:{generation}",
+                },
+                indent=2,
+                sort_keys=True,
+            ).encode() + b"\n"
+            marker_fd = os.open(
+                MANAGED_MARKER,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                0o600,
+                dir_fd=generation_fd,
+            )
+            try:
+                with os.fdopen(marker_fd, "wb", closefd=False) as stream:
+                    stream.write(marker)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+            finally:
+                os.close(marker_fd)
+            metadata = os.fstat(generation_fd)
+            result_fd = os.dup(generation_fd)
+            return output, result_fd, {
+                "device": metadata.st_dev,
+                "inode": metadata.st_ino,
+            }
+        except BaseException as error:
+            if created_generation and len(descriptors) >= 4:
+                generation_fd = descriptors[-1]
+                metadata = os.fstat(generation_fd)
+                mount_id = _descriptor_mount_id(generation_fd)
+                _prepare_owned_tree_removal(
+                    generation_fd,
+                    metadata.st_dev,
+                    mount_id,
+                    output,
+                    stat.S_IMODE(metadata.st_mode),
+                )
+                _remove_owned_tree_contents(
+                    generation_fd, metadata.st_dev, mount_id, output
+                )
+                parent_fd = descriptors[-2]
+                tombstone = _owned_tree_tombstone_name(
+                    generation, metadata.st_dev, metadata.st_ino
+                )
+                rename_no_replace_at(
+                    parent_fd, generation, parent_fd, tombstone
+                )
+                moved = os.stat(
+                    tombstone, dir_fd=parent_fd, follow_symlinks=False
+                )
+                if (moved.st_dev, moved.st_ino) != (
+                    metadata.st_dev,
+                    metadata.st_ino,
+                ):
+                    try:
+                        rename_no_replace_at(
+                            parent_fd, tombstone, parent_fd, generation
+                        )
+                    except WorkspaceError:
+                        pass
+                    raise WorkspaceError(
+                        f"server runtime state output path changed: {output}"
+                    )
+                os.rmdir(tombstone, dir_fd=parent_fd)
+                os.fsync(parent_fd)
+                if cleanup_proof is not None:
+                    cleanup_proof[0] = True
+            if isinstance(error, WorkspaceError):
+                raise
+            if not isinstance(error, (OSError, ValueError)):
+                raise
+            raise WorkspaceError(
+                f"cannot prepare server runtime state output {output}: {error}"
+            ) from error
+        finally:
+            for descriptor in reversed(descriptors):
+                os.close(descriptor)
+
+    @staticmethod
+    def _remove_runtime_state_output(
+        path: Path,
+        generation: str,
+        state_directory_fd: int | None = None,
+        expected_identity: dict[str, int] | None = None,
+        keep_tombstone: bool = False,
+    ) -> None:
+        if state_directory_fd is not None:
+            flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+            descriptors = [os.dup(state_directory_fd)]
+            state_mount_id = _descriptor_mount_id(descriptors[0])
+
+            def open_exact_directory(parent: int, name: str) -> int:
+                visible = os.stat(name, dir_fd=parent, follow_symlinks=False)
+                if not stat.S_ISDIR(visible.st_mode):
+                    raise WorkspaceError(
+                        f"server runtime state output path is invalid: {path}"
+                    )
+                descriptor = os.open(name, flags, dir_fd=parent)
+                opened = os.fstat(descriptor)
+                if Workspace._runtime_tree_identity(opened) != (
+                    Workspace._runtime_tree_identity(visible)
+                ):
+                    os.close(descriptor)
+                    raise WorkspaceError(
+                        f"server runtime state output path changed: {path}"
+                    )
+                if _descriptor_mount_id(descriptor) != state_mount_id:
+                    os.close(descriptor)
+                    raise WorkspaceError(
+                        f"server runtime state output crosses a mount: {path}"
+                    )
+                return descriptor
+
+            try:
+                for name in ("tmp", "runtime-assets"):
+                    descriptors.append(open_exact_directory(descriptors[-1], name))
+                parent_fd = descriptors[-1]
+                entry_name = generation
+                already_tombstoned = False
+                try:
+                    generation_fd = open_exact_directory(parent_fd, entry_name)
+                except FileNotFoundError:
+                    digest = hashlib.sha256(
+                        generation.encode("utf-8")
+                    ).hexdigest()[:16]
+                    candidates = [
+                        name
+                        for name in os.listdir(parent_fd)
+                        if re.fullmatch(
+                            rf"\.remove-{digest}-[0-9a-f]+-[0-9a-f]+", name
+                        )
+                    ]
+                    if len(candidates) != 1:
+                        raise
+                    entry_name = candidates[0]
+                    generation_fd = open_exact_directory(parent_fd, entry_name)
+                    already_tombstoned = True
+                descriptors.append(generation_fd)
+                metadata = os.fstat(generation_fd)
+                if expected_identity is None or expected_identity != {
+                    "device": metadata.st_dev,
+                    "inode": metadata.st_ino,
+                }:
+                    raise WorkspaceError(
+                        f"server runtime state output identity changed: {path}"
+                    )
+                if already_tombstoned:
+                    match = re.fullmatch(
+                        r"\.remove-[0-9a-f]{16}-([0-9a-f]+)-([0-9a-f]+)",
+                        entry_name,
+                    )
+                    if match is None or (metadata.st_dev, metadata.st_ino) != (
+                        int(match.group(1), 16),
+                        int(match.group(2), 16),
+                    ):
+                        raise WorkspaceError(
+                            f"server runtime state output tombstone is invalid: {path}"
+                        )
+                if not already_tombstoned:
+                    marker = Workspace._load_state_json_at(
+                        generation_fd,
+                        MANAGED_MARKER,
+                        "server runtime state output ownership",
+                    )
+                    if marker != {
+                        "schema_version": SCHEMA_VERSION,
+                        "purpose": f"runtime-state-output:{generation}",
+                    }:
+                        raise WorkspaceError(
+                            "server runtime state output ownership is invalid: "
+                            f"{path}"
+                        )
+                    tombstone = _owned_tree_tombstone_name(
+                        generation, metadata.st_dev, metadata.st_ino
+                    )
+                    rename_no_replace_at(
+                        parent_fd, generation, parent_fd, tombstone
+                    )
+                    moved = os.stat(
+                        tombstone, dir_fd=parent_fd, follow_symlinks=False
+                    )
+                    if (moved.st_dev, moved.st_ino) != (
+                        metadata.st_dev,
+                        metadata.st_ino,
+                    ):
+                        try:
+                            rename_no_replace_at(
+                                parent_fd, tombstone, parent_fd, generation
+                            )
+                        except WorkspaceError:
+                            pass
+                        raise WorkspaceError(
+                            f"server runtime state output path changed: {path}"
+                        )
+                    entry_name = tombstone
+                else:
+                    tombstone = entry_name
+                mount_id = _descriptor_mount_id(generation_fd)
+                _prepare_owned_tree_removal(
+                    generation_fd,
+                    metadata.st_dev,
+                    mount_id,
+                    path,
+                    stat.S_IMODE(metadata.st_mode),
+                )
+                _remove_owned_tree_contents(
+                    generation_fd, metadata.st_dev, mount_id, path
+                )
+                visible = os.stat(tombstone, dir_fd=parent_fd, follow_symlinks=False)
+                opened = os.fstat(generation_fd)
+                if (visible.st_dev, visible.st_ino) != (
+                    opened.st_dev,
+                    opened.st_ino,
+                ):
+                    raise WorkspaceError(
+                        f"server runtime state output path changed: {path}"
+                    )
+                if not keep_tombstone:
+                    os.rmdir(tombstone, dir_fd=parent_fd)
+                return
+            finally:
+                for descriptor in reversed(descriptors):
+                    os.close(descriptor)
+        marker = path / MANAGED_MARKER
+        if (
+            path.is_symlink()
+            or not path.is_dir()
+            or marker.is_symlink()
+            or not marker.is_file()
+            or load_json(marker)
+            != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": f"runtime-state-output:{generation}",
+            }
+        ):
+            raise WorkspaceError(
+                f"server runtime state output ownership is invalid: {path}"
+            )
+        remove_owned_tree(path)
+
+    @staticmethod
+    def _finish_runtime_state_output_tombstone(
+        state_directory_fd: int,
+        generation: str,
+        expected_identity: dict[str, int],
+    ) -> bool:
+        flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        descriptors = [os.dup(state_directory_fd)]
+        state_mount_id = _descriptor_mount_id(descriptors[0])
+        try:
+            for name in ("tmp", "runtime-assets"):
+                try:
+                    descriptor = os.open(
+                        name, flags, dir_fd=descriptors[-1]
+                    )
+                except FileNotFoundError:
+                    return False
+                if _descriptor_mount_id(descriptor) != state_mount_id:
+                    os.close(descriptor)
+                    raise WorkspaceError(
+                        "server runtime state output tombstone crosses a mount"
+                    )
+                descriptors.append(descriptor)
+            parent_fd = descriptors[-1]
+            tombstone = _owned_tree_tombstone_name(
+                generation,
+                expected_identity["device"],
+                expected_identity["inode"],
+            )
+            try:
+                visible = os.stat(
+                    tombstone, dir_fd=parent_fd, follow_symlinks=False
+                )
+            except FileNotFoundError:
+                return False
+            descriptor = os.open(tombstone, flags, dir_fd=parent_fd)
+            descriptors.append(descriptor)
+            opened = os.fstat(descriptor)
+            if (
+                not stat.S_ISDIR(visible.st_mode)
+                or (visible.st_dev, visible.st_ino)
+                != (expected_identity["device"], expected_identity["inode"])
+                or (opened.st_dev, opened.st_ino)
+                != (visible.st_dev, visible.st_ino)
+                or _descriptor_mount_id(descriptor) != state_mount_id
+                or os.listdir(descriptor)
+            ):
+                raise WorkspaceError(
+                    "server runtime state output tombstone is invalid"
+                )
+            os.rmdir(tombstone, dir_fd=parent_fd)
+            os.fsync(parent_fd)
+            return True
+        finally:
+            for descriptor in reversed(descriptors):
+                os.close(descriptor)
+
+    @staticmethod
+    def _runtime_state_output_entry_exists(
+        state_directory_fd: int, generation: str
+    ) -> bool:
+        flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        descriptors = [os.dup(state_directory_fd)]
+        state_mount_id = _descriptor_mount_id(descriptors[0])
+        try:
+            for name in ("tmp", "runtime-assets"):
+                try:
+                    descriptor = os.open(
+                        name, flags, dir_fd=descriptors[-1]
+                    )
+                except FileNotFoundError:
+                    return False
+                if _descriptor_mount_id(descriptor) != state_mount_id:
+                    os.close(descriptor)
+                    raise WorkspaceError(
+                        "server runtime state output parent crosses a mount"
+                    )
+                descriptors.append(descriptor)
+            try:
+                os.stat(
+                    generation,
+                    dir_fd=descriptors[-1],
+                    follow_symlinks=False,
+                )
+            except FileNotFoundError:
+                return False
+            return True
+        finally:
+            for descriptor in reversed(descriptors):
+                os.close(descriptor)
+
+    @staticmethod
+    def _valid_state_identity(value: Any) -> bool:
+        return bool(
+            isinstance(value, dict)
+            and set(value) == {"device", "inode"}
+            and all(
+                isinstance(value[key], int)
+                and not isinstance(value[key], bool)
+                and value[key] >= 0
+                for key in ("device", "inode")
+            )
+        )
+
+    @staticmethod
+    def _clear_runtime_state_output_transaction(topology_root: Path) -> None:
+        transaction = topology_root / RUNTIME_STATE_OUTPUT_TRANSACTION
+        descriptor = _open_directory_nofollow(
+            topology_root,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+        )
+        try:
+            try:
+                visible = os.stat(
+                    RUNTIME_STATE_OUTPUT_TRANSACTION,
+                    dir_fd=descriptor,
+                    follow_symlinks=False,
+                )
+            except FileNotFoundError:
+                return
+            if not stat.S_ISREG(visible.st_mode) or visible.st_nlink != 1:
+                raise WorkspaceError(
+                    f"runtime state output transaction is invalid: {transaction}"
+                )
+            opened_fd = os.open(
+                RUNTIME_STATE_OUTPUT_TRANSACTION,
+                os.O_PATH | os.O_CLOEXEC | os.O_NOFOLLOW,
+                dir_fd=descriptor,
+            )
+            try:
+                opened = os.fstat(opened_fd)
+                if (opened.st_dev, opened.st_ino) != (
+                    visible.st_dev,
+                    visible.st_ino,
+                ):
+                    raise WorkspaceError(
+                        "runtime state output transaction changed before removal"
+                    )
+                tombstone = (
+                    f".{RUNTIME_STATE_OUTPUT_TRANSACTION}.remove-"
+                    f"{opened.st_dev:x}-{opened.st_ino:x}"
+                )
+                rename_no_replace_at(
+                    descriptor,
+                    RUNTIME_STATE_OUTPUT_TRANSACTION,
+                    descriptor,
+                    tombstone,
+                )
+                moved = os.stat(
+                    tombstone, dir_fd=descriptor, follow_symlinks=False
+                )
+                if (moved.st_dev, moved.st_ino) != (
+                    opened.st_dev,
+                    opened.st_ino,
+                ):
+                    try:
+                        rename_no_replace_at(
+                            descriptor,
+                            tombstone,
+                            descriptor,
+                            RUNTIME_STATE_OUTPUT_TRANSACTION,
+                        )
+                    except WorkspaceError:
+                        pass
+                    raise WorkspaceError(
+                        "runtime state output transaction changed before removal"
+                    )
+                os.unlink(tombstone, dir_fd=descriptor)
+            finally:
+                os.close(opened_fd)
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+
+    def _rollback_runtime_state_output_transaction(
+        self,
+        topology_root: Path,
+        output: Path,
+        generation: str,
+        state_directory_fd: int,
+        output_identity: dict[str, int],
+    ) -> None:
+        transaction_path = topology_root / RUNTIME_STATE_OUTPUT_TRANSACTION
+        transaction = load_regular_json(
+            transaction_path, "runtime state output transaction"
+        )
+        if (
+            not isinstance(transaction, dict)
+            or transaction.get("generation") != generation
+            or transaction.get("phase") != "prepared"
+            or transaction.get("output_identity") != output_identity
+        ):
+            raise WorkspaceError(
+                f"runtime state output transaction is invalid: {transaction_path}"
+            )
+        self._remove_runtime_state_output(
+            output,
+            generation,
+            state_directory_fd,
+            output_identity,
+            keep_tombstone=True,
+        )
+        durable_atomic_json(
+            transaction_path, {**transaction, "phase": "complete"}
+        )
+        if not self._finish_runtime_state_output_tombstone(
+            state_directory_fd, generation, output_identity
+        ):
+            raise WorkspaceError(
+                f"runtime state output cleanup tombstone is missing: {output}"
+            )
+        self._clear_runtime_state_output_transaction(topology_root)
+
+    def _recover_runtime_state_output_transaction(
+        self, topology_root: Path, topology_name: str
+    ) -> None:
+        transaction_path = topology_root / RUNTIME_STATE_OUTPUT_TRANSACTION
+        if not transaction_path.exists() and not transaction_path.is_symlink():
+            return
+        transaction = load_regular_json(
+            transaction_path, "runtime state output transaction"
+        )
+        if (
+            not isinstance(transaction, dict)
+            or set(transaction)
+            != {
+                "schema_version",
+                "generation",
+                "state",
+                "state_identity",
+                "phase",
+                "output_identity",
+            }
+            or transaction.get("schema_version") != SCHEMA_VERSION
+            or not isinstance(transaction.get("generation"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", transaction["generation"]) is None
+            or not isinstance(transaction.get("state"), str)
+            or not Path(transaction["state"]).is_absolute()
+            or transaction.get("phase") not in {"creating", "prepared", "complete"}
+            or not self._valid_state_identity(transaction.get("state_identity"))
+            or (
+                transaction["phase"] in {"prepared", "complete"}
+                and not self._valid_state_identity(
+                    transaction.get("output_identity")
+                )
+            )
+            or (
+                transaction["phase"] == "creating"
+                and transaction.get("output_identity") is not None
+            )
+        ):
+            raise WorkspaceError(
+                f"runtime state output transaction is invalid: {transaction_path}"
+            )
+        generation = transaction["generation"]
+        status_path = topology_root / "status.json"
+        if status_path.is_file() and not status_path.is_symlink():
+            try:
+                status = self.topology_status(topology_name)
+            except WorkspaceError:
+                status = None
+            runtime = status.get("runtime") if isinstance(status, dict) else None
+            control = status.get("control") if isinstance(status, dict) else None
+            if (
+                isinstance(runtime, dict)
+                and isinstance(control, dict)
+                and control.get("generation") == generation
+                and runtime.get("mutable_state_output_identities")
+                == [transaction.get("output_identity")]
+            ):
+                self._clear_runtime_state_output_transaction(topology_root)
+                return
+        state = Path(transaction["state"])
+        identity = transaction["state_identity"]
+        with self._topology_state_lock(
+            state, preparing_topology=topology_name
+        ) as lease:
+            descriptor = self._lock_state_directory_mutation(
+                state, identity, "server state"
+            )
+            try:
+                lease.bind(identity)
+                if transaction["phase"] == "creating":
+                    raise WorkspaceError(
+                        "runtime state output creation was interrupted before "
+                        "exact ownership was recorded; preserve the state and "
+                        f"inspect {transaction_path}"
+                    )
+                output = state / "tmp" / "runtime-assets" / generation
+                output_identity = transaction["output_identity"]
+                if transaction["phase"] == "prepared":
+                    self._remove_runtime_state_output(
+                        output,
+                        generation,
+                        descriptor,
+                        output_identity,
+                        keep_tombstone=True,
+                    )
+                    durable_atomic_json(
+                        transaction_path,
+                        {**transaction, "phase": "complete"},
+                    )
+                if self._runtime_state_output_entry_exists(descriptor, generation):
+                    raise WorkspaceError(
+                        f"completed runtime state output reappeared: {output}"
+                    )
+                self._finish_runtime_state_output_tombstone(
+                    descriptor, generation, output_identity
+                )
+                self._clear_runtime_state_output_transaction(topology_root)
+            finally:
+                os.close(descriptor)
+
+    @staticmethod
+    def _seal_runtime_generation(root: Path) -> None:
+        directories: list[Path] = []
+        for directory, names, files in os.walk(root, followlinks=False):
+            current = Path(directory)
+            directories.append(current)
+            for name in names:
+                path = current / name
+                metadata = path.lstat()
+                if stat.S_ISLNK(metadata.st_mode):
+                    continue
+                if not stat.S_ISDIR(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"runtime generation contains a special entry: {path}"
+                    )
+            for name in files:
+                path = current / name
+                metadata = path.lstat()
+                if not stat.S_ISREG(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"runtime generation contains a special entry: {path}"
+                    )
+                if path.name == RUNTIME_GENERATION_LEASE and path.parent == root:
+                    path.chmod(0o600)
+                else:
+                    path.chmod(stat.S_IMODE(metadata.st_mode) & ~0o222)
+        for directory in reversed(directories):
+            directory.chmod(stat.S_IMODE(directory.lstat().st_mode) & ~0o222)
+
+    def _runtime_publication_input_digests(
+        self,
+        build_root: Path,
+        selected: dict[str, Path],
+        services: list[str],
+        sound_root: Path | None,
+    ) -> dict[str, str]:
+        directories: dict[str, tuple[Path, set[str]]] = {}
+        files: dict[str, Path] = {}
+        if "client" in services:
+            directories.update(
+                {
+                    "client-source": (
+                        selected["client"],
+                        {".git", "build", "sound", MANAGED_MARKER},
+                    ),
+                    "client-binary": (
+                        self._classic_binary_directory(build_root, "client"),
+                        set(),
+                    ),
+                    "sound": (
+                        sound_root or selected["sound"],
+                        {".git", "build", MANAGED_MARKER},
+                    ),
+                }
+            )
+        if "server" in services:
+            source = selected["server"]
+            directories.update(
+                {
+                    "server-binary": (
+                        self._classic_binary_directory(build_root, "server"),
+                        set(),
+                    ),
+                    "server-tools": (source / "tools", set()),
+                    "content-lib": (build_root / "runtime" / "content" / "lib", set()),
+                    "content-maps": (build_root / "runtime" / "content" / "maps", set()),
+                    "resources": (build_root / "runtime" / "resources", set()),
+                    "client-maps": (build_root / "runtime" / "client-maps", set()),
+                }
+            )
+            for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+                files[f"server-{name}"] = source / name
+            custom = source / "server-custom.cfg"
+            if custom.is_file() and not custom.is_symlink():
+                files["server-server-custom.cfg"] = custom
+        return {
+            **{
+                name: _tree_digest(
+                    path, exclusions, reject_symlinks=True
+                )
+                for name, (path, exclusions) in sorted(directories.items())
+            },
+            **{
+                name: _file_digest(path, "runtime publication input")
+                for name, path in sorted(files.items())
+            },
+        }
+
+    def _publish_runtime_generation(
+        self,
+        owner_root: Path,
+        generation: str,
+        profile_name: str,
+        build_root: Path,
+        selected: dict[str, Path],
+        resolved: dict[str, dict[str, Any]],
+        services: list[str],
+        *,
+        identity: dict[str, Any],
+        state: Path | None = None,
+        state_directory_fd: int | None = None,
+        sound_root: Path | None = None,
+    ) -> tuple[Path, int, dict[str, Any], int | None]:
+        generations = owner_root / "generations"
+        generations.mkdir(exist_ok=True)
+        if generations.is_symlink() or not generations.is_dir():
+            raise WorkspaceError(
+                f"runtime generation container is invalid: {generations}"
+            )
+        published = generations / generation
+        if published.exists() or published.is_symlink():
+            raise WorkspaceError(f"runtime generation already exists: {published}")
+        staging = Path(
+            tempfile.mkdtemp(prefix=f".{generation}-", dir=generations)
+        )
+        lease_fd: int | None = None
+        state_output: Path | None = None
+        state_output_access: Path | None = None
+        state_output_identity: dict[str, int] | None = None
+        state_output_fd: int | None = None
+        preparation_cleanup_proof = [False]
+        output_transaction = owner_root / RUNTIME_STATE_OUTPUT_TRANSACTION
+        topology_output = identity.get("kind") == "topology" and "server" in services
+        try:
+            input_digests = self._runtime_publication_input_digests(
+                build_root, selected, services, sound_root
+            )
+            atomic_json(
+                staging / MANAGED_MARKER,
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": "immutable-runtime-generation",
+                },
+            )
+            if "client" in services:
+                client_runtime = staging / "client"
+                client_runtime.mkdir()
+                self._copy_runtime_directory_contents(
+                    selected["client"],
+                    client_runtime,
+                    frozenset({".git", "build", "sound", MANAGED_MARKER}),
+                )
+                self._copy_runtime_tree(
+                    sound_root or selected["sound"],
+                    client_runtime / "sound",
+                    frozenset({".git", "build", MANAGED_MARKER}),
+                )
+                self._copy_runtime_directory_contents(
+                    self._classic_binary_directory(build_root, "client"),
+                    client_runtime,
+                )
+            if "server" in services:
+                if state is None:
+                    raise WorkspaceError("server runtime generation lacks state")
+                server_runtime = staging / "server"
+                server_runtime.mkdir()
+                self._copy_runtime_directory_contents(
+                    self._classic_binary_directory(build_root, "server"),
+                    server_runtime,
+                )
+                source = selected["server"]
+                self._copy_runtime_tree(
+                    source / "tools", server_runtime / "tools"
+                )
+                for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+                    self._copy_runtime_regular_file(source / name, server_runtime / name)
+                custom = source / "server-custom.cfg"
+                if custom.is_file() and not custom.is_symlink():
+                    self._copy_runtime_regular_file(
+                        custom, server_runtime / "server-custom.cfg"
+                    )
+                content = build_root / "runtime" / "content"
+                self._copy_runtime_tree(
+                    content / "lib", server_runtime / "lib"
+                )
+                self._copy_runtime_tree(
+                    content / "maps", server_runtime / "maps"
+                )
+                self._copy_runtime_tree(
+                    build_root / "runtime" / "resources",
+                    server_runtime / "resources",
+                )
+                (server_runtime / "data").symlink_to(
+                    (
+                        Path(f"/proc/self/fd/{state_directory_fd}")
+                        if state_directory_fd is not None
+                        else state
+                    ),
+                    target_is_directory=True,
+                )
+                if topology_output:
+                    state_metadata = (
+                        os.fstat(state_directory_fd)
+                        if state_directory_fd is not None
+                        else state.stat(follow_symlinks=False)
+                    )
+                    durable_atomic_json(
+                        output_transaction,
+                        {
+                            "schema_version": SCHEMA_VERSION,
+                            "generation": generation,
+                            "state": str(state),
+                            "state_identity": {
+                                "device": state_metadata.st_dev,
+                                "inode": state_metadata.st_ino,
+                            },
+                            "phase": "creating",
+                            "output_identity": None,
+                        },
+                    )
+                (
+                    state_output,
+                    state_output_fd,
+                    state_output_identity,
+                ) = self._prepare_runtime_state_output(
+                    state,
+                    generation,
+                    state_directory_fd,
+                    preparation_cleanup_proof,
+                )
+                if topology_output:
+                    durable_atomic_json(
+                        output_transaction,
+                        {
+                            "schema_version": SCHEMA_VERSION,
+                            "generation": generation,
+                            "state": str(state),
+                            "state_identity": {
+                                "device": os.fstat(state_directory_fd).st_dev,
+                                "inode": os.fstat(state_directory_fd).st_ino,
+                            },
+                            "phase": "prepared",
+                            "output_identity": state_output_identity,
+                        },
+                    )
+                state_output_access = Path(f"/proc/self/fd/{state_output_fd}")
+                os.mkdir("data", dir_fd=state_output_fd)
+                client_maps = build_root / "runtime" / "client-maps"
+                self._validate_region_maps(client_maps)
+                self._copy_runtime_tree(
+                    client_maps,
+                    state_output / "client-maps",
+                    pinned_destination_parent_fd=state_output_fd,
+                )
+                state_output_entries = self._runtime_generation_entries(
+                    state_output_access / "client-maps", None
+                )
+                self._seal_runtime_generation(state_output_access / "client-maps")
+            else:
+                state_output_entries = []
+
+            if self._runtime_publication_input_digests(
+                build_root, selected, services, sound_root
+            ) != input_digests:
+                raise WorkspaceError(
+                    "runtime publication inputs changed during staging"
+                )
+            if state_output is not None and state_output_identity is not None:
+                visible_output_identity = (
+                    self._runtime_state_output_identity_at(
+                        state_directory_fd, generation
+                    )
+                    if state_directory_fd is not None
+                    else self._state_identity(state_output)
+                )
+                if visible_output_identity != state_output_identity:
+                    raise WorkspaceError(
+                        "server runtime state output changed during publication: "
+                        f"{state_output}"
+                    )
+
+            build_metadata = build_root / BUILD_METADATA
+            source_trees: dict[str, str] = {}
+            for component, coordinate in resolved.items():
+                tree = git(
+                    Path(coordinate["checkout_path"]),
+                    "rev-parse",
+                    f"{coordinate['head']}^{{tree}}",
+                    capture=True,
+                    trace=False,
+                )
+                if not re.fullmatch(r"[0-9a-f]{40,64}", tree):
+                    raise WorkspaceError(
+                        f"runtime source tree identity is invalid: {component}"
+                    )
+                source_trees[component] = tree
+            manifest = {
+                "schema_version": RUNTIME_GENERATION_SCHEMA_VERSION,
+                "generation": generation,
+                "profile": profile_name,
+                "identity": identity,
+                "services": services,
+                "resolved": resolved,
+                "source_trees": source_trees,
+                "input_digests": input_digests,
+                "build": {
+                    "root": str(build_root),
+                    "metadata_sha256": (
+                        _file_digest(build_metadata, "build metadata")
+                        if build_metadata.is_file() and not build_metadata.is_symlink()
+                        else None
+                    ),
+                },
+                "external_state": str(state) if state is not None else None,
+                "mutable_state_outputs": (
+                    [str(state_output)] if state_output is not None else []
+                ),
+                "mutable_state_output_identities": (
+                    [state_output_identity]
+                    if state_output_identity is not None
+                    else []
+                ),
+                "mutable_state_output_entries": state_output_entries,
+                "entries": self._runtime_generation_entries(staging, state),
+            }
+            atomic_json(staging / RUNTIME_GENERATION_MANIFEST, manifest)
+            lease_fd = open_regular_file(
+                staging / RUNTIME_GENERATION_LEASE,
+                os.O_RDWR | os.O_CREAT,
+                "runtime generation lease",
+            )
+            lease_identity = initialize_lease(lease_fd, generation)
+            try:
+                fcntl.flock(lease_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot lock runtime generation lease: {error}"
+                ) from error
+            manifest_sha256 = _file_digest(
+                staging / RUNTIME_GENERATION_MANIFEST,
+                "runtime generation manifest",
+            )
+            self._seal_runtime_generation(staging)
+            staging.replace(published)
+            runtime_record = {
+                "schema_version": RUNTIME_GENERATION_SCHEMA_VERSION,
+                "generation": generation,
+                "path": str(published),
+                "manifest_sha256": manifest_sha256,
+                "lease": lease_identity,
+                "external_state": str(state) if state is not None else None,
+                "mutable_state_outputs": (
+                    [str(state_output)] if state_output is not None else []
+                ),
+                "mutable_state_output_identities": (
+                    [state_output_identity]
+                    if state_output_identity is not None
+                    else []
+                ),
+            }
+            result_fd = lease_fd
+            lease_fd = None
+            result_state_output_fd = state_output_fd
+            state_output_fd = None
+            return published, result_fd, runtime_record, result_state_output_fd
+        except BaseException:
+            if staging.exists():
+                remove_owned_tree(staging)
+            cleanup_output = state_output_access or state_output
+            output_cleanup_complete = (
+                state_output is None and preparation_cleanup_proof[0]
+            )
+            if cleanup_output is not None and cleanup_output.exists():
+                if (
+                    state_output_identity is None
+                    and state_directory_fd is not None
+                ):
+                    state_output_identity = self._runtime_state_output_identity_at(
+                        state_directory_fd, generation
+                    )
+                self._remove_runtime_state_output(
+                    state_output or cleanup_output,
+                    generation,
+                    state_directory_fd,
+                    state_output_identity,
+                    keep_tombstone=topology_output,
+                )
+                if topology_output and state_directory_fd is not None:
+                    transaction = load_regular_json(
+                        output_transaction, "runtime state output transaction"
+                    )
+                    durable_atomic_json(
+                        output_transaction, {**transaction, "phase": "complete"}
+                    )
+                    self._finish_runtime_state_output_tombstone(
+                        state_directory_fd, generation, state_output_identity
+                    )
+                    output_cleanup_complete = True
+            if (
+                topology_output
+                and output_cleanup_complete
+                and output_transaction.exists()
+            ):
+                self._clear_runtime_state_output_transaction(owner_root)
+            raise
+        finally:
+            if lease_fd is not None:
+                os.close(lease_fd)
+            if state_output_fd is not None:
+                os.close(state_output_fd)
 
     def _copy_topology_runtime_inputs(
         self,
@@ -7211,6 +12474,252 @@ class Workspace:
             and process_matches(pid, start_time)
         )
 
+    @staticmethod
+    def _topology_control_request(
+        name: str,
+        control: dict[str, str],
+        action: str,
+    ) -> bool:
+        request = {
+            "action": action,
+            "name": name,
+            "generation": control["generation"],
+        }
+        try:
+            endpoint = Path(control["socket"])
+            metadata = endpoint.lstat()
+            if (
+                not stat.S_ISSOCK(metadata.st_mode)
+                or stat.S_IMODE(metadata.st_mode) != 0o600
+                or metadata.st_uid != os.geteuid()
+            ):
+                return False
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+                client.settimeout(0.5)
+                client.connect(str(endpoint))
+                client.sendall(json.dumps(request, sort_keys=True).encode())
+                client.shutdown(socket.SHUT_WR)
+                payload = bytearray()
+                while len(payload) <= 4096:
+                    chunk = client.recv(4097 - len(payload))
+                    if not chunk:
+                        break
+                    payload.extend(chunk)
+                    if b"\n" in chunk:
+                        break
+            if len(payload) > 4096:
+                return False
+            response = json.loads(payload)
+        except (FileNotFoundError, OSError, TimeoutError, json.JSONDecodeError):
+            return False
+        return bool(
+            isinstance(response, dict)
+            and set(response) == {"generation", "name", "ok"}
+            and response.get("ok") is True
+            and response.get("name") == name
+            and response.get("generation") == control["generation"]
+        )
+
+    @staticmethod
+    def _topology_process_tree_active(
+        root: Path, control: dict[str, Any] | None = None
+    ) -> bool:
+        path = root / TOPOLOGY_PROCESS_TREE_LEASE
+        if control is None and (path.is_symlink() or not path.is_file()):
+            return False
+        try:
+            if control is not None:
+                return bound_lease_locked(
+                    path, control["generation"], control["lease"]
+                )
+            return lease_locked(path)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect topology process-tree lease {path}: {error}"
+            ) from error
+
+    def _validate_topology_state_policy(
+        self,
+        name: str,
+        root: Path,
+        status: dict[str, Any],
+        control: dict[str, Any] | None,
+    ) -> None:
+        policy = status.get("state_policy")
+        state = status.get("state")
+        services = status.get("services")
+        server_service = isinstance(services, dict) and "server" in services
+        pre_service_failure = (
+            bool(status.get("error"))
+            and services == {}
+            and state is not None
+            and policy is not None
+        )
+        server_present = server_service or pre_service_failure
+        if not server_present:
+            if policy is not None or state is not None:
+                raise WorkspaceError(f"topology state policy is invalid: {name}")
+            return
+        if not isinstance(policy, dict) or not isinstance(state, str):
+            raise WorkspaceError(f"topology state policy is invalid: {name}")
+        common = {
+            "mode",
+            "name",
+            "path",
+            "owner",
+            "lifecycle",
+            "identity",
+            "lease_identity",
+            "implementation",
+        }
+        mode = policy.get("mode")
+        expected_keys = common | (
+            {"created_at", "profile", "server"}
+            if mode == "temporary"
+            else set()
+        )
+        identity = policy.get("identity")
+        lease_identity = policy.get("lease_identity")
+        implementation = policy.get("implementation")
+        providers = status.get("providers")
+        resolved = status.get("resolved")
+        if (
+            mode not in {"temporary", "named", "default"}
+            or set(policy) != expected_keys
+            or policy.get("path") != state
+            or not isinstance(policy.get("owner"), dict)
+            or not isinstance(policy.get("lifecycle"), str)
+            or not isinstance(identity, dict)
+            or set(identity) != {"device", "inode"}
+            or not all(
+                isinstance(value, int) and not isinstance(value, bool) and value >= 0
+                for value in identity.values()
+            )
+            or not isinstance(lease_identity, dict)
+            or set(lease_identity) != {"device", "inode"}
+            or not all(
+                isinstance(value, int) and not isinstance(value, bool) and value >= 0
+                for value in lease_identity.values()
+            )
+            or not isinstance(implementation, dict)
+            or set(implementation) != {"stack", "provider", "repository"}
+            or not isinstance(providers, dict)
+            or not isinstance(resolved, dict)
+            or "server" not in providers
+            or providers["server"] not in resolved
+            or implementation
+            != self._state_implementation(status["stack"], providers, resolved)
+        ):
+            raise WorkspaceError(f"topology state policy is invalid: {name}")
+        path = self._canonical_state_path(Path(state))
+        lifecycle = policy["lifecycle"]
+        if mode == "temporary":
+            generation = control.get("generation") if isinstance(control, dict) else None
+            expected_path = root / "temporary-states" / str(generation)
+            promoted_name = policy.get("name")
+            if (
+                (
+                    lifecycle in {"promotion-pending", "promoted"}
+                    and (
+                        not isinstance(promoted_name, str)
+                        or promoted_name == "default"
+                    )
+                )
+                or lifecycle not in {"promotion-pending", "promoted"}
+                and promoted_name is not None
+                or generation is None
+                or path != expected_path
+                or policy["owner"]
+                != {
+                    "kind": "topology-generation",
+                    "topology": name,
+                    "generation": generation,
+                }
+                or lifecycle
+                not in {
+                    "disposable",
+                    "retained",
+                    "removal-pending",
+                    "promotion-pending",
+                    "promoted",
+                    "removed",
+                }
+                or not isinstance(policy.get("created_at"), str)
+                or not policy["created_at"]
+                or policy.get("profile") != status.get("profile")
+                or policy.get("server") != resolved[providers["server"]]
+            ):
+                raise WorkspaceError(f"temporary topology state policy is invalid: {name}")
+            if (
+                lifecycle not in {"removed", "removal-pending"}
+                or path.exists()
+                or path.is_symlink()
+            ):
+                if lifecycle == "removed":
+                    raise WorkspaceError(
+                        f"removed temporary topology state still exists: {name}"
+                    )
+                marker = path / MANAGED_MARKER
+                metadata_path = path / TEMPORARY_STATE_METADATA
+                if (
+                    path.is_symlink()
+                    or not path.is_dir()
+                    or self._state_identity(path) != identity
+                    or marker.is_symlink()
+                    or not marker.is_file()
+                    or load_json(marker)
+                    != {
+                        "schema_version": SCHEMA_VERSION,
+                        "purpose": "temporary-topology-state",
+                        "topology": name,
+                        "generation": generation,
+                    }
+                    or metadata_path.is_symlink()
+                    or not metadata_path.is_file()
+                ):
+                    raise WorkspaceError(
+                        f"temporary topology state identity is invalid: {name}"
+                    )
+                metadata = load_json(metadata_path)
+                if (
+                    not isinstance(metadata, dict)
+                    or metadata.get("schema_version")
+                    != TEMPORARY_STATE_SCHEMA_VERSION
+                    or not self._temporary_state_metadata_matches(
+                        policy, metadata.get("state_policy")
+                    )
+                ):
+                    raise WorkspaceError(
+                        f"temporary topology state metadata is invalid: {name}"
+                    )
+                self._validate_state_implementation(path, implementation)
+                if lifecycle == "promoted" and self._canonical_state_path(
+                    Path(self._load_states().get(str(promoted_name), "/"))
+                ) != path:
+                    raise WorkspaceError(
+                        f"promoted temporary state registration is invalid: {name}"
+                    )
+        else:
+            expected_name = "default" if mode == "default" else policy.get("name")
+            expected_persistent = (
+                self._persistent_state_policy(
+                    expected_name, path, implementation
+                )
+                if isinstance(expected_name, str)
+                else None
+            )
+            if (
+                not isinstance(expected_name, str)
+                or policy.get("name") != expected_name
+                or not isinstance(expected_persistent, dict)
+                or policy.get("owner") != expected_persistent["owner"]
+                or lifecycle != expected_persistent["lifecycle"]
+                or path != self._state_location(expected_name)
+                or self._state_identity(path) != identity
+            ):
+                raise WorkspaceError(f"persistent topology state policy is invalid: {name}")
+            self._validate_state_implementation(path, implementation)
+
     def topology_status(self, name: str) -> dict[str, Any]:
         root = self._topology_directory(name)
         status_path = root / "status.json"
@@ -7232,7 +12741,26 @@ class Workspace:
             "supervisor",
             "services",
         }
-        optional = {"stack", "providers", "sound"}
+        optional = {
+            "stack",
+            "providers",
+            "sound",
+            "control",
+            "port_reservation",
+            "runtime",
+            "state_policy",
+            "shutdown",
+            "mutable_state_cleanup",
+        }
+        topology_schema = status.get("schema_version") if isinstance(status, dict) else None
+        current_runtime_record = topology_schema in {
+            LEGACY_RUNTIME_TOPOLOGY_STATUS_SCHEMA_VERSION,
+            TOPOLOGY_STATUS_SCHEMA_VERSION,
+        }
+        if current_runtime_record:
+            required.add("runtime")
+        if topology_schema == TOPOLOGY_STATUS_SCHEMA_VERSION:
+            required.add("state_policy")
         historical_record = isinstance(status, dict) and not (
             {"stack", "providers"} & set(status)
         )
@@ -7283,7 +12811,11 @@ class Workspace:
         )
         if (
             not isinstance(status, dict)
-            or status.get("schema_version") != SCHEMA_VERSION
+            or topology_schema not in {
+                SCHEMA_VERSION,
+                LEGACY_RUNTIME_TOPOLOGY_STATUS_SCHEMA_VERSION,
+                TOPOLOGY_STATUS_SCHEMA_VERSION,
+            }
             or status.get("name") != name
             or not required <= set(status) <= required | optional | {"error"}
             or not isinstance(status.get("dependencies"), list)
@@ -7317,8 +12849,49 @@ class Workspace:
                 validate_sound_record(status["sound"])
             except WorkspaceError as error:
                 raise WorkspaceError(f"topology status is invalid: {name}") from error
-        if not historical_record and "client" in status["dependencies"] and "sound" not in status:
-            raise WorkspaceError(f"topology status is invalid: {name}")
+        shutdown = status.get("shutdown")
+        if shutdown is not None and (
+            not isinstance(shutdown, dict)
+            or set(shutdown) != {"control_requested", "clean"}
+            or not isinstance(shutdown.get("control_requested"), bool)
+            or not isinstance(shutdown.get("clean"), bool)
+            or shutdown["clean"] and not shutdown["control_requested"]
+            or shutdown["clean"] and status.get("error") is not None
+        ):
+            raise WorkspaceError(f"topology shutdown status is invalid: {name}")
+        mutable_state_cleanup = status.get("mutable_state_cleanup")
+        if mutable_state_cleanup is not None:
+            cleanup_entries = (
+                mutable_state_cleanup.get("entries")
+                if isinstance(mutable_state_cleanup, dict)
+                else None
+            )
+            if (
+                topology_schema != TOPOLOGY_STATUS_SCHEMA_VERSION
+                or not isinstance(mutable_state_cleanup, dict)
+                or set(mutable_state_cleanup)
+                != {"schema_version", "generation", "entries"}
+                or mutable_state_cleanup.get("schema_version") != SCHEMA_VERSION
+                or not isinstance(cleanup_entries, list)
+                or any(
+                    not isinstance(entry, dict)
+                    or set(entry) != {"path", "identity", "status"}
+                    or not isinstance(entry.get("path"), str)
+                    or not isinstance(entry.get("identity"), dict)
+                    or set(entry["identity"]) != {"device", "inode"}
+                    or any(
+                        not isinstance(value, int)
+                        or isinstance(value, bool)
+                        or value < 0
+                        for value in entry["identity"].values()
+                    )
+                    or entry.get("status") not in {"pending", "complete"}
+                    for entry in cleanup_entries
+                )
+            ):
+                raise WorkspaceError(
+                    f"topology mutable state cleanup status is invalid: {name}"
+                )
         if historical_record:
             status["stack"] = "classic"
             status["providers"] = {
@@ -7443,18 +13016,295 @@ class Workspace:
                         f"topology component identity is invalid: {name}/{component}"
                     )
         supervisor = status.get("supervisor")
+        control = status.get("control")
+        current_control = control is not None
+        if current_control and (
+            not isinstance(control, dict)
+            or set(control) != {"socket", "generation", "lease"}
+            or not isinstance(control.get("generation"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", control["generation"])
+            or control.get("socket")
+            != str(control_socket_path(root, control["generation"]))
+            or not isinstance(control.get("lease"), dict)
+            or set(control["lease"]) != {"device", "inode"}
+            or not all(
+                isinstance(value, int)
+                and not isinstance(value, bool)
+                and value >= 0
+                for value in control["lease"].values()
+            )
+        ):
+            raise WorkspaceError(f"topology control identity is invalid: {name}")
+        process_keys = (
+            {"pid", "start_time", "generation"}
+            if current_control
+            else {"pid", "start_time"}
+        )
         if (
             not isinstance(supervisor, dict)
-            or set(supervisor) != {"pid", "start_time"}
+            or set(supervisor) != process_keys
             or not isinstance(supervisor.get("pid"), int)
             or isinstance(supervisor.get("pid"), bool)
             or supervisor["pid"] <= 0
             or not isinstance(supervisor.get("start_time"), str)
             or not supervisor["start_time"].isdigit()
+            or current_control
+            and supervisor.get("generation") != control["generation"]
         ):
             raise WorkspaceError(f"topology supervisor status is invalid: {name}")
-        supervisor_running = self._recorded_process_running(supervisor)
+        control_reachable = bool(
+            current_control
+            and self._topology_control_request(name, control, "status")
+        )
+        process_tree_active = self._topology_process_tree_active(
+            root, control if current_control else None
+        )
+        runtime = status.get("runtime")
+        runtime_active = False
+        if current_runtime_record:
+            if not current_control:
+                raise WorkspaceError(f"topology runtime identity is invalid: {name}")
+            expected_runtime_path = root / "generations" / control["generation"]
+            runtime_keys = {
+                "schema_version",
+                "generation",
+                "path",
+                "manifest_sha256",
+                "lease",
+                "external_state",
+                "mutable_state_outputs",
+            }
+            if topology_schema == TOPOLOGY_STATUS_SCHEMA_VERSION:
+                runtime_keys.add("mutable_state_output_identities")
+            if (
+                not isinstance(runtime, dict)
+                or set(runtime) != runtime_keys
+                or runtime.get("schema_version")
+                != RUNTIME_GENERATION_SCHEMA_VERSION
+                or runtime.get("generation") != control["generation"]
+                or runtime.get("path") != str(expected_runtime_path)
+                or not isinstance(runtime.get("manifest_sha256"), str)
+                or not re.fullmatch(r"[0-9a-f]{64}", runtime["manifest_sha256"])
+                or runtime.get("external_state") != status.get("state")
+                or runtime.get("mutable_state_outputs")
+                != (
+                    [
+                        str(
+                            Path(status["state"])
+                            / "tmp"
+                            / "runtime-assets"
+                            / control["generation"]
+                        )
+                    ]
+                    if status.get("state") is not None
+                    else []
+                )
+                or topology_schema == TOPOLOGY_STATUS_SCHEMA_VERSION
+                and (
+                    not isinstance(
+                        runtime.get("mutable_state_output_identities"), list
+                    )
+                    or len(runtime["mutable_state_output_identities"])
+                    != len(runtime["mutable_state_outputs"])
+                    or any(
+                        not isinstance(identity, dict)
+                        or set(identity) != {"device", "inode"}
+                        or any(
+                            not isinstance(value, int)
+                            or isinstance(value, bool)
+                            or value < 0
+                            for value in identity.values()
+                        )
+                        for identity in runtime[
+                            "mutable_state_output_identities"
+                        ]
+                    )
+                )
+                or not isinstance(runtime.get("lease"), dict)
+                or set(runtime["lease"]) != {"device", "inode"}
+                or not all(
+                    isinstance(value, int)
+                    and not isinstance(value, bool)
+                    and value >= 0
+                    for value in runtime["lease"].values()
+                )
+            ):
+                raise WorkspaceError(f"topology runtime identity is invalid: {name}")
+            if mutable_state_cleanup is not None and (
+                mutable_state_cleanup.get("generation")
+                != control["generation"]
+                or [entry["path"] for entry in mutable_state_cleanup["entries"]]
+                != runtime["mutable_state_outputs"]
+                or [
+                    entry["identity"]
+                    for entry in mutable_state_cleanup["entries"]
+                ]
+                != runtime.get("mutable_state_output_identities")
+            ):
+                raise WorkspaceError(
+                    f"topology mutable state cleanup identity is invalid: {name}"
+                )
+            marker = expected_runtime_path / MANAGED_MARKER
+            manifest = expected_runtime_path / RUNTIME_GENERATION_MANIFEST
+            if (
+                expected_runtime_path.is_symlink()
+                or not expected_runtime_path.is_dir()
+                or marker.is_symlink()
+                or not marker.is_file()
+                or load_json(marker)
+                != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": "immutable-runtime-generation",
+                }
+                or manifest.is_symlink()
+                or not manifest.is_file()
+                or _file_digest(manifest, "runtime generation manifest")
+                != runtime["manifest_sha256"]
+            ):
+                raise WorkspaceError(f"topology runtime publication is invalid: {name}")
+            runtime_manifest = load_json(manifest)
+            expected_identity = {
+                "kind": "topology",
+                "name": name,
+                "stack": status["stack"],
+                "providers": status["providers"],
+            }
+            manifest_services = (
+                runtime_manifest.get("services")
+                if isinstance(runtime_manifest, dict)
+                else None
+            )
+            source_trees = (
+                runtime_manifest.get("source_trees")
+                if isinstance(runtime_manifest, dict)
+                else None
+            )
+            input_digests = (
+                runtime_manifest.get("input_digests")
+                if isinstance(runtime_manifest, dict)
+                else None
+            )
+            build = (
+                runtime_manifest.get("build")
+                if isinstance(runtime_manifest, dict)
+                else None
+            )
+            entries = (
+                runtime_manifest.get("entries")
+                if isinstance(runtime_manifest, dict)
+                else None
+            )
+            state_output_entries = (
+                runtime_manifest.get("mutable_state_output_entries")
+                if isinstance(runtime_manifest, dict)
+                else None
+            )
+            manifest_keys = {
+                "schema_version",
+                "generation",
+                "profile",
+                "identity",
+                "services",
+                "resolved",
+                "source_trees",
+                "input_digests",
+                "build",
+                "external_state",
+                "mutable_state_outputs",
+                "mutable_state_output_entries",
+                "entries",
+            }
+            if topology_schema == TOPOLOGY_STATUS_SCHEMA_VERSION:
+                manifest_keys.add("mutable_state_output_identities")
+            if (
+                not isinstance(runtime_manifest, dict)
+                or set(runtime_manifest) != manifest_keys
+                or runtime_manifest.get("schema_version")
+                != RUNTIME_GENERATION_SCHEMA_VERSION
+                or runtime_manifest.get("generation") != control["generation"]
+                or runtime_manifest.get("profile") != status["profile"]
+                or runtime_manifest.get("identity") != expected_identity
+                or runtime_manifest.get("resolved") != status["resolved"]
+                or runtime_manifest.get("external_state") != status.get("state")
+                or runtime_manifest.get("mutable_state_outputs")
+                != runtime["mutable_state_outputs"]
+                or topology_schema == TOPOLOGY_STATUS_SCHEMA_VERSION
+                and runtime_manifest.get("mutable_state_output_identities")
+                != runtime["mutable_state_output_identities"]
+                or not isinstance(manifest_services, list)
+                or not manifest_services
+                or len(manifest_services) != len(set(manifest_services))
+                or not set(manifest_services) <= set(TOPOLOGY_SERVICES)
+                or not isinstance(source_trees, dict)
+                or set(source_trees) != set(status["resolved"])
+                or any(
+                    not isinstance(value, str)
+                    or not re.fullmatch(r"[0-9a-f]{40,64}", value)
+                    for value in source_trees.values()
+                )
+                or not isinstance(input_digests, dict)
+                or not input_digests
+                or any(
+                    not isinstance(key, str)
+                    or not key
+                    or not isinstance(value, str)
+                    or not re.fullmatch(r"[0-9a-f]{64}", value)
+                    for key, value in input_digests.items()
+                )
+                or not isinstance(build, dict)
+                or set(build) != {"root", "metadata_sha256"}
+                or build.get("root") != status["build_root"]
+                or (
+                    build.get("metadata_sha256") is not None
+                    and (
+                        not isinstance(build.get("metadata_sha256"), str)
+                        or not re.fullmatch(
+                            r"[0-9a-f]{64}", build["metadata_sha256"]
+                        )
+                    )
+                )
+                or not isinstance(entries, list)
+                or not entries
+                or any(not isinstance(entry, dict) for entry in entries)
+                or not isinstance(state_output_entries, list)
+                or (
+                    bool(runtime["mutable_state_outputs"])
+                    != bool(state_output_entries)
+                )
+                or any(
+                    not isinstance(entry, dict)
+                    for entry in state_output_entries
+                )
+            ):
+                raise WorkspaceError(
+                    f"topology runtime manifest identity is invalid: {name}"
+                )
+            try:
+                runtime_active = bound_lease_locked(
+                    expected_runtime_path / RUNTIME_GENERATION_LEASE,
+                    control["generation"],
+                    runtime["lease"],
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect topology runtime generation lease: {error}"
+                ) from error
+        elif runtime is not None:
+            raise WorkspaceError(f"historical topology runtime is invalid: {name}")
+        supervisor_local = bool(
+            not current_control and self._recorded_process_running(supervisor)
+        )
+        if control_reachable or supervisor_local:
+            supervisor_liveness = "live"
+        elif process_tree_active:
+            supervisor_liveness = "unreachable"
+        elif status.get("stopped_at") is not None:
+            supervisor_liveness = "exited"
+        else:
+            supervisor_liveness = "stale"
+        supervisor_running = supervisor_liveness in {"live", "unreachable"}
         supervisor["running"] = supervisor_running
+        supervisor["liveness"] = supervisor_liveness
         endpoint = status.get("endpoint")
         if endpoint is not None:
             fingerprint = endpoint.get("fingerprint") if isinstance(endpoint, dict) else None
@@ -7475,6 +13325,39 @@ class Workspace:
                 )
             ):
                 raise WorkspaceError(f"topology endpoint status is invalid: {name}")
+        port_reservation = status.get("port_reservation")
+        if port_reservation is not None:
+            reservation_port = (
+                port_reservation.get("port")
+                if isinstance(port_reservation, dict)
+                else None
+            )
+            try:
+                validate_port_reservation(
+                    port_reservation,
+                    expected_path=(
+                        self._lease_namespace
+                        / PORT_RESERVATION_DIRECTORY
+                        / f"{reservation_port}-{port_reservation.get('generation')}.lease"
+                    ),
+                )
+                reservation_retained = port_reservation_locked(port_reservation)
+            except PortReservationError as error:
+                raise WorkspaceError(
+                    f"topology port reservation status is invalid: {name}"
+                ) from error
+            if (
+                endpoint is None
+                or port_reservation["port"] != endpoint["port"]
+                or port_reservation["topology"] != name
+                or not current_control
+                or port_reservation["generation"] != control["generation"]
+            ):
+                raise WorkspaceError(
+                    f"topology port reservation status is invalid: {name}"
+                )
+        else:
+            reservation_retained = False
         services = status.get("services")
         if (
             not isinstance(services, dict)
@@ -7482,11 +13365,15 @@ class Workspace:
             or not set(services) <= set(TOPOLOGY_SERVICES)
         ):
             raise WorkspaceError(f"topology service status is invalid: {name}")
+        if topology_schema == TOPOLOGY_STATUS_SCHEMA_VERSION:
+            self._validate_topology_state_policy(name, root, status, control)
+        if not historical_record and "client" in services and "sound" not in status:
+            raise WorkspaceError(f"topology status is invalid: {name}")
         for service in services.values():
             if (
                 not isinstance(service, dict)
                 or set(service)
-                != {"pid", "start_time", "status", "exit_code", "log", "cwd"}
+                != process_keys | {"status", "exit_code", "log", "cwd"}
                 or not isinstance(service.get("pid"), int)
                 or isinstance(service.get("pid"), bool)
                 or service["pid"] <= 0
@@ -7504,16 +13391,33 @@ class Workspace:
                 or not Path(service["log"]).is_absolute()
                 or not isinstance(service.get("cwd"), str)
                 or not Path(service["cwd"]).is_absolute()
+                or current_control
+                and service.get("generation") != control["generation"]
             ):
                 raise WorkspaceError(f"topology service status is invalid: {name}")
-            service["running"] = self._recorded_process_running(service)
+            service_local = bool(
+                not current_control and self._recorded_process_running(service)
+            )
+            if service.get("status") == "exited":
+                service_liveness = "exited"
+            elif control_reachable or service_local:
+                service_liveness = "live"
+            elif process_tree_active:
+                service_liveness = "unreachable"
+            elif status.get("stopped_at") is not None:
+                service_liveness = "exited"
+            else:
+                service_liveness = "stale"
+            service["liveness"] = service_liveness
+            service["running"] = service_liveness in {"live", "unreachable"}
             if (
                 service.get("status") in {"starting", "running"}
-                and not service["running"]
+                and service_liveness in {"stale", "exited"}
             ):
-                service["status"] = "stale"
+                service["status"] = service_liveness
         if (
-            ("server" in services) != (endpoint is not None)
+            not status.get("error")
+            and ("server" in services) != (endpoint is not None)
             or (
                 status["ready"]
                 and endpoint is not None
@@ -7523,15 +13427,81 @@ class Workspace:
             raise WorkspaceError(f"topology endpoint status is invalid: {name}")
         if not supervisor_running:
             status["ready"] = False
+        retained = (
+            reservation_retained
+            or process_tree_active
+            or supervisor_running
+            or any(service["running"] for service in services.values())
+        )
+        if current_runtime_record and retained and not runtime_active:
+            raise WorkspaceError(
+                f"topology runtime generation lease is not retained: {name}"
+            )
+        if current_runtime_record and (
+            not set(services) <= set(manifest_services)
+            or status["ready"] and set(services) != set(manifest_services)
+        ):
+            raise WorkspaceError(
+                f"topology runtime manifest services are invalid: {name}"
+            )
+        if control_reachable:
+            safe_action = f"run ./atrinik down {name} from any supported session"
+        elif process_tree_active:
+            safe_action = (
+                "wait for bounded orphan recovery, then retry; if the exact "
+                "lease remains retained, preserve it for operator diagnosis"
+            )
+        else:
+            safe_action = f"restart topology {name} or retain its historical record"
+        status["observation"] = {
+            "control": (
+                "reachable" if control_reachable else "unreachable"
+                if current_control
+                else "legacy"
+            ),
+            "generation": control["generation"] if current_control else None,
+            "process_tree_lease": "retained" if retained else "released",
+            "runtime_generation": (
+                runtime["generation"] if current_runtime_record else None
+            ),
+            "runtime_bundle_lease": (
+                "retained" if runtime_active else "released"
+                if current_runtime_record
+                else "historical"
+            ),
+            "server_state_lease_owner": (
+                name if retained and status.get("state") is not None else None
+            ),
+            "port_reservation": (
+                status["endpoint"]["port"]
+                if retained and status.get("endpoint") is not None
+                else None
+            ),
+            "repository_layout_lease_owner": (
+                name if retained and not current_runtime_record else None
+            ),
+            "safe_action": safe_action,
+        }
+        if port_reservation is not None:
+            status["observation"]["port_reservation"] = {
+                "port": port_reservation["port"],
+                "owner": port_reservation["topology"],
+                "generation": port_reservation["generation"],
+                "lease": "retained" if reservation_retained else "released",
+            }
         return status
 
     def topology_statuses(self) -> list[dict[str, Any]]:
         self.paths.ensure()
-        statuses: list[dict[str, Any]] = []
-        for path in sorted(self.paths.topologies.iterdir()):
-            if path.is_dir() and not path.is_symlink() and (path / "status.json").is_file():
-                statuses.append(self.topology_status(path.name))
-        return statuses
+        names = [
+            path.name
+            for path in sorted(self.paths.topologies.iterdir())
+            if path.is_dir()
+            and not path.is_symlink()
+            and (path / "status.json").is_file()
+        ]
+        with ThreadPoolExecutor(max_workers=min(8, len(names) or 1)) as executor:
+            return list(executor.map(self.topology_status, names))
 
     @staticmethod
     def _select_topology_port(requested: int | None) -> int:
@@ -7551,6 +13521,126 @@ class Workspace:
                     f"topology UDP port {requested} is unavailable: {error}"
                 ) from error
             raise WorkspaceError(f"cannot allocate a topology UDP port: {error}") from error
+
+    def _reserve_topology_port(
+        self, requested: int | None, topology: str, generation: str
+    ) -> tuple[int, dict[str, Any]]:
+        if requested is not None and (
+            not isinstance(requested, int)
+            or isinstance(requested, bool)
+            or not 0 <= requested <= 65535
+        ):
+            raise WorkspaceError("topology port must be between 0 and 65535")
+
+        automatic = requested in (None, 0)
+        reservation_root = self._lease_namespace
+
+        def conflict(owner: dict[str, Any]) -> None:
+            raise WorkspaceError(
+                f"topology UDP port {owner['port']} is reserved by topology "
+                f"{owner['topology']} generation {owner['generation']}; "
+                "retry after its startup transaction completes; if contention "
+                f"persists inspect the shared reservation {owner['path']}"
+            )
+
+        def validate_known_evidence(port: int) -> None:
+            for root in sorted(self.paths.topologies.iterdir()):
+                record_path = root / TOPOLOGY_PORT_RESERVATION_RECORD
+                if not record_path.exists() and not record_path.is_symlink():
+                    continue
+                if record_path.is_symlink() or not record_path.is_file():
+                    raise WorkspaceError(
+                        f"topology port reservation evidence is invalid: {record_path}"
+                    )
+                value = load_json(record_path)
+                if not isinstance(value, dict) or value.get("port") != port:
+                    continue
+                try:
+                    owner = validate_port_reservation(value)
+                    if owner["port"] != port:
+                        continue
+                    expected_path = (
+                        reservation_root
+                        / PORT_RESERVATION_DIRECTORY
+                        / f"{port}-{owner['generation']}.lease"
+                    )
+                    validate_port_reservation(owner, expected_path=expected_path)
+                except PortReservationError as error:
+                    raise WorkspaceError(
+                        f"topology port reservation evidence is invalid: {record_path}"
+                    ) from error
+                try:
+                    port_reservation_locked(owner)
+                except PortReservationError as error:
+                    raise WorkspaceError(
+                        f"topology port reservation evidence for port {port} "
+                        "does not match its exact lease; preserve it for diagnosis"
+                    ) from error
+
+        def claim(port: int) -> tuple[int, dict[str, Any]] | None:
+            try:
+                validate_known_evidence(port)
+                transaction, directory_fd, directory, directory_identity = (
+                    open_port_transaction(
+                        reservation_root,
+                        port,
+                        root_identity=self._physical_lease_namespace_identity,
+                    )
+                )
+                try:
+                    if not try_lock_port_reservation(transaction):
+                        if automatic:
+                            return None
+                        deadline = time.monotonic() + 1
+                        while not try_lock_port_reservation(transaction):
+                            if time.monotonic() >= deadline:
+                                raise WorkspaceError(
+                                    f"topology UDP port {port} reservation "
+                                    "transaction is busy; retry"
+                                )
+                            time.sleep(0.01)
+                    validate_port_transaction(transaction, directory_fd, port)
+                    owner = active_port_reservation(directory_fd, directory, port)
+                    if owner is not None:
+                        if automatic:
+                            return None
+                        conflict(owner)
+                    self._select_topology_port(port)
+                    descriptor, record = create_port_reservation(
+                        directory_fd,
+                        directory,
+                        directory_identity,
+                        port=port,
+                        topology=topology,
+                        generation=generation,
+                    )
+                    try:
+                        validate_port_transaction(transaction, directory_fd, port)
+                    except BaseException:
+                        os.close(descriptor)
+                        raise
+                finally:
+                    os.close(transaction)
+                    os.close(directory_fd)
+                return descriptor, record
+            except PortReservationError as error:
+                raise WorkspaceError(str(error)) from error
+
+        if not automatic:
+            reserved = claim(requested)
+            assert reserved is not None
+            return reserved
+
+        with exclusive_lock(
+            reservation_root / "ports.lock",
+            "topology automatic port allocation",
+        ):
+            for _attempt in range(64):
+                candidate = self._select_topology_port(None)
+                reserved = claim(candidate)
+                if reserved is not None:
+                    return reserved
+        raise WorkspaceError("cannot allocate a unique topology UDP port after 64 attempts")
 
     @staticmethod
     def _require_client_display() -> None:
@@ -7574,23 +13664,33 @@ class Workspace:
         self,
         name: str,
         profile_name: str,
-        state_name: str,
+        state_name: str | None,
         services: list[str] | None = None,
         port: int | None = None,
+        state_mode: str | None = None,
     ) -> dict[str, Any]:
         self.paths.ensure()
-        with shared_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ) as layout_lock:
-            return self._topology_up(
-                name,
-                profile_name,
-                state_name,
-                services,
-                port,
-                layout_lock=layout_lock,
-            )
+        selected_services = self._topology_services(services)
+        with self._resolved_profile_operation(
+            profile_name,
+            set(selected_services),
+            f"prepare topology {name}",
+        ):
+            with self._resource_locks(
+                [
+                    self._lease_request(
+                        "topology", name, "exclusive", f"prepare topology {name}"
+                    )
+                ],
+            ):
+                return self._topology_up(
+                    name,
+                    profile_name,
+                    state_name,
+                    services,
+                    port,
+                    state_mode,
+                )
 
     def _topology_resolved_status(
         self, profile_name: str, selected: dict[str, Path]
@@ -7620,13 +13720,15 @@ class Workspace:
         self,
         name: str,
         profile_name: str,
-        state_name: str,
+        state_name: str | None,
         services: list[str] | None = None,
         port: int | None = None,
-        *,
-        layout_lock: TextIO | None = None,
+        state_mode: str | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
+        state_mode, state_name = self._normalize_topology_state_request(
+            state_mode, state_name, selected_services
+        )
         if "client" in selected_services:
             client_launch_label(profile_name, name)
         if "server" not in selected_services and port is not None:
@@ -7640,6 +13742,9 @@ class Workspace:
             process_tree_path = topology_root / TOPOLOGY_PROCESS_TREE_LEASE
             status_path = topology_root / "status.json"
             startup_error_path = topology_root / "startup-error.json"
+            self._recover_runtime_state_output_transaction(
+                topology_root, name
+            )
             if status_path.is_file():
                 if status_path.is_symlink():
                     raise WorkspaceError(f"topology status is invalid: {name}")
@@ -7653,6 +13758,39 @@ class Workspace:
                     service["running"] for service in previous["services"].values()
                 ):
                     raise WorkspaceError(f"topology is already running: {name}")
+                previous_policy = previous.get("state_policy")
+                if (
+                    isinstance(previous_policy, dict)
+                    and previous_policy.get("mode") == "temporary"
+                    and previous_policy.get("lifecycle")
+                    not in {"removed", "promoted"}
+                ):
+                    raise WorkspaceError(
+                        f"topology {name} retains temporary generation state; "
+                        "promote it or complete its safe cleanup before restart"
+                    )
+                previous_runtime = previous.get("runtime")
+                if (
+                    (
+                        not isinstance(previous_policy, dict)
+                        or previous_policy.get("mode") != "temporary"
+                    )
+                    and isinstance(previous_runtime, dict)
+                    and previous_runtime.get("mutable_state_outputs")
+                ):
+                    identities = previous_runtime.get(
+                        "mutable_state_output_identities"
+                    )
+                    if not isinstance(identities, list) or not identities:
+                        raise WorkspaceError(
+                            f"topology {name} retains legacy mutable state "
+                            "output without exact ownership evidence; preserve "
+                            "the historical record and choose a new topology name"
+                        )
+                    else:
+                        previous = self._cleanup_topology_mutable_state_outputs(
+                            previous
+                        )
 
             if "client" in selected_services:
                 self._require_client_display()
@@ -7666,6 +13804,12 @@ class Workspace:
                 for service in ("client", "server")
                 if service in selected_services
             ]
+            profile = self._load_profile(profile_name, require_file=False)
+            selected_stack = self.manifest.stack(profile["stack"])
+            providers = {
+                role: selected_stack.providers[role].name
+                for role in sorted(required)
+            }
 
             with ExitStack() as stack:
                 process_tree_fd = open_regular_file(
@@ -7673,7 +13817,12 @@ class Workspace:
                     os.O_RDWR | os.O_CREAT,
                     "topology process-tree lease",
                 )
-                stack.callback(os.close, process_tree_fd)
+                process_tree_owner = [process_tree_fd]
+                stack.callback(
+                    lambda: os.close(process_tree_owner.pop())
+                    if process_tree_owner
+                    else None
+                )
                 try:
                     fcntl.flock(
                         process_tree_fd, fcntl.LOCK_EX | fcntl.LOCK_NB
@@ -7688,22 +13837,220 @@ class Workspace:
                     ) from error
                 if holders_exist(process_tree_fd, exclude=(os.getpid(),)):
                     raise WorkspaceError(f"topology is already running: {name}")
+                for _attempt in range(16):
+                    generation = secrets.token_hex(32)
+                    control_path = control_socket_path(topology_root, generation)
+                    if not control_path.exists() and not control_path.is_symlink():
+                        break
+                else:
+                    raise WorkspaceError(
+                        "cannot allocate a unique topology control endpoint"
+                    )
+                control_directory = control_path.parent
+                control_directory.mkdir(mode=0o700, exist_ok=True)
+                control_metadata = control_directory.lstat()
+                if (
+                    not stat.S_ISDIR(control_metadata.st_mode)
+                    or stat.S_IMODE(control_metadata.st_mode) != 0o700
+                    or control_metadata.st_uid != os.geteuid()
+                ):
+                    raise WorkspaceError(
+                        f"topology control directory is invalid: {control_directory}"
+                    )
+
+                endpoint: dict[str, Any] | None = None
+                port_reservation: dict[str, Any] | None = None
+                port_reservation_owner: list[int] = []
+                if "server" in selected_services:
+                    port_reservation_fd, port_reservation = (
+                        self._reserve_topology_port(port, name, generation)
+                    )
+                    port_reservation_owner.append(port_reservation_fd)
+                    stack.callback(
+                        lambda: os.close(port_reservation_owner.pop())
+                        if port_reservation_owner
+                        else None
+                    )
+                    endpoint = {
+                        "host": "127.0.0.1",
+                        "port": port_reservation["port"],
+                    }
+                    atomic_json(
+                        topology_root / TOPOLOGY_PORT_RESERVATION_RECORD,
+                        port_reservation,
+                    )
 
                 state_location: Path | None = None
                 state_lock: TextIO | None = None
-                if "server" in selected_services:
+                state_expected_identity: dict[str, int] | None = None
+                if "server" in selected_services and state_mode != "temporary":
+                    assert state_name is not None
                     state_location = self._state_location(state_name)
                     state_lock = stack.enter_context(
-                        exclusive_lock(
-                            Path(f"{state_location}.lock"),
-                            f"server state {state_location}",
-                            nonblocking=True,
+                        self._topology_state_lock(
+                            state_location, preparing_topology=name
                         )
                     )
+                    if state_location.exists() or state_location.is_symlink():
+                        state_expected_identity = self._state_identity(state_location)
 
                 root = self._build_resolved(
                     "topology", profile_name, False, targets, selected
                 )
+                resolved_status = self._topology_resolved_status(
+                    profile_name, selected
+                )
+                implementation = (
+                    self._state_implementation(
+                        selected_stack.name, providers, resolved_status
+                    )
+                    if "server" in selected_services
+                    else None
+                )
+                state: Path | None = None
+                state_policy: dict[str, Any] | None = None
+                state_directory_fd: int | None = None
+                temporary_state_owner: list[
+                    tuple[
+                        Path,
+                        TextIO,
+                        dict[str, int],
+                        dict[str, int],
+                        int,
+                        dict[str, str],
+                    ]
+                ] = []
+                if "server" in selected_services:
+                    assert implementation is not None
+                    if state_mode == "temporary":
+                        server_provider = providers["server"]
+                        state, state_policy = self._create_temporary_state(
+                            topology_root,
+                            name,
+                            profile_name,
+                            generation,
+                            selected["server"],
+                            implementation,
+                            resolved_status[server_provider],
+                        )
+                        state_location = state
+                        try:
+                            state_lock = stack.enter_context(
+                                self._topology_state_lock(
+                                    state_location,
+                                    preparing_topology=name,
+                                    physical_identity=False,
+                                )
+                            )
+                        except BaseException:
+                            with exclusive_lock(
+                                Path(f"{state_location}.lock"),
+                                f"temporary topology state {state_location}",
+                                nonblocking=True,
+                            ) as rollback_lease:
+                                rollback_metadata = os.fstat(
+                                    rollback_lease.fileno()
+                                )
+                                self._rollback_temporary_state_creation(
+                                    state_location,
+                                    rollback_lease,
+                                    state_policy["identity"],
+                                    {
+                                        "device": rollback_metadata.st_dev,
+                                        "inode": rollback_metadata.st_ino,
+                                    },
+                                    implementation=state_policy[
+                                        "implementation"
+                                    ],
+                                )
+                            raise
+                    else:
+                        assert state_name is not None and state_location is not None
+                        state, state_directory_fd = self._prepared_state_path(
+                            state_name,
+                            selected["server"],
+                            state_location,
+                            implementation,
+                            state_expected_identity,
+                        )
+                        stack.callback(os.close, state_directory_fd)
+                        opened_state = os.fstat(state_directory_fd)
+                        state_lock.bind(
+                            {
+                                "device": opened_state.st_dev,
+                                "inode": opened_state.st_ino,
+                            }
+                        )
+                        state_policy = self._persistent_state_policy(
+                            state_name, state, implementation
+                        )
+                    assert state_lock is not None
+                    lock_metadata = os.fstat(state_lock.fileno())
+                    if (
+                        not stat.S_ISREG(lock_metadata.st_mode)
+                        or lock_metadata.st_nlink != 1
+                    ):
+                        raise WorkspaceError(
+                            f"server state lease identity is invalid: {state}.lock"
+                        )
+                    state_policy = {
+                        **state_policy,
+                        "lease_identity": {
+                            "device": lock_metadata.st_dev,
+                            "inode": lock_metadata.st_ino,
+                        },
+                    }
+                    try:
+                        visible_lock = Path(f"{state}.lock").stat(
+                            follow_symlinks=False
+                        )
+                    except OSError as error:
+                        raise WorkspaceError(
+                            f"server state lease changed before publication: {state}.lock"
+                        ) from error
+                    if (
+                        visible_lock.st_dev,
+                        visible_lock.st_ino,
+                    ) != (
+                        lock_metadata.st_dev,
+                        lock_metadata.st_ino,
+                    ):
+                        raise WorkspaceError(
+                            f"server state lease changed before publication: {state}.lock"
+                        )
+                    if state_directory_fd is None:
+                        state_directory_fd = self._open_validated_state_directory(
+                            state,
+                            implementation,
+                            write_implementation=False,
+                        )
+                        stack.callback(os.close, state_directory_fd)
+                    if state_mode == "temporary":
+                        temporary_state_owner.append(
+                            (
+                                state,
+                                state_lock.path_lock,
+                                state_policy["identity"],
+                                state_policy["lease_identity"],
+                                state_directory_fd,
+                                state_policy["implementation"],
+                            )
+                        )
+                        stack.callback(
+                            lambda: self._rollback_temporary_state_creation(
+                                *temporary_state_owner.pop()
+                            )
+                            if temporary_state_owner
+                            else None
+                        )
+                    state_metadata = os.fstat(state_directory_fd)
+                    if state_policy["identity"] != {
+                        "device": state_metadata.st_dev,
+                        "inode": state_metadata.st_ino,
+                    }:
+                        raise WorkspaceError(
+                            f"server state identity changed before runtime publication: {state}"
+                        )
                 build_lock = stack.enter_context(
                     self._profile_build_lock(root, profile_name)
                 )
@@ -7713,82 +14060,14 @@ class Workspace:
                     if isinstance(build_metadata, dict)
                     else None
                 )
-                endpoint: dict[str, Any] | None = None
-                if "server" in selected_services:
-                    stack.enter_context(
-                        exclusive_lock(
-                            self.paths.topologies / "ports.lock",
-                            "topology port allocation",
-                        )
-                    )
-                    endpoint = {
-                        "host": "127.0.0.1",
-                        "port": self._select_topology_port(port),
-                    }
-                service_specs: dict[str, dict[str, Any]] = {}
-                if "server" in selected_services:
-                    assert state_location is not None
-                    state = self.state_path(
-                        state_name,
-                        selected["server"],
-                        resolved_path=state_location,
-                    )
-                    runtime_inputs = self._copy_topology_runtime_inputs(
-                        topology_root,
-                        (
-                            (
-                                "content",
-                                root / "runtime" / "content",
-                                "collected-content",
-                            ),
-                            (
-                                "resources",
-                                root / "runtime" / "resources",
-                                "resource-view",
-                            ),
-                            (
-                                "client-maps",
-                                root / "runtime" / "client-maps",
-                                "region-map-cache",
-                            ),
-                        ),
-                    )
-                    content = runtime_inputs["content"]
-                    resources = runtime_inputs["resources"]
-                    client_maps = runtime_inputs["client-maps"]
-                    runtime = self._prepare_server_runtime(
-                        root,
-                        selected,
-                        state,
-                        state_name,
-                        content,
-                        resources,
-                        client_maps,
-                    )
-                    executable = runtime / "atrinik-server"
-                    service_specs["server"] = {
-                        "command": [
-                            str(executable),
-                            f"--port_quic={endpoint['port']}",
-                            "--port_mapping=off",
-                            "--stun_server=off",
-                            f"--assetspath={runtime / 'assets'}",
-                            "--no_console",
-                        ],
-                        "cwd": str(runtime),
-                        "log": str(topology_root / "server.log"),
-                    }
+                sound_root: Path | None = None
                 if "client" in selected_services:
-                    executable = (
-                        self._classic_binary_directory(root, "client") / "atrinik"
-                    )
                     try:
                         validated_sound = validate_sound_record(sound_status)
                     except WorkspaceError as error:
                         raise WorkspaceError(
                             f"build sound metadata is invalid for profile {profile_name}"
                         ) from error
-                    profile = self._load_profile(profile_name, require_file=False)
                     if validated_sound["mode"] != profile["sound_mode"]:
                         raise WorkspaceError(
                             f"profile {profile_name} sound mode does not match build metadata"
@@ -7818,9 +14097,105 @@ class Workspace:
                         raise WorkspaceError(
                             f"profile {profile_name} source sound root changed before topology preparation"
                         )
-                    working = self._prepare_topology_client_runtime(
-                        topology_root, selected, sound_root
+                (
+                    generation_root,
+                    runtime_lock_fd,
+                    runtime_record,
+                    state_output_fd,
+                ) = (
+                    self._publish_runtime_generation(
+                        topology_root,
+                        generation,
+                        profile_name,
+                        root,
+                        selected,
+                        resolved_status,
+                        selected_services,
+                        identity={
+                            "kind": "topology",
+                            "name": name,
+                            "stack": selected_stack.name,
+                            "providers": providers,
+                        },
+                        state=state,
+                        state_directory_fd=state_directory_fd,
+                        sound_root=sound_root,
                     )
+                )
+                if state_output_fd is not None:
+                    stack.callback(os.close, state_output_fd)
+                published_generation_owner = [generation_root]
+                stack.callback(
+                    lambda: remove_owned_tree(published_generation_owner.pop())
+                    if published_generation_owner
+                    else None
+                )
+                published_state_output_owner = [
+                    (
+                        Path(f"/proc/self/fd/{state_directory_fd}")
+                        / "tmp"
+                        / "runtime-assets"
+                        / generation
+                        if state_directory_fd is not None
+                        else Path(runtime_record["mutable_state_outputs"][0])
+                    )
+                ] if runtime_record["mutable_state_outputs"] else []
+
+                def rollback_published_state_output() -> None:
+                    if not published_state_output_owner:
+                        return
+                    assert state_directory_fd is not None
+                    output = published_state_output_owner.pop()
+                    try:
+                        self._rollback_runtime_state_output_transaction(
+                            topology_root,
+                            output,
+                            generation,
+                            state_directory_fd,
+                            runtime_record[
+                                "mutable_state_output_identities"
+                            ][0],
+                        )
+                    except BaseException:
+                        temporary_state_owner.clear()
+                        raise
+
+                stack.callback(rollback_published_state_output)
+                runtime_lock_owner = [runtime_lock_fd]
+                stack.callback(
+                    lambda: os.close(runtime_lock_owner.pop())
+                    if runtime_lock_owner
+                    else None
+                )
+                service_specs: dict[str, dict[str, Any]] = {}
+                if "server" in selected_services:
+                    server_runtime = generation_root / "server"
+                    executable = server_runtime / "atrinik-server"
+                    service_specs["server"] = {
+                        "command": [
+                            str(executable),
+                            f"--port_quic={endpoint['port']}",
+                            "--port_mapping=off",
+                            "--stun_server=off",
+                            *(
+                                [f"--datapath=/proc/self/fd/{state_directory_fd}"]
+                                if state_directory_fd is not None
+                                else []
+                            ),
+                            "--assetspath="
+                            + (
+                                f"/proc/self/fd/{state_output_fd}"
+                                if state_output_fd is not None
+                                else runtime_record["mutable_state_outputs"][0]
+                            ),
+                            "--no_console",
+                        ],
+                        "cwd": str(server_runtime),
+                        "log": str(topology_root / "server.log"),
+                    }
+                if "client" in selected_services:
+                    client_runtime = generation_root / "client"
+                    executable = client_runtime / "atrinik"
                     if not executable.is_file():
                         raise WorkspaceError(f"client executable is missing: {executable}")
                     client_config = topology_root / "client-config"
@@ -7833,20 +14208,35 @@ class Workspace:
                         client_config.mkdir()
                     service_specs["client"] = {
                         "command": [str(executable)],
-                        "cwd": str(working),
+                        "cwd": str(client_runtime),
                         "log": str(topology_root / "client.log"),
                         "environment": {
                             "ATRINIK_CONFIG_DIR": str(client_config.resolve())
                         },
                     }
-
-                profile = self._load_profile(profile_name, require_file=False)
-                selected_stack = self.manifest.stack(profile["stack"])
-                resolved_status = self._topology_resolved_status(
-                    profile_name, selected
-                )
+                if state is not None and state_directory_fd is not None:
+                    pinned = os.fstat(state_directory_fd)
+                    try:
+                        visible = state.stat(follow_symlinks=False)
+                        canonical = self._canonical_state_path(state)
+                    except OSError as error:
+                        raise WorkspaceError(
+                            f"server state changed before topology launch: {state}"
+                        ) from error
+                    if canonical != state or (pinned.st_dev, pinned.st_ino) != (
+                        visible.st_dev,
+                        visible.st_ino,
+                    ):
+                        raise WorkspaceError(
+                            f"server state changed before topology launch: {state}"
+                        )
+                # All fallible preparation is complete. Retire the stopped
+                # record and bind/publish the new generation without exposing
+                # old status against rewritten lease contents.
+                status_path.unlink(missing_ok=True)
+                lease_identity = initialize_lease(process_tree_fd, generation)
                 spec: dict[str, Any] = {
-                    "schema_version": SCHEMA_VERSION,
+                    "schema_version": TOPOLOGY_STATUS_SCHEMA_VERSION,
                     "name": name,
                     "profile": profile_name,
                     "stack": selected_stack.name,
@@ -7856,16 +14246,32 @@ class Workspace:
                     },
                     "dependencies": sorted(required),
                     "state": str(state_location) if state_location else None,
+                    "state_policy": state_policy,
                     "build_root": str(root),
                     "resolved": resolved_status,
                     "endpoint": endpoint,
+                    "control": {
+                        "socket": str(control_path),
+                        "generation": generation,
+                        "lease": lease_identity,
+                    },
+                    "runtime": runtime_record,
                     "services": service_specs,
                 }
+                if port_reservation is not None:
+                    spec["port_reservation"] = port_reservation
                 if sound_status is not None:
                     spec["sound"] = sound_status
                 spec_path = topology_root / "spec.json"
+                try:
+                    control_mode = control_path.lstat().st_mode
+                except FileNotFoundError:
+                    pass
+                else:
+                    raise WorkspaceError(
+                        f"topology control endpoint already exists: {control_path}"
+                    )
                 atomic_json(spec_path, spec)
-                status_path.unlink(missing_ok=True)
                 startup_error_path.unlink(missing_ok=True)
 
                 supervisor_log_path = topology_root / "supervisor.log"
@@ -7891,19 +14297,42 @@ class Workspace:
                     if state_lock is not None:
                         command.extend(["--lock-fd", str(state_lock.fileno())])
                         inherited_locks.append(state_lock.fileno())
-                    if layout_lock is not None:
+                        if state_lock.physical_lock is not None:
+                            command.extend(
+                                [
+                                    "--physical-state-lock-fd",
+                                    str(state_lock.physical_lock.fileno()),
+                                ]
+                            )
+                            inherited_locks.append(
+                                state_lock.physical_lock.fileno()
+                            )
+                    if state_directory_fd is not None:
                         command.extend(
-                            ["--layout-lock-fd", str(layout_lock.fileno())]
+                            ["--state-directory-fd", str(state_directory_fd)]
                         )
-                        inherited_locks.append(layout_lock.fileno())
+                        inherited_locks.append(state_directory_fd)
+                    if state_output_fd is not None:
+                        command.extend(
+                            ["--state-output-fd", str(state_output_fd)]
+                        )
+                        inherited_locks.append(state_output_fd)
                     command.extend(
-                        ["--build-lock-fd", str(build_lock.fileno())]
+                        ["--runtime-lock-fd", str(runtime_lock_fd)]
                     )
-                    inherited_locks.append(build_lock.fileno())
+                    inherited_locks.append(runtime_lock_fd)
                     command.extend(
                         ["--process-tree-fd", str(process_tree_fd)]
                     )
                     inherited_locks.append(process_tree_fd)
+                    if port_reservation_owner:
+                        command.extend(
+                            [
+                                "--port-reservation-fd",
+                                str(port_reservation_owner[0]),
+                            ]
+                        )
+                        inherited_locks.append(port_reservation_owner[0])
                     environment = os.environ.copy()
                     source_root = str(Path(__file__).resolve().parents[1])
                     python_path = environment.get("PYTHONPATH")
@@ -7922,6 +14351,13 @@ class Workspace:
                         start_new_session=True,
                         pass_fds=tuple(inherited_locks),
                     )
+                    published_generation_owner.clear()
+                    published_state_output_owner.clear()
+                    temporary_state_owner.clear()
+                    os.close(process_tree_owner.pop())
+                    if port_reservation_owner:
+                        os.close(port_reservation_owner.pop())
+                    os.close(runtime_lock_owner.pop())
                 except OSError as error:
                     raise WorkspaceError(f"cannot start topology supervisor: {error}") from error
                 finally:
@@ -7948,6 +14384,14 @@ class Workspace:
                         )
                     if status_path.is_file():
                         status = self.topology_status(name)
+                        runtime = status.get("runtime")
+                        if (
+                            isinstance(runtime, dict)
+                            and runtime.get("generation") == generation
+                        ):
+                            self._clear_runtime_state_output_transaction(
+                                topology_root
+                            )
                         if status.get("error"):
                             raise WorkspaceError(
                                 f"topology supervisor failed: {status['error']}"
@@ -7955,6 +14399,11 @@ class Workspace:
                         if status["supervisor"]["running"] and status["ready"]:
                             process.wait(timeout=2)
                             return status
+                        if not status["supervisor"]["running"]:
+                            raise WorkspaceError(
+                                "topology supervisor exited during startup; inspect "
+                                f"{topology_root / 'supervisor.log'}"
+                            )
                     if process.poll() not in (None, 0):
                         break
                     time.sleep(0.1)
@@ -7963,12 +14412,30 @@ class Workspace:
                     f"{topology_root / 'supervisor.log'}"
                 )
 
-    def topology_down(self, name: str, timeout: float = 15) -> dict[str, Any]:
+    def topology_down(
+        self, name: str, timeout: float = 15, *, retain_state: bool = False
+    ) -> dict[str, Any]:
         root = self._topology_directory(name)
         with exclusive_lock(
             root / "operation.lock", f"topology {name} operation", nonblocking=True
         ):
             status = self.topology_status(name)
+            policy = status.get("state_policy")
+            if retain_state and (
+                not isinstance(policy, dict) or policy.get("mode") != "temporary"
+            ):
+                raise WorkspaceError(
+                    "--retain-state requires a temporary topology state"
+                )
+            if "control" in status:
+                stopped, confirmed_clean = self._controlled_topology_down(
+                    name, status, timeout
+                )
+                if confirmed_clean:
+                    stopped = self._cleanup_topology_mutable_state_outputs(stopped)
+                return self._finish_temporary_state_down(
+                    name, stopped, retain_state, confirmed_clean
+                )
             process_tree_path = root / TOPOLOGY_PROCESS_TREE_LEASE
             if process_tree_path.is_symlink():
                 raise WorkspaceError(
@@ -7996,7 +14463,9 @@ class Workspace:
                     )
                     if recorded_running:
                         return self._legacy_topology_down(name, status, timeout)
-                    return status
+                    return self._finish_temporary_state_down(
+                        name, status, retain_state, False
+                    )
                 signal_holders(
                     process_tree_fd, signal.SIGTERM, exclude=(os.getpid(),)
                 )
@@ -8010,7 +14479,9 @@ class Workspace:
                     if not holders_exist(
                         process_tree_fd, exclude=(os.getpid(),)
                     ) and not recorded_running:
-                        return current
+                        return self._finish_temporary_state_down(
+                            name, current, retain_state, False
+                        )
                     time.sleep(0.1)
                 signal_holders(
                     process_tree_fd, signal.SIGKILL, exclude=(os.getpid(),)
@@ -8030,13 +14501,1012 @@ class Workspace:
                     if not holders_exist(
                         process_tree_fd, exclude=(os.getpid(),)
                     ) and not recorded_running:
-                        return current
+                        return self._finish_temporary_state_down(
+                            name, current, retain_state, False
+                        )
                     time.sleep(0.05)
             finally:
                 os.close(process_tree_fd)
             raise WorkspaceError(
                 f"topology did not stop within {timeout:g} seconds: {name}"
             )
+
+    def _cleanup_topology_mutable_state_outputs(
+        self, status: dict[str, Any]
+    ) -> dict[str, Any]:
+        policy = status.get("state_policy")
+        runtime = status.get("runtime")
+        control = status.get("control")
+        if (
+            not isinstance(policy, dict)
+            or policy.get("mode") == "temporary"
+            or not isinstance(runtime, dict)
+            or not isinstance(control, dict)
+        ):
+            return status
+        outputs = runtime.get("mutable_state_outputs")
+        identities = runtime.get("mutable_state_output_identities")
+        if (
+            not isinstance(outputs, list)
+            or not outputs
+            or not isinstance(identities, list)
+            or len(identities) != len(outputs)
+        ):
+            return status
+        name = status["name"]
+        status_path = self._topology_directory(name) / "status.json"
+        cleanup = status.get("mutable_state_cleanup")
+        if cleanup is None:
+            cleanup = {
+                "schema_version": SCHEMA_VERSION,
+                "generation": control["generation"],
+                "entries": [
+                    {
+                        "path": value,
+                        "identity": identity,
+                        "status": "pending",
+                    }
+                    for value, identity in zip(outputs, identities, strict=True)
+                ],
+            }
+            raw = load_json(status_path)
+            if raw.get("control") != status.get("control"):
+                raise WorkspaceError(
+                    f"topology changed before mutable state cleanup: {name}"
+                )
+            durable_atomic_json(
+                status_path, {**raw, "mutable_state_cleanup": cleanup}
+            )
+            status = self.topology_status(name)
+        entries = cleanup["entries"]
+        state = Path(policy["path"])
+        descriptor = _open_directory_nofollow(
+            state,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+        )
+        try:
+            opened = os.fstat(descriptor)
+            visible = state.stat(follow_symlinks=False)
+            identity = policy.get("identity")
+            if (
+                {"device": opened.st_dev, "inode": opened.st_ino} != identity
+                or {"device": visible.st_dev, "inode": visible.st_ino}
+                != identity
+            ):
+                raise WorkspaceError(
+                    f"server state identity changed before runtime cleanup: {state}"
+                )
+            for index, (value, output_identity) in enumerate(
+                zip(outputs, identities, strict=True)
+            ):
+                if entries[index]["status"] == "complete":
+                    if self._runtime_state_output_entry_exists(
+                        descriptor, control["generation"]
+                    ):
+                        raise WorkspaceError(
+                            "completed server runtime state output reappeared: "
+                            f"{value}"
+                        )
+                    self._finish_runtime_state_output_tombstone(
+                        descriptor, control["generation"], output_identity
+                    )
+                    continue
+                output = Path(value)
+                try:
+                    self._remove_runtime_state_output(
+                        output,
+                        control["generation"],
+                        descriptor,
+                        output_identity,
+                        keep_tombstone=True,
+                    )
+                except FileNotFoundError as error:
+                    raise WorkspaceError(
+                        "server runtime state output ownership evidence is "
+                        f"missing before cleanup: {output}"
+                    ) from error
+                updated_entries = [dict(entry) for entry in entries]
+                updated_entries[index]["status"] = "complete"
+                cleanup = {**cleanup, "entries": updated_entries}
+                raw = load_json(status_path)
+                if raw.get("mutable_state_cleanup") != status.get(
+                    "mutable_state_cleanup"
+                ):
+                    raise WorkspaceError(
+                        f"topology changed during mutable state cleanup: {name}"
+                    )
+                durable_atomic_json(
+                    status_path, {**raw, "mutable_state_cleanup": cleanup}
+                )
+                status = self.topology_status(name)
+                entries = updated_entries
+                if not self._finish_runtime_state_output_tombstone(
+                    descriptor, control["generation"], output_identity
+                ):
+                    raise WorkspaceError(
+                        "server runtime state output cleanup tombstone is missing: "
+                        f"{output}"
+                    )
+        finally:
+            os.close(descriptor)
+        return status
+
+    def _controlled_topology_down(
+        self, name: str, status: dict[str, Any], timeout: float
+    ) -> tuple[dict[str, Any], bool]:
+        root = self._topology_directory(name)
+        control = status["control"]
+        requested = self._topology_control_request(name, control, "stop")
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            current = self.topology_status(name)
+            active = self._topology_process_tree_active(root, control)
+            if not active and not current["supervisor"]["running"] and not any(
+                service["running"] for service in current["services"].values()
+            ):
+                shutdown = current.get("shutdown")
+                confirmed_clean = bool(
+                    isinstance(shutdown, dict)
+                    and shutdown.get("control_requested") is True
+                    and shutdown.get("clean") is True
+                    and current.get("error") is None
+                )
+                return current, confirmed_clean
+            time.sleep(0.1)
+        if not requested:
+            raise WorkspaceError(
+                f"topology {name} retains its exact runtime generation but its "
+                "supervisor control endpoint is unreachable; wait for bounded "
+                "orphan recovery and retry; preserve a retained exact lease "
+                "for operator diagnosis"
+            )
+        raise WorkspaceError(
+            f"topology did not stop within {timeout:g} seconds: {name}"
+        )
+
+    def _write_temporary_state_policy(
+        self,
+        name: str,
+        status: dict[str, Any],
+        policy: dict[str, Any],
+    ) -> dict[str, Any]:
+        root = self._topology_directory(name)
+        status_path = root / "status.json"
+        raw_status = load_json(status_path)
+        if (
+            not isinstance(raw_status, dict)
+            or raw_status.get("state_policy") != status.get("state_policy")
+        ):
+            raise WorkspaceError(
+                f"temporary topology state status changed before update: {name}"
+            )
+        durable_atomic_json(status_path, {**raw_status, "state_policy": policy})
+        return self.topology_status(name)
+
+    @staticmethod
+    def _temporary_state_removal_path(policy: dict[str, Any]) -> Path:
+        state = Path(policy["path"])
+        generation = policy["owner"]["generation"]
+        return state.parent / f".{generation}.removal-pending"
+
+    @staticmethod
+    def _unlink_temporary_state_lock(
+        state: Path,
+        state_lease: TextIO,
+        lease_identity: dict[str, int],
+        parent_directory_fd: int | None = None,
+    ) -> None:
+        Workspace._validate_temporary_state_lock(
+            state, state_lease, lease_identity
+        )
+        lock = Path(f"{state}.lock")
+
+        parent_fd = (
+            os.dup(parent_directory_fd)
+            if parent_directory_fd is not None
+            else os.open(
+                lock.parent,
+                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+            )
+        )
+        try:
+            tombstone = (
+                f".{lock.name}.remove-{lease_identity['device']:x}-"
+                f"{lease_identity['inode']:x}"
+            )
+            rename_no_replace_at(
+                parent_fd, lock.name, parent_fd, tombstone
+            )
+            moved = os.stat(
+                tombstone, dir_fd=parent_fd, follow_symlinks=False
+            )
+            expected = (
+                lease_identity["device"],
+                lease_identity["inode"],
+            )
+            if (moved.st_dev, moved.st_ino) != expected:
+                try:
+                    rename_no_replace_at(
+                        parent_fd, tombstone, parent_fd, lock.name
+                    )
+                except WorkspaceError:
+                    pass
+                raise WorkspaceError(
+                    f"temporary topology state lease changed before removal: {lock}"
+                )
+            if not stat.S_ISREG(moved.st_mode) or moved.st_nlink != 1:
+                raise WorkspaceError(
+                    f"temporary topology state lease changed before removal: {lock}"
+                )
+            tombstone_fd = os.open(
+                tombstone, os.O_PATH | os.O_CLOEXEC | os.O_NOFOLLOW,
+                dir_fd=parent_fd,
+            )
+            try:
+                opened = os.fstat(tombstone_fd)
+                visible = os.stat(
+                    tombstone, dir_fd=parent_fd, follow_symlinks=False
+                )
+                if (
+                    not stat.S_ISREG(opened.st_mode)
+                    or opened.st_nlink != 1
+                    or (opened.st_dev, opened.st_ino) != expected
+                    or (visible.st_dev, visible.st_ino) != expected
+                    or visible.st_nlink != 1
+                ):
+                    raise WorkspaceError(
+                        f"temporary topology state lease changed before removal: {lock}"
+                    )
+                os.unlink(tombstone, dir_fd=parent_fd)
+            finally:
+                os.close(tombstone_fd)
+            os.fsync(parent_fd)
+        finally:
+            os.close(parent_fd)
+
+    @staticmethod
+    def _validate_temporary_state_lock(
+        state: Path,
+        state_lease: TextIO,
+        lease_identity: dict[str, int],
+    ) -> None:
+        lock = Path(f"{state}.lock")
+        try:
+            visible = lock.stat(follow_symlinks=False)
+        except FileNotFoundError as error:
+            raise WorkspaceError(
+                f"temporary topology state lease is missing: {lock}"
+            ) from error
+        opened = os.fstat(state_lease.fileno())
+        expected = (lease_identity["device"], lease_identity["inode"])
+        if (
+            not stat.S_ISREG(visible.st_mode)
+            or visible.st_nlink != 1
+            or (visible.st_dev, visible.st_ino) != expected
+            or (opened.st_dev, opened.st_ino) != expected
+        ):
+            raise WorkspaceError(
+                "temporary topology state lease changed before lifecycle "
+                f"mutation: {lock}"
+            )
+
+    @staticmethod
+    def _finish_temporary_state_lock_tombstone(
+        state: Path,
+        lease_identity: dict[str, int],
+        parent_directory_fd: int | None = None,
+    ) -> bool:
+        lock = Path(f"{state}.lock")
+        tombstone = lock.parent / (
+            f".{lock.name}.remove-{lease_identity['device']:x}-"
+            f"{lease_identity['inode']:x}"
+        )
+        if parent_directory_fd is None:
+            if not tombstone.exists() and not tombstone.is_symlink():
+                return False
+        else:
+            try:
+                os.stat(
+                    tombstone.name,
+                    dir_fd=parent_directory_fd,
+                    follow_symlinks=False,
+                )
+            except FileNotFoundError:
+                return False
+        parent_fd = (
+            os.dup(parent_directory_fd)
+            if parent_directory_fd is not None
+            else os.open(
+                tombstone.parent,
+                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+            )
+        )
+        try:
+            descriptor = os.open(
+                tombstone.name,
+                os.O_PATH | os.O_CLOEXEC | os.O_NOFOLLOW,
+                dir_fd=parent_fd,
+            )
+            try:
+                metadata = os.fstat(descriptor)
+                visible = os.stat(
+                    tombstone.name, dir_fd=parent_fd, follow_symlinks=False
+                )
+                expected = (lease_identity["device"], lease_identity["inode"])
+                if (
+                    not stat.S_ISREG(metadata.st_mode)
+                    or metadata.st_nlink != 1
+                    or (metadata.st_dev, metadata.st_ino) != expected
+                    or (visible.st_dev, visible.st_ino) != expected
+                    or visible.st_nlink != 1
+                ):
+                    raise WorkspaceError(
+                        "temporary topology state lease tombstone is invalid: "
+                        f"{tombstone}"
+                    )
+                os.unlink(tombstone.name, dir_fd=parent_fd)
+                os.fsync(parent_fd)
+            finally:
+                os.close(descriptor)
+        finally:
+            os.close(parent_fd)
+        return True
+
+    @staticmethod
+    def _lock_state_directory_mutation(
+        path: Path,
+        identity: dict[str, int],
+        description: str = "temporary state",
+    ) -> int:
+        descriptor = _open_directory_nofollow(
+            path, os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        )
+        try:
+            opened = os.fstat(descriptor)
+            visible = path.stat(follow_symlinks=False)
+            expected = (identity["device"], identity["inode"])
+            if (
+                not stat.S_ISDIR(opened.st_mode)
+                or (opened.st_dev, opened.st_ino) != expected
+                or (visible.st_dev, visible.st_ino) != expected
+            ):
+                raise WorkspaceError(
+                    f"{description} identity changed before mutation: {path}"
+                )
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as error:
+                if error.errno in {errno.EACCES, errno.EAGAIN}:
+                    raise WorkspaceError(
+                        f"{description} is already in use: {path}"
+                    ) from error
+                raise WorkspaceError(
+                    f"cannot lock {description} for mutation: {path}: {error}"
+                ) from error
+            return descriptor
+        except BaseException:
+            os.close(descriptor)
+            raise
+
+    def _open_temporary_state_container_for_mutation(
+        self, name: str, state: Path
+    ) -> int:
+        root = self._topology_directory(name)
+        if state.parent != root / "temporary-states":
+            raise WorkspaceError("temporary state container path is invalid")
+        flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        root_fd = _open_directory_nofollow(root, flags)
+        container_fd: int | None = None
+        try:
+            visible = os.stat(
+                "temporary-states", dir_fd=root_fd, follow_symlinks=False
+            )
+            container_fd = os.open(
+                "temporary-states", flags, dir_fd=root_fd
+            )
+            opened = os.fstat(container_fd)
+            if (
+                not stat.S_ISDIR(visible.st_mode)
+                or (visible.st_dev, visible.st_ino)
+                != (opened.st_dev, opened.st_ino)
+                or _descriptor_mount_id(container_fd)
+                != _descriptor_mount_id(root_fd)
+            ):
+                raise WorkspaceError(
+                    "temporary state container changed or crossed a mount"
+                )
+            marker = self._load_state_json_at(
+                container_fd,
+                MANAGED_MARKER,
+                "temporary state container marker",
+            )
+            if marker != {
+                "schema_version": SCHEMA_VERSION,
+                "purpose": "topology-temporary-states",
+            }:
+                raise WorkspaceError("temporary state container marker is invalid")
+            result = container_fd
+            container_fd = None
+            return result
+        finally:
+            if container_fd is not None:
+                os.close(container_fd)
+            os.close(root_fd)
+
+    @staticmethod
+    def _rollback_temporary_state_creation(
+        state: Path,
+        state_lease: TextIO,
+        state_identity: dict[str, int],
+        lease_identity: dict[str, int],
+        state_directory_fd: int | None = None,
+        implementation: dict[str, str] | None = None,
+    ) -> None:
+        Workspace._validate_temporary_state_lock(
+            state, state_lease, lease_identity
+        )
+        owned_descriptor = state_directory_fd
+        close_descriptor = False
+        if owned_descriptor is None:
+            owned_descriptor = os.open(
+                state,
+                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+            )
+            close_descriptor = True
+        try:
+            Workspace._validate_temporary_state_integrity(
+                owned_descriptor, state, implementation
+            )
+            remove_owned_tree(
+                state,
+                expected_identity=state_identity,
+                reject_links=True,
+            )
+        finally:
+            if close_descriptor:
+                os.close(owned_descriptor)
+        Workspace._unlink_temporary_state_lock(
+            state, state_lease, lease_identity
+        )
+
+    def _commit_temporary_state_removal(
+        self,
+        name: str,
+        status: dict[str, Any],
+        state_lease: TextIO,
+        state_directory_fd: int | None = None,
+        state_container_fd: int | None = None,
+    ) -> dict[str, Any]:
+        policy = status["state_policy"]
+        state = Path(policy["path"])
+        tombstone = self._temporary_state_removal_path(policy)
+        identity = policy["identity"]
+        lifecycle = policy["lifecycle"]
+        current = status
+
+        def entry_present(candidate: Path) -> bool:
+            if state_container_fd is None:
+                return candidate.exists() or candidate.is_symlink()
+            try:
+                os.stat(
+                    candidate.name,
+                    dir_fd=state_container_fd,
+                    follow_symlinks=False,
+                )
+            except FileNotFoundError:
+                return False
+            return True
+        if lifecycle not in {"removal-pending", "removed"}:
+            if state_directory_fd is None:
+                raise WorkspaceError(
+                    "temporary state integrity lease is missing before removal"
+                )
+            self._validate_temporary_state_integrity(
+                state_directory_fd, state, policy["implementation"]
+            )
+            pending = {**policy, "lifecycle": "removal-pending"}
+            current = self._write_temporary_state_policy(name, current, pending)
+            policy = current["state_policy"]
+            lifecycle = "removal-pending"
+        if lifecycle == "removal-pending":
+            state_present = entry_present(state)
+            tombstone_present = entry_present(tombstone)
+            removal_tombstone = _owned_tree_tombstone_path(tombstone, identity)
+            removal_tombstone_present = (
+                entry_present(removal_tombstone)
+            )
+            if state_present and tombstone_present:
+                raise WorkspaceError(
+                    f"temporary state removal paths conflict: {state}"
+                )
+            if state_present:
+                observed_state = (
+                    self._state_identity(state)
+                    if state_container_fd is None
+                    else {
+                        "device": (
+                            state_metadata := os.stat(
+                                state.name,
+                                dir_fd=state_container_fd,
+                                follow_symlinks=False,
+                            )
+                        ).st_dev,
+                        "inode": state_metadata.st_ino,
+                    }
+                )
+                if observed_state != identity:
+                    raise WorkspaceError(
+                        f"temporary state identity changed before removal: {state}"
+                    )
+                if state_directory_fd is None:
+                    raise WorkspaceError(
+                        "temporary state integrity lease is missing while "
+                        "resuming removal"
+                    )
+                self._validate_temporary_state_integrity(
+                    state_directory_fd, state, policy["implementation"]
+                )
+                if state_container_fd is None:
+                    rename_no_replace(state, tombstone)
+                else:
+                    rename_no_replace_at(
+                        state_container_fd,
+                        state.name,
+                        state_container_fd,
+                        tombstone.name,
+                    )
+                tombstone_present = True
+            if tombstone_present:
+                tombstone_metadata = (
+                    tombstone.stat(follow_symlinks=False)
+                    if state_container_fd is None
+                    else os.stat(
+                        tombstone.name,
+                        dir_fd=state_container_fd,
+                        follow_symlinks=False,
+                    )
+                )
+                if (
+                    not stat.S_ISDIR(tombstone_metadata.st_mode)
+                    or {
+                        "device": tombstone_metadata.st_dev,
+                        "inode": tombstone_metadata.st_ino,
+                    }
+                    != identity
+                ):
+                    raise WorkspaceError(
+                        f"temporary state removal identity is invalid: {tombstone}"
+                    )
+            if not (tombstone_present or removal_tombstone_present):
+                raise WorkspaceError(
+                    f"temporary state removal ownership evidence is missing: {state}"
+                )
+            if tombstone_present or removal_tombstone_present:
+                remove_owned_tree(
+                    tombstone,
+                    expected_identity=identity,
+                    keep_root=True,
+                    reject_links=True,
+                    parent_directory_fd=state_container_fd,
+                )
+                if removal_tombstone_present and not entry_present(tombstone):
+                    if state_container_fd is None:
+                        rename_no_replace(removal_tombstone, tombstone)
+                    else:
+                        rename_no_replace_at(
+                            state_container_fd,
+                            removal_tombstone.name,
+                            state_container_fd,
+                            tombstone.name,
+                        )
+            removed = {**policy, "lifecycle": "removed"}
+            current = self._write_temporary_state_policy(name, current, removed)
+            policy = current["state_policy"]
+        if entry_present(tombstone):
+            metadata = (
+                tombstone.stat(follow_symlinks=False)
+                if state_container_fd is None
+                else os.stat(
+                    tombstone.name,
+                    dir_fd=state_container_fd,
+                    follow_symlinks=False,
+                )
+            )
+            tombstone_fd = (
+                None
+                if state_container_fd is None
+                else os.open(
+                    tombstone.name,
+                    os.O_RDONLY
+                    | os.O_CLOEXEC
+                    | os.O_DIRECTORY
+                    | os.O_NOFOLLOW,
+                    dir_fd=state_container_fd,
+                )
+            )
+            if (
+                not stat.S_ISDIR(metadata.st_mode)
+                or (metadata.st_dev, metadata.st_ino)
+                != (identity["device"], identity["inode"])
+                or (
+                    any(tombstone.iterdir())
+                    if tombstone_fd is None
+                    else bool(os.listdir(tombstone_fd))
+                )
+            ):
+                if tombstone_fd is not None:
+                    os.close(tombstone_fd)
+                raise WorkspaceError(
+                    f"temporary state removal root is invalid: {tombstone}"
+                )
+            if tombstone_fd is not None:
+                os.close(tombstone_fd)
+                os.rmdir(tombstone.name, dir_fd=state_container_fd)
+                os.fsync(state_container_fd)
+            else:
+                tombstone.rmdir()
+                _fsync_directory(tombstone.parent)
+        self._unlink_temporary_state_lock(
+            state,
+            state_lease,
+            policy["lease_identity"],
+            state_container_fd,
+        )
+        return self.topology_status(name)
+
+    def _finish_temporary_state_down(
+        self,
+        name: str,
+        status: dict[str, Any],
+        retain_state: bool,
+        confirmed_clean: bool,
+    ) -> dict[str, Any]:
+        policy = status.get("state_policy")
+        if not isinstance(policy, dict) or policy.get("mode") != "temporary":
+            return status
+        if policy.get("lifecycle") in {
+            "promoted",
+            "promotion-pending",
+            "retained",
+        }:
+            return status
+        if retain_state and policy.get("lifecycle") in {
+            "removal-pending",
+            "removed",
+        }:
+            raise WorkspaceError(
+                "temporary state removal has already begun and cannot be retained"
+            )
+        if not confirmed_clean and policy.get("lifecycle") != "removal-pending":
+            if retain_state:
+                raise WorkspaceError(
+                    f"topology {name} did not complete a confirmed clean down; "
+                    "temporary state was retained for diagnosis"
+                )
+            return status
+        state = Path(policy["path"])
+        lock_path = Path(f"{state}.lock")
+        if policy.get("lifecycle") == "removed":
+            if not (lock_path.exists() or lock_path.is_symlink()):
+                container_fd = self._open_temporary_state_container_for_mutation(
+                    name, state
+                )
+                try:
+                    self._finish_temporary_state_lock_tombstone(
+                        state, policy["lease_identity"], container_fd
+                    )
+                finally:
+                    os.close(container_fd)
+                return status
+        with exclusive_lock(
+            lock_path,
+            f"temporary topology state {state}",
+            nonblocking=True,
+        ) as state_lease:
+            self._validate_temporary_state_lock(
+                state, state_lease, policy["lease_identity"]
+            )
+            current = self.topology_status(name)
+            if current.get("state_policy") != policy:
+                raise WorkspaceError(
+                    f"temporary topology state changed before down finalization: {name}"
+                )
+            if retain_state:
+                retained = {**policy, "lifecycle": "retained"}
+                return self._write_temporary_state_policy(name, current, retained)
+            removal_path = self._temporary_state_removal_path(policy)
+            removal_root_tombstone = _owned_tree_tombstone_path(
+                removal_path, policy["identity"]
+            )
+            mutation_path = next(
+                (
+                    candidate
+                    for candidate in (state, removal_path, removal_root_tombstone)
+                    if candidate.exists() or candidate.is_symlink()
+                ),
+                None,
+            )
+            if mutation_path is None:
+                container_fd = self._open_temporary_state_container_for_mutation(
+                    name, state
+                )
+                try:
+                    return self._commit_temporary_state_removal(
+                        name,
+                        current,
+                        state_lease,
+                        state_container_fd=container_fd,
+                    )
+                finally:
+                    os.close(container_fd)
+            container_fd = self._open_temporary_state_container_for_mutation(
+                name, state
+            )
+            mutation_fd: int | None = None
+            try:
+                mutation_fd = self._lock_state_directory_mutation(
+                    mutation_path, policy["identity"]
+                )
+                if policy.get("lifecycle") not in {
+                    "removal-pending",
+                    "removed",
+                }:
+                    try:
+                        self._validate_temporary_state_integrity(
+                            mutation_fd, state, policy["implementation"]
+                        )
+                    except WorkspaceError as error:
+                        retained = {**policy, "lifecycle": "retained"}
+                        self._write_temporary_state_policy(
+                            name, current, retained
+                        )
+                        raise WorkspaceError(
+                            f"temporary state was retained because its integrity "
+                            f"could not be proved: {state}: {error}"
+                        ) from error
+                return self._commit_temporary_state_removal(
+                    name,
+                    current,
+                    state_lease,
+                    mutation_fd,
+                    container_fd,
+                )
+            finally:
+                if mutation_fd is not None:
+                    os.close(mutation_fd)
+                os.close(container_fd)
+
+    def state_promote(self, topology_name: str, state_name: str) -> dict[str, Any]:
+        """Promote one stopped, explicitly retained temporary state in place."""
+
+        validate_name(state_name, "state name")
+        if state_name == "default":
+            raise WorkspaceError("temporary state cannot be promoted as default")
+        root = self._topology_directory(topology_name)
+        with exclusive_lock(
+            root / "operation.lock",
+            f"topology {topology_name} operation",
+            nonblocking=True,
+        ):
+            status = self.topology_status(topology_name)
+            policy = status.get("state_policy")
+            if (
+                isinstance(policy, dict)
+                and policy.get("mode") == "temporary"
+                and policy.get("lifecycle") == "promoted"
+            ):
+                state = Path(policy["path"])
+                states = self._load_states()
+                if (
+                    policy.get("name") == state_name
+                    and states.get(state_name) is not None
+                    and self._canonical_state_path(Path(states[state_name])) == state
+                    and (state / PROMOTED_STATE_METADATA).is_file()
+                    and not (state / PROMOTED_STATE_METADATA).is_symlink()
+                ):
+                    self._promoted_state_owner(state_name, state)
+                    return {
+                        "topology": topology_name,
+                        "name": state_name,
+                        "path": str(state),
+                        "state_policy": policy,
+                    }
+            if (
+                not isinstance(policy, dict)
+                or policy.get("mode") != "temporary"
+                or policy.get("lifecycle")
+                not in {"retained", "promotion-pending", "promoted"}
+            ):
+                raise WorkspaceError(
+                    f"topology does not have a retained temporary state: {topology_name}"
+                )
+            if (
+                status["supervisor"]["running"]
+                or any(service["running"] for service in status["services"].values())
+                or status["observation"]["process_tree_lease"] == "retained"
+            ):
+                raise WorkspaceError(
+                    f"temporary topology state is still active: {topology_name}"
+                )
+            if (
+                policy.get("lifecycle") == "promotion-pending"
+                and policy.get("name") != state_name
+            ):
+                raise WorkspaceError(
+                    "temporary state promotion target cannot change while "
+                    f"promotion is pending: {policy.get('name')}"
+                )
+            state = Path(policy["path"])
+            with ExitStack() as promotion:
+                state_lease = promotion.enter_context(
+                    exclusive_lock(
+                        Path(f"{state}.lock"),
+                        f"temporary topology state {state}",
+                        nonblocking=True,
+                    )
+                )
+                self._validate_temporary_state_lock(
+                    state, state_lease, policy["lease_identity"]
+                )
+                state_fd = os.open(
+                    state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+                )
+                promotion.callback(os.close, state_fd)
+                opened_state = os.fstat(state_fd)
+                try:
+                    fcntl.flock(state_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except OSError as error:
+                    if error.errno in {errno.EACCES, errno.EAGAIN}:
+                        raise WorkspaceError(
+                            f"temporary state is already in use: {state}"
+                        ) from error
+                    raise WorkspaceError(
+                        f"cannot lock temporary state for promotion: {state}: {error}"
+                    ) from error
+
+                def verify_visible_state() -> None:
+                    visible_state = state.stat(follow_symlinks=False)
+                    if (
+                        not stat.S_ISDIR(visible_state.st_mode)
+                        or self._canonical_state_path(state) != state
+                        or {
+                            "device": opened_state.st_dev,
+                            "inode": opened_state.st_ino,
+                        }
+                        != policy.get("identity")
+                        or (visible_state.st_dev, visible_state.st_ino)
+                        != (opened_state.st_dev, opened_state.st_ino)
+                    ):
+                        raise WorkspaceError(
+                            f"temporary state changed during promotion: {state}"
+                        )
+
+                verify_visible_state()
+                self._validate_temporary_state_integrity(
+                    state_fd, state, policy["implementation"]
+                )
+                with exclusive_lock(
+                    self.paths.workspace / "states.lock", "states registry"
+                ):
+                    states = self._load_states()
+                    existing = states.get(state_name)
+                    if existing is not None and self._canonical_state_path(
+                        Path(existing)
+                    ) != state:
+                        raise WorkspaceError(f"state already exists: {state_name}")
+                    aliases = [
+                        name
+                        for name, value in states.items()
+                        if name != state_name
+                        and self._canonical_state_path(Path(value)) == state
+                    ]
+                    if aliases:
+                        raise WorkspaceError(
+                            f"temporary state is already registered as: {aliases[0]}"
+                        )
+                    pending = {
+                        **policy,
+                        "name": state_name,
+                        "lifecycle": "promotion-pending",
+                    }
+                    if policy != pending:
+                        status = self._write_temporary_state_policy(
+                            topology_name, status, pending
+                        )
+                    owner = pending.get("owner")
+                    if not isinstance(owner, dict) or not isinstance(
+                        owner.get("generation"), str
+                    ):
+                        raise WorkspaceError(
+                            "temporary state promotion owner is invalid"
+                        )
+                    provenance = {
+                        "schema_version": SCHEMA_VERSION,
+                        "name": state_name,
+                        "path": str(state),
+                        "topology": topology_name,
+                        "generation": owner["generation"],
+                        "identity": policy["identity"],
+                    }
+                    provenance_path = state / PROMOTED_STATE_METADATA
+                    try:
+                        provenance_metadata = os.stat(
+                            PROMOTED_STATE_METADATA,
+                            dir_fd=state_fd,
+                            follow_symlinks=False,
+                        )
+                    except FileNotFoundError:
+                        provenance_metadata = None
+                    if provenance_metadata is not None:
+                        if not stat.S_ISREG(provenance_metadata.st_mode) or (
+                            load_regular_json_at(
+                                state_fd,
+                                PROMOTED_STATE_METADATA,
+                                "promoted state provenance",
+                            )
+                            != provenance
+                        ):
+                            raise WorkspaceError(
+                                f"promoted state provenance is invalid: {provenance_path}"
+                            )
+                    else:
+                        durable_atomic_json_at(
+                            state_fd, PROMOTED_STATE_METADATA, provenance
+                        )
+                    verify_visible_state()
+                    registry_added = False
+                    if existing is None:
+                        states[state_name] = str(state)
+                        durable_atomic_json(
+                            self.paths.states_file,
+                            {"schema_version": SCHEMA_VERSION, "states": states},
+                        )
+                        registry_added = True
+                    try:
+                        verify_visible_state()
+                    except BaseException:
+                        if registry_added:
+                            del states[state_name]
+                            durable_atomic_json(
+                                self.paths.states_file,
+                                {
+                                    "schema_version": SCHEMA_VERSION,
+                                    "states": states,
+                                },
+                            )
+                        raise
+                    promoted = {**pending, "lifecycle": "promoted"}
+                    try:
+                        status = self._write_temporary_state_policy(
+                            topology_name, status, promoted
+                        )
+                        verify_visible_state()
+                    except BaseException:
+                        status_path = root / "status.json"
+                        raw_status = load_regular_json(
+                            status_path, "temporary state promotion status"
+                        )
+                        if raw_status.get("state_policy") == promoted:
+                            durable_atomic_json(
+                                status_path,
+                                {**raw_status, "state_policy": pending},
+                            )
+                        if registry_added and states.get(state_name) is not None:
+                            del states[state_name]
+                            durable_atomic_json(
+                                self.paths.states_file,
+                                {
+                                    "schema_version": SCHEMA_VERSION,
+                                    "states": states,
+                                },
+                            )
+                        raise
+                    return {
+                        "topology": topology_name,
+                        "name": state_name,
+                        "path": str(state),
+                        "state_policy": status["state_policy"],
+                    }
 
     def _legacy_topology_down(
         self, name: str, status: dict[str, Any], timeout: float
@@ -8132,6 +15602,18 @@ class Workspace:
         paths = [(item, path) for item, path in paths if path.is_file()]
         if not paths:
             raise WorkspaceError(f"topology has no matching logs: {name}")
+        policy: object = None
+        status_path = root / "status.json"
+        if status_path.is_file() and not status_path.is_symlink():
+            raw_status = load_regular_json(status_path, "topology status")
+            if isinstance(raw_status, dict):
+                policy = raw_status.get("state_policy")
+        if isinstance(policy, dict) and self._log_state_policy_is_safe(policy):
+            print(
+                "==> state-policy "
+                f"mode={policy['mode']} owner={json.dumps(policy['owner'], sort_keys=True)} "
+                f"path={policy['path']} lifecycle={policy['lifecycle']} <=="
+            )
         positions: dict[Path, tuple[int, int, int]] = {}
         for item, path in paths:
             with os.fdopen(
@@ -8186,6 +15668,31 @@ class Workspace:
                 break
             time.sleep(0.25)
 
+    @staticmethod
+    def _log_state_policy_is_safe(policy: dict[str, Any]) -> bool:
+        mode = policy.get("mode")
+        path = policy.get("path")
+        owner = policy.get("owner")
+        lifecycle = policy.get("lifecycle")
+        return bool(
+            mode in {"temporary", "named", "default"}
+            and isinstance(path, str)
+            and Path(path).is_absolute()
+            and "\n" not in path
+            and "\r" not in path
+            and isinstance(owner, dict)
+            and all(
+                isinstance(key, str)
+                and isinstance(value, str)
+                and "\n" not in value
+                and "\r" not in value
+                for key, value in owner.items()
+            )
+            and isinstance(lifecycle, str)
+            and "\n" not in lifecycle
+            and "\r" not in lifecycle
+        )
+
     def run_client(
         self,
         profile_name: str,
@@ -8195,18 +15702,36 @@ class Workspace:
         dry_run: bool,
     ) -> Path:
         self.paths.ensure()
-        with shared_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ) as layout_lock:
-            return self._run_client(
+        with self._resolved_profile_operation(
+            profile_name, {"client"}, "publish foreground client runtime"
+        ):
+            prepared = self._run_client(
                 profile_name,
                 state_name,
                 port,
                 arguments,
                 dry_run,
-                layout_lock=layout_lock,
             )
+        if not isinstance(prepared, dict):
+            return prepared
+        runtime_fd = prepared["runtime_fd"]
+        generation_root = prepared["generation_root"]
+        try:
+            if not dry_run:
+                self._require_client_display()
+                environment = os.environ.copy()
+                environment[CLIENT_LAUNCH_LABEL_ENV] = prepared["launch_label"]
+                run(
+                    prepared["command"],
+                    cwd=prepared["cwd"],
+                    env=environment,
+                    diagnostics_to_stderr=False,
+                    pass_fds=(runtime_fd,),
+                )
+            return prepared["executable"]
+        finally:
+            os.close(runtime_fd)
+            remove_owned_tree(generation_root)
 
     def _run_client(
         self,
@@ -8217,19 +15742,73 @@ class Workspace:
         dry_run: bool,
         *,
         layout_lock: TextIO | None = None,
-    ) -> Path:
+    ) -> dict[str, Any] | Path:
         self._validate_run_port(port)
         launch_label = client_launch_label(profile_name)
         self._require_classic_contracts(profile_name, {"client"})
         state = self._state_location(state_name)
         self._validate_state(state)
         fingerprint = self._server_identity_fingerprint(state)
-        root = self._build("client", profile_name, tests=False)
-        with self._profile_build_lock(root, profile_name) as build_lock:
-            executable = self._classic_binary_directory(root, "client") / "atrinik"
-            working = root / "sources" / "client"
-            if not executable.is_file():
-                raise WorkspaceError(f"client executable is missing: {executable}")
+        targets = self._expand_build_target("client", profile_name)
+        selected = self._resolve_build_profile(profile_name, {"client"})
+        root = self._build_resolved(
+            "client", profile_name, False, targets, selected
+        )
+        with self._profile_build_lock(root, profile_name):
+            build_metadata = load_json(root / BUILD_METADATA)
+            try:
+                validated_sound = validate_sound_record(build_metadata.get("sound"))
+            except WorkspaceError as error:
+                raise WorkspaceError(
+                    f"build sound metadata is invalid for profile {profile_name}"
+                ) from error
+            profile = self._load_profile(profile_name, require_file=False)
+            selected_stack = self.manifest.stack(profile["stack"])
+            if validated_sound["mode"] != profile["sound_mode"]:
+                raise WorkspaceError(
+                    f"profile {profile_name} sound mode does not match build metadata"
+                )
+            sound_root = Path(validated_sound["root"])
+            if validated_sound["mode"] == PLAYTEST_MODE:
+                inputs = clean_source_inputs(selected["sound"])
+                if verify_playtest_tree(selected["sound"], sound_root, inputs) != (
+                    validated_sound
+                ):
+                    raise WorkspaceError(
+                        f"profile {profile_name} local-playtest sound record changed "
+                        "before foreground publication"
+                    )
+            elif sound_root.resolve() != selected["sound"].resolve():
+                raise WorkspaceError(
+                    f"profile {profile_name} source sound root changed before "
+                    "foreground publication"
+                )
+            resolved = self._topology_resolved_status(profile_name, selected)
+            generation = secrets.token_hex(32)
+            generation_root, runtime_fd, _runtime_record, state_output_fd = (
+                self._publish_runtime_generation(
+                    self._foreground_runtime_owner(),
+                    generation,
+                    profile_name,
+                    root,
+                    selected,
+                    resolved,
+                    ["client"],
+                    identity={
+                        "kind": "foreground-client",
+                        "stack": selected_stack.name,
+                        "providers": {
+                            role: selected_stack.providers[role].name
+                            for role in sorted(selected)
+                        },
+                    },
+                    sound_root=sound_root,
+                )
+            )
+            if state_output_fd is not None:
+                os.close(state_output_fd)
+            working = generation_root / "client"
+            executable = working / "atrinik"
             command = [
                 str(executable),
                 f"--server=127.0.0.1 {port} {fingerprint}",
@@ -8239,24 +15818,17 @@ class Workspace:
             ]
             print(f"state: {state}")
             print(f"cwd: {working}")
+            print(f"runtime generation: {generation}")
             print(f"launch label: {launch_label}")
             print(f"command: {display_arguments(command)}")
-            if not dry_run:
-                self._require_client_display()
-                environment = os.environ.copy()
-                environment[CLIENT_LAUNCH_LABEL_ENV] = launch_label
-                run(
-                    command,
-                    cwd=working,
-                    env=environment,
-                    diagnostics_to_stderr=False,
-                    pass_fds=tuple(
-                        lease.fileno()
-                        for lease in (layout_lock, build_lock)
-                        if lease is not None
-                    ),
-                )
-            return executable
+            return {
+                "command": command,
+                "cwd": working,
+                "executable": executable,
+                "generation_root": generation_root,
+                "runtime_fd": runtime_fd,
+                "launch_label": launch_label,
+            }
 
     def run_server(
         self,
@@ -8267,18 +15839,61 @@ class Workspace:
         dry_run: bool,
     ) -> Path:
         self.paths.ensure()
-        with shared_lock(
-            self.paths.workspace / "repository-layout.lock",
-            "repository layout",
-        ) as layout_lock:
-            return self._run_server(
+        with self._resolved_profile_operation(
+            profile_name, {"server"}, "publish foreground server runtime"
+        ):
+            prepared = self._run_server(
                 profile_name,
                 state_name,
                 port,
                 arguments,
                 dry_run,
-                layout_lock=layout_lock,
             )
+        if not isinstance(prepared, dict):
+            return prepared
+        runtime_fd = prepared["runtime_fd"]
+        state_fd = prepared["state_fd"]
+        state_lock_fd = prepared["state_lock_fd"]
+        physical_state_lock_fd = prepared["physical_state_lock_fd"]
+        state_output_fd = prepared["state_output_fd"]
+        generation_root = prepared["generation_root"]
+        state_output = prepared["state_output"]
+        try:
+            if not dry_run:
+                run(
+                    prepared["command"],
+                    cwd=prepared["cwd"],
+                    diagnostics_to_stderr=False,
+                    pass_fds=tuple(
+                        descriptor
+                        for descriptor in (
+                            runtime_fd,
+                            state_fd,
+                            state_lock_fd,
+                            physical_state_lock_fd,
+                            state_output_fd,
+                        )
+                        if descriptor is not None
+                    ),
+                )
+            return prepared["executable"]
+        finally:
+            try:
+                if state_output is not None:
+                    self._remove_runtime_state_output(
+                        state_output,
+                        generation_root.name,
+                        state_fd,
+                        prepared["state_output_identity"],
+                    )
+            finally:
+                if physical_state_lock_fd is not None:
+                    os.close(physical_state_lock_fd)
+                os.close(state_output_fd)
+                os.close(state_lock_fd)
+                os.close(state_fd)
+                os.close(runtime_fd)
+                remove_owned_tree(generation_root)
 
     def _run_server(
         self,
@@ -8289,26 +15904,117 @@ class Workspace:
         dry_run: bool,
         *,
         layout_lock: TextIO | None = None,
-    ) -> Path:
+    ) -> dict[str, Any] | Path:
         self._validate_run_port(port)
         self._require_classic_contracts(profile_name, {"server"})
         targets = self._expand_build_target("server", profile_name)
         selected = self._resolve_build_profile(profile_name, {"server"})
         state_location = self._state_location(state_name)
-        lock_path = Path(f"{state_location}.lock")
-        with exclusive_lock(
-            lock_path, f"server state {state_location}", nonblocking=True
-        ) as state_lock:
+        with self._topology_state_lock(state_location) as state_lock:
             root = self._build_resolved(
                 "server", profile_name, False, targets, selected
             )
-            with self._profile_build_lock(root, profile_name) as build_lock:
-                state = self.state_path(
-                    state_name, selected["server"], resolved_path=state_location
+            with self._profile_build_lock(root, profile_name):
+                resolved = self._topology_resolved_status(profile_name, selected)
+                profile = self._load_profile(profile_name, require_file=False)
+                selected_stack = self.manifest.stack(profile["stack"])
+                providers = {
+                    role: selected_stack.providers[role].name
+                    for role in sorted(selected)
+                }
+                implementation = self._state_implementation(
+                    selected_stack.name, providers, resolved
                 )
-                runtime = self._prepare_server_runtime(
-                    root, selected, state, state_name
+                prepared_state = self.state_path(
+                    state_name,
+                    selected["server"],
+                    resolved_path=state_location,
+                    implementation=implementation,
+                    write_implementation=True,
+                    keep_descriptor=True,
                 )
+                assert isinstance(prepared_state, tuple)
+                state, state_fd = prepared_state
+                opened_state = os.fstat(state_fd)
+                try:
+                    state_lock.bind(
+                        {
+                            "device": opened_state.st_dev,
+                            "inode": opened_state.st_ino,
+                        }
+                    )
+                except BaseException:
+                    os.close(state_fd)
+                    raise
+                generation = secrets.token_hex(32)
+                try:
+                    (
+                        generation_root,
+                        runtime_fd,
+                        _runtime_record,
+                        state_output_fd,
+                    ) = (
+                        self._publish_runtime_generation(
+                            self._foreground_runtime_owner(),
+                            generation,
+                            profile_name,
+                            root,
+                            selected,
+                            resolved,
+                            ["server"],
+                            identity={
+                                "kind": "foreground-server",
+                                "stack": selected_stack.name,
+                                "providers": providers,
+                            },
+                            state=state,
+                            state_directory_fd=state_fd,
+                        )
+                    )
+                except BaseException:
+                    os.close(state_fd)
+                    raise
+                state_output = (
+                    Path(_runtime_record["mutable_state_outputs"][0])
+                    if _runtime_record["mutable_state_outputs"]
+                    else None
+                )
+                state_output_identity = (
+                    _runtime_record["mutable_state_output_identities"][0]
+                    if _runtime_record["mutable_state_output_identities"]
+                    else None
+                )
+                assert state_output_fd is not None
+                state_lock_fd: int | None = None
+                physical_state_lock_fd: int | None = None
+                try:
+                    state_lock_fd = os.dup(state_lock.fileno())
+                    physical_state_lock_fd = (
+                        os.dup(state_lock.physical_lock.fileno())
+                        if state_lock.physical_lock is not None
+                        else None
+                    )
+                except BaseException:
+                    if physical_state_lock_fd is not None:
+                        os.close(physical_state_lock_fd)
+                    if state_lock_fd is not None:
+                        os.close(state_lock_fd)
+                    try:
+                        if state_output is not None:
+                            self._remove_runtime_state_output(
+                                state_output,
+                                generation,
+                                state_fd,
+                                state_output_identity,
+                            )
+                    finally:
+                        os.close(state_output_fd)
+                        os.close(state_fd)
+                        os.close(runtime_fd)
+                        remove_owned_tree(generation_root)
+                    raise
+                assert state_lock_fd is not None
+                runtime = generation_root / "server"
                 executable = runtime / "atrinik-server"
                 command = [
                     str(executable),
@@ -8316,23 +16022,49 @@ class Workspace:
                     "--port_mapping=off",
                     "--stun_server=off",
                     *arguments,
-                    f"--assetspath={runtime / 'assets'}",
+                    f"--datapath=/proc/self/fd/{state_fd}",
+                    f"--assetspath=/proc/self/fd/{state_output_fd}",
                 ]
                 print(f"state: {state}")
                 print(f"cwd: {runtime}")
+                print(f"runtime generation: {generation}")
                 print(f"command: {display_arguments(command)}")
-                if not dry_run:
-                    run(
-                        command,
-                        cwd=runtime,
-                        diagnostics_to_stderr=False,
-                        pass_fds=tuple(
-                            lease.fileno()
-                            for lease in (layout_lock, state_lock, build_lock)
-                            if lease is not None
-                        ),
-                    )
-                return executable
+                return {
+                    "command": command,
+                    "cwd": runtime,
+                    "executable": executable,
+                    "generation_root": generation_root,
+                    "runtime_fd": runtime_fd,
+                    "state_fd": state_fd,
+                    "state_lock_fd": state_lock_fd,
+                    "physical_state_lock_fd": physical_state_lock_fd,
+                    "state_output": state_output,
+                    "state_output_identity": state_output_identity,
+                    "state_output_fd": state_output_fd,
+                }
+
+    def _foreground_runtime_owner(self) -> Path:
+        root = self.paths.workspace / "foreground-runs"
+        metadata = {
+            "schema_version": SCHEMA_VERSION,
+            "purpose": "foreground-runtime-generations",
+        }
+        marker = root / MANAGED_MARKER
+        if root.exists() or root.is_symlink():
+            if (
+                not root.is_dir()
+                or root.is_symlink()
+                or not marker.is_file()
+                or marker.is_symlink()
+                or load_json(marker) != metadata
+            ):
+                raise WorkspaceError(
+                    f"foreground runtime container is invalid: {root}"
+                )
+        else:
+            root.mkdir()
+            atomic_json(marker, metadata)
+        return root
 
     @staticmethod
     def _validate_run_port(port: int) -> None:
