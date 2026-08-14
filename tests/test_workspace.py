@@ -5450,7 +5450,9 @@ class WorkspaceTests(unittest.TestCase):
         )
         os.close(output_fd)
         os.close(state_fd)
-        displaced = output.parent / "operator-renamed-output"
+        quarantine = state / "quarantine"
+        quarantine.mkdir()
+        displaced = quarantine / "operator-renamed-output"
         output.rename(displaced)
         status = {
             "name": "runtime-output-recovery",
@@ -5472,7 +5474,9 @@ class WorkspaceTests(unittest.TestCase):
             "topology_status",
             side_effect=lambda _name: load_json(status_path),
         ):
-            with self.assertRaisesRegex(WorkspaceError, "was renamed"):
+            with self.assertRaisesRegex(
+                WorkspaceError, "ownership evidence is missing"
+            ):
                 self.workspace._cleanup_topology_mutable_state_outputs(status)
             pending = load_json(status_path)
             self.assertEqual(
@@ -5488,6 +5492,99 @@ class WorkspaceTests(unittest.TestCase):
             "complete",
         )
         self.assertFalse(output.exists())
+        output.mkdir()
+        with (
+            mock.patch.object(
+                self.workspace,
+                "topology_status",
+                side_effect=lambda _name: load_json(status_path),
+            ),
+            self.assertRaisesRegex(WorkspaceError, "output reappeared"),
+        ):
+            self.workspace._cleanup_topology_mutable_state_outputs(completed)
+
+    def test_interrupted_runtime_output_publication_is_recovered(self) -> None:
+        topology = self.workspace._topology_directory(
+            "runtime-output-transaction", create=True
+        )
+        state = self.root / "runtime-output-transaction-state"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "f" * 64
+        output, output_fd, output_identity = (
+            self.workspace._prepare_runtime_state_output(
+                state, generation, state_fd
+            )
+        )
+        os.close(output_fd)
+        os.close(state_fd)
+        transaction = topology / workspace_module.RUNTIME_STATE_OUTPUT_TRANSACTION
+        atomic_json(
+            transaction,
+            {
+                "schema_version": 1,
+                "generation": generation,
+                "state": str(state),
+                "state_identity": self.workspace._state_identity(state),
+                "phase": "prepared",
+                "output_identity": output_identity,
+            },
+        )
+        preview = self.workspace.cleanup(["topologies"], 0, [], False)
+        topology_item = next(
+            item
+            for item in preview["items"]
+            if item["path"] == str(topology)
+        )
+        self.assertEqual(topology_item["disposition"], "protected")
+        self.assertIn(
+            "runtime_state_output_transaction_pending",
+            topology_item["reasons"],
+        )
+
+        self.workspace._recover_runtime_state_output_transaction(
+            topology, "runtime-output-transaction"
+        )
+
+        self.assertFalse(output.exists())
+        self.assertFalse(transaction.exists())
+
+    def test_runtime_output_removal_retries_from_empty_tombstone(self) -> None:
+        state = self.root / "runtime-output-removal-retry"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "1" * 64
+        output, output_fd, output_identity = (
+            self.workspace._prepare_runtime_state_output(
+                state, generation, state_fd
+            )
+        )
+        os.close(output_fd)
+        original_remove = workspace_module._remove_owned_tree_contents
+
+        def remove_then_interrupt(*args: object, **kwargs: object) -> None:
+            original_remove(*args, **kwargs)
+            raise WorkspaceError("simulated output removal interruption")
+
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace._remove_owned_tree_contents",
+                    side_effect=remove_then_interrupt,
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError, "simulated output removal interruption"
+                ),
+            ):
+                self.workspace._remove_runtime_state_output(
+                    output, generation, state_fd, output_identity
+                )
+            self.workspace._remove_runtime_state_output(
+                output, generation, state_fd, output_identity
+            )
+            self.assertFalse(output.exists())
+        finally:
+            os.close(state_fd)
 
     def test_schema_two_restart_preserves_unowned_mutable_output(self) -> None:
         topology = self.workspace._topology_directory(
@@ -5502,6 +5599,19 @@ class WorkspaceTests(unittest.TestCase):
             "services": {"server": {"running": False}},
             "runtime": {"mutable_state_outputs": [str(output)]},
         }
+        with (
+            mock.patch.object(
+                self.workspace, "topology_status", return_value=previous
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "legacy mutable state output"
+            ),
+        ):
+            self.workspace.topology_up(
+                "legacy-output", "default", "default", ["server"], 0
+            )
+        digest = hashlib.sha256(output.name.encode("utf-8")).hexdigest()[:16]
+        output.rename(output.parent / f".remove-{digest}-1-2")
         with (
             mock.patch.object(
                 self.workspace, "topology_status", return_value=previous
@@ -12273,9 +12383,21 @@ class WorkspaceTests(unittest.TestCase):
         generation = "a" * 64
         server = self.workspace.paths.repositories / "server"
         coordinate = self.scenario_resolved_fixture()["server"]
+        real_rename_at = workspace_module.rename_no_replace_at
+
+        def interrupt_publication(
+            source_fd: int,
+            source: str,
+            destination_fd: int,
+            destination: str,
+        ) -> None:
+            if destination == generation:
+                raise WorkspaceError("simulated interruption")
+            real_rename_at(source_fd, source, destination_fd, destination)
+
         with mock.patch(
-            "atrinik_workspace.workspace.rename_no_replace",
-            side_effect=WorkspaceError("simulated interruption"),
+            "atrinik_workspace.workspace.rename_no_replace_at",
+            side_effect=interrupt_publication,
         ):
             with self.assertRaisesRegex(WorkspaceError, "simulated interruption"):
                 self.workspace._create_temporary_state(
@@ -12294,6 +12416,62 @@ class WorkspaceTests(unittest.TestCase):
         container = topology / "temporary-states"
         self.assertEqual(
             {path.name for path in container.iterdir()}, {MANAGED_MARKER}
+        )
+
+    def test_temporary_state_publication_rejects_container_replacement(self) -> None:
+        topology = self.workspace._topology_directory(
+            "container-replaced", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        generation = "b" * 64
+        original_copytree = shutil.copytree
+        displaced = topology / "displaced-temporary-states"
+        replacement = topology / "temporary-states"
+
+        def replace_container(*args: object, **kwargs: object) -> object:
+            result = original_copytree(*args, **kwargs)
+            if Path(args[0]) != server / "install_data":
+                return result
+            replacement.rename(displaced)
+            replacement.mkdir()
+            atomic_json(
+                replacement / MANAGED_MARKER,
+                {
+                    "schema_version": 1,
+                    "purpose": "topology-temporary-states",
+                },
+            )
+            (replacement / "sentinel").write_text(
+                "preserve\n", encoding="utf-8"
+            )
+            return result
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.shutil.copytree",
+                side_effect=replace_container,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "identity changed"),
+        ):
+            self.workspace._create_temporary_state(
+                topology,
+                "container-replaced",
+                "default",
+                generation,
+                server,
+                {
+                    "stack": "default",
+                    "provider": "server",
+                    "repository": "atrinik/server",
+                },
+                self.scenario_resolved_fixture()["server"],
+            )
+        self.assertEqual(
+            (replacement / "sentinel").read_text(encoding="utf-8"),
+            "preserve\n",
+        )
+        self.assertEqual(
+            {path.name for path in displaced.iterdir()}, {MANAGED_MARKER}
         )
 
     def test_temporary_startup_rollback_removes_state_and_lease(self) -> None:

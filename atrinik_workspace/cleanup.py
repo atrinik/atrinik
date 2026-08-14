@@ -39,6 +39,7 @@ from .workspace import (
     WORKER_DEPENDENCY_SCHEMA_VERSION,
     COMPILER_CACHE_MAX_SIZE,
     COMPILER_CACHE_PURPOSE,
+    RUNTIME_STATE_OUTPUT_TRANSACTION,
     TEMPORARY_STATE_METADATA,
     TEMPORARY_STATE_SCHEMA_VERSION,
     _descriptor_mount_id,
@@ -1330,6 +1331,9 @@ class Cleanup:
         if tree_error is not None:
             reasons.append("invalid_topology_tree")
             item["error"] = tree_error
+        output_transaction = path / RUNTIME_STATE_OUTPUT_TRANSACTION
+        if output_transaction.exists() or output_transaction.is_symlink():
+            reasons.append("runtime_state_output_transaction_pending")
 
         temporary_container = path / "temporary-states"
         if temporary_container.exists() or temporary_container.is_symlink():

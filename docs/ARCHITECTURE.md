@@ -685,7 +685,11 @@ The server consumes the pinned directory, including pre-option configuration
 reads and disposable runtime output, through its inherited descriptor even if
 an external path component is replaced after admission. Rollback removes that
 output relative to the same pinned descriptor and never follows the replaced
-lexical path.
+lexical path. Before creating a topology-owned mutable output, startup durably
+records its generation and state identity; after creation it adds the output
+inode. A restart either adopts that evidence from a published status record or
+completes the exact tombstone transaction before creating another generation,
+so a hard interruption cannot silently orphan the output.
 
 The current topology record and human/JSON status surfaces retain the state
 policy, owner, exact path identity, implementation, and lifecycle. A same-state
@@ -808,8 +812,10 @@ promoted, or uncertain state is protected; missing or replaced lease evidence
 fails closed and cleanup never performs an implicit `down`.
 Persistent-state runtime outputs have a separate durable pending/complete
 cleanup record. It binds every output path to its creation inode before
-deletion, detects an output renamed under another sibling name, and lets a
-retry distinguish a completed removal from unresolved ownership evidence.
+deletion, renames the exact inode to a deterministic tombstone before removing
+its contents, and lets a retry distinguish a completed removal from unresolved
+ownership evidence. A missing or arbitrarily renamed output remains pending;
+the wrapper never reacquires deletion ownership from a mutable pathname.
 Topology-record cleanup also protects an identity-derived removal tombstone.
 A topology may select one service, and distinct runtime names permit concurrent
 combinations as long as their server ports and mutable state directories do not
