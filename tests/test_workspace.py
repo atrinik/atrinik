@@ -2410,6 +2410,64 @@ class WorkspaceTests(unittest.TestCase):
         recreated = resolve()
         self.assertEqual((recreated / "README").read_text(encoding="utf-8"), "client\n")
 
+    def test_unreadable_source_generation_directories_recover_preview_first(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        for unreadable_root in (False, True):
+            with self.subTest(unreadable_root=unreadable_root):
+                source = resolve()
+                generation = source.parent
+                generation.chmod(0o700)
+                if unreadable_root:
+                    source.chmod(0o000)
+                else:
+                    source.chmod(0o700)
+                    nested = source / "nested"
+                    nested.mkdir()
+                    (nested / "file").write_text("corrupt\n", encoding="utf-8")
+                    nested.chmod(0o000)
+
+                preview = self.workspace.cleanup(["builds"], 0, [], False)
+                candidate = next(
+                    item
+                    for item in preview["items"]
+                    if item["path"] == str(generation)
+                )
+                self.assertEqual(candidate["disposition"], "eligible", candidate)
+                self.assertEqual(
+                    candidate["reasons"], ["corrupt_source_generation"]
+                )
+                self.assertIn(
+                    "Permission denied",
+                    candidate["content_error"],
+                )
+
+                with mock.patch(
+                    "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
+                    return_value=(set(), False),
+                ):
+                    applied = self.workspace.cleanup(["builds"], 0, [], True)
+                removed = next(
+                    item
+                    for item in applied["items"]
+                    if item["path"] == str(generation)
+                )
+                self.assertEqual(removed["disposition"], "removed", removed)
+                recreated = resolve()
+                self.assertEqual(
+                    (recreated / "README").read_text(encoding="utf-8"),
+                    "client\n",
+                )
+
     def test_source_generation_cleanup_accepts_bounded_parent_symlink(self) -> None:
         checkout = self.workspace.paths.repositories / "client"
         (checkout / "targetdir").mkdir()

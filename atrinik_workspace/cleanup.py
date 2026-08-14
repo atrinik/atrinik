@@ -469,14 +469,33 @@ def _tree_usage_descriptor(
                 child.st_ctime_ns,
             )
             if stat.S_ISDIR(child.st_mode):
-                descriptor = os.open(
-                    name,
-                    os.O_RDONLY
-                    | os.O_CLOEXEC
-                    | os.O_DIRECTORY
-                    | os.O_NOFOLLOW,
-                    dir_fd=directory_fd,
-                )
+                try:
+                    descriptor = os.open(
+                        name,
+                        os.O_RDONLY
+                        | os.O_CLOEXEC
+                        | os.O_DIRECTORY
+                        | os.O_NOFOLLOW,
+                        dir_fd=directory_fd,
+                    )
+                except OSError as error:
+                    digest_record(
+                        evidence,
+                        "unreadable-directory",
+                        *evidence_fields,
+                        error.errno,
+                    )
+                    digest_record(
+                        semantic,
+                        "directory",
+                        child_relative.as_posix(),
+                        stat.S_IMODE(child.st_mode),
+                    )
+                    content_errors.append(
+                        "cannot read generated source directory: "
+                        f"{child_display}: {error}"
+                    )
+                    continue
                 try:
                     opened = os.fstat(descriptor)
                     if (
