@@ -348,10 +348,13 @@ immediately before deletion.
 
 Commit-keyed source generations have closed repository/branch/checkout/tree/
 subpath metadata and a complete tree digest. Reuse additionally enumerates the
-exact recorded Git tree and proves every generated path, entry type, executable
-mode, symlink target, and blob object ID before selection. A mismatch fails
-closed and leaves recovery to the explicit preview-first `builds` cleanup
-boundary. Builds hold a per-key shared lock; cleanup apply revalidates identity
+exact recorded Git tree without replacement-object indirection and proves every
+generated path, entry type, executable mode, symlink target, and blob object ID
+through a pinned, no-follow descriptor traversal before selection. A mismatch
+fails closed and leaves recovery to the explicit preview-first `builds` cleanup
+boundary. Once path, marker, key, and closed metadata ownership are exact,
+cleanup classifies a content-digest mismatch as removable corruption. Builds
+hold a per-key shared lock; cleanup apply revalidates ownership, content state,
 and age under its exclusive side before bounded removal. First-use container
 publication is checkout-serialized. Interrupted staging remains a recognized
 child of its marker-owned container, is protected while its generation lock is
