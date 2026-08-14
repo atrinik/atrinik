@@ -1857,37 +1857,6 @@
       ]
     },
     {
-      "id": "external/php",
-      "name": "PHP runtime for classic worldviewer",
-      "kind": "external-tool",
-      "owner": "tools",
-      "scope": [
-        "tools"
-      ],
-      "required": false,
-      "version": "operator-supplied",
-      "version_source": "Classic worldviewer deployment environment",
-      "license": "PHP-3.01",
-      "source_url": "https://www.php.net/",
-      "locator": "php",
-      "commit": null,
-      "checksum": null,
-      "acquisition": "Optional system runtime outside supported CI",
-      "update_cadence_days": 180,
-      "update_mechanism": "Manual compatibility audit while the classic viewer remains",
-      "eol_response": "Remove the viewer if it cannot run safely on a supported PHP release",
-      "validation": "PHP syntax check in a deliberately provisioned classic environment",
-      "disposition": "remove",
-      "packages": [],
-      "evidence": [
-        {
-          "repository": "tools",
-          "path": "worldviewer/world.php",
-          "contains": "php_sapi_name()"
-        }
-      ]
-    },
-    {
       "id": "external/pyqt5",
       "name": "PyQt5",
       "kind": "external-tool",

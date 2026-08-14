@@ -238,12 +238,21 @@ class ClassicToolsInventoryTests(unittest.TestCase):
         self.assertEqual(
             source["audit_baseline"]["license"], "GPL-2.0-or-later"
         )
-        self.assertIsNone(target["revision"])
-        self.assertIsNone(target["tree"])
-        self.assertEqual(target["status"], "pending-provenance")
+        self.assertEqual(
+            target["revision"],
+            "4d9184dc9b052e0dca44db273b895e89874f1b93",
+        )
+        self.assertEqual(
+            target["tree"], "ea6c98edb76c06fe5706a235b528486d6437752f"
+        )
+        self.assertEqual(target["status"], "reviewed-pull-request")
         self.assertEqual(
             source["provenance_policy"]["revision"],
             "f0d1225791da7484e9456b39104cc30b0c77fe52",
+        )
+        self.assertEqual(
+            source["identity_policy"]["revision"],
+            "6f6040212f0fa0cb6b8e4e695d1488a403d966be",
         )
 
 

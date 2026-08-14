@@ -13,9 +13,14 @@
       "revision": "f0d1225791da7484e9456b39104cc30b0c77fe52",
       "path": "docs/PROVENANCE.md"
     },
+    "identity_policy": {
+      "repository": "atrinik/atrinik",
+      "revision": "6f6040212f0fa0cb6b8e4e695d1488a403d966be",
+      "path": "docs/PROVENANCE_IDENTITIES.md"
+    },
     "transition_target": {
-      "revision": null,
-      "tree": null,
+      "revision": "4d9184dc9b052e0dca44db273b895e89874f1b93",
+      "tree": "ea6c98edb76c06fe5706a235b528486d6437752f",
       "license": "LicenseRef-Atrinik-Tools-Mixed",
       "default_license": "MIT",
       "license_exceptions": [
@@ -24,7 +29,7 @@
           "license": "GPL-2.0-or-later"
         }
       ],
-      "status": "pending-provenance"
+      "status": "reviewed-pull-request"
     },
     "history_complete": true,
     "ordinary_replacement_initialization": false,
@@ -62,7 +67,7 @@
       "owner_milestone": "M6 — Production hardening and cutover",
       "disposition": "retain-classic",
       "replacement_command": "Use platform-native Go/Rust crash and symbol packaging in each replacement owner; these commands remain classic-only until final classic retirement.",
-      "licensing_method": "Apply the repository's MIT default only after the issue-22 provenance record proves the exact contributions; this does not change the GPL-2.0-or-later map-checker-qt/ exception.",
+      "licensing_method": "The issue-22 provenance record at the pinned transition target provides the per-contribution MIT rights basis; this does not change the GPL-2.0-or-later map-checker-qt/ exception.",
       "safety": "Operate only on explicit build artifacts, preserve originals until verification, avoid shell-expanded broad paths, and redact sensitive paths from published traces.",
       "verification": "Run against disposable classic release artifacts and verify build IDs, debug links, symbol lookup, and unchanged runtime behavior."
     }

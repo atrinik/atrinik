@@ -25,8 +25,8 @@
   `AGENTS.md`; keep implementation, tests, packages, and releases there.
 - `classic/` provides `classic-*`; stacks share `content@main`.
   `content-1x/` is historical; `playtester/` classic-only (`build: none`).
-  `tools/` is MIT by default except GPL-2.0-or-later `map-checker-qt/`; the full
-  checkout uses `LicenseRef-Atrinik-Tools-Mixed`. `.devcontainer/` owns composition;
+  `tools/` is MIT-default except GPL-2.0-or-later `map-checker-qt/`; its
+  checkout: `LicenseRef-Atrinik-Tools-Mixed`. `.devcontainer/` composition;
   `devcontainer/` images.
 
 ## Core behaviors and patterns

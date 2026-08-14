@@ -222,6 +222,7 @@ class InventoryTests(unittest.TestCase):
         tools = inventory.repositories_by_name["tools"]
         self.assertEqual(tools.repository, "atrinik/tools")
         self.assertEqual(tools.license, "LicenseRef-Atrinik-Tools-Mixed")
+        self.assertNotIn("external/php", inventory.dependencies_by_id)
 
         playtester_python = inventory.dependencies_by_id[
             "language/playtester-python"
