@@ -249,9 +249,20 @@ class InventoryTests(unittest.TestCase):
         content_runtime = inventory.dependencies_by_id[
             "source/atrinik-content-runtime"
         ]
-        self.assertEqual(content_runtime.scope, ("classic-server", "playtester"))
+        self.assertEqual(content_runtime.scope, ("classic-server",))
+        self.assertEqual(content_runtime.version, "v3.0.1")
         self.assertEqual(
             content_runtime.checksum,
+            "sha256:2b49daee9d515a86323a5ef28a9f85a5098c96f72375155bb59dcdda50daeaf7",
+        )
+
+        playtester_content_runtime = inventory.dependencies_by_id[
+            "source/atrinik-content-playtester-runtime"
+        ]
+        self.assertEqual(playtester_content_runtime.scope, ("playtester",))
+        self.assertEqual(playtester_content_runtime.version, "v2.14.0")
+        self.assertEqual(
+            playtester_content_runtime.checksum,
             "sha256:f4ad326e20e221869897c72f7e33b533c408ce6654038dbfc4352da1c3391261",
         )
 
