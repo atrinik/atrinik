@@ -250,16 +250,24 @@ class ProgramLedgerModel:
         if (
             not isinstance(record["authority"], list)
             or not isinstance(record["graph"], list)
-            or any(not isinstance(item, str) for item in record["graph"])
+            or any(not isinstance(item, str) or not item for item in record["graph"])
+            or len(record["graph"]) != len(set(record["graph"]))
             or (
                 record["next_graph"] is not None
                 and (
                     not isinstance(record["next_graph"], list)
-                    or any(not isinstance(item, str) for item in record["next_graph"])
+                    or any(
+                        not isinstance(item, str) or not item
+                        for item in record["next_graph"]
+                    )
+                    or len(record["next_graph"]) != len(set(record["next_graph"]))
                 )
             )
             or not isinstance(record["leaf_snapshots"], dict)
-            or any(not isinstance(key, str) for key in record["leaf_snapshots"])
+            or any(
+                not isinstance(key, str) or not key
+                for key in record["leaf_snapshots"]
+            )
         ):
             raise StopClosed("ledger collection shape is corrupt")
         if lock != {"device": 1, "inode": lock_inode}:
@@ -1329,7 +1337,8 @@ class ProgramLedgerModelTests(unittest.TestCase):
         model = ProgramLedgerModel()
         items = ["leaf-1"]
         items.extend(
-            "x" * ProgramLedgerModel.MAX_STRING_BYTES for _ in range(127)
+            "x" * (ProgramLedgerModel.MAX_STRING_BYTES - 6) + f"{index:06d}"
+            for index in range(127)
         )
         items.append("")
         candidate = copy.deepcopy(model.record)
@@ -1346,7 +1355,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         gap = ProgramLedgerModel.MAX_LEDGER_BYTES - len(unbounded)
         self.assertGreaterEqual(gap, 0)
         self.assertLessEqual(gap, ProgramLedgerModel.MAX_STRING_BYTES)
-        items[-1] = "x" * gap
+        items[-1] = "y" * gap
         model.persist(lambda record: record.update(graph=copy.deepcopy(items)))
         self.assertEqual(len(model.canonical(model.record)), model.MAX_LEDGER_BYTES)
         retained = copy.deepcopy(model.record)
@@ -1889,6 +1898,31 @@ class ProgramLedgerModelTests(unittest.TestCase):
                      ("leaf-1", 1, "b" * 64)):
             with self.subTest(args=args), self.assertRaises(StopClosed):
                 model.compose_leaf(*args)
+        for graph in (["leaf-1", "leaf-1"], [""]):
+            corrupt = copy.deepcopy(model.record)
+            corrupt["graph"] = graph
+            if graph == [""]:
+                corrupt["leaf_snapshots"] = {}
+            with self.subTest(graph=graph), self.assertRaises(StopClosed):
+                ProgramLedgerModel.resume(
+                    corrupt, 41, corrupt["self_inode"],
+                    hashlib.sha256(ProgramLedgerModel.canonical(corrupt)).hexdigest(),
+                    corrupt["authority"],
+                )
+
+        rekey = ProgramLedgerModel()
+        rekey.observe_comment()
+        rekey.plan_comment()
+        self.refresh_before_arm(rekey, "comment")
+        rekey.execute(rekey.arm("comment"))
+        self.observe_result(rekey, "comment")
+        rekey.bind_comment([self.exact_comment()])
+        rekey.observe_comment()
+        for graph in (["leaf-1", "leaf-1"], [""]):
+            retained = copy.deepcopy(rekey.record)
+            with self.subTest(rekey=graph), self.assertRaises(StopClosed):
+                rekey.rekey(rekey.record["authority"], graph, "comment-node")
+            self.assertEqual(rekey.record, retained)
 
 
 if __name__ == "__main__":
