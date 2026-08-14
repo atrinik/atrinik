@@ -2230,15 +2230,29 @@ class WorkspaceTests(unittest.TestCase):
         real_managed_directory = managed_directory
         active = 0
         maximum = 0
+        probes = 0
         guard = threading.Lock()
+        real_exclusive_lock = exclusive_lock
 
         def observe(path: Path, builds: Path, purpose: str) -> None:
-            nonlocal active, maximum
+            nonlocal active, maximum, probes
             if purpose == "source-generations:client":
+                container_lock = (
+                    self.workspace.paths.builds
+                    / "locks"
+                    / "source-generation-container-client.lock"
+                )
+                with self.assertRaises(locking_module.LockBusyError):
+                    with real_exclusive_lock(
+                        container_lock,
+                        "probe source generation container",
+                        nonblocking=True,
+                    ):
+                        self.fail("container initialization was not locked")
                 with guard:
+                    probes += 1
                     active += 1
                     maximum = max(maximum, active)
-                time.sleep(0.05)
                 try:
                     real_managed_directory(path, builds, purpose)
                 finally:
@@ -2257,11 +2271,13 @@ class WorkspaceTests(unittest.TestCase):
                 return snapshot.paths()["client"]
 
         with mock.patch(
-            "atrinik_workspace.workspace.managed_directory", side_effect=observe
+            "atrinik_workspace.workspace.managed_directory",
+            side_effect=observe,
         ):
             with ThreadPoolExecutor(max_workers=2) as executor:
                 paths = list(executor.map(lambda _unused: resolve(), range(2)))
         self.assertEqual(paths[0], paths[1])
+        self.assertEqual(probes, 2)
         self.assertEqual(maximum, 1)
 
     def test_source_generation_reuse_revalidates_captured_identity(self) -> None:
