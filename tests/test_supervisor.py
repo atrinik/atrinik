@@ -423,6 +423,19 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 process.kill()
                 process.wait(timeout=2)
 
+    def test_terminate_timeout_cannot_be_clean(self) -> None:
+        process = mock.Mock(pid=1234, returncode=0)
+        process.wait.side_effect = subprocess.TimeoutExpired("server", 2)
+        with (
+            mock.patch.object(supervisor_module.Path, "iterdir", return_value=[]),
+            mock.patch.object(supervisor_module.os, "killpg"),
+        ):
+            self.assertFalse(
+                supervisor_module.terminate(
+                    {"server": process}, None, timeout=0
+                )
+            )
+
     def test_terminate_rejects_process_group_observation_uncertainty(self) -> None:
         process = mock.Mock(pid=1234, returncode=0)
         with mock.patch.object(
@@ -580,15 +593,128 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 mock.patch.object(
                     supervisor_module, "_serve_control", return_value=True
                 ),
+                mock.patch.object(
+                    supervisor_module, "_peek_exit_code", return_value=None
+                ),
                 mock.patch.object(supervisor_module, "terminate"),
                 mock.patch.object(supervisor_module.os, "close") as close,
             ):
                 self.assertEqual(
-                    supervise(spec_path, None, None, None, None, 8, 9), 0
+                    supervise(
+                        spec_path,
+                        None,
+                        None,
+                        None,
+                        None,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                    ),
+                    0,
                 )
 
             self.assertTrue(
-                {8, 9} <= {call.args[0] for call in close.call_args_list}
+                set(range(8, 13))
+                <= {call.args[0] for call in close.call_args_list}
+            )
+
+    def test_server_launch_inherits_exact_state_descriptors(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            spec_path = root / "spec.json"
+            spec_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 3,
+                        "name": "state-fds",
+                        "profile": "classic",
+                        "dependencies": ["server"],
+                        "state": str(root / "state"),
+                        "state_policy": {"mode": "named"},
+                        "build_root": "/tmp/build",
+                        "resolved": {},
+                        "endpoint": {
+                            "host": "127.0.0.1",
+                            "port": 13327,
+                            "fingerprint": None,
+                        },
+                        "runtime": {"generation": "a" * 64},
+                        "control": {
+                            "generation": "a" * 64,
+                            "socket": str(root / "control.sock"),
+                        },
+                        "services": {
+                            "server": {
+                                "command": ["server"],
+                                "cwd": str(root),
+                                "log": str(root / "server.log"),
+                            }
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            process = mock.MagicMock(pid=1234)
+            process.poll.return_value = 0
+            capture = mock.Mock(
+                event=mock.Mock(wait=mock.Mock(side_effect=[False, True])),
+                fingerprint="a" * 64,
+            )
+            control = mock.Mock()
+            with (
+                mock.patch.object(
+                    supervisor_module,
+                    "process_start_time",
+                    side_effect=["1", "2"],
+                ),
+                mock.patch.object(supervisor_module, "_validate_port_reservation"),
+                mock.patch.object(supervisor_module, "_require_server_port_available"),
+                mock.patch.object(
+                    supervisor_module, "_start_guardian", return_value=(None, 99)
+                ) as guardian,
+                mock.patch.object(
+                    supervisor_module, "_open_control", return_value=control
+                ),
+                mock.patch.object(
+                    supervisor_module,
+                    "_serve_control",
+                    side_effect=[False, True],
+                ),
+                mock.patch.object(
+                    supervisor_module, "_peek_exit_code", return_value=None
+                ),
+                mock.patch.object(
+                    supervisor_module, "ServerReadinessCapture", return_value=capture
+                ),
+                mock.patch.object(
+                    supervisor_module.subprocess, "Popen", return_value=process
+                ) as popen,
+                mock.patch.object(supervisor_module.threading, "Thread"),
+                mock.patch.object(supervisor_module, "terminate", return_value=True),
+                mock.patch.object(supervisor_module.os, "close") as close,
+            ):
+                self.assertEqual(
+                    supervise(
+                        spec_path,
+                        3,
+                        None,
+                        None,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                    ),
+                    0,
+                )
+            self.assertEqual(popen.call_args.kwargs["pass_fds"], (4, 7, 8))
+            guardian.assert_called_once_with(4, 5, 3, 6, 7, 8, 9)
+            self.assertTrue(
+                {3, 4, 5, 6, 7, 8, 9, 99}
+                <= {call.args[0] for call in close.call_args_list}
             )
 
     def test_main_daemon_parent_returns_without_supervising(self) -> None:

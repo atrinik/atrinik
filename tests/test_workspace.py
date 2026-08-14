@@ -13043,6 +13043,99 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(lock.exists())
         self.assertFalse(lock_tombstone.exists())
 
+    def test_orphan_temporary_lease_inventory_fails_closed(self) -> None:
+        topology = self.workspace._topology_directory(
+            "orphan-lease-uncertainty", create=True
+        )
+        container, container_fd = self.workspace._temporary_state_container(topology)
+        os.close(container_fd)
+        generation = "a" * 64
+        state = container / generation
+        lock = Path(f"{state}.lock")
+        with exclusive_lock(lock, "orphan lease fixture"):
+            pass
+        cleanup = cleanup_module.Cleanup(self.workspace)
+
+        with self.assertRaisesRegex(WorkspaceError, "tombstone is invalid"):
+            cleanup._orphan_temporary_state_lease_item(
+                topology, lock, 0, tombstone=True
+            )
+
+        invalid_tombstone = container / f".{lock.name}.remove-0-0"
+        invalid_tombstone.write_text("invalid\n", encoding="utf-8")
+        invalid_item = cleanup._orphan_temporary_state_lease_item(
+            topology, invalid_tombstone, 0, tombstone=True
+        )
+        self.assertIn(
+            "invalid_orphan_temporary_state_lease", invalid_item["reasons"]
+        )
+        invalid_tombstone.unlink()
+
+        state.mkdir()
+        state_item = cleanup._orphan_temporary_state_lease_item(
+            topology, lock, 0
+        )
+        self.assertIn(
+            "invalid_orphan_temporary_state_lease", state_item["reasons"]
+        )
+        state.rmdir()
+
+        with exclusive_lock(lock, "busy orphan lease"):
+            busy_item = cleanup._orphan_temporary_state_lease_item(
+                topology, lock, 0
+            )
+        self.assertIn("active_state_lease", busy_item["reasons"])
+
+        with mock.patch.object(
+            cleanup, "_lock_busy", return_value=(False, "invalid lease")
+        ):
+            lock_error_item = cleanup._orphan_temporary_state_lease_item(
+                topology, lock, 0
+            )
+        self.assertIn("state_lease_error", lock_error_item["reasons"])
+
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            return_value={"control": {"generation": generation}},
+        ):
+            current_item = cleanup._orphan_temporary_state_lease_item(
+                topology, lock, 0
+            )
+        self.assertIn("topology_generation_present", current_item["reasons"])
+
+        future_cleanup = cleanup_module.Cleanup(self.workspace)
+        future_cleanup.now = future_cleanup.now.replace(year=1970)
+        future_item = future_cleanup._orphan_temporary_state_lease_item(
+            topology, lock, 0
+        )
+        self.assertIn("future_creation_time", future_item["reasons"])
+        young_item = cleanup_module.Cleanup(
+            self.workspace
+        )._orphan_temporary_state_lease_item(topology, lock, 999)
+        self.assertIn("younger_than_grace_period", young_item["reasons"])
+
+        extra_link = self.root / "orphan-lease-extra-link"
+        os.link(lock, extra_link)
+        linked_item = cleanup._orphan_temporary_state_lease_item(
+            topology, lock, 0
+        )
+        self.assertIn(
+            "invalid_orphan_temporary_state_lease", linked_item["reasons"]
+        )
+        extra_link.unlink()
+
+        atomic_json(topology / "status.json", {})
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            side_effect=WorkspaceError("invalid topology status"),
+        ):
+            status_item = cleanup._orphan_temporary_state_lease_item(
+                topology, lock, 0
+            )
+        self.assertIn("topology_status_unverifiable", status_item["reasons"])
+
     def test_temporary_startup_rollback_retains_linked_state(self) -> None:
         topology = self.workspace._topology_directory(
             "linked-rollback", create=True
