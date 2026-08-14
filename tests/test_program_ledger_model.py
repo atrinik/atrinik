@@ -37,6 +37,7 @@ class ProgramLedgerModel:
         empty = {
             "phase": "none", "node": None, "prior": None,
             "plan_observation": None, "arm_observation": None,
+            "retry_observation": None,
         }
         self.record: dict[str, object] = {
             "generation": 0,
@@ -74,6 +75,10 @@ class ProgramLedgerModel:
         }
         return hashlib.sha256(ProgramLedgerModel.canonical(payload)).hexdigest()
 
+    @staticmethod
+    def result_stream(results: list[dict[str, str]]) -> str:
+        return hashlib.sha256(ProgramLedgerModel.canonical(results)).hexdigest()
+
     @classmethod
     def fresh(cls, lock_exists: bool, ledger_exists: bool) -> "ProgramLedgerModel":
         if lock_exists or ledger_exists:
@@ -110,7 +115,8 @@ class ProgramLedgerModel:
         ):
             raise StopClosed("generation lineage is corrupt")
         common_keys = {
-            "phase", "node", "prior", "plan_observation", "arm_observation"
+            "phase", "node", "prior", "plan_observation", "arm_observation",
+            "retry_observation",
         }
         for name in ("comment", "create", "link"):
             slot = record[name]
@@ -129,6 +135,7 @@ class ProgramLedgerModel:
                 slot.get("node") is not None or slot.get("prior") is not None
                 or slot["plan_observation"] is not None
                 or slot["arm_observation"] is not None
+                or slot["retry_observation"] is not None
             ):
                 raise StopClosed("none phase contains result state")
             if slot["phase"] == "planned" and (
@@ -306,6 +313,7 @@ class ProgramLedgerModel:
         self.persist(lambda r: r[slot].update(
             phase="planned", node=node, prior=prior,
             plan_observation=observation, arm_observation=None,
+            retry_observation=None,
         ))
 
     def plan_comment(self) -> None:
@@ -345,8 +353,6 @@ class ProgramLedgerModel:
         expected_count = (
             1 if slot == "comment" and self.record[slot]["node"] is not None else 0
         )
-        if current["count"] != expected_count:
-            raise StopClosed("mutation prerequisite no longer holds")
         if current["stream"] != planned["stream"] or current["count"] != planned["count"]:
             self.persist(
                 lambda record: record[slot].update(
@@ -354,6 +360,8 @@ class ProgramLedgerModel:
                 )
             )
             raise StopClosed("consecutive observation evidence changed")
+        if current["count"] != expected_count:
+            raise StopClosed("mutation prerequisite no longer holds")
         self.persist(lambda r: r[slot].update(
             phase="in-flight", arm_observation=copy.deepcopy(current)
         ))
@@ -369,7 +377,7 @@ class ProgramLedgerModel:
         permit.used = True
         self.remote_calls[permit.slot] += 1
 
-    def _bind(self, slot: str, exact_results: list[str]) -> None:
+    def _bind(self, slot: str, exact_results: list[str], result_stream: str) -> None:
         kind = {"comment": "comment", "create": "child"}[slot]
         observed = self.record["observation"][kind]
         armed = self.record[slot]["arm_observation"]
@@ -377,13 +385,13 @@ class ProgramLedgerModel:
             self.record[slot]["phase"] != "in-flight" or len(exact_results) != 1
             or not observed or not observed["complete"]
             or observed["generation"] <= armed["generation"]
-            or observed["count"] != 1
+            or observed["count"] != 1 or observed["stream"] != result_stream
         ):
             raise StopClosed("remote result is uncertain")
         self.persist(
             lambda r: r[slot].update(
                 phase="bound", node=exact_results[0], prior=None,
-                plan_observation=None, arm_observation=None,
+                plan_observation=None, arm_observation=None, retry_observation=None,
             )
         )
 
@@ -397,7 +405,10 @@ class ProgramLedgerModel:
                 "body": "intended-body", "marker": "program-marker",
             }
         ]
-        self._bind("comment", [result["node"] for result in exact])
+        self._bind(
+            "comment", [result["node"] for result in exact],
+            self.result_stream(results),
+        )
 
     def bind_create(self, candidates: list[dict[str, str]]) -> None:
         if len(candidates) != 1:
@@ -411,7 +422,10 @@ class ProgramLedgerModel:
             and item["title"] == "title" and item["body"] == "body"
             and item["child_marker"] == "program-child-marker"
         ]
-        self._bind("create", [item["node"] for item in exact])
+        self._bind(
+            "create", [item["node"] for item in exact],
+            self.result_stream(candidates),
+        )
 
     def bind_link(
         self, child_parent: str, parent_subissues: list[str], stream_digest: str,
@@ -430,7 +444,7 @@ class ProgramLedgerModel:
             lambda record: record["link"].update(
                 phase="bound", node=None, prior=None, parent="master",
                 child="issue-node", proof=stream_digest,
-                plan_observation=None, arm_observation=None,
+                plan_observation=None, arm_observation=None, retry_observation=None,
             )
         )
 
@@ -462,13 +476,22 @@ class ProgramLedgerModel:
         ):
             raise StopClosed("PATCH result lacks complete post-call observation")
         if remote_body == "old-body":
+            recovery = self.record["comment"]["retry_observation"]
+            if recovery is None:
+                self.persist(
+                    lambda record: record["comment"].update(
+                        retry_observation=copy.deepcopy(observed)
+                    )
+                )
+                raise StopClosed("PATCH retry needs a recovery baseline")
             if (
-                observed["stream"] != armed["stream"]
-                or observed["count"] != armed["count"]
+                observed["generation"] <= recovery["generation"]
+                or observed["stream"] != recovery["stream"]
+                or observed["count"] != recovery["count"]
             ):
                 self.persist(
                     lambda record: record["comment"].update(
-                        arm_observation=copy.deepcopy(observed)
+                        retry_observation=copy.deepcopy(observed)
                     )
                 )
                 raise StopClosed("PATCH retry needs a second identical observation")
@@ -480,6 +503,7 @@ class ProgramLedgerModel:
                 record["comment"].update(
                     phase="bound", prior=None,
                     plan_observation=None, arm_observation=None,
+                    retry_observation=None,
                 ),
                 record.update(
                     graph=copy.deepcopy(record["next_graph"]), next_graph=None
@@ -521,9 +545,14 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
     def observe_result(self, model: ProgramLedgerModel, slot: str) -> None:
         if slot == "comment":
-            model.observe_comment(stream="comment-post", count=1)
+            results = [self.exact_comment()]
+            model.observe_comment(
+                stream=model.result_stream(results), count=1
+            )
         elif slot == "create":
-            model.classify_child([self.exact_child()], "child-post", "child-post")
+            results = [self.exact_child()]
+            stream = model.result_stream(results)
+            model.classify_child(results, stream, stream)
         else:
             model.observe_parent(["issue-node"], stream="parent-post")
 
@@ -890,10 +919,14 @@ class ProgramLedgerModelTests(unittest.TestCase):
         model.execute(permit)
         wrong = dict(self.exact_child(), creator="other")
         with self.assertRaises(StopClosed):
-            model.classify_child([wrong], "child-wrong", "child-wrong")
+            wrong_stream = model.result_stream([wrong])
+            model.classify_child([wrong], wrong_stream, wrong_stream)
             model.bind_create([wrong])
+        with self.assertRaises(StopClosed):
+            model.bind_create([self.exact_child()])
         exact = dict(wrong, creator="actor")
-        model.classify_child([exact], "child-exact", "child-exact")
+        exact_stream = model.result_stream([exact])
+        model.classify_child([exact], exact_stream, exact_stream)
         model.bind_create([exact])
 
     def test_native_link_binds_parent_child_pair_without_edge_node(self) -> None:
@@ -927,7 +960,8 @@ class ProgramLedgerModelTests(unittest.TestCase):
         model.execute(permit)
         for results in ([], [self.exact_child(), self.exact_child()]):
             with self.subTest(results=results), self.assertRaises(StopClosed):
-                model.classify_child(results, "post", "post")
+                stream = model.result_stream(results)
+                model.classify_child(results, stream, stream)
                 model.bind_create(results)
         self.assertEqual(model.remote_calls["create"], 1)
 
@@ -938,10 +972,11 @@ class ProgramLedgerModelTests(unittest.TestCase):
         self.refresh_before_arm(model, "comment")
         permit = model.arm("comment")
         model.execute(permit)
-        model.observe_comment(stream="conflict", count=2)
         wrong = dict(self.exact_comment(), author="other")
+        results = [self.exact_comment(), wrong]
+        model.observe_comment(stream=model.result_stream(results), count=2)
         with self.assertRaises(StopClosed):
-            model.bind_comment([self.exact_comment(), wrong])
+            model.bind_comment(results)
 
     def test_create_and_link_cannot_plan_twice_or_out_of_order(self) -> None:
         model = ProgramLedgerModel()
