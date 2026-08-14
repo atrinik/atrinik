@@ -26,9 +26,10 @@ a program.
    and never delegates PR-mode adoption.
 2. Load `atrinik-multi-repo-workspace`, `atrinik-github-governance`, and the
    narrow implementation, runtime, or scenario skills selected by each leaf.
-3. Read the full
-   [program review checklist](references/program-review-checklist.md) before
-   planning and again before the final audit.
+3. Read the [program review checklist](references/program-review-checklist.md)
+   before planning/audit and the
+   [master-publication ledger contract](references/master-publication-ledger.md)
+   before master comment mutation.
 4. Copy [the program report template](assets/program-delivery-report.md) to an
    ignored path such as
    `<workspace>/build/program-delivery/<owner>-<repo>-<number>.md`. Prove the

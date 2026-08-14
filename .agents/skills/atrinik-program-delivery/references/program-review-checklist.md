@@ -14,6 +14,36 @@ cannot prove alone.
   different title, PR, branch, or parent?
 - Are closed, transferred, superseded, and maintainer-attested items described
   accurately?
+- Does the machine ledger bind the exact repository/master nodes, durable goal
+  authority, authenticated actor, normalized objective digest, and complete
+  ordered leaf graph rather than trusting linkage, marker text, or the report?
+- Is every composed leaf ledger regular, no-follow, coordinate-exact, current,
+  read-only, and limited to its declared position and owned artifacts?
+
+## Master publication recovery
+
+- Is the canonical ledger ignored, schema-valid, complete, and protected by an
+  exclusive coordinate lock plus generation/digest/inode CAS and durable
+  same-directory replacement?
+- Was complete bounded comment pagination performed before every decision and
+  after every call, with zero markers for a first post or exactly one recorded
+  actor-owned marker for a bound update?
+- Do wrong-author, malformed, duplicate, drifted, missing, partially paginated,
+  corrupt, stale-CAS, inode-substituted, and uncertain states stop before a
+  remote mutation?
+- Does `none -> planned -> in-flight -> bound` persist exact intended bytes,
+  intended/current SHA-256 digests, marker identity, mutation kind, and remote
+  node ID at the required boundaries?
+- After a first `POST` becomes `in-flight`, does no exact result stop without
+  reposting? For `PATCH`, is retry limited to the same recorded node and bytes
+  when the remote body is exactly the prior or intended digest?
+- Do crash-point tests cover before/after every durable transition and remote
+  call, including an accepted-but-not-yet-visible result and resumption?
+- Do concurrency, stale-CAS, marker, full-pagination, ledger/report loss,
+  corrupt-state, duplicate, wrong-author, remote-drift, and leaf-composition
+  tests prove fail-closed behavior without live GitHub mutation?
+- Does the human report mirror only already-durable generations and make clear
+  that it cannot authorize or recover a write?
 
 ## Order and gates
 
@@ -76,3 +106,5 @@ cannot prove alone.
   dependencies, and artifact requirements?
 - Is there zero known actionable work, and is the only remaining action an
   explicitly named human closure or release step?
+- Is the final close-ready master summary bound at the recorded comment node
+  with exact intended/current digests after complete final pagination?

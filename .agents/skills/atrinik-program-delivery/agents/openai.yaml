@@ -1,6 +1,6 @@
 interface:
   display_name: "Atrinik Program Delivery"
   short_description: "Deliver ordered Atrinik programs through merge gates"
-  default_prompt: "Use $atrinik-program-delivery to deliver this Atrinik master issue as one durable objective across ordered child work, iterative leaf and program-wide review/fix cycles, current-base validation, and explicit maintainer merge gates. After an exact leaf ledger records program authority, you may assign and update tracking, push ordinary branches, create issue-mode draft PRs, update only ledger-bound PRs, and mark drafts ready after exit conditions. Keep proposed missing children and incidental issues read-only; do not create or link children, publish issue or master comments without a program-level ledger, force-push, merge, close issues, bypass policy, destructively reset, or apply cleanup."
+  default_prompt: "Use $atrinik-program-delivery to deliver this Atrinik master issue as one durable objective across ordered child work, iterative leaf and program-wide review/fix cycles, current-base validation, and explicit maintainer merge gates. Bind the one rolling master comment through the ignored machine-readable program ledger before publication. You may assign and update tracking, push ordinary branches, create missing child issues and draft PRs, mark drafts ready after exit conditions, and update that bound comment; do not force-push, merge, close issues, bypass policy, destructively reset, or apply cleanup."
 policy:
   allow_implicit_invocation: false
