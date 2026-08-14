@@ -436,6 +436,27 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 )
             )
 
+        for failure in (OSError("stat unavailable"), ValueError("malformed stat")):
+            with self.subTest(failure=type(failure).__name__):
+                with (
+                    mock.patch.object(
+                        supervisor_module.Path,
+                        "iterdir",
+                        return_value=[Path("/proc/1234")],
+                    ),
+                    mock.patch.object(
+                        supervisor_module.Path,
+                        "read_text",
+                        side_effect=failure,
+                    ),
+                    mock.patch.object(supervisor_module.os, "killpg"),
+                ):
+                    self.assertFalse(
+                        supervisor_module.terminate(
+                            {"server": process}, None, timeout=0
+                        )
+                    )
+
     def test_requires_fingerprint_and_finished_server_startup(self) -> None:
         capture = ServerReadinessCapture()
 
@@ -606,6 +627,46 @@ class ServerReadinessCaptureTests(unittest.TestCase):
             mock.patch.object(sys, "stderr"),
         ):
             self.assertEqual(supervisor_module.main(), 1)
+
+    def test_main_closes_every_current_lease_after_startup_failure(self) -> None:
+        arguments = [
+            "atrinik-supervisor",
+            "--spec",
+            "/tmp/spec.json",
+            "--lock-fd",
+            "3",
+            "--layout-lock-fd",
+            "4",
+            "--build-lock-fd",
+            "5",
+            "--process-tree-fd",
+            "6",
+            "--port-reservation-fd",
+            "7",
+            "--runtime-lock-fd",
+            "8",
+            "--state-directory-fd",
+            "9",
+            "--state-output-fd",
+            "10",
+            "--physical-state-lock-fd",
+            "11",
+        ]
+        with (
+            mock.patch.object(sys, "argv", arguments),
+            mock.patch.object(
+                supervisor_module,
+                "supervise",
+                side_effect=RuntimeError("invalid runtime"),
+            ),
+            mock.patch.object(supervisor_module, "atomic_status"),
+            mock.patch.object(supervisor_module.os, "close") as close,
+            mock.patch.object(sys, "stderr"),
+        ):
+            self.assertEqual(supervisor_module.main(), 1)
+        self.assertEqual(
+            {call.args[0] for call in close.call_args_list}, set(range(3, 12))
+        )
 
 
 if __name__ == "__main__":

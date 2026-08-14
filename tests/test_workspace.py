@@ -5607,6 +5607,46 @@ class WorkspaceTests(unittest.TestCase):
         finally:
             os.close(state_fd)
 
+    def test_runtime_output_preparation_failure_removes_created_generation(self) -> None:
+        state = self.root / "runtime-output-preparation-failure"
+        state.mkdir()
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        generation = "4" * 64
+        proof = [False]
+        real_open = os.open
+
+        def fail_marker_open(
+            path: str | bytes,
+            flags: int,
+            mode: int = 0o777,
+            *,
+            dir_fd: int | None = None,
+        ) -> int:
+            if path == MANAGED_MARKER and dir_fd is not None:
+                raise OSError("simulated marker publication failure")
+            return real_open(path, flags, mode, dir_fd=dir_fd)
+
+        try:
+            with (
+                mock.patch(
+                    "atrinik_workspace.workspace.os.open",
+                    side_effect=fail_marker_open,
+                ),
+                self.assertRaisesRegex(WorkspaceError, "marker publication failure"),
+            ):
+                self.workspace._prepare_runtime_state_output(
+                    state,
+                    generation,
+                    state_fd,
+                    cleanup_proof=proof,
+                )
+            self.assertTrue(proof[0])
+            self.assertFalse(
+                (state / "tmp" / "runtime-assets" / generation).exists()
+            )
+        finally:
+            os.close(state_fd)
+
     def test_runtime_output_transaction_clear_restores_replacement(self) -> None:
         topology = self.workspace._topology_directory(
             "runtime-output-clear-race", create=True
@@ -12968,6 +13008,16 @@ class WorkspaceTests(unittest.TestCase):
             cleanup_module.Cleanup(
                 self.workspace
             )._open_temporary_state_container(topology)
+        cleanup = cleanup_module.Cleanup(self.workspace)
+        normal_item = next(
+            value
+            for value in cleanup._temporary_states(0)
+            if value["path"] == str(state)
+        )
+        cleanup._remove_temporary_state(normal_item, 0)
+        self.assertFalse(lock.exists())
+        with exclusive_lock(lock, "recreated orphan rollback lease"):
+            pass
         lock_metadata = lock.stat(follow_symlinks=False)
         lock_tombstone = lock.parent / (
             f".{lock.name}.remove-{lock_metadata.st_dev:x}-"
