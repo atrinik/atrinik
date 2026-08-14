@@ -240,7 +240,10 @@ scenario, state, build-root, and cache requests are deduplicated and sorted.
 Multi-source writers retry all-or-none, releasing earlier coordinates before
 waiting on a busy later source. A queued writer precedes later readers only for
 that coordinate, and waits longer than 10 seconds report its owner operation
-and supported recovery action.
+and supported recovery action. Owner records become diagnostically visible
+under a directory publication fence that remains held until the record itself
+is locked; stale-record scans take the same fence before reaping unlocked
+metadata.
 
 Profile consumers lock the profile, derive the requested operation's transitive
 provider closure, acquire only those exact sources, revalidate, and capture

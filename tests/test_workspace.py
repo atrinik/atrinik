@@ -10701,6 +10701,94 @@ class WorkspaceTests(unittest.TestCase):
         owners = lock.with_name(f"{lock.name}.owners")
         self.assertEqual(list(owners.iterdir()), [])
 
+    def test_resource_owner_publication_is_atomic_with_diagnostic_scan(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "shared",
+            "inspect review",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        publication_visible = threading.Event()
+        continue_publication = threading.Event()
+        lease_entered = threading.Event()
+        release_lease = threading.Event()
+        scan_attempted = threading.Event()
+        scan_completed = threading.Event()
+        results: queue.Queue[object] = queue.Queue()
+        real_dump = locking_module.json.dump
+        real_flock = locking_module.fcntl.flock
+
+        def pause_visible_publication(*args: object, **kwargs: object) -> None:
+            real_dump(*args, **kwargs)
+            publication_visible.set()
+            if not continue_publication.wait(5):
+                raise TimeoutError("owner publication was not released")
+
+        def publish_owner() -> None:
+            try:
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    lease_entered.set()
+                    if not release_lease.wait(5):
+                        raise TimeoutError("resource lease was not released")
+                results.put(None)
+            except BaseException as error:
+                results.put(error)
+
+        def scan_owner() -> None:
+            try:
+                results.put(locking_module._lease_owner_summary(lock))
+            except BaseException as error:
+                results.put(error)
+            finally:
+                scan_completed.set()
+
+        def observe_scan_flock(descriptor: object, operation: int) -> None:
+            if threading.current_thread().name == "owner-summary-scan":
+                scan_attempted.set()
+            real_flock(descriptor, operation)
+
+        with (
+            mock.patch.object(
+                locking_module.json, "dump", side_effect=pause_visible_publication
+            ),
+            mock.patch.object(
+                locking_module.fcntl, "flock", side_effect=observe_scan_flock
+            ),
+        ):
+            publisher = threading.Thread(target=publish_owner)
+            publisher.start()
+            self.assertTrue(publication_visible.wait(2))
+            self.assertEqual(len(list(owners.iterdir())), 1)
+
+            scanner = threading.Thread(
+                target=scan_owner, name="owner-summary-scan"
+            )
+            scanner.start()
+            self.assertTrue(scan_attempted.wait(2))
+            self.assertFalse(scan_completed.wait(0.1))
+
+            continue_publication.set()
+            self.assertTrue(lease_entered.wait(2))
+            self.assertTrue(scan_completed.wait(2))
+            summary = results.get_nowait()
+            self.assertIsInstance(summary, str)
+            self.assertIn("shared inspect review by", summary)
+            self.assertEqual(len(list(owners.iterdir())), 1)
+
+            release_lease.set()
+            publisher.join(2)
+            scanner.join(2)
+
+        self.assertFalse(publisher.is_alive())
+        self.assertFalse(scanner.is_alive())
+        self.assertIsNone(results.get_nowait())
+        self.assertEqual(list(owners.iterdir()), [])
+
     def test_resource_owner_metadata_survives_inherited_child(self) -> None:
         request = LeaseRequest(
             "source",
