@@ -2491,6 +2491,66 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(candidate["disposition"], "eligible", candidate)
         self.assertEqual(candidate["reasons"], ["stale_source_generation"])
 
+    def test_source_generation_cleanup_evidence_bounds_unsafe_shapes(self) -> None:
+        tree = self.root / "generation-evidence"
+        tree.mkdir()
+        (tree / "a-escape").symlink_to("../outside")
+        os.mkfifo(tree / "z-special")
+        flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        descriptor = os.open(tree, flags)
+        try:
+            (
+                sizes,
+                observed,
+                walk_error,
+                evidence,
+                semantic,
+                content_error,
+            ) = cleanup_module._tree_usage_descriptor(descriptor, tree)
+            self.assertTrue(sizes)
+            self.assertIsNotNone(observed)
+            self.assertIsNone(walk_error)
+            self.assertIsNotNone(evidence)
+            self.assertIsNotNone(semantic)
+            self.assertIn("unsafe link", content_error or "")
+
+            with mock.patch(
+                "atrinik_workspace.cleanup.os.listdir",
+                side_effect=OSError(errno.EIO, "inventory failed"),
+            ):
+                failed = cleanup_module._tree_usage_descriptor(descriptor, tree)
+            self.assertEqual(failed[0], {})
+            self.assertIsNone(failed[1])
+            self.assertIn("inventory failed", failed[2] or "")
+            self.assertEqual(failed[3:], (None, None, None))
+        finally:
+            os.close(descriptor)
+
+        for kind in ("directory", "file"):
+            with self.subTest(mounted_entry=kind):
+                mounted = self.root / f"mounted-{kind}-evidence"
+                mounted.mkdir()
+                child = mounted / "child"
+                if kind == "directory":
+                    child.mkdir()
+                else:
+                    child.write_text("payload\n", encoding="utf-8")
+                descriptor = os.open(mounted, flags)
+                try:
+                    with mock.patch(
+                        "atrinik_workspace.cleanup._descriptor_mount_id",
+                        side_effect=[1, 2],
+                    ):
+                        failed = cleanup_module._tree_usage_descriptor(
+                            descriptor, mounted
+                        )
+                    self.assertEqual(failed[0], {})
+                    self.assertIsNone(failed[1])
+                    self.assertIn("changed during usage inventory", failed[2] or "")
+                    self.assertEqual(failed[3:], (None, None, None))
+                finally:
+                    os.close(descriptor)
+
     def test_source_generation_cleanup_rejects_root_swap_before_removal(self) -> None:
         with self.workspace._resolved_profile_operation(
             "default",
