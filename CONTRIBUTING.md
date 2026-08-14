@@ -139,6 +139,13 @@ inheritance, reference-publication/removal races, and fail-closed diagnostics.
 Run the cleanup dry-run required by `AGENTS.md`; never use cleanup apply as
 validation.
 
+For development-scope changes, also cover distinct scopes sharing one physical
+checkout, same-name/label/branch races, every publication boundary, exact JSON
+handoff commands, state-policy opt-in, live-scope isolation, and hash-bound
+release refusal for dirty, detached, referenced, replaced, busy, retained, or
+ambiguous inputs. Scope release tests may apply only to temporary test-owned
+workspaces; repository validation remains preview-only.
+
 For CMake/cache changes, also repeat an unchanged build, exercise
 `--force-reconfigure` and `--no-ccache`, inspect `ccache --show-stats` when the
 command is installed, and preview shared-cache retention with
