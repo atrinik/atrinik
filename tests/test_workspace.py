@@ -2223,6 +2223,47 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(recreated, source)
         self.assertEqual((recreated / "README").read_text(encoding="utf-8"), "client\n")
 
+    def test_source_generation_cleanup_rejects_root_swap_before_removal(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            generation = snapshot.paths()["client"].parent
+        displaced = generation.with_name(f"{generation.name}-displaced")
+        real_remove = remove_owned_tree
+        swapped = False
+
+        def swap_before_remove(path: Path, **kwargs: object) -> None:
+            nonlocal swapped
+            if path == generation and not swapped:
+                swapped = True
+                generation.rename(displaced)
+                generation.mkdir()
+            real_remove(path, **kwargs)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
+                return_value=(set(), False),
+            ),
+            mock.patch(
+                "atrinik_workspace.cleanup.remove_owned_tree",
+                side_effect=swap_before_remove,
+            ),
+        ):
+            applied = self.workspace.cleanup(["builds"], 0, [], True)
+        failed = next(
+            item
+            for item in applied["items"]
+            if item["kind"] == "source-generation"
+        )
+        self.assertEqual(failed["disposition"], "error")
+        self.assertIn("identity changed", failed["error"])
+        self.assertTrue(generation.is_dir())
+        self.assertTrue(displaced.is_dir())
+
     def test_source_generation_archive_extraction_rejects_unsafe_entries(self) -> None:
         def archive(name: str, entries: list[tuple[tarfile.TarInfo, bytes]]) -> Path:
             path = self.root / f"{name}.tar"

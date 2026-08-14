@@ -1266,6 +1266,7 @@ class Cleanup:
             self._strip_internal(item)
             if kind in {
                 "worker-dependency-transaction",
+                "source-generation",
                 "source-generation-transaction",
                 "sound-cache",
                 "temporary-state",
@@ -3061,6 +3062,7 @@ class Cleanup:
             item["reasons"].append("filesystem_traversal_error")
             item["error"] = walk_error
         try:
+            root_status = path.stat(follow_symlinks=False)
             marker = path / MANAGED_MARKER
             metadata_path = path / SOURCE_GENERATION_METADATA
             source = path / "source"
@@ -3093,8 +3095,7 @@ class Cleanup:
             )
             if (
                 not re.fullmatch(r"[0-9a-f]{64}", key)
-                or path.is_symlink()
-                or not path.is_dir()
+                or not stat.S_ISDIR(root_status.st_mode)
                 or marker.is_symlink()
                 or load_json(marker)
                 != {
@@ -3138,6 +3139,18 @@ class Cleanup:
             except (OSError, RuntimeError, WorkspaceError) as error:
                 item["reasons"].append("corrupt_source_generation")
                 item["content_error"] = str(error)
+            current_root = path.stat(follow_symlinks=False)
+            if (current_root.st_dev, current_root.st_ino) != (
+                root_status.st_dev,
+                root_status.st_ino,
+            ):
+                raise WorkspaceError(
+                    "source generation identity changed during validation"
+                )
+            item["_identity"] = {
+                "device": root_status.st_dev,
+                "inode": root_status.st_ino,
+            }
         except (OSError, RuntimeError, WorkspaceError) as error:
             item["reasons"].append("invalid_source_generation")
             item["error"] = str(error)
@@ -5391,11 +5404,15 @@ class Cleanup:
                     or current.get("source_tree_observed_sha256")
                     != item.get("source_tree_observed_sha256")
                     or current.get("content_error") != item.get("content_error")
+                    or current.get("_identity") != item.get("_identity")
                 ):
                     raise WorkspaceError(
                         "source generation changed before removal"
                     )
-                remove_owned_tree(path)
+                remove_owned_tree(
+                    path,
+                    expected_identity=current["_identity"],
+                )
         elif item["kind"] == "source-generation-transaction":
             key = item["key"]
             lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
