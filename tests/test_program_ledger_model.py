@@ -454,6 +454,7 @@ class ProgramLedgerModel:
     ) -> None:
         generation = int(self.record["generation"])
         old_digest = self.digest()
+        expected_authority = copy.deepcopy(self.record["authority"])
         if expected_generation is not None and expected_generation != generation:
             raise StopClosed("stale generation")
         if expected_digest is not None and expected_digest != old_digest:
@@ -470,7 +471,7 @@ class ProgramLedgerModel:
         candidate_bytes = self.canonical(candidate)
         type(self).resume(
             candidate, self.lock_inode, candidate["self_inode"],
-            hashlib.sha256(candidate_bytes).hexdigest(), candidate["authority"],
+            hashlib.sha256(candidate_bytes).hexdigest(), expected_authority,
             expected_previous=old_digest,
         )
         self.record = candidate
@@ -780,7 +781,6 @@ class ProgramLedgerModel:
         if (
             self.record["comment"]["phase"] != "in-flight"
             or result_node != self.record["comment"]["node"]
-            or self.record["next_graph"] is None
         ):
             raise StopClosed("PATCH result or prior body drifted")
         observed = self.record["observation"]["comment"]
@@ -821,18 +821,17 @@ class ProgramLedgerModel:
             return CallPermit("comment", int(self.record["generation"]))
         if remote_body != "intended-body":
             raise StopClosed("PATCH result or prior body drifted")
-        self.persist(
-            lambda record: (
-                record["comment"].update(
-                    phase="bound", prior=None,
-                    plan_observation=None, arm_observation=None,
-                    retry_observation=None,
-                ),
-                record.update(
-                    graph=copy.deepcopy(record["next_graph"]), next_graph=None
-                ),
+        def bind(record: dict[str, object]) -> None:
+            record["comment"].update(
+                phase="bound", prior=None,
+                plan_observation=None, arm_observation=None,
+                retry_observation=None,
             )
-        )
+            if record["next_graph"] is not None:
+                record["graph"] = copy.deepcopy(record["next_graph"])
+                record["next_graph"] = None
+
+        self.persist(bind)
         return None
 
     def compose_leaf(self, position: str, generation: int, digest: str) -> None:
@@ -1336,6 +1335,78 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 generation=record["generation"] + 1
             ))
         self.assertEqual(invalid.record, retained)
+
+        for index, replacement in enumerate(
+            ("other-repo", "other-master", "other-goal", "other-actor")
+        ):
+            authority = ProgramLedgerModel()
+            retained = copy.deepcopy(authority.record)
+            with self.subTest(authority_index=index), self.assertRaises(StopClosed):
+                authority.persist(
+                    lambda record, i=index, value=replacement: record["authority"].__setitem__(
+                        i, value
+                    )
+                )
+            self.assertEqual(authority.record, retained)
+
+    def test_ordinary_patch_recovers_without_graph_rekey(self) -> None:
+        def bound_comment() -> ProgramLedgerModel:
+            model = ProgramLedgerModel()
+            model.observe_comment()
+            model.plan_comment()
+            self.refresh_before_arm(model, "comment")
+            model.execute(model.arm("comment"))
+            self.observe_result(model, "comment")
+            model.bind_comment([self.exact_comment()])
+            return model
+
+        model = bound_comment()
+        original_graph = copy.deepcopy(model.record["graph"])
+        model.observe_comment()
+        model.plan_comment()
+        self.refresh_before_arm(model, "comment")
+        model.execute(model.arm("comment"))
+        model = ProgramLedgerModel.resume(
+            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record["authority"], remote_calls=model.remote_calls,
+        )
+        model.observe_comment(stream="ordinary-old", count=1)
+        with self.assertRaises(StopClosed):
+            model.finish_patch("drifted-body", "comment-node")
+        with self.assertRaises(StopClosed):
+            model.finish_patch("old-body", "comment-node")
+        model = ProgramLedgerModel.resume(
+            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record["authority"], remote_calls=model.remote_calls,
+        )
+        model.observe_comment(stream="ordinary-old", count=1)
+        retry = model.finish_patch("old-body", "comment-node")
+        self.assertIsNotNone(retry)
+        model.execute(retry)
+        model = ProgramLedgerModel.resume(
+            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record["authority"], remote_calls=model.remote_calls,
+        )
+        model.observe_comment(stream="ordinary-intended", count=1, body="intended-body")
+        model.finish_patch("intended-body", "comment-node")
+        self.assertEqual(model.record["comment"]["phase"], "bound")
+        self.assertEqual(model.record["graph"], original_graph)
+        self.assertIsNone(model.record["next_graph"])
+        self.assertEqual(model.remote_calls["comment"], 3)
+
+        applied = bound_comment()
+        applied.observe_comment()
+        applied.plan_comment()
+        self.refresh_before_arm(applied, "comment")
+        applied.execute(applied.arm("comment"))
+        applied = ProgramLedgerModel.resume(
+            applied.record, 41, applied.record["self_inode"], applied.digest(),
+            applied.record["authority"], remote_calls=applied.remote_calls,
+        )
+        applied.observe_comment(stream="ordinary-applied", count=1, body="intended-body")
+        applied.finish_patch("intended-body", "comment-node")
+        self.assertEqual(applied.record["comment"]["phase"], "bound")
+        self.assertEqual(applied.remote_calls["comment"], 2)
 
     def test_marker_namespace_actor_and_duplicates_fail_closed(self) -> None:
         ProgramLedgerModel.validate_marker([], "actor", False)
