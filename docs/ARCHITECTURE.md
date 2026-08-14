@@ -215,9 +215,12 @@ dirtiness, and filesystem identity. A target build exports each clean primary
 component subpath from the captured Git commit into an atomic, read-only source
 generation keyed by repository, branch, checkout, commit, tree, subpath, and
 generation schema. Reuse authenticates the marker, closed metadata, and full
-tree digest. Published generations contain no links or hard links to mutable
-primary files. Build preparation then releases those primary source leases
-before configure/compile/test, while dirty sources, worktrees, and the Classic
+tree digest, then revalidates captured checkout, source, and common-Git
+filesystem identities. Published generations contain no links or hard links to
+mutable primary files. Every generation is revalidated after acquiring its
+shared pin and before source-lease handoff; build preparation then releases
+those primary source leases before configure/compile/test, while dirty
+sources, worktrees, and the Classic
 content publisher retain their exact live-source leases. `build all` uses the
 union of all target closures. Build metadata preserves both original source
 identity and immutable generation identity and never rereads a mutable profile
@@ -345,7 +348,10 @@ immediately before deletion.
 Commit-keyed source generations have closed repository/branch/checkout/tree/
 subpath metadata and a complete tree digest. Builds hold a per-key shared lock;
 default `builds` cleanup revalidates identity and age under its exclusive side
-before bounded removal.
+before bounded removal. First-use container publication is checkout-serialized.
+Interrupted staging remains a recognized child of its marker-owned container,
+is protected while its generation lock is busy, and becomes independently
+reclaimable after the normal grace period.
 
 The npm and compiler caches have exact purpose markers and atomically refreshed
 `.atrinik-cache.json` timestamps. The compiler cache metadata also fixes its

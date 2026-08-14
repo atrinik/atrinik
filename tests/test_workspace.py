@@ -126,7 +126,11 @@ def synthetic_build_process(
                 mock.patch.object(
                     workspace,
                     "_materialize_clean_primary_sources",
-                    side_effect=lambda _profile, selected, _states: (selected, set()),
+                    side_effect=lambda _profile, selected, _states: (
+                        selected,
+                        set(),
+                        {},
+                    ),
                 ),
                 mock.patch.object(
                     workspace, "_profile_build_key", return_value="a" * 12
@@ -269,7 +273,11 @@ def timed_public_build_process(
                 mock.patch.object(
                     workspace,
                     "_materialize_clean_primary_sources",
-                    side_effect=lambda _profile, selected, _states: (selected, set()),
+                    side_effect=lambda _profile, selected, _states: (
+                        selected,
+                        set(),
+                        {},
+                    ),
                 ),
                 mock.patch.object(
                     workspace, "_profile_build_key", return_value="a" * 12
@@ -747,6 +755,7 @@ def mixed_layout_operation_process(
                         side_effect=lambda _profile, selected, _states: (
                             selected,
                             set(),
+                            {},
                         ),
                     ),
                     mock.patch.object(
@@ -1785,6 +1794,16 @@ class WorkspaceTests(unittest.TestCase):
             "synchronize protocol",
         )
         entered = threading.Event()
+        protocol_attempted = threading.Event()
+        real_resource_locks = self.workspace._resource_locks
+
+        def observe_requests(requests, **kwargs):
+            if any(
+                request.coordinate == protocol_writer.coordinate
+                for request in requests
+            ) and not kwargs.get("nonblocking", False):
+                protocol_attempted.set()
+            return real_resource_locks(requests, **kwargs)
 
         def resolve() -> None:
             with self.workspace._resolved_profile_operation(
@@ -1793,13 +1812,25 @@ class WorkspaceTests(unittest.TestCase):
                 entered.set()
 
         with ThreadPoolExecutor(max_workers=1) as executor:
-            with self.workspace._resource_locks([protocol_writer]):
-                resolution = executor.submit(resolve)
-                time.sleep(0.05)
-                with self.workspace._resource_locks(
-                    [client_writer], nonblocking=True
+            with real_resource_locks([protocol_writer]):
+                with mock.patch.object(
+                    self.workspace,
+                    "_resource_locks",
+                    side_effect=observe_requests,
                 ):
-                    self.assertFalse(entered.is_set())
+                    resolution = executor.submit(resolve)
+                    self.assertTrue(protocol_attempted.wait(5))
+                    client_lock = resource_lock_path(
+                        self.workspace._lease_root(client_writer),
+                        client_writer.kind,
+                        client_writer.coordinate,
+                    )
+                    with exclusive_lock(
+                        client_lock,
+                        "released client source",
+                        nonblocking=True,
+                    ):
+                        self.assertFalse(entered.is_set())
             resolution.result(timeout=5)
         self.assertTrue(entered.is_set())
 
@@ -1839,8 +1870,10 @@ class WorkspaceTests(unittest.TestCase):
             "source", coordinate, "exclusive", "synchronize dirty client"
         )
         entered = threading.Event()
+        attempting = threading.Event()
 
         def acquire_writer() -> None:
+            attempting.set()
             with self.workspace._resource_locks([request]):
                 entered.set()
 
@@ -1853,7 +1886,7 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(snapshot.paths()["client"], primary.resolve())
             writer = threading.Thread(target=acquire_writer)
             writer.start()
-            time.sleep(0.05)
+            self.assertTrue(attempting.wait(5))
             self.assertFalse(entered.is_set())
         writer.join(2)
         self.assertFalse(writer.is_alive())
@@ -1873,8 +1906,10 @@ class WorkspaceTests(unittest.TestCase):
             "source", coordinate, "exclusive", "synchronize client worktree"
         )
         entered = threading.Event()
+        attempting = threading.Event()
 
         def acquire_writer() -> None:
+            attempting.set()
             with self.workspace._resource_locks([request]):
                 entered.set()
 
@@ -1887,7 +1922,7 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(snapshot.paths()["client"], path.resolve())
             writer = threading.Thread(target=acquire_writer)
             writer.start()
-            time.sleep(0.05)
+            self.assertTrue(attempting.wait(5))
             self.assertFalse(entered.is_set())
         writer.join(2)
         self.assertFalse(writer.is_alive())
@@ -1987,6 +2022,7 @@ class WorkspaceTests(unittest.TestCase):
         record = load_json(metadata)
         record["source_tree_sha256"] = "0" * 64
         atomic_json(metadata, record)
+        first.parent.chmod(0o500)
 
         with self.assertRaisesRegex(WorkspaceError, "source generation is corrupt"):
             resolve()
@@ -1996,6 +2032,42 @@ class WorkspaceTests(unittest.TestCase):
         shutil.copy2(metadata, forged.parent / metadata.name)
         with self.assertRaisesRegex(WorkspaceError, "ownership is invalid"):
             self.workspace._source_generation_record(forged)
+
+    def test_source_generation_rejects_external_hard_link(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        target = source / "README"
+        external = self.root / "external-hard-link"
+        external.write_bytes(target.read_bytes())
+        external.chmod(stat.S_IMODE(target.stat().st_mode))
+        generation_mode = stat.S_IMODE(source.parent.stat().st_mode)
+        source_mode = stat.S_IMODE(source.stat().st_mode)
+        source.parent.chmod(0o700)
+        source.chmod(0o700)
+        target.unlink()
+        os.link(external, target)
+        source.chmod(source_mode)
+        source.parent.chmod(generation_mode)
+
+        with self.assertRaisesRegex(WorkspaceError, "hard-linked file"):
+            resolve()
+
+        report = self.workspace.cleanup(["builds"], 0, [], False)
+        item = next(
+            row
+            for row in report["items"]
+            if row["kind"] == "source-generation"
+        )
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("invalid_source_generation", item["reasons"])
 
     def test_source_generation_publication_failure_leaves_no_partial_generation(self) -> None:
         with (
@@ -2015,9 +2087,44 @@ class WorkspaceTests(unittest.TestCase):
 
         container = self.workspace.paths.builds / "source-generations" / "client"
         self.assertEqual(
-            [path.name for path in container.iterdir() if path.name != MANAGED_MARKER],
+            [
+                path.name
+                for path in container.iterdir()
+                if path.name != MANAGED_MARKER
+            ],
             [],
         )
+
+    def test_source_generation_is_sealed_before_atomic_publication(self) -> None:
+        def publish_then_interrupt(source: Path, destination: Path) -> None:
+            real_rename_no_replace(source, destination)
+            raise WorkspaceError("injected post-publication interruption")
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace",
+                side_effect=publish_then_interrupt,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "post-publication interruption"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("interrupted publication was yielded")
+
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"resources"},
+            "build resources",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            generation = snapshot.paths()["resources"].parent
+            self.assertFalse(stat.S_IMODE(generation.stat().st_mode) & 0o222)
 
     def test_source_generation_rejects_checkout_change_during_staging(self) -> None:
         primary = self.workspace.paths.repositories / "client"
@@ -2048,6 +2155,173 @@ class WorkspaceTests(unittest.TestCase):
                 materialize_clean_primaries=True,
             ):
                 self.fail("changed source generation was yielded")
+
+    def test_source_generation_cleanup_cannot_cross_lease_handoff(self) -> None:
+        real_shared_lock = shared_lock
+        cleanup_ran = False
+
+        def cleanup_before_pin(path: Path, description: str):
+            nonlocal cleanup_ran
+            if "source-generation-" in path.name and not cleanup_ran:
+                cleanup_ran = True
+                with mock.patch(
+                    "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
+                    return_value=(set(), False),
+                ):
+                    self.workspace.cleanup(["builds"], 0, [], True)
+            return real_shared_lock(path, description)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.shared_lock",
+                side_effect=cleanup_before_pin,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed before lease handoff"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("removed source generation was yielded")
+        self.assertTrue(cleanup_ran)
+
+    def test_source_generation_cleanup_before_record_collection_fails_closed(
+        self,
+    ) -> None:
+        materialize = self.workspace._materialize_primary_source
+        cleanup_ran = False
+
+        def cleanup_after_materialize(*args, **kwargs) -> Path:
+            nonlocal cleanup_ran
+            generated = materialize(*args, **kwargs)
+            if not cleanup_ran:
+                cleanup_ran = True
+                with mock.patch(
+                    "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
+                    return_value=(set(), False),
+                ):
+                    self.workspace.cleanup(["builds"], 0, [], True)
+            return generated
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_materialize_primary_source",
+                side_effect=cleanup_after_materialize,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed before lease handoff"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("removed source generation was yielded")
+        self.assertTrue(cleanup_ran)
+
+    def test_source_generation_container_creation_is_serialized(self) -> None:
+        real_managed_directory = managed_directory
+        active = 0
+        maximum = 0
+        guard = threading.Lock()
+
+        def observe(path: Path, builds: Path, purpose: str) -> None:
+            nonlocal active, maximum
+            if purpose == "source-generations:client":
+                with guard:
+                    active += 1
+                    maximum = max(maximum, active)
+                time.sleep(0.05)
+                try:
+                    real_managed_directory(path, builds, purpose)
+                finally:
+                    with guard:
+                        active -= 1
+                return
+            real_managed_directory(path, builds, purpose)
+
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        with mock.patch(
+            "atrinik_workspace.workspace.managed_directory", side_effect=observe
+        ):
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                paths = list(executor.map(lambda _unused: resolve(), range(2)))
+        self.assertEqual(paths[0], paths[1])
+        self.assertEqual(maximum, 1)
+
+    def test_source_generation_reuse_revalidates_captured_identity(self) -> None:
+        profile = self.workspace._load_profile("default", require_file=False)
+        selected = self.workspace._resolve_build_profile(
+            "default", {"client"}, trace=False, profile=profile
+        )
+        states = self.workspace._selected_checkout_states(
+            profile, selected, include_dirty=True, include_identity=True
+        )
+        component = self.workspace.manifest.stack(profile["stack"]).providers[
+            "client"
+        ]
+        checkout = self.workspace.paths.repositories / "client"
+        generated = self.workspace._materialize_primary_source(
+            component, checkout, selected["client"], states["client"]
+        )
+        self.assertTrue(generated.is_dir())
+        (checkout / "reuse-race").write_text("advanced\n", encoding="utf-8")
+        command("git", "add", "reuse-race", cwd=checkout)
+        command("git", "commit", "-m", "test: advance reuse source", cwd=checkout)
+        with self.assertRaisesRegex(WorkspaceError, "changed before generation reuse"):
+            self.workspace._materialize_primary_source(
+                component, checkout, selected["client"], states["client"]
+            )
+
+    def test_source_generation_interruption_residue_is_reclaimable(self) -> None:
+        container = self.workspace.paths.builds / "source-generations" / "client"
+        managed_directory(
+            container,
+            self.workspace.paths.builds,
+            "source-generations:client",
+        )
+        key = "a" * 64
+        residue = container / f"{key}-staging-interrupted"
+        residue.mkdir()
+        (residue / "source.tar").write_bytes(b"partial archive")
+
+        report = self.workspace.cleanup(["builds"], 0, [], False)
+        item = next(
+            row
+            for row in report["items"]
+            if row["kind"] == "source-generation-transaction"
+        )
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(
+            item["reasons"], ["stale_source_generation_transaction"]
+        )
+        with mock.patch(
+            "atrinik_workspace.cleanup.Cleanup._registered_worktree_paths",
+            return_value=(set(), False),
+        ):
+            applied = self.workspace.cleanup(["builds"], 0, [], True)
+        removed = next(
+            row
+            for row in applied["items"]
+            if row["kind"] == "source-generation-transaction"
+        )
+        self.assertEqual(removed["disposition"], "removed")
+        self.assertFalse(residue.exists())
 
     def test_source_generation_metadata_and_cleanup_follow_generation_lease(
         self,
@@ -2101,6 +2375,43 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(removed["disposition"], "removed")
         self.assertFalse(generation_path.exists())
+
+    def test_source_generation_cleanup_does_not_follow_metadata_symlink(
+        self,
+    ) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"resources"},
+            "build resources",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            generation = snapshot.paths()["resources"].parent
+        external = self.root / "external-generation.json"
+        external.write_text('{"outside": true}\n', encoding="utf-8")
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        generation.chmod(0o700)
+        metadata.unlink()
+        metadata.symlink_to(external)
+        generation.chmod(0o500)
+        real_load_json = load_json
+
+        def reject_external_read(path: Path):
+            if path == metadata or path == external:
+                raise AssertionError("cleanup followed external metadata")
+            return real_load_json(path)
+
+        with mock.patch(
+            "atrinik_workspace.cleanup.load_json",
+            side_effect=reject_external_read,
+        ):
+            report = self.workspace.cleanup(["builds"], 0, [], False)
+        item = next(
+            row
+            for row in report["items"]
+            if row["kind"] == "source-generation"
+        )
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("invalid_source_generation", item["reasons"])
 
     def test_clean_referenced_worktree_cannot_be_removed(self) -> None:
         path = self.workspace.create_worktree(
@@ -7613,6 +7924,62 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertTrue(cacheable)
         self.assertEqual(set(inputs["coordinates"]), required)
+
+    def test_server_resource_inputs_keep_pre_sync_generation_identity(self) -> None:
+        profile = self.workspace._load_profile("default", require_file=False)
+        required = self.workspace._dependency_roles(profile, {"server"})
+        stack = self.workspace.manifest.stack(profile["stack"])
+        generated_checkouts = sorted(
+            {
+                stack.providers[role].checkout_name
+                for role in required
+                if role != "content"
+            }
+        )
+        for checkout in generated_checkouts:
+            seed = self.seeds[checkout]
+            (seed / "sync-during-server-build").write_text(
+                f"advanced {checkout}\n", encoding="utf-8"
+            )
+            command("git", "add", "sync-during-server-build", cwd=seed)
+            command("git", "commit", "-m", "test: advance server input", cwd=seed)
+            command("git", "push", "origin", "main", cwd=seed)
+
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"server"},
+            "build server",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            selected = snapshot.paths()
+            captured = snapshot.checkout_states()
+            self.workspace.sync(generated_checkouts, "none")
+            key = self.workspace._profile_build_key("default", selected)
+            root = self.workspace.paths.builds / "profiles" / f"default-{key}"
+            managed_directory(
+                root,
+                self.workspace.paths.builds,
+                f"profile:default:{key}",
+            )
+            self.workspace._stage_resources(root, selected, "default")
+            resource_inputs, resource_cacheable = (
+                self.workspace._runtime_input_coordinates(
+                    "default", selected, "resources"
+                )
+            )
+            region_inputs, region_cacheable = self.workspace._region_map_inputs(
+                "default", selected
+            )
+
+        self.assertTrue(resource_cacheable)
+        self.assertEqual(
+            resource_inputs["coordinate"]["head"],
+            captured["resources"]["head"],
+        )
+        self.assertTrue(region_cacheable)
+        for role, coordinate in region_inputs["coordinates"].items():
+            checkout = stack.providers[role].checkout_name
+            self.assertEqual(coordinate["head"], captured[checkout]["head"])
 
     def test_region_map_validation_rejects_malformed_outputs(self) -> None:
         output = self.root / "client-maps"

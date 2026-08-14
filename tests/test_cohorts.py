@@ -452,8 +452,17 @@ class CohortWorkspaceTests(unittest.TestCase):
             ) as clean,
             mock.patch.object(
                 self.workspace,
+                "_git_common_directory",
+                return_value=self.wrapper / "classic",
+            ),
+            mock.patch.object(
+                self.workspace,
                 "_materialize_clean_primary_sources",
-                side_effect=lambda _profile, selected, _states: (selected, set()),
+                side_effect=lambda _profile, selected, _states: (
+                    selected,
+                    set(),
+                    {},
+                ),
             ),
             mock.patch.object(
                 self.workspace,

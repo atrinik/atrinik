@@ -44,10 +44,9 @@ clones.
 ./atrinik worktree create COMPONENT LABEL --branch TYPE/TOPIC
 ```
 
-Sync only clean primaries; never implicitly replace, move, or remove a
-dirty checkout or worktree. A logical classic selector creates the full
-repository under `workspace/worktrees/classic/LABEL`. Commit and push from each
-owning worktree.
+Sync only clean primaries; never replace, move, or remove dirty sources.
+Classic selectors create the full repository under
+`workspace/worktrees/classic/LABEL`. Commit and push in its owning worktree.
 
 Reclaim review data only through preview-first cleanup:
 
@@ -86,8 +85,9 @@ wrapper replacement build/runtime closure yet.
 ```
 
 Classic selection is checkout-wide; subdirectories are not worktrees. Clean
-Target builds snapshot clean primaries; other inputs retain exact leases. Caches
-stay exact and runtimes copy.
+target builds pin generated snapshots before releasing primaries; caches
+use snapshot identity. Live inputs retain leases; interrupted staging is
+cleanup-owned.
 
 Lease order is registry, profile, Git-admin, source, topology/scenario, state,
 build, cache. Writers gate matching coordinates; physical leases span state

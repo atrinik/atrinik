@@ -715,7 +715,10 @@ Immutable source generations use the same default `builds` scope and grace
 period. Cleanup authenticates their checkout/key path, ownership marker,
 closed commit/tree/subpath metadata, and complete tree digest. An active build
 holds the generation's shared lock; apply takes its exclusive side and repeats
-identity, digest, and age validation before bounded removal.
+identity, digest, and age validation before bounded removal. Generation staging
+transactions within the marker-owned container are separately inventoried,
+remain protected under an active generation lock, and are reclaimable after
+interruption and the normal grace period.
 
 Worker dependency entries under `workspace/build/worker-dependencies/` use the
 same default `builds` scope and grace period. Cleanup requires the exact parent
@@ -1075,11 +1078,15 @@ transitive provider closure, then locks only those selected sources and
 revalidates them. Clean primary inputs are exported atomically into reusable,
 commit/tree/subpath-keyed read-only generations below
 `workspace/build/source-generations/`; reuse verifies ownership metadata and a
-complete tree digest. No generation links or hard-links back to mutable primary
-files. Once those generations are published, their primary source leases are
-released while dirty primaries and worktrees stay locked for as long as the
-build can read them. The build persists original filesystem/Git observations
-and immutable generation paths and digests in
+complete tree digest plus the captured checkout, source, and common-Git
+filesystem identities. No generation links or hard-links back to mutable
+primary files. Every generated path is revalidated after the build takes its
+shared pin; only then are its primary source leases released. Dirty primaries
+and worktrees stay locked for as long as the build
+can read them. Cache and region-map coordinates come from the captured snapshot
+or generation metadata rather than rereading a released primary. The build
+persists original filesystem/Git observations and immutable generation paths
+and digests in
 `.atrinik-profile-resolution.json`, and does not reread a mutable profile by
 name. Profile or topology publication and worktree removal share any remaining
 live target source lease, so cleanup cannot race a newly published exact

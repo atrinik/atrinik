@@ -50,6 +50,7 @@ from .workspace import (
     _remote_matches,
     _tree_digest,
     exclusive_lock,
+    load_regular_json,
     remove_owned_tree,
 )
 
@@ -1209,6 +1210,10 @@ class Cleanup:
             item = self._source_generation_item(
                 path, target["checkout"], older_than_days
             )
+        elif kind == "source-generation-transaction":
+            item = self._source_generation_transaction_item(
+                path, target["checkout"], older_than_days
+            )
         elif kind == "worker-dependencies":
             item = self._worker_dependency_item(
                 path,
@@ -1261,6 +1266,7 @@ class Cleanup:
             self._strip_internal(item)
             if kind in {
                 "worker-dependency-transaction",
+                "source-generation-transaction",
                 "sound-cache",
                 "temporary-state",
             }:
@@ -2911,7 +2917,7 @@ class Cleanup:
                     raise WorkspaceError(
                         "source generation checkout root is invalid"
                     )
-                generations = sorted(
+                children = sorted(
                     path
                     for path in checkout_root.iterdir()
                     if path.name != MANAGED_MARKER
@@ -2927,11 +2933,109 @@ class Cleanup:
                 item["error"] = str(error)
                 items.append(item)
                 continue
-            items.extend(
-                self._source_generation_item(path, checkout, older_than_days)
-                for path in generations
-            )
+            for path in children:
+                if re.fullmatch(
+                    r"[0-9a-f]{64}-staging-[a-z0-9_]+", path.name
+                ):
+                    items.append(
+                        self._source_generation_transaction_item(
+                            path, checkout, older_than_days
+                        )
+                    )
+                else:
+                    items.append(
+                        self._source_generation_item(
+                            path, checkout, older_than_days
+                        )
+                    )
         return items
+
+    def _source_generation_transaction_item(
+        self,
+        path: Path,
+        checkout: str,
+        older_than_days: int,
+        *,
+        check_lock: bool = True,
+    ) -> dict[str, Any]:
+        checkout_record = self.manifest.by_checkout[checkout]
+        item = _base_item(
+            "source-generation-transaction",
+            checkout,
+            checkout_record.repository,
+            path,
+        )
+        item["checkout"] = checkout
+        inodes, observed, walk_error = _tree_usage(path)
+        item["_inodes"] = inodes
+        try:
+            path_status = path.lstat()
+            item["_identity"] = (
+                path_status.st_dev,
+                path_status.st_ino,
+                path_status.st_ctime_ns,
+                stat.S_IFMT(path_status.st_mode),
+                stat.S_IMODE(path_status.st_mode),
+            )
+            created = datetime.fromtimestamp(path_status.st_ctime, timezone.utc)
+            observed = created if observed is None else max(observed, created)
+        except OSError as error:
+            item["reasons"].append("filesystem_traversal_error")
+            item["error"] = str(error)
+        match = re.fullmatch(r"([0-9a-f]{64})-staging-([a-z0-9_]+)", path.name)
+        if walk_error:
+            item["reasons"].append("filesystem_traversal_error")
+            item["error"] = walk_error
+        if match is None or path.is_symlink() or not path.is_dir():
+            item["reasons"].append("invalid_source_generation_transaction")
+        else:
+            key, _suffix = match.groups()
+            item["key"] = key
+            marker = path / MANAGED_MARKER
+            try:
+                if marker.exists() or marker.is_symlink():
+                    if (
+                        marker.is_symlink()
+                        or load_json(marker)
+                        != {
+                            "schema_version": SCHEMA_VERSION,
+                            "purpose": f"source-generation:{key}",
+                        }
+                    ):
+                        raise WorkspaceError(
+                            "source generation transaction marker is invalid"
+                        )
+            except (OSError, WorkspaceError) as error:
+                item["reasons"].append(
+                    "invalid_source_generation_transaction"
+                )
+                item["error"] = str(error)
+            if check_lock:
+                busy, lock_error = self._lock_busy(
+                    self.paths.builds
+                    / "locks"
+                    / f"source-generation-{key}.lock"
+                )
+                if lock_error:
+                    item["reasons"].append("build_lock_error")
+                    item["error"] = lock_error
+                elif busy:
+                    item["reasons"].append("build_lock_busy")
+        item["age_basis"] = "tree-mtime-or-root-ctime" if observed else None
+        if observed is None:
+            item["reasons"].append("build_age_unavailable")
+        else:
+            age = max(0, int((self.now - observed).total_seconds()))
+            item["age_seconds"] = age
+            if observed > self.now:
+                item["reasons"].append("future_tree_mtime")
+            elif age < older_than_days * 86400:
+                item["reasons"].append("younger_than_grace_period")
+        item["reasons"] = sorted(set(item["reasons"]))
+        if not item["reasons"]:
+            item["disposition"] = "eligible"
+            item["reasons"] = ["stale_source_generation_transaction"]
+        return item
 
     def _source_generation_item(
         self,
@@ -2960,7 +3064,9 @@ class Cleanup:
             marker = path / MANAGED_MARKER
             metadata_path = path / SOURCE_GENERATION_METADATA
             source = path / "source"
-            metadata = load_json(metadata_path)
+            metadata = load_regular_json(
+                metadata_path, "immutable source generation metadata"
+            )
             identity = (
                 {
                     field: metadata.get(field)
@@ -3015,7 +3121,12 @@ class Cleanup:
                     )
                 )
                 or metadata.get("source_tree_sha256")
-                != _tree_digest(source, set(), bounded_symlinks=True)
+                != _tree_digest(
+                    source,
+                    set(),
+                    bounded_symlinks=True,
+                    reject_hardlinks=True,
+                )
             ):
                 raise WorkspaceError("source generation metadata is invalid")
             item["source_tree_sha256"] = metadata["source_tree_sha256"]
@@ -5140,6 +5251,7 @@ class Cleanup:
             "profile-build": 0,
             "worker-dependencies": 0,
             "worker-dependency-transaction": 0,
+            "source-generation-transaction": 0,
             "source-generation": 0,
             "worktree": 1,
             "npm-cache": 2,
@@ -5269,6 +5381,56 @@ class Cleanup:
                 ):
                     raise WorkspaceError(
                         "source generation changed before removal"
+                    )
+                remove_owned_tree(path)
+        elif item["kind"] == "source-generation-transaction":
+            key = item["key"]
+            lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
+            with exclusive_lock(
+                lock,
+                f"immutable source generation {key}",
+                nonblocking=True,
+            ):
+                transaction_root = (
+                    self.paths.builds
+                    / "source-generations"
+                    / item["checkout"]
+                )
+                marker = transaction_root / MANAGED_MARKER
+                if (
+                    transaction_root.is_symlink()
+                    or not transaction_root.is_dir()
+                    or marker.is_symlink()
+                    or load_json(marker)
+                    != {
+                        "schema_version": SCHEMA_VERSION,
+                        "purpose": f"source-generations:{item['checkout']}",
+                    }
+                    or path.parent.resolve(strict=False)
+                    != transaction_root.resolve(strict=False)
+                    or not re.fullmatch(
+                        rf"{key}-staging-[a-z0-9_]+", path.name
+                    )
+                    or path.is_symlink()
+                    or not path.is_dir()
+                ):
+                    raise WorkspaceError(
+                        "source generation transaction changed before removal: "
+                        f"{path}"
+                    )
+                current = self._source_generation_transaction_item(
+                    path,
+                    item["checkout"],
+                    older_than_days,
+                    check_lock=False,
+                )
+                if (
+                    current.get("_identity") != item.get("_identity")
+                    or current["disposition"] != "eligible"
+                ):
+                    raise WorkspaceError(
+                        "source generation transaction changed before removal: "
+                        f"{path}"
                     )
                 remove_owned_tree(path)
         elif item["kind"] == "worker-dependency-transaction":
