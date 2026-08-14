@@ -368,6 +368,7 @@ class ProgramLedgerModel:
                 and value["count"] >= 0
                 and type(value["pages"]) is int and 1 <= value["pages"] <= 100
                 and type(value["nodes"]) is int and 0 <= value["nodes"] <= 10_000
+                and value["nodes"] <= value["pages"] * 100
                 and value["count"] <= value["nodes"]
                 and type(value["body_bytes"]) is int
                 and 0 <= value["body_bytes"] <= 16 * 1024 * 1024
@@ -651,6 +652,7 @@ class ProgramLedgerModel:
             or body_bytes > 16 * 1024 * 1024
             or pages != max(1, len(cursors)) or len(cursors) > 100
             or nodes != len(node_ids) or len(node_ids) > 10_000
+            or nodes > pages * 100
             or (bool(node_ids) != bool(cursors))
             or body_bytes != sum(body_sizes)
             or any(
@@ -1488,6 +1490,9 @@ class ProgramLedgerModelTests(unittest.TestCase):
         ProgramLedgerModel.stable_scan(
             [], [], "d", "d", body_bytes=65_536, body_sizes=[65_536]
         )
+        ProgramLedgerModel.stable_scan(
+            ["cursor"], [str(index) for index in range(100)], "d", "d"
+        )
         cases = (
             {"complete": False}, {"timed_out": True}, {"pages": 101},
             {"nodes": 10_001}, {"body_bytes": 16 * 1024 * 1024 + 1},
@@ -1503,6 +1508,10 @@ class ProgramLedgerModelTests(unittest.TestCase):
             ProgramLedgerModel.stable_scan(["a", "a"], ["1"], "d", "d")
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.stable_scan([], [], "before", "after")
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.stable_scan(
+                ["cursor"], [str(index) for index in range(101)], "d", "d"
+            )
         bypasses = (
             {"cursors": [], "node_ids": [], "body_sizes": [65_536] * 257,
              "body_bytes": 0},
@@ -1860,6 +1869,18 @@ class ProgramLedgerModelTests(unittest.TestCase):
                     ).hexdigest(),
                     corrupt_result["authority"],
                 )
+        bad_geometry = copy.deepcopy(result.record)
+        bad_geometry["observation"]["child"].update(
+            pages=1, nodes=101, terminal_cursor="cursor"
+        )
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.resume(
+                bad_geometry, 41, bad_geometry["self_inode"],
+                hashlib.sha256(
+                    ProgramLedgerModel.canonical(bad_geometry)
+                ).hexdigest(),
+                bad_geometry["authority"],
+            )
 
     def test_retry_epochs_and_prospective_semantics_fail_closed(self) -> None:
         patch = ProgramLedgerModel()
