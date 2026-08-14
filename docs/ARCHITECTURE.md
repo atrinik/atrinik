@@ -21,11 +21,13 @@ configuration.
 `components.json` schema 3 separates physical `checkouts` from logical
 `components`. A checkout owns its repository, branch, local destination,
 generation, license, and initialization-cohort membership. A component names
-its checkout and a safe relative `source`, plus provider roles, requirements,
-license, generation, and local build contract. The replacement/default and
-opt-in classic cohorts contain physical checkout identities. The built-in
-`default` and `classic` profiles are coherent stacks of logical components
-rather than aliases for every manifest entry.
+its checkout and a safe relative `source`, optional safe non-overlapping
+`source_includes`, plus provider roles, requirements, license, generation, and
+local build contract. Includes may be shared by components but cannot overlap a
+logical component source. The replacement/default and opt-in classic cohorts
+contain physical checkout identities. The built-in `default` and `classic`
+profiles are coherent stacks of logical components rather than aliases for
+every manifest entry.
 
 The `atrinik/classic@main` checkout at `./classic` provides five logical
 components: `classic-client` from `client/`, `classic-server` from `server/`,
@@ -380,9 +382,13 @@ helper repeats containment, symlink, marker, schema, and purpose validation
 immediately before deletion.
 
 Commit-keyed source generations have closed repository/branch/checkout/tree/
-subpath metadata and a complete tree digest. Builds hold a per-key shared lock;
-default `builds` cleanup revalidates identity and age under its exclusive side
-before bounded removal. First-use container publication is checkout-serialized.
+subpath metadata. Generation schema 2 separately records the Git tree for each
+declared source include, the logical-source digest, and a framed digest of the
+complete source-plus-includes closure. Schema-1 generations remain recognizable
+to preview-first cleanup but cannot be reused as current build inputs. Builds
+hold a per-key shared lock; default `builds` cleanup revalidates identity and
+age under its exclusive side before bounded removal. First-use container
+publication is checkout-serialized.
 Interrupted staging remains a recognized child of its marker-owned container,
 is protected while its generation lock is busy, and becomes independently
 reclaimable after the normal grace period.

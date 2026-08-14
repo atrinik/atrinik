@@ -207,7 +207,7 @@ BUILD_METADATA_SCHEMA_VERSION = 3
 PROFILE_RESOLUTION_METADATA = ".atrinik-profile-resolution.json"
 PROFILE_RESOLUTION_SCHEMA_VERSION = 3
 SOURCE_GENERATION_METADATA = ".atrinik-source-generation.json"
-SOURCE_GENERATION_SCHEMA_VERSION = 1
+SOURCE_GENERATION_SCHEMA_VERSION = 2
 CACHE_METADATA = ".atrinik-cache.json"
 WORKER_DEPENDENCY_METADATA = ".atrinik-worker-dependencies.json"
 WORKER_VIEW_METADATA = ".atrinik-worker-view.json"
@@ -1269,6 +1269,29 @@ def _tree_digest(
     return digest.hexdigest()
 
 
+def _source_closure_digest(generation: Path, includes: Iterable[str]) -> str:
+    """Authenticate a generated logical source and its declared sibling inputs."""
+
+    entries = {
+        "source": _tree_digest(
+            generation / "source",
+            set(),
+            bounded_symlinks=True,
+            reject_hardlinks=True,
+        )
+    }
+    for include in sorted(includes):
+        entries[include] = _tree_digest(
+            generation.joinpath(*PurePosixPath(include).parts),
+            set(),
+            bounded_symlinks=True,
+            reject_hardlinks=True,
+        )
+    return hashlib.sha256(
+        json.dumps(entries, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
 def _tree_digest_descriptor(
     root_fd: int,
     display: Path,
@@ -2094,13 +2117,16 @@ class Workspace:
                 "tree",
                 "source",
                 "source_tree",
+                "source_includes",
                 "source_tree_sha256",
+                "closure_tree_sha256",
             }
             or value.get("schema_version") != SOURCE_GENERATION_SCHEMA_VERSION
             or not all(
                 isinstance(value.get(field), str) and value[field]
                 for field in ("repository", "checkout", "branch", "source")
             )
+            or not isinstance(value.get("source_includes"), dict)
             or not all(
                 isinstance(value.get(field), str)
                 and re.fullmatch(r"[0-9a-f]{40,64}", value[field])
@@ -2109,13 +2135,22 @@ class Workspace:
                     "tree",
                     "source_tree",
                     "source_tree_sha256",
+                    "closure_tree_sha256",
                 )
+            )
+            or not all(
+                isinstance(path, str)
+                and isinstance(tree, str)
+                and re.fullmatch(r"[0-9a-f]{40,64}", tree)
+                for path, tree in value.get("source_includes", {}).items()
             )
             or not any(
                 component.checkout_name == value.get("checkout")
                 and component.repository == value.get("repository")
                 and component.branch == value.get("branch")
                 and component.source == value.get("source")
+                and set(component.source_includes)
+                == set(value.get("source_includes", {}))
                 for component in self.manifest.components
             )
         ):
@@ -2125,7 +2160,7 @@ class Workspace:
         identity = {
             field: value[field]
             for field in value
-            if field != "source_tree_sha256"
+            if field not in {"source_tree_sha256", "closure_tree_sha256"}
         }
         key = hashlib.sha256(
             json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
@@ -2164,7 +2199,7 @@ class Workspace:
     def _extract_git_source_archive(archive_path: Path, output: Path) -> None:
         """Extract a local Git archive without trusting archive paths or links."""
 
-        output.mkdir()
+        output.mkdir(parents=True)
         root = output.resolve()
         try:
             with tarfile.open(archive_path, mode="r:") as archive:
@@ -2300,6 +2335,16 @@ class Workspace:
             capture=True,
             trace=False,
         )
+        source_includes = {
+            include: git(
+                checkout,
+                "rev-parse",
+                f"{commit}:{include}",
+                capture=True,
+                trace=False,
+            )
+            for include in component.source_includes
+        }
         identity = {
             "schema_version": SOURCE_GENERATION_SCHEMA_VERSION,
             "repository": component.repository,
@@ -2309,6 +2354,7 @@ class Workspace:
             "tree": tree,
             "source": component.source,
             "source_tree": source_tree,
+            "source_includes": source_includes,
         }
         key = hashlib.sha256(
             json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
@@ -2345,6 +2391,9 @@ class Workspace:
                         set(),
                         bounded_symlinks=True,
                         reject_hardlinks=True,
+                    ),
+                    "closure_tree_sha256": _source_closure_digest(
+                        generation, component.source_includes
                     ),
                 }
                 if (
@@ -2402,7 +2451,6 @@ class Workspace:
             staging = Path(
                 tempfile.mkdtemp(prefix=f"{key}-staging-", dir=container)
             )
-            archive_path = staging / "source.tar"
             try:
                 atomic_json(
                     staging / MANAGED_MARKER,
@@ -2411,36 +2459,58 @@ class Workspace:
                         "purpose": f"source-generation:{key}",
                     },
                 )
-                archive_ref = (
-                    commit
-                    if component.source == "."
-                    else f"{commit}:{component.source}"
-                )
-                try:
-                    subprocess.run(
-                        [
-                            "git",
-                            "-C",
-                            str(checkout),
-                            "archive",
-                            "--format=tar",
-                            f"--output={archive_path}",
-                            archive_ref,
-                        ],
-                        check=True,
-                        stderr=subprocess.PIPE,
-                        pass_fds=active_lock_fds(),
+                exports = [
+                    (
+                        commit
+                        if component.source == "."
+                        else f"{commit}:{component.source}",
+                        staging / "source",
+                    ),
+                    *(
+                        (
+                            f"{commit}:{include}",
+                            staging.joinpath(*PurePosixPath(include).parts),
+                        )
+                        for include in component.source_includes
+                    ),
+                ]
+                for export_index, (archive_ref, destination) in enumerate(exports):
+                    archive_descriptor, archive_name = tempfile.mkstemp(
+                        prefix=f"atrinik-source-{export_index}-", suffix=".tar"
                     )
-                except FileNotFoundError as error:
-                    raise WorkspaceError("required command not found: git") from error
-                except subprocess.CalledProcessError as error:
-                    detail = error.stderr.decode("utf-8", errors="replace").strip()
-                    suffix = f": {detail}" if detail else ""
-                    raise WorkspaceError(
-                        f"cannot export immutable source generation{suffix}"
-                    ) from error
-                self._extract_git_source_archive(archive_path, staging / "source")
-                archive_path.unlink()
+                    os.close(archive_descriptor)
+                    archive_path = Path(archive_name)
+                    try:
+                        try:
+                            subprocess.run(
+                                [
+                                    "git",
+                                    "-C",
+                                    str(checkout),
+                                    "archive",
+                                    "--format=tar",
+                                    f"--output={archive_path}",
+                                    archive_ref,
+                                ],
+                                check=True,
+                                stderr=subprocess.PIPE,
+                                pass_fds=active_lock_fds(),
+                            )
+                        except FileNotFoundError as error:
+                            raise WorkspaceError(
+                                "required command not found: git"
+                            ) from error
+                        except subprocess.CalledProcessError as error:
+                            detail = error.stderr.decode(
+                                "utf-8", errors="replace"
+                            ).strip()
+                            suffix = f": {detail}" if detail else ""
+                            raise WorkspaceError(
+                                f"cannot export immutable source generation{suffix}"
+                            ) from error
+                        self._extract_git_source_archive(archive_path, destination)
+                    finally:
+                        archive_path.unlink(missing_ok=True)
                 current_checkout = checkout.stat()
                 current_source = source.stat()
                 current_git_common = self._git_common_directory(
@@ -2485,6 +2555,9 @@ class Workspace:
                         bounded_symlinks=True,
                         reject_hardlinks=True,
                     ),
+                    "closure_tree_sha256": _source_closure_digest(
+                        staging, component.source_includes
+                    ),
                 }
                 durable_atomic_json(staging / SOURCE_GENERATION_METADATA, record)
                 self._seal_runtime_generation(staging)
@@ -2503,7 +2576,7 @@ class Workspace:
     ) -> tuple[dict[str, Path], set[str], dict[Path, dict[str, Any]]]:
         stack = self.manifest.stack(profile["stack"])
         materialized = dict(selected)
-        checkout_results: dict[tuple[str, str], Path] = {}
+        checkout_results: dict[tuple[str, str, tuple[str, ...]], Path] = {}
         for role in sorted(selected):
             component = stack.providers[role]
             selector = profile["components"][component.name]
@@ -2518,7 +2591,11 @@ class Workspace:
                 or state["dirty"]
             ):
                 continue
-            cache_key = (component.checkout_name, component.source)
+            cache_key = (
+                component.checkout_name,
+                component.source,
+                component.source_includes,
+            )
             generated = checkout_results.get(cache_key)
             if generated is None:
                 generated = self._materialize_primary_source(
@@ -2662,6 +2739,12 @@ class Workspace:
                                 bounded_symlinks=True,
                                 reject_hardlinks=True,
                             )
+                            current_closure_digest = _source_closure_digest(
+                                path.parent,
+                                current_record.get("source_includes", {})
+                                if current_record is not None
+                                else (),
+                            )
                         except (OSError, WorkspaceError) as error:
                             raise WorkspaceError(
                                 "immutable source generation changed before lease handoff: "
@@ -2671,6 +2754,8 @@ class Workspace:
                             current_record != expected_record
                             or current_digest
                             != expected_record["source_tree_sha256"]
+                            or current_closure_digest
+                            != expected_record["closure_tree_sha256"]
                         ):
                             raise WorkspaceError(
                                 "immutable source generation changed before lease handoff: "
@@ -5187,6 +5272,8 @@ class Workspace:
     ) -> Path:
         key = self._profile_build_key(profile_name, selected)
         root = self.paths.builds / "profiles" / f"{profile_name}-{key}"
+        profile = self._load_profile(profile_name, require_file=False)
+        stack = self.manifest.stack(profile["stack"])
         with self._profile_build_lock(root, profile_name):
             self._force_reconfigure = force_reconfigure
             self._use_ccache = use_ccache
@@ -5227,9 +5314,20 @@ class Workspace:
                 if "libatrinik" in targets:
                     self._build_library(root, selected, tests)
                 if "client" in targets:
-                    self._build_client(root, selected, tests, sound_root=sound_root)
+                    self._build_client(
+                        root,
+                        selected,
+                        tests,
+                        component=stack.providers["client"],
+                        sound_root=sound_root,
+                    )
                 if "server" in targets:
-                    self._build_server(root, selected, tests)
+                    self._build_server(
+                        root,
+                        selected,
+                        tests,
+                        component=stack.providers["server"],
+                    )
             if "server" in targets:
                 self._generate_region_maps(root, profile_name, selected)
             if "metaserver-worker" in targets:
@@ -5723,7 +5821,8 @@ class Workspace:
             f"{stack.providers[role].repository}@"
             f"{stack.providers[role].branch}@"
             f"{stack.providers[role].checkout_name}:"
-            f"{stack.providers[role].source}"
+            f"{stack.providers[role].source}:"
+            f"{','.join(stack.providers[role].source_includes)}"
             for role in sorted(selected)
         )
         namespace = (
@@ -7648,14 +7747,33 @@ class Workspace:
             tests,
         )
 
+    def _prepare_component_source_includes(
+        self, root: Path, component: Component, source: Path
+    ) -> None:
+        if not component.source_includes:
+            return
+        generation = self._source_generation_record(source)
+        if generation is not None:
+            closure_root = source.parent
+        else:
+            closure_root = source
+            if component.source != ".":
+                for _part in PurePosixPath(component.source).parts:
+                    closure_root = closure_root.parent
+        for include in component.source_includes:
+            include_source = closure_root.joinpath(*PurePosixPath(include).parts)
+            self._profile_source_view(root, include, include_source, set())
+
     def _build_client(
         self,
         root: Path,
         selected: dict[str, Path],
         tests: bool,
         *,
+        component: Component,
         sound_root: Path | None = None,
     ) -> None:
+        self._prepare_component_source_includes(root, component, selected["client"])
         view = self._profile_source_view(
             root,
             "client",
@@ -7682,7 +7800,15 @@ class Workspace:
         )
         self._record_classic_graph(root, {"client"}, "standalone")
 
-    def _build_server(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
+    def _build_server(
+        self,
+        root: Path,
+        selected: dict[str, Path],
+        tests: bool,
+        *,
+        component: Component,
+    ) -> None:
+        self._prepare_component_source_includes(root, component, selected["server"])
         view = self._profile_source_view(
             root,
             "server",

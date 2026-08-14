@@ -48,6 +48,7 @@ from .workspace import (
     _open_directory_nofollow,
     _owned_tree_tombstone_path,
     _remote_matches,
+    _source_closure_digest,
     _tree_digest,
     exclusive_lock,
     load_regular_json,
@@ -90,7 +91,7 @@ BUILD_COORDINATE_KEYS = {
     "source_path",
     "head",
 }
-SOURCE_GENERATION_KEYS = {
+LEGACY_SOURCE_GENERATION_METADATA_KEYS = {
     "schema_version",
     "repository",
     "checkout",
@@ -100,9 +101,17 @@ SOURCE_GENERATION_KEYS = {
     "source",
     "source_tree",
     "source_tree_sha256",
+}
+SOURCE_GENERATION_METADATA_KEYS = {
+    *LEGACY_SOURCE_GENERATION_METADATA_KEYS,
+    "source_includes",
+    "closure_tree_sha256",
+}
+LEGACY_SOURCE_GENERATION_KEYS = {
+    *LEGACY_SOURCE_GENERATION_METADATA_KEYS,
     "path",
 }
-SOURCE_GENERATION_METADATA_KEYS = SOURCE_GENERATION_KEYS - {"path"}
+SOURCE_GENERATION_KEYS = {*SOURCE_GENERATION_METADATA_KEYS, "path"}
 PROFILE_PURPOSE = re.compile(
     r"^profile:(?P<profile>[a-z0-9][a-z0-9._-]*):(?P<key>[0-9a-f]{12})$"
 )
@@ -3077,11 +3086,21 @@ class Cleanup:
             metadata = load_regular_json(
                 metadata_path, "immutable source generation metadata"
             )
+            metadata_schema = (
+                metadata.get("schema_version")
+                if isinstance(metadata, dict)
+                else None
+            )
+            metadata_keys = (
+                SOURCE_GENERATION_METADATA_KEYS
+                if metadata_schema == SOURCE_GENERATION_SCHEMA_VERSION
+                else LEGACY_SOURCE_GENERATION_METADATA_KEYS
+            )
             identity = (
                 {
                     field: metadata.get(field)
-                    for field in SOURCE_GENERATION_METADATA_KEYS
-                    if field != "source_tree_sha256"
+                    for field in metadata_keys
+                    if field not in {"source_tree_sha256", "closure_tree_sha256"}
                 }
                 if isinstance(metadata, dict)
                 else {}
@@ -3097,6 +3116,11 @@ class Cleanup:
                     and component.repository == metadata.get("repository")
                     and component.branch == metadata.get("branch")
                     and component.source == metadata.get("source")
+                    and (
+                        metadata_schema == 1
+                        or set(component.source_includes)
+                        == set(metadata.get("source_includes", {}))
+                    )
                 ]
                 if isinstance(metadata, dict)
                 else []
@@ -3114,9 +3138,8 @@ class Cleanup:
                 or metadata_path.is_symlink()
                 or not metadata_path.is_file()
                 or not isinstance(metadata, dict)
-                or set(metadata) != SOURCE_GENERATION_METADATA_KEYS
-                or metadata.get("schema_version")
-                != SOURCE_GENERATION_SCHEMA_VERSION
+                or set(metadata) != metadata_keys
+                or metadata_schema not in {1, SOURCE_GENERATION_SCHEMA_VERSION}
                 or metadata.get("checkout") != checkout
                 or key != expected_key
                 or not matching_components
@@ -3137,9 +3160,29 @@ class Cleanup:
                     bounded_symlinks=True,
                     reject_hardlinks=True,
                 )
+                or (
+                    metadata_schema == SOURCE_GENERATION_SCHEMA_VERSION
+                    and (
+                        not isinstance(metadata.get("source_includes"), dict)
+                        or not all(
+                            isinstance(include, str)
+                            and isinstance(tree, str)
+                            and HEAD_PATTERN.fullmatch(tree)
+                            for include, tree in metadata["source_includes"].items()
+                        )
+                        or not isinstance(metadata.get("closure_tree_sha256"), str)
+                        or not HEAD_PATTERN.fullmatch(metadata["closure_tree_sha256"])
+                        or metadata["closure_tree_sha256"]
+                        != _source_closure_digest(
+                            path, metadata["source_includes"]
+                        )
+                    )
+                )
             ):
                 raise WorkspaceError("source generation metadata is invalid")
             item["source_tree_sha256"] = metadata["source_tree_sha256"]
+            if metadata_schema == SOURCE_GENERATION_SCHEMA_VERSION:
+                item["closure_tree_sha256"] = metadata["closure_tree_sha256"]
         except (OSError, RuntimeError, WorkspaceError) as error:
             item["reasons"].append("invalid_source_generation")
             item["error"] = str(error)
@@ -3665,11 +3708,23 @@ class Cleanup:
                     if Path(row["source_path"]).resolve(strict=False) != expected_source:
                         raise WorkspaceError("build coordinate source path is invalid")
                 else:
+                    generation_schema = (
+                        generation.get("schema_version")
+                        if isinstance(generation, dict)
+                        else None
+                    )
+                    generation_keys = (
+                        SOURCE_GENERATION_KEYS
+                        if generation_schema == SOURCE_GENERATION_SCHEMA_VERSION
+                        else LEGACY_SOURCE_GENERATION_KEYS
+                    )
+                    generation_metadata_keys = generation_keys - {"path"}
                     generation_identity = (
                         {
                             key: generation.get(key)
-                            for key in SOURCE_GENERATION_METADATA_KEYS
-                            if key != "source_tree_sha256"
+                            for key in generation_metadata_keys
+                            if key
+                            not in {"source_tree_sha256", "closure_tree_sha256"}
                         }
                         if isinstance(generation, dict)
                         else {}
@@ -3691,14 +3746,24 @@ class Cleanup:
                     if (
                         schema_version != BUILD_METADATA_SCHEMA_VERSION
                         or not isinstance(generation, dict)
-                        or set(generation) != SOURCE_GENERATION_KEYS
-                        or generation.get("schema_version")
-                        != SOURCE_GENERATION_SCHEMA_VERSION
+                        or set(generation) != generation_keys
+                        or generation_schema not in {
+                            1,
+                            SOURCE_GENERATION_SCHEMA_VERSION,
+                        }
                         or generation.get("repository") != component.repository
                         or generation.get("checkout") != component.checkout_name
                         or generation.get("branch") != component.branch
                         or generation.get("commit") != row["head"]
                         or generation.get("source") != component.source
+                        or (
+                            generation_schema == SOURCE_GENERATION_SCHEMA_VERSION
+                            and (
+                                not isinstance(generation.get("source_includes"), dict)
+                                or set(generation["source_includes"])
+                                != set(component.source_includes)
+                            )
+                        )
                         or not all(
                             isinstance(generation.get(key), str)
                             and HEAD_PATTERN.fullmatch(generation[key])
@@ -3707,6 +3772,17 @@ class Cleanup:
                                 "tree",
                                 "source_tree",
                                 "source_tree_sha256",
+                            )
+                        )
+                        or (
+                            generation_schema == SOURCE_GENERATION_SCHEMA_VERSION
+                            and (
+                                not isinstance(
+                                    generation.get("closure_tree_sha256"), str
+                                )
+                                or not HEAD_PATTERN.fullmatch(
+                                    generation["closure_tree_sha256"]
+                                )
                             )
                         )
                         or not Path(generation.get("path", "")).is_absolute()
@@ -5388,6 +5464,8 @@ class Cleanup:
                     current["disposition"] != "eligible"
                     or current.get("source_tree_sha256")
                     != item.get("source_tree_sha256")
+                    or current.get("closure_tree_sha256")
+                    != item.get("closure_tree_sha256")
                 ):
                     raise WorkspaceError(
                         "source generation changed before removal"

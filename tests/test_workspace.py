@@ -25,6 +25,7 @@ import tempfile
 import threading
 import time
 import unittest
+from dataclasses import replace
 from unittest import mock
 
 from atrinik_workspace import workspace as workspace_module
@@ -2035,6 +2036,117 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "ownership is invalid"):
             self.workspace._source_generation_record(forged)
 
+    def test_scoped_classic_sources_include_shared_cmake_inputs(self) -> None:
+        for role in ("client", "server"):
+            with self.subTest(role=role):
+                checkout = self.workspace.paths.repositories / role
+                (checkout / role).mkdir()
+                (checkout / "cmake").mkdir()
+                (checkout / "cmake" / "AtrinikVersion.cmake").write_text(
+                    "function(atrinik_resolve_version output)\n"
+                    "  set(${output} test-version PARENT_SCOPE)\n"
+                    "endfunction()\n",
+                    encoding="utf-8",
+                )
+                (checkout / role / "CMakeLists.txt").write_text(
+                    "cmake_minimum_required(VERSION 3.16)\n"
+                    "include(../cmake/AtrinikVersion.cmake)\n"
+                    "atrinik_resolve_version(ATRINIK_VERSION)\n"
+                    f"project(scoped-{role} VERSION 1.0 LANGUAGES NONE)\n"
+                    "if(NOT ATRINIK_VERSION STREQUAL test-version)\n"
+                    '  message(FATAL_ERROR "shared version module was not used")\n'
+                    "endif()\n"
+                    "enable_testing()\n"
+                    "add_test(NAME shared-version COMMAND "
+                    "${CMAKE_COMMAND} -E true)\n",
+                    encoding="utf-8",
+                )
+                command("git", "add", role, "cmake", cwd=checkout)
+                command(
+                    "git",
+                    "commit",
+                    "-m",
+                    f"test: seed scoped {role}",
+                    cwd=checkout,
+                )
+
+                original = self.workspace.manifest.by_name[role]
+                component = replace(
+                    original,
+                    source=role,
+                    source_includes=("cmake",),
+                )
+                self.workspace.manifest.by_name[role] = component
+                self.workspace.manifest.components = [
+                    component if item.name == role else item
+                    for item in self.workspace.manifest.components
+                ]
+                stack = self.workspace.manifest.stacks["default"]
+                stack.providers[role] = component
+                object.__setattr__(
+                    stack,
+                    "components",
+                    tuple(
+                        component if item.name == role else item
+                        for item in stack.components
+                    ),
+                )
+                profile = self.workspace._load_profile("default", require_file=False)
+                selected = {role: checkout / role}
+                state = self.workspace._selected_checkout_states(
+                    profile,
+                    selected,
+                    include_dirty=True,
+                    include_identity=True,
+                )[role]
+                generated = self.workspace._materialize_primary_source(
+                    component,
+                    checkout,
+                    checkout / role,
+                    state,
+                )
+
+                self.assertTrue(
+                    (generated.parent / "cmake" / "AtrinikVersion.cmake").is_file()
+                )
+                build_root = self.workspace.paths.builds / f"scoped-{role}"
+                self.workspace._prepare_component_source_includes(
+                    build_root, component, generated
+                )
+                view = self.workspace._profile_source_view(
+                    build_root, role, generated, set()
+                )
+                self.assertTrue(
+                    (build_root / "sources" / "cmake" / "AtrinikVersion.cmake").is_file()
+                )
+                self.workspace._cmake(
+                    view,
+                    build_root / "build" / role,
+                    [],
+                    True,
+                )
+
+                generation_mode = stat.S_IMODE(generated.parent.stat().st_mode)
+                include_mode = stat.S_IMODE((generated.parent / "cmake").stat().st_mode)
+                module = generated.parent / "cmake" / "AtrinikVersion.cmake"
+                module_mode = stat.S_IMODE(module.stat().st_mode)
+                generated.parent.chmod(0o700)
+                (generated.parent / "cmake").chmod(0o700)
+                module.chmod(0o600)
+                module.write_text("corrupt\n", encoding="utf-8")
+                module.chmod(module_mode)
+                (generated.parent / "cmake").chmod(include_mode)
+                generated.parent.chmod(generation_mode)
+                with self.assertRaisesRegex(
+                    WorkspaceError, "source generation is corrupt"
+                ):
+                    self.workspace._materialize_primary_source(
+                        component,
+                        checkout,
+                        checkout / role,
+                        state,
+                    )
+
     def test_source_generation_archive_extraction_rejects_unsafe_entries(self) -> None:
         def archive(name: str, entries: list[tuple[tarfile.TarInfo, bytes]]) -> Path:
             path = self.root / f"{name}.tar"
@@ -2612,6 +2724,52 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(removed["disposition"], "removed")
         self.assertFalse(generation_path.exists())
+
+    def test_source_generation_cleanup_recognizes_schema_one_metadata(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"resources"},
+            "build resources",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            generation = snapshot.paths()["resources"].parent
+        metadata_path = generation / workspace_module.SOURCE_GENERATION_METADATA
+        metadata = load_json(metadata_path)
+        metadata.pop("source_includes")
+        metadata.pop("closure_tree_sha256")
+        metadata["schema_version"] = 1
+        identity = {
+            key: value
+            for key, value in metadata.items()
+            if key != "source_tree_sha256"
+        }
+        legacy_key = hashlib.sha256(
+            json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        legacy_generation = generation.parent / legacy_key
+        generation.chmod(0o700)
+        metadata_path.chmod(0o600)
+        atomic_json(metadata_path, metadata)
+        marker = generation / MANAGED_MARKER
+        marker.chmod(0o600)
+        atomic_json(
+            marker,
+            {
+                "schema_version": 1,
+                "purpose": f"source-generation:{legacy_key}",
+            },
+        )
+        generation.rename(legacy_generation)
+        legacy_generation.chmod(0o500)
+
+        report = self.workspace.cleanup(["builds"], 0, [], False)
+        item = next(
+            row
+            for row in report["items"]
+            if row["path"] == str(legacy_generation)
+        )
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["stale_source_generation"])
 
     def test_source_generation_cleanup_does_not_follow_metadata_symlink(
         self,
