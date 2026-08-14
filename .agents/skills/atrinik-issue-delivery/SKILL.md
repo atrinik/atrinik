@@ -5,28 +5,24 @@ description: Deliver an open Atrinik issue or existing PR through isolated work,
 
 # Deliver an Atrinik issue or pull request
 
-Choose exactly one type-explicit `ENTRY_MODE`: `issue` for a new issue-first
-delivery or `PR` for adoption of one existing pull request. Both converge on
-the same implementation, complete-diff review, validation, readiness, and
-stop-before-merge contract.
+Choose exactly one type-explicit `ENTRY_MODE`: `issue` for new issue-first
+work or `PR` for one existing pull request. Both share the delivery loop and
+stop before merge.
 
-Explicit invocation authorizes ordinary branch pushes, updates to selected or
-delivery-created PRs, draft-to-ready transition after exit conditions, and
-brief delivery comments. Issue mode also authorizes draft PR creation and the
-issue claim below. PR mode authorizes that claim only when the invocation
-explicitly names both the PR and its associated issue and preflight verifies
-their relationship.
-It does not authorize force-pushes, issue creation or closure, merges, policy
-bypass, destructive resets, cleanup application, self-approval, retargeting,
-unrelated external changes, or mutation of issues found only through a PR.
-Create or resume a persistent goal only when explicitly asked.
+Explicit invocation authorizes ordinary branch pushes, selected or
+delivery-created PR updates, ready transitions after exit gates, and brief
+comments. Issue mode also authorizes draft creation and the claim below; PR mode
+authorizes that claim only for an explicitly named, preflight-verified
+associated issue. It does not authorize force-pushes, issue creation or closure,
+merges, policy bypass, destructive resets, cleanup application, self-approval,
+retargeting, unrelated changes, or mutation of PR-discovered issues. Create or
+resume a persistent goal only when explicitly asked.
 
-For an ordered master issue with merge-dependent leaves, use the explicitly
-invoked `$atrinik-program-delivery` orchestrator instead of stretching this
-single-delivery contract across the program. An explicit program-delivery
-invocation delegates this contract only in issue mode to each dependency-ready
-child identified from that master's live graph; it never delegates PR mode or
-authority over an unrelated existing PR. Do not create a nested leaf goal.
+For an ordered master with merge-dependent leaves, use explicit
+`$atrinik-program-delivery`. A program-delivery invocation delegates this
+contract only in issue mode to each dependency-ready child in the live graph;
+it never delegates PR mode or unrelated-PR authority. Do not create a nested
+leaf goal.
 
 Load `atrinik-multi-repo-workspace`, `atrinik-github-governance`, and only the
 applicable implementation skill. Add `atrinik-server-runtime` and
@@ -46,14 +42,17 @@ scenario procedures.
    the live default and target branches, coordinate state, linked work, and
    collisions. Never expose credentials. Stop for repository mismatch,
    ambiguous implementation, competing work, unsafe branch/worktree/report
-   coordinates, or a changed or unavailable selected head.
+   coordinates, or a changed or unavailable selected head. In issue mode,
+   derive and inspect both canonical and legacy report paths before the
+   active-PR rule or any mutation.
 3. In issue mode, require an existing open issue. Inspect assignees, labels,
    comments, native hierarchy, Project item, linked work, and all candidate
-   PRs. If active PRs already own the work, resume only when every one is either
-   recorded as created by this same issue-mode delivery or uniquely matches a
-   pre-recorded pending PR slot, and every coordinate in step 6 matches. Bind
-   any exact pending-slot match in the ledger before further mutation. Otherwise
-   stop with the exact active PR coordinates and require a type-explicit PR-mode
+   PRs. If active PRs already own the work, resume only when every one is
+   recorded by this same issue-mode delivery, named by the sole exact legacy
+   report candidate permitted below, or uniquely matches a pre-recorded pending
+   PR slot, and every coordinate in step 6 matches. Complete legacy migration
+   or bind any exact pending-slot match before further mutation. Otherwise stop
+   with the exact active PR coordinates and require a type-explicit PR-mode
    invocation rather than creating competing work.
 4. In PR mode, require an existing open, unmerged PR. Record its repository,
    author, head repository, target and head branches, base and head SHAs, merge
@@ -72,8 +71,9 @@ scenario procedures.
    PR's existing closing scope.
 6. Resume only when `ENTRY_MODE`, selected issue and/or complete recorded or
    pre-recorded PR set, repositories, bases, heads, branches, worktrees, and
-   report identity agree exactly with the prior delivery. In issue mode, this
-   exact recorded-delivery match is the sole exception to the fresh-delivery
+   report identity agree exactly with the prior delivery. The narrow legacy
+   issue-mode migration below may establish the new report identity. This exact
+   recorded-delivery match is the sole exception to the fresh-delivery
    no-active-PR rule.
 
 ## Claim only explicitly authorized issues
@@ -105,6 +105,23 @@ scenario procedures.
   <wrapper-root>/build/reviews/<owner>-<repository>-issue-<number>.md
   <wrapper-root>/build/reviews/<owner>-<repository>-pr-<number>.md
   ```
+
+  Require regular non-symlink reports and safe parents. Neither path means
+  fresh collision rules; new-only uses its state machine. Legacy-only may
+  migrate solely in issue mode from the exact
+  `<owner>-<repository>-<issue>.md` when the new path is absent, it alone
+  claims the issue/artifacts, both are ignored, and no extra, duplicate,
+  unrecorded, or colliding artifact exists. Fully parse and verify live/local
+  all recorded issues, PRs, repositories, targets/bases/heads/merge-bases,
+  branches, worktrees, closing scope, authenticated creator/push identity, and
+  safe state. Any gap, ambiguity, mismatch, or unproved fact stops and preserves
+  all. Recheck the digest, then atomically no-clobber create a new ledger with
+  its path/SHA-256, identity/completion, all targets, existing slots
+  created/adopted, and future absent slots planned; preserve old bytes. Both
+  paths continue only when the new ledger proves completed migration from that
+  old path and matching digest/coordinates; otherwise stop. PR mode never uses
+  legacy: selected-PR/artifact overlap requires issue-mode resumption; unrelated
+  reports stay read-only.
 
   Pre-record the complete planned physical target set: entry mode, selected
   issue/PR or issue-mode pending PR slots, repositories, target/base and

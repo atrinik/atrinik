@@ -11,8 +11,9 @@ durable objective across multiple leaf deliveries and external merge gates.
 
 Explicit invocation authorizes assignment and Project updates for the master,
 ordinary branch pushes, child issue and draft PR creation when genuinely
-missing, updates to linked issues and to PRs created and recorded by the exact
-delegated issue-mode leaf or uniquely bound to its pre-recorded pending slot,
+missing, updates to linked issues and PRs that the exact leaf's current ledger
+records as created/adopted, including only verified legacy migration, or
+uniquely bound to its pre-recorded pending slot,
 ready transitions after exit conditions, and concise tracking comments. It does
 not authorize force-pushes, merges, issue closure, policy bypass, destructive
 resets, cleanup application, self-approval, or unrelated external changes.
@@ -58,9 +59,10 @@ objective rather than requiring a fresh goal on resumption.
 4. Build a stage matrix containing owner issue, target repository and release
    line, dependencies, existing branch/PR/head, acceptance, validation, and the
    next human gate. Reuse existing issues. Reuse worktrees, branches, and PRs
-   only when they were created and recorded by that exact delegated issue-mode
-   leaf or uniquely match its pre-recorded pending slot and are bound in the
-   ledger before mutation. Every other existing PR is a blocker or read-only
+   only when that exact leaf's current ledger records them as created/adopted,
+   including verified legacy migration, or they uniquely match its pre-recorded
+   pending slot and are bound before mutation. Every other PR is a blocker or
+   read-only
    traceability until separately authorized. Create and link a child only when
    required work has no current owner after a live duplicate search.
 5. Apply the issue-delivery claim contract to the master: assign `zoeyrose`, add
@@ -77,9 +79,10 @@ A merge-ready leaf is progress, not goal completion.
    shared base, schema, ledger, generated baseline, authored path, or closing
    path.
 2. Apply the issue-delivery workflow completely to the leaf in issue mode.
-   Resume only work created and recorded by that exact leaf delivery or the one
-   exact artifact uniquely matching a pre-recorded pending slot; bind the latter
-   before mutation rather than creating a replacement PR. If fresh issue-mode
+   Resume only work in that exact leaf's current ledger, including verified
+   legacy migration, or the one exact artifact uniquely matching a pre-recorded
+   pending slot; bind the latter before mutation rather than creating a
+   replacement PR. If fresh issue-mode
    preflight finds a different active PR, stop with its coordinate; program
    delegation does not authorize switching to PR mode or adopting it. For
    paired release lines, keep separate bases, commits, validation, and PRs;

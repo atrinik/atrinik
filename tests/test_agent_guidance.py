@@ -291,7 +291,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "exactly one type-explicit `ENTRY_MODE`",
             "bare `owner/repository#number` is ambiguous",
             "active PRs already own the work",
-            "recorded as created by this same issue-mode delivery",
+            "recorded by this same issue-mode delivery",
             "uniquely matches a pre-recorded pending PR slot",
             "sole exception to the fresh-delivery no-active-PR rule",
             "existing open, unmerged PR",
@@ -340,6 +340,15 @@ class AgentGuidanceTests(unittest.TestCase):
             "Unknown or conflicting mergeability",
             "issue-<number>.md",
             "pr-<number>.md",
+            "exact `<owner>-<repository>-<issue>.md`",
+            "it alone claims the issue/artifacts",
+            "verify live/local all recorded issues, PRs, repositories",
+            "authenticated creator/push identity",
+            "atomically no-clobber create a new ledger",
+            "existing slots created/adopted",
+            "future absent slots planned",
+            "preserve old bytes",
+            "mode never uses legacy",
             "only when issues actually exist",
             "do not fabricate placeholders",
         }:
@@ -353,6 +362,8 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("Selected issue(s): `<URL(s) or none>`", report)
         self.assertIn("Selected pull request(s):", report)
         self.assertIn("Artifact ledger state:", report)
+        self.assertIn("Report identity:", report)
+        self.assertIn("Legacy migration:", report)
         self.assertIn("Claim/linkage state:", report)
         self.assertIn("## Scale and performance", checklist)
         self.assertIn("## Safety, security, and supply chain", checklist)
@@ -372,6 +383,12 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("created-or-adopted/exact reuses", normalized_checklist)
         self.assertIn("persisted around every mutation", normalized_checklist)
         self.assertIn("existing-branch path", normalized_checklist)
+        self.assertIn(
+            "sole exact old path and an absent new path",
+            normalized_checklist,
+        )
+        self.assertIn("preserving the old bytes", normalized_checklist)
+        self.assertIn("PR-mode use stops", normalized_checklist)
         self.assertIn(
             "determinate conflict-free mergeability",
             normalized_checklist,
@@ -400,6 +417,69 @@ class AgentGuidanceTests(unittest.TestCase):
             "for an issue or existing PR; it stops before merge",
             root_guide,
         )
+
+    def test_issue_delivery_legacy_report_recovery_is_fail_closed(self) -> None:
+        skill = ROOT / ".agents/skills/atrinik-issue-delivery"
+        body = " ".join(
+            (skill / "SKILL.md").read_text(encoding="utf-8").split()
+        )
+        report = (skill / "assets/deep-review-report.md").read_text(
+            encoding="utf-8"
+        )
+        checklist = " ".join(
+            (skill / "references/deep-review-checklist.md")
+            .read_text(encoding="utf-8")
+            .split()
+        )
+        program = " ".join(
+            (
+                ROOT / ".agents/skills/atrinik-program-delivery/SKILL.md"
+            ).read_text(encoding="utf-8").split()
+        )
+
+        for marker in {
+            "derive and inspect both canonical and legacy report paths",
+            "regular non-symlink reports and safe parents",
+            "Neither path means fresh collision rules",
+            "new-only uses its state machine",
+            "Legacy-only may migrate solely in issue mode",
+            "when the new path is absent",
+            "no extra, duplicate, unrecorded, or colliding artifact exists",
+            "authenticated creator/push identity, and safe state",
+            "Any gap, ambiguity, mismatch, or unproved fact",
+            "Recheck the digest",
+            "atomically no-clobber create a new ledger",
+            "existing slots created/adopted, and future absent slots planned",
+            "preserve old bytes",
+            (
+                "Both paths continue only when the new ledger proves "
+                "completed migration"
+            ),
+            "selected-PR/artifact overlap requires issue-mode resumption",
+            "unrelated reports stay read-only",
+        }:
+            with self.subTest(marker=marker):
+                self.assertIn(marker, body)
+
+        self.assertLess(
+            body.index("derive and inspect both canonical and legacy report paths"),
+            body.index("If active PRs already own the work"),
+        )
+        self.assertLess(
+            body.index("`<owner>-<repository>-<issue>.md`"),
+            body.index("Pre-record the complete planned physical target set"),
+        )
+        self.assertIn("Report identity:", report)
+        self.assertIn("Legacy migration:", report)
+        for marker in {
+            "neither-report, new-only, legacy-only, and both-report states",
+            "partial multi-owner set",
+            "overlapping PR-mode use stops",
+            "unrelated legacy report remains read-only",
+        }:
+            self.assertIn(marker, checklist)
+        self.assertIn("including only verified legacy migration", program)
+        self.assertIn("current ledger records them as created/adopted", program)
 
     def test_content_issue_delivery_uses_main_as_sole_authored_source(self) -> None:
         content = " ".join(
@@ -527,12 +607,13 @@ class AgentGuidanceTests(unittest.TestCase):
             "program delegation does not authorize switching to PR mode",
             normalized_body,
         )
+        self.assertIn("including only verified legacy migration", normalized_body)
         self.assertIn(
-            "PRs created and recorded by the exact delegated issue-mode leaf",
+            "current ledger records them as created/adopted",
             normalized_body,
         )
         self.assertIn(
-            "Every other existing PR is a blocker or read-only traceability",
+            "Every other PR is a blocker or read-only traceability",
             normalized_body,
         )
         self.assertIn(

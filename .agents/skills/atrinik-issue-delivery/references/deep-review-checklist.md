@@ -70,6 +70,14 @@ categories into invented findings.
   failure leaves recoverable state.
 - Check backward/forward compatibility and mixed-version or migrated state when
   the contract crosses versions or processes.
+- Exercise neither-report, new-only, legacy-only, and both-report states. For a
+  legacy issue-only report, require the sole exact old path and an absent new
+  path before migration; verify every recorded artifact and creator/push
+  identity live, then atomically record its path/digest and complete slot states
+  in the new ledger while preserving the old bytes. If both paths exist, accept
+  only a completed explicitly linked migration whose digest and coordinates
+  still match. Any partial multi-owner set, ambiguity, mismatch, or overlapping
+  PR-mode use stops; an unrelated legacy report remains read-only.
 - Confirm idempotency where commands or external mutations may be retried.
 - Inspect platform-sensitive paths, quoting, case sensitivity, separators,
   symlinks, permissions, terminals, shells, and line endings.
