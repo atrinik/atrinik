@@ -4322,7 +4322,10 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(events[publication - 1], "tree-synced")
         self.assertIn("file-fsync", events[:publication])
         self.assertIn("directory-fsync", events[:publication])
-        self.assertEqual(events[publication + 1 :], ["directory-fsync"])
+        after_publication = events[publication + 1 :]
+        self.assertEqual(after_publication[0], "directory-fsync")
+        self.assertIn("file-fsync", after_publication[1:])
+        self.assertIn("directory-fsync", after_publication[1:])
 
     def test_source_generation_durability_rejects_unsafe_entries_and_io(
         self,
