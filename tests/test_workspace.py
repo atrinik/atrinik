@@ -4716,6 +4716,80 @@ class WorkspaceTests(unittest.TestCase):
         self.assertTrue(retry_syncs)
         self.assertTrue(container_synced)
 
+    def test_source_generation_syncs_restored_root_entry_at_publication(
+        self,
+    ) -> None:
+        real_inventory = self.workspace._source_generation_inventory
+        real_fsync = os.fsync
+        mutated = False
+        root_identity: tuple[int, int] | None = None
+        root_synced = False
+
+        def mutate_root_before_final_sync(
+            root_fd: int,
+            root: Path,
+            *,
+            sync: bool,
+            allow_unsafe: bool,
+        ) -> str:
+            nonlocal mutated, root_identity
+            if sync and re.fullmatch(r"[0-9a-f]{64}", root.name) and not mutated:
+                original = os.fstat(root_fd)
+                os.fchmod(root_fd, 0o700)
+                descriptor = os.open(
+                    "transient-root-entry",
+                    os.O_WRONLY
+                    | os.O_CLOEXEC
+                    | os.O_CREAT
+                    | os.O_EXCL
+                    | os.O_NOFOLLOW,
+                    0o600,
+                    dir_fd=root_fd,
+                )
+                os.close(descriptor)
+                os.unlink("transient-root-entry", dir_fd=root_fd)
+                os.utime(
+                    root,
+                    ns=(original.st_atime_ns, original.st_mtime_ns),
+                )
+                os.fchmod(root_fd, stat.S_IMODE(original.st_mode))
+                root_identity = (original.st_dev, original.st_ino)
+                mutated = True
+            return real_inventory(
+                root_fd,
+                root,
+                sync=sync,
+                allow_unsafe=allow_unsafe,
+            )
+
+        def observe_root_fsync(descriptor: int) -> None:
+            nonlocal root_synced
+            opened = os.fstat(descriptor)
+            if mutated and root_identity == (opened.st_dev, opened.st_ino):
+                root_synced = True
+            real_fsync(descriptor)
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_source_generation_inventory",
+                side_effect=mutate_root_before_final_sync,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.os.fsync",
+                side_effect=observe_root_fsync,
+            ),
+            self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ) as snapshot,
+        ):
+            self.assertTrue(snapshot.paths()["resources"].is_dir())
+        self.assertTrue(mutated)
+        self.assertTrue(root_synced)
+
     def test_source_generation_reports_container_fsync_uncertainty(self) -> None:
         published = False
         real_fsync = os.fsync
@@ -4948,6 +5022,69 @@ class WorkspaceTests(unittest.TestCase):
             self.assertTrue(snapshot.paths()["client"].is_dir())
         self.assertIsNotNone(mutated_identity)
         self.assertTrue(mutated_entry_synced)
+
+    def test_source_generation_handoff_rejects_swap_at_container_fsync(
+        self,
+    ) -> None:
+        real_fsync = os.fsync
+        container = self.workspace.paths.builds / "source-generations" / "client"
+        container_fsyncs = 0
+        swapped = False
+
+        def swap_before_handoff_container_fsync(descriptor: int) -> None:
+            nonlocal container_fsyncs, swapped
+            opened = os.fstat(descriptor)
+            if container.is_dir():
+                container_status = container.stat()
+                if (opened.st_dev, opened.st_ino) == (
+                    container_status.st_dev,
+                    container_status.st_ino,
+                ):
+                    container_fsyncs += 1
+                    if container_fsyncs == 2:
+                        generation = next(
+                            child
+                            for child in container.iterdir()
+                            if re.fullmatch(r"[0-9a-f]{64}", child.name)
+                        )
+                        source = generation / "source"
+                        target = source / "README"
+                        original = target.stat()
+                        generation_mode = stat.S_IMODE(generation.stat().st_mode)
+                        source_mode = stat.S_IMODE(source.stat().st_mode)
+                        payload = target.read_bytes()
+                        mode = stat.S_IMODE(original.st_mode)
+                        generation.chmod(0o700)
+                        source.chmod(0o700)
+                        target.unlink()
+                        target.write_bytes(payload)
+                        target.chmod(mode)
+                        os.utime(
+                            target,
+                            ns=(original.st_atime_ns, original.st_mtime_ns),
+                        )
+                        source.chmod(source_mode)
+                        generation.chmod(generation_mode)
+                        swapped = True
+            real_fsync(descriptor)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.os.fsync",
+                side_effect=swap_before_handoff_container_fsync,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed during durable retry"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("unflushed replacement was yielded")
+        self.assertTrue(swapped)
 
     def test_source_generation_cleanup_before_record_collection_fails_closed(
         self,
