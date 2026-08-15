@@ -659,6 +659,7 @@ class ScopeLifecycleTests(unittest.TestCase):
                 },
                 "status": "applying",
                 "completed": ["profile"],
+                "in_flight": None,
                 "updated_at": "2026-08-14T00:00:00Z",
             },
         )
@@ -668,6 +669,109 @@ class ScopeLifecycleTests(unittest.TestCase):
         journal = json.loads(release_path.read_text(encoding="utf-8"))
         self.assertIn("profile", journal["completed"])
         self.assertIn("worktree:client", journal["completed"])
+
+    def test_release_recovers_each_destructive_before_journal_crash(self) -> None:
+        self.make_checkout("client")
+
+        build_record = self.workspace.scope_create(["client"], name="crash-build")
+        key = "b" * 64
+        build_root = (
+            self.workspace.paths.builds
+            / "profiles"
+            / f"{build_record['profile']['name']}-{key}"
+        )
+        build_root.mkdir(parents=True)
+        (build_root / BUILD_METADATA).write_text(
+            json.dumps({"profile": build_record["profile"]["name"], "key": key}),
+            encoding="utf-8",
+        )
+        (build_root / MANAGED_MARKER).write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "purpose": f"profile:{build_record['profile']['name']}:{key}",
+                }
+            ),
+            encoding="utf-8",
+        )
+        build_plan = self.workspace.scope_release("crash-build", apply=False)
+        from atrinik_workspace import workspace as workspace_module
+
+        real_remove = workspace_module.remove_owned_tree
+        failed = False
+
+        def remove_then_crash(*args: object, **kwargs: object) -> None:
+            nonlocal failed
+            real_remove(*args, **kwargs)
+            if not failed:
+                failed = True
+                raise WorkspaceError("crash after build removal")
+
+        with mock.patch.object(
+            workspace_module, "remove_owned_tree", side_effect=remove_then_crash
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "after build removal"):
+                self.workspace.scope_release(
+                    "crash-build", apply=True, plan_sha256=build_plan["plan_sha256"]
+                )
+        self.workspace.scope_release(
+            "crash-build", apply=True, plan_sha256=build_plan["plan_sha256"]
+        )
+
+        profile_record = self.workspace.scope_create(["client"], name="crash-profile")
+        profile_plan = self.workspace.scope_release("crash-profile", apply=False)
+        real_reference_remove = self.workspace._remove_physical_reference
+        failed = False
+
+        def reference_then_crash(path: Path) -> None:
+            nonlocal failed
+            real_reference_remove(path)
+            if not failed:
+                failed = True
+                raise WorkspaceError("crash after profile unlink")
+
+        with mock.patch.object(
+            self.workspace,
+            "_remove_physical_reference",
+            side_effect=reference_then_crash,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "after profile unlink"):
+                self.workspace.scope_release(
+                    "crash-profile",
+                    apply=True,
+                    plan_sha256=profile_plan["plan_sha256"],
+                )
+        self.workspace.scope_release(
+            "crash-profile", apply=True, plan_sha256=profile_plan["plan_sha256"]
+        )
+
+        worktree_record = self.workspace.scope_create(["client"], name="crash-worktree")
+        worktree_plan = self.workspace.scope_release("crash-worktree", apply=False)
+        real_git = workspace_module.git
+        failed = False
+
+        def git_then_crash(path: Path, *arguments: str, **kwargs: object) -> str:
+            nonlocal failed
+            result = real_git(path, *arguments, **kwargs)
+            if arguments[:2] == ("worktree", "remove") and not failed:
+                failed = True
+                raise WorkspaceError("crash after worktree removal")
+            return result
+
+        with mock.patch.object(workspace_module, "git", side_effect=git_then_crash):
+            with self.assertRaisesRegex(WorkspaceError, "after worktree removal"):
+                self.workspace.scope_release(
+                    "crash-worktree",
+                    apply=True,
+                    plan_sha256=worktree_plan["plan_sha256"],
+                )
+        result = self.workspace.scope_release(
+            "crash-worktree",
+            apply=True,
+            plan_sha256=worktree_plan["plan_sha256"],
+        )
+        self.assertTrue(result["released"])
+        self.assertFalse(Path(worktree_record["worktrees"][0]["path"]).exists())
 
     def test_release_removes_only_exact_scope_build_ownership(self) -> None:
         self.make_checkout("client")

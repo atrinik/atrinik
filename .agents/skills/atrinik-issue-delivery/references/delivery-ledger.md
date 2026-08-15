@@ -1693,6 +1693,11 @@ That exception also requires the live scope subsystem's exact completed,
 generation-matched release journal, embedded canonical plan and exact completed
 action set, plus live absence of every released coordinate; a caller-authored
 summary is insufficient.
+The apply report must also name the exact canonical wrapper cleanup journal;
+that journal must be complete and its targets/completed actions must equal the
+retained report. Archive holds the wrapper's registry, Git-admin, source,
+profile, topology, and scope-build coordinates from final absence proof through
+archive installation, then repeats the proof immediately before the link.
 Archive preview/apply never removes those resources.
 It instead bundles canonical ledger, release, lock, optional report, migration
 marker/snapshot/source, and embedded intent bytes into one canonical bounded
@@ -1704,9 +1709,11 @@ at or after `retain_until`. Apply rechecks helper time and the original
 digest/device/inode. Review the returned bound plan and
 feed the complete preview to `reclaim-apply`. Reclaim removes only that bundle;
 it never follows a path or touches a worktree/resource. Exact unlink first moves
-the inode into a private crash-recoverable quarantine. A bounded terminal receipt
-makes every post-unlink retry converge and remains inventory-classified as completed; unrelated absent-archive
-requests fail. Use a retention period required by
+the inode into a private crash-recoverable quarantine whose durable intent is
+inventory-recovered before link-count validation. One fixed completion
+checkpoint makes an exact post-unlink retry converge until the next successful
+reclaim replaces that checkpoint, so completed deliveries cannot accumulate
+one receipt apiece; unrelated absent-archive requests fail. Use a retention period required by
 project policy; never shorten it merely to clear inventory pressure.
 
 ## Observe strict prohibitions

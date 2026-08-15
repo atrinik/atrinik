@@ -218,6 +218,9 @@ Release computes a canonical SHA-256 plan over the completed scope generation
 and every observed topology, state, build, profile, worktree, and reference
 disposition. Apply requires that preview digest and recomputes it under the
 same exact leases. Dependency-ordered removal journals each completed action.
+It first persists one exact in-flight action; retries use that intent to accept
+only the expected absent post-state (including worktree-absent/branch-present)
+and finish the interrupted action.
 Persistent named/default state and stopped topology history are retained, and
 live/unreachable topologies, retained runtime or temporary-state generations,
 busy resources, changed identities, dirty/detached Git state, replacement,
@@ -256,6 +259,9 @@ target selection, safe removed worktrees, and terminal resources. Archive
 accepts an active-to-released scope transition only with its live exact
 completed scope-release journal, canonical release plan, exact completed action
 set, and live coordinate absence, and rejects cleanup targets outside the ledger.
+The wrapper's canonical complete cleanup journal must exactly match the retained
+apply report. Registry, Git-admin, source, profile, topology, and scope-build
+coordinates stay leased through a final absence recheck and archive installation.
 It installs a bounded canonical bundle
 before unlinking the exact ledger, release, persistent lock, report, migration
 marker/snapshot/source, and embedded intent material. During a crash, the
@@ -267,7 +273,9 @@ Every archive has an explicit UTC retention horizon. Reclaim preview uses the
 helper clock and binds its name, byte digest, device, inode, and observation
 instant after that horizon; apply rechecks time and removes only that exact
 archive. Exact inode removal first enters a crash-recoverable quarantine, and a
-terminal receipt makes retries converge after unlink. Neither archive nor reclaim traverses or mutates
+fixed completion checkpoint makes an exact retry converge after unlink until
+the next reclaim replaces it, without accumulating one receipt per delivery.
+Neither archive nor reclaim traverses or mutates
 worktrees, Git branches/objects, profiles, topology/state, or runtime resources.
 This reduces each completed delivery to one bounded record and permits explicit
 eventual reclamation before the review-root entry/byte limits are exhausted.

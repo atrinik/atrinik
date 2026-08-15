@@ -135,9 +135,9 @@ _RECLAIM_RECEIPT_RE = re.compile(
     r"^\.(?P<archive>\..+\.md\.ledger\.json\.archive-[0-9a-f]{64}\.json)"
     r"\.reclaim-(?P<plan>[0-9a-f]{64})\.json$"
 )
-_RECLAIM_COMPLETE_RE = re.compile(
-    r"^\.(?P<archive>\..+\.md\.ledger\.json\.archive-[0-9a-f]{64}\.json)"
-    r"\.reclaimed-(?P<plan>[0-9a-f]{64})\.json$"
+_RECLAIM_COMPLETE_NAME = ".delivery-ledger-reclaim-complete.json"
+_RECLAIM_COMPLETE_STAGE_RE = re.compile(
+    r"^\.delivery-ledger-reclaim-complete-(?P<plan>[0-9a-f]{64})\.tmp$"
 )
 _UNLINK_QUARANTINE = ".delivery-ledger-unlink"
 _GH_EXECUTABLE = "/usr/bin/gh"
@@ -1166,6 +1166,65 @@ def _archive_cleanup(value: Any, context: str) -> dict[str, Any]:
     return item
 
 
+def _prove_cleanup_journal(cleanup: Mapping[str, Any], workspace_root: str) -> None:
+    """Bind caller-retained cleanup output to the wrapper's durable receipt."""
+
+    raw = _inline_payload(
+        cleanup["apply"]["output"], "archive cleanup apply.output", utf8=True
+    )
+    output = _decode(raw, "archive cleanup apply.output")
+    journal_value = output.get("journal")
+    if not isinstance(journal_value, str):
+        raise LedgerError("archive cleanup apply lacks a journal")
+    journal_path = Path(journal_value)
+    journal_root = Path(workspace_root) / "cleanup-journals"
+    if journal_path.parent != journal_root or journal_path.name in {"", ".", ".."}:
+        raise LedgerError("archive cleanup journal escaped the wrapper journal root")
+    journal = _exact(
+        _decode(_read_bytes_input(str(journal_path)), "archive cleanup journal"),
+        {
+            "schema_version",
+            "started_at",
+            "status",
+            "targets",
+            "completed",
+            "finished_at",
+        },
+        "archive cleanup journal",
+    )
+    if journal["schema_version"] != 1 or journal["status"] != "complete":
+        raise LedgerError("archive cleanup journal is not complete")
+    for field in ("started_at", "finished_at"):
+        _timestamp_key(
+            _string(journal[field], f"archive cleanup journal.{field}", TIMESTAMP_RE),
+            f"archive cleanup journal.{field}",
+        )
+
+    def actions(value: Any, context: str) -> list[dict[str, str]]:
+        if not isinstance(value, list) or len(value) > MAX_INVENTORY_ENTRIES:
+            raise LedgerError(f"{context} is invalid or oversized")
+        result: list[dict[str, str]] = []
+        for index, row in enumerate(value):
+            item = _exact(row, {"kind", "path"}, f"{context}[{index}]")
+            result.append(
+                {
+                    "kind": _string(item["kind"], f"{context}.kind", REFERENCE_RE),
+                    "path": _absolute_path(item["path"], f"{context}.path"),
+                }
+            )
+        if len({(row["kind"], row["path"]) for row in result}) != len(result):
+            raise LedgerError(f"{context} contains duplicate actions")
+        return result
+
+    targets = actions(journal["targets"], "archive cleanup journal.targets")
+    completed = actions(journal["completed"], "archive cleanup journal.completed")
+    reported = actions(output.get("completed_actions"), "archive cleanup completed_actions")
+    if completed != reported or set(map(lambda row: (row["kind"], row["path"]), targets)) != set(
+        map(lambda row: (row["kind"], row["path"]), completed)
+    ):
+        raise LedgerError("archive cleanup journal differs from the apply report")
+
+
 def _archive_request(
     snapshot: Snapshot,
     release: ReleaseRecord,
@@ -1286,6 +1345,7 @@ def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
             "plan",
             "status",
             "completed",
+            "in_flight",
             "updated_at",
         },
         f"{context}.release_journal",
@@ -1295,6 +1355,7 @@ def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
         or journal["scope"] != record["name"]
         or journal["generation"] != record["generation"]
         or journal["status"] != "complete"
+        or journal["in_flight"] is not None
     ):
         raise LedgerError(f"{context} scope release journal is not complete and exact")
     _string(journal["plan_sha256"], f"{context}.release_journal.plan", SHA256_RE)
@@ -7133,6 +7194,13 @@ def _unlink_exact(directory: int, name: str, expected: os.stat_result) -> None:
     token = hashlib.sha256(
         f"{name}\0{expected.st_dev}\0{expected.st_ino}".encode("utf-8")
     ).hexdigest()
+    receipt_document = {
+        "schema_version": 1,
+        "name": name,
+        "device": expected.st_dev,
+        "inode": expected.st_ino,
+    }
+    receipt_raw = canonical_bytes(receipt_document)
     try:
         os.mkdir(_UNLINK_QUARANTINE, 0o700, dir_fd=directory)
         _fsync(directory, "review root after creating unlink quarantine")
@@ -7152,13 +7220,35 @@ def _unlink_exact(directory: int, name: str, expected: os.stat_result) -> None:
         transaction = os.open(token, root_flags, dir_fd=quarantine)
         transaction_status = os.fstat(transaction)
         _require_trusted_directory(transaction_status, "unlink transaction")
+        if _exists(transaction, "receipt.json"):
+            existing_receipt, _ = _read_regular(
+                transaction, "receipt.json", managed=True, expected_nlinks={1}
+            )
+            if existing_receipt != receipt_raw:
+                raise LedgerError(f"unlink transaction identity changed: {name}")
+        else:
+            _write_exclusive(transaction, "receipt.json", receipt_raw)
+            _fsync(transaction, "unlink transaction after recording intent")
         # Keep traversal and mutation rights through the pinned descriptor but
         # withhold directory listing while the exact inode is quarantined.
         os.fchmod(transaction, stat.S_IWUSR | stat.S_IXUSR)
         try:
             payload = os.stat("payload", dir_fd=transaction, follow_symlinks=False)
         except FileNotFoundError:
-            visible = os.stat(name, dir_fd=directory, follow_symlinks=False)
+            try:
+                visible = os.stat(name, dir_fd=directory, follow_symlinks=False)
+            except FileNotFoundError:
+                # The payload unlink is the deletion commit. An exact receipt
+                # plus an absent source is its durable retry state.
+                os.unlink("receipt.json", dir_fd=transaction)
+                _fsync(transaction, f"unlink transaction after recovering {name}")
+                os.fchmod(transaction, 0o700)
+                os.close(transaction)
+                transaction = None
+                os.rmdir(token, dir_fd=quarantine)
+                _fsync(quarantine, "unlink quarantine after recovering transaction")
+                _fsync(directory, f"review root after recovering removal of {name}")
+                return
             if (visible.st_dev, visible.st_ino) != (expected.st_dev, expected.st_ino):
                 raise LedgerError(f"staging file was replaced: {name}")
             os.rename(
@@ -7181,6 +7271,8 @@ def _unlink_exact(directory: int, name: str, expected: os.stat_result) -> None:
             raise LedgerError(f"quarantined file has the wrong identity: {name}")
         os.unlink("payload", dir_fd=transaction)
         _fsync(transaction, f"unlink transaction after removing {name}")
+        os.unlink("receipt.json", dir_fd=transaction)
+        _fsync(transaction, f"unlink transaction after completing {name}")
         os.fchmod(transaction, 0o700)
         os.close(transaction)
         transaction = None
@@ -7193,6 +7285,83 @@ def _unlink_exact(directory: int, name: str, expected: os.stat_result) -> None:
                 os.fchmod(transaction, 0o700)
             finally:
                 os.close(transaction)
+        os.close(quarantine)
+
+
+def _recover_unlink_quarantine(directory: int) -> None:
+    """Finish exact helper-owned unlink transactions before inventory."""
+
+    root_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        quarantine = os.open(_UNLINK_QUARANTINE, root_flags, dir_fd=directory)
+    except FileNotFoundError:
+        return
+    except OSError as error:
+        raise LedgerError(f"unlink quarantine is unsafe: {error}") from error
+    try:
+        _require_trusted_directory(os.fstat(quarantine), "unlink quarantine")
+        names = sorted(os.listdir(quarantine))
+        for token in names:
+            if not re.fullmatch(r"[0-9a-f]{64}", token):
+                raise LedgerError(f"unsafe unlink transaction name: {token}")
+            transaction = os.open(token, root_flags, dir_fd=quarantine)
+            try:
+                _require_trusted_directory(os.fstat(transaction), "unlink transaction")
+                entries = set(os.listdir(transaction))
+                if not entries:
+                    os.close(transaction)
+                    transaction = -1
+                    os.rmdir(token, dir_fd=quarantine)
+                    _fsync(quarantine, "unlink quarantine after removing empty transaction")
+                    continue
+                if not entries <= {"receipt.json", "payload"} or "receipt.json" not in entries:
+                    raise LedgerError(f"unlink transaction has unsafe entries: {token}")
+                raw, _ = _read_regular(
+                    transaction, "receipt.json", managed=True, expected_nlinks={1}
+                )
+                receipt = _exact(
+                    _decode(raw, "unlink receipt"),
+                    {"schema_version", "name", "device", "inode"},
+                    "unlink receipt",
+                )
+                name = _direct_name(receipt["name"], "unlink receipt name")
+                device = _integer(receipt["device"], "unlink receipt device", minimum=0)
+                inode = _integer(receipt["inode"], "unlink receipt inode", minimum=1)
+                expected_token = hashlib.sha256(
+                    f"{name}\0{device}\0{inode}".encode("utf-8")
+                ).hexdigest()
+                if receipt["schema_version"] != 1 or token != expected_token:
+                    raise LedgerError("unlink receipt identity is invalid")
+                expected = os.stat_result(
+                    (stat.S_IFREG | 0o600, inode, device, 1, 0, 0, 0, 0, 0, 0)
+                )
+                has_payload = "payload" in entries
+            finally:
+                if transaction != -1:
+                    os.close(transaction)
+            if not has_payload:
+                try:
+                    visible = os.stat(name, dir_fd=directory, follow_symlinks=False)
+                except FileNotFoundError:
+                    _unlink_exact(directory, name, expected)
+                    continue
+                if (visible.st_dev, visible.st_ino) != (device, inode):
+                    raise LedgerError(f"unlink recovery source identity changed: {name}")
+                # Intent was durable but the target was never quarantined. Do
+                # not let an inventory scan turn a forgeable same-UID receipt
+                # into deletion authority; abort this pre-commit transaction.
+                transaction = os.open(token, root_flags, dir_fd=quarantine)
+                try:
+                    os.unlink("receipt.json", dir_fd=transaction)
+                    _fsync(transaction, "unlink transaction after aborting pre-commit intent")
+                finally:
+                    os.close(transaction)
+                os.rmdir(token, dir_fd=quarantine)
+                _fsync(quarantine, "unlink quarantine after aborting pre-commit intent")
+                continue
+            _unlink_exact(directory, name, expected)
+        _fsync(directory, "review root after unlink recovery")
+    finally:
         os.close(quarantine)
 
 
@@ -7579,6 +7748,7 @@ def _legacy_claim(name: str, raw: bytes, canonical_target: str | None) -> Legacy
 
 
 def _inventory_locked(directory: int) -> Inventory:
+    _recover_unlink_quarantine(directory)
     names: list[str] = []
     with os.scandir(directory) as entries:
         for entry in entries:
@@ -7620,6 +7790,8 @@ def _inventory_locked(directory: int) -> Inventory:
             folded.endswith(LEDGER_SUFFIX)
             or ".md.ledger.json." in folded
             or report_candidate
+            or name == _RECLAIM_COMPLETE_NAME
+            or _RECLAIM_COMPLETE_STAGE_RE.fullmatch(name) is not None
         )
         if relevant:
             prior = case_names.get(folded)
@@ -7714,22 +7886,31 @@ def _inventory_locked(directory: int) -> Inventory:
                 PendingOperation("reclaim", preview["archive"], name)
             )
             continue
-        reclaim_complete_match = _RECLAIM_COMPLETE_RE.fullmatch(name)
-        if reclaim_complete_match:
+        if name == _RECLAIM_COMPLETE_NAME:
+            raw, status = _read_regular(
+                directory, name, managed=True, expected_nlinks={1}
+            )
+            managed_stats[name] = status
+            preview = _validate_reclaim_preview(_decode(raw, name))
+            if raw != canonical_bytes(preview):
+                raise LedgerError(f"reclaim completion identity is invalid: {name}")
+            reclaims.append(
+                ReclaimRecord(name, preview["archive"], preview["plan_sha256"], preview, raw)
+            )
+            continue
+        reclaim_complete_stage = _RECLAIM_COMPLETE_STAGE_RE.fullmatch(name)
+        if reclaim_complete_stage:
             raw, status = _read_regular(
                 directory, name, managed=True, expected_nlinks={1}
             )
             managed_stats[name] = status
             preview = _validate_reclaim_preview(_decode(raw, name))
             if (
-                preview["archive"] != reclaim_complete_match.group("archive")
-                or preview["plan_sha256"] != reclaim_complete_match.group("plan")
+                preview["plan_sha256"] != reclaim_complete_stage.group("plan")
                 or raw != canonical_bytes(preview)
             ):
-                raise LedgerError(f"reclaim completion identity is invalid: {name}")
-            reclaims.append(
-                ReclaimRecord(name, preview["archive"], preview["plan_sha256"], preview, raw)
-            )
+                raise LedgerError(f"reclaim completion stage is invalid: {name}")
+            pending.append(PendingOperation("reclaim-complete", preview["archive"], name))
             continue
         release_match = _RELEASE_RE.fullmatch(name)
         if release_match:
@@ -9036,7 +9217,9 @@ def _archive_plan_locked(
     release: ReleaseRecord,
     request: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bytes, str, str]:
-    prepared = _archive_request(snapshot, release, request)
+    # The caller holds `_archive_live_safety`, which performs the live scope
+    # proof and retains the wrapper coordinate leases through installation.
+    prepared = _archive_request(snapshot, release, request, live_scope_proof=False)
     members: list[dict[str, Any]] = []
     for name in _archive_member_names(snapshot):
         try:
@@ -9061,6 +9244,225 @@ def _archive_plan_locked(
     digest = byte_digest(raw)
     name = f".{snapshot.name}.archive-{snapshot.digest}.json"
     return document, raw, digest, name
+
+
+@contextmanager
+def _archive_live_safety(
+    snapshot: Snapshot, request: Mapping[str, Any]
+) -> Iterator[Callable[[], None]]:
+    """Hold wrapper cleanup coordinates and reprove their terminal state."""
+
+    document = snapshot.document
+    scopes: dict[str, tuple[Mapping[str, Any], Mapping[str, Any], bytes]] = {}
+    wrapper_request: Mapping[str, Any] | None = None
+    worktree_requests: list[tuple[Mapping[str, Any], str]] = []
+    for slot in document["artifacts"]:
+        if slot["kind"] != "worktree" or slot["current"] is None:
+            continue
+        primitive = slot.get("primitive_request")
+        if primitive is None and slot.get("producer_resource_slot") is not None:
+            matches = [
+                resource for resource in document["resources"]
+                if resource["slot_id"] == slot["producer_resource_slot"]
+                and resource["kind"] == "scope"
+                and resource["current"] is not None
+            ]
+            if len(matches) != 1:
+                raise LedgerError("archive worktree lacks one scope producer")
+            resource = matches[0]
+            _prove_scope_release(resource, f"archive resource {resource['slot_id']}")
+            retained = _retained_result(
+                resource["current"]["binding"], "archive scope binding"
+            )
+            record, _ = _scope_show_record(
+                retained,
+                resource["request"],
+                resource["immutable"]["repository"],
+                "archive scope binding",
+            )
+            journal_path = record["cleanup"]["release_journal"]
+            journal_raw = _read_bytes_input(journal_path)
+            scopes[resource["slot_id"]] = (resource, record, journal_raw)
+            primitive = _scope_worktree_request(
+                resource["request"], resource["immutable"]["repository"]
+            )
+        if primitive is None:
+            raise LedgerError("archive worktree lacks wrapper provenance")
+        if wrapper_request is None:
+            wrapper_request = primitive
+        elif (
+            wrapper_request["roots"]["wrapper"] != primitive["roots"]["wrapper"]
+            or wrapper_request["roots"]["workspace"] != primitive["roots"]["workspace"]
+        ):
+            raise LedgerError("archive coordinates span different wrapper roots")
+        worktree_requests.append((primitive, slot["current"]["path"]))
+    if wrapper_request is None:
+        raise LedgerError("archive lacks wrapper provenance for cleanup proof")
+    workspace_root = wrapper_request["roots"]["workspace"]["path"]
+    wrapper_root = wrapper_request["roots"]["wrapper"]["path"]
+    _prove_cleanup_journal(request["cleanup"], workspace_root)
+    saved = _enter_workspace_environment(workspace_root)
+    workspace = None
+    build_descriptors: list[int] = []
+    try:
+        module = _load_workspace_module(wrapper_root)
+        workspace = module.Workspace(Path(wrapper_root), backfill_references=False)
+        leases: list[Any] = [
+            workspace._lease_request(
+                "registry", "physical-references", "shared", "delivery archive proof"
+            )
+        ]
+        for primitive, path in worktree_requests:
+            wrapper_self = (
+                primitive["component"] == "atrinik"
+                and primitive["physical_checkout"] == "atrinik"
+                and primitive["roots"]["primary"] == primitive["roots"]["wrapper"]
+            )
+            if wrapper_self:
+                admin = workspace._wrapper_git_admin_coordinate()
+            else:
+                checkout = workspace._resolve_checkout(primitive["component"])
+                if checkout.name != primitive["physical_checkout"]:
+                    raise LedgerError("archive checkout identity changed")
+                admin = workspace._git_admin_coordinate(
+                    checkout, Path(primitive["roots"]["primary"]["path"])
+                )
+            leases.extend(
+                (
+                    workspace._lease_request(
+                        "git-admin", admin, "shared", "delivery archive proof"
+                    ),
+                    workspace._lease_request(
+                        "source",
+                        workspace._source_coordinate(
+                            primitive["physical_checkout"], Path(path)
+                        ),
+                        "exclusive",
+                        "delivery archive proof",
+                    ),
+                    workspace._lease_request(
+                        "source",
+                        workspace._physical_source_coordinate(Path(path)),
+                        "exclusive",
+                        "delivery archive proof",
+                    ),
+                )
+            )
+        for _slot_id, (_resource, record, _journal_raw) in scopes.items():
+            leases.extend(
+                (
+                    workspace._lease_request(
+                        "registry", f"scope:{record['name']}", "shared", "delivery archive proof"
+                    ),
+                    workspace._lease_request(
+                        "profile", record["profile"]["name"], "shared", "delivery archive proof"
+                    ),
+                    workspace._lease_request(
+                        "topology", record["topology"]["name"], "shared", "delivery archive proof"
+                    ),
+                )
+            )
+        cleanup_resources = {
+            row["slot_id"]: row for row in request["cleanup"]["resources"]
+        }
+        for resource in document["resources"]:
+            current = resource["current"]
+            if current is None or resource["kind"] == "scope":
+                continue
+            leases.append(
+                workspace._lease_request(
+                    resource["kind"],
+                    current["name"],
+                    "shared",
+                    "delivery archive proof",
+                )
+            )
+        with ExitStack() as stack:
+            stack.enter_context(workspace._resource_locks(leases, nonblocking=True))
+            def acquire_build_lock(root: Path) -> None:
+                lock_path = workspace.paths.builds / "locks" / f"{root.name}.lock"
+                lock_path.parent.mkdir(parents=True, exist_ok=True)
+                descriptor = os.open(
+                    lock_path,
+                    os.O_RDWR | os.O_CREAT | os.O_CLOEXEC | getattr(os, "O_NOFOLLOW", 0),
+                    0o600,
+                )
+                try:
+                    fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except BaseException:
+                    os.close(descriptor)
+                    raise
+                build_descriptors.append(descriptor)
+
+            for _slot_id, (_resource, _record, journal_raw) in scopes.items():
+                journal = _decode(journal_raw, "archive scope release journal")
+                for item in journal["plan"]["items"]:
+                    if item.get("kind") != "build" or item.get("disposition") != "eligible":
+                        continue
+                    acquire_build_lock(Path(item["path"]))
+            for resource in document["resources"]:
+                current = resource["current"]
+                if (
+                    current is not None
+                    and resource["kind"] == "build"
+                    and current["path"] is not None
+                ):
+                    acquire_build_lock(Path(current["path"]))
+
+            def recheck() -> None:
+                _prove_cleanup_journal(request["cleanup"], workspace_root)
+                for primitive, path in worktree_requests:
+                    if Path(path).exists() or Path(path).is_symlink():
+                        raise LedgerError(f"archive worktree still exists: {path}")
+                    if workspace._source_references(Path(path)):
+                        raise LedgerError(f"archive worktree is still referenced: {path}")
+                for _slot_id, (_resource, record, journal_raw) in scopes.items():
+                    if _read_bytes_input(record["cleanup"]["release_journal"]) != journal_raw:
+                        raise LedgerError("archive scope release journal changed")
+                    journal = _decode(journal_raw, "archive scope release journal")
+                    for item in journal["plan"]["items"]:
+                        if item.get("disposition") == "eligible":
+                            path = item.get("path")
+                            if not isinstance(path, str) or Path(path).exists() or Path(path).is_symlink():
+                                raise LedgerError(
+                                    f"archive released scope coordinate still exists: {path}"
+                                )
+                for resource in document["resources"]:
+                    current = resource["current"]
+                    if current is None or resource["kind"] == "scope":
+                        continue
+                    observed = cleanup_resources[resource["slot_id"]]
+                    path = current["path"]
+                    if observed["disposition"] == "removed":
+                        if path is None or Path(path).exists() or Path(path).is_symlink():
+                            raise LedgerError(
+                                f"archive removed resource still exists: {resource['slot_id']}"
+                            )
+                    elif path is not None and (not Path(path).exists() or Path(path).is_symlink()):
+                        raise LedgerError(
+                            f"archive retained resource changed: {resource['slot_id']}"
+                        )
+                    if resource["kind"] == "topology" and observed["disposition"] == "retained":
+                        status = workspace.topology_status(current["name"])
+                        if status.get("supervisor", {}).get("liveness") in {"live", "unreachable"}:
+                            raise LedgerError("archive retained topology is live or unreachable")
+                _prove_cleanup_journal(request["cleanup"], workspace_root)
+
+            recheck()
+            yield recheck
+    except LedgerError:
+        raise
+    except Exception as error:
+        raise LedgerError(f"archive live cleanup proof failed: {error}") from error
+    finally:
+        for descriptor in reversed(build_descriptors):
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_UN)
+            finally:
+                os.close(descriptor)
+        if workspace is not None:
+            workspace.close()
+        _leave_workspace_environment(saved)
 
 
 def _archive_request_from_document(document: Mapping[str, Any]) -> dict[str, Any]:
@@ -9101,9 +9503,12 @@ def archive_preview(
         )
         if release is None:
             raise LedgerError("archive requires an authoritative terminal release")
-        document, _raw, plan, archive_name = _archive_plan_locked(
-            directory, snapshot, release, request
-        )
+        _archive_request(snapshot, release, request, live_scope_proof=False)
+        with _archive_live_safety(snapshot, request) as recheck:
+            document, _raw, plan, archive_name = _archive_plan_locked(
+                directory, snapshot, release, request
+            )
+            recheck()
         return {
             "mode": "preview",
             "plan_sha256": plan,
@@ -9163,57 +9568,60 @@ def archive_apply(
             )
             if release is None:
                 raise LedgerError("archive requires an authoritative terminal release")
-            _document, raw, candidate, archive_name = _archive_plan_locked(
-                directory, snapshot, release, request
-            )
-            if candidate != plan_sha256:
-                raise LedgerError("archive plan digest is stale or unrelated")
-            stage = (
-                f".{target}.archive-{snapshot.digest}-to-{candidate}.tmp"
-            )
-            _require_names_fit(directory, (archive_name, stage))
-            unexpected = [
-                item for item in current.pending
-                if item.target == target
-                and (item.kind, item.target, item.staging)
-                != ("archive", target, stage)
-            ]
-            if unexpected:
-                raise LedgerError(f"archive is blocked by a pending operation for {target}")
-            stage_status = _ensure_stage(
-                directory,
-                stage,
-                raw,
-                allow_prefix_resume=True,
-                expected_nlinks={1, 2},
-                limit=MAX_ARCHIVE_BYTES,
-            )
-            _hit(failpoint, "archive:staged")
-            try:
-                os.link(
-                    stage,
-                    archive_name,
-                    src_dir_fd=directory,
-                    dst_dir_fd=directory,
-                    follow_symlinks=False,
+            _archive_request(snapshot, release, request, live_scope_proof=False)
+            with _archive_live_safety(snapshot, request) as recheck:
+                _document, raw, candidate, archive_name = _archive_plan_locked(
+                    directory, snapshot, release, request
                 )
-            except FileExistsError as error:
-                raise LedgerError(f"archive appeared: {archive_name}") from error
-            _fsync(directory, f"review root after installing {archive_name}")
-            _hit(failpoint, "archive:installed")
-            archive_raw, archive_status = _read_regular(
-                directory,
-                archive_name,
-                managed=True,
-                expected_nlinks={2},
-                limit=MAX_ARCHIVE_BYTES,
-            )
-            if archive_raw != raw or (archive_status.st_dev, archive_status.st_ino) != (
-                stage_status.st_dev,
-                stage_status.st_ino,
-            ):
-                raise LedgerError("installed archive differs from its staged candidate")
-            archived = _archive_record(archive_name, archive_raw, archive_status)
+                if candidate != plan_sha256:
+                    raise LedgerError("archive plan digest is stale or unrelated")
+                stage = (
+                    f".{target}.archive-{snapshot.digest}-to-{candidate}.tmp"
+                )
+                _require_names_fit(directory, (archive_name, stage))
+                unexpected = [
+                    item for item in current.pending
+                    if item.target == target
+                    and (item.kind, item.target, item.staging)
+                    != ("archive", target, stage)
+                ]
+                if unexpected:
+                    raise LedgerError(f"archive is blocked by a pending operation for {target}")
+                stage_status = _ensure_stage(
+                    directory,
+                    stage,
+                    raw,
+                    allow_prefix_resume=True,
+                    expected_nlinks={1, 2},
+                    limit=MAX_ARCHIVE_BYTES,
+                )
+                _hit(failpoint, "archive:staged")
+                recheck()
+                try:
+                    os.link(
+                        stage,
+                        archive_name,
+                        src_dir_fd=directory,
+                        dst_dir_fd=directory,
+                        follow_symlinks=False,
+                    )
+                except FileExistsError as error:
+                    raise LedgerError(f"archive appeared: {archive_name}") from error
+                _fsync(directory, f"review root after installing {archive_name}")
+                _hit(failpoint, "archive:installed")
+                archive_raw, archive_status = _read_regular(
+                    directory,
+                    archive_name,
+                    managed=True,
+                    expected_nlinks={2},
+                    limit=MAX_ARCHIVE_BYTES,
+                )
+                if archive_raw != raw or (archive_status.st_dev, archive_status.st_ino) != (
+                    stage_status.st_dev,
+                    stage_status.st_ino,
+                ):
+                    raise LedgerError("installed archive differs from its staged candidate")
+                archived = _archive_record(archive_name, archive_raw, archive_status)
         else:
             if archived.digest != plan_sha256:
                 raise LedgerError("archive plan digest is stale or unrelated")
@@ -9337,10 +9745,13 @@ def reclaim_apply(
         raise LedgerError("reclaim apply requires its exact eligible preview")
     archive_name = _direct_name(item["archive"], "reclaim archive")
     receipt_name = f".{archive_name}.reclaim-{plan}.json"
-    complete_name = f".{archive_name}.reclaimed-{plan}.json"
+    complete_name = _RECLAIM_COMPLETE_NAME
+    complete_stage = f".delivery-ledger-reclaim-complete-{plan}.tmp"
     preview_raw = canonical_bytes(item)
     with _locked_root(Path(root)) as directory:
-        _require_names_fit(directory, (archive_name, receipt_name, complete_name))
+        _require_names_fit(
+            directory, (archive_name, receipt_name, complete_name, complete_stage)
+        )
         current = _inventory_locked(directory)
         matches = [row for row in current.archives if row.name == archive_name]
         completed = [
@@ -9351,9 +9762,56 @@ def reclaim_apply(
             row for row in current.pending
             if row.kind == "reclaim" and row.target == archive_name
         ]
+        completion_stages = [
+            row for row in current.pending if row.kind == "reclaim-complete"
+        ]
+        if completion_stages and (
+            len(completion_stages) != 1
+            or completion_stages[0].staging != complete_stage
+        ):
+            raise LedgerError(
+                "a prior reclaim completion must be retried before another reclaim"
+            )
+
+        def publish_completion() -> None:
+            _ensure_stage(directory, complete_stage, preview_raw)
+            if _exists(directory, complete_name):
+                complete_raw, complete_status = _read_regular(
+                    directory, complete_name, managed=True, expected_nlinks={1}
+                )
+                if complete_raw == preview_raw:
+                    stage_raw, stage_status = _read_regular(
+                        directory, complete_stage, managed=True, expected_nlinks={1}
+                    )
+                    if stage_raw != preview_raw:
+                        raise LedgerError("reclaim completion stage changed")
+                    _unlink_exact(directory, complete_stage, stage_status)
+                    return
+                _validate_reclaim_preview(_decode(complete_raw, complete_name))
+                _unlink_exact(directory, complete_name, complete_status)
+            os.rename(
+                complete_stage,
+                complete_name,
+                src_dir_fd=directory,
+                dst_dir_fd=directory,
+            )
+            _fsync(directory, "review root after publishing reclaim completion")
+
+        def discard_receipt() -> None:
+            if not _exists(directory, receipt_name):
+                return
+            receipt_raw, receipt_status = _read_regular(
+                directory, receipt_name, managed=True, expected_nlinks={1}
+            )
+            if receipt_raw != preview_raw:
+                raise LedgerError("reclaim receipt differs from the exact preview")
+            _unlink_exact(directory, receipt_name, receipt_status)
+
         if completed:
-            if len(completed) != 1 or completed[0].raw != preview_raw or matches or receipts:
+            if len(completed) != 1 or completed[0].raw != preview_raw or matches:
                 raise LedgerError("reclaim completion identity is ambiguous")
+            publish_completion()
+            discard_receipt()
             return {
                 "mode": "apply",
                 "plan_sha256": plan,
@@ -9377,13 +9835,8 @@ def reclaim_apply(
                 # The exact helper-created receipt proves this is a retry after
                 # the archive removal commit, not a never-existing archive.
                 pass
-            os.rename(
-                receipt_name,
-                complete_name,
-                src_dir_fd=directory,
-                dst_dir_fd=directory,
-            )
-            _fsync(directory, "review root after completing reclaim")
+            publish_completion()
+            discard_receipt()
             _hit(failpoint, "reclaim:committed")
             return {
                 "mode": "apply",
@@ -9429,18 +9882,13 @@ def reclaim_apply(
         _hit(failpoint, "reclaim:prepared")
         _unlink_exact(directory, archive.name, archive.status)
         _hit(failpoint, "reclaim:removed")
-        receipt_raw, receipt_status = _read_regular(
+        receipt_raw, _receipt_status = _read_regular(
             directory, receipt_name, managed=True, expected_nlinks={1}
         )
         if receipt_raw != preview_raw:
             raise LedgerError("reclaim receipt changed before completion")
-        os.rename(
-            receipt_name,
-            complete_name,
-            src_dir_fd=directory,
-            dst_dir_fd=directory,
-        )
-        _fsync(directory, "review root after completing reclaim")
+        publish_completion()
+        discard_receipt()
         _hit(failpoint, "reclaim:committed")
         return {
             "mode": "apply",

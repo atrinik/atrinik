@@ -7846,6 +7846,11 @@ class DeliveryLedgerTests(unittest.TestCase):
 
     @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
+    @mock.patch.object(
+        ledger,
+        "_archive_live_safety",
+        new=lambda *_args: nullcontext(lambda: None),
+    )
     def test_50_archive_is_cleanup_gated_crash_resumable_and_preserves_evidence(
         self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
@@ -7901,6 +7906,11 @@ class DeliveryLedgerTests(unittest.TestCase):
 
     @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
+    @mock.patch.object(
+        ledger,
+        "_archive_live_safety",
+        new=lambda *_args: nullcontext(lambda: None),
+    )
     def test_51_archive_rejects_cleanup_drift_and_unsafe_worktree_evidence(
         self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
@@ -7938,6 +7948,11 @@ class DeliveryLedgerTests(unittest.TestCase):
 
     @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
+    @mock.patch.object(
+        ledger,
+        "_archive_live_safety",
+        new=lambda *_args: nullcontext(lambda: None),
+    )
     def test_52_reclaim_is_retention_and_exact_preview_gated(
         self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
@@ -8039,6 +8054,11 @@ class DeliveryLedgerTests(unittest.TestCase):
 
     @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
+    @mock.patch.object(
+        ledger,
+        "_archive_live_safety",
+        new=lambda *_args: nullcontext(lambda: None),
+    )
     def test_54_concurrent_archive_and_reclaim_retries_converge(
         self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
@@ -8181,21 +8201,24 @@ class DeliveryLedgerTests(unittest.TestCase):
             archive_input["retain_until"] = "2025-01-04T00:00:00Z"
             archive_path = base / "archive.json"
             archive_path.write_bytes(ledger.canonical_bytes(archive_input))
-            archive_preview_result = run(
-                "archive-preview", str(root), snapshot.name, str(archive_path)
-            )
-            archive_result = run(
-                "archive-apply",
-                str(root),
-                snapshot.name,
-                str(archive_path),
-                "--plan",
-                archive_preview_result["plan_sha256"],
-            )
+            with mock.patch.object(
+                ledger,
+                "_archive_live_safety",
+                new=lambda *_args: nullcontext(lambda: None),
+            ):
+                archive_preview_result = ledger.archive_preview(
+                    root, snapshot.name, archive_input
+                )
+                archive_result = ledger.archive_apply(
+                    root,
+                    snapshot.name,
+                    archive_input,
+                    plan_sha256=archive_preview_result["plan_sha256"],
+                )
             reclaim_preview_result = run(
                 "reclaim-preview",
                 str(root),
-                archive_result["name"],
+                archive_result.name,
             )
             reclaim_path = base / "reclaim.json"
             reclaim_path.write_bytes(ledger.canonical_bytes(reclaim_preview_result))
@@ -8212,6 +8235,11 @@ class DeliveryLedgerTests(unittest.TestCase):
 
     @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
+    @mock.patch.object(
+        ledger,
+        "_archive_live_safety",
+        new=lambda *_args: nullcontext(lambda: None),
+    )
     def test_56_migrated_evidence_archive_recovers_after_marker_removal(
         self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
@@ -8261,6 +8289,11 @@ class DeliveryLedgerTests(unittest.TestCase):
 
     @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
+    @mock.patch.object(
+        ledger,
+        "_archive_live_safety",
+        new=lambda *_args: nullcontext(lambda: None),
+    )
     def test_57_terminal_security_regressions_fail_closed(
         self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
@@ -8456,6 +8489,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             "plan": scope_plan,
             "status": "complete",
             "completed": ["profile", "worktree:atrinik"],
+            "in_flight": None,
             "updated_at": "2026-08-15T11:05:00Z",
         }
         fake_workspace = mock.Mock()
@@ -8667,6 +8701,156 @@ class DeliveryLedgerTests(unittest.TestCase):
             with ledger._release_resource_safety(resource_document, request) as guard:
                 with self.assertRaisesRegex(ledger.LedgerError, "became live"):
                     guard.prove()
+
+    def test_66_unlink_quarantine_recovers_each_durable_commit_window(self) -> None:
+        for failure_name in ("payload", "receipt.json"):
+            with self.subTest(failure_name=failure_name), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                target = root / "candidate.tmp"
+                target.write_bytes(b"evidence")
+                expected = target.stat(follow_symlinks=False)
+                directory = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+                real_unlink = os.unlink
+                failed = False
+
+                def unlink_once(name: str, *args: object, **kwargs: object) -> None:
+                    nonlocal failed
+                    if name == failure_name and not failed:
+                        failed = True
+                        raise ledger.InjectedCrash(f"after {failure_name}")
+                    real_unlink(name, *args, **kwargs)
+
+                try:
+                    with mock.patch.object(os, "unlink", side_effect=unlink_once):
+                        with self.assertRaises(ledger.InjectedCrash):
+                            ledger._unlink_exact(directory, target.name, expected)
+                finally:
+                    os.close(directory)
+                self.assertFalse(target.exists())
+                ledger.inventory(root)
+                quarantine = root / ledger._UNLINK_QUARANTINE
+                self.assertEqual(list(quarantine.iterdir()), [])
+
+    @mock.patch.object(ledger, "_prove_release_github")
+    @mock.patch.object(ledger, "_prove_release_git")
+    @mock.patch.object(
+        ledger,
+        "_archive_live_safety",
+        new=lambda *_args: nullcontext(lambda: None),
+    )
+    def test_67_reclaim_completion_checkpoint_is_constant_space(
+        self, _git_proof: mock.Mock, _github_proof: mock.Mock
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            plans: list[str] = []
+            for number in (423, 424, 425):
+                snapshot = ledger.create(root, releasable_pr_ledger(number))
+                release_input = release_request(snapshot)
+                release_plan = ledger.release_preview(root, snapshot.name, release_input)
+                released = ledger.release_apply(
+                    root,
+                    snapshot.name,
+                    release_input,
+                    plan_sha256=release_plan["plan_sha256"],
+                )
+                archive_input = archive_request(snapshot, released)
+                archive_plan = ledger.archive_preview(root, snapshot.name, archive_input)
+                archived = ledger.archive_apply(
+                    root,
+                    snapshot.name,
+                    archive_input,
+                    plan_sha256=archive_plan["plan_sha256"],
+                )
+                with mock.patch.object(
+                    ledger, "_utc_now", return_value="2026-09-16T00:00:00Z"
+                ):
+                    reclaim = ledger.reclaim_preview(root, archived.name)
+                    ledger.reclaim_apply(
+                        root, reclaim, plan_sha256=reclaim["plan_sha256"]
+                    )
+                plans.append(reclaim["plan_sha256"])
+                current = ledger.inventory(root)
+                self.assertEqual(len(current.reclaims), 1)
+                self.assertEqual(current.reclaims[0].plan, plans[-1])
+            completion_names = [
+                path.name
+                for path in root.iterdir()
+                if path.name.startswith(".delivery-ledger-reclaim-complete")
+            ]
+            self.assertEqual(completion_names, [ledger._RECLAIM_COMPLETE_NAME])
+
+    def test_68_archive_live_guard_binds_cleanup_journal_and_commit_lease(self) -> None:
+        roots = live_roots(self.live_base / "archive-safety", "atrinik")
+        document = deferred_primitive_pr(
+            roots,
+            number=471,
+            node="P_archive_safety",
+            branch="feat/archive-safety",
+            label="archive-safety",
+        )
+        slot = next(row for row in document["artifacts"] if row["kind"] == "worktree")
+        primitive = slot["primitive_request"]
+        path = (
+            Path(roots["workspace"]["path"])
+            / "worktrees"
+            / primitive["physical_checkout"]
+            / primitive["label"]
+        )
+        slot["current"] = {"path": str(path)}
+        workspace_root = Path(roots["workspace"]["path"])
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_WORKSPACE_DIR": str(workspace_root)}
+        ):
+            module = ledger._load_workspace_module(roots["wrapper"]["path"])
+            workspace = module.Workspace(Path(roots["wrapper"]["path"]), backfill_references=False)
+            workspace.paths.ensure()
+            workspace.close()
+        journal_path = workspace_root / "cleanup-journals" / "archive.json"
+        action = {"kind": "worktree", "path": str(path)}
+        journal_path.parent.mkdir(parents=True, exist_ok=True)
+        journal_path.write_bytes(
+            ledger.canonical_bytes(
+                {
+                    "schema_version": 1,
+                    "started_at": "2026-08-15T11:04:00Z",
+                    "status": "complete",
+                    "targets": [action],
+                    "completed": [action],
+                    "finished_at": "2026-08-15T11:05:00Z",
+                }
+            )
+        )
+        apply_output = {
+            "journal": str(journal_path),
+            "completed_actions": [action],
+        }
+        request = {
+            "cleanup": {
+                "apply": {"output": inline_payload(ledger.canonical_bytes(apply_output))},
+                "resources": [],
+            }
+        }
+        snapshot = mock.Mock(document=document)
+        with ledger._archive_live_safety(snapshot, request) as recheck:
+            path.mkdir(parents=True)
+            with self.assertRaisesRegex(ledger.LedgerError, "still exists"):
+                recheck()
+
+        journal_path.write_bytes(
+            ledger.canonical_bytes(
+                {
+                    "schema_version": 1,
+                    "started_at": "2026-08-15T11:04:00Z",
+                    "status": "complete",
+                    "targets": [action],
+                    "completed": [],
+                    "finished_at": "2026-08-15T11:05:00Z",
+                }
+            )
+        )
+        with self.assertRaisesRegex(ledger.LedgerError, "differs from the apply report"):
+            ledger._prove_cleanup_journal(request["cleanup"], str(workspace_root))
 
 
 if __name__ == "__main__":

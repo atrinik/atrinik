@@ -685,7 +685,9 @@ detached, replaced, ambiguously owned, or unexpectedly referenced worktree,
 changed profile, or uncertain build root. Named and default persistent state
 is always retained. Stopped topology history remains owned by the separate
 topology-cleanup lifecycle. The completed scope record and release journal are
-retained as recovery evidence.
+retained as recovery evidence. Each destructive action is recorded as
+in-flight before mutation, so a retry can prove the exact absent post-state and
+finish after a crash between removal and the completed-action journal update.
 
 ## Checkout worktrees
 
@@ -1540,7 +1542,9 @@ durably marks the ledger inert; it removes nothing. Next run the relevant
 `./atrinik cleanup --dry-run --json`, review it, and independently run the same
 scoped command with `--apply`. Retain the exact raw preview/apply JSON in the
 archive evidence; the helper validates both reports and
-derives their identical canonical target selection.
+derives their identical canonical target selection, verifies the wrapper's
+complete cleanup journal, and holds the exact wrapper coordinates through a
+final absence recheck and archive installation.
 An active scope can transition only when its live generation-matched scope
 release journal is complete.
 
@@ -1558,8 +1562,9 @@ The one bounded archive remains audit evidence without reserving active
 coordinates. Once its recorded retention period has elapsed, use the
 helper-clocked
 `reclaim-preview` and pass the complete returned preview plus its digest to
-`reclaim-apply`. Reclaim retains one bounded terminal retry receipt after its
-quarantined exact-inode removal. These helper commands never delete worktrees, profiles,
+`reclaim-apply`. Reclaim retains one fixed terminal completion checkpoint after
+its quarantined exact-inode removal; the next successful reclaim replaces that
+checkpoint, bounding review-root growth. These helper commands never delete worktrees, profiles,
 topologies, state, branches, or runtime resources. See the issue-delivery
 ledger reference for the strict evidence schemas and crash-recovery rules.
 
