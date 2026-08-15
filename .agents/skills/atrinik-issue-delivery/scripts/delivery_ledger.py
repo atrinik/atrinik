@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import base64
 import binascii
+import copy
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
@@ -42,7 +43,8 @@ LEDGER_SUFFIX = ".md.ledger.json"
 ENTRY_MODES = {"issue", "pr"}
 ARTIFACT_KINDS = {"branch", "worktree", "pull_request"}
 ARTIFACT_STATES = {"planned", "created", "adopted"}
-MIGRATION_KINDS = {"legacy", "pre-schema"}
+LEGACY_MIGRATION_KINDS = {"legacy", "legacy-rebind"}
+MIGRATION_KINDS = {*LEGACY_MIGRATION_KINDS, "pre-schema"}
 RESOURCE_KINDS = {
     "build",
     "profile",
@@ -101,6 +103,22 @@ _UPDATE_RECEIPT_RE = re.compile(
     r"d(?P<device>[0-9]+)-i(?P<inode>[0-9]+)-"
     r"to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
+_HEAD_CORRECTION_PREDECESSOR_RE = re.compile(
+    r"^\.(?P<target>.+\.md\.ledger\.json)\.correct-target-head-"
+    r"(?P<source>[0-9a-f]{64})\.predecessor\.snapshot$"
+)
+_HEAD_CORRECTION_ERRONEOUS_RE = re.compile(
+    r"^\.(?P<target>.+\.md\.ledger\.json)\.correct-target-head-"
+    r"(?P<source>[0-9a-f]{64})\.erroneous\.snapshot$"
+)
+_HEAD_CORRECTION_STAGE_RE = re.compile(
+    r"^\.(?P<target>.+\.md\.ledger\.json)\.correct-target-head-"
+    r"(?P<source>[0-9a-f]{64})\.tmp$"
+)
+_HEAD_CORRECTION_RECEIPT_RE = re.compile(
+    r"^\.(?P<target>.+\.md\.ledger\.json)\.correct-target-head-"
+    r"(?P<source>[0-9a-f]{64})\.json$"
+)
 _MARKER_COMPLETE_STAGE_RE = re.compile(
     r"^(?P<marker>\..+\.md\.ledger\.json\.migration\.json)\.complete\.tmp$"
 )
@@ -131,6 +149,29 @@ _PR_URL_RE = re.compile(
     r"https://github\.com/(?P<owner>[a-z0-9-]+)/(?P<repo>[a-z0-9._-]+)/pull/(?P<number>[1-9][0-9]*)",
     re.IGNORECASE,
 )
+_GITHUB_COORDINATE_TOKEN_RE = re.compile(
+    r"(?<![a-z0-9.-])"
+    r"(?:(?:[a-z][a-z0-9+.-]*:)?//)?(?:www\.)?github\.com/"
+    r"(?P<owner>[a-z0-9-]+)/(?P<repo>[a-z0-9._-]+)/"
+    r"(?P<kind>issues?|pulls?)/(?P<number>[^\s<>()`/]+)",
+    re.IGNORECASE,
+)
+_GITHUB_TOKEN_RE = re.compile(
+    r"(?<![a-z0-9.-])"
+    r"(?:(?:[a-z][a-z0-9+.-]*:)?//)?(?:www\.)?github\.com/"
+    r"[^\s<>()`]+",
+    re.IGNORECASE,
+)
+_GITHUB_COORDINATE_PATH_RE = re.compile(r"/(?:issues?|pulls?)(?:/|$)", re.IGNORECASE)
+_LEGACY_REPOSITORY_LINE_RE = re.compile(
+    r"^- Repository: `(?P<owner>[a-z0-9-]+)/(?P<repo>[a-z0-9._-]+)`$",
+    re.IGNORECASE,
+)
+_LEGACY_HEAD_LINE_RE = re.compile(
+    r"^- Remote head: `(?P<branch>[^`]+)` / `(?P<sha>[0-9a-f]{40})`$",
+    re.IGNORECASE,
+)
+_LEGACY_WORKTREE_LINE_RE = re.compile(r"^- Worktree: `(?P<path>[^`]+)`$")
 BODY_NAMESPACE = b"atrinik-delivery"
 SAFE_ARTIFACT_STATE = {
     "clean": True,
@@ -219,7 +260,9 @@ class LegacyClaim:
     issues: tuple[tuple[str, str, int], ...]
     pull_requests: tuple[tuple[str, str, int], ...]
     repository_heads: tuple[tuple[str, str, str], ...]
+    repository_head_commits: tuple[tuple[str, str, str, str], ...]
     worktrees: tuple[str, ...]
+    evidence_invalid: bool
     ambiguous: bool
 
     def json(self) -> dict[str, Any]:
@@ -230,7 +273,11 @@ class LegacyClaim:
             "issues": [list(value) for value in self.issues],
             "pull_requests": [list(value) for value in self.pull_requests],
             "repository_heads": [list(value) for value in self.repository_heads],
+            "repository_head_commits": [
+                list(value) for value in self.repository_head_commits
+            ],
             "worktrees": list(self.worktrees),
+            "evidence_invalid": self.evidence_invalid,
             "ambiguous": self.ambiguous,
         }
 
@@ -1815,6 +1862,7 @@ def _git(
     *,
     accepted: set[int] | None = None,
     effective_config: bool = False,
+    input_bytes: bytes | None = None,
 ) -> tuple[int, bytes]:
     """Run one bounded read-only Git query against a pinned directory."""
 
@@ -1839,6 +1887,7 @@ def _git(
         LC_ALL="C",
         LANG="C",
         GIT_OPTIONAL_LOCKS="0",
+        GIT_NO_LAZY_FETCH="1",
         GIT_NO_REPLACE_OBJECTS="1",
         GIT_TERMINAL_PROMPT="0",
     )
@@ -1851,7 +1900,7 @@ def _git(
     try:
         process = subprocess.Popen(
             command,
-            stdin=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL if input_bytes is None else subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             pass_fds=(descriptor,),
@@ -1859,6 +1908,22 @@ def _git(
         )
     except OSError as error:
         raise LedgerError(f"cannot prove {context}: {error}") from error
+    if input_bytes is not None:
+        if len(input_bytes) > MAX_BYTES:
+            process.kill()
+            process.wait()
+            raise LedgerError(f"{context} input is not bounded")
+        if process.stdin is None:  # pragma: no cover - PIPE invariant
+            process.kill()
+            process.wait()
+            raise LedgerError(f"cannot prove {context}: Git input pipe is unavailable")
+        try:
+            process.stdin.write(input_bytes)
+            process.stdin.close()
+        except OSError as error:
+            process.kill()
+            process.wait()
+            raise LedgerError(f"cannot prove {context}: {error}") from error
     if process.stdout is None or process.stderr is None:  # pragma: no cover - PIPE invariant
         process.kill()
         raise LedgerError(f"cannot prove {context}: Git pipes are unavailable")
@@ -3190,6 +3255,208 @@ def _source(value: Any, context: str) -> tuple[str, str, int, int]:
     return name, digest, device, inode
 
 
+def _head_correction_recovery(value: Any, context: str) -> dict[str, Any]:
+    item = _exact(value, {"grant", "intent"}, context)
+    grant = item["grant"]
+    _authority(grant, f"{context}.grant")
+    if grant["kind"] != "explicit-recovery":
+        raise LedgerError(f"{context}.grant must be explicit-recovery authority")
+    intent = _exact(
+        item["intent"],
+        {
+            "transaction",
+            "target",
+            "installed",
+            "predecessor_sha256",
+            "repository",
+            "branch",
+            "worktree",
+            "bad_head",
+            "actual_head",
+            "ledger_scope",
+        },
+        f"{context}.intent",
+    )
+    if intent["transaction"] != "delivery-ledger-correct-target-head-intent-v1":
+        raise LedgerError(f"{context}.intent transaction is invalid")
+    _direct_name(intent["target"], f"{context}.intent.target")
+    installed = _exact(
+        intent["installed"],
+        {"generation", "sha256", "device", "inode"},
+        f"{context}.intent.installed",
+    )
+    _integer(installed["generation"], f"{context}.intent.installed.generation", minimum=2)
+    _string(installed["sha256"], f"{context}.intent.installed.sha256", SHA256_RE)
+    _integer(installed["device"], f"{context}.intent.installed.device", minimum=0)
+    _integer(installed["inode"], f"{context}.intent.installed.inode")
+    _string(intent["predecessor_sha256"], f"{context}.intent.predecessor_sha256", SHA256_RE)
+    _repository(intent["repository"], f"{context}.intent.repository")
+    _branch(intent["branch"], f"{context}.intent.branch")
+    _absolute_path(intent["worktree"], f"{context}.intent.worktree")
+    _string(intent["bad_head"], f"{context}.intent.bad_head", COMMIT_RE)
+    _string(intent["actual_head"], f"{context}.intent.actual_head", COMMIT_RE)
+    scope = _exact(
+        intent["ledger_scope"],
+        {
+            "ledger_id",
+            "entry_mode",
+            "actor",
+            "repositories",
+            "issues",
+            "pull_requests",
+        },
+        f"{context}.intent.ledger_scope",
+    )
+    if not isinstance(scope["ledger_id"], str) or _contains_control(scope["ledger_id"]):
+        raise LedgerError(f"{context}.intent.ledger_scope.ledger_id is invalid")
+    if scope["entry_mode"] not in ENTRY_MODES:
+        raise LedgerError(f"{context}.intent.ledger_scope.entry_mode is invalid")
+    actor = _exact(
+        scope["actor"],
+        {"login", "node_id", "push_repository_node_ids"},
+        f"{context}.intent.ledger_scope.actor",
+    )
+    _string(actor["login"], f"{context}.intent.ledger_scope.actor.login", LOGIN_RE)
+    _string(actor["node_id"], f"{context}.intent.ledger_scope.actor.node_id", NODE_RE)
+    _sorted_node_ids(
+        actor["push_repository_node_ids"],
+        f"{context}.intent.ledger_scope.actor.push_repository_node_ids",
+        allow_empty=False,
+    )
+    _ordered_unique(
+        scope["repositories"],
+        f"{context}.intent.ledger_scope.repositories",
+        _repository,
+    )
+    _ordered_unique(
+        scope["issues"],
+        f"{context}.intent.ledger_scope.issues",
+        _issue,
+    )
+    _sorted_node_ids(
+        scope["pull_requests"],
+        f"{context}.intent.ledger_scope.pull_requests",
+    )
+    if grant["objective_sha256"] != canonical_object_digest(intent):
+        raise LedgerError(f"{context}.grant objective does not bind the exact intent")
+    return item
+
+
+def _head_correction_receipt(value: Any, context: str) -> dict[str, Any]:
+    item = _exact(
+        value,
+        {
+            "transaction",
+            "target",
+            "source",
+            "predecessor_snapshot",
+            "erroneous_snapshot",
+            "correction",
+            "repository",
+            "branch",
+            "worktree",
+            "predecessor_head",
+            "base_head",
+            "merge_base",
+            "actual_head",
+            "bad_head",
+            "authority_sha256",
+            "recovery",
+            "staging",
+        },
+        context,
+    )
+    if item["transaction"] != "delivery-ledger-correct-target-head-v1":
+        raise LedgerError(f"{context} transaction is invalid")
+    target = _direct_name(item["target"], f"{context}.target")
+    source = _exact(
+        item["source"],
+        {"generation", "sha256", "device", "inode"},
+        f"{context}.source",
+    )
+    source_generation = _integer(source["generation"], f"{context}.source.generation", minimum=2)
+    source_digest = _string(source["sha256"], f"{context}.source.sha256", SHA256_RE)
+    _integer(source["device"], f"{context}.source.device", minimum=0)
+    _integer(source["inode"], f"{context}.source.inode")
+    predecessor = _source(item["predecessor_snapshot"], f"{context}.predecessor_snapshot")
+    erroneous = _source(item["erroneous_snapshot"], f"{context}.erroneous_snapshot")
+    correction = _exact(
+        item["correction"], {"generation", "sha256"}, f"{context}.correction"
+    )
+    if _integer(correction["generation"], f"{context}.correction.generation", minimum=3) != source_generation + 1:
+        raise LedgerError(f"{context} correction generation is invalid")
+    _string(correction["sha256"], f"{context}.correction.sha256", SHA256_RE)
+    _repository(item["repository"], f"{context}.repository")
+    _branch(item["branch"], f"{context}.branch")
+    _absolute_path(item["worktree"], f"{context}.worktree")
+    for key in ("predecessor_head", "base_head", "merge_base", "actual_head", "bad_head"):
+        _string(item[key], f"{context}.{key}", COMMIT_RE)
+    _string(item["authority_sha256"], f"{context}.authority_sha256", SHA256_RE)
+    recovery = _head_correction_recovery(item["recovery"], f"{context}.recovery")
+    if len({item["predecessor_head"], item["actual_head"], item["bad_head"]}) != 3:
+        raise LedgerError(f"{context} head identities must differ")
+    expected_prefix = f".{target}.correct-target-head-{source_digest}"
+    if (
+        predecessor[0] != f"{expected_prefix}.predecessor.snapshot"
+        or erroneous[0] != f"{expected_prefix}.erroneous.snapshot"
+        or erroneous[1] != source_digest
+        or recovery["intent"]["target"] != target
+        or recovery["intent"]["installed"] != source
+        or recovery["intent"]["predecessor_sha256"] != predecessor[1]
+        or recovery["intent"]["repository"] != item["repository"]
+        or recovery["intent"]["branch"] != item["branch"]
+        or recovery["intent"]["worktree"] != item["worktree"]
+        or recovery["intent"]["bad_head"] != item["bad_head"]
+        or recovery["intent"]["actual_head"] != item["actual_head"]
+        or item["staging"] != f"{expected_prefix}.tmp"
+    ):
+        raise LedgerError(f"{context} artifact names are invalid")
+    return item
+
+
+def _related_sources(value: Any, context: str) -> tuple[tuple[str, str, int, int], ...]:
+    if not isinstance(value, list) or not value:
+        raise LedgerError(f"{context} must be a non-empty array")
+    sources = tuple(
+        _source(source, f"{context}[{index}]") for index, source in enumerate(value)
+    )
+    names = [source[0].casefold() for source in sources]
+    if names != sorted(names) or len(names) != len(set(names)):
+        raise LedgerError(f"{context} must have unique case-sorted names")
+    return sources
+
+
+def _historical_heads(
+    value: Any, context: str
+) -> tuple[tuple[str, str, str, str], ...]:
+    if not isinstance(value, list) or not value:
+        raise LedgerError(f"{context} must be a non-empty array")
+    heads: list[tuple[str, str, str, str]] = []
+    for index, row in enumerate(value):
+        item = _exact(
+            row,
+            {"owner", "repository", "branch", "sha"},
+            f"{context}[{index}]",
+        )
+        heads.append(
+            (
+                _string(item["owner"].casefold(), f"{context}[{index}].owner", OWNER_RE),
+                _string(
+                    item["repository"].casefold(),
+                    f"{context}[{index}].repository",
+                    REPOSITORY_RE,
+                ),
+                _branch(item["branch"], f"{context}[{index}].branch").casefold(),
+                _string(
+                    item["sha"].casefold(), f"{context}[{index}].sha", COMMIT_RE
+                ),
+            )
+        )
+    if heads != sorted(heads) or len(heads) != len(set(heads)):
+        raise LedgerError(f"{context} must have unique case-sorted coordinates")
+    return tuple(heads)
+
+
 def _sorted_node_ids(value: Any, context: str, *, allow_empty: bool = True) -> tuple[str, ...]:
     if not isinstance(value, list) or (not allow_empty and not value):
         raise LedgerError(f"{context} must be a deterministically sorted array")
@@ -4336,9 +4603,21 @@ def validate(document: Any) -> dict[str, Any]:
             raise LedgerError("ledger history tail must equal previous byte digest")
     migration = item["migration"]
     if migration is not None:
+        migration_keys = {
+            "kind",
+            "state",
+            "source",
+            "snapshot",
+            "canonical_report",
+            "marker_name",
+        }
+        if isinstance(migration, dict) and "related_sources" in migration:
+            migration_keys.add("related_sources")
+        if isinstance(migration, dict) and "historical_heads" in migration:
+            migration_keys.add("historical_heads")
         migration = _exact(
             migration,
-            {"kind", "state", "source", "snapshot", "canonical_report", "marker_name"},
+            migration_keys,
             "ledger.migration",
         )
         if migration["kind"] not in MIGRATION_KINDS:
@@ -4346,6 +4625,17 @@ def validate(document: Any) -> dict[str, Any]:
         if migration["state"] != "complete":
             raise LedgerError("canonical ledger migration state must be complete")
         _source(migration["source"], "ledger.migration.source")
+        if migration["kind"] == "legacy-rebind":
+            if not {"related_sources", "historical_heads"}.issubset(migration):
+                raise LedgerError("legacy rebind migration lacks recovery evidence")
+            _related_sources(
+                migration["related_sources"], "ledger.migration.related_sources"
+            )
+            _historical_heads(
+                migration["historical_heads"], "ledger.migration.historical_heads"
+            )
+        elif {"related_sources", "historical_heads"}.intersection(migration):
+            raise LedgerError("only legacy rebind migration has recovery evidence")
         snapshot = _source(migration["snapshot"], "ledger.migration.snapshot")
         if not _SNAPSHOT_RE.fullmatch(snapshot[0]):
             raise LedgerError("ledger.migration.snapshot name is noncanonical")
@@ -4495,7 +4785,7 @@ def _require_create_genesis(document: Mapping[str, Any]) -> None:
 
 def _require_migration_genesis(document: Mapping[str, Any], kind: str) -> None:
     _require_genesis(document, "migration")
-    if kind == "legacy" and document["entry_mode"] != "issue":
+    if kind in LEGACY_MIGRATION_KINDS and document["entry_mode"] != "issue":
         raise LedgerError("legacy migration is issue-mode only")
     if any(
         slot["kind"] == "worktree"
@@ -6083,6 +6373,54 @@ def _ensure_stage(
         return exact_status
 
 
+def _ensure_head_correction_source_link(
+    directory: int,
+    target: str,
+    snapshot: str,
+    raw: bytes,
+    expected_device: int,
+    expected_inode: int,
+) -> os.stat_result:
+    """Retain the exact installed bad-generation inode before replacement."""
+
+    if not _exists(directory, snapshot):
+        try:
+            os.link(
+                target,
+                snapshot,
+                src_dir_fd=directory,
+                dst_dir_fd=directory,
+                follow_symlinks=False,
+            )
+        except OSError as error:
+            raise LedgerError(
+                f"cannot retain exact head-correction source inode: {error}"
+            ) from error
+        _fsync(directory, f"review root after retaining {snapshot}")
+    existing, status = _read_regular(
+        directory,
+        snapshot,
+        managed=True,
+        expected_nlinks={2},
+        sync=True,
+    )
+    target_raw, target_status = _read_regular(
+        directory,
+        target,
+        managed=True,
+        expected_nlinks={2},
+    )
+    if (
+        existing != raw
+        or target_raw != raw
+        or (status.st_dev, status.st_ino) != (expected_device, expected_inode)
+        or (target_status.st_dev, target_status.st_ino)
+        != (expected_device, expected_inode)
+    ):
+        raise LedgerError("head-correction source hard link differs from exact CAS inode")
+    return status
+
+
 def _unlink_exact(directory: int, name: str, expected: os.stat_result) -> None:
     visible = os.stat(name, dir_fd=directory, follow_symlinks=False)
     if (visible.st_dev, visible.st_ino) != (expected.st_dev, expected.st_ino):
@@ -6139,6 +6477,36 @@ def _reserved_worktree_paths(document: Mapping[str, Any]) -> set[str]:
             paths.add(_expected_worktree_path(request).casefold())
     for resource in document["resources"]:
         if resource["kind"] == "scope":
+            paths.add(_expected_worktree_path(resource["request"]).casefold())
+    return paths
+
+
+def _reserved_repository_worktree_paths(
+    document: Mapping[str, Any], repository_node_id: str
+) -> set[str]:
+    """Return managed worktree paths owned by one exact target repository."""
+
+    paths: set[str] = set()
+    for slot in document["artifacts"]:
+        if (
+            slot["kind"] != "worktree"
+            or slot["immutable"]["repository"]["node_id"] != repository_node_id
+        ):
+            continue
+        path = slot["immutable"]["path"]
+        if path is None and slot["current"] is not None:
+            path = slot["current"]["path"]
+        if path is not None:
+            paths.add(path.casefold())
+        request = slot.get("primitive_request")
+        if request is not None:
+            paths.add(_expected_worktree_path(request).casefold())
+    for resource in document["resources"]:
+        if (
+            resource["kind"] == "scope"
+            and resource["immutable"]["repository"]["node_id"]
+            == repository_node_id
+        ):
             paths.add(_expected_worktree_path(resource["request"]).casefold())
     return paths
 
@@ -6360,21 +6728,26 @@ def _reject_overlaps(snapshots: Sequence[Snapshot], *, allow_name: str | None = 
 
 def _marker_document(raw: bytes, name: str) -> dict[str, Any]:
     value = _decode(raw, name)
+    marker_keys = {
+        "transaction",
+        "state",
+        "kind",
+        "candidate_digest",
+        "source",
+        "snapshot_name",
+        "snapshot",
+        "canonical_report",
+        "destination",
+        "destination_digest",
+        "staging",
+    }
+    if isinstance(value, dict) and "related_sources" in value:
+        marker_keys.add("related_sources")
+    if isinstance(value, dict) and "historical_heads" in value:
+        marker_keys.add("historical_heads")
     item = _exact(
         value,
-        {
-            "transaction",
-            "state",
-            "kind",
-            "candidate_digest",
-            "source",
-            "snapshot_name",
-            "snapshot",
-            "canonical_report",
-            "destination",
-            "destination_digest",
-            "staging",
-        },
+        marker_keys,
         "migration marker",
     )
     if item["transaction"] != "delivery-ledger-migration-v1":
@@ -6385,6 +6758,13 @@ def _marker_document(raw: bytes, name: str) -> dict[str, Any]:
         raise LedgerError("migration marker kind is invalid")
     _string(item["candidate_digest"], "migration marker candidate digest", SHA256_RE)
     _source(item["source"], "migration marker source")
+    if item["kind"] == "legacy-rebind":
+        if not {"related_sources", "historical_heads"}.issubset(item):
+            raise LedgerError("legacy rebind marker lacks recovery evidence")
+        _related_sources(item["related_sources"], "migration marker related sources")
+        _historical_heads(item["historical_heads"], "migration marker historical heads")
+    elif {"related_sources", "historical_heads"}.intersection(item):
+        raise LedgerError("only legacy rebind marker has recovery evidence")
     snapshot_name = _direct_name(item["snapshot_name"], "migration marker snapshot name")
     if not _SNAPSHOT_RE.fullmatch(snapshot_name):
         raise LedgerError("migration marker snapshot name is invalid")
@@ -6417,40 +6797,225 @@ def _legacy_claim(name: str, raw: bytes, canonical_target: str | None) -> Legacy
         text = raw.decode("utf-8")
     except UnicodeError as error:
         raise LedgerError(f"legacy report is not UTF-8: {name}: {error}") from error
-    issues = {
-        (match.group("owner").casefold(), match.group("repo").casefold(), int(match.group("number")))
-        for match in _ISSUE_URL_RE.finditer(text)
-    }
-    pulls = {
-        (match.group("owner").casefold(), match.group("repo").casefold(), int(match.group("number")))
-        for match in _PR_URL_RE.finditer(text)
-    }
-    repository_heads: set[tuple[str, str, str]] = set()
-    worktrees: set[str] = set()
+    parsed_issues: list[tuple[str, str, int]] = []
+    parsed_pulls: list[tuple[str, str, int]] = []
+    malformed_evidence = False
+    canonical_closing_lines = 0
+    canonical_closing_pull: tuple[str, str, int] | None = None
     for line in text.splitlines():
+        stripped = line.strip()
+        canonical_closing = stripped.startswith("- Canonical closing PR:")
+        canonical_closing_accepted = False
+        line_urls = [
+            match.group(0).rstrip(".,;:!?")
+            for match in _GITHUB_TOKEN_RE.finditer(line)
+        ]
+        if canonical_closing:
+            canonical_closing_lines += 1
+            canonical_match = (
+                _PR_URL_RE.fullmatch(line_urls[0]) if len(line_urls) == 1 else None
+            )
+            if (
+                len(line_urls) != 1
+                or stripped != f"- Canonical closing PR: {line_urls[0]}"
+                or canonical_match is None
+            ):
+                malformed_evidence = True
+            else:
+                canonical_closing_accepted = True
+                canonical_closing_pull = (
+                    canonical_match.group("owner").casefold(),
+                    canonical_match.group("repo").casefold(),
+                    int(canonical_match.group("number")),
+                )
+        for url in line_urls:
+            issue_match = _ISSUE_URL_RE.fullmatch(url)
+            pull_match = _PR_URL_RE.fullmatch(url)
+            evidence_match = _GITHUB_COORDINATE_TOKEN_RE.fullmatch(url)
+            if evidence_match is None:
+                if _GITHUB_COORDINATE_PATH_RE.search(url):
+                    malformed_evidence = True
+                continue
+            number_match = re.match(r"[1-9][0-9]*", evidence_match.group("number"))
+            coordinate = (
+                evidence_match.group("owner").casefold(),
+                evidence_match.group("repo").casefold(),
+                int(number_match.group(0)) if number_match is not None else None,
+            )
+            kind = evidence_match.group("kind").casefold()
+            if kind.startswith("issue") and coordinate[2] is not None:
+                parsed_issues.append(
+                    (coordinate[0], coordinate[1], coordinate[2])
+                )
+            elif kind.startswith("pull") and coordinate[2] is not None:
+                if canonical_closing_accepted and pull_match is not None:
+                    continue
+                parsed_pulls.append(
+                    (coordinate[0], coordinate[1], coordinate[2])
+                )
+            if issue_match is None and pull_match is None:
+                malformed_evidence = True
+    if canonical_closing_lines > 1:
+        malformed_evidence = True
+    if (
+        canonical_closing_pull is not None
+        and canonical_closing_pull not in parsed_pulls
+    ):
+        malformed_evidence = True
+        parsed_pulls.append(canonical_closing_pull)
+    issues = set(parsed_issues)
+    pulls = set(parsed_pulls)
+    parsed_repository_heads: list[tuple[str, str, str]] = []
+    parsed_repository_head_commits: list[tuple[str, str, str, str]] = []
+    parsed_worktrees: list[str] = []
+    coordinate_repositories: list[tuple[str, str]] = []
+    coordinate_heads: list[tuple[str, str]] = []
+    coordinate_worktrees: list[str] = []
+    in_coordinates = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped == "## Coordinates":
+            in_coordinates = True
+            continue
+        if in_coordinates and stripped.startswith("## "):
+            in_coordinates = False
+        if in_coordinates and stripped.startswith("- Repository:"):
+            match = _LEGACY_REPOSITORY_LINE_RE.fullmatch(stripped)
+            if match is None:
+                malformed_evidence = True
+            else:
+                coordinate_repositories.append(
+                    (match.group("owner").casefold(), match.group("repo").casefold())
+                )
+            continue
+        if in_coordinates and stripped.startswith("- Remote head:"):
+            match = _LEGACY_HEAD_LINE_RE.fullmatch(stripped)
+            if match is None:
+                malformed_evidence = True
+            else:
+                branch = match.group("branch")
+                try:
+                    _branch(branch, "legacy head branch")
+                except LedgerError:
+                    malformed_evidence = True
+                else:
+                    coordinate_heads.append(
+                        (branch.casefold(), match.group("sha").casefold())
+                    )
+            continue
+        if in_coordinates and stripped.startswith("- Worktree:"):
+            match = _LEGACY_WORKTREE_LINE_RE.fullmatch(stripped)
+            if match is None:
+                malformed_evidence = True
+            else:
+                worktree = match.group("path")
+                if (
+                    not worktree.startswith("/")
+                    or worktree == "/"
+                    or os.path.normpath(worktree) != worktree
+                ):
+                    malformed_evidence = True
+                else:
+                    coordinate_worktrees.append(worktree.casefold())
+            continue
         if not line.lstrip().startswith("|"):
             continue
         cells = [cell.strip().strip("`") for cell in line.strip().strip("|").split("|")]
-        if len(cells) < 5 or "@" not in cells[0] or " / " not in cells[2]:
+        evidence_shaped = (
+            "@" in cells[0]
+            or (
+                len(cells) >= 5
+                and "/" in cells[0]
+                and " / " in cells[2]
+            )
+        )
+        if not evidence_shaped:
             continue
-        repository_text = cells[0].split("@", 1)[0]
-        if "/" not in repository_text:
+        if len(cells) < 5:
+            malformed_evidence = True
             continue
-        owner, repository_name = repository_text.split("/", 1)
-        branch = cells[2].split(" / ", 1)[0].strip().strip("`")
-        try:
-            _string(owner.casefold(), "legacy owner", OWNER_RE)
-            _string(repository_name.casefold(), "legacy repository", REPOSITORY_RE)
-            _branch(branch, "legacy head branch")
-        except LedgerError:
-            continue
-        repository_heads.add((owner.casefold(), repository_name.casefold(), branch.casefold()))
+        if "@" in cells[0]:
+            repository_text = cells[0].split("@", 1)[0]
+        else:
+            repository_text = cells[0]
+            malformed_evidence = True
+        repository_coordinate: tuple[str, str] | None = None
+        if "/" in repository_text:
+            owner, repository_name = repository_text.split("/", 1)
+            try:
+                _string(owner.casefold(), "legacy owner", OWNER_RE)
+                _string(repository_name.casefold(), "legacy repository", REPOSITORY_RE)
+            except LedgerError:
+                malformed_evidence = True
+            else:
+                repository_coordinate = (owner.casefold(), repository_name.casefold())
+        else:
+            malformed_evidence = True
+
+        branch_value: str | None = None
+        head_sha_value: str | None = None
+        if " / " in cells[2]:
+            branch, head_sha = (
+                value.strip().strip("`") for value in cells[2].split(" / ", 1)
+            )
+            try:
+                _branch(branch, "legacy head branch")
+            except LedgerError:
+                malformed_evidence = True
+            else:
+                branch_value = branch.casefold()
+            try:
+                _string(head_sha.casefold(), "legacy head commit", COMMIT_RE)
+            except LedgerError:
+                malformed_evidence = True
+            else:
+                head_sha_value = head_sha.casefold()
+        else:
+            malformed_evidence = True
+        if repository_coordinate is not None and branch_value is not None:
+            parsed_repository_heads.append((*repository_coordinate, branch_value))
+            if head_sha_value is not None:
+                parsed_repository_head_commits.append(
+                    (*repository_coordinate, branch_value, head_sha_value)
+                )
         worktree = cells[4].strip().strip("`")
         if worktree.startswith("/") and worktree != "/" and os.path.normpath(worktree) == worktree:
-            worktrees.add(worktree.casefold())
+            parsed_worktrees.append(worktree.casefold())
+        else:
+            malformed_evidence = True
+    if coordinate_repositories or coordinate_heads:
+        if len(coordinate_repositories) != len(coordinate_heads):
+            malformed_evidence = True
+        else:
+            parsed_repository_heads.extend(
+                (owner, repository, branch)
+                for (owner, repository), (branch, _sha) in zip(
+                    coordinate_repositories, coordinate_heads, strict=True
+                )
+            )
+            parsed_repository_head_commits.extend(
+                (owner, repository, branch, sha)
+                for (owner, repository), (branch, sha) in zip(
+                    coordinate_repositories, coordinate_heads, strict=True
+                )
+            )
+    parsed_worktrees.extend(coordinate_worktrees)
+    repository_heads = set(parsed_repository_heads)
+    repository_head_commits = set(parsed_repository_head_commits)
+    worktrees = set(parsed_worktrees)
     filename_claim = bool(
         _CANONICAL_REPORT_RE.fullmatch(name) or _LEGACY_REPORT_RE.fullmatch(name)
     )
+    duplicate_evidence = any(
+        (
+            len(parsed_issues) != len(issues),
+            len(parsed_pulls) != len(pulls),
+            len(parsed_repository_heads) != len(repository_heads),
+            len(parsed_repository_head_commits) != len(repository_head_commits),
+            len(parsed_worktrees) != len(worktrees),
+        )
+    )
+    evidence_invalid = malformed_evidence or duplicate_evidence
     ambiguous = not any(
         (filename_claim, canonical_target, issues, pulls, repository_heads, worktrees)
     )
@@ -6461,9 +7026,221 @@ def _legacy_claim(name: str, raw: bytes, canonical_target: str | None) -> Legacy
         issues=tuple(sorted(issues)),
         pull_requests=tuple(sorted(pulls)),
         repository_heads=tuple(sorted(repository_heads)),
+        repository_head_commits=tuple(sorted(repository_head_commits)),
         worktrees=tuple(sorted(worktrees)),
+        evidence_invalid=evidence_invalid,
         ambiguous=ambiguous,
     )
+
+
+def _head_correction_ledger_scope(document: Mapping[str, Any]) -> dict[str, Any]:
+    repositories = {
+        target["repository"]["node_id"]: target["repository"]
+        for target in document["targets"]
+    }
+    issue_rows = [*document["issues"]["explicit"]]
+    if document["program"] is not None:
+        issue_rows.extend(
+            (
+                document["program"]["master_issue"],
+                document["program"]["leaf_issue"],
+            )
+        )
+    issues = {issue["node_id"]: issue for issue in issue_rows}
+    allowed = document["authority"]["allowed"]
+    if (
+        set(repositories) != set(allowed["repositories"])
+        or set(issues) != set(allowed["issues"])
+    ):
+        raise LedgerError("head correction ledger authority scope is inconsistent")
+    return {
+        "ledger_id": document["ledger_id"],
+        "entry_mode": document["entry_mode"],
+        "actor": copy.deepcopy(document["actor"]),
+        "repositories": sorted(
+            (copy.deepcopy(repository) for repository in repositories.values()),
+            key=lambda row: (row["owner"], row["name"], row["node_id"]),
+        ),
+        "issues": sorted(
+            (copy.deepcopy(issue) for issue in issues.values()),
+            key=lambda row: (
+                row["repository"]["owner"],
+                row["repository"]["name"],
+                row["number"],
+                row["node_id"],
+            ),
+        ),
+        "pull_requests": copy.deepcopy(allowed["pull_requests"]),
+    }
+
+
+def _head_correction_intent(
+    document: Mapping[str, Any],
+    name: str,
+    source: Mapping[str, Any],
+    predecessor_digest: str,
+    metadata: Mapping[str, Any],
+    *,
+    bad_head: str,
+    actual_head: str,
+) -> dict[str, Any]:
+    return {
+        "transaction": "delivery-ledger-correct-target-head-intent-v1",
+        "target": name,
+        "installed": dict(source),
+        "predecessor_sha256": predecessor_digest,
+        "repository": copy.deepcopy(metadata["repository"]),
+        "branch": metadata["branch"],
+        "worktree": metadata["worktree"],
+        "bad_head": bad_head,
+        "actual_head": actual_head,
+        "ledger_scope": _head_correction_ledger_scope(document),
+    }
+
+
+def _require_head_correction_recovery(
+    recovery: Mapping[str, Any],
+    document: Mapping[str, Any],
+    expected_intent: Mapping[str, Any],
+    context: str,
+) -> None:
+    if recovery["intent"] != expected_intent:
+        raise LedgerError(f"{context} does not authorize the exact correction intent")
+    grant = recovery["grant"]
+    if (
+        grant["actor_node_id"] != document["actor"]["node_id"]
+        or grant["allowed"] != document["authority"]["allowed"]
+    ):
+        raise LedgerError(f"{context} actor or ledger scope differs")
+
+
+def _head_correction_document(
+    predecessor: Mapping[str, Any],
+    erroneous: Mapping[str, Any],
+    erroneous_digest: str,
+    *,
+    bad_head: str,
+    actual_head: str,
+) -> tuple[dict[str, Any], dict[str, Any], Mapping[str, Any]]:
+    """Build the sole permitted correction of one mistyped target advancement."""
+
+    predecessor_raw = canonical_bytes(predecessor)
+    predecessor_digest = byte_digest(predecessor_raw)
+    if (
+        erroneous["generation"] != predecessor["generation"] + 1
+        or erroneous["previous_byte_digest"] != predecessor_digest
+        or erroneous["history"] != [*predecessor["history"], predecessor_digest]
+    ):
+        raise LedgerError("head correction input is not the exact immediate predecessor")
+    if actual_head == bad_head:
+        raise LedgerError("head correction actual and bad SHAs are equal")
+    predecessor_targets = {
+        (row["repository"]["node_id"], row["head"]["branch"]): row
+        for row in predecessor["targets"]
+    }
+    erroneous_targets = {
+        (row["repository"]["node_id"], row["head"]["branch"]): row
+        for row in erroneous["targets"]
+    }
+    if set(predecessor_targets) != set(erroneous_targets):
+        raise LedgerError("head correction target set differs")
+    changed_targets = []
+    expected_erroneous = copy.deepcopy(predecessor)
+    expected_erroneous.update(
+        generation=erroneous["generation"],
+        previous_byte_digest=predecessor_digest,
+        history=[*predecessor["history"], predecessor_digest],
+    )
+    expected_target_rows = {
+        (row["repository"]["node_id"], row["head"]["branch"]): row
+        for row in expected_erroneous["targets"]
+    }
+    for key, before in predecessor_targets.items():
+        after = erroneous_targets[key]
+        if before == after:
+            continue
+        if (
+            after["repository"] != before["repository"]
+            or after["base"] != before["base"]
+            or after["merge_base"] != before["merge_base"]
+            or after["head"]["branch"] != before["head"]["branch"]
+            or after["head"]["initial_sha"] != before["head"]["initial_sha"]
+            or after["head"]["current_sha"] != bad_head
+            or after["head"]["lineage"] != [*before["head"]["lineage"], bad_head]
+        ):
+            raise LedgerError("head correction source is not one mistyped advancement")
+        changed_targets.append((key, before, after))
+        expected_target = expected_target_rows[key]
+        expected_target["head"]["current_sha"] = bad_head
+        expected_target["head"]["lineage"].append(bad_head)
+    if len(changed_targets) != 1:
+        raise LedgerError("head correction requires one changed target")
+    key, before_target, _after_target = changed_targets[0]
+    predecessor_artifacts = {slot["slot_id"]: slot for slot in predecessor["artifacts"]}
+    expected_artifacts = {slot["slot_id"]: slot for slot in expected_erroneous["artifacts"]}
+    erroneous_artifacts = {slot["slot_id"]: slot for slot in erroneous["artifacts"]}
+    if set(predecessor_artifacts) != set(erroneous_artifacts):
+        raise LedgerError("head correction artifact set differs")
+    changed_artifacts: list[Mapping[str, Any]] = []
+    for slot_id, before in predecessor_artifacts.items():
+        after = erroneous_artifacts[slot_id]
+        if before == after:
+            continue
+        expected = expected_artifacts[slot_id]
+        if (
+            before["kind"] not in {"branch", "worktree"}
+            or before["current"] is None
+            or after["current"] is None
+            or before["current"].get("head_sha") != before_target["head"]["current_sha"]
+            or after["current"] != {**before["current"], "head_sha": bad_head}
+            or after != {**before, "current": {**before["current"], "head_sha": bad_head}}
+            or before["current"]["repository"]["node_id"] != key[0]
+            or before["current"]["branch"] != key[1]
+        ):
+            raise LedgerError("head correction source changed an unsupported artifact")
+        expected["current"]["head_sha"] = bad_head
+        changed_artifacts.append(after)
+    if sorted(slot["kind"] for slot in changed_artifacts) != ["branch", "worktree"]:
+        raise LedgerError("head correction requires mirrored bound branch/worktree heads")
+    if erroneous != expected_erroneous:
+        raise LedgerError("head correction source contains unrelated semantic changes")
+    worktree_slot = next(slot for slot in changed_artifacts if slot["kind"] == "worktree")
+    worktree = worktree_slot["current"]["path"]
+    request = worktree_slot.get("primitive_request")
+    if request is None or worktree != _expected_worktree_path(request):
+        raise LedgerError("head correction lacks one exact primitive worktree request")
+    if request["repository"] != before_target["repository"] or request["branch"] != key[1]:
+        raise LedgerError("head correction worktree request differs from its target")
+    corrected = copy.deepcopy(erroneous)
+    corrected["generation"] += 1
+    corrected["previous_byte_digest"] = erroneous_digest
+    corrected["history"] = [*erroneous["history"], erroneous_digest]
+    corrected_target = next(
+        row
+        for row in corrected["targets"]
+        if (row["repository"]["node_id"], row["head"]["branch"]) == key
+    )
+    corrected_target["head"]["current_sha"] = actual_head
+    corrected_target["head"]["lineage"] = [
+        *before_target["head"]["lineage"],
+        actual_head,
+    ]
+    for slot in corrected["artifacts"]:
+        if slot["slot_id"] in {value["slot_id"] for value in changed_artifacts}:
+            slot["current"]["head_sha"] = actual_head
+    corrected = prepare(corrected)
+    metadata = {
+        "repository": copy.deepcopy(before_target["repository"]),
+        "branch": key[1],
+        "worktree": worktree,
+        "predecessor_head": before_target["head"]["current_sha"],
+        "base_head": before_target["base"]["current_sha"],
+        "merge_base": before_target["merge_base"]["current_sha"],
+        "authority_sha256": canonical_object_digest(erroneous["authority"]),
+    }
+    live_request = copy.deepcopy(request)
+    live_request["expected_head_sha"] = actual_head
+    return corrected, metadata, live_request
 
 
 def _inventory_locked(directory: int) -> Inventory:
@@ -6488,6 +7265,7 @@ def _inventory_locked(directory: int) -> Inventory:
     completion_stages: dict[str, dict[str, Any] | None] = {}
     preparation_stages: dict[str, dict[str, Any] | None] = {}
     snapshots: dict[str, tuple[str, bytes, os.stat_result]] = {}
+    head_corrections: dict[str, dict[str, tuple[str, str, bytes, os.stat_result]]] = {}
     legacy_reports: list[LegacyClaim] = []
     managed_stats: dict[str, os.stat_result] = {}
     inventory_bytes = 0
@@ -6641,6 +7419,33 @@ def _inventory_locked(directory: int) -> Inventory:
             _managed_status(status, name, {1})
             managed_stats[name] = status
             continue
+        correction_patterns = (
+            ("predecessor", _HEAD_CORRECTION_PREDECESSOR_RE),
+            ("erroneous", _HEAD_CORRECTION_ERRONEOUS_RE),
+            ("stage", _HEAD_CORRECTION_STAGE_RE),
+            ("receipt", _HEAD_CORRECTION_RECEIPT_RE),
+        )
+        correction_match = next(
+            ((kind, pattern.fullmatch(name)) for kind, pattern in correction_patterns if pattern.fullmatch(name)),
+            None,
+        )
+        if correction_match is not None:
+            kind, match = correction_match
+            assert match is not None
+            raw, status = _read_regular(
+                directory,
+                name,
+                managed=True,
+                expected_nlinks={1, 2} if kind == "erroneous" else {1},
+            )
+            managed_stats[name] = status
+            target = match.group("target")
+            entries = head_corrections.setdefault(target, {})
+            if kind in entries:
+                raise LedgerError(f"multiple head-correction {kind} files exist: {target}")
+            entries[kind] = (name, match.group("source"), raw, status)
+            pending.append(PendingOperation(f"correct-target-head-{kind}", target, name))
+            continue
         receipt_match = _UPDATE_RECEIPT_RE.fullmatch(name)
         if receipt_match:
             raw, status = _read_regular(
@@ -6740,6 +7545,154 @@ def _inventory_locked(directory: int) -> Inventory:
             and operation.target not in markers
         ):
             raise LedgerError(f"orphaned migration destination stage: {operation.staging}")
+    completed_head_corrections: set[str] = set()
+    committed_by_name = {item.name: item for item in committed}
+    for target, entries in head_corrections.items():
+        current = committed_by_name.get(target)
+        if current is None or "predecessor" not in entries:
+            raise LedgerError(f"head-correction target/predecessor is missing: {target}")
+        sources = {entry[1] for entry in entries.values()}
+        if len(sources) != 1:
+            raise LedgerError(f"head-correction source digests differ: {target}")
+        source_digest = next(iter(sources))
+        predecessor_name, _, predecessor_raw, predecessor_status = entries["predecessor"]
+        try:
+            predecessor = validate(_decode(predecessor_raw, predecessor_name))
+            if predecessor_raw != canonical_bytes(predecessor) or canonical_name(predecessor) != target:
+                raise LedgerError(f"head-correction predecessor is noncanonical: {target}")
+        except LedgerError:
+            if current.digest == source_digest:
+                continue
+            raise
+        receipt = None
+        if "receipt" in entries:
+            receipt_name, _, receipt_raw, _ = entries["receipt"]
+            try:
+                receipt = _head_correction_receipt(_decode(receipt_raw, receipt_name), receipt_name)
+                if receipt_raw != canonical_bytes(receipt):
+                    raise LedgerError(f"head-correction receipt is noncanonical: {target}")
+            except LedgerError:
+                receipt = None
+        if current.digest == source_digest:
+            if receipt is not None:
+                if "erroneous" not in entries:
+                    raise LedgerError(
+                        f"head-correction receipt lacks erroneous snapshot: {target}"
+                    )
+                erroneous_name, _, erroneous_raw, erroneous_status = entries["erroneous"]
+                erroneous = validate(_decode(erroneous_raw, erroneous_name))
+                if (
+                    erroneous_raw != canonical_bytes(erroneous)
+                    or byte_digest(erroneous_raw) != source_digest
+                    or current.raw != erroneous_raw
+                    or (erroneous_status.st_dev, erroneous_status.st_ino)
+                    != (current.device, current.inode)
+                    or receipt["source"]
+                    != {
+                        "generation": current.document["generation"],
+                        "sha256": current.digest,
+                        "device": current.device,
+                        "inode": current.inode,
+                    }
+                ):
+                    raise LedgerError(f"head-correction source identity changed: {target}")
+                _, metadata, _ = _head_correction_document(
+                    predecessor,
+                    erroneous,
+                    source_digest,
+                    bad_head=receipt["bad_head"],
+                    actual_head=receipt["actual_head"],
+                )
+                expected_intent = _head_correction_intent(
+                    erroneous,
+                    target,
+                    receipt["source"],
+                    byte_digest(predecessor_raw),
+                    metadata,
+                    bad_head=receipt["bad_head"],
+                    actual_head=receipt["actual_head"],
+                )
+                _require_head_correction_recovery(
+                    receipt["recovery"],
+                    erroneous,
+                    expected_intent,
+                    f"head-correction receipt for {target}",
+                )
+            continue
+        if receipt is None or "erroneous" not in entries:
+            raise LedgerError(f"installed head correction lacks evidence: {target}")
+        erroneous_name, _, erroneous_raw, erroneous_status = entries["erroneous"]
+        erroneous = validate(_decode(erroneous_raw, erroneous_name))
+        if erroneous_raw != canonical_bytes(erroneous) or byte_digest(erroneous_raw) != source_digest:
+            raise LedgerError(f"head-correction erroneous snapshot mismatch: {target}")
+        corrected, metadata, _ = _head_correction_document(
+            predecessor,
+            erroneous,
+            source_digest,
+            bad_head=receipt["bad_head"],
+            actual_head=receipt["actual_head"],
+        )
+        corrected_raw = canonical_bytes(corrected)
+        corrected_digest = byte_digest(corrected_raw)
+        expected_intent = _head_correction_intent(
+            erroneous,
+            target,
+            receipt["source"],
+            byte_digest(predecessor_raw),
+            metadata,
+            bad_head=receipt["bad_head"],
+            actual_head=receipt["actual_head"],
+        )
+        _require_head_correction_recovery(
+            receipt["recovery"],
+            erroneous,
+            expected_intent,
+            f"head-correction receipt for {target}",
+        )
+        correction_generation = corrected["generation"]
+        correction_is_current = current.document["generation"] == correction_generation
+        correction_is_historical = (
+            current.document["generation"] > correction_generation
+            and len(current.document["history"]) >= correction_generation
+            and current.document["history"][correction_generation - 1]
+            == corrected_digest
+        )
+        if (
+            (correction_is_current and current.raw != corrected_raw)
+            or not (correction_is_current or correction_is_historical)
+            or receipt["correction"]
+            != {
+                "generation": correction_generation,
+                "sha256": corrected_digest,
+            }
+            or receipt["repository"] != metadata["repository"]
+            or receipt["branch"] != metadata["branch"]
+            or receipt["worktree"] != metadata["worktree"]
+            or receipt["predecessor_head"] != metadata["predecessor_head"]
+            or receipt["base_head"] != metadata["base_head"]
+            or receipt["merge_base"] != metadata["merge_base"]
+            or receipt["authority_sha256"] != metadata["authority_sha256"]
+            or receipt["predecessor_snapshot"] != {
+                "name": predecessor_name,
+                "sha256": byte_digest(predecessor_raw),
+                "device": predecessor_status.st_dev,
+                "inode": predecessor_status.st_ino,
+            }
+            or receipt["erroneous_snapshot"] != {
+                "name": erroneous_name,
+                "sha256": source_digest,
+                "device": erroneous_status.st_dev,
+                "inode": erroneous_status.st_ino,
+            }
+            or (
+                receipt["source"]["device"],
+                receipt["source"]["inode"],
+            )
+            != (erroneous_status.st_dev, erroneous_status.st_ino)
+            or "stage" in entries
+        ):
+            raise LedgerError(f"completed head correction evidence mismatch: {target}")
+        completed_head_corrections.add(target)
     inode_names: dict[tuple[int, int], list[str]] = {}
     for managed_name, status in managed_stats.items():
         inode_names.setdefault((status.st_dev, status.st_ino), []).append(managed_name)
@@ -6784,6 +7737,24 @@ def _inventory_locked(directory: int) -> Inventory:
                     and stage_match.group("operation")
                     == proof_match.group("operation")
                 )
+            erroneous_name = next(
+                (
+                    value
+                    for value in linked_names
+                    if _HEAD_CORRECTION_ERRONEOUS_RE.fullmatch(value)
+                ),
+                None,
+            )
+            if erroneous_name is not None:
+                erroneous_match = _HEAD_CORRECTION_ERRONEOUS_RE.fullmatch(
+                    erroneous_name
+                )
+                other = (
+                    linked_names[0]
+                    if linked_names[1] == erroneous_name
+                    else linked_names[1]
+                )
+                allowed_pair = other == erroneous_match.group("target")
         if not allowed_pair:
             raise LedgerError(f"managed file has an unmodeled hard link: {managed_name}")
     for marker_name, (
@@ -6815,12 +7786,29 @@ def _inventory_locked(directory: int) -> Inventory:
         snapshot_name = marker["snapshot_name"]
         snapshot_entry = snapshots.get(destination)
         source_raw, source_status = _read_regular(directory, source_name)
-        canonical_report = marker["canonical_report"]
-        if marker["kind"] == "legacy" or marker["state"] != "complete":
+        for related_name, related_digest, related_device, related_inode in (
+            _related_sources(
+                marker["related_sources"], "migration marker related sources"
+            )
+            if marker["kind"] == "legacy-rebind"
+            else ()
+        ):
+            related_raw, related_status = _read_regular(directory, related_name)
             if (
-            byte_digest(source_raw) != source_digest
-            or source_status.st_dev != source_device
-            or source_status.st_ino != source_inode
+                byte_digest(related_raw) != related_digest
+                or related_status.st_dev != related_device
+                or related_status.st_ino != related_inode
+            ):
+                raise LedgerError(f"migration related source changed: {related_name}")
+        canonical_report = marker["canonical_report"]
+        if (
+            marker["kind"] in LEGACY_MIGRATION_KINDS
+            or marker["state"] != "complete"
+        ):
+            if (
+                byte_digest(source_raw) != source_digest
+                or source_status.st_dev != source_device
+                or source_status.st_ino != source_inode
             ):
                 raise LedgerError(f"migration source changed: {source_name}")
         snapshot_raw: bytes | None = None
@@ -6849,11 +7837,18 @@ def _inventory_locked(directory: int) -> Inventory:
         try:
             canonical_raw, _ = _read_regular(directory, canonical_report)
         except LedgerError:
-            if marker["state"] == "planned" and marker["kind"] == "legacy":
+            if (
+                marker["state"] == "planned"
+                and marker["kind"] in LEGACY_MIGRATION_KINDS
+            ):
                 canonical_raw = None
             else:
                 raise
-        if canonical_raw is not None and marker["kind"] == "legacy" and marker["state"] != "complete":
+        if (
+            canonical_raw is not None
+            and marker["kind"] in LEGACY_MIGRATION_KINDS
+            and marker["state"] != "complete"
+        ):
             if canonical_raw != source_raw and not (
                 marker["state"] == "planned"
                 and len(canonical_raw) < len(source_raw)
@@ -6928,12 +7923,19 @@ def _inventory_locked(directory: int) -> Inventory:
         if (
             marker["kind"] != migration["kind"]
             or marker["source"] != migration["source"]
+            or marker.get("related_sources") != migration.get("related_sources")
+            or marker.get("historical_heads") != migration.get("historical_heads")
             or marker["snapshot"] != migration["snapshot"]
             or marker["canonical_report"] != migration["canonical_report"]
             or migration["marker_name"] != f".{snapshot.name}.migration.json"
         ):
             raise LedgerError(f"migrated ledger metadata mismatch: {snapshot.name}")
     managed_sources = {marker["source"]["name"] for marker in markers.values()}
+    managed_sources.update(
+        source["name"]
+        for marker in markers.values()
+        for source in marker.get("related_sources", [])
+    )
     legacy_reports = [
         claim for claim in legacy_reports if claim.name not in managed_sources
     ]
@@ -6953,6 +7955,14 @@ def _inventory_locked(directory: int) -> Inventory:
             item.kind == "migration-snapshot"
             and item.target in markers
             and markers[item.target]["state"] == "complete"
+        )
+        and not (
+            item.target in completed_head_corrections
+            and item.kind in {
+                "correct-target-head-predecessor",
+                "correct-target-head-erroneous",
+                "correct-target-head-receipt",
+            }
         )
     ]
     return Inventory(
@@ -6979,7 +7989,7 @@ def _reject_legacy_claims(
     current: Inventory,
     candidate: Mapping[str, Any],
     *,
-    allowed_source: str | None = None,
+    allowed_sources: set[str] | None = None,
 ) -> None:
     issues = {
         (
@@ -7038,8 +8048,9 @@ def _reject_legacy_claims(
     }
     worktrees = _reserved_worktree_paths(candidate)
     target = canonical_name(candidate)
+    allowed = set() if allowed_sources is None else allowed_sources
     for claim in current.legacy_reports:
-        if claim.name == allowed_source:
+        if claim.name in allowed:
             continue
         if claim.ambiguous:
             raise LedgerError(f"ambiguous unpaired legacy report blocks mutation: {claim.name}")
@@ -7062,13 +8073,62 @@ def _legacy_source_name(candidate: Mapping[str, Any]) -> str:
     return f"{repository['owner']}-{repository['name']}-{selected[0]['number']}.md"
 
 
-def _require_exact_legacy_claim(
-    source_name: str, source_raw: bytes, candidate: Mapping[str, Any]
+def _require_legacy_rebind_source(
+    source_name: str, candidate: Mapping[str, Any]
 ) -> None:
+    selected = candidate["issues"]["explicit"]
+    if candidate["entry_mode"] != "issue" or len(selected) != 1:
+        raise LedgerError("legacy rebind requires one exact issue-mode identity")
+    match = _LEGACY_REPORT_RE.fullmatch(source_name)
+    if match is None:
+        raise LedgerError("legacy rebind source must be one mode-less legacy report")
+    issue = selected[0]
+    issue_repository = issue["repository"]
+    source_coordinate = (
+        match.group("owner").casefold(),
+        match.group("repo").casefold(),
+        int(match.group("number")),
+    )
+    issue_coordinate = (
+        issue_repository["owner"].casefold(),
+        issue_repository["name"].casefold(),
+        issue["number"],
+    )
+    if source_coordinate == issue_coordinate:
+        raise LedgerError("matching legacy filename must use ordinary legacy migration")
+    target_repositories = {
+        (
+            target["repository"]["owner"].casefold(),
+            target["repository"]["name"].casefold(),
+        )
+        for target in candidate["targets"]
+    }
+    if (
+        source_coordinate[2] != issue_coordinate[2]
+        or source_coordinate[:2] not in target_repositories
+    ):
+        raise LedgerError(
+            "legacy rebind filename must name one exact target repository and selected issue number"
+        )
+
+
+def _require_exact_legacy_claim(
+    source_name: str,
+    source_raw: bytes,
+    candidate: Mapping[str, Any],
+    *,
+    require_canonical_name: bool = True,
+    related_sources: Sequence[tuple[str, bytes]] = (),
+) -> set[tuple[str, str, str, str]]:
     expected_name = _legacy_source_name(candidate)
-    if source_name != expected_name:
+    if require_canonical_name and source_name != expected_name:
         raise LedgerError(f"legacy migration source must be exactly {expected_name}")
-    claim = _legacy_claim(source_name, source_raw, None)
+    claims = [
+        _legacy_claim(name, raw, None)
+        for name, raw in [(source_name, source_raw), *related_sources]
+    ]
+    if any(claim.ambiguous or claim.evidence_invalid for claim in claims):
+        raise LedgerError("legacy report evidence is duplicate or ambiguous")
     expected_issues = {
         (
             issue["repository"]["owner"].casefold(),
@@ -7088,6 +8148,10 @@ def _require_exact_legacy_claim(
         )
         for pull in candidate["selected_prs"]
     }
+    claimed_issues = {issue for claim in claims for issue in claim.issues}
+    claimed_pulls = {pull for claim in claims for pull in claim.pull_requests}
+    claimed_heads = {head for claim in claims for head in claim.repository_heads}
+    claimed_worktrees = {path for claim in claims for path in claim.worktrees}
     expected_heads = {
         (
             target["repository"]["owner"].casefold(),
@@ -7097,15 +8161,59 @@ def _require_exact_legacy_claim(
         for target in candidate["targets"]
     }
     expected_worktrees = _reserved_worktree_paths(candidate)
+    if not require_canonical_name:
+        for claim in claims:
+            filename = _LEGACY_REPORT_RE.fullmatch(claim.name)
+            if filename is None:
+                raise LedgerError("legacy rebind source filename is invalid")
+            source_repository = (
+                filename.group("owner").casefold(),
+                filename.group("repo").casefold(),
+            )
+            matching_targets = [
+                target
+                for target in candidate["targets"]
+                if (
+                    target["repository"]["owner"].casefold(),
+                    target["repository"]["name"].casefold(),
+                )
+                == source_repository
+            ]
+            if len(matching_targets) != 1:
+                raise LedgerError(
+                    "legacy rebind source must prove one exact target repository"
+                )
+            source_target = matching_targets[0]
+            source_head_value = (
+                source_repository[0],
+                source_repository[1],
+                source_target["head"]["branch"].casefold(),
+            )
+            source_head = {source_head_value}
+            source_worktrees = _reserved_repository_worktree_paths(
+                candidate, source_target["repository"]["node_id"]
+            )
+            if (
+                set(claim.issues) != expected_issues
+                or set(claim.pull_requests) != expected_pulls
+                or set(claim.repository_heads) != source_head
+                or set(claim.worktrees) != source_worktrees
+            ):
+                raise LedgerError(
+                    "legacy rebind source does not exactly prove its target coordinates"
+                )
     if (
-        set(claim.issues) != expected_issues
-        or set(claim.pull_requests) != expected_pulls
-        or set(claim.repository_heads) != expected_heads
-        or set(claim.worktrees) != expected_worktrees
+        claimed_issues != expected_issues
+        or claimed_pulls != expected_pulls
+        or claimed_heads != expected_heads
+        or claimed_worktrees != expected_worktrees
     ):
         raise LedgerError(
             "legacy report claim does not exactly match candidate issue/PR/head/worktree coordinates"
         )
+    return {
+        head for claim in claims for head in claim.repository_head_commits
+    }
 
 
 def _check_candidate_inventory(
@@ -7114,11 +8222,11 @@ def _check_candidate_inventory(
     raw: bytes,
     *,
     allowed_pending: set[tuple[str, str, str]],
-    allowed_legacy_source: str | None = None,
+    allowed_legacy_sources: set[str] | None = None,
 ) -> None:
     _require_exact_pending(current, allowed_pending)
     _reject_legacy_claims(
-        current, candidate, allowed_source=allowed_legacy_source
+        current, candidate, allowed_sources=allowed_legacy_sources
     )
     target = canonical_name(candidate)
     proposed = Snapshot(target, dict(candidate), raw, byte_digest(raw), 0, 0)
@@ -8206,19 +9314,260 @@ def cas(
             return installed
 
 
+def correct_target_head(
+    root: Path | str,
+    name: str,
+    predecessor_raw: bytes,
+    recovery_raw: bytes,
+    *,
+    expected_generation: int,
+    expected_digest: str,
+    expected_device: int,
+    expected_inode: int,
+    bad_head: str,
+    actual_head: str,
+    failpoint: Failpoint = None,
+) -> Snapshot:
+    """Correct one exact nonexistent target-head typo without erasing its audit trail."""
+
+    name = _direct_name(name)
+    _integer(expected_generation, "expected_generation", minimum=2)
+    _string(expected_digest, "expected_digest", SHA256_RE)
+    _integer(expected_device, "expected_device", minimum=0)
+    _integer(expected_inode, "expected_inode")
+    _string(bad_head, "bad_head", COMMIT_RE)
+    _string(actual_head, "actual_head", COMMIT_RE)
+    predecessor = validate(_decode(predecessor_raw, "head-correction predecessor"))
+    if predecessor_raw != canonical_bytes(predecessor) or canonical_name(predecessor) != name:
+        raise LedgerError("head-correction predecessor bytes are not exact canonical input")
+    predecessor_digest = byte_digest(predecessor_raw)
+    recovery = _head_correction_recovery(
+        _decode(recovery_raw, "head-correction recovery authority"),
+        "head-correction recovery authority",
+    )
+    if recovery_raw != canonical_bytes(recovery):
+        raise LedgerError("head-correction recovery authority is not canonical")
+    prefix = f".{name}.correct-target-head-{expected_digest}"
+    predecessor_name = f"{prefix}.predecessor.snapshot"
+    erroneous_name = f"{prefix}.erroneous.snapshot"
+    stage = f"{prefix}.tmp"
+    receipt_name = f"{prefix}.json"
+    allowed_pending = {
+        ("correct-target-head-predecessor", name, predecessor_name),
+        ("correct-target-head-erroneous", name, erroneous_name),
+        ("correct-target-head-stage", name, stage),
+        ("correct-target-head-receipt", name, receipt_name),
+    }
+
+    snapshot = inspect(root, name)
+    if snapshot.digest == expected_digest:
+        erroneous_raw = snapshot.raw
+    else:
+        with _locked_root(Path(root)) as directory:
+            erroneous_raw, _ = _read_regular(directory, erroneous_name, managed=True)
+    erroneous = validate(_decode(erroneous_raw, "head-correction erroneous bytes"))
+    if byte_digest(erroneous_raw) != expected_digest:
+        raise LedgerError("head-correction erroneous snapshot differs from expected digest")
+    corrected, metadata, live_request = _head_correction_document(
+        predecessor,
+        erroneous,
+        expected_digest,
+        bad_head=bad_head,
+        actual_head=actual_head,
+    )
+    corrected_raw = canonical_bytes(corrected)
+    corrected_digest = byte_digest(corrected_raw)
+    source_identity = {
+        "generation": expected_generation,
+        "sha256": expected_digest,
+        "device": expected_device,
+        "inode": expected_inode,
+    }
+    expected_intent = _head_correction_intent(
+        erroneous,
+        name,
+        source_identity,
+        predecessor_digest,
+        metadata,
+        bad_head=bad_head,
+        actual_head=actual_head,
+    )
+    _require_head_correction_recovery(
+        recovery,
+        erroneous,
+        expected_intent,
+        "head-correction recovery authority",
+    )
+
+    with _pinned_live_worktree(
+        live_request, metadata["worktree"], "target-head correction"
+    ) as guard:
+        def prove_live() -> None:
+            guard.prove()
+            worktree = guard.descriptors["worktree"]
+            _git(
+                worktree,
+                ("cat-file", "-e", f"{actual_head}^{{commit}}"),
+                "actual correction head commit",
+            )
+            _, bad_raw = _git(
+                worktree,
+                ("cat-file", "--batch-check"),
+                "bad correction head absence",
+                input_bytes=f"{bad_head}\n".encode("ascii"),
+            )
+            if _one_git_line(bad_raw, "bad correction head absence") != f"{bad_head} missing":
+                raise LedgerError("bad correction object is not canonically absent")
+            ancestor_status, _ = _git(
+                worktree,
+                (
+                    "merge-base",
+                    "--is-ancestor",
+                    metadata["predecessor_head"],
+                    actual_head,
+                ),
+                "correction predecessor ancestry",
+                accepted={0, 1},
+            )
+            if ancestor_status != 0:
+                raise LedgerError("correction predecessor is not an ancestor of actual head")
+            _, merge_base_raw = _git(
+                worktree,
+                ("merge-base", metadata["base_head"], actual_head),
+                "correction merge base",
+            )
+            if _one_git_line(merge_base_raw, "correction merge base") != metadata["merge_base"]:
+                raise LedgerError("corrected target merge base does not match live Git")
+            guard.prove()
+
+        prove_live()
+        with _locked_root(Path(root)) as directory:
+            _require_names_fit(
+                directory,
+                (name, predecessor_name, erroneous_name, stage, receipt_name, f".{name}.lock"),
+            )
+            current_inventory = _inventory_locked(directory)
+            _require_exact_pending(current_inventory, allowed_pending)
+            with _ledger_lock(directory, name):
+                current_inventory = _inventory_locked(directory)
+                _require_exact_pending(current_inventory, allowed_pending)
+                current = _snapshot(directory, name)
+                if current.digest == corrected_digest:
+                    if _exists(directory, stage):
+                        raise LedgerError("completed head correction retained its stage")
+                    receipt_raw, _ = _read_regular(
+                        directory, receipt_name, managed=True
+                    )
+                    receipt = _head_correction_receipt(
+                        _decode(receipt_raw, receipt_name), receipt_name
+                    )
+                    if receipt["source"] != source_identity or (
+                        receipt["bad_head"], receipt["actual_head"]
+                    ) != (bad_head, actual_head) or receipt["predecessor_snapshot"][
+                        "sha256"
+                    ] != predecessor_digest or receipt["recovery"] != recovery:
+                        raise LedgerError("completed head correction has different authority")
+                    prove_live()
+                    _fsync(directory, f"review root while resuming correction of {name}")
+                    return current
+                if (
+                    current.document["generation"] != expected_generation
+                    or current.digest != expected_digest
+                    or current.device != expected_device
+                    or current.inode != expected_inode
+                    or current.raw != erroneous_raw
+                ):
+                    raise LedgerError("stale head-correction generation, digest, or inode")
+                predecessor_status = _ensure_stage(
+                    directory, predecessor_name, predecessor_raw, allow_prefix_resume=True
+                )
+                _hit(failpoint, "correct-target-head:predecessor-snapshot")
+                erroneous_status = _ensure_head_correction_source_link(
+                    directory,
+                    name,
+                    erroneous_name,
+                    erroneous_raw,
+                    expected_device,
+                    expected_inode,
+                )
+                _hit(failpoint, "correct-target-head:erroneous-snapshot")
+                stage_status = _ensure_stage(
+                    directory, stage, corrected_raw, allow_prefix_resume=True
+                )
+                _hit(failpoint, "correct-target-head:staged")
+                receipt = {
+                    "transaction": "delivery-ledger-correct-target-head-v1",
+                    "target": name,
+                    "source": source_identity,
+                    "predecessor_snapshot": {
+                        "name": predecessor_name,
+                        "sha256": predecessor_digest,
+                        "device": predecessor_status.st_dev,
+                        "inode": predecessor_status.st_ino,
+                    },
+                    "erroneous_snapshot": {
+                        "name": erroneous_name,
+                        "sha256": expected_digest,
+                        "device": erroneous_status.st_dev,
+                        "inode": erroneous_status.st_ino,
+                    },
+                    "correction": {
+                        "generation": corrected["generation"],
+                        "sha256": corrected_digest,
+                    },
+                    **metadata,
+                    "actual_head": actual_head,
+                    "bad_head": bad_head,
+                    "recovery": copy.deepcopy(recovery),
+                    "staging": stage,
+                }
+                receipt_raw = canonical_bytes(receipt)
+                _head_correction_receipt(receipt, receipt_name)
+                _ensure_stage(directory, receipt_name, receipt_raw, allow_prefix_resume=True)
+                _hit(failpoint, "correct-target-head:receipt")
+                rechecked = _snapshot(directory, name)
+                if (
+                    rechecked.digest,
+                    rechecked.device,
+                    rechecked.inode,
+                ) != (expected_digest, expected_device, expected_inode):
+                    raise LedgerError("head-correction source changed before replacement")
+                staged_raw, staged_visible = _read_regular(
+                    directory, stage, managed=True, sync=True
+                )
+                if staged_raw != corrected_raw or (
+                    staged_visible.st_dev,
+                    staged_visible.st_ino,
+                ) != (stage_status.st_dev, stage_status.st_ino):
+                    raise LedgerError("head-correction stage changed before replacement")
+                prove_live()
+                os.replace(stage, name, src_dir_fd=directory, dst_dir_fd=directory)
+                _hit(failpoint, "correct-target-head:renamed")
+                installed = _snapshot(directory, name)
+                if installed.raw != corrected_raw:
+                    raise LedgerError("head-correction installed bytes differ")
+                _fsync(directory, f"review root after correcting {name}")
+                _hit(failpoint, "correct-target-head:installed")
+                final_inventory = _inventory_locked(directory)
+                _require_exact_pending(final_inventory, set())
+                return _snapshot(directory, name)
+
+
 def _migration_marker(
     *,
     state: str,
     kind: str,
     candidate_digest: str,
     source: Mapping[str, Any],
+    related_sources: Sequence[Mapping[str, Any]] | None,
+    historical_heads: Sequence[Mapping[str, Any]] | None,
     snapshot_name: str,
     snapshot: Mapping[str, Any] | None,
     canonical_report: str,
     destination: str,
     destination_digest: str | None,
 ) -> dict[str, Any]:
-    return {
+    marker = {
         "transaction": "delivery-ledger-migration-v1",
         "state": state,
         "kind": kind,
@@ -8231,6 +9580,11 @@ def _migration_marker(
         "destination_digest": destination_digest,
         "staging": f".{destination}.migrate.tmp",
     }
+    if related_sources is not None:
+        marker["related_sources"] = [dict(source) for source in related_sources]
+    if historical_heads is not None:
+        marker["historical_heads"] = [dict(head) for head in historical_heads]
+    return marker
 
 
 def migrate(
@@ -8240,20 +9594,56 @@ def migrate(
     *,
     kind: str,
     expected_source_digest: str | None = None,
+    related_sources: Mapping[str, str] | None = None,
+    expected_historical_heads: Mapping[tuple[str, str, str], str] | None = None,
     failpoint: Failpoint = None,
 ) -> Snapshot:
     if kind not in MIGRATION_KINDS:
-        raise LedgerError("migration kind must be legacy or pre-schema")
+        raise LedgerError(
+            "migration kind must be legacy, legacy-rebind, or pre-schema"
+        )
     if expected_source_digest is None:
         raise LedgerError("migration requires an exact expected source digest")
     _string(expected_source_digest, "expected_source_digest", SHA256_RE)
     source_name = _direct_name(source_name, "migration source")
+    requested_related = {} if related_sources is None else dict(related_sources)
+    requested_heads = (
+        {} if expected_historical_heads is None else dict(expected_historical_heads)
+    )
+    for related_name, related_digest in requested_related.items():
+        _direct_name(related_name, "migration related source")
+        _string(related_digest, "migration related source digest", SHA256_RE)
+    if len({name.casefold() for name in requested_related}) != len(requested_related):
+        raise LedgerError("migration related sources contain a case alias")
+    normalized_heads: dict[tuple[str, str, str], str] = {}
+    for coordinate, head_sha in requested_heads.items():
+        if not isinstance(coordinate, tuple) or len(coordinate) != 3:
+            raise LedgerError("historical head coordinate is invalid")
+        owner, repository_name, branch = coordinate
+        normalized = (
+            _string(owner.casefold(), "historical head owner", OWNER_RE),
+            _string(
+                repository_name.casefold(),
+                "historical head repository",
+                REPOSITORY_RE,
+            ),
+            _branch(branch, "historical head branch").casefold(),
+        )
+        sha = _string(head_sha.casefold(), "historical head SHA", COMMIT_RE)
+        if normalized in normalized_heads:
+            raise LedgerError("historical head coordinates contain a duplicate")
+        normalized_heads[normalized] = sha
     candidate = prepare(document)
     _require_migration_genesis(candidate, kind)
     if candidate["authority"]["kind"] not in {"durable-goal", "explicit-recovery"}:
         raise LedgerError(
             "migration requires durable-goal or explicit-recovery authority"
         )
+    if (
+        kind == "legacy-rebind"
+        and candidate["authority"]["kind"] != "explicit-recovery"
+    ):
+        raise LedgerError("legacy rebind requires explicit-recovery authority")
     candidate_raw = canonical_bytes(candidate)
     candidate_digest = byte_digest(candidate_raw)
     target = canonical_name(candidate)
@@ -8271,6 +9661,32 @@ def migrate(
         raise LedgerError(
             f"legacy migration source must be exactly {_legacy_source_name(candidate)}"
         )
+    if kind == "legacy-rebind":
+        _require_legacy_rebind_source(source_name, candidate)
+        expected_related = _legacy_source_name(candidate)
+        if set(requested_related) != {expected_related}:
+            raise LedgerError(
+                f"legacy rebind requires exact related source {expected_related}"
+            )
+        if not normalized_heads:
+            raise LedgerError("legacy rebind requires exact historical heads")
+    elif requested_related or normalized_heads:
+        raise LedgerError("recovery evidence is only valid for legacy rebind")
+    historical_head_rows = (
+        [
+            {
+                "owner": owner,
+                "repository": repository_name,
+                "branch": branch,
+                "sha": sha,
+            }
+            for (owner, repository_name, branch), sha in sorted(
+                normalized_heads.items()
+            )
+        ]
+        if kind == "legacy-rebind"
+        else None
+    )
     with _locked_root(Path(root)) as directory:
         preflight_marker = None
         if _exists(directory, marker_name):
@@ -8292,7 +9708,20 @@ def migrate(
                 raise LedgerError("migration marker addresses a different transition")
             if preflight_marker["source"]["sha256"] != expected_source_digest:
                 raise LedgerError("expected source digest differs from planned migration")
+            if {
+                source["name"]: source["sha256"]
+                for source in preflight_marker.get("related_sources", [])
+            } != requested_related:
+                raise LedgerError("related source digests differ from planned migration")
+            if preflight_marker.get("historical_heads") != historical_head_rows:
+                raise LedgerError("historical heads differ from planned migration")
         preflight_raw, preflight_status = _read_regular(directory, source_name)
+        preflight_related: list[tuple[str, bytes, os.stat_result]] = []
+        for related_name in sorted(requested_related, key=str.casefold):
+            related_raw, related_status = _read_regular(directory, related_name)
+            if byte_digest(related_raw) != requested_related[related_name]:
+                raise LedgerError("migration related source digest does not match expectation")
+            preflight_related.append((related_name, related_raw, related_status))
         preflight_digest = byte_digest(preflight_raw)
         mutable_completed_pre_schema = (
             kind == "pre-schema"
@@ -8302,9 +9731,32 @@ def migrate(
         )
         if preflight_digest != expected_source_digest and not mutable_completed_pre_schema:
             raise LedgerError("migration source digest does not match expectation")
-        if kind == "legacy":
-            _require_exact_legacy_claim(source_name, preflight_raw, candidate)
+        if kind in LEGACY_MIGRATION_KINDS:
+            parsed_historical_heads = _require_exact_legacy_claim(
+                source_name,
+                preflight_raw,
+                candidate,
+                require_canonical_name=kind == "legacy",
+                related_sources=[
+                    (name, raw) for name, raw, _status in preflight_related
+                ],
+            )
+            if kind == "legacy-rebind" and parsed_historical_heads != {
+                (*coordinate, sha) for coordinate, sha in normalized_heads.items()
+            }:
+                raise LedgerError(
+                    "legacy rebind historical heads do not match exact expectation"
+                )
         if preflight_marker is None:
+            related_identities = [
+                {
+                    "name": name,
+                    "sha256": byte_digest(raw),
+                    "device": status.st_dev,
+                    "inode": status.st_ino,
+                }
+                for name, raw, status in preflight_related
+            ]
             planned_marker = _migration_marker(
                 state="planned",
                 kind=kind,
@@ -8315,6 +9767,12 @@ def migrate(
                     "device": preflight_status.st_dev,
                     "inode": preflight_status.st_ino,
                 },
+                related_sources=(
+                    related_identities if kind == "legacy-rebind" else None
+                ),
+                historical_heads=(
+                    historical_head_rows if kind == "legacy-rebind" else None
+                ),
                 snapshot_name=snapshot_name,
                 snapshot=None,
                 canonical_report=canonical_report,
@@ -8359,7 +9817,7 @@ def migrate(
             candidate,
             candidate_raw,
             allowed_pending=allowed_pending,
-            allowed_legacy_source=source_name,
+            allowed_legacy_sources={source_name, *requested_related},
         )
         with _ledger_lock(directory, target):
             current_inventory = _inventory_locked(directory)
@@ -8368,7 +9826,7 @@ def migrate(
                 candidate,
                 candidate_raw,
                 allowed_pending=allowed_pending,
-                allowed_legacy_source=source_name,
+                allowed_legacy_sources={source_name, *requested_related},
             )
             source_raw, source_status = _read_regular(directory, source_name)
             source_digest = byte_digest(source_raw)
@@ -8378,6 +9836,13 @@ def migrate(
                 != (preflight_status.st_dev, preflight_status.st_ino)
             ):
                 raise LedgerError("migration source changed after preflight")
+            for related_name, related_raw, related_status in preflight_related:
+                current_raw, current_status = _read_regular(directory, related_name)
+                if current_raw != related_raw or (
+                    current_status.st_dev,
+                    current_status.st_ino,
+                ) != (related_status.st_dev, related_status.st_ino):
+                    raise LedgerError("migration related source changed after preflight")
             marker: dict[str, Any] | None = None
             marker_status: os.stat_result | None = None
             if _exists(directory, marker_name):
@@ -8399,6 +9864,13 @@ def migrate(
                     raise LedgerError("migration marker addresses a different transition")
                 if marker["source"]["sha256"] != expected_source_digest:
                     raise LedgerError("expected source digest differs from planned migration")
+                if {
+                    source["name"]: source["sha256"]
+                    for source in marker.get("related_sources", [])
+                } != requested_related:
+                    raise LedgerError("related source digests differ from planned migration")
+                if marker.get("historical_heads") != historical_head_rows:
+                    raise LedgerError("historical heads differ from planned migration")
                 if _exists(directory, marker_plan_stage):
                     planned_raw, planned_status = _read_regular(
                         directory,
@@ -8466,13 +9938,21 @@ def migrate(
                 )
                 _hit(failpoint, "migration:planned")
             source = marker["source"]
-            if kind == "legacy" or marker["state"] != "complete":
+            if kind in LEGACY_MIGRATION_KINDS or marker["state"] != "complete":
                 if (
                     source_digest != source["sha256"]
                     or source_status.st_dev != source["device"]
                     or source_status.st_ino != source["inode"]
                 ):
                     raise LedgerError("migration source changed before safe completion")
+            for related in marker.get("related_sources", []):
+                related_raw, related_status = _read_regular(directory, related["name"])
+                if (
+                    byte_digest(related_raw) != related["sha256"]
+                    or related_status.st_dev != related["device"]
+                    or related_status.st_ino != related["inode"]
+                ):
+                    raise LedgerError("migration related source changed before completion")
             if marker["state"] == "planned":
                 snapshot_status = _ensure_stage(
                     directory, snapshot_name, source_raw, allow_prefix_resume=True
@@ -8493,7 +9973,7 @@ def migrate(
                     "inode": snapshot_visible.st_ino,
                 }
                 _hit(failpoint, "migration:snapshot")
-                if kind == "legacy":
+                if kind in LEGACY_MIGRATION_KINDS:
                     canonical_status = _ensure_stage(
                         directory,
                         canonical_report,
@@ -8521,6 +10001,9 @@ def migrate(
                     "canonical_report": canonical_report,
                     "marker_name": marker_name,
                 }
+                if kind == "legacy-rebind":
+                    migration["related_sources"] = marker["related_sources"]
+                    migration["historical_heads"] = marker["historical_heads"]
                 prepared = prepare({**candidate, "migration": migration})
                 raw = canonical_bytes(prepared)
                 destination_digest = byte_digest(raw)
@@ -8529,6 +10012,8 @@ def migrate(
                     kind=kind,
                     candidate_digest=candidate_digest,
                     source=source,
+                    related_sources=marker.get("related_sources"),
+                    historical_heads=marker.get("historical_heads"),
                     snapshot_name=snapshot_name,
                     snapshot=snapshot,
                     canonical_report=canonical_report,
@@ -8581,7 +10066,7 @@ def migrate(
                     raise LedgerError("immutable migration snapshot changed")
                 canonical_raw, _ = _read_regular(directory, canonical_report)
                 if (
-                    kind == "legacy"
+                    kind in LEGACY_MIGRATION_KINDS
                     and marker["state"] != "complete"
                     and canonical_raw != snapshot_raw
                 ):
@@ -8594,6 +10079,9 @@ def migrate(
                     "canonical_report": canonical_report,
                     "marker_name": marker_name,
                 }
+                if kind == "legacy-rebind":
+                    migration["related_sources"] = marker["related_sources"]
+                    migration["historical_heads"] = marker["historical_heads"]
                 prepared = prepare({**candidate, "migration": migration})
                 raw = canonical_bytes(prepared)
                 destination_digest = byte_digest(raw)
@@ -8752,6 +10240,22 @@ def parser() -> argparse.ArgumentParser:
     cas_parser.add_argument("--expected-digest", required=True)
     cas_parser.add_argument("--expected-device", required=True, type=int)
     cas_parser.add_argument("--expected-inode", required=True, type=int)
+    correction_parser = commands.add_parser(
+        "correct-target-head",
+        help="live-prove and supersede one exact nonexistent target-head typo",
+    )
+    correction_parser.add_argument("root", help="initialized review root")
+    correction_parser.add_argument("name", help="direct canonical ledger filename")
+    correction_parser.add_argument("predecessor", help="exact canonical predecessor JSON")
+    correction_parser.add_argument(
+        "recovery", help="exact canonical explicit-recovery grant and intent JSON"
+    )
+    correction_parser.add_argument("--expected-generation", required=True, type=int)
+    correction_parser.add_argument("--expected-digest", required=True)
+    correction_parser.add_argument("--expected-device", required=True, type=int)
+    correction_parser.add_argument("--expected-inode", required=True, type=int)
+    correction_parser.add_argument("--bad-head", required=True)
+    correction_parser.add_argument("--actual-head", required=True)
     migration_parser = commands.add_parser(
         "migrate", help="recover one exact legacy or pre-schema report"
     )
@@ -8760,6 +10264,20 @@ def parser() -> argparse.ArgumentParser:
     migration_parser.add_argument("input", help="generation-1 migration-null JSON file")
     migration_parser.add_argument("--kind", choices=sorted(MIGRATION_KINDS), required=True)
     migration_parser.add_argument("--expected-source-digest", required=True)
+    migration_parser.add_argument(
+        "--related-source",
+        action="append",
+        default=[],
+        metavar="NAME=SHA256",
+        help="exact related legacy source and digest (legacy-rebind only)",
+    )
+    migration_parser.add_argument(
+        "--historical-head",
+        action="append",
+        default=[],
+        metavar="OWNER/REPOSITORY@BRANCH=SHA",
+        help="exact parsed historical head (legacy-rebind only)",
+    )
     reuse_parser = commands.add_parser(
         "check-reuse", help="fail unless recorded artifacts/resources are safely reusable"
     )
@@ -8911,7 +10429,42 @@ def main(argv: Sequence[str] | None = None) -> int:
                     expected_inode=arguments.expected_inode,
                 ).json()
             )
+        elif arguments.command == "correct-target-head":
+            _print(
+                correct_target_head(
+                    arguments.root,
+                    arguments.name,
+                    _read_bytes_input(arguments.predecessor),
+                    _read_bytes_input(arguments.recovery),
+                    expected_generation=arguments.expected_generation,
+                    expected_digest=arguments.expected_digest,
+                    expected_device=arguments.expected_device,
+                    expected_inode=arguments.expected_inode,
+                    bad_head=arguments.bad_head,
+                    actual_head=arguments.actual_head,
+                ).json()
+            )
         elif arguments.command == "migrate":
+            related_sources: dict[str, str] = {}
+            for value in arguments.related_source:
+                name, separator, digest = value.partition("=")
+                if not separator or name in related_sources:
+                    raise LedgerError(
+                        "related source must be one unique NAME=SHA256 value"
+                    )
+                related_sources[name] = digest
+            historical_heads: dict[tuple[str, str, str], str] = {}
+            for value in arguments.historical_head:
+                coordinate, equals, sha = value.rpartition("=")
+                repository_text, at, branch = coordinate.partition("@")
+                owner, slash, repository_name = repository_text.partition("/")
+                key = (owner, repository_name, branch)
+                if not equals or not at or not slash or key in historical_heads:
+                    raise LedgerError(
+                        "historical head must be one unique "
+                        "OWNER/REPOSITORY@BRANCH=SHA value"
+                    )
+                historical_heads[key] = sha
             _print(
                 migrate(
                     arguments.root,
@@ -8919,6 +10472,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                     _read_input(arguments.input),
                     kind=arguments.kind,
                     expected_source_digest=arguments.expected_source_digest,
+                    related_sources=related_sources,
+                    expected_historical_heads=historical_heads,
                 ).json()
             )
         elif arguments.command == "check-reuse":

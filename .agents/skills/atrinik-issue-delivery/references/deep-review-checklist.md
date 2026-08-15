@@ -85,9 +85,20 @@ applicability; do not turn irrelevant categories into invented findings.
   coordinate-bound body and comment markers, equal/newer timestamp recovery,
   complete pagination, target-drift cancellation,
   illegal transitions, concurrent writers, every migration kill point, exact
-  resume, proven base/head/merge-base advancement versus rewrite, and required
+  resume, explicit-authority cross-repository legacy-filename rebind over the
+  exact complementary report set with exact unioned coordinates and a truly
+  conflicting control, proven base/head/
+  merge-base advancement versus rewrite, and required
   source/report/snapshot/ledger/marker loss. Markdown is non-authoritative; no
   workflow may hand-roll state I/O.
+- For a helper-owned target-head typo correction, prove the exact predecessor
+  and hard-linked bad-generation inode, canonical explicit-recovery grant whose
+  objective binds the full source tuple/correction intent and exact ledger
+  actor/repository/issue scope, exact no-lazy-fetch batch-check `missing` result
+  for the full bad OID, live repository/branch/path, predecessor ancestry, recomputed merge
+  base, mirrored bound branch/worktree, zero unrelated semantic changes,
+  durable snapshots/receipt, renamed-retry directory fsync, every publication
+  failpoint, and correction-digest history continuity through later generations.
 - Before any delivery-owned mutation, use the helper to inventory every
   regular no-follow canonical issue and PR ledger plus recognized migration and
   staging file under the exact ignored review root.
