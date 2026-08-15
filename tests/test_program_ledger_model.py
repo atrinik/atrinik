@@ -855,30 +855,29 @@ class ProgramLedgerModel:
         body: str = "old-body",
         scan: object = AUTO_SCAN,
     ) -> None:
-        marker_required = (
+        authoritative_marker = (
             self.record["comment"]["phase"] == "bound"
             or self.record["comment"]["node"] is not None
-            or bool(count)
         )
-        if namespace is None and comments is not None:
-            namespace = [
-                (comment["node"], comment["author"], comment["marker"], comment["body"])
-                for comment in comments if comment.get("marker") is not None
-            ]
-        if namespace is None:
-            namespace = (
-                [("comment-node", "actor", "program-marker", body)]
-                if marker_required else []
-            )
-        expected = [("comment-node", "actor", "program-marker", body)]
-        if (marker_required and namespace != expected) or (not marker_required and namespace):
-            raise StopClosed("comment marker/node/author/body is not exact")
-        results = [
-            {"node": node, "author": author, "marker": marker, "body": text}
-            for node, author, marker, text in namespace
-        ]
         if comments is None:
-            comments = copy.deepcopy(results)
+            if namespace is None:
+                namespace = (
+                [("comment-node", "actor", "program-marker", body)]
+                    if authoritative_marker or count else []
+                )
+            if (
+                not isinstance(namespace, list)
+                or any(
+                    not isinstance(item, tuple) or len(item) != 4
+                    or any(not isinstance(value, str) for value in item)
+                    for item in namespace
+                )
+            ):
+                raise StopClosed("comment namespace evidence is malformed")
+            comments = [
+                {"node": node, "author": author, "marker": marker, "body": text}
+                for node, author, marker, text in namespace
+            ]
         if any(
             not isinstance(comment, dict)
             or set(comment) != {"node", "author", "marker", "body"}
@@ -892,8 +891,26 @@ class ProgramLedgerModel:
             for comment in comments
         ):
             raise StopClosed("comment scan contains malformed full-stream evidence")
+        derived_namespace = [
+            (comment["node"], comment["author"], comment["marker"], comment["body"])
+            for comment in comments if comment["marker"] is not None
+        ]
+        if namespace is not None and namespace != derived_namespace:
+            raise StopClosed("comment namespace contradicts the full stream")
+        expected = [("comment-node", "actor", "program-marker", body)]
+        if (
+            (derived_namespace and derived_namespace != expected)
+            or (authoritative_marker and derived_namespace != expected)
+        ):
+            raise StopClosed("comment marker/node/author/body is not exact")
+        results = [
+            {"node": node, "author": author, "marker": marker, "body": text}
+            for node, author, marker, text in derived_namespace
+        ]
         content_digest = hashlib.sha256(self.canonical(comments)).hexdigest()
-        observed_count = int(marker_required) if count is None else count
+        observed_count = len(derived_namespace)
+        if count is not None and count != observed_count:
+            raise StopClosed("comment marker count contradicts the full stream")
         node_ids = [comment["node"] for comment in comments]
         body_sizes = [len(comment["body"].encode("utf-8")) for comment in comments]
         self._observe(
@@ -2215,6 +2232,16 @@ class ProgramLedgerModelTests(unittest.TestCase):
             with self.subTest(namespace=namespace, bound=bound):
                 with self.assertRaises(StopClosed):
                     ProgramLedgerModel.validate_marker(namespace, "actor", bound)
+        contradiction = [{
+            "node": "existing-marker", "author": "actor",
+            "marker": "program-marker", "body": "old-body",
+        }]
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel().observe_comment(
+                namespace=[], comments=contradiction,
+            )
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel().observe_comment(comments=[None])
 
     def test_child_duplicate_classifier_scopes_markers_and_predicates(self) -> None:
         blockers = (
