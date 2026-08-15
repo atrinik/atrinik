@@ -16,6 +16,7 @@ the ownership and recovery boundary.
 - [Bind a created PR](#bind-a-created-pr)
 - [Plan and recover body updates](#plan-and-recover-body-updates)
 - [Plan and recover comments](#plan-and-recover-comments)
+- [Correct one proven target-head typo](#correct-one-proven-target-head-typo)
 - [Migrate prior evidence](#migrate-prior-evidence)
 - [Recover interrupted transactions](#recover-interrupted-transactions)
 - [Observe strict prohibitions](#observe-strict-prohibitions)
@@ -78,6 +79,11 @@ python3 scripts/delivery_ledger.py cas REVIEW_ROOT LEDGER_NAME INPUT \
   --expected-digest SHA256 \
   --expected-device DEVICE \
   --expected-inode INODE
+python3 scripts/delivery_ledger.py correct-target-head \
+  REVIEW_ROOT LEDGER_NAME EXACT_PREDECESSOR_JSON RECOVERY_AUTHORITY_JSON \
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-device DEVICE --expected-inode INODE \
+  --bad-head NONEXISTENT_SHA --actual-head LIVE_SHA
 python3 scripts/delivery_ledger.py migrate REVIEW_ROOT SOURCE_NAME INPUT \
   --kind legacy \
   --expected-source-digest SHA256
@@ -1506,6 +1512,60 @@ authority rather than posting again. Only an exact complete `comment-check`
 proving a planned write was not applied permits a separate pre-drift cancel: a
 never-started first plan returns to none and a planned bound update returns to
 bound, clearing digest and payload. Never cancel in-flight.
+
+## Correct one proven target-head typo
+
+Ordinary CAS never rewrites lineage. If its caller nevertheless persisted one
+full-length but nonexistent target-head SHA, stop all delivery writes and retain
+the exact immediate-predecessor canonical ledger bytes. Use
+`correct-target-head` only when the bad generation differs from that predecessor
+solely by one target head advancement mirrored in exactly one bound branch and
+one bound primitive worktree. Supply the bad generation's fresh four-part CAS
+identity, the nonexistent SHA, the exact live SHA, the predecessor file, and a
+canonical explicit-recovery authority/intent file.
+
+That file has exactly `grant` and `intent`. `grant` is a normal
+`explicit-recovery` authority whose actor and complete repository/issue/PR
+allowlists exactly equal the installed ledger's authority scope. `intent` has
+transaction `delivery-ledger-correct-target-head-intent-v1` and binds the exact
+ledger name, installed generation/digest/device/inode, predecessor digest,
+target repository, branch, worktree, bad and actual SHAs, plus the full ledger
+ID, mode, actor, repository identities, authorized issue identities, and PR
+allowlist. The grant's `objective_sha256` is the SHA-256 of that exact canonical
+intent object's compact sorted ASCII JSON bytes without a trailing newline; the
+outer input file itself uses the helper's ordinary canonical trailing newline.
+The helper rejects noncanonical bytes, a generic invocation or
+goal, any superset or changed actor/scope, and any objective/intent mismatch
+before writing.
+
+The helper derives the correcting generation itself. It live-pins the recorded
+repository, branch, worktree path, roots, and Git authority; proves the actual
+commit exists, the predecessor is its ancestor, the bad commit does not exist,
+by accepting only the exact `<full-oid> missing` response from a bounded
+`git cat-file --batch-check` with `GIT_NO_LAZY_FETCH=1`, so promisor objects
+cannot trigger a remote fetch, and the recorded merge base equals a fresh
+`git merge-base` result. It then
+appends the bad generation digest to history while rebuilding only the affected
+head lineage as predecessor lineage plus the actual SHA and mirroring that SHA
+into the bound branch/worktree identities. Every other semantic byte remains
+the bad generation's byte.
+
+The operation permanently retains canonical predecessor bytes and a hard link to
+the exact installed erroneous ledger inode plus the full recovery grant/intent
+receipt. Before replacement, the target and erroneous snapshot must be the same
+device/inode with two links; after replacement the retained erroneous snapshot's
+device/inode must still equal the receipt's source tuple. Inventory validates
+those artifacts, the objective, and the correction digest continuously. A later
+ordinary CAS is valid only when its history retains the correction digest at
+the correction generation's exact index; later generations may then continue
+normally. Rerun the identical command after any
+interruption; the failpoints are `predecessor-snapshot`, `erroneous-snapshot`,
+`staged`, `receipt`, `renamed`, and `installed`, under the
+`correct-target-head:` prefix. Missing, changed, extra, existent-bad,
+non-ancestor, wrong-repository/branch/path, stale tuple, merge-base drift, or
+unrelated semantic differences stop before replacement. A completed retry
+fsyncs the review root before returning, including recovery after a crash
+immediately following the rename.
 
 ## Migrate prior evidence
 

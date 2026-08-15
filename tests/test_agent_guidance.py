@@ -637,6 +637,13 @@ class AgentGuidanceTests(unittest.TestCase):
             "--historical-head",
             "finish that delivery with the ordinary",
             "Rerun the identical command with identical input",
+            "correct-target-head",
+            "permanently retains canonical predecessor",
+            "recorded merge base equals a fresh `git merge-base` result",
+            "RECOVERY_AUTHORITY_JSON",
+            "exact installed erroneous ledger inode",
+            "`git cat-file --batch-check`",
+            "history retains the correction digest",
         }:
             with self.subTest(ledger_marker=marker):
                 self.assertIn(marker, ledger)
