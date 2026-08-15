@@ -25,6 +25,7 @@ import tempfile
 import threading
 import time
 import unittest
+from dataclasses import replace
 from unittest import mock
 
 from atrinik_workspace import workspace as workspace_module
@@ -41,6 +42,7 @@ from atrinik_workspace.migration import rename_no_replace as real_rename_no_repl
 from atrinik_workspace.launch_identity import client_launch_label
 from atrinik_workspace.model import (
     MANAGED_MARKER,
+    Manifest,
     WorkspaceError,
     atomic_json,
     load_json,
@@ -2036,6 +2038,210 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "ownership is invalid"):
             self.workspace._source_generation_record(forged)
 
+    def test_source_generation_restores_export_ignored_git_entries(self) -> None:
+        checkout = self.workspace.paths.repositories / "client"
+        (checkout / ".gitattributes").write_text(
+            "/README export-ignore\n", encoding="utf-8"
+        )
+        command("git", "add", ".gitattributes", cwd=checkout)
+        command("git", "commit", "-m", "test: ignore README in archives", cwd=checkout)
+
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["client"]
+            self.assertEqual(
+                (source / "README").read_text(encoding="utf-8"), "client\n"
+            )
+            record = self.workspace._source_generation_record(source)
+            assert record is not None
+            self.workspace._validate_source_generation_git_closure(
+                checkout,
+                source.parent,
+                record["source_tree"],
+                record["tree"],
+                record["source_includes"],
+            )
+
+    def test_scoped_classic_sources_include_shared_cmake_inputs(self) -> None:
+        production_manifest = Path(__file__).parents[1] / "components.json"
+        self.workspace.manifest = Manifest.load(production_manifest)
+        classic = self.workspace.paths.repositories / "classic"
+        classic.mkdir()
+        command("git", "init", "-b", "main", cwd=classic)
+        command("git", "config", "user.name", "Tests", cwd=classic)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=classic)
+        for directory in ("client", "server", "protocol", "libatrinik", "cmake"):
+            (classic / directory).mkdir()
+        for directory in ("protocol", "libatrinik"):
+            (classic / directory / "README").write_text(
+                f"{directory}\n", encoding="utf-8"
+            )
+        (classic / "server" / "install_data" / "unique-items").mkdir(parents=True)
+        (classic / "server" / "install_data" / "bans").write_text(
+            "", encoding="utf-8"
+        )
+        (classic / "cmake" / "AtrinikVersion.cmake").write_text(
+            "function(atrinik_resolve_version output)\n"
+            "  set(${output} test-version PARENT_SCOPE)\n"
+            "endfunction()\n",
+            encoding="utf-8",
+        )
+        (classic / "LICENSE.md").write_text("test license\n", encoding="utf-8")
+        (classic / "ATTRIBUTIONS.md").write_text(
+            "test attributions\n", encoding="utf-8"
+        )
+        for role in ("client", "server"):
+            (classic / role / "CMakeLists.txt").write_text(
+                "cmake_minimum_required(VERSION 3.16)\n"
+                "include(../cmake/AtrinikVersion.cmake)\n"
+                "atrinik_resolve_version(ATRINIK_VERSION)\n"
+                f"project(scoped-{role} VERSION 1.0 LANGUAGES NONE)\n"
+                "if(NOT ATRINIK_VERSION STREQUAL test-version)\n"
+                '  message(FATAL_ERROR "shared version module was not used")\n'
+                "endif()\n"
+                "foreach(document LICENSE.md ATTRIBUTIONS.md)\n"
+                "  if(NOT EXISTS \"${CMAKE_CURRENT_SOURCE_DIR}/../${document}\")\n"
+                '    message(FATAL_ERROR "missing root document: ${document}")\n'
+                "  endif()\n"
+                "endforeach()\n"
+                "enable_testing()\n"
+                "add_test(NAME shared-version COMMAND ${CMAKE_COMMAND} -E true)\n",
+                encoding="utf-8",
+            )
+        command("git", "add", ".", cwd=classic)
+        command("git", "commit", "-m", "test: seed Classic checkout", cwd=classic)
+        origin = self.root / "origins" / "atrinik.git"
+        command("git", "init", "--bare", str(origin), cwd=self.root)
+        command("git", "remote", "add", "origin", str(origin), cwd=classic)
+        command("git", "push", "-u", "origin", "main", cwd=classic)
+        self.origins["classic"] = origin
+        original_tree = command("git", "rev-parse", "HEAD^{tree}", cwd=classic)
+        (classic / "LICENSE.md").write_text(
+            "replacement license\n", encoding="utf-8"
+        )
+        command("git", "add", "LICENSE.md", cwd=classic)
+        replacement_tree = command("git", "write-tree", cwd=classic)
+        command("git", "replace", original_tree, replacement_tree, cwd=classic)
+        self.assertEqual(command("git", "status", "--porcelain", cwd=classic), "")
+
+        stack = self.workspace.manifest.stack("classic")
+        for role in ("client", "server"):
+            self.assertEqual(
+                stack.providers[role].source_includes,
+                ("cmake", "LICENSE.md", "ATTRIBUTIONS.md"),
+            )
+
+        def prepare_runtime(root: Path, *_args: object) -> Path:
+            path = root / "runtime" / "content"
+            path.mkdir(parents=True, exist_ok=True)
+            return path
+
+        def stage_resources(root: Path, *_args: object) -> Path:
+            path = root / "runtime" / "resources"
+            path.mkdir(parents=True, exist_ok=True)
+            return path
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_prepare_sound",
+                side_effect=lambda _root, selected, _profile: (
+                    selected["sound"],
+                    None,
+                ),
+            ),
+            mock.patch.object(
+                self.workspace, "_collect_content", side_effect=prepare_runtime
+            ),
+            mock.patch.object(
+                self.workspace, "_stage_resources", side_effect=stage_resources
+            ),
+            mock.patch.object(self.workspace, "_generate_region_maps"),
+        ):
+            for role in ("client", "server"):
+                with self.subTest(role=role):
+                    build_root = self.workspace.build(
+                        role, "classic", True, use_ccache=False
+                    )
+                    source_root = build_root / "sources"
+                    self.assertTrue(
+                        (source_root / "cmake" / "AtrinikVersion.cmake").is_file()
+                    )
+                    self.assertTrue((source_root / "LICENSE.md").is_file())
+                    self.assertEqual(
+                        (source_root / "LICENSE.md").read_text(encoding="utf-8"),
+                        "test license\n",
+                    )
+                    self.assertTrue((source_root / "ATTRIBUTIONS.md").is_file())
+                    if role == "server":
+                        self.assertTrue(
+                            (source_root / "server" / "install_data").stat().st_mode
+                            & stat.S_IWUSR
+                        )
+
+        generated_sources: dict[str, Path] = {}
+        generations = self.workspace.paths.builds / "source-generations" / "classic"
+        for metadata in generations.glob(
+            f"*/{workspace_module.SOURCE_GENERATION_METADATA}"
+        ):
+            record = load_json(metadata)
+            if record["source"] in {"client", "server"}:
+                generated_sources[record["source"]] = metadata.parent / "source"
+
+        client_generation = generated_sources["client"].parent
+        client_record = load_json(
+            client_generation / workspace_module.SOURCE_GENERATION_METADATA
+        )
+        client_generation.chmod(0o700)
+        client_cmake = client_generation / "cmake"
+        client_cmake.chmod(0o700)
+        client_version = client_cmake / "AtrinikVersion.cmake"
+        client_version.chmod(0o600)
+        client_version.write_text("corrupt\n", encoding="utf-8")
+        with self.assertRaisesRegex(
+            WorkspaceError, "does not match its recorded Git tree"
+        ):
+            self.workspace._validate_source_generation_git_closure(
+                classic,
+                client_generation,
+                client_record["source_tree"],
+                client_record["tree"],
+                client_record["source_includes"],
+            )
+
+        server_generation = generated_sources["server"].parent
+        server_record = load_json(
+            server_generation / workspace_module.SOURCE_GENERATION_METADATA
+        )
+        server_generation.chmod(0o700)
+        server_license = server_generation / "LICENSE.md"
+        server_license.chmod(0o600)
+        server_license.write_text("corrupt\n", encoding="utf-8")
+        with self.assertRaisesRegex(
+            WorkspaceError, "does not match its recorded Git entry"
+        ):
+            self.workspace._validate_source_generation_git_closure(
+                classic,
+                server_generation,
+                server_record["source_tree"],
+                server_record["tree"],
+                server_record["source_includes"],
+            )
+        preview = self.workspace.cleanup(["builds"], 0, [], False)
+        server_candidate = next(
+            item
+            for item in preview["items"]
+            if item["path"] == str(server_generation)
+        )
+        self.assertEqual(server_candidate["disposition"], "eligible")
+        self.assertEqual(
+            server_candidate["reasons"], ["corrupt_source_generation"]
+        )
+
     def test_source_generation_reuse_rejects_coherent_missing_git_entry(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
@@ -2060,6 +2266,9 @@ class WorkspaceTests(unittest.TestCase):
             set(),
             bounded_symlinks=True,
             reject_hardlinks=True,
+        )
+        record["closure_tree_sha256"] = workspace_module._source_closure_digest(
+            generation, record["source_includes"]
         )
         metadata.chmod(0o600)
         atomic_json(metadata, record)
@@ -2799,6 +3008,112 @@ class WorkspaceTests(unittest.TestCase):
                     self.root / f"invalid-output-{index}",
                 )
 
+    def test_source_archive_extraction_pins_ancestors_and_file_modes(self) -> None:
+        archive = self.root / "raced-source.tar"
+        directory = tarfile.TarInfo("dir")
+        directory.type = tarfile.DIRTYPE
+        directory.mode = 0o755
+        regular = tarfile.TarInfo("dir/file")
+        regular.mode = 0o777
+        regular.size = len(b"payload")
+        with tarfile.open(archive, "w") as output:
+            output.addfile(directory)
+            output.addfile(regular, io.BytesIO(b"payload"))
+
+        output = self.root / "raced-output"
+        outside = self.root / "outside-archive"
+        outside.mkdir()
+        sentinel = outside / "sentinel"
+        sentinel.write_text("preserved\n", encoding="utf-8")
+        sentinel.chmod(0o600)
+        real_open = os.open
+        swapped = False
+
+        def swap_ancestor(
+            path: object, flags: int, *args: object, **kwargs: object
+        ) -> int:
+            nonlocal swapped
+            if path == "dir" and kwargs.get("dir_fd") is not None and not swapped:
+                swapped = True
+                (output / "dir").rename(output / "displaced")
+                (output / "dir").symlink_to(outside, target_is_directory=True)
+            return real_open(path, flags, *args, **kwargs)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.open", side_effect=swap_ancestor
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed|symbolic link"):
+                self.workspace._extract_git_source_archive(archive, output)
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "preserved\n")
+        self.assertFalse((outside / "file").exists())
+
+        stable_output = self.root / "stable-output"
+        displaced = self.root / "displaced-file"
+        real_fchmod = os.fchmod
+        replaced = False
+
+        def replace_leaf(descriptor: int, mode: int) -> None:
+            nonlocal replaced
+            if mode == 0o777 and not replaced:
+                replaced = True
+                (stable_output / "dir" / "file").rename(displaced)
+                (stable_output / "dir" / "file").symlink_to(sentinel)
+            real_fchmod(descriptor, mode)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.os.fchmod", side_effect=replace_leaf
+        ):
+            self.workspace._extract_git_source_archive(archive, stable_output)
+        self.assertEqual(stat.S_IMODE(sentinel.stat().st_mode), 0o600)
+        self.assertEqual(stat.S_IMODE(displaced.stat().st_mode), 0o777)
+
+    def test_source_archive_generation_retains_its_temporary_descriptor(self) -> None:
+        sentinel = self.root / "archive-output-sentinel"
+        sentinel.write_text("preserved\n", encoding="utf-8")
+        real_run = subprocess.run
+        real_mkstemp = tempfile.mkstemp
+        archives: list[Path] = []
+
+        def remember_archive(*args: object, **kwargs: object) -> tuple[int, str]:
+            descriptor, name = real_mkstemp(*args, **kwargs)
+            if str(kwargs.get("prefix", "")).startswith("atrinik-source-"):
+                archives.append(Path(name))
+            return descriptor, name
+
+        def replace_archive_path(*args: object, **kwargs: object) -> object:
+            command_value = args[0] if args else kwargs.get("args")
+            if (
+                isinstance(command_value, list)
+                and "archive" in command_value
+                and archives
+                and archives[-1].exists()
+            ):
+                archives[-1].unlink()
+                archives[-1].symlink_to(sentinel)
+            return real_run(*args, **kwargs)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.tempfile.mkstemp",
+                side_effect=remember_archive,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.subprocess.run",
+                side_effect=replace_archive_path,
+            ),
+            self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot,
+        ):
+            self.assertEqual(
+                (snapshot.paths()["client"] / "README").read_text(encoding="utf-8"),
+                "client\n",
+            )
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "preserved\n")
+
     def test_source_generation_archive_command_failures_are_bounded(self) -> None:
         profile = self.workspace._load_profile("default", require_file=False)
         selected = self.workspace._resolve_build_profile(
@@ -2937,8 +3252,10 @@ class WorkspaceTests(unittest.TestCase):
         primary = self.workspace.paths.repositories / "client"
         extract = self.workspace._extract_git_source_archive
 
-        def advance(archive: Path, output: Path) -> None:
-            extract(archive, output)
+        def advance(
+            archive: Path, output: Path, *, existing_output: bool = False
+        ) -> None:
+            extract(archive, output, existing_output=existing_output)
             (primary / "advanced-during-export").write_text(
                 "changed\n", encoding="utf-8"
             )
@@ -3277,6 +3594,52 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(removed["disposition"], "removed")
         self.assertFalse(generation_path.exists())
+
+    def test_source_generation_cleanup_recognizes_schema_one_metadata(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"resources"},
+            "build resources",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            generation = snapshot.paths()["resources"].parent
+        metadata_path = generation / workspace_module.SOURCE_GENERATION_METADATA
+        metadata = load_json(metadata_path)
+        metadata.pop("source_includes")
+        metadata.pop("closure_tree_sha256")
+        metadata["schema_version"] = 1
+        identity = {
+            key: value
+            for key, value in metadata.items()
+            if key != "source_tree_sha256"
+        }
+        legacy_key = hashlib.sha256(
+            json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        legacy_generation = generation.parent / legacy_key
+        generation.chmod(0o700)
+        metadata_path.chmod(0o600)
+        atomic_json(metadata_path, metadata)
+        marker = generation / MANAGED_MARKER
+        marker.chmod(0o600)
+        atomic_json(
+            marker,
+            {
+                "schema_version": 1,
+                "purpose": f"source-generation:{legacy_key}",
+            },
+        )
+        generation.rename(legacy_generation)
+        legacy_generation.chmod(0o500)
+
+        report = self.workspace.cleanup(["builds"], 0, [], False)
+        item = next(
+            row
+            for row in report["items"]
+            if row["path"] == str(legacy_generation)
+        )
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["stale_source_generation"])
 
     def test_source_generation_cleanup_does_not_follow_metadata_symlink(
         self,
@@ -3703,8 +4066,19 @@ class WorkspaceTests(unittest.TestCase):
             )
 
         namespace = make_key.call_args.kwargs["namespace"]
-        self.assertIn(
-            "server=server@atrinik/server@main@server:.", namespace
+        providers = json.loads(namespace.split("providers:", 1)[1])
+        self.assertEqual(
+            providers,
+            {
+                "server": {
+                    "name": "server",
+                    "repository": "atrinik/server",
+                    "branch": "main",
+                    "checkout": "server",
+                    "source": ".",
+                    "source_includes": [],
+                }
+            },
         )
 
     def test_start_point_cannot_be_an_option(self) -> None:
@@ -5084,8 +5458,16 @@ class WorkspaceTests(unittest.TestCase):
         root = self.workspace.paths.builds / "profiles" / "test"
         managed_directory(root, self.workspace.paths.builds, "test-profile")
 
-        view = self.workspace._profile_source_view(
-            root, "server", source, set(), {"install_data"}
+        source_permissions = stat.S_IMODE(copied_source.stat().st_mode)
+        copied_source.chmod(0o555)
+        try:
+            view = self.workspace._profile_source_view(
+                root, "server", source, set(), {"install_data"}
+            )
+        finally:
+            copied_source.chmod(source_permissions)
+        self.assertEqual(
+            stat.S_IMODE((view / "install_data").stat().st_mode), 0o555
         )
         readme = view / "README"
         copied = view / "install_data" / "keys" / "test.pub"
@@ -5122,6 +5504,99 @@ class WorkspaceTests(unittest.TestCase):
             root, "server", source, set(), {"install_data"}
         )
         self.assertFalse(readme.exists())
+
+    def test_mutable_source_copy_restores_owner_permissions(self) -> None:
+        root = self.root / "mutable-copy"
+        directory = root / "unique-items"
+        directory.mkdir(parents=True)
+        regular = directory / "state"
+        regular.write_text("test\n", encoding="utf-8")
+        executable = root / "tool"
+        executable.write_text("test\n", encoding="utf-8")
+        regular.chmod(0o444)
+        executable.chmod(0o555)
+        directory.chmod(0o555)
+        root.chmod(0o555)
+
+        self.workspace._make_tree_owner_writable(root)
+
+        self.assertEqual(stat.S_IMODE(root.stat().st_mode), 0o755)
+        self.assertEqual(stat.S_IMODE(directory.stat().st_mode), 0o755)
+        self.assertEqual(stat.S_IMODE(regular.stat().st_mode), 0o644)
+        self.assertEqual(stat.S_IMODE(executable.stat().st_mode), 0o755)
+
+    def test_mutable_cmake_view_copies_sealed_generated_sources(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            protocol = snapshot.paths()["protocol"]
+            root = self.workspace.paths.builds / "profiles" / "mutable-cmake"
+            managed_directory(root, self.workspace.paths.builds, "test-profile")
+            view = self.workspace._mutable_cmake_source_view(
+                root, "protocol", protocol
+            )
+
+        self.assertNotEqual(view, protocol)
+        readme = view / "README"
+        self.assertTrue(readme.stat().st_mode & stat.S_IWUSR)
+        readme.write_text("mutable\n", encoding="utf-8")
+        self.assertEqual(readme.read_text(encoding="utf-8"), "mutable\n")
+
+    def test_source_view_link_rejects_symlinked_nested_parent(self) -> None:
+        view = self.workspace.paths.builds / "profiles" / "test" / "sources"
+        managed_directory(view, self.workspace.paths.builds, "test-sources")
+        outside = self.root / "outside-source-view"
+        outside.mkdir()
+        sentinel = outside / "LICENSE.md"
+        sentinel.write_text("preserved\n", encoding="utf-8")
+        (view / "docs").symlink_to(outside, target_is_directory=True)
+
+        with self.assertRaisesRegex(WorkspaceError, "link parent is unsafe"):
+            self.workspace._source_view_link(
+                view,
+                "docs/LICENSE.md",
+                self.root / "target-license",
+                target_is_directory=False,
+            )
+
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "preserved\n")
+        self.assertTrue((view / "docs").is_symlink())
+
+    def test_source_view_link_pins_nested_parent_during_mutation(self) -> None:
+        view = self.workspace.paths.builds / "profiles" / "test" / "sources"
+        managed_directory(view, self.workspace.paths.builds, "test-sources")
+        parent = view / "docs"
+        parent.mkdir()
+        pinned = view / "pinned-docs"
+        outside = self.root / "outside-source-view-race"
+        outside.mkdir()
+        sentinel = outside / "LICENSE.md"
+        sentinel.write_text("preserved\n", encoding="utf-8")
+        real_open = workspace_module._open_directory_nofollow
+
+        def swap_after_open(path: Path, flags: int, *, create: bool = False) -> int:
+            descriptor = real_open(path, flags, create=create)
+            parent.rename(pinned)
+            parent.symlink_to(outside, target_is_directory=True)
+            return descriptor
+
+        with mock.patch(
+            "atrinik_workspace.workspace._open_directory_nofollow",
+            side_effect=swap_after_open,
+        ):
+            self.workspace._source_view_link(
+                view,
+                "docs/LICENSE.md",
+                self.root / "target-license",
+                target_is_directory=False,
+            )
+
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "preserved\n")
+        self.assertTrue((parent).is_symlink())
+        self.assertTrue((pinned / "LICENSE.md").is_symlink())
 
     def test_source_view_retains_unchanged_entries_and_rejects_escaping_symlink(
         self,

@@ -101,6 +101,10 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(manifest.by_name["classic-server"].checkout, "classic")
             self.assertEqual(manifest.by_name["classic-server"].source, "server")
             self.assertEqual(
+                manifest.by_name["classic-server"].source_includes,
+                ("cmake", "LICENSE.md", "ATTRIBUTIONS.md"),
+            )
+            self.assertEqual(
                 manifest.checkout_for("classic-server").repository,
                 "atrinik/classic",
             )
@@ -128,6 +132,35 @@ class ManifestTests(unittest.TestCase):
                     if component["name"] == "classic-server"
                 )
                 server["source"] = source
+                with tempfile.TemporaryDirectory() as temporary:
+                    path = self.write_manifest(Path(temporary), manifest)
+                    with self.assertRaisesRegex(WorkspaceError, expected):
+                        Manifest.load(path)
+
+    def test_v3_rejects_invalid_component_source_includes(self) -> None:
+        cases = (
+            ("not-array", "cmake", "must be an array"),
+            ("unsafe", ["../cmake"], "safe checkout-relative directory"),
+            ("duplicate", ["cmake", "cmake"], "duplicate directories"),
+            ("reserved", ["source/modules"], "reserved generation path"),
+            ("overlap", ["server/modules"], "source closure paths overlap"),
+            (
+                "component-overlap",
+                ["client"],
+                "source include overlaps a component source",
+            ),
+        )
+        for label, includes, expected in cases:
+            with self.subTest(label=label):
+                manifest = self.valid_v3_manifest()
+                components = manifest["components"]
+                self.assertIsInstance(components, list)
+                server = next(
+                    component
+                    for component in components
+                    if component["name"] == "classic-server"
+                )
+                server["source_includes"] = includes
                 with tempfile.TemporaryDirectory() as temporary:
                     path = self.write_manifest(Path(temporary), manifest)
                     with self.assertRaisesRegex(WorkspaceError, expected):
