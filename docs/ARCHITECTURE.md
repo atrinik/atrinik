@@ -21,11 +21,13 @@ configuration.
 `components.json` schema 3 separates physical `checkouts` from logical
 `components`. A checkout owns its repository, branch, local destination,
 generation, license, and initialization-cohort membership. A component names
-its checkout and a safe relative `source`, plus provider roles, requirements,
-license, generation, and local build contract. The replacement/default and
-opt-in classic cohorts contain physical checkout identities. The built-in
-`default` and `classic` profiles are coherent stacks of logical components
-rather than aliases for every manifest entry.
+its checkout and a safe relative `source`, optional safe non-overlapping file
+or directory `source_includes`, plus provider roles, requirements, license,
+generation, and local build contract. Includes may be shared by components but
+cannot overlap a logical component source. The replacement/default and opt-in
+classic cohorts contain physical checkout identities. The built-in `default`
+and `classic` profiles are coherent stacks of logical components rather than
+aliases for every manifest entry.
 
 The `atrinik/classic@main` checkout at `./classic` provides five logical
 components: `classic-client` from `client/`, `classic-server` from `server/`,
@@ -380,18 +382,27 @@ helper repeats containment, symlink, marker, schema, and purpose validation
 immediately before deletion.
 
 Commit-keyed source generations have closed repository/branch/checkout/tree/
-subpath metadata and a complete tree digest. Reuse additionally enumerates the
-exact recorded Git tree without replacement-object indirection and proves every
-generated path, entry type, executable mode, symlink target, and blob object ID
-through a pinned, no-follow descriptor traversal before selection. A mismatch
-fails closed and leaves recovery to the explicit preview-first `builds` cleanup
-boundary. Once path, marker, key, and closed metadata ownership are exact,
-cleanup classifies a content-digest mismatch as removable corruption. Builds
-hold a per-key shared lock; cleanup apply revalidates ownership, content state,
-and age under its exclusive side before bounded removal. First-use container
-publication is checkout-serialized. Interrupted staging remains a recognized
-child of its marker-owned container, is protected while its generation lock is
-busy, and becomes independently reclaimable after the normal grace period.
+subpath metadata and authenticated closure digests. Generation schema 3 records
+the Git object for each declared sibling file or directory input, the logical
+source digest, and a framed digest of the complete source-plus-includes closure.
+Reuse additionally enumerates recorded Git trees without replacement-object
+indirection and proves generated paths, entry types, executable modes, symlink
+targets, and blob object IDs through pinned, no-follow descriptor traversal.
+The exporter completes any paths suppressed by `export-ignore` before that
+proof. Its temporary archive descriptor remains pinned through completion and
+extraction, whose entry creation and mode changes stay relative to pinned,
+no-follow generation directories. Mutation-based CMake tests operate on
+writable profile-local views rather than weakening the shared generation.
+Schema-1 generations remain recognizable to preview-first cleanup but cannot be
+reused as current build inputs. A mismatch fails closed and leaves recovery to
+the explicit `builds` cleanup boundary. Once path, marker, key, and closed
+metadata ownership are exact, cleanup classifies a content-digest mismatch as
+removable corruption. Builds hold a per-key shared lock; cleanup apply
+revalidates ownership, closure content, identity, and age under its exclusive
+side before bounded removal. First-use container publication is
+checkout-serialized. Interrupted staging remains a recognized child of its
+marker-owned container, is protected while its generation lock is busy, and
+becomes independently reclaimable after the normal grace period.
 
 The npm and compiler caches have exact purpose markers and atomically refreshed
 `.atrinik-cache.json` timestamps. The compiler cache metadata also fixes its

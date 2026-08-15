@@ -90,7 +90,7 @@ BUILD_COORDINATE_KEYS = {
     "source_path",
     "head",
 }
-SOURCE_GENERATION_KEYS = {
+LEGACY_SOURCE_GENERATION_METADATA_KEYS = {
     "schema_version",
     "repository",
     "checkout",
@@ -100,9 +100,17 @@ SOURCE_GENERATION_KEYS = {
     "source",
     "source_tree",
     "source_tree_sha256",
+}
+SOURCE_GENERATION_METADATA_KEYS = {
+    *LEGACY_SOURCE_GENERATION_METADATA_KEYS,
+    "source_includes",
+    "closure_tree_sha256",
+}
+LEGACY_SOURCE_GENERATION_KEYS = {
+    *LEGACY_SOURCE_GENERATION_METADATA_KEYS,
     "path",
 }
-SOURCE_GENERATION_METADATA_KEYS = SOURCE_GENERATION_KEYS - {"path"}
+SOURCE_GENERATION_KEYS = {*SOURCE_GENERATION_METADATA_KEYS, "path"}
 PROFILE_PURPOSE = re.compile(
     r"^profile:(?P<profile>[a-z0-9][a-z0-9._-]*):(?P<key>[0-9a-f]{12})$"
 )
@@ -658,6 +666,156 @@ def _tree_usage_descriptor(
         semantic.hexdigest(),
         content_errors[0] if content_errors else None,
     )
+
+
+def _source_closure_digest_descriptor(
+    root_fd: int, display: Path, includes: Iterable[str]
+) -> str:
+    """Hash a generated source closure through its pinned generation root."""
+
+    root = os.fstat(root_fd)
+    root_mount = _descriptor_mount_id(root_fd)
+
+    def open_directory(parts: tuple[str, ...], path: Path) -> int:
+        descriptor = os.dup(root_fd)
+        try:
+            for part in parts:
+                child = os.stat(part, dir_fd=descriptor, follow_symlinks=False)
+                next_descriptor = os.open(
+                    part,
+                    os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+                    dir_fd=descriptor,
+                )
+                opened = os.fstat(next_descriptor)
+                if (
+                    (opened.st_dev, opened.st_ino)
+                    != (child.st_dev, child.st_ino)
+                    or opened.st_dev != root.st_dev
+                    or _descriptor_mount_id(next_descriptor) != root_mount
+                ):
+                    os.close(next_descriptor)
+                    raise WorkspaceError(
+                        f"source generation changed during closure inventory: {path}"
+                    )
+                os.close(descriptor)
+                descriptor = next_descriptor
+            return descriptor
+        except BaseException:
+            os.close(descriptor)
+            raise
+
+    source_fd = open_directory(("source",), display / "source")
+    try:
+        source_usage = _tree_usage_descriptor(source_fd, display / "source")
+    finally:
+        os.close(source_fd)
+    if source_usage[2] or source_usage[4] is None or source_usage[5]:
+        raise WorkspaceError(
+            source_usage[2]
+            or source_usage[5]
+            or "source generation content evidence is unavailable"
+        )
+    entries: dict[str, object] = {"source": source_usage[4]}
+
+    for include in sorted(includes):
+        parts = PurePosixPath(include).parts
+        parent_fd = open_directory(parts[:-1], display / include)
+        descriptor: int | None = None
+        try:
+            metadata = os.stat(
+                parts[-1], dir_fd=parent_fd, follow_symlinks=False
+            )
+            if stat.S_ISDIR(metadata.st_mode):
+                descriptor = os.open(
+                    parts[-1],
+                    os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+                    dir_fd=parent_fd,
+                )
+                opened = os.fstat(descriptor)
+                if (
+                    (opened.st_dev, opened.st_ino)
+                    != (metadata.st_dev, metadata.st_ino)
+                    or opened.st_dev != root.st_dev
+                    or _descriptor_mount_id(descriptor) != root_mount
+                ):
+                    raise WorkspaceError(
+                        "source generation changed during closure inventory: "
+                        f"{display / include}"
+                    )
+                usage = _tree_usage_descriptor(descriptor, display / include)
+                if usage[2] or usage[4] is None or usage[5]:
+                    raise WorkspaceError(
+                        usage[2]
+                        or usage[5]
+                        or "source generation include evidence is unavailable"
+                    )
+                entries[include] = usage[4]
+            elif stat.S_ISREG(metadata.st_mode):
+                descriptor = os.open(
+                    parts[-1],
+                    os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                    dir_fd=parent_fd,
+                )
+                opened = os.fstat(descriptor)
+                if (
+                    (opened.st_dev, opened.st_ino)
+                    != (metadata.st_dev, metadata.st_ino)
+                    or not stat.S_ISREG(opened.st_mode)
+                    or opened.st_nlink != 1
+                    or opened.st_dev != root.st_dev
+                    or _descriptor_mount_id(descriptor) != root_mount
+                ):
+                    raise WorkspaceError(
+                        "source generation changed during closure inventory: "
+                        f"{display / include}"
+                    )
+                digest = hashlib.sha256()
+                observed = 0
+                while chunk := os.read(descriptor, 1024 * 1024):
+                    observed += len(chunk)
+                    digest.update(chunk)
+                after = os.fstat(descriptor)
+                before_identity = (
+                    opened.st_dev,
+                    opened.st_ino,
+                    opened.st_mode,
+                    opened.st_nlink,
+                    opened.st_size,
+                    opened.st_mtime_ns,
+                    opened.st_ctime_ns,
+                )
+                after_identity = (
+                    after.st_dev,
+                    after.st_ino,
+                    after.st_mode,
+                    after.st_nlink,
+                    after.st_size,
+                    after.st_mtime_ns,
+                    after.st_ctime_ns,
+                )
+                if observed != opened.st_size or before_identity != after_identity:
+                    raise WorkspaceError(
+                        "source generation changed during closure inventory: "
+                        f"{display / include}"
+                    )
+                entries[include] = {
+                    "kind": "file",
+                    "mode": stat.S_IMODE(opened.st_mode),
+                    "size": opened.st_size,
+                    "sha256": digest.hexdigest(),
+                }
+            else:
+                raise WorkspaceError(
+                    "generated source include is not a regular file or directory: "
+                    f"{display / include}"
+                )
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
+            os.close(parent_fd)
+    return hashlib.sha256(
+        json.dumps(entries, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
 
 
 def _temporary_tree_usage(
@@ -3362,6 +3520,16 @@ class Cleanup:
             metadata = load_regular_json(
                 metadata_path, "immutable source generation metadata"
             )
+            metadata_schema = (
+                metadata.get("schema_version")
+                if isinstance(metadata, dict)
+                else None
+            )
+            metadata_keys = (
+                SOURCE_GENERATION_METADATA_KEYS
+                if metadata_schema == SOURCE_GENERATION_SCHEMA_VERSION
+                else LEGACY_SOURCE_GENERATION_METADATA_KEYS
+            )
             marker_status = os.stat(
                 MANAGED_MARKER, dir_fd=root_fd, follow_symlinks=False
             )
@@ -3373,8 +3541,8 @@ class Cleanup:
             identity = (
                 {
                     field: metadata.get(field)
-                    for field in SOURCE_GENERATION_METADATA_KEYS
-                    if field != "source_tree_sha256"
+                    for field in metadata_keys
+                    if field not in {"source_tree_sha256", "closure_tree_sha256"}
                 }
                 if isinstance(metadata, dict)
                 else {}
@@ -3390,6 +3558,11 @@ class Cleanup:
                     and component.repository == metadata.get("repository")
                     and component.branch == metadata.get("branch")
                     and component.source == metadata.get("source")
+                    and (
+                        metadata_schema == 1
+                        or set(component.source_includes)
+                        == set(metadata.get("source_includes", {}))
+                    )
                 ]
                 if isinstance(metadata, dict)
                 else []
@@ -3409,9 +3582,9 @@ class Cleanup:
                     "purpose": f"source-generation:{key}",
                 }
                 or not isinstance(metadata, dict)
-                or set(metadata) != SOURCE_GENERATION_METADATA_KEYS
-                or metadata.get("schema_version")
-                != SOURCE_GENERATION_SCHEMA_VERSION
+                or set(metadata) != metadata_keys
+                or isinstance(metadata_schema, bool)
+                or metadata_schema not in {1, SOURCE_GENERATION_SCHEMA_VERSION}
                 or metadata.get("checkout") != checkout
                 or key != expected_key
                 or not matching_components
@@ -3425,9 +3598,25 @@ class Cleanup:
                         "source_tree_sha256",
                     )
                 )
+                or (
+                    metadata_schema == SOURCE_GENERATION_SCHEMA_VERSION
+                    and (
+                        not isinstance(metadata.get("source_includes"), dict)
+                        or not all(
+                            isinstance(include, str)
+                            and isinstance(tree, str)
+                            and HEAD_PATTERN.fullmatch(tree)
+                            for include, tree in metadata["source_includes"].items()
+                        )
+                        or not isinstance(metadata.get("closure_tree_sha256"), str)
+                        or not HEAD_PATTERN.fullmatch(metadata["closure_tree_sha256"])
+                    )
+                )
             ):
                 raise WorkspaceError("source generation metadata is invalid")
             item["source_tree_sha256"] = metadata["source_tree_sha256"]
+            if metadata_schema == SOURCE_GENERATION_SCHEMA_VERSION:
+                item["closure_tree_sha256"] = metadata["closure_tree_sha256"]
             try:
                 source_status = os.stat(
                     "source", dir_fd=root_fd, follow_symlinks=False
@@ -3464,6 +3653,16 @@ class Cleanup:
                 if observed_digest != metadata["source_tree_sha256"]:
                     raise WorkspaceError(
                         "source generation content digest does not match metadata"
+                    )
+                if (
+                    metadata_schema == SOURCE_GENERATION_SCHEMA_VERSION
+                    and metadata["closure_tree_sha256"]
+                    != _source_closure_digest_descriptor(
+                        root_fd, path, metadata["source_includes"]
+                    )
+                ):
+                    raise WorkspaceError(
+                        "source generation closure digest does not match metadata"
                     )
             except (OSError, RuntimeError, WorkspaceError) as error:
                 item["reasons"].append("corrupt_source_generation")
@@ -4052,11 +4251,23 @@ class Cleanup:
                     if Path(row["source_path"]).resolve(strict=False) != expected_source:
                         raise WorkspaceError("build coordinate source path is invalid")
                 else:
+                    generation_schema = (
+                        generation.get("schema_version")
+                        if isinstance(generation, dict)
+                        else None
+                    )
+                    generation_keys = (
+                        SOURCE_GENERATION_KEYS
+                        if generation_schema == SOURCE_GENERATION_SCHEMA_VERSION
+                        else LEGACY_SOURCE_GENERATION_KEYS
+                    )
+                    generation_metadata_keys = generation_keys - {"path"}
                     generation_identity = (
                         {
                             key: generation.get(key)
-                            for key in SOURCE_GENERATION_METADATA_KEYS
-                            if key != "source_tree_sha256"
+                            for key in generation_metadata_keys
+                            if key
+                            not in {"source_tree_sha256", "closure_tree_sha256"}
                         }
                         if isinstance(generation, dict)
                         else {}
@@ -4078,14 +4289,25 @@ class Cleanup:
                     if (
                         schema_version != BUILD_METADATA_SCHEMA_VERSION
                         or not isinstance(generation, dict)
-                        or set(generation) != SOURCE_GENERATION_KEYS
-                        or generation.get("schema_version")
-                        != SOURCE_GENERATION_SCHEMA_VERSION
+                        or set(generation) != generation_keys
+                        or isinstance(generation_schema, bool)
+                        or generation_schema not in {
+                            1,
+                            SOURCE_GENERATION_SCHEMA_VERSION,
+                        }
                         or generation.get("repository") != component.repository
                         or generation.get("checkout") != component.checkout_name
                         or generation.get("branch") != component.branch
                         or generation.get("commit") != row["head"]
                         or generation.get("source") != component.source
+                        or (
+                            generation_schema == SOURCE_GENERATION_SCHEMA_VERSION
+                            and (
+                                not isinstance(generation.get("source_includes"), dict)
+                                or set(generation["source_includes"])
+                                != set(component.source_includes)
+                            )
+                        )
                         or not all(
                             isinstance(generation.get(key), str)
                             and HEAD_PATTERN.fullmatch(generation[key])
@@ -4094,6 +4316,17 @@ class Cleanup:
                                 "tree",
                                 "source_tree",
                                 "source_tree_sha256",
+                            )
+                        )
+                        or (
+                            generation_schema == SOURCE_GENERATION_SCHEMA_VERSION
+                            and (
+                                not isinstance(
+                                    generation.get("closure_tree_sha256"), str
+                                )
+                                or not HEAD_PATTERN.fullmatch(
+                                    generation["closure_tree_sha256"]
+                                )
                             )
                         )
                         or not Path(generation.get("path", "")).is_absolute()
@@ -5775,6 +6008,8 @@ class Cleanup:
                     current["disposition"] != "eligible"
                     or current.get("source_tree_sha256")
                     != item.get("source_tree_sha256")
+                    or current.get("closure_tree_sha256")
+                    != item.get("closure_tree_sha256")
                     or current.get("source_tree_observed_sha256")
                     != item.get("source_tree_observed_sha256")
                     or current.get("content_error") != item.get("content_error")
