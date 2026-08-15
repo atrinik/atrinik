@@ -2127,10 +2127,74 @@ class Workspace:
         return f"atrinik:{self._lease_namespace.parent}"
 
     def _source_generation_record(self, source: Path) -> dict[str, Any] | None:
-        metadata = source.parent / SOURCE_GENERATION_METADATA
-        if source.name != "source" or not metadata.is_file() or metadata.is_symlink():
+        generation = source.parent
+        generation_root = self.paths.builds / "source-generations"
+        if source.name != "source":
             return None
-        value = load_regular_json(metadata, "immutable source generation")
+        try:
+            relative_generation = generation.relative_to(generation_root)
+        except ValueError:
+            if (
+                (generation / SOURCE_GENERATION_METADATA).exists()
+                or (generation / MANAGED_MARKER).exists()
+            ):
+                raise WorkspaceError(
+                    f"immutable source generation ownership is invalid: {generation}"
+                )
+            return None
+        if len(relative_generation.parts) != 2:
+            return None
+        key = generation.name
+        checkout = generation.parent.name
+        metadata = source.parent / SOURCE_GENERATION_METADATA
+        marker = generation / MANAGED_MARKER
+        expected = self.paths.builds / "source-generations" / checkout / key
+        try:
+            exact_owned = (
+                source.name == "source"
+                and bool(re.fullmatch(r"[0-9a-f]{64}", key))
+                and any(
+                    component.checkout_name == checkout
+                    for component in self.manifest.components
+                )
+                and not generation.is_symlink()
+                and generation.resolve(strict=False) == expected.resolve(strict=False)
+                and not (stat.S_IMODE(generation.lstat().st_mode) & 0o222)
+                and marker.is_file()
+                and not marker.is_symlink()
+                and load_json(marker)
+                == {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": f"source-generation:{key}",
+                }
+            )
+        except (OSError, RuntimeError, WorkspaceError):
+            exact_owned = False
+        if not exact_owned:
+            raise WorkspaceError(
+                f"immutable source generation ownership is invalid: {generation}"
+            )
+        try:
+            metadata_status = metadata.lstat()
+        except FileNotFoundError:
+            return None
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect immutable source generation metadata {metadata}: "
+                f"{error}"
+            ) from error
+        if not stat.S_ISREG(metadata_status.st_mode):
+            raise _SourceGenerationCorrupt(
+                f"immutable source generation metadata is invalid: {metadata}"
+            )
+        try:
+            value = load_regular_json(metadata, "immutable source generation")
+        except WorkspaceError as error:
+            if isinstance(error.__cause__, (UnicodeError, ValueError, RecursionError)):
+                raise _SourceGenerationCorrupt(
+                    f"immutable source generation metadata is invalid: {metadata}"
+                ) from error
+            raise
         if (
             not isinstance(value, dict)
             or set(value)
@@ -2168,7 +2232,7 @@ class Workspace:
                 for component in self.manifest.components
             )
         ):
-            raise WorkspaceError(
+            raise _SourceGenerationCorrupt(
                 f"immutable source generation metadata is invalid: {metadata}"
             )
         identity = {
@@ -2179,33 +2243,23 @@ class Workspace:
         key = hashlib.sha256(
             json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()
-        generation = source.parent
-        expected = (
-            self.paths.builds / "source-generations" / value["checkout"] / key
-        )
-        marker = generation / MANAGED_MARKER
         try:
-            valid_path = (
-                not source.is_symlink()
-                and source.is_dir()
-                and not generation.is_symlink()
-                and generation.resolve(strict=False) == expected.resolve(strict=False)
-                and not (stat.S_IMODE(generation.lstat().st_mode) & 0o222)
-            )
-        except RuntimeError:
-            valid_path = False
-        if (
-            not valid_path
-            or not marker.is_file()
-            or marker.is_symlink()
-            or load_json(marker)
-            != {
-                "schema_version": SCHEMA_VERSION,
-                "purpose": f"source-generation:{key}",
-            }
-        ):
+            source_status = source.lstat()
+        except FileNotFoundError:
+            source_status = None
+        except OSError as error:
             raise WorkspaceError(
-                f"immutable source generation ownership is invalid: {generation}"
+                f"cannot inspect immutable source generation {source}: {error}"
+            ) from error
+        valid_path = (
+            source_status is not None
+            and stat.S_ISDIR(source_status.st_mode)
+            and value["checkout"] == checkout
+            and key == generation.name
+        )
+        if not valid_path:
+            raise _SourceGenerationCorrupt(
+                f"immutable source generation is corrupt: {generation}"
             )
         return value
 
@@ -2672,6 +2726,12 @@ class Workspace:
                 raise WorkspaceError(
                     f"immutable source generation ownership is invalid: {generation}"
                 )
+            Workspace._source_generation_inventory(
+                generation_fd,
+                generation,
+                sync=False,
+                allow_unsafe=True,
+            )
             confirmed = os.stat(key, dir_fd=container_fd, follow_symlinks=False)
             if (
                 confirmed.st_dev,
@@ -2728,11 +2788,19 @@ class Workspace:
                 os.close(container_fd)
 
     @staticmethod
-    def _durably_sync_source_generation(root: Path) -> tuple[int, int]:
-        """Flush a sealed source tree before its atomic publication."""
+    def _source_generation_inventory(
+        root_fd: int,
+        root: Path,
+        *,
+        sync: bool,
+        allow_unsafe: bool,
+    ) -> str:
+        """Inventory one pinned tree, rejecting mount crossings and races."""
 
-        root_device = 0
-        root_mount = 0
+        root_metadata = os.fstat(root_fd)
+        root_device = root_metadata.st_dev
+        root_mount = _descriptor_mount_id(root_fd)
+        digest = hashlib.sha256()
 
         def stable_identity(metadata: os.stat_result) -> tuple[int, ...]:
             return (
@@ -2745,8 +2813,16 @@ class Workspace:
                 metadata.st_ctime_ns,
             )
 
-        def sync_directory(directory_fd: int, display: Path) -> None:
+        def record(*values: object) -> None:
+            payload = json.dumps(values, separators=(",", ":"), ensure_ascii=True)
+            digest.update(len(payload).to_bytes(8, "big"))
+            digest.update(payload.encode())
+
+        def inventory_directory(
+            directory_fd: int, display: Path, relative: str
+        ) -> None:
             directory_before = os.fstat(directory_fd)
+            record("directory", relative, stable_identity(directory_before))
             try:
                 entries = sorted(os.listdir(directory_fd))
             except OSError as error:
@@ -2755,6 +2831,7 @@ class Workspace:
                 ) from error
             for name in entries:
                 path = display / name
+                child_relative = f"{relative}/{name}" if relative else name
                 descriptor: int | None = None
                 try:
                     metadata = os.stat(
@@ -2778,15 +2855,15 @@ class Workspace:
                             or _descriptor_mount_id(descriptor) != root_mount
                         ):
                             raise WorkspaceError(
-                                "source generation changed before durability: "
+                                "source generation changed or is mounted: "
                                 f"{path}"
                             )
-                        sync_directory(descriptor, path)
+                        inventory_directory(descriptor, path, child_relative)
                         if stable_identity(os.fstat(descriptor)) != stable_identity(
                             opened
                         ):
                             raise WorkspaceError(
-                                "source generation changed during durability: "
+                                "source generation changed during inventory: "
                                 f"{path}"
                             )
                     elif stat.S_ISREG(metadata.st_mode):
@@ -2798,52 +2875,92 @@ class Workspace:
                         opened = os.fstat(descriptor)
                         if (
                             stable_identity(opened) != stable_identity(metadata)
-                            or opened.st_nlink != 1
+                            or (not allow_unsafe and opened.st_nlink != 1)
                             or opened.st_dev != root_device
                             or _descriptor_mount_id(descriptor) != root_mount
                         ):
                             raise WorkspaceError(
-                                "source generation changed before durability: "
+                                "source generation changed or is mounted: "
                                 f"{path}"
                             )
-                        os.fsync(descriptor)
+                        if sync:
+                            os.fsync(descriptor)
+                        content = hashlib.sha256()
+                        while chunk := os.read(descriptor, 1024 * 1024):
+                            content.update(chunk)
                         if stable_identity(os.fstat(descriptor)) != stable_identity(
                             opened
                         ):
                             raise WorkspaceError(
-                                "source generation changed during durability: "
+                                "source generation changed during inventory: "
                                 f"{path}"
                             )
+                        record(
+                            "file",
+                            child_relative,
+                            stable_identity(opened),
+                            content.hexdigest(),
+                        )
                     elif stat.S_ISLNK(metadata.st_mode):
                         if metadata.st_dev != root_device:
                             raise WorkspaceError(
                                 "source generation link is on another device: "
                                 f"{path}"
                             )
-                    else:
-                        raise WorkspaceError(
-                            f"source generation contains a special entry: {path}"
+                        target = os.readlink(name, dir_fd=directory_fd)
+                        after = os.stat(
+                            name, dir_fd=directory_fd, follow_symlinks=False
                         )
+                        if stable_identity(after) != stable_identity(metadata):
+                            raise WorkspaceError(
+                                "source generation changed during inventory: "
+                                f"{path}"
+                            )
+                        record(
+                            "link",
+                            child_relative,
+                            stable_identity(metadata),
+                            target,
+                        )
+                    else:
+                        if not allow_unsafe:
+                            raise WorkspaceError(
+                                f"source generation contains a special entry: {path}"
+                            )
+                        if metadata.st_dev != root_device:
+                            raise WorkspaceError(
+                                "source generation entry is on another device: "
+                                f"{path}"
+                            )
+                        record("special", child_relative, stable_identity(metadata))
                 except OSError as error:
                     raise WorkspaceError(
-                        f"cannot make source generation durable: {path}: {error}"
+                        f"cannot inventory source generation: {path}: {error}"
                     ) from error
                 finally:
                     if descriptor is not None:
                         os.close(descriptor)
             try:
-                os.fsync(directory_fd)
+                if sync:
+                    os.fsync(directory_fd)
                 if stable_identity(os.fstat(directory_fd)) != stable_identity(
                     directory_before
                 ):
                     raise WorkspaceError(
-                        "source generation changed during durability: "
+                        "source generation changed during inventory: "
                         f"{display}"
                     )
             except OSError as error:
                 raise WorkspaceError(
                     f"cannot make source generation durable: {display}: {error}"
                 ) from error
+
+        inventory_directory(root_fd, root, "")
+        return digest.hexdigest()
+
+    @staticmethod
+    def _durably_sync_source_generation(root: Path) -> tuple[int, int, str]:
+        """Flush and inventory a sealed source tree before publication."""
 
         descriptor: int | None = None
         try:
@@ -2852,11 +2969,14 @@ class Workspace:
                 os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
             )
             root_metadata = os.fstat(descriptor)
-            root_device = root_metadata.st_dev
-            root_mount = _descriptor_mount_id(descriptor)
-            sync_directory(descriptor, root)
+            inventory = Workspace._source_generation_inventory(
+                descriptor,
+                root,
+                sync=True,
+                allow_unsafe=False,
+            )
             metadata = os.fstat(descriptor)
-            return metadata.st_dev, metadata.st_ino
+            return metadata.st_dev, metadata.st_ino, inventory
         finally:
             if descriptor is not None:
                 os.close(descriptor)
@@ -3120,7 +3240,9 @@ class Workspace:
                     bounded_symlinks=True,
                     reject_hardlinks=True,
                 )
-                durable_identity = self._durably_sync_source_generation(staging)
+                durable_device, durable_inode, durable_inventory = (
+                    self._durably_sync_source_generation(staging)
+                )
                 self._validate_source_generation_git_tree(
                     checkout,
                     staging / "source",
@@ -3137,6 +3259,7 @@ class Workspace:
                         f"{staging}"
                     )
                 container_fd: int | None = None
+                staging_fd: int | None = None
                 try:
                     container_fd = _open_directory_nofollow(
                         container,
@@ -3150,9 +3273,34 @@ class Workspace:
                         dir_fd=container_fd,
                         follow_symlinks=False,
                     )
-                    if (visible.st_dev, visible.st_ino) != durable_identity:
+                    staging_fd = os.open(
+                        staging.name,
+                        os.O_RDONLY
+                        | os.O_CLOEXEC
+                        | os.O_DIRECTORY
+                        | os.O_NOFOLLOW,
+                        dir_fd=container_fd,
+                    )
+                    opened = os.fstat(staging_fd)
+                    if (visible.st_dev, visible.st_ino) != (
+                        durable_device,
+                        durable_inode,
+                    ) or (opened.st_dev, opened.st_ino) != (
+                        durable_device,
+                        durable_inode,
+                    ):
                         raise WorkspaceError(
                             "source generation changed before publication: "
+                            f"{staging}"
+                        )
+                    if self._source_generation_inventory(
+                        staging_fd,
+                        staging,
+                        sync=False,
+                        allow_unsafe=False,
+                    ) != durable_inventory:
+                        raise WorkspaceError(
+                            "source generation changed after durability: "
                             f"{staging}"
                         )
                     rename_no_replace_at(
@@ -3169,6 +3317,8 @@ class Workspace:
                             f"container durability is uncertain: {generation}: {error}"
                         ) from error
                 finally:
+                    if staging_fd is not None:
+                        os.close(staging_fd)
                     if container_fd is not None:
                         os.close(container_fd)
             except BaseException:
