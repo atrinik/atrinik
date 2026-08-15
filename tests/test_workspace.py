@@ -664,6 +664,20 @@ def cleanup_writer_wrapper_process(
             cleanup_command(Path(repository), "worktree", "prune")
 
 
+def wait_for_pid_file(path: Path, *, timeout: float = 5) -> int:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            pid = int(path.read_text(encoding="ascii"))
+        except (FileNotFoundError, ValueError):
+            time.sleep(0.05)
+            continue
+        if pid > 0:
+            return pid
+        time.sleep(0.05)
+    raise AssertionError(f"child did not publish a complete PID: {path}")
+
+
 def compiler_cache_first_use_process(
     wrapper: str,
     workspace_directory: str,
@@ -20213,11 +20227,7 @@ class WorkspaceTests(unittest.TestCase):
         child_pidfd: int | None = None
         try:
             wrapper.start()
-            deadline = time.monotonic() + 5
-            while time.monotonic() < deadline and not child_pid_path.is_file():
-                time.sleep(0.05)
-            self.assertTrue(child_pid_path.is_file())
-            child_pid = int(child_pid_path.read_text(encoding="ascii"))
+            child_pid = wait_for_pid_file(child_pid_path)
             child_pidfd = os.pidfd_open(child_pid)
             wrapper.kill()
             wrapper.join(timeout=5)
@@ -20284,13 +20294,7 @@ class WorkspaceTests(unittest.TestCase):
         child_pidfd: int | None = None
         try:
             wrapper.start()
-            deadline = time.monotonic() + 5
-            while time.monotonic() < deadline and not child_pid_path.is_file():
-                time.sleep(0.05)
-            self.assertTrue(child_pid_path.is_file())
-            child_pidfd = os.pidfd_open(
-                int(child_pid_path.read_text(encoding="ascii"))
-            )
+            child_pidfd = os.pidfd_open(wait_for_pid_file(child_pid_path))
             wrapper.kill()
             wrapper.join(timeout=5)
             self.assertFalse(wrapper.is_alive())
