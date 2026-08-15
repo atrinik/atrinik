@@ -517,6 +517,8 @@ def worktree_list_bytes(
         # Trust-before-import adversaries use retained raw evidence below.
         result = subprocess.run(
             [
+                sys.executable,
+                "-B",
                 str(wrapper / "atrinik"),
                 "worktree",
                 "list",
