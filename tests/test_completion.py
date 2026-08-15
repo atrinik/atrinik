@@ -143,8 +143,20 @@ class CompletionTests(unittest.TestCase):
             self.workspace / "scopes" / "partial" / "scope.json",
             {"schema_version": 1, "status": "creating", "name": "partial"},
         )
+        self.write_json(
+            self.workspace / "scopes" / "review" / "release-journal.json",
+            {
+                "schema_version": 1,
+                "scope": "review",
+                "status": "complete",
+            },
+        )
         self.assertEqual(
             self.candidates("scope", "show", ""),
+            ("candidates", ["review"]),
+        )
+        self.assertEqual(
+            self.candidates("scope", "release", ""),
             ("candidates", ["review"]),
         )
 
