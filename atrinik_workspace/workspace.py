@@ -4592,12 +4592,12 @@ class Workspace:
                         context.__enter__()
                         generation_contexts.append(context)
                     for path, expected_record in generation_records.items():
-                        expected_inventory = (
-                            self._validate_source_generation_boundary(
-                                path.parent, require_sealed=True
-                            )
-                        )
                         try:
+                            expected_inventory = (
+                                self._validate_source_generation_boundary(
+                                    path.parent, require_sealed=True
+                                )
+                            )
                             current_record = self._source_generation_record(path)
                             current_digest = _tree_digest(
                                 path,
