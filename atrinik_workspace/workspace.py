@@ -4224,7 +4224,8 @@ class Workspace:
                 with shared_lock(
                     lock, f"immutable source generation {component.name}"
                 ):
-                    return reuse_generation()
+                    if generation.exists() or generation.is_symlink():
+                        return reuse_generation()
             except _SourceGenerationCorrupt:
                 pass
 
