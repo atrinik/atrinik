@@ -3169,6 +3169,49 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(calls, 1)
         self.assertTrue((source / "runtime-paths.txt").is_file())
 
+    def test_source_generation_rebuilds_when_removed_before_shared_admission(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["resources"]
+
+        source = resolve()
+        generation = source.parent
+        displaced = generation.with_name(f"{generation.name}-removed")
+        generation_lock = (
+            self.workspace.paths.builds
+            / "locks"
+            / f"source-generation-{generation.name}.lock"
+        )
+        real_shared_lock = workspace_module.shared_lock
+        removed = False
+
+        def remove_before_shared_admission(
+            lock: Path, operation: str
+        ) -> object:
+            nonlocal removed
+            if lock == generation_lock and not removed:
+                generation.rename(displaced)
+                removed = True
+            return real_shared_lock(lock, operation)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.shared_lock",
+            side_effect=remove_before_shared_admission,
+        ):
+            rebuilt = resolve()
+
+        self.assertTrue(removed)
+        self.assertEqual(rebuilt.parent, generation)
+        self.assertTrue((rebuilt / "runtime-paths.txt").is_file())
+        self.assertTrue(displaced.is_dir())
+
     def test_server_build_recovers_incomplete_resources_at_cmake_boundary(
         self,
     ) -> None:
