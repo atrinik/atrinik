@@ -20744,6 +20744,105 @@ class WorkspaceTests(unittest.TestCase):
                 self.root / "staging", self.root / "build", selected, snapshot
             )
 
+    def test_windows_source_staging_rejects_invalid_classic_coordinates(self) -> None:
+        self.workspace.manifest = Manifest.load(
+            Path(__file__).parents[1] / "components.json"
+        )
+        profile = self.workspace._load_profile("classic", require_file=False)
+        classic_root = self.root / "classic"
+        selected = {
+            role: classic_root / role
+            for role in ("client", "server", "protocol", "libatrinik")
+        }
+        for path in selected.values():
+            path.mkdir(parents=True)
+
+        def snapshot(states: dict[str, object]) -> workspace_module.ProfileResolutionSnapshot:
+            return workspace_module.ProfileResolutionSnapshot(
+                "classic",
+                "d" * 64,
+                json.dumps(profile, sort_keys=True, separators=(",", ":")),
+                tuple((role, str(path)) for role, path in sorted(selected.items())),
+                json.dumps(states, sort_keys=True, separators=(",", ":")),
+            )
+
+        with self.assertRaisesRegex(WorkspaceError, "identity is missing: client"):
+            self.workspace._stage_windows_profile_sources(
+                self.root / "missing-state",
+                self.root / "build",
+                selected,
+                snapshot({}),
+            )
+
+        state = {
+            "classic": {
+                "path": str(classic_root),
+                "head": "a" * 40,
+                "dirty": False,
+            }
+        }
+        component = self.workspace.manifest.stack("classic").providers["client"]
+        wrong_role = {
+            "checkout": "classic",
+            "repository": "atrinik/classic",
+            "commit": "a" * 40,
+            "tree": "b" * 40,
+            "source": component.source + "-other",
+        }
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_source_generation_record",
+                side_effect=lambda path: wrong_role if path == selected["client"] else None,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "source role is invalid: client"),
+        ):
+            self.workspace._stage_windows_profile_sources(
+                self.root / "wrong-role",
+                self.root / "build",
+                selected,
+                snapshot(state),
+            )
+
+        invalid_path = dict(selected)
+        invalid_path["client"] = self.root / "other-client"
+        with self.assertRaisesRegex(WorkspaceError, "source path is invalid: client"):
+            self.workspace._stage_windows_profile_sources(
+                self.root / "wrong-path",
+                self.root / "build",
+                invalid_path,
+                snapshot(state),
+            )
+
+        invalid_head = {"classic": {**state["classic"], "head": "not-a-commit"}}
+        with self.assertRaisesRegex(WorkspaceError, "source commit is invalid: client"):
+            self.workspace._stage_windows_profile_sources(
+                self.root / "wrong-commit",
+                self.root / "build",
+                selected,
+                snapshot(invalid_head),
+            )
+
+        with (
+            mock.patch("atrinik_workspace.workspace.git", return_value="not-a-tree"),
+            self.assertRaisesRegex(WorkspaceError, "source tree is invalid: client"),
+        ):
+            self.workspace._stage_windows_profile_sources(
+                self.root / "wrong-tree",
+                self.root / "build",
+                selected,
+                snapshot(state),
+            )
+
+        mismatched_parents = dict(selected)
+        mismatched_parents["server"] = self.root / "other" / "server"
+        with self.assertRaisesRegex(WorkspaceError, "do not share one monorepo root"):
+            self.workspace._stage_windows_profile_sources(
+                self.root / "wrong-parent",
+                self.root / "build",
+                mismatched_parents,
+            )
+
     def test_windows_state_snapshot_reuses_existing_physical_lock(self) -> None:
         server = self.workspace.paths.repositories / "server"
         prepared = self.workspace.state_path(
