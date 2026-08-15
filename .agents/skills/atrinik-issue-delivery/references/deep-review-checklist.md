@@ -85,7 +85,10 @@ applicability; do not turn irrelevant categories into invented findings.
   coordinate-bound body and comment markers, equal/newer timestamp recovery,
   complete pagination, target-drift cancellation,
   illegal transitions, concurrent writers, every migration kill point, exact
-  resume, proven base/head/merge-base advancement versus rewrite, and required
+  resume, explicit-authority cross-repository legacy-filename rebind over the
+  exact complementary report set with exact unioned coordinates and a truly
+  conflicting control, proven base/head/
+  merge-base advancement versus rewrite, and required
   source/report/snapshot/ledger/marker loss. Markdown is non-authoritative; no
   workflow may hand-roll state I/O.
 - Before any delivery-owned mutation, use the helper to inventory every

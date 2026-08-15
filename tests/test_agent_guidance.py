@@ -630,6 +630,13 @@ class AgentGuidanceTests(unittest.TestCase):
             "Legacy migration is issue-mode only",
             "completed pre-schema human report may later change",
             "Loss or change of a required member stops",
+            "--kind legacy-rebind",
+            "sole selected issue number",
+            "Do not rename, edit, or delete either report",
+            "--related-source",
+            "--historical-head",
+            "finish that delivery with the ordinary",
+            "Rerun the identical command with identical input",
         }:
             with self.subTest(ledger_marker=marker):
                 self.assertIn(marker, ledger)
@@ -654,6 +661,8 @@ class AgentGuidanceTests(unittest.TestCase):
             "strict schema parsing",
             "generation/digest CAS",
             "every migration kill point",
+            "explicit-authority cross-repository legacy-filename rebind over the",
+            "a truly conflicting control",
             "source/report/snapshot/ledger/marker loss",
             "Before any delivery-owned mutation",
             "canonical issue and PR ledger",

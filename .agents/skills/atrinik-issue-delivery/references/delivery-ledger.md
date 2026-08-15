@@ -82,6 +82,11 @@ python3 scripts/delivery_ledger.py migrate REVIEW_ROOT SOURCE_NAME INPUT \
   --kind legacy \
   --expected-source-digest SHA256
 python3 scripts/delivery_ledger.py migrate REVIEW_ROOT SOURCE_NAME INPUT \
+  --kind legacy-rebind \
+  --expected-source-digest SHA256 \
+  --related-source RELATED_NAME=RELATED_SHA256 \
+  --historical-head OWNER/REPOSITORY@BRANCH=SHA
+python3 scripts/delivery_ledger.py migrate REVIEW_ROOT SOURCE_NAME INPUT \
   --kind pre-schema \
   --expected-source-digest SHA256
 python3 scripts/delivery_ledger.py check-reuse REVIEW_ROOT LEDGER_NAME --kind all
@@ -477,8 +482,12 @@ comment carries no pending intent.
 
 `migration` is null for create/migration input. A migrated installed ledger has
 exactly `kind`, `state=complete`, `source`, `snapshot`, `canonical_report`,
-`marker_name`. Source/snapshot each have exact direct `name`, SHA-256, device,
+`marker_name`. Kind is `legacy`, `legacy-rebind`, or `pre-schema`.
+Source/snapshot each have exact direct `name`, SHA-256, device,
 inode. The snapshot and marker names must be helper-canonical.
+`legacy-rebind` additionally has non-empty, case-sorted `related_sources` and
+`historical_heads` arrays of exact source identities and parsed historical
+repository/branch/commit coordinates; other migration kinds omit both fields.
 
 ## Create a fresh issue ledger
 
@@ -1506,6 +1515,9 @@ authorship, or push access. Use only:
 
 - `legacy` for the sole exact issue-mode
   `OWNER-REPOSITORY-NUMBER.md` report; or
+- `legacy-rebind` for the exact pair of mode-less issue-mode reports whose
+  filenames name the selected issue repository and one affected target
+  repository; or
 - `pre-schema` for the canonical
   `OWNER-REPOSITORY-issue-NUMBER.md` or
   `OWNER-REPOSITORY-pr-NUMBER.md` report.
@@ -1518,14 +1530,35 @@ or `explicit-recovery` naming the exact artifacts and current coordinates.
 
 For legacy, the report parser's exact issue URLs, PR URLs, target repository/head
 rows, and worktree paths must equal the candidate; extra or missing claims stop.
+`legacy-rebind` additionally requires `explicit-recovery` authority and exactly
+two mode-less sources with the sole selected issue number. The primary filename
+must name one exact affected target and disagree with the selected issue
+repository; the related filename must name that selected issue repository. The
+parser accepts the current target table and the historical `Coordinates`
+repository, remote-head, and worktree bullets. A `Canonical closing PR` must
+corroborate the report's pull-request list and is not a second claim. The exact
+union of both reports' issue, PR, repository/head, and worktree evidence must
+equal the schema-valid multi-target candidate. Malformed, ambiguous, duplicate,
+missing, or mismatched evidence within either source stops before publication.
+An ordinary matching single legacy filename uses `legacy`.
+Every parsed historical remote-head SHA must also equal one explicit repeated
+`--historical-head OWNER/REPOSITORY@BRANCH=SHA` expectation. Those expectations
+are operation-digest-bound and retained in the marker and completed ledger.
+They prove the exact historical coordinates without falsely requiring old
+remote/local SHAs to equal the candidate's separately schema-validated current
+target, PR, branch, or deferred-or-bound worktree head.
 Every unpaired recognized report reserves typed coordinates from its canonical
 filename even when empty or unparseable: issue-mode and mode-less names reserve
 that issue against direct ownership and program-master use; PR-mode names reserve
 only that selected/known PR. Parsed contents add their exact issue, PR,
 repository/head, and worktree reservations; those worktree claims are compared
 against bound paths and precommitted deferred primitive/scope managed paths. A
-reservation blocks overlap but never grants authority. Legacy migration is
-issue-mode only. Pre-schema source must be the exact canonical Markdown report.
+reservation blocks overlap but never grants authority. Malformed, unsupported,
+or duplicate evidence makes that report ineligible for adoption while retaining
+every proven filename/body reservation; it does not globally block unrelated
+coordinates. A recognized report with no provable reservation remains ambiguous
+and blocks mutation. Legacy migration is issue-mode only. Pre-schema source must
+be the exact canonical Markdown report.
 Compute and preserve its current digest, then invoke:
 
 ```sh
@@ -1543,10 +1576,40 @@ python3 scripts/delivery_ledger.py inspect \
 ```
 
 For legacy, set `DELIVERY_SOURCE=atrinik-atrinik-419.md` and `--kind legacy`.
-Always substitute the actual source SHA-256. The helper durably publishes a
+For a proven cross-repository filename mismatch, pass the affected-target report
+as the source and the complementary selected-issue report as one exact
+`NAME=SHA256` related source. Do not rename, edit, or delete either report. For
+the concrete issue 329 pair:
+
+```sh
+python3 scripts/delivery_ledger.py migrate \
+  "$DELIVERY_REVIEW_ROOT" atrinik-classic-329.md \
+  "$DELIVERY_MIGRATION_INPUT" --kind legacy-rebind \
+  --expected-source-digest "$DELIVERY_SOURCE_SHA256" \
+  --related-source \
+  "atrinik-atrinik-329.md=$DELIVERY_RELATED_SOURCE_SHA256" \
+  --historical-head \
+  "atrinik/atrinik@feat/client-launch-identity=39a1b21d39bfd1d57c022ec0fbebafdd74d31e85" \
+  --historical-head \
+  "atrinik/classic@feat/client-launch-identity=d8b8713cc99c834da75854257df6566874d4b354"
+```
+
+Always substitute both actual source SHA-256 values. The helper durably publishes a
 candidate-digest-named planned stage, immutable source snapshot, canonical
-report copy when legacy, prepared marker, canonical ledger, and complete
-marker. Here the candidate-bound suffix is the complete operation digest, not
+report copy for `legacy` or `legacy-rebind`, prepared marker, canonical ledger,
+and complete marker. A rebind also records and continuously verifies the related
+source's exact name, digest, device, and inode; both originals remain preserved.
+
+If the review root also contains an interrupted fresh canonical report such as
+`atrinik-classic-issue-329.md`, the rebind intentionally does not consume it:
+that report represents the distinct Classic issue coordinate. Do not delete or
+rename it. After the rebind completes, finish that delivery with the ordinary
+`pre-schema` migration shown above, using a separate exact schema-v1 candidate
+and that canonical report's current digest. A direct fresh `create` remains
+blocked until this second provenance-preserving migration succeeds.
+
+Here the candidate-bound suffix is the complete operation
+digest, not
 the candidate byte digest alone. Its planned-stage pattern is:
 
 ```text
@@ -1554,8 +1617,9 @@ the candidate byte digest alone. Its planned-stage pattern is:
 ```
 
 The operation digest hashes the complete canonical planned marker, binding
-migration kind, candidate digest, source name/digest/device/inode, snapshot,
-canonical report, and destination before even a short durable prefix can exist.
+migration kind, candidate digest, primary and related source identities, exact
+historical heads, snapshot, canonical report, and destination before even a
+short durable prefix can exist.
 A different candidate or source identity can never resume or take over that
 stage. The helper adds exact complete migration metadata to the installed
 generation-1 ledger. Never add that metadata to input; its

@@ -41,6 +41,15 @@ SHA_A = "a" * 40
 SHA_B = "b" * 40
 SHA_C = "c" * 40
 INITIAL_PR_BODY = b"Initial delivery pull request body\n"
+SAFE = {
+    "clean": True,
+    "detached": False,
+    "locked": False,
+    "active": False,
+    "unowned_reference": False,
+    "foreign": False,
+    "certain": True,
+}
 
 
 def inline_payload(raw: bytes) -> dict[str, str]:
@@ -906,6 +915,186 @@ def legacy_report_bytes(document: dict[str, object]) -> bytes:
     return ("\n".join(lines) + "\n").encode("utf-8")
 
 
+def legacy_rebind_ledger() -> dict[str, object]:
+    """Return the recorded delivery behind atrinik-classic-329.md."""
+
+    document = issue_ledger(
+        number=329,
+        issue_node="I_atrinik_329",
+        branch="fix/legacy-classic-329",
+        worktree="/workspace/worktrees/classic/legacy-329",
+    )
+    selected_issue = copy.deepcopy(document["issues"]["explicit"][0])
+    classic = repository("classic", "R_classic")
+    retarget_repository(document, classic)
+    document["issues"]["explicit"] = [selected_issue]
+    document["closing_scope"] = [copy.deepcopy(selected_issue)]
+    document["authority"]["kind"] = "explicit-recovery"
+
+    branch = next(
+        slot for slot in document["artifacts"] if slot["kind"] == "branch"
+    )
+    branch["state"] = "adopted"
+    branch["current"] = {**copy.deepcopy(branch["immutable"]), "head_sha": SHA_A}
+    branch["safety"] = copy.deepcopy(SAFE)
+    bind_worktree(document)
+
+    pull = next(
+        slot
+        for slot in document["artifacts"]
+        if slot["kind"] == "pull_request"
+    )
+    pull["state"] = "adopted"
+    pull["immutable"].update(number=92, node_id="P_classic_92")
+    pull["current"] = {
+        **copy.deepcopy(pull["immutable"]),
+        "head_sha": SHA_A,
+    }
+    pull["initial_body_payload"] = None
+    pull["safety"] = copy.deepcopy(SAFE)
+    document["selected_prs"] = [
+        {
+            "repository": copy.deepcopy(classic),
+            "head_repository": copy.deepcopy(classic),
+            "number": 92,
+            "node_id": "P_classic_92",
+            "author_node_id": "U_contributor",
+            "base_branch": "main",
+            "head_branch": "fix/legacy-classic-329",
+            "draft": False,
+            "draft_intent": None,
+            "body": {
+                "ownership": "contributor-owned",
+                "state": "observed",
+                "observed_digest": pull["immutable"]["body_digest"],
+                "intended_digest": None,
+                "intended_payload": None,
+                "current_digest": pull["immutable"]["body_digest"],
+                "outside_digest": pull["immutable"]["body_digest"],
+                "section_digest": None,
+                "updated_at": "2026-08-14T18:00:00Z",
+            },
+            "comment": {
+                "state": "none",
+                "marker": None,
+                "intended_digest": None,
+                "intended_payload": None,
+                "node_id": None,
+                "current_digest": None,
+            },
+        }
+    ]
+    wrapper = repository("repo", "R_repo")
+    wrapper["owner"] = "atrinik"
+    wrapper["name"] = "atrinik"
+    wrapper_target = copy.deepcopy(document["targets"][0])
+    wrapper_target["repository"] = copy.deepcopy(wrapper)
+    document["targets"] = [wrapper_target, *document["targets"]]
+
+    wrapper_slots = []
+    for slot in copy.deepcopy(document["artifacts"]):
+        slot["slot_id"] = f"wrapper-{slot['kind']}"
+        slot["immutable"]["repository"] = copy.deepcopy(wrapper)
+        slot["current"]["repository"] = copy.deepcopy(wrapper)
+        if slot["kind"] == "pull_request":
+            slot["immutable"].update(
+                number=330, node_id="P_atrinik_330", body_digest="e" * 64
+            )
+            slot["current"].update(
+                number=330, node_id="P_atrinik_330", body_digest="e" * 64
+            )
+        elif slot["kind"] == "worktree":
+            path = "/workspace/worktrees/atrinik/legacy-329"
+            slot["immutable"]["path"] = path
+            slot["current"]["path"] = path
+        wrapper_slots.append(slot)
+    document["artifacts"] = sorted(
+        [*document["artifacts"], *wrapper_slots], key=lambda slot: slot["slot_id"]
+    )
+    classic_worktree = next(
+        slot
+        for slot in document["artifacts"]
+        if slot["kind"] == "worktree"
+        and slot["immutable"]["repository"]["node_id"] == "R_classic"
+    )
+    classic_path = "/workspace/worktrees/classic/legacy-329"
+    classic_worktree["immutable"]["path"] = classic_path
+    classic_worktree["current"]["path"] = classic_path
+
+    wrapper_pull = copy.deepcopy(document["selected_prs"][0])
+    wrapper_pull.update(
+        repository=copy.deepcopy(wrapper),
+        head_repository=copy.deepcopy(wrapper),
+        number=330,
+        node_id="P_atrinik_330",
+    )
+    wrapper_pull["body"].update(
+        observed_digest="e" * 64,
+        current_digest="e" * 64,
+        outside_digest="e" * 64,
+    )
+    document["selected_prs"] = [wrapper_pull, *document["selected_prs"]]
+    document["actor"]["push_repository_node_ids"] = ["R_classic", "R_repo"]
+    document["authority"]["allowed"]["repositories"] = ["R_classic", "R_repo"]
+    document["authority"]["allowed"]["pull_requests"] = [
+        "P_atrinik_330",
+        "P_classic_92",
+    ]
+    return document
+
+
+def legacy_bullet_report_bytes(
+    document: dict[str, object], repository_name: str, *, reported_sha: str | None = None
+) -> bytes:
+    target = next(
+        target
+        for target in document["targets"]
+        if target["repository"]["name"] == repository_name
+    )
+    repository_value = target["repository"]
+    worktree = next(
+        slot
+        for slot in document["artifacts"]
+        if slot["kind"] == "worktree"
+        and slot["immutable"]["repository"]["node_id"]
+        == repository_value["node_id"]
+    )
+    issue = document["issues"]["explicit"][0]
+    pull_urls = [
+        f"https://github.com/{pull['repository']['owner']}/"
+        f"{pull['repository']['name']}/pull/{pull['number']}"
+        for pull in document["selected_prs"]
+    ]
+    closing = next(
+        url for url in pull_urls if "/atrinik/pull/" in url
+    )
+    lines = [
+        "## Coordinates",
+        "",
+        f"- Issue: https://github.com/{issue['repository']['owner']}/"
+        f"{issue['repository']['name']}/issues/{issue['number']}",
+        f"- Pull requests: {' and '.join(pull_urls)}",
+        f"- Canonical closing PR: {closing}",
+        f"- Repository: `{repository_value['owner']}/{repository_value['name']}`",
+        f"- Remote head: `{target['head']['branch']}` / "
+        f"`{target['head']['current_sha'] if reported_sha is None else reported_sha}`",
+        f"- Worktree: `{worktree['immutable']['path']}`",
+        "",
+        "## Review",
+        "",
+        "Historical evidence remains preserved.",
+    ]
+    return ("\n".join(lines) + "\n").encode("utf-8")
+
+
+def legacy_rebind_historical_heads() -> dict[tuple[str, str, str], str]:
+    branch = "fix/legacy-classic-329"
+    return {
+        ("atrinik", "atrinik", branch): SHA_C,
+        ("atrinik", "classic", branch): SHA_B,
+    }
+
+
 def multi_target_issue_ledger() -> dict[str, object]:
     document = issue_ledger()
     content_repository = repository("content", "R_content")
@@ -1367,6 +1556,8 @@ class DeliveryLedgerTests(unittest.TestCase):
 
     def test_08_legacy_and_pre_schema_migrations_resume_and_detect_loss(self) -> None:
         failpoints = (
+            "migration:plan-staged",
+            "migration:plan-linked",
             "migration:planned",
             "migration:snapshot",
             "migration:report",
@@ -1779,6 +1970,34 @@ class DeliveryLedgerTests(unittest.TestCase):
             with mock.patch.object(ledger, "MAX_INVENTORY_ENTRIES", 2):
                 with self.assertRaisesRegex(ledger.LedgerError, "directory entries"):
                     ledger.inventory(root)
+            self.assertEqual(directory_snapshot(root), before)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            recovery = legacy_rebind_ledger()
+            source = root / "atrinik-classic-329.md"
+            source_bytes = legacy_bullet_report_bytes(recovery, "classic")
+            duplicate_issue = (
+                b"https://github.com/atrinik/atrinik/issues/329\n"
+            )
+            source.write_bytes(source_bytes + duplicate_issue)
+            related = root / "atrinik-atrinik-329.md"
+            related.write_bytes(legacy_bullet_report_bytes(recovery, "atrinik"))
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "duplicate or ambiguous"
+            ):
+                ledger.migrate(
+                    root,
+                    source.name,
+                    recovery,
+                    kind="legacy-rebind",
+                    expected_source_digest=ledger.byte_digest(source.read_bytes()),
+                    related_sources={
+                        related.name: ledger.byte_digest(related.read_bytes())
+                    },
+                    expected_historical_heads=legacy_rebind_historical_heads(),
+                )
             self.assertEqual(directory_snapshot(root), before)
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -7564,6 +7783,528 @@ class DeliveryLedgerTests(unittest.TestCase):
                     ledger.create(root, candidate)
                 self.assertEqual(directory_snapshot(root), before)
 
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            reserved_branch = "refactor/358-content-main"
+            reserved_path = (
+                "/workspaces/atrinik/workspace/worktrees/atrinik/"
+                "issue-358-content-main"
+            )
+            report = root / "atrinik-atrinik-358.md"
+            report.write_text(
+                "Historical issue: "
+                "https://github.com/atrinik/atrinik/issues/358#issuecomment-1\n"
+                "Historical PR: "
+                "https://www.github.com/atrinik/atrinik/pull/359\n"
+                "| atrinik/atrinik@main | base | "
+                + reserved_branch
+                + " / 89bf1ac | merge | "
+                + reserved_path
+                + " | commits |\n",
+                encoding="utf-8",
+            )
+            claim = ledger.inventory(root).legacy_reports[0]
+            self.assertTrue(claim.evidence_invalid)
+            self.assertEqual(claim.issues, (("atrinik", "atrinik", 358),))
+            self.assertEqual(claim.pull_requests, (("atrinik", "atrinik", 359),))
+            self.assertEqual(
+                claim.repository_heads,
+                (("atrinik", "atrinik", reserved_branch),),
+            )
+            self.assertEqual(claim.worktrees, (reserved_path,))
+
+            candidate = issue_ledger(
+                number=999,
+                issue_node="I_unrelated_999",
+                branch=reserved_branch,
+                worktree=reserved_path,
+            )
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "legacy report ownership overlaps"
+            ):
+                ledger.create(root, candidate)
+            self.assertEqual(directory_snapshot(root), before)
+
+            malformed_closing = ledger._legacy_claim(
+                "atrinik-classic-59.md",
+                (
+                    "- Canonical closing PR: `https://github.com/atrinik/classic/"
+                    "pull/60` explanatory text\n"
+                ).encode(),
+                None,
+            )
+            self.assertTrue(malformed_closing.evidence_invalid)
+            self.assertEqual(
+                malformed_closing.pull_requests,
+                (("atrinik", "classic", 60),),
+            )
+            uncorroborated_closing = ledger._legacy_claim(
+                "atrinik-content-75.md",
+                (
+                    "- PR: https://github.com/atrinik/content/pull/64\n"
+                    "- Canonical closing PR: "
+                    "https://github.com/atrinik/classic/pull/77\n"
+                ).encode(),
+                None,
+            )
+            self.assertTrue(uncorroborated_closing.evidence_invalid)
+            self.assertEqual(
+                uncorroborated_closing.pull_requests,
+                (("atrinik", "classic", 77), ("atrinik", "content", 64)),
+            )
+
+    def test_47_cross_repository_legacy_filename_rebind_is_exact_and_resumable(self) -> None:
+        def write_pair(
+            root: Path, candidate: dict[str, object]
+        ) -> tuple[Path, dict[str, str]]:
+            (root / "atrinik-atrinik-304.md").write_text(
+                "## Coordinates\n\n"
+                "- Issue: https://github.com/atrinik/atrinik/issues/304\n"
+                "- Pull request / canonical closing PR: "
+                "https://github.com/atrinik/atrinik/pull/306\n"
+                "- Repository: `atrinik/atrinik`\n"
+                "- Head branch / SHA: `feat/issue-delivery-skill` / `"
+                + SHA_B
+                + "`\n"
+                "- Worktree: `/workspace/worktrees/atrinik/issue-304-delivery`\n\n"
+                "Historical validation: https://github.com/atrinik/atrinik/pull/306\n",
+                encoding="utf-8",
+            )
+            source = root / "atrinik-classic-329.md"
+            source.write_bytes(
+                legacy_bullet_report_bytes(candidate, "classic", reported_sha=SHA_B)
+            )
+            related = root / "atrinik-atrinik-329.md"
+            related.write_bytes(
+                legacy_bullet_report_bytes(candidate, "atrinik", reported_sha=SHA_C)
+            )
+            return source, {
+                related.name: ledger.byte_digest(related.read_bytes())
+            }
+
+        failpoints = (
+            "migration:plan-staged",
+            "migration:plan-linked",
+            "migration:planned",
+            "migration:snapshot",
+            "migration:report",
+            "migration:prepared-staged",
+            "migration:prepared-renamed",
+            "migration:staged",
+            "migration:linked",
+            "migration:installed",
+            "migration:complete-staged",
+            "migration:completed-renamed",
+            "migration:complete",
+        )
+        for failpoint in failpoints:
+            with self.subTest(failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                candidate = legacy_rebind_ledger()
+                source, related_sources = write_pair(root, candidate)
+                digest = ledger.byte_digest(source.read_bytes())
+                with self.assertRaises(ledger.InjectedCrash):
+                    ledger.migrate(
+                        root,
+                        source.name,
+                        candidate,
+                        kind="legacy-rebind",
+                        expected_source_digest=digest,
+                        related_sources=related_sources,
+                        expected_historical_heads=legacy_rebind_historical_heads(),
+                        failpoint=failpoint,
+                    )
+                migrated = ledger.migrate(
+                    root,
+                    source.name,
+                    candidate,
+                    kind="legacy-rebind",
+                    expected_source_digest=digest,
+                    related_sources=related_sources,
+                    expected_historical_heads=legacy_rebind_historical_heads(),
+                )
+                self.assertEqual(
+                    migrated.name, "atrinik-atrinik-issue-329.md.ledger.json"
+                )
+                self.assertEqual(
+                    migrated.document["migration"]["kind"], "legacy-rebind"
+                )
+                self.assertEqual(ledger.inventory(root).pending, ())
+                self.assertTrue(source.is_file())
+                self.assertTrue((root / "atrinik-atrinik-issue-329.md").is_file())
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate = legacy_rebind_ledger()
+            source, related_sources = write_pair(root, candidate)
+            digest = ledger.byte_digest(source.read_bytes())
+            first = ledger.migrate(
+                root,
+                source.name,
+                candidate,
+                kind="legacy-rebind",
+                expected_source_digest=digest,
+                related_sources=related_sources,
+                expected_historical_heads=legacy_rebind_historical_heads(),
+            )
+            second = ledger.migrate(
+                root,
+                source.name,
+                candidate,
+                kind="legacy-rebind",
+                expected_source_digest=digest,
+                related_sources=related_sources,
+                expected_historical_heads=legacy_rebind_historical_heads(),
+            )
+            self.assertEqual(second.digest, first.digest)
+            self.assertEqual(
+                [source["name"] for source in second.document["migration"]["related_sources"]],
+                ["atrinik-atrinik-329.md"],
+            )
+
+            fresh = issue_ledger(
+                number=329,
+                issue_node="I_classic_329",
+                branch="fix/fresh-classic-329",
+                worktree="/workspace/worktrees/classic/fresh-329",
+            )
+            retarget_repository(fresh, repository("classic", "R_classic"))
+            canonical = root / "atrinik-classic-issue-329.md"
+            canonical.write_text("Interrupted fresh delivery report.\n", encoding="utf-8")
+            before_fresh_migration = directory_snapshot(root)
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "legacy report ownership overlaps"
+            ):
+                ledger.create(root, fresh)
+            self.assertEqual(directory_snapshot(root), before_fresh_migration)
+
+            workspace = root / "workspace"
+            wrapper = root / "wrapper"
+            checkout = wrapper / "classic"
+            for path in (workspace, wrapper, checkout):
+                path.mkdir()
+            worktree = next(
+                slot for slot in fresh["artifacts"] if slot["kind"] == "worktree"
+            )
+            worktree["immutable"]["path"] = None
+            worktree["primitive_request"] = {
+                "component": "classic",
+                "physical_checkout": "classic",
+                "label": "fresh-329",
+                "repository": repository("classic", "R_classic"),
+                "branch": "fix/fresh-classic-329",
+                "expected_head_sha": SHA_A,
+                "roots": {
+                    name: {
+                        "path": str(path),
+                        "device": path.stat().st_dev,
+                        "inode": path.stat().st_ino,
+                    }
+                    for name, path in (
+                        ("wrapper", wrapper),
+                        ("workspace", workspace),
+                        ("primary", checkout),
+                    )
+                },
+            }
+            created = ledger.migrate(
+                root,
+                canonical.name,
+                fresh,
+                kind="pre-schema",
+                expected_source_digest=ledger.byte_digest(canonical.read_bytes()),
+            )
+            self.assertEqual(created.name, "atrinik-classic-issue-329.md.ledger.json")
+            related = root / "atrinik-atrinik-329.md"
+            related.write_bytes(related.read_bytes() + b"drift\n")
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "migration related source changed"
+            ):
+                ledger.inventory(root)
+
+        for label, source_name, authority, message in (
+            (
+                "authority",
+                "atrinik-classic-329.md",
+                "durable-goal",
+                "explicit-recovery authority",
+            ),
+            (
+                "matching issue filename",
+                "atrinik-atrinik-329.md",
+                "explicit-recovery",
+                "ordinary legacy migration",
+            ),
+            (
+                "wrong target repository",
+                "atrinik-server-329.md",
+                "explicit-recovery",
+                "one exact target repository",
+            ),
+            (
+                "wrong issue number",
+                "atrinik-classic-330.md",
+                "explicit-recovery",
+                "selected issue number",
+            ),
+        ):
+            with self.subTest(guard=label), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                recovery = legacy_rebind_ledger()
+                recovery["authority"]["kind"] = authority
+                source = root / source_name
+                source.write_bytes(legacy_bullet_report_bytes(recovery, "classic"))
+                before = directory_snapshot(root)
+                with self.assertRaisesRegex(ledger.LedgerError, message):
+                    ledger.migrate(
+                        root,
+                        source.name,
+                        recovery,
+                        kind="legacy-rebind",
+                        expected_source_digest=ledger.byte_digest(source.read_bytes()),
+                        related_sources={
+                            "atrinik-atrinik-329.md": "a" * 64
+                        },
+                        expected_historical_heads=legacy_rebind_historical_heads(),
+                    )
+                self.assertEqual(directory_snapshot(root), before)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            conflicting = issue_ledger(
+                number=329,
+                issue_node="I_classic_329",
+                branch="fix/conflicting-classic-329",
+                worktree="/workspace/worktrees/classic/conflicting-329",
+            )
+            retarget_repository(conflicting, repository("classic", "R_classic"))
+            source = root / "atrinik-classic-329.md"
+            source.write_bytes(legacy_report_bytes(conflicting))
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "legacy report ownership overlaps"
+            ):
+                ledger.create(root, conflicting)
+            self.assertEqual(directory_snapshot(root), before)
+
+            recovery = legacy_rebind_ledger()
+            related = root / "atrinik-atrinik-329.md"
+            related.write_bytes(legacy_bullet_report_bytes(recovery, "atrinik"))
+            migration_before = directory_snapshot(root)
+            with self.assertRaisesRegex(
+                ledger.LedgerError,
+                "does not exactly prove|claim does not exactly match",
+            ):
+                ledger.migrate(
+                    root,
+                    source.name,
+                    recovery,
+                    kind="legacy-rebind",
+                    expected_source_digest=ledger.byte_digest(source.read_bytes()),
+                    related_sources={
+                        related.name: ledger.byte_digest(related.read_bytes())
+                    },
+                    expected_historical_heads=legacy_rebind_historical_heads(),
+                )
+            self.assertEqual(directory_snapshot(root), migration_before)
+
+        malformed_reports = (
+            (
+                "primary issue URL suffix",
+                lambda raw: raw.replace(b"/issues/329", b"/issues/329oops", 1),
+            ),
+            (
+                "primary PR URL suffix",
+                lambda raw: raw.replace(b"/pull/92", b"/pull/92oops", 1),
+            ),
+            (
+                "extra malformed issue URL",
+                lambda raw: raw + b"https://github.com/atrinik/atrinik/issues/nope\n",
+            ),
+            (
+                "missing issue number",
+                lambda raw: raw + b"https://github.com/evil/repo/issues/.\n",
+            ),
+            (
+                "bare missing PR number",
+                lambda raw: raw + b"github.com/evil/repo/pull/\n",
+            ),
+            (
+                "issue path without separator",
+                lambda raw: raw + b"https://github.com/evil/repo/issues\n",
+            ),
+            (
+                "invalid issue owner",
+                lambda raw: raw + b"https://github.com/evil!/repo/issues/999\n",
+            ),
+            (
+                "extra singular issue URL",
+                lambda raw: raw + b"https://github.com/atrinik/atrinik/issue/329\n",
+            ),
+            (
+                "unsupported HTTP issue URL",
+                lambda raw: raw + b"http://github.com/atrinik/atrinik/issues/329\n",
+            ),
+            (
+                "unsupported www PR URL",
+                lambda raw: raw + b"https://www.github.com/atrinik/classic/pull/92\n",
+            ),
+            (
+                "bare GitHub issue coordinate",
+                lambda raw: raw + b"github.com/evil/repo/issues/999\n",
+            ),
+            (
+                "protocol-relative GitHub PR coordinate",
+                lambda raw: raw + b"//github.com/evil/repo/pull/999\n",
+            ),
+            (
+                "unsupported-scheme GitHub issue coordinate",
+                lambda raw: raw + b"ftp://github.com/evil/repo/issues/999\n",
+            ),
+            (
+                "extra malformed PR URL",
+                lambda raw: raw + b"https://github.com/atrinik/classic/pull/nope\n",
+            ),
+            (
+                "malformed repository/head row",
+                lambda raw: raw
+                + b"| atrinik/classic | base | bad..branch / "
+                + SHA_A.encode("ascii")
+                + b" | merge | /workspace/worktrees/classic/other | commits |\n",
+            ),
+            (
+                "malformed worktree row",
+                lambda raw: raw
+                + b"| atrinik/classic@main | base | fix/other / "
+                + SHA_A.encode("ascii")
+                + b" | merge | relative/worktree | commits |\n",
+            ),
+            (
+                "combined malformed repository and worktree row",
+                lambda raw: raw
+                + b"| atrinik/classic | base | fix/other / "
+                + SHA_A.encode("ascii")
+                + b" | merge | relative/worktree | commits |\n",
+            ),
+        )
+        for label, mutate in malformed_reports:
+            with self.subTest(malformed=label), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                recovery = legacy_rebind_ledger()
+                source, related_sources = write_pair(root, recovery)
+                source.write_bytes(mutate(source.read_bytes()))
+                before = directory_snapshot(root)
+                with self.assertRaisesRegex(
+                    ledger.LedgerError, "duplicate or ambiguous"
+                ):
+                    ledger.migrate(
+                        root,
+                        source.name,
+                        recovery,
+                        kind="legacy-rebind",
+                        expected_source_digest=ledger.byte_digest(source.read_bytes()),
+                        related_sources=related_sources,
+                        expected_historical_heads=legacy_rebind_historical_heads(),
+                    )
+                self.assertEqual(directory_snapshot(root), before)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            recovery = legacy_rebind_ledger()
+            source, _related_sources = write_pair(root, recovery)
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "requires exact related source"
+            ):
+                ledger.migrate(
+                    root,
+                    source.name,
+                    recovery,
+                    kind="legacy-rebind",
+                    expected_source_digest=ledger.byte_digest(source.read_bytes()),
+                )
+            self.assertEqual(directory_snapshot(root), before)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            recovery = legacy_rebind_ledger()
+            source, related_sources = write_pair(root, recovery)
+            related = root / next(iter(related_sources))
+            related.write_text("Historical narrative only.\n", encoding="utf-8")
+            related_sources[related.name] = ledger.byte_digest(related.read_bytes())
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "does not exactly prove its target"
+            ):
+                ledger.migrate(
+                    root,
+                    source.name,
+                    recovery,
+                    kind="legacy-rebind",
+                    expected_source_digest=ledger.byte_digest(source.read_bytes()),
+                    related_sources=related_sources,
+                    expected_historical_heads=legacy_rebind_historical_heads(),
+                )
+            self.assertEqual(directory_snapshot(root), before)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            recovery = legacy_rebind_ledger()
+            source, related_sources = write_pair(root, recovery)
+            wrong_heads = legacy_rebind_historical_heads()
+            wrong_heads[("atrinik", "classic", "fix/legacy-classic-329")] = SHA_A
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "historical heads do not match"
+            ):
+                ledger.migrate(
+                    root,
+                    source.name,
+                    recovery,
+                    kind="legacy-rebind",
+                    expected_source_digest=ledger.byte_digest(source.read_bytes()),
+                    related_sources=related_sources,
+                    expected_historical_heads=wrong_heads,
+                )
+            self.assertEqual(directory_snapshot(root), before)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            recovery = legacy_rebind_ledger()
+            source, related_sources = write_pair(root, recovery)
+            candidate_input = root / "candidate.json"
+            candidate_input.write_text(json.dumps(recovery), encoding="utf-8")
+            related_name, related_digest = next(iter(related_sources.items()))
+            process = subprocess.run(
+                [
+                    sys.executable,
+                    "-B",
+                    str(SCRIPT),
+                    "migrate",
+                    str(root),
+                    source.name,
+                    str(candidate_input),
+                    "--kind",
+                    "legacy-rebind",
+                    "--expected-source-digest",
+                    ledger.byte_digest(source.read_bytes()),
+                    "--related-source",
+                    f"{related_name}={related_digest}",
+                    "--historical-head",
+                    f"atrinik/atrinik@fix/legacy-classic-329={SHA_C}",
+                    "--historical-head",
+                    f"atrinik/classic@fix/legacy-classic-329={SHA_B}",
+                ],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(process.returncode, 0, process.stderr)
+            self.assertEqual(
+                json.loads(process.stdout)["name"],
+                "atrinik-atrinik-issue-329.md.ledger.json",
+            )
 
 if __name__ == "__main__":
     unittest.main()
