@@ -9,17 +9,17 @@ description: Coordinate work across checkouts, profiles, worktrees, cleanup, rel
 
 Run from the wrapper root.
 
-1. Read `AGENTS.md`, `components.json`, and relevant README/architecture
-   sections. For pre-split repositories, see
+1. Read `AGENTS.md`, `components.json`, and relevant README/architecture. For
+   pre-split repositories, see
    [repository migration](references/repository-migration.md).
 2. Resolve each physical checkout and source root; read its nearest
    `AGENTS.md` before editing.
-3. Keep code, tests, packages, and releases with their physical owner; only
-   orchestration, composition, manifest, and wrapper docs live here.
+3. Keep code, tests, packages, and releases with their physical owner; keep
+   orchestration and wrapper contracts here.
 
-Checkouts are ignored repositories. A `classic` worktree holds all
-five `classic-*` components. Both stacks share `content@main`; `content-1x` is
-historical. Composition belongs in `.devcontainer/`.
+Checkouts are ignored repositories. A `classic` worktree holds all five
+`classic-*` components. Both stacks share `content@main`; `content-1x` is
+historical. Composition lives in `.devcontainer/`.
 
 ## Prepare safe worktrees
 
@@ -42,9 +42,9 @@ classic` adds classic. `sync` never clones.
 ```
 
 Sync only clean primaries; never replace, move, or remove dirty sources.
-Classic selectors create `workspace/worktrees/classic/LABEL`; work there.
-Prefer atomic scopes: names resist collisions, retries are idempotent, and JSON
-is secret-free. Temporary state is the default.
+Classic selectors create `workspace/worktrees/classic/LABEL`. Prefer atomic
+scopes: names resist collisions, retries are idempotent, and JSON is
+secret-free. Temporary state is the default.
 Release with the fresh preview digest:
 
 ```sh
@@ -66,10 +66,10 @@ Reclaim review data only through preview-first cleanup:
 ```
 
 After review, repeat the scoped command with `--apply`. Defaults cover
-worktrees/builds; caches and topology history are opt-in; `all` excludes
-topologies. Reclaim only stopped, released, exact marker-owned records;
-uncertainty fails closed. Apply sound-cache before its worktree. README and
-architecture define historical proof and apply-time revalidation.
+worktrees/builds; caches/history are opt-in; `all` excludes topologies. Reclaim
+only stopped, released, exact marker-owned records; uncertainty fails closed.
+Apply sound-cache before its worktree. README/architecture define proof and
+apply-time revalidation.
 
 ## Compose coherent sources
 
@@ -90,13 +90,11 @@ pin snapshots and caches use their identity. Live inputs retain leases;
 cleanup owns staging.
 
 Lease order is registry, profile, Git-admin, source, topology/scenario, state,
-build, cache. Writers gate matching coordinates; physical leases span state
-roots and multi-source writers retry all-or-none. Only migration takes the
-barrier exclusively. Published runtimes retain sealed generation, process-tree,
-state, and port leases, not preparation leases. Fail closed without sharing.
-Incomplete coordinates are inert. The wrapper owns paths, locks, state, PIDs,
-logs, content/resources, and cleanup. Completion is bounded, local, read-only,
-secret-free, and parser-driven before `Workspace`; it stops at `--` or `run`.
+build, cache. Gate matching coordinates; multi-source writers retry
+all-or-none. Only migration takes the barrier exclusively. Published runtimes
+retain generation, process-tree, state, and port leases. Fail closed without
+sharing; incomplete coordinates are inert. Completion is bounded, local,
+read-only, secret-free, and parser-driven before `Workspace`.
 
 Verify concurrency with distinct worktrees, observable build/readiness
 rendezvous, and A live through B's release. Count transitions and conflicts;
@@ -120,9 +118,9 @@ Use wrapper commands and concrete names:
 ./atrinik down TOPOLOGY
 ```
 
-Record prerequisites, actions, results, and cleanup. If runtime is irrelevant,
-hand off build/test/inspection commands. Never substitute internal executables
-or generated paths for wrapper operations.
+Record prerequisites, actions, results, and cleanup. Hand off applicable
+build/test/inspection commands. Never replace wrapper operations with internal
+executables or generated paths.
 
 ## Coordinate publication and policy
 
@@ -131,9 +129,8 @@ Use `atrinik-github-governance` for PRs or policy. Titles use
 GitHub-Flavored Markdown and actual line breaks, never visible literal `\n`
 separators. Feed multi-section bodies by file/stdin. After create/edit, verify remote
 render.
-Semantic-release owns publication. Dependency changes update the inventory and
-audit a complete profile. Follow `docs/PROVENANCE.md` for Classic reuse and
-fail uncertainty closed.
+Semantic-release owns publication. Dependency changes update inventory and
+audit a profile. Follow `docs/PROVENANCE.md`; fail uncertainty closed.
 
 ## Maintain guidance
 
