@@ -283,9 +283,16 @@ completed scope-release journal, canonical release plan, exact completed action
 set, and live coordinate absence. The scope journal owns its produced-worktree
 removal; generic cleanup evidence covers only the remaining ledger targets and
 cannot synthesize that action. Archive rejects cleanup targets outside the ledger.
-The wrapper's canonical complete cleanup journal must exactly match the retained
-apply report. Cleanup persists the exact request and original selection plus an
-in-flight action before each removal; an identical retry resumes that journal
+The wrapper's canonical terminal schema-2 cleanup journal must bind the same
+preview/apply command coordinates and exactly produce the retained apply report
+and its digest after a strictly ordered preview, apply, and observation.
+`complete-pending-output` is replayable until its exact report is consumed and
+acknowledged as `complete-delivered`; the CLI flushes stdout before that narrow
+acknowledgement, while direct API callers acknowledge explicitly. Cleanup
+persists the exact request and original selection plus an
+in-flight `prepared` action, then publishes `removing` only after exact locked
+revalidation and immediately before mutation. Only `removing` authorizes
+absence or partial-removal recovery. An identical retry resumes that journal
 through post-removal or pre-terminal interruption instead of replanning away an
 already removed target. Registry, Git-admin, source, profile, topology, and
 scope-build coordinates stay leased through a final absence recheck and archive installation.

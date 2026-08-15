@@ -986,6 +986,59 @@ class ScopeLifecycleTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "release has started"):
             self.workspace.scope_create(["client"], name="clean-release")
 
+    def test_release_accepts_plan_bound_clean_descendant_and_cas_deletes_branch(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="descendant-release")
+        worktree = Path(record["worktrees"][0]["path"])
+        (worktree / "committed.txt").write_text("committed\n", encoding="utf-8")
+        subprocess.run(["git", "add", "committed.txt"], cwd=worktree, check=True)
+        subprocess.run(
+            ["git", "commit", "-m", "test: descendant"], cwd=worktree, check=True
+        )
+        descendant = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=worktree,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+
+        preview = self.workspace.scope_release("descendant-release", apply=False)
+        item = next(row for row in preview["items"] if row["kind"] == "worktree")
+        self.assertEqual(item["branch_head"], descendant)
+        result = self.workspace.scope_release(
+            "descendant-release", apply=True, plan_sha256=preview["plan_sha256"]
+        )
+        self.assertTrue(result["released"])
+        branch = subprocess.run(
+            ["git", "for-each-ref", "--format=%(objectname)", f"refs/heads/{record['worktrees'][0]['branch']}"],
+            cwd=Path(record["worktrees"][0]["primary_path"]),
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        self.assertEqual(branch, "")
+
+    def test_release_retries_branch_cas_after_worktree_removal(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="branch-cas-retry")
+        preview = self.workspace.scope_release("branch-cas-retry", apply=False)
+        with mock.patch.dict(
+            os.environ,
+            {scopes_module.SCOPE_FAILURE_BOUNDARIES_ENV: "release:worktree-path:client"},
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "injected scope failure"):
+                self.workspace.scope_release(
+                    "branch-cas-retry",
+                    apply=True,
+                    plan_sha256=preview["plan_sha256"],
+                )
+        result = self.workspace.scope_release(
+            "branch-cas-retry", apply=True, plan_sha256=preview["plan_sha256"]
+        )
+        self.assertTrue(result["released"])
+        self.assertFalse(Path(record["worktrees"][0]["path"]).exists())
+
     def test_resumed_release_requires_and_preserves_exact_plan(self) -> None:
         self.make_checkout("client")
         record = self.workspace.scope_create(["client"], name="resume-release")
@@ -1173,6 +1226,149 @@ class ScopeLifecycleTests(unittest.TestCase):
         )
         self.assertTrue(result["released"])
         self.assertFalse(Path(worktree_record["worktrees"][0]["path"]).exists())
+
+    def test_release_recovers_interruptions_inside_owned_build_removal(self) -> None:
+        self.make_checkout("client")
+        from atrinik_workspace import workspace as workspace_module
+
+        for boundary in ("child", "root"):
+            with self.subTest(boundary=boundary):
+                name = f"inside-build-{boundary}"
+                record = self.workspace.scope_create(["client"], name=name)
+                key = ("c" if boundary == "child" else "d") * 64
+                build_root = (
+                    self.workspace.paths.builds
+                    / "profiles"
+                    / f"{record['profile']['name']}-{key}"
+                )
+                build_root.mkdir(parents=True)
+                atomic_json(
+                    build_root / BUILD_METADATA,
+                    {"profile": record["profile"]["name"], "key": key},
+                )
+                atomic_json(
+                    build_root / MANAGED_MARKER,
+                    {
+                        "schema_version": 1,
+                        "purpose": f"profile:{record['profile']['name']}:{key}",
+                    },
+                )
+                plan = self.workspace.scope_release(name, apply=False)
+                if boundary == "child":
+                    original = workspace_module.os.unlink
+                    killed = False
+
+                    def interrupt(
+                        path: object, *args: object, **kwargs: object
+                    ) -> None:
+                        nonlocal killed
+                        original(path, *args, **kwargs)
+                        if (
+                            not killed
+                            and isinstance(path, str)
+                            and path.startswith(".remove-")
+                        ):
+                            killed = True
+                            raise SystemExit("inside child removal")
+
+                    patcher = mock.patch.object(
+                        workspace_module.os, "unlink", side_effect=interrupt
+                    )
+                else:
+                    original_rename = workspace_module.rename_no_replace_at
+
+                    def interrupt_rename(
+                        *args: object, **kwargs: object
+                    ) -> None:
+                        original_rename(*args, **kwargs)
+                        if args[1] == build_root.name:
+                            raise SystemExit("after root tombstone")
+
+                    patcher = mock.patch.object(
+                        workspace_module,
+                        "rename_no_replace_at",
+                        side_effect=interrupt_rename,
+                    )
+                with patcher:
+                    with self.assertRaises(SystemExit):
+                        self.workspace.scope_release(
+                            name,
+                            apply=True,
+                            plan_sha256=plan["plan_sha256"],
+                        )
+
+                result = self.workspace.scope_release(
+                    name, apply=True, plan_sha256=plan["plan_sha256"]
+                )
+                self.assertTrue(result["released"])
+                self.assertFalse(build_root.exists())
+                self.assertFalse(
+                    any(
+                        path.name.startswith(".remove-")
+                        for path in build_root.parent.iterdir()
+                    )
+                )
+
+    def test_prepared_scope_build_absence_is_not_credited_as_removal(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="prepared-build")
+        key = "e" * 64
+        build_root = (
+            self.workspace.paths.builds
+            / "profiles"
+            / f"{record['profile']['name']}-{key}"
+        )
+        build_root.mkdir(parents=True)
+        atomic_json(
+            build_root / BUILD_METADATA,
+            {"profile": record["profile"]["name"], "key": key},
+        )
+        atomic_json(
+            build_root / MANAGED_MARKER,
+            {
+                "schema_version": 1,
+                "purpose": f"profile:{record['profile']['name']}:{key}",
+            },
+        )
+        plan = self.workspace.scope_release("prepared-build", apply=False)
+        real_sha256 = scopes_module._file_sha256
+        metadata_reads = 0
+
+        def interrupt(path: Path) -> str:
+            nonlocal metadata_reads
+            if path == build_root / BUILD_METADATA:
+                metadata_reads += 1
+                if metadata_reads == 2:
+                    raise SystemExit("before build removal validation")
+            return real_sha256(path)
+
+        with mock.patch.object(scopes_module, "_file_sha256", side_effect=interrupt):
+            with self.assertRaisesRegex(SystemExit, "before build removal validation"):
+                self.workspace.scope_release(
+                    "prepared-build",
+                    apply=True,
+                    plan_sha256=plan["plan_sha256"],
+                )
+
+        journal_path = Path(record["cleanup"]["release_journal"])
+        prepared = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(
+            prepared["in_flight"],
+            {"action": f"build:{build_root}", "phase": "prepared"},
+        )
+        shutil.rmtree(build_root)
+
+        with self.assertRaisesRegex(
+            WorkspaceError, "prepared scope build disappeared before removal"
+        ):
+            self.workspace.scope_release(
+                "prepared-build",
+                apply=True,
+                plan_sha256=plan["plan_sha256"],
+            )
+        retained = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(retained["completed"], [])
+        self.assertEqual(retained["in_flight"]["phase"], "prepared")
 
     def test_every_release_publication_boundary_recovers_from_interruption(self) -> None:
         self.make_checkout("client")

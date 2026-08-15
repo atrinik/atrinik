@@ -4998,6 +4998,16 @@ class Workspace:
         ):
             return Cleanup(self).execute(scopes, older_than_days, names, True)
 
+    def cleanup_acknowledge(self, report: dict[str, Any]) -> None:
+        """Acknowledge delivery of an exact cleanup apply result."""
+
+        from .cleanup import Cleanup
+
+        with shared_maintenance_lock(
+            self._lease_namespace / "repository-layout.lock"
+        ):
+            Cleanup(self).acknowledge(report)
+
     def _checkout_identity(self, value: Checkout | Component) -> Checkout:
         if isinstance(value, Checkout):
             return value

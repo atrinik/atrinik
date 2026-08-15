@@ -914,10 +914,16 @@ Eligible topology records come first, then profile builds and explicit
 sound-cache entries, exact Git worktrees, other explicit caches, and safely
 shared prunable Git metadata. `workspace/cleanup-journals/` records the exact
 request, original report, ordered targets, and one write-ahead in-flight action.
-The same cleanup request resumes that journal after interruption, recognizes a
-completed in-flight removal, and reaches one complete receipt without changing
-the original target selection. Busy or transiently failing targets leave the
-journal resumable while disjoint targets may still complete.
+Each action is first `prepared`; only a second durable `removing` checkpoint
+written after exact locked revalidation authorizes absence or partial-removal
+recovery. The same cleanup request resumes that journal after interruption, recognizes a
+completed in-flight removal, and reaches one `complete-pending-output` receipt
+without changing the original target selection. That receipt binds the exact
+terminal report and replays it for an identical retry. The CLI flushes the
+report before acknowledging it as `complete-delivered`; direct API callers
+must call `cleanup_acknowledge(report)` after consuming it. Only a delivered
+receipt permits a new run with the same selector. Busy or transiently failing
+targets leave the journal resumable while disjoint targets may still complete.
 
 ## Composing coherent component sources
 
@@ -1625,8 +1631,9 @@ durably marks the ledger inert; it removes nothing. Next run the relevant
 `./atrinik cleanup --dry-run --json`, review it, and independently run the same
 scoped command with `--apply`. Retain the exact raw preview/apply JSON in the
 archive evidence; the helper validates both reports and
-derives their identical canonical target selection, verifies the wrapper's
-complete cleanup journal, and holds the exact wrapper coordinates through a
+requires identical command coordinates, derives their canonical target
+selection, verifies the wrapper's schema-2 journal request, original report,
+completion, and timestamp order, and holds the exact wrapper coordinates through a
 final absence recheck and archive installation.
 An active scope can transition only when its live generation-matched scope
 release journal is complete. That journal is the removal evidence for its

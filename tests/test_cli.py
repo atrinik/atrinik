@@ -261,6 +261,29 @@ class ParserTests(unittest.TestCase):
         workspace_type.return_value.cleanup.assert_called_once_with(
             ["worktrees", "builds"], 0, ["classic-client"], True
         )
+        workspace_type.return_value.cleanup_acknowledge.assert_not_called()
+
+    def test_cleanup_apply_flushes_output_before_acknowledging_receipt(self) -> None:
+        report = {
+            "items": [],
+            "summary": {"error_count": 0},
+        }
+        events = mock.Mock()
+        output = mock.Mock()
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace = workspace_type.return_value
+            workspace.cleanup.return_value = report
+            events.attach_mock(output.flush, "flush")
+            events.attach_mock(workspace.cleanup_acknowledge, "acknowledge")
+            with mock.patch("sys.stdout", output):
+                result = main(["cleanup", "--apply", "--json"])
+
+        self.assertEqual(result, 0)
+        workspace.cleanup_acknowledge.assert_called_once_with(report)
+        self.assertLess(
+            events.mock_calls.index(mock.call.flush()),
+            events.mock_calls.index(mock.call.acknowledge(report)),
+        )
 
     def test_cleanup_text_report_includes_item_age_reasons_and_totals(self) -> None:
         report = {

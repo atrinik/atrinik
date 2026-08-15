@@ -1635,8 +1635,18 @@ class ScopeLifecycle:
                             reasons.append("replaced_path")
                         if self.workspace._git_common_directory(path, trace=False) != Path(row["common_git_dir"]):
                             reasons.append("changed_common_git_identity")
-                        if git(path, "rev-parse", "HEAD", capture=True, trace=False) != row["commit"]:
-                            reasons.append("changed_head")
+                        branch_head = git(
+                            path, "rev-parse", "HEAD", capture=True, trace=False
+                        )
+                        git(
+                            path,
+                            "merge-base",
+                            "--is-ancestor",
+                            row["commit"],
+                            branch_head,
+                            capture=True,
+                            trace=False,
+                        )
                         branch = git(path, "branch", "--show-current", capture=True, trace=False)
                         if branch != row["branch"]:
                             reasons.append("detached_or_changed_branch")
@@ -1718,7 +1728,12 @@ class ScopeLifecycle:
         }
 
     def _apply_release(self, record: dict[str, Any], plan: dict[str, Any]) -> dict[str, Any]:
-        from .workspace import BUILD_METADATA, git, remove_owned_tree
+        from .workspace import (
+            BUILD_METADATA,
+            _owned_tree_tombstone_path,
+            git,
+            remove_owned_tree,
+        )
 
         expected_actions = [
             f"build:{item['path']}"
@@ -1783,7 +1798,14 @@ class ScopeLifecycle:
                 or not isinstance(previous.get("completed"), list)
                 or not all(isinstance(item, str) for item in previous["completed"])
                 or previous.get("in_flight") is not None
-                and not isinstance(previous.get("in_flight"), str)
+                and not (
+                    isinstance(previous.get("in_flight"), str)
+                    or isinstance(previous.get("in_flight"), dict)
+                    and set(previous["in_flight"]) == {"action", "phase"}
+                    and isinstance(previous["in_flight"]["action"], str)
+                    and previous["in_flight"]["phase"]
+                    in {"prepared", "removing"}
+                )
                 or not isinstance(previous.get("plan"), dict)
                 or set(previous["plan"])
                 != {"schema_version", "scope", "generation", "items"}
@@ -1799,7 +1821,11 @@ class ScopeLifecycle:
                 or previous.get("status") not in {"applying", "complete"}
                 or previous["completed"]
                 != expected_actions[: len(previous["completed"])]
-                or previous.get("in_flight")
+                or (
+                    previous.get("in_flight", {}).get("action")
+                    if isinstance(previous.get("in_flight"), dict)
+                    else previous.get("in_flight")
+                )
                 not in (
                     None,
                     expected_actions[len(previous["completed"])]
@@ -1898,19 +1924,34 @@ class ScopeLifecycle:
         self._maybe_fail("release:journal")
         revalidate_topology_evidence()
 
+        def in_flight_action() -> str | None:
+            current = journal["in_flight"]
+            return current.get("action") if isinstance(current, dict) else current
+
+        def in_flight_phase() -> str | None:
+            current = journal["in_flight"]
+            return current.get("phase") if isinstance(current, dict) else None
+
         def begin(action: str) -> None:
             current = journal["in_flight"]
-            if current not in (None, action):
+            if current is not None and in_flight_action() != action:
                 raise WorkspaceError(
                     f"scope release journal has unfinished action: {current}"
                 )
             if current is None:
-                journal["in_flight"] = action
+                journal["in_flight"] = {"action": action, "phase": "prepared"}
                 journal["updated_at"] = _now()
                 durable_atomic_json(self._release_path(record["name"]), journal)
 
+        def mark_removing(action: str) -> None:
+            if in_flight_action() != action:
+                raise WorkspaceError(f"scope release action was not prepared: {action}")
+            journal["in_flight"] = {"action": action, "phase": "removing"}
+            journal["updated_at"] = _now()
+            durable_atomic_json(self._release_path(record["name"]), journal)
+
         def finish(action: str) -> None:
-            if journal["in_flight"] != action:
+            if in_flight_action() != action:
                 raise WorkspaceError(f"scope release action was not prepared: {action}")
             journal["completed"].append(action)
             journal["in_flight"] = None
@@ -1925,10 +1966,24 @@ class ScopeLifecycle:
                 if root.exists() or root.is_symlink():
                     raise WorkspaceError(f"completed scope build reappeared: {root}")
                 continue
+            resuming_removal = (
+                in_flight_action() == action and in_flight_phase() == "removing"
+            )
             begin(action)
-            if not root.exists() and not root.is_symlink():
+            if resuming_removal:
+                recovery_identity = {
+                    "device": item["device"],
+                    "inode": item["inode"],
+                }
+                tombstone = _owned_tree_tombstone_path(root, recovery_identity)
+                if root.exists() or root.is_symlink() or tombstone.exists() or tombstone.is_symlink():
+                    remove_owned_tree(root, expected_identity=recovery_identity)
                 finish(action)
                 continue
+            if not root.exists() and not root.is_symlink():
+                raise WorkspaceError(
+                    f"prepared scope build disappeared before removal: {root}"
+                )
             metadata_path = root / BUILD_METADATA
             marker_path = root / MANAGED_MARKER
             if (
@@ -1942,6 +1997,7 @@ class ScopeLifecycle:
                 raise WorkspaceError(
                     f"scope build ownership changed during release: {root}"
                 )
+            mark_removing(action)
             remove_owned_tree(
                 root,
                 expected_identity={"device": item["device"], "inode": item["inode"]},
@@ -1957,8 +2013,16 @@ class ScopeLifecycle:
                 if profile_path.exists() or profile_path.is_symlink():
                     raise WorkspaceError("completed scope profile reappeared")
             else:
+                resuming_removal = (
+                    in_flight_action() == "profile"
+                    and in_flight_phase() == "removing"
+                )
                 begin("profile")
                 if not profile_path.exists() and not profile_path.is_symlink():
+                    if not resuming_removal:
+                        raise WorkspaceError(
+                            "prepared scope profile disappeared before removal"
+                        )
                     # The unlink and physical-reference update are separate
                     # durable mutations. Repeating the reference removal is
                     # the exact recovery for a crash between them.
@@ -1979,6 +2043,7 @@ class ScopeLifecycle:
                 ):
                     raise WorkspaceError("scope profile changed during release")
                 else:
+                    mark_removing("profile")
                     profile_path.unlink()
                     self._maybe_fail("release:profile-file")
                     self.workspace._remove_physical_reference(profile_path)
@@ -2014,8 +2079,15 @@ class ScopeLifecycle:
                         f"completed scope branch reappeared: {row['branch']}"
                     )
                 continue
+            resuming_removal = (
+                in_flight_action() == action and in_flight_phase() == "removing"
+            )
             begin(action)
             if not path.exists() and not path.is_symlink():
+                if not resuming_removal:
+                    raise WorkspaceError(
+                        f"prepared scope worktree disappeared before removal: {path}"
+                    )
                 branch_head = git(
                     primary,
                     "for-each-ref",
@@ -2025,11 +2097,18 @@ class ScopeLifecycle:
                     trace=False,
                 )
                 if branch_head:
-                    if branch_head != row["commit"]:
+                    if branch_head != item["branch_head"]:
                         raise WorkspaceError(
                             f"scope branch changed during release: {row['branch']}"
                         )
-                    git(primary, "branch", "-d", row["branch"], trace=False)
+                    git(
+                        primary,
+                        "update-ref",
+                        "-d",
+                        f"refs/heads/{row['branch']}",
+                        item["branch_head"],
+                        trace=False,
+                    )
                 finish(action)
                 continue
             if path.is_symlink() or not path.is_dir():
@@ -2041,7 +2120,7 @@ class ScopeLifecycle:
                 or self.workspace._git_common_directory(path, trace=False)
                 != Path(row["common_git_dir"])
                 or git(path, "rev-parse", "HEAD", capture=True, trace=False)
-                != row["commit"]
+                != item["branch_head"]
                 or git(path, "branch", "--show-current", capture=True, trace=False)
                 != row["branch"]
             ):
@@ -2057,6 +2136,7 @@ class ScopeLifecycle:
                 and reference != f"topology:{record['topology']['name']}"
             ]:
                 raise WorkspaceError(f"scope worktree became referenced during release: {path}")
+            mark_removing(action)
             git(primary, "worktree", "remove", str(path), trace=False)
             self._maybe_fail(f"release:worktree-path:{row['checkout']}")
             branch_head = git(
@@ -2068,11 +2148,18 @@ class ScopeLifecycle:
                 trace=False,
             )
             if branch_head:
-                if branch_head != row["commit"]:
+                if branch_head != item["branch_head"]:
                     raise WorkspaceError(
                         f"scope branch changed during release: {row['branch']}"
                     )
-                git(primary, "branch", "-d", row["branch"], trace=False)
+                git(
+                    primary,
+                    "update-ref",
+                    "-d",
+                    f"refs/heads/{row['branch']}",
+                    item["branch_head"],
+                    trace=False,
+                )
             finish(action)
             self._maybe_fail(f"release:worktree:{row['checkout']}")
         if journal["in_flight"] is not None:

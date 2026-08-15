@@ -1155,6 +1155,21 @@ def _archive_cleanup(value: Any, context: str) -> dict[str, Any]:
         item["preview"], f"{context}.preview", "dry-run"
     )
     applied = _cleanup_observation(item["apply"], f"{context}.apply", "apply")
+    preview_output = _decode(
+        _inline_payload(
+            item["preview"]["output"], f"{context}.preview.output", utf8=True
+        ),
+        f"{context}.preview.output",
+    )
+    apply_output = _decode(
+        _inline_payload(
+            item["apply"]["output"], f"{context}.apply.output", utf8=True
+        ),
+        f"{context}.apply.output",
+    )
+    for field in ("scopes", "older_than_days", "filters"):
+        if preview_output[field] != apply_output[field]:
+            raise LedgerError(f"{context} preview/apply {field} differ")
     if preview[1] != applied[1]:
         raise LedgerError(f"{context} preview/apply selections differ")
     if preview[3] != applied[3]:
@@ -1185,31 +1200,111 @@ def _prove_cleanup_journal(cleanup: Mapping[str, Any], workspace_root: str) -> N
     )
     if not isinstance(journal_value, dict):
         raise LedgerError("archive cleanup journal is not an object")
-    schema_version = journal_value.get("schema_version")
+    if journal_value.get("schema_version") != 2:
+        raise LedgerError("archive cleanup journal must use schema 2")
     fields = {
         "schema_version",
         "started_at",
         "status",
+        "request",
+        "report",
         "targets",
         "completed",
+        "in_flight",
         "finished_at",
+        "result",
+        "result_sha256",
     }
-    if schema_version == 2:
-        fields.update({"request", "report", "in_flight"})
+    status = journal_value.get("status")
+    if status == "complete-delivered":
+        fields.add("delivered_at")
     journal = _exact(
         journal_value,
         fields,
         "archive cleanup journal",
     )
-    if journal["schema_version"] not in {1, 2} or journal["status"] != "complete":
+    if journal["status"] not in {"complete-pending-output", "complete-delivered"}:
         raise LedgerError("archive cleanup journal is not complete")
-    if schema_version == 2 and journal["in_flight"] is not None:
+    if journal["in_flight"] is not None:
         raise LedgerError("archive cleanup journal has an unfinished action")
+    if (
+        journal["result"] != output
+        or canonical_object_digest(output) != journal["result_sha256"]
+    ):
+        raise LedgerError("archive cleanup journal terminal result differs from apply output")
     for field in ("started_at", "finished_at"):
         _timestamp_key(
             _string(journal[field], f"archive cleanup journal.{field}", TIMESTAMP_RE),
             f"archive cleanup journal.{field}",
         )
+    if journal["status"] == "complete-delivered":
+        _timestamp_key(
+            _string(
+                journal["delivered_at"],
+                "archive cleanup journal.delivered_at",
+                TIMESTAMP_RE,
+            ),
+            "archive cleanup journal.delivered_at",
+        )
+    preview_observed = _string(
+        cleanup["preview"]["observed_at"],
+        "archive cleanup preview.observed_at",
+        TIMESTAMP_RE,
+    )
+    apply_observed = _string(
+        cleanup["apply"]["observed_at"],
+        "archive cleanup apply.observed_at",
+        TIMESTAMP_RE,
+    )
+    if (
+        not _timestamp_is_after(journal["started_at"], preview_observed)
+        or not _timestamp_is_after(journal["finished_at"], journal["started_at"])
+        or not _timestamp_is_after(apply_observed, journal["finished_at"])
+        or journal["status"] == "complete-delivered"
+        and (
+            not _timestamp_is_after(journal["delivered_at"], journal["finished_at"])
+            or not _timestamp_is_after(apply_observed, journal["delivered_at"])
+        )
+    ):
+        raise LedgerError("archive cleanup journal timestamps are out of order")
+
+    request = _exact(
+        journal["request"],
+        {"scopes", "older_than_days", "filters"},
+        "archive cleanup journal.request",
+    )
+    if request != {
+        field: output[field] for field in ("scopes", "older_than_days", "filters")
+    }:
+        raise LedgerError("archive cleanup journal request differs from the apply report")
+    report = journal["report"]
+    if not isinstance(report, dict):
+        raise LedgerError("archive cleanup journal report is not an object")
+    report_required = {
+        "schema_version",
+        "mode",
+        "scopes",
+        "older_than_days",
+        "filters",
+        "inventory_errors",
+        "items",
+        "summary",
+    }
+    if (
+        not report_required.issubset(report)
+        or set(report) - report_required
+        or report["schema_version"] != 1
+        or isinstance(report["schema_version"], bool)
+        or report["mode"] != "apply"
+        or any(report[field] != request[field] for field in request)
+        or report["inventory_errors"] != []
+        or not isinstance(report["summary"], dict)
+        or report["summary"].get("error_count") != 0
+        or not isinstance(report["items"], list)
+        or len(report["items"]) > MAX_INVENTORY_ENTRIES
+        or len(report["items"]) != len(output.get("items", []))
+    ):
+        raise LedgerError("archive cleanup journal report is invalid")
 
     def actions(value: Any, context: str) -> list[dict[str, str]]:
         if not isinstance(value, list) or len(value) > MAX_INVENTORY_ENTRIES:
@@ -1229,9 +1324,52 @@ def _prove_cleanup_journal(cleanup: Mapping[str, Any], workspace_root: str) -> N
 
     targets = actions(journal["targets"], "archive cleanup journal.targets")
     completed = actions(journal["completed"], "archive cleanup journal.completed")
-    reported = actions(output.get("completed_actions"), "archive cleanup completed_actions")
-    if completed != reported or set(map(lambda row: (row["kind"], row["path"]), targets)) != set(
-        map(lambda row: (row["kind"], row["path"]), completed)
+    reported = actions(
+        output.get("completed_actions"), "archive cleanup completed_actions"
+    )
+    planned_targets: list[dict[str, str]] = []
+    for index, (planned, final) in enumerate(
+        zip(report["items"], output["items"], strict=True)
+    ):
+        if not isinstance(planned, dict) or not isinstance(final, dict):
+            raise LedgerError("archive cleanup journal report items are invalid")
+        planned_identity = (
+            _string(
+                planned.get("kind"),
+                f"archive cleanup plan item[{index}].kind",
+                REFERENCE_RE,
+            ),
+            _absolute_path(
+                planned.get("path"),
+                f"archive cleanup plan item[{index}].path",
+            ),
+        )
+        final_identity = (
+            _string(
+                final.get("kind"),
+                f"archive cleanup output item[{index}].kind",
+                REFERENCE_RE,
+            ),
+            _absolute_path(
+                final.get("path"),
+                f"archive cleanup output item[{index}].path",
+            ),
+        )
+        if planned_identity != final_identity:
+            raise LedgerError("archive cleanup journal report item identity changed")
+        if planned.get("disposition") == "eligible":
+            planned_targets.append(
+                {"kind": planned_identity[0], "path": planned_identity[1]}
+            )
+            if final.get("disposition") != "removed":
+                raise LedgerError("archive cleanup journal target was not removed")
+        elif final.get("disposition") != planned.get("disposition"):
+            raise LedgerError("archive cleanup non-target disposition changed")
+    target_set = {(row["kind"], row["path"]) for row in targets}
+    if (
+        completed != reported
+        or target_set != {(row["kind"], row["path"]) for row in completed}
+        or target_set != {(row["kind"], row["path"]) for row in planned_targets}
     ):
         raise LedgerError("archive cleanup journal differs from the apply report")
 
@@ -7239,6 +7377,37 @@ def _ensure_stage(
         return exact_status
 
 
+def _open_unlink_transaction(quarantine: int, token: str) -> int:
+    """Open and restore one transaction through an identity-pinned O_PATH fd."""
+
+    path_flags = (
+        getattr(os, "O_PATH", os.O_RDONLY)
+        | os.O_DIRECTORY
+        | os.O_CLOEXEC
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    pinned = os.open(token, path_flags, dir_fd=quarantine)
+    try:
+        expected = os.fstat(pinned)
+        visible = os.stat(token, dir_fd=quarantine, follow_symlinks=False)
+        _require_trusted_directory(expected, "unlink transaction")
+        if (expected.st_dev, expected.st_ino) != (visible.st_dev, visible.st_ino):
+            raise LedgerError("unlink transaction changed before recovery")
+        if stat.S_IMODE(expected.st_mode) != 0o700:
+            os.chmod(f"/proc/self/fd/{pinned}", 0o700)
+        transaction = os.open(
+            f"/proc/self/fd/{pinned}",
+            os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC,
+        )
+        opened = os.fstat(transaction)
+        if (opened.st_dev, opened.st_ino) != (expected.st_dev, expected.st_ino):
+            os.close(transaction)
+            raise LedgerError("unlink transaction changed while opening")
+        return transaction
+    finally:
+        os.close(pinned)
+
+
 def _unlink_exact(directory: int, name: str, expected: os.stat_result) -> None:
     """Atomically quarantine the named inode before irreversible removal."""
 
@@ -7266,9 +7435,8 @@ def _unlink_exact(directory: int, name: str, expected: os.stat_result) -> None:
             os.mkdir(token, 0o700, dir_fd=quarantine)
             _fsync(quarantine, "unlink quarantine after creating transaction")
         except FileExistsError:
-            # A crash may leave the exact deterministic transaction inaccessible.
-            os.chmod(token, 0o700, dir_fd=quarantine, follow_symlinks=False)
-        transaction = os.open(token, root_flags, dir_fd=quarantine)
+            pass
+        transaction = _open_unlink_transaction(quarantine, token)
         transaction_status = os.fstat(transaction)
         _require_trusted_directory(transaction_status, "unlink transaction")
         if _exists(transaction, "receipt.json"):
@@ -7355,18 +7523,14 @@ def _recover_unlink_quarantine(directory: int) -> None:
         for token in names:
             if not re.fullmatch(r"[0-9a-f]{64}", token):
                 raise LedgerError(f"unsafe unlink transaction name: {token}")
-            # A live unlink removes read permission while it retains the open
-            # directory descriptor. Process death skips that descriptor's
-            # cleanup, so restore the helper-owned recovery mode before open.
             try:
                 token_status = os.stat(token, dir_fd=quarantine, follow_symlinks=False)
                 if not stat.S_ISDIR(token_status.st_mode):
                     raise LedgerError(f"unlink transaction is not a directory: {token}")
                 _require_trusted_directory(token_status, "unlink transaction")
-                os.chmod(token, 0o700, dir_fd=quarantine, follow_symlinks=False)
             except OSError as error:
                 raise LedgerError(f"cannot restore unlink transaction {token}: {error}") from error
-            transaction = os.open(token, root_flags, dir_fd=quarantine)
+            transaction = _open_unlink_transaction(quarantine, token)
             try:
                 opened_transaction = os.fstat(transaction)
                 visible_transaction = os.stat(

@@ -1696,11 +1696,21 @@ That exception also requires the live scope subsystem's exact completed,
 generation-matched release journal, embedded canonical plan and exact completed
 action set, plus live absence of every released coordinate; a caller-authored
 summary is insufficient.
-The apply report must also name the exact canonical wrapper cleanup journal;
-that journal must be complete and its targets/completed actions must equal the
-retained report. Cleanup journals bind the original request and report, persist
-one in-flight action before removal, and are resumed only by the identical
-request until every original target is complete. Archive holds the wrapper's
+The preview and apply reports must have identical scopes, age, and filters. The
+apply report must name the exact canonical schema-2 wrapper cleanup journal;
+that journal's request, embedded original report, targets, and completed actions
+journal must be terminal (`complete-pending-output` or
+`complete-delivered`) and its stored result plus canonical digest must exactly
+bind the retained final report. Pending output remains the retry authority until
+the consumer explicitly acknowledges delivery; the wrapper CLI flushes stdout
+before acknowledgement and direct API consumers acknowledge after consumption.
+Preview observation strictly precedes
+journal start, journal finish strictly precedes apply observation, and the
+archive authority remains later still. Cleanup journals persist one in-flight
+`prepared` action before revalidation and a `removing` phase only after exact
+locked revalidation immediately before mutation. Only `removing` can authorize
+absence recovery, and journals are resumed only by the identical request until
+every original target is complete. Archive holds the wrapper's
 physical-reference registry, Git-admin, source, profile, topology,
 state/scenario, and canonical profile-build coordinates from final absence
 proof through archive installation, then repeats the proof immediately before

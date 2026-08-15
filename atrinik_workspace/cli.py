@@ -951,7 +951,11 @@ def main(arguments: list[str] | None = None) -> int:
                     f"removed_bytes={_human_bytes(summary['removed_bytes'])} "
                     f"errors={summary['error_count']}"
                 )
-            if report["summary"]["error_count"] or report.get("aborted"):
+            failed = bool(report["summary"]["error_count"] or report.get("aborted"))
+            if options.apply and not failed:
+                sys.stdout.flush()
+                workspace.cleanup_acknowledge(report)
+            if failed:
                 return 1
         elif options.command == "profile":
             if options.profile_command == "create":

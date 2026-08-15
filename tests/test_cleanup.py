@@ -14,6 +14,7 @@ import unittest
 from unittest import mock
 
 from atrinik_workspace import cleanup as cleanup_module
+from atrinik_workspace import workspace as workspace_module
 from atrinik_workspace.cleanup import (
     ALL_SCOPES,
     Cleanup,
@@ -40,7 +41,6 @@ from atrinik_workspace.model import (
     WorkspaceError,
     atomic_json,
     managed_directory,
-    managed_remove as real_managed_remove,
 )
 from atrinik_workspace.process_tree import control_socket_path, initialize_lease
 from atrinik_workspace.workspace import (
@@ -339,6 +339,10 @@ class CleanupTests(unittest.TestCase):
 
         later_builds = self.workspace.cleanup(["builds"], 7, [], False)
         self.assertNotIn("topology_inventory_error", later_builds["inventory_errors"])
+
+        repeated = self.workspace.cleanup(["topologies"], 7, [], True)
+        self.assertEqual(repeated, applied)
+        self.workspace.cleanup_acknowledge(repeated)
 
         repeated = self.workspace.cleanup(["topologies"], 7, [], True)
         self.assertEqual(repeated["summary"]["removed_count"], 0)
@@ -1845,7 +1849,7 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["disposition"], "removed")
         self.assertFalse(worktree.exists())
         journal = json.loads(Path(report["journal"]).read_text(encoding="utf-8"))
-        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(journal["status"], "complete-pending-output")
         self.assertEqual(
             journal["completed"],
             [{"kind": "worktree", "path": str(worktree)}],
@@ -1895,11 +1899,72 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(resumed["journal"], report["journal"])
         self.assertFalse(busy.exists())
         journal = json.loads(Path(report["journal"]).read_text(encoding="utf-8"))
-        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(journal["status"], "complete-pending-output")
         self.assertEqual(
             {(row["kind"], row["path"]) for row in journal["completed"]},
             {(row["kind"], row["path"]) for row in journal["targets"]},
         )
+
+    def test_busy_in_flight_target_preserves_recovery_authority(self) -> None:
+        busy = self.make_wrapper_worktree("busy-in-flight")
+        later = self.make_wrapper_worktree("later-target")
+        original_remove = Cleanup._remove
+
+        def interrupt_before_removal(
+            cleanup: Cleanup,
+            item: dict[str, object],
+            older_than_days: int = 0,
+            **kwargs: object,
+        ) -> None:
+            if item["path"] == str(busy):
+                raise WorkspaceError("injected pre-removal interruption")
+            original_remove(cleanup, item, older_than_days, **kwargs)
+
+        pulls = lambda _repository, head: self.merged_pull(head)
+        with mock.patch.object(
+            Cleanup, "_github_pulls", side_effect=pulls
+        ), mock.patch.object(Cleanup, "_remove", new=interrupt_before_removal):
+            interrupted = self.workspace.cleanup(["worktrees"], 7, [], True)
+
+        journal_path = Path(interrupted["journal"])
+        before = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(
+            before["in_flight"]["action"],
+            {"kind": "worktree", "path": str(busy)},
+        )
+        self.assertEqual(before["in_flight"]["phase"], "prepared")
+        self.assertTrue(later.exists())
+
+        request = LeaseRequest(
+            "source",
+            self.workspace._source_coordinate("atrinik", busy),
+            "shared",
+            "keep in-flight worktree busy",
+            "wait for the build to finish",
+        )
+        with resource_locks(
+            self.workspace._lease_root, [request]
+        ), mock.patch.object(Cleanup, "_github_pulls", side_effect=pulls):
+            blocked = self.workspace.cleanup(["worktrees"], 7, [], True)
+
+        self.assertTrue(blocked["aborted"])
+        self.assertEqual(
+            next(row for row in blocked["items"] if row["path"] == str(busy))[
+                "reasons"
+            ],
+            ["resource_busy"],
+        )
+        self.assertTrue(busy.exists())
+        self.assertTrue(later.exists())
+        after = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(after["in_flight"], before["in_flight"])
+        self.assertEqual(after["completed"], [])
+
+        with mock.patch.object(Cleanup, "_github_pulls", side_effect=pulls):
+            resumed = self.workspace.cleanup(["worktrees"], 7, [], True)
+        self.assertEqual(resumed["journal"], str(journal_path))
+        self.assertFalse(busy.exists())
+        self.assertFalse(later.exists())
 
     def test_apply_skips_worktree_during_relocated_reference_backfill(self) -> None:
         target = self.make_component_worktree("backfill-race", component="client")
@@ -2062,7 +2127,7 @@ class CleanupTests(unittest.TestCase):
         self.assertFalse(client.exists())
         self.assertFalse(server.exists())
         journal = json.loads(Path(report["journal"]).read_text(encoding="utf-8"))
-        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(journal["status"], "complete-pending-output")
         self.assertEqual(
             journal["completed"],
             [
@@ -2546,14 +2611,18 @@ class CleanupTests(unittest.TestCase):
         second = self.make_build("second", "b" * 12)
         calls = 0
 
-        def remove(path: Path, builds: Path, purpose: str) -> None:
+        real_remove_owned_tree = workspace_module.remove_owned_tree
+
+        def remove(path: Path, **kwargs: object) -> None:
             nonlocal calls
             calls += 1
             if calls == 2:
                 raise WorkspaceError("injected removal failure")
-            real_managed_remove(path, builds, purpose)
+            real_remove_owned_tree(path, **kwargs)
 
-        with mock.patch("atrinik_workspace.cleanup.managed_remove", side_effect=remove):
+        with mock.patch(
+            "atrinik_workspace.cleanup.remove_owned_tree", side_effect=remove
+        ):
             report = self.workspace.cleanup(["builds"], 7, [], True)
         by_path = {row["path"]: row for row in report["items"]}
         self.assertEqual(by_path[str(first)]["disposition"], "removed")
@@ -2566,7 +2635,7 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(resumed["journal"], report["journal"])
         self.assertFalse(second.exists())
         journal = json.loads(Path(resumed["journal"]).read_text(encoding="utf-8"))
-        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(journal["status"], "complete-pending-output")
         self.assertEqual(journal["completed"], journal["targets"])
 
     def test_apply_reports_progress_journal_failure_after_removal(self) -> None:
@@ -2634,7 +2703,7 @@ class CleanupTests(unittest.TestCase):
         interrupted = json.loads(journal_path.read_text(encoding="utf-8"))
         self.assertEqual(interrupted["completed"], [])
         self.assertEqual(
-            interrupted["in_flight"],
+            interrupted["in_flight"]["action"],
             {"kind": "profile-build", "path": str(first)},
         )
         self.assertFalse(first.exists())
@@ -2644,7 +2713,7 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(report["journal"], str(journal_path))
         self.assertFalse(second.exists())
         journal = json.loads(journal_path.read_text(encoding="utf-8"))
-        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(journal["status"], "complete-pending-output")
         self.assertIsNone(journal["in_flight"])
         self.assertEqual(journal["completed"], journal["targets"])
 
@@ -2658,7 +2727,7 @@ class CleanupTests(unittest.TestCase):
             if (
                 not killed
                 and isinstance(value, dict)
-                and value.get("status") == "complete"
+                and value.get("status") == "complete-pending-output"
             ):
                 killed = True
                 raise SystemExit("killed before terminal checkpoint")
@@ -2682,8 +2751,148 @@ class CleanupTests(unittest.TestCase):
 
         self.assertEqual(report["journal"], str(journal_path))
         journal = json.loads(journal_path.read_text(encoding="utf-8"))
-        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(journal["status"], "complete-pending-output")
         self.assertEqual(journal["completed"], journal["targets"])
+
+        replayed = self.workspace.cleanup(["builds"], 7, [], True)
+        self.assertEqual(replayed, report)
+        self.workspace.cleanup_acknowledge(replayed)
+        delivered = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(delivered["status"], "complete-delivered")
+        self.assertIn("delivered_at", delivered)
+        self.workspace.cleanup_acknowledge(replayed)
+
+        fresh = self.workspace.cleanup(["builds"], 7, [], True)
+        self.assertNotEqual(fresh["journal"], report["journal"])
+        self.assertEqual(fresh["summary"]["removed_count"], 0)
+
+    def test_apply_recovers_interruptions_inside_owned_tree_removal(self) -> None:
+        for boundary in ("child", "root"):
+            with self.subTest(boundary=boundary):
+                build = self.make_build(boundary, ("e" if boundary == "child" else "f") * 12)
+                if boundary == "child":
+                    original = workspace_module.os.unlink
+                    killed = False
+
+                    def interrupt(path: object, *args: object, **kwargs: object) -> None:
+                        nonlocal killed
+                        original(path, *args, **kwargs)
+                        if not killed and isinstance(path, str) and path.startswith(".remove-"):
+                            killed = True
+                            raise SystemExit("inside child removal")
+
+                    patcher = mock.patch.object(
+                        workspace_module.os, "unlink", side_effect=interrupt
+                    )
+                else:
+                    original = workspace_module.rename_no_replace_at
+
+                    def interrupt(*args: object, **kwargs: object) -> None:
+                        original(*args, **kwargs)
+                        if args[1] == build.name:
+                            raise SystemExit("after root tombstone")
+
+                    patcher = mock.patch.object(
+                        workspace_module,
+                        "rename_no_replace_at",
+                        side_effect=interrupt,
+                    )
+                with patcher:
+                    with self.assertRaises(SystemExit):
+                        self.workspace.cleanup(["builds"], 7, [], True)
+
+                report = self.workspace.cleanup(["builds"], 7, [], True)
+                journal = json.loads(
+                    Path(report["journal"]).read_text(encoding="utf-8")
+                )
+                self.assertEqual(journal["status"], "complete-pending-output")
+                self.assertFalse(build.exists())
+                self.assertFalse(
+                    any(
+                        path.name.startswith(".remove-")
+                        for path in build.parent.iterdir()
+                    )
+                )
+                self.workspace.cleanup_acknowledge(report)
+
+    def test_prepared_owned_tree_absence_is_not_credited_as_removal(self) -> None:
+        build = self.make_build("prepared-absence", "9" * 12)
+
+        def interrupt_before_removal(
+            _cleanup: Cleanup,
+            _item: dict[str, object],
+            _older_than_days: int = 0,
+            **_kwargs: object,
+        ) -> None:
+            raise SystemExit("before exact removal")
+
+        with mock.patch.object(Cleanup, "_remove", new=interrupt_before_removal):
+            with self.assertRaisesRegex(SystemExit, "before exact removal"):
+                self.workspace.cleanup(["builds"], 7, [], True)
+
+        journal_path = next(
+            (self.workspace.paths.workspace / "cleanup-journals").iterdir()
+        )
+        prepared = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(prepared["in_flight"]["phase"], "prepared")
+        shutil.rmtree(build)
+
+        retried = self.workspace.cleanup(["builds"], 7, [], True)
+        item = next(row for row in retried["items"] if row["path"] == str(build))
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["revalidation_failed"])
+        journal = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(journal["completed"], [])
+        self.assertEqual(journal["in_flight"]["phase"], "prepared")
+
+    def test_prepared_worktree_absence_is_not_credited_as_removal(self) -> None:
+        worktree = self.make_wrapper_worktree("prepared-worktree")
+
+        def interrupt_before_removal(
+            _cleanup: Cleanup,
+            _item: dict[str, object],
+            _older_than_days: int = 0,
+            **_kwargs: object,
+        ) -> None:
+            raise SystemExit("before worktree removal")
+
+        pulls = mock.patch.object(
+            Cleanup,
+            "_github_pulls",
+            side_effect=lambda _repository, head: self.merged_pull(head),
+        )
+        with pulls, mock.patch.object(
+            Cleanup, "_remove", new=interrupt_before_removal
+        ):
+            with self.assertRaisesRegex(SystemExit, "before worktree removal"):
+                self.workspace.cleanup(["worktrees"], 7, [], True)
+
+        journal_path = next(
+            (self.workspace.paths.workspace / "cleanup-journals").iterdir()
+        )
+        prepared = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(prepared["in_flight"]["phase"], "prepared")
+        command(
+            "git",
+            "worktree",
+            "remove",
+            "--force",
+            str(worktree),
+            cwd=self.wrapper,
+        )
+
+        with mock.patch.object(
+            Cleanup,
+            "_github_pulls",
+            side_effect=lambda _repository, head: self.merged_pull(head),
+        ):
+            retried = self.workspace.cleanup(["worktrees"], 7, [], True)
+        item = next(row for row in retried["items"] if row["path"] == str(worktree))
+        self.assertEqual(item["disposition"], "error")
+        self.assertEqual(item["reasons"], ["revalidation_failed"])
+        journal = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(journal["completed"], [])
+        self.assertEqual(journal["in_flight"]["phase"], "prepared")
 
     def test_apply_reports_revalidation_error_after_a_completed_mutation(self) -> None:
         first = self.make_build("first", "a" * 12)
@@ -3226,6 +3435,7 @@ class CleanupTests(unittest.TestCase):
                 )
                 self.assertEqual(item["disposition"], "removed")
                 self.assertFalse(entry.exists())
+                self.workspace.cleanup_acknowledge(applied)
 
     def test_invalid_worker_dependency_cache_is_protected(self) -> None:
         entry = self.make_worker_dependency_cache()
@@ -3247,14 +3457,25 @@ class CleanupTests(unittest.TestCase):
         original_remove = Cleanup._remove
 
         def refresh_before_remove(
-            cleanup: Cleanup, item: dict[str, object], older_than_days: int = 0
+            cleanup: Cleanup,
+            item: dict[str, object],
+            older_than_days: int = 0,
+            *,
+            expected_identity: dict[str, int] | None = None,
+            removal_started: object = None,
         ) -> None:
             if item["kind"] == "worker-dependencies":
                 metadata_path = entry / ".atrinik-worker-dependencies.json"
                 metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
                 metadata["last_used_at"] = cleanup.now.isoformat()
                 atomic_json(metadata_path, metadata)
-            original_remove(cleanup, item, older_than_days)
+            original_remove(
+                cleanup,
+                item,
+                older_than_days,
+                expected_identity=expected_identity,
+                removal_started=removal_started,
+            )
 
         with mock.patch.object(Cleanup, "_remove", new=refresh_before_remove):
             report = self.workspace.cleanup(["builds"], 7, [], True)
@@ -3266,6 +3487,16 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["disposition"], "error")
         self.assertEqual(item["reasons"], ["removal_failed"])
         self.assertIn("refreshed", item["error"])
+        self.assertTrue(entry.exists())
+
+        retried = self.workspace.cleanup(["builds"], 7, [], True)
+        retried_item = next(
+            row
+            for row in retried["items"]
+            if row["kind"] == "worker-dependencies"
+        )
+        self.assertEqual(retried_item["disposition"], "error")
+        self.assertEqual(retried_item["reasons"], ["revalidation_failed"])
         self.assertTrue(entry.exists())
 
     def test_worker_dependency_transactions_are_previewed_and_bounded(self) -> None:
@@ -3403,14 +3634,25 @@ class CleanupTests(unittest.TestCase):
         original_transaction = transactions / f".{transaction.name}-original"
 
         def replace_before_remove(
-            cleanup: Cleanup, item: dict[str, object], older_than_days: int = 0
+            cleanup: Cleanup,
+            item: dict[str, object],
+            older_than_days: int = 0,
+            *,
+            expected_identity: dict[str, int] | None = None,
+            removal_started: object = None,
         ) -> None:
             if item["kind"] == "worker-dependency-transaction":
                 transaction.replace(original_transaction)
                 transaction.mkdir()
                 os.utime(transaction, (old_timestamp, old_timestamp))
             try:
-                original_remove(cleanup, item, older_than_days)
+                original_remove(
+                    cleanup,
+                    item,
+                    older_than_days,
+                    expected_identity=expected_identity,
+                    removal_started=removal_started,
+                )
             finally:
                 if original_transaction.exists():
                     shutil.rmtree(original_transaction)

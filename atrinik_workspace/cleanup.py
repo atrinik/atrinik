@@ -14,7 +14,7 @@ import secrets
 import stat
 import subprocess
 import sys
-from typing import Any, Iterable, Iterator
+from typing import Any, Callable, Iterable, Iterator
 
 from .locking import LockBusyError, active_lock_fds
 from .content_migration import CONTENT_MIGRATION_PENDING, CONTENT_MIGRATION_RECORD
@@ -58,6 +58,25 @@ from .workspace import (
 CLEANUP_SCHEMA_VERSION = 1
 CLEANUP_JOURNAL_SCHEMA_VERSION = 2
 CLEANUP_JOURNAL_LIMIT = 4096
+OWNED_TREE_CLEANUP_KINDS = frozenset(
+    {
+        "profile-build",
+        "topology",
+        "worker-dependencies",
+        "source-generation",
+        "source-generation-transaction",
+        "worker-dependency-transaction",
+        "npm-cache",
+        "compiler-cache",
+        "sound-cache",
+    }
+)
+
+
+def _canonical_json_sha256(value: Any) -> str:
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
 WORKER_DEPENDENCY_CLEANUP_SCHEMA_VERSIONS = frozenset(
     {1, 2, 3, WORKER_DEPENDENCY_SCHEMA_VERSION}
 )
@@ -1243,7 +1262,7 @@ class Cleanup:
             if (
                 not isinstance(value, dict)
                 or value.get("schema_version") != CLEANUP_JOURNAL_SCHEMA_VERSION
-                or value.get("status") != "in-progress"
+                or value.get("status") not in {"in-progress", "complete-pending-output"}
                 or value.get("request") != request
             ):
                 continue
@@ -1257,6 +1276,8 @@ class Cleanup:
                 "completed",
                 "in_flight",
             }
+            if value["status"] == "complete-pending-output":
+                required.update({"finished_at", "result", "result_sha256"})
             if set(value) != required:
                 raise WorkspaceError(f"cleanup journal is invalid: {path}")
             report = value["report"]
@@ -1310,11 +1331,56 @@ class Cleanup:
                 != len(completed)
                 or (
                     in_flight is not None
-                    and (not valid_action(in_flight) or in_flight not in targets)
+                    and (
+                        not isinstance(in_flight, dict)
+                        or set(in_flight)
+                        not in (
+                            {"action", "phase"},
+                            {"action", "identity", "phase"},
+                            {
+                                "action",
+                                "identity",
+                                "phase",
+                                "producer_identity",
+                            },
+                        )
+                        or not valid_action(in_flight.get("action"))
+                        or in_flight["action"] not in targets
+                        or (
+                            in_flight.get("phase") not in {"prepared", "removing"}
+                        )
+                        or (
+                            "identity" in in_flight
+                            and (
+                                set(in_flight["identity"]) != {"device", "inode"}
+                                or any(
+                                    not isinstance(value, int)
+                                    or isinstance(value, bool)
+                                    or value < 0
+                                    for value in in_flight["identity"].values()
+                                )
+                            )
+                        )
+                    )
                 )
-                or in_flight in completed
+                or in_flight is not None
+                and in_flight.get("action") in completed
             ):
                 raise WorkspaceError(f"cleanup journal progress is invalid: {path}")
+            if value["status"] == "complete-pending-output":
+                result = value["result"]
+                if (
+                    in_flight is not None
+                    or completed != targets
+                    or not isinstance(value["finished_at"], str)
+                    or not isinstance(result, dict)
+                    or result.get("journal") != str(path)
+                    or result.get("completed_actions") != completed
+                    or value["result_sha256"] != _canonical_json_sha256(result)
+                ):
+                    raise WorkspaceError(
+                        f"cleanup journal terminal result is invalid: {path}"
+                    )
             matches.append((path, value))
         if len(matches) > 1:
             raise WorkspaceError("multiple cleanup journals require the same retry")
@@ -1330,6 +1396,14 @@ class Cleanup:
         request: dict[str, Any],
     ) -> dict[str, Any]:
         resumed = self._resumable_journal(request)
+        if resumed is not None and resumed[1]["status"] == "complete-pending-output":
+            result = resumed[1]["result"]
+            if (
+                not isinstance(result, dict)
+                or _canonical_json_sha256(result) != resumed[1]["result_sha256"]
+            ):
+                raise WorkspaceError("cleanup terminal result is invalid")
+            return json.loads(json.dumps(result))
         if resumed is None:
             report = self._plan(selected_scopes, older_than_days, selected_names, "apply")
         else:
@@ -1401,7 +1475,12 @@ class Cleanup:
             durable_atomic_json(journal_path, journal)
             mutated = True
 
+        def is_in_flight(action: dict[str, str]) -> bool:
+            intent = journal["in_flight"]
+            return isinstance(intent, dict) and intent.get("action") == action
+
         for target in targets:
+            action = {"kind": target["kind"], "path": target["path"]}
             with ExitStack() as target_stack:
                 if target["kind"] in {"worktree", "prunable-metadata"}:
                     owner = target["owner"]
@@ -1470,6 +1549,9 @@ class Cleanup:
                         target["disposition"] = "skipped"
                         target["reasons"] = ["resource_busy"]
                         target["error"] = str(error)
+                        if is_in_flight(action):
+                            report["aborted"] = True
+                            break
                         continue
                 elif target["kind"] == "topology":
                     try:
@@ -1490,18 +1572,34 @@ class Cleanup:
                         target["disposition"] = "skipped"
                         target["reasons"] = ["resource_busy"]
                         target["error"] = str(error)
+                        if is_in_flight(action):
+                            report["aborted"] = True
+                            break
                         continue
                 identity = (target["kind"], target["path"])
                 if identity in completed:
                     target["disposition"] = "removed"
                     target["reasons"] = ["removed"]
                     continue
-                action = {"kind": target["kind"], "path": target["path"]}
-                if journal["in_flight"] == action:
-                    path = Path(target["path"])
-                    if not path.exists() and not path.is_symlink():
+                intent = journal["in_flight"]
+                if intent is not None and intent["action"] == action:
+                    if "identity" in intent:
+                        if intent.get("phase") == "removing":
+                            self._recover_owned_tree(target, intent)
+                            record_completed(target)
+                            continue
+                    elif (
+                        intent.get("phase") == "removing"
+                        and target["kind"] == "temporary-state"
+                    ):
+                        self._remove_temporary_state(target, older_than_days)
                         record_completed(target)
                         continue
+                    elif intent.get("phase") == "removing":
+                        path = Path(target["path"])
+                        if not path.exists() and not path.is_symlink():
+                            record_completed(target)
+                            continue
                 try:
                     match = self._revalidate_target(
                         target,
@@ -1537,7 +1635,22 @@ class Cleanup:
                         target[key] = value
                 target.update(credited)
                 report["mutation_attempted"] = True
-                journal["in_flight"] = action
+                intent = {"action": action, "phase": "prepared"}
+                if target["kind"] in OWNED_TREE_CLEANUP_KINDS:
+                    identity = Path(target["path"]).stat(follow_symlinks=False)
+                    if not stat.S_ISDIR(identity.st_mode):
+                        raise WorkspaceError(
+                            f"cleanup target is not a directory: {target['path']}"
+                        )
+                    intent["identity"] = {
+                        "device": identity.st_dev,
+                        "inode": identity.st_ino,
+                    }
+                    if target["kind"] == "sound-cache":
+                        intent["producer_identity"] = match.get(
+                            "_sound_producer_identity"
+                        )
+                journal["in_flight"] = intent
                 try:
                     durable_atomic_json(journal_path, journal)
                 except (OSError, RuntimeError, WorkspaceError) as error:
@@ -1548,7 +1661,17 @@ class Cleanup:
                     )
                     break
                 try:
-                    self._remove(match, older_than_days)
+                    def removal_started() -> None:
+                        intent["phase"] = "removing"
+                        journal["in_flight"] = intent
+                        durable_atomic_json(journal_path, journal)
+
+                    self._remove(
+                        match,
+                        older_than_days,
+                        expected_identity=intent.get("identity"),
+                        removal_started=removal_started,
+                    )
                 except LockBusyError as error:
                     target["disposition"] = "skipped"
                     target["reasons"] = ["resource_busy"]
@@ -1575,10 +1698,12 @@ class Cleanup:
         report["summary"] = self._summary(report["items"])
         target_identities = {(row["kind"], row["path"]) for row in journal["targets"]}
         if completed == target_identities:
-            journal["status"] = "complete"
+            journal["status"] = "complete-pending-output"
             journal["finished_at"] = datetime.now(timezone.utc).isoformat().replace(
                 "+00:00", "Z"
             )
+            journal["result"] = json.loads(json.dumps(report))
+            journal["result_sha256"] = _canonical_json_sha256(journal["result"])
         try:
             durable_atomic_json(journal_path, journal)
         except (OSError, RuntimeError, WorkspaceError) as error:
@@ -1589,6 +1714,54 @@ class Cleanup:
                 f"finalize its journal: {error}",
             )
         return report
+
+    def acknowledge(self, report: dict[str, Any]) -> None:
+        """Acknowledge that one exact terminal cleanup result was consumed."""
+
+        journal_value = report.get("journal") if isinstance(report, dict) else None
+        if not isinstance(journal_value, str):
+            raise WorkspaceError("cleanup acknowledgement lacks a journal")
+        journal_path = Path(journal_value)
+        root = self.paths.workspace / "cleanup-journals"
+        if journal_path.parent != root or journal_path.name in {"", ".", ".."}:
+            raise WorkspaceError("cleanup acknowledgement journal is outside the workspace")
+        request = {
+            "scopes": report.get("scopes"),
+            "older_than_days": report.get("older_than_days"),
+            "filters": report.get("filters"),
+        }
+        coordinate = hashlib.sha256(
+            json.dumps(request, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+        with self.workspace._resource_locks(
+            [
+                self.workspace._lease_request(
+                    "registry",
+                    f"cleanup:{coordinate}",
+                    "exclusive",
+                    "acknowledge workspace cleanup",
+                )
+            ],
+            include_wrapper=False,
+        ):
+            journal = load_regular_json(journal_path, "cleanup acknowledgement journal")
+            if (
+                not isinstance(journal, dict)
+                or journal.get("schema_version") != CLEANUP_JOURNAL_SCHEMA_VERSION
+                or journal.get("request") != request
+                or journal.get("status")
+                not in {"complete-pending-output", "complete-delivered"}
+                or journal.get("result") != report
+                or journal.get("result_sha256") != _canonical_json_sha256(report)
+            ):
+                raise WorkspaceError("cleanup acknowledgement does not match its terminal result")
+            if journal["status"] == "complete-delivered":
+                return
+            journal["status"] = "complete-delivered"
+            journal["delivered_at"] = (
+                datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+            )
+            durable_atomic_json(journal_path, journal)
 
     @staticmethod
     def _normalize_scopes(scopes: list[str]) -> list[str]:
@@ -5740,7 +5913,10 @@ class Cleanup:
         return item
 
     def _remove_temporary_state(
-        self, item: dict[str, Any], older_than_days: int
+        self,
+        item: dict[str, Any],
+        older_than_days: int,
+        removal_started: Callable[[], None] | None = None,
     ) -> None:
         path = Path(item["path"])
         topology = item.get("topology")
@@ -5828,6 +6004,8 @@ class Cleanup:
                             raise WorkspaceError(
                                 "orphan temporary state lease tombstone changed"
                             )
+                        if removal_started is not None:
+                            removal_started()
                         if not self.workspace._finish_temporary_state_lock_tombstone(
                             path,
                             {
@@ -5866,6 +6044,8 @@ class Cleanup:
                             raise WorkspaceError(
                                 "orphan temporary state lease identity changed"
                             )
+                        if removal_started is not None:
+                            removal_started()
                         self.workspace._unlink_temporary_state_lock(
                             path,
                             state_lease,
@@ -5911,18 +6091,23 @@ class Cleanup:
                             f"temporary topology state {path}",
                             nonblocking=True,
                         ) as state_lease:
+                            if removal_started is not None:
+                                removal_started()
                             self.workspace._unlink_temporary_state_lock(
                                 path,
                                 state_lease,
                                 policy["lease_identity"],
                                 container_fd,
                             )
-                    elif not self.workspace._finish_temporary_state_lock_tombstone(
-                        path, policy["lease_identity"], container_fd
-                    ):
-                        raise WorkspaceError(
-                            f"removed temporary state lease is missing: {lock}"
-                        )
+                    else:
+                        if removal_started is not None:
+                            removal_started()
+                        if not self.workspace._finish_temporary_state_lock_tombstone(
+                            path, policy["lease_identity"], container_fd
+                        ):
+                            raise WorkspaceError(
+                                f"removed temporary state lease is missing: {lock}"
+                            )
                 finally:
                     os.close(container_fd)
             return
@@ -5999,6 +6184,8 @@ class Cleanup:
                         raise WorkspaceError(
                             "temporary state container changed before removal"
                         )
+                    if removal_started is not None:
+                        removal_started()
                     self.workspace._commit_temporary_state_removal(
                         topology,
                         status,
@@ -6077,8 +6264,69 @@ class Cleanup:
         }
         return order.get(item["kind"], 99), item["path"]
 
-    def _remove(self, item: dict[str, Any], older_than_days: int = 0) -> None:
+    def _recover_owned_tree(
+        self, item: dict[str, Any], intent: dict[str, Any]
+    ) -> None:
+        """Continue one identity-bound owned-tree removal after interruption."""
+
         path = Path(item["path"])
+        identity = intent["identity"]
+        with ExitStack() as locks:
+            kind = item["kind"]
+            if kind == "profile-build":
+                lock = self.paths.builds / "locks" / f"{item['profile']}-{item['key']}.lock"
+                locks.enter_context(exclusive_lock(lock, f"profile build {item['profile']}", nonblocking=True))
+            elif kind == "topology" and (path.exists() or path.is_symlink()):
+                locks.enter_context(exclusive_lock(path / "operation.lock", f"topology {item['name']} operation", nonblocking=True))
+            elif kind == "worker-dependencies":
+                lock = self.paths.builds / "locks" / f"worker-dependencies-{item['key']}.lock"
+                locks.enter_context(exclusive_lock(lock, f"Worker dependencies {item['key']}", nonblocking=True))
+            elif kind in {"source-generation", "source-generation-transaction"}:
+                lock = self.paths.builds / "locks" / f"source-generation-{item['key']}.lock"
+                locks.enter_context(exclusive_lock(lock, f"immutable source generation {item['key']}", nonblocking=True))
+            elif kind == "worker-dependency-transaction":
+                lock = self.paths.builds / "locks" / f"worker-dependencies-{item['key']}.lock"
+                locks.enter_context(exclusive_lock(lock, f"Worker dependencies {item['key']}", nonblocking=True))
+            elif kind == "sound-cache":
+                producer_identity = intent.get("producer_identity")
+                if not isinstance(producer_identity, dict):
+                    raise WorkspaceError("sound cache recovery identity is invalid")
+                checkout_path = Path(item["checkout_path"])
+                locks.enter_context(
+                    _exclusive_sound_producer_lease(
+                        checkout_path, producer_identity
+                    )
+                )
+                locks.enter_context(
+                    exclusive_lock(
+                        path.parent / f".{path.name}.build.lock",
+                        f"sound cache {path.name}",
+                        nonblocking=True,
+                    )
+                )
+            tombstone = _owned_tree_tombstone_path(path, identity)
+            if (
+                path.exists()
+                or path.is_symlink()
+                or tombstone.exists()
+                or tombstone.is_symlink()
+            ):
+                remove_owned_tree(path, expected_identity=identity)
+
+    def _remove(
+        self,
+        item: dict[str, Any],
+        older_than_days: int = 0,
+        *,
+        expected_identity: dict[str, int] | None = None,
+        removal_started: Callable[[], None] | None = None,
+    ) -> None:
+        path = Path(item["path"])
+
+        def begin_owned_removal() -> None:
+            if removal_started is not None:
+                removal_started()
+
         if item["kind"] == "profile-build":
             lock = self.paths.builds / "locks" / f"{item['profile']}-{item['key']}.lock"
             with exclusive_lock(
@@ -6086,11 +6334,16 @@ class Cleanup:
                 f"profile build {item['profile']}",
                 nonblocking=True,
             ):
-                managed_remove(
-                    path,
-                    self.paths.builds,
-                    f"profile:{item['profile']}:{item['key']}",
-                )
+                if expected_identity is None:
+                    begin_owned_removal()
+                    managed_remove(
+                        path,
+                        self.paths.builds,
+                        f"profile:{item['profile']}:{item['key']}",
+                    )
+                else:
+                    begin_owned_removal()
+                    remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "topology":
             with exclusive_lock(
                 path / "operation.lock",
@@ -6114,7 +6367,8 @@ class Cleanup:
                     raise WorkspaceError(
                         f"topology ownership changed before removal: {item['name']}"
                     )
-                remove_owned_tree(path)
+                begin_owned_removal()
+                remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "worker-dependencies":
             lock = (
                 self.paths.builds
@@ -6164,7 +6418,8 @@ class Cleanup:
                     raise WorkspaceError(
                         "Worker dependency cache ownership changed before removal"
                     )
-                remove_owned_tree(path)
+                begin_owned_removal()
+                remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "source-generation":
             key = item["key"]
             lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
@@ -6205,9 +6460,10 @@ class Cleanup:
                     raise WorkspaceError(
                         "source generation changed before removal"
                     )
+                begin_owned_removal()
                 remove_owned_tree(
                     path,
-                    expected_identity=current["_identity"],
+                    expected_identity=expected_identity or current["_identity"],
                 )
         elif item["kind"] == "source-generation-transaction":
             key = item["key"]
@@ -6258,7 +6514,8 @@ class Cleanup:
                         "source generation transaction changed before removal: "
                         f"{path}"
                     )
-                remove_owned_tree(path)
+                begin_owned_removal()
+                remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "worker-dependency-transaction":
             key = item["key"]
             lock = (
@@ -6305,10 +6562,12 @@ class Cleanup:
                     raise WorkspaceError(
                         f"Worker dependency transaction changed before removal: {path}"
                     )
-                remove_owned_tree(path)
+                begin_owned_removal()
+                remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "worktree":
             primary = self._repositories[item["owner"]]
             if item["owner"] != "sound":
+                begin_owned_removal()
                 _command(primary, "worktree", "remove", "--", str(path))
             else:
                 common = _git_common_directory(primary)
@@ -6360,6 +6619,7 @@ class Cleanup:
                                 raise WorkspaceError(
                                     "sound cache lock changed before worktree removal"
                                 )
+                    begin_owned_removal()
                     _command(primary, "worktree", "remove", "--", str(path))
         elif item["kind"] in {"npm-cache", "compiler-cache"}:
             purpose = item["kind"]
@@ -6371,7 +6631,12 @@ class Cleanup:
                     marker,
                     {"schema_version": SCHEMA_VERSION, "purpose": purpose},
                 )
-            managed_remove(path, self.paths.builds, purpose)
+            if expected_identity is None:
+                begin_owned_removal()
+                managed_remove(path, self.paths.builds, purpose)
+            else:
+                begin_owned_removal()
+                remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "sound-cache":
             checkout_path = Path(item["checkout_path"])
             git_common = item.get("_git_common")
@@ -6401,11 +6666,15 @@ class Cleanup:
                         or current.get("_identity") != item.get("_identity")
                     ):
                         raise WorkspaceError("sound cache changed before removal")
-                    remove_owned_tree(path)
+                    begin_owned_removal()
+                    remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "temporary-state":
-            self._remove_temporary_state(item, older_than_days)
+            self._remove_temporary_state(
+                item, older_than_days, removal_started=removal_started
+            )
         elif item["kind"] == "prunable-metadata":
             primary = self._repositories[item["owner"]]
+            begin_owned_removal()
             _command(primary, "worktree", "prune", "--expire", "now")
         else:
             raise WorkspaceError(f"unsupported cleanup target: {item['kind']}")

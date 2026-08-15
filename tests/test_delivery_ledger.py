@@ -7942,6 +7942,18 @@ class DeliveryLedgerTests(unittest.TestCase):
             with self.assertRaisesRegex(ledger.LedgerError, "selections differ"):
                 ledger.archive_preview(root, snapshot.name, mismatched)
             self.assertEqual(directory_snapshot(root), before)
+            different_command = archive_request(snapshot, released)
+            preview_output = json.loads(
+                base64.b64decode(
+                    different_command["cleanup"]["preview"]["output"]["raw_base64"]
+                )
+            )
+            preview_output["older_than_days"] = 30
+            different_command["cleanup"]["preview"]["output"] = inline_payload(
+                ledger.canonical_bytes(preview_output)
+            )
+            with self.assertRaisesRegex(ledger.LedgerError, "older_than_days differ"):
+                ledger.archive_preview(root, snapshot.name, different_command)
             unsafe = archive_request(snapshot, released)
             unsafe["cleanup"]["worktrees"][0]["safety"]["clean"] = False
             with self.assertRaisesRegex(ledger.LedgerError, "not clean"):
@@ -8761,6 +8773,40 @@ class DeliveryLedgerTests(unittest.TestCase):
 
             self.assertEqual(list((root / ledger._UNLINK_QUARANTINE).iterdir()), [])
 
+    def test_66c_unlink_recovery_does_not_chmod_a_raced_replacement(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            quarantine_path = Path(temporary)
+            token = "a" * 64
+            transaction = quarantine_path / token
+            transaction.mkdir(mode=0o700)
+            transaction.chmod(0o300)
+            replacement = quarantine_path / "replacement"
+            replacement.write_bytes(b"replacement")
+            replacement.chmod(0o600)
+            quarantine = os.open(
+                quarantine_path,
+                os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC,
+            )
+            real_stat = os.stat
+            raced = False
+
+            def stat_then_replace(path: object, *args: object, **kwargs: object) -> os.stat_result:
+                nonlocal raced
+                result = real_stat(path, *args, **kwargs)
+                if path == token and kwargs.get("dir_fd") == quarantine and not raced:
+                    raced = True
+                    transaction.rename(quarantine_path / "original")
+                    replacement.rename(transaction)
+                return result
+
+            try:
+                with mock.patch.object(ledger.os, "stat", side_effect=stat_then_replace):
+                    opened = ledger._open_unlink_transaction(quarantine, token)
+                    os.close(opened)
+            finally:
+                os.close(quarantine)
+            self.assertEqual(transaction.stat().st_mode & 0o777, 0o600)
+
     @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
     @mock.patch.object(
@@ -8859,10 +8905,12 @@ class DeliveryLedgerTests(unittest.TestCase):
             cleanup_output = workspace.cleanup(["worktrees"], 0, [], True)
             ledger._prove_cleanup_journal(
                 {
+                    "preview": {"observed_at": "2000-01-01T00:00:00Z"},
                     "apply": {
                         "output": inline_payload(
                             ledger.canonical_bytes(cleanup_output)
-                        )
+                        ),
+                        "observed_at": "2999-01-01T00:00:00Z",
                     }
                 },
                 str(workspace_root),
@@ -8870,26 +8918,58 @@ class DeliveryLedgerTests(unittest.TestCase):
             workspace.close()
         journal_path = workspace_root / "cleanup-journals" / "archive.json"
         action = {"kind": "worktree", "path": str(path)}
+        cleanup_coordinates = {
+            "scopes": ["worktrees"],
+            "older_than_days": 0,
+            "filters": [],
+        }
+        planned_item = {
+            **action,
+            "disposition": "eligible",
+            "reasons": [],
+        }
+        final_item = {**planned_item, "disposition": "removed"}
+        original_report = {
+            "schema_version": 1,
+            "mode": "apply",
+            **cleanup_coordinates,
+            "inventory_errors": [],
+            "items": [planned_item],
+            "summary": {"error_count": 0},
+        }
         journal_path.parent.mkdir(parents=True, exist_ok=True)
-        journal_path.write_bytes(
-            ledger.canonical_bytes(
-                {
-                    "schema_version": 1,
-                    "started_at": "2026-08-15T11:04:00Z",
-                    "status": "complete",
-                    "targets": [action],
-                    "completed": [action],
-                    "finished_at": "2026-08-15T11:05:00Z",
-                }
-            )
-        )
+        journal = {
+            "schema_version": 2,
+            "started_at": "2026-08-15T11:03:00Z",
+            "status": "complete-pending-output",
+            "request": cleanup_coordinates,
+            "report": original_report,
+            "targets": [action],
+            "completed": [action],
+            "in_flight": None,
+            "finished_at": "2026-08-15T11:04:00Z",
+        }
         apply_output = {
+            "schema_version": 1,
+            "mode": "apply",
+            **cleanup_coordinates,
+            "inventory_errors": [],
+            "items": [final_item],
+            "summary": {"error_count": 0},
+            "aborted": False,
             "journal": str(journal_path),
             "completed_actions": [action],
         }
+        journal["result"] = apply_output
+        journal["result_sha256"] = ledger.canonical_object_digest(apply_output)
+        journal_path.write_bytes(ledger.canonical_bytes(journal))
         request = {
             "cleanup": {
-                "apply": {"output": inline_payload(ledger.canonical_bytes(apply_output))},
+                "preview": {"observed_at": "2026-08-15T11:02:00Z"},
+                "apply": {
+                    "output": inline_payload(ledger.canonical_bytes(apply_output)),
+                    "observed_at": "2026-08-15T11:05:00Z",
+                },
                 "resources": [
                     {
                         "slot_id": "build",
@@ -8904,24 +8984,47 @@ class DeliveryLedgerTests(unittest.TestCase):
                 ],
             }
         }
+        delivered = {
+            **journal,
+            "status": "complete-delivered",
+            "delivered_at": "2026-08-15T11:04:30Z",
+        }
+        journal_path.write_bytes(ledger.canonical_bytes(delivered))
+        ledger._prove_cleanup_journal(request["cleanup"], str(workspace_root))
+        journal_path.write_bytes(ledger.canonical_bytes(journal))
         snapshot = mock.Mock(document=document)
         with ledger._archive_live_safety(snapshot, request) as recheck:
             path.mkdir(parents=True)
             with self.assertRaisesRegex(ledger.LedgerError, "still exists"):
                 recheck()
 
-        journal_path.write_bytes(
-            ledger.canonical_bytes(
-                {
-                    "schema_version": 1,
-                    "started_at": "2026-08-15T11:04:00Z",
-                    "status": "complete",
-                    "targets": [action],
-                    "completed": [],
-                    "finished_at": "2026-08-15T11:05:00Z",
-                }
-            )
-        )
+        legacy = {
+            key: value
+            for key, value in journal.items()
+            if key not in {"request", "report", "in_flight"}
+        }
+        legacy["schema_version"] = 1
+        journal_path.write_bytes(ledger.canonical_bytes(legacy))
+        with self.assertRaisesRegex(ledger.LedgerError, "schema 2"):
+            ledger._prove_cleanup_journal(request["cleanup"], str(workspace_root))
+
+        for field, value, message in (
+            ("request", {**cleanup_coordinates, "older_than_days": 7}, "request differs"),
+            ("report", {**original_report, "filters": ["foreign"]}, "report is invalid"),
+            ("finished_at", "2026-08-15T11:06:00Z", "timestamps are out of order"),
+        ):
+            with self.subTest(field=field):
+                changed = copy.deepcopy(journal)
+                changed[field] = value
+                journal_path.write_bytes(ledger.canonical_bytes(changed))
+                with self.assertRaisesRegex(ledger.LedgerError, message):
+                    ledger._prove_cleanup_journal(
+                        request["cleanup"], str(workspace_root)
+                    )
+
+        changed = copy.deepcopy(journal)
+        changed["completed"] = []
+        journal_path.write_bytes(ledger.canonical_bytes(changed))
         with self.assertRaisesRegex(ledger.LedgerError, "differs from the apply report"):
             ledger._prove_cleanup_journal(request["cleanup"], str(workspace_root))
 
