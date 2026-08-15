@@ -320,6 +320,27 @@ def parser() -> argparse.ArgumentParser:
         help="disable automatic C/C++ compiler caching",
     )
 
+    package = commands.add_parser(
+        "package", help="package a resolved profile for another host"
+    )
+    package_commands = package.add_subparsers(
+        dest="package_command", required=True
+    )
+    package_windows = package_commands.add_parser(
+        "windows", help="build one portable Windows review topology ZIP"
+    )
+    mark(package_windows.add_argument("--profile", default="classic"), "profile")
+    mark(package_windows.add_argument("--state", default="default"), "state")
+    mark(
+        package_windows.add_argument(
+            "--port", type=int, default=1730,
+            help="local Windows server UDP port (default: 1730)",
+        ),
+        "none",
+    )
+    mark(package_windows.add_argument("--output", type=Path), "path")
+    package_windows.add_argument("--json", action="store_true")
+
     topology = commands.add_parser(
         "topology", help="inspect a resolved multi-component topology"
     )
@@ -1017,6 +1038,22 @@ def main(arguments: list[str] | None = None) -> int:
                     use_ccache=not options.no_ccache,
                 )
             )
+        elif options.command == "package":
+            summary = workspace.package_windows_profile(
+                options.profile,
+                options.state,
+                options.output,
+                port=options.port,
+            )
+            if options.json:
+                print(json.dumps(summary, indent=2, sort_keys=True))
+            else:
+                print(f"package\t{summary['path']}")
+                print(f"sha256\t{summary['sha256']}")
+                print(
+                    "sensitive\tcontains private server state, player data, "
+                    "and credentials"
+                )
         elif options.command == "topology":
             state = None if options.state_mode == "temporary" else options.state
             summary = workspace.topology_summary(

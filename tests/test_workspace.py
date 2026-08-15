@@ -26,6 +26,7 @@ import threading
 import time
 from typing import Callable
 import unittest
+import zipfile
 from dataclasses import replace
 from unittest import mock
 
@@ -20297,6 +20298,277 @@ class WorkspaceTests(unittest.TestCase):
                 if time.monotonic() >= deadline:
                     self.fail("cleanup child did not release the layout lease")
                 time.sleep(0.05)
+
+    def test_portable_windows_package_extraction_is_rooted_at_executable(self) -> None:
+        archive = self.root / "client.zip"
+        executable = zipfile.ZipInfo("package/atrinik.exe")
+        executable.create_system = 3
+        executable.external_attr = (stat.S_IFREG | 0o755) << 16
+        with zipfile.ZipFile(archive, "w") as output:
+            output.writestr(executable, b"client")
+            output.writestr("package/data/settings.txt", b"settings")
+            output.writestr("lib/pkgconfig/build-only.pc", b"metadata")
+
+        destination = self.root / "portable-client"
+        self.workspace._extract_portable_windows_package(
+            archive, destination, "atrinik.exe"
+        )
+
+        self.assertEqual((destination / "atrinik.exe").read_bytes(), b"client")
+        self.assertEqual(
+            (destination / "data" / "settings.txt").read_bytes(), b"settings"
+        )
+        self.assertFalse((destination / "package").exists())
+        self.assertFalse((destination / "lib").exists())
+
+    def test_portable_windows_package_rejects_unsafe_or_linked_entries(self) -> None:
+        cases: list[tuple[str, zipfile.ZipInfo, str]] = []
+        traversal = zipfile.ZipInfo("../escape")
+        cases.append(("traversal", traversal, "unsafe"))
+        linked = zipfile.ZipInfo("package/link")
+        linked.create_system = 3
+        linked.external_attr = (stat.S_IFLNK | 0o777) << 16
+        cases.append(("link", linked, "special entry"))
+        duplicate = zipfile.ZipInfo("PACKAGE/ATRINIK.EXE")
+        cases.append(("case duplicate", duplicate, "duplicated"))
+        for label, invalid, message in cases:
+            with self.subTest(label=label):
+                archive = self.root / f"invalid-{label.replace(' ', '-')}.zip"
+                with zipfile.ZipFile(archive, "w") as output:
+                    output.writestr("package/atrinik.exe", b"client")
+                    output.writestr(invalid, b"invalid")
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    self.workspace._extract_portable_windows_package(
+                        archive, self.root / f"output-{label}", "atrinik.exe"
+                    )
+
+    def test_windows_profile_archive_is_deterministic_and_private(self) -> None:
+        root = self.root / "atrinik-review-windows"
+        (root / "server" / "data" / "players").mkdir(parents=True)
+        (root / "run.bat").write_bytes(b"run\r\n")
+        player = root / "server" / "data" / "players" / "player.dat"
+        player.write_bytes(b"private player")
+        first = self.root / "first.zip"
+        second = self.root / "second.zip"
+
+        self.workspace._archive_windows_profile(root, first)
+        self.workspace._archive_windows_profile(root, second)
+
+        self.assertEqual(first.read_bytes(), second.read_bytes())
+        self.assertEqual(stat.S_IMODE(first.stat().st_mode), 0o600)
+        with zipfile.ZipFile(first) as archive:
+            self.assertIn(
+                "atrinik-review-windows/server/data/players/player.dat",
+                archive.namelist(),
+            )
+            self.assertEqual(
+                archive.read(
+                    "atrinik-review-windows/server/data/players/player.dat"
+                ),
+                b"private player",
+            )
+
+    def test_windows_runtime_content_digest_ignores_modes_not_bytes(self) -> None:
+        first = self.root / "runtime-first"
+        second = self.root / "runtime-second"
+        (first / "maps").mkdir(parents=True)
+        (second / "maps").mkdir(parents=True)
+        (first / "maps" / "review-map").write_bytes(b"profile map")
+        (second / "maps" / "review-map").write_bytes(b"profile map")
+        (first / "maps").chmod(0o555)
+        (first / "maps" / "review-map").chmod(0o444)
+        (second / "maps").chmod(0o755)
+        (second / "maps" / "review-map").chmod(0o644)
+
+        expected = workspace_module._tree_content_digest(first, "first runtime")
+        self.assertEqual(
+            expected,
+            workspace_module._tree_content_digest(second, "second runtime"),
+        )
+        (second / "maps" / "review-map").write_bytes(b"release map")
+        self.assertNotEqual(
+            expected,
+            workspace_module._tree_content_digest(second, "second runtime"),
+        )
+
+    def test_windows_launch_files_pin_local_server_identity_and_warn(self) -> None:
+        root = self.root / "launch"
+        root.mkdir()
+        fingerprint = "a" * 64
+        self.workspace._write_windows_launch_files(
+            root, "review", "scenario-review", 1731, fingerprint
+        )
+
+        launch = (root / "run.bat").read_text(encoding="ascii")
+        readme = (root / "README.txt").read_text(encoding="utf-8")
+        self.assertIn("--port_quic=1731", launch)
+        self.assertIn(f"127.0.0.1 1731 {fingerprint}", launch)
+        self.assertIn("--stun_server=off --nometa", launch)
+        self.assertIn("SENSITIVE", readme)
+        self.assertIn("private player data", readme)
+
+    def test_windows_source_staging_overlays_read_only_generations(self) -> None:
+        selected: dict[str, Path] = {}
+        classic_root = self.root / "sealed-classic"
+        (classic_root / "cmake").mkdir(parents=True)
+        (classic_root / "cmake" / "AtrinikVersion.cmake").write_text(
+            "version", encoding="utf-8"
+        )
+        for document in ("LICENSE.md", "ATTRIBUTIONS.md"):
+            (classic_root / document).write_text(document, encoding="utf-8")
+        for role in ("client", "server", "protocol", "libatrinik"):
+            source = classic_root / role
+            source.mkdir()
+            (source / "source.txt").write_text(role, encoding="utf-8")
+            source.chmod(0o555)
+            selected[role] = source
+        (classic_root / "cmake").chmod(0o555)
+        classic_root.chmod(0o555)
+
+        sound = self.root / "sealed-sound"
+        sound.mkdir()
+        (sound / "review.ogg").write_bytes(b"sound")
+        sound.chmod(0o555)
+        build_root = self.root / "windows-build"
+        (build_root / "runtime" / "content" / "maps").mkdir(parents=True)
+        (build_root / "runtime" / "content" / "lib").mkdir()
+        (build_root / "runtime" / "resources").mkdir()
+        (build_root / "runtime" / "content" / "maps" / "map.txt").write_text(
+            "map", encoding="utf-8"
+        )
+        (build_root / "runtime" / "content" / "lib" / "script.py").write_text(
+            "script", encoding="utf-8"
+        )
+        (build_root / "runtime" / "resources" / "resource.txt").write_text(
+            "resource", encoding="utf-8"
+        )
+        atomic_json(
+            build_root / workspace_module.BUILD_METADATA,
+            {
+                "sound": {
+                    "mode": "source",
+                    "root": str(sound),
+                    "source_commit": "a" * 40,
+                    "source_tree": "b" * 40,
+                    "source_clean": True,
+                }
+            },
+        )
+        staging = self.root / "windows-sources"
+        staging.mkdir()
+
+        with mock.patch("atrinik_workspace.workspace.run") as execute:
+            self.workspace._stage_windows_profile_sources(
+                staging, build_root, selected
+            )
+
+        execute.assert_called_once_with(["git", "init", "--quiet"], cwd=staging)
+        self.assertEqual(
+            (staging / "cmake" / "AtrinikVersion.cmake").read_text(
+                encoding="utf-8"
+            ),
+            "version",
+        )
+        self.assertEqual(
+            (staging / "LICENSE.md").read_text(encoding="utf-8"),
+            "LICENSE.md",
+        )
+        self.assertEqual(
+            (staging / "client" / "sound" / "review.ogg").read_bytes(),
+            b"sound",
+        )
+        self.assertEqual(
+            (staging / "server" / "runtime" / "content" / "maps" / "map.txt")
+            .read_text(encoding="utf-8"),
+            "map",
+        )
+        self.assertEqual(
+            (staging / "server" / "resources" / "resource.txt")
+            .read_text(encoding="utf-8"),
+            "resource",
+        )
+
+    def test_windows_state_snapshot_reuses_existing_physical_lock(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        prepared = self.workspace.state_path(
+            "default", server, keep_descriptor=True
+        )
+        self.assertIsInstance(prepared, tuple)
+        state, state_fd = prepared
+        identity = os.fstat(state_fd)
+        (state / "accounts").mkdir()
+        (state / "accounts" / "review.player").write_text(
+            "player\n", encoding="utf-8"
+        )
+        (state / "quic-identity.pem").write_text(
+            "-----BEGIN PRIVATE KEY-----\nignored\n-----END PRIVATE KEY-----\n"
+            "-----BEGIN CERTIFICATE-----\nAQID\n-----END CERTIFICATE-----\n",
+            encoding="ascii",
+        )
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                self.workspace._lock_state_directory_mutation(
+                    state,
+                    {"device": identity.st_dev, "inode": identity.st_ino},
+                    "server state",
+                )
+            fingerprint = self.workspace._snapshot_windows_profile_state(
+                state_fd, state, self.root / "state-snapshot"
+            )
+        finally:
+            os.close(state_fd)
+
+        self.assertEqual(
+            fingerprint,
+            "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+        )
+        self.assertEqual(
+            (self.root / "state-snapshot" / "accounts" / "review.player")
+            .read_text(encoding="utf-8"),
+            "player\n",
+        )
+
+    def test_windows_cross_build_uses_pinned_container_and_exact_outputs(self) -> None:
+        staging = self.root / "windows-sources"
+        staging.mkdir()
+        image = "ghcr.io/atrinik/windows-build:1@sha256:" + "a" * 64
+
+        def synthetic_build(arguments: list[str], **_kwargs: object) -> str:
+            packages = staging / "packages"
+            for component in ("client", "server"):
+                (packages / (
+                    f"atrinik-classic-{component}-0.0.0-windows-x86_64.zip"
+                )).write_bytes(component.encode())
+            self.assertEqual(arguments[0:2], ["docker", "run"])
+            self.assertIn(image, arguments)
+            self.assertIn(
+                "ATRINIK_PROFILE_SOUND_DIR=/workspace/client/sound", arguments
+            )
+            self.assertIn(
+                "ATRINIK_PROFILE_CONTENT_DIR=/workspace/server/runtime/content",
+                arguments,
+            )
+            self.assertIn(
+                "ATRINIK_PROFILE_RESOURCES_DIR=/workspace/server/resources",
+                arguments,
+            )
+            return ""
+
+        with (
+            mock.patch.object(
+                self.workspace, "_local_windows_build_environment", return_value=None
+            ),
+            mock.patch.object(self.workspace, "_windows_build_image", return_value=image),
+            mock.patch("atrinik_workspace.workspace.shutil.which", return_value="/usr/bin/docker"),
+            mock.patch("atrinik_workspace.workspace.run", side_effect=synthetic_build),
+        ):
+            client, server, build = self.workspace._build_windows_profile_archives(
+                staging
+            )
+
+        self.assertEqual(client.name, "atrinik-classic-client-0.0.0-windows-x86_64.zip")
+        self.assertEqual(server.name, "atrinik-classic-server-0.0.0-windows-x86_64.zip")
+        self.assertEqual(build, {"mode": "container", "image": image})
 
 
 if __name__ == "__main__":

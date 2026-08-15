@@ -1176,6 +1176,44 @@ the explicit preview-first cleanup scope:
 Cleanup never stops a topology and never removes a live, busy, linked,
 malformed, registered, retained, promoted, or otherwise uncertain state.
 
+### Package a Classic review profile for Windows
+
+Create one portable ZIP when the client must be reviewed as a native Windows
+process rather than through the devcontainer display. The package cross-builds
+the selected Classic client and server, includes the profile's collected maps,
+generated client maps, resources, and sound, and snapshots one persistent
+server state with its accounts and player data:
+
+~~~sh
+./atrinik down REVIEW_TOPOLOGY
+./atrinik package windows \
+  --profile REVIEW_PROFILE \
+  --state REVIEW_STATE \
+  --output build/packages/review-windows.zip \
+  --json
+~~~
+
+The state must be stopped and must have been started at least once so its QUIC
+identity exists. To transfer a temporary topology's state, stop it with
+`--retain-state` and promote it to a new persistent name first. Packaging
+refuses a live or otherwise busy state, an incompatible profile/state pairing,
+an existing output file, or a non-Classic profile.
+
+Run the command inside the `windows-cross` devcontainer to use its installed
+toolchain directly. From the ordinary devcontainer or WSL2, the wrapper uses
+Docker and the digest-pinned image in
+`.devcontainer/windows-cross/devcontainer.json`. After the command succeeds,
+copy the ZIP to Windows, extract it, and double-click `run.bat`. The launcher
+starts the local packaged server on UDP port 1730 and pins the client to that
+server's copied certificate fingerprint. Use `--port PORT` when 1730 is not
+available on the Windows host.
+
+The output file is mode 0600 on the packaging host and the command reports its
+SHA-256 digest. Treat it as sensitive: `server/data` contains private player
+data, credentials, and the server private identity. Do not upload the ZIP to a
+public pull request, issue, CI artifact, or release. The wrapper never
+overwrites an existing ZIP.
+
 For a complete Classic profile, `up`, scenarios, and individual builds resolve
 one manifest-derived build-root selection across the `client`, `server`,
 `content`, `protocol`, `libatrinik`, `sound`, `resources`, and
