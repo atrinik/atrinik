@@ -1,9 +1,9 @@
 # Deep review checklist
 
-Load this checklist only after the initial implementation is coherent and the
-ignored report has been instantiated. Review the complete latest diff against
-the current PR base. Record evidence and applicability; do not turn irrelevant
-categories into invented findings.
+Load this checklist only after the initial implementation is coherent, the
+authoritative ledger is durable, and the ignored human report exists. Review
+the complete latest diff against the current PR base. Record evidence and
+applicability; do not turn irrelevant categories into invented findings.
 
 ## Contents
 
@@ -70,31 +70,37 @@ categories into invented findings.
   failure leaves recoverable state.
 - Check backward/forward compatibility and mixed-version or migrated state when
   the contract crosses versions or processes.
-- Exercise absent, fresh-canonical, legacy-only, planned-migration, and completed
-  migration states. Freeze the legacy bytes, parsed source coordinates, and
-  creator/push identity separately from mutable current slots. Persist planned
-  intent in a no-clobber sidecar before canonical-ledger creation, then
-  atomically/durably compare-and-swap exact planned bytes to complete through a
-  pre-recorded no-clobber same-directory temp and parent fsync. An interruption
-  must leave a valid planned or complete marker; test before/during/after the
-  transition and safe exact-temp resume. Unrecorded debris or concurrent change
-  stops. A
-  completed migration
-  requires its legacy source, canonical ledger, and sidecar, and disappearance
-  of any member stops. Compare the legacy source only to its immutable snapshot
-  while comparing current slots to live state; accept ordinary descendant head
-  advancement but not rewritten history. Exercise repeated resume, source or
-  canonical loss, partial multi-owner sets, and digest/coordinate mismatch.
-- Before any PR-mode claim or artifact mutation, boundedly inventory and parse
-  all regular no-follow current or legacy issue-mode ledgers and migration
-  sidecars under the exact ignored review root.
+- Execute the bundled ledger-helper tests for strict schema parsing, path/file
+  safety, bounded inventory, locks, no-clobber creation, generation/digest CAS,
+  authority and program identity, immutable initial-PR payloads, bounded exact
+  body/comment intent payloads and recovery results, optional resource slots,
+  deferred primitive requests, exact root identities, retained worktree-list/
+  inode/safety/create stdout, and wrapper-self-or-recovery null output; exact
+  scope request and retained scope-show/list/profile evidence;
+  `worktree-observe`/`scope-observe` helper-owned manifest/Git/no-follow live
+  observation under leases; `worktree-bind`/`scope-bind` diagnosis only; initial
+  production only through atomic revalidating `*-bind-cas`, never generic `cas`;
+  exact scope/profile-only references, receipt recovery, external generations,
+  contributor-section/outside-byte ownership,
+  coordinate-bound body and comment markers, equal/newer timestamp recovery,
+  complete pagination, target-drift cancellation,
+  illegal transitions, concurrent writers, every migration kill point, exact
+  resume, proven base/head/merge-base advancement versus rewrite, and required
+  source/report/snapshot/ledger/marker loss. Markdown is non-authoritative; no
+  workflow may hand-roll state I/O.
+- Before any delivery-owned mutation, use the helper to inventory every
+  regular no-follow canonical issue and PR ledger plus recognized migration and
+  staging file under the exact ignored review root.
   Block any selected issue, PR, repository/head-branch, or worktree intersection
   even without native linkage or a local worktree; leave true nonmatches
-  untouched and read-only. Exercise canonical-only ownership, the same explicit
-  issue with different artifacts, a missing migration member, descendant-head
-  overlap, and unrelated canonical reports. An incomplete or unsafe inventory
-  stops.
+  untouched and read-only. Exercise issue/PR sibling-ledger ownership, the same
+  explicit issue with different artifacts, a missing migration member,
+  descendant-head overlap, and unrelated ledgers. Incomplete/unsafe stops.
 - Confirm idempotency where commands or external mutations may be retried.
+- Exercise the nine type-explicit delivery forward contexts introduced by
+  issue #419 through the helper/policy state
+  machine with directory snapshots proving every blocked case makes no local
+  authoritative or external write.
 - Inspect platform-sensitive paths, quoting, case sensitivity, separators,
   symlinks, permissions, terminals, shells, and line endings.
 - Check regressions in unchanged callers, consumers, defaults, and workflows.
@@ -164,17 +170,31 @@ categories into invented findings.
 - Confirm cleanup targets exact proven ownership and fails closed on ambiguity.
 - Check external mutations are ordered, idempotent where possible, permission-
   scoped, and observable without leaking secrets.
-- Confirm a complete ignored coordinate ledger is pre-recorded before branch,
-  worktree, or PR mutation, with separate artifact slots whose intent/result is
-  persisted around every mutation. Exercise interruption before, during, and
+- Confirm a complete authoritative coordinate ledger is pre-recorded before any
+  claim, Project/body/comment, branch, worktree, PR, or resource mutation, with
+  authority and separate artifact/body/comment/resource intent/results
+  persisted around every mutation. Every initial PR/body/comment write must
+  retain bounded exact payload bytes before the write and reconstruct recovery
+  from the ledger. Exercise interruption before, during, and
   after each creation: planned/absent creates after rechecks, planned/one exact
   match binds, created-or-adopted/exact reuses, and every duplicate, mismatch,
   incomplete coordinate, or disappeared recorded artifact stops and preserves
   work. A bound issue-mode branch with no worktree must attach via the exact
   existing-branch path rather than recreate the branch.
-- Confirm PR-only delivery does not mutate incidental linked issues or Project
-  items, and that any issue claim came from an explicitly supplied, verified
-  issue coordinate.
+- For fresh `scope create`, first require all selectors to resolve to exactly one
+  physical checkout. Require a planned scope resource and worktree whose
+  `producer_resource_slot` names it, fixes repository/branch, and leaves its
+  immutable path absent. Precommit exact wrapper/workspace/primary directory
+  identities. Bind only the sole returned current path, SHA-256 of bounded raw
+  successful `scope show` JSON, fresh retained wrapper worktree list, matching
+  live path/root device-inodes and safe flags, and the top-level lowercase
+  32-hex `external_generation`; keep that external value fixed while ledger
+  generation/history records later observations. Extra-row, released, partial,
+  cross-repository, stale-root, unsafe, or reconstructed scope results stop.
+- Confirm PR mode keeps incidental issues read-only. With no explicitly supplied
+  and verified issue, require zero issue/Project mutations; with one, restrict
+  claim/Project handling to it and preserve its exact closing or non-closing
+  association.
 
 ## Scale and performance
 
@@ -202,6 +222,15 @@ categories into invented findings.
   unsafe temporary files, confused-deputy behavior, and overly broad deletion.
 - Verify authentication versus authorization, least-privilege permissions,
   repository/project identity, target scoping, and TOCTOU exposure.
+- Require bounded no-follow metadata/byte fingerprinting of the complete
+  importable wrapper package, source-only execution from its retained snapshot,
+  and a full post-import recheck; retained optional Git-authority absences and
+  common-dir/linked-gitfile identity through live proof with direct registration;
+  and live scope-profile digest/device/inode plus absent release journal proof.
+- Reprove credential-safe raw/effective `origin` fetch/push routes on both
+  primary and worktree immediately before explicit
+  `git push origin HEAD_BRANCH`; reject HTTP/foreign routes and never expose
+  URLs/credentials or disable credential helpers.
 - Search for secrets, tokens, credentials, personal data, sensitive logs,
   reports, fixtures, command arguments, comments, and generated artifacts.
 - Check error paths and observability redact sensitive values without hiding
@@ -221,6 +250,23 @@ categories into invented findings.
   bounded, correctly ordered, and automation-safe.
 - Inspect logging, metrics, traces, progress, dry-run/plan output, and audit
   evidence needed to operate or recover the feature.
+- Treat contributor bytes outside one helper-planned terminal delivery section
+  as wholly read-only. Require coordinate markers, exact retained payload,
+  terminal framing, and preserved outside bytes; duplicate/foreign/malformed
+  markers never grant ownership. Fully paginate comments for their
+  coordinate marker and require the exact actor: zero permits one never-started
+  post, one exact match binds/updates, and wrong-author, malformed, duplicate,
+  or uncertain-post state stops without another post. Refetch before/after the
+  non-atomic GitHub write.
+- Exercise PR-level `updatedAt` advancing with unchanged exact current body,
+  intended bytes binding at equal or later time, contributor changes only at a
+  later time, and stale/third owned-body digests stopping.
+- Before refreshing a drifted target/base/head/merge-base, CAS-cancel readiness
+  to null, a body plan to contributor-observed/current-written, a never-posted
+  comment plan to `none`, and a bound-comment update plan to `bound`, always in
+  a separate CAS after exact live non-application proof. Recover/bind an
+  in-flight result or stop; then refresh coordinates and replan. Verify
+  intended bytes, rendered Markdown, linkage, and comment inventory afterward.
 - Check installation, discoverability, help text, naming, examples, and defaults.
 - Review accessibility, localization, keyboard/screen-reader behavior, display
   assumptions, and color-only communication when relevant.

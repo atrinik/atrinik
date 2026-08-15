@@ -9,24 +9,21 @@ Use this skill for a master issue whose acceptance depends on an ordered set of
 child issues, release-line pairs, or follow-up audits. Treat the program as one
 durable objective across multiple leaf deliveries and external merge gates.
 
-Explicit invocation authorizes assignment and Project updates for the master,
-ordinary branch pushes, child issue and draft PR creation when genuinely
-missing, updates to linked issues and PRs that the exact leaf's current ledger
-records as created/adopted, including only marker-complete legacy migration,
-or uniquely bound to its pre-recorded pending slot,
-ready transitions after exit conditions, and concise tracking comments. It does
-not authorize force-pushes, merges, issue closure, policy bypass, destructive
-resets, cleanup application, self-approval, or unrelated external changes.
+After an exact leaf ledger records program authority, invocation permits master
+claim/Project updates, ordinary pushes, issue-mode drafts, its exact PR updates,
+pending-slot binding, and gated readiness. It forbids force-push, merge, closure,
+bypass, destructive reset, cleanup, self-approval, unledgered child creation/
+linking, generic issue publication, and unrelated changes. Incidental issues and
+unrelated PRs stay read-only.
 Do not infer merge authority from requests to finish, complete, or fully deliver
 a program.
 
 ## Load the delivery contracts
 
-1. Read and follow the complete
-   [issue-delivery contract](../atrinik-issue-delivery/SKILL.md) for every leaf,
-   selecting its explicit issue mode. Its validation, review, publication, and
-   ready-state exit conditions remain mandatory; this skill adds orchestration
-   rather than replacing them and does not delegate PR-mode adoption.
+1. Follow the complete
+   [issue-delivery contract](../atrinik-issue-delivery/SKILL.md) in explicit
+   issue mode for every leaf. All exit conditions remain; this adds orchestration
+   and never delegates PR-mode adoption.
 2. Load `atrinik-multi-repo-workspace`, `atrinik-github-governance`, and the
    narrow implementation, runtime, or scenario skills selected by each leaf.
 3. Read the full
@@ -35,15 +32,15 @@ a program.
 4. Copy [the program report template](assets/program-delivery-report.md) to an
    ignored path such as
    `<workspace>/build/program-delivery/<owner>-<repo>-<number>.md`. Prove the
-   destination is ignored before writing. Preserve and update that report
-   across resumptions; never delete it implicitly.
+   destination is ignored. Preserve it across resumes; it is human-only and
+   schema-v1 leaf sidecars remain authoritative.
 
 ## Establish the live program
 
-If and only if the user explicitly requested `/goal` or another persistent
-goal, create or resume one goal for the whole master before live preflight.
-Never create a nested or per-leaf goal. A preflight finding remains part of that
-objective rather than requiring a fresh goal on resumption.
+Only when explicitly requested, create/resume one durable goal continuously
+owning the exact master/leaves. Each leaf sidecar records its goal proof, allowed
+master/leaf node IDs, distinct coordinates, and exclusive `leaf_position`; the
+leaf is explicit. Never create a nested/per-leaf goal.
 
 1. Normalize the master as `owner/repository#number`. Inspect the live issue,
    body, comments, native parent/subissue graph, linked PRs, assignees, Project
@@ -53,36 +50,32 @@ objective rather than requiring a fresh goal on resumption.
    master's explicit execution plan, dependency statements, and technical
    constraints. Reject cycles, contradictory owners, repository mismatches,
    ambiguous acceptance, or a closed master until reconciled.
-3. Verify every claimed completion from merged coordinates, current content,
-   checks, or an explicit maintainer attestation. Record attestations as such;
-   do not invent evidence.
-4. Build a stage matrix containing owner issue, target repository and release
-   line, dependencies, existing branch/PR/head, acceptance, validation, and the
-   next human gate. Reuse existing issues. Reuse worktrees, branches, and PRs
-   only when that exact leaf's current ledger records them as created/adopted,
-   including marker-complete legacy migration, or they uniquely match its
-   pre-recorded pending slot and are bound before mutation. Every other PR is a
-   blocker or read-only
-   traceability until separately authorized. Create and link a child only when
-   required work has no current owner after a live duplicate search.
-5. Apply the issue-delivery claim contract to the master: assign `zoeyrose`, add
-   it to **Atrinik work** when needed, and set the existing Status to
-   **In progress** from `github-settings/config/planning.json`. Never invent an
-   `in-progress` label. Let issue delivery claim each ready leaf.
+3. Verify completion from merged coordinates, current content/checks, or an
+   explicit maintainer attestation recorded as such; never invent evidence.
+4. Matrix owner issue, repository/line, dependencies, branch/PR/head,
+   acceptance, validation, and next gate. Reuse issues. Reuse artifacts only
+   when the exact leaf's schema-v1 ledger records created/adopted state after
+   helper-complete migration, or bind its unique pre-recorded pending match
+   before mutation. Other PRs block or stay read-only until separately
+   authorized. If a live search proves a child owner is missing, record the exact
+   proposed child/link as a read-only handoff pending a program-level ledger.
+5. Before claiming the master or a leaf, create or complete migration of the
+   first ready leaf sidecar with exact master/leaf/position and goal authority.
+   Then claim idempotently: assign `zoeyrose`, add the issue to **Atrinik work**
+   when needed, and set existing Status to **In progress** from
+   `github-settings/config/planning.json`. Never invent an `in-progress` label.
 
 A merge-ready leaf is progress, not goal completion.
 
 ## Deliver ready stages
 
-1. Select only a dependency-ready stage. Follow the master's stated order even
-   when later PRs are already green. Parallelize only independent work with no
-   shared base, schema, ledger, generated baseline, authored path, or closing
-   path.
-2. Apply the issue-delivery workflow completely to the leaf in issue mode.
-   Resume only work in that exact leaf's current ledger, including
-   marker-complete legacy migration, or the one exact artifact uniquely matching
-   a pre-recorded pending slot; bind the latter before mutation rather than
-   creating a replacement PR. If fresh issue-mode
+1. Select a dependency-ready stage in declared order. Parallelize only work
+   sharing no base, schema, ledger, generated baseline, authored/closing path.
+2. Apply issue delivery in issue mode through implementation, leaf whole-diff
+   convergence, and validation, but hold its final check/readiness transition
+   until step 5. Record exact master/leaf program context. Resume only that
+   leaf's schema-v1 ledger after helper-complete migration, or bind its exact
+   pending match before mutation; never create a replacement. If fresh issue-mode
    preflight finds a different active PR, stop with its coordinate; program
    delegation does not authorize switching to PR mode or adopting it. For
    paired release lines, keep separate bases, commits, validation, and PRs;
@@ -90,17 +83,21 @@ A merge-ready leaf is progress, not goal completion.
    mark a draft ready until both its leaf review and the cumulative program
    review below converge.
 3. Reconcile every head onto its current required base before relying on
-   validation. A prior green check proves only the old head/base combination.
-   Never bulk-merge or bulk-refresh a queue whose earlier merges change later
-   baselines.
-4. Run leaf whole-diff reviews to convergence, then review the cumulative
-   program state against already merged work, other in-flight heads, the master
-   invariants, and the program checklist. Give findings stable program IDs,
-   fix every actionable item, rerun affected validation, and record the exact
-   reviewed heads in the persistent report.
-5. Update the master matrix and relevant issue/PR bodies when durable state
-   changes. Keep comments concise, preserve history, verify remote rendering,
-   and avoid progress noise.
+   validation. Before target drift, CAS-cancel body/readiness/planned-comment
+   intents; recover an in-flight comment or stop, then refresh/replan. A prior
+   green check proves only the old head/base combination. Never bulk-refresh a
+   queue whose earlier merges change later baselines.
+4. Review the cumulative
+   program state against merged work, in-flight heads, master invariants, and
+   the checklist. Give findings stable IDs, fix them, rerun affected validation,
+   and record exact reviewed heads.
+5. After both leaf and cumulative reviews converge, run issue delivery's
+   latest-head/check/readiness section completely. Update the ignored matrix on
+   durable change. Each leaf ledger alone owns its
+   PR writes. Do not create/update a program master comment: goal state cannot
+   persist remote-write intent, and the human report is non-authoritative. Keep
+   contributor issue bodies and incidental issues read-only; preserve program
+   summaries in the report/final handoff pending a program-level ledger.
 
 ## Stop at every merge or human gate
 
@@ -142,16 +139,17 @@ Predeclare the exact ordered count of remaining squash commits and an exact
 changed-path allowlist for each ordinal. At the final tip, require the suffix
 length, order, and paths to match that declaration; any missing, extra,
 reordered, or out-of-allowlist commit invalidates it and requires a new horizon.
-Record the resulting suffix SHAs durably in the master and report after merge.
+Record the resulting suffix SHAs in the ignored report/final handoff after merge.
 Never require a commit to contain its own immutable hash.
 
-If the audit finds actionable work, return it to its existing owner or create a
-child only when the duplicate search proves none exists. Deliver that leaf
-through its review and merge gate, refresh the live graph and tips, then repeat
-the terminal audit. Never waive a stage or finding yourself.
+If the audit finds actionable work, return it to its existing owner. If the
+duplicate search proves no owner exists, record a proposed child as a read-only
+handoff pending program-ledger authority. Once an authorized child exists,
+deliver that leaf through its review and merge gate, refresh the live graph and
+tips, then repeat the terminal audit. Never waive a stage or finding yourself.
 
-Update the master with exact final coordinates and a concise close-ready
-summary, but do not close it. The final handoff names any remaining human
-closure or release action and the preserved report path. Mark the durable goal
-complete only when the master is genuinely ready to close, not merely because
-the current stage is ready or waiting at a merge gate.
+Prepare the master's exact close-ready summary in the report/final handoff, but
+do not publish it without program-ledger ownership and do not close the master.
+Name remaining human closure/release action and the preserved report path. Mark
+the durable goal complete only when the master is genuinely ready to close, not
+merely because the current stage is ready or waiting at a merge gate.

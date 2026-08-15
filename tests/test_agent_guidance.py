@@ -225,6 +225,70 @@ class AgentGuidanceTests(unittest.TestCase):
                     self.assertTrue(resolved.is_relative_to(ROOT))
                     self.assertTrue(resolved.is_file())
 
+    def test_issue_delivery_provisioning_examples_match_manifest(self) -> None:
+        reference = (
+            ROOT
+            / ".agents/skills/atrinik-issue-delivery/references/delivery-ledger.md"
+        ).read_text(encoding="utf-8")
+        examples = [
+            json.loads(match)
+            for match in re.findall(r"```json\n(.*?)\n```", reference, re.DOTALL)
+        ]
+        checkouts = {
+            checkout["name"]: checkout["repository"].split("/", 1)
+            for checkout in json.loads(
+                (ROOT / "components.json").read_text(encoding="utf-8")
+            )["checkouts"]
+        }
+
+        pr_ledger = next(
+            example
+            for example in examples
+            if isinstance(example, dict) and example.get("entry_mode") == "pr"
+        )
+        primitive = next(
+            artifact["primitive_request"]
+            for artifact in pr_ledger["artifacts"]
+            if artifact.get("primitive_request") is not None
+        )
+        owner, repository = checkouts[primitive["physical_checkout"]]
+        self.assertEqual(
+            primitive["repository"],
+            {"owner": owner, "name": repository, "node_id": "R_repo"},
+        )
+        self.assertTrue(
+            all(
+                target["repository"]["owner"] == owner
+                and target["repository"]["name"] == repository
+                for target in pr_ledger["targets"]
+            )
+        )
+
+        issue_ledger = next(
+            example
+            for example in examples
+            if isinstance(example, dict) and example.get("entry_mode") == "issue"
+        )
+        issue_worktree = next(
+            artifact
+            for artifact in issue_ledger["artifacts"]
+            if artifact["kind"] == "worktree"
+        )
+        self.assertIsNone(issue_worktree["immutable"]["path"])
+        self.assertIsNone(issue_worktree["producer_resource_slot"])
+        issue_request = issue_worktree["primitive_request"]
+        self.assertEqual(issue_request["component"], "atrinik")
+        self.assertEqual(issue_request["physical_checkout"], "atrinik")
+        self.assertEqual(
+            issue_request["repository"],
+            {"owner": "atrinik", "name": "atrinik", "node_id": "R_repo"},
+        )
+
+        scope = next(example[0] for example in examples if isinstance(example, list))
+        owner, repository = checkouts[scope["request"]["physical_checkout"]]
+        self.assertEqual(scope["immutable"]["repository"]["owner"], owner)
+        self.assertEqual(scope["immutable"]["repository"]["name"], repository)
+
     def test_issue_delivery_skill_is_explicit_and_complete(self) -> None:
         skill = ROOT / ".agents/skills/atrinik-issue-delivery"
         package = {
@@ -238,7 +302,9 @@ class AgentGuidanceTests(unittest.TestCase):
                 "SKILL.md",
                 "agents/openai.yaml",
                 "assets/deep-review-report.md",
+                "references/delivery-ledger.md",
                 "references/deep-review-checklist.md",
+                "scripts/delivery_ledger.py",
             },
         )
 
@@ -250,8 +316,12 @@ class AgentGuidanceTests(unittest.TestCase):
         checklist = (
             skill / "references/deep-review-checklist.md"
         ).read_text(encoding="utf-8")
+        ledger = (skill / "references/delivery-ledger.md").read_text(
+            encoding="utf-8"
+        )
         normalized_body = " ".join(body.split())
         normalized_interface = " ".join(interface.split())
+        normalized_ledger = " ".join(ledger.split())
 
         self.assertIn("never trigger implicitly", body.lower())
         self.assertIn("$atrinik-issue-delivery", body)
@@ -268,13 +338,13 @@ class AgentGuidanceTests(unittest.TestCase):
             "create draft PRs in issue mode",
             "update selected or delivery-created PRs",
             "mark drafts ready after exit conditions",
-            "post brief delivery comments",
+            "maintain one coordinate-bound selected-PR delivery comment",
         }:
             with self.subTest(mutation=mutation):
                 self.assertIn(mutation, normalized_interface)
         for prohibited in {
             "do not create placeholder issues",
-            "mutate incidental linked issues in PR-only mode",
+            "mutate incidental linked issues in PR mode",
             "force-push",
             "close",
             "merge",
@@ -291,8 +361,8 @@ class AgentGuidanceTests(unittest.TestCase):
             "exactly one type-explicit `ENTRY_MODE`",
             "bare `owner/repository#number` is ambiguous",
             "active PRs already own the work",
-            "recorded by this same issue-mode delivery",
-            "uniquely matches a pre-recorded pending PR slot",
+            "recorded by this exact schema-v1 issue-mode ledger",
+            "uniquely matches its pre-recorded pending PR slot",
             "sole exception to the fresh-delivery no-active-PR rule",
             "existing open, unmerged PR",
             "author/head repository",
@@ -301,23 +371,30 @@ class AgentGuidanceTests(unittest.TestCase):
             "zero or more incidental linked issues as read-only",
             "Other linked issues remain incidental and read-only",
             "their presence alone is not ambiguity",
-            "make no linked-issue or Project mutation",
-            "A PR without an issue is a complete valid input",
-            "--from BASE_SHA",
-            "HEAD` equals `BASE_SHA",
+            "make zero issue/Project mutations",
+            "Such a PR is complete",
+            "exactly one physical checkout",
+            "--from PROFILE",
+            "--start-point CHECKOUT=BASE_SHA",
+            "scope show SCOPE --json",
             "--existing",
-            "HEAD` equals the recorded `HEAD_SHA`, not `BASE_SHA`",
-            "never resume or edit a dirty, detached, locked, active, referenced",
-            "Before any branch, worktree, or PR mutation",
-            "Pre-record the complete planned physical target set",
-            "Treat each branch, worktree, and PR as a separate artifact slot",
-            "persist its intent before mutation and durably refresh its result",
-            "a planned slot with no artifact may be created",
-            "a planned slot with one exact artifact must be bound",
-            "a created/adopted slot with its exact artifact may be reused",
-            "a created/adopted slot whose artifact disappeared",
-            "attach that exact branch through manifest-owner `--existing`",
-            "wrapper-self non-`-b` path",
+            "initial `HEAD` equals the mode's recorded SHA",
+            "Never resume or edit a dirty, detached, locked, active, foreign",
+            "Before any delivery-owned mutation",
+            "strict schema-v1 `<report>.ledger.json`",
+            "managed only through `python3 scripts/delivery_ledger.py`",
+            "create or explicitly migrate the prepared document before any claim",
+            "Planned/absent creates after collision rechecks",
+            "planned/exact binds",
+            "created-or-adopted/exact reuses",
+            "bound branch with absent worktree through manifest-owner `--existing`",
+            "wrapper-self non-`-b`",
+            "verified non-closing association may keep `closing_scope=[]`",
+            "Every fresh planned worktree has a deferred request",
+            "raw Git has no canonical output",
+            "Generic `cas` cannot bind it",
+            "git push origin HEAD_BRANCH",
+            "same scrubbed selector environment",
             "--base TARGET_BRANCH",
             "one coherent draft per affected physical repository",
             "update only the selected PR",
@@ -340,36 +417,73 @@ class AgentGuidanceTests(unittest.TestCase):
             "Unknown or conflicting mergeability",
             "issue-<number>.md",
             "pr-<number>.md",
-            "sole legacy `<owner>-<repository>-<issue>.md`",
-            "it alone claims the issue/artifacts",
-            "Verify live/local every recorded issue, PR, repository",
-            "authenticated creator/push identity",
-            "Atomically no-clobber write `<legacy-path>.migrated`",
-            "existing slots created/adopted",
-            "future absent slots planned",
-            "preserve old bytes",
-            "completion-temp paths",
-            "no-clobber write/fsync the recorded same-directory complete temp",
-            "atomically replace the sidecar",
-            "Interruption leaves a valid planned or complete marker",
-            "unrecorded debris, or concurrent change",
-            "mode never adopts issue-mode artifacts",
+            "An old `<owner>-<repository>-<issue>.md` is issue-mode-only",
+            "Pre-schema migration",
+            "durable authenticated goal predating",
+            "new explicit recovery authority naming them",
+            "Other evidence only corroborates",
+            "proven descendant base/head and recomputed merge-base refresh",
+            "coordinate-bound remote-write protocol",
+            "fresh contributor body is wholly read-only",
+            "Wrong-author, malformed, duplicate, unexpected, or uncertain state stops",
+            "ledger-recorded profile/reference",
             "only when issues actually exist",
             "do not fabricate placeholders",
         }:
             with self.subTest(contract=contract):
                 self.assertIn(contract, normalized_body)
 
+        for contract in {
+            "init-root WRAPPER_ROOT",
+            "inventory REVIEW_ROOT",
+            "create REVIEW_ROOT INPUT",
+            "--expected-generation GENERATION",
+            "--expected-inode INODE",
+            "candidate-digest-named stage and no-clobber publication",
+            "exclusive no-follow root lock",
+            "persistent per-ledger lock",
+            "sole unknown-node exception begins with a fresh issue-mode generation 1",
+            "This exception applies only while immutable `authority.allowed.pull_requests` is empty",
+            "changes neither authority nor any unrelated field",
+            "completed pre-schema human report may later change",
+            "candidate-digest-named planned stage, immutable source snapshot",
+            "Fetch every comment page",
+            "A live marker never grants ownership",
+            "`client` -> `atrinik/client`",
+            "`atrinik-client-pr-423.md.ledger.json`",
+            "retain its stdout and pass `--create-output FILE`",
+            "null `create_output` and null producer `result_sha256`",
+            "Every fresh planned worktree has null immutable path",
+            "Generic `cas` cannot perform any part of an initial deferred",
+            "fresh current tuple cannot treat that receipt",
+            "complete importable `atrinik_workspace` source/bytecode tree",
+            "executes only retained `.py` snapshot bytes",
+            "fingerprint-specific private package name",
+            "modeled absence of optional authority entries",
+            "worktree `.git` gitfile is retained and rechecked",
+            "legal live-observation CAS may refresh a bound artifact's safety",
+            "git push origin HEAD_BRANCH",
+            "On both primary and worktree checkouts",
+            "profile file's exact retained digest/device/inode",
+            "creation journal is deliberately non-authoritative",
+            "issue-mode and mode-less names reserve",
+            "precommitted deferred primitive/scope managed paths",
+        }:
+            with self.subTest(ledger_contract=contract):
+                self.assertIn(contract, normalized_ledger)
+
+        self.assertIn("references/delivery-ledger.md", body)
         self.assertIn("references/deep-review-checklist.md", body)
         self.assertIn("assets/deep-review-report.md", body)
         self.assertIn("| ID | Severity | Location |", report)
         self.assertIn("Entry mode: `<issue|PR>`", report)
         self.assertIn("Selected issue(s): `<URL(s) or none>`", report)
         self.assertIn("Selected pull request(s):", report)
-        self.assertIn("Current artifact ledger:", report)
+        self.assertIn("State ledger:", report)
+        self.assertIn("Artifact summary:", report)
         self.assertIn("Report identity:", report)
-        self.assertIn("Immutable migration snapshot:", report)
-        self.assertIn("Migration sidecar:", report)
+        self.assertIn("Migration evidence:", report)
+        self.assertIn("never ownership or recovery authority", report)
         self.assertIn("Claim/linkage state:", report)
         self.assertIn("## Scale and performance", checklist)
         self.assertIn("## Safety, security, and supply chain", checklist)
@@ -382,25 +496,45 @@ class AgentGuidanceTests(unittest.TestCase):
             normalized_checklist,
         )
         self.assertIn(
-            "coordinate ledger is pre-recorded before branch",
+            "coordinate ledger is pre-recorded before any claim",
             normalized_checklist,
         )
         self.assertIn("planned/absent creates after rechecks", normalized_checklist)
         self.assertIn("created-or-adopted/exact reuses", normalized_checklist)
         self.assertIn("persisted around every mutation", normalized_checklist)
         self.assertIn("existing-branch path", normalized_checklist)
-        self.assertIn("planned-migration", normalized_checklist)
-        self.assertIn("immutable snapshot", normalized_checklist)
-        self.assertIn("any member stops", normalized_checklist)
-        self.assertIn("Before any PR-mode claim", normalized_checklist)
+        self.assertIn("generation/digest CAS", normalized_checklist)
+        self.assertIn("source/report/snapshot/ledger/marker loss", normalized_checklist)
+        self.assertIn("Before any delivery-owned mutation", normalized_checklist)
+        self.assertIn("canonical issue and PR ledger", normalized_checklist)
+        self.assertIn(
+            "nine type-explicit delivery forward contexts", normalized_checklist
+        )
+        self.assertIn("coordinate-bound body and comment markers", normalized_checklist)
+        self.assertIn("wrapper-self-or-recovery null output", normalized_checklist)
+        self.assertIn(
+            "`worktree-observe`/`scope-observe` helper-owned", normalized_checklist
+        )
+        self.assertIn(
+            "initial production only through atomic revalidating `*-bind-cas`, never generic `cas`",
+            normalized_checklist,
+        )
+        self.assertIn("git push origin HEAD_BRANCH", normalized_checklist)
+        self.assertIn("complete importable wrapper package", normalized_checklist)
+        self.assertIn("non-atomic GitHub write", normalized_checklist)
         self.assertIn(
             "determinate conflict-free mergeability",
             normalized_checklist,
         )
-        ledger_gate = normalized_body.index(
-            "Before any branch, worktree, or PR mutation"
+        ledger_gate = normalized_body.index("Before any delivery-owned mutation")
+        self.assertLess(
+            ledger_gate,
+            normalized_body.index("Only after the authoritative ledger above exists"),
         )
-        self.assertLess(ledger_gate, normalized_body.index("--from BASE_SHA"))
+        self.assertLess(
+            ledger_gate,
+            normalized_body.index("--start-point CHECKOUT=BASE_SHA"),
+        )
         self.assertLess(
             ledger_gate,
             normalized_body.index("open one coherent draft per affected"),
@@ -435,6 +569,11 @@ class AgentGuidanceTests(unittest.TestCase):
             .read_text(encoding="utf-8")
             .split()
         )
+        ledger = " ".join(
+            (skill / "references/delivery-ledger.md")
+            .read_text(encoding="utf-8")
+            .split()
+        )
         program = " ".join(
             (
                 ROOT / ".agents/skills/atrinik-program-delivery/SKILL.md"
@@ -442,75 +581,77 @@ class AgentGuidanceTests(unittest.TestCase):
         )
 
         for marker in {
-            "issue mode inspects both report paths",
-            "PR mode boundedly inventories/parses all regular no-follow issue-mode ledgers/sidecars",
-            "regular no-follow report/sidecar paths and safe parents",
-            "None means fresh rules",
-            "fresh canonical-only uses its state machine",
-            "migrates only in issue mode",
-            "no extra, duplicate, unrecorded, or colliding artifact exists",
-            "authenticated creator/push identity, and safe state",
-            "Atomically no-clobber write `<legacy-path>.migrated` as planned",
-            "immutable source path, SHA-256, coordinates/identity snapshot",
-            "atomically no-clobber create the canonical ledger linking and copying",
-            "copying the snapshot",
-            "existing slots created/adopted and future absent slots planned",
-            "preserve old bytes",
-            "completion-temp paths",
-            "no-clobber write/fsync the recorded same-directory complete temp",
-            "atomically replace the sidecar",
-            "resume only the exact recorded transition/temp",
-            "unrecorded debris, or concurrent change stops",
-            "Completed migration requires exact legacy, canonical, and marker files",
-            "any disappearance stops",
-            "Compare legacy bytes and coordinates only to the snapshot",
-            "mutable canonical slots to live",
-            "allowing ordinary descendant head updates but no rewrite",
-            "incomplete/unsafe inventory stops",
-            "any selected issue, PR, repository/head-branch",
-            "worktree intersection blocks while nonmatches stay read-only",
+            "bundled ledger helper's read-only bounded no-follow `inventory`",
+            "every issue/PR sidecar",
+            "Only the exact same delivery may resume",
+            "strict schema-v1 `<report>.ledger.json`",
+            "Markdown is non-authoritative",
+            "never hand-roll state, locks, markers, or recovery",
+            "Planned/absent creates after collision rechecks",
+            "planned/exact binds",
+            "created-or-adopted/exact reuses",
+            "Migrate only through the helper",
+            "An old `<owner>-<repository>-<issue>.md` is issue-mode-only",
+            "Pre-schema migration",
+            "durable authenticated goal predating",
+            "new explicit recovery authority naming them",
+            "Other evidence only corroborates",
+            "proven descendant base/head and recomputed merge-base refresh",
         }:
             with self.subTest(marker=marker):
                 self.assertIn(marker, body)
 
+        for marker in {
+            "The helper, not Markdown, is the ownership and recovery boundary",
+            "`inventory` first validates every recognized canonical ledger",
+            "candidate-digest-named stage and no-clobber publication",
+            "generation/digest/device/inode again immediately before",
+            "Every operation inventories under an exclusive no-follow root lock",
+            "Mutations also use a persistent per-ledger lock",
+            "Legacy migration is issue-mode only",
+            "completed pre-schema human report may later change",
+            "Loss or change of a required member stops",
+        }:
+            with self.subTest(ledger_marker=marker):
+                self.assertIn(marker, ledger)
+
         self.assertLess(
-            body.index("issue mode inspects both report paths"),
+            body.index("bundled ledger helper's read-only bounded no-follow `inventory`"),
             body.index("If active PRs already own the work"),
         )
         self.assertLess(
-            body.index(
-                "PR mode boundedly inventories/parses all regular no-follow issue-mode ledgers/sidecars"
-            ),
-            body.index("## Claim only explicitly authorized issues"),
+            body.index("every issue/PR sidecar"),
+            body.index("### Claim only explicitly authorized issues"),
         )
         self.assertLess(
-            body.index("`<owner>-<repository>-<issue>.md`"),
-            body.index("Pre-record the complete planned physical target set"),
+            body.index("strict schema-v1 `<report>.ledger.json`"),
+            body.index("--start-point CHECKOUT=BASE_SHA"),
         )
         self.assertIn("Report identity:", report)
-        self.assertIn("Current artifact ledger:", report)
-        self.assertIn("Immutable migration snapshot:", report)
-        self.assertIn("Migration sidecar:", report)
+        self.assertIn("State ledger:", report)
+        self.assertIn("Artifact summary:", report)
+        self.assertIn("Migration evidence:", report)
         for marker in {
-            "absent, fresh-canonical, legacy-only, planned-migration, and completed",
-            "disappearance of any member stops",
-            "ordinary descendant head advancement",
-            "partial multi-owner set",
-            "Before any PR-mode claim or artifact mutation",
-            "current or legacy issue-mode ledgers and migration sidecars",
-            "test before/during/after the transition",
-            "safe exact-temp resume",
+            "strict schema parsing",
+            "generation/digest CAS",
+            "every migration kill point",
+            "source/report/snapshot/ledger/marker loss",
+            "Before any delivery-owned mutation",
+            "canonical issue and PR ledger",
+            "recognized migration and staging file",
+            "issue/PR sibling-ledger ownership",
             "same explicit issue with different artifacts",
             "missing migration member",
             "descendant-head overlap",
-            "unrelated canonical reports",
+            "unrelated ledgers",
+            "nine type-explicit delivery forward contexts",
             "even without native linkage or a local worktree",
             "leave true nonmatches untouched and read-only",
-            "incomplete or unsafe inventory stops",
+            "Incomplete/unsafe stops",
         }:
             self.assertIn(marker, checklist)
-        self.assertIn("including only marker-complete legacy migration", program)
-        self.assertIn("current ledger records them as created/adopted", program)
+        self.assertIn("after helper-complete migration", program)
+        self.assertIn("schema-v1 ledger records created/adopted state", program)
 
     def test_content_issue_delivery_uses_main_as_sole_authored_source(self) -> None:
         content = " ".join(
@@ -591,11 +732,21 @@ class AgentGuidanceTests(unittest.TestCase):
             'short_description: "Deliver ordered Atrinik programs through merge gates"',
             interface,
         )
+        for interface_boundary in {
+            "After an exact leaf ledger records program authority",
+            "create issue-mode draft PRs",
+            "update only ledger-bound PRs",
+            "Keep proposed missing children and incidental issues read-only",
+            "do not create or link children",
+            "publish issue or master comments without a program-level ledger",
+        }:
+            with self.subTest(interface_boundary=interface_boundary):
+                self.assertIn(interface_boundary, interface)
         for boundary in {
             "Do not infer merge authority",
             "Do not merge or close anything",
-            "If and only if the user explicitly requested `/goal`",
-            "Never create a nested or per-leaf goal",
+            "Only when explicitly requested",
+            "Never create a nested/per-leaf goal",
             "A merge-ready leaf is progress, not goal completion",
             "Do not mark a draft ready until both its leaf review",
             "query GitHub rather than trusting the reported action",
@@ -617,47 +768,75 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("Per-ordinal changed-path allowlists", report)
         self.assertIn("## Cross-change integration", checklist)
         self.assertIn("## Validation currency", checklist)
+        normalized_checklist = " ".join(checklist.split())
+        self.assertIn(
+            "resulting SHAs durably in the ignored report and final handoff",
+            normalized_checklist,
+        )
+        self.assertIn(
+            "contributor master body remain read-only", normalized_checklist
+        )
+        self.assertNotIn(
+            "resulting SHAs durably in the master", normalized_checklist
+        )
+        self.assertNotIn(
+            "master body/checklist synchronized", normalized_checklist
+        )
         self.assertIn("assign `zoeyrose`", body)
         self.assertIn("**Atrinik work**", body)
-        self.assertIn("destination is ignored before writing", normalized_body)
+        self.assertIn("Prove the destination is ignored", normalized_body)
 
         leaf_delivery = (
             ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"
         ).read_text(encoding="utf-8")
         self.assertIn(
-            "program-delivery invocation delegates this contract",
+            "delegates only issue mode to ready live children",
             " ".join(leaf_delivery.split()),
         )
-        self.assertIn(
-            "delegates this contract only in issue mode",
-            " ".join(leaf_delivery.split()),
-        )
-        self.assertIn("selecting its explicit issue mode", normalized_body)
-        self.assertIn("does not delegate PR-mode adoption", normalized_body)
+        self.assertIn("in explicit issue mode for every leaf", normalized_body)
+        self.assertIn("never delegates PR-mode adoption", normalized_body)
         self.assertIn(
             "program delegation does not authorize switching to PR mode",
             normalized_body,
         )
         self.assertIn(
-            "including only marker-complete legacy migration",
+            "after helper-complete migration",
             normalized_body,
         )
         self.assertIn(
-            "current ledger records them as created/adopted",
+            "schema-v1 ledger records created/adopted state",
             normalized_body,
         )
         self.assertIn(
-            "Every other PR is a blocker or read-only traceability",
+            "Other PRs block or stay read-only",
             normalized_body,
         )
         self.assertIn(
-            "uniquely bound to its pre-recorded pending slot",
+            "pending-slot binding",
             normalized_body,
         )
         self.assertIn(
-            "one exact artifact uniquely matching a pre-recorded pending slot",
+            "bind its exact pending match",
             normalized_body,
         )
+        for boundary in {
+            "read-only handoff pending a program-level ledger",
+            "Before claiming the master or a leaf",
+            "hold its final check/readiness transition until step 5",
+            "After both leaf and cumulative reviews converge",
+            "Do not create/update a program master comment",
+            "suffix SHAs in the ignored report/final handoff",
+        }:
+            self.assertIn(boundary, normalized_body)
+        claim_gate = normalized_body.index("first ready leaf sidecar")
+        self.assertLess(claim_gate, normalized_body.index("Then claim idempotently"))
+        leaf_review = normalized_body.index("leaf whole-diff convergence")
+        cumulative_review = normalized_body.index("Review the cumulative program state")
+        readiness = normalized_body.index(
+            "run issue delivery's latest-head/check/readiness section completely"
+        )
+        self.assertLess(leaf_review, cumulative_review)
+        self.assertLess(cumulative_review, readiness)
 
     def test_removed_stale_routes_do_not_return(self) -> None:
         paths = [ROOT / "AGENTS.md"]

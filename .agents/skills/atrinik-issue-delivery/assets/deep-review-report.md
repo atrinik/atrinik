@@ -1,6 +1,8 @@
 # Deep self-review: `<owner>/<repository> <issue|PR> #<number>`
 
-This ignored local report tracks evidence for the complete current-base diff.
+This ignored local report tracks human evidence for the complete current-base
+diff. It is never ownership or recovery authority; the strict schema-v1 JSON
+sidecar managed by `scripts/delivery_ledger.py` is authoritative.
 Do not include credentials, confidential material, or unnecessarily actionable
 vulnerability detail. Do not commit or publish this report.
 
@@ -11,10 +13,11 @@ vulnerability detail. Do not commit or publish this report.
 - Selected pull request(s): `<one URL in PR mode; URL(s) or pending in issue mode>`
 - Claim/linkage state: `<claimed explicit issue | linked issues read-only | none>`
 - Issue-closing path: `<default-branch PR URL, manual post-merge close, or none>`
-- Report identity: `<canonical issue | canonical PR | legacy-migrated issue>`
-- Current artifact ledger: `<mutable planned/created/adopted branch/worktree/PR slots>`
-- Immutable migration snapshot: `<none or legacy path/SHA-256 and source coordinates/identity>`
-- Migration sidecar: `<none or exact path and planned/complete state>`
+- Report identity: `<canonical issue | canonical PR | migrated issue>`
+- State ledger: `<absolute sidecar path; schema v1; generation; SHA-256>`
+- Authority/program: `<kind/reference/actor; exact master/leaf/position or none>`
+- Artifact summary: `<non-authoritative mirror of planned/created/adopted slots>`
+- Migration evidence: `<none or exact source/snapshot/marker paths and hashes>`
 - Review started / last refreshed: `<UTC timestamps>`
 
 | Release line / owner | Target / fetched base | Head branch / SHA | Merge base | Worktree | Commits reviewed |
@@ -101,6 +104,7 @@ accessibility/localization, docs and manual verification>`
 
 | Kind | Exact name/coordinates | Reused, created, or preserved | Reason / cleanup rule |
 | --- | --- | --- | --- |
+| Scope/worktree | `<scope slot/name/external generation; producer-linked current path>` | `<disposition>` | `<returned identity/digest and release rule>` |
 | Profile/build | `<value or none>` | `<disposition>` | `<evidence>` |
 | Server/client data | `<value or none>` | `<disposition>` | `<evidence>` |
 | Scenario/state | `<value or none>` | `<disposition>` | `<evidence>` |
@@ -122,6 +126,13 @@ accessibility/localization, docs and manual verification>`
 - Repeat: `<safe repeat/reset instructions>`
 - Shutdown and cleanup: `<exact commands; no cleanup apply>`
 
+## Remote publication evidence
+
+- Body ownership: `<contributor-owned/read-only or delivery-created>`
+- Marker/comment check: `<coordinate-bound marker; complete pagination; actor/match/action>`
+- Target drift: `<none or cancelled intent and replanned ledger generation>`
+- Rendered result: `<body/comment/linkage verification>`
+
 ## Exit audit
 
 - [ ] Every requirement is traced.
@@ -135,6 +146,8 @@ accessibility/localization, docs and manual verification>`
       and no non-human blocker other than its draft state.
 - [ ] Rendered PR body, comments/threads, mergeability, and expected checks were
       rechecked at that same HEAD.
+- [ ] Contributor-owned bodies stayed read-only; marker/comment recovery used a
+      complete inventory, and target drift cancelled stale intents before replan.
 - [ ] Selected issues, if any, remain open; every PR remains unmerged; no
       self-approval, force-push, destructive reset, credential disclosure, or
       cleanup apply occurred.
