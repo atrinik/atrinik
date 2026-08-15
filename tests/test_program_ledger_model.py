@@ -273,6 +273,26 @@ class ProgramLedgerModel:
         return hashlib.sha256(ProgramLedgerModel.canonical(results)).hexdigest()
 
     @classmethod
+    def child_projection(
+        cls, issues: list[dict[str, object]],
+    ) -> list[dict[str, object]]:
+        return [{
+            "node": issue["node"],
+            "creator": issue.get("creator"),
+            "title_sha256": hashlib.sha256(
+                cls.canonical(issue.get("title"))
+            ).hexdigest(),
+            "body_sha256": hashlib.sha256(
+                cls.canonical(issue.get("body"))
+            ).hexdigest(),
+            "marker": issue.get("marker"),
+            "child_marker": issue.get("child_marker"),
+            "backlink": issue.get("backlink"),
+            "parent": issue.get("parent"),
+            "created_at": issue.get("created_at"),
+        } for issue in issues]
+
+    @classmethod
     def fresh(cls, lock_exists: bool, ledger_exists: bool) -> "ProgramLedgerModel":
         if lock_exists or ledger_exists:
             raise StopClosed("not a provably fresh coordinate")
@@ -966,9 +986,29 @@ class ProgramLedgerModel:
         if not isinstance(issues, list) or any(
             not isinstance(issue, dict)
             or not isinstance(issue.get("node"), str) or not issue["node"]
+            or not self.string_is_bounded(issue["node"])
+            or any(
+                isinstance(issue.get(field), str)
+                and not self.string_is_bounded(issue[field])
+                for field in (
+                    "creator", "title", "body", "marker", "child_marker",
+                    "backlink", "parent", "created_at",
+                )
+            )
             for issue in issues
         ):
             raise StopClosed("child search contains an invalid issue node identity")
+        body_sizes = [
+            len(issue.get("body", "").encode("utf-8"))
+            if isinstance(issue.get("body", ""), str) else 0
+            for issue in issues
+        ]
+        if (
+            len(issues) > 10_000
+            or any(size > 65_536 for size in body_sizes)
+            or sum(body_sizes) > 16 * 1024 * 1024
+        ):
+            raise StopClosed("child search exceeds remote observation bounds")
         candidates, evidence = [], []
         for issue in issues:
             marker = issue.get("marker")
@@ -987,22 +1027,14 @@ class ProgramLedgerModel:
                 candidates.append(issue)
             else:
                 evidence.append(issue)
-        projection = [{
-            "node": issue["node"],
-            "creator": issue.get("creator"),
-            "title": issue.get("title"),
-            "body": issue.get("body"),
-            "marker": issue.get("marker"),
-            "child_marker": issue.get("child_marker"),
-            "backlink": issue.get("backlink"),
-            "parent": issue.get("parent"),
-        } for issue in issues]
+        projection = self.child_projection(issues)
         content_digest = hashlib.sha256(self.canonical(projection)).hexdigest()
         self._observe(
-            "child", content_digest, self.result_stream(candidates), len(candidates),
+            "child", content_digest,
+            self.result_stream(self.child_projection(candidates)), len(candidates),
             True, scan,
             [issue["node"] for issue in issues],
-            [len(str(issue.get("body", "")).encode("utf-8")) for issue in issues],
+            body_sizes,
         )
         return candidates, evidence
 
@@ -1226,7 +1258,7 @@ class ProgramLedgerModel:
             raise StopClosed("child result identity was not newly created")
         self._bind(
             "create", [item["node"] for item in exact],
-            self.result_stream(candidates),
+            self.result_stream(self.child_projection(candidates)),
             exact[0]["created_at"] if exact else None,
         )
 
@@ -2361,6 +2393,12 @@ class ProgramLedgerModelTests(unittest.TestCase):
         }
         candidates, _ = ProgramLedgerModel().classify_child([prefixed])
         self.assertEqual(candidates, [prefixed])
+        large = ProgramLedgerModel()
+        large.classify_child([{
+            "node": f"large-issue-{index}", "body": "x" * 65_536,
+        } for index in range(129)])
+        large.plan_create()
+        self.assertEqual(large.record["observation"]["child"]["nodes"], 129)
         model.plan_create()
         with self.assertRaises(StopClosed):
             ProgramLedgerModel().classify_child([], "before", "after")
