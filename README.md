@@ -1209,10 +1209,13 @@ admission, then transitions it to `admitted` through a per-coordinate transition
 gate under owner-directory serialization. The main lock is acquired before that
 short gate, so a blocked request cannot convoy compatible peers or prevent the
 current holder from releasing. Diagnostics list admitted holders before queued
-waiters and cannot reap a
-partially published record. Failed publication removes its exact token; if the
-filesystem also refuses that cleanup, the operation fails closed and reports
-the retained token as cleanup uncertainty.
+waiters, rendezvous with every in-progress admission before returning a stable
+snapshot, and cannot reap a partially published record. Failed publication
+removes its exact token; if the filesystem also refuses that cleanup, the
+operation fails closed and reports the retained token as cleanup uncertainty.
+Teardown always releases the main lease even when owner-metadata finalization
+fails, while reporting retained metadata uncertainty for later diagnostic
+reaping.
 Requests acquire that deterministic order. A writer queued for one coordinate
 precedes later readers of that coordinate, while unrelated resources continue:
 two builds on different worktrees of one repository overlap, and init/sync for

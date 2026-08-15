@@ -295,10 +295,14 @@ The requester publishes and locks `waiting` metadata before main-lock admission,
 then transitions it to `admitted` through a per-coordinate transition gate under
 owner-directory serialization. It acquires the main lock before the short gate;
 blocked requests therefore cannot convoy compatible peers or prevent holder
-release. Summaries prioritize admitted holders before queued waiters, even at the bounded record
-cap. The same serialization prevents a scan from reaping partial publication.
-A publication failure unlinks its exact token; simultaneous cleanup refusal is
-reported as fail-closed uncertainty naming the retained evidence.
+release. Summaries prioritize admitted holders before queued waiters, even at
+the bounded record cap, and rendezvous with every in-progress admission before
+returning a stable snapshot. The same serialization prevents a scan from
+reaping partial publication. A publication failure unlinks its exact token;
+simultaneous cleanup refusal is reported as fail-closed uncertainty naming the
+retained evidence. Teardown unconditionally releases the main lease even when
+owner-metadata finalization fails, retaining and reporting metadata uncertainty
+for later diagnostic reaping.
 Because an inert scenario can retain a pre-migration checkout name, a common-Git
 physical-reference registry lease spans the complete one-time classification;
 worktree removal and cleanup take it exclusively, so they cannot reach an

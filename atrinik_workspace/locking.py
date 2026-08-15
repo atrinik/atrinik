@@ -289,7 +289,7 @@ def _lease_owner_summary(
     descriptions.sort()
     if (
         wait_for_transition
-        and not any(item[0] == 0 for item in descriptions)
+        and any(item[0] == 1 for item in descriptions)
     ):
         transition = path.with_name(f"{path.name}.owner-transition.lock")
         try:
@@ -801,30 +801,53 @@ def _resource_owner(
     try:
         yield admit, bind_release
     finally:
-        inherit_stack.close()
-        owner_lease.close()
-        fcntl.flock(owner_descriptor, fcntl.LOCK_EX)
+        teardown_errors: list[tuple[str, BaseException]] = []
+        try:
+            inherit_stack.close()
+        except BaseException as error:
+            teardown_errors.append(("cannot close inherited owner lease", error))
+        owner_lease_descriptor = owner_lease.fileno()
+        try:
+            owner_lease.close()
+        except BaseException as error:
+            teardown_errors.append(("cannot close owner lease", error))
+            try:
+                os.close(owner_lease_descriptor)
+            except OSError as close_error:
+                teardown_errors.append(
+                    ("cannot force-close owner lease", close_error)
+                )
+        owner_directory_locked = False
+        try:
+            fcntl.flock(owner_descriptor, fcntl.LOCK_EX)
+            owner_directory_locked = True
+        except BaseException as error:
+            teardown_errors.append(("cannot lock owner directory", error))
         release_error: BaseException | None = None
         if release_main_lock is not None:
             try:
                 release_main_lock()
             except BaseException as error:
                 release_error = error
-        os.close(descriptor)
+        try:
+            os.close(descriptor)
+        except OSError as error:
+            teardown_errors.append(("cannot close owner metadata", error))
         cleanup_descriptor: int | None = None
         try:
-            cleanup_flags = os.O_RDWR | os.O_CLOEXEC
-            if hasattr(os, "O_NOFOLLOW"):
-                cleanup_flags |= os.O_NOFOLLOW
-            cleanup_descriptor = os.open(
-                metadata_path.name,
-                cleanup_flags,
-                dir_fd=owner_descriptor,
-            )
-            fcntl.flock(
-                cleanup_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
-            )
-            os.unlink(metadata_path.name, dir_fd=owner_descriptor)
+            if owner_directory_locked:
+                cleanup_flags = os.O_RDWR | os.O_CLOEXEC
+                if hasattr(os, "O_NOFOLLOW"):
+                    cleanup_flags |= os.O_NOFOLLOW
+                cleanup_descriptor = os.open(
+                    metadata_path.name,
+                    cleanup_flags,
+                    dir_fd=owner_descriptor,
+                )
+                fcntl.flock(
+                    cleanup_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
+                )
+                os.unlink(metadata_path.name, dir_fd=owner_descriptor)
         except (FileNotFoundError, BlockingIOError, OSError):
             # An inherited descriptor deliberately keeps the owner record live;
             # a later diagnostic scan reaps it after the child exits.
@@ -836,6 +859,14 @@ def _resource_owner(
             os.close(parent_descriptor)
         if release_error is not None:
             raise release_error
+        if teardown_errors:
+            detail = "; ".join(
+                f"{label}: {error}" for label, error in teardown_errors
+            )
+            raise WorkspaceError(
+                f"cannot finalize resource lease owner metadata "
+                f"{metadata_path}; main lease released; {detail}"
+            ) from teardown_errors[0][1]
 
 
 @contextmanager
