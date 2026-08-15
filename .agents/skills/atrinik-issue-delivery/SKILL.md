@@ -151,17 +151,18 @@ owner `AGENTS.md`; do not duplicate procedures.
   list, run `worktree-observe`, then atomic `worktree-bind-cas`. Generic `cas`
   cannot bind it; `worktree-bind` only diagnoses. Never reconstruct paths.
   Verify initial `HEAD` equals the mode's recorded SHA.
-- Reuse a registered worktree only when immutable repository, branch, head,
-  ownership, mode, and ledger coordinates match. Dirty, detached, locked,
-  active, foreign, or uncertain stops. Retain an exact ledger profile/reference
-  only with a matching selector and all holders stopped and live-verified;
-  refresh via CAS. For proof only, an incomplete current-stack profile is inert
-  when every present selector validates and none selects the candidate;
-  otherwise stop. Retain a complete unreleased scope only while its external
+- Reuse only when repository, branch, head, ownership, mode, and ledger
+  coordinates match. Never resume or edit a dirty, detached, locked, active,
+  foreign, or uncertain worktree. A ledger-recorded profile/reference requires
+  a matching selector and stopped, live-verified holders; refresh via CAS. In
+  proof, an incomplete current-stack profile is inert only if present selectors
+  validate and miss the candidate; otherwise stop. Retain a complete unreleased
+  scope only while its external
   generation, raw digest, identities, absent release journal, and safety match.
   Released scopes and other references block. Give each physical repository
   its own worktree, branch, commits, validation, and PR in its owner. In PR mode,
-  another repository needs separate type-explicit delivery authority.
+  this does not authorize a companion PR; another repository needs separate
+  type-explicit delivery authority.
 
 ## Implement and publish or update PRs
 
