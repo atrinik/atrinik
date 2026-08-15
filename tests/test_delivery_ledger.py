@@ -381,12 +381,13 @@ def live_roots(base: Path, checkout: str) -> dict[str, object]:
     wrapper.mkdir(parents=True, exist_ok=True)
     workspace.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "components.json", wrapper / "components.json")
+    shutil.copy2(ROOT / "atrinik", wrapper / "atrinik")
     shutil.copytree(ROOT / "atrinik_workspace", wrapper / "atrinik_workspace")
     git_run(wrapper, "init", "--initial-branch=main")
     git_run(wrapper, "config", "user.name", "Delivery Test")
     git_run(wrapper, "config", "user.email", "delivery@example.invalid")
     git_run(wrapper, "remote", "add", "origin", "https://github.com/atrinik/atrinik.git")
-    git_run(wrapper, "add", "components.json", "atrinik_workspace")
+    git_run(wrapper, "add", "components.json", "atrinik", "atrinik_workspace")
     git_run(wrapper, "commit", "-m", "test wrapper")
     primary = wrapper if checkout == "atrinik" else wrapper / checkout
     if primary != wrapper:
@@ -514,8 +515,42 @@ def live_worktree_path(request: dict[str, object]) -> Path:
     return path
 
 
-def worktree_list_bytes(request: dict[str, object]) -> bytes:
+def worktree_list_bytes(
+    request: dict[str, object], *, use_wrapper_command: bool = True
+) -> bytes:
     live_worktree_path(request)
+    if request["physical_checkout"] == "atrinik" and use_wrapper_command:
+        wrapper = Path(request["roots"]["wrapper"]["path"])
+        git_executable = shutil.which("git")
+        if git_executable is None:  # pragma: no cover - test prerequisite
+            raise RuntimeError("git executable is unavailable")
+        # Capture post-trust producer behavior from the known-good copied
+        # wrapper without inheriting CI secrets or Python/Git selector controls.
+        # Trust-before-import adversaries use retained raw evidence below.
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-B",
+                str(wrapper / "atrinik"),
+                "worktree",
+                "list",
+                "--wrapper-self",
+                "--json",
+            ],
+            cwd=wrapper,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env={
+                "ATRINIK_WORKSPACE_DIR": request["roots"]["workspace"]["path"],
+                "GIT_CONFIG_NOSYSTEM": "1",
+                "GIT_CONFIG_GLOBAL": "/dev/null",
+                "GIT_CONFIG_SYSTEM": "/dev/null",
+                "LC_ALL": "C",
+                "PATH": str(Path(git_executable).absolute().parent),
+            },
+        )
+        return result.stdout
     primary = Path(request["roots"]["primary"]["path"])
     result = subprocess.run(
         ["git", "-C", str(primary), "worktree", "list", "--porcelain", "-z"],
@@ -4833,12 +4868,19 @@ class DeliveryLedgerTests(unittest.TestCase):
         listed = json.loads(worktree_list)
         for label, mutate in (
             ("missing", lambda rows: rows.pop()),
+            ("duplicate", lambda rows: rows.append(copy.deepcopy(rows[-1]))),
             ("advanced head", lambda rows: rows[-1].update(HEAD=SHA_B)),
             (
                 "detached",
                 lambda rows: (rows[-1].pop("branch"), rows[-1].update(detached="")),
             ),
             ("locked", lambda rows: rows[-1].update(locked="delivery")),
+            (
+                "prunable",
+                lambda rows: rows[-1].update(
+                    prunable="gitdir file points to non-existent location"
+                ),
+            ),
         ):
             with self.subTest(worktree_list=label):
                 changed = copy.deepcopy(listed)
@@ -5694,6 +5736,9 @@ class DeliveryLedgerTests(unittest.TestCase):
         )["primitive_request"]
         path = live_worktree_path(request)
         worktree_list = worktree_list_bytes(request)
+        listed = json.loads(worktree_list)
+        self.assertEqual(listed[-1]["component"], "atrinik")
+        self.assertEqual(listed[-1]["worktree"], str(path))
         observation = ledger.observe_primitive_worktree(
             document,
             "worktree",
@@ -7659,7 +7704,10 @@ class DeliveryLedgerTests(unittest.TestCase):
                     if slot["kind"] == "worktree"
                 )["primitive_request"]
                 live_worktree_path(request)
-                listing = worktree_list_bytes(request)
+                # This test deliberately poisons the wrapper package before the
+                # ledger proves it safe, so invoking that wrapper here would
+                # defeat the trust-before-exec property under test.
+                listing = worktree_list_bytes(request, use_wrapper_command=False)
                 with self.assertRaisesRegex(
                     ledger.LedgerError,
                     "wrapper authority package.*(writable|regular|directory)",
