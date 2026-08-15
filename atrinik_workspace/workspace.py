@@ -4139,88 +4139,99 @@ class Workspace:
             )
         generation = container / key
         lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
+
+        def reuse_generation() -> Path:
+            if generation.is_symlink() or not generation.is_dir():
+                raise WorkspaceError(
+                    f"immutable source generation is invalid: {generation}"
+                )
+            current_git_common = self._git_common_directory(checkout, trace=False)
+            current_checkout = checkout.stat()
+            current_source = source.stat()
+            current_git_common_identity = current_git_common.stat()
+            if (
+                (current_checkout.st_dev, current_checkout.st_ino)
+                != (state["device"], state["inode"])
+                or str(current_git_common) != state["git_common"]
+                or (
+                    current_git_common_identity.st_dev,
+                    current_git_common_identity.st_ino,
+                )
+                != (
+                    state["git_common_device"],
+                    state["git_common_inode"],
+                )
+                or state["sources"][component.source]
+                != {
+                    "path": str(source.resolve()),
+                    "device": current_source.st_dev,
+                    "inode": current_source.st_ino,
+                }
+                or not _is_clean(checkout, trace=False)
+                or git(
+                    checkout,
+                    "rev-parse",
+                    "HEAD",
+                    capture=True,
+                    trace=False,
+                )
+                != commit
+            ):
+                raise WorkspaceError(
+                    f"clean primary source changed before generation reuse: {checkout}"
+                )
+            record = self._source_generation_record(generation / "source")
+            if record is None or any(
+                record.get(field) != value for field, value in identity.items()
+            ):
+                raise _SourceGenerationCorrupt(
+                    f"immutable source generation is corrupt: {generation}"
+                )
+            self._validate_source_generation_git_closure(
+                checkout,
+                generation,
+                source_tree,
+                tree,
+                source_includes,
+            )
+            reuse_inventory = self._validate_source_generation_boundary(
+                generation, require_sealed=True
+            )
+            source_digest = _tree_digest(
+                generation / "source",
+                set(),
+                bounded_symlinks=True,
+                reject_hardlinks=True,
+            )
+            closure_digest = _source_closure_digest(
+                generation, component.source_includes
+            )
+            if (
+                record["source_tree_sha256"] != source_digest
+                or record["closure_tree_sha256"] != closure_digest
+            ):
+                raise _SourceGenerationCorrupt(
+                    f"immutable source generation is corrupt: {generation}"
+                )
+            self._durably_resync_source_generation(
+                generation,
+                expected_inventory=reuse_inventory,
+            )
+            return generation / "source"
+
+        if generation.exists() or generation.is_symlink():
+            try:
+                with shared_lock(
+                    lock, f"immutable source generation {component.name}"
+                ):
+                    return reuse_generation()
+            except _SourceGenerationCorrupt:
+                pass
+
         with exclusive_lock(lock, f"immutable source generation {component.name}"):
             if generation.exists() or generation.is_symlink():
-                if generation.is_symlink() or not generation.is_dir():
-                    raise WorkspaceError(
-                        f"immutable source generation is invalid: {generation}"
-                    )
-                current_git_common = self._git_common_directory(
-                    checkout, trace=False
-                )
-                current_checkout = checkout.stat()
-                current_source = source.stat()
-                current_git_common_identity = current_git_common.stat()
-                if (
-                    (current_checkout.st_dev, current_checkout.st_ino)
-                    != (state["device"], state["inode"])
-                    or str(current_git_common) != state["git_common"]
-                    or (
-                        current_git_common_identity.st_dev,
-                        current_git_common_identity.st_ino,
-                    )
-                    != (
-                        state["git_common_device"],
-                        state["git_common_inode"],
-                    )
-                    or state["sources"][component.source]
-                    != {
-                        "path": str(source.resolve()),
-                        "device": current_source.st_dev,
-                        "inode": current_source.st_ino,
-                    }
-                    or not _is_clean(checkout, trace=False)
-                    or git(
-                        checkout,
-                        "rev-parse",
-                        "HEAD",
-                        capture=True,
-                        trace=False,
-                    )
-                    != commit
-                ):
-                    raise WorkspaceError(
-                        f"clean primary source changed before generation reuse: {checkout}"
-                    )
                 try:
-                    record = self._source_generation_record(generation / "source")
-                    if record is None or any(
-                        record.get(field) != value
-                        for field, value in identity.items()
-                    ):
-                        raise _SourceGenerationCorrupt(
-                            f"immutable source generation is corrupt: {generation}"
-                        )
-                    self._validate_source_generation_git_closure(
-                        checkout,
-                        generation,
-                        source_tree,
-                        tree,
-                        source_includes,
-                    )
-                    reuse_inventory = self._validate_source_generation_boundary(
-                        generation, require_sealed=True
-                    )
-                    source_digest = _tree_digest(
-                        generation / "source",
-                        set(),
-                        bounded_symlinks=True,
-                        reject_hardlinks=True,
-                    )
-                    closure_digest = _source_closure_digest(
-                        generation, component.source_includes
-                    )
-                    if (
-                        record["source_tree_sha256"] != source_digest
-                        or record["closure_tree_sha256"] != closure_digest
-                    ):
-                        raise _SourceGenerationCorrupt(
-                            f"immutable source generation is corrupt: {generation}"
-                        )
-                    self._durably_resync_source_generation(
-                        generation,
-                        expected_inventory=reuse_inventory,
-                    )
+                    return reuse_generation()
                 except _SourceGenerationCorrupt as error:
                     try:
                         self._quarantine_source_generation(
@@ -4231,8 +4242,6 @@ class Workspace:
                             f"immutable source generation is corrupt and cannot "
                             f"be recovered safely: {generation}: {recovery_error}"
                         ) from error
-                else:
-                    return generation / "source"
 
             staging = Path(
                 tempfile.mkdtemp(prefix=f"{key}-staging-", dir=container)
@@ -17326,18 +17335,55 @@ class Workspace:
     ) -> tuple[dict[str, Any], bool]:
         root = self._topology_directory(name)
         control = status["control"]
+        initial_observation = status.get("observation")
+        control_was_reachable = (
+            isinstance(initial_observation, dict)
+            and initial_observation.get("control") == "reachable"
+        )
         requested = self._topology_control_request(name, control, "stop")
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             current = self.topology_status(name)
             active = self._topology_process_tree_active(root, control)
-            if not active and not current["supervisor"]["running"] and not any(
-                service["running"] for service in current["services"].values()
+            state = current.get("state")
+            state_lease_active = False
+            if isinstance(state, str):
+                try:
+                    state_lease_active = lease_locked(Path(f"{state}.lock"))
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot inspect topology state lease during down: {error}"
+                    ) from error
+            observation = current.get("observation")
+            coordinates_released = (
+                not isinstance(observation, dict)
+                or (
+                    observation.get("process_tree_lease") == "released"
+                    and not state_lease_active
+                )
+            )
+            shutdown = current.get("shutdown")
+            shutdown_observed = (
+                isinstance(shutdown, dict)
+                and shutdown.get("control_requested") is True
+                and isinstance(shutdown.get("clean"), bool)
+            )
+            if (
+                not active
+                and not current["supervisor"]["running"]
+                and not any(
+                    service["running"] for service in current["services"].values()
+                )
+                and coordinates_released
+                and (
+                    not isinstance(observation, dict)
+                    or (not requested and not control_was_reachable)
+                    or current.get("error") is not None
+                    or shutdown_observed
+                )
             ):
-                shutdown = current.get("shutdown")
                 confirmed_clean = bool(
-                    isinstance(shutdown, dict)
-                    and shutdown.get("control_requested") is True
+                    shutdown_observed
                     and shutdown.get("clean") is True
                     and current.get("error") is None
                 )
