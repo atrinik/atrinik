@@ -2030,9 +2030,19 @@ class _SourceGenerationCorrupt(WorkspaceError):
 
 
 class Workspace:
-    def __init__(self, repository: Path, *, backfill_references: bool = True):
+    def __init__(
+        self,
+        repository: Path,
+        *,
+        backfill_references: bool = True,
+        manifest: Manifest | None = None,
+    ):
         self.paths = Paths.discover(repository)
-        self.manifest = Manifest.load(self.paths.repository / "components.json")
+        self.manifest = (
+            manifest
+            if manifest is not None
+            else Manifest.load(self.paths.repository / "components.json")
+        )
         self._wrapper_lease: Any = None
         self._build_state = threading.local()
         self._prefix_map_support: dict[
@@ -2068,7 +2078,11 @@ class Workspace:
             != (current_namespace.st_dev, current_namespace.st_ino)
         ):
             raise WorkspaceError("wrapper worktree identity changed while acquiring its lease")
-        self.manifest = Manifest.load(self.paths.repository / "components.json")
+        self.manifest = (
+            manifest
+            if manifest is not None
+            else Manifest.load(self.paths.repository / "components.json")
+        )
         self._physical_lease_namespace_identity = namespace_identity
         if backfill_references:
             self._backfill_physical_references()

@@ -7055,6 +7055,139 @@ class DeliveryLedgerTests(unittest.TestCase):
             )
         self.assertEqual(profile_path.read_bytes(), profile_before)
 
+    def test_40d_manifest_mapping_drift_during_bind_fails_closed(self) -> None:
+        document, request, worktree_list, profile_path, _profile_before = (
+            self._stale_profile_worktree_fixture(
+                "stale-manifest-drift", claims_candidate=False
+            )
+        )
+        profile = json.loads(profile_path.read_bytes())
+        profile["components"].pop("content")
+        profile["components"]["sound"] = {
+            "kind": "worktree",
+            "value": request["label"],
+        }
+        profile_path.write_bytes(json_bytes(profile))
+        profile_before = profile_path.read_bytes()
+        manifest_path = Path(request["roots"]["wrapper"]["path"]) / "components.json"
+        manifest_before = manifest_path.read_bytes()
+        changed_manifest = json.loads(manifest_before)
+        for component in changed_manifest["components"]:
+            if component["name"] == "content":
+                component["source"] = "content"
+            elif component["name"] == "sound":
+                component["checkout"] = "content"
+                component["source"] = "sound"
+        parsed_manifest = Manifest.from_value(changed_manifest)
+        self.assertEqual(parsed_manifest.by_name["sound"].checkout_name, "content")
+        self.assertEqual(
+            Path(request["roots"]["workspace"]["path"])
+            / "worktrees"
+            / parsed_manifest.by_name["sound"].checkout_name
+            / request["label"],
+            live_worktree_path(request),
+        )
+
+        original_module_loader = ledger._load_workspace_module
+        constructed_workspaces = []
+
+        def load_with_postconstruction_drift(wrapper_root: str):
+            module = original_module_loader(wrapper_root)
+
+            def drifting_workspace(*args, **kwargs):
+                workspace = module.Workspace(*args, **kwargs)
+                constructed_workspaces.append(workspace)
+                manifest_path.write_bytes(json_bytes(changed_manifest))
+                return workspace
+
+            return type(
+                "DriftingWorkspaceModule",
+                (),
+                {
+                    "Manifest": module.Manifest,
+                    "Workspace": staticmethod(drifting_workspace),
+                },
+            )
+
+        try:
+            with mock.patch.object(
+                ledger,
+                "_load_workspace_module",
+                side_effect=load_with_postconstruction_drift,
+            ), self.assertRaisesRegex(
+                ledger.LedgerError, "manifest authority changed"
+            ):
+                ledger.observe_primitive_worktree(
+                    document,
+                    "worktree",
+                    worktree_list,
+                    "2026-08-15T22:45:00Z",
+                )
+        finally:
+            manifest_path.write_bytes(manifest_before)
+        self.assertEqual(len(constructed_workspaces), 1)
+        self.assertIsNone(constructed_workspaces[0]._wrapper_lease)
+
+        def load_with_manifest_aba(wrapper_root: str):
+            module = original_module_loader(wrapper_root)
+
+            def racing_workspace(*args, **kwargs):
+                manifest_path.write_bytes(json_bytes(changed_manifest))
+                try:
+                    return module.Workspace(*args, **kwargs)
+                finally:
+                    manifest_path.write_bytes(manifest_before)
+
+            return type(
+                "RacingWorkspaceModule",
+                (),
+                {
+                    "Manifest": module.Manifest,
+                    "Workspace": staticmethod(racing_workspace),
+                },
+            )
+
+        with mock.patch.object(
+            ledger,
+            "_load_workspace_module",
+            side_effect=load_with_manifest_aba,
+        ):
+            observation = ledger.observe_primitive_worktree(
+                document,
+                "worktree",
+                worktree_list,
+                "2026-08-15T22:46:00Z",
+            )
+        self.assertEqual(observation["safety"], ledger.SAFE_ARTIFACT_STATE)
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            review_root = Path(temporary)
+            initial = ledger.create(review_root, document)
+            before = directory_snapshot(review_root)
+
+            def replace_manifest_mapping(point: str) -> None:
+                if point == "cas:proofed":
+                    manifest_path.write_bytes(json_bytes(changed_manifest))
+
+            try:
+                with self.assertRaisesRegex(
+                    ledger.LedgerError, "manifest authority changed"
+                ):
+                    ledger.bind_worktree_cas(
+                        review_root,
+                        initial.name,
+                        "worktree",
+                        worktree_list,
+                        json_bytes(observation),
+                        failpoint=replace_manifest_mapping,
+                        **cas_arguments(initial),
+                    )
+                self.assertEqual(directory_snapshot(review_root), before)
+                self.assertEqual(profile_path.read_bytes(), profile_before)
+            finally:
+                manifest_path.write_bytes(manifest_before)
+
     def test_41_fresh_known_paths_and_report_coordinate_reservations_stop(self) -> None:
         for mode, candidate in (
             ("issue", issue_ledger()),

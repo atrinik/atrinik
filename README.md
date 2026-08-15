@@ -1269,7 +1269,7 @@ workspace-local.
 
 Delivery live proof also reads saved profiles through a bounded, pinned,
 descriptor-relative inventory without modifying them. A profile whose selector
-map is missing only components added to its current stack is
+map is a strict subset of its current stack is
 historical for reference discovery: its retained selectors are still fully
 validated, and any selector resolving to the candidate worktree remains a
 blocking reference. Extra components, malformed selectors, and other uncertain

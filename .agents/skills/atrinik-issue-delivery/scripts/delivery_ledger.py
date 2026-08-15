@@ -1121,6 +1121,7 @@ def _pinned_live_worktree(
             path,
             allowed,
             context,
+            wrapper_directory=descriptors["wrapper"],
             workspace_directory=descriptors["workspace"],
             scope_record=scope_record,
         ) as authority_recheck:
@@ -1183,6 +1184,7 @@ def _workspace_safety_lease(
     allowed_references: frozenset[str],
     context: str,
     *,
+    wrapper_directory: int,
     workspace_directory: int,
     scope_record: Mapping[str, Any] | None = None,
 ) -> Iterator[Callable[[], None]]:
@@ -1194,10 +1196,47 @@ def _workspace_safety_lease(
     workspace = None
     profiles_directory = None
     try:
+        manifest_raw, manifest_status = _read_regular(
+            wrapper_directory, "components.json"
+        )
+        _require_trusted_regular(
+            manifest_status, f"{context} workspace manifest authority"
+        )
+        manifest_identity = (manifest_status.st_dev, manifest_status.st_ino)
+
+        def recheck_manifest() -> None:
+            current_raw, current_status = _read_regular(
+                wrapper_directory, "components.json"
+            )
+            _require_trusted_regular(
+                current_status, f"{context} workspace manifest authority"
+            )
+            if (
+                current_raw != manifest_raw
+                or (current_status.st_dev, current_status.st_ino)
+                != manifest_identity
+            ):
+                raise LedgerError(
+                    f"{context} workspace manifest authority changed during live proof"
+                )
+
         module = _load_workspace_module(wrapper_root)
-        workspace = module.Workspace(Path(wrapper_root), backfill_references=False)
+        recheck_manifest()
+        retained_manifest = module.Manifest.from_value(
+            _decode(manifest_raw, f"{context} retained workspace manifest")
+        )
+        workspace = module.Workspace(
+            Path(wrapper_root),
+            backfill_references=False,
+            manifest=retained_manifest,
+        )
+        recheck_manifest()
     except Exception as error:
-        _leave_workspace_environment(saved_environment)
+        try:
+            if workspace is not None:
+                workspace.close()
+        finally:
+            _leave_workspace_environment(saved_environment)
         raise LedgerError(f"{context} cannot establish wrapper safety proof: {error}") from error
     try:
         if (
@@ -1300,6 +1339,7 @@ def _workspace_safety_lease(
             with locks:
                 def recheck() -> None:
                     try:
+                        recheck_manifest()
                         if profiles_directory is None:
                             try:
                                 os.stat(
@@ -1345,6 +1385,7 @@ def _workspace_safety_lease(
                                 str(profiles_path),
                                 f"{context} profiles root",
                             )
+                        recheck_manifest()
                     except LedgerError:
                         raise
                     except Exception as error:
