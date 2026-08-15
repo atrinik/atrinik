@@ -5786,6 +5786,31 @@ class DeliveryLedgerTests(unittest.TestCase):
         scope_show = scope_show_bytes(request, repository_name="atrinik/client")
         install_scope_references(request, scope_show)
         worktree_list = worktree_list_bytes(request)
+        manifest = Manifest.load(Path(roots["wrapper"]["path"]) / "components.json")
+        components = {
+            component.name: {"kind": "primary", "value": ""}
+            for component in manifest.stack("default").components
+        }
+        components.pop("resources")
+        profile_path = (
+            Path(roots["workspace"]["path"])
+            / "profiles"
+            / "stale-scope-unrelated.json"
+        )
+        profile_path.parent.mkdir(parents=True, exist_ok=True)
+        profile_path.write_bytes(
+            json_bytes(
+                {
+                    "schema_version": 5,
+                    "name": "stale-scope-unrelated",
+                    "stack": "default",
+                    "sound_mode": "source",
+                    "sound_release": None,
+                    "components": components,
+                }
+            )
+        )
+        profile_before = profile_path.read_bytes()
         observation = ledger.observe_scope_worktree(
             document,
             "scope",
@@ -5793,6 +5818,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             worktree_list,
             "2026-08-14T18:03:00Z",
         )
+        self.assertEqual(profile_path.read_bytes(), profile_before)
         safety = json_bytes(observation)
 
         with tempfile.TemporaryDirectory() as temporary:
@@ -5813,6 +5839,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 value for value in bound.document["resources"] if value["kind"] == "scope"
             )
             self.assertEqual(resource["current"]["external_generation"], "1" * 32)
+            self.assertEqual(profile_path.read_bytes(), profile_before)
 
             advanced_outcome: list[object] = []
 
@@ -6841,6 +6868,112 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertEqual(
                 json.loads(bind.stdout)["snapshot"]["document"]["generation"], 2
             )
+
+    def _stale_profile_worktree_fixture(
+        self,
+        name: str,
+        *,
+        claims_candidate: bool,
+    ) -> tuple[dict[str, object], dict[str, object], bytes, Path, bytes]:
+        roots = live_roots(self.live_base / name, "content")
+        document = deferred_primitive_pr(
+            roots,
+            number=480 if claims_candidate else 479,
+            node="P_stale_claim" if claims_candidate else "P_stale_unrelated",
+            branch=(
+                "Feature/StaleClaim"
+                if claims_candidate
+                else "Feature/StaleUnrelated"
+            ),
+            label="stale-profile-candidate",
+        )
+        retarget_repository(document, repository("content", "R_content"))
+        request = next(
+            slot
+            for slot in document["artifacts"]
+            if slot["kind"] == "worktree"
+        )["primitive_request"]
+        request["component"] = "content"
+        request["physical_checkout"] = "content"
+        worktree_list = worktree_list_bytes(request, use_wrapper_command=False)
+
+        manifest = Manifest.load(Path(roots["wrapper"]["path"]) / "components.json")
+        stack = manifest.stack("default")
+        components = {
+            component.name: {"kind": "primary", "value": ""}
+            for component in stack.components
+        }
+        components.pop("resources")
+        if claims_candidate:
+            components["content"] = {
+                "kind": "worktree",
+                "value": request["label"],
+            }
+        profile = {
+            "schema_version": 5,
+            "name": name,
+            "stack": "default",
+            "sound_mode": "source",
+            "sound_release": None,
+            "components": components,
+        }
+        profile_path = (
+            Path(roots["workspace"]["path"]) / "profiles" / f"{name}.json"
+        )
+        profile_path.parent.mkdir(parents=True, exist_ok=True)
+        profile_path.write_bytes(json_bytes(profile))
+        return document, request, worktree_list, profile_path, profile_path.read_bytes()
+
+    def test_40a_unrelated_incomplete_profile_allows_observe_and_bind(self) -> None:
+        document, request, worktree_list, profile_path, profile_before = (
+            self._stale_profile_worktree_fixture(
+                "stale-unrelated", claims_candidate=False
+            )
+        )
+        observation = ledger.observe_primitive_worktree(
+            document,
+            "worktree",
+            worktree_list,
+            "2026-08-15T22:40:00Z",
+        )
+        self.assertEqual(observation["safety"], ledger.SAFE_ARTIFACT_STATE)
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            review_root = Path(temporary)
+            initial = ledger.create(review_root, document)
+            result = ledger.bind_worktree_cas(
+                review_root,
+                initial.name,
+                "worktree",
+                worktree_list,
+                ledger.canonical_bytes(observation),
+                expected_generation=initial.document["generation"],
+                expected_digest=initial.digest,
+                expected_device=initial.device,
+                expected_inode=initial.inode,
+            )
+        self.assertEqual(result["snapshot"]["document"]["generation"], 2)
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+        self.assertEqual(
+            result["snapshot"]["document"]["artifacts"][2]["current"]["path"],
+            str(live_worktree_path(request)),
+        )
+
+    def test_40b_incomplete_profile_claiming_candidate_still_blocks(self) -> None:
+        document, _request, worktree_list, profile_path, profile_before = (
+            self._stale_profile_worktree_fixture(
+                "stale-claim", claims_candidate=True
+            )
+        )
+        with self.assertRaisesRegex(ledger.LedgerError, "reference set differs"):
+            ledger.observe_primitive_worktree(
+                document,
+                "worktree",
+                worktree_list,
+                "2026-08-15T22:41:00Z",
+            )
+        self.assertEqual(profile_path.read_bytes(), profile_before)
 
     def test_41_fresh_known_paths_and_report_coordinate_reservations_stop(self) -> None:
         for mode, candidate in (

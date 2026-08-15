@@ -148,6 +148,16 @@ gitfile remains valid. A worktree `.git` gitfile is retained and rechecked
 through live proof, and its admin directory must be one direct registration in
 that exact common directory.
 
+Reference proof validates every selector retained by every saved profile. A
+profile whose selector map is a strict subset of its current manifest stack may
+be treated as historical for reference discovery because an absent selector
+cannot name the candidate. Every retained selector still passes the ordinary
+schema, kind, value, path, and same-checkout consistency checks. If one resolves
+to the candidate, it remains an exact profile reference and blocks unless the
+ledger authorizes that holder. Extra components, malformed selectors, invalid
+profile metadata, and every other uncertainty fail closed. Observation and
+binding never rewrite the historical profile.
+
 On both primary and worktree checkouts, Git route proof anchors exactly one raw
 local `remote.origin.url` with includes disabled. After stripping dangerous
 selector `GIT_*` variables but retaining default user/system credential and

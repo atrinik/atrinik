@@ -151,19 +151,17 @@ owner `AGENTS.md`; do not duplicate procedures.
   list, run `worktree-observe`, then atomic `worktree-bind-cas`. Generic `cas`
   cannot bind it; `worktree-bind` only diagnoses. Never reconstruct paths.
   Verify initial `HEAD` equals the mode's recorded SHA.
-- Reuse a registered worktree only when its immutable repository, branch, head,
-  ownership, mode, and ledger coordinates match. Never resume or edit a dirty,
-  detached, locked, active, foreign, or uncertain worktree. An exact
-  ledger-recorded profile/reference may remain only with a matching immutable
-  selector and every holder stopped and verified live; refresh through CAS. A
-  complete unreleased scope may remain active only while external generation,
-  raw digest, request/row/profile identities, absent release journal, and
-  artifact safety match. Released scopes and other
-  references block. Give each physical
-  repository its own worktree, branch, commits, validation, and PR;
-  keep implementation in its physical owner. In PR mode, this ownership rule
-  does not authorize a companion PR: stop and require an additional
-  type-explicit delivery coordinate and authority for another repository.
+- Reuse a registered worktree only when immutable repository, branch, head,
+  ownership, mode, and ledger coordinates match. Dirty, detached, locked,
+  active, foreign, or uncertain stops. Retain an exact ledger profile/reference
+  only with a matching selector and all holders stopped and live-verified;
+  refresh via CAS. For proof only, an incomplete current-stack profile is inert
+  when every present selector validates and none selects the candidate;
+  otherwise stop. Retain a complete unreleased scope only while its external
+  generation, raw digest, identities, absent release journal, and safety match.
+  Released scopes and other references block. Give each physical repository
+  its own worktree, branch, commits, validation, and PR in its owner. In PR mode,
+  another repository needs separate type-explicit delivery authority.
 
 ## Implement and publish or update PRs
 

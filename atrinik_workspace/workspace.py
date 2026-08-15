@@ -5954,11 +5954,16 @@ class Workspace:
                 references.append(f"{record['kind'][:-1]}:{record['reference']}")
         if self.paths.profiles.exists():
             for path in sorted(self.paths.profiles.glob("*.json")):
-                profile = self._load_profile_file(path.stem, require_file=True)
+                profile = self._load_profile_file(
+                    path.stem,
+                    require_file=True,
+                    allow_incomplete_components=True,
+                )
                 stack = self.manifest.stack(profile["stack"])
                 roots = {
                     self._selector_root(profile, component).resolve(strict=False)
                     for component in stack.components
+                    if component.name in profile["components"]
                 }
                 if target in roots:
                     references.append(f"profile:{profile['name']}")
@@ -7101,7 +7106,13 @@ class Workspace:
             return snapshot.profile()
         return self._load_profile_file(name, require_file)
 
-    def _load_profile_file(self, name: str, require_file: bool) -> dict[str, Any]:
+    def _load_profile_file(
+        self,
+        name: str,
+        require_file: bool,
+        *,
+        allow_incomplete_components: bool = False,
+    ) -> dict[str, Any]:
         validate_name(name, "profile name")
         if name in self.manifest.stacks and not require_file:
             stack = self.manifest.stack(name)
@@ -7168,7 +7179,11 @@ class Workspace:
         stack = self.manifest.stack(stack_name)
         selectors = profile["components"]
         expected = {component.name for component in stack.components}
-        if not isinstance(selectors, dict) or set(selectors) != expected:
+        if (
+            not isinstance(selectors, dict)
+            or not set(selectors).issubset(expected)
+            or (not allow_incomplete_components and set(selectors) != expected)
+        ):
             raise WorkspaceError(f"profile component set does not match manifest: {name}")
         checkout_selectors: dict[str, dict[str, Any]] = {}
         for component_name, selector in selectors.items():
