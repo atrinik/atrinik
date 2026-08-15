@@ -23,7 +23,7 @@ from .model import WorkspaceError
 LAYOUT_WRITER_INTENT_SUFFIX = ".writer-intent"
 LAYOUT_WRITER_PENDING_SUFFIX = ".writer-pending"
 LOCK_WAIT_DIAGNOSTIC_SECONDS = 10.0
-RESOURCE_LEASE_SCHEMA_VERSION = 1
+RESOURCE_LEASE_SCHEMA_VERSION = 2
 RESOURCE_KIND_ORDER = {
     "maintenance": 0,
     "registry": 10,
@@ -201,6 +201,54 @@ def _advisory_lock(
         yield lock
 
 
+def _reap_staged_resource_owners(
+    owners_descriptor: int,
+    owners: Path,
+) -> None:
+    staging_descriptor: int | None = None
+    try:
+        staging_descriptor = _open_or_create_directory_at(
+            owners_descriptor, ".pending", owners / ".pending"
+        )
+        fcntl.flock(
+            staging_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
+        )
+        metadata_names = sorted(os.listdir(staging_descriptor))
+        for metadata_name in metadata_names:
+            descriptor: int | None = None
+            try:
+                flags = os.O_RDWR | os.O_CLOEXEC
+                if hasattr(os, "O_NOFOLLOW"):
+                    flags |= os.O_NOFOLLOW
+                descriptor = os.open(
+                    metadata_name, flags, dir_fd=staging_descriptor
+                )
+                opened = os.fstat(descriptor)
+                visible = os.stat(
+                    metadata_name,
+                    dir_fd=staging_descriptor,
+                    follow_symlinks=False,
+                )
+                if (
+                    not stat.S_ISREG(visible.st_mode)
+                    or (opened.st_dev, opened.st_ino)
+                    != (visible.st_dev, visible.st_ino)
+                ):
+                    continue
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                os.unlink(metadata_name, dir_fd=staging_descriptor)
+            except (FileNotFoundError, BlockingIOError, OSError):
+                continue
+            finally:
+                if descriptor is not None:
+                    os.close(descriptor)
+    except (OSError, WorkspaceError):
+        pass
+    finally:
+        if staging_descriptor is not None:
+            os.close(staging_descriptor)
+
+
 def _lease_owner_summary(path: Path) -> str:
     owners = path.with_name(f"{path.name}.owners")
     parent_descriptor: int | None = None
@@ -217,6 +265,7 @@ def _lease_owner_summary(path: Path) -> str:
         owners_descriptor = os.open(
             owners.name, flags, dir_fd=parent_descriptor
         )
+        _reap_staged_resource_owners(owners_descriptor, owners)
         paths = sorted(os.listdir(owners_descriptor))
     except (FileNotFoundError, NotADirectoryError, PermissionError, OSError, WorkspaceError):
         if owners_descriptor is not None:
@@ -226,6 +275,8 @@ def _lease_owner_summary(path: Path) -> str:
         return "owner metadata unavailable"
     descriptions: list[str] = []
     for metadata_name in paths:
+        if not metadata_name.endswith(".json"):
+            continue
         descriptor: int | None = None
         try:
             flags = os.O_RDWR | os.O_CLOEXEC
@@ -245,32 +296,42 @@ def _lease_owner_summary(path: Path) -> str:
                 or (opened.st_dev, opened.st_ino)
                 != (visible.st_dev, visible.st_ino)
             ):
+                os.close(descriptor)
+                descriptor = None
                 continue
+            with os.fdopen(os.dup(descriptor), encoding="utf-8") as stream:
+                value = json.load(stream)
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            if descriptor is not None:
+                os.close(descriptor)
+            continue
+        if not isinstance(value, dict):
+            os.close(descriptor)
+            continue
+        schema_version = value.get("schema_version")
+        if schema_version == RESOURCE_LEASE_SCHEMA_VERSION:
             try:
                 fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError:
                 pass
+            except OSError:
+                os.close(descriptor)
+                continue
             else:
                 os.close(descriptor)
                 descriptor = None
-                os.unlink(metadata_name, dir_fd=owners_descriptor)
+                try:
+                    os.unlink(metadata_name, dir_fd=owners_descriptor)
+                except OSError:
+                    continue
                 continue
-            with os.fdopen(descriptor, encoding="utf-8") as stream:
-                descriptor = None
-                value = json.load(stream)
-        except (OSError, UnicodeError, json.JSONDecodeError):
-            continue
-        finally:
-            if descriptor is not None:
-                os.close(descriptor)
-        if not isinstance(value, dict):
-            continue
         operation = value.get("operation")
         owner = value.get("owner")
         mode = value.get("mode")
         if all(isinstance(item, str) and item for item in (operation, owner, mode)):
             if len(descriptions) < 8:
                 descriptions.append(f"{mode} {operation} by {owner}")
+        os.close(descriptor)
     os.close(owners_descriptor)
     os.close(parent_descriptor)
     return "; ".join(descriptions) if descriptions else "owner metadata unavailable"
@@ -649,6 +710,23 @@ def _resource_owner(
         raise WorkspaceError(
             f"cannot open resource lease owner directory {owners}: {error}"
         ) from error
+    staging_descriptor: int | None = None
+    try:
+        staging_descriptor = _open_or_create_directory_at(
+            owner_descriptor, ".pending", owners / ".pending"
+        )
+        fcntl.flock(staging_descriptor, fcntl.LOCK_EX)
+    except (OSError, WorkspaceError) as error:
+        if staging_descriptor is not None:
+            os.close(staging_descriptor)
+        os.close(owner_descriptor)
+        os.close(parent_descriptor)
+        raise WorkspaceError(
+            f"cannot open resource lease owner staging directory "
+            f"{owners / '.pending'}: {error}"
+        ) from error
+    publication_locked = True
+    published = False
     token = secrets.token_hex(16)
     metadata_path = owners / f"{token}.json"
     owner = f"{socket.gethostname()} uid={os.geteuid()} token={token}"
@@ -667,9 +745,10 @@ def _resource_owner(
         flags |= os.O_NOFOLLOW
     try:
         descriptor = os.open(
-            metadata_path.name, flags, 0o600, dir_fd=owner_descriptor
+            metadata_path.name, flags, 0o600, dir_fd=staging_descriptor
         )
     except OSError:
+        os.close(staging_descriptor)
         os.close(owner_descriptor)
         os.close(parent_descriptor)
         raise WorkspaceError(
@@ -680,7 +759,24 @@ def _resource_owner(
             json.dump(value, stream, sort_keys=True)
             stream.write("\n")
             stream.flush()
-        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX)
+            os.link(
+                metadata_path.name,
+                metadata_path.name,
+                src_dir_fd=staging_descriptor,
+                dst_dir_fd=owner_descriptor,
+                follow_symlinks=False,
+            )
+            published = True
+            os.unlink(metadata_path.name, dir_fd=staging_descriptor)
+            fcntl.flock(staging_descriptor, fcntl.LOCK_UN)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot publish resource lease owner metadata "
+                f"{metadata_path}: {error}"
+            ) from error
+        publication_locked = False
         with os.fdopen(os.dup(descriptor), "a+") as owner_lease:
             if inherit:
                 with inherit_lock_fds(owner_lease):
@@ -688,21 +784,27 @@ def _resource_owner(
             else:
                 yield
     finally:
+        if publication_locked:
+            try:
+                fcntl.flock(staging_descriptor, fcntl.LOCK_UN)
+            except OSError:
+                pass
         os.close(descriptor)
         cleanup_descriptor: int | None = None
         try:
             cleanup_flags = os.O_RDWR | os.O_CLOEXEC
             if hasattr(os, "O_NOFOLLOW"):
                 cleanup_flags |= os.O_NOFOLLOW
-            cleanup_descriptor = os.open(
-                metadata_path.name,
-                cleanup_flags,
-                dir_fd=owner_descriptor,
-            )
-            fcntl.flock(
-                cleanup_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
-            )
-            os.unlink(metadata_path.name, dir_fd=owner_descriptor)
+            if published:
+                cleanup_descriptor = os.open(
+                    metadata_path.name,
+                    cleanup_flags,
+                    dir_fd=owner_descriptor,
+                )
+                fcntl.flock(
+                    cleanup_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
+                )
+                os.unlink(metadata_path.name, dir_fd=owner_descriptor)
         except (FileNotFoundError, BlockingIOError, OSError):
             # An inherited descriptor deliberately keeps the owner record live;
             # a later diagnostic scan reaps it after the child exits.
@@ -710,6 +812,11 @@ def _resource_owner(
         finally:
             if cleanup_descriptor is not None:
                 os.close(cleanup_descriptor)
+            try:
+                os.unlink(metadata_path.name, dir_fd=staging_descriptor)
+            except OSError:
+                pass
+            os.close(staging_descriptor)
             os.close(owner_descriptor)
             os.close(parent_descriptor)
 

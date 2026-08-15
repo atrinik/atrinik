@@ -242,7 +242,11 @@ scenario, state, build-root, and cache requests are deduplicated and sorted.
 Multi-source writers retry all-or-none, releasing earlier coordinates before
 waiting on a busy later source. A queued writer precedes later readers only for
 that coordinate, and waits longer than 10 seconds report its owner operation
-and supported recovery action.
+and supported recovery action. Owner records are fully written and locked in a
+private staging directory before an atomic hard-link makes them diagnostically
+visible. Stale-record scans reap current-schema records only after the owner
+lock is released; legacy records remain untouched because their publication
+protocol did not guarantee that every visible record was already locked.
 
 Profile consumers lock the profile, derive the requested operation's transitive
 provider closure, acquire only those exact sources, revalidate, and capture
