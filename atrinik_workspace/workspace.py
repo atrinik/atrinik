@@ -4140,8 +4140,22 @@ class Workspace:
         generation = container / key
         lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
 
-        def reuse_generation() -> Path:
-            if generation.is_symlink() or not generation.is_dir():
+        def generation_status() -> os.stat_result | None:
+            try:
+                return generation.lstat()
+            except FileNotFoundError:
+                return None
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect immutable source generation {generation}: "
+                    f"{error}"
+                ) from error
+
+        def reuse_generation() -> Path | None:
+            status = generation_status()
+            if status is None:
+                return None
+            if stat.S_ISLNK(status.st_mode) or not stat.S_ISDIR(status.st_mode):
                 raise WorkspaceError(
                     f"immutable source generation is invalid: {generation}"
                 )
@@ -4219,20 +4233,21 @@ class Workspace:
             )
             return generation / "source"
 
-        if generation.exists() or generation.is_symlink():
+        if generation_status() is not None:
             try:
                 with shared_lock(
                     lock, f"immutable source generation {component.name}"
                 ):
-                    if generation.exists() or generation.is_symlink():
-                        return reuse_generation()
+                    reused = reuse_generation()
+                    if reused is not None:
+                        return reused
             except _SourceGenerationCorrupt:
                 pass
 
         with exclusive_lock(lock, f"immutable source generation {component.name}"):
-            if generation.exists() or generation.is_symlink():
+            if generation_status() is not None:
                 try:
-                    return reuse_generation()
+                    reused = reuse_generation()
                 except _SourceGenerationCorrupt as error:
                     try:
                         self._quarantine_source_generation(
@@ -4243,6 +4258,9 @@ class Workspace:
                             f"immutable source generation is corrupt and cannot "
                             f"be recovered safely: {generation}: {recovery_error}"
                         ) from error
+                else:
+                    if reused is not None:
+                        return reused
 
             staging = Path(
                 tempfile.mkdtemp(prefix=f"{key}-staging-", dir=container)
