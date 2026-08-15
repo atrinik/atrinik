@@ -4731,6 +4731,7 @@ class WorkspaceTests(unittest.TestCase):
     ) -> None:
         real_inventory = self.workspace._source_generation_inventory
         real_fsync = os.fsync
+        prepared = False
         mutated = False
         root_identity: tuple[int, int] | None = None
         root_synced = False
@@ -4742,8 +4743,9 @@ class WorkspaceTests(unittest.TestCase):
             sync: bool,
             allow_unsafe: bool,
         ) -> str:
-            nonlocal mutated, root_identity
-            if sync and re.fullmatch(r"[0-9a-f]{64}", root.name) and not mutated:
+            nonlocal prepared, mutated, root_identity
+            is_generation = bool(re.fullmatch(r"[0-9a-f]{64}", root.name))
+            if sync and (not prepared or (is_generation and not mutated)):
                 original = os.fstat(root_fd)
                 os.fchmod(root_fd, 0o700)
                 descriptor = os.open(
@@ -4763,8 +4765,11 @@ class WorkspaceTests(unittest.TestCase):
                     ns=(original.st_atime_ns, original.st_mtime_ns),
                 )
                 os.fchmod(root_fd, stat.S_IMODE(original.st_mode))
-                root_identity = (original.st_dev, original.st_ino)
-                mutated = True
+                if is_generation:
+                    root_identity = (original.st_dev, original.st_ino)
+                    mutated = True
+                else:
+                    prepared = True
             return real_inventory(
                 root_fd,
                 root,
@@ -4781,7 +4786,7 @@ class WorkspaceTests(unittest.TestCase):
 
         with (
             mock.patch.object(
-                self.workspace,
+                workspace_module.Workspace,
                 "_source_generation_inventory",
                 side_effect=mutate_root_before_final_sync,
             ),
@@ -4797,6 +4802,7 @@ class WorkspaceTests(unittest.TestCase):
             ) as snapshot,
         ):
             self.assertTrue(snapshot.paths()["resources"].is_dir())
+        self.assertTrue(prepared)
         self.assertTrue(mutated)
         self.assertTrue(root_synced)
 
