@@ -562,6 +562,26 @@ class ServerReadinessCaptureTests(unittest.TestCase):
         )
         close.assert_called_once_with(9)
 
+    def test_guardian_releases_retained_leases_before_tree_barrier(self) -> None:
+        with (
+            mock.patch.object(supervisor_module.os, "read", return_value=b""),
+            mock.patch.object(supervisor_module.os, "getpid", return_value=1234),
+            mock.patch.object(supervisor_module.os, "close") as close,
+            mock.patch.object(supervisor_module, "signal_holders"),
+            mock.patch.object(
+                supervisor_module, "holders_exist", return_value=False
+            ),
+            mock.patch.object(
+                supervisor_module.time, "monotonic", side_effect=[0, 11, 11, 14]
+            ),
+        ):
+            supervisor_module._guardian(10, 20, (30, None, 40))
+
+        self.assertEqual(
+            [call.args[0] for call in close.call_args_list],
+            [10, 30, 40, 20],
+        )
+
     def test_current_supervisor_orderly_stop_closes_exact_leases(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

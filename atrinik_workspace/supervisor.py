@@ -388,10 +388,10 @@ def _guardian(
         time.sleep(0.05)
     while holders_exist(process_tree_fd, exclude=excluded):
         time.sleep(0.5)
-    os.close(process_tree_fd)
     for descriptor in retained_fds:
         if descriptor is not None:
             os.close(descriptor)
+    os.close(process_tree_fd)
 
 
 def _start_guardian(
