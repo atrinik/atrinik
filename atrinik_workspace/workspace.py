@@ -3163,10 +3163,15 @@ class Workspace:
                 quarantine_name,
             )
             try:
+                quarantined_before = os.stat(
+                    quarantine_name,
+                    dir_fd=container_fd,
+                    follow_symlinks=False,
+                )
                 quarantined_inventory = Workspace._source_generation_inventory(
                     generation_fd,
                     container / quarantine_name,
-                    sync=False,
+                    sync=True,
                     allow_unsafe=True,
                 )
                 if quarantined_inventory != retained_inventory:
@@ -3174,7 +3179,44 @@ class Workspace:
                         "source generation changed during recovery: "
                         f"{container / quarantine_name}"
                     )
-            except WorkspaceError as error:
+                os.fsync(container_fd)
+                if Workspace._source_generation_inventory(
+                    generation_fd,
+                    container / quarantine_name,
+                    sync=False,
+                    allow_unsafe=True,
+                ) != retained_inventory:
+                    raise WorkspaceError(
+                        "source generation changed during recovery: "
+                        f"{container / quarantine_name}"
+                    )
+                quarantined = os.stat(
+                    quarantine_name,
+                    dir_fd=container_fd,
+                    follow_symlinks=False,
+                )
+                stable_fields = (
+                    "st_dev",
+                    "st_ino",
+                    "st_mode",
+                    "st_nlink",
+                    "st_size",
+                    "st_mtime_ns",
+                    "st_ctime_ns",
+                )
+                if any(
+                    getattr(quarantined, field)
+                    != getattr(quarantined_before, field)
+                    for field in stable_fields
+                ) or (quarantined.st_dev, quarantined.st_ino) != (
+                    os.fstat(generation_fd).st_dev,
+                    os.fstat(generation_fd).st_ino,
+                ):
+                    raise WorkspaceError(
+                        "source generation changed during recovery: "
+                        f"{container / quarantine_name}"
+                    )
+            except (OSError, WorkspaceError) as error:
                 try:
                     rename_no_replace_at(
                         container_fd,
@@ -3189,20 +3231,6 @@ class Workspace:
                         f"uncertain: {generation}: {rollback_error}"
                     ) from error
                 raise
-            os.fsync(container_fd)
-            quarantined = os.stat(
-                quarantine_name,
-                dir_fd=container_fd,
-                follow_symlinks=False,
-            )
-            if (quarantined.st_dev, quarantined.st_ino) != (
-                opened.st_dev,
-                opened.st_ino,
-            ):
-                raise WorkspaceError(
-                    "recovered source generation identity is uncertain: "
-                    f"{container / quarantine_name}"
-                )
             return container / quarantine_name
         except OSError as error:
             raise WorkspaceError(
@@ -3485,17 +3513,47 @@ class Workspace:
                     "source generation changed during durable retry: "
                     f"{generation}"
                 )
+            if Workspace._source_generation_inventory(
+                generation_fd,
+                generation,
+                sync=True,
+                allow_unsafe=False,
+            ) != durable_inventory:
+                raise WorkspaceError(
+                    "source generation changed during durable retry: "
+                    f"{generation}"
+                )
             os.fsync(container_fd)
+            if Workspace._source_generation_inventory(
+                generation_fd,
+                generation,
+                sync=False,
+                allow_unsafe=False,
+            ) != durable_inventory:
+                raise WorkspaceError(
+                    "source generation changed during durable retry: "
+                    f"{generation}"
+                )
             confirmed = os.stat(
                 generation.name,
                 dir_fd=container_fd,
                 follow_symlinks=False,
             )
             opened_after = os.fstat(generation_fd)
-            if (confirmed.st_dev, confirmed.st_ino) != (device, inode) or (
-                opened_after.st_dev,
-                opened_after.st_ino,
-            ) != (device, inode):
+            stable_fields = (
+                "st_dev",
+                "st_ino",
+                "st_mode",
+                "st_nlink",
+                "st_size",
+                "st_mtime_ns",
+                "st_ctime_ns",
+            )
+            if any(
+                getattr(confirmed, field) != getattr(opened, field)
+                or getattr(opened_after, field) != getattr(opened, field)
+                for field in stable_fields
+            ):
                 raise WorkspaceError(
                     "source generation changed during durable retry: "
                     f"{generation}"
@@ -4279,7 +4337,7 @@ class Workspace:
                         published_inventory = self._source_generation_inventory(
                             staging_fd,
                             generation,
-                            sync=False,
+                            sync=True,
                             allow_unsafe=False,
                         )
                     except WorkspaceError as error:
@@ -4299,6 +4357,35 @@ class Workspace:
                             "immutable source generation is visible but its "
                             f"container durability is uncertain: {generation}: {error}"
                         ) from error
+                    try:
+                        confirmed_inventory = self._source_generation_inventory(
+                            staging_fd,
+                            generation,
+                            sync=False,
+                            allow_unsafe=False,
+                        )
+                    except WorkspaceError as error:
+                        raise AtomicJsonCommitUncertain(
+                            "immutable source generation changed after durable "
+                            f"publication: {generation}: {error}"
+                        ) from error
+                    published_after = os.stat(
+                        generation.name,
+                        dir_fd=container_fd,
+                        follow_symlinks=False,
+                    )
+                    opened_published = os.fstat(staging_fd)
+                    if confirmed_inventory != durable_inventory or any(
+                        getattr(published_after, field)
+                        != getattr(published, field)
+                        or getattr(opened_published, field)
+                        != getattr(published, field)
+                        for field in stable_fields
+                    ):
+                        raise AtomicJsonCommitUncertain(
+                            "immutable source generation changed after durable "
+                            f"publication: {generation}"
+                        )
                 finally:
                     if staging_fd is not None:
                         os.close(staging_fd)
