@@ -1666,6 +1666,89 @@ def _worktree_records(
     return records
 
 
+_WORKTREE_PORCELAIN_KEYS = {
+    "worktree",
+    "HEAD",
+    "branch",
+    "bare",
+    "detached",
+    "locked",
+    "prunable",
+}
+_WORKTREE_PORCELAIN_FLAGS = {"bare", "detached", "locked", "prunable"}
+_WORKTREE_INVENTORY_LIMIT = 1024 * 1024
+_WORKTREE_INVENTORY_ENTRIES = 4096
+_WORKTREE_HEAD_RE = re.compile(r"[0-9a-f]{40}")
+
+
+def _parse_worktree_porcelain(raw: bytes) -> list[dict[str, str]]:
+    """Parse one complete NUL-delimited Git worktree inventory."""
+
+    if len(raw) > _WORKTREE_INVENTORY_LIMIT:
+        raise WorkspaceError("wrapper worktree inventory output is not bounded")
+    if not raw.endswith(b"\0\0"):
+        raise WorkspaceError("wrapper worktree inventory is not NUL-delimited")
+    records: list[dict[str, str]] = []
+    current: dict[str, str] = {}
+    for index, token in enumerate(raw.split(b"\0")):
+        if not token:
+            if current:
+                if (
+                    not {"worktree", "HEAD"}.issubset(current)
+                    or ("branch" in current) == ("detached" in current)
+                    or "bare" in current
+                    or not _WORKTREE_HEAD_RE.fullmatch(current["HEAD"])
+                    or (
+                        "branch" in current
+                        and not current["branch"].startswith("refs/heads/")
+                    )
+                ):
+                    raise WorkspaceError(
+                        f"wrapper worktree inventory record {len(records)} is incomplete"
+                    )
+                records.append(current)
+                current = {}
+            continue
+        try:
+            line = token.decode("utf-8")
+        except UnicodeError as error:
+            raise WorkspaceError(
+                f"wrapper worktree inventory field {index} is not UTF-8"
+            ) from error
+        key, separator, value = line.partition(" ")
+        if (
+            key not in _WORKTREE_PORCELAIN_KEYS
+            or key in current
+            or (not separator and key not in _WORKTREE_PORCELAIN_FLAGS)
+            or any(
+                ord(character) < 32 or ord(character) == 127
+                for character in value
+            )
+        ):
+            raise WorkspaceError(
+                f"wrapper worktree inventory field {index} is malformed or ambiguous"
+            )
+        current[key] = value
+    if current or not records or len(records) > _WORKTREE_INVENTORY_ENTRIES:
+        raise WorkspaceError("wrapper worktree inventory is incomplete or oversized")
+    seen: set[str] = set()
+    for index, record in enumerate(records):
+        path = Path(record["worktree"])
+        if (
+            not path.is_absolute()
+            or str(path) != record["worktree"]
+            or os.path.normpath(record["worktree"]) != record["worktree"]
+        ):
+            raise WorkspaceError(
+                f"wrapper worktree inventory record {index} has a non-canonical path"
+            )
+        folded = record["worktree"].casefold()
+        if folded in seen:
+            raise WorkspaceError("wrapper worktree inventory contains an ambiguous path")
+        seen.add(folded)
+    return records
+
+
 def open_regular_file(
     path: Path, flags: int, description: str, mode: int = 0o600
 ) -> int:
@@ -2544,6 +2627,7 @@ class Workspace:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     pass_fds=active_lock_fds(),
+                    timeout=30,
                 )
             except FileNotFoundError as error:
                 raise WorkspaceError("required command not found: git") from error
@@ -4960,6 +5044,45 @@ class Workspace:
                 for record in _worktree_records(repository, trace=False)
             )
         return result
+
+    def list_wrapper_worktrees(self) -> list[tuple[str, dict[str, str]]]:
+        """Return the complete wrapper common-Git-directory worktree inventory."""
+
+        request = self._lease_request(
+            "git-admin",
+            self._wrapper_git_admin_coordinate(),
+            "shared",
+            "list wrapper worktrees",
+        )
+        with self._resource_locks([request]):
+            try:
+                result = subprocess.run(
+                    [
+                        "git",
+                        "-C",
+                        str(self.paths.repository),
+                        "worktree",
+                        "list",
+                        "--porcelain",
+                        "-z",
+                    ],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    pass_fds=active_lock_fds(),
+                )
+            except FileNotFoundError as error:
+                raise WorkspaceError("required command not found: git") from error
+            except subprocess.CalledProcessError as error:
+                detail = error.stderr.decode("utf-8", errors="replace").strip()
+                suffix = f": {detail}" if detail else ""
+                raise WorkspaceError(f"cannot list wrapper worktrees{suffix}") from error
+            except subprocess.TimeoutExpired as error:
+                raise WorkspaceError("wrapper worktree inventory timed out") from error
+            return [
+                ("atrinik", record)
+                for record in _parse_worktree_porcelain(result.stdout)
+            ]
 
     def create_profile(self, name: str, source: str = "default") -> Path:
         self.paths.ensure()
