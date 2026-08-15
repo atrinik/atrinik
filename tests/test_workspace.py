@@ -24,6 +24,7 @@ import tarfile
 import tempfile
 import threading
 import time
+from typing import Callable
 import unittest
 from unittest import mock
 
@@ -431,22 +432,24 @@ def public_profile_reader_process(
             os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
         ):
             workspace = Workspace(Path(wrapper))
-            profile_intent = locking_module.layout_writer_intent_path(
-                resource_lock_path(
-                    workspace._lease_root(
-                        LeaseRequest(
-                            "profile", "profile-a", "shared", "build", "wait"
-                        )
-                    ),
-                    "profile",
-                    "profile-a",
-                )
+            profile_lock = resource_lock_path(
+                workspace._lease_root(
+                    LeaseRequest(
+                        "profile", "profile-a", "shared", "build", "wait"
+                    )
+                ),
+                "profile",
+                "profile-a",
+            )
+            profile_intent = locking_module.layout_writer_intent_path(profile_lock)
+            profile_transition = profile_lock.with_name(
+                f"{profile_lock.name}.owner-transition.lock"
             )
             original_advisory_lock = locking_module._advisory_lock
 
             @contextmanager
             def observed_advisory_lock(*args: object, **kwargs: object):
-                if Path(args[0]) == profile_intent:
+                if Path(args[0]) in {profile_intent, profile_transition}:
                     admission_attempting.set()
                 with original_advisory_lock(*args, **kwargs) as lock:
                     yield lock
@@ -10700,6 +10703,9 @@ class WorkspaceTests(unittest.TestCase):
         )
         owners = lock.with_name(f"{lock.name}.owners")
         self.assertEqual(list(owners.iterdir()), [])
+        with resource_locks(self.workspace.paths.workspace, [request]):
+            pass
+        self.assertEqual(list(owners.iterdir()), [])
 
     def test_resource_owner_publication_is_atomic_with_lock_acquisition(self) -> None:
         request = LeaseRequest(
@@ -10718,9 +10724,9 @@ class WorkspaceTests(unittest.TestCase):
 
         @contextmanager
         def observed_owner(*args: object, **kwargs: object):
-            with original_owner(*args, **kwargs) as admit:
+            with original_owner(*args, **kwargs) as handle:
                 owner_published.set()
-                yield admit
+                yield handle
 
         def winner() -> None:
             with resource_locks(self.workspace.paths.workspace, [request]):
@@ -10753,17 +10759,15 @@ class WorkspaceTests(unittest.TestCase):
                 self.assertTrue(owner_published.wait(timeout=5))
                 contender_thread = threading.Thread(target=contender, daemon=True)
                 contender_thread.start()
-                self.assertTrue(contender_done.wait(timeout=5))
-                self.assertEqual(len(contender_error), 1)
-                self.assertIsInstance(contender_error[0], WorkspaceError)
-                self.assertIn(
-                    "publish exact review owner", str(contender_error[0])
-                )
-                self.assertIn("waiting exclusive", str(contender_error[0]))
-                self.assertNotIn(
-                    "owner metadata unavailable", str(contender_error[0])
-                )
         self.assertTrue(winner_active.wait(timeout=5))
+        self.assertTrue(contender_done.wait(timeout=5))
+        self.assertEqual(len(contender_error), 1)
+        self.assertIsInstance(contender_error[0], WorkspaceError)
+        self.assertIn("publish exact review owner", str(contender_error[0]))
+        self.assertNotIn("waiting exclusive", str(contender_error[0]))
+        self.assertNotIn(
+            "owner metadata unavailable", str(contender_error[0])
+        )
         release_winner.set()
         winner_thread.join(timeout=5)
         contender_thread.join(timeout=5)
@@ -10797,6 +10801,166 @@ class WorkspaceTests(unittest.TestCase):
                     self.fail("failed metadata publication unexpectedly acquired")
 
         self.assertEqual(list(owners.iterdir()), [])
+        with resource_locks(self.workspace.paths.workspace, [request]):
+            pass
+        self.assertEqual(list(owners.iterdir()), [])
+
+    def test_resource_owner_admission_is_one_diagnostic_transition(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "admit exact review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        admission_started = threading.Event()
+        allow_admission = threading.Event()
+        owner_active = threading.Event()
+        release_owner = threading.Event()
+        summary_transition_attempted = threading.Event()
+        summary_done = threading.Event()
+        summaries: list[str] = []
+        original_owner = locking_module._resource_owner
+        original_flock = locking_module.fcntl.flock
+
+        @contextmanager
+        def paused_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def paused_admit() -> None:
+                    admission_started.set()
+                    if not allow_admission.wait(timeout=5):
+                        raise AssertionError("owner admission rendezvous timed out")
+                    admit()
+
+                yield paused_admit, bind_release
+
+        def owner() -> None:
+            with resource_locks(self.workspace.paths.workspace, [request]):
+                owner_active.set()
+                if not release_owner.wait(timeout=5):
+                    raise AssertionError("owner release rendezvous timed out")
+
+        def summarize() -> None:
+            summaries.append(locking_module._lease_owner_summary(lock))
+            summary_done.set()
+
+        def observed_flock(descriptor: object, operation: int) -> object:
+            if (
+                threading.current_thread().name == "admission-summary"
+                and operation == fcntl.LOCK_SH
+            ):
+                summary_transition_attempted.set()
+            return original_flock(descriptor, operation)
+
+        with (
+            mock.patch.object(locking_module, "_resource_owner", paused_owner),
+            mock.patch.object(
+                locking_module.fcntl, "flock", observed_flock
+            ),
+        ):
+            owner_thread = threading.Thread(target=owner, daemon=True)
+            owner_thread.start()
+            self.assertTrue(admission_started.wait(timeout=5))
+            summary_thread = threading.Thread(
+                target=summarize, name="admission-summary", daemon=True
+            )
+            summary_thread.start()
+            self.assertTrue(summary_transition_attempted.wait(timeout=5))
+            self.assertFalse(summary_done.is_set())
+            allow_admission.set()
+            self.assertTrue(owner_active.wait(timeout=5))
+            self.assertTrue(summary_done.wait(timeout=5))
+            self.assertIn("admit exact review owner", summaries[0])
+            self.assertNotIn("waiting exclusive", summaries[0])
+            release_owner.set()
+            owner_thread.join(timeout=5)
+            summary_thread.join(timeout=5)
+            self.assertFalse(owner_thread.is_alive())
+            self.assertFalse(summary_thread.is_alive())
+
+    def test_resource_owner_release_is_one_diagnostic_transition(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "release exact review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        owner_active = threading.Event()
+        finish_owner = threading.Event()
+        release_started = threading.Event()
+        allow_release = threading.Event()
+        summary_flock_attempted = threading.Event()
+        summary_done = threading.Event()
+        summaries: list[str] = []
+        original_owner = locking_module._resource_owner
+        original_flock = locking_module.fcntl.flock
+
+        @contextmanager
+        def paused_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def paused_bind(release: Callable[[], None]) -> None:
+                    def paused_release() -> None:
+                        release_started.set()
+                        if not allow_release.wait(timeout=5):
+                            raise AssertionError(
+                                "owner release transition timed out"
+                            )
+                        release()
+
+                    bind_release(paused_release)
+
+                yield admit, paused_bind
+
+        def owner() -> None:
+            with resource_locks(self.workspace.paths.workspace, [request]):
+                owner_active.set()
+                if not finish_owner.wait(timeout=5):
+                    raise AssertionError("owner completion rendezvous timed out")
+
+        def summarize() -> None:
+            summaries.append(locking_module._lease_owner_summary(lock))
+            summary_done.set()
+
+        def observed_flock(descriptor: object, operation: int) -> object:
+            if (
+                threading.current_thread().name == "release-summary"
+                and operation == fcntl.LOCK_EX
+            ):
+                summary_flock_attempted.set()
+            return original_flock(descriptor, operation)
+
+        with (
+            mock.patch.object(locking_module, "_resource_owner", paused_owner),
+            mock.patch.object(
+                locking_module.fcntl, "flock", observed_flock
+            ),
+        ):
+            owner_thread = threading.Thread(target=owner, daemon=True)
+            owner_thread.start()
+            self.assertTrue(owner_active.wait(timeout=5))
+            finish_owner.set()
+            self.assertTrue(release_started.wait(timeout=5))
+            summary_thread = threading.Thread(
+                target=summarize, name="release-summary", daemon=True
+            )
+            summary_thread.start()
+            self.assertTrue(summary_flock_attempted.wait(timeout=5))
+            self.assertFalse(summary_done.is_set())
+            allow_release.set()
+            self.assertTrue(summary_done.wait(timeout=5))
+            self.assertEqual(summaries, ["owner metadata unavailable"])
+            owner_thread.join(timeout=5)
+            summary_thread.join(timeout=5)
+            self.assertFalse(owner_thread.is_alive())
+            self.assertFalse(summary_thread.is_alive())
         with resource_locks(self.workspace.paths.workspace, [request]):
             pass
         self.assertEqual(list(owners.iterdir()), [])
@@ -10840,6 +11004,86 @@ class WorkspaceTests(unittest.TestCase):
             "owner metadata unavailable",
         )
         self.assertEqual(list(owners.iterdir()), [])
+
+    def test_resource_owner_admission_failure_releases_main_lock(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "admit review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        original_dump = locking_module.json.dump
+        calls = 0
+
+        def fail_admission(*args: object, **kwargs: object) -> None:
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                raise OSError("injected admission transition failure")
+            original_dump(*args, **kwargs)
+
+        with mock.patch.object(
+            locking_module.json, "dump", fail_admission
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot admit resource lease owner metadata"
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    self.fail("failed admission transition acquired lease")
+
+        self.assertEqual(list(owners.iterdir()), [])
+        with resource_locks(self.workspace.paths.workspace, [request]):
+            pass
+
+    def test_resource_owner_admission_reports_cleanup_uncertainty(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "admit review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        original_dump = locking_module.json.dump
+        calls = 0
+
+        def fail_admission(*args: object, **kwargs: object) -> None:
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                raise OSError("injected admission transition failure")
+            original_dump(*args, **kwargs)
+
+        with (
+            mock.patch.object(locking_module.json, "dump", fail_admission),
+            mock.patch.object(
+                locking_module.os,
+                "unlink",
+                side_effect=OSError("injected admission cleanup failure"),
+            ),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot remove partial owner metadata"
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    self.fail("uncertain admission transition acquired lease")
+
+        self.assertEqual(len(list(owners.iterdir())), 1)
+        self.assertEqual(
+            locking_module._lease_owner_summary(lock),
+            "owner metadata unavailable",
+        )
+        self.assertEqual(list(owners.iterdir()), [])
+        with resource_locks(self.workspace.paths.workspace, [request]):
+            pass
 
     def test_resource_owner_summary_prioritizes_admitted_holder(self) -> None:
         request = LeaseRequest(
@@ -10909,9 +11153,11 @@ class WorkspaceTests(unittest.TestCase):
         owner_active = threading.Event()
         release_owner = threading.Event()
         summary_started = threading.Event()
+        summary_flock_attempted = threading.Event()
         summary_done = threading.Event()
         summaries: list[str] = []
         original_dump = locking_module.json.dump
+        original_flock = locking_module.fcntl.flock
 
         def paused_dump(*args: object, **kwargs: object) -> None:
             original_dump(*args, **kwargs)
@@ -10930,13 +11176,29 @@ class WorkspaceTests(unittest.TestCase):
             summaries.append(locking_module._lease_owner_summary(lock))
             summary_done.set()
 
-        with mock.patch.object(locking_module.json, "dump", paused_dump):
+        def observed_flock(descriptor: object, operation: int) -> object:
+            if (
+                threading.current_thread().name == "owner-summary"
+                and operation == fcntl.LOCK_EX
+            ):
+                summary_flock_attempted.set()
+            return original_flock(descriptor, operation)
+
+        with (
+            mock.patch.object(locking_module.json, "dump", paused_dump),
+            mock.patch.object(
+                locking_module.fcntl, "flock", observed_flock
+            ),
+        ):
             owner_thread = threading.Thread(target=owner, daemon=True)
             owner_thread.start()
             self.assertTrue(json_written.wait(timeout=5))
-            summary_thread = threading.Thread(target=summarize, daemon=True)
+            summary_thread = threading.Thread(
+                target=summarize, name="owner-summary", daemon=True
+            )
             summary_thread.start()
             self.assertTrue(summary_started.wait(timeout=5))
+            self.assertTrue(summary_flock_attempted.wait(timeout=5))
             self.assertFalse(summary_done.is_set())
             allow_publication.set()
             self.assertTrue(owner_active.wait(timeout=5))

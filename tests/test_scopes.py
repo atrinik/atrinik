@@ -1508,6 +1508,8 @@ class ScopeLifecycleTests(unittest.TestCase):
                                 )
                             elif operation == "preview":
                                 for _attempt in range(20):
+                                    with operation_progress[step]:
+                                        observed = operation_completions[step]
                                     try:
                                         self.assertTrue(
                                             workspace.scope_release(
@@ -1521,7 +1523,8 @@ class ScopeLifecycleTests(unittest.TestCase):
                                         with coordination_lock:
                                             coordination["release_conflicts"] += 1
                                         with operation_progress[step]:
-                                            observed = operation_completions[step]
+                                            if operation_completions[step] > observed:
+                                                continue
                                             if not operation_progress[step].wait_for(
                                                 lambda: operation_completions[step]
                                                 > observed,

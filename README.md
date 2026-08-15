@@ -1205,8 +1205,11 @@ during confirmation fails with a distinct retry diagnostic. Profile names,
 topology names, scenarios, states, build roots, and cache keys remain
 workspace-local.
 Each lease request publishes its locked `waiting` owner record before main-lock
-admission, then transitions it to `admitted` under owner-directory serialization.
-Diagnostics list admitted holders before queued waiters and cannot reap a
+admission, then transitions it to `admitted` through a per-coordinate transition
+gate under owner-directory serialization. The main lock is acquired before that
+short gate, so a blocked request cannot convoy compatible peers or prevent the
+current holder from releasing. Diagnostics list admitted holders before queued
+waiters and cannot reap a
 partially published record. Failed publication removes its exact token; if the
 filesystem also refuses that cleanup, the operation fails closed and reports
 the retained token as cleanup uncertainty.

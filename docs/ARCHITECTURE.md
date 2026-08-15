@@ -292,8 +292,10 @@ across relocated roots. Exact lease contention propagates its coordinate,
 operation, owner metadata and recovery action; a record that changes between
 read and confirmation fails separately and leaves the backfill marker absent.
 The requester publishes and locks `waiting` metadata before main-lock admission,
-then transitions it to `admitted` under owner-directory serialization. Summaries
-prioritize admitted holders before queued waiters, even at the bounded record
+then transitions it to `admitted` through a per-coordinate transition gate under
+owner-directory serialization. It acquires the main lock before the short gate;
+blocked requests therefore cannot convoy compatible peers or prevent holder
+release. Summaries prioritize admitted holders before queued waiters, even at the bounded record
 cap. The same serialization prevents a scan from reaping partial publication.
 A publication failure unlinks its exact token; simultaneous cleanup refusal is
 reported as fail-closed uncertainty naming the retained evidence.

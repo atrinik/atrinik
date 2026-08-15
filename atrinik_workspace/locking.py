@@ -201,7 +201,9 @@ def _advisory_lock(
         yield lock
 
 
-def _lease_owner_summary(path: Path) -> str:
+def _lease_owner_summary(
+    path: Path, *, wait_for_transition: bool = True
+) -> str:
     owners = path.with_name(f"{path.name}.owners")
     parent_descriptor: int | None = None
     owners_descriptor: int | None = None
@@ -285,6 +287,22 @@ def _lease_owner_summary(path: Path) -> str:
     os.close(owners_descriptor)
     os.close(parent_descriptor)
     descriptions.sort()
+    if (
+        wait_for_transition
+        and not any(item[0] == 0 for item in descriptions)
+    ):
+        transition = path.with_name(f"{path.name}.owner-transition.lock")
+        try:
+            with _advisory_lock(
+                transition,
+                "resource lease owner transition",
+                fcntl.LOCK_SH,
+            ):
+                return _lease_owner_summary(
+                    path, wait_for_transition=False
+                )
+        except WorkspaceError:
+            pass
     return (
         "; ".join(item[2] for item in descriptions[:8])
         if descriptions
@@ -297,7 +315,7 @@ def _diagnose_layout_wait(
     path: Path,
     description: str,
     recovery_action: str | None = None,
-) -> Iterator[Callable[[], None]]:
+) -> Iterator[None]:
     acquired = threading.Event()
 
     def warn_about_wait() -> None:
@@ -617,7 +635,9 @@ def _resource_owner(
     *,
     directory_fd: int | None = None,
     inherit: bool = True,
-) -> Iterator[None]:
+) -> Iterator[
+    tuple[Callable[[], None], Callable[[Callable[[], None]], None]]
+]:
     owners = path.with_name(f"{path.name}.owners")
     parent_descriptor = (
         os.dup(directory_fd)
@@ -725,6 +745,9 @@ def _resource_owner(
         if publication_locked:
             fcntl.flock(owner_descriptor, fcntl.LOCK_UN)
     admitted = False
+    release_main_lock: Callable[[], None] | None = None
+    owner_lease = os.fdopen(os.dup(descriptor), "a+")
+    inherit_stack = ExitStack()
 
     def admit() -> None:
         nonlocal admitted
@@ -763,16 +786,30 @@ def _resource_owner(
                 f"cannot admit resource lease owner metadata {metadata_path}: "
                 f"{transition_error}{cleanup_detail}"
             ) from transition_error
+        if inherit:
+            inherit_stack.enter_context(inherit_lock_fds(owner_lease))
         admitted = True
 
+    def bind_release(callback: Callable[[], None]) -> None:
+        nonlocal release_main_lock
+        if release_main_lock is not None:
+            raise WorkspaceError(
+                f"resource lease owner release is already bound: {metadata_path}"
+            )
+        release_main_lock = callback
+
     try:
-        with os.fdopen(os.dup(descriptor), "a+") as owner_lease:
-            if inherit:
-                with inherit_lock_fds(owner_lease):
-                    yield admit
-            else:
-                yield admit
+        yield admit, bind_release
     finally:
+        inherit_stack.close()
+        owner_lease.close()
+        fcntl.flock(owner_descriptor, fcntl.LOCK_EX)
+        release_error: BaseException | None = None
+        if release_main_lock is not None:
+            try:
+                release_main_lock()
+            except BaseException as error:
+                release_error = error
         os.close(descriptor)
         cleanup_descriptor: int | None = None
         try:
@@ -797,6 +834,8 @@ def _resource_owner(
                 os.close(cleanup_descriptor)
             os.close(owner_descriptor)
             os.close(parent_descriptor)
+        if release_error is not None:
+            raise release_error
 
 
 @contextmanager
@@ -842,36 +881,55 @@ def resource_locks(
             description = (
                 f"resource {request.kind} coordinate {request.coordinate}"
             )
+            transition = path.with_name(
+                f"{path.name}.owner-transition.lock"
+            )
             request_stack = ExitStack()
             try:
-                admit = request_stack.enter_context(
+                admit, bind_release = request_stack.enter_context(
                     _resource_owner(
                         path, request, directory_fd=directory_descriptor
                     )
                 )
                 if request.mode == "exclusive":
-                    lease = request_stack.enter_context(
-                        exclusive_layout_lock(
-                            path,
-                            description,
-                            nonblocking,
-                            recovery_action=request.recovery,
-                            directory_fd=directory_descriptor,
-                        )
+                    layout_context = exclusive_layout_lock(
+                        path,
+                        description,
+                        nonblocking,
+                        recovery_action=request.recovery,
+                        directory_fd=directory_descriptor,
                     )
                 else:
-                    lease = request_stack.enter_context(
-                        shared_layout_lock(
-                            path,
-                            description,
-                            nonblocking,
-                            recovery_action=request.recovery,
-                            directory_fd=directory_descriptor,
-                        )
+                    layout_context = shared_layout_lock(
+                        path,
+                        description,
+                        nonblocking,
+                        recovery_action=request.recovery,
+                        directory_fd=directory_descriptor,
                     )
-                admit()
+                lease = layout_context.__enter__()
+                bind_release(
+                    lambda context=layout_context: context.__exit__(
+                        None, None, None
+                    )
+                )
+                with exclusive_lock(
+                    transition,
+                    "resource lease owner transition",
+                    directory_fd=directory_descriptor,
+                    inherit=False,
+                ):
+                    try:
+                        admit()
+                    except BaseException:
+                        request_stack.close()
+                        raise
             except LockBusyError as error:
                 request_stack.close()
+                # Do not retain earlier coordinates while producing the busy
+                # coordinate's stable owner summary. This preserves the
+                # all-or-none contract even when a publication is transitioning.
+                stack.close()
                 raise LockBusyError(
                     f"{request.kind} {request.coordinate} is already in use by "
                     f"{_lease_owner_summary(path)}; {request.recovery}"
@@ -893,9 +951,10 @@ def resource_lifetime_reader(
 
     directory_fd = _ensure_resource_lock_directory(root, request.kind)
     path = resource_lock_path(root, request.kind, request.coordinate)
+    transition = path.with_name(f"{path.name}.owner-transition.lock")
     try:
         with ExitStack() as stack:
-            admit = stack.enter_context(
+            admit, bind_release = stack.enter_context(
                 _resource_owner(
                     path,
                     request,
@@ -903,16 +962,30 @@ def resource_lifetime_reader(
                     inherit=False,
                 )
             )
-            lease = stack.enter_context(
-                shared_layout_lock(
-                    path,
-                    f"resource {request.kind} coordinate {request.coordinate}",
-                    recovery_action=request.recovery,
-                    directory_fd=directory_fd,
-                    inherit=False,
+            layout_context = shared_layout_lock(
+                path,
+                f"resource {request.kind} coordinate {request.coordinate}",
+                recovery_action=request.recovery,
+                directory_fd=directory_fd,
+                inherit=False,
+            )
+            lease = layout_context.__enter__()
+            bind_release(
+                lambda context=layout_context: context.__exit__(
+                    None, None, None
                 )
             )
-            admit()
+            with exclusive_lock(
+                transition,
+                "resource lease owner transition",
+                directory_fd=directory_fd,
+                inherit=False,
+            ):
+                try:
+                    admit()
+                except BaseException:
+                    stack.close()
+                    raise
             yield lease
     finally:
         os.close(directory_fd)
