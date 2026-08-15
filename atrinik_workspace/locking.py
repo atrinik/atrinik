@@ -225,7 +225,7 @@ def _lease_owner_summary(path: Path) -> str:
         if parent_descriptor is not None:
             os.close(parent_descriptor)
         return "owner metadata unavailable"
-    descriptions: list[str] = []
+    descriptions: list[tuple[int, str, str]] = []
     for metadata_name in paths:
         descriptor: int | None = None
         try:
@@ -269,12 +269,27 @@ def _lease_owner_summary(path: Path) -> str:
         operation = value.get("operation")
         owner = value.get("owner")
         mode = value.get("mode")
-        if all(isinstance(item, str) and item for item in (operation, owner, mode)):
-            if len(descriptions) < 8:
-                descriptions.append(f"{mode} {operation} by {owner}")
+        phase = value.get("phase", "admitted")
+        if (
+            all(isinstance(item, str) and item for item in (operation, owner, mode))
+            and phase in {"waiting", "admitted"}
+        ):
+            prefix = "" if phase == "admitted" else "waiting "
+            descriptions.append(
+                (
+                    0 if phase == "admitted" else 1,
+                    metadata_name,
+                    f"{prefix}{mode} {operation} by {owner}",
+                )
+            )
     os.close(owners_descriptor)
     os.close(parent_descriptor)
-    return "; ".join(descriptions) if descriptions else "owner metadata unavailable"
+    descriptions.sort()
+    return (
+        "; ".join(item[2] for item in descriptions[:8])
+        if descriptions
+        else "owner metadata unavailable"
+    )
 
 
 @contextmanager
@@ -282,7 +297,7 @@ def _diagnose_layout_wait(
     path: Path,
     description: str,
     recovery_action: str | None = None,
-) -> Iterator[None]:
+) -> Iterator[Callable[[], None]]:
     acquired = threading.Event()
 
     def warn_about_wait() -> None:
@@ -658,6 +673,7 @@ def _resource_owner(
         "kind": request.kind,
         "coordinate": request.coordinate,
         "mode": request.mode,
+        "phase": "waiting",
         "operation": request.operation,
         "owner": owner,
         "started_at": datetime.now(timezone.utc).isoformat(),
@@ -685,29 +701,77 @@ def _resource_owner(
         if descriptor is not None:
             os.close(descriptor)
             descriptor = None
+        cleanup_error: OSError | None = None
         if metadata_created:
             try:
                 os.unlink(metadata_path.name, dir_fd=owner_descriptor)
             except FileNotFoundError:
                 pass
-            except OSError:
-                pass
+            except OSError as unlink_error:
+                cleanup_error = unlink_error
         publication_locked = False
         os.close(owner_descriptor)
         os.close(parent_descriptor)
+        cleanup_detail = (
+            f"; cannot remove partial owner metadata: {cleanup_error}"
+            if cleanup_error is not None
+            else ""
+        )
         raise WorkspaceError(
-            f"cannot publish resource lease owner metadata {metadata_path}: {error}"
+            f"cannot publish resource lease owner metadata {metadata_path}: "
+            f"{error}{cleanup_detail}"
         ) from error
     finally:
         if publication_locked:
             fcntl.flock(owner_descriptor, fcntl.LOCK_UN)
+    admitted = False
+
+    def admit() -> None:
+        nonlocal admitted
+        if admitted:
+            return
+        transition_error: OSError | None = None
+        cleanup_error: OSError | None = None
+        try:
+            fcntl.flock(owner_descriptor, fcntl.LOCK_EX)
+            value["phase"] = "admitted"
+            os.lseek(descriptor, 0, os.SEEK_SET)
+            os.ftruncate(descriptor, 0)
+            with os.fdopen(
+                descriptor, "w+", encoding="utf-8", closefd=False
+            ) as stream:
+                json.dump(value, stream, sort_keys=True)
+                stream.write("\n")
+                stream.flush()
+        except OSError as error:
+            transition_error = error
+            try:
+                os.unlink(metadata_path.name, dir_fd=owner_descriptor)
+            except FileNotFoundError:
+                pass
+            except OSError as unlink_error:
+                cleanup_error = unlink_error
+        finally:
+            fcntl.flock(owner_descriptor, fcntl.LOCK_UN)
+        if transition_error is not None:
+            cleanup_detail = (
+                f"; cannot remove partial owner metadata: {cleanup_error}"
+                if cleanup_error is not None
+                else ""
+            )
+            raise WorkspaceError(
+                f"cannot admit resource lease owner metadata {metadata_path}: "
+                f"{transition_error}{cleanup_detail}"
+            ) from transition_error
+        admitted = True
+
     try:
         with os.fdopen(os.dup(descriptor), "a+") as owner_lease:
             if inherit:
                 with inherit_lock_fds(owner_lease):
-                    yield
+                    yield admit
             else:
-                yield
+                yield admit
     finally:
         os.close(descriptor)
         cleanup_descriptor: int | None = None
@@ -780,7 +844,7 @@ def resource_locks(
             )
             request_stack = ExitStack()
             try:
-                request_stack.enter_context(
+                admit = request_stack.enter_context(
                     _resource_owner(
                         path, request, directory_fd=directory_descriptor
                     )
@@ -805,6 +869,7 @@ def resource_locks(
                             directory_fd=directory_descriptor,
                         )
                     )
+                admit()
             except LockBusyError as error:
                 request_stack.close()
                 raise LockBusyError(
@@ -830,7 +895,7 @@ def resource_lifetime_reader(
     path = resource_lock_path(root, request.kind, request.coordinate)
     try:
         with ExitStack() as stack:
-            stack.enter_context(
+            admit = stack.enter_context(
                 _resource_owner(
                     path,
                     request,
@@ -847,6 +912,7 @@ def resource_lifetime_reader(
                     inherit=False,
                 )
             )
+            admit()
             yield lease
     finally:
         os.close(directory_fd)

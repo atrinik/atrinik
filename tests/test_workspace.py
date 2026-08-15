@@ -10718,9 +10718,9 @@ class WorkspaceTests(unittest.TestCase):
 
         @contextmanager
         def observed_owner(*args: object, **kwargs: object):
-            with original_owner(*args, **kwargs):
+            with original_owner(*args, **kwargs) as admit:
                 owner_published.set()
-                yield
+                yield admit
 
         def winner() -> None:
             with resource_locks(self.workspace.paths.workspace, [request]):
@@ -10759,6 +10759,7 @@ class WorkspaceTests(unittest.TestCase):
                 self.assertIn(
                     "publish exact review owner", str(contender_error[0])
                 )
+                self.assertIn("waiting exclusive", str(contender_error[0]))
                 self.assertNotIn(
                     "owner metadata unavailable", str(contender_error[0])
                 )
@@ -10799,6 +10800,155 @@ class WorkspaceTests(unittest.TestCase):
         with resource_locks(self.workspace.paths.workspace, [request]):
             pass
         self.assertEqual(list(owners.iterdir()), [])
+
+    def test_resource_owner_publication_reports_cleanup_uncertainty(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "publish review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+
+        with (
+            mock.patch.object(
+                locking_module.json,
+                "dump",
+                side_effect=OSError("injected owner publication failure"),
+            ),
+            mock.patch.object(
+                locking_module.os,
+                "unlink",
+                side_effect=OSError("injected token cleanup failure"),
+            ),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot remove partial owner metadata"
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    self.fail("uncertain metadata publication acquired lease")
+
+        self.assertEqual(len(list(owners.iterdir())), 1)
+        self.assertEqual(
+            locking_module._lease_owner_summary(lock),
+            "owner metadata unavailable",
+        )
+        self.assertEqual(list(owners.iterdir()), [])
+
+    def test_resource_owner_summary_prioritizes_admitted_holder(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "summarize owners",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        lock.parent.mkdir(parents=True)
+        owners = lock.with_name(f"{lock.name}.owners")
+        owners.mkdir()
+        descriptors: list[int] = []
+        try:
+            records = [
+                (f"a{index:02d}.json", "waiting", f"waiter-{index}")
+                for index in range(9)
+            ] + [("z-admitted.json", "admitted", "admitted-holder")]
+            for name, phase, operation in records:
+                path = owners / name
+                path.write_text(
+                    json.dumps(
+                        {
+                            "mode": "exclusive",
+                            "operation": operation,
+                            "owner": f"owner-{operation}",
+                            "phase": phase,
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                descriptor = os.open(path, os.O_RDWR)
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                descriptors.append(descriptor)
+
+            summary = locking_module._lease_owner_summary(lock)
+            self.assertTrue(
+                summary.startswith("exclusive admitted-holder by"), summary
+            )
+            self.assertEqual(summary.count(";"), 7)
+            self.assertNotIn("waiter-7", summary)
+            self.assertNotIn("waiter-8", summary)
+        finally:
+            for descriptor in descriptors:
+                os.close(descriptor)
+            for path in owners.iterdir():
+                path.unlink()
+
+    def test_resource_owner_diagnostic_waits_for_complete_publication(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "publish complete review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        json_written = threading.Event()
+        allow_publication = threading.Event()
+        owner_active = threading.Event()
+        release_owner = threading.Event()
+        summary_started = threading.Event()
+        summary_done = threading.Event()
+        summaries: list[str] = []
+        original_dump = locking_module.json.dump
+
+        def paused_dump(*args: object, **kwargs: object) -> None:
+            original_dump(*args, **kwargs)
+            json_written.set()
+            if not allow_publication.wait(timeout=5):
+                raise AssertionError("owner JSON publication rendezvous timed out")
+
+        def owner() -> None:
+            with resource_locks(self.workspace.paths.workspace, [request]):
+                owner_active.set()
+                if not release_owner.wait(timeout=5):
+                    raise AssertionError("owner release rendezvous timed out")
+
+        def summarize() -> None:
+            summary_started.set()
+            summaries.append(locking_module._lease_owner_summary(lock))
+            summary_done.set()
+
+        with mock.patch.object(locking_module.json, "dump", paused_dump):
+            owner_thread = threading.Thread(target=owner, daemon=True)
+            owner_thread.start()
+            self.assertTrue(json_written.wait(timeout=5))
+            summary_thread = threading.Thread(target=summarize, daemon=True)
+            summary_thread.start()
+            self.assertTrue(summary_started.wait(timeout=5))
+            self.assertFalse(summary_done.is_set())
+            allow_publication.set()
+            self.assertTrue(owner_active.wait(timeout=5))
+            self.assertTrue(summary_done.wait(timeout=5))
+            self.assertEqual(len(summaries), 1)
+            self.assertIn("publish complete review owner", summaries[0])
+            self.assertNotIn("owner metadata unavailable", summaries[0])
+            release_owner.set()
+            owner_thread.join(timeout=5)
+            summary_thread.join(timeout=5)
+            self.assertFalse(owner_thread.is_alive())
+            self.assertFalse(summary_thread.is_alive())
 
     def test_resource_owner_metadata_survives_inherited_child(self) -> None:
         request = LeaseRequest(

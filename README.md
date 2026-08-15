@@ -1204,10 +1204,12 @@ owning operation and supported recovery action; an authored record that changes
 during confirmation fails with a distinct retry diagnostic. Profile names,
 topology names, scenarios, states, build roots, and cache keys remain
 workspace-local.
-Each lease request publishes its locked owner record before main-lock admission,
-so a winner or queued waiter is always diagnosable. Publication and diagnostic
-reaping serialize on the owner directory; a failed publication removes its
-partial record before releasing admission.
+Each lease request publishes its locked `waiting` owner record before main-lock
+admission, then transitions it to `admitted` under owner-directory serialization.
+Diagnostics list admitted holders before queued waiters and cannot reap a
+partially published record. Failed publication removes its exact token; if the
+filesystem also refuses that cleanup, the operation fails closed and reports
+the retained token as cleanup uncertainty.
 Requests acquire that deterministic order. A writer queued for one coordinate
 precedes later readers of that coordinate, while unrelated resources continue:
 two builds on different worktrees of one repository overlap, and init/sync for

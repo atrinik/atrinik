@@ -291,10 +291,12 @@ the profile or scenario. A later source at the same path remains protected
 across relocated roots. Exact lease contention propagates its coordinate,
 operation, owner metadata and recovery action; a record that changes between
 read and confirmation fails separately and leaves the backfill marker absent.
-The requester publishes and locks that metadata before main-lock admission, so
-both an admitted holder and a queued waiter remain diagnosable. Owner-directory
-serialization prevents a diagnostic scan from reaping a partially published
-record, and publication failure unlinks its exact token before admission ends.
+The requester publishes and locks `waiting` metadata before main-lock admission,
+then transitions it to `admitted` under owner-directory serialization. Summaries
+prioritize admitted holders before queued waiters, even at the bounded record
+cap. The same serialization prevents a scan from reaping partial publication.
+A publication failure unlinks its exact token; simultaneous cleanup refusal is
+reported as fail-closed uncertainty naming the retained evidence.
 Because an inert scenario can retain a pre-migration checkout name, a common-Git
 physical-reference registry lease spans the complete one-time classification;
 worktree removal and cleanup take it exclusively, so they cannot reach an
