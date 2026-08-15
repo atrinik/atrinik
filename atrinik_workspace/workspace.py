@@ -2190,7 +2190,9 @@ class Workspace:
         try:
             value = load_regular_json(metadata, "immutable source generation")
         except WorkspaceError as error:
-            if isinstance(error.__cause__, (UnicodeError, ValueError, RecursionError)):
+            if isinstance(
+                error.__cause__, (UnicodeError, ValueError, RecursionError)
+            ) or str(error).startswith("duplicate JSON key:"):
                 raise _SourceGenerationCorrupt(
                     f"immutable source generation metadata is invalid: {metadata}"
                 ) from error
@@ -3288,6 +3290,9 @@ class Workspace:
                     ) or (opened.st_dev, opened.st_ino) != (
                         durable_device,
                         durable_inode,
+                    ) or opened.st_dev != os.fstat(container_fd).st_dev or (
+                        _descriptor_mount_id(staging_fd)
+                        != _descriptor_mount_id(container_fd)
                     ):
                         raise WorkspaceError(
                             "source generation changed before publication: "
@@ -3303,12 +3308,52 @@ class Workspace:
                             "source generation changed after durability: "
                             f"{staging}"
                         )
+                    confirmed = os.stat(
+                        staging.name,
+                        dir_fd=container_fd,
+                        follow_symlinks=False,
+                    )
+                    opened_after = os.fstat(staging_fd)
+                    stable_fields = (
+                        "st_dev",
+                        "st_ino",
+                        "st_mode",
+                        "st_nlink",
+                        "st_size",
+                        "st_mtime_ns",
+                        "st_ctime_ns",
+                    )
+                    if any(
+                        getattr(confirmed, field) != getattr(opened, field)
+                        or getattr(opened_after, field) != getattr(opened, field)
+                        for field in stable_fields
+                    ):
+                        raise WorkspaceError(
+                            "source generation changed before publication: "
+                            f"{staging}"
+                        )
                     rename_no_replace_at(
                         container_fd,
                         staging.name,
                         container_fd,
                         generation.name,
                     )
+                    published = os.stat(
+                        generation.name,
+                        dir_fd=container_fd,
+                        follow_symlinks=False,
+                    )
+                    publication_fields = tuple(
+                        field for field in stable_fields if field != "st_ctime_ns"
+                    )
+                    if any(
+                        getattr(published, field) != getattr(opened, field)
+                        for field in publication_fields
+                    ):
+                        raise AtomicJsonCommitUncertain(
+                            "immutable source generation publication identity is "
+                            f"uncertain: {generation}"
+                        )
                     try:
                         os.fsync(container_fd)
                     except OSError as error:
