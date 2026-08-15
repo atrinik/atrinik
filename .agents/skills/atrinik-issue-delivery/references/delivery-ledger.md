@@ -158,6 +158,11 @@ ledger authorizes that holder. Extra components, malformed selectors, invalid
 profile metadata, and every other uncertainty fail closed. Observation and
 binding never rewrite the historical profile.
 
+Delivery opens `profiles` as a direct no-follow child of the pinned workspace
+root, caps its inventory at 4096 entries, and reads candidate JSON relative to
+that descriptor. It retains and rechecks the same directory inode through CAS
+precommit; an initially absent directory must remain absent.
+
 On both primary and worktree checkouts, Git route proof anchors exactly one raw
 local `remote.origin.url` with includes disabled. After stripping dangerous
 selector `GIT_*` variables but retaining default user/system credential and

@@ -1117,7 +1117,12 @@ def _pinned_live_worktree(
             primary_authority.close()
         allowed = frozenset(allowed_references)
         with _workspace_safety_lease(
-            request, path, allowed, context, scope_record=scope_record
+            request,
+            path,
+            allowed,
+            context,
+            workspace_directory=descriptors["workspace"],
+            scope_record=scope_record,
         ) as authority_recheck:
             guard = _LiveWorktreeGuard(
                 request, path, descriptors, allowed, authority_recheck
@@ -1178,6 +1183,7 @@ def _workspace_safety_lease(
     allowed_references: frozenset[str],
     context: str,
     *,
+    workspace_directory: int,
     scope_record: Mapping[str, Any] | None = None,
 ) -> Iterator[Callable[[], None]]:
     """Use wrapper leases/reference logic to prove inactive, owned reuse."""
@@ -1186,6 +1192,7 @@ def _workspace_safety_lease(
     workspace_root = request["roots"]["workspace"]["path"]
     saved_environment = _enter_workspace_environment(workspace_root)
     workspace = None
+    profiles_directory = None
     try:
         module = _load_workspace_module(wrapper_root)
         workspace = module.Workspace(Path(wrapper_root), backfill_references=False)
@@ -1198,6 +1205,26 @@ def _workspace_safety_lease(
             or str(workspace.paths.workspace) != workspace_root
         ):
             raise LedgerError(f"{context} wrapper/workspace roots differ from live request")
+        profiles_path = Path(workspace_root) / "profiles"
+        try:
+            profiles_directory = _open_trusted_child_directory(
+                workspace_directory,
+                "profiles",
+                str(profiles_path),
+                f"{context} profiles root",
+            )
+            profiles_absent = False
+        except LedgerError:
+            try:
+                os.stat(
+                    "profiles",
+                    dir_fd=workspace_directory,
+                    follow_symlinks=False,
+                )
+            except FileNotFoundError:
+                profiles_absent = True
+            else:
+                raise
         wrapper_self = (
             request["component"] == "atrinik"
             and request["physical_checkout"] == "atrinik"
@@ -1273,9 +1300,34 @@ def _workspace_safety_lease(
             with locks:
                 def recheck() -> None:
                     try:
+                        if profiles_directory is None:
+                            try:
+                                os.stat(
+                                    "profiles",
+                                    dir_fd=workspace_directory,
+                                    follow_symlinks=False,
+                                )
+                            except FileNotFoundError:
+                                pass
+                            else:
+                                raise LedgerError(
+                                    f"{context} profiles root appeared during live proof"
+                                )
+                        else:
+                            _recheck_pinned_directory(
+                                profiles_directory,
+                                str(profiles_path),
+                                f"{context} profiles root",
+                            )
                         if scope_record is not None:
                             _verify_live_scope(workspace, scope_record, context)
-                        references = set(workspace._source_references(Path(path)))
+                        references = set(
+                            workspace._source_references(
+                                Path(path),
+                                profiles_directory_fd=profiles_directory,
+                                profiles_directory_absent=profiles_absent,
+                            )
+                        )
                         references.update(
                             _manual_scope_references(
                                 workspace_root, path, allowed_references
@@ -1286,6 +1338,12 @@ def _workspace_safety_lease(
                                 f"{context} worktree reference set differs: expected "
                                 f"{sorted(allowed_references)}, observed "
                                 f"{sorted(references)}"
+                            )
+                        if profiles_directory is not None:
+                            _recheck_pinned_directory(
+                                profiles_directory,
+                                str(profiles_path),
+                                f"{context} profiles root",
                             )
                     except LedgerError:
                         raise
@@ -1304,9 +1362,14 @@ def _workspace_safety_lease(
             ) from error
     finally:
         try:
-            workspace.close()
+            if workspace is not None:
+                workspace.close()
         finally:
-            _leave_workspace_environment(saved_environment)
+            try:
+                if profiles_directory is not None:
+                    os.close(profiles_directory)
+            finally:
+                _leave_workspace_environment(saved_environment)
 
 
 def _verify_live_scope(

@@ -126,6 +126,7 @@ from .sound import (
 
 
 PROFILE_SCHEMA_VERSION = 5
+PROFILE_INVENTORY_MAX_ENTRIES = 4096
 LEGACY_PROFILE_SCHEMA_VERSION = 4
 OLDEST_PROFILE_SCHEMA_VERSION = 3
 PROFILE_KEYS = {
@@ -5928,9 +5929,17 @@ class Workspace:
             for descriptor in reversed(descriptors):
                 os.close(descriptor)
 
-    def _source_references(self, source_root: Path) -> list[str]:
+    def _source_references(
+        self,
+        source_root: Path,
+        *,
+        profiles_directory_fd: int | None = None,
+        profiles_directory_absent: bool = False,
+    ) -> list[str]:
         """Return exact persisted references while the caller holds source exclusive."""
 
+        if profiles_directory_fd is not None and profiles_directory_absent:
+            raise WorkspaceError("profile inventory authority is ambiguous")
         target = source_root.resolve()
         references: list[str] = self._scope_source_references(target)
         for record in self._physical_reference_records():
@@ -5952,21 +5961,46 @@ class Workspace:
                 Path(source).resolve(strict=False) for source in record["sources"]
             }:
                 references.append(f"{record['kind'][:-1]}:{record['reference']}")
-        if self.paths.profiles.exists():
-            for path in sorted(self.paths.profiles.glob("*.json")):
-                profile = self._load_profile_file(
-                    path.stem,
-                    require_file=True,
-                    allow_incomplete_components=True,
-                )
-                stack = self.manifest.stack(profile["stack"])
-                roots = {
-                    self._selector_root(profile, component).resolve(strict=False)
-                    for component in stack.components
-                    if component.name in profile["components"]
-                }
-                if target in roots:
-                    references.append(f"profile:{profile['name']}")
+        if profiles_directory_fd is not None:
+            try:
+                entries: list[str] = []
+                with os.scandir(profiles_directory_fd) as iterator:
+                    for entry in iterator:
+                        if len(entries) == PROFILE_INVENTORY_MAX_ENTRIES:
+                            raise WorkspaceError(
+                                "profile reference inventory is oversized"
+                            )
+                        entries.append(entry.name)
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot enumerate profile references: {error}"
+                ) from error
+            profile_names = [
+                Path(name).stem for name in sorted(entries) if name.endswith(".json")
+            ]
+        elif profiles_directory_absent:
+            profile_names = []
+        elif self.paths.profiles.exists():
+            profile_names = [
+                path.stem for path in sorted(self.paths.profiles.glob("*.json"))
+            ]
+        else:
+            profile_names = []
+        for profile_name in profile_names:
+            profile = self._load_profile_file(
+                profile_name,
+                require_file=True,
+                allow_incomplete_components=True,
+                directory_fd=profiles_directory_fd,
+            )
+            stack = self.manifest.stack(profile["stack"])
+            roots = {
+                self._selector_root(profile, component).resolve(strict=False)
+                for component in stack.components
+                if component.name in profile["components"]
+            }
+            if target in roots:
+                references.append(f"profile:{profile['name']}")
         for container, record_name in (
             (self.paths.topologies, "topology"),
             (self.paths.scenarios, "scenario"),
@@ -7112,6 +7146,7 @@ class Workspace:
         require_file: bool,
         *,
         allow_incomplete_components: bool = False,
+        directory_fd: int | None = None,
     ) -> dict[str, Any]:
         validate_name(name, "profile name")
         if name in self.manifest.stacks and not require_file:
@@ -7127,10 +7162,18 @@ class Workspace:
                     for component in stack.components
                 },
             }
-        path = self.paths.profiles / f"{name}.json"
-        if path.is_symlink() or not path.is_file():
-            raise WorkspaceError(f"profile does not exist: {name}")
-        profile = load_regular_json(path, f"profile {name}")
+        if directory_fd is None:
+            path = self.paths.profiles / f"{name}.json"
+            if path.is_symlink() or not path.is_file():
+                raise WorkspaceError(f"profile does not exist: {name}")
+            profile = load_regular_json(path, f"profile {name}")
+        else:
+            try:
+                profile = load_regular_json_at(
+                    directory_fd, f"{name}.json", f"profile {name}"
+                )
+            except OSError as error:
+                raise WorkspaceError(f"profile does not exist: {name}") from error
         if not isinstance(profile, dict):
             raise WorkspaceError(f"profile must be an object: {name}")
         schema_version = profile.get("schema_version")

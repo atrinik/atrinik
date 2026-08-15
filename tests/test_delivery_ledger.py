@@ -6975,6 +6975,86 @@ class DeliveryLedgerTests(unittest.TestCase):
             )
         self.assertEqual(profile_path.read_bytes(), profile_before)
 
+    def test_40c_profile_root_symlink_and_bind_replacement_fail_closed(self) -> None:
+        claiming, _request, claiming_list, profile_path, profile_before = (
+            self._stale_profile_worktree_fixture(
+                "stale-root-symlink", claims_candidate=True
+            )
+        )
+        profiles = profile_path.parent
+        hidden = profiles.with_name("profiles-hidden")
+        empty = profiles.with_name("profiles-empty")
+        profiles.rename(hidden)
+        empty.mkdir()
+        profiles.symlink_to(empty, target_is_directory=True)
+        try:
+            with self.assertRaisesRegex(ledger.LedgerError, "profiles root"):
+                ledger.observe_primitive_worktree(
+                    claiming,
+                    "worktree",
+                    claiming_list,
+                    "2026-08-15T22:42:00Z",
+                )
+            self.assertEqual((hidden / profile_path.name).read_bytes(), profile_before)
+        finally:
+            profiles.unlink()
+            empty.rmdir()
+            hidden.rename(profiles)
+
+        document, _request, worktree_list, profile_path, profile_before = (
+            self._stale_profile_worktree_fixture(
+                "stale-root-replacement", claims_candidate=False
+            )
+        )
+        observation = ledger.observe_primitive_worktree(
+            document,
+            "worktree",
+            worktree_list,
+            "2026-08-15T22:43:00Z",
+        )
+        profiles = profile_path.parent
+        hidden = profiles.with_name("profiles-hidden")
+
+        with tempfile.TemporaryDirectory() as temporary:
+            review_root = Path(temporary)
+            initial = ledger.create(review_root, document)
+            before = directory_snapshot(review_root)
+
+            def replace_profiles(point: str) -> None:
+                if point == "cas:proofed":
+                    profiles.rename(hidden)
+                    profiles.mkdir()
+
+            try:
+                with self.assertRaisesRegex(ledger.LedgerError, "profiles root"):
+                    ledger.bind_worktree_cas(
+                        review_root,
+                        initial.name,
+                        "worktree",
+                        worktree_list,
+                        json_bytes(observation),
+                        failpoint=replace_profiles,
+                        **cas_arguments(initial),
+                    )
+                self.assertEqual(directory_snapshot(review_root), before)
+                self.assertEqual((hidden / profile_path.name).read_bytes(), profile_before)
+            finally:
+                if profiles.is_dir():
+                    profiles.rmdir()
+                if hidden.exists():
+                    hidden.rename(profiles)
+
+        for index in range(4096):
+            (profiles / f"ignored-{index:04d}").touch()
+        with self.assertRaisesRegex(ledger.LedgerError, "inventory is oversized"):
+            ledger.observe_primitive_worktree(
+                document,
+                "worktree",
+                worktree_list,
+                "2026-08-15T22:44:00Z",
+            )
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+
     def test_41_fresh_known_paths_and_report_coordinate_reservations_stop(self) -> None:
         for mode, candidate in (
             ("issue", issue_ledger()),
@@ -7561,7 +7641,7 @@ class DeliveryLedgerTests(unittest.TestCase):
         )
         active_override = (
             "Workspace._source_references = "
-            "lambda self, source: {'profile:changed-authority'}"
+            "lambda self, source, **kwargs: {'profile:changed-authority'}"
         )
         inactive_override = "#" + active_override[1:]
         self.assertEqual(len(inactive_override), len(active_override))
