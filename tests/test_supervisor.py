@@ -562,6 +562,26 @@ class ServerReadinessCaptureTests(unittest.TestCase):
         )
         close.assert_called_once_with(9)
 
+    def test_guardian_releases_retained_leases_before_tree_barrier(self) -> None:
+        with (
+            mock.patch.object(supervisor_module.os, "read", return_value=b""),
+            mock.patch.object(supervisor_module.os, "getpid", return_value=1234),
+            mock.patch.object(supervisor_module.os, "close") as close,
+            mock.patch.object(supervisor_module, "signal_holders"),
+            mock.patch.object(
+                supervisor_module, "holders_exist", return_value=False
+            ),
+            mock.patch.object(
+                supervisor_module.time, "monotonic", side_effect=[0, 11, 11, 14]
+            ),
+        ):
+            supervisor_module._guardian(10, 20, (30, None, 40))
+
+        self.assertEqual(
+            [call.args[0] for call in close.call_args_list],
+            [10, 30, 40, 20],
+        )
+
     def test_current_supervisor_orderly_stop_closes_exact_leases(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -620,6 +640,62 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 <= {call.args[0] for call in close.call_args_list}
             )
 
+    def test_guardian_startup_failure_preserves_tree_barrier_order(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            spec_path = root / "spec.json"
+            spec_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 3,
+                        "name": "guardian-failure",
+                        "profile": "classic",
+                        "dependencies": [],
+                        "state": str(root / "state"),
+                        "state_policy": {"mode": "named"},
+                        "build_root": "/tmp/build",
+                        "resolved": {},
+                        "endpoint": None,
+                        "runtime": {"generation": "a" * 64},
+                        "services": {},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with (
+                mock.patch.object(
+                    supervisor_module, "process_start_time", return_value="1"
+                ),
+                mock.patch.object(supervisor_module, "_validate_port_reservation"),
+                mock.patch.object(
+                    supervisor_module,
+                    "_start_guardian",
+                    side_effect=OSError("fork failed"),
+                ),
+                mock.patch.object(supervisor_module, "terminate"),
+                mock.patch.object(supervisor_module.os, "close") as close,
+            ):
+                self.assertEqual(
+                    supervise(
+                        spec_path,
+                        3,
+                        None,
+                        None,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                    ),
+                    1,
+                )
+
+            self.assertEqual(
+                [call.args[0] for call in close.call_args_list[-7:]],
+                [3, 5, 6, 7, 8, 9, 4],
+            )
+
     def test_server_launch_inherits_exact_state_descriptors(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -672,7 +748,7 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 mock.patch.object(supervisor_module, "_validate_port_reservation"),
                 mock.patch.object(supervisor_module, "_require_server_port_available"),
                 mock.patch.object(
-                    supervisor_module, "_start_guardian", return_value=(None, 99)
+                    supervisor_module, "_start_guardian", return_value=(4321, 99)
                 ) as guardian,
                 mock.patch.object(
                     supervisor_module, "_open_control", return_value=control
@@ -694,6 +770,11 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 mock.patch.object(supervisor_module.threading, "Thread"),
                 mock.patch.object(supervisor_module, "terminate", return_value=True),
                 mock.patch.object(supervisor_module.os, "close") as close,
+                mock.patch.object(
+                    supervisor_module.os,
+                    "waitpid",
+                    side_effect=ChildProcessError,
+                ) as waitpid,
             ):
                 self.assertEqual(
                     supervise(
@@ -712,9 +793,10 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 )
             self.assertEqual(popen.call_args.kwargs["pass_fds"], (4, 7, 8))
             guardian.assert_called_once_with(4, 5, 3, 6, 7, 8, 9)
-            self.assertTrue(
-                {3, 4, 5, 6, 7, 8, 9, 99}
-                <= {call.args[0] for call in close.call_args_list}
+            waitpid.assert_called_once_with(4321, 0)
+            self.assertEqual(
+                [call.args[0] for call in close.call_args_list[-8:]],
+                [3, 5, 6, 7, 8, 9, 4, 99],
             )
 
     def test_main_daemon_parent_returns_without_supervising(self) -> None:
@@ -755,6 +837,10 @@ class ServerReadinessCaptureTests(unittest.TestCase):
             self.assertEqual(supervisor_module.main(), 1)
 
     def test_main_closes_every_current_lease_after_startup_failure(self) -> None:
+        def close_descriptor(descriptor: int) -> None:
+            if descriptor == 6:
+                raise OSError("process-tree descriptor already closed")
+
         arguments = [
             "atrinik-supervisor",
             "--spec",
@@ -786,12 +872,15 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 side_effect=RuntimeError("invalid runtime"),
             ),
             mock.patch.object(supervisor_module, "atomic_status"),
-            mock.patch.object(supervisor_module.os, "close") as close,
+            mock.patch.object(
+                supervisor_module.os, "close", side_effect=close_descriptor
+            ) as close,
             mock.patch.object(sys, "stderr"),
         ):
             self.assertEqual(supervisor_module.main(), 1)
         self.assertEqual(
-            {call.args[0] for call in close.call_args_list}, set(range(3, 12))
+            [call.args[0] for call in close.call_args_list],
+            [3, 4, 5, 7, 8, 9, 10, 11, 6],
         )
 
 
