@@ -302,7 +302,9 @@ reaping partial publication. A publication failure unlinks its exact token;
 simultaneous cleanup refusal is reported as fail-closed uncertainty naming the
 retained evidence. Teardown unconditionally releases the main lease even when
 owner-metadata finalization fails, retaining and reporting metadata uncertainty
-for later diagnostic reaping.
+for later diagnostic reaping. If main-lease release itself cannot be confirmed,
+the owner record becomes durable `release-uncertain` recovery evidence and is
+not reaped as an ordinary stale owner.
 Because an inert scenario can retain a pre-migration checkout name, a common-Git
 physical-reference registry lease spans the complete one-time classification;
 worktree removal and cleanup take it exclusively, so they cannot reach an

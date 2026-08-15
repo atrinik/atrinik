@@ -11104,6 +11104,197 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(list(owners.iterdir()), [])
 
+    def test_resource_owner_release_unlink_failure_reports_uncertainty(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "retain failing review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        fail_release = threading.Event()
+        failure_injected = threading.Event()
+        original_unlink = locking_module.os.unlink
+
+        def failing_unlink(
+            path: object, *args: object, **kwargs: object
+        ) -> None:
+            if fail_release.is_set() and not failure_injected.is_set():
+                failure_injected.set()
+                raise OSError("injected owner metadata unlink failure")
+            original_unlink(path, *args, **kwargs)
+
+        with mock.patch.object(locking_module.os, "unlink", failing_unlink):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "main lease released.*cannot remove owner metadata",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    fail_release.set()
+
+        self.assertTrue(failure_injected.is_set())
+        retained = list(owners.iterdir())
+        self.assertEqual(len(retained), 1)
+        self.assertIn("admitted", retained[0].read_text(encoding="utf-8"))
+        with resource_locks(
+            self.workspace.paths.workspace, [request], nonblocking=True
+        ):
+            pass
+        self.assertEqual(
+            locking_module._lease_owner_summary(lock),
+            "owner metadata unavailable",
+        )
+        self.assertEqual(list(owners.iterdir()), [])
+
+    def test_resource_owner_close_failure_does_not_retry_stale_descriptor(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "close failing review owner",
+            "wait for review",
+        )
+        original_fdopen = locking_module.os.fdopen
+        original_close = locking_module.os.close
+        owner_descriptor: list[int] = []
+        wrapped_owner = False
+
+        class CloseAfterClosing:
+            def __init__(self, stream: object) -> None:
+                self.stream = stream
+
+            def fileno(self) -> int:
+                return self.stream.fileno()
+
+            def close(self) -> None:
+                descriptor = self.stream.fileno()
+                owner_descriptor.append(descriptor)
+                self.stream.close()
+                raise OSError("injected owner lease close failure")
+
+        def failing_fdopen(
+            descriptor: int, mode: str = "r", *args: object, **kwargs: object
+        ) -> object:
+            nonlocal wrapped_owner
+            stream = original_fdopen(descriptor, mode, *args, **kwargs)
+            if mode == "a+" and not wrapped_owner:
+                wrapped_owner = True
+                return CloseAfterClosing(stream)
+            return stream
+
+        def observed_close(descriptor: int) -> None:
+            if owner_descriptor and descriptor == owner_descriptor[0]:
+                raise AssertionError("retried a possibly stale descriptor")
+            original_close(descriptor)
+
+        with (
+            mock.patch.object(locking_module.os, "fdopen", failing_fdopen),
+            mock.patch.object(locking_module.os, "close", observed_close),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "main lease released.*cannot close owner lease",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    pass
+
+        self.assertEqual(len(owner_descriptor), 1)
+        with resource_locks(
+            self.workspace.paths.workspace, [request], nonblocking=True
+        ):
+            pass
+
+    def test_resource_owner_double_teardown_failure_retains_evidence(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "uncertain review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        original_owner = locking_module._resource_owner
+        original_fdopen = locking_module.os.fdopen
+        actual_releases: list[Callable[[], None]] = []
+        wrapped_owner = False
+
+        class CloseAfterClosing:
+            def __init__(self, stream: object) -> None:
+                self.stream = stream
+
+            def fileno(self) -> int:
+                return self.stream.fileno()
+
+            def close(self) -> None:
+                self.stream.close()
+                raise OSError("injected owner lease close failure")
+
+        def failing_fdopen(
+            descriptor: int, mode: str = "r", *args: object, **kwargs: object
+        ) -> object:
+            nonlocal wrapped_owner
+            stream = original_fdopen(descriptor, mode, *args, **kwargs)
+            if mode == "a+" and not wrapped_owner:
+                wrapped_owner = True
+                return CloseAfterClosing(stream)
+            return stream
+
+        @contextmanager
+        def uncertain_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def uncertain_bind(release: Callable[[], None]) -> None:
+                    actual_releases.append(release)
+
+                    def fail_release() -> None:
+                        raise OSError("injected main lease release failure")
+
+                    bind_release(fail_release)
+
+                yield admit, uncertain_bind
+
+        with (
+            mock.patch.object(locking_module, "_resource_owner", uncertain_owner),
+            mock.patch.object(locking_module.os, "fdopen", failing_fdopen),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "release uncertain.*cannot close owner lease",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    pass
+
+        self.assertEqual(len(actual_releases), 1)
+        retained = list(owners.iterdir())
+        self.assertEqual(len(retained), 1)
+        self.assertIn(
+            '"phase": "release-uncertain"',
+            retained[0].read_text(encoding="utf-8"),
+        )
+        summary = locking_module._lease_owner_summary(lock)
+        self.assertIn("release uncertain exclusive", summary)
+        self.assertIn("uncertain review owner", summary)
+        self.assertEqual(list(owners.iterdir()), retained)
+
+        actual_releases[0]()
+        with resource_locks(
+            self.workspace.paths.workspace, [request], nonblocking=True
+        ):
+            pass
+        self.assertEqual(list(owners.iterdir()), retained)
+
     def test_resource_owner_publication_reports_cleanup_uncertainty(
         self,
     ) -> None:
@@ -11210,10 +11401,11 @@ class WorkspaceTests(unittest.TestCase):
             ),
         ):
             with self.assertRaisesRegex(
-                WorkspaceError, "cannot remove partial owner metadata"
-            ):
+                WorkspaceError, "cannot remove (?:partial )?owner metadata"
+            ) as raised:
                 with resource_locks(self.workspace.paths.workspace, [request]):
                     self.fail("uncertain admission transition acquired lease")
+        self.assertIn("main lease released", str(raised.exception))
 
         self.assertEqual(len(list(owners.iterdir())), 1)
         self.assertEqual(

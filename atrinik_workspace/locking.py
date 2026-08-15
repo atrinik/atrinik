@@ -230,6 +230,7 @@ def _lease_owner_summary(
     descriptions: list[tuple[int, str, str]] = []
     for metadata_name in paths:
         descriptor: int | None = None
+        reapable = False
         try:
             flags = os.O_RDWR | os.O_CLOEXEC
             if hasattr(os, "O_NOFOLLOW"):
@@ -254,32 +255,46 @@ def _lease_owner_summary(
             except BlockingIOError:
                 pass
             else:
-                os.close(descriptor)
-                descriptor = None
-                os.unlink(metadata_name, dir_fd=owners_descriptor)
-                continue
+                reapable = True
             with os.fdopen(descriptor, encoding="utf-8") as stream:
                 descriptor = None
                 value = json.load(stream)
         except (OSError, UnicodeError, json.JSONDecodeError):
+            if reapable:
+                try:
+                    os.unlink(metadata_name, dir_fd=owners_descriptor)
+                except OSError:
+                    pass
             continue
         finally:
             if descriptor is not None:
                 os.close(descriptor)
         if not isinstance(value, dict):
+            if reapable:
+                os.unlink(metadata_name, dir_fd=owners_descriptor)
             continue
         operation = value.get("operation")
         owner = value.get("owner")
         mode = value.get("mode")
         phase = value.get("phase", "admitted")
-        if (
+        valid_owner = (
             all(isinstance(item, str) and item for item in (operation, owner, mode))
-            and phase in {"waiting", "admitted"}
-        ):
-            prefix = "" if phase == "admitted" else "waiting "
+            and phase in {"waiting", "admitted", "release-uncertain"}
+        )
+        if reapable and (not valid_owner or phase != "release-uncertain"):
+            os.unlink(metadata_name, dir_fd=owners_descriptor)
+            continue
+        if valid_owner:
+            prefix = (
+                ""
+                if phase == "admitted"
+                else f"{phase.replace('-', ' ')} "
+            )
             descriptions.append(
                 (
-                    0 if phase == "admitted" else 1,
+                    -1 if phase == "release-uncertain" else (
+                        0 if phase == "admitted" else 1
+                    ),
                     metadata_name,
                     f"{prefix}{mode} {operation} by {owner}",
                 )
@@ -806,17 +821,10 @@ def _resource_owner(
             inherit_stack.close()
         except BaseException as error:
             teardown_errors.append(("cannot close inherited owner lease", error))
-        owner_lease_descriptor = owner_lease.fileno()
         try:
             owner_lease.close()
         except BaseException as error:
             teardown_errors.append(("cannot close owner lease", error))
-            try:
-                os.close(owner_lease_descriptor)
-            except OSError as close_error:
-                teardown_errors.append(
-                    ("cannot force-close owner lease", close_error)
-                )
         owner_directory_locked = False
         try:
             fcntl.flock(owner_descriptor, fcntl.LOCK_EX)
@@ -829,13 +837,28 @@ def _resource_owner(
                 release_main_lock()
             except BaseException as error:
                 release_error = error
+        if release_error is not None and owner_directory_locked:
+            try:
+                value["phase"] = "release-uncertain"
+                os.lseek(descriptor, 0, os.SEEK_SET)
+                os.ftruncate(descriptor, 0)
+                with os.fdopen(
+                    descriptor, "w+", encoding="utf-8", closefd=False
+                ) as stream:
+                    json.dump(value, stream, sort_keys=True)
+                    stream.write("\n")
+                    stream.flush()
+            except (OSError, UnicodeError, TypeError, ValueError) as error:
+                teardown_errors.append(
+                    ("cannot publish release-uncertain owner metadata", error)
+                )
         try:
             os.close(descriptor)
         except OSError as error:
             teardown_errors.append(("cannot close owner metadata", error))
         cleanup_descriptor: int | None = None
         try:
-            if owner_directory_locked:
+            if owner_directory_locked and release_error is None:
                 cleanup_flags = os.O_RDWR | os.O_CLOEXEC
                 if hasattr(os, "O_NOFOLLOW"):
                     cleanup_flags |= os.O_NOFOLLOW
@@ -848,17 +871,27 @@ def _resource_owner(
                     cleanup_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
                 )
                 os.unlink(metadata_path.name, dir_fd=owner_descriptor)
-        except (FileNotFoundError, BlockingIOError, OSError):
+        except (FileNotFoundError, BlockingIOError):
             # An inherited descriptor deliberately keeps the owner record live;
             # a later diagnostic scan reaps it after the child exits.
             pass
+        except OSError as error:
+            teardown_errors.append(("cannot remove owner metadata", error))
         finally:
             if cleanup_descriptor is not None:
                 os.close(cleanup_descriptor)
             os.close(owner_descriptor)
             os.close(parent_descriptor)
         if release_error is not None:
-            raise release_error
+            detail = "; ".join(
+                f"{label}: {error}" for label, error in teardown_errors
+            )
+            suffix = f"; {detail}" if detail else ""
+            raise WorkspaceError(
+                f"cannot confirm main resource lease release for "
+                f"{metadata_path}; retained owner metadata is "
+                f"release uncertain: {release_error}{suffix}"
+            ) from release_error
         if teardown_errors:
             detail = "; ".join(
                 f"{label}: {error}" for label, error in teardown_errors

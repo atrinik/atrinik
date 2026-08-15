@@ -1215,7 +1215,8 @@ removes its exact token; if the filesystem also refuses that cleanup, the
 operation fails closed and reports the retained token as cleanup uncertainty.
 Teardown always releases the main lease even when owner-metadata finalization
 fails, while reporting retained metadata uncertainty for later diagnostic
-reaping.
+reaping. If main-lease release itself cannot be confirmed, the owner record is
+durably marked `release-uncertain` and retained as explicit recovery evidence.
 Requests acquire that deterministic order. A writer queued for one coordinate
 precedes later readers of that coordinate, while unrelated resources continue:
 two builds on different worktrees of one repository overlap, and init/sync for
