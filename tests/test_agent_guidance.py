@@ -725,6 +725,7 @@ class AgentGuidanceTests(unittest.TestCase):
                 "SKILL.md",
                 "agents/openai.yaml",
                 "assets/program-delivery-report.md",
+                "references/master-publication-ledger.md",
                 "references/program-review-checklist.md",
             },
         )
@@ -755,17 +756,17 @@ class AgentGuidanceTests(unittest.TestCase):
             "After an exact leaf ledger records program authority",
             "create issue-mode draft PRs",
             "update only ledger-bound PRs",
-            "Keep proposed missing children and incidental issues read-only",
-            "do not create or link children",
-            "publish issue or master comments without a program-level ledger",
+            "missing child create/link through the ignored machine-readable program ledger",
+            "Keep incidental issues read-only",
+            "do not publish issue or master comments or create/link children without a program-level ledger",
         }:
             with self.subTest(interface_boundary=interface_boundary):
                 self.assertIn(interface_boundary, interface)
         for boundary in {
             "Do not infer merge authority",
             "Do not merge or close anything",
-            "Only when explicitly requested",
-            "Never create a nested/per-leaf goal",
+            "If and only if the user explicitly requested",
+            "Never create a nested or per-leaf goal",
             "A merge-ready leaf is progress, not goal completion",
             "Do not mark a draft ready until both its leaf review",
             "query GitHub rather than trusting the reported action",
@@ -843,19 +844,131 @@ class AgentGuidanceTests(unittest.TestCase):
             "Before claiming the master or a leaf",
             "hold its final check/readiness transition until step 5",
             "After both leaf and cumulative reviews converge",
-            "Do not create/update a program master comment",
+            "Publish the master summary only through the master ledger's bound comment",
             "suffix SHAs in the ignored report/final handoff",
         }:
             self.assertIn(boundary, normalized_body)
         claim_gate = normalized_body.index("first ready leaf sidecar")
         self.assertLess(claim_gate, normalized_body.index("Then claim idempotently"))
         leaf_review = normalized_body.index("leaf whole-diff convergence")
-        cumulative_review = normalized_body.index("Review the cumulative program state")
+        cumulative_review = normalized_body.index("review the cumulative program state")
         readiness = normalized_body.index(
             "run issue delivery's latest-head/check/readiness section completely"
         )
         self.assertLess(leaf_review, cumulative_review)
         self.assertLess(cumulative_review, readiness)
+
+    def test_program_master_publication_ledger_is_fail_closed(self) -> None:
+        skill = ROOT / ".agents/skills/atrinik-program-delivery"
+        body = " ".join(
+            (skill / "SKILL.md").read_text(encoding="utf-8").split()
+        )
+        ledger = " ".join(
+            (skill / "references/master-publication-ledger.md")
+            .read_text(encoding="utf-8")
+            .split()
+        )
+        report = (skill / "assets/program-delivery-report.md").read_text(
+            encoding="utf-8"
+        )
+        checklist = " ".join(
+            (skill / "references/program-review-checklist.md")
+            .read_text(encoding="utf-8")
+            .split()
+        )
+        interface = " ".join(
+            (skill / "agents/openai.yaml").read_text(encoding="utf-8").split()
+        )
+
+        for marker in {
+            "<coordinate-sha256>.ledger.json",
+            "GitHub linkage, marker text, the report, a leaf ledger",
+            "Never adopt live text, an issue, a relationship, or a marker",
+            "<coordinate-sha256>.publication.lock",
+            "goal-specific locks are forbidden",
+            "Path replacement stops the writer",
+            "lock on the replaceable JSON inode is invalid",
+            "schema_version: 1",
+            "goal_thread_id",
+            "exact UTF-8 objective returned by the goal API",
+            "contiguous integers from 1",
+            "ordinary leaf progress does not rekey it",
+            "next_ordered_graph: null | [graph_entry]",
+            "json.dumps(value, ensure_ascii=False",
+            "<!-- atrinik-program-delivery:v1 sha256=<64 lowercase hex> -->",
+            "final line of `intended_body`",
+            "record its fstat device/inode as `self`",
+            "at most 100 pages",
+            "16 MiB total body bytes",
+            "incomplete pagination and stops",
+            "two consecutive complete scans",
+            "newly visible exact result",
+            "## Ordered-graph same-node rekey",
+            "Graph changes never create a new comment",
+            "`next_authority`/`next_ordered_graph`",
+            "interruption must never permit POST",
+            "one proposed missing-child publication",
+            "zero occurrences of the",
+            "## Missing-child creation and native linking",
+            "never create again",
+            "never link again",
+            "ProgramLedgerModelTests",
+            "GitHub exposes no relationship node ID",
+            "atrinik-program-child",
+            "proposal's recorded position",
+            "pre_call_issue_node_ids",
+            "pre_call_subissue_node_ids",
+            "never accept a caller-supplied digest label",
+        }:
+            with self.subTest(marker=marker):
+                self.assertIn(marker, ledger)
+
+        self.assertIn("references/master-publication-ledger.md", body)
+        self.assertIn("before master-comment or missing-child mutation", body)
+        self.assertLess(
+            ledger.index("persist `planned` with exact intended body"),
+            ledger.index("persist `in-flight` before the first POST"),
+        )
+        self.assertLess(
+            ledger.index("persist `in-flight` before the first POST"),
+            ledger.index("Call once"),
+        )
+        for marker in {
+            "## Machine ledger mirror (evidence only)",
+            "Canonical ledger path:",
+            "Repository/master coordinate SHA-256:",
+            "Goal authority / exact objective SHA-256:",
+            "Remote comment node ID:",
+            "## Leaf ledger composition",
+            "Final master-comment generation / node / body digests:",
+            "never authorizes publication",
+            "Stable lock path / device / inode:",
+            "Current / next authority and graph-rekey phase:",
+            "Child create phase / intent digest / issue number / node / URL:",
+            "Native link phase / intent digest / parent-child proof digest:",
+        }:
+            self.assertIn(marker, report)
+        for marker in {
+            "Master publication recovery",
+            "generation/digest/inode CAS",
+            "complete bounded comment pagination",
+            "accepted-but-not-yet-visible result",
+            "ledger/report loss",
+            "without live GitHub mutation",
+            "cannot authorize or recover a write",
+            "stable non-replaced lock file",
+            "ordered-graph same-node rekeying",
+            "summaries remain local",
+            "separate create/link state slots",
+        }:
+            self.assertIn(marker, checklist)
+        self.assertIn("machine-readable program ledger", interface)
+        self.assertIn(
+            "Without durable goal authority, keep summaries and proposed children local",
+            body,
+        )
+        self.assertIn("create no master ledger, master comment, child, or link", body)
+        self.assertIn("Publish the master summary only through", body)
 
     def test_removed_stale_routes_do_not_return(self) -> None:
         paths = [ROOT / "AGENTS.md"]
