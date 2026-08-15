@@ -735,12 +735,9 @@ def supervise(
                     control_path.unlink()
             except FileNotFoundError:
                 pass
-        # On orderly shutdown leave the guardian as the sole lease holder
-        # before telling it to perform its final exact-holder sweep. On a
-        # crash the kernel closes these descriptors before pipe EOF instead.
-        if process_tree_fd is not None:
-            os.close(process_tree_fd)
-            process_tree_fd = None
+        # Release resource leases before the process-tree publication barrier.
+        # When startup reached the guardian, its duplicate descriptors keep the
+        # topology protected until pipe EOF triggers the same ordered release.
         if lock_fd is not None:
             os.close(lock_fd)
         if layout_lock_fd is not None:
@@ -757,6 +754,9 @@ def supervise(
             os.close(state_output_fd)
         if physical_state_lock_fd is not None:
             os.close(physical_state_lock_fd)
+        if process_tree_fd is not None:
+            os.close(process_tree_fd)
+            process_tree_fd = None
         if guardian_write_fd is not None:
             os.close(guardian_write_fd)
         if guardian_pid is not None:
@@ -821,11 +821,6 @@ def main() -> int:
                 os.close(options.build_lock_fd)
             except OSError:
                 pass
-        if options.process_tree_fd is not None:
-            try:
-                os.close(options.process_tree_fd)
-            except OSError:
-                pass
         if options.port_reservation_fd is not None:
             try:
                 os.close(options.port_reservation_fd)
@@ -849,6 +844,11 @@ def main() -> int:
         if options.physical_state_lock_fd is not None:
             try:
                 os.close(options.physical_state_lock_fd)
+            except OSError:
+                pass
+        if options.process_tree_fd is not None:
+            try:
+                os.close(options.process_tree_fd)
             except OSError:
                 pass
         return 1
